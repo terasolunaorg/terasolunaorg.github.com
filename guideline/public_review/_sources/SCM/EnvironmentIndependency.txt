@@ -1,0 +1,86 @@
+========================
+Environment Independency
+========================
+Webアプリケーションの開発プロジェクトでは、必ず環境依存性の問題が発生する。
+
+もしも、datasource.xml ファイルに jdbcurl=hdbc:mysql:127.0.0.1...
+と書いて、あるいはもしも、logback.xml ファイルに level="DEBUG" と書いて、
+それらすべてがwarファイルに同梱されてしまったら、
+そのWebアプリケーションは、あなたのローカルPCでしか正常に作動せず、試験用サーバにはリリースできない。
+
+過去、意外と多くの開発プロジェクトが、この単純な問題を軽視していた。
+そして結合テストの直前になってから、開発したWebアプリケーションを試験用サーバで作動させることが難しいことに気づき、
+問題の解決のために膨大な時間を費やすことになった。
+
+この章では、環境依存性の問題を解決するための原則と具体的な方法を解説する。
+
+------
+target
+------
+あなたのチームがこれから開発する全てのソースコード、あるいはそのバイナリは、
+以下のすべてのシチュエーションでシームレスに動作可能でなければならない。
+
+* 全ての開発者のPCのIDE(eclipse)上で設定されたAPサーバ上でのアプリケーションの実行
+* 全ての開発者のPCのIDE上のJUnitプラグインによるテストの実行
+* 全ての開発者のPC上のビルドツール（maven/ant）によるテストの実行
+* CIサーバ上でのテストの実行
+* CIサーバ上でのパッケージング（jar/warファイルの生成）
+* 試験サーバ上でのアプリケーションの実行
+* 本番サーバ上でのアプリケーションの実行
+
+---------
+principle
+---------
+前述の目的を実現するために、原則として下記のようなプロジェクト構造とする。
+
+1. 必ずマルチプロジェクト構成にする。
+ * ex. terasoluna-tourreservation and terasoluna-tourereservation-env
+2. 一つのプロジェクトに環境依存性のある設定ファイル（ex. logback.xml, jdbc.properties）をできるだけ集約する。 **以降、このプロジェクトを \*-env と表現する。**
+ * ex. terasoluna-shopping-env, terasoluna-tourreservation-env
+3. \*-env以外のプロジェクトには環境依存性のある設定値を一切持たせない。
+ * もちろん、src/test/resources 配下などにテスト用の環境依存性設定ファイルを格納しておくことは許可される。
+4. 全てのソフトウェアのパッケージ済みバイナリをパッケージリポジトリ上に保管して管理する。
+ * \*.jarファイルだけではなく\*.warファイルも成果物としてパッケージリポジトリにデプロイする。したがって、それらのjar/warファイルには環境依存性が含まれていてはならない。
+5. \*-env プロジェクトは下記のような構造にする。
+ * 開発者のPC上での作業に必要な設定値をデフォルトとして src/main/resources 配下のファイルに格納する。
+ * 試験サーバ、本番サーバ等、環境毎に異なる設定ファイルを src/main/resources 以外(ex. configs/test-server)のフォルダに格納し、mavenのprofile機能を使って環境毎に自動的に設定値を差し替えながら \*-env-x.y.z.jarファイルをビルドする。
+
+上記のような構造を取ることにより、ソフトウェアライフサイクルの全ての場面において、適切に開発をすることができるようになる。
+
+#. ローカル開発環境では、プロジェクト本体と\*-envプロジェクトの両方をチェックアウトし、envプロジェクトを本体プロジェクトのビルドパスに含めることによって、ローカル開発環境でのコーディングとテストを可能にする。
+#. CIサーバ上ではビルドツール(maven)によるテストの実行とパッケージングを行い、必要に応じてパッケージリポジトリにartifactをdeployする。
+#. 試験サーバ、本番サーバでは、パッケージリポジトリにあらかじめ保管しているプロジェクト本体に、リリース先環境にあわせてビルドした\*-envプロジェクトを追加してリリースすることにより、アプリケーションの動作が可能になる。
+
+詳細についてはサンプルアプリケーションの terasoluna-tourreservation-env や terasoluna-shopping-env を参考のこと。
+
+----------------
+Deploy to Tomcat
+----------------
+WebアプリケーションをTomcat上にリリースする場合は次のような手順をとる。 
+
+1. リリース対象のAPサーバ環境にあわせてmavenのprofileを指定し、 \*-env プロジェクトを ビルドする。
+2. 上記でビルドした\*-env-x.y.z.jarファイル をあらかじめ決定したAPサーバ上のフォルダに設置する。 ex. /etc/foo/bar/abcd-env-x.y.z.jar
+3. あらかじめパッケージリポジトリにデプロイ済みの\*.warファイルを [CATALINA_HOME]/webapps 配下で解凍(unjar)する。
+4. Tomcatの VirtualWebappLoader 機能を使って、 /etc/foo/bar/\*.jar をクラスパスに追加する。
+ * [CATALINA_HOME]/conf/[contextPath].xml ファイルに上記の設定を記述すればよい。
+ * 詳しくは terasoluna-shopping-envサンプルのconfigsフォルダと、 http://tomcat.apache.org/tomcat-7.0-doc/api/org/apache/catalina/loader/VirtualWebappLoader.html を参考のこと。
+ * なお、VirtualWebappLoaderはTomcat6.xでも使用可能。
+
+.. note::
+ * [CATALINA_HOME]/conf/server.xml の Host タグ上の autoDeploy 属性を false にセットしておかなければならない。さもないとwebアプリケーションの再起動のたびに[CATALINA_HOME]/conf/[contextPath].xmlが自動的に削除されてしまう。
+ * autoDeployを無効化している場合、[CATALINA_HOME]/webappsにwarファイルを置くだけではWebアプリケーションは起動しない。必ずwarファイルをunjar(unzip)すること。
+
+----------------------------------
+Deploy to other application server
+----------------------------------
+TomcatのVirtualWebappLoaderのように、Webアプリケーションごとにクラスパスを追加する手段が提供されていない
+アプリケーションサーバ（例： Resin,Websphere,Weblogic）にリリースする場合には、
+\*-env-x.y.z.jarファイルをwarファイル内の WEB-INF/lib 配下に追加してからリリースする方法が最も簡単である。
+
+1. リリース対象のAPサーバ環境にあわせてmavenのprofileを指定し、 \*-env プロジェクトを ビルドする。
+2. あらかじめパッケージリポジトリにデプロイ済みの\*.warファイルを 作業ディレクトリにコピーする。
+3. 下のように、ｊａｒコマンドの追加オプションを利用して、warファイル内の WEB-INF/lib の配下に追加する。
+4. foo-x.y.z.warをAPサーバにリリースする。
+
+デプロイ方法の詳細については :doc:`ContinuousDelivery` を参照のこと。
+
