@@ -443,7 +443,7 @@ Unit Test
 
 
 | ミリ秒単位で時刻が一致するようにするため、mockを使用する。dateFactoryに値を設定し、固定日付を返却する例を下記に示す。
-| 本例では、mockに\`mockito <https://code.google.com/p/mockito/>\` を使用する。
+| 本例では、mockに\ `mockito <https://code.google.com/p/mockito/>`_\ を使用する。
 
 **Javaクラス**
 

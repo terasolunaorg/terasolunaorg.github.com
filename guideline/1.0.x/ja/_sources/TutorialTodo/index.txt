@@ -543,7 +543,7 @@ WEB-INFフォルダは「New」->「Folder」で新規作成すること。
        | Spring MVCで使用するBean定義ファイルのパスをclasspath直下のMETA-INF/spring/spring-mvc.xmlとする。
        | ここで作成される ``ApplicationContext`` は(2)で作成される ``ApplicatnionContext`` の子となる。
    * - | (5)
-     - | JSP共通でincludeするJSPの定義。任意のJSP(*.jsp)に対して、/WEB-INF/views/common/include.jspをincludeする。
+     - | JSP共通でincludeするJSPの定義。任意のJSP(\*.jsp)に対して、/WEB-INF/views/common/include.jspをincludeする。
 
 
 .. figure:: ./images/image013.png
@@ -721,7 +721,8 @@ META-INF/spring直下において、「New」->「Spring Bean Configuration File
      - | 次に説明する、インフラストラクチャ層に関するBean定義ファイルをimportする。
    * - | (2)
      - | ドメイン層のクラスを管理するtodo.domainパッケージ配下をcomponent-scan対象とする。
-       | これにより、todo.domainパッケージ配下のクラスに ``@Repository`` , ``@Service`` , ``@Controller``, ``@Component`` などのアノテーションを付けることで、DI対象にできる。
+       | これにより、todo.domainパッケージ配下のクラスに ``@Repository`` , ``@Service`` , ``@Component`` などのアノテーションを付けることで、Spring Framerowkが管理するBeanとして登録される。
+       | 登録されたクラス(Bean)は、ControllerやServiceクラスにDIする事で、利用する事が出来る。
 
 .. figure:: ./images/image024.png
    :width: 40%
@@ -1092,10 +1093,13 @@ Todoアプリケーションの作成
 | Todoアプリケーションを作成する。作成する順は、以下の通りである。
 
 * ドメイン層(+ インフラストラクチャ層)
+
  * Domain Object作成
  * Repository作成
  * Service作成
+
 * アプリケーション層
+
  * Controller作成
  * Form作成
  * View作成
@@ -1247,9 +1251,9 @@ FQCNは、todo.domain.repository.todo.TodoRepositoryとする。
 
 .. figure:: ./images/image061.png
    :width: 40%
-\
- .. note::
-  ここで、TodoRepositoryの汎用性を上げるため、「完了済み件数の取得」ではなく、「完了状態がxである件数」を取得するメソッドとして定義した。
+
+.. note::
+   ここで、TodoRepositoryの汎用性を上げるため、「完了済み件数の取得」ではなく、「完了状態がxである件数」を取得するメソッドとして定義した。
 
 RepositoryImplの作成(インフラストラクチャ層)
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
@@ -1323,8 +1327,8 @@ Repositoryは、業務ルールを含まないので、保存先(この場合は
 
 .. figure:: ./images/image062.png
    :width: 40%
-\
- .. note::
+
+.. note::
 
   完全に層別パッケージを分けるのであれば、インフラストラクチャ層のクラスは、todo.infrastructure以下に作成した方が良い。
 
@@ -1496,8 +1500,8 @@ FQCNは、todo.domain.serivce.todo.TodoServiceとする。
      - | 業務エラーが発生した場合、共通ライブラリで用意されているorg.terasoluna.gfw.common.exception.BusinessExceptionをスローする。
    * - | (8)
      - | 一意性のある値を生成するために、UUIDを使用している。DBのシーケンスを用いてもよい。
-\
- .. note::
+
+.. note::
 
   本節では、説明を単純化するため、エラーメッセージをハードコードしているが、メンテナンスの観点で本来は好ましくない。
   通常、メッセージは、プロパティファイルに外部化することが推奨される。
@@ -1830,7 +1834,7 @@ TodoControllerに、createメソッドを追加する。
    * - | (10)
      - | フォームの入力チェックを行うため、Formの引数に\ ``@Valid``\ アノテーションをつける。入力チェック結果は、その直後の引数BindingResultに格納される。
    * - | (11)
-     - | 正常に作成が完了した後、リダイレクトで一覧画面に戻る。リダイレクト先への情報を格納するために、引数にRedirectAttributesを加える。
+     - | 正常に作成が完了した後、リダイレクトし、一覧画面を表示する。リダイレクト先への情報を格納するために、引数にRedirectAttributesを加える。
    * - | (12)
      - | 入力エラーがあった場合、一覧画面に戻る。Todo全件取得を再度行う必要があるので、listメソッドを再実行する。
    * - | (13)
@@ -2334,8 +2338,8 @@ Controllerの修正
      - | 業務処理を実行して、BusinessExceptionが発生した場合は、結果メッセージをModelに追加して、一覧画面に戻る。
    * - | (21)
      - | 正常に作成が完了したので、結果メッセージをflashスコープに追加して、一覧画面でリダイレクトする。
-\
- .. note::
+
+.. note::
 
   Create用、Finish用に、別々のFormを作成しても良い。その場合は、必要なパラメータだけが、Formのプロパティになる。
   ただし、クラス数が増え、プロパティも重複することが多いので、仕様変更が発生した場合に、修正コストが高くなる。
@@ -3072,8 +3076,8 @@ todo-env.xmlの修正
    * - | (6)
      - | トランザクションマネージャの設定。idは、transactionManagerにすること。
        | 別の名前を指定する場合は、todo-domain.xmlの<tx:annotation-driven>タグと、todo-infra.xmlの<jpa:repository>タグにもトランザクションマネージャ名を指定する必要がある。
-\
- .. note::
+
+.. note::
     JavaEEコンテナ上で、トランザクションマネージャは、JtaTransactionManagerを使用したほうがよい。この場合、<tx:jta-transaction-manager />でトランザクションマネージャの定義を行う。
 
     これらの設定が、環境によって変わらないプロジェクト(例えば、Tomcatを使用する場合など)は、todo-infra.xmlに定義してもよい。
@@ -3318,7 +3322,19 @@ TodoRepositoryImplの修正
 | TodoRepositoryImplは、不要であるため、削除する。
 
 | 以上で、Spring Data JPAを使う対応が完了した。
-| APサーバーを起動し、Todoの表示や、新規作成を行うと、以下のようなSQLログや、トランザクションログが出力される。
+| APサーバーを起動し、Todoの表示を行うと、以下のようなSQLログや、トランザクションログが出力される。
+
+.. code-block:: guess
+   :emphasize-lines: 2-6
+
+    2014-03-27 11:31:13 [tomcat-http--50] [TRACE] [o.t.gfw.web.logging.TraceLoggingInterceptor     ] - [START CONTROLLER] TodoController.list(Model)
+    2014-03-27 11:31:13 [tomcat-http--50] [DEBUG] [o.h.e.transaction.spi.AbstractTransactionImpl   ] - begin
+    2014-03-27 11:31:13 [tomcat-http--50] [DEBUG] [o.h.e.transaction.internal.jdbc.JdbcTransaction ] - initial autocommit status: false
+    2014-03-27 11:31:13 [tomcat-http--50] [DEBUG] [org.hibernate.SQL                               ] - /* select generatedAlias0 from Todo as generatedAlias0 */ select todo0_.todo_id as todo1_0_, todo0_.created_at as created2_0_, todo0_.finished as finished3_0_, todo0_.todo_title as todo4_0_ from todo todo0_
+    2014-03-27 11:31:13 [tomcat-http--50] [DEBUG] [o.h.e.transaction.spi.AbstractTransactionImpl   ] - committing
+    2014-03-27 11:31:13 [tomcat-http--50] [DEBUG] [o.h.e.transaction.internal.jdbc.JdbcTransaction ] - committed JDBC Connection
+    2014-03-27 11:31:13 [tomcat-http--50] [TRACE] [o.t.gfw.web.logging.TraceLoggingInterceptor     ] - [END CONTROLLER  ] TodoController.list(Model)-> view=todo/list, model={todoForm=todo.app.todo.TodoForm@211dcc, todos=[], org.springframework.validation.BindingResult.todoForm=org.springframework.validation.BeanPropertyBindingResult: 0 errors}
+    2014-03-27 11:31:13 [tomcat-http--50] [TRACE] [o.t.gfw.web.logging.TraceLoggingInterceptor     ] - [HANDLING TIME   ] TodoController.list(Model)-> 2,959,644 ns
 
 
 .. _using_terasolunaDao:
@@ -3411,7 +3427,7 @@ todo-infra.xmlに、TERASOLUNA DAOを使用するための設定を行う。
    * - | (1)
      - | SqlMapClientの定義を行う。
    * - | (2)
-     - | SqlMap設定ファイルのパスを設定する。ここでは、META-INF/mybatis/config以下の、*sqlMapConfig.xmlを読み込む。
+     - | SqlMap設定ファイルのパスを設定する。ここでは、META-INF/mybatis/config以下の、\*sqlMapConfig.xmlを読み込む。
    * - | (3)
      - | SqlMapファイルのパスを設定する。ここでは、META-INF/mybatis/sql以下の、任意のフォルダの*-sqlmap.xmlを読み込む。
    * - | (4)
@@ -3655,11 +3671,12 @@ RepositoryImplの修正
      - | saveメソッドで新規作成と、更新の両方を実装している。
        | どちらの処理を行うか判断するために、existsメソッドを作成する。
        | このメソッドでは、対象のtodoIdの件数を取得し、件数が0より大きいかどうかで存在を確認する。
-\
-    .. note::
-       saveメソッドは、新規作成でも更新でも利用できるメリットがある。
-       しかしながら、2回SQLが実行されるという性能面でのデメリットもある。
-       性能を重視する場合は、新規作成用にcreateメソッドを、更新用にupdateメソッドを作成すること。
+
+.. note::
+
+    saveメソッドは、新規作成でも更新でも利用できるメリットがある。
+    しかしながら、2回SQLが実行されるという性能面でのデメリットもある。
+    性能を重視する場合は、新規作成用にcreateメソッドを、更新用にupdateメソッドを作成すること。
 
 
 SQLMapファイルの作成
@@ -3738,8 +3755,8 @@ src/main/resources/META-INF/mybatis/sql/todo-sqlmap.xmlを作成し、TodoReposi
     ]]></select>
     </sqlMap>
 
-以上で、TERASOLUNA DAOを使う対応が完了した。APサーバーを起動し、
-Todoの表示や、新規作成を行うと、以下のようなSQLログやトランザクションログが出力される。
+| 以上で、TERASOLUNA DAOを使う対応が完了した。
+| APサーバーを起動し、Todoの表示を行うと、以下のようなSQLログやトランザクションログが出力される。
 
 .. code-block:: guess
    :emphasize-lines: 2-12
@@ -3766,9 +3783,12 @@ Todoの表示や、新規作成を行うと、以下のようなSQLログやト�
 このチュートリアルでは、以下の内容を学習した。
 
 * TERASOLUNA Global Frameworkによる基本的なアプリケーションの開発方法、およびEclipseプロジェクトの構築方法
+
  * STSの使用方法
  * MavenでTERASOLUNA Global Frameworkを使用する方法
+
 * TERASOLUNA Global Frameworkのアプリケーションのレイヤ化に従った開発方法
+
  * POJO(+ Spring)によるドメイン層の実装
  * Spring MVCとJSPタグライブラリを使用したアプリケーション層の実装
  * Spring Data JPAによるインフラストラクチャ層の実装

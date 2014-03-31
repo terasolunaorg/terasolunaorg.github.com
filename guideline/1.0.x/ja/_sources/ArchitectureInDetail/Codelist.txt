@@ -94,7 +94,7 @@ SimpleMapCodeListの使用方法
 
 .. figure:: ./images/codelist-simple.png
    :alt: codelist simple
-   :width: 70%
+   :width: 100%
 
 |
 
@@ -291,7 +291,7 @@ NumberRangeCodeListの使用方法
 
 .. figure:: ./images/codelist-number.png
    :alt: codelist number
-   :width: 70%
+   :width: 100%
 
 |
 
@@ -420,13 +420,13 @@ JSPでのコードリスト使用
 
 .. code-block:: jsp
 
-  <form:select path="depYear" items="${CL_Year}" />
+  <form:select path="birthYear" items="${CL_BIRTH_YEAR}" />
 
 **出力HTML**
 
 .. code-block:: html
 
-  <select id="depYear" name="depYear">
+  <select id="birthYear" name="birthYear">
     <option value="2013">2013</option>
     <option value="2012">2012</option>
     <option value="2011">2011</option>
@@ -457,13 +457,11 @@ JSPでのコードリスト使用
 
 .. code-block:: xml
 
-    <bean id="CL_WEEK"
+    <bean id="CL_BULK_ORDER_QUANTITY_UNIT"
         class="org.terasoluna.gfw.common.codelist.NumberRangeCodeList">
-        <property name="from" value="1" />
-        <property name="to" value="31" />
-        <property name="valueFormat" value="%d" />
-        <property name="labelFormat" value="%02d" />
-        <property name="interval" value="7" /> <!-- (1) -->
+        <property name="from" value="10" />
+        <property name="to" value="50" />
+        <property name="interval" value="10" /> <!-- (1) -->
     </bean>
 
 .. list-table::
@@ -473,33 +471,52 @@ JSPでのコードリスト使用
    * - 項番
      - 説明
    * - | (1)
-     - | 増加(減少)値を指定する。この指定によって、interval分増加した値を、From～Toの範囲分のリストとして、昇順に表示する。
-       | また、intervalの値が範囲を超えた場合は出力されない。
-       | 上記の例だと、リストには1,8,15,22,29が格納される。(36は範囲(1～31)を超えている為、出力されない)
+     - | 増加(減少)値を指定する。この指定によって、interval値を増加(減少)した値を、From～Toの範囲内でコードリストとして格納する。
+       | 上記の例だと、コードリストには\ ``10``\,\ ``20``\,\ ``30``\,\ ``40``\,\ ``50``\の順で格納される。
 
 **jspの実装例**
 
 .. code-block:: jsp
 
-  <form:select path="depWeek" items="${CL_WEEK}" />
+  <form:select path="quantity" items="${CL_BULK_ORDER_QUANTITY_UNIT}" />
 
 **出力HTML**
 
 .. code-block:: html
 
-  <select id="depWeek" name="depWeek">
-    <option value="1">01</option>
-    <option value="8">08</option>
-    <option value="15">15</option>
-    <option value="22">22</option>
-    <option value="29">29</option>
-  </select>
+    <select id="quantity" name="quantity">
+        <option value="10">10</option>
+        <option value="20">20</option>
+        <option value="30">30</option>
+        <option value="40">40</option>
+        <option value="50">50</option>
+    </select>
 
 **出力画面**
 
 .. figure:: ./images/codelist_numberrenge3.png
    :alt: codelist numberrenge3
-   :width: 5%
+
+.. note::
+
+    interval値分増加(減少)した値が、Form～Toの値が範囲を超えた場合は、コードリストに格納されない。
+    
+    具体的には、
+
+     .. code-block:: xml
+    
+        <bean id="CL_BULK_ORDER_QUANTITY_UNIT"
+            class="org.terasoluna.gfw.common.codelist.NumberRangeCodeList">
+            <property name="from" value="10" />
+            <property name="to" value="55" />
+            <property name="interval" value="10" />
+        </bean>
+        
+    という定義を行った場合、
+    
+    コードリストには\ ``10``\,\ ``20``\,\ ``30``\,\ ``40``\,\ ``50``\の計5つが格納される。
+    次のintervalである\ ``60``\及び範囲の閾値である\ ``55``\はコードリストに格納されない。
+
 
 |
 
@@ -521,7 +538,7 @@ JdbcCodeListの使用方法
 
 .. figure:: ./images/codelist-jdbc.png
    :alt: codelist simple
-   :width: 70%
+   :width: 100%
 
 |
 
@@ -649,7 +666,7 @@ Javaクラスでのコードリスト使用
 
 .. code-block:: xml
 
-    <bean id="CD_GENDER" class="org.terasoluna.gfw.common.codelist.SimpleMapCodeList">
+    <bean id="CL_GENDER" class="org.terasoluna.gfw.common.codelist.SimpleMapCodeList">
         <property name="map">
             <map>
                 <entry key="M" value="Male" />
@@ -663,7 +680,7 @@ Javaクラスでのコードリスト使用
 .. code-block:: java
 
     public class Person {
-        @ExistInCodeList(codeListId = "CD_GENDER")  // (1)
+        @ExistInCodeList(codeListId = "CL_GENDER")  // (1)
         private String gender;
 
         // getter and setter omitted
@@ -701,7 +718,7 @@ SimpleI18nCodeListの使用方法
 
 .. figure:: ./images/codelist-i18n.png
    :alt: codelist i18n
-   :width: 70%
+   :width: 100%
 
 |
 

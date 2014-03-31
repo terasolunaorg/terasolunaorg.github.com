@@ -205,7 +205,7 @@ How to use
   
   .. tip::
   
-    入力フィールドに未入力の場合に、空文字では\ ``null``\ にバインドする方法に関しては、\ :ref:`Validation_string_trimmer_editor`\ を参照されたい、
+    入力フィールドが未入力の場合に、空文字ではなく\ ``null``\ にバインドする方法に関しては、\ :ref:`Validation_string_trimmer_editor`\ を参照されたい、
 
 * Controllerクラス
 
@@ -1787,7 +1787,7 @@ Spring Validatorによる相関項目チェック実装
        - | エラーメッセージのコード名を指定する。ここではコードを、
          | "バリデータ名.フォーム属性名.プロパティ名"
          | とする。メッセージ定義は\ :ref:`Validation_message_in_application_messages`\ を参照されたい。
-     * - | (6)
+     * - | (7)
        - | エラーメッセージをコードで解決できなかった場合に使用する、デフォルトメッセージを設定する。
 
   .. note::

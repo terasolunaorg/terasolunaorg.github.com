@@ -161,7 +161,7 @@ Overview
      - | 業務例外がスローされたタイミング等で、WARNログを出力する。
        | 通常は、AOPで実装する。
        |
-       | 共通ライブラリでは、業務処理実行時に\ `org.terasoluna.gfw.common.exception.BusinessException`\ がスローされた場合に、WARNログを出力する\ ``org.terasoluna.gfw.common.exception.BusinessExceptionLoggingInterceptor``\ を提供している。
+       | 共通ライブラリでは、業務処理実行時に\ `org.terasoluna.gfw.common.exception.BusinessException`\ がスローされた場合に、WARNログを出力する\ ``org.terasoluna.gfw.common.exception.ResultMessagesLoggingInterceptor``\ を提供している。
        | 詳細は  :doc:`../ArchitectureInDetail/ExceptionHandling` を参照。
    * - | システムエラーログ
      - | システム例外や、予期せぬ例外が発生した際に、ERRORログを出力する。
@@ -793,7 +793,7 @@ HttpSessionEventLoggingListener
 """"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 
 \  ``org.terasoluna.fw.web.logging.HttpSessionEventLoggingListener``\ は、
-セッションの生成・破棄・活性・非活性、セッションへの属性の追加・削除のタイミングでd、ebugログを出力するリスナーである。
+セッションの生成・破棄・活性・非活性、セッションへの属性の追加・削除のタイミングでdebugログを出力するためのリスナークラスである。
 
 web.xmlに、以下を追加すればよい。
 

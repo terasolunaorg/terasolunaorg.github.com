@@ -143,7 +143,7 @@ Joda Time, Joda Time JSP tags の利用方法を、以下で説明する。
 
 .. code-block:: java
 
-    DateTime dateTime = new DateTime(2013,1,10,0,0,0);
+    DateTime dateTime = new DateTime(2013, 1, 10, 2, 30, 22, 123);
 
     int year = dateTime.getYear();  // (1)
     int month = dateTime.getMonthOfYear();  // (2)
@@ -161,22 +161,22 @@ Joda Time, Joda Time JSP tags の利用方法を、以下で説明する。
    * - 項番
      - 説明
    * - | (1)
-     - | 年の取得、本例では、2013 が返却される。
+     - | 年を取得する。本例では、\ ``2013``\ が返却される。
    * - | (2)
-     - | 月の取得、本例では、1 が返却される。
+     - | 月を取得する。本例では、\ ``1``\ が返却される。
    * - | (3)
-     - | 日の取得、本例では、10 が返却される。
+     - | 日を取得する。本例では、\ ``10``\ が返却される。
    * - | (4)
-     - | 曜日の取得[月曜=1、火曜=2、水曜=3、木曜=4、金曜=5、土曜=6、日曜=7]
-       | 本例では、4が返却される。
+     - | 曜日を取得する。本例では、\ ``4``\ が返却される。
+       | 返却される値と曜日の対応は、[1:月曜、2:火曜、3:水曜、4:木曜、5:金曜、6:土曜、7:日曜]となる。
    * - | (5)
-     - | 時の取得、本例では、2 が返却される。
+     - | 時を取得する。本例では、\ ``2``\ が返却される。
    * - | (6)
-     - | 分の取得、本例では、30 が返却される。
+     - | 分を取得する。本例では、\ ``30``\ が返却される。
    * - | (7)
-     - | 秒の取得、本例では、22 が返却される。
+     - | 秒を取得する。本例では、\ ``22``\ が返却される。
    * - | (8)
-     - | ミリ秒の取得、本例では、0 が返却される。
+     - | ミリ秒を取得する。本例では、\ ``123``\ が返却される。
 
 |
 
@@ -263,8 +263,9 @@ java.util.Dateとの相互運用性
 
 .. code-block:: java
 
+    DateTime dateTime = new DateTime(); // dateTime is 2013-01-10T13:30:22.123Z
     DateTime yesterday = dateTime.minusDays(1);  // (1)
-    DateTime tomorrow = dateTime.plusDays(2);  // (2)
+    DateTime tomorrow = dateTime.plusDays(1);  // (2)
     DateTime afterThreeMonth = dateTime.plusMonths(3);  // (3)
     DateTime nextYear = dateTime.plusYears(1);  // (4)
 
@@ -275,13 +276,13 @@ java.util.Dateとの相互運用性
    * - 項番
      - 説明
    * - | (1)
-     - | DateTime#minusDays 引数に、指定した値分の日付が減算される。
+     - | DateTime#minusDays 引数に、指定した値分の日付が減算される。本例では\ ``2013-01-09T13:30:22.123Z``\となる。
    * - | (2)
-     - | DateTime#plusDays 引数に、指定した値分の日付が加算される。
+     - | DateTime#plusDays 引数に、指定した値分の日付が加算される。本例では\ ``2013-01-11T13:30:22.123Z``\となる。
    * - | (3)
-     - | DateTime#plusMonths 引数に、指定した値分の月数が加算される。
+     - | DateTime#plusMonths 引数に、指定した値分の月数が加算される。本例では\ ``2013-04-10T13:30:22.123Z``\となる。
    * - | (4)
-     - | DateTime#plusYears 引数に、指定した値分の年数が加算される。
+     - | DateTime#plusYears 引数に、指定した値分の年数が加算される。本例では\ ``2014-01-10T13:30:22.123Z``\となる。
 
 上記で示したメソッド以外は、 `DateTime JavaDoc <http://joda-time.sourceforge.net/apidocs/org/joda/time/DateTime.html>`_ を参照されたい。
 
@@ -290,12 +291,12 @@ java.util.Dateとの相互運用性
 月末月初の取得
 ''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
 
-| 現在日時を基準日とした、月末月初の取得方法を、以下に示す。
-| 時・分・秒・ミリ秒は、new DateTime()で取得した値のままとする。
+| 現在日時を基準日とした、月末日と月初日の取得方法を、以下に示す。
+| 下記の例では、時・分・秒・ミリ秒は、new DateTime()で取得した値のままとなる。
 
 .. code-block:: java
 
-    DateTime dateTime = new DateTime();
+    DateTime dateTime = new DateTime(); // dateTime is 2013-01-10T13:30:22.123Z
     Property dayOfMonth = dateTime.dayOfMonth();  // (1)
     DateTime firstDayOfMonth = dayOfMonth.withMinimumValue();  // (2)
     DateTime lastDayOfMonth = dayOfMonth.withMaximumValue();  // (3)
@@ -307,23 +308,23 @@ java.util.Dateとの相互運用性
    * - 項番
      - 説明
    * - | (1)
-     - | 現在日時の月を示す、Propertyを取得する。
+     - | 現在月の日付に関する属性値を保持するPropertyオブジェクトを取得する。
    * - | (2)
-     - | Propertyに関連付けられた月初が、取得される。
+     - | Propertyオブジェクトから最小値を取得する事で、月初日を取得する事ができる。本例では\ ``2013-01-01T13:30:22.123Z``\となる。
    * - | (3)
-     - | Propertyに関連付けられた月末が、取得される。
+     - | Propertyオブジェクトから最大値を取得する事で、月末日を取得する事ができる。本例では\ ``2013-01-31T13:30:22.123Z``\となる。
 
 |
 
 週末週初の取得
 ''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
 
-| 現在日時を基準日とした、週末週初の取得方法を、以下に示す。
-| 時・分・秒・ミリ秒は、new DateTime()で取得した値のままとする。
+| 現在日時を基準日とした、週末日と週初日の取得方法を、以下に示す。
+| 下記の例では、時・分・秒・ミリ秒は、new DateTime()で取得した値のままとなる。
 
 .. code-block:: java
 
-    DateTime dateTime = new DateTime();
+    DateTime dateTime = new DateTime(); // dateTime is 2013-01-10T13:30:22.123Z
     Property dayOfWeek = dateTime.dayOfWeek();  // (1)
     DateTime firstDayOfWeek = dayOfWeek.withMinimumValue();  // (2)
     DateTime lastDayOfWeek = dayOfWeek.withMaximumValue();  // (3)
@@ -335,11 +336,11 @@ java.util.Dateとの相互運用性
    * - 項番
      - 説明
    * - | (1)
-     - | 現在日時の週を示す、Propertyを取得する。
+     - | 現在週の日付に関する属性値を保持するPropertyオブジェクトを取得する。
    * - | (2)
-     - | Propertyに関連付けられた週初(月曜)が、取得される。
+     - | Propertyオブジェクトから最小値を取得する事で、週初日(月曜日)を取得する事ができる。本例では\ ``2013-01-07T13:30:22.123Z``\となる。
    * - | (3)
-     - | Propertyに関連付けられた週末(日曜)が、取得される。
+     - | Propertyオブジェクトから最大値を取得する事で、週末日(日曜日)を取得する事ができる。本例では\ ``2013-01-13T13:30:22.123Z``\となる。
 
 
 日時の比較
@@ -498,7 +499,7 @@ JSP Tag Library
 設定方法
 ''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
 
-タブライブラリ利用するには、以下のtaglib定義が必要である。
+タブライブラリを利用するには、以下のtaglib定義が必要である。
 
 .. code-block:: jsp
 

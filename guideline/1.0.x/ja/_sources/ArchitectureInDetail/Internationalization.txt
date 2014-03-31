@@ -113,14 +113,14 @@ Localeをユーザ端末（またはブラウザ）の設定により切り替�
     :alt: properties filepath
     :width: 40%
 
-| basenames_XX.propertiesで定義する。XX部分はLocaleを指定する。
-| Localeがzhの場合、basenames_zh.propertiesが使用され、
-| Localeがjaの場合、basenames_ja.propertiesが使用される。
-| 該当するLocaleが存在しない場合、デフォルトとして、basenames.propertiesが使用される。(ファイル名に"_XX"部分が存在しない)
-| basenames.propertiesを使うときは、以下のことに注意する。
+| ファイル名は、\ :file:`application-messages_XX.properties`\という形式で作成する。XX部分はLocaleを指定する。
+| \ ``LocaleResolver``\によって解決されたLocaleがzhの場合、\ :file:`application-messages_zh.properties`\が使用され、
+| \ ``LocaleResolver``\によって解決されたLocaleがjaの場合、\ :file:`application-messages_ja.properties`\が使用される。
+| \ ``LocaleResolver``\によって解決されたLocaleに対応するプロパティファイルが存在しない場合、デフォルトとして、\ :file:`application-messages.properties`\が使用される。(ファイル名に"_XX"部分が存在しない)
+| \ :file:`application-messages.properties`\を使うときは、以下のことに注意する。
 
-* basenames.propertiesのLocaleは英語("en")で作成すること。
-* basenames.propertiesは **必ず作成すること** 。もし存在しない場合、MessageSourceからメッセージを取得できず、JSPにメッセージを設定する際に、JspTagExceptionが発生する。
+* \ :file:`application-messages.properties`\に定義するメッセージは、デフォルトで使用する言語で作成すること。
+* \ :file:`application-messages.properties`\は **必ず作成すること** 。もし存在しない場合、MessageSourceからメッセージを取得できず、JSPにメッセージを設定する際に、JspTagExceptionが発生する。
 
  .. tip::
 
@@ -130,12 +130,12 @@ Localeをユーザ端末（またはブラウザ）の設定により切り替�
 
   Localeの判別方法は、以下の順番で該当するLocaleのプロパティファイルが発見されるまで、Localeを確認していくことである。
 
-  #. リクエストのHTTPヘッダー”accept-language”の値
-  #. WebサーバのJVMのLocale(設定されていない場合あり)
-  #. WebサーバのOSのLocale
+  #. リクエストのHTTPヘッダー”accept-language”に指定されているLocale
+  #. アプリケーションサーバのJVMに指定されているLocale(設定されていない場合あり)
+  #. アプリケーションサーバのOSに指定されているLocale
 
   よく間違える例として、 リクエストのHTTPヘッダー”accept-language”の値に該当するLocaleのプロパティファイルが存在しない場合、デフォルトのプロパティファイルが使用されるとの誤解が挙げられる。
-  実際は、次にWebサーバのLocaleを確認して、それでも該当するLocaleのプロパティファイルが見つからない場合に、デフォルトのプロパティファイルが使用されるので注意する。
+  実際は、次にアプリケーションサーバに指定されているLocaleを確認して、それでも該当するLocaleのプロパティファイルが見つからない場合に、デフォルトのプロパティファイルが使用されるので注意する。
 
 以下、メッセージ定義の設定例を示す。
 

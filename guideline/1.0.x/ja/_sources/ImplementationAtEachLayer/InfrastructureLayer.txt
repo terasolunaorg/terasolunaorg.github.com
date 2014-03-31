@@ -136,7 +136,7 @@ MyBatis2系を使ってRepositoryを実装
           @Transactional(readOnly = true) // (5)
           public boolean exists(String id) { // (6)
               Long count = queryDAO.executeForObject("todo.exists", todoId,
-                  Todo.class);
+                  Long.class);
               return 0 < count.longValue();
           }
 
@@ -216,7 +216,8 @@ MyBatis2系を使ってRepositoryを実装
           }
 
           public long countByFinished(boolean finished) { // (8)
-              return queryDAO.executeForObject("todo.countByFinished", finished, Todo.class);
+              Long count = queryDAO.executeForObject("todo.countByFinished", finished, Long.class);
+              return count.longValue();
           }
 
       }
@@ -231,19 +232,19 @@ MyBatis2系を使ってRepositoryを実装
     * - | (1)
       - クラスアノテーションとして、\ ``@Repository``\ アノテーションを付与する。アノテーションを付与することで、component-scan対象となり、設定ファイルへのbean定義が不要となる。
     * - | (2)
-      - クラスアノテーションとして、\\ ``@Transactional``\\ アノテーションを付与する。トランザクション境界は、Serviceで制御するが、Repositoryにも付与しておくこと。
+      - クラスアノテーションとして、\ ``@Transactional``\ アノテーションを付与する。トランザクション境界は、Serviceで制御するが、Repositoryにも付与しておくこと。
     * - | (3)
       - 問い合わせ処理を行うための\ ``jp.terasoluna.fw.dao.QueryDAO``\ をインジェクションする。
     * - | (4)
       - 更新処理を行うための\ ``jp.terasoluna.fw.dao.UpdateDAO``\ をインジェクションする。
     * - | (5)
-      - 問い合わせ系のメソッドには、@Transactional(readOnly = true)を付与する。
+      - 問い合わせ系のメソッドには、\ ``@Transactional(readOnly = true)``\を付与する。
     * - | (6)
-      - CrudRepositoryで定義されているメソッドを実装している。
+      - \ ``CrudRepository``\で定義されているメソッドを実装している。
     * - | (7)
-      - PagingAndSortingRepositoryで定義されているメソッドを実装している。
+      - \ ``PagingAndSortingRepository``\で定義されているメソッドを実装している。
     * - | (8)
-      - TodoRepositoryで追加したメソッドを実装している。
+      - \ ``TodoRepository``\で追加したメソッドを実装している。
 
 - sqlMap.xml
 
@@ -298,7 +299,7 @@ MyBatis2系を使ってRepositoryを実装
              <!-- ... -->
          </delete>
 
-         <select id="countByFinished" parameterClass="java.lang.Boolean" resultMap="java.lang.Long">
+         <select id="countByFinished" parameterClass="java.lang.Boolean" resultClass="java.lang.Long">
              <!-- ... -->
          </select>
 

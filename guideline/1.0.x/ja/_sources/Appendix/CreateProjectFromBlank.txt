@@ -6,7 +6,7 @@ Blankプロジェクトからの新規プロジェクトを作成する方法を
 * 前提
 
   * Spring Tool Suite が動作可能なこと。
-  * Mavenをコマンドラインでで実行可能なこと。
+  * Mavenをコマンドラインで実行可能なこと。
   * インターネットに接続できること。
 
 この節の内容は以下のバージョンで動作確認している。
@@ -125,7 +125,7 @@ Blankプロジェクトからの新規プロジェクトを作成する方法を
 
 .. _CreateProjectFromBlank_STS-import-project:
 
-#. Spring Tool Suiteにプロジェクトをインポートする。
+3. Spring Tool Suiteにプロジェクトをインポートする。
 
     [STS] -> [File] -> [Import] -> [Maven] -> [Exsiting Maven Projects] ->[ Browse...]でMaven archetypeで作成したプロジェクトを指定 -> 1つ表示されるpom.xmlにチェックが入っていることを確認して[Finish]
   

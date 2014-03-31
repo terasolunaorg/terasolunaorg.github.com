@@ -89,28 +89,12 @@ Ajax通信時で使用されるContent-Type(``"application/xml"`` や ``"applica
        | JavaSE6からJAXB2.0が標準で同封されているため、デフォルトの状態で使用することができる。
 
  .. warning:: **XXE(XML External Entity) Injection 対策について**
-
-    執筆時点の最新バージョン(3.2.4)では、``Jaxb2RootElementHttpMessageConverter`` は `XXE(XML External Entity) Injection <https://www.owasp.org/index.php/XML_External_Entity_(XXE)_Processing>`_ 対策が行われていないため、使用しないこと。
-    ``Jaxb2RootElementHttpMessageConverter`` は、Controllerの引数として以下のクラスを指定した際に実行されるため、 これらのクラスをControllerの引数として宣言する場合は、必ず XXE Injection対策を行うこと。
-
-     * ``@javax.xml.bind.annotation.XmlRootElement`` アノテーションが付与されたJavaBean
-     * ``@javax.xml.bind.annotation.XmlType`` アノテーションが付与されたJavaBean
-
-    また、 ``<mvc:annotation-driven>`` 指定時に有効化されるクラスとして ``org.springframework.http.converter.xml.SourceHttpMessageConverter`` があるが、このクラスも XXE(XML External Entity) Injection 対策が行われていないので使用しないこと。
-
-    ``SourceHttpMessageConverter`` は、Controllerの引数として以下のクラスを指定した際に実行されるため、 これらのクラスをControllerの引数として宣言することを原則禁止とする。
-
-     * ``javax.xml.transform.dom.DOMSource``
-     * ``javax.xml.transform.sax.SAXSource``
-     * ``javax.xml.transform.stream.StreamSource``
-     * ``javax.xml.transform.Source``
-
-    上記にあげたクラスはLow LevelのXML APIなので、アーキテクチャの観点からも使用することを原則禁止とする。
-
- .. warning::
  
-    **Ajax通信でXML形式のデータを扱う場合は、XXE(XML External Entity) Injection 対策として、以下の設定を追加すること。**
-
+    Ajax通信でXML形式のデータを扱う場合は、\ `XXE(XML External Entity) Injection <https://www.owasp.org/index.php/XML_External_Entity_(XXE)_Processing>`_\対策を行う必要がある。
+    terasoluna-gfw-web 1.0.1.RELEASE以上では、XXE Injection 対策が行われているSpring MVC(3.2.8.RELEASE以上)に依存しているため、個別に対策を行う必要はない。
+    
+    terasoluna-gfw-web 1.0.0.RELEASEを使用している場合は、XXE Injection対策が行われていないSpring MVC(3.2.4.RELEASE)に依存しているため、Spring-oxmから提供されているクラスを使用すること。
+    
     - :file:`spring-mvc.xml`
     
      .. code-block:: xml
@@ -145,8 +129,8 @@ Ajax通信時で使用されるContent-Type(``"application/xml"`` や ``"applica
        * - | 項番
          - | 説明
        * - | (1)
-         - | ``Jaxb2Marshaller`` のbean定義を行う。
-           | ``Jaxb2Marshaller`` はデフォルトの状態で XXE Injection対策が行われている。
+         - | Spring-oxmから提供されている\ ``Jaxb2Marshaller``\のbean定義を行う。
+           | \ ``Jaxb2Marshaller``\はデフォルトの状態で XXE Injection対策が行われている。
        * - | (2)
          - | ``packagesToScan`` プロパティに JAXB用のJavaBean( ``javax.xml.bind.annotation.XmlRootElement`` アノテーションなどが付与されているJavaBean)が格納されているパッケージ名を指定する。
            | 指定したパッケージ配下に格納されているJAXB用のJavaBeanがスキャンされ、marshal、unmarshal対象のJavaBeanとして登録される。
@@ -158,11 +142,9 @@ Ajax通信時で使用されるContent-Type(``"application/xml"`` や ``"applica
        * - | (5)
          - | ``unmarshaller`` プロパティに (1)で定義した ``Jaxb2Marshaller`` のbeanを指定する。
          
-         
     |
 
-    共通ライブラリのバージョン 1.0.0を使っている場合は、XXE Injection対策を行うためにSpring-oxmを依存するアーティファクトとして追加する必要がある。
-    \ `1.0.1以降のバージョンではデフォルトで依存するアーティファクトとして指定される予定 <https://github.com/terasolunaorg/terasoluna-gfw/issues/20>`_\ であるため、本設定は不要である。
+    Spring-oxmを依存するアーティファクトとして追加する。
 
     - :file:`pom.xml`
 

@@ -164,7 +164,7 @@ pom.xml
 --------------------------------------------------------------------------------
 
 mavenで管理されたプロジェクトでは、artifactとなった自分自身をどのパッケージリポジトリに格納されるべきかを
-poim.xml上の<distributionManagement>タグで表明する必要がある。
+pom.xml上の<distributionManagement>タグで表明する必要がある。
 
 .. code-block:: xml
 
@@ -193,15 +193,19 @@ RDBMSとしてoracleを使用する場合に必須だが、
 セントラルリポジトリはもちろん、インターネット上の公開リポジトリに格納されていることはほとんどない。
 そのため、組織内のパッケージリポジトリに格納しておく必要がある。
 
-#. adminユーザーでログインします。（デフォルトのパスワードはadmin123）
+1. adminユーザーでログインします。（デフォルトのパスワードはadmin123）
  .. figure:: ./images/appendix-nexus-login.png
-#. 3rdPartyリポジトリを選択し、 **Artifact Upload** タブを選択する。
+
+2. 3rdPartyリポジトリを選択し、 **Artifact Upload** タブを選択する。
  .. figure:: ./images/appendix-nexus-select-3rdparty.png
-#. GAV情報を入力します。(GAV = groupId, artifactId, version)
+
+3. GAV情報を入力します。(GAV = groupId, artifactId, version)
  .. figure:: ./images/appendix-nexus-ojdbc6-input-gav.png
-#. ローカルPC上のojdbc6.jarファイルを選択し、 **Add Artifact** ボタンを押す。
+
+4. ローカルPC上のojdbc6.jarファイルを選択し、 **Add Artifact** ボタンを押す。
  .. figure:: ./images/appendix-nexus-ojdbc6-selectfile.png
-#. 最後に**Upload Artifact(s)ボタンを押すと、リポジトリにjarファイルが格納される。
+
+5. 最後に**Upload Artifact(s)ボタンを押すと、リポジトリにjarファイルが格納される。
  .. figure:: ./images/appendix-nexus-ojdbc6-upload.png
 
 以上でアップロード作業は完了。
