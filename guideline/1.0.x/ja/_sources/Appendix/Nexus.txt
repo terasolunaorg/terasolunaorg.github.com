@@ -229,3 +229,7 @@ use artifact
 
 .. figure:: ./images/appendix-nexus-ojdbc6-dependency-tag.png
 
+.. raw:: latex
+
+   \newpage
+

@@ -1,12 +1,10 @@
-.. raw:: pdf
-
-    PageBreak
-
 Spring Security概要
 ================================================================================
 
-.. contents:: 目次
-   :local:
+.. only:: html
+
+ .. contents:: 目次
+    :local:
 
 Overview
 --------------------------------------------------------------------------------
@@ -73,6 +71,7 @@ pom.xmlの設定
         <artifactId>terasoluna-gfw-security-web</artifactId>  <!-- (2) -->
     </dependency>
 
+.. tabularcolumns:: |p{0.10\linewidth}|p{0.90\linewidth}|
 .. list-table::
    :header-rows: 1
    :widths: 10 90
@@ -112,6 +111,7 @@ Web.xmlの設定
       <url-pattern>/*</url-pattern>  <!-- (4) -->
     </filter-mapping>
 
+.. tabularcolumns:: |p{0.10\linewidth}|p{0.90\linewidth}|
 .. list-table::
    :header-rows: 1
    :widths: 10 90
@@ -154,6 +154,7 @@ spring-security.xmlの設定
         </sec:http>
     </beans>
 
+  .. tabularcolumns:: |p{0.10\linewidth}|p{0.90\linewidth}|
   .. list-table::
      :header-rows: 1
      :widths: 10 90
@@ -167,4 +168,8 @@ spring-security.xmlの設定
           use-expressions="true" で有効になるSpring EL式は、以下を参照されたい。
 
           \ `Expression-Based Access Control <http://static.springsource.org/spring-security/site/docs/3.1.x/reference/el-access.html>`_\
+
+.. raw:: latex
+
+   \newpage
 

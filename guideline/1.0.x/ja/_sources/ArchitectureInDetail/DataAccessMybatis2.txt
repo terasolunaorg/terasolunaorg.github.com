@@ -1,9 +1,11 @@
 データベースアクセス（Mybatis2編）
 ================================================================================
 
-.. contents:: 目次
-   :local:
-   :depth: 3
+.. only:: html
+
+ .. contents:: 目次
+    :local:
+    :depth: 3
 
 Overview
 --------------------------------------------------------------------------------
@@ -33,6 +35,7 @@ TERASOLUNA DAOは、O/R Mapperに依存する処理を隠蔽するためのDAO�
 
 TERASOLUNA DAOから提供されているDAOインタフェースは、以下の通りである。
 
+ .. tabularcolumns:: |p{0.10\linewidth}|p{0.35\linewidth}|p{0.55\linewidth}|
  .. list-table:: **TERASOLUNA DAOから提供されているDAOインタフェース**
     :header-rows: 1
     :widths: 10 35 55
@@ -66,6 +69,7 @@ TERASOLUNA DAO(Mybatis実装)を使って、データベースにアクセスす
 
     **Picture - Basic flow of TERASOLUNA DAO**
 
+ .. tabularcolumns:: |p{0.10\linewidth}|p{0.90\linewidth}|
  .. list-table::
     :header-rows: 1
     :widths: 10 90
@@ -101,6 +105,7 @@ pom.xmlの設定
         <artifactId>terasoluna-gfw-mybatis2</artifactId>
     </dependency>
 
+ .. tabularcolumns:: |p{0.10\linewidth}|p{0.90\linewidth}|
  .. list-table::
    :header-rows: 1
    :widths: 10 90
@@ -136,6 +141,7 @@ PlatformTransactionManagerの設定
          <property name="dataSource" ref="dataSource" /> <!-- (2) -->
      </bean>
 
+ .. tabularcolumns:: |p{0.10\linewidth}|p{0.90\linewidth}|
  .. list-table::
     :header-rows: 1
     :widths: 10 90
@@ -158,6 +164,7 @@ PlatformTransactionManagerの設定
 
      <tx:jta-transaction-manager /> <!-- (1) -->
 
+ .. tabularcolumns:: |p{0.10\linewidth}|p{0.90\linewidth}|
  .. list-table::
     :header-rows: 1
     :widths: 10 90
@@ -208,6 +215,7 @@ Spring Frameworkから提供されている\ ``SqlMapClient``\ のファクト�
          <property name="sqlMapClient" ref="sqlMapClient" />
      </bean>
 
+ .. tabularcolumns:: |p{0.10\linewidth}|p{0.90\linewidth}|
  .. list-table::
     :header-rows: 1
     :widths: 10 90
@@ -260,6 +268,7 @@ BLOBやCLOBなどのLarge Objectを扱う場合は、``SqlMapClient``\ クラス
     </bean>
 
 
+ .. tabularcolumns:: |p{0.10\linewidth}|p{0.90\linewidth}|
  .. list-table::
     :header-rows: 1
     :widths: 10 90
@@ -300,6 +309,7 @@ Mybatisの設定
          <settings useStatementNamespaces="true" /> <!-- (2) -->
      </sqlMapConfig>
 
+ .. tabularcolumns:: |p{0.06\linewidth}|p{0.94\linewidth}|
  .. list-table::
     :header-rows: 1
     :widths: 6 94
@@ -317,6 +327,7 @@ Mybatisの設定
  | 必要に応じて、設定を行うこと。
  | 詳細は、Mybatis Developer Guide(PDF)の「The SQL Map XML Configuration File」(P.8-16)を参照されたい。
 
+ .. tabularcolumns:: |p{0.10\linewidth}|p{0.20\linewidth}|p{0.70\linewidth}|
  .. list-table:: **sqlMapConfigの子要素**
     :header-rows: 1
     :widths: 10 20 70
@@ -380,6 +391,7 @@ SQLマッピングの実装(基本編)
 
      </sqlMap>
 
+ .. tabularcolumns:: |p{0.10\linewidth}|p{0.90\linewidth}|
  .. list-table::
     :header-rows: 1
     :widths: 10 90
@@ -397,6 +409,7 @@ SQLマッピングの実装(基本編)
 - sqlMapの子要素について
  子要素として、\ ``cacheModel``\ , \ ``typeAlias``\ , \ ``parameterMap``\ , \ ``resultMap``\ , \ ``select``\ , \ ``insert``\ , \ ``update``\ , \ ``delete``\ , \ ``statement``\ , \ ``sql``\ , \ ``procedure``\ が存在する。
 
+ .. tabularcolumns:: |p{0.10\linewidth}|p{0.20\linewidth}|p{0.70\linewidth}|
  .. list-table:: **sqlMapの子要素**
     :header-rows: 1
     :widths: 10 20 70
@@ -485,6 +498,7 @@ select要素を実装する前に、検索したレコードのカラムと、Ja
          <result property="version" column="version" />
      </resultMap>
 
+ .. tabularcolumns:: |p{0.10\linewidth}|p{0.10\linewidth}|p{0.80\linewidth}|
  .. list-table::
     :header-rows: 1
     :widths: 10 10 80
@@ -529,6 +543,7 @@ select要素を実装する。
              todo_id = #todoId#   /* (4) */
      </select>
 
+ .. tabularcolumns:: |p{0.10\linewidth}|p{0.10\linewidth}|p{0.80\linewidth}|
  .. list-table::
     :header-rows: 1
     :widths: 10 10 80
@@ -616,6 +631,7 @@ insert要素を実装する。
              )
      </insert>
 
+ .. tabularcolumns:: |p{0.10\linewidth}|p{0.10\linewidth}|p{0.80\linewidth}|
  .. list-table::
     :header-rows: 1
     :widths: 10 10 80
@@ -663,6 +679,7 @@ update要素を実装する。
          AND version = #version#
      </update>
 
+ .. tabularcolumns:: |p{0.10\linewidth}|p{0.90\linewidth}|
  .. list-table::
     :header-rows: 1
     :widths: 10 90
@@ -689,6 +706,7 @@ delete要素を実装する。
              todo_id = #todoId#
      </delete>
 
+ .. tabularcolumns:: |p{0.10\linewidth}|p{0.90\linewidth}|
  .. list-table::
     :header-rows: 1
     :widths: 10 90
@@ -755,6 +773,7 @@ parameterMap要素を実装する。
     }
 
 
+ .. tabularcolumns:: |p{0.10\linewidth}|p{0.90\linewidth}|
  .. list-table::
     :header-rows: 1
     :widths: 10 90
@@ -784,6 +803,7 @@ procedure要素を実装する。
         {call sales_item(?,?,?)}
     </procedure>
 
+ .. tabularcolumns:: |p{0.10\linewidth}|p{0.90\linewidth}|
  .. list-table::
     :header-rows: 1
     :widths: 10 90
@@ -832,6 +852,7 @@ sql要素の実装する。
          <include refid="fragment_where_byFinished" /> <!-- (5) -->
      </select>
 
+ .. tabularcolumns:: |p{0.10\linewidth}|p{0.90\linewidth}|
  .. list-table::
     :header-rows: 1
     :widths: 10 90
@@ -869,6 +890,7 @@ LOB型更新の実装例
         CONSTRAINT pk_upload_binary PRIMARY KEY (file_id)
     );
 
+ .. tabularcolumns:: |p{0.10\linewidth}|p{0.90\linewidth}|
  .. list-table::
     :header-rows: 1
     :widths: 10 90
@@ -895,6 +917,7 @@ LOB型更新の実装例
 
     }
 
+ .. tabularcolumns:: |p{0.10\linewidth}|p{0.90\linewidth}|
  .. list-table::
     :header-rows: 1
     :widths: 10 90
@@ -944,6 +967,7 @@ LOB型更新の実装例
         )
     </insert>
 
+ .. tabularcolumns:: |p{0.10\linewidth}|p{0.90\linewidth}|
  .. list-table::
     :header-rows: 1
     :widths: 10 90
@@ -982,6 +1006,7 @@ LOB型更新の実装例
 
         </parameterMap>
 
+     .. tabularcolumns:: |p{0.10\linewidth}|p{0.90\linewidth}|
      .. list-table::
         :header-rows: 1
         :widths: 10 90
@@ -1024,6 +1049,7 @@ LOB型更新の実装例
 
     // omitted
 
+ .. tabularcolumns:: |p{0.10\linewidth}|p{0.90\linewidth}|
  .. list-table::
     :header-rows: 1
     :widths: 10 90
@@ -1053,6 +1079,7 @@ LOB型更新の実装例
         return "upload/form";
     }
 
+ .. tabularcolumns:: |p{0.10\linewidth}|p{0.90\linewidth}|
  .. list-table::
     :header-rows: 1
     :widths: 10 90
@@ -1092,6 +1119,7 @@ LOB型取得の実装例
             file_id = #fileId#
     </select>
 
+ .. tabularcolumns:: |p{0.10\linewidth}|p{0.90\linewidth}|
  .. list-table::
     :header-rows: 1
     :widths: 10 90
@@ -1129,6 +1157,7 @@ LOB型取得の実装例
 
     // omitted
 
+ .. tabularcolumns:: |p{0.10\linewidth}|p{0.90\linewidth}|
  .. list-table::
     :header-rows: 1
     :widths: 10 90
@@ -1154,6 +1183,7 @@ SQLに渡されたパラメータオブジェクトが指定されているか�
 判定用の要素は、以下の通りである。
 
 
+ .. tabularcolumns:: |p{0.10\linewidth}|p{0.15\linewidth}|p{0.75\linewidth}|
  .. list-table::
     :widths: 10 15 75
     :header-rows: 1
@@ -1191,6 +1221,7 @@ SQLに渡されたパラメータオブジェクトが指定されているか�
 
     </select>
 
+ .. tabularcolumns:: |p{0.10\linewidth}|p{0.90\linewidth}|
  .. list-table::
     :widths: 10 90
     :header-rows: 1
@@ -1219,6 +1250,7 @@ SQLに渡されたパラメータオブジェクト(JavaBean)に指定したプ�
 
 判定用の要素は、以下の通りである。
 
+ .. tabularcolumns:: |p{0.10\linewidth}|p{0.15\linewidth}|p{0.75\linewidth}|
  .. list-table::
     :widths: 10 15 75
     :header-rows: 1
@@ -1258,6 +1290,7 @@ SQLに渡されたパラメータオブジェクト(JavaBean)に指定したプ�
 
     </select>
 
+ .. tabularcolumns:: |p{0.10\linewidth}|p{0.90\linewidth}|
  .. list-table::
     :widths: 10 90
     :header-rows: 1
@@ -1286,6 +1319,7 @@ SQLに渡されたパラメータオブジェクト(JavaBean)のプロパティ�
 
 判定用の要素は、以下の通りである。
 
+ .. tabularcolumns:: |p{0.10\linewidth}|p{0.15\linewidth}|p{0.75\linewidth}|
  .. list-table::
     :widths: 10 15 75
     :header-rows: 1
@@ -1344,6 +1378,7 @@ SQLに渡されたパラメータオブジェクト(JavaBean)のプロパティ�
 
     </select>
 
+ .. tabularcolumns:: |p{0.10\linewidth}|p{0.90\linewidth}|
  .. list-table::
     :widths: 10 90
     :header-rows: 1
@@ -1388,6 +1423,7 @@ SQLに渡されたパラメータオブジェクト(JavaBean)のプロパティ�
 
 判定用の要素は、以下の通りである。
 
+ .. tabularcolumns:: |p{0.10\linewidth}|p{0.15\linewidth}|p{0.75\linewidth}|
  .. list-table::
     :widths: 10 15 75
     :header-rows: 1
@@ -1437,6 +1473,7 @@ SQLに渡されたパラメータオブジェクト(JavaBean)のプロパティ�
 
     </select>
 
+ .. tabularcolumns:: |p{0.10\linewidth}|p{0.90\linewidth}|
  .. list-table::
     :widths: 10 90
     :header-rows: 1
@@ -1465,6 +1502,7 @@ SQLに渡されたパラメータオブジェクト(JavaBean)のプロパティ�
 """"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 動的SQLを組み立てるための要素には、以下の共通的な属性が存在する。
 
+ .. tabularcolumns:: |p{0.10\linewidth}|p{0.15\linewidth}|p{0.75\linewidth}|
  .. list-table::
     :widths: 10 15 75
     :header-rows: 1
@@ -1504,6 +1542,7 @@ SQLに渡されたパラメータオブジェクト(JavaBean)のプロパティ�
 
     </select>
 
+ .. tabularcolumns:: |p{0.10\linewidth}|p{0.15\linewidth}|p{0.75\linewidth}|
  .. list-table::
     :widths: 10 15 75
     :header-rows: 1
@@ -1546,6 +1585,7 @@ SQLに渡されたバインド値が、コレクションや配列の場合、�
 
 要素は、以下の通りである。
 
+ .. tabularcolumns:: |p{0.10\linewidth}|p{0.15\linewidth}|p{0.75\linewidth}|
  .. list-table::
     :widths: 10 15 75
     :header-rows: 1
@@ -1579,6 +1619,7 @@ SQLに渡されたバインド値が、コレクションや配列の場合、�
 
     </select>
 
+ .. tabularcolumns:: |p{0.10\linewidth}|p{0.15\linewidth}|p{0.75\linewidth}|
  .. list-table::
     :widths: 10 15 75
     :header-rows: 1
@@ -1630,6 +1671,7 @@ SQLに渡されたバインド値が、コレクションや配列の場合、�
 
 要素は、以下の通りである。
 
+ .. tabularcolumns:: |p{0.10\linewidth}|p{0.15\linewidth}|p{0.75\linewidth}|
  .. list-table::
     :widths: 10 15 75
     :header-rows: 1
@@ -1668,6 +1710,7 @@ SQLに渡されたバインド値が、コレクションや配列の場合、�
 
     </select>
 
+ .. tabularcolumns:: |p{0.10\linewidth}|p{0.15\linewidth}|p{0.75\linewidth}|
  .. list-table::
     :widths: 10 15 75
     :header-rows: 1
@@ -1726,6 +1769,7 @@ QueryDAOの使用例
          // ...                 // (6)
      }
 
+ .. tabularcolumns:: |p{0.10\linewidth}|p{0.90\linewidth}|
  .. list-table::
     :header-rows: 1
     :widths: 10 90
@@ -1764,6 +1808,7 @@ QueryDAOの使用例
          // ...                         // (5)
      }
 
+ .. tabularcolumns:: |p{0.10\linewidth}|p{0.90\linewidth}|
  .. list-table::
     :header-rows: 1
     :widths: 10 90
@@ -1838,6 +1883,7 @@ QueryDAOの使用例
              created_at DESC
      </select>
 
+ .. tabularcolumns:: |p{0.10\linewidth}|p{0.90\linewidth}|
  .. list-table::
     :header-rows: 1
     :widths: 10 90
@@ -1946,6 +1992,7 @@ QueryDAOの使用例
              #pageable.pageSize#  /* (11) */
     </select>
 
+ .. tabularcolumns:: |p{0.10\linewidth}|p{0.90\linewidth}|
  .. list-table::
     :header-rows: 1
     :widths: 10 90
@@ -2005,6 +2052,7 @@ UpdateDAOの使用例
          // ...               // (4)
      }
 
+ .. tabularcolumns:: |p{0.10\linewidth}|p{0.90\linewidth}|
  .. list-table::
     :header-rows: 1
     :widths: 10 90
@@ -2053,6 +2101,7 @@ UpdateDAOの使用例
      }
 
 
+ .. tabularcolumns:: |p{0.10\linewidth}|p{0.90\linewidth}|
  .. list-table::
     :header-rows: 1
     :widths: 10 90
@@ -2101,6 +2150,7 @@ UpdateDAOの使用例
      }
 
 
+ .. tabularcolumns:: |p{0.10\linewidth}|p{0.90\linewidth}|
  .. list-table::
     :header-rows: 1
     :widths: 10 90
@@ -2157,6 +2207,7 @@ UpdateDAOの使用例
          ]]>
     </update>
 
+ .. tabularcolumns:: |p{0.10\linewidth}|p{0.90\linewidth}|
  .. list-table::
     :header-rows: 1
     :widths: 10 90
@@ -2184,6 +2235,7 @@ UpdateDAOの使用例
      }
 
 
+ .. tabularcolumns:: |p{0.10\linewidth}|p{0.90\linewidth}|
  .. list-table::
     :header-rows: 1
     :widths: 10 90
@@ -2225,6 +2277,7 @@ StoredProcedureDAOの使用例
     logger.debug("Total is {}.", item.getTotal());
 
 
+ .. tabularcolumns:: |p{0.10\linewidth}|p{0.90\linewidth}|
  .. list-table::
     :header-rows: 1
     :widths: 10 90
@@ -2262,6 +2315,7 @@ QueryRowHandleDAOの使用例
                  }
              });
 
+ .. tabularcolumns:: |p{0.10\linewidth}|p{0.90\linewidth}|
  .. list-table::
     :header-rows: 1
     :widths: 10 90
@@ -2314,6 +2368,7 @@ LIKE検索時のエスケープについて
           overview LIKE '%' || #word# || '%' ESCAPE '~'
     </select>
 
+ .. tabularcolumns:: |p{0.10\linewidth}|p{0.90\linewidth}|
  .. list-table::
     :widths: 10 90
     :header-rows: 1
@@ -2352,6 +2407,7 @@ LIKE検索時のエスケープについて
         return new PageImpl<Article>(contents, pageable, total);
     }
 
+ .. tabularcolumns:: |p{0.10\linewidth}|p{0.90\linewidth}|
  .. list-table::
     :widths: 10 90
     :header-rows: 1
@@ -2384,6 +2440,7 @@ LIKE検索時のエスケープについて
           overview LIKE #word# ESCAPE '~'
     </select>
 
+ .. tabularcolumns:: |p{0.10\linewidth}|p{0.90\linewidth}|
  .. list-table::
     :widths: 10 90
     :header-rows: 1
@@ -2420,6 +2477,7 @@ LIKE検索時のエスケープについて
         return new PageImpl<Article>(contents, pageable, total);
     }
 
+ .. tabularcolumns:: |p{0.10\linewidth}|p{0.90\linewidth}|
  .. list-table::
     :widths: 10 90
     :header-rows: 1
@@ -2486,6 +2544,7 @@ ParameterMapの使用例を、以下に示す。
         )
     </insert>
 
+ .. tabularcolumns:: |p{0.10\linewidth}|p{0.90\linewidth}|
  .. list-table::
     :widths: 10 90
     :header-rows: 1
@@ -2521,6 +2580,7 @@ Inline Parametersの使用例を、以下に示す。
             )
     </insert>
 
+ .. tabularcolumns:: |p{0.10\linewidth}|p{0.90\linewidth}|
  .. list-table::
     :widths: 10 90
     :header-rows: 1
@@ -2550,6 +2610,7 @@ Inline Parametersの使用例を、以下に示す。
             created_at $direction$  /* (4) */
     </select>
 
+ .. tabularcolumns:: |p{0.10\linewidth}|p{0.90\linewidth}|
  .. list-table::
     :widths: 10 90
     :header-rows: 1
@@ -2618,6 +2679,7 @@ Appendix
 
     **Picture - ER diagram**
 
+ .. tabularcolumns:: |p{0.10\linewidth}|p{0.20\linewidth}|p{0.15\linewidth}|p{0.55\linewidth}|
  .. list-table::
     :header-rows: 1
     :widths: 10 20 15 55
@@ -2664,6 +2726,7 @@ Appendix
 
  **t_order**
 
+ .. tabularcolumns:: |p{0.20\linewidth}|p{0.20\linewidth}|
  .. list-table::
     :header-rows: 1
     :widths: 20 20
@@ -2679,6 +2742,7 @@ Appendix
 
  **t_order_item**
 
+ .. tabularcolumns:: |p{0.20\linewidth}|p{0.20\linewidth}|p{0.20\linewidth}|
  .. list-table::
     :header-rows: 1
     :widths: 20 20 20
@@ -2702,6 +2766,7 @@ Appendix
 
  **t_order_coupon**
 
+ .. tabularcolumns:: |p{0.20\linewidth}|p{0.20\linewidth}|
  .. list-table::
     :header-rows: 1
     :widths: 20 20
@@ -2719,6 +2784,7 @@ Appendix
 
  **m_item**
 
+ .. tabularcolumns:: |p{0.20\linewidth}|p{0.20\linewidth}|p{0.20\linewidth}|
  .. list-table::
     :header-rows: 1
     :widths: 20 20 20
@@ -2737,6 +2803,7 @@ Appendix
 
  **m_category**
 
+ .. tabularcolumns:: |p{0.20\linewidth}|p{0.20\linewidth}|
  .. list-table::
     :header-rows: 1
     :widths: 20 20
@@ -2754,6 +2821,7 @@ Appendix
 
  **m_item_category**
 
+ .. tabularcolumns:: |p{0.20\linewidth}|p{0.20\linewidth}|
  .. list-table::
     :header-rows: 1
     :widths: 20 20
@@ -2771,6 +2839,7 @@ Appendix
 
  **m_coupon**
 
+ .. tabularcolumns:: |p{0.20\linewidth}|p{0.20\linewidth}|p{0.20\linewidth}|
  .. list-table::
     :header-rows: 1
     :widths: 20 20 20
@@ -2791,6 +2860,7 @@ Appendix
 
  **c_order_status**
 
+ .. tabularcolumns:: |p{0.20\linewidth}|p{0.20\linewidth}|
  .. list-table::
     :header-rows: 1
     :widths: 20 20
@@ -2815,6 +2885,7 @@ Appendix
 
     **Picture - Class(JavaBean) diagram**
 
+ .. tabularcolumns:: |p{0.10\linewidth}|p{0.15\linewidth}|p{0.65\linewidth}|
  .. list-table::
     :header-rows: 1
     :widths: 10 15 65
@@ -2871,6 +2942,7 @@ JavaBeanのプロパティ定義は、以下の通りである。
         // ...
     }
 
+ .. tabularcolumns:: |p{0.10\linewidth}|p{0.90\linewidth}|
  .. list-table::
     :header-rows: 1
     :widths: 10 90
@@ -2891,6 +2963,7 @@ JavaBeanのプロパティ定義は、以下の通りである。
         // ...
     }
 
+ .. tabularcolumns:: |p{0.10\linewidth}|p{0.90\linewidth}|
  .. list-table::
     :header-rows: 1
     :widths: 10 90
@@ -3023,6 +3096,7 @@ SQLの実装
                 ON cp.code = oc.coupon_code
     </sql>
 
+ .. tabularcolumns:: |p{0.10\linewidth}|p{0.90\linewidth}|
  .. list-table::
     :header-rows: 1
     :widths: 10 90
@@ -3053,6 +3127,7 @@ SQLの実装
             ,coupon_code ASC    /* (7) */
     </select>
 
+ .. tabularcolumns:: |p{0.10\linewidth}|p{0.90\linewidth}|
  .. list-table::
     :header-rows: 1
     :widths: 10 90
@@ -3088,6 +3163,7 @@ SQLの実装
             ,cp.code ASC
     </select>
 
+ .. tabularcolumns:: |p{0.10\linewidth}|p{0.90\linewidth}|
  .. list-table::
     :header-rows: 1
     :widths: 10 90
@@ -3175,6 +3251,7 @@ SQLの実装
 
     **Picture - Implementation of ResultMap**
 
+ .. tabularcolumns:: |p{0.10\linewidth}|p{0.90\linewidth}|
  .. list-table::
     :header-rows: 1
     :widths: 10 90
@@ -3219,6 +3296,7 @@ SQLの実装
 
     **Picture - ResultMap for Order**
 
+ .. tabularcolumns:: |p{0.10\linewidth}|p{0.90\linewidth}|
  .. list-table::
     :header-rows: 1
     :widths: 10 90
@@ -3257,6 +3335,7 @@ SQLの実装
 
     **Picture - ResultMap for OrderStatus**
 
+ .. tabularcolumns:: |p{0.10\linewidth}|p{0.90\linewidth}|
  .. list-table::
     :header-rows: 1
     :widths: 10 90
@@ -3289,6 +3368,7 @@ SQLの実装
 
     **Picture - ResultMap for OrderItem**
 
+ .. tabularcolumns:: |p{0.10\linewidth}|p{0.90\linewidth}|
  .. list-table::
     :header-rows: 1
     :widths: 10 90
@@ -3326,6 +3406,7 @@ SQLの実装
 
     **Picture - ResultMap for Item**
 
+ .. tabularcolumns:: |p{0.10\linewidth}|p{0.90\linewidth}|
  .. list-table::
     :header-rows: 1
     :widths: 10 90
@@ -3362,6 +3443,7 @@ SQLの実装
 
     **Picture - ResultMap for Item**
 
+ .. tabularcolumns:: |p{0.10\linewidth}|p{0.90\linewidth}|
  .. list-table::
     :header-rows: 1
     :widths: 10 90
@@ -3394,6 +3476,7 @@ SQLの実装
 
     **Picture - ResultMap for OrderCoupon**
 
+ .. tabularcolumns:: |p{0.10\linewidth}|p{0.90\linewidth}|
  .. list-table::
     :header-rows: 1
     :widths: 10 90
@@ -3428,6 +3511,7 @@ SQLの実装
 
     **Picture - ResultMap for Coupon**
 
+ .. tabularcolumns:: |p{0.10\linewidth}|p{0.90\linewidth}|
  .. list-table::
     :header-rows: 1
     :widths: 10 90
@@ -3492,3 +3576,8 @@ SQLの実装
 
      * Mybatis設定ファイルのsetting要素のenhancementEnabled属性を、\ ``true``\ に設定する。
      * CGLIB 2.xを、クラスパスに追加する。
+
+.. raw:: latex
+
+   \newpage
+

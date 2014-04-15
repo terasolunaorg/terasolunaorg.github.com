@@ -1,9 +1,11 @@
 例外ハンドリング
 ------------------
 
-.. contents:: 目次
-   :depth: 4
-   :local:
+.. only:: html
+
+ .. contents:: 目次
+    :depth: 4
+    :local:
 
 本ガイドラインで作成する、Webアプリケーションの例外ハンドリング指針について説明する。
 
@@ -28,6 +30,7 @@ Overview
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 アプリケーション実行時に発生する例外は、以下3つに分類される。
 
+.. tabularcolumns:: |p{0.10\linewidth}|p{0.30\linewidth}|p{0.30\linewidth}|p{0.30\linewidth}|
 .. list-table:: **表-アプリケーション実行時に発生する例外の分類**
    :header-rows: 1
    :widths: 10 30 30 30
@@ -65,6 +68,7 @@ Overview
 | アプリケーション実行時に発生する例外は、以下4つの方法でハンドリングを行う。
 | ハンドリング方法毎のハンドリングフローの詳細は、\ :ref:`exception-handling-basic-flow-label`\ を参照されたい。
 
+.. tabularcolumns:: |p{0.10\linewidth}|p{0.30\linewidth}|p{0.35\linewidth}|p{0.25\linewidth}|
 .. list-table:: **表-例外のハンドリング方法**
    :header-rows: 1
    :widths: 10 30 35 25
@@ -121,6 +125,7 @@ Overview
 
   .. _ExceptionHandling-annotation-driven:
 
+    .. tabularcolumns:: |p{0.10\linewidth}|p{0.30\linewidth}|p{0.55\linewidth}|
     .. list-table::
        :header-rows: 1
        :widths: 10 30 55
@@ -184,6 +189,7 @@ Detail
 アプリケーション実行時に発生する例外は、以下6種類に分類される。
 
 
+.. tabularcolumns:: |p{0.10\linewidth}|p{0.20\linewidth}|p{0.30\linewidth}|
 .. list-table:: **表-例外の種類**
    :header-rows: 1
    :widths: 10 20 30
@@ -371,6 +377,7 @@ Detail
 | 例外ハンドリングは、目的に応じて、以下6種類のパターンに分類される。
 | (1)-(2)はユースケース毎、(3)-(6)はシステム(アプリケーション)全体でハンドリングを行う。
 
+.. tabularcolumns:: |p{0.10\linewidth}|p{0.40\linewidth}|p{0.25\linewidth}|p{0.10\linewidth}|p{0.15\linewidth}|
 .. list-table:: **表-例外ハンドリングのパターン**
    :header-rows: 1
    :widths: 10 40 25 10 15
@@ -765,7 +772,7 @@ How to use
 共通設定
 ''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
 
-① 例外のログ出力を行うロガークラス（\ ``ExceptionLogger``\ ）を、bean定義に追加する。
+１． 例外のログ出力を行うロガークラス（\ ``ExceptionLogger``\ ）を、bean定義に追加する。
 
 - **applicationContext.xml**
 
@@ -791,6 +798,7 @@ How to use
         <property name="exceptionCodeResolver" ref="exceptionCodeResolver" /> <!-- (5) -->
     </bean>
 
+ .. tabularcolumns:: |p{0.10\linewidth}|p{0.90\linewidth}|
  .. list-table::
     :header-rows: 1
     :widths: 10 90
@@ -827,7 +835,7 @@ How to use
       - | \ ``ExceptionCodeResolver``\ をDIする。
 
 
-② ログ定義を追加する。
+２． ログ定義を追加する。
 
 - **logback.xml**
 
@@ -853,6 +861,7 @@ How to use
         <appender-ref ref="MONITORING_LOG_FILE" /> <!-- (4) -->
     </logger>
 
+ .. tabularcolumns:: |p{0.10\linewidth}|p{0.90\linewidth}|
  .. list-table::
     :header-rows: 1
     :widths: 10 90
@@ -903,6 +912,7 @@ How to use
         <appender-ref ref="APPLICATION_LOG_FILE" /> <!-- (4) -->
     </root>
 
+ .. tabularcolumns:: |p{0.10\linewidth}|p{0.90\linewidth}|
  .. list-table::
     :header-rows: 1
     :widths: 10 90
@@ -954,6 +964,7 @@ ResultMessagesを保持する例外(BisinessException,ResourceNotFoundException)
     </aop:config>
 
 
+ .. tabularcolumns:: |p{0.10\linewidth}|p{0.90\linewidth}|
  .. list-table::
     :header-rows: 1
     :widths: 10 90
@@ -1013,6 +1024,7 @@ ResultMessagesを保持する例外(BisinessException,ResourceNotFoundException)
     </bean>
 
 
+ .. tabularcolumns:: |p{0.10\linewidth}|p{0.90\linewidth}|
  .. list-table::
     :header-rows: 1
     :widths: 10 90
@@ -1074,6 +1086,7 @@ ResultMessagesを保持する例外(BisinessException,ResourceNotFoundException)
             pointcut="execution(* org.springframework.web.servlet.HandlerExceptionResolver.resolveException(..))" /> <!-- (3) -->
     </aop:config>
 
+ .. tabularcolumns:: |p{0.10\linewidth}|p{0.90\linewidth}|
  .. list-table::
     :header-rows: 1
     :widths: 10 90
@@ -1104,6 +1117,7 @@ ResultMessagesを保持する例外(BisinessException,ResourceNotFoundException)
         <property name="exceptionLogger" ref="exceptionLogger" /> <!-- (2) -->
     </bean>
 
+ .. tabularcolumns:: |p{0.10\linewidth}|p{0.90\linewidth}|
  .. list-table::
     :header-rows: 1
     :widths: 10 90
@@ -1130,6 +1144,7 @@ ResultMessagesを保持する例外(BisinessException,ResourceNotFoundException)
         <url-pattern>/*</url-pattern> <!-- (4) -->
     </filter-mapping>
 
+ .. tabularcolumns:: |p{0.10\linewidth}|p{0.90\linewidth}|
  .. list-table::
     :header-rows: 1
     :widths: 10 90
@@ -1172,6 +1187,7 @@ Spring MVCの、デフォルトの例外ハンドリング機能によって行�
    </error-page>
 
 
+ .. tabularcolumns:: |p{0.10\linewidth}|p{0.90\linewidth}|
  .. list-table::
    :header-rows: 1
    :widths: 10 90
@@ -1197,6 +1213,7 @@ Spring MVCの、デフォルトの例外ハンドリング機能によって行�
     </error-page>
 
 
+ .. tabularcolumns:: |p{0.10\linewidth}|p{0.90\linewidth}|
  .. list-table::
    :header-rows: 1
    :widths: 10 90
@@ -1231,6 +1248,7 @@ Spring MVCの、デフォルトの例外ハンドリング機能によって行�
           <location>/WEB-INF/views/common/error/systemError.jsp</location>
       </error-page>
 
+    .. tabularcolumns:: |p{0.10\linewidth}|p{0.90\linewidth}|
     .. list-table::
       :header-rows: 1
       :widths: 10 90
@@ -1295,6 +1313,7 @@ Spring MVCの、デフォルトの例外ハンドリング機能によって行�
             }
             ...
 
+ .. tabularcolumns:: |p{0.10\linewidth}|p{0.90\linewidth}|
  .. list-table::
     :header-rows: 1
     :widths: 10 90
@@ -1368,6 +1387,7 @@ Spring MVCの、デフォルトの例外ハンドリング機能によって行�
                 "e.ad.od.5001", e.getStockQuantity()), e); // (2)
     }
 
+ .. tabularcolumns:: |p{0.10\linewidth}|p{0.90\linewidth}|
  .. list-table::
     :header-rows: 1
     :widths: 10 90
@@ -1396,6 +1416,7 @@ Spring MVCの、デフォルトの例外ハンドリング機能によって行�
             "not found item entity. item code [" + itemId + "]."); // (2)
     }
 
+ .. tabularcolumns:: |p{0.10\linewidth}|p{0.90\linewidth}|
  .. list-table::
     :header-rows: 1
     :widths: 10 90
@@ -1452,6 +1473,7 @@ Spring MVCの、デフォルトの例外ハンドリング機能によって行�
             e); // (2)
     }
 
+ .. tabularcolumns:: |p{0.10\linewidth}|p{0.90\linewidth}|
  .. list-table::
     :header-rows: 1
     :widths: 10 90
@@ -1494,6 +1516,7 @@ Spring MVCの、デフォルトの例外ハンドリング機能によって行�
 
     // ...
 
+ .. tabularcolumns:: |p{0.10\linewidth}|p{0.90\linewidth}|
  .. list-table::
     :header-rows: 1
     :widths: 10 90
@@ -1584,6 +1607,7 @@ Spring MVCの、デフォルトの例外ハンドリング機能によって行�
 
     }
 
+ .. tabularcolumns:: |p{0.10\linewidth}|p{0.90\linewidth}|
  .. list-table::
     :header-rows: 1
     :widths: 10 90
@@ -1618,6 +1642,7 @@ Spring MVCの、デフォルトの例外ハンドリング機能によって行�
         return new ModelAndView(viewName, modelMap);                        // (6)
     }
 
+ .. tabularcolumns:: |p{0.10\linewidth}|p{0.90\linewidth}|
  .. list-table::
     :header-rows: 1
     :widths: 10 90
@@ -1658,6 +1683,7 @@ MessagesPanelTagを使用して、メッセージを画面表示する方法
 
     <t:messagesPanel /> <!-- (1) -->
 
+ .. tabularcolumns:: |p{0.10\linewidth}|p{0.90\linewidth}|
  .. list-table::
     :header-rows: 1
     :widths: 10 90
@@ -1683,6 +1709,7 @@ MessagesPanelTagを使用して、メッセージを画面表示する方法
         <spring:message code="e.cm.fw.9999" /> <!-- (3) -->
     </p>
 
+ .. tabularcolumns:: |p{0.10\linewidth}|p{0.90\linewidth}|
  .. list-table::
     :header-rows: 1
     :widths: 10 90
@@ -1744,6 +1771,7 @@ Appendix
 | Spring MVCが提供しているクラスとは別に、共通ライブラリより例外ハンドリングを行うためのクラスを提供している。
 | クラスの役割は、以下の通りである。
 
+.. tabularcolumns:: |p{0.10\linewidth}|p{0.20\linewidth}|p{0.65\linewidth}|
 .. list-table:: **表- org.terasoluna.gfw.common.exception パッケージ配下のクラス**
    :header-rows: 1
    :widths: 10 20 65
@@ -1835,6 +1863,7 @@ Appendix
        | 本インタフェースを実装した例外クラスを作成すると、共通ライブラリから提供している例外ハンドリング処理にて、例外で保持している例外コードで、そのまま使われる。
 
 
+.. tabularcolumns:: |p{0.10\linewidth}|p{0.20\linewidth}|p{0.65\linewidth}|
 .. list-table:: **表- org.terasoluna.gfw.web.exception パッケージ配下のクラス**
    :header-rows: 1
    :widths: 10 20 65
@@ -1875,6 +1904,7 @@ SystemExceptionResolverの設定項目について
 本編で説明していない設定項目について、説明する。
 要件に応じて、設定を行うこと。
 
+.. tabularcolumns:: |p{0.05\linewidth}|p{0.15\linewidth}|p{0.15\linewidth}|p{0.45\linewidth}|p{0.20\linewidth}|
 .. list-table:: **本編で説明していない設定項目一覧**
    :header-rows: 1
    :widths: 5 15 15 45 20
@@ -1963,6 +1993,7 @@ SystemExceptionResolverの設定項目について
 
     <t:messagesPanel messagesAttributeName="exceptionResolverBussinessMessages"/> <!-- (2) -->
 
+ .. tabularcolumns:: |p{0.10\linewidth}|p{0.90\linewidth}|
  .. list-table::
     :header-rows: 1
     :widths: 10 90
@@ -2004,6 +2035,7 @@ SystemExceptionResolverの設定項目について
         <spring:message code="e.cm.fw.9999" />
     </p>
 
+ .. tabularcolumns:: |p{0.10\linewidth}|p{0.90\linewidth}|
  .. list-table::
     :header-rows: 1
     :widths: 10 90
@@ -2036,6 +2068,7 @@ SystemExceptionResolverの設定項目について
         <!-- omitted -->
     </bean>
 
+ .. tabularcolumns:: |p{0.10\linewidth}|p{0.90\linewidth}|
  .. list-table::
     :header-rows: 1
     :widths: 10 90
@@ -2071,6 +2104,7 @@ SystemExceptionResolverの設定項目について
     <p>[Exception Message]</p>
     <p>${f:h(exceptionForExceptionResolver.message)}</p> <!-- (2) -->
 
+ .. tabularcolumns:: |p{0.10\linewidth}|p{0.90\linewidth}|
  .. list-table::
     :header-rows: 1
     :widths: 10 90
@@ -2101,6 +2135,7 @@ HTTPレスポンスのキャッシュ制御有無
     </bean>
 
 
+ .. tabularcolumns:: |p{0.10\linewidth}|p{0.90\linewidth}|
  .. list-table::
     :header-rows: 1
     :widths: 10 90
@@ -2127,6 +2162,7 @@ HandlerExceptionResolverLoggingInterceptorの設定項目について
 本編で説明していない設定項目について、説明する。
 要件に応じて、設定を行うこと。
 
+.. tabularcolumns:: |p{0.05\linewidth}|p{0.15\linewidth}|p{0.15\linewidth}|p{0.45\linewidth}|p{0.20\linewidth}|
 .. list-table:: **本編で説明していない設定項目一覧**
    :header-rows: 1
    :widths: 5 15 15 45 20
@@ -2167,6 +2203,7 @@ HandlerExceptionResolverLoggingInterceptorの設定項目について
         </property>
     </bean>
 
+ .. tabularcolumns:: |p{0.10\linewidth}|p{0.90\linewidth}|
  .. list-table::
     :header-rows: 1
     :widths: 10 90
@@ -2193,6 +2230,7 @@ HandlerExceptionResolverLoggingInterceptorの設定項目について
         <property name="ignoreExceptions"><null /></property>
     </bean>
 
+ .. tabularcolumns:: |p{0.10\linewidth}|p{0.90\linewidth}|
  .. list-table::
     :header-rows: 1
     :widths: 10 90
@@ -2209,6 +2247,7 @@ DefaultHandlerExceptionResolverで設定されるHTTPレスポンスコードに
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 DefaultHandlerExceptionResolverでハンドリングされるフレームワーク例外と、HTTPステータスコードのマッピングを、以下に記載する。
 
+.. tabularcolumns:: |p{0.10\linewidth}|p{0.60\linewidth}|p{0.20\linewidth}|
 .. list-table::
    :header-rows: 1
    :widths: 10 60 20
@@ -2255,4 +2294,8 @@ DefaultHandlerExceptionResolverでハンドリングされるフレームワー�
    * - | (13)
      - | org.springframework.validation.BindException
      - | 400
+
+.. raw:: latex
+
+   \newpage
 

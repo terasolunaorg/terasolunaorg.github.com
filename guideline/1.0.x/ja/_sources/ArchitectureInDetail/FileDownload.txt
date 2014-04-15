@@ -1,9 +1,11 @@
 ファイルダウンロード
 ================================================================================
 
-.. contents:: 目次
-   :depth: 3
-   :local:
+.. only:: html
+
+ .. contents:: 目次
+    :depth: 3
+    :local:
 
 Overview
 --------------------------------------------------------------------------------
@@ -77,6 +79,7 @@ PDFファイルのダウンロード
       }
 
 
+.. tabularcolumns:: |p{0.10\linewidth}|p{0.90\linewidth}|
 .. list-table::
    :header-rows: 1
    :widths: 10 90
@@ -164,6 +167,7 @@ ViewResolverの定義
         <property name="order" value="0"/>  <!-- (2) -->
     </bean>
 
+.. tabularcolumns:: |p{0.10\linewidth}|p{0.90\linewidth}|
 .. list-table::
    :header-rows: 1
    :widths: 10 90
@@ -193,6 +197,7 @@ ViewResolverの定義
         	return "samplePdfView";   // (1)
         }
 
+.. tabularcolumns:: |p{0.10\linewidth}|p{0.90\linewidth}|
 .. list-table::
    :header-rows: 1
    :widths: 10 90
@@ -249,6 +254,7 @@ Excelファイルのダウンロード
             }
         }
 
+.. tabularcolumns:: |p{0.10\linewidth}|p{0.90\linewidth}|
 .. list-table::
    :header-rows: 1
    :widths: 10 90
@@ -304,6 +310,7 @@ ViewResolverの定義
         	return "sampleExcelView";  // (1)
         }
 
+.. tabularcolumns:: |p{0.10\linewidth}|p{0.90\linewidth}|
 .. list-table::
    :header-rows: 1
    :widths: 10 90
@@ -362,6 +369,7 @@ ViewResolverの定義
            }
         }
 
+.. tabularcolumns:: |p{0.10\linewidth}|p{0.90\linewidth}|
 .. list-table::
    :header-rows: 1
    :widths: 10 90
@@ -399,6 +407,7 @@ ViewResolverの定義
             return "textFileDownloadView"; // (1)
         }
 
+.. tabularcolumns:: |p{0.10\linewidth}|p{0.90\linewidth}|
 .. list-table::
    :header-rows: 1
    :widths: 10 90
@@ -414,3 +423,8 @@ ViewResolverの定義
         前述してきたように、SpringはModelの情報をいろいろなViewにレンダリングすることができる。
         Springでは、Jasper Reportsのようなレンダリングエンジンをサポートし、さまざまなViewを返却することも可能である。
         詳細は、Spring の公式ドキュメント\ `Spring reference <http://static.springsource.org/spring/docs/3.2.x/spring-framework-reference/html/view.html#view-jasper-reports>`_\ を参照されたい。
+
+.. raw:: latex
+
+   \newpage
+

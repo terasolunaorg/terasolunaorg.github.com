@@ -1,12 +1,10 @@
-.. raw:: pdf
-
-    PageBreak
-
 認可
 ================================================================================
 
-.. contents:: 目次
-   :local:
+.. only:: html
+
+ .. contents:: 目次
+    :local:
 
 Overview
 --------------------------------------------------------------------------------
@@ -109,6 +107,7 @@ How to use
         <!-- omitted -->
     </sec:http>
   
+  .. tabularcolumns:: |p{0.20\linewidth}|p{0.80\linewidth}|
   .. list-table::
      :header-rows: 1
      :widths: 20 80
@@ -142,6 +141,7 @@ How to use
         <!-- omitted -->
     </sec:http>
   
+  .. tabularcolumns:: |p{0.10\linewidth}|p{0.90\linewidth}|
   .. list-table::
      :header-rows: 1
      :widths: 10 90
@@ -177,6 +177,7 @@ How to use
         <!-- omitted -->
     </sec:http>
   
+  .. tabularcolumns:: |p{0.10\linewidth}|p{0.90\linewidth}|
   .. list-table::
      :header-rows: 1
      :widths: 10 90
@@ -190,6 +191,7 @@ How to use
   
   | **使用可能なExpression一覧例**
   
+  .. tabularcolumns:: |p{0.30\linewidth}|p{0.70\linewidth}|
   .. list-table::
      :header-rows: 1
      :widths: 30 70
@@ -230,6 +232,7 @@ How to use
   
   | **使用可能な演算子一覧**
   
+  .. tabularcolumns:: |p{0.20\linewidth}|p{0.80\linewidth}|
   .. list-table::
      :header-rows: 1
      :widths: 20 80
@@ -259,6 +262,7 @@ How to use
         <!-- omitted -->
     </sec:http>
   
+  .. tabularcolumns:: |p{0.10\linewidth}|p{0.90\linewidth}|
   .. list-table::
      :header-rows: 1
      :widths: 10 90
@@ -287,6 +291,7 @@ URLパターンでの例外処理
         <sec:access-denied-handler error-page="/accessDeneidPage" />  <!-- (1) -->
     </sec:http>
   
+  .. tabularcolumns:: |p{0.10\linewidth}|p{0.90\linewidth}|
   .. list-table::
      :header-rows: 1
      :widths: 10 90
@@ -305,6 +310,7 @@ URLパターンでの例外処理
 
 * \ ``<sec:authorize>``\ タグの属性一覧
 
+  .. tabularcolumns:: |p{0.15\linewidth}|p{0.85\linewidth}|
   .. list-table::
      :header-rows: 1
      :widths: 15 85
@@ -344,6 +350,7 @@ URLパターンでの例外処理
       </sec:authorize>
     </div>
   
+  .. tabularcolumns:: |p{0.10\linewidth}|p{0.90\linewidth}|
   .. list-table::
      :header-rows: 1
      :widths: 10 90
@@ -376,6 +383,7 @@ URLパターンでの例外処理
   
     <sec:global-method-security pre-post-annotations="enabled"/>  <!-- (1) -->
   
+  .. tabularcolumns:: |p{0.10\linewidth}|p{0.90\linewidth}|
   .. list-table::
      :header-rows: 1
      :widths: 10 90
@@ -410,6 +418,7 @@ URLパターンでの例外処理
     }
 
   
+  .. tabularcolumns:: |p{0.10\linewidth}|p{0.90\linewidth}|
   .. list-table::
      :header-rows: 1
      :widths: 10 90
@@ -498,6 +507,7 @@ How to extend
         </property>
     </bean>
   
+  .. tabularcolumns:: |p{0.10\linewidth}|p{0.90\linewidth}|
   .. list-table::
      :header-rows: 1
      :widths: 10 90
@@ -532,6 +542,7 @@ How to extend
         <sec:expression-handler ref="webExpressionHandler" />  <!-- (3) -->
     </sec:http>
   
+  .. tabularcolumns:: |p{0.10\linewidth}|p{0.90\linewidth}|
   .. list-table::
      :header-rows: 1
      :widths: 10 90
@@ -564,6 +575,7 @@ How to extend
         <sec:expression-handler ref="methodExpressionHandler" /> <!-- (3) -->
     </sec:global-method-security>
   
+  .. tabularcolumns:: |p{0.10\linewidth}|p{0.90\linewidth}|
   .. list-table::
      :header-rows: 1
      :widths: 10 90
@@ -576,3 +588,8 @@ How to extend
        - | \ ``roleHierarchy``\ プロパティに\ ``RoleHierarchy``\ のBean IDをプロパティに設定する。
      * - | (3)
        - | \ ``expression-handler``\ 要素に、\ ``org.springframework.security.access.expression.SecurityExpressionHandler``\ を実装したハンドラクラスのBean IDを指定する。
+
+.. raw:: latex
+
+   \newpage
+

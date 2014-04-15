@@ -1,9 +1,11 @@
 日付操作(Joda Time)
 --------------------------------------------------------------------------------
 
-.. contents:: 目次
-   :depth: 4
-   :local:
+.. only:: html
+
+ .. contents:: 目次
+    :depth: 4
+    :local:
 
 |
 
@@ -154,6 +156,7 @@ Joda Time, Joda Time JSP tags の利用方法を、以下で説明する。
     int sec = dateTime.getSecondOfMinute();  // (7)
     int millis = dateTime.getMillisOfSecond();  // (8)
 
+.. tabularcolumns:: |p{0.10\linewidth}|p{0.90\linewidth}|
 .. list-table::
    :header-rows: 1
    :widths: 10 90
@@ -201,6 +204,7 @@ java.util.Dateとの相互運用性
 
     Date convertDate = dateTime.toDate();  // (2)
 
+.. tabularcolumns:: |p{0.10\linewidth}|p{0.90\linewidth}|
 .. list-table::
    :header-rows: 1
    :widths: 10 90
@@ -223,6 +227,7 @@ java.util.Dateとの相互運用性
 
     dateTime.toString("yyyy-MM-dd HH:mm:ss");  // (1)
 
+.. tabularcolumns:: |p{0.10\linewidth}|p{0.90\linewidth}|
 .. list-table::
    :header-rows: 1
    :widths: 10 90
@@ -242,6 +247,7 @@ java.util.Dateとの相互運用性
 
     DateTime dateTime = DateTimeFormat.forPattern("yyyy-MM-dd").parseDateTime("2012-08-09");  // (1)
 
+.. tabularcolumns:: |p{0.10\linewidth}|p{0.90\linewidth}|
 .. list-table::
    :header-rows: 1
    :widths: 10 90
@@ -269,6 +275,7 @@ java.util.Dateとの相互運用性
     DateTime afterThreeMonth = dateTime.plusMonths(3);  // (3)
     DateTime nextYear = dateTime.plusYears(1);  // (4)
 
+.. tabularcolumns:: |p{0.10\linewidth}|p{0.90\linewidth}|
 .. list-table::
    :header-rows: 1
    :widths: 10 90
@@ -301,6 +308,7 @@ java.util.Dateとの相互運用性
     DateTime firstDayOfMonth = dayOfMonth.withMinimumValue();  // (2)
     DateTime lastDayOfMonth = dayOfMonth.withMaximumValue();  // (3)
 
+.. tabularcolumns:: |p{0.10\linewidth}|p{0.90\linewidth}|
 .. list-table::
    :header-rows: 1
    :widths: 10 90
@@ -329,6 +337,7 @@ java.util.Dateとの相互運用性
     DateTime firstDayOfWeek = dayOfWeek.withMinimumValue();  // (2)
     DateTime lastDayOfWeek = dayOfWeek.withMaximumValue();  // (3)
 
+.. tabularcolumns:: |p{0.10\linewidth}|p{0.90\linewidth}|
 .. list-table::
    :header-rows: 1
    :widths: 10 90
@@ -367,6 +376,7 @@ java.util.Dateとの相互運用性
   System.out.println(dt1.isEqual(dt3)); // false
 
 
+.. tabularcolumns:: |p{0.10\linewidth}|p{0.90\linewidth}|
 .. list-table::
    :header-rows: 1
    :widths: 10 90
@@ -432,6 +442,7 @@ Intervalで調べられることは、以下4つである。
 
     interval1.overlap(interval4);  // (4)
 
+.. tabularcolumns:: |p{0.10\linewidth}|p{0.90\linewidth}|
 .. list-table::
    :header-rows: 1
    :widths: 10 90
@@ -528,6 +539,7 @@ joda:format タグとは、DateTime, LocalDateTime, LocalDate, LocalTimeオブ�
 
 joda:formatタグの属性一覧は、以下の通りである。
 
+.. tabularcolumns:: |p{0.05\linewidth}|p{0.10\linewidth}|p{0.85\linewidth}|
 .. list-table:: **属性情報**
    :header-rows: 1
    :widths: 5 10 85
@@ -570,6 +582,7 @@ Joda-Timeのほかのタグは、 `Joda Time JSP tags User guide <http://joda-ti
 
 Spring MVCを使って、月単位のカレンダーを表示するサンプルを示す。
 
+.. tabularcolumns:: |p{0.33\linewidth}|p{0.33\linewidth}|p{0.33\linewidth}|
 .. list-table::
     :header-rows: 1
 
@@ -732,3 +745,8 @@ JSP(calendar.jsp)で、次のように出力する。
 .. figure:: images/calendar-month.jpg
    :alt: /calendar/month?year=2012&month=12
    :width: 30%
+
+.. raw:: latex
+
+   \newpage
+

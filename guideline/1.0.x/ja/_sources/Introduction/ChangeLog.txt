@@ -12,3 +12,8 @@
     * - 2013-12-17
       - Public Review版公開
       - 
+
+.. raw:: latex
+
+   \newpage
+

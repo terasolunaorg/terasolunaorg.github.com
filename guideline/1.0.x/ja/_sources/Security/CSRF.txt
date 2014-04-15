@@ -1,12 +1,10 @@
-.. raw:: pdf
-
-    PageBreak
-
 CSRF対策
 ================================================================================
 
-.. contents:: 目次
-   :local:
+.. only:: html
+
+ .. contents:: 目次
+    :local:
 
 Overview
 --------------------------------------------------------------------------------
@@ -133,6 +131,7 @@ spring-security.xmlの設定
         </constructor-arg>
     </bean>
 
+.. tabularcolumns:: |p{0.10\linewidth}|p{0.90\linewidth}|
 .. list-table::
    :header-rows: 1
    :widths: 10 90
@@ -177,6 +176,7 @@ spring-security.xmlの設定
             <location>/WEB-INF/views/common/error/csrf-error.jsp</location>  <!-- (2) -->
         </error-page>
 
+    .. tabularcolumns:: |p{0.10\linewidth}|p{0.90\linewidth}|
     .. list-table::
        :header-rows: 1
        :widths: 10 90
@@ -227,6 +227,7 @@ CSRFトークン用の\ ``RequestDataValueProcessor``\ 実装クラスを利用�
         </constructor-arg>
     </bean>
 
+.. tabularcolumns:: |p{0.10\linewidth}|p{0.90\linewidth}|
 .. list-table::
    :header-rows: 1
    :widths: 10 90
@@ -335,6 +336,7 @@ CSRFトークンを明示的に埋め込む方法
         <input type="hidden" name="${f:h(_csrf.parameterName)}" value="${f:h(_csrf.token)}"/>  <!-- (1) -->
     </form>
 
+.. tabularcolumns:: |p{0.10\linewidth}|p{0.90\linewidth}|
 .. list-table::
    :header-rows: 1
    :widths: 10 90
@@ -419,6 +421,7 @@ AjaxによるCSRFトークンの送信
     });
     </script>
 
+.. tabularcolumns:: |p{0.10\linewidth}|p{0.90\linewidth}|
 .. list-table::
    :header-rows: 1
    :widths: 10 90
@@ -485,6 +488,7 @@ MultipartFilterを使用する方法
         <url-pattern>/*</url-pattern>
     </filter-mapping>
 
+.. tabularcolumns:: |p{0.10\linewidth}|p{0.90\linewidth}|
 .. list-table::
    :header-rows: 1
    :widths: 10 90
@@ -512,6 +516,7 @@ MultipartFilterを使用する方法
         </table>
     </form:form>
 
+.. tabularcolumns:: |p{0.10\linewidth}|p{0.90\linewidth}|
 .. list-table::
    :header-rows: 1
    :widths: 10 90
@@ -545,6 +550,7 @@ MultipartFilterを使用する方法
         </table>
     </form:form>
 
+.. tabularcolumns:: |p{0.10\linewidth}|p{0.90\linewidth}|
 .. list-table::
    :header-rows: 1
    :widths: 10 90
@@ -565,4 +571,7 @@ MultipartFilterを使用する方法
   認証されていないユーザーのアップロード(一時ファイル作成)を許容してしまう。これを防ぐ必要がある場合に、クエリパラメータでCSRFトークンを送る必要がある。
   
   
-  
+.. raw:: latex
+
+   \newpage
+

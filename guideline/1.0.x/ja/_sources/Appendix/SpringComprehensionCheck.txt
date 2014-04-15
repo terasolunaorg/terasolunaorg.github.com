@@ -138,3 +138,8 @@ Spring Framework理解度チェックテスト
        xmlns:tx="http://www.springframework.org/schema/tx"
        
        の定義があるものとする。
+
+.. raw:: latex
+
+   \newpage
+

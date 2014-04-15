@@ -1,9 +1,11 @@
 Ajax
 ================================================================================
 
-.. contents:: 目次
-   :depth: 3
-   :local:
+.. only:: html
+
+ .. contents:: 目次
+    :depth: 3
+    :local:
 
 Overview
 --------------------------------------------------------------------------------
@@ -43,6 +45,7 @@ Ajax通信時で使用されるContent-Type(``"application/xml"`` や ``"applica
 
     <mvc:annotation-driven /> <!-- (1) -->
 
+ .. tabularcolumns:: |p{0.10\linewidth}|p{0.90\linewidth}|
  .. list-table::
    :header-rows: 1
    :widths: 10 90
@@ -66,6 +69,7 @@ Ajax通信時で使用されるContent-Type(``"application/xml"`` や ``"applica
 
 ``<mvc:annotation-driven>`` 指定時にデフォルトで有効化される ``HttpMessageConverter`` は以下の通りである。
 
+ .. tabularcolumns:: |p{0.10\linewidth}|p{0.30\linewidth}|p{0.15\linewidth}|p{0.45\linewidth}|
  .. list-table::
    :header-rows: 1
    :widths: 10 30 15 45
@@ -122,6 +126,7 @@ Ajax通信時で使用されるContent-Type(``"application/xml"`` や ``"applica
     
         <!-- ... -->
     
+     .. tabularcolumns:: |p{0.10\linewidth}|p{0.90\linewidth}|
      .. list-table::
        :header-rows: 1
        :widths: 10 90
@@ -161,6 +166,7 @@ Ajax通信時で使用されるContent-Type(``"application/xml"`` や ``"applica
 
         <!-- omitted -->
 
+     .. tabularcolumns:: |p{0.10\linewidth}|p{0.90\linewidth}|
      .. list-table::
        :header-rows: 1
        :widths: 10 90
@@ -206,6 +212,7 @@ Ajaxを使ってデータを取得する方法について説明する。
 
     }
 
+ .. tabularcolumns:: |p{0.10\linewidth}|p{0.90\linewidth}|
  .. list-table::
    :header-rows: 1
    :widths: 10 90
@@ -234,6 +241,7 @@ Ajaxを使ってデータを取得する方法について説明する。
 
     }
 
+ .. tabularcolumns:: |p{0.10\linewidth}|p{0.90\linewidth}|
  .. list-table::
    :header-rows: 1
    :widths: 10 90
@@ -261,6 +269,7 @@ Ajaxを使ってデータを取得する方法について説明する。
         return searchResult; // (9)
     }
 
+ .. tabularcolumns:: |p{0.10\linewidth}|p{0.90\linewidth}|
  .. list-table::
    :header-rows: 1
    :widths: 10 90
@@ -302,6 +311,7 @@ Ajaxを使ってデータを取得する方法について説明する。
       <button onclick="return searchByFreeWord()">Search</button>
     </form>
 
+ .. tabularcolumns:: |p{0.10\linewidth}|p{0.90\linewidth}|
  .. list-table::
    :header-rows: 1
    :widths: 10 90
@@ -319,6 +329,7 @@ Ajaxを使ってデータを取得する方法について説明する。
         src="${pageContext.request.contextPath}/resources/vendor/jquery/jquery-1.10.2.js">
     </script>
 
+ .. tabularcolumns:: |p{0.10\linewidth}|p{0.90\linewidth}|
  .. list-table::
    :header-rows: 1
    :widths: 10 90
@@ -344,6 +355,7 @@ Ajaxを使ってデータを取得する方法について説明する。
             location="/resources/,classpath:META-INF/resources/"
             cache-period="#{60 * 60}" />
     
+     .. tabularcolumns:: |p{0.10\linewidth}|p{0.90\linewidth}|
      .. list-table::
        :header-rows: 1
        :widths: 10 90
@@ -392,6 +404,7 @@ Ajaxを使ってデータを取得する方法について説明する。
         return false;
     }
 
+ .. tabularcolumns:: |p{0.10\linewidth}|p{0.90\linewidth}|
  .. list-table::
    :header-rows: 1
    :widths: 10 90
@@ -482,6 +495,7 @@ Ajaxを使ってフォームのデータをPOSTし、処理結果を取得する
     }
 
 
+ .. tabularcolumns:: |p{0.10\linewidth}|p{0.90\linewidth}|
  .. list-table::
    :header-rows: 1
    :widths: 10 90
@@ -508,6 +522,7 @@ Ajaxを使ってフォームのデータをPOSTし、処理結果を取得する
 
     }
 
+ .. tabularcolumns:: |p{0.10\linewidth}|p{0.90\linewidth}|
  .. list-table::
    :header-rows: 1
    :widths: 10 90
@@ -541,6 +556,7 @@ Ajaxを使ってフォームのデータをPOSTし、処理結果を取得する
 
     }
 
+ .. tabularcolumns:: |p{0.10\linewidth}|p{0.90\linewidth}|
  .. list-table::
    :header-rows: 1
    :widths: 10 90
@@ -582,6 +598,7 @@ Ajaxを使ってフォームのデータをPOSTし、処理結果を取得する
         <span id="calculationResult"></span> <!-- (8) -->
     </form>
 
+ .. tabularcolumns:: |p{0.10\linewidth}|p{0.90\linewidth}|
  .. list-table::
    :header-rows: 1
    :widths: 10 90
@@ -646,6 +663,7 @@ Ajaxを使ってフォームのデータをPOSTし、処理結果を取得する
         return false;
     }
 
+ .. tabularcolumns:: |p{0.10\linewidth}|p{0.90\linewidth}|
  .. list-table::
    :header-rows: 1
    :widths: 10 90
@@ -789,6 +807,7 @@ Ajaxを使ってフォームのデータをJSON形式に変換してからPOST�
 
     }
 
+ .. tabularcolumns:: |p{0.10\linewidth}|p{0.90\linewidth}|
  .. list-table::
    :header-rows: 1
    :widths: 10 90
@@ -837,6 +856,7 @@ Ajaxを使ってフォームのデータをJSON形式に変換してからPOST�
         return false;
     }
 
+ .. tabularcolumns:: |p{0.10\linewidth}|p{0.90\linewidth}|
  .. list-table::
    :header-rows: 1
    :widths: 10 90
@@ -932,6 +952,7 @@ BindException のハンドリング
 
     }
 
+ .. tabularcolumns:: |p{0.10\linewidth}|p{0.90\linewidth}|
  .. list-table::
    :header-rows: 1
    :widths: 10 90
@@ -1036,6 +1057,7 @@ BindException のハンドリング
     
     }
 
+ .. tabularcolumns:: |p{0.10\linewidth}|p{0.90\linewidth}|
  .. list-table::
    :header-rows: 1
    :widths: 10 90
@@ -1073,6 +1095,7 @@ MethodArgumentNotValidException のハンドリング
     }
 
 
+ .. tabularcolumns:: |p{0.10\linewidth}|p{0.90\linewidth}|
  .. list-table::
    :header-rows: 1
    :widths: 10 90
@@ -1114,6 +1137,7 @@ HttpMessageNotReadableException のハンドリング
     }
 
 
+ .. tabularcolumns:: |p{0.10\linewidth}|p{0.90\linewidth}|
  .. list-table::
    :header-rows: 1
    :widths: 10 90
@@ -1156,6 +1180,7 @@ BindingResult を使用したハンドリング
         return result;
     }
 
+ .. tabularcolumns:: |p{0.10\linewidth}|p{0.90\linewidth}|
  .. list-table::
    :header-rows: 1
    :widths: 10 90
@@ -1202,6 +1227,7 @@ BindingResult を使用したハンドリング
             return new ResponseEntity<CalculationResult>(result, HttpStatus.OK);
         }
 
+      .. tabularcolumns:: |p{0.10\linewidth}|p{0.90\linewidth}|
       .. list-table::
        :header-rows: 1
        :widths: 10 90
@@ -1248,6 +1274,7 @@ BindingResult を使用したハンドリング
         return errorResults;
     }
 
+ .. tabularcolumns:: |p{0.10\linewidth}|p{0.90\linewidth}|
  .. list-table::
    :header-rows: 1
    :widths: 10 90
@@ -1301,6 +1328,7 @@ BindingResult を使用したハンドリング
         return new ResponseEntity<CalculationResult>(result, HttpStatus.OK);
     }
 
+ .. tabularcolumns:: |p{0.10\linewidth}|p{0.90\linewidth}|
  .. list-table::
    :header-rows: 1
    :widths: 10 90
@@ -1314,4 +1342,8 @@ BindingResult を使用したハンドリング
    * - | (3)
      - | 業務例外エラー時のエラー処理を行う。
        | 上記例ではエラー処理は省略しているが、エラーメッセージの設定などが行われる想定である。
+
+.. raw:: latex
+
+   \newpage
 

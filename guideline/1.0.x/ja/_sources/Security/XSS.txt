@@ -1,12 +1,10 @@
-.. raw:: pdf
-
-    PageBreak
-
 XSS対策
 ================================================================================
 
-.. contents:: 目次
-   :local:
+.. only:: html
+
+ .. contents:: 目次
+    :local:
 
 Overview
 --------------------------------------------------------------------------------
@@ -57,6 +55,7 @@ Output Escaping
 | XSSの脆弱性への対応としては、HTML特殊文字をエスケープすることが基本である。
 | エスケープが必要なHTML上の特殊文字の例と、エスケープ後の例は、以下の通りである。
 
+.. tabularcolumns:: |p{0.50\linewidth}|p{0.50\linewidth}|
 .. list-table::
    :header-rows: 1
    :widths: 50 50
@@ -92,6 +91,7 @@ Output Escaping
     </tr>
     <!-- omitted -->
 
+.. tabularcolumns:: |p{0.10\linewidth}|p{0.90\linewidth}|
 .. list-table::
    :header-rows: 1
    :widths: 10 90
@@ -133,6 +133,7 @@ Output Escaping
     </tr>
     .<!-- omitted -->
 
+.. tabularcolumns:: |p{0.10\linewidth}|p{0.90\linewidth}|
 .. list-table::
    :header-rows: 1
    :widths: 10 90
@@ -205,6 +206,7 @@ JavaScript Escaping
 
 | エスケープが必要なJavaScriptの特殊文字の例と、エスケープ後の例は、以下のとおりである。
 
+.. tabularcolumns:: |p{0.50\linewidth}|p{0.50\linewidth}|
 .. list-table::
    :header-rows: 1
    :widths: 50 50
@@ -241,6 +243,7 @@ JavaScript Escaping
     </script>
   <html>
 
+.. tabularcolumns:: |p{0.20\linewidth}|p{0.80\linewidth}|
 .. list-table::
    :header-rows: 1
    :widths: 20 80
@@ -288,6 +291,7 @@ JavaScript Escaping
       <!-- omitted -->
     </script>
 
+.. tabularcolumns:: |p{0.10\linewidth}|p{0.90\linewidth}|
 .. list-table::
    :header-rows: 1
    :widths: 10 90
@@ -323,6 +327,7 @@ Event handler Escaping
 
     <input type="text" onmouseover="alert('output is ${warnCode}') . ">
 
+.. tabularcolumns:: |p{0.20\linewidth}|p{0.80\linewidth}|
 .. list-table::
    :header-rows: 1
    :widths: 20 80
@@ -360,6 +365,7 @@ Event handler Escaping
 
     <input type="text" onmouseover="alert('output is ${f:hjs(warnCode)}') . ">  // (1)
 
+.. tabularcolumns:: |p{0.10\linewidth}|p{0.90\linewidth}|
 .. list-table::
    :header-rows: 1
    :widths: 10 90
@@ -385,3 +391,8 @@ Event handler Escaping
     <!-- omitted -->
     <input type="text" onmouseover="alert('output is \&#39;); alert(\&#39;XSS Attack!\&#39;);\&quot; \/\/ .') ">
     <!-- omitted -->
+
+.. raw:: latex
+
+   \newpage
+

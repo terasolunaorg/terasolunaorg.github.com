@@ -1,9 +1,11 @@
 はじめてのSpring MVCアプリケーション
 --------------------------------------------------------------
 
-.. contents:: 目次
-   :depth: 3
-   :local:
+.. only:: html
+
+ .. contents:: 目次
+    :depth: 3
+    :local:
 
 Spring MVCの、詳細な使い方の解説に入る前に、実際にSpring MVCに触れることで、
 Spring MVCを用いたWebアプリケーションの開発に対するイメージをつかむ。
@@ -15,6 +17,7 @@ Spring MVCを用いたWebアプリケーションの開発に対するイメー�
 
 本節の説明では、次の環境で動作検証している。(他の環境で実施する際は、本書をベースに適宜読み替えて設定していくこと。)
 
+.. tabularcolumns:: |p{0.75\linewidth}|p{0.25\linewidth}|
 .. list-table::
    :header-rows: 1
    :widths: 75 25
@@ -78,6 +81,7 @@ Spring MVCの設定方法を理解するために、生成されたSpring MVCの
    :language: xml
 
 
+.. tabularcolumns:: |p{0.10\linewidth}|p{0.90\linewidth}|
 .. list-table::
    :header-rows: 1
    :widths: 10 90
@@ -100,6 +104,7 @@ Spring MVCの設定方法を理解するために、生成されたSpring MVCの
 簡単に、解説を行う。
 
 
+.. tabularcolumns:: |p{0.10\linewidth}|p{0.90\linewidth}|
 .. list-table::
    :header-rows: 1
    :widths: 10 90
@@ -168,6 +173,7 @@ Controllerの作成
    :language: java
    :emphasize-lines: 12,18,20,23-25
 
+.. tabularcolumns:: |p{0.10\linewidth}|p{0.90\linewidth}|
 .. list-table::
    :header-rows: 1
    :widths: 10 90
@@ -200,6 +206,7 @@ JSPの作成
 .. literalinclude:: ../../resources/helloworld/src/main/webapp/WEB-INF/views/echo/index.jsp
    :language: jsp
 
+.. tabularcolumns:: |p{0.10\linewidth}|p{0.90\linewidth}|
 .. list-table::
    :header-rows: 1
    :widths: 10 90
@@ -265,6 +272,7 @@ Bean Validationを利用するために、pom.xmlのdependenciesの中に、以�
    :language: java
    :emphasize-lines: 5,6,11,12
 
+.. tabularcolumns:: |p{0.10\linewidth}|p{0.90\linewidth}|
 .. list-table::
    :header-rows: 1
    :widths: 10 90
@@ -283,6 +291,7 @@ Bean Validationを利用するために、pom.xmlのdependenciesの中に、以�
    :language: java
    :emphasize-lines: 3,7,27-30
 
+.. tabularcolumns:: |p{0.10\linewidth}|p{0.90\linewidth}|
 .. list-table::
    :header-rows: 1
    :widths: 10 90
@@ -302,6 +311,7 @@ Bean Validationを利用するために、pom.xmlのdependenciesの中に、以�
    :language: jsp
    :emphasize-lines: 15
 
+.. tabularcolumns:: |p{0.10\linewidth}|p{0.90\linewidth}|
 .. list-table::
    :header-rows: 1
    :widths: 10 90
@@ -354,4 +364,8 @@ Bean Validationを利用するために、pom.xmlのdependenciesの中に、以�
 を学んだ。
 
 上記の内容が理解できていない場合は、もう一度、本節を読み、環境構築から始めて、進めていくことで理解が深まる。
+
+.. raw:: latex
+
+   \newpage
 

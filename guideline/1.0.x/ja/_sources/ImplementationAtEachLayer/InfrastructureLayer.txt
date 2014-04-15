@@ -1,9 +1,11 @@
 インフラストラクチャ層の実装
 ================================================================================
 
-.. contents:: 目次
-   :depth: 3
-   :local:
+.. only:: html
+
+ .. contents:: 目次
+    :depth: 3
+    :local:
 
 インフラストラクチャ層では、\ :ref:`repository-class-label`\ を行う。
 
@@ -41,6 +43,7 @@ JPAを使ってRepositoryを実装
           // ...
       }
 
+ .. tabularcolumns:: |p{0.10\linewidth}|p{0.90\linewidth}|
  .. list-table::
     :header-rows: 1
     :widths: 10 90
@@ -65,6 +68,7 @@ JPAを使ってRepositoryを実装
      }
 
 
+ .. tabularcolumns:: |p{0.10\linewidth}|p{0.90\linewidth}|
  .. list-table::
     :header-rows: 1
     :widths: 10 90
@@ -102,6 +106,7 @@ MyBatis2系を使ってRepositoryを実装
          // ...
      }
 
+ .. tabularcolumns:: |p{0.10\linewidth}|p{0.90\linewidth}|
  .. list-table::
     :header-rows: 1
     :widths: 10 90
@@ -222,6 +227,7 @@ MyBatis2系を使ってRepositoryを実装
 
       }
 
+ .. tabularcolumns:: |p{0.10\linewidth}|p{0.90\linewidth}|
  .. list-table::
     :header-rows: 1
     :widths: 10 90
@@ -305,6 +311,7 @@ MyBatis2系を使ってRepositoryを実装
 
      </sqlMap>
 
+ .. tabularcolumns:: |p{0.10\linewidth}|p{0.90\linewidth}|
  .. list-table::
     :header-rows: 1
     :widths: 10 90
@@ -331,3 +338,8 @@ RestTemplateを使って外部システムと連携するRepositoryを実装
     **TBD**
 
     次版以降で詳細化する予定である。
+
+.. raw:: latex
+
+   \newpage
+

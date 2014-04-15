@@ -1,9 +1,11 @@
 排他制御
 ================================================================================
 
-.. contents:: 目次
-   :depth: 3
-   :local:
+.. only:: html
+
+ .. contents:: 目次
+    :depth: 3
+    :local:
 
 |
 
@@ -39,6 +41,7 @@ Problem1
    :width: 90%
    :align: center
 
+ .. tabularcolumns:: |p{0.10\linewidth}|p{0.05\linewidth}|p{0.05\linewidth}|p{0.80\linewidth}|
  .. list-table::
     :header-rows: 1
     :widths: 10 5 5 80
@@ -77,6 +80,7 @@ Problem2
    :width: 90%
    :align: center
 
+ .. tabularcolumns:: |p{0.10\linewidth}|p{0.05\linewidth}|p{0.05\linewidth}|p{0.80\linewidth}|
  .. list-table::
     :header-rows: 1
     :widths: 10 5 5 80
@@ -114,6 +118,7 @@ Problem3
    :width: 90%
    :align: center
 
+ .. tabularcolumns:: |p{0.10\linewidth}|p{0.05\linewidth}|p{0.05\linewidth}|p{0.80\linewidth}|
  .. list-table::
     :header-rows: 1
     :widths: 10 5 5 80
@@ -156,6 +161,7 @@ Problem3
 ANSI/ISO SQL標準では、トランザクションの分離レベル（各トランザクションがそれぞれどの程度互いに影響を及ぼし合うか）を表す指標を定義している。
 以下に、トランザクションの分離レベルを4つ示す。併せて、各分離レベルで起こりうる現象について説明する。
 
+.. tabularcolumns:: |p{0.10\linewidth}|p{0.20\linewidth}|p{0.20\linewidth}|p{0.20\linewidth}|p{0.20\linewidth}|
 .. list-table::
    :header-rows: 1
    :widths: 10 20 20 20 20
@@ -218,6 +224,7 @@ ANSI/ISO SQL標準では、トランザクションの分離レベル（各ト�
 | 使用するデータベースにより、サポートされている分離レベルは違うため、使用するデータベースの特性を理解する必要がある。
 | 以下に、データベース毎でサポートされている分離レベルと、デフォルト値を示す。
 
+ .. tabularcolumns:: |p{0.10\linewidth}|p{0.20\linewidth}|p{0.15\linewidth}|p{0.15\linewidth}|p{0.15\linewidth}|p{0.15\linewidth}|
  .. list-table::
    :header-rows: 1
    :widths: 10 20 15 15 15 15
@@ -266,6 +273,7 @@ ANSI/ISO SQL標準では、トランザクションの分離レベル（各ト�
 | データベース上で管理されているデータをロックする方法は、下記の通り3種類ある。
 | アーキテクトは、これらのロックの特徴を十分に理解した上で、アプリケーションの特性にあったロックの方法を採用すること。
 
+ .. tabularcolumns:: |p{0.10\linewidth}|p{0.15\linewidth}|p{0.40\linewidth}|p{0.35\linewidth}|
  .. list-table:: ロックの種類
    :header-rows: 1
    :widths: 10 15 40 35
@@ -323,6 +331,7 @@ ANSI/ISO SQL標準では、トランザクションの分離レベル（各ト�
 | この特性を活かし、更新時のWHERE句に対して、データの整合性を担保するための条件を指定することで、排他制御を行うことができる。
 | 以下に、データベース毎の、更新時の行ロックのサポート状況を示す。
 
+ .. tabularcolumns:: |p{0.10\linewidth}|p{0.20\linewidth}|p{0.10\linewidth}|p{0.15\linewidth}|p{0.35\linewidth}|
  .. list-table::
    :header-rows: 1
    :widths: 10 20 10 15 35
@@ -369,6 +378,7 @@ ANSI/ISO SQL標準では、トランザクションの分離レベル（各ト�
    :align: center
 
 
+ .. tabularcolumns:: |p{0.10\linewidth}|p{0.05\linewidth}|p{0.05\linewidth}|p{0.80\linewidth}|
  .. list-table::
     :header-rows: 1
     :widths: 10 5 5 80
@@ -482,6 +492,7 @@ ANSI/ISO SQL標準では、トランザクションの分離レベル（各ト�
    :width: 90%
    :align: center
 
+ .. tabularcolumns:: |p{0.10\linewidth}|p{0.05\linewidth}|p{0.05\linewidth}|p{0.80\linewidth}|
  .. list-table::
     :header-rows: 1
     :widths: 10 5 5 80
@@ -542,6 +553,7 @@ ANSI/ISO SQL標準では、トランザクションの分離レベル（各ト�
 | 悲観ロックを使用する場合は、トランザクション開始直後に更新対象となるレコードのロックを取得する。
 | ロックされたレコードは、トランザクションが、コミットまたはロールバックされるまで、他のトランザクションから更新されないため、データの整合性を保証することができる。
 
+.. tabularcolumns:: |p{0.10\linewidth}|p{0.15\linewidth}|p{0.30\linewidth}|
 .. list-table:: RDBMS別の悲観ロック取得方法
    :header-rows: 1
    :widths: 10 15 30
@@ -603,6 +615,7 @@ ANSI/ISO SQL標準では、トランザクションの分離レベル（各ト�
 
 |
 
+ .. tabularcolumns:: |p{0.10\linewidth}|p{0.05\linewidth}|p{0.05\linewidth}|p{0.80\linewidth}|
  .. list-table::
     :header-rows: 1
     :widths: 10 5 5 80
@@ -683,6 +696,7 @@ ANSI/ISO SQL標準では、トランザクションの分離レベル（各ト�
    :width: 90%
    :align: center
 
+ .. tabularcolumns:: |p{0.10\linewidth}|p{0.05\linewidth}|p{0.05\linewidth}|p{0.80\linewidth}|
  .. list-table::
     :header-rows: 1
     :widths: 10 5 5 80
@@ -731,6 +745,7 @@ ANSI/ISO SQL標準では、トランザクションの分離レベル（各ト�
    :width: 90%
    :align: center
 
+ .. tabularcolumns:: |p{0.10\linewidth}|p{0.05\linewidth}|p{0.05\linewidth}|p{0.80\linewidth}|
  .. list-table::
     :header-rows: 1
     :widths: 10 5 5 80
@@ -802,6 +817,7 @@ RDBMSの行ロック機能
 
     }
 
+ .. tabularcolumns:: |p{0.10\linewidth}|p{0.90\linewidth}|
  .. list-table::
     :header-rows: 1
     :widths: 10 90
@@ -833,6 +849,7 @@ RDBMSの行ロック機能
                    where item_code='ITM0000001' and 31<=quantity -- (5)
 
 
+ .. tabularcolumns:: |p{0.10\linewidth}|p{0.90\linewidth}|
  .. list-table::
     :header-rows: 1
     :widths: 10 90
@@ -878,6 +895,7 @@ JPAでは、バージョン管理用のプロパティに、\ ``@javax.persisten
 
     }
 
+ .. tabularcolumns:: |p{0.10\linewidth}|p{0.90\linewidth}|
  .. list-table::
     :header-rows: 1
     :widths: 10 90
@@ -905,6 +923,7 @@ JPAでは、バージョン管理用のプロパティに、\ ``@javax.persisten
     update m_stock set quantity=30, version=7
                    where item_code='ITM0000001' and version=6 -- ( 5)
 
+ .. tabularcolumns:: |p{0.10\linewidth}|p{0.90\linewidth}|
  .. list-table::
     :header-rows: 1
     :widths: 10 90
@@ -948,6 +967,7 @@ JPAでは、バージョン管理用のプロパティに、\ ``@javax.persisten
 
     stockRepository.flush();
 
+ .. tabularcolumns:: |p{0.10\linewidth}|p{0.90\linewidth}|
  .. list-table::
     :header-rows: 1
     :widths: 10 90
@@ -1021,6 +1041,7 @@ RDBMSの行ロック機能と、楽観ロック機能を両方使用する場合
 
     }
 
+ .. tabularcolumns:: |p{0.10\linewidth}|p{0.90\linewidth}|
  .. list-table::
     :header-rows: 1
     :widths: 10 90
@@ -1059,6 +1080,7 @@ Spring Data JPAでは、\ ``@org.springframework.data.jpa.repository.Lock``\ ア
             stock0_.item_code = 'ITM0000001'
         FOR UPDATE;
 
+ .. tabularcolumns:: |p{0.10\linewidth}|p{0.90\linewidth}|
  .. list-table::
     :header-rows: 1
     :widths: 10 90
@@ -1072,6 +1094,7 @@ Spring Data JPAでは、\ ``@org.springframework.data.jpa.repository.Lock``\ ア
 
 \ ``@Lock``\ アノテーションで指定することができる悲観ロックの種類は、以下の通りである。
 
+ .. tabularcolumns:: |p{0.10\linewidth}|p{0.25\linewidth}|p{0.45\linewidth}|p{0.20\linewidth}|
  .. list-table::
    :header-rows: 1
    :widths: 10 25 45 20
@@ -1122,6 +1145,7 @@ Spring Data JPAでは、\ ``@org.springframework.data.jpa.repository.Lock``\ ア
          </property>
      </bean>
 
+ .. tabularcolumns:: |p{0.10\linewidth}|p{0.90\linewidth}|
  .. list-table::
     :header-rows: 1
     :widths: 10 90
@@ -1152,6 +1176,7 @@ Query毎に適応する方法は、以下の通りである。
     @Query("SELECT s FROM Stock s WHERE s.itemCode = :itemCode")
     Stock findOneForUpdate(@Param("itemCode") String itemCode);
 
+ .. tabularcolumns:: |p{0.10\linewidth}|p{0.90\linewidth}|
  .. list-table::
     :header-rows: 1
     :widths: 10 90
@@ -1184,6 +1209,7 @@ RDBMSの行ロック機能を使って排他制御を行う場合は、sqlmapフ
 
     </update>
 
+ .. tabularcolumns:: |p{0.10\linewidth}|p{0.90\linewidth}|
  .. list-table::
     :header-rows: 1
     :widths: 10 90
@@ -1214,6 +1240,7 @@ RDBMSの行ロック機能を使って排他制御を行う場合は、sqlmapフ
 
     }
 
+ .. tabularcolumns:: |p{0.10\linewidth}|p{0.90\linewidth}|
  .. list-table::
     :header-rows: 1
     :widths: 10 90
@@ -1246,6 +1273,7 @@ RDBMSの行ロック機能を使って排他制御を行う場合は、sqlmapフ
     }
 
 
+ .. tabularcolumns:: |p{0.10\linewidth}|p{0.90\linewidth}|
  .. list-table::
     :header-rows: 1
     :widths: 10 90
@@ -1282,6 +1310,7 @@ RDBMSの行ロック機能を使って排他制御を行う場合は、sqlmapフ
 
     }
 
+ .. tabularcolumns:: |p{0.10\linewidth}|p{0.90\linewidth}|
  .. list-table::
     :header-rows: 1
     :widths: 10 90
@@ -1313,6 +1342,7 @@ RDBMSの行ロック機能を使って排他制御を行う場合は、sqlmapフ
         AND version = #version#      <!-- (4) -->
     </update>
 
+ .. tabularcolumns:: |p{0.10\linewidth}|p{0.90\linewidth}|
  .. list-table::
     :header-rows: 1
     :widths: 10 90
@@ -1357,6 +1387,7 @@ RDBMSの行ロック機能を使って排他制御を行う場合は、sqlmapフ
 
     }
 
+ .. tabularcolumns:: |p{0.10\linewidth}|p{0.90\linewidth}|
  .. list-table::
     :header-rows: 1
     :widths: 10 90
@@ -1384,6 +1415,7 @@ RDBMSの行ロック機能を使って排他制御を行う場合は、sqlmapフ
     stock = stockRepository.save(stock); // (4)
 
 
+ .. tabularcolumns:: |p{0.10\linewidth}|p{0.90\linewidth}|
  .. list-table::
     :header-rows: 1
     :widths: 10 90
@@ -1422,6 +1454,7 @@ RDBMSの行ロック機能を使って排他制御を行う場合は、sqlmapフ
 
     stock = stockRepository.save(stock);
 
+ .. tabularcolumns:: |p{0.10\linewidth}|p{0.90\linewidth}|
  .. list-table::
     :header-rows: 1
     :widths: 10 90
@@ -1462,6 +1495,7 @@ RDBMSの行ロック機能と楽観ロック機能を両方使用する場合は
 
     </update>
 
+ .. tabularcolumns:: |p{0.10\linewidth}|p{0.90\linewidth}|
  .. list-table::
     :header-rows: 1
     :widths: 10 90
@@ -1487,6 +1521,7 @@ RDBMSの行ロック機能と楽観ロック機能を両方使用する場合は
         FOR UPDATE <!-- (1) -->
     </select>
 
+ .. tabularcolumns:: |p{0.10\linewidth}|p{0.90\linewidth}|
  .. list-table::
     :header-rows: 1
     :widths: 10 90
@@ -1526,6 +1561,7 @@ Controllerで適切にハンドリングする必要がある。
     }
 
 
+ .. tabularcolumns:: |p{0.10\linewidth}|p{0.90\linewidth}|
  .. list-table::
     :header-rows: 1
     :widths: 10 90
@@ -1561,6 +1597,7 @@ Controllerで適切にハンドリングする必要がある。
 
     }
 
+ .. tabularcolumns:: |p{0.10\linewidth}|p{0.90\linewidth}|
  .. list-table::
     :header-rows: 1
     :widths: 10 90
@@ -1596,6 +1633,7 @@ Controllerで適切にハンドリングする必要がある。
         return new ModelAndView(viewName, modelMap);
     }
 
+ .. tabularcolumns:: |p{0.10\linewidth}|p{0.90\linewidth}|
  .. list-table::
     :header-rows: 1
     :widths: 10 90
@@ -1631,6 +1669,7 @@ Controllerで適切にハンドリングする必要がある。
 
     }
 
+ .. tabularcolumns:: |p{0.10\linewidth}|p{0.90\linewidth}|
  .. list-table::
     :header-rows: 1
     :widths: 10 90
@@ -1667,4 +1706,8 @@ Controllerで適切にハンドリングする必要がある。
       - org.springframework.orm.hibernate3.HibernateSystemException
       - Caused by: Caused by: org.hibernate.dialect.lock.PessimisticEntityLockException
       - Caused by: org.hibernate.exception.LockTimeoutException
+
+.. raw:: latex
+
+   \newpage
 

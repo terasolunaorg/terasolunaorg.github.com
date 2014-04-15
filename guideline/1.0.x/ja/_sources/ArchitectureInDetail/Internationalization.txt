@@ -1,9 +1,11 @@
 国際化
 ================================================================================
 
-.. contents:: 目次
-   :depth: 3
-   :local:
+.. only:: html
+
+ .. contents:: 目次
+    :depth: 3
+    :local:
 
 Overview
 --------------------------------------------------------------------------------
@@ -75,6 +77,7 @@ Localeをユーザ端末（またはブラウザ）の設定により切り替�
         </property>
     </bean>
 
+ .. tabularcolumns:: |p{0.10\linewidth}|p{0.90\linewidth}|
  .. list-table::
     :header-rows: 1
     :widths: 10 90
@@ -92,6 +95,7 @@ Localeをユーザ端末（またはブラウザ）の設定により切り替�
     <bean id="localeResolver"
         class="org.springframework.web.servlet.i18n.AcceptHeaderLocaleResolver" /> <!-- (1) -->
 
+ .. tabularcolumns:: |p{0.10\linewidth}|p{0.90\linewidth}|
  .. list-table::
     :header-rows: 1
     :widths: 10 90
@@ -168,6 +172,7 @@ Localeをユーザ端末（またはブラウザ）の設定により切り替�
   <%@ taglib uri="http://terasoluna.org/functions" prefix="f"%>
   <%@ taglib uri="http://terasoluna.org/tags" prefix="t"%>
 
+ .. tabularcolumns:: |p{0.10\linewidth}|p{0.90\linewidth}|
  .. list-table::
     :header-rows: 1
     :widths: 10 90
@@ -189,6 +194,7 @@ Localeをユーザ端末（またはブラウザ）の設定により切り替�
 
   <spring:message code="title.admin.top" />  <!-- (1) -->
 
+ .. tabularcolumns:: |p{0.10\linewidth}|p{0.90\linewidth}|
  .. list-table::
     :header-rows: 1
     :widths: 10 90
@@ -212,6 +218,7 @@ Localeを画面操作等で動的に変更する場合
 
 | LocaleResolverの実装クラスは使用するLocaleの保存先により、以下の表から選択する。
 
+ .. tabularcolumns:: |p{0.05\linewidth}|p{0.60\linewidth}|p{0.35\linewidth}|
  .. list-table:: **Interceptorを利用する場合に使用するLocaleResolverの種類**
     :header-rows: 1
     :widths: 5 60 35
@@ -256,6 +263,7 @@ SessionLocaleResolver の場合
       <property name="defaultLocale" value="en"/>  <!-- (3) -->
   </bean>
 
+ .. tabularcolumns:: |p{0.10\linewidth}|p{0.90\linewidth}|
  .. list-table::
     :header-rows: 1
     :widths: 10 90
@@ -285,6 +293,7 @@ SessionLocaleResolver の場合
         <property name="paramName" value="lang"/>  <!-- (1) -->
       </bean>
 
+ .. tabularcolumns:: |p{0.10\linewidth}|p{0.90\linewidth}|
  .. list-table::
     :header-rows: 1
     :widths: 10 90
@@ -320,6 +329,7 @@ CookieLocaleResolverの場合
         <property name="cookieName" value="localeCookie"/>  <!-- (4) -->
   </bean>
 
+ .. tabularcolumns:: |p{0.10\linewidth}|p{0.90\linewidth}|
  .. list-table::
     :header-rows: 1
     :widths: 10 90
@@ -372,6 +382,7 @@ SessionLocaleResolverと :ref:`設定<i18n_change_locale_key>` は同様であ�
     <a href='${pageContext.request.contextPath}?locale=ja'>Japanese</a>
     <spring:message code="i.xx.yy.0001" />
 
+ .. tabularcolumns:: |p{0.10\linewidth}|p{0.90\linewidth}|
  .. list-table::
     :header-rows: 1
     :widths: 10 90
@@ -395,4 +406,8 @@ SessionLocaleResolverと :ref:`設定<i18n_change_locale_key>` は同様であ�
    :alt: i18n change locale on screen
    :width: 30%
    :align: center
+
+.. raw:: latex
+
+   \newpage
 

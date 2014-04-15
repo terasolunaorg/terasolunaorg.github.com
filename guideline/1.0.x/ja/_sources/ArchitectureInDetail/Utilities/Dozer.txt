@@ -1,9 +1,11 @@
 Beanマッピング(Dozer)
 --------------------------------------------------------------------------------
 
-.. contents:: 目次
-   :depth: 4
-   :local:
+.. only:: html
+
+ .. contents:: 目次
+    :depth: 4
+    :local:
 
 |
 
@@ -90,6 +92,7 @@ Bean定義ファイル(applicationContext.xml)に、Mapperを作成するFactory
             value="classpath*:/META-INF/dozer/**/*-mapping.xml" /><!-- (1) -->
     </bean>
 
+.. tabularcolumns:: |p{0.10\linewidth}|p{0.90\linewidth}|
 .. list-table::
    :header-rows: 1
    :widths: 10 90
@@ -154,6 +157,7 @@ Bean間のフィールド名、型が同じ場合のマッピング
     System.out.println(destination.getId());
     System.out.println(destination.getName());
 
+.. tabularcolumns:: |p{0.10\linewidth}|p{0.90\linewidth}|
 .. list-table::
    :header-rows: 1
    :widths: 10 90
@@ -186,6 +190,7 @@ Bean間のフィールド名、型が同じ場合のマッピング
     System.out.println(destination.getId());
     System.out.println(destination.getName());
 
+.. tabularcolumns:: |p{0.10\linewidth}|p{0.90\linewidth}|
 .. list-table::
    :header-rows: 1
    :widths: 10 90
@@ -361,6 +366,7 @@ src/main/resources/META-INF/dozerフォルダ内に、(任意の値)-mapping.xml
 
     </mappings>
 
+.. tabularcolumns:: |p{0.10\linewidth}|p{0.90\linewidth}|
 .. list-table::
    :header-rows: 1
    :widths: 10 90
@@ -387,6 +393,7 @@ src/main/resources/META-INF/dozerフォルダ内に、(任意の値)-mapping.xml
     System.out.println(destination.getDestinationId());
     System.out.println(destination.getDestinationName());
 
+.. tabularcolumns:: |p{0.10\linewidth}|p{0.90\linewidth}|
 .. list-table::
    :header-rows: 1
    :widths: 10 90
@@ -577,6 +584,7 @@ Nestしたフィールドのマッピング
     </mappings>
 
 
+.. tabularcolumns:: |p{0.10\linewidth}|p{0.90\linewidth}|
 .. list-table::
    :header-rows: 1
    :widths: 10 90
@@ -846,6 +854,7 @@ Dozerは、以下のCollectionタイプの双方向自動マッピングをサ�
     </mappings>
 
 
+.. tabularcolumns:: |p{0.10\linewidth}|p{0.90\linewidth}|
 .. list-table::
    :header-rows: 1
    :widths: 10 90
@@ -896,6 +905,7 @@ Dozerは、以下のCollectionタイプの双方向自動マッピングをサ�
         <!-- omitted -->
     </mappings>
 
+.. tabularcolumns:: |p{0.10\linewidth}|p{0.90\linewidth}|
 .. list-table::
    :header-rows: 1
    :widths: 10 90
@@ -935,6 +945,7 @@ Dozerは、以下のCollectionタイプの双方向自動マッピングをサ�
         <!-- omitted -->
     </mappings>
 
+.. tabularcolumns:: |p{0.10\linewidth}|p{0.90\linewidth}|
 .. list-table::
    :header-rows: 1
    :widths: 10 90
@@ -1116,6 +1127,7 @@ How to extend
     }
 
 
+.. tabularcolumns:: |p{0.10\linewidth}|p{0.90\linewidth}|
 .. list-table::
    :header-rows: 1
    :widths: 10 90
@@ -1155,6 +1167,7 @@ dozer-configration-mapping.xml
         <!-- omitted -->
     </mappings>
 
+.. tabularcolumns:: |p{0.10\linewidth}|p{0.90\linewidth}|
 .. list-table::
    :header-rows: 1
    :widths: 10 90
@@ -1288,6 +1301,7 @@ Beanを変換する際に、コピーしてほしくないフィールドを除�
     </mappings>
 
 
+.. tabularcolumns:: |p{0.10\linewidth}|p{0.90\linewidth}|
 .. list-table::
    :header-rows: 1
    :widths: 10 90
@@ -1384,6 +1398,7 @@ map-idを指定しない場合はこの設定は適用されず、全フィー�
     System.out.println(destination2.getName());
     System.out.println(destination2.getTitle());
 
+.. tabularcolumns:: |p{0.10\linewidth}|p{0.90\linewidth}|
 .. list-table::
    :header-rows: 1
    :widths: 10 90
@@ -1450,6 +1465,7 @@ map-idを指定しない場合はこの設定は適用されず、全フィー�
         <!-- omitted -->
     </mappings>
 
+.. tabularcolumns:: |p{0.10\linewidth}|p{0.90\linewidth}|
 .. list-table::
    :header-rows: 1
    :widths: 10 90
@@ -1564,6 +1580,7 @@ map-idを指定しない場合はこの設定は適用されず、全フィー�
     </mappings>
 
 
+.. tabularcolumns:: |p{0.10\linewidth}|p{0.90\linewidth}|
 .. list-table::
    :header-rows: 1
    :widths: 10 90
@@ -1639,4 +1656,8 @@ map-idを指定しない場合はこの設定は適用されず、全フィー�
 * Dozerがサポートしていない変換の場合、かつ、その変換用のカスタムコンバーターも存在しない場合。
 
 これらは通常プログラムバグであるので、\ ``map``\ メソッドの呼び出しの部分を正しく修正する必要がある。
+
+.. raw:: latex
+
+   \newpage
 

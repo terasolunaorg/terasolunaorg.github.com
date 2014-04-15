@@ -1,9 +1,11 @@
 ﻿チュートリアル(Todoアプリケーション)
 ********************************************************************************
 
-.. contents:: 目次
-   :depth: 3
-   :local:
+.. only:: html
+
+ .. contents:: 目次
+    :depth: 3
+    :local:
 
 はじめに
 ================================================================================
@@ -28,6 +30,7 @@
 
 このチュートリアルは以下の環境で動作確認している。他の環境で実施する際は本書をベースに適宜読み替えて設定していくこと。
 
+.. tabularcolumns:: |p{0.15\linewidth}|p{0.85\linewidth}|
 .. list-table::
     :header-rows: 1
     :widths: 15 85
@@ -65,6 +68,7 @@ TODOを管理するアプリケーションを作成する。TODOの一覧表示
 アプリケーションの業務要件
 --------------------------------------------------------------------------------
 
+.. tabularcolumns:: |p{0.10\linewidth}|p{0.90\linewidth}|
 .. list-table::
     :header-rows: 1
     :widths: 10 90
@@ -93,6 +97,7 @@ TODOを管理するアプリケーションを作成する。TODOの一覧表示
 
 
 
+.. tabularcolumns:: |p{0.10\linewidth}|p{0.20\linewidth}|p{0.15\linewidth}|p{0.15\linewidth}|p{0.40\linewidth}|
 .. list-table::
     :header-rows: 1
     :widths: 10 20 15 15 40
@@ -155,6 +160,7 @@ Delete TODO
 エラーメッセージ一覧
 --------------------------------------------------------------------------------
 
+.. tabularcolumns:: |p{0.15\linewidth}|p{0.45\linewidth}|p{0.40\linewidth}|
 .. list-table::
     :header-rows: 1
     :widths: 15 45 40
@@ -193,6 +199,7 @@ Delete TODO
    :width: 60%
 
 
+.. tabularcolumns:: |p{0.25\linewidth}|p{0.75\linewidth}|
 .. list-table::
     :widths: 25 75
     :stub-columns: 1
@@ -352,6 +359,7 @@ pom.xmlを編集した後、プロジェクト名を右クリックし、「Mave
 
 Mavenの知識がある場合は、以下の解説を確認すること。
 
+.. tabularcolumns:: |p{0.10\linewidth}|p{0.90\linewidth}|
 .. list-table::
    :header-rows: 1
    :widths: 10 90
@@ -525,6 +533,7 @@ WEB-INFフォルダは「New」->「Folder」で新規作成すること。
     </web-app>
 
 
+.. tabularcolumns:: |p{0.10\linewidth}|p{0.90\linewidth}|
 .. list-table::
    :header-rows: 1
    :widths: 10 90
@@ -574,6 +583,7 @@ views/commonフォルダ、include.jspファイルを作成し、以下のよう
     <%@ taglib uri="http://terasoluna.org/tags" prefix="t"%>
 
 
+.. tabularcolumns:: |p{0.10\linewidth}|p{0.90\linewidth}|
 .. list-table::
    :header-rows: 1
    :widths: 10 90
@@ -648,6 +658,7 @@ META-INF/springフォルダを作成し、「New」->「Spring Bean Configuratio
     </beans>
 
 
+.. tabularcolumns:: |p{0.10\linewidth}|p{0.90\linewidth}|
 .. list-table::
    :header-rows: 1
    :widths: 10 90
@@ -711,6 +722,7 @@ META-INF/spring直下において、「New」->「Spring Bean Configuration File
     </beans>
 
 
+.. tabularcolumns:: |p{0.10\linewidth}|p{0.90\linewidth}|
 .. list-table::
    :header-rows: 1
    :widths: 10 90
@@ -803,6 +815,7 @@ src/main/resources/META-INF/spring/spring-mvc.xmlに、Spring MVCに関する定
         </bean>
     </beans>
 
+.. tabularcolumns:: |p{0.10\linewidth}|p{0.90\linewidth}|
 .. list-table::
    :header-rows: 1
    :widths: 10 90
@@ -891,6 +904,7 @@ src/main/resources/直下において、「New」->「File」でlogback.xmlを�
         </root>
     </configuration>
 
+.. tabularcolumns:: |p{0.10\linewidth}|p{0.90\linewidth}|
 .. list-table::
    :header-rows: 1
    :widths: 10 90
@@ -924,6 +938,7 @@ src/main/resources/直下において、「New」->「File」でlogback.xmlを�
 Todoアプリケーションの開発を始める前に、SpringMVCのHelloWorldアプリケーションを作成して、動作確認を行う。「New」->「Class」で
 
 
+.. tabularcolumns:: |p{0.25\linewidth}|p{0.75\linewidth}|
 .. list-table::
    :widths: 25 75
    :stub-columns: 1
@@ -975,6 +990,7 @@ HelloControllerを以下のように編集する。
     }
 
 
+.. tabularcolumns:: |p{0.10\linewidth}|p{0.90\linewidth}|
 .. list-table::
    :header-rows: 1
    :widths: 10 90
@@ -1016,6 +1032,7 @@ HelloControllerを以下のように編集する。
     </html>
 
 
+.. tabularcolumns:: |p{0.10\linewidth}|p{0.90\linewidth}|
 .. list-table::
    :header-rows: 1
    :widths: 10 90
@@ -1127,6 +1144,7 @@ Domain Objectの作成
 FQCNは、todo.domain.model.Todoとする。JavaBeanとして実装すればよい。
 
 
+.. tabularcolumns:: |p{0.25\linewidth}|p{0.75\linewidth}|
 .. list-table::
    :widths: 25 75
    :stub-columns: 1
@@ -1311,6 +1329,7 @@ RepositoryImplの作成(インフラストラクチャ層)
     }
 
 
+.. tabularcolumns:: |p{0.10\linewidth}|p{0.90\linewidth}|
 .. list-table::
    :header-rows: 1
    :widths: 10 90
@@ -1475,6 +1494,7 @@ FQCNは、todo.domain.serivce.todo.TodoServiceとする。
     }
 
 
+.. tabularcolumns:: |p{0.10\linewidth}|p{0.90\linewidth}|
 .. list-table::
    :header-rows: 1
    :widths: 10 90
@@ -1538,6 +1558,7 @@ Controllerの作成
     }
 
 
+.. tabularcolumns:: |p{0.10\linewidth}|p{0.90\linewidth}|
 .. list-table::
    :header-rows: 1
    :widths: 10 90
@@ -1635,6 +1656,7 @@ TodoControllerに、setUpFormメソッドと、listメソッドを実装する�
     }
 
 
+.. tabularcolumns:: |p{0.10\linewidth}|p{0.90\linewidth}|
 .. list-table::
    :header-rows: 1
    :widths: 10 90
@@ -1708,6 +1730,7 @@ WEB-INF/views/todo/list.jspで、Controllerから渡されたModelを表示す�
     </html>
 
 
+.. tabularcolumns:: |p{0.10\linewidth}|p{0.90\linewidth}|
 .. list-table::
    :header-rows: 1
    :widths: 10 90
@@ -1820,6 +1843,7 @@ TodoControllerに、createメソッドを追加する。
 
     }
 
+.. tabularcolumns:: |p{0.10\linewidth}|p{0.90\linewidth}|
 .. list-table::
    :header-rows: 1
    :widths: 10 90
@@ -1875,6 +1899,7 @@ Formの修正
     }
 
 
+.. tabularcolumns:: |p{0.10\linewidth}|p{0.90\linewidth}|
 .. list-table::
    :header-rows: 1
    :widths: 10 90
@@ -1940,6 +1965,7 @@ JSPの修正
     </html>
 
 
+.. tabularcolumns:: |p{0.10\linewidth}|p{0.90\linewidth}|
 .. list-table::
    :header-rows: 1
    :widths: 10 90
@@ -2134,6 +2160,7 @@ JSPの修正
     </html>
 
 
+.. tabularcolumns:: |p{0.10\linewidth}|p{0.90\linewidth}|
 .. list-table::
    :header-rows: 1
    :widths: 10 90
@@ -2196,6 +2223,7 @@ TodoFormに、todoIdプロパティを追加する必要があるが、そのま
     }
 
 
+.. tabularcolumns:: |p{0.10\linewidth}|p{0.90\linewidth}|
 .. list-table::
    :header-rows: 1
    :widths: 10 90
@@ -2317,6 +2345,7 @@ Controllerの修正
     }
 
 
+.. tabularcolumns:: |p{0.10\linewidth}|p{0.90\linewidth}|
 .. list-table::
    :header-rows: 1
    :widths: 10 90
@@ -2454,6 +2483,7 @@ JSPの修正
     </body>
     </html>
 
+.. tabularcolumns:: |p{0.10\linewidth}|p{0.90\linewidth}|
 .. list-table::
    :header-rows: 1
    :widths: 10 90
@@ -2517,6 +2547,7 @@ Delete用のグループを、TodoFormに追加する。ルールは、Finish用
 
     }
 
+.. tabularcolumns:: |p{0.10\linewidth}|p{0.90\linewidth}|
 .. list-table::
    :header-rows: 1
    :widths: 10 90
@@ -2790,6 +2821,7 @@ src/main/resources/META-INF/spring/todo-infra.propertiesに、インフラスト
     cp.maxWait=60000
 
 
+.. tabularcolumns:: |p{0.10\linewidth}|p{0.90\linewidth}|
 .. list-table::
    :header-rows: 1
    :widths: 10 90
@@ -2921,6 +2953,7 @@ TodoServiceImplの修正
         }
     }
 
+.. tabularcolumns:: |p{0.10\linewidth}|p{0.90\linewidth}|
 .. list-table::
    :header-rows: 1
    :widths: 10 90
@@ -3012,6 +3045,7 @@ todo-infra.xmlに、JPA、およびSpring Data JPAを使用するための設定
 
     </beans>
 
+.. tabularcolumns:: |p{0.10\linewidth}|p{0.90\linewidth}|
 .. list-table::
    :header-rows: 1
    :widths: 10 90
@@ -3066,6 +3100,7 @@ todo-env.xmlの修正
 
     </beans>
 
+.. tabularcolumns:: |p{0.10\linewidth}|p{0.90\linewidth}|
 .. list-table::
    :header-rows: 1
    :widths: 10 90
@@ -3104,6 +3139,7 @@ spring-mvc.xmlにOpenEntityManagerInViewInterceptorを追加し、Interceptorで
 
     </mvc:interceptors>
 
+.. tabularcolumns:: |p{0.10\linewidth}|p{0.90\linewidth}|
 .. list-table::
    :header-rows: 1
    :widths: 10 90
@@ -3171,6 +3207,7 @@ logback.xmlの修正
         </root>
     </configuration>
 
+.. tabularcolumns:: |p{0.10\linewidth}|p{0.90\linewidth}|
 .. list-table::
    :header-rows: 1
    :widths: 10 90
@@ -3262,6 +3299,7 @@ Todoクラスを、データベースとマッピングするために、JPAの�
         }
     }
 
+.. tabularcolumns:: |p{0.10\linewidth}|p{0.90\linewidth}|
 .. list-table::
    :header-rows: 1
    :widths: 10 90
@@ -3299,6 +3337,7 @@ TodoRepositoryの修正
     }
 
 
+.. tabularcolumns:: |p{0.10\linewidth}|p{0.90\linewidth}|
 .. list-table::
    :header-rows: 1
    :widths: 10 90
@@ -3417,6 +3456,7 @@ todo-infra.xmlに、TERASOLUNA DAOを使用するための設定を行う。
     </beans>
 
 
+.. tabularcolumns:: |p{0.10\linewidth}|p{0.90\linewidth}|
 .. list-table::
    :header-rows: 1
    :widths: 10 90
@@ -3469,6 +3509,7 @@ todo-env.xmlの修正
 
     </beans>
 
+.. tabularcolumns:: |p{0.10\linewidth}|p{0.90\linewidth}|
 .. list-table::
    :header-rows: 1
    :widths: 10 90
@@ -3537,6 +3578,7 @@ logback.xmlの修正
     </configuration>
 
 
+.. tabularcolumns:: |p{0.10\linewidth}|p{0.90\linewidth}|
 .. list-table::
    :header-rows: 1
    :widths: 10 90
@@ -3565,6 +3607,7 @@ src/main/resources/META-INF/mybatis/config/sqlMapConfig.xmlを作成し、以下
         <settings useStatementNamespaces="true" />
     </sqlMapConfig>
 
+.. tabularcolumns:: |p{0.10\linewidth}|p{0.90\linewidth}|
 .. list-table::
    :header-rows: 1
    :widths: 10 90
@@ -3652,6 +3695,7 @@ RepositoryImplの修正
     }
 
 
+.. tabularcolumns:: |p{0.10\linewidth}|p{0.90\linewidth}|
 .. list-table::
    :header-rows: 1
    :widths: 10 90
@@ -3804,4 +3848,7 @@ src/main/resources/META-INF/mybatis/sql/todo-sqlmap.xmlを作成し、TodoReposi
 * CSRF対策を追加する → :doc:`../Security/CSRF`
 
 
+.. raw:: latex
+
+   \newpage
 

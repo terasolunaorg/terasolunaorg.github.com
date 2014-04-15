@@ -1,8 +1,10 @@
 入力チェック
 ================================================================================
 
-.. contents:: 目次
-   :depth: 4
+.. only:: html
+
+ .. contents:: 目次
+    :depth: 4
 
 Overview
 --------------------------------------------------------------------------------
@@ -46,6 +48,7 @@ Webアプリケーションの入力チェックには、サーバサイドで�
 
 入力チェックは、単項目チェック、相関項目チェックに分類される。
 
+.. tabularcolumns:: |p{0.15\linewidth}|p{0.30\linewidth}|p{0.25\linewidth}|p{0.30\linewidth}|
 .. list-table::
    :header-rows: 1
    :widths: 15 30 25 30
@@ -106,6 +109,7 @@ How to use
 「新規ユーザー登録」処理を例に用いて、実装方法を説明する。ここでは「新規ユーザー登録」のフォームに、以下のチェックルールを設ける。
 
 
+.. tabularcolumns:: |p{0.20\linewidth}|p{0.30\linewidth}|p{0.50\linewidth}|
 .. list-table::
    :header-rows: 1
    :widths: 20 30 50
@@ -170,6 +174,7 @@ How to use
       }
 
 
+  .. tabularcolumns:: |p{0.10\linewidth}|p{0.90\linewidth}|
   .. list-table::
      :header-rows: 1
      :widths: 10 90
@@ -259,6 +264,7 @@ How to use
         }
       }
 
+  .. tabularcolumns:: |p{0.10\linewidth}|p{0.90\linewidth}|
   .. list-table::
      :header-rows: 1
      :widths: 10 90
@@ -320,6 +326,7 @@ How to use
       </body>
       </html>
 
+  .. tabularcolumns:: |p{0.10\linewidth}|p{0.90\linewidth}|
   .. list-table::
      :header-rows: 1
      :widths: 10 90
@@ -387,6 +394,7 @@ NameとEmailが空文字であることに対するエラーメッセージと�
     </form:form>
 
 
+.. tabularcolumns:: |p{0.10\linewidth}|p{0.90\linewidth}|
 .. list-table::
    :header-rows: 1
    :widths: 10 90
@@ -468,6 +476,7 @@ NameとEmailが空文字であることに対するエラーメッセージと�
         <form:button name="confirm">Confirm</form:button>
     </form:form>
 
+.. tabularcolumns:: |p{0.10\linewidth}|p{0.90\linewidth}|
 .. list-table::
    :header-rows: 1
    :widths: 10 90
@@ -577,6 +586,7 @@ NameとEmailが空文字であることに対するエラーメッセージと�
 
 ECサイトにおける「注文」処理の例を考える。「注文」フォームでは、以下のチェックルールを設ける。
 
+.. tabularcolumns:: |p{0.20\linewidth}|p{0.30\linewidth}|p{0.30\linewidth}|p{0.20\linewidth}|
 .. list-table::
    :header-rows: 1
    :widths: 20 30 30 20
@@ -690,6 +700,7 @@ ECサイトにおける「注文」処理の例を考える。「注文」フォ
     }
 
 
+  .. tabularcolumns:: |p{0.10\linewidth}|p{0.90\linewidth}|
   .. list-table::
      :header-rows: 1
      :widths: 10 90
@@ -822,6 +833,7 @@ ECサイトにおける「注文」処理の例を考える。「注文」フォ
 
 
 
+  .. tabularcolumns:: |p{0.10\linewidth}|p{0.90\linewidth}|
   .. list-table::
      :header-rows: 1
      :widths: 10 90
@@ -897,6 +909,7 @@ ECサイトにおける「注文」処理の例を考える。「注文」フォ
         // omitted setter/getter
     }
 
+  .. tabularcolumns:: |p{0.10\linewidth}|p{0.90\linewidth}|
   .. list-table::
      :header-rows: 1
      :widths: 10 90
@@ -978,6 +991,7 @@ ECサイトにおける「注文」処理の例を考える。「注文」フォ
     </html>
 
 
+  .. tabularcolumns:: |p{0.10\linewidth}|p{0.90\linewidth}|
   .. list-table::
      :header-rows: 1
      :widths: 10 90
@@ -1037,6 +1051,7 @@ ECサイトにおける「注文」処理の例を考える。「注文」フォ
     }
 
 
+  .. tabularcolumns:: |p{0.10\linewidth}|p{0.90\linewidth}|
   .. list-table::
      :header-rows: 1
      :widths: 10 90
@@ -1132,6 +1147,7 @@ Bean Validationでグループを指定する場合、アノテーションの\ 
 
 ここでは、以下の3グループ(interface)を作成する。
 
+.. tabularcolumns:: |p{0.50\linewidth}|p{0.50\linewidth}|
 .. list-table::
    :header-rows: 1
    :widths: 50 50
@@ -1207,6 +1223,7 @@ Bean Validationでグループを指定する場合、アノテーションの\ 
     }
 
 
+  .. tabularcolumns:: |p{0.10\linewidth}|p{0.90\linewidth}|
   .. list-table::
      :header-rows: 1
      :widths: 10 90
@@ -1326,6 +1343,7 @@ Bean Validationでグループを指定する場合、アノテーションの\ 
       }
 
 
+  .. tabularcolumns:: |p{0.10\linewidth}|p{0.90\linewidth}|
   .. list-table::
      :header-rows: 1
      :widths: 10 90
@@ -1341,6 +1359,7 @@ Bean Validationでグループを指定する場合、アノテーションの\ 
 
 この例では、各入力値の組み合わせに対するチェック結果は、以下の表の通りである。
 
+.. tabularcolumns:: |p{0.20\linewidth}|p{0.20\linewidth}|p{0.20\linewidth}|p{0.40\linewidth}|
 .. list-table::
    :header-rows: 1
    :widths: 20 20 20 40
@@ -1408,6 +1427,7 @@ Bean Validationでグループを指定する場合、アノテーションの\ 
 ルールは、以下のようになる。
 
 
+.. tabularcolumns:: |p{0.50\linewidth}|p{0.50\linewidth}|
 .. list-table::
    :header-rows: 1
    :widths: 50 50
@@ -1479,6 +1499,7 @@ Bean Validationでグループを指定する場合、アノテーションの\ 
         // omitted setter/getter
     }
 
+  .. tabularcolumns:: |p{0.10\linewidth}|p{0.90\linewidth}|
   .. list-table::
      :header-rows: 1
      :widths: 10 90
@@ -1553,6 +1574,7 @@ Bean Validationでグループを指定する場合、アノテーションの\ 
         }
     }
 
+  .. tabularcolumns:: |p{0.10\linewidth}|p{0.90\linewidth}|
   .. list-table::
      :header-rows: 1
      :widths: 10 90
@@ -1570,6 +1592,7 @@ Bean Validationでグループを指定する場合、アノテーションの\ 
 前者は\ ``Default``\ グループをControllerクラスで使用し、後者は\ ``Default``\ グループをフォームクラスで使用した。
 
 
+.. tabularcolumns:: |p{0.25\linewidth}|p{0.25\linewidth}|p{0.25\linewidth}|p{0.25\linewidth}|
 .. list-table::
    :header-rows: 1
    :widths: 25 25 25 25
@@ -1625,6 +1648,7 @@ Bean Validationでグループを指定する場合、アノテーションの\ 
 
      }
 
+   .. tabularcolumns:: |p{0.10\linewidth}|p{0.90\linewidth}|
    .. list-table::
       :header-rows: 1
       :widths: 10 90
@@ -1653,6 +1677,7 @@ Spring Validator(\ ``org.springframework.validation.Validator``\ インタフェ
 それぞれ説明するが、先にそれぞれの特徴と推奨する使い分けを述べる。
 
 
+.. tabularcolumns:: |p{0.20\linewidth}|p{0.40\linewidth}|p{0.40\linewidth}|
 .. list-table::
    :header-rows: 1
    :widths: 20 40 40
@@ -1678,6 +1703,7 @@ Spring Validatorによる相関項目チェック実装
 | 「パスワードリセット」処理を例に実装方法を説明する。
 | 以下のルールを実装する。ここでは「パスワードリセット」のフォームに以下のチェックルールを設ける。
 
+.. tabularcolumns:: |p{0.20\linewidth}|p{0.30\linewidth}|p{0.30\linewidth}|p{0.20\linewidth}|
 .. list-table::
    :header-rows: 1
    :widths: 20 30 30 20
@@ -1767,6 +1793,7 @@ Spring Validatorによる相関項目チェック実装
         }
     }
 
+  .. tabularcolumns:: |p{0.10\linewidth}|p{0.90\linewidth}|
   .. list-table::
      :header-rows: 1
      :widths: 10 90
@@ -1847,6 +1874,7 @@ Spring Validatorによる相関項目チェック実装
     }
 
 
+  .. tabularcolumns:: |p{0.10\linewidth}|p{0.90\linewidth}|
   .. list-table::
      :header-rows: 1
      :widths: 10 90
@@ -1990,6 +2018,7 @@ Spring MVCによるBean Validationのエラーメッセージは、以下の順�
 
 本ガイドラインでは、以下のように定義を分けることを推奨する。
 
+.. tabularcolumns:: |p{0.50\linewidth}|p{0.50\linewidth}|
 .. list-table::
    :header-rows: 1
    :widths: 50 50
@@ -2054,6 +2083,7 @@ Bean Validationのアノテーションの\ ``message``\ 属性に指定され�
     javax.validation.constraints.Max.message=can not be greater than {value}.
     org.hibernate.validator.constraints.Email.message=is an invalid e-mail address.
 
+  .. tabularcolumns:: |p{0.10\linewidth}|p{0.90\linewidth}|
   .. list-table::
      :header-rows: 1
      :widths: 10 90
@@ -2298,6 +2328,7 @@ Bean Validationは標準で用意されているチェックルール以外に�
     }
 
 
+  .. tabularcolumns:: |p{0.10\linewidth}|p{0.90\linewidth}|
   .. list-table::
      :header-rows: 1
      :widths: 10 90
@@ -2509,6 +2540,7 @@ Bean Validationは標準で用意されているチェックルール以外に�
     }
 
 
+  .. tabularcolumns:: |p{0.10\linewidth}|p{0.90\linewidth}|
   .. list-table::
      :header-rows: 1
      :widths: 10 90
@@ -2563,6 +2595,7 @@ Bean Validationは標準で用意されているチェックルール以外に�
         }
     }
 
+  .. tabularcolumns:: |p{0.10\linewidth}|p{0.90\linewidth}|
   .. list-table::
      :header-rows: 1
      :widths: 10 90
@@ -2636,6 +2669,7 @@ Bean Validationは標準で用意されているチェックルール以外に�
     }
 
 
+  .. tabularcolumns:: |p{0.10\linewidth}|p{0.90\linewidth}|
   .. list-table::
      :header-rows: 1
      :widths: 10 90
@@ -2693,6 +2727,7 @@ Bean Validationは標準で用意されているチェックルール以外に�
     }
 
 
+  .. tabularcolumns:: |p{0.10\linewidth}|p{0.90\linewidth}|
   .. list-table::
      :header-rows: 1
      :widths: 10 90
@@ -2742,6 +2777,7 @@ Bean Validationは標準で用意されているチェックルール以外に�
         // omitted geter/setter
     }
 
+  .. tabularcolumns:: |p{0.10\linewidth}|p{0.90\linewidth}|
   .. list-table::
      :header-rows: 1
      :widths: 10 90
@@ -2897,6 +2933,7 @@ Bean Validationは標準で用意されているチェックルール以外に�
 
     }
 
+  .. tabularcolumns:: |p{0.10\linewidth}|p{0.90\linewidth}|
   .. list-table::
      :header-rows: 1
      :widths: 10 90
@@ -2930,6 +2967,7 @@ JSR-303アノテーションを、以下に示す。
 
 詳細は、\ `JSR-303 Specification <http://download.oracle.com/otn-pub/jcp/bean_validation-1.0-fr-oth-JSpec/bean_validation-1_0-final-spec.pdf>`_\ の6章を参照されたい。
 
+.. tabularcolumns:: |p{0.25\linewidth}|p{0.25\linewidth}|p{0.25\linewidth}|p{0.25\linewidth}|
 .. list-table::
    :header-rows: 1
 
@@ -3032,6 +3070,7 @@ Hibernate Validatorの代表的なアノテーションを、以下に示す。
 
 詳細は、\ `Hibernate Validator仕様 <http://docs.jboss.org/hibernate/validator/4.3/reference/en-US/html_single/#table-custom-constraints>`_\ を参照されたい。
 
+.. tabularcolumns:: |p{0.25\linewidth}|p{0.25\linewidth}|p{0.25\linewidth}|p{0.25\linewidth}|
 .. list-table::
    :header-rows: 1
 
@@ -3121,6 +3160,7 @@ hibernate-validator-<version>.jar内のorg/hibernate/validatorに、ValidationMe
 
 以下のルールで、エラーメッセージを定義すればよい。
 
+.. tabularcolumns:: |p{0.35\linewidth}|p{0.40\linewidth}|p{0.25\linewidth}|
 .. list-table::
     :widths: 35 40 25
     :header-rows: 1
@@ -3222,3 +3262,8 @@ application-messages.propertiesに以下の定義を行った場合、
 
 | この設定を行った場合は、フォームオブジェクトの文字列フィールドに設定される空文字がすべて\ ``null``\ になる。
 | したがって、必須チェックに、かならず\ ``@NotNull``\ が必要であることに注意しないといけない。
+
+.. raw:: latex
+
+   \newpage
+

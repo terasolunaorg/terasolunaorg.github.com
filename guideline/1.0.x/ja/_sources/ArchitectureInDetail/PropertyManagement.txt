@@ -1,9 +1,11 @@
 プロパティ管理
 ===================================================================================
 
-.. contents:: 目次
-   :depth: 3
-   :local:
+.. only:: html
+
+ .. contents:: 目次
+    :depth: 3
+    :local:
 
 Overview
 --------------------------------------------------------------------------------
@@ -50,6 +52,7 @@ How to use
 
     <context:property-placeholder location="classpath*:META-INF/spring/*.properties"/>  <!-- (1) -->
 
+ .. tabularcolumns:: |p{0.10\linewidth}|p{0.90\linewidth}|
  .. list-table::
     :header-rows: 1
     :widths: 10 90
@@ -90,6 +93,7 @@ How to use
        location="classpath*:META-INF/spring/*.properties" 
        local-override="true" /> <!-- (1) -->
 
+ .. tabularcolumns:: |p{0.10\linewidth}|p{0.90\linewidth}|
  .. list-table::
    :header-rows: 1
    :widths: 10 90
@@ -120,6 +124,7 @@ How to use
                     location="classpath*:/META-INF/spring/*.properties"
                     order="2" ignore-unresolvable="true" /> <!-- (2) -->
 
+            .. tabularcolumns:: |p{0.10\linewidth}|p{0.90\linewidth}|
             .. list-table::
                :header-rows: 1
                :widths: 10 90
@@ -173,6 +178,7 @@ bean定義ファイル内でプロパティを使用する
 
 |
 
+ .. tabularcolumns:: |p{0.10\linewidth}|p{0.90\linewidth}|
  .. list-table::
    :header-rows: 1
    :widths: 10 90
@@ -238,6 +244,7 @@ Javaクラス内でプロパティを使用する
 
    // Getters and setters omitted
 
+ .. tabularcolumns:: |p{0.10\linewidth}|p{0.90\linewidth}|
  .. list-table::
    :header-rows: 1
    :widths: 10 90
@@ -291,6 +298,7 @@ How to extend
                   value="classpath*:/META-INF/spring/*.properties" />
     </bean>
 
+ .. tabularcolumns:: |p{0.10\linewidth}|p{0.90\linewidth}|
  .. list-table::
    :header-rows: 1
    :widths: 10 90
@@ -320,6 +328,7 @@ How to extend
         }
     }
 
+ .. tabularcolumns:: |p{0.10\linewidth}|p{0.90\linewidth}|
  .. list-table::
    :header-rows: 1
    :widths: 10 90
@@ -365,6 +374,7 @@ How to extend
         }
     }
 
+ .. tabularcolumns:: |p{0.10\linewidth}|p{0.90\linewidth}|
  .. list-table::
    :header-rows: 1
    :widths: 10 90
@@ -407,6 +417,7 @@ How to extend
 
     // Getters and setters omitted
 
+ .. tabularcolumns:: |p{0.10\linewidth}|p{0.90\linewidth}|
  .. list-table::
    :header-rows: 1
    :widths: 10 90
@@ -445,4 +456,7 @@ How to extend
       * プロパティファイル中の値は、別サーバへ問い合わせるキーとして使用する。
       * 実際の値を、別サーバから取得する。
 
+.. raw:: latex
+
+   \newpage
 

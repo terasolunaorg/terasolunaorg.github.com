@@ -1,9 +1,11 @@
 ﻿二重送信防止
 ================================================================================
 
-.. contents:: 目次
-   :depth: 4
-   :local:
+.. only:: html
+
+ .. contents:: 目次
+    :depth: 4
+    :local:
 
 Overview
 --------------------------------------------------------------------------------
@@ -13,6 +15,7 @@ Problems
 
 画面を提供するWebアプリケーションでは、以下の操作が行われると、同じ処理が複数回実行されてしまうことがある。
 
+ .. tabularcolumns:: |p{0.10\linewidth}|p{0.30\linewidth}|p{0.60\linewidth}|
  .. list-table::
    :header-rows: 1
    :widths: 10 30 60
@@ -41,6 +44,7 @@ Problems
    :alt: duplicate double click
    :width: 100%
 
+ .. tabularcolumns:: |p{0.10\linewidth}|p{0.90\linewidth}|
  .. list-table::
    :header-rows: 1
    :widths: 10 90
@@ -72,6 +76,7 @@ Problems
    :alt: duplicate reload
    :width: 100%
 
+ .. tabularcolumns:: |p{0.10\linewidth}|p{0.90\linewidth}|
  .. list-table::
    :header-rows: 1
    :widths: 10 90
@@ -105,6 +110,7 @@ Problems
    :alt: duplicate invalid screen flow
    :width: 100%
 
+ .. tabularcolumns:: |p{0.10\linewidth}|p{0.90\linewidth}|
  .. list-table::
    :header-rows: 1
    :widths: 10 90
@@ -134,14 +140,15 @@ Problems
 
 ただし、不正な画面操作を行った後でも更新処理が実行できてしまうと、以下のような問題が発生する。
 
+ .. figure:: ./images/duplicate-allow-malicious-request.png
+    :alt: duplicate allow a malicious request
+    :width: 100%
+
  .. warning::
 
     上記のケースのように、不正な画面操作を行った後でも更新処理が実行できてしまうと、悪意のある攻撃者によって、正規のルート経由せずに直接更新処理が実行される危険度が高まる。
     
-        .. figure:: ./images/duplicate-allow-malicious-request.png
-           :alt: duplicate allow a malicious request
-           :width: 100%
-
+        .. tabularcolumns:: |p{0.10\linewidth}|p{0.90\linewidth}|
         .. list-table::
            :header-rows: 1
            :widths: 10 90
@@ -162,6 +169,7 @@ Solutions
 | 上記の問題を解決する方法として、下記の対策が必要になる。
 | リクエストの改竄など悪意あるオペレーションを考慮すると、 **(3)の「トランザクショントークンチェックの適用」は必須である。**
 
+ .. tabularcolumns:: |p{0.10\linewidth}|p{0.20\linewidth}|p{0.70\linewidth}|
  .. list-table::
    :header-rows: 1
    :widths: 10 20 70
@@ -236,6 +244,7 @@ PRG(Post-Redirect-Get)パターンについて
    :width: 100%
 
 
+ .. tabularcolumns:: |p{0.10\linewidth}|p{0.90\linewidth}|
  .. list-table::
    :header-rows: 1
    :widths: 10 90
@@ -301,6 +310,7 @@ PRG(Post-Redirect-Get)パターンについて
 
 | 想定通りの操作を行った場合の処理フローについて説明する。
 
+ .. tabularcolumns:: |p{0.10\linewidth}|p{0.90\linewidth}|
  .. list-table::
    :header-rows: 1
    :widths: 10 90
@@ -327,6 +337,7 @@ PRG(Post-Redirect-Get)パターンについて
 | 想定外の操作を行った場合の処理フローについて説明する。
 | ここではブラウザの戻るボタンを例にしているが、ショートカットからの直接リクエストなどでも同様である。
 
+ .. tabularcolumns:: |p{0.10\linewidth}|p{0.90\linewidth}|
  .. list-table::
    :header-rows: 1
    :widths: 10 90
@@ -359,6 +370,7 @@ PRG(Post-Redirect-Get)パターンについて
    :alt: prevent invalid screen flow by transaction token check
    :width: 100%
 
+ .. tabularcolumns:: |p{0.10\linewidth}|p{0.90\linewidth}|
  .. list-table::
    :header-rows: 1
    :widths: 10 90
@@ -389,6 +401,7 @@ PRG(Post-Redirect-Get)パターンについて
    :alt: prevent malicious request by transaction token check
    :width: 100%
 
+ .. tabularcolumns:: |p{0.10\linewidth}|p{0.90\linewidth}|
  .. list-table::
    :header-rows: 1
    :widths: 10 90
@@ -409,6 +422,7 @@ PRG(Post-Redirect-Get)パターンについて
    :alt: prevent double submit by transaction token check
    :width: 100%
 
+ .. tabularcolumns:: |p{0.10\linewidth}|p{0.90\linewidth}|
  .. list-table::
    :header-rows: 1
    :widths: 10 90
@@ -448,6 +462,7 @@ PRG(Post-Redirect-Get)パターンについて
    :alt: token only one
    :width: 100%
 
+ .. tabularcolumns:: |p{0.10\linewidth}|p{0.90\linewidth}|
  .. list-table::
    :header-rows: 1
    :widths: 10 90
@@ -581,6 +596,7 @@ PRG(Post-Redirect-Get)パターンの適用
         }
     }
 
+ .. tabularcolumns:: |p{0.10\linewidth}|p{0.90\linewidth}|
  .. list-table::
    :header-rows: 1
    :widths: 10 90
@@ -643,6 +659,7 @@ PRG(Post-Redirect-Get)パターンの適用
       </form:form>
     </div>
 
+ .. tabularcolumns:: |p{0.10\linewidth}|p{0.90\linewidth}|
  .. list-table::
    :header-rows: 1
    :widths: 10 90
@@ -667,6 +684,7 @@ PRG(Post-Redirect-Get)パターンの適用
       </form:form>
     </div>
 
+ .. tabularcolumns:: |p{0.10\linewidth}|p{0.90\linewidth}|
  .. list-table::
    :header-rows: 1
    :widths: 10 90
@@ -707,6 +725,7 @@ PRG(Post-Redirect-Get)パターンの適用
 
 ``@TransactionTokenCheck``\ アノテーションに指定できる属性について説明する。
 
+ .. tabularcolumns:: |p{0.10\linewidth}|p{0.10\linewidth}|p{0.45\linewidth}|p{0.10\linewidth}|p{0.20\linewidth}|
  .. list-table:: \ ``@TransactionTokenCheck``\ アノテーションパラメタ一覧
    :header-rows: 1
    :widths: 10 10 45 10 20
@@ -762,6 +781,7 @@ PRG(Post-Redirect-Get)パターンの適用
 
 |
 
+ .. tabularcolumns:: |p{0.10\linewidth}|p{0.15\linewidth}|p{0.75\linewidth}|
  .. list-table::
    :header-rows: 1
    :widths: 10 15 75
@@ -820,6 +840,7 @@ PRG(Post-Redirect-Get)パターンの適用
 
 トランザクショントークンのライフサイクル(生成、更新、破棄)制御は、以下のタイミングで行われる。
 
+ .. tabularcolumns:: |p{0.10\linewidth}|p{0.20\linewidth}|p{0.70\linewidth}|
  .. list-table::
    :header-rows: 1
    :widths: 10 20 70
@@ -868,6 +889,7 @@ PRG(Post-Redirect-Get)パターンの適用
    :alt: transaction token count
    :width: 100%
 
+ .. tabularcolumns:: |p{0.10\linewidth}|p{0.90\linewidth}|
  .. list-table::
    :header-rows: 1
    :widths: 10 90
@@ -921,6 +943,7 @@ PRG(Post-Redirect-Get)パターンの適用
         </constructor-arg>
     </bean>
 
+ .. tabularcolumns:: |p{0.10\linewidth}|p{0.90\linewidth}|
  .. list-table::
    :header-rows: 1
    :widths: 10 90
@@ -1012,6 +1035,7 @@ PRG(Post-Redirect-Get)パターンの適用
     }
 
 
+ .. tabularcolumns:: |p{0.10\linewidth}|p{0.90\linewidth}|
  .. list-table::
    :header-rows: 1
    :widths: 10 90
@@ -1109,6 +1133,7 @@ PRG(Post-Redirect-Get)パターンの適用
       <input type="submit" name="first" value="first" />
     </form:form>
 
+ .. tabularcolumns:: |p{0.10\linewidth}|p{0.90\linewidth}|
  .. list-table::
    :header-rows: 1
    :widths: 10 90
@@ -1244,6 +1269,7 @@ PRG(Post-Redirect-Get)パターンの適用
 
     }
 
+ .. tabularcolumns:: |p{0.10\linewidth}|p{0.90\linewidth}|
  .. list-table::
    :header-rows: 1
    :widths: 10 90
@@ -1322,6 +1348,7 @@ PRG(Post-Redirect-Get)パターンの適用
 
     }
 
+ .. tabularcolumns:: |p{0.10\linewidth}|p{0.90\linewidth}|
  .. list-table::
    :header-rows: 1
    :widths: 10 90
@@ -1376,6 +1403,7 @@ NameSpaceごとに保持できるトランザクショントークンの上限�
         </bean>
     </mvc:interceptor>
 
+ .. tabularcolumns:: |p{0.10\linewidth}|p{0.90\linewidth}|
  .. list-table::
    :header-rows: 1
    :widths: 10 90
@@ -1413,6 +1441,7 @@ How to extend
       </mvc:argument-resolvers>
     </mvc:annotation-driven>
 
+ .. tabularcolumns:: |p{0.10\linewidth}|p{0.90\linewidth}|
  .. list-table::
    :header-rows: 1
    :widths: 10 90
@@ -1450,6 +1479,7 @@ How to extend
         </mvc:interceptor>
     </mvc:interceptors>
 
+ .. tabularcolumns:: |p{0.10\linewidth}|p{0.90\linewidth}|
  .. list-table::
    :header-rows: 1
    :widths: 10 90
@@ -1497,6 +1527,7 @@ NameSpaceごとに保持できるトランザクショントークンの上限�
         </bean>
     </mvc:interceptor>
 
+ .. tabularcolumns:: |p{0.10\linewidth}|p{0.90\linewidth}|
  .. list-table::
    :header-rows: 1
    :widths: 10 90
@@ -1550,6 +1581,7 @@ Controllerの実装
 
     }
 
+ .. tabularcolumns:: |p{0.10\linewidth}|p{0.90\linewidth}|
  .. list-table::
    :header-rows: 1
    :widths: 10 90
@@ -1587,6 +1619,7 @@ Controllerの実装
    :alt: transaction token globaltoken
    :width: 90%
 
+ .. tabularcolumns:: |p{0.10\linewidth}|p{0.90\linewidth}|
  .. list-table::
    :header-rows: 1
    :widths: 10 90
@@ -1626,6 +1659,7 @@ Quick Reference
 | 例で示す業務アプリケーションで想定するユースケースは、Account,Customerのcreate,update,deleteとする。
 | 下記の表を参考に、システム要件にあったトークンの上限数と、Namespaceの設定を行うこと。
 
+ .. tabularcolumns:: |p{0.10\linewidth}|p{0.20\linewidth}|p{0.15\linewidth}|p{0.20\linewidth}|p{0.15\linewidth}|p{0.20\linewidth}|
  .. list-table::
    :header-rows: 1
    :widths: 10 20 15 20 15 20
@@ -1732,3 +1766,8 @@ Quick Reference
      - | 指定無し
      - | globalToken~key~value
      - | アプリケーション全体の同時実行できる業務は、1に制限される。1セッションでは、1つの操作のみをするプロジェクトで使用すること。
+
+.. raw:: latex
+
+   \newpage
+

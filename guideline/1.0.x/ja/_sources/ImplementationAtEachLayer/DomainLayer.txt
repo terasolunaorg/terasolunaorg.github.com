@@ -1,9 +1,11 @@
 ドメイン層の実装
 ================================================================================
 
-.. contents:: 目次
-   :local:
-   :depth: 3
+.. only:: html
+
+ .. contents:: 目次
+    :local:
+    :depth: 3
 
 ドメイン層の役割
 --------------------------------------------------------------------------------
@@ -11,6 +13,7 @@
 
 ドメイン層の実装は、以下3つに分かれる。
 
+ .. tabularcolumns:: |p{0.10\linewidth}|p{0.30\linewidth}|p{0.60\linewidth}|
  .. list-table::
    :header-rows: 1
    :widths: 10 30 60
@@ -52,6 +55,7 @@
     :width: 100%
     :align: center
 
+ .. tabularcolumns:: |p{0.10\linewidth}|p{0.20\linewidth}|p{0.80\linewidth}|
  .. list-table::
    :header-rows: 1
    :widths: 10 20 80
@@ -96,6 +100,7 @@ Entityクラスの作成方針
 | Entityは原則以下の方針で作成する。
 | 具体的な作成方法については、\ :ref:`domainlayer_entity_example`\ で示す。
 
+ .. tabularcolumns:: |p{0.10\linewidth}|p{0.35\linewidth}|p{0.55\linewidth}|
  .. list-table::
    :header-rows: 1
    :widths: 10 35 55
@@ -160,6 +165,7 @@ Entityクラスの作成例
     :width: 100%
     :align: center
 
+ .. tabularcolumns:: |p{0.10\linewidth}|p{0.20\linewidth}|p{0.15\linewidth}|p{0.55\linewidth}|
  .. list-table::
     :header-rows: 1
     :widths: 10 20 15 55
@@ -211,6 +217,7 @@ Entity構成
     :width: 100%
     :align: center
 
+ .. tabularcolumns:: |p{0.10\linewidth}|p{0.15\linewidth}|p{0.65\linewidth}|
  .. list-table::
     :header-rows: 1
     :widths: 10 15 65
@@ -262,6 +269,7 @@ Orderクラスのみと思ってしまうかもしれないが、主体となる
 
 ショッピングサイトのアプリケーションを作成する上で、主体のEntityとしてなり得るのは、以下4つである。
 
+ .. tabularcolumns:: |p{0.10\linewidth}|p{0.30\linewidth}|p{0.60\linewidth}|
  .. list-table::
    :header-rows: 1
    :widths: 10 30 60
@@ -289,6 +297,7 @@ Orderクラスのみと思ってしまうかもしれないが、主体となる
 
 ショッピングサイトのアプリケーションを作成する上で、主体のEntityとならないのは、以下2つである。
 
+ .. tabularcolumns:: |p{0.10\linewidth}|p{0.30\linewidth}|p{0.60\linewidth}|
  .. list-table::
    :header-rows: 1
    :widths: 10 30 60
@@ -345,6 +354,7 @@ Repositoryは、RepositoryインタフェースとRepositoryImplで構成され�
    :width: 100%
    :align: center
 
+ .. tabularcolumns:: |p{0.10\linewidth}|p{0.20\linewidth}|p{0.30\linewidth}|p{0.40\linewidth}|
  .. list-table::
    :header-rows: 1
    :widths: 10 20 30 40
@@ -404,6 +414,7 @@ Repositoryの作成方針
 Repositoryは原則以下の方針で作成する。
 
 
+ .. tabularcolumns:: |p{0.10\linewidth}|p{0.35\linewidth}|p{0.55\linewidth}|
  .. list-table::
    :header-rows: 1
    :widths: 10 35 55
@@ -478,6 +489,7 @@ Repositoryインタフェースの作成
          void delete(T entity);
      }
 
+ .. tabularcolumns:: |p{0.10\linewidth}|p{0.90\linewidth}|
  .. list-table::
     :header-rows: 1
     :widths: 10 90
@@ -513,6 +525,7 @@ Repositoryインタフェースの作成
          long countByFinished(boolean finished);
      }
 
+ .. tabularcolumns:: |p{0.10\linewidth}|p{0.90\linewidth}|
  .. list-table::
     :header-rows: 1
     :widths: 10 90
@@ -536,6 +549,7 @@ Repositoryインタフェースのメソッド定義
 | 実際のアプリケーション開発では、汎用的なCRUD操作のみで開発できることは稀で、かならずメソッドの追加が必要になる。
 | 追加するメソッドは、以下のルールに則り追加することを推奨する。
 
+ .. tabularcolumns:: |p{0.10\linewidth}|p{0.20\linewidth}|p{0.70\linewidth}|
  .. list-table::
     :header-rows: 1
     :widths: 10 20 70
@@ -611,6 +625,7 @@ Repositoryインタフェースのメソッド定義
           boolean existsByCreateAt(Date date);
       }
 
+ .. tabularcolumns:: |p{0.10\linewidth}|p{0.90\linewidth}|
  .. list-table::
     :header-rows: 1
     :widths: 10 90
@@ -692,6 +707,7 @@ Serviceのクラス構成
 | Serviceは、ServiceクラスとSharedServiceクラスで構成され、それぞれ以下の役割を担う。
 | 本ガイドラインでは、\ ``@Service``\ アノテーションが付与されたPOJO(Plain Old Java Object)のことを、ServiceクラスおよびSharedServiceクラスと定義しているが、メソッドのシグネチャを限定するようなインタフェースや、基底クラスを作成することを、禁止しているわけではない。
 
+ .. tabularcolumns:: |p{0.10\linewidth}|p{0.15\linewidth}|p{0.30\linewidth}|p{0.45\linewidth}|
  .. list-table::
    :header-rows: 1
    :widths: 10 15 30 45
@@ -737,6 +753,7 @@ Serviceクラスから、別のServiceクラスの呼び出しを禁止する理
 | これは、Serviceクラスは、特定のControllerに対して業務ロジックを提供するクラスであり、別のServiceから利用される前提で作成しないためである。
 | 仮に、別のServiceクラスから直接呼び出してしまうと、以下のような状況が発生しやすくなり、\ **保守性などを低下させる危険性が、高まる。**\
 
+ .. tabularcolumns:: |p{0.10\linewidth}|p{0.90\linewidth}|
  .. list-table::
    :header-rows: 1
    :widths: 10 90
@@ -775,6 +792,7 @@ Serviceの作成単位
 
 Serviceの作成単位は主に以下の３パターンとなる。
 
+ .. tabularcolumns:: |p{0.10\linewidth}|p{0.15\linewidth}|p{0.25\linewidth}|p{0.50\linewidth}|
  .. list-table::
    :header-rows: 1
    :widths: 10 15 25 50
@@ -848,6 +866,7 @@ Entity毎にServiceを作成する場合は、以下のような開発イメー�
    :width: 100%
    :align: center
 
+ .. tabularcolumns:: |p{0.10\linewidth}|p{0.90\linewidth}|
  .. list-table::
    :header-rows: 1
    :widths: 10 90
@@ -875,6 +894,7 @@ Entity毎にServiceを作成する場合は、以下のような開発イメー�
    :width: 100%
    :align: center
 
+ .. tabularcolumns:: |p{0.10\linewidth}|p{0.90\linewidth}|
  .. list-table::
    :header-rows: 1
    :widths: 10 90
@@ -903,6 +923,7 @@ Entity毎にServiceを作成する場合は、以下のような開発イメー�
    :width: 100%
    :align: center
 
+ .. tabularcolumns:: |p{0.10\linewidth}|p{0.90\linewidth}|
  .. list-table::
    :header-rows: 1
    :widths: 10 90
@@ -930,6 +951,7 @@ Entity毎にServiceを作成する場合は、以下のような開発イメー�
    :width: 100%
    :align: center
 
+ .. tabularcolumns:: |p{0.10\linewidth}|p{0.90\linewidth}|
  .. list-table::
    :header-rows: 1
    :widths: 10 90
@@ -963,6 +985,7 @@ Entity毎にServiceを作成する場合は、以下のような開発イメー�
    :width: 100%
    :align: center
 
+ .. tabularcolumns:: |p{0.10\linewidth}|p{0.90\linewidth}|
  .. list-table::
    :header-rows: 1
    :widths: 10 90
@@ -994,6 +1017,7 @@ Serviceクラスを作成する際の注意点を、以下に示す。
         // omitted
     }
 
+ .. tabularcolumns:: |p{0.10\linewidth}|p{0.90\linewidth}|
  .. list-table::
    :header-rows: 1
    :widths: 10 90
@@ -1028,6 +1052,7 @@ Serviceクラスを作成する際の注意点を、以下に示す。
 
     <context:component-scan base-package="xxx.yyy.zzz.domain" /> <!-- (1) -->
 
+ .. tabularcolumns:: |p{0.10\linewidth}|p{0.90\linewidth}|
  .. list-table::
    :header-rows: 1
    :widths: 10 90
@@ -1106,6 +1131,7 @@ Serviceクラスのメソッドを作成する際の注意点を、以下に示�
 
     }
 
+ .. tabularcolumns:: |p{0.10\linewidth}|p{0.90\linewidth}|
  .. list-table::
    :header-rows: 1
    :widths: 10 90
@@ -1321,6 +1347,7 @@ ServiceおよびSharedServiceでは、アプリケーションで使用する業
         return orderResult;
     }
 
+ .. tabularcolumns:: |p{0.10\linewidth}|p{0.90\linewidth}|
  .. list-table::
    :header-rows: 1
    :widths: 10 90
@@ -1369,6 +1396,7 @@ ServiceおよびSharedServiceでは、アプリケーションで使用する業
 
     // omitted
 
+ .. tabularcolumns:: |p{0.10\linewidth}|p{0.90\linewidth}|
  .. list-table::
    :header-rows: 1
    :widths: 10 90
@@ -1408,6 +1436,7 @@ ServiceおよびSharedServiceでは、アプリケーションで使用する業
             "Item master data is not found. item code is " + itemCode + ".");
     }
 
+ .. tabularcolumns:: |p{0.10\linewidth}|p{0.90\linewidth}|
  .. list-table::
    :header-rows: 1
    :widths: 10 90
@@ -1431,6 +1460,7 @@ ServiceおよびSharedServiceでは、アプリケーションで使用する業
             "Failed file copy. src file '" + srcFile + "' dest file '" + destFile + "'.", e);
     }
 
+ .. tabularcolumns:: |p{0.10\linewidth}|p{0.90\linewidth}|
  .. list-table::
    :header-rows: 1
    :widths: 10 90
@@ -1483,6 +1513,7 @@ Spring Frameworkから提供されている「宣言型トランザクション�
 | トランザクション管理対象とするクラスまたはクラスメソッドに対して\ ``@Transactional``\ アノテーションを指定する。
 | トランザクション制御に必要となる情報は、\ ``@Transactional``\ アノテーションの属性で指定する。
 
+ .. tabularcolumns:: |p{0.10\linewidth}|p{0.10\linewidth}|p{0.80\linewidth}|
  .. list-table::
     :header-rows: 1
     :widths: 10 10 80
@@ -1682,6 +1713,7 @@ PlatformTransactionManagerの設定
          <property name="dataSource" ref="dataSource" />
      </bean>
 
+ .. tabularcolumns:: |p{0.10\linewidth}|p{0.90\linewidth}|
  .. list-table::
     :header-rows: 1
     :widths: 10 90
@@ -1700,6 +1732,7 @@ PlatformTransactionManagerの設定
      * WebSphere、Oracle WebLogic Server、Oracle OC4JでJTAを使う場合、<tx:jta-transaction-manager/> を指定することで、
        アプリケーションサーバ用に拡張された\ ``JtaTransactionManager``\ が、自動的で設定される。
 
+ .. tabularcolumns:: |p{0.10\linewidth}|p{0.35\linewidth}|p{0.55\linewidth}|
  .. list-table:: **Spring Frameworkから提供されているPlatformTransactionManagerの実装クラス**
     :header-rows: 1
     :widths: 10 35 55
@@ -1736,6 +1769,7 @@ PlatformTransactionManagerの設定
 
      <tx:annotation-driven /> <!-- (1) -->
 
+ .. tabularcolumns:: |p{0.10\linewidth}|p{0.90\linewidth}|
  .. list-table::
     :header-rows: 1
     :widths: 10 90
@@ -1761,6 +1795,7 @@ PlatformTransactionManagerの設定
           proxy-target-class="true"
           order="0" />
 
+ .. tabularcolumns:: |p{0.10\linewidth}|p{0.15\linewidth}|p{0.75\linewidth}|
  .. list-table::
     :header-rows: 1
     :widths: 10 15 75
@@ -1822,6 +1857,7 @@ Appendix
       O execute(I input);
     }
 
+ .. tabularcolumns:: |p{0.10\linewidth}|p{0.90\linewidth}|
  .. list-table::
     :header-rows: 1
     :widths: 10 90
@@ -1855,6 +1891,7 @@ Appendix
         return "redirect:/xxx?complete";
     }
 
+ .. tabularcolumns:: |p{0.10\linewidth}|p{0.90\linewidth}|
  .. list-table::
     :header-rows: 1
     :widths: 10 90
@@ -1902,6 +1939,7 @@ Appendix
     }
 
 
+ .. tabularcolumns:: |p{0.10\linewidth}|p{0.90\linewidth}|
  .. list-table::
     :header-rows: 1
     :widths: 10 90
@@ -1953,6 +1991,7 @@ Appendix
     }
 
 
+ .. tabularcolumns:: |p{0.10\linewidth}|p{0.90\linewidth}|
  .. list-table::
     :header-rows: 1
     :widths: 10 90
@@ -1979,4 +2018,8 @@ Tips
 | ビジネスルールのエラーをフィールド毎に出力する必要がある場合、Controller側(Bean ValidationまたはSpring Validator)の仕組みを利用する必要がある。
 | このケースの場合、チェックロジック自体はServiceとして実装し、Bean ValidationまたはSpring ValidatorからServiceのメソッドを呼び出す方式で実現することを推奨する。
 | 詳細は、\ :doc:`../ArchitectureInDetail/Validation`\ の業務ロジックチェックを参照されたい。
+
+.. raw:: latex
+
+   \newpage
 

@@ -1,9 +1,11 @@
 データベースアクセス（共通編）
 ================================================================================
 
-.. contents:: 目次
-   :local:
-   :depth: 3
+.. only:: html
+
+ .. contents:: 目次
+    :local:
+    :depth: 3
 
 
 .. todo::
@@ -54,6 +56,7 @@ JDBC DataSourceについて
 | Webアプリケーションでデータソースを使用する場合、アプリケーションサーバから提供されるJDBCデータソースを使うのが一般的である。
 | アプリケーションサーバから提供されるJDBCデータソースは、コネクションプーリング機能など、Webアプリケーションで使うために必要な機能が、標準で提供されている。
 
+ .. tabularcolumns:: |p{0.10\linewidth}|p{0.35\linewidth}|p{0.55\linewidth}|
  .. list-table:: **アプリケーションサーバから提供されているデータソース**
     :header-rows: 1
     :widths: 10 35 55
@@ -83,6 +86,7 @@ OSS/Third-Partyライブラリ提供のJDBCデータソース
 | アプリケーションサーバから提供されるJDBCデータソースを使わない場合は、OSS/Third-Partyライブラリから提供されているJDBCデータソースを使用する。
 | 本ガイドラインでは、「Apache Commons DBCP」のみ紹介するが、他のライブラリを使ってもよい。
 
+ .. tabularcolumns:: |p{0.10\linewidth}|p{0.35\linewidth}|p{0.55\linewidth}|
  .. list-table:: **OSS/Third-Partyライブラリから提供されているJDBCデータソース**
     :header-rows: 1
     :widths: 10 35 55
@@ -130,6 +134,7 @@ Spring Framework提供のJDBCデータソース
 | データアクセス例外をハンドリングする場合、\ ``DataAccessException``\ をcatchするのではなく、エラー内容を通知するサブクラスの例外をcatchすること。
 | 以下に、アプリケーションコードでハンドリングする可能性がある代表的なサブクラスを紹介する。
 
+ .. tabularcolumns:: |p{0.10\linewidth}|p{0.35\linewidth}|p{0.55\linewidth}|
  .. list-table:: **ハンドリングする可能性があるDBアクセス例外のサブクラス**
     :header-rows: 1
     :widths: 10 35 55
@@ -203,6 +208,7 @@ Spring Framework提供のJDBCデータソース
          throw new BusinessException(ResultMessages.error().add("e.xx.xx.0002"), e); // (2)
      }
 
+ .. tabularcolumns:: |p{0.10\linewidth}|p{0.90\linewidth}|
  .. list-table::
     :header-rows: 1
     :widths: 10 90
@@ -220,6 +226,7 @@ Spring Framework提供のJDBCデータソース
 | アプリケーションによっては、複数のデータソースが必要になる場合がある。
 | 以下に、複数のデータソースが必要になる代表的なケースを紹介する。
 
+ .. tabularcolumns:: |p{0.10\linewidth}|p{0.30\linewidth}|p{0.30\linewidth}|p{0.30\linewidth}|
  .. list-table:: **複数のデータソースが必要になるう代表的なケース**
     :header-rows: 1
     :widths: 10 30 30 30
@@ -293,6 +300,7 @@ How to use
 
     <jee:jndi-lookup id="dataSource" jndi-name="jdbc/SampleDataSource" /> <!-- (3) -->
 
+ .. tabularcolumns:: |p{0.10\linewidth}|p{0.10\linewidth}|p{0.80\linewidth}|
  .. list-table::
     :header-rows: 1
     :widths: 10 10 80
@@ -353,6 +361,7 @@ Bean定義したDataSouceを使用する場合の設定
         <!-- (7) -->
     </bean>
 
+ .. tabularcolumns:: |p{0.10\linewidth}|p{0.90\linewidth}|
  .. list-table::
     :header-rows: 1
     :widths: 10 90
@@ -408,6 +417,7 @@ log4jdbc提供のデータソースの設定
         <constructor-arg ref="dataSourceSpied" /> <!-- (3) -->
     </bean>
 
+ .. tabularcolumns:: |p{0.10\linewidth}|p{0.90\linewidth}|
  .. list-table::
     :header-rows: 1
     :widths: 10 90
@@ -465,6 +475,7 @@ log4jdbc用ロガーの設定
         <level value="debug" />
     </logger>
 
+ .. tabularcolumns:: |p{0.10\linewidth}|p{0.90\linewidth}|
  .. list-table::
     :header-rows: 1
     :widths: 10 90
@@ -508,6 +519,7 @@ log4jdbcのオプションの設定
      log4jdbc.dump.sql.maxlinelength=0
      # (2)
 
+ .. tabularcolumns:: |p{0.10\linewidth}|p{0.90\linewidth}|
  .. list-table::
     :header-rows: 1
     :widths: 10 90
@@ -557,6 +569,7 @@ N+1問題とは、データベースから取得するレコード数に比例�
     :width: 90%
     :align: center
 
+ .. tabularcolumns:: |p{0.10\linewidth}|p{0.90\linewidth}|
  .. list-table::
     :header-rows: 1
     :widths: 10 90
@@ -588,6 +601,7 @@ JOIN(Join Fetch)を使用して解決する
     :width: 90%
     :align: center
 
+ .. tabularcolumns:: |p{0.10\linewidth}|p{0.90\linewidth}|
  .. list-table::
     :header-rows: 1
     :widths: 10 90
@@ -626,6 +640,7 @@ JOIN(Join Fetch)を使用して解決する
     :width: 90%
     :align: center
 
+ .. tabularcolumns:: |p{0.10\linewidth}|p{0.90\linewidth}|
  .. list-table::
     :header-rows: 1
     :widths: 10 90
@@ -672,6 +687,7 @@ LIKE検索時のエスケープについて
 
 具体的なエスケープ例を以下に示す。
 
+ .. tabularcolumns:: |p{0.10\linewidth}|p{0.15\linewidth}|p{0.25\linewidth}|p{0.10\linewidth}|p{0.40\linewidth}|
  .. list-table::
     :header-rows: 1
     :widths: 10 15 25 10 40
@@ -738,6 +754,7 @@ LIKE検索時のエスケープについて
 | 共通ライブラリから提供している\ ``QueryEscapeUtils``\ クラスのエスケープ用メソッドの一覧を、以下に示す。
 | 具体的な使用例については、How to useの\ :ref:`data-access-common_howtouse_like_escape`\ を参照されたい。
 
+ .. tabularcolumns:: |p{0.10\linewidth}|p{0.35\linewidth}|p{0.55\linewidth}|
  .. list-table::
     :header-rows: 1
     :widths: 10 35 55
@@ -794,6 +811,7 @@ Sequencerについて
 | 共通ライブラリから提供しているSequencer機能のクラス一覧を以下に示す。
 | 具体的な使用例については、How to useの\ :ref:`data-access-common_howtouse_sequencer`\ を参照されたい。
 
+ .. tabularcolumns:: |p{0.10\linewidth}|p{0.30\linewidth}|p{0.60\linewidth}|
  .. list-table::
     :header-rows: 1
     :widths: 10 30 60
@@ -837,6 +855,7 @@ Sequencerをbean定義する。
             value="SELECT TO_CHAR(CURRVAL('seq_article'),'AFM0000000000')" />
     </bean>
 
+ .. tabularcolumns:: |p{0.10\linewidth}|p{0.90\linewidth}|
  .. list-table::
     :header-rows: 1
     :widths: 10 90
@@ -886,6 +905,7 @@ bean定義したSequencerからシーケンス値を取得する。
         return savedArticle;
     }
 
+ .. tabularcolumns:: |p{0.10\linewidth}|p{0.90\linewidth}|
  .. list-table::
     :header-rows: 1
     :widths: 10 90
@@ -913,6 +933,7 @@ Spring Frameworkから提供されているデータアクセス例外へ変換�
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 Spring Frameworkのデータアクセス例外へ変換する役割を持つクラスを、以下に示す。
 
+ .. tabularcolumns:: |p{0.10\linewidth}|p{0.35\linewidth}|p{0.60\linewidth}|
  .. list-table:: **Spring Frameworkのデータアクセス例外への変換クラス**
     :header-rows: 1
     :widths: 10 35 60
@@ -941,6 +962,7 @@ Spring Frameworkから提供されているJDBCデータソースクラス
 | Spring Frameworkでは、JDBCデータソースの実装を提供しているが、非常にシンプルなクラスなので、商用環境で使われることは少ない。
 | 主に単体試験時に使用されるクラスである。
 
+ .. tabularcolumns:: |p{0.10\linewidth}|p{0.35\linewidth}|p{0.55\linewidth}|
  .. list-table:: **Spring Frameworkから提供されているJDBCデータソース**
     :header-rows: 1
     :widths: 10 35 55
@@ -968,6 +990,7 @@ Spring Frameworkから提供されているJDBCデータソースクラス
 | Spring Frameworkでは、JDBCデータソースの動作を拡張したアダプタークラスを提供している。
 | 以下に、代表的なアダプタークラスを紹介する。
 
+ .. tabularcolumns:: |p{0.10\linewidth}|p{0.35\linewidth}|p{0.55\linewidth}|
  .. list-table:: **Spring Frameworkから提供されているJDBCデータソースのアダプター**
     :header-rows: 1
     :widths: 10 35 55
@@ -984,3 +1007,7 @@ Spring Frameworkから提供されているJDBCデータソースクラス
         | IsolationLevelDataSourceRoute
       - 実行中のトランザクションの独立性レベルによって、使用するデータソースを切り替えるためのアダプタークラス。
       
+.. raw:: latex
+
+   \newpage
+

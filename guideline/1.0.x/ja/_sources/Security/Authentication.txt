@@ -1,12 +1,10 @@
-.. raw:: pdf
-
-    PageBreak
-
 認証
 ================================================================================
 
-.. contents:: 目次
-   :local:
+.. only:: html
+
+ .. contents:: 目次
+    :local:
 
 Overview
 --------------------------------------------------------------------------------
@@ -96,6 +94,7 @@ How to use
       </sec:http>
   </beans>
 
+.. tabularcolumns:: |p{0.10\linewidth}|p{0.90\linewidth}|
 .. list-table::
    :header-rows: 1
    :widths: 10 90
@@ -110,6 +109,7 @@ How to use
 
   \ ``<form-login>``\ 、\ ``<http-basic>``\ 、\ ``<logout>``\ 要素について説明する。
 
+    .. tabularcolumns:: |p{0.15\linewidth}|p{0.85\linewidth}|
     .. list-table::
        :header-rows: 1
        :widths: 15 85
@@ -165,6 +165,7 @@ spring-security.xml
     </sec:http>
   </beans>
 
+.. tabularcolumns:: |p{0.10\linewidth}|p{0.90\linewidth}|
 .. list-table::
    :header-rows: 1
    :widths: 10 90
@@ -218,6 +219,7 @@ spring-security.xml
           <input type="submit" value="Login">
       </form:form>
 
+  .. tabularcolumns:: |p{0.10\linewidth}|p{0.90\linewidth}|
   .. list-table::
      :header-rows: 1
      :widths: 10 90
@@ -245,6 +247,7 @@ spring-security.xml
               messagesAttributeName="SPRING_SECURITY_LAST_EXCEPTION"/><!-- (2) -->
       </c:if>
 
+  .. tabularcolumns:: |p{0.10\linewidth}|p{0.90\linewidth}|
   .. list-table::
      :header-rows: 1
      :widths: 10 90
@@ -270,6 +273,7 @@ spring-security.xml
 
     <mvc:view-controller path="/login" view-name="login" /><!-- (1) -->
   
+  .. tabularcolumns:: |p{0.10\linewidth}|p{0.90\linewidth}|
   .. list-table::
      :header-rows: 1
      :widths: 10 90
@@ -324,6 +328,7 @@ spring-security.xml
       <!-- omitted -->
     </sec:http>
 
+  .. tabularcolumns:: |p{0.10\linewidth}|p{0.90\linewidth}|
   .. list-table::
      :header-rows: 1
      :widths: 10 90
@@ -365,6 +370,7 @@ Spring Securityにおける認証処理の設定は\ ``AuthenticationProvider``\
           </sec:authentication-provider>
       </sec:authentication-manager>
 
+  .. tabularcolumns:: |p{0.10\linewidth}|p{0.90\linewidth}|
   .. list-table::
      :header-rows: 1
      :widths: 10 90
@@ -447,6 +453,7 @@ Spring Securityにおける認証処理の設定は\ ``AuthenticationProvider``\
 
 テーブル名: account
 
+.. tabularcolumns:: |p{0.15\linewidth}|p{0.15\linewidth}|p{0.10\linewidth}|p{0.60\linewidth}|
 .. list-table::
    :header-rows: 1
    :widths: 15 15 10 60
@@ -489,6 +496,7 @@ Spring Securityにおける認証処理の設定は\ ``AuthenticationProvider``\
       value="SELECT username, authority FROM account WHERE username = ?" /><!-- (4) -->
   </bean>
 
+.. tabularcolumns:: |p{0.10\linewidth}|p{0.90\linewidth}|
 .. list-table::
    :header-rows: 1
    :widths: 10 90
@@ -543,6 +551,7 @@ Javaクラスで\ ``UserDetails``\ オブジェクトを利用する
       return null;
   }
 
+.. tabularcolumns:: |p{0.10\linewidth}|p{0.90\linewidth}|
 .. list-table::
    :header-rows: 1
    :widths: 10 90
@@ -573,6 +582,7 @@ Javaクラスで\ ``UserDetails``\ オブジェクトを利用する
       // omitted ...
   }
 
+.. tabularcolumns:: |p{0.10\linewidth}|p{0.90\linewidth}|
 .. list-table::
    :header-rows: 1
    :widths: 10 90
@@ -611,6 +621,7 @@ JSPで\ ``UserDetails``\ にアクセスする
 
   <sec:authentication property="principal.username" /><!-- (1) -->
 
+.. tabularcolumns:: |p{0.10\linewidth}|p{0.90\linewidth}|
 .. list-table::
    :header-rows: 1
    :widths: 10 90
@@ -628,6 +639,7 @@ JSPで\ ``UserDetails``\ にアクセスする
 
   ${f:h(userDetails.username)} <!-- (2) -->
 
+.. tabularcolumns:: |p{0.10\linewidth}|p{0.90\linewidth}|
 .. list-table::
    :header-rows: 1
    :widths: 10 90
@@ -672,6 +684,7 @@ Spring Securityにおけるセッション管理
     <!-- omitted -->
   </sec:http>
 
+.. tabularcolumns:: |p{0.10\linewidth}|p{0.90\linewidth}|
 .. list-table::
    :header-rows: 1
    :widths: 10 90
@@ -726,6 +739,7 @@ Spring Securityにおけるセッション管理
     </bean>
     <!-- omitted -->
 
+.. tabularcolumns:: |p{0.10\linewidth}|p{0.90\linewidth}|
 .. list-table::
    :header-rows: 1
    :widths: 10 90
@@ -759,6 +773,7 @@ Spring Securityにおけるセッション管理
       <listener-class>org.springframework.security.web.session.HttpSessionEventPublisher</listener-class><!-- (1) -->
     </listener>
 
+.. tabularcolumns:: |p{0.10\linewidth}|p{0.90\linewidth}|
 .. list-table::
    :header-rows: 1
    :widths: 10 90
@@ -806,6 +821,7 @@ Spring Securityにおけるセッション管理
       <bean id="sessionRegistry" class="org.springframework.security.core.session.SessionRegistryImpl" />  <!-- (8) -->
       <!-- omitted -->
 
+  .. tabularcolumns:: |p{0.10\linewidth}|p{0.90\linewidth}|
   .. list-table::
      :header-rows: 1
      :widths: 10 90
@@ -863,6 +879,7 @@ Spring Securityにおけるセッション管理
       </bean>
       <!-- omitted -->
 
+  .. tabularcolumns:: |p{0.10\linewidth}|p{0.90\linewidth}|
   .. list-table::
      :header-rows: 1
      :widths: 10 90
@@ -928,6 +945,7 @@ spring-security.xml
       </property>
     </bean>
 
+.. tabularcolumns:: |p{0.10\linewidth}|p{0.90\linewidth}|
 .. list-table::
    :header-rows: 1
    :widths: 10 90
@@ -946,6 +964,7 @@ spring-security.xml
 
 Spring Securityがスローする代表的な例外を、以下に記述する。
 
+.. tabularcolumns:: |p{0.10\linewidth}|p{0.25\linewidth}|p{0.25\linewidth}|
 .. list-table::
    :header-rows: 1
    :widths: 10 25 65
@@ -1001,6 +1020,7 @@ spring-security.xml
     <!-- omitted -->
   </sec:http>
 
+.. tabularcolumns:: |p{0.10\linewidth}|p{0.90\linewidth}|
 .. list-table::
    :header-rows: 1
    :widths: 10 90
@@ -1039,6 +1059,7 @@ spring-security.xml
     <!-- omitted -->
   </sec:http>
 
+.. tabularcolumns:: |p{0.10\linewidth}|p{0.90\linewidth}|
 .. list-table::
    :header-rows: 1
    :widths: 10 90
@@ -1070,6 +1091,7 @@ spring-security.xml
       <!-- omitted -->
   </form>
 
+.. tabularcolumns:: |p{0.10\linewidth}|p{0.90\linewidth}|
 .. list-table::
    :header-rows: 1
    :widths: 10 90
@@ -1122,6 +1144,7 @@ How to extend
       }
   }
 
+.. tabularcolumns:: |p{0.10\linewidth}|p{0.90\linewidth}|
 .. list-table::
    :header-rows: 1
    :widths: 10 90
@@ -1184,6 +1207,7 @@ How to extend
     </bean>
     <!-- omitted -->
 
+  .. tabularcolumns:: |p{0.10\linewidth}|p{0.90\linewidth}|
   .. list-table::
      :header-rows: 1
      :widths: 10 90
@@ -1204,6 +1228,7 @@ How to extend
      <sec:authentication property="principal.customer" var="customer"/><!-- (1) -->
      ${f:h(customer.customerName)}<!-- (1) -->
 
+  .. tabularcolumns:: |p{0.10\linewidth}|p{0.90\linewidth}|
   .. list-table::
     :header-rows: 1
     :widths: 10 90
@@ -1231,6 +1256,7 @@ How to extend
         // omitted ...
     }
 
+  .. tabularcolumns:: |p{0.10\linewidth}|p{0.90\linewidth}|
   .. list-table::
     :header-rows: 1
     :widths: 10 90
@@ -1308,6 +1334,7 @@ How to extend
         }
     }
 
+.. tabularcolumns:: |p{0.10\linewidth}|p{0.90\linewidth}|
 .. list-table::
    :header-rows: 1
    :widths: 10 90
@@ -1363,6 +1390,7 @@ How to extend
         // omitted
     }
 
+.. tabularcolumns:: |p{0.10\linewidth}|p{0.90\linewidth}|
 .. list-table::
    :header-rows: 1
    :widths: 10 90
@@ -1434,6 +1462,7 @@ How to extend
         }
     }
 
+.. tabularcolumns:: |p{0.10\linewidth}|p{0.90\linewidth}|
 .. list-table::
    :header-rows: 1
    :widths: 10 90
@@ -1482,6 +1511,7 @@ How to extend
         <!-- omitted -->
     </form:form>
 
+  .. tabularcolumns:: |p{0.10\linewidth}|p{0.90\linewidth}|
   .. list-table::
      :header-rows: 1
      :widths: 10 90
@@ -1528,6 +1558,7 @@ How to extend
 
     <!-- omitted -->
 
+  .. tabularcolumns:: |p{0.10\linewidth}|p{0.90\linewidth}|
   .. list-table::
      :header-rows: 1
      :widths: 10 90
@@ -1596,6 +1627,7 @@ Appendix
       &page.size=${f:h(param['page.size'])}" />  <!-- (1) -->
   </form:form>
 
+.. tabularcolumns:: |p{0.10\linewidth}|p{0.90\linewidth}|
 .. list-table::
    :header-rows: 1
    :widths: 10 90
@@ -1620,6 +1652,7 @@ Appendix
        <!-- omitted -->
   </form:form>
 
+.. tabularcolumns:: |p{0.10\linewidth}|p{0.90\linewidth}|
 .. list-table::
    :header-rows: 1
    :widths: 10 90
@@ -1659,6 +1692,7 @@ Appendix
   </bean>
                   <!-- omitted -->
 
+.. tabularcolumns:: |p{0.10\linewidth}|p{0.90\linewidth}|
 .. list-table::
    :header-rows: 1
    :widths: 10 90
@@ -1693,3 +1727,8 @@ Appendix
   拡張する際の注意点としては、redirectToの値を改竄されても問題ない作りにする必要がある。
   たとえば、リダイレクト先のURLを直接指定せず番号指定にする（ページ番号指定）、
   リダイレクト先のドメインをチェックする等のいずれか対応が必要となる。
+
+.. raw:: latex
+
+   \newpage
+

@@ -1,12 +1,10 @@
-.. raw:: pdf
-
-    PageBreak
-
 パスワードハッシュ化
 ================================================================================
 
-.. contents:: 目次
-   :local:
+.. only:: html
+
+ .. contents:: 目次
+    :local:
 
 Overview
 --------------------------------------------------------------------------------
@@ -41,6 +39,7 @@ How to use
 
 **PasswordEncoderの実装クラス一覧**
 
+.. tabularcolumns:: |p{0.50\linewidth}|p{0.50\linewidth}|
 .. list-table::
    :header-rows: 1
    :widths: 50 50
@@ -84,6 +83,7 @@ BCryptPasswordEncoderの設定例
     <bean id="passwordEncoder"
         class="org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder" />    <!-- (1) -->
   
+  .. tabularcolumns:: |p{0.10\linewidth}|p{0.90\linewidth}|
   .. list-table::
      :header-rows: 1
      :widths: 10 90
@@ -145,6 +145,7 @@ BCryptPasswordEncoderの設定例
             return passwordEncoder.matches(rawPassword, customer.getPassword()); // (3)
         }
   
+  .. tabularcolumns:: |p{0.10\linewidth}|p{0.90\linewidth}|
   .. list-table::
      :header-rows: 1
      :widths: 10 90
@@ -208,6 +209,7 @@ StandardPasswordEncoderの設定例
       <constructor-arg value="${passoword.encoder.secret}"/> <!-- (1) -->
     </bean>
   
+  .. tabularcolumns:: |p{0.10\linewidth}|p{0.90\linewidth}|
   .. list-table::
      :header-rows: 1
      :widths: 10 90
@@ -238,6 +240,7 @@ StandardPasswordEncoderの設定例
           <constructor-arg value="#{systemEnvironment['PASSWORD_ENCODER_SECRET']}" /> <!-- (1) -->
         </bean>
       
+      .. tabularcolumns:: |p{0.10\linewidth}|p{0.90\linewidth}|
       .. list-table::
          :header-rows: 1
          :widths: 10 90
@@ -297,6 +300,7 @@ ShaPasswordEncoderを使用した例
     </bean>
   
   
+  .. tabularcolumns:: |p{0.10\linewidth}|p{0.90\linewidth}|
   .. list-table::
      :header-rows: 1
      :widths: 10 90
@@ -330,6 +334,7 @@ ShaPasswordEncoderを使用した例
         <property name="userPropertyToUse" value="username" /> <!-- (4) -->
     </bean>
   
+  .. tabularcolumns:: |p{0.10\linewidth}|p{0.90\linewidth}|
   .. list-table::
      :header-rows: 1
      :widths: 10 90
@@ -370,6 +375,7 @@ ShaPasswordEncoderを使用した例
                      rawPassword, userSalt); // (2)
       }
   
+  .. tabularcolumns:: |p{0.10\linewidth}|p{0.90\linewidth}|
   .. list-table::
      :header-rows: 1
      :widths: 10 90
@@ -402,3 +408,8 @@ Appendix
   なお、複数のユーザに対して同一のソルトを利用していると、同一パスワードを設定しているユーザが存在した時に、
   ハッシュ値から同一のパスワードである事が分かってしまう。
   そのため、ソルトはユーザごとに異なる値（ランダム値等）を設定することを推奨する。
+
+.. raw:: latex
+
+   \newpage
+

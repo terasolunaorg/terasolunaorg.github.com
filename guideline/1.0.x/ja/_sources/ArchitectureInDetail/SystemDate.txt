@@ -1,9 +1,11 @@
 システム時刻
 ================================================================================
 
-.. contents:: 目次
-   :depth: 3
-   :local:
+.. only:: html
+
+ .. contents:: 目次
+    :depth: 3
+    :local:
 
 Overview
 --------------------------------------------------------------------------------
@@ -16,6 +18,7 @@ Overview
 | 共通ライブラリでは、返却する時刻を任意に変更できる ``org.terasoluna.gfw.common.date.DateFactory`` インタフェースを提供している。
 | ``DateFactory``\ により、以下5種類の型で日付を返却することができる。
 
+.. tabularcolumns:: |p{0.30\linewidth}|p{0.70\linewidth}|
 .. list-table::
    :header-rows: 1
    :widths: 30 70
@@ -42,6 +45,7 @@ How to use
 | 実装クラスは使用用途に応じて、以下から選択する。
 
 
+.. tabularcolumns:: |p{0.30\linewidth}|p{0.35\linewidth}|p{0.35\linewidth}|
 .. list-table::
    :header-rows: 1
    :widths: 30 35 35
@@ -85,6 +89,7 @@ How to use
 
     <bean id="dateFactory" class="org.terasoluna.gfw.common.date.DefaultDateFactory" />  <!-- (1) -->
 
+.. tabularcolumns:: |p{0.10\linewidth}|p{0.90\linewidth}|
 .. list-table::
    :header-rows: 1
    :widths: 10 90
@@ -110,6 +115,7 @@ How to use
         // omitted
     }
 
+.. tabularcolumns:: |p{0.10\linewidth}|p{0.90\linewidth}|
 .. list-table::
    :header-rows: 1
    :widths: 10 90
@@ -147,6 +153,7 @@ DBから取得した固定の時刻を返却する
         <property name="currentTimestampQuery" value="SELECT now FROM system_date" />  <!-- (3) -->
     </bean>
 
+.. tabularcolumns:: |p{0.10\linewidth}|p{1.00\linewidth}|
 .. list-table::
    :header-rows: 1
    :widths: 10 100
@@ -171,6 +178,7 @@ DBから取得した固定の時刻を返却する
   CREATE TABLE system_date(now timestamp NOT NULL);
   INSERT INTO system_date(now) VALUES (current_date);
 
+.. tabularcolumns:: |p{0.20\linewidth}|p{0.80\linewidth}|
 .. list-table::
    :header-rows: 1
    :widths: 20 80
@@ -204,6 +212,7 @@ DBから取得した固定の時刻を返却する
    :alt: system-date-jdbc-fixed-date-factory
    :width: 30%
 
+.. tabularcolumns:: |p{0.10\linewidth}|p{0.90\linewidth}|
 .. list-table::
    :header-rows: 1
    :widths: 10 90
@@ -250,6 +259,7 @@ DBから取得した固定の時刻を返却する
     <!-- <property name="adjustedValueQuery" value="SELECT diff * 24 * 60 * 60 * 1000 FROM operation_date" /> --><!-- (5) -->
   </bean>
 
+.. tabularcolumns:: |p{0.10\linewidth}|p{0.90\linewidth}|
 .. list-table::
    :header-rows: 1
    :widths: 10 90
@@ -276,6 +286,7 @@ DBから取得した固定の時刻を返却する
   CREATE TABLE operation_date(diff bigint NOT NULL);
   INSERT INTO operation_date(diff) VALUES (-1440);
 
+.. tabularcolumns:: |p{0.20\linewidth}|p{0.80\linewidth}|
 .. list-table::
    :header-rows: 1
    :widths: 20 80
@@ -316,6 +327,7 @@ DBから取得した固定の時刻を返却する
    :alt: system-date-jdbc-fixed-date-factory
    :width: 30%
 
+.. tabularcolumns:: |p{0.10\linewidth}|p{0.90\linewidth}|
 .. list-table::
    :header-rows: 1
    :widths: 10 90
@@ -359,6 +371,7 @@ DBから取得した固定の時刻を返却する
     <property name="useCache" value="true" /> <!-- (1) -->
   </bean>
 
+.. tabularcolumns:: |p{0.10\linewidth}|p{1.00\linewidth}|
 .. list-table::
    :header-rows: 1
    :widths: 10 100
@@ -393,6 +406,7 @@ DBから取得した固定の時刻を返却する
             // omitted
         }
 
+.. tabularcolumns:: |p{0.10\linewidth}|p{0.90\linewidth}|
 .. list-table::
    :header-rows: 1
    :widths: 10 90
@@ -531,6 +545,7 @@ Unit Test
         }
     }
 
+.. tabularcolumns:: |p{0.10\linewidth}|p{0.90\linewidth}|
 .. list-table::
    :header-rows: 1
    :widths: 10 90
@@ -578,6 +593,7 @@ Unit Test
         // omitted
     }
 
+.. tabularcolumns:: |p{0.10\linewidth}|p{1.00\linewidth}|
 .. list-table::
    :header-rows: 1
    :widths: 10 100
@@ -643,6 +659,7 @@ Unit Test
     }
   }
 
+.. tabularcolumns:: |p{0.10\linewidth}|p{0.90\linewidth}|
 .. list-table::
    :header-rows: 1
    :widths: 10 90
@@ -676,6 +693,7 @@ Integration Test
 | JdbcAdjustedDateFactoryを使用し、試験対象の日付との差分を計算するSQLを設定する。
 
 
+.. tabularcolumns:: |p{0.10\linewidth}|p{0.90\linewidth}|
 .. list-table::
    :header-rows: 1
    :widths: 10 90
@@ -732,3 +750,8 @@ Production
         **必ず、** :ref:`useCache<useCache>` **をtrueに設定すること**
 
 | 時間を変更することがない場合は、DefaultDateFactoryに設定ファイルを変更することを推奨する。
+
+.. raw:: latex
+
+   \newpage
+

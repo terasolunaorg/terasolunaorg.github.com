@@ -1,9 +1,11 @@
 データベースアクセス（JPA編）
 ================================================================================
 
-.. contents:: 目次
-   :local:
-   :depth: 3
+.. only:: html
+
+ .. contents:: 目次
+    :local:
+    :depth: 3
 
 
 .. todo::
@@ -68,6 +70,7 @@ JPAの基本用語
 以下に、JPAを使う上で、最低限知っていてほしい用語について、簡単に説明する。
 
 
+ .. tabularcolumns:: |p{0.10\linewidth}|p{0.20\linewidth}|p{0.70\linewidth}|
  .. list-table::
     :header-rows: 1
     :widths: 10 20 70
@@ -130,6 +133,7 @@ Entityのライフサイクル管理イメージは、以下の通りである�
 
     **Picture - Life cycle of entity**
 
+ .. tabularcolumns:: |p{0.10\linewidth}|p{0.90\linewidth}|
  .. list-table::
     :header-rows: 1
     :widths: 10 90
@@ -195,6 +199,7 @@ Spring Data JPAを使ってデータベースにアクセスする際の基本�
 
     **Picture - Basic flow of Spring Data JPA**
 
+ .. tabularcolumns:: |p{0.10\linewidth}|p{0.90\linewidth}|
  .. list-table::
     :header-rows: 1
     :widths: 10 90
@@ -247,6 +252,7 @@ pom.xmlの設定
         <artifactId>terasoluna-gfw-jpa</artifactId>
     </dependency>
 
+ .. tabularcolumns:: |p{0.10\linewidth}|p{0.90\linewidth}|
  .. list-table::
    :header-rows: 1
    :widths: 10 90
@@ -307,6 +313,7 @@ EntityManagerの設定
      </bean>
 
 
+ .. tabularcolumns:: |p{0.10\linewidth}|p{0.90\linewidth}|
  .. list-table::
     :header-rows: 1
     :widths: 10 90
@@ -359,6 +366,7 @@ EntityManagerの設定
              </property>
          </bean>
 
+     .. tabularcolumns:: |p{0.10\linewidth}|p{0.90\linewidth}|
      .. list-table::
         :header-rows: 1
         :widths: 10 90
@@ -400,6 +408,7 @@ EntityManagerの設定
          </property>
      </bean>
 
+ .. tabularcolumns:: |p{0.10\linewidth}|p{0.90\linewidth}|
  .. list-table::
     :header-rows: 1
     :widths: 10 90
@@ -438,6 +447,7 @@ PlatformTransactionManagerの設定
          <property name="entityManagerFactory" ref="entityManagerFactory" /> <!-- (2) -->
      </bean>
 
+ .. tabularcolumns:: |p{0.06\linewidth}|p{0.94\linewidth}|
  .. list-table::
     :header-rows: 1
     :widths: 6 94
@@ -458,6 +468,7 @@ PlatformTransactionManagerの設定
 
      <tx:jta-transaction-manager /> <!-- (1) -->
 
+ .. tabularcolumns:: |p{0.06\linewidth}|p{0.94\linewidth}|
  .. list-table::
     :header-rows: 1
     :widths: 6 94
@@ -507,6 +518,7 @@ Spring Data JPAを有効化するための設定
 
      <jpa:repositories base-package="xxxxxx.yyyyyy.zzzzzz.domain.repository" /> <!-- (2) -->
 
+ .. tabularcolumns:: |p{0.06\linewidth}|p{0.94\linewidth}|
  .. list-table::
     :header-rows: 1
     :widths: 6 94
@@ -523,6 +535,7 @@ Spring Data JPAを有効化するための設定
 - <jpa:repositories>要素の属性について
     | 属性として、entity-manager-factory-ref、transaction-manager-ref、named-queries-location、query-lookup-strategy、factory-class、repository-impl-postfixが存在する。
 
+ .. tabularcolumns:: |p{0.06\linewidth}|p{0.20\linewidth}|p{0.74\linewidth}|
  .. list-table::
     :header-rows: 1
     :widths: 6 20 74
@@ -613,6 +626,7 @@ ControllerやJSP等のアプリケーション層でEntityのLazy Fetchを行う
         </mvc:interceptor>
     </mvc:interceptors>
 
+ .. tabularcolumns:: |p{0.06\linewidth}|p{0.94\linewidth}|
  .. list-table::
     :header-rows: 1
     :widths: 6 94
@@ -669,6 +683,7 @@ ControllerやJSP等のアプリケーション層でEntityのLazy Fetchを行う
          <url-pattern>/*</url-pattern>
      </filter-mapping>
 
+ .. tabularcolumns:: |p{0.06\linewidth}|p{0.94\linewidth}|
  .. list-table::
     :header-rows: 1
     :widths: 6 94
@@ -691,6 +706,7 @@ Repositoryインタフェースの作成
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 Spring DataではEntity毎のRepositoryインタフェースを作成する方法として、以下3つつの方法を提供している。
 
+ .. tabularcolumns:: |p{0.10\linewidth}|p{0.35\linewidth}|p{0.55\linewidth}|
  .. list-table::
     :widths: 10 35 55
     :header-rows: 1
@@ -719,6 +735,7 @@ Spring Dataから提供されているインタフェースを継承してEntity
 
 継承することができるインタフェースは以下の通り。
 
+ .. tabularcolumns:: |p{0.10\linewidth}|p{0.35\linewidth}|p{0.55\linewidth}|
  .. list-table::
     :widths: 10 35 55
     :header-rows: 1
@@ -756,6 +773,7 @@ Spring Dataから提供されているインタフェースを継承してEntity
 
     }
 
+ .. tabularcolumns:: |p{0.10\linewidth}|p{0.90\linewidth}|
  .. list-table::
     :widths: 10 90
     :header-rows: 1
@@ -770,6 +788,7 @@ Spring Dataから提供されているインタフェースを継承してEntity
 
 ``JpaRepository`` を継承してEntity毎のRepositoryインタフェースを作成すると、以下のメソッドに対する実装を得ることが出来る。
 
+ .. tabularcolumns:: |p{0.10\linewidth}|p{0.35\linewidth}|p{0.55\linewidth}|
  .. list-table::
     :widths: 10 35 55
     :header-rows: 1
@@ -950,6 +969,7 @@ Repositoryインタフェースを継承して作成した際と同様、メソ�
 
     }
 
+ .. tabularcolumns:: |p{0.10\linewidth}|p{0.90\linewidth}|
  .. list-table::
     :widths: 10 90
     :header-rows: 1
@@ -994,6 +1014,7 @@ Spring Dataより提供されているインタフェースや共通インタフ
         // ...
     }
 
+ .. tabularcolumns:: |p{0.10\linewidth}|p{0.90\linewidth}|
  .. list-table::
     :widths: 10 90
     :header-rows: 1
@@ -1039,6 +1060,7 @@ Queryメソッドは、Entity毎のRepositoryインタフェースのメソッ�
 | Queryメソッド呼び出し時に実行するQueryを指定する必要がある。
 | 指定方法は以下の通り。詳細は、\ :ref:`how_to_specify_query-label`\ を参照されたい。
 
+ .. tabularcolumns:: |p{0.10\linewidth}|p{0.30\linewidth}|p{0.60\linewidth}|
  .. list-table::
     :widths: 10 30 60
     :header-rows: 1
@@ -1107,6 +1129,7 @@ Entityのロックを取得する
         FOR UPDATE
 
 
+ .. tabularcolumns:: |p{0.10\linewidth}|p{0.90\linewidth}|
  .. list-table::
     :widths: 10 90
     :header-rows: 1
@@ -1151,6 +1174,7 @@ Entityのロックを取得する
     @Query("UPDATE OrderItem oi SET oi.logicalDelete = true WHERE oi.id.orderId = :orderId ") // (2)
     int updateToLogicalDelete(@Param("orderId") Integer orderId); // (3)
 
+ .. tabularcolumns:: |p{0.10\linewidth}|p{0.90\linewidth}|
  .. list-table::
     :widths: 10 90
     :header-rows: 1
@@ -1193,6 +1217,7 @@ value属性にQueryヒント( ``@javax.persistence.QueryHint`` )を指定する�
     @QueryHints(value = { @QueryHint(name = "javax.persistence.lock.timeout", value = "0") }) // (1)
     List<Order> findByStatusCode(@Param("statusCode") String statusCode);
 
+ .. tabularcolumns:: |p{0.10\linewidth}|p{0.90\linewidth}|
  .. list-table::
     :widths: 10 90
     :header-rows: 1
@@ -1251,6 +1276,7 @@ Queryメソッド呼び出し時に実行するQueryの指定方法について�
         ORDER BY
             order0_.id DESC
 
+ .. tabularcolumns:: |p{0.10\linewidth}|p{0.90\linewidth}|
  .. list-table::
     :widths: 10 90
     :header-rows: 1
@@ -1285,6 +1311,7 @@ Queryメソッド呼び出し時に実行するQueryの指定方法について�
 | ただし、これはJPQLの標準形式ではなくSpring Data JPAの拡張形式になるので、``@Query`` アノテーションで指定するJPQLでのみ指定することが出来る。
 | Named queryとして指定するJPQL内に ``"%"`` を指定するとエラーになるので注意すること。
 
+ .. tabularcolumns:: |p{0.10\linewidth}|p{0.20\linewidth}|p{0.20\linewidth}|p{0.50\linewidth}|
  .. list-table::
     :widths: 10 20 20 50
     :header-rows: 1
@@ -1340,6 +1367,7 @@ Queryメソッド呼び出し時に実行するQueryの指定方法について�
     @Query(value = "SELECT o FROM Order o WHERE o.status.code = :statusCode ORDER BY o.id DESC")
     Page<Order> findByStatusCode(@Param("statusCode") String statusCode, Pageable pageable);
 
+ .. tabularcolumns:: |p{0.10\linewidth}|p{0.90\linewidth}|
  .. list-table::
     :widths: 10 90
     :header-rows: 1
@@ -1371,6 +1399,7 @@ Queryメソッド呼び出し時に実行するQueryの指定方法について�
         return "order/list";
     }
 
+ .. tabularcolumns:: |p{0.10\linewidth}|p{0.90\linewidth}|
  .. list-table::
     :widths: 10 90
     :header-rows: 1
@@ -1393,6 +1422,7 @@ Queryメソッド呼び出し時に実行するQueryの指定方法について�
         return orderRepository.findByStatusCode("accepted", pageable); // (3)
     }
 
+ .. tabularcolumns:: |p{0.10\linewidth}|p{0.90\linewidth}|
  .. list-table::
     :widths: 10 90
     :header-rows: 1
@@ -1433,6 +1463,7 @@ Queryメソッド呼び出し時に実行するQueryの指定方法について�
             order0_.id DESC
         LIMIT 5
 
+ .. tabularcolumns:: |p{0.10\linewidth}|p{0.90\linewidth}|
  .. list-table::
     :widths: 10 90
     :header-rows: 1
@@ -1457,6 +1488,7 @@ Queryメソッド呼び出し時に実行するQueryの指定方法について�
 
 メソッド名からJPQLを生成するための命名規約などのルールについては、以下のページを参照されたい。
 
+ .. tabularcolumns:: |p{0.10\linewidth}|p{0.45\linewidth}|p{0.45\linewidth}|
  .. list-table::
     :widths: 10 45 45
     :header-rows: 1
@@ -1488,6 +1520,7 @@ Queryメソッド呼び出し時に実行するQueryの指定方法について�
 
     Page<Order> findByStatusCode(String statusCode, Pageable pageable); // (1)
 
+ .. tabularcolumns:: |p{0.10\linewidth}|p{0.90\linewidth}|
  .. list-table::
     :widths: 10 90
     :header-rows: 1
@@ -1522,6 +1555,7 @@ Queryメソッド呼び出し時に実行するQueryの指定方法について�
         WHERE
             orderstatu1_.code = 'accepted'
 
+ .. tabularcolumns:: |p{0.10\linewidth}|p{0.90\linewidth}|
  .. list-table::
     :widths: 10 90
     :header-rows: 1
@@ -1562,6 +1596,7 @@ Queryメソッド呼び出し時に実行するQueryの指定方法について�
             order0_.id DESC
         LIMIT 5
 
+ .. tabularcolumns:: |p{0.10\linewidth}|p{0.90\linewidth}|
  .. list-table::
     :widths: 10 90
     :header-rows: 1
@@ -1589,6 +1624,7 @@ Spring Data JPAから提供されているプロパティファイル(classpath:
     @Query(nativeQuery = true)
     List<Order> findAllByStatusCode(@Param("statusCode") String statusCode); // (1)
 
+ .. tabularcolumns:: |p{0.10\linewidth}|p{0.90\linewidth}|
  .. list-table::
     :widths: 10 90
     :header-rows: 1
@@ -1611,6 +1647,7 @@ Spring Data JPAから提供されているプロパティファイル(classpath:
     @Query(name = "OrderRepository.findAllByStatusCode", nativeQuery = true) // (2)
     List<Order> findAllByStatusCode(@Param("statusCode") String statusCode);
 
+ .. tabularcolumns:: |p{0.10\linewidth}|p{0.90\linewidth}|
  .. list-table::
     :widths: 10 90
     :header-rows: 1
@@ -1629,6 +1666,7 @@ Spring Data JPAから提供されているプロパティファイル(classpath:
     # (3)
     Order.findAllByStatusCode=SELECT * FROM order WHERE status_code = :statusCode
 
+ .. tabularcolumns:: |p{0.10\linewidth}|p{0.90\linewidth}|
  .. list-table::
     :widths: 10 90
     :header-rows: 1
@@ -1651,6 +1689,7 @@ Spring Data JPAから提供されているプロパティファイル(classpath:
          <jpa:repositories base-package="xxxxxx.yyyyyy.zzzzzz.domain.repository"
              named-queries-location="classpath:META-INF/jpa/jpa-named-queries.properties" />
 
+     .. tabularcolumns:: |p{0.10\linewidth}|p{0.90\linewidth}|
      .. list-table::
          :widths: 10 90
          :header-rows: 1
@@ -1684,6 +1723,7 @@ Entityの検索方法について、目的別に説明する。
 
     }
 
+ .. tabularcolumns:: |p{0.10\linewidth}|p{0.90\linewidth}|
  .. list-table::
     :widths: 10 90
     :header-rows: 1
@@ -1711,6 +1751,7 @@ Entityの検索方法について、目的別に説明する。
         return accounts;
     }
 
+ .. tabularcolumns:: |p{0.10\linewidth}|p{0.90\linewidth}|
  .. list-table::
     :widths: 10 90
     :header-rows: 1
@@ -1743,6 +1784,7 @@ Entityの検索方法について、目的別に説明する。
 
     }
 
+ .. tabularcolumns:: |p{0.10\linewidth}|p{0.90\linewidth}|
  .. list-table::
     :widths: 10 90
     :header-rows: 1
@@ -1770,6 +1812,7 @@ Entityの検索方法について、目的別に説明する。
         return "account/list";
     }
 
+ .. tabularcolumns:: |p{0.10\linewidth}|p{0.90\linewidth}|
  .. list-table::
     :widths: 10 90
     :header-rows: 1
@@ -1801,6 +1844,7 @@ Entityの検索方法について、目的別に説明する。
     }
 
 
+ .. tabularcolumns:: |p{0.10\linewidth}|p{0.90\linewidth}|
  .. list-table::
     :widths: 10 90
     :header-rows: 1
@@ -1865,6 +1909,7 @@ Entityの動的条件による検索処理の実装
 
     }
 
+ .. tabularcolumns:: |p{0.10\linewidth}|p{0.90\linewidth}|
  .. list-table::
     :widths: 10 90
     :header-rows: 1
@@ -1884,6 +1929,7 @@ Entityの動的条件による検索処理の実装
 
     }
 
+ .. tabularcolumns:: |p{0.10\linewidth}|p{0.90\linewidth}|
  .. list-table::
     :widths: 10 90
     :header-rows: 1
@@ -1976,6 +2022,7 @@ Entityの動的条件による検索処理の実装
 
     }
 
+ .. tabularcolumns:: |p{0.10\linewidth}|p{0.90\linewidth}|
  .. list-table::
     :widths: 10 90
     :header-rows: 1
@@ -2027,6 +2074,7 @@ Entityの動的条件による検索処理の実装
         // ...
     }
 
+ .. tabularcolumns:: |p{0.10\linewidth}|p{0.90\linewidth}|
  .. list-table::
     :widths: 10 90
     :header-rows: 1
@@ -2057,6 +2105,7 @@ Entityの動的条件による検索処理の実装
         // ...
     }
 
+ .. tabularcolumns:: |p{0.10\linewidth}|p{0.90\linewidth}|
  .. list-table::
     :widths: 10 90
     :header-rows: 1
@@ -2116,6 +2165,7 @@ Entityの動的条件による検索処理の実装
     ORDER BY
         order0_.id
 
+ .. tabularcolumns:: |p{0.10\linewidth}|p{0.90\linewidth}|
  .. list-table::
     :widths: 10 90
     :header-rows: 1
@@ -2160,6 +2210,7 @@ Entityの動的条件による検索処理の実装
         ORDER BY
             order0_.id;
 
+ .. tabularcolumns:: |p{0.10\linewidth}|p{0.90\linewidth}|
  .. list-table::
     :widths: 10 90
     :header-rows: 1
@@ -2200,6 +2251,7 @@ Entityの動的条件による検索処理の実装
         ORDER BY
             order0_.id;
 
+ .. tabularcolumns:: |p{0.10\linewidth}|p{0.90\linewidth}|
  .. list-table::
     :widths: 10 90
     :header-rows: 1
@@ -2229,6 +2281,7 @@ Entityの動的条件による検索処理の実装
 
     }
 
+ .. tabularcolumns:: |p{0.10\linewidth}|p{0.90\linewidth}|
  .. list-table::
     :widths: 10 90
     :header-rows: 1
@@ -2338,6 +2391,7 @@ Entityの動的条件による検索処理の実装
 
     }
 
+ .. tabularcolumns:: |p{0.10\linewidth}|p{0.90\linewidth}|
  .. list-table::
     :widths: 10 90
     :header-rows: 1
@@ -2393,6 +2447,7 @@ Entityの動的条件による検索処理の実装
         // ...
     }
 
+ .. tabularcolumns:: |p{0.10\linewidth}|p{0.90\linewidth}|
  .. list-table::
     :widths: 10 90
     :header-rows: 1
@@ -2425,6 +2480,7 @@ ID(Primary Key)がわかっている場合は、Repositryインタフェース�
         return account;
     }
 
+ .. tabularcolumns:: |p{0.10\linewidth}|p{0.90\linewidth}|
  .. list-table::
     :widths: 10 90
     :header-rows: 1
@@ -2470,6 +2526,7 @@ ID(Primary Key)がわかっている場合は、Repositryインタフェース�
     @OrderBy // (1)
     private Set<OrderItem> orderItems;
 
+  .. tabularcolumns:: |p{0.10\linewidth}|p{0.90\linewidth}|
   .. list-table::
     :widths: 10 90
     :header-rows: 1
@@ -2506,6 +2563,7 @@ IDがわからない場合は、ID以外の条件でEntityを検索するQuery�
 
     }
 
+ .. tabularcolumns:: |p{0.10\linewidth}|p{0.90\linewidth}|
  .. list-table::
     :widths: 10 90
     :header-rows: 1
@@ -2525,6 +2583,7 @@ IDがわからない場合は、ID以外の条件でEntityを検索するQuery�
             // ...
         }
 
+ .. tabularcolumns:: |p{0.10\linewidth}|p{0.90\linewidth}|
  .. list-table::
     :widths: 10 90
     :header-rows: 1
@@ -2594,6 +2653,7 @@ Entityを追加したい場合は、Entityオブジェクトを生成し、Repos
     Order order = new Order("accepted"); // (1)
     order = orderRepository.save(order); // (2)
 
+ .. tabularcolumns:: |p{0.10\linewidth}|p{0.90\linewidth}|
  .. list-table::
     :widths: 10 90
     :header-rows: 1
@@ -2652,6 +2712,7 @@ Entityを追加したい場合は、Entityオブジェクトを生成し、Repos
 
     }
 
+ .. tabularcolumns:: |p{0.10\linewidth}|p{0.90\linewidth}|
  .. list-table::
     :widths: 10 90
     :header-rows: 1
@@ -2733,6 +2794,7 @@ Entityと関連Entityを一緒に追加したい場合は、Repositryインタ�
     order.setOrderItems(Collections.singleton(orderItem));    // (2)
     order.setOrderPay(new OrderPay(order.getId(), wayToPay)); // (2)
 
+ .. tabularcolumns:: |p{0.10\linewidth}|p{0.90\linewidth}|
  .. list-table::
     :widths: 10 90
     :header-rows: 1
@@ -2787,6 +2849,7 @@ Entityと関連Entityを一緒に追加したい場合は、Repositryインタ�
     }
 
 
+ .. tabularcolumns:: |p{0.10\linewidth}|p{0.90\linewidth}|
  .. list-table::
     :widths: 10 90
     :header-rows: 1
@@ -2883,6 +2946,7 @@ Entityと関連Entityを一緒に追加したい場合は、Repositryインタ�
         orderPay.setWayToPay("cash");
     }
 
+ .. tabularcolumns:: |p{0.10\linewidth}|p{0.90\linewidth}|
  .. list-table::
     :widths: 10 90
     :header-rows: 1
@@ -2911,6 +2975,7 @@ Entityと関連Entityを一緒に追加したい場合は、Repositryインタ�
 
     orderItemRepository.save(orderItem); // (2)
 
+ .. tabularcolumns:: |p{0.10\linewidth}|p{0.90\linewidth}|
  .. list-table::
     :widths: 10 90
     :header-rows: 1
@@ -2963,6 +3028,7 @@ Entityを更新したい場合は、Repositoryインタフェースのメソッ�
     order.setStatus(new OrderStatus("checking")); // (2)
 
 
+ .. tabularcolumns:: |p{0.10\linewidth}|p{0.90\linewidth}|
  .. list-table::
     :widths: 10 90
     :header-rows: 1
@@ -3003,6 +3069,7 @@ Entityを更新したい場合は、Repositoryインタフェースのメソッ�
 
     order.getOrderPay().setWayToPay("cash"); // (3)
 
+ .. tabularcolumns:: |p{0.10\linewidth}|p{0.90\linewidth}|
  .. list-table::
     :widths: 10 90
     :header-rows: 1
@@ -3032,6 +3099,7 @@ Entityを更新したい場合は、Repositoryインタフェースのメソッ�
 
     orderItem.setQuantity(quantity); // (2)
 
+ .. tabularcolumns:: |p{0.10\linewidth}|p{0.90\linewidth}|
  .. list-table::
     :widths: 10 90
     :header-rows: 1
@@ -3074,6 +3142,7 @@ Entityと関連Entityを一緒に削除したい場合は、Repositryインタ�
 
     orderRepository.delete(orderId); // (1)
 
+ .. tabularcolumns:: |p{0.10\linewidth}|p{0.90\linewidth}|
  .. list-table::
     :widths: 10 90
     :header-rows: 1
@@ -3102,6 +3171,7 @@ Entityと関連Entityを一緒に削除したい場合は、Repositryインタ�
 
     }
 
+ .. tabularcolumns:: |p{0.10\linewidth}|p{0.90\linewidth}|
  .. list-table::
     :widths: 10 90
     :header-rows: 1
@@ -3158,6 +3228,7 @@ Entityと関連Entityを一緒に削除したい場合は、Repositryインタ�
 
     order.setOrderPay(null); // (6)
 
+ .. tabularcolumns:: |p{0.10\linewidth}|p{0.90\linewidth}|
  .. list-table::
     :widths: 10 90
     :header-rows: 1
@@ -3207,6 +3278,7 @@ Entityと関連Entityを一緒に削除したい場合は、Repositryインタ�
 
     }
 
+ .. tabularcolumns:: |p{0.10\linewidth}|p{0.90\linewidth}|
  .. list-table::
     :widths: 10 90
     :header-rows: 1
@@ -3232,6 +3304,7 @@ Entityと関連Entityを一緒に削除したい場合は、Repositryインタ�
 
     orderItemRepository.delete(new OrderItemPK(orderId, itemCode)); // (1)
 
+ .. tabularcolumns:: |p{0.10\linewidth}|p{0.90\linewidth}|
  .. list-table::
     :widths: 10 90
     :header-rows: 1
@@ -3300,6 +3373,7 @@ LIKE検索時のエスケープについて
             + " (a.title LIKE %:word% ESCAPE '~' OR a.overview LIKE %:word% ESCAPE '~')")
     Page<Article> findPageBy(@Param("word") String word, Pageable pageable);
 
+ .. tabularcolumns:: |p{0.10\linewidth}|p{0.90\linewidth}|
  .. list-table::
     :widths: 10 90
     :header-rows: 1
@@ -3329,6 +3403,7 @@ LIKE検索時のエスケープについて
         return page;
     }
 
+ .. tabularcolumns:: |p{0.10\linewidth}|p{0.90\linewidth}|
  .. list-table::
     :widths: 10 90
     :header-rows: 1
@@ -3355,6 +3430,7 @@ LIKE検索時のエスケープについて
             + " (a.title LIKE :word ESCAPE '~' OR a.overview LIKE :word ESCAPE '~')")
     Page<Article> findPageBy(@Param("word") String word, Pageable pageable);
 
+ .. tabularcolumns:: |p{0.10\linewidth}|p{0.90\linewidth}|
  .. list-table::
     :widths: 10 90
     :header-rows: 1
@@ -3382,6 +3458,7 @@ LIKE検索時のエスケープについて
         return page;
     }
 
+ .. tabularcolumns:: |p{0.10\linewidth}|p{0.90\linewidth}|
  .. list-table::
     :widths: 10 90
     :header-rows: 1
@@ -3421,6 +3498,7 @@ JOIN FETCHについて
     List<Article> findAllByPublishedDate(
             @Param("publishedDate") Date publishedDate);
 
+ .. tabularcolumns:: |p{0.10\linewidth}|p{0.90\linewidth}|
  .. list-table::
     :widths: 10 90
     :header-rows: 1
@@ -3461,6 +3539,7 @@ How to extend
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 Spring Dataでは、Repositoryインタフェースに対して、任意のカスタムメソッドを追加する仕組みを提供している。
 
+ .. tabularcolumns:: |p{0.10\linewidth}|p{0.35\linewidth}|p{0.55\linewidth}|
  .. list-table::
     :widths: 10 35 55
     :header-rows: 1
@@ -3498,6 +3577,7 @@ Entity毎のRepositoryインタフェースに個別にカスタムメソッド�
 
     }
 
+ .. tabularcolumns:: |p{0.10\linewidth}|p{0.90\linewidth}|
  .. list-table::
     :widths: 10 90
     :header-rows: 1
@@ -3528,6 +3608,7 @@ Entity毎のRepositoryインタフェースに個別にカスタムメソッド�
 
     }
 
+ .. tabularcolumns:: |p{0.10\linewidth}|p{0.90\linewidth}|
  .. list-table::
     :widths: 10 90
     :header-rows: 1
@@ -3551,6 +3632,7 @@ Entity毎のRepositoryインタフェースに個別にカスタムメソッド�
         // ...
     }
 
+ .. tabularcolumns:: |p{0.10\linewidth}|p{0.90\linewidth}|
  .. list-table::
     :widths: 10 90
     :header-rows: 1
@@ -3569,6 +3651,7 @@ Entity毎のRepositoryインタフェースに個別にカスタムメソッド�
         return orderRepository.findByCriteria(criteria, pageable); // (7)
     }
 
+ .. tabularcolumns:: |p{0.10\linewidth}|p{0.90\linewidth}|
  .. list-table::
     :widths: 10 90
     :header-rows: 1
@@ -3603,6 +3686,7 @@ Entity毎のRepositoryインタフェースに個別にカスタムメソッド�
 
     }
 
+ .. tabularcolumns:: |p{0.10\linewidth}|p{0.90\linewidth}|
  .. list-table::
     :widths: 10 90
     :header-rows: 1
@@ -3676,6 +3760,7 @@ Entity毎のRepositoryインタフェースに個別にカスタムメソッド�
 
     }
 
+ .. tabularcolumns:: |p{0.10\linewidth}|p{0.90\linewidth}|
  .. list-table::
     :widths: 10 90
     :header-rows: 1
@@ -3732,6 +3817,7 @@ Entity毎のRepositoryインタフェースに個別にカスタムメソッド�
         }
     }
 
+ .. tabularcolumns:: |p{0.10\linewidth}|p{0.90\linewidth}|
  .. list-table::
     :widths: 10 90
     :header-rows: 1
@@ -3767,6 +3853,7 @@ Entity毎のRepositoryインタフェースに個別にカスタムメソッド�
         }
     }
 
+ .. tabularcolumns:: |p{0.10\linewidth}|p{0.90\linewidth}|
  .. list-table::
     :widths: 10 90
     :header-rows: 1
@@ -3787,6 +3874,7 @@ Entity毎のRepositoryインタフェースに個別にカスタムメソッド�
         // ...
     }
 
+ .. tabularcolumns:: |p{0.10\linewidth}|p{0.90\linewidth}|
  .. list-table::
     :widths: 10 90
     :header-rows: 1
@@ -3803,6 +3891,7 @@ Entity毎のRepositoryインタフェースに個別にカスタムメソッド�
     <jpa:repositories base-package="x.y.z.domain.repository"
         factory-class="x.y.z.domain.repository.MyProjectRepositoryFactoryBean" /> <!-- (18) -->
 
+ .. tabularcolumns:: |p{0.10\linewidth}|p{0.90\linewidth}|
  .. list-table::
     :widths: 10 90
     :header-rows: 1
@@ -3825,6 +3914,7 @@ Entity毎のRepositoryインタフェースに個別にカスタムメソッド�
         return order;
     }
 
+ .. tabularcolumns:: |p{0.10\linewidth}|p{0.90\linewidth}|
  .. list-table::
     :widths: 10 90
     :header-rows: 1
@@ -3847,7 +3937,7 @@ Queryの取得結果をEntityにマッピングするのではなく、別のオ
 
     #. Query内で集計関数を使用して集計済みの情報を取得したい場合は、集計結果をEntityにマッピングすることはできたいため、別のオブジェクトにマッピングする必要がある。
 
-    #. 巨大なEntityの中の一部の情報のみ参照したい場合や、ネストｶﾞ深い関連Entityの一部の情報のみ参照したい場合は、必要なプロパティのみ定義したJavaBeanにマッピングして取得する事を検討した方がよい場合がある。
+    #. 巨大なEntityの中の一部の情報のみ参照したい場合や、ネストが深い関連Entityの一部の情報のみ参照したい場合は、必要なプロパティのみ定義したJavaBeanにマッピングして取得する事を検討した方がよい場合がある。
        Entityとして取得した場合、アプリケーションの処理に不要な項目に対するマッピング処理が行われる点や、処理に不要な情報を取得することでメモリを無駄に使用する点などにより、処理性能に影響を与える場合があるためである。
        処理性能に大きな影響を与えない場合は、Entityとして取得してよい。
 
@@ -3877,6 +3967,7 @@ Queryの取得結果をEntityにマッピングするのではなく、別のオ
 
     }
 
+ .. tabularcolumns:: |p{0.10\linewidth}|p{0.90\linewidth}|
  .. list-table::
     :widths: 10 90
     :header-rows: 1
@@ -3898,6 +3989,7 @@ Queryの取得結果をEntityにマッピングするのではなく、別のオ
             + " GROUP BY o.id ORDER BY o.id DESC")
     List<OrderSummary> findOrderSummaries();
 
+ .. tabularcolumns:: |p{0.10\linewidth}|p{0.90\linewidth}|
  .. list-table::
     :widths: 10 90
     :header-rows: 1
@@ -3973,6 +4065,7 @@ Spring Data JPAでは、新たに作成されたEntityと更新されたEntity�
 
     }
 
+ .. tabularcolumns:: |p{0.10\linewidth}|p{0.90\linewidth}|
  .. list-table::
     :widths: 10 90
     :header-rows: 1
@@ -4020,6 +4113,7 @@ Spring Data JPAでは、新たに作成されたEntityと更新されたEntity�
     }
 
 
+ .. tabularcolumns:: |p{0.10\linewidth}|p{0.90\linewidth}|
  .. list-table::
     :widths: 10 90
     :header-rows: 1
@@ -4060,6 +4154,7 @@ Spring Data JPAでは、新たに作成されたEntityと更新されたEntity�
 
     </entity-mappings>
 
+ .. tabularcolumns:: |p{0.10\linewidth}|p{0.90\linewidth}|
  .. list-table::
     :widths: 10 90
     :header-rows: 1
@@ -4076,6 +4171,7 @@ Spring Data JPAでは、新たに作成されたEntityと更新されたEntity�
 
     <jpa:auditing auditor-aware-ref="springSecurityAuditorAware" /> <!-- (11) -->
 
+ .. tabularcolumns:: |p{0.10\linewidth}|p{0.90\linewidth}|
  .. list-table::
     :widths: 10 90
     :header-rows: 1
@@ -4110,6 +4206,7 @@ Spring Data JPAでは、新たに作成されたEntityと更新されたEntity�
 
     }
 
+ .. tabularcolumns:: |p{0.10\linewidth}|p{0.90\linewidth}|
  .. list-table::
     :widths: 10 90
     :header-rows: 1
@@ -4134,6 +4231,7 @@ Spring Data JPAでは、新たに作成されたEntityと更新されたEntity�
         auditor-aware-ref="springSecurityAuditorAware"
         date-time-provider-ref="auditDateTimeProvider" /> <!-- (4) -->
 
+ .. tabularcolumns:: |p{0.10\linewidth}|p{0.90\linewidth}|
  .. list-table::
     :widths: 10 90
     :header-rows: 1
@@ -4196,6 +4294,7 @@ Repositoryインタフェースのメソッド呼び出し時に実行されるJ
             );
 
 
+ .. tabularcolumns:: |p{0.10\linewidth}|p{0.90\linewidth}|
  .. list-table::
     :widths: 10 90
     :header-rows: 1
@@ -4278,6 +4377,7 @@ Repositoryインタフェースのメソッド呼び出して取得したEntity�
             orderitems1_.item_code ASC
             ,orderitems1_.order_id ASC;
 
+ .. tabularcolumns:: |p{0.10\linewidth}|p{0.90\linewidth}|
  .. list-table::
     :widths: 10 90
     :header-rows: 1
@@ -4323,4 +4423,8 @@ Nativeクエリの使用方法
     今後、以下の内容を追加する予定である。
 
     * Nativeクエリを使用したQueryの実装例。
+
+.. raw:: latex
+
+   \newpage
 

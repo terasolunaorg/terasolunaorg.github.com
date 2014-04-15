@@ -1,9 +1,11 @@
 アプリケーションのレイヤ化
 ********************************************************************************
 
-.. contents:: 目次
-   :depth: 3
-   :local:
+.. only:: html
+
+ .. contents:: 目次
+    :depth: 3
+    :local:
 
 本ガイドラインでは、アプリケーションを、次の3レイヤで分割する。
 
@@ -217,6 +219,7 @@ Integration System Connector
 
 この場合の各コンポーネント間の呼び出し可否を、以下にまとめる。
 
+.. tabularcolumns:: |p{0.20\linewidth}|p{0.20\linewidth}|p{0.20\linewidth}|p{0.20\linewidth}|p{0.20\linewidth}|
 .. list-table:: コンポーネント間の呼び出し可否
     :header-rows: 1
     :stub-columns: 1
@@ -278,6 +281,7 @@ Integration System Connector
 
 この場合の呼び出し可否は、次のようになる。
 
+.. tabularcolumns:: |p{0.25\linewidth}|p{0.25\linewidth}|p{0.25\linewidth}|p{0.25\linewidth}|
 .. list-table:: コンポーネント間の呼び出し可否 (without Repository)
     :header-rows: 1
     :stub-columns: 1
@@ -374,6 +378,7 @@ Integration System Connector
                           └[projectname]-infra.xml ...(5)
 
 
+.. tabularcolumns:: |p{0.10\linewidth}|p{0.90\linewidth}|
 .. list-table::
     :header-rows: 1
     :widths: 10 90
@@ -439,6 +444,7 @@ Integration System Connector
                       │     └createForm.jsp
                       └web.xml
 
+.. tabularcolumns:: |p{0.10\linewidth}|p{0.90\linewidth}|
 .. list-table::
     :header-rows: 1
     :widths: 10 90
@@ -477,6 +483,7 @@ Integration System Connector
                           └[projectname]-infra.properties ...(2)
 
 
+.. tabularcolumns:: |p{0.10\linewidth}|p{0.90\linewidth}|
 .. list-table::
     :header-rows: 1
     :widths: 10 90
@@ -510,4 +517,8 @@ Integration System Connector
   この点を考慮しない場合は、環境ごとに設定ファイルの内容を行いビルドしなおすという作業が入る。
   
   環境依存に関するファイルを別プロジェクトにする意義については、\ :doc:`../Appendix/EnvironmentIndependency`\ を参照されたい。
+
+.. raw:: latex
+
+   \newpage
 

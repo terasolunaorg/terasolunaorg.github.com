@@ -1,8 +1,10 @@
 Spring MVCアーキテクチャ概要
 --------------------------------
 
-.. contents:: 目次
-   :local:
+.. only:: html
+
+ .. contents:: 目次
+    :local:
 
 .. Spring MVC is explained as follows in
 
@@ -113,3 +115,8 @@ Springおよび依存ライブラリから提供されている\ ``View``\ の�
 
 | Springおよび依存ライブラリから提供されていない\ ``View``\ を扱いたい場合、\ ``View``\ インタフェースを実装したクラスを拡張する必要がある。
 | 詳細は\ :doc:`../ArchitectureInDetail/FileDownload`\ を参照されたい。
+
+.. raw:: latex
+
+   \newpage
+

@@ -1,9 +1,11 @@
 ページネーション
 ================================================================================
 
-.. contents:: 目次
-   :depth: 3
-   :local:
+.. only:: html
+
+ .. contents:: 目次
+    :depth: 3
+    :local:
 
 Overview
 --------------------------------------------------------------------------------
@@ -30,6 +32,7 @@ Overview
    :alt: Screen image of Pagination.
    :width: 100%
 
+ .. tabularcolumns:: |p{0.10\linewidth}|p{0.90\linewidth}|
  .. list-table::
     :header-rows: 1
     :widths: 10 90
@@ -58,6 +61,7 @@ Spring Data提供のページ検索機能について
 """"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 Spring Dataより提供されているページ検索用の機能は、以下の通り。
 
+ .. tabularcolumns:: |p{0.10\linewidth}|p{0.90\linewidth}|
  .. list-table::
     :header-rows: 1
     :widths: 10 90
@@ -83,6 +87,7 @@ Spring Dataより提供されているページ検索用の機能は、以下の
 
     Spring Dataより提供されているページ検索用のリクエストパラメータは以下の3つとなる。
 
+     .. tabularcolumns:: |p{0.10\linewidth}|p{0.15\linewidth}|p{0.75\linewidth}|
      .. list-table::
          :header-rows: 1
          :widths: 10 15 75
@@ -150,6 +155,7 @@ Spring Dataより提供されているページ検索用の機能は、以下の
    :width: 90%
    :align: center
 
+ .. tabularcolumns:: |p{0.10\linewidth}|p{0.90\linewidth}|
  .. list-table::
     :header-rows: 1
     :widths: 10 90
@@ -176,6 +182,7 @@ Spring Dataより提供されているページ検索用の機能は、以下の
    :width: 90%
    :align: center
 
+ .. tabularcolumns:: |p{0.10\linewidth}|p{0.90\linewidth}|
  .. list-table::
     :header-rows: 1
     :widths: 10 90
@@ -229,6 +236,7 @@ Spring Dataより提供されているページ検索用の機能は、以下の
    :align: center
 
 
+ .. tabularcolumns:: |p{0.10\linewidth}|p{0.70\linewidth}|p{0.20\linewidth}|
  .. list-table::
     :header-rows: 1
     :widths: 10 70 20
@@ -307,6 +315,7 @@ Spring Dataより提供されているページ検索用の機能は、以下の
 
  .. note:: **「Page Link Text」のデフォルト値について**
 
+     .. tabularcolumns:: |p{0.10\linewidth}|p{0.50\linewidth}|p{0.30\linewidth}|
      .. list-table::
          :header-rows: 1
          :widths: 10 50 30
@@ -343,6 +352,7 @@ JSPタグライブラリのパラメータに値を指定することで、デ�
 
 **レイアウトを制御するためのパラメータ**
 
+ .. tabularcolumns:: |p{0.10\linewidth}|p{0.25\linewidth}|p{0.65\linewidth}|
  .. list-table::
     :header-rows: 1
     :widths: 10 25 65
@@ -434,6 +444,7 @@ JSPタグライブラリのパラメータに値を指定することで、デ�
 
 **動作を制御するためのパラメータ**
 
+ .. tabularcolumns:: |p{0.10\linewidth}|p{0.25\linewidth}|p{0.65\linewidth}|
  .. list-table::
     :header-rows: 1
     :widths: 10 25 65
@@ -486,6 +497,7 @@ JSPタグライブラリのパラメータに値を指定することで、デ�
 
     ``pathTmpl`` 及び ``queryTmpl`` に指定できるパス変数は、以下の通り。
 
+        .. tabularcolumns:: |p{0.10\linewidth}|p{0.25\linewidth}|p{0.75\linewidth}|
         .. list-table::
             :header-rows: 1
             :widths: 10 25 75
@@ -546,6 +558,7 @@ Spring Dataより提供されているページネーション機能と、共通
    :alt: processing flow of pagination
    :width: 100%
 
+ .. tabularcolumns:: |p{0.10\linewidth}|p{0.90\linewidth}|
  .. list-table::
     :header-rows: 1
     :widths: 10 90
@@ -609,6 +622,7 @@ Spring Dataのページネーション機能を有効化するための設定
         </mvc:argument-resolvers>
     </mvc:annotation-driven>
 
+ .. tabularcolumns:: |p{0.10\linewidth}|p{0.90\linewidth}|
  .. list-table::
     :header-rows: 1
     :widths: 10 90
@@ -649,6 +663,7 @@ Spring Dataのページネーション機能を有効化するための設定
         return "article/list";
     }
 
+ .. tabularcolumns:: |p{0.10\linewidth}|p{0.90\linewidth}|
  .. list-table::
     :header-rows: 1
     :widths: 10 90
@@ -701,6 +716,7 @@ Spring Dataのページネーション機能を有効化するための設定
         return "article/list";
     }
 
+ .. tabularcolumns:: |p{0.10\linewidth}|p{0.70\linewidth}|p{0.20\linewidth}|
  .. list-table::
     :header-rows: 1
     :widths: 10 70 20
@@ -767,6 +783,7 @@ Spring Dataのページネーション機能を有効化するための設定
     }
 
 
+ .. tabularcolumns:: |p{0.10\linewidth}|p{0.70\linewidth}|p{0.20\linewidth}|
  .. list-table::
     :header-rows: 1
     :widths: 10 70 20
@@ -828,6 +845,7 @@ Spring Dataのページネーション機能を有効化するための設定
         return page; // (3)
     }
 
+ .. tabularcolumns:: |p{0.10\linewidth}|p{0.90\linewidth}|
  .. list-table::
     :header-rows: 1
     :widths: 10 90
@@ -848,6 +866,7 @@ Spring Dataのページネーション機能を有効化するための設定
     @Query("SELECT a FROM Article a WHERE a.title LIKE %:freeWord% ESCAPE '~' OR a.overview LIKE %:freeWord% ESCAPE '~'")
     Page<Article> findPageByFreeWord(@Param("freeWord") String word, Pageable pageable); // (4)
 
+ .. tabularcolumns:: |p{0.10\linewidth}|p{0.90\linewidth}|
  .. list-table::
     :header-rows: 1
     :widths: 10 90
@@ -899,6 +918,7 @@ JSPの実装(基本編)
         return "article/list";
     }
 
+ .. tabularcolumns:: |p{0.10\linewidth}|p{0.90\linewidth}|
  .. list-table::
     :header-rows: 1
     :widths: 10 90
@@ -962,6 +982,7 @@ JSPの実装(基本編)
 
     <%-- ... --%>
 
+ .. tabularcolumns:: |p{0.10\linewidth}|p{0.90\linewidth}|
  .. list-table::
     :header-rows: 1
     :widths: 10 90
@@ -1000,6 +1021,7 @@ JSPの実装(基本編)
     <%@ taglib uri="http://terasoluna.org/tags" prefix="t"%>       <%-- (1) --%>
     <%@ taglib uri="http://terasoluna.org/functions" prefix="f"%>  <%-- (2) --%>
 
+ .. tabularcolumns:: |p{0.10\linewidth}|p{0.90\linewidth}|
  .. list-table::
     :header-rows: 1
     :widths: 10 90
@@ -1017,6 +1039,7 @@ JSPの実装(基本編)
 
     <t:pagination page="${page}" /> <%-- (3) --%>
 
+ .. tabularcolumns:: |p{0.10\linewidth}|p{0.90\linewidth}|
  .. list-table::
     :header-rows: 1
     :widths: 10 90
@@ -1083,6 +1106,7 @@ JSPの実装(基本編)
 
     <%-- ... --%>
 
+ .. tabularcolumns:: |p{0.10\linewidth}|p{0.90\linewidth}|
  .. list-table::
     :header-rows: 1
     :widths: 10 90
@@ -1118,7 +1142,7 @@ JSPの実装(基本編)
 
 - 画面イメージ
 
- .. figure:: ./images/pagination-how_to_use_jsp_applied_bootstrap_v3.0.0_css.png
+ .. figure:: ./images/pagination-how_to_use_jsp_applied_bootstrap_v3_0_0_css.png
    :alt: Screen image that v3.0.0 of bootstrap is applied.
    :width: 520px
    :height: 70px
@@ -1233,6 +1257,7 @@ JSPの実装(基本編)
         ${f:h(page.totalPages)} Pages    <%-- (3) --%>
     </div>
 
+ .. tabularcolumns:: |p{0.10\linewidth}|p{0.90\linewidth}|
  .. list-table::
     :header-rows: 1
     :widths: 10 90
@@ -1269,6 +1294,7 @@ JSPの実装(基本編)
         <fmt:formatNumber value="${(page.number * page.size) + page.numberOfElements}" />
     </div>
 
+ .. tabularcolumns:: |p{0.10\linewidth}|p{0.90\linewidth}|
  .. list-table::
     :header-rows: 1
     :widths: 10 90
@@ -1318,6 +1344,7 @@ JSPの実装(基本編)
         outerElementClass="pagination"
         criteriaQuery="${f:query(articleSearchCriteriaForm)}" /> <%-- (2) --%>
 
+ .. tabularcolumns:: |p{0.10\linewidth}|p{0.90\linewidth}|
  .. list-table::
     :header-rows: 1
     :widths: 10 90
@@ -1360,6 +1387,7 @@ JSPの実装(基本編)
         outerElementClass="pagination"
         queryTmpl="page={page}&size={size}&sort={sortOrderProperty},{sortOrderDirection}" />  <%-- (1) --%>
 
+ .. tabularcolumns:: |p{0.10\linewidth}|p{0.90\linewidth}|
  .. list-table::
     :header-rows: 1
     :widths: 10 90
@@ -1396,6 +1424,7 @@ JSPの実装(レイアウト変更編)
         firstLinkText=""
         lastLinkText="" /> <%-- (1) (2) --%>
 
+ .. tabularcolumns:: |p{0.10\linewidth}|p{0.90\linewidth}|
  .. list-table::
     :header-rows: 1
     :widths: 10 90
@@ -1430,6 +1459,7 @@ JSPの実装(レイアウト変更編)
         previousLinkText=""
         nextLinkText="" /> <%-- (1) (2) --%>
 
+ .. tabularcolumns:: |p{0.10\linewidth}|p{0.90\linewidth}|
  .. list-table::
     :header-rows: 1
     :widths: 10 90
@@ -1463,6 +1493,7 @@ disabled状態のリンクの削除
         display: none;  /* (1) */
     }
 
+ .. tabularcolumns:: |p{0.10\linewidth}|p{0.90\linewidth}|
  .. list-table::
     :header-rows: 1
     :widths: 10 90
@@ -1493,6 +1524,7 @@ disabled状態のリンクの削除
         outerElementClass="pagination"
         maxDisplayCount="5" /> <%-- (1) --%>
 
+ .. tabularcolumns:: |p{0.10\linewidth}|p{0.90\linewidth}|
  .. list-table::
     :header-rows: 1
     :widths: 10 90
@@ -1523,6 +1555,7 @@ disabled状態のリンクの削除
         outerElementClass="pagination"
         maxDisplayCount="0" /> <%-- (1) --%>
 
+ .. tabularcolumns:: |p{0.10\linewidth}|p{0.90\linewidth}|
  .. list-table::
     :header-rows: 1
     :widths: 10 90
@@ -1567,6 +1600,7 @@ JSPの実装(動作編)
       </form:form>
     </div>
 
+ .. tabularcolumns:: |p{0.10\linewidth}|p{0.90\linewidth}|
  .. list-table::
     :header-rows: 1
     :widths: 10 90
@@ -1592,6 +1626,7 @@ Appendix
 | ``PageableHandlerMethodArgumentResolver`` で指定できるプロパティは以下の通り。
 | アプリケーションの要件に応じて、値を変更すること。
 
+ .. tabularcolumns:: |p{0.10\linewidth}|p{0.20\linewidth}|p{0.55\linewidth}|p{0.15\linewidth}|
  .. list-table::
     :header-rows: 1
     :widths: 10 20 55 15
@@ -1706,6 +1741,7 @@ Appendix
     </mvc:annotation-driven>
 
 
+ .. tabularcolumns:: |p{0.10\linewidth}|p{0.90\linewidth}|
  .. list-table::
     :header-rows: 1
     :widths: 10 90
@@ -1745,6 +1781,7 @@ Appendix
 | ``SortHandlerMethodArgumentResolver`` で指定できるプロパティは以下の通り。
 | アプリケーションの要件に応じて、値を変更すること。
 
+ .. tabularcolumns:: |p{0.10\linewidth}|p{0.20\linewidth}|p{0.55\linewidth}|p{0.15\linewidth}|
  .. list-table::
     :header-rows: 1
     :widths: 10 20 55 15
@@ -1774,5 +1811,7 @@ Appendix
         | 本プロパティは、上記形式の中の ``delimiter`` の値を設定する。
       - | ``"_"``
 
+.. raw:: latex
 
+   \newpage
 

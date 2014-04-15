@@ -27,3 +27,8 @@ TERASOLUNA Global Frameworkの機能詳細
    TilesLayout
    SystemDate
    Utilities/index
+
+.. raw:: latex
+
+   \newpage
+

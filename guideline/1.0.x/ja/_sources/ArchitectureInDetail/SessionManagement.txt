@@ -1,9 +1,11 @@
 セッション管理
 ================================================================================
 
-.. contents:: 目次
-   :depth: 3
-   :local:
+.. only:: html
+
+ .. contents:: 目次
+    :depth: 3
+    :local:
 
 Overview
 --------------------------------------------------------------------------------
@@ -22,6 +24,7 @@ Overview
 
    **Picture - Establishment of logical session**
 
+ .. tabularcolumns:: |p{0.10\linewidth}|p{0.90\linewidth}|
  .. list-table::
     :header-rows: 1
     :widths: 10 90
@@ -64,6 +67,7 @@ Overview
 """"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 本ガイドラインで推奨している方法でWebアプリケーションを作成した場合、以下のいずれかの処理でセッションが生成される。
 
+ .. tabularcolumns:: |p{0.10\linewidth}|p{0.90\linewidth}|
  .. list-table::
     :header-rows: 1
     :widths: 10 90
@@ -104,6 +108,7 @@ Overview
 """"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 本ガイドラインで推奨している方法でWebアプリケーションを作成した場合、以下のいずれかの処理でセッションに属性(オブジェクト)が格納される。
 
+ .. tabularcolumns:: |p{0.10\linewidth}|p{0.90\linewidth}|
  .. list-table::
     :header-rows: 1
     :widths: 10 90
@@ -143,6 +148,7 @@ Overview
 """"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 本ガイドラインで推奨している方法で、Webアプリケーションを作成した場合、以下のいずれかの処理でセッションから属性(オブジェクト)が削除される。
 
+ .. tabularcolumns:: |p{0.10\linewidth}|p{0.90\linewidth}|
  .. list-table::
     :header-rows: 1
     :widths: 10 90
@@ -172,6 +178,7 @@ Overview
 """"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 本ガイドラインで推奨している方法で、Webアプリケーションを作成した場合、以下のいずれかの処理でセッションが破棄される。
 
+ .. tabularcolumns:: |p{0.10\linewidth}|p{0.90\linewidth}|
  .. list-table::
     :header-rows: 1
     :widths: 10 90
@@ -193,6 +200,7 @@ Overview
 
    **Picture - Invalidate session by processing of Web Application**
 
+ .. tabularcolumns:: |p{0.10\linewidth}|p{0.90\linewidth}|
  .. list-table::
     :header-rows: 1
     :widths: 10 90
@@ -219,6 +227,7 @@ Overview
 
    **Picture - Invalidate session by Application Server**
 
+ .. tabularcolumns:: |p{0.10\linewidth}|p{0.90\linewidth}|
  .. list-table::
     :header-rows: 1
     :widths: 10 90
@@ -249,6 +258,7 @@ Overview
 """"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 本ガイドラインで推奨している方法でWebアプリケーションを作成した場合、以下のいずれかの処理で、セッションタイムアウト後のリクエストを検知する。
 
+ .. tabularcolumns:: |p{0.10\linewidth}|p{0.90\linewidth}|
  .. list-table::
     :header-rows: 1
     :widths: 10 90
@@ -272,6 +282,7 @@ Spring Securityから提供されているセッションチェック処理を�
 
    **Picture - Detected a request of after session timeout by Spring Security**
 
+ .. tabularcolumns:: |p{0.10\linewidth}|p{0.90\linewidth}|
  .. list-table::
     :header-rows: 1
     :widths: 10 90
@@ -499,6 +510,7 @@ How to use
         // ...
     }
 
+ .. tabularcolumns:: |p{0.10\linewidth}|p{0.90\linewidth}|
  .. list-table::
     :widths: 10 90
     :header-rows: 1
@@ -546,6 +558,7 @@ How to use
         // ...
     }
 
+ .. tabularcolumns:: |p{0.10\linewidth}|p{0.90\linewidth}|
  .. list-table::
     :widths: 10 90
     :header-rows: 1
@@ -577,6 +590,7 @@ How to use
         return new WizardForm();
     }
 
+ .. tabularcolumns:: |p{0.10\linewidth}|p{0.90\linewidth}|
  .. list-table::
     :widths: 10 90
     :header-rows: 1
@@ -600,6 +614,7 @@ How to use
             return new WizardForm();
         }
     
+     .. tabularcolumns:: |p{0.10\linewidth}|p{0.90\linewidth}|
      .. list-table::
         :widths: 10 90
         :header-rows: 1
@@ -624,6 +639,7 @@ How to use
         return "wizard/form1";
     }
 
+ .. tabularcolumns:: |p{0.10\linewidth}|p{0.90\linewidth}|
  .. list-table::
     :widths: 10 90
     :header-rows: 1
@@ -652,6 +668,7 @@ How to use
     }
 
 
+ .. tabularcolumns:: |p{0.10\linewidth}|p{0.90\linewidth}|
  .. list-table::
     :widths: 10 90
     :header-rows: 1
@@ -689,6 +706,7 @@ Controllerの処理メソッドの引数に渡すオブジェクトが、\ ``Mod
         return "redirect:/wizard/save?complete";
     }
 
+ .. tabularcolumns:: |p{0.10\linewidth}|p{0.90\linewidth}|
  .. list-table::
     :widths: 10 90
     :header-rows: 1
@@ -727,6 +745,7 @@ Controllerの処理メソッドの引数に渡すオブジェクトが、\ ``Mod
         <!-- ... -->
     </bean>
 
+ .. tabularcolumns:: |p{0.10\linewidth}|p{0.90\linewidth}|
  .. list-table::
     :widths: 10 90
     :header-rows: 1
@@ -756,6 +775,7 @@ Controllerの処理メソッドの引数に渡すオブジェクトが、\ ``Mod
         <property name="defaultExceptionCode" value="e.xx.0001" /> <!-- (8) -->
     </bean>
 
+ .. tabularcolumns:: |p{0.10\linewidth}|p{0.90\linewidth}|
  .. list-table::
     :widths: 10 90
     :header-rows: 1
@@ -830,6 +850,7 @@ Controllerの処理メソッドの引数に渡すオブジェクトが、\ ``Mod
         return "wizard/complete";
     }
 
+ .. tabularcolumns:: |p{0.10\linewidth}|p{0.90\linewidth}|
  .. list-table::
     :widths: 10 90
     :header-rows: 1
@@ -857,6 +878,7 @@ Controllerの処理メソッドの引数に渡すオブジェクトが、\ ``Mod
         return "redirect:/wizard/menu"; // (3)
     }
 
+ .. tabularcolumns:: |p{0.10\linewidth}|p{0.90\linewidth}|
  .. list-table::
     :widths: 10 90
     :header-rows: 1
@@ -887,6 +909,7 @@ Controllerの処理メソッドの引数に渡すオブジェクトが、\ ``Mod
         return "wizard/form1";
     }
 
+ .. tabularcolumns:: |p{0.10\linewidth}|p{0.90\linewidth}|
  .. list-table::
     :widths: 10 90
     :header-rows: 1
@@ -958,6 +981,7 @@ component-scanを使用する方法を、以下に示す。
 
     }
 
+ .. tabularcolumns:: |p{0.10\linewidth}|p{0.90\linewidth}|
  .. list-table::
     :widths: 10 90
     :header-rows: 1
@@ -984,6 +1008,7 @@ component-scanを使用する方法を、以下に示す。
     <context:component-scan base-package="xxx.yyy.zzz.app"
         scoped-proxy="targetClass" /> // (2)
 
+ .. tabularcolumns:: |p{0.10\linewidth}|p{0.90\linewidth}|
  .. list-table::
     :widths: 10 90
     :header-rows: 1
@@ -1010,6 +1035,7 @@ Bean定義ファイル(XML)に定義する方法を、以下に示す。
         <aop:scoped-proxy /> <!-- (4) -->
     </beans:bean>
 
+ .. tabularcolumns:: |p{0.10\linewidth}|p{0.90\linewidth}|
  .. list-table::
     :widths: 10 90
     :header-rows: 1
@@ -1049,6 +1075,7 @@ sessionスコープのBeanの利用
         return "redirect:/cart";
     }
 
+ .. tabularcolumns:: |p{0.10\linewidth}|p{0.90\linewidth}|
  .. list-table::
     :widths: 10 90
     :header-rows: 1
@@ -1106,6 +1133,7 @@ sessionスコープのBeanの利用
 
     }
 
+ .. tabularcolumns:: |p{0.10\linewidth}|p{0.90\linewidth}|
  .. list-table::
     :widths: 10 90
     :header-rows: 1
@@ -1147,6 +1175,7 @@ JSPの暗黙オブジェクトである \ ``sessionScope``\ を使用する場�
     
     <%-- omitted --%>
 
+ .. tabularcolumns:: |p{0.10\linewidth}|p{0.90\linewidth}|
  .. list-table::
     :widths: 10 90
     :header-rows: 1
@@ -1210,6 +1239,7 @@ How to extends
 
     }
 
+ .. tabularcolumns:: |p{0.10\linewidth}|p{0.90\linewidth}|
  .. list-table::
     :widths: 10 90
     :header-rows: 1
@@ -1225,6 +1255,7 @@ How to extends
 
      <bean class="com.example.app.config.EnableSynchronizeOnSessionPostProcessor" /> <!-- (2) -->
 
+ .. tabularcolumns:: |p{0.10\linewidth}|p{0.90\linewidth}|
  .. list-table::
     :widths: 10 90
     :header-rows: 1
@@ -1299,6 +1330,7 @@ Appendix
 
     }
 
+ .. tabularcolumns:: |p{0.10\linewidth}|p{0.90\linewidth}|
  .. list-table::
     :widths: 10 90
     :header-rows: 1
@@ -1339,6 +1371,7 @@ Appendix
         @Inject
         Mapper beanMapper;
 
+ .. tabularcolumns:: |p{0.10\linewidth}|p{0.90\linewidth}|
  .. list-table::
     :widths: 10 90
     :header-rows: 1
@@ -1355,6 +1388,7 @@ Appendix
             return new WizardForm();
         }
 
+ .. tabularcolumns:: |p{0.10\linewidth}|p{0.90\linewidth}|
  .. list-table::
     :widths: 10 90
     :header-rows: 1
@@ -1379,6 +1413,7 @@ Appendix
             return "wizard/form1";
         }
 
+ .. tabularcolumns:: |p{0.10\linewidth}|p{0.90\linewidth}|
  .. list-table::
     :widths: 10 90
     :header-rows: 1
@@ -1412,6 +1447,7 @@ Appendix
             return "wizard/form1";
         }
 
+ .. tabularcolumns:: |p{0.10\linewidth}|p{0.90\linewidth}|
  .. list-table::
     :widths: 10 90
     :header-rows: 1
@@ -1460,6 +1496,7 @@ Appendix
             return "wizard/confirm";
         }
 
+ .. tabularcolumns:: |p{0.10\linewidth}|p{0.90\linewidth}|
  .. list-table::
     :widths: 10 90
     :header-rows: 1
@@ -1508,6 +1545,7 @@ Appendix
             return "wizard/complete";
         }
 
+ .. tabularcolumns:: |p{0.10\linewidth}|p{0.90\linewidth}|
  .. list-table::
     :widths: 10 90
     :header-rows: 1
@@ -1553,6 +1591,7 @@ Appendix
 
     }
 
+ .. tabularcolumns:: |p{0.10\linewidth}|p{0.90\linewidth}|
  .. list-table::
     :widths: 10 90
     :header-rows: 1
@@ -1743,6 +1782,7 @@ Appendix
     </body>
     </html>
 
+ .. tabularcolumns:: |p{0.10\linewidth}|p{0.90\linewidth}|
  .. list-table::
     :widths: 10 90
     :header-rows: 1
@@ -1776,6 +1816,7 @@ Appendix
     </body>
     </html>
 
+ .. tabularcolumns:: |p{0.10\linewidth}|p{0.90\linewidth}|
  .. list-table::
     :widths: 10 90
     :header-rows: 1
@@ -1815,6 +1856,7 @@ Appendix
     </body>
     </html>
 
+ .. tabularcolumns:: |p{0.10\linewidth}|p{0.90\linewidth}|
  .. list-table::
     :widths: 10 90
     :header-rows: 1
@@ -1884,6 +1926,7 @@ Appendix
         <!-- ... -->
     </bean>
 
+ .. tabularcolumns:: |p{0.10\linewidth}|p{0.90\linewidth}|
  .. list-table::
     :widths: 10 90
     :header-rows: 1
@@ -1913,6 +1956,7 @@ Appendix
         <property name="defaultExceptionCode" value="e.xx.0001" /> <!-- (37) -->
     </bean>
 
+ .. tabularcolumns:: |p{0.10\linewidth}|p{0.90\linewidth}|
  .. list-table::
     :widths: 10 90
     :header-rows: 1
@@ -1976,6 +2020,7 @@ sessionスコープのBeanを使った複数のControllerを跨いだ画面遷�
 
     }
 
+ .. tabularcolumns:: |p{0.10\linewidth}|p{0.90\linewidth}|
  .. list-table::
     :widths: 10 90
     :header-rows: 1
@@ -2027,6 +2072,7 @@ sessionスコープのBeanを使った複数のControllerを跨いだ画面遷�
         }
     }
 
+ .. tabularcolumns:: |p{0.10\linewidth}|p{0.90\linewidth}|
  .. list-table::
     :widths: 10 90
     :header-rows: 1
@@ -2104,6 +2150,7 @@ sessionスコープのBeanを使った複数のControllerを跨いだ画面遷�
 
     }
 
+ .. tabularcolumns:: |p{0.10\linewidth}|p{0.90\linewidth}|
  .. list-table::
     :widths: 10 90
     :header-rows: 1
@@ -2168,6 +2215,7 @@ sessionスコープのBeanを使った複数のControllerを跨いだ画面遷�
 
     }
 
+ .. tabularcolumns:: |p{0.10\linewidth}|p{0.90\linewidth}|
  .. list-table::
     :widths: 10 90
     :header-rows: 1
@@ -2213,6 +2261,7 @@ sessionスコープのBeanを使った複数のControllerを跨いだ画面遷�
     </body>
     </html>
 
+ .. tabularcolumns:: |p{0.10\linewidth}|p{0.90\linewidth}|
  .. list-table::
     :widths: 10 90
     :header-rows: 1
@@ -2282,6 +2331,7 @@ sessionスコープのBeanを使った複数のControllerを跨いだ画面遷�
     </body>
     </html>
 
+ .. tabularcolumns:: |p{0.10\linewidth}|p{0.90\linewidth}|
  .. list-table::
     :widths: 10 90
     :header-rows: 1
@@ -2335,6 +2385,7 @@ sessionスコープのBeanを使った複数のControllerを跨いだ画面遷�
     </body>
     </html>
 
+ .. tabularcolumns:: |p{0.10\linewidth}|p{0.90\linewidth}|
  .. list-table::
     :widths: 10 90
     :header-rows: 1
@@ -2384,6 +2435,7 @@ sessionスコープのBeanを使った複数のControllerを跨いだ画面遷�
 
 \
 
-.. raw:: pdf
+.. raw:: latex
 
-    PageBreak
+   \newpage
+

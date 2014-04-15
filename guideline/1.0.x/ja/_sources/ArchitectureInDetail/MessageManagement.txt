@@ -1,9 +1,11 @@
 メッセージ管理
 ================================================================================
 
-.. contents:: 目次
-   :depth: 4
-   :local:
+.. only:: html
+
+ .. contents:: 目次
+    :depth: 4
+    :local:
 
 Overview
 --------------------------------------------------------------------------------
@@ -28,6 +30,7 @@ Overview
 
 .. _message-level-table-label:
 
+.. tabularcolumns:: |p{0.20\linewidth}|p{0.20\linewidth}|p{0.60\linewidth}|
 .. list-table::
    :header-rows: 1
    :widths: 20 20 60
@@ -64,6 +67,7 @@ Overview
 
 メッセージパターンとメッセージの表示内容、及びメッセージタイプを、以下に示す。
 
+.. tabularcolumns:: |p{0.05\linewidth}|p{0.15\linewidth}|p{0.15\linewidth}|p{0.15\linewidth}|p{0.50\linewidth}|
 .. list-table::
    :header-rows: 1
    :widths: 5 15 15 15 50
@@ -153,6 +157,7 @@ Overview
 
 * フォーマット
 
+    .. tabularcolumns:: |p{0.20\linewidth}|p{0.20\linewidth}|p{0.20\linewidth}|p{0.20\linewidth}|p{0.20\linewidth}|
     .. list-table::
        :header-rows: 1
        :widths: 20 20 20 20 20
@@ -170,6 +175,7 @@ Overview
 
 * 記述内容
 
+    .. tabularcolumns:: |p{0.10\linewidth}|p{0.10\linewidth}|p{0.25\linewidth}|p{0.35\linewidth}|
     .. list-table::
        :header-rows: 1
        :widths: 10 10 25 35
@@ -217,6 +223,7 @@ Overview
 
 * フォーマット
 
+    .. tabularcolumns:: |p{0.14\linewidth}|p{0.14\linewidth}|p{0.16\linewidth}|p{0.14\linewidth}|p{0.14\linewidth}|p{0.14\linewidth}|p{0.14\linewidth}|
     .. list-table::
        :header-rows: 1
        :widths: 14 14 16 14 14 14 14
@@ -239,6 +246,7 @@ Overview
 
 * 記述内容
 
+    .. tabularcolumns:: |p{0.10\linewidth}|p{0.10\linewidth}|p{0.25\linewidth}|p{0.35\linewidth}|
     .. list-table::
        :header-rows: 1
        :widths: 10 10 25 35
@@ -290,6 +298,7 @@ Overview
 
 * フォーマット
 
+    .. tabularcolumns:: |p{0.12\linewidth}|p{0.12\linewidth}|p{0.14\linewidth}|p{0.12\linewidth}|p{0.14\linewidth}|p{0.12\linewidth}|p{0.12\linewidth}|p{0.12\linewidth}|
     .. list-table::
        :header-rows: 1
        :widths: 12 12 14 12 14 12 12 12
@@ -313,6 +322,7 @@ Overview
 
 * 記述内容
 
+    .. tabularcolumns:: |p{0.20\linewidth}|p{0.20\linewidth}|p{0.40\linewidth}|p{0.10\linewidth}|
     .. list-table::
        :header-rows: 1
        :widths: 20 20 40 10
@@ -368,6 +378,7 @@ Overview
 
 * フォーマット
 
+    .. tabularcolumns:: |p{0.12\linewidth}|p{0.12\linewidth}|p{0.14\linewidth}|p{0.12\linewidth}|p{0.14\linewidth}|p{0.12\linewidth}|p{0.12\linewidth}|p{0.12\linewidth}|
     .. list-table::
        :header-rows: 1
        :widths: 12 12 14 12 14 12 12 12
@@ -391,6 +402,7 @@ Overview
 
 * 記述内容
 
+    .. tabularcolumns:: |p{0.20\linewidth}|p{0.20\linewidth}|p{0.40\linewidth}|p{0.10\linewidth}|
     .. list-table::
        :header-rows: 1
        :widths: 20 20 40 10
@@ -483,6 +495,7 @@ How to use
             </property>
         </bean>
 
+    .. tabularcolumns:: |p{0.10\linewidth}|p{0.90\linewidth}|
     .. list-table::
        :header-rows: 1
        :widths: 10 90
@@ -603,6 +616,7 @@ How to use
 | サーバサイドでの処理の成功や、失敗を示す結果メッセージを格納するクラスとして、
 | 共通ライブラリでは、\ ``org.terasoluna.gfw.common.message.ResultMessages``\ 、および\ ``org.terasoluna.gfw.common.message.ResultMessage``\ を提供している。
 
+.. tabularcolumns:: |p{0.20\linewidth}|p{0.80\linewidth}|
 .. list-table::
   :header-rows: 1
   :widths: 20 80
@@ -650,6 +664,7 @@ Controllerで\ ``ResultMessages``\ を生成して画面に渡し、JSPで\ ``<t
         }
 
 
+    .. tabularcolumns:: |p{0.10\linewidth}|p{0.90\linewidth}|
     .. list-table::
       :header-rows: 1
       :widths: 10 90
@@ -687,6 +702,7 @@ Controllerで\ ``ResultMessages``\ を生成して画面に渡し、JSPで\ ``<t
         </html>
 
 
+    .. tabularcolumns:: |p{0.10\linewidth}|p{0.90\linewidth}|
     .. list-table::
       :header-rows: 1
       :widths: 10 90
@@ -715,6 +731,7 @@ Controllerで\ ``ResultMessages``\ を生成して画面に渡し、JSPで\ ``<t
           </ul>
         </div>
 
+    .. tabularcolumns:: |p{0.10\linewidth}|p{0.90\linewidth}|
     .. list-table::
       :header-rows: 1
       :widths: 10 90
@@ -816,6 +833,7 @@ infoメッセージを表示したい場合は、次のように\ ``ResultMessag
   </div>
 
 
+.. tabularcolumns:: |p{0.10\linewidth}|p{0.90\linewidth}|
 .. list-table::
   :header-rows: 1
   :widths: 10 90
@@ -828,6 +846,7 @@ infoメッセージを表示したい場合は、次のように\ ``ResultMessag
 標準では、以下のメッセージタイプが用意されている。
 
 
+.. tabularcolumns:: |p{0.20\linewidth}|p{0.40\linewidth}|p{0.40\linewidth}|
 .. list-table::
   :header-rows: 1
   :widths: 20 40 40
@@ -936,6 +955,7 @@ infoメッセージを表示したい場合は、次のように\ ``ResultMessag
 
 
 
+    .. tabularcolumns:: |p{0.10\linewidth}|p{0.90\linewidth}|
     .. list-table::
       :header-rows: 1
       :widths: 10 90
@@ -994,6 +1014,7 @@ infoメッセージを表示したい場合は、次のように\ ``ResultMessag
         </body>
         </html>
 
+    .. tabularcolumns:: |p{0.10\linewidth}|p{0.90\linewidth}|
     .. list-table::
       :header-rows: 1
       :widths: 10 90
@@ -1041,6 +1062,7 @@ infoメッセージを表示したい場合は、次のように\ ``ResultMessag
 
         }
 
+    .. tabularcolumns:: |p{0.10\linewidth}|p{0.90\linewidth}|
     .. list-table::
       :header-rows: 1
       :widths: 10 90
@@ -1070,6 +1092,7 @@ infoメッセージを表示したい場合は、次のように\ ``ResultMessag
             // omitted
         }
 
+    .. tabularcolumns:: |p{0.10\linewidth}|p{0.90\linewidth}|
     .. list-table::
       :header-rows: 1
       :widths: 10 90
@@ -1123,6 +1146,7 @@ How to extend
         }
     }
 
+.. tabularcolumns:: |p{0.10\linewidth}|p{0.90\linewidth}|
 .. list-table::
   :header-rows: 1
   :widths: 10 90
@@ -1142,6 +1166,7 @@ How to extend
             .add("w.ex.an.2001");
     model.addAttribute(messages);
 
+.. tabularcolumns:: |p{0.10\linewidth}|p{0.90\linewidth}|
 .. list-table::
   :header-rows: 1
   :widths: 10 90
@@ -1175,6 +1200,7 @@ Appendix
 
 \ ``<t:messagesPanel>``\ タグには、表示形式を変更する属性がいくつか用意されている。
 
+.. tabularcolumns:: |p{0.25\linewidth}|p{0.55\linewidth}|p{0.20\linewidth}|
 .. list-table:: \ ``<t:messagesPanel>``\ タグ 属性一覧
    :header-rows: 1
    :widths: 25 55 20
@@ -1288,6 +1314,7 @@ Appendix
         display: block; /* (1) */
     }
 
+.. tabularcolumns:: |p{0.10\linewidth}|p{0.90\linewidth}|
 .. list-table::
   :header-rows: 1
   :widths: 10 90
@@ -1405,6 +1432,7 @@ ResultMessagesを使用しない結果メッセージの表示
     </html>
 
 
+.. tabularcolumns:: |p{0.10\linewidth}|p{0.90\linewidth}|
 .. list-table::
   :header-rows: 1
   :widths: 10 90
@@ -1555,3 +1583,8 @@ ResultMessagesを使用しない結果メッセージの表示
             public static final String E_EX_AN_9001 = "e.ex.an.9001";
         }
 \
+
+.. raw:: latex
+
+   \newpage
+

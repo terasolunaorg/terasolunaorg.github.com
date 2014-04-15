@@ -11,6 +11,7 @@ Blankプロジェクトからの新規プロジェクトを作成する方法を
 
 この節の内容は以下のバージョンで動作確認している。
 
+.. tabularcolumns:: |p{0.75\linewidth}|p{0.25\linewidth}|
 .. list-table::
    :header-rows: 1
    :widths: 75 25
@@ -98,6 +99,7 @@ Blankプロジェクトからの新規プロジェクトを作成する方法を
         [INFO] ------------------------------------------------------------------------
     
     
+    .. tabularcolumns:: |p{0.10\linewidth}|p{0.90\linewidth}|
     .. list-table::
        :header-rows: 1
        :widths: 10 90
@@ -217,3 +219,8 @@ Blankプロジェクトからの新規プロジェクトを作成する方法を
           <version>1.3.172</version>
           <scope>compile</scope>
       </dependency>
+
+.. raw:: latex
+
+   \newpage
+

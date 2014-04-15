@@ -1,9 +1,11 @@
 ロギング
 ================================================================================
 
-.. contents::
-   :depth: 3
-   :local:
+.. only:: html
+
+ .. contents::
+    :depth: 3
+    :local:
 
 .. note::
 
@@ -32,6 +34,7 @@ Overview
 
 | アプリケーション開発時における代表的なログを、以下に示す。
 
+.. tabularcolumns:: |p{0.10\linewidth}|p{0.15\linewidth}|p{0.35\linewidth}|p{0.40\linewidth}|
 .. list-table::
    :header-rows: 1
    :widths: 10 15 35 40
@@ -136,6 +139,7 @@ Overview
 ログの出力ポイント
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
+.. tabularcolumns:: |p{0.15\linewidth}|p{0.85\linewidth}|
 .. list-table::
    :header-rows: 1
    :widths: 15 85
@@ -198,9 +202,9 @@ Logbackの設定
      Logbackの設定は、以下のルールによる自動で読み込まれる。
 
      #. クラスパス上のlogback.grovy
-     #. ｢1｣のファイルが見つからない場合、クラスパス上のlogback-text.xml
-     #. ｢2｣のファイルが見つからない場合、クラスパス上のlogback.xml
-     #. ｢3｣のファイルが見つからない場合、BasicConfiguratorクラスの設定内容(コンソール出力)
+     #. 「1」のファイルが見つからない場合、クラスパス上のlogback-text.xml
+     #. 「2」のファイルが見つからない場合、クラスパス上のlogback.xml
+     #. 「3」のファイルが見つからない場合、BasicConfiguratorクラスの設定内容(コンソール出力)
 
      本ガイドラインでは、logback.xmlをクラスパス上に配置することを推奨する。
      このほか、自動読み込み以外にも、\ `APIによってプログラマティックに読み込んだり <http://logback.qos.ch/manual/configuration.html#joranDirectly>`_\ 、
@@ -280,6 +284,7 @@ Logbackの設定
 
   </configuration>
 
+.. tabularcolumns:: |p{0.10\linewidth}|p{0.90\linewidth}|
 .. list-table::
    :header-rows: 1
    :widths: 10 90
@@ -322,6 +327,7 @@ Logbackの設定
 
 logback.xmlで設定するものは、次の3つになる。
 
+.. tabularcolumns:: |p{0.10\linewidth}|p{0.50\linewidth}|
 .. list-table::
    :header-rows: 1
    :widths: 10 50
@@ -329,17 +335,18 @@ logback.xmlで設定するものは、次の3つになる。
    * - 種類
      - 概要
    * - appender
-     - ｢どの場所に｣｢どんなレイアウト｣で出力するのか
+     - 「どの場所に」「どんなレイアウト」で出力するのか
    * - root
-     - デフォルトでは、｢どのログレベル｣以上で｢どのappender｣に出力するのか
+     - デフォルトでは、「どのログレベル」以上で「どのappender」に出力するのか
    * - logger
-     - ｢どのロガー(パッケージやクラス等)｣は、「どのログレベル」以上で出力するのか
+     - 「どのロガー(パッケージやクラス等)」は、「どのログレベル」以上で出力するのか
 
-<appender>要素には、｢どの場所に｣｢どんなレイアウト｣で出力するのかを定義する。
+<appender>要素には、「どの場所に」「どんなレイアウト」で出力するのかを定義する。
 appenderを定義しただけではログ出力の際に使用されず、
 <logger>要素や<root>要素に参照されると、初めて使用される。
 属性は、nameとclassの2つで、共に必須である。
 
+.. tabularcolumns:: |p{0.10\linewidth}|p{0.50\linewidth}|
 .. list-table::
    :header-rows: 1
    :widths: 10 50
@@ -353,6 +360,7 @@ appenderを定義しただけではログ出力の際に使用されず、
 
 提供されている主なappenderを、以下に示す
 
+.. tabularcolumns:: |p{0.10\linewidth}|p{0.50\linewidth}|
 .. list-table::
    :header-rows: 1
    :widths: 10 50
@@ -405,6 +413,7 @@ SLF4Jのロガー(\ ``org.slf4j.Logger``\ )の各ログレベルに応じたメ�
 
     }
 
+.. tabularcolumns:: |p{0.10\linewidth}|p{0.90\linewidth}|
 .. list-table::
    :header-rows: 1
    :widths: 10 90
@@ -694,6 +703,7 @@ web.xmlのfilter定義にMDCFilterの定義を追加する。
     <!-- omitted -->
 
 
+.. tabularcolumns:: |p{0.10\linewidth}|p{0.90\linewidth}|
 .. list-table::
    :header-rows: 1
    :widths: 10 90
@@ -769,6 +779,7 @@ logback.xmlの\ ``<pattern>``\ に\ ``%X{X-Track}``\ および、\ ``%X{USER}``\
              </bean>
 
 
+         .. tabularcolumns:: |p{0.10\linewidth}|p{0.90\linewidth}|
          .. list-table::
              :header-rows: 1
              :widths: 10 90
@@ -888,3 +899,8 @@ ExceptionLogger
 例外発生時のロガーとして、\ ``org.terasoluna.gfw.common.exception.ExceptionLogger``\ が提供されている。
 
 使用方法は、"\ :doc:`ExceptionHandling`\ "の"\ :ref:`exception-handling-how-to-use-label`\ "を参照されたい。
+
+.. raw:: latex
+
+   \newpage
+

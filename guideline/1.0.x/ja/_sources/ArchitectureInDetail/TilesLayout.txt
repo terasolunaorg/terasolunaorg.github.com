@@ -1,9 +1,11 @@
 Tilesによる画面レイアウト
 ================================================================================
 
-.. contents:: 目次
-   :depth: 3
-   :local:
+.. only:: html
+
+ .. contents:: 目次
+    :depth: 3
+    :local:
 
 Overview
 --------------------------------------------------------------------------------
@@ -67,6 +69,7 @@ pom.xmlの設定
             <type>pom</type><!-- (2) -->
         </dependency>
 
+.. tabularcolumns:: |p{0.10\linewidth}|p{0.90\linewidth}|
 .. list-table::
    :header-rows: 1
    :widths: 10 90
@@ -134,6 +137,7 @@ Spring MVCとTilesの連携
     </bean>
 
 
+ .. tabularcolumns:: |p{0.10\linewidth}|p{0.90\linewidth}|
  .. list-table::
    :header-rows: 1
    :widths: 10 90
@@ -181,6 +185,7 @@ Spring MVCとTilesの連携
     </tiles-definitions>
 
 
+ .. tabularcolumns:: |p{0.10\linewidth}|p{0.90\linewidth}|
  .. list-table::
    :header-rows: 1
    :widths: 10 90
@@ -249,6 +254,7 @@ Tilesを使用するためにカスタムタグ(TLD)を設定する必要があ�
   <%@ taglib uri=" http://terasoluna.org/tags" prefix="t"%>
   <%@ taglib uri="http://tiles.apache.org/tags-tiles" prefix="tiles"%> <!-- (1) -->
 
+ .. tabularcolumns:: |p{0.10\linewidth}|p{0.90\linewidth}|
  .. list-table::
    :header-rows: 1
    :widths: 10 90
@@ -273,6 +279,7 @@ Tilesを使用するためにカスタムタグ(TLD)を設定する必要があ�
         </jsp-property-group>
     </jsp-config>
 
+ .. tabularcolumns:: |p{0.10\linewidth}|p{0.90\linewidth}|
  .. list-table::
    :header-rows: 1
    :widths: 10 90
@@ -331,6 +338,7 @@ Tilesを使用するためにカスタムタグ(TLD)を設定する必要があ�
   </body>
   </html>
 
+ .. tabularcolumns:: |p{0.10\linewidth}|p{0.90\linewidth}|
  .. list-table::
    :header-rows: 1
    :widths: 10 90
@@ -428,6 +436,7 @@ Controllerからのリターンが"staff/createForm"となるように設定す�
       return "staff/createForm"; // (1)
   }
 
+ .. tabularcolumns:: |p{0.10\linewidth}|p{0.90\linewidth}|
  .. list-table::
    :header-rows: 1
    :widths: 10 90
@@ -461,6 +470,7 @@ Controllerからのリターンが"staff/createForm"となるように設定す�
     </definition>
 
 
+ .. tabularcolumns:: |p{0.10\linewidth}|p{0.90\linewidth}|
  .. list-table::
    :header-rows: 1
    :widths: 10 90
@@ -541,6 +551,7 @@ How to extend
         </definition>
     </tiles-definitions>
 
+ .. tabularcolumns:: |p{0.10\linewidth}|p{0.90\linewidth}|
  .. list-table::
    :header-rows: 1
    :widths: 10 90
@@ -577,6 +588,7 @@ How to extend
    title.staff.createForm = Create Staff Information
    title.staff.searchStaff = Search Staff Information # (1)
 
+ .. tabularcolumns:: |p{0.10\linewidth}|p{0.90\linewidth}|
  .. list-table::
    :header-rows: 1
    :widths: 10 90
@@ -634,6 +646,7 @@ How to extend
   </body>
   </html>
 
+ .. tabularcolumns:: |p{0.10\linewidth}|p{0.90\linewidth}|
  .. list-table::
    :header-rows: 1
    :widths: 10 90
@@ -663,6 +676,7 @@ How to extend
       clear: both;
   }
 
+ .. tabularcolumns:: |p{0.10\linewidth}|p{0.90\linewidth}|
  .. list-table::
    :header-rows: 1
    :widths: 10 90
@@ -757,6 +771,7 @@ Controllerからのリターンが"staff/searchStaff"となるように設定す
       return "staff/searchStaff"; // (1)
   }
 
+ .. tabularcolumns:: |p{0.10\linewidth}|p{0.90\linewidth}|
  .. list-table::
    :header-rows: 1
    :widths: 10 90
@@ -791,6 +806,7 @@ Controllerからのリターンが"staff/searchStaff"となるように設定す
         <put-attribute name="body" value="/WEB-INF/views/{1}/search{2}.jsp" /> <!-- (7) -->
     </definition>
 
+ .. tabularcolumns:: |p{0.10\linewidth}|p{0.90\linewidth}|
  .. list-table::
    :header-rows: 1
    :widths: 10 90
@@ -821,3 +837,8 @@ Controllerからのリターンが"staff/searchStaff"となるように設定す
    :alt: tiles result another template
    :width: 100%
    :align: center
+
+.. raw:: latex
+
+   \newpage
+

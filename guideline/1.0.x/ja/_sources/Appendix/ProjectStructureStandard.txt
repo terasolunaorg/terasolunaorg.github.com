@@ -98,4 +98,7 @@ Complex pattern
 .. todo::
     JSPも分割したい場合について記述する。
 
- 
+.. raw:: latex
+
+   \newpage
+

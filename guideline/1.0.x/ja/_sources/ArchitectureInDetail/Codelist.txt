@@ -1,9 +1,11 @@
 コードリスト
 ================================================================================
 
-.. contents:: 目次
-   :depth: 4
-   :local:
+.. only:: html
+
+ .. contents:: 目次
+    :depth: 4
+    :local:
 
 Overview
 --------------------------------------------------------------------------------
@@ -37,6 +39,7 @@ Overview
 
 .. _listOfCodeList:
 
+.. tabularcolumns:: |p{0.50\linewidth}|p{0.30\linewidth}|p{0.20\linewidth}|
 .. list-table:: **コードリスト種類一覧**
    :header-rows: 1
    :widths: 50 30 20
@@ -120,6 +123,7 @@ bean定義ファイルは、コードリスト用に作成することを推奨�
         </property>
     </bean>
 
+.. tabularcolumns:: |p{0.10\linewidth}|p{0.90\linewidth}|
 .. list-table::
    :header-rows: 1
    :widths: 10 90
@@ -145,6 +149,7 @@ bean定義ファイルは、コードリスト用に作成することを推奨�
 
     <!-- omitted -->
 
+.. tabularcolumns:: |p{0.10\linewidth}|p{0.90\linewidth}|
 .. list-table::
    :header-rows: 1
    :widths: 10 90
@@ -186,6 +191,7 @@ JSPでのコードリスト使用
 
     </mvc:interceptors>
 
+.. tabularcolumns:: |p{0.10\linewidth}|p{0.90\linewidth}|
 .. list-table::
    :header-rows: 1
    :widths: 10 90
@@ -211,6 +217,7 @@ JSPでのコードリスト使用
     <form:options items="${CL_ORDERSTATUS}" /> <!-- (2) -->
   </form:select>
 
+.. tabularcolumns:: |p{0.10\linewidth}|p{0.90\linewidth}|
 .. list-table::
    :header-rows: 1
    :widths: 10 90
@@ -266,6 +273,7 @@ Javaクラスでのコードリスト使用
       }
   }
 
+.. tabularcolumns:: |p{0.10\linewidth}|p{0.90\linewidth}|
 .. list-table::
    :header-rows: 1
    :widths: 10 90
@@ -328,6 +336,7 @@ Fromの値をToの値より小さくする(From < To)場合の実装例を、以
         <property name="interval" value="1" /> <!-- (6) -->
     </bean>
 
+.. tabularcolumns:: |p{0.10\linewidth}|p{0.90\linewidth}|
 .. list-table::
    :header-rows: 1
    :widths: 10 90
@@ -401,6 +410,7 @@ JSPでのコードリスト使用
         <property name="to" value="2000" /> <!-- (2) -->
     </bean>
 
+.. tabularcolumns:: |p{0.10\linewidth}|p{0.90\linewidth}|
 .. list-table::
    :header-rows: 1
    :widths: 10 90
@@ -464,6 +474,7 @@ JSPでのコードリスト使用
         <property name="interval" value="10" /> <!-- (1) -->
     </bean>
 
+.. tabularcolumns:: |p{0.10\linewidth}|p{0.90\linewidth}|
 .. list-table::
    :header-rows: 1
    :widths: 10 90
@@ -547,6 +558,7 @@ JdbcCodeListの使用方法
 
 **テーブル定義(authority)**
 
+.. tabularcolumns:: |p{0.40\linewidth}|p{0.60\linewidth}|
 .. list-table::
    :header-rows: 1
    :widths: 40 60
@@ -578,6 +590,7 @@ JdbcCodeListの使用方法
         <property name="labelColumn" value="authority_name" /> <!-- (4) -->
     </bean>
 
+.. tabularcolumns:: |p{0.10\linewidth}|p{0.90\linewidth}|
 .. list-table::
    :header-rows: 1
    :widths: 10 90
@@ -686,6 +699,7 @@ Javaクラスでのコードリスト使用
         // getter and setter omitted
     }
 
+.. tabularcolumns:: |p{0.10\linewidth}|p{0.90\linewidth}|
 .. list-table::
    :header-rows: 1
    :widths: 10 90
@@ -729,6 +743,7 @@ SimpleI18nCodeListの使用方法
 
 | 料金を選択するセレクトボックスの場合の例に上げると以下のようなテーブルができる。
 
+.. tabularcolumns:: |p{0.10\linewidth}|p{0.15\linewidth}|p{0.15\linewidth}|p{0.15\linewidth}|p{0.15\linewidth}|p{0.15\linewidth}|p{0.15\linewidth}|
 .. list-table::
    :header-rows: 1
    :stub-columns: 1
@@ -784,6 +799,7 @@ SimpleI18nCodeListの使用方法
          </property>
      </bean>
   
+  .. tabularcolumns:: |p{0.10\linewidth}|p{0.90\linewidth}|
   .. list-table::
      :header-rows: 1
      :widths: 10 90
@@ -837,6 +853,7 @@ SimpleI18nCodeListの使用方法
          </property>
      </bean>
   
+  .. tabularcolumns:: |p{0.10\linewidth}|p{0.90\linewidth}|
   .. list-table::
      :header-rows: 1
      :widths: 10 90
@@ -878,6 +895,7 @@ SimpleI18nCodeListの使用方法
          <property name="labelColumn" value="label" />
      </bean>
   
+  .. tabularcolumns:: |p{0.10\linewidth}|p{0.90\linewidth}|
   .. list-table::
      :header-rows: 1
      :widths: 10 90
@@ -892,6 +910,7 @@ SimpleI18nCodeListの使用方法
 
   テーブル定義(priceテーブル)には以下のデータを投入する。
 
+  .. tabularcolumns:: |p{0.20\linewidth}|p{0.20\linewidth}|p{0.60\linewidth}|
   .. list-table::
      :header-rows: 1
      :widths: 20 20 60
@@ -970,6 +989,7 @@ JSPでのコードリスト使用
     </mvc:interceptors>
 
 
+.. tabularcolumns:: |p{0.10\linewidth}|p{0.90\linewidth}|
 .. list-table::
    :header-rows: 1
    :widths: 10 90
@@ -1046,6 +1066,7 @@ Javaクラスでのコードリスト使用
 
   }
 
+.. tabularcolumns:: |p{0.10\linewidth}|p{0.90\linewidth}|
 .. list-table::
    :header-rows: 1
    :widths: 10 90
@@ -1099,6 +1120,7 @@ JdbcCodeListの読み込む件数が大きい場合
         <property name="labelColumn" value="authority_name" />
     </bean>
 
+.. tabularcolumns:: |p{0.10\linewidth}|p{0.90\linewidth}|
 .. list-table::
    :header-rows: 1
    :widths: 10 90
@@ -1176,6 +1198,7 @@ Task Schedulerの設定例について、以下に示す。
         <property name="labelColumn" value="authority_name" />
     </bean>
 
+.. tabularcolumns:: |p{0.10\linewidth}|p{0.90\linewidth}|
 .. list-table::
    :header-rows: 1
    :widths: 10 90
@@ -1241,6 +1264,7 @@ Controller(Service)クラスでrefreshメソッドを呼び出す方法
       }
   }
 
+.. tabularcolumns:: |p{0.10\linewidth}|p{0.90\linewidth}|
 .. list-table::
    :header-rows: 1
    :widths: 10 90
@@ -1272,6 +1296,7 @@ Controller(Service)クラスでrefreshメソッドを呼び出す方法
   }
 
 
+.. tabularcolumns:: |p{0.10\linewidth}|p{0.90\linewidth}|
 .. list-table::
    :header-rows: 1
    :widths: 10 90
@@ -1305,6 +1330,7 @@ Controller(Service)クラスでrefreshメソッドを呼び出す方法
 | 共通ライブラリで提供している4種類のコードリストで実現できないコードリストを作成したい場合、コードリストを独自にカスタマイズすることができる。
 | 独自カスタマイズする場合、作成できるコードリストの種類と実装方法について、以下の表に示す。
 
+.. tabularcolumns:: |p{0.10\linewidth}|p{0.15\linewidth}|p{0.30\linewidth}|p{0.45\linewidth}|
 .. list-table::
    :header-rows: 1
    :widths: 10 15 30 45
@@ -1354,6 +1380,7 @@ Controller(Service)クラスでrefreshメソッドを呼び出す方法
       }
   }
 
+.. tabularcolumns:: |p{0.10\linewidth}|p{0.90\linewidth}|
 .. list-table::
    :header-rows: 1
    :widths: 10 90
@@ -1381,6 +1408,7 @@ Controller(Service)クラスでrefreshメソッドを呼び出す方法
 
   <form:select path="mostRecentYear" items="${CL_YEAR}" /> <!-- (1) -->
 
+.. tabularcolumns:: |p{0.10\linewidth}|p{0.90\linewidth}|
 .. list-table::
    :header-rows: 1
    :widths: 10 90
@@ -1460,6 +1488,7 @@ SimpleI18nCodeListのコードリスト設定方法
        </property>
    </bean>
 
+.. tabularcolumns:: |p{0.10\linewidth}|p{0.90\linewidth}|
 .. list-table::
    :header-rows: 1
    :widths: 10 90
@@ -1525,6 +1554,7 @@ SimpleI18nCodeListのコードリスト設定方法
        </property>
    </bean>
 
+.. tabularcolumns:: |p{0.10\linewidth}|p{0.90\linewidth}|
 .. list-table::
    :header-rows: 1
    :widths: 10 90
@@ -1534,4 +1564,8 @@ SimpleI18nCodeListのコードリスト設定方法
    * - | (1)
      - | columnsプロパティに対して、"MapのMap"を設定する。外側のMapのkeyはコード値である。
        | 内側のMapのkeyは\ ``java.lang.Locale``\、valueはロケールに対応したラベルである。
+
+.. raw:: latex
+
+   \newpage
 
