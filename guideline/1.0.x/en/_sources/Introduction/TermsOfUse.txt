@@ -16,3 +16,9 @@ this document are as follows.
 
 * TERASOLUNA is a registered trademark of NTT DATA Corporation.
 * All other company names and product names are the registered trademarks or trademarks of their respective companies.
+
+
+.. raw:: latex
+
+   \newpage
+

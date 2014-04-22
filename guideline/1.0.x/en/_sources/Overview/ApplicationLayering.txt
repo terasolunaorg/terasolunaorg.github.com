@@ -1,9 +1,11 @@
 ﻿Application Layering
 ********************************************************************************
 
-.. contents:: Index
-   :depth: 3
-   :local:
+.. only:: html
+
+ .. contents:: Index
+    :depth: 3
+    :local:
 
 In this guideline, the application is classified into the following 3 layers.
 
@@ -206,6 +208,7 @@ Sequence is explained using the example of update operation.
 
 Please refer to the below table to determine whether it is OK to call a component from another component.
 
+.. tabularcolumns:: |p{0.20\linewidth}|p{0.20\linewidth}|p{0.20\linewidth}|p{0.20\linewidth}|p{0.20\linewidth}|
 .. list-table:: Possibility of calling between components
     :header-rows: 1
     :stub-columns: 1
@@ -267,6 +270,7 @@ In such cases, if abstraction of data access is not required, O/R Mapper can be 
 
 Inter-dependency between components in this case must be as shown below:
 
+.. tabularcolumns:: |p{0.25\linewidth}|p{0.25\linewidth}|p{0.25\linewidth}|p{0.25\linewidth}|
 .. list-table:: Inter-dependency between components (without Repository)
     :header-rows: 1
     :stub-columns: 1
@@ -358,6 +362,7 @@ Recommended structure of [projectname]-domain project is as below:
                           └[projectname]-infra.xml ...(5)
 
 
+.. tabularcolumns:: |p{0.10\linewidth}|p{0.90\linewidth}|
 .. list-table::
     :header-rows: 1
     :widths: 10 90
@@ -423,6 +428,7 @@ Recommended structure of [projectname]-web
                       │     └createForm.jsp
                       └web.xml
 
+.. tabularcolumns:: |p{0.10\linewidth}|p{0.90\linewidth}|
 .. list-table::
     :header-rows: 1
     :widths: 10 90
@@ -461,6 +467,7 @@ The recommended structure of [projectname]-env project is below:
                           └[projectname]-infra.properties ...(2)
 
 
+.. tabularcolumns:: |p{0.10\linewidth}|p{0.90\linewidth}|
 .. list-table::
     :header-rows: 1
     :widths: 10 90
@@ -494,3 +501,9 @@ The recommended structure of [projectname]-env project is below:
   If the above point is not considered, contents of configuration files have to changed according to the target environment and the project has to be re-build.
   
   For further details regarding significance of creating a separate project for environment dependent files, refer to \ :doc:`../Appendix/EnvironmentIndependency`\ .
+
+
+.. raw:: latex
+
+   \newpage
+

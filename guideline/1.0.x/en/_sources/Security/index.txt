@@ -11,3 +11,8 @@ Security for TERASOLUNA Global Framework
    Authorization
    XSS
    CSRF
+
+.. raw:: latex
+
+   \newpage
+

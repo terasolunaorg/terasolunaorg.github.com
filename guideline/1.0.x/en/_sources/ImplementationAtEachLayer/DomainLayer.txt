@@ -1,9 +1,11 @@
 Domain Layer Implementation
 ================================================================================
 
-.. contents:: Index
-   :local:
-   :depth: 3
+.. only:: html
+
+ .. contents:: Index
+    :local:
+    :depth: 3
 
 Roles of domain layer
 --------------------------------------------------------------------------------
@@ -11,6 +13,7 @@ Domain layer \ **implements business logic**\ to be provided to the application 
 
 Implementation of domain layer is classified into the following.
 
+ .. tabularcolumns:: |p{0.10\linewidth}|p{0.30\linewidth}|p{0.60\linewidth}|
  .. list-table::
    :header-rows: 1
    :widths: 10 30 60
@@ -51,6 +54,7 @@ Flow of development of domain layer
     :width: 100%
     :align: center
 
+ .. tabularcolumns:: |p{0.10\linewidth}|p{0.20\linewidth}|p{0.80\linewidth}|
  .. list-table::
    :header-rows: 1
    :widths: 10 20 80
@@ -94,6 +98,7 @@ Policy of creating Entity class
 | Create an Entity using the following method.
 | Specific creation method is shown in \ :ref:`domainlayer_entity_example`\.
 
+ .. tabularcolumns:: |p{0.10\linewidth}|p{0.35\linewidth}|p{0.55\linewidth}|
  .. list-table::
    :header-rows: 1
    :widths: 10 35 55
@@ -158,6 +163,7 @@ The table structure is as given below:
     :width: 100%
     :align: center
 
+ .. tabularcolumns:: |p{0.10\linewidth}|p{0.20\linewidth}|p{0.15\linewidth}|p{0.55\linewidth}|
  .. list-table::
     :header-rows: 1
     :widths: 10 20 15 55
@@ -209,6 +215,7 @@ If Entity classes are created with the help of policy defined by the above table
     :width: 100%
     :align: center
 
+ .. tabularcolumns:: |p{0.10\linewidth}|p{0.15\linewidth}|p{0.65\linewidth}|
  .. list-table::
     :header-rows: 1
     :widths: 10 15 65
@@ -260,6 +267,7 @@ Below is the classification of main Entity classes as well as Entity class which
 
 The following 4 Entities are treated as the main Entity for creating shopping site application.
 
+ .. tabularcolumns:: |p{0.10\linewidth}|p{0.30\linewidth}|p{0.60\linewidth}|
  .. list-table::
    :header-rows: 1
    :widths: 10 30 60
@@ -287,6 +295,7 @@ The following 4 Entities are treated as the main Entity for creating shopping si
 
 The following are not main Entities for creating shopping site application.
 
+ .. tabularcolumns:: |p{0.10\linewidth}|p{0.30\linewidth}|p{0.60\linewidth}|
  .. list-table::
    :header-rows: 1
    :widths: 10 30 60
@@ -343,6 +352,7 @@ Repository consists of Repository interface and RepositoryImpl and performs the 
    :width: 100%
    :align: center
 
+ .. tabularcolumns:: |p{0.10\linewidth}|p{0.20\linewidth}|p{0.30\linewidth}|p{0.40\linewidth}|
  .. list-table::
    :header-rows: 1
    :widths: 10 20 30 40
@@ -403,6 +413,7 @@ Creation of Repository
 Repository must be created using the following policy only.
 
 
+ .. tabularcolumns:: |p{0.10\linewidth}|p{0.35\linewidth}|p{0.55\linewidth}|
  .. list-table::
    :header-rows: 1
    :widths: 10 35 55
@@ -478,6 +489,7 @@ An example of creating Repository interface is introduced below.
          void delete(T entity);
      }
 
+ .. tabularcolumns:: |p{0.10\linewidth}|p{0.90\linewidth}|
  .. list-table::
     :header-rows: 1
     :widths: 10 90
@@ -513,6 +525,7 @@ An example of creating Repository interface is introduced below.
          long countByFinished(boolean finished);
      }
 
+ .. tabularcolumns:: |p{0.10\linewidth}|p{0.90\linewidth}|
  .. list-table::
     :header-rows: 1
     :widths: 10 90
@@ -536,6 +549,7 @@ Method definition of Repository interface
 | In real development environment, it is difficult to develop an application using only general CRUD operations. Hence additional methods are required.
 | It is recommended to add the methods as per the following rules.
 
+ .. tabularcolumns:: |p{0.10\linewidth}|p{0.20\linewidth}|p{0.70\linewidth}|
  .. list-table::
     :header-rows: 1
     :widths: 10 20 70
@@ -611,6 +625,7 @@ Method definition of Repository interface
           boolean existsByCreateAt(Date date);
       }
 
+ .. tabularcolumns:: |p{0.10\linewidth}|p{0.90\linewidth}|
  .. list-table::
     :header-rows: 1
     :widths: 10 90
@@ -694,6 +709,7 @@ Structure of Service class
 | In this guideline, POJO (Plain Old Java Object) having \ ``@Service``\ annotation is defined as Service or SharedService class. 
 | We are not preventing the creation of interface and base classes that limit the signature of methods.
 
+ .. tabularcolumns:: |p{0.10\linewidth}|p{0.15\linewidth}|p{0.30\linewidth}|p{0.45\linewidth}|
  .. list-table::
    :header-rows: 1
    :widths: 10 15 30 45
@@ -739,6 +755,7 @@ Reason for prohibiting the calling of other Service classes from Service class
 | Service provides business logic to a specific controller and is not created with the assumption of using it from other services.
 | If it is called directly from other Service classes, the following situations can easily occur \ **and there is a risk of reduced maintainability.**\
 
+ .. tabularcolumns:: |p{0.10\linewidth}|p{0.90\linewidth}|
  .. list-table::
    :header-rows: 1
    :widths: 10 90
@@ -777,6 +794,7 @@ Patterns of creating service class
 
 There are mainly 3 patterns for creating Service.
 
+ .. tabularcolumns:: |p{0.10\linewidth}|p{0.15\linewidth}|p{0.25\linewidth}|p{0.50\linewidth}|
  .. list-table::
    :header-rows: 1
    :widths: 10 15 25 50
@@ -859,6 +877,7 @@ Following is the iamge of application development when creating a Service for ea
    :width: 100%
    :align: center
 
+ .. tabularcolumns:: |p{0.10\linewidth}|p{0.90\linewidth}|
  .. list-table::
    :header-rows: 1
    :widths: 10 90
@@ -886,6 +905,7 @@ Image of Application development - Creating Service for each use case
    :width: 100%
    :align: center
 
+ .. tabularcolumns:: |p{0.10\linewidth}|p{0.90\linewidth}|
  .. list-table::
    :header-rows: 1
    :widths: 10 90
@@ -915,6 +935,7 @@ Image of Application development - Creating Service for each use case
    :width: 100%
    :align: center
 
+ .. tabularcolumns:: |p{0.10\linewidth}|p{0.90\linewidth}|
  .. list-table::
    :header-rows: 1
    :widths: 10 90
@@ -943,6 +964,7 @@ Following is the iamge of application development when creating a Service(BLogic
    :width: 100%
    :align: center
 
+ .. tabularcolumns:: |p{0.10\linewidth}|p{0.90\linewidth}|
  .. list-table::
    :header-rows: 1
    :widths: 10 90
@@ -977,6 +999,7 @@ Following is the iamge of application development when creating a Service(BLogic
    :width: 100%
    :align: center
 
+ .. tabularcolumns:: |p{0.10\linewidth}|p{0.90\linewidth}|
  .. list-table::
    :header-rows: 1
    :widths: 10 90
@@ -1009,6 +1032,7 @@ Below are the points to be taken care of while creating Service class.
         // omitted
     }
 
+ .. tabularcolumns:: |p{0.10\linewidth}|p{0.90\linewidth}|
  .. list-table::
    :header-rows: 1
    :widths: 10 90
@@ -1042,6 +1066,7 @@ Below are the points to be taken care of while creating Service class.
 
     <context:component-scan base-package="xxx.yyy.zzz.domain" /> <!-- (1) -->
 
+ .. tabularcolumns:: |p{0.10\linewidth}|p{0.90\linewidth}|
  .. list-table::
    :header-rows: 1
    :widths: 10 90
@@ -1120,6 +1145,7 @@ Below are the points to be taken care of while writing methods of Service class.
 
     }
 
+ .. tabularcolumns:: |p{0.10\linewidth}|p{0.90\linewidth}|
  .. list-table::
    :header-rows: 1
    :widths: 10 90
@@ -1335,6 +1361,7 @@ Returning warning message
         return orderResult;
     }
 
+ .. tabularcolumns:: |p{0.10\linewidth}|p{0.90\linewidth}|
  .. list-table::
    :header-rows: 1
    :widths: 10 90
@@ -1384,6 +1411,7 @@ Notifying business error
 
     // omitted
 
+ .. tabularcolumns:: |p{0.10\linewidth}|p{0.90\linewidth}|
  .. list-table::
    :header-rows: 1
    :widths: 10 90
@@ -1423,6 +1451,7 @@ Notifying system error
             "Item master data is not found. item code is " + itemCode + ".");
     }
 
+ .. tabularcolumns:: |p{0.10\linewidth}|p{0.90\linewidth}|
  .. list-table::
    :header-rows: 1
    :widths: 10 90
@@ -1446,6 +1475,7 @@ Example that throws system exception while catching IO exception while copying t
             "Failed file copy. src file '" + srcFile + "' dest file '" + destFile + "'.", e);
     }
 
+ .. tabularcolumns:: |p{0.10\linewidth}|p{0.90\linewidth}|
  .. list-table::
    :header-rows: 1
    :widths: 10 90
@@ -1500,6 +1530,7 @@ Information required for "Declarative transaction management"
 | Specify \ ``@Transactional``\  annotation for at class level or method level which are considered as target of transaction management and specify the information required for
 | transaction control in attributes of \ ``@Transactional``\  annotation.
 
+ .. tabularcolumns:: |p{0.10\linewidth}|p{0.10\linewidth}|p{0.80\linewidth}|
  .. list-table::
     :header-rows: 1
     :widths: 10 10 80
@@ -1699,6 +1730,7 @@ PlatformTransactionManager settings
          <property name="dataSource" ref="dataSource" />
      </bean>
 
+ .. tabularcolumns:: |p{0.10\linewidth}|p{0.90\linewidth}|
  .. list-table::
     :header-rows: 1
     :widths: 10 90
@@ -1717,6 +1749,7 @@ PlatformTransactionManager settings
      * When JTA is to be used in WebSphere, Oracle WebLogic Server and Oracle OC4J, a \ ``JtaTransactionManager``\  which is extended for the application server is automatically set
        by specifying <tx:jta-transaction-manager/>.
 
+ .. tabularcolumns:: |p{0.10\linewidth}|p{0.35\linewidth}|p{0.55\linewidth}|
  .. list-table:: **Implementation class of PlatformTransactionManager provided by Spring Framework**
     :header-rows: 1
     :widths: 10 35 55
@@ -1753,6 +1786,7 @@ Settings for enabling @Transactional
 
      <tx:annotation-driven /> <!-- (1) -->
 
+ .. tabularcolumns:: |p{0.10\linewidth}|p{0.90\linewidth}|
  .. list-table::
     :header-rows: 1
     :widths: 10 90
@@ -1778,6 +1812,7 @@ Various attributes can be specified in <tx:annotation-driven> and default behavi
           proxy-target-class="true"
           order="0" />
 
+ .. tabularcolumns:: |p{0.10\linewidth}|p{0.15\linewidth}|p{0.75\linewidth}|
  .. list-table::
     :header-rows: 1
     :widths: 10 15 75
@@ -1839,6 +1874,7 @@ Sample of implementation of interface and base classes to limit signature
       O execute(I input);
     }
 
+ .. tabularcolumns:: |p{0.10\linewidth}|p{0.90\linewidth}|
  .. list-table::
     :header-rows: 1
     :widths: 10 90
@@ -1872,6 +1908,7 @@ Sample of implementation of interface and base classes to limit signature
         return "redirect:/xxx?complete";
     }
 
+ .. tabularcolumns:: |p{0.10\linewidth}|p{0.90\linewidth}|
  .. list-table::
     :header-rows: 1
     :widths: 10 90
@@ -1919,6 +1956,7 @@ To standardize process flow of business logic when a fixed common process is inc
     }
 
 
+ .. tabularcolumns:: |p{0.10\linewidth}|p{0.90\linewidth}|
  .. list-table::
     :header-rows: 1
     :widths: 10 90
@@ -1970,6 +2008,7 @@ Sample of extending base classes to limit signature is shown below.
     }
 
 
+ .. tabularcolumns:: |p{0.10\linewidth}|p{0.90\linewidth}|
  .. list-table::
     :header-rows: 1
     :widths: 10 90
@@ -1996,4 +2035,9 @@ Method of dealing with violation of business rules as field error
 | When it is necessary to output the error of business rules for each field, the mechanism of (Bean Validation or Spring Validator) on the Controller side should be used.
 | In this case, It is recommended to implement check logic as Service class and then to call the method of Service class from Bean Validation or Spring Validator.
 | Refer to \ :doc:`../ArchitectureInDetail/Validation`\ business logic approach for details.
+
+
+.. raw:: latex
+
+   \newpage
 

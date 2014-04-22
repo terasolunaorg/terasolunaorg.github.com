@@ -1,9 +1,11 @@
 Stack of TERASOLUNA Global Framework
 ================================================================================
 
-.. contents:: Index
-   :depth: 3
-   :local:
+.. only:: html
+
+ .. contents:: Index
+    :depth: 3
+    :local:
 
 Summary of Software Framework of TERASOLUNA Global Framework
 --------------------------------------------------------------------------------
@@ -112,6 +114,7 @@ OSS Versions
 
 List of OSS being used in version 1.0.1.RELEASE.
 
+.. tabularcolumns:: |p{0.20\linewidth}|p{0.25\linewidth}|p{0.25\linewidth}|p{0.25\linewidth}|p{0.05\linewidth}|
 .. list-table::
     :header-rows: 1
     :stub-columns: 1
@@ -452,6 +455,7 @@ Building blocks of Common Library
 \ `Common Library <https://github.com/terasolunaorg/terasoluna-gfw>`_\  includes ``+ alpha`` functionalities which are not available in Spring Ecosystem or other dependent libraries included in TERASOLUNA Global Framework. 
 Basically, application development is possible using TERASOLUNA Global Framework even without this library. It is a "nice to have" kind of existence. 
 
+.. tabularcolumns:: |p{0.05\linewidth}|p{0.30\linewidth}|p{0.35\linewidth}|p{0.30\linewidth}|
 .. list-table::
     :header-rows: 1
     :widths: 5 30 35 30
@@ -533,4 +537,9 @@ terasoluna-gfw-security-web
 * Servlet filter for logging authenticated username
 * Redirect handler for open redirect vulnerability
 * CSRF counter measures (Interim measure until the introduction of Spring Security 3.2)
+
+
+.. raw:: html
+
+   \newpage
 

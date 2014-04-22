@@ -76,3 +76,9 @@ Reading this document
     #. \ :doc:`../ImplementationAtEachLayer/index`\ 
     #. \ :doc:`../TutorialTodo/index`\ 
     #. \ :doc:`../ArchitectureInDetail/Validation`\ 
+
+
+.. raw:: latex
+
+   \newpage
+

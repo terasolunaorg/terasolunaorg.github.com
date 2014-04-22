@@ -1,9 +1,11 @@
 ﻿First application based on Spring MVC 
 --------------------------------------------------------------
 
-.. contents:: Index
-   :depth: 3
-   :local:
+.. only:: html
+
+ .. contents:: Index
+    :depth: 3
+    :local:
 
 Before entering into the advanced usage of Spring MVC, it is better to understand Spring MVC by actually trying handson web application development using Spring MVC.
 This purpose of this chapter to understand the overall picture. **Note that it does not follow the recommendations given from the next chapter onwards. (for the ease of understanding)**.
@@ -13,6 +15,7 @@ Prerequisites
 
 The description of this chapter has been verified on the following environment. (For other environments, replace the contents mentioned here appropriately)
 
+.. tabularcolumns:: |p{0.75\linewidth}|p{0.25\linewidth}|
 .. list-table::
    :header-rows: 1
    :widths: 75 25
@@ -73,6 +76,7 @@ The generated configuration file (src/main/webapp/WEB-INF/spring/appServlet/serv
    :language: xml
 
 
+.. tabularcolumns:: |p{0.10\linewidth}|p{0.90\linewidth}|
 .. list-table::
    :header-rows: 1
    :widths: 10 90
@@ -94,6 +98,7 @@ Following is the ``com.example.helloworld.HomeController`` (However, it is modif
 
 It is explained briefly. 
 
+.. tabularcolumns:: |p{0.10\linewidth}|p{0.90\linewidth}|
 .. list-table::
    :header-rows: 1
    :widths: 10 90
@@ -160,6 +165,7 @@ Next, create the Controller class. create the ``EchoController`` class in "com.e
    :language: java
    :emphasize-lines: 12,18,20,23-25
 
+.. tabularcolumns:: |p{0.10\linewidth}|p{0.90\linewidth}|
 .. list-table::
    :header-rows: 1
    :widths: 10 90
@@ -192,6 +198,7 @@ Finally create JSP of input screen and output screen. Each file path must match 
 .. literalinclude:: ../../resources/helloworld/src/main/webapp/WEB-INF/views/echo/index.jsp
    :language: jsp
 
+.. tabularcolumns:: |p{0.10\linewidth}|p{0.90\linewidth}|
 .. list-table::
    :header-rows: 1
    :widths: 10 90
@@ -253,6 +260,7 @@ In ``EchoForm``, add ``@NotNull`` annotation and ``@Size`` annotation to ``name`
    :language: java
    :emphasize-lines: 5,6,11,12
 
+.. tabularcolumns:: |p{0.10\linewidth}|p{0.90\linewidth}|
 .. list-table::
    :header-rows: 1
    :widths: 10 90
@@ -270,6 +278,7 @@ In ``EchoController`` class, add ``@Valid`` annotation as shown below and also u
    :language: java
    :emphasize-lines: 3,7,27-30
 
+.. tabularcolumns:: |p{0.10\linewidth}|p{0.90\linewidth}|
 .. list-table::
    :header-rows: 1
    :widths: 10 90
@@ -286,6 +295,7 @@ In ``EchoController`` class, add ``@Valid`` annotation as shown below and also u
    :language: jsp
    :emphasize-lines: 15
 
+.. tabularcolumns:: |p{0.10\linewidth}|p{0.90\linewidth}|
 .. list-table::
    :header-rows: 1
    :widths: 10 90
@@ -337,4 +347,9 @@ The following are the learnings from this chapter.
 
 If above points are still not understood, it is recommended to read this chapter again and start again from building the environment. 
 This will imporve the understanding of above concepts.
+
+
+.. raw:: latex
+
+   \newpage
 

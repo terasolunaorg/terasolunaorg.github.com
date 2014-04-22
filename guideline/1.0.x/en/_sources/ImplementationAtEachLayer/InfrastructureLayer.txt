@@ -1,9 +1,11 @@
 Implementation of Infrastructure Layer
 ================================================================================
 
-.. contents:: Index
-   :depth: 3
-   :local:
+.. only:: html
+
+ .. contents:: Index
+    :depth: 3
+    :local:
 
 \ :ref:`repository-class-label`\ is carried out in infrastructure layer.
 
@@ -43,6 +45,7 @@ Implementing Repository using JPA
           // ...
       }
 
+ .. tabularcolumns:: |p{0.10\linewidth}|p{0.90\linewidth}|
  .. list-table::
     :header-rows: 1
     :widths: 10 90
@@ -68,6 +71,7 @@ Implementing Repository using JPA
      }
 
 
+ .. tabularcolumns:: |p{0.10\linewidth}|p{0.90\linewidth}|
  .. list-table::
     :header-rows: 1
     :widths: 10 90
@@ -109,6 +113,7 @@ Implementing Repository using MyBatis2
          // ...
      }
 
+ .. tabularcolumns:: |p{0.10\linewidth}|p{0.90\linewidth}|
  .. list-table::
     :header-rows: 1
     :widths: 10 90
@@ -230,6 +235,7 @@ Implementing Repository using MyBatis2
 
       }
 
+ .. tabularcolumns:: |p{0.10\linewidth}|p{0.90\linewidth}|
  .. list-table::
     :header-rows: 1
     :widths: 10 90
@@ -313,6 +319,7 @@ Implementing Repository using MyBatis2
 
      </sqlMap>
 
+ .. tabularcolumns:: |p{0.10\linewidth}|p{0.90\linewidth}|
  .. list-table::
     :header-rows: 1
     :widths: 10 90
@@ -339,3 +346,9 @@ Implementing Repository to link with external system using RestTemplate
    **TBD**
 
    Plan to provide details in the coming versions.
+
+
+.. raw:: latex
+
+   \newpage
+

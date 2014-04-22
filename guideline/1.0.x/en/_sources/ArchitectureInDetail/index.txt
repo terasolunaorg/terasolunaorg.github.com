@@ -27,3 +27,9 @@ The architecture adopted in this guideline is explained in detail here.
    TilesLayout
    SystemDate
    Utilities/index
+
+
+.. raw:: latex
+
+   \newpage
+

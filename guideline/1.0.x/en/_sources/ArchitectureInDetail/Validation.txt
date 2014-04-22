@@ -1,8 +1,10 @@
 ﻿Input Validation
 ================================================================================
 
-.. contents:: Table of Contents
-   :depth: 4
+.. only:: html
+
+ .. contents:: Table of Contents
+    :depth: 4
 
 Overview
 --------------------------------------------------------------------------------
@@ -44,6 +46,7 @@ Classification of input validation
 
 Input validation is classified into single item check and correlation item check.
 
+.. tabularcolumns:: |p{0.15\linewidth}|p{0.30\linewidth}|p{0.25\linewidth}|p{0.30\linewidth}|
 .. list-table::
    :header-rows: 1
    :widths: 15 30 25 30
@@ -104,6 +107,7 @@ Basic single item check
 Implementation method is explained using "New user registration" process as an example. Rules for checking "New user registration" form are provided below.
 
 
+.. tabularcolumns:: |p{0.20\linewidth}|p{0.30\linewidth}|p{0.50\linewidth}|
 .. list-table::
    :header-rows: 1
    :widths: 20 30 50
@@ -168,6 +172,7 @@ Implementation method is explained using "New user registration" process as an e
       }
 
 
+  .. tabularcolumns:: |p{0.10\linewidth}|p{0.90\linewidth}|
   .. list-table::
      :header-rows: 1
      :widths: 10 90
@@ -257,6 +262,7 @@ Implementation method is explained using "New user registration" process as an e
         }
       }
 
+  .. tabularcolumns:: |p{0.10\linewidth}|p{0.90\linewidth}|
   .. list-table::
      :header-rows: 1
      :widths: 10 90
@@ -318,6 +324,7 @@ Implementation method is explained using "New user registration" process as an e
       </body>
       </html>
 
+  .. tabularcolumns:: |p{0.10\linewidth}|p{0.90\linewidth}|
   .. list-table::
      :header-rows: 1
      :widths: 10 90
@@ -383,6 +390,7 @@ Change the form as follows to change the style at the time of error.
     </form:form>
 
 
+.. tabularcolumns:: |p{0.10\linewidth}|p{0.90\linewidth}|
 .. list-table::
    :header-rows: 1
    :widths: 10 90
@@ -464,6 +472,7 @@ output them collectively.
         <form:button name="confirm">Confirm</form:button>
     </form:form>
 
+.. tabularcolumns:: |p{0.10\linewidth}|p{0.90\linewidth}|
 .. list-table::
    :header-rows: 1
    :widths: 10 90
@@ -572,6 +581,7 @@ The method to validate nested Bean using Bean Validation is explained below.
 
 "Ordering" process of an EC site is considered as an example. Rules for checking "Order" form are provided below.
 
+.. tabularcolumns:: |p{0.20\linewidth}|p{0.30\linewidth}|p{0.30\linewidth}|p{0.20\linewidth}|
 .. list-table::
    :header-rows: 1
    :widths: 20 30 30 20
@@ -685,6 +695,7 @@ Use the same form class since \ ``receiverAddress``\  and \ ``senderAddress``\  
     }
 
 
+  .. tabularcolumns:: |p{0.10\linewidth}|p{0.90\linewidth}|
   .. list-table::
      :header-rows: 1
      :widths: 10 90
@@ -817,6 +828,7 @@ Use the same form class since \ ``receiverAddress``\  and \ ``senderAddress``\  
 
 
 
+  .. tabularcolumns:: |p{0.10\linewidth}|p{0.90\linewidth}|
   .. list-table::
      :header-rows: 1
      :widths: 10 90
@@ -889,6 +901,7 @@ Add a field such that upto 3 addresses can be registered in "user registration" 
         // omitted setter/getter
     }
 
+  .. tabularcolumns:: |p{0.10\linewidth}|p{0.90\linewidth}|
   .. list-table::
      :header-rows: 1
      :widths: 10 90
@@ -970,6 +983,7 @@ Add a field such that upto 3 addresses can be registered in "user registration" 
     </html>
 
 
+  .. tabularcolumns:: |p{0.10\linewidth}|p{0.90\linewidth}|
   .. list-table::
      :header-rows: 1
      :widths: 10 90
@@ -1029,6 +1043,7 @@ Add a field such that upto 3 addresses can be registered in "user registration" 
     }
 
 
+  .. tabularcolumns:: |p{0.10\linewidth}|p{0.90\linewidth}|
   .. list-table::
      :header-rows: 1
      :widths: 10 90
@@ -1124,6 +1139,7 @@ To specify group in Bean Validation, set any \ ``java.lang.Class``\  object repr
 
 Create the following 3 groups (interface) here.
 
+.. tabularcolumns:: |p{0.50\linewidth}|p{0.50\linewidth}|
 .. list-table::
    :header-rows: 1
    :widths: 50 50
@@ -1199,6 +1215,7 @@ An example of executing validation using these groups is shown here.
     }
 
 
+  .. tabularcolumns:: |p{0.10\linewidth}|p{0.90\linewidth}|
   .. list-table::
      :header-rows: 1
      :widths: 10 90
@@ -1318,6 +1335,7 @@ An example of executing validation using these groups is shown here.
       }
 
 
+  .. tabularcolumns:: |p{0.10\linewidth}|p{0.90\linewidth}|
   .. list-table::
      :header-rows: 1
      :widths: 10 90
@@ -1332,6 +1350,7 @@ An example of executing validation using these groups is shown here.
 
 In this example, the check result of the combination of each input value is as follows.
 
+.. tabularcolumns:: |p{0.20\linewidth}|p{0.20\linewidth}|p{0.20\linewidth}|p{0.40\linewidth}|
 .. list-table::
    :header-rows: 1
    :widths: 20 20 20 40
@@ -1399,6 +1418,7 @@ Next, we can think of a condition where the number of countries increase and adu
 Rules are as follows.
 
 
+.. tabularcolumns:: |p{0.50\linewidth}|p{0.50\linewidth}|
 .. list-table::
    :header-rows: 1
    :widths: 50 50
@@ -1470,6 +1490,7 @@ Rules are as follows.
         // omitted setter/getter
     }
 
+  .. tabularcolumns:: |p{0.10\linewidth}|p{0.90\linewidth}|
   .. list-table::
      :header-rows: 1
      :widths: 10 90
@@ -1544,6 +1565,7 @@ Rules are as follows.
         }
     }
 
+  .. tabularcolumns:: |p{0.10\linewidth}|p{0.90\linewidth}|
   .. list-table::
      :header-rows: 1
      :widths: 10 90
@@ -1561,6 +1583,7 @@ Till now, 2 patterns of using grouped validation have been explained.
 \ In the previous pattern, ``Default``\  group is used in Controller class and in the later one,  \ ``Default``\  group is used in form class.
 
 
+.. tabularcolumns:: |p{0.25\linewidth}|p{0.25\linewidth}|p{0.25\linewidth}|p{0.25\linewidth}|
 .. list-table::
    :header-rows: 1
    :widths: 25 25 25 25
@@ -1616,6 +1639,7 @@ After reviewing the design, usage of Spring Validator or implementation of valid
 
      }
 
+   .. tabularcolumns:: |p{0.10\linewidth}|p{0.90\linewidth}|
    .. list-table::
       :header-rows: 1
       :widths: 10 90
@@ -1644,6 +1668,7 @@ or Bean Validation must be used.
 Each one of above has been explained below. However, before that, their features and usage have been explained.
 
 
+.. tabularcolumns:: |p{0.20\linewidth}|p{0.40\linewidth}|p{0.40\linewidth}|
 .. list-table::
    :header-rows: 1
    :widths: 20 40 40
@@ -1669,6 +1694,7 @@ Correlation item check implementation using Spring Validator
 | Implementation method is explained with the help of "reset password" process as an example.
 | Implement the following rules. Following rules are provided in the "reset password" form.
 
+.. tabularcolumns:: |p{0.20\linewidth}|p{0.30\linewidth}|p{0.30\linewidth}|p{0.20\linewidth}|
 .. list-table::
    :header-rows: 1
    :widths: 20 30 30 20
@@ -1758,6 +1784,7 @@ Check rule "Must be same as confirmPassword" is validation of correlated items a
         }
     }
 
+  .. tabularcolumns:: |p{0.10\linewidth}|p{0.90\linewidth}|
   .. list-table::
      :header-rows: 1
      :widths: 10 90
@@ -1838,6 +1865,7 @@ Check rule "Must be same as confirmPassword" is validation of correlated items a
     }
 
 
+  .. tabularcolumns:: |p{0.10\linewidth}|p{0.90\linewidth}|
   .. list-table::
      :header-rows: 1
      :widths: 10 90
@@ -1981,6 +2009,7 @@ Considering that the following settings are done in applicationContext.xml, form
 
 This guideline classifies the definition as follows.
 
+.. tabularcolumns:: |p{0.50\linewidth}|p{0.50\linewidth}|
 .. list-table::
    :header-rows: 1
    :widths: 50 50
@@ -2045,6 +2074,7 @@ It is explained below using the following form used at the beginning of \ :ref:`
     javax.validation.constraints.Max.message=can not be greater than {value}.
     org.hibernate.validator.constraints.Email.message=is an invalid e-mail address.
 
+  .. tabularcolumns:: |p{0.10\linewidth}|p{0.90\linewidth}|
   .. list-table::
      :header-rows: 1
      :widths: 10 90
@@ -2284,6 +2314,7 @@ Implementation example is shown below.
     }
 
 
+  .. tabularcolumns:: |p{0.10\linewidth}|p{0.90\linewidth}|
   .. list-table::
      :header-rows: 1
      :widths: 10 90
@@ -2494,6 +2525,7 @@ For example, rules that check ISBN (International Standard Book Number)-13 forma
     }
 
 
+  .. tabularcolumns:: |p{0.10\linewidth}|p{0.90\linewidth}|
   .. list-table::
      :header-rows: 1
      :widths: 10 90
@@ -2548,6 +2580,7 @@ For example, rules that check ISBN (International Standard Book Number)-13 forma
         }
     }
 
+  .. tabularcolumns:: |p{0.10\linewidth}|p{0.90\linewidth}|
   .. list-table::
      :header-rows: 1
      :widths: 10 90
@@ -2621,6 +2654,7 @@ Set constraint of assigning "confirm" as the prefix of confirmation field.
     }
 
 
+  .. tabularcolumns:: |p{0.10\linewidth}|p{0.90\linewidth}|
   .. list-table::
      :header-rows: 1
      :widths: 10 90
@@ -2678,6 +2712,7 @@ Set constraint of assigning "confirm" as the prefix of confirmation field.
     }
 
 
+  .. tabularcolumns:: |p{0.10\linewidth}|p{0.90\linewidth}|
   .. list-table::
      :header-rows: 1
      :widths: 10 90
@@ -2727,6 +2762,7 @@ Check below for the changes, if the "Reset password" is re-implemented using \ `
         // omitted geter/setter
     }
 
+  .. tabularcolumns:: |p{0.10\linewidth}|p{0.90\linewidth}|
   .. list-table::
      :header-rows: 1
      :widths: 10 90
@@ -2882,6 +2918,7 @@ An example of implementing, "whether the entered user name is already registered
 
     }
 
+  .. tabularcolumns:: |p{0.10\linewidth}|p{0.90\linewidth}|
   .. list-table::
      :header-rows: 1
      :widths: 10 90
@@ -2915,6 +2952,7 @@ JSR-303 annotations are shown below.
 
 Refer to Chapter 6 \ `JSR-303 Specification <http://download.oracle.com/otn-pub/jcp/bean_validation-1.0-fr-oth-JSpec/bean_validation-1_0-final-spec.pdf>`_\  for details. 
 
+.. tabularcolumns:: |p{0.25\linewidth}|p{0.25\linewidth}|p{0.25\linewidth}|p{0.25\linewidth}|
 .. list-table::
    :header-rows: 1
 
@@ -3017,6 +3055,7 @@ All the major annotations of Hibernate Validator are shown below.
 
 Refer to \ `Hibernate Validator specifications <http://docs.jboss.org/hibernate/validator/4.3/reference/en-US/html_single/#table-custom-constraints>`_\ for details.
 
+.. tabularcolumns:: |p{0.25\linewidth}|p{0.25\linewidth}|p{0.25\linewidth}|p{0.25\linewidth}|
 .. list-table::
    :header-rows: 1
 
@@ -3106,6 +3145,7 @@ It is possible to define the error message for type mismatch in the properties f
 
 Error messages can be defined with the following rules.
 
+.. tabularcolumns:: |p{0.35\linewidth}|p{0.40\linewidth}|p{0.25\linewidth}|
 .. list-table::
     :widths: 35 40 25
     :header-rows: 1
@@ -3206,3 +3246,9 @@ With the help of this configuration, it can be specified in the controller wheth
 
 | When this setting is made, all empty String values set to String fields of form object become \ ``null``\.
 | Therefore it must be noted that, it becomes necessary to specify \ ``@NotNull``\  in case of mandatory check.
+
+
+.. raw:: latex
+
+   \newpage
+

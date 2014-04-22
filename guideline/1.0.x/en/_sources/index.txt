@@ -18,3 +18,8 @@ TERASOLUNA Global Framework Development Guideline
    ./ArchitectureInDetail/index
    ./Security/index
    ./Appendix/index
+
+.. raw:: latex
+
+   \newpage
+

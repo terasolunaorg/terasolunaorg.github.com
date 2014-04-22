@@ -1,9 +1,11 @@
 ﻿Tutorial (Todo Application)
 ********************************************************************************
 
-.. contents:: Index
-   :depth: 3
-   :local:
+.. only:: html
+
+ .. contents:: Index
+    :depth: 3
+    :local:
 
 Introduction
 ================================================================================
@@ -28,6 +30,7 @@ Verification environment
 
 In this tutorial, operations are verified in the following environment.
 
+.. tabularcolumns:: |p{0.15\linewidth}|p{0.85\linewidth}|
 .. list-table::
     :header-rows: 1
     :widths: 15 85
@@ -63,6 +66,7 @@ Application to manage TODO list is to be developed. TODO list display, TODO regi
 Business requirements of application
 --------------------------------------------------------------------------------
 
+.. tabularcolumns:: |p{0.10\linewidth}|p{0.90\linewidth}|
 .. list-table::
     :header-rows: 1
     :widths: 10 90
@@ -91,6 +95,7 @@ Screen transition of application
 
 
 
+.. tabularcolumns:: |p{0.10\linewidth}|p{0.20\linewidth}|p{0.15\linewidth}|p{0.15\linewidth}|p{0.40\linewidth}|
 .. list-table::
     :header-rows: 1
     :widths: 10 20 15 15 40
@@ -153,6 +158,7 @@ Delete TODO
 Error message list
 --------------------------------------------------------------------------------
 
+.. tabularcolumns:: |p{0.15\linewidth}|p{0.45\linewidth}|p{0.40\linewidth}|
 .. list-table::
     :header-rows: 1
     :widths: 15 45 40
@@ -191,6 +197,7 @@ Insert check-mark to ``Create a simple project`` and proceed to ``Next``
    :width: 60%
 
 
+.. tabularcolumns:: |p{0.25\linewidth}|p{0.75\linewidth}|
 .. list-table::
     :widths: 25 75
     :stub-columns: 1
@@ -350,6 +357,7 @@ Confirm that the version of "JRE System Library" is "[JavaSE-1.6]".
 
 If you are familiar with the Maven, and to make sure the following discussion.
 
+.. tabularcolumns:: |p{0.10\linewidth}|p{0.90\linewidth}|
 .. list-table::
    :header-rows: 1
    :widths: 10 90
@@ -522,6 +530,7 @@ and describe the contents as follows.
     </web-app>
 
 
+.. tabularcolumns:: |p{0.10\linewidth}|p{0.90\linewidth}|
 .. list-table::
    :header-rows: 1
    :widths: 10 90
@@ -571,6 +580,7 @@ Create views/common folder and include.jsp file and describe as follows.
     <%@ taglib uri="http://terasoluna.org/tags" prefix="t"%>
 
 
+.. tabularcolumns:: |p{0.10\linewidth}|p{0.90\linewidth}|
 .. list-table::
    :header-rows: 1
    :widths: 10 90
@@ -643,6 +653,7 @@ Create META-INF/spring folder and create applicationContext.xml using ``New`` ->
     </beans>
 
 
+.. tabularcolumns:: |p{0.10\linewidth}|p{0.90\linewidth}|
 .. list-table::
    :header-rows: 1
    :widths: 10 90
@@ -706,6 +717,7 @@ Create todo-domain.xml using ``New`` -> ``Spring Bean Configuration File`` under
     </beans>
 
 
+.. tabularcolumns:: |p{0.10\linewidth}|p{0.90\linewidth}|
 .. list-table::
    :header-rows: 1
    :widths: 10 90
@@ -796,6 +808,7 @@ Define Spring MVC related definitions in ``src/main/resources/META-INF/spring/sp
         </bean>
     </beans>
 
+.. tabularcolumns:: |p{0.10\linewidth}|p{0.90\linewidth}|
 .. list-table::
    :header-rows: 1
    :widths: 10 90
@@ -884,6 +897,7 @@ Create logback.xml by ``New`` -> ``File`` just under ``src/main/resources/``.
         </root>
     </configuration>
 
+.. tabularcolumns:: |p{0.10\linewidth}|p{0.90\linewidth}|
 .. list-table::
    :header-rows: 1
    :widths: 10 90
@@ -917,6 +931,7 @@ Operation verification
 Before starting development of Todo application, create SpringMVC HelloWorld application and verify the operation.
 
 
+.. tabularcolumns:: |p{0.25\linewidth}|p{0.75\linewidth}|
 .. list-table::
    :widths: 25 75
    :stub-columns: 1
@@ -968,6 +983,7 @@ Edit HelloController as shown below.
     }
 
 
+.. tabularcolumns:: |p{0.10\linewidth}|p{0.90\linewidth}|
 .. list-table::
    :header-rows: 1
    :widths: 10 90
@@ -1009,6 +1025,7 @@ Next, create view(jsp). Create src/main/webapp/WEB-INF/views/hello.jsp as follow
     </html>
 
 
+.. tabularcolumns:: |p{0.10\linewidth}|p{0.90\linewidth}|
 .. list-table::
    :header-rows: 1
    :widths: 10 90
@@ -1117,6 +1134,7 @@ Create the following Domain objects.
 FQCN should be ``todo.domain.model.Todo``. Implement as JavaBean.
 
 
+.. tabularcolumns:: |p{0.25\linewidth}|p{0.75\linewidth}|
 .. list-table::
    :widths: 25 75
    :stub-columns: 1
@@ -1307,6 +1325,7 @@ Creation of RepositoryImpl (Infrastructure layer)
     }
 
 
+.. tabularcolumns:: |p{0.10\linewidth}|p{0.90\linewidth}|
 .. list-table::
    :header-rows: 1
    :widths: 10 90
@@ -1471,6 +1490,7 @@ FQCN of implementation class should be ``todo.domain.service.TodoServiceImpl``.
     }
 
 
+.. tabularcolumns:: |p{0.10\linewidth}|p{0.90\linewidth}|
 .. list-table::
    :header-rows: 1
    :widths: 10 90
@@ -1536,6 +1556,7 @@ It should be noted that the higher level package is different from the domain la
     }
 
 
+.. tabularcolumns:: |p{0.10\linewidth}|p{0.90\linewidth}|
 .. list-table::
    :header-rows: 1
    :widths: 10 90
@@ -1632,6 +1653,7 @@ Implement ``setUpForm`` method and ``list`` method in TodoController.
     }
 
 
+.. tabularcolumns:: |p{0.10\linewidth}|p{0.90\linewidth}|
 .. list-table::
    :header-rows: 1
    :widths: 10 90
@@ -1707,6 +1729,7 @@ First, create buttons except "Finish"`, "Delete".
     </html>
 
 
+.. tabularcolumns:: |p{0.10\linewidth}|p{0.90\linewidth}|
 .. list-table::
    :header-rows: 1
    :widths: 10 90
@@ -1821,6 +1844,7 @@ Add ``create`` method to TodoController.
 
     }
 
+.. tabularcolumns:: |p{0.10\linewidth}|p{0.90\linewidth}|
 .. list-table::
    :header-rows: 1
    :widths: 10 90
@@ -1877,6 +1901,7 @@ To define input validation rules, add annotations in form class.
     }
 
 
+.. tabularcolumns:: |p{0.10\linewidth}|p{0.90\linewidth}|
 .. list-table::
    :header-rows: 1
    :widths: 10 90
@@ -1943,6 +1968,7 @@ Add the tag for dislaying the result message.
     </html>
 
 
+.. tabularcolumns:: |p{0.10\linewidth}|p{0.90\linewidth}|
 .. list-table::
    :header-rows: 1
    :widths: 10 90
@@ -2139,6 +2165,7 @@ Add form in the JSP for completion of Todo.
     </html>
 
 
+.. tabularcolumns:: |p{0.10\linewidth}|p{0.90\linewidth}|
 .. list-table::
    :header-rows: 1
    :widths: 10 90
@@ -2204,6 +2231,7 @@ For specifying separate rules for new creation and completion in a single Form, 
     }
 
 
+.. tabularcolumns:: |p{0.10\linewidth}|p{0.90\linewidth}|
 .. list-table::
    :header-rows: 1
    :widths: 10 90
@@ -2325,6 +2353,7 @@ Take precaution of using **@Validated instead of @Valid** for executing the grou
     }
 
 
+.. tabularcolumns:: |p{0.10\linewidth}|p{0.90\linewidth}|
 .. list-table::
    :header-rows: 1
    :widths: 10 90
@@ -2462,6 +2491,7 @@ Add form to the JSP for deletion business logic.
     </body>
     </html>
 
+.. tabularcolumns:: |p{0.10\linewidth}|p{0.90\linewidth}|
 .. list-table::
    :header-rows: 1
    :widths: 10 90
@@ -2527,6 +2557,7 @@ Add group for Delete to TodoForm. Rules are almost same as for Finish.
 
     }
 
+.. tabularcolumns:: |p{0.10\linewidth}|p{0.90\linewidth}|
 .. list-table::
    :header-rows: 1
    :widths: 10 90
@@ -2804,6 +2835,7 @@ Define property value related to infrastructure layer in ``src/main/resources/ME
     cp.maxWait=60000
 
 
+.. tabularcolumns:: |p{0.10\linewidth}|p{0.90\linewidth}|
 .. list-table::
    :header-rows: 1
    :widths: 10 90
@@ -2934,6 +2966,7 @@ Modifications in TodoServiceImpl
         }
     }
 
+.. tabularcolumns:: |p{0.10\linewidth}|p{0.90\linewidth}|
 .. list-table::
    :header-rows: 1
    :widths: 10 90
@@ -3025,6 +3058,7 @@ This setting in todo-infra.xml is for using JPA and Spring Data JPA . Define Ent
 
     </beans>
 
+.. tabularcolumns:: |p{0.10\linewidth}|p{0.90\linewidth}|
 .. list-table::
    :header-rows: 1
    :widths: 10 90
@@ -3079,6 +3113,7 @@ Add Bean definition related to transaction manager.
 
     </beans>
 
+.. tabularcolumns:: |p{0.10\linewidth}|p{0.90\linewidth}|
 .. list-table::
    :header-rows: 1
    :widths: 10 90
@@ -3117,6 +3152,7 @@ By adding this configuration, Lazy Load support gets enabled at application laye
 
     </mvc:interceptors>
 
+.. tabularcolumns:: |p{0.10\linewidth}|p{0.90\linewidth}|
 .. list-table::
    :header-rows: 1
    :widths: 10 90
@@ -3184,6 +3220,7 @@ Modifications in logback.xml
         </root>
     </configuration>
 
+.. tabularcolumns:: |p{0.10\linewidth}|p{0.90\linewidth}|
 .. list-table::
    :header-rows: 1
    :widths: 10 90
@@ -3275,6 +3312,7 @@ JPA annotation must be used to map Todo class with database.
         }
     }
 
+.. tabularcolumns:: |p{0.10\linewidth}|p{0.90\linewidth}|
 .. list-table::
    :header-rows: 1
    :widths: 10 90
@@ -3312,6 +3350,7 @@ Modifications in TodoRepository
     }
 
 
+.. tabularcolumns:: |p{0.10\linewidth}|p{0.90\linewidth}|
 .. list-table::
    :header-rows: 1
    :widths: 10 90
@@ -3418,6 +3457,7 @@ The following setting is to be done in todo-infra.xml to use TERASOLUNA DAO.
     </beans>
 
 
+.. tabularcolumns:: |p{0.10\linewidth}|p{0.90\linewidth}|
 .. list-table::
    :header-rows: 1
    :widths: 10 90
@@ -3470,6 +3510,7 @@ Define transaction manager in environment dependent configuration file since Jta
 
     </beans>
 
+.. tabularcolumns:: |p{0.10\linewidth}|p{0.90\linewidth}|
 .. list-table::
    :header-rows: 1
    :widths: 10 90
@@ -3539,6 +3580,7 @@ Modifications in logback.xml
     </configuration>
 
 
+.. tabularcolumns:: |p{0.10\linewidth}|p{0.90\linewidth}|
 .. list-table::
    :header-rows: 1
    :widths: 10 90
@@ -3567,6 +3609,7 @@ Create ``src/main/resources/META-INF/mybatis/config/sqlMapConfig.xml`` as given 
         <settings useStatementNamespaces="true" />
     </sqlMapConfig>
 
+.. tabularcolumns:: |p{0.10\linewidth}|p{0.90\linewidth}|
 .. list-table::
    :header-rows: 1
    :widths: 10 90
@@ -3654,6 +3697,7 @@ Modifications in RepositoryImpl
     }
 
 
+.. tabularcolumns:: |p{0.10\linewidth}|p{0.90\linewidth}|
 .. list-table::
    :header-rows: 1
    :widths: 10 90
@@ -3801,3 +3845,9 @@ The following improvement can be done in the TODO management application.
 * To add paging → :doc:`../ArchitectureInDetail/Pagination`
 * To add exception handling → :doc:`../ArchitectureInDetail/ExceptionHandling`
 * To add a CSRF measures → :doc:`../Security/CSRF`
+
+
+.. raw:: latex
+
+   \newpage
+

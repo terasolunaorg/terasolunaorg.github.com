@@ -3,6 +3,7 @@ Reference Books
 Listed books were referred on writing this guideline. It should be referred to as needed.
 
 
+.. tabularcolumns:: |p{0.60\linewidth}|p{0.25\linewidth}|p{0.15\linewidth}|
 .. list-table::
    :header-rows: 1
    :widths: 60 25 15
@@ -40,3 +41,9 @@ Listed books were referred on writing this guideline. It should be referred to a
    * - Seasar2とHibernateで学ぶデータベースアクセス JPA入門
      - 毎日コミュニケーションズ
      - Japanese
+
+
+.. raw:: latex
+
+   \newpage
+

@@ -1,8 +1,10 @@
 Overview of Spring MVC Architecture 
 --------------------------------
 
-.. contents:: Index
-   :local:
+.. only:: html
+
+ .. contents:: Index
+    :local:
 
 
 Official website of Spring MVC says the following
@@ -106,3 +108,9 @@ Classes that implement ``View`` provided by Spring framework and its dependent l
 ``View`` changes with the type of response to be returned. When JSP is to be returned, ``org.springframework.web.servlet.view.JstlView`` is used.
 When ``View`` not provided by Spring framework and its dependent libraries are to be handled, it is necessary to extend the class in which ``View`` interface is implemented.
 For details, refer :doc:`../ArchitectureInDetail/FileDownload`.
+
+
+.. raw:: latex
+
+   \newpage
+

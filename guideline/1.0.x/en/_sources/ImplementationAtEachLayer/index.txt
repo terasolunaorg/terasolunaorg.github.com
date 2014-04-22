@@ -12,3 +12,9 @@ The flow of development in this guideline with be as follows.
    ApplicationLayer
 
 For the definition of layers, refer to  :doc:`Application Layering <../Overview/ApplicationLayering>` .
+
+
+.. raw:: latex
+
+   \newpage
+

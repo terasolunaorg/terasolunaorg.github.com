@@ -11,6 +11,7 @@ Using \ `OWASP Top 10 for 2013 <https://www.owasp.org/index.php/Category:OWASP_T
 links to explanation of functionalities related to security have been given
 
 
+.. tabularcolumns:: |p{0.10\linewidth}|p{0.40\linewidth}|p{0.50\linewidth}|
 .. list-table::
    :header-rows: 1
    :widths: 10 40 50
@@ -57,3 +58,9 @@ links to explanation of functionalities related to security have been given
    * - A10
      - `Unvalidated Redirects and Forwards <https://www.owasp.org/index.php/Top_10_2013-A10-Unvalidated_Redirects_and_Forwards>`_
      - * \ :doc:`../Security/Authentication`\ (Mention about Open Redirect Vulnerability measures)
+
+
+.. raw:: latex
+
+   \newpage
+
