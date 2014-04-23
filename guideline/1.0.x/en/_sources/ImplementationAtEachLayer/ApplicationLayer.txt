@@ -1209,7 +1209,7 @@ Retrieving values from URL path
        | However, if value attribute is omitted, the compilation must be done in debug mode.
 
  .. note::
-    Binding argument can be of any data type other than string. In case of different data type, \ ``org.springframework.beans.TypeMismatchException``\ is thrown and default response is 404 (Bad request). 
+    Binding argument can be of any data type other than string. In case of different data type, \ ``org.springframework.beans.TypeMismatchException``\ is thrown and default response is 400 (Bad Request). 
     For example, when the URL ``"sample/hello/aaaa/v1"`` is accessed, an exception is thrown since ``"v1"`` cannot be converted into Integer type.
 
  .. warning ::
@@ -1262,11 +1262,11 @@ To retrieve request parameters individually, add \ ``@RequestParam``\ annotation
 
 
  .. note::
-    When it is accessed without specifying mandatory parameters, \ ``org.springframework.web.bind.MissingServletRequestParameterException``\ is thrown and default operation is responded with 404 (Bad request).
+    When it is accessed without specifying mandatory parameters, \ ``org.springframework.web.bind.MissingServletRequestParameterException``\ is thrown and default operation is responded with 400 (Bad Request).
     However, when defaultValue attribute is specified, the value specified in defaultValue attribute is passed without throwing exception.
 
  .. note::
-    Binding argument can be of any data type. In case the data type do not match, \ ``org.springframework.beans.TypeMismatchException``\ is thrown and default response is 404 (Bad request).
+    Binding argument can be of any data type. In case the data type do not match, \ ``org.springframework.beans.TypeMismatchException``\ is thrown and default response is 400 (Bad Request).
     For example, when ``"sample/hello?age=aaaa&..."`` URL is accessed, exception is thrown since ``aaaa`` cannot be converted into Integer.
 
 |

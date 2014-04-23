@@ -1214,7 +1214,7 @@ URLのパスから値を取得する
        | ただし、この方法はコンパイルをdebugモードで行う必要がある。
 
  .. note::
-    バインドする引数の型はString以外でも良い。型が合わない場合は\ ``org.springframework.beans.TypeMismatchException``\ がスローされ、デフォルトの動作は404(Bad Request)が応答される。
+    バインドする引数の型はString以外でも良い。型が合わない場合は\ ``org.springframework.beans.TypeMismatchException``\ がスローされ、デフォルトの動作は400(Bad Request)が応答される。
     例えば、上記例で ``"sample/hello/aaaa/v1"`` というURLでアクセスした場合、``"v1"`` をIntegerに変換できないため、例外がスローされる。
 
  .. warning ::
@@ -1267,11 +1267,11 @@ URLのパスから値を取得する
 
 
  .. note::
-    必須パラメータを指定しないでアクセスした場合は、\ ``org.springframework.web.bind.MissingServletRequestParameterException``\ がスローされ、デフォルトの動作は404(Bad Request)が応答される。
+    必須パラメータを指定しないでアクセスした場合は、\ ``org.springframework.web.bind.MissingServletRequestParameterException``\ がスローされ、デフォルトの動作は400(Bad Request)が応答される。
     ただし、defaultValue属性を指定している場合は例外はスローされず、defaultValue属性で指定した値が渡る。
 
  .. note::
-    バインドする引数の型はString以外でも良い。型が合わない場合は\ ``org.springframework.beans.TypeMismatchException``\ がスローされ、デフォルトの動作は404(Bad Request)が応答される。
+    バインドする引数の型はString以外でも良い。型が合わない場合は\ ``org.springframework.beans.TypeMismatchException``\ がスローされ、デフォルトの動作は400(Bad Request)が応答される。
     例えば、上記例で ``"sample/hello?age=aaaa&..."`` というURLでアクセスした場合、 ``"aaaa"`` をIntegerに変換できないため、例外がスローされる。
 
 |

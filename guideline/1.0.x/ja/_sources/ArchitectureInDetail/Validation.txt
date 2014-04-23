@@ -2743,7 +2743,6 @@ Bean Validationは標準で用意されているチェックルール以外に�
      * - | (4)
        - | 独自\ ``ConstraintViolation``\ オブジェクトを生成する。
          | \ ``ConstraintValidatorContext.buildConstraintViolationWithTemplate``\ で出力するメッセージを定義する。
-         | 本例では、\ ``ConstraintValidatorContext.getDefaultConstraintMessageTemplate``\ メソッドで、デフォルトのメッセージ定義を引き継いで設定する。
          | \ ``ConstraintViolationBuilder.addNode``\ でエラーメッセージを出力したいフィールド名を指定する。
          | 詳細は、以下の\ `JavaDoc <http://docs.oracle.com/javaee/6/api/javax/validation/ConstraintValidatorContext.html>`_\ を参照されたい。
 

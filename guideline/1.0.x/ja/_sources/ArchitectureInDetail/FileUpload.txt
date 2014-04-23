@@ -18,6 +18,12 @@ Overview
 
     本節では、Servlet3.0でサポートされたファイルアップロード機能を使用しているため、Servletのバージョンは、3.0以上であることが前提となる。
 
+ .. warning::
+ 
+    使用するアプリケーションサーバのファイルアップロードの実装が、Apache Commons FileUploadの実装に依存している場合、\ `CVE-2014-0050 <http://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2014-0050>`_\で報告されているセキュリティの脆弱性が発生する可能性がある。
+    使用するアプリケーションサーバに同様の脆弱性がない事を確認されたい。
+    
+    Tomcatを使用する場合、7.0系は7.0.52以上、8.0系は8.0.3以上を使用する必要がある。
 
 アップロード処理の基本フロー
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
@@ -104,10 +110,17 @@ Spring Webから提供されているファイルアップロード用のクラ�
 
  .. tip::
 
-    本ガイドラインでは、Servlet3.0から導入されたファイルアップロード機能を使うことを前提としているが、Spring Webでは、\ `「Jakarta Commons FileUpload」用の実装クラスも提供している <http://docs.spring.io/spring/docs/3.2.x/spring-framework-reference/html/mvc.html#mvc-multipart-resolver-commons>`_\ 。
+    本ガイドラインでは、Servlet3.0から導入されたファイルアップロード機能を使うことを前提としているが、Spring Webでは、\ `「Apache Commons FileUpload」用の実装クラスも提供している <http://docs.spring.io/spring/docs/3.2.x/spring-framework-reference/html/mvc.html#mvc-multipart-resolver-commons>`_\ 。
     アップロード処理の実装の違いは、\ ``MultipartResolver``\ と、\ ``MultipartFile``\ オブジェクトによって吸収されるため、Controllerの実装に影響を与えることはない。
     Servlet3.0に、対応していないサーブレットコンテナ(Tomcat6など)を使用する必要がある場合は、こちらを使用すること。
 
+ .. warning::
+ 
+    Apache Commons FileUploadを使用する場合、\ `CVE-2014-0050 <http://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2014-0050>`_\で報告されているセキュリティの脆弱性が発生する可能性がある。
+    使用するApache Commons FileUploadのバージョンに脆弱性がない事を確認されたい。
+    
+    Apache Commons FileUploadを使用する場合、1.2系は1.2.1以上、1.3系は1.3.1以上を使用する必要がある。
+    
 |
 
 How to use
