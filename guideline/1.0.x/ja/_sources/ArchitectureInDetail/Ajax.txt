@@ -1320,7 +1320,7 @@ BindingResult を使用したハンドリング
             // implement error handling.
             // omitted
 
-            return ResponseEntity<CalculationResult>(result, HttpStatus.CONFLICT);
+            return new ResponseEntity<CalculationResult>(result, HttpStatus.CONFLICT);
         }
 
         // omitted
