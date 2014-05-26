@@ -3696,11 +3696,12 @@ RESTful Web Serviceで発生した例外のハンドリング方法について�
             if (resultMessages.getList().size() == 1) {
                 ResultMessage resultMessage = resultMessages.iterator().next();
                 String errorCode = resultMessage.getCode();
-                if (errorCode == null) {
+                String errorText = resultMessage.getText();
+                if (errorCode == null && errorText == null) {
                     errorCode = rootErrorCode;
                 }
-                apiError = createApiError(request, errorCode, resultMessage
-                        .getText(), resultMessage.getArgs());
+                apiError = createApiError(request, errorCode, errorText,
+                        resultMessage.getArgs());
             } else {
                 apiError = createApiError(request, rootErrorCode,
                         defaultErrorMessage);
@@ -5684,11 +5685,12 @@ ApiErrorCreator.java
             if (resultMessages.getList().size() == 1) {
                 ResultMessage resultMessage = resultMessages.iterator().next();
                 String errorCode = resultMessage.getCode();
-                if (errorCode == null) {
+                String errorText = resultMessage.getText();
+                if (errorCode == null && errorText == null) {
                     errorCode = rootErrorCode;
                 }
-                apiError = createApiError(request, errorCode, resultMessage
-                        .getText(), resultMessage.getArgs());
+                apiError = createApiError(request, errorCode, errorText,
+                        resultMessage.getArgs());
             } else {
                 apiError = createApiError(request, rootErrorCode,
                         defaultErrorMessage);

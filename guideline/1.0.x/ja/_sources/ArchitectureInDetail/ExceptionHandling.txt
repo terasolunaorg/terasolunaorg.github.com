@@ -1849,15 +1849,11 @@ Appendix
      - | 結果メッセージ（\ ``ResultMessages``\ ）を保持している例外であることを通知するための抽象例外クラスで、共通ライブラリでは、\ ``BusinessException``\ と、\ ``ResourceNotFoundException``\ が継承している。
        | \ ``java.lang.RumtimeException``\ を継承しているため、デフォルトの動作としてはトランザクションはロールバックされる。
        | 本例外クラスを継承すると、\ ``ResultMessagesLoggingInterceptor``\ によって、warnレベルのログが出力される。
-   * - | (11).
+   * - | (11)
      - | SystemException
-     - | システム又はアプリケーションの異常を検知した事を通知するための例外クラスで、アプリケーション層、またはドメイン層のロジックで発生させる例外である
-       | \ ``java.lang.RumtimeException``\ を継承しているため、デフォルトの動作としてはトランザクションはロールバックされる。
-   * - | (12)
-     - | SystemException
-     - | システム又はアプリケーションの異常を検知した事を通知するための例外クラスで、アプリケーション層又はドメイン層のロジックで発生させる例外である
+     - | システム又はアプリケーションの異常を検知した事を通知するための例外クラスで、アプリケーション層又はドメイン層のロジックで発生させる例外である。
        | \ ``java.lang.RumtimeException``\ を継承しているため、デフォルトの動作として、トランザクションは、ロールバックされる。
-   * - | (13)
+   * - | (12)
      - | ExceptionCodeProvider
      - | 例外コードを保持する役割があることを示すインタフェースで、共通ライブラリでは、\ ``SystemException``\ が実装している。
        | 本インタフェースを実装した例外クラスを作成すると、共通ライブラリから提供している例外ハンドリング処理にて、例外で保持している例外コードで、そのまま使われる。
@@ -1871,12 +1867,12 @@ Appendix
    * - 項番
      - クラス
      - 役割
-   * - | (14)
+   * - | (13)
      - | SystemException
        | Resolver
      - | \ ``<mvc:annotation-driven>``\ を指定した際に、自動的に登録される\ ``HanlderExceptionResolver``\ によって、ハンドリングされない例外をハンドリングするためのクラス。
        | Spring MVCより提供されている\ ``SimpleMappingExceptionResolver``\ を継承し、例外コードのResultMessagesを、Viewから参照できるように機能追加を行っている。
-   * - | (15)
+   * - | (14)
      - | HandlerException
        | ResolverLogging
        | Interceptor
@@ -1888,7 +1884,7 @@ Appendix
        |   4. "-99"の場合は ログ出力しない。
        | 本Interceptorを使用することで、Spring MVC管理下で発生する全ての例外を、ログに出力することができる。
        | ログは、\ ``ExceptionLogger``\ を使用して出力している。
-   * - | (16)
+   * - | (15)
      - | ExceptionLogging
        | Filter
      - | 致命的なエラー、Spring MVC管理外で発生する例外を、ログに出力するためのFilterクラス。
