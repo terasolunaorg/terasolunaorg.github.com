@@ -2734,17 +2734,18 @@ Define dependency for using H2Database in pom.xml.
 .. code-block:: xml
 
     <dependency>
-    	<groupId>com.h2database</groupId>
-	<artifactId>h2</artifactId>
+        <groupId>com.h2database</groupId>
+        <artifactId>h2</artifactId>
         <version>1.3.172</version>
-        <scope>compile</scope>
+        <scope>runtime</scope>
     </dependency>
 
 .. warning::
 
-  The above settings are \ **for easy trial of the application**\ and is not to be used in actual application development. These settings must be deleted in actual project.
+  The above settings are \ **for easy trial of the application**\  and is not to be used in actual application development. Dependency settings of H2Database must be deleted in actual application development.
   
-  further,  \ ``<scope>``\  of JDBC driver must be \ ``provided``\ .
+  Further, in actual application development, usually use a data source that is provided by the application server.
+  If your application are using a data source that is provided by the application server, \ ``<scope>``\  of JDBC driver must be \ ``provided``\ .
 
 
 Definition of data source

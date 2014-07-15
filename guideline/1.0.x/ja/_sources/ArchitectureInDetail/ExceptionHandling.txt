@@ -584,80 +584,6 @@ Detail
 #. **JSPは、MessagesPanelTagを使用して、メッセージ情報(ResultMessage)を取得し、メッセージ表示用のHTMLコードを生成する。**
 #. JSPで生成されたレスポンスが表示される。
 
-上記の実装例を示す。
-
-- ExampleExceptionController.java
-
- .. code-block:: java
-
-    package org.terasoluna.exception.app.example;
-
-    import javax.inject.Inject;
-
-    import org.springframework.stereotype.Controller;
-    import org.springframework.web.bind.annotation.RequestMapping;
-    import org.springframework.web.bind.annotation.RequestMethod;
-    import org.terasoluna.exception.domain.service.ExampleExceptionService;
-
-    @Controller
-    public class ExampleExceptionController {
-
-        @Inject
-        protected ExampleExceptionService exampleExceptionService;
-
-        @RequestMapping(value = "/exampleException", method = { RequestMethod.GET,
-                RequestMethod.POST })
-        public String exampleBusinessException() {
-
-            exampleExceptionService.throwBusinessException();
-
-            return "exceeption";
-        }
-
-    }
-
-
-- ExampleExceptionServiceImpl.java
-
- .. code-block:: java
-
-    package org.terasoluna.exception.domain.service;
-
-    import org.springframework.stereotype.Service;
-    import org.terasoluna.gfw.common.exception.BusinessException;
-
-    @Service
-    public class ExampleExceptionServiceImpl implements ExampleExceptionService {
-
-        @Override
-        public void throwBusinessException() {
-            throw new BusinessException("Test example exception");
-        }
-
-    }
-
-
-- 出力画面
-
-.. figure:: ./images/exception-handling-screen-businessexception.png
-  :alt: business exception
-  :width: 50%
-
-- ログ出力
-
- .. code-block:: guess
-
-    date:2013-09-24 22:35:56	thread:tomcat-http--8	X-Track:30603b739d2e473886fae7230589b437	level:WARN 	logger:o.t.gfw.common.exception.ExceptionLogger        	message:[e.xx.fw.8001] ResultMessages [type=error, list=[ResultMessage [code=null, args=[], text=Test example exception]]]
-    org.terasoluna.gfw.common.exception.BusinessException: ResultMessages [type=error, list=[ResultMessage [code=null, args=[], text=Test example exception]]]
-    	at org.terasoluna.exception.domain.service.ExampleExceptionServiceImpl.throwBusinessException(ExampleExceptionServiceImpl.java:11) ~[ExampleExceptionServiceImpl.class:na]
-
-    // stackTarace ommited
-    ...
-
-    date:2013-09-24 22:35:56	thread:tomcat-http--8	X-Track:30603b739d2e473886fae7230589b437	level:DEBUG	logger:o.t.gfw.web.exception.SystemExceptionResolver   	message:Resolving exception from handler [public java.lang.String org.terasoluna.exception.app.example.ExampleExceptionController.home(java.util.Locale,org.springframework.ui.Model)]: org.terasoluna.gfw.common.exception.BusinessException: ResultMessages [type=error, list=[ResultMessage [code=null, args=[], text=Test example exception]]]
-    date:2013-09-24 22:35:56	thread:tomcat-http--8	X-Track:30603b739d2e473886fae7230589b437	level:DEBUG	logger:o.t.gfw.web.exception.SystemExceptionResolver   	message:Resolving to view 'common/error/businessError' for exception of type [org.terasoluna.gfw.common.exception.BusinessException], based on exception mapping [BusinessException]
-    date:2013-09-24 22:35:56	thread:tomcat-http--8	X-Track:30603b739d2e473886fae7230589b437	level:DEBUG	logger:o.t.gfw.web.exception.SystemExceptionResolver   	message:Applying HTTP status code 409
-
 
 .. _exception-handling-basic-flow-annotation-label:
 
@@ -694,7 +620,7 @@ Detail
 ''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
 | 例外をフレームワーク(サーブレット単位)でハンドリングする場合、SystemExceptionResolverで捕捉し例外処理を行う。
 | 基本フローは、以下の通りである。
-| 下記の図は、 本フレームワークから提供しているビジネス例外(\ ``org.terasoluna.gfw.common.exception.SystemException``\ )を、\ ``org.terasoluna.gfw.web.exception.SystemExceptionResolver``\ を使ってハンドリングする場合の基本フローである。
+| 下記の図は、 本フレームワークから提供しているシステム例外(\ ``org.terasoluna.gfw.common.exception.SystemException``\ )を、\ ``org.terasoluna.gfw.web.exception.SystemExceptionResolver``\ を使ってハンドリングする場合の基本フローである。
 | ログは、例外ハンドリングメソッドの引数に指定された例外を記録するインタセプタ(\ ``org.terasoluna.gfw.web.exception.HandlerExceptionResolverLoggingInterceptor``\ )を使用して、出力する。
 
 .. figure:: ./images/exception-handling-flow-resolver.png
@@ -733,7 +659,7 @@ Webアプリケーション単位でサーブレットコンテナがハンド�
   **図-Webアプリケーション単位でサーブレットコンテナがハンドリングする場合の基本フロー**
 
 4. DispatcherServletは、XxxErrorを捕捉し、ServletExceptionにラップしてスローする。
-#. ExceptionLoggingFilterは、ServletExceptionを捕捉し、ExceptionLoggerを呼び出す。ExceptionLoggerは、errorレベルのログ(監視ログとアプリケーションログ)を出力する。ExceptionLoggingFilterは、ServletExceptionを再スローする。
+#. ExceptionLoggingFilterは、ServletExceptionを捕捉し、ExceptionLoggerを呼び出す。ExceptionLoggerは、例外コードに対応するレベル(info, warn, error)のログ(監視ログとアプリケーションログ)を出力する。ExceptionLoggingFilterは、ServletExceptionを再スローする。
 #. ServletContainerは、ServletExceptionを捕捉し、サーバログにログを出力する。ログのレベルは、アプリケーションサーバによって異なる。
 #. ServletContainerは、``web.xml`` に定義されている遷移先(HTMLなど)を呼び出す。
 #. 呼び出された遷移先で生成されたレスポンスが表示される。
@@ -1456,7 +1382,7 @@ Spring MVCの、デフォルトの例外ハンドリング機能によって行�
   システムエラー画面は、個別に用意せず、共通的に決めることを推奨する。
 
   本ガイドラインの画面では、システムエラーのためのメッセージID（業務毎）を表示し、文言は固定にしている。
-  その理由は、開発側に対して、エラーの細かい内容を知らせる必要がなく、システムに異常があることだけを伝えればよいためである。
+  その理由は、オペレータに対して、エラーの細かい内容を知らせる必要がなく、システムに異常があることだけを伝えればよいためである。
   そこで、開発側では、解析を簡易にするために、キーとなるメッセージIDを画面に表示して、システム異常の問い合わせに対するレスポンスを向上しようとしている。
   表示される画面については、各プロジェクトでUI規約に従い、用意すること。
 
@@ -1911,10 +1837,10 @@ SystemExceptionResolverの設定項目について
      - 説明
      - デフォルト値
    * - | (1)
-     - | ビジネス例外メッセージの属性名
+     - | 結果メッセージの属性名
      - | resultMessagesAttribute
      - | ビジネス例外に設定されているメッセージ情報として、モデルに設定する際の属性名(String)を指定する。
-       | View(JSP)からビジネス例外メッセージにアクセスする際の、属性名となる。
+       | View(JSP)から結果メッセージにアクセスする際の、属性名となる。
      - resultMessages
    * - | (2)
      - | 例外コード(メッセージID)の属性名
@@ -1965,10 +1891,10 @@ SystemExceptionResolverの設定項目について
 | (5)-(7)は、\ ``org.springframework.web.servlet.handler.AbstractHandlerExceptionResolver``\ の設定項目。
 
 
-ビジネス例外メッセージの属性名
+結果メッセージの属性名
 '''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
 | SystemExceptionResolverでハンドリングして設定したメッセージと、アプリケーションコードでハンドリングして設定したメッセージを、View(JSP)で別のmessagesPanelとして出力したい場合は、SystemExceptionResolver専用の属性名を指定する。
-| 下記に示す例は、デフォルト値から「exceptionResolverMessages」に変更する場合の、設定&実装例である。
+| 下記に示す例は、デフォルト値から「resultMessagesForExceptionResolver」に変更する場合の、設定&実装例である。
 
 - **spring-mvc.xml**
 
@@ -1978,7 +1904,7 @@ SystemExceptionResolverの設定項目について
 
         <!-- omitted -->
 
-        <property name="resultMessagesAttribute" value="exceptionResolverBussinessMessages" /> <!-- (1) -->
+        <property name="resultMessagesAttribute" value="resultMessagesForExceptionResolver" /> <!-- (1) -->
 
         <!-- omitted -->
     </bean>
@@ -1987,7 +1913,7 @@ SystemExceptionResolverの設定項目について
 
   .. code-block:: xml
 
-    <t:messagesPanel messagesAttributeName="exceptionResolverBussinessMessages"/> <!-- (2) -->
+    <t:messagesPanel messagesAttributeName="resultMessagesForExceptionResolver"/> <!-- (2) -->
 
  .. tabularcolumns:: |p{0.10\linewidth}|p{0.90\linewidth}|
  .. list-table::
@@ -1997,7 +1923,7 @@ SystemExceptionResolverの設定項目について
     * - 項番
       - 説明
     * - | (1)
-      - | ビジネス例外メッセージの属性名(resultMessagesAttribute)に、"exceptionResolverBussinessMessages"を指定する。
+      - | 結果メッセージの属性名(resultMessagesAttribute)に、"resultMessagesForExceptionResolver"を指定する。
     * - | (2)
       - | メッセージ属性名(messagesAttributeName)に、SystemExceptionResolverで設定した属性名を指定する。
 

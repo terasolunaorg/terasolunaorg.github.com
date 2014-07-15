@@ -2726,14 +2726,16 @@ pom.xmlに、H2Databaseを使用するためのdependencyを定義する。
         <groupId>com.h2database</groupId>
         <artifactId>h2</artifactId>
         <version>1.3.172</version>
-        <scope>compile</scope>
+        <scope>runtime</scope>
     </dependency>
 
 .. warning::
 
-  この設定用は\ **サンプルアプリケーションを簡単試すためのもの**\ であり、実際の開発で使用されることを想定していない。実際のプロジェクトでは削除すること。
+  この設定は\ **サンプルアプリケーションを簡単に試すためのもの**\ であり、実際の開発で使用されることを想定していない。
+  実際の開発では、H2Databaseのdependencyは削除すること。
   
-  また、JDBCドライバの\ ``<scope>``\ は\ ``provided``\ にすべきである。
+  また、実際の開発では、アプリケーションサーバから提供されているデータソースを使用する事が一般的である。
+  アプリケーションサーバから提供されているデータソースする場合は、JDBCドライバの\ ``<scope>``\ は\ ``provided``\ にすべきである。
 
 
 データソースの定義

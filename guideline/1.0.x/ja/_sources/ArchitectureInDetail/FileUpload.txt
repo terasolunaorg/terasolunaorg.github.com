@@ -347,7 +347,65 @@ Servlet3.0のアップロード機能と、Spring MVCを連携するために、
 | \ ``MultipartException``\ は、クライアントが指定するファイルサイズに起因して発生する例外なので、クライアントエラー(HTTPレスポンスコード=4xx)として扱うことを推奨する。
 | **例外ハンドリングを個別に追加しないと、システムエラー扱いとなってしまうので、かならず定義を追加すること。**
 
-以下に、設定例を示す。
+| \ ``MultipartException``\ をハンドリングするための設定は、\ ``MultipartFilter``\ を使用するか否かによって異なる。
+| \ ``MultipartFilter``\ を使用する場合は、サーブレットコンテナの\ ``<error-page>``\機能を使って例外ハンドリングを行う。
+| 以下に、設定例を示す。
+
+- :file:`web.xml`
+
+ .. code-block:: xml
+
+    <error-page>
+        <!-- (1) -->
+        <exception-type>org.springframework.web.multipart.MultipartException</exception-type>
+        <!-- (2) -->
+        <location>/WEB-INF/views/common/error/fileUploadError.jsp</location>
+    </error-page>
+
+ .. tabularcolumns:: |p{0.10\linewidth}|p{0.90\linewidth}|
+ .. list-table::
+   :header-rows: 1
+   :widths: 10 90
+
+   * - 項番
+     - 説明
+   * - | (1)
+     - | ハンドリング対象の例外クラスとして、\ ``MultipartException``\を指定する。
+   * - | (2)
+     - | \ ``MultipartException``\ が発生した際に表示するファイルを指定する。
+       |
+       | 上記例では、\ ``"/WEB-INF/views/common/error/fileUploadError.jsp"``\ を指定している。
+
+- :file:`fileUploadError.jsp`
+
+ .. code-block:: jsp
+
+    <%-- (3) --%>
+    <% response.setStatus(HttpServletResponse.SC_BAD_REQUEST); %>
+    <!DOCTYPE html>
+    <html>
+    
+        <!-- omitted -->
+
+    </html>
+
+ .. tabularcolumns:: |p{0.10\linewidth}|p{0.90\linewidth}|
+ .. list-table::
+   :header-rows: 1
+   :widths: 10 90
+
+   * - 項番
+     - 説明
+   * - | (3)
+     - | HTTPステータスコードは、\ ``HttpServletResponse``\ のAPIを呼び出して設定する。
+       |
+       | 上記例では、\ ``"400"``\ (Bad Request) を設定している。
+       | 明示的に設定しない場合、HTTPステータスコードは\ ``"500"``\ (Internal Server Error)となる。
+
+|
+
+| \ ``MultipartFilter``\ を使用しない場合は、\ ``SystemExceptionResolver``\を使用して例外ハンドリングを行う。
+| 以下に、設定例を示す。
 
 - :file:`spring-mvc.xml`
 
@@ -358,7 +416,7 @@ Servlet3.0のアップロード機能と、Spring MVCを連携するために、
         <property name="exceptionMappings">
             <map>
                 <!-- omitted -->
-                <!-- (1) -->
+                <!-- (4) -->
                 <entry key="MultipartException"
                        value="common/error/fileUploadError" />
 
@@ -367,7 +425,7 @@ Servlet3.0のアップロード機能と、Spring MVCを連携するために、
         <property name="statusCodes">
             <map>
                 <!-- omitted -->
-                <!-- (2) -->
+                <!-- (5) -->
                 <entry key="common/error/fileUploadError" value="400" />
             </map>
         </property>
@@ -381,17 +439,18 @@ Servlet3.0のアップロード機能と、Spring MVCを連携するために、
 
    * - 項番
      - 説明
-   * - | (1)
+   * - | (4)
      - | \ ``SystemExceptionResolver``\ の\ ``exceptionMappings``\ に、\ ``MultipartException``\ が発生した際に表示するView(JSP)の定義を追加する。
        |
        | 上記例では、\ ``"common/error/fileUploadError"``\ を指定している。
-   * - | (2)
+   * - | (5)
      - | ``MultipartException`` が発生した際に応答するHTTPステータスコードの定義を追加する。
        |
        | 上記例では、\ ``"400"``\ (Bad Request) を指定している。
        | クライアントエラー(HTTPレスポンスコード = 4xx)を指定することで、
        | 共通ライブラリの例外ハンドリング機能から提供しているクラス( ``HandlerExceptionResolverLoggingInterceptor`` )によって出力されるログは、\ ``ERROR``\ レベルではなく、\ ``WARN``\ レベルとなる。
 
+|
 
 | \ ``MultipartException``\ に対する例外コードを設ける場合は、例外コードの設定を追加する。
 | 例外コードは、共通ライブラリのログ出力機能により出力されるログに、出力される。
@@ -406,7 +465,7 @@ Servlet3.0のアップロード機能と、Spring MVCを連携するために、
         class="org.terasoluna.gfw.common.exception.SimpleMappingExceptionCodeResolver">
         <property name="exceptionMappings">
             <map>
-                <!-- (3) -->
+                <!-- (6) -->
                 <entry key="MultipartException" value="e.xx.fw.6001" />
                 <!-- omitted -->
             </map>
@@ -422,7 +481,7 @@ Servlet3.0のアップロード機能と、Spring MVCを連携するために、
 
    * - 項番
      - 説明
-   * - | (3)
+   * - | (6)
      - | \ ``SimpleMappingExceptionCodeResolver``\ の\ ``exceptionMappings``\ に、\ ``MultipartException``\ が発生した際に適用する、例外コードを追加する。
        |
        | 上記例では、\ ``"e.xx.fw.6001"``\ を指定している。

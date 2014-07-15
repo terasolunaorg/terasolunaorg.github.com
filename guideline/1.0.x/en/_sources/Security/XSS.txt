@@ -1,42 +1,49 @@
-XSS(Cross Site Scripting) Countermeasures
+XSS Countermeasures
 ================================================================================
+
+.. only:: html
+
+ .. contents:: Table of Contents
+    :local:
 
 Overview
 --------------------------------------------------------------------------------
-Cross Site Scripting is injection of malicious scripts across trusted web sites
-used intentionally making use of the security flaws of the web application.
-For example, when data (form input) entered in web application is output in HTML where appropriate escaping is not performed,
-the characters of tag existing in input value is interpreted as HTML.
-Session hijack occurs when script with a malicious value acquires the cookie value and
-tampers cookie information.
+| Cross Site Scripting (below abbreviated as XSS) is injection of malicious scripts across trusted web sites
+| used deliberately making use of the security defects in the web application.
+| For example, when data entered in Web Application (form input etc.) is output in HTML without appropriate escaping,
+| the characters of tag existing in input value are interpreted as HTML as is.
 
-Stored, Reflected XSS Attacks
+| If a script with malicious value is run, attacks such as session hijack occur
+| due to cookie tampering and fetching of cookie values.
+
+Stored & Reflected XSS Attacks
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 XSS attacks are broadly classified into two categories.
 
 **Stored XSS Attacks**
 
-Stored XSS Attacks are those where the malicious code is permanently stored on target servers
-such as in a database.
-The victim then retrieves the malicious script from the server when it requests the stored information.
+| In Stored XSS Attacks, the malicious code is permanently stored on target servers (such as database).
+| Upon requesting the stored information, the user retrieves the malicious script from the server and ends up running the same.
 
 **Reflected XSS Attacks**
 
-Reflected attacks are those where the malicious code is reflected off the web server
-such as in an error message, search result, or any other response that includes some or all of the input sent to the server as part of the request.
-When a user is tricked into clicking on a malicious link, submitting a specially crafted form, or even just browsing to a malicious site,
-the injected code travels to the vulnerable web site, which reflects the attack back to the user's browser.
-The browser then executes the code because it came from a "trusted" server.
+| In Reflected attacks, the malicious code sent as a part of the request to the server is
+| reflected back along with error messages, search results, or other different types of responses.
+
+| When a user clicks the malicious link or submits a specially crafted form,
+| the injected code returns a result reflecting an occurrence of attack on user's browser.
+| The browser ends up executing the code because the value came from a trusted server.
 
 Both Stored XSS Attacks and Reflected XSS Attacks can be prevented by escaping output value.
 
+|
+
 How to use
 --------------------------------------------------------------------------------
-When the input from user is output as it is, XSS vulnerability occurs.
-Therefore, as a countermeasure against XSS vulnerability, escaping of characters having specific meaning
-should be performed in HTML markup language.
+| When the input from user is output as is, the system gets exposed to XSS vulnerability.
+| Therefore, as a countermeasure against XSS vulnerability, it is necessary to escape the characters which have specific meaning in the HTML markup language.
 
-Escaping is of 3 types depending on the requirements.
+Escaping should be divided into 3 types if needed.
 
 Escaping types:
 
@@ -46,11 +53,11 @@ Escaping types:
 
 Output Escaping
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-HTML escaping for special characters is performed as a countermeasure against XSS vulnerability.
-Examples of before and after escaping for special characters in HTML are shown below:
+| Escaping HTML special characters is a fundamental countermeasure against XSS vulnerability.
+| Example of HTML special characters that require escaping and example after escaping these characters are as follows:
 
 .. tabularcolumns:: |p{0.50\linewidth}|p{0.50\linewidth}|
-.. list-table:: 
+.. list-table::
    :header-rows: 1
    :widths: 50 50
 
@@ -67,12 +74,12 @@ Examples of before and after escaping for special characters in HTML are shown b
    * - ``'``
      - ``&#39;``
 
-| ``f:h()`` should be used in all display items to be output as string to prevent XSS.
-| An example of application where input value is to be redisplayed on another screen is described.
+| To prevent XSS, \ ``f:h()``\  should be used in all display items that are to be output as strings.
+| An example of application where input value is to be re-output on different screen is given below.
 
-Example of vulnerability where output value is not escaped
+Example of vulnerability when output values are not escaped
 """"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
-| Since the example is only described as reference example, the implementation as follows should not be performed.
+| This example below is given only for reference; it should never be implemented.
 
 **Implementation of output screen**
 
@@ -86,31 +93,31 @@ Example of vulnerability where output value is not escaped
     <!-- omitted -->
 
 .. tabularcolumns:: |p{0.10\linewidth}|p{0.90\linewidth}|
-.. list-table:: 
+.. list-table::
    :header-rows: 1
    :widths: 10 90
 
-   * - Sr.No.
+   * - Sr. No.
      - Description
    * - | (1)
-     - | It is customerForm field and job is output without escaping.
+     - | Job, which is a customerForm field, is output without escaping.
 
 | Enter <script> tag in Job field on input screen.
 
-.. figure:: ./images/xss_screen_input_html_tag.png 
+.. figure:: ./images/xss_screen_input_html_tag.png
    :alt: input_html_tag
    :width: 80%
    :align: center
- 
+
    **Picture - Input HTML Tag**
 
-|It is recognized as <script> tag and dialog box is displayed.
+| It is recognized as <script> tag and dialog box is displayed.
 
-.. figure:: ./images/xss_screen_no_escape_result.png 
+.. figure:: ./images/xss_screen_no_escape_result.png
    :alt: no_escape_result
    :width: 60%
    :align: center
- 
+
    **Picture - No Escape Result**
 
 Example of escaping output value using f:h() function
@@ -128,32 +135,31 @@ Example of escaping output value using f:h() function
     .<!-- omitted -->
 
 .. tabularcolumns:: |p{0.10\linewidth}|p{0.90\linewidth}|
-.. list-table:: 
+.. list-table::
    :header-rows: 1
    :widths: 10 90
 
-   * - Sr.No.
+   * - Sr. No.
      - Description
    * - | (1)
-     - | Value is output after escaping by ``f:h()``  of EL expressions.
+     - | EL function \ ``f:h()``\  is used for escaping.
 
 | Enter <script> tag in Job field on input screen.
 
-.. figure:: ./images/xss_screen_input_html_tag.png 
+.. figure:: ./images/xss_screen_input_html_tag.png
    :alt: input_html_tag
    :width: 80%
    :align: center
- 
+
    **Picture - Input HTML Tag**
 
-| By escaping special characters,
-| input value is output as it is without considering as the <script> tag.
+| By escaping special characters, input value is output as is without being recognized as <script> tag.
 
-.. figure:: ./images/xss_screen_escape_result.png 
+.. figure:: ./images/xss_screen_escape_result.png
    :alt: escape_result
    :width: 60%
    :align: center
- 
+
    **Picture - Escape Result**
 
 **Output result**
@@ -166,43 +172,45 @@ Example of escaping output value using f:h() function
         <td>&lt;script&gt;alert(&quot;XSS Attack&quot;)&lt;/script&gt;</td>
     </tr>
     <!-- omitted -->
+\
+    .. tip::
 
-.. tip::
 
-    **java.util.Date inheritance class format**
+        **java.util.Date subclass format**
 
-    It is recommended to use ``<fmt:formatDate>`` of JSTL to format and display java.util.Date inheritance class.
-    Example of settings is described below.
+        It is recommended that you use \ ``<fmt:formatDate>``\  of JSTL to format and display java.util.Date subclasses.
+        See the example below.
 
-        .. code-block:: jsp
+            .. code-block:: jsp
 
-            <fmt:formatDate value="${form.date}" pattern="yyyyMMdd" />
+                <fmt:formatDate value="${form.date}" pattern="yyyyMMdd" />
 
-    Value is set to String using ``f:h()`` described earlier in 'value' and since ``javax.el.ELException``  is thrown, ``${form.date}`` is used.
-    However, it is safe from XSS attack since the value is in yyyyMMdd format.
+        If \ ``f:h()``\  is used for setting the value of "value" attribute, it gets converted into String and \ ``javax.el.ELException``\  is thrown; hence \ ``${form.date}``\  is used as is.
+        However, it is safe from XSS attack since the value is in yyyyMMdd format.
+\
+    .. tip::
 
-.. tip::
 
-    **String that can be passed to java.lang.Number inheritance class or java.lang.Number**
+        **String that can be parsed into java.lang.Number or subclass of java.lang.Number**
 
-    It is recommended to use ``<fmt:formatNumber>`` to format and display the string that can be passed to java.lang.Number inheritance class or java.lang.Number.
-    Example of settings is described below.
+        It is recommended that you use \ ``<fmt:formatNumber>``\  to format and display the string that can be parsed to java.lang.Number subclasses or java.lang.Number.
+        See the example below.
 
-        .. code-block:: jsp
+            .. code-block:: jsp
 
-            <fmt:formatNumber value="${f:h(form.price)}" pattern="###,###" />
+                <fmt:formatNumber value="${f:h(form.price)}" pattern="###,###" />
 
-    Since there is no problem even if the above is String, ``f:h()`` is explicitly used to prevent forgetting to add ``f:h()``  when ``<fmt:formatNumber>`` tag is no longer used.
+        There is no problem even if the above is a String; hence when \ ``<fmt:formatNumber>``\  tag is no longer used, \ ``f:h()``\ is being used explicitly so that no one forgets to use ``f:h()``.
 
 JavaScript Escaping
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-| JavaScript escaping for special characters is performed as a countermeasure against XSS vulnerability.
-| Escaping should be performed to dynamically generate string literal of JavaScript based on the input from outside.
+| Escaping JavaScript special characters is a fundamental countermeasure against XSS vulnerability.
+| Escaping is must if it is required to dynamically generate JavaScript based on the outside input.
 
-| Example of before and after JavaScript escaping for special characters is shown below.
+| Example of JavaScript special characters that require escaping and example after escaping these characters are as follows:
 
 .. tabularcolumns:: |p{0.50\linewidth}|p{0.50\linewidth}|
-.. list-table:: 
+.. list-table::
    :header-rows: 1
    :widths: 50 50
 
@@ -225,105 +233,105 @@ JavaScript Escaping
    * - ``0x0A(Linefeed)``
      - ``\n``
 
-Example of vulnerability where escaping of output value is not performed
+Example of vulnerability when output values are not escaped
 """"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
-| Example of occurrence of XSS problem is described below.
+| Example of occurrence of XSS problem is given below.
 
-.. code-block:: jsp
+.. code-block:: html
 
   <html>
     <script  type="text/javascript">
-        var aaa = '${warnCode}';
+        var aaa = '<script>${warnCode}<\/script>';
         document.write(aaa);
     </script>
   <html>
 
 .. tabularcolumns:: |p{0.20\linewidth}|p{0.80\linewidth}|
-.. list-table:: 
+.. list-table::
    :header-rows: 1
    :widths: 20 80
 
    * - Attribute name
      - Value
    * - warnCode
-     - ``"foo"; <script>alert("XSS Attack!");</script> dummy=``
+     - ``<script></script><script>alert('XSS Attack!');</script><\/script>``
 
-| To output code derived from input provided by the user
-| and to dynamically generate JavaScript elements as shown in the above example, string literal is closed unintentionally and XSS vulnerability occurs.
+| As shown in the above example, in order to dynamically generate JavaScript elements
+| such as generating the code based on the user input, string literal gets terminated unintentionally leading to XSS vulnerability.
 
-.. figure:: ./images/javascript_xss_screen_no_escape_result.png 
+.. figure:: ./images/javascript_xss_screen_no_escape_result.png
    :alt: javascript_xss_screen_no_escape_result
    :width: 30%
    :align: center
- 
+
    **Picture - No Escape Result**
 
 **Output result**
 
 .. code-block:: html
 
-    <script  type="text/javascript">
-        var aaa = "\"foo\"; <script>alert(\"XSS!\");<\/script> dummy=";
+    <script type="text/javascript">
+        var aaa = '<script><\/script><script>alert('XSS Attack!');<\/script><\/script>';
         document.write(aaa);
     </script>
+\
+    .. tip::
 
-.. tip::
-
-    As long as there is no business requirement, JavaScript elements are dynamically generated depending on the input from outside
-    since there is a possibility of an arbitrary script being inserted, consider another method or avoid it to the extent possible.
+        Dynamically generated javascript code depending on user input carries a risk of any script being inserted; hence an alternate 
+        way should be considered or it should be avoided as much as possible unless there is a specific business requirement.
 
 Example of escaping output value using f:js() function
 """"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 
-| To prevent XSS, it is recommended to use EL expression function and ``f:js()`` for the value entered by the user.
+| To prevent XSS, it is recommended that you use EL function \ ``f:js()``\  for the value entered by user.
 
 Usage example is shown below.
 
-.. code-block:: jsp
+.. code-block:: html
 
-  <script type="text/javascript">
-    var message = '${f:js(message)}';  // (1)
-    <!-- omitted -->
-  </script>
+    <script type="text/javascript">
+      var message = '<script>${f:js(message)}<\/script>';  // (1)
+      <!-- omitted -->
+    </script>
 
 .. tabularcolumns:: |p{0.10\linewidth}|p{0.90\linewidth}|
-.. list-table:: 
+.. list-table::
    :header-rows: 1
    :widths: 10 90
 
-   * - Sr.No.
+   * - Sr. No.
      - Description
    * - | (1)
-     - | It is an argument after escaping by ``f:js()`` of EL expressions.
+     - | By using \ ``f:js()``\  of EL function, the value is set as variable after escaping the value entered by user.
 
 **Output result**
 
-.. code-block:: jsp
+.. code-block:: html
 
     <script  type="text/javascript">
-        var aaa = '\x3cscript\x3ealert(XSS Attack!);\x3c\/script\x3e';
+        var aaa = '<script>\x3c\/script\x3e\x3cscript\x3ealert(\'XSS Attack!\');\x3c\/script\x3e<\/script>';
         document.write(aaa);
     </script>
 
 Event handler Escaping
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-| To escape event handler of javascript, ``f:hjs()``  should be used instead of ``f:h()`` or ``f:js()`` 
-| It is same as  ``${f:h(f:js())}``.
+| To escape the value of event handler of javascript, \ ``f:hjs()``\  should be used
+| instead of \ ``f:h()``\ or \ ``f:js()``\. It is equivalent to  \ ``${f:h(f:js())}``\ .
 
-| When ``"');alert("XSS Atack");// "`` is specified as event handler value such as ``<input type="submit" onclick="callback('xxxx');">``,
-| since another script can be inserted, ``"');alert("XSS Atack");// "``,
-| HTML escaping should be performed after performing escaping in character reference format.
+| This is because, when \ ``"');alert("XSS Attack");// "``\  is specified as event handler value
+| such as \ ``<input type="submit" onclick="callback('xxxx');">``\ , different script gets inserted,
+| After escaping the value in character reference format, escaping in HTML needs to be done.
 
-Example of inability to escape vulnerability of output value
+Example of vulnerability when output values are not escaped
 """"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
-| Examples of XSS occurrence are described below.
+| Example of occurrence of XSS problem is given below.
 
 .. code-block:: jsp
 
     <input type="text" onmouseover="alert('output is ${warnCode}') . ">
 
 .. tabularcolumns:: |p{0.20\linewidth}|p{0.80\linewidth}|
-.. list-table:: 
+.. list-table::
    :header-rows: 1
    :widths: 20 80
 
@@ -331,15 +339,15 @@ Example of inability to escape vulnerability of output value
      - Value
    * - warnCode
      - | ``'); alert('XSS Attack!'); //``
-       | When the above values are set, string literal is closed unintentionally and XSS attack occurs.
+       | When the above values are set, string literal is terminated unintentionally leading to XSS attack.
 
-| XSS dialog box is displayed on mouseover.
+| XSS dialog box is displayed on mouse over.
 
-.. figure:: ./images/eventhandler_xss_screen_no_escape_result.png 
+.. figure:: ./images/eventhandler_xss_screen_no_escape_result.png
    :alt: eventhandler_xss_screen_no_escape_result
    :width: 50%
    :align: center
- 
+
    **Picture - No Escape Result**
 
 
@@ -351,33 +359,32 @@ Example of inability to escape vulnerability of output value
     <input type="text" onmouseover="alert('output is'); alert('XSS Attack!'); // .') ">
     <!-- omitted -->
 
-
 Example of escaping output value using f:hjs() function
 """"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 
-Usage example is shown below:
+Example is shown below:
 
 .. code-block:: jsp
 
     <input type="text" onmouseover="alert('output is ${f:hjs(warnCode)}') . ">  // (1)
 
 .. tabularcolumns:: |p{0.10\linewidth}|p{0.90\linewidth}|
-.. list-table:: 
+.. list-table::
    :header-rows: 1
    :widths: 10 90
 
-   * - Sr.No.
+   * - Sr. No.
      - Description
    * - | (1)
-     - | It is an argument after escaping by ``f:hjs()`` of EL expressions.
+     - | Value after escaping by EL function \ ``f:hjs()``\  is set as an argument of javascript event handler.
 
-| XSS dialog is not output on mouseover.
+| XSS dialog is not output on mouse over.
 
-.. figure:: ./images/eventhandler_xss_screen_escape_result.png 
+.. figure:: ./images/eventhandler_xss_screen_escape_result.png
    :alt: eventhandler_xss_screen_escape_result
    :width: 50%
    :align: center
- 
+
    **Picture - Escape Result**
 
 **Output result**
@@ -387,7 +394,6 @@ Usage example is shown below:
     <!-- omitted -->
     <input type="text" onmouseover="alert('output is \&#39;); alert(\&#39;XSS Attack!\&#39;);\&quot; \/\/ .') ">
     <!-- omitted -->
-
 
 .. raw:: latex
 
