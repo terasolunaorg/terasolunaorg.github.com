@@ -1527,8 +1527,8 @@ and the corresponding usage method. You can customize and use them based on the 
                     while ((line = br.readLine()) != null) {
                         String[] vals = line.split("=", 2);
                         if (vals.length > 1) {
-                            String key = vals[0];
-                            String value = vals[1];
+                            String key = vals[0].trim();
+                            String value = vals[1].trim();
                             pw.println("    /** " + key + "=" + value + " */");
                             pw.println("    public static final String "
                                     + key.toUpperCase().replaceAll(Pattern.quote("."),

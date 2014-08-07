@@ -1362,7 +1362,7 @@ Displayed screen
   It is desirable to have a common system error screen rather than creating multiple screens for system errors.
 
   The screen mentioned in this guideline displays a (business-wise) message ID for system errors and has a fixed message.
-  This is because there is no need to inform the details of error to the development team and it is sufficient to only convey that the system error has occured.
+  This is because there is no need to inform the details of error to the operator and it is sufficient to only convey that the system error has occured.
   Therefore, in order to enhance the response for inquiry against system errors, the Message ID which acts as a key for the message text is displayed on the screen,
   in order to make the analysis easier for the development side.
   Displayed error screens should be designed in accordance with the UI standards of each project.

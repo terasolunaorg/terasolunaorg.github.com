@@ -2637,7 +2637,7 @@ In this chapter, usage of main JSP tag libraries are described. However, refer t
     expose a vulnerability of XSS(Cross-site scripting).
     For further details regarding the vulnerability, refer to \ `CVE-2014-1904 of National Vulnerability Database (NVD)  <http://web.nvd.nist.gov/view/vuln/detail?vulnId=CVE-2014-1904>`_\ .
 
-    Also, terasoluna-gfw-web 1.0.1.RELEASE have been upgraded to Spring MVC(3.2.8.RELEASE and above); hence this vulnerability is not present.
+    Also, terasoluna-gfw-web 1.0.1.RELEASE have been upgraded to Spring MVC(3.2.10.RELEASE and above); hence this vulnerability is not present.
 
 
 |
