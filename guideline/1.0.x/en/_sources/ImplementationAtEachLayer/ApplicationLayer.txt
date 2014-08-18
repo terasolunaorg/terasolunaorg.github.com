@@ -245,7 +245,7 @@ Mapping by request parameter
 
 
 | When multiple values are specified, it is handled by 'AND' condition.
-| In case of following definition, if the URL ``"sample/hello?"form&formType=foo"`` is accessed, then ``hello()`` method is executed. 
+| In case of following definition, if the URL ``"sample/hello?form&formType=foo"`` is accessed, then ``hello()`` method is executed. 
 
  .. code-block:: java
 
@@ -1251,7 +1251,7 @@ To retrieve request parameters individually, add \ ``@RequestParam``\ annotation
        | For example, when the URL ``"sample/hello?id=aaaa"`` is accessed, the string ``"aaaa"`` is passed to argument "id".
    * - | (2)
      - | value attribute of ``@RequestParam``\ annotation can be omitted. When it is omitted, the argument name becomes the request parameter name. 
-       | For example, when the URL ``"sample/hello?name=bbbb&...."`` is accessed, string ``"bbbb"`` is passed to argument "id".
+       | For example, when the URL ``"sample/hello?name=bbbb&...."`` is accessed, string ``"bbbb"`` is passed to argument "name".
        | However, if value attribute is omitted, the compilation should be done in debug mode.
    * - | (3)
      - | By default, an error occurs if the specified request parameter does not exist. When request parameter is not required, specify ``false`` in the ``required`` attribute.
@@ -2042,7 +2042,7 @@ Reflecting values to domain object
 
  .. note::
     Bean conversion functionality can be used as an alternative way to delegate the process of reflecting form object values, to Helper class.
-    Refer to :doc:`../ArchitectureInDetail/Utilities/BeanConverter`  for the details of Bean conversion functionality.
+    Refer to :doc:`../ArchitectureInDetail/Utilities/Dozer`  for the details of Bean conversion functionality.
 
 |
 
@@ -2133,7 +2133,7 @@ However considering the readability of processing method in case of large amount
 
  .. note::
     Bean conversion functionality can be used as an alternative method to delegate the process to Helper class.
-    Refer to :doc:`../ArchitectureInDetail/Utilities/BeanConverter`  for the details of Bean conversion functionality.
+    Refer to :doc:`../ArchitectureInDetail/Utilities/Dozer`  for the details of Bean conversion functionality.
 
 |
 |
@@ -2794,7 +2794,7 @@ Use JSP tag library provided by JSTL to output format number.
      - Description
    * - | (1)
      - | Specify the value acquired by EL expressions in  the value attribute of ``<fmt:formatNumber>`` tag. Specify the format to be displayed in pattern attribute. For example, "``0.00``" is specified .
-       | When the value acquired in ``${helloBean.dateItem}`` is "``1.2``" temporarily, "``1.20``" is displayed on the screen.
+       | When the value acquired in ``${helloBean.numberItem}`` is "``1.2``" temporarily, "``1.20``" is displayed on the screen.
 
 .. note::
      Refer to ``CHAPTER 9 Formatting Actions`` of `JavaServer Pages Standard Tag Library(Version 1.2) <http://download.oracle.com/otndocs/jcp/jstl-1.2-mrel2-eval-oth-JSpec/>`_\ for the details of ``<fmt:formatNumber>``.
@@ -3623,4 +3623,3 @@ For details of session usage policy and implementation at the time of session us
 .. raw:: latex
 
    \newpage
-

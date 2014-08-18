@@ -1419,7 +1419,7 @@ FQCNは、todo.domain.serivce.todo.TodoServiceとする。
     import todo.domain.repository.todo.TodoRepository;
 
     @Service// (1)
-    // @Transactional // (2)l
+    // @Transactional // (2)
     public class TodoServiceImpl implements TodoService {
         @Inject// (3)
         protected TodoRepository todoRepository;
