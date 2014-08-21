@@ -252,11 +252,6 @@ version 1.0.1.RELEASEで利用するOSSの一覧を以下に示す。
       - 3.15.0-GA
       - \*1
     * - JPA(Hibernate)
-      - org.jboss.logging
-      - jboss-logging
-      - 3.1.0.GA
-      - \*1
-    * - JPA(Hibernate)
       - org.jboss.spec.javax.transaction
       - jboss-transaction-api_1.1_spec
       - 1.0.1.Final
@@ -345,6 +340,11 @@ version 1.0.1.RELEASEで利用するOSSの一覧を以下に示す。
       - org.hibernate
       - hibernate-validator
       - 4.3.1.Final
+      -
+    * - 入力チェック
+      - org.jboss.logging
+      - jboss-logging
+      - 3.1.0.GA
       -
     * - Bean変換
       - commons-beanutils
