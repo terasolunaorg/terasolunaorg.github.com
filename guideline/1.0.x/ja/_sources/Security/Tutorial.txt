@@ -81,12 +81,32 @@ URL一覧を以下に示す。
 
 プロジェクトの作成
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-| Mavenのアーキタイプを利用し、\ `TERASOLUNA Global Frameworkの雛形 <https://github.com/terasolunaorg/terasoluna-gfw-web-blank>`_\ を作成する。
-| Spring tool suiteへのインポート方法やアプリケーションサーバの起動方法は、\ :ref:`CreateProjectFromBlank_create-new-project`\ を参照されたい。
+| Mavenのアーキタイプを利用し、\ `TERASOLUNA Global Frameworkのブランクプロジェクト <https://github.com/terasolunaorg/terasoluna-gfw-web-blank>`_\ を作成する。
+| Spring tool suiteへのインポート方法やアプリケーションサーバの起動方法は、\ :doc:`../Appendix/CreateProjectFromBlank`\ を参照されたい。
 
 .. code-block:: console
 
-    $ mvn archetype:generate -DarchetypeCatalog=http://repo.terasoluna.org/nexus/content/repositories/terasoluna-gfw-releases
+    mvn archetype:generate -B^
+     -DarchetypeCatalog=http://repo.terasoluna.org/nexus/content/repositories/terasoluna-gfw-releases^
+     -DarchetypeGroupId=org.terasoluna.gfw.blank^
+     -DarchetypeArtifactId=terasoluna-gfw-web-blank-mybatis2-archetype^
+     -DarchetypeVersion=1.0.1.RELEASE^
+     -DgroupId=com.example.security^
+     -DartifactId=first-springsecurity^
+     -Dversion=1.0-SNAPSHOT
+
+コンソール上に以下のようなログが表示されれば、ブランクプロジェクトの作成は成功となる。
+
+.. code-block:: console
+
+    C:\work>mvn archetype:generate -B^
+    More?  -DarchetypeCatalog=http://repo.terasoluna.org/nexus/content/repositories/terasoluna-gfw-releases^
+    More?  -DarchetypeGroupId=org.terasoluna.gfw.blank^
+    More?  -DarchetypeArtifactId=terasoluna-gfw-web-blank-mybatis2-archetype^
+    More?  -DarchetypeVersion=1.0.1.RELEASE^
+    More?  -DgroupId=com.example.security^
+    More?  -DartifactId=first-springsecurity^
+    More?  -Dversion=1.0-SNAPSHOT
     [INFO] Scanning for projects...
     [INFO]
     [INFO] ------------------------------------------------------------------------
@@ -98,50 +118,10 @@ URL一覧を以下に示す。
     [INFO] <<< maven-archetype-plugin:2.2:generate (default-cli) @ standalone-pom <<<
     [INFO]
     [INFO] --- maven-archetype-plugin:2.2:generate (default-cli) @ standalone-pom ---
-    [INFO] Generating project in Interactive mode
-    [INFO] No archetype defined. Using maven-archetype-quickstart (org.apache.maven.archetypes:maven-archetype-quickstart:1.0)
-    Choose archetype:
-    1: http://repo.terasoluna.org/nexus/content/repositories/terasoluna-gfw-releases -> org.terasoluna.gfw.blank:terasoluna-gfw-web-blank-archetype (Blank project using TERASOLUNA Global Framework)
-    2: http://repo.terasoluna.org/nexus/content/repositories/terasoluna-gfw-releases -> org.terasoluna.gfw.blank:terasoluna-gfw-web-blank-jpa-archetype (Blank project using TERASOLUNA Global Framework (JPA))
-    3: http://repo.terasoluna.org/nexus/content/repositories/terasoluna-gfw-releases -> org.terasoluna.gfw.blank:terasoluna-gfw-web-blank-mybatis2-archetype (Blank project using TERASOLUNA Global Framework (MyBatis2))
-
-どのタイプを選ぶか問われる。今回はデータアクセスにMyBatis2を使用する"3"を選択する。
-
-.. code-block:: console
-
-    Choose a number or apply filter (format: [groupId:]artifactId, case sensitive contains): : 3
-
-
-groupId, artifactId, version, pacakgeは以下の通り
-
-.. tabularcolumns:: |p{0.25\linewidth}|p{0.75\linewidth}|
-.. list-table::
-    :widths: 25 75
-    :stub-columns: 1
-
-    * - groupId
-      - com.example.security
-    * - artifactId
-      - first-springsecurity
-    * - version
-      - 1.0-SNAPSHOT
-    * - package
-      - com.example.security
-
-.. code-block:: console
-
-    Define value for property 'groupId': : com.example.security
-    Define value for property 'artifactId': : first-springsecurity
-    Define value for property 'version':  1.0-SNAPSHOT: :
-    Define value for property 'package':  com.example.security: :
-    Confirm properties configuration:
-    groupId: com.example.security
-    artifactId: first-springsecurity
-    version: 1.0-SNAPSHOT
-    package: com.example.security
-     Y: :
+    [INFO] Generating project in Batch mode
+    [INFO] Archetype repository missing. Using the one from [org.terasoluna.gfw.blank:terasoluna-gfw-web-blank-mybatis2-archetype:1.0.0.RELEASE -> http://repo.terasoluna.org/nexus/content/repositories/terasoluna-gfw-releases] found in catalog http://repo.terasoluna.org/nexus/content/repositories/terasoluna-gfw-releases
     [INFO] ----------------------------------------------------------------------------
-    [INFO] Using following parameters for creating project from Archetype: terasoluna-gfw-web-blank-mybatis2-archetype:1.0.0.RELEASE
+    [INFO] Using following parameters for creating project from Archetype: terasoluna-gfw-web-blank-mybatis2-archetype:1.0.1.RELEASE
     [INFO] ----------------------------------------------------------------------------
     [INFO] Parameter: groupId, Value: com.example.security
     [INFO] Parameter: artifactId, Value: first-springsecurity
@@ -152,15 +132,15 @@ groupId, artifactId, version, pacakgeは以下の通り
     [INFO] Parameter: version, Value: 1.0-SNAPSHOT
     [INFO] Parameter: groupId, Value: com.example.security
     [INFO] Parameter: artifactId, Value: first-springsecurity
-    [INFO] project created from Archetype in dir: /Users/xxx/first-springsecurity
+    [INFO] project created from Archetype in dir: C:\work\first-springsecurity
     [INFO] ------------------------------------------------------------------------
     [INFO] BUILD SUCCESS
     [INFO] ------------------------------------------------------------------------
-    [INFO] Total time: 51.891s
-    [INFO] Finished at: Mon Dec 02 14:03:11 JST 2013
-    [INFO] Final Memory: 13M/116M
+    [INFO] Total time: 10.207s
+    [INFO] Finished at: Wed Aug 27 14:14:48 JST 2014
+    [INFO] Final Memory: 9M/23M
     [INFO] ------------------------------------------------------------------------
-
+    C:\work>
 
 アプリケーションの作成
 --------------------------------------------------------------------------------

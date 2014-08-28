@@ -36,93 +36,51 @@ Blankプロジェクトからの新規プロジェクトを作成する方法を
 新規プロジェクト作成
 --------------------------------------------------------------------------------
 
-#. プロジェクトフォルダにコマンドプロンプトで移動する。
+#. プロジェクトを作成するフォルダにマンドプロンプトで移動する。
   
-    ここではSTSのworkspaceに移動する。
+    .. code-block:: text
     
-    .. code-block:: console
-    
-        $ cd C:\springsource\sts-3.4.0.RELEASE\workspace
+        cd C:\work
 
 #. Maven archetypeを利用してプロジェクトの雛形を生成する
 
     .. code-block:: console
     
-        $ mvn archetype:generate -DarchetypeCatalog=http://repo.terasoluna.org/nexus/content/repositories/terasoluna-gfw-releases # <== (1)
-        [INFO] Scanning for projects...
-        [INFO]
-        [INFO] ------------------------------------------------------------------------
-        [INFO] Building Maven Stub Project (No POM) 1
-        [INFO] ------------------------------------------------------------------------
-        [INFO]
-        [INFO] >>> maven-archetype-plugin:2.2:generate (default-cli) @ standalone-pom >>>
-        [INFO]
-        [INFO] <<< maven-archetype-plugin:2.2:generate (default-cli) @ standalone-pom <<<
-        [INFO]
-        [INFO] --- maven-archetype-plugin:2.2:generate (default-cli) @ standalone-pom ---
-        [INFO] Generating project in Interactive mode
-        [INFO] No archetype defined. Using maven-archetype-quickstart (org.apache.maven.archetypes:maven-archetype-quickstart:1.0)
-        Choose archetype:
-        1: http://repo.terasoluna.org/nexus/content/repositories/terasoluna-gfw-releases -> org.terasoluna.gfw.blank:terasoluna-gfw-web-blank-archetype (Blank project using TERASOLUNA Global Framework)
-        2: http://repo.terasoluna.org/nexus/content/repositories/terasoluna-gfw-releases -> org.terasoluna.gfw.blank:terasoluna-gfw-web-blank-jpa-archetype (Blank project using TERASOLUNA Global Framework (JPA))
-        3: http://repo.terasoluna.org/nexus/content/repositories/terasoluna-gfw-releases -> org.terasoluna.gfw.blank:terasoluna-gfw-web-blank-mybatis2-archetype (Blank project using TERASOLUNA Global Framework (MyBatis2))
-        Choose a number or apply filter (format: [groupId:]artifactId, case sensitive contains): : 1 # <== (2)
-        Define value for property 'groupId': : example.first.application # <== (3)
-        Define value for property 'artifactId': : example-first-application # <== (4)
-        Define value for property 'version':  1.0-SNAPSHOT: : # <== (5)
-        Define value for property 'package':  example.first.application: : # <== (6)
-        Confirm properties configuration:
-        groupId: example.first.application
-        artifactId: example-first-application
-        version: 1.0-SNAPSHOT
-        package: example.first.application
-         Y: : # <== (7)
-        [INFO] ----------------------------------------------------------------------------
-        [INFO] Using following parameters for creating project from Archetype: terasoluna-gfw-web-blank-archetype:1.0.0.RELEASE
-        [INFO] ----------------------------------------------------------------------------
-        [INFO] Parameter: groupId, Value: example.first.application
-        [INFO] Parameter: artifactId, Value: example-first-application
-        [INFO] Parameter: version, Value: 1.0-SNAPSHOT
-        [INFO] Parameter: package, Value: example.first.application
-        [INFO] Parameter: packageInPathFormat, Value: example/first/application
-        [INFO] Parameter: package, Value: example.first.application
-        [INFO] Parameter: version, Value: 1.0-SNAPSHOT
-        [INFO] Parameter: groupId, Value: example.first.application
-        [INFO] Parameter: artifactId, Value: example-first-application
-        [INFO] project created from Archetype in dir: C:\springsource\sts-3.4.0.RELEASE\workspace\example-first-application
-        [INFO] ------------------------------------------------------------------------
-        [INFO] BUILD SUCCESS
-        [INFO] ------------------------------------------------------------------------
-        [INFO] Total time: 44.809s
-        [INFO] Finished at: Fri Dec 06 11:28:47 JST 2013
-        [INFO] Final Memory: 9M/23M
-        [INFO] ------------------------------------------------------------------------
-    
-    
+      mvn archetype:generate -B^
+       -DarchetypeCatalog=http://repo.terasoluna.org/nexus/content/repositories/terasoluna-gfw-releases^
+       -DarchetypeGroupId=org.terasoluna.gfw.blank^
+       -DarchetypeArtifactId=terasoluna-gfw-web-blank-archetype^
+       -DarchetypeVersion=1.0.1.RELEASE^
+       -DgroupId=example.first.application^
+       -DartifactId=example-first-application^
+       -Dversion=1.0.0-SNAPSHOT
+
+
     .. tabularcolumns:: |p{0.10\linewidth}|p{0.90\linewidth}|
     .. list-table::
        :header-rows: 1
-       :widths: 10 90
+       :widths: 20 80
     
-       * - 項番
+       * - パラメータ
          - 説明
-       * - | (1)
+       * - | \-B
+         - | batch mode (対話を省略)
+       * - | \-DarchetypeCatalog
          - | Maven archetypeでプロジェクトを作成する。TERASOLUNA Global Frameworkのレポジトリを指定する。
-       * - | (2)
-         - | 取得するBlank Projectのtypeを指定する。
-           |    1. JPA,MyBatis2は使用せずにプロジェクトを作成する場合
-           |    2. JPAを使用するプロジェクトを作成する場合
-           |    3. MyBatis2を使用するプロジェクトを作成する場合
-       * - | (3)
-         - | groupIdを指定する。
-       * - | (4)
-         - | artifactIdを指定する。
-       * - | (5)
-         - | 省略可。最新版を利用する場合は指定不要。
-       * - | (6)
-         - | 省略可。パッケージ名指定。groupIdと同じ場合は指定不要。
-       * - | (7)
-         - | 省略可。groupId,artifactId,version,packageが問題なければ、Enterで終了となる。Nを指定した場合は、(3)から再度入力となる。
+       * - | \-DarchetypeGroupId
+         - | tarasoluna.gfwのブランクプロジェクトのGroupID = org.terasoluna.gfw.blank 固定
+       * - | \-DarchetypeArtifactId
+         - | terasoluna-gfw-web-blank-archetype = JPA,MyBatis2は使用せずにプロジェクトを作成する場合
+           | terasoluna-gfw-web-blank-jpa-archetype = JPAを使用するプロジェクトを作成する場合
+           | terasoluna-gfw-web-blank-mybatis2-archetype = MyBatis2を使用するプロジェクトを作成する場合
+       * - | \-DarchetypeVersion
+         - | terasoluna.gfwのバージョンを指定する。
+       * - | \-DgroupId
+         - | 作成プロジェクトのgroupIdを指定する。
+       * - | \-DartifactId
+         - | 作成プロジェクトのartifactIdを指定する。
+       * - | \-Dversion
+         - | 作成プロジェクトのバージョンを指定する。
     
 
 .. _CreateProjectFromBlank_STS-import-project:

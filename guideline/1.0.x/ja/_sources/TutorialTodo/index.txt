@@ -30,21 +30,21 @@
 
 このチュートリアルは以下の環境で動作確認している。他の環境で実施する際は本書をベースに適宜読み替えて設定していくこと。
 
-.. tabularcolumns:: |p{0.15\linewidth}|p{0.85\linewidth}|
-.. list-table::
+ .. tabularcolumns:: |p{0.15\linewidth}|p{0.75\linewidth}|
+ .. list-table::
     :header-rows: 1
-    :widths: 15 85
+    :widths: 15 75
 
     * - 種別
       - 名前
     * - OS
       - Windows7 64bit
     * - JVM
-      - Java 1.6
+      - Java 1.7
     * - IDE
-      - Spring Tool Suite Version: 3.2.0.RELEASE, Build Id: 201303060821 (以下STS) Build   Maven 3.0.4 (STS付属)
+      - Spring Tool Suite Version: 3.5.0.RELEASE Build Id: 201404011654 (以下STS) Build Maven 3.0.4 (STS付属)
     * - Application Server
-      - VMWare vFabric tc Server Developer Edition v2.8 (STS付属)
+      - VMWare vFabric tc Server Developer Edition v2.9 (STS付属)
     * - Web Browser
       - Google Chrome 27.0.1453.94 m
 
@@ -59,7 +59,7 @@
 TODOを管理するアプリケーションを作成する。TODOの一覧表示、TODOの登録、TODOの完了、TODOの削除を行える。
 
 
-.. figure:: ./images/image001.png
+ .. figure:: ./images/image001.png
    :width: 60%
 
 
@@ -67,11 +67,12 @@ TODOを管理するアプリケーションを作成する。TODOの一覧表示
 
 アプリケーションの業務要件
 --------------------------------------------------------------------------------
+アプリケーションの業務要件は、以下の通りとする。
 
-.. tabularcolumns:: |p{0.10\linewidth}|p{0.90\linewidth}|
-.. list-table::
+ .. tabularcolumns:: |p{0.10\linewidth}|p{0.80\linewidth}|
+ .. list-table::
     :header-rows: 1
-    :widths: 10 90
+    :widths: 10 80
 
     * - ルールID
       - 説明
@@ -80,25 +81,21 @@ TODOを管理するアプリケーションを作成する。TODOの一覧表示
     * - B02
       - 完了済みのTODOは完了できない
 
-|
+ .. note::
 
-    .. note::
-
-        本要件は学習のためのもので、現実的なTODO管理アプリケーションとしては適切ではない。
+     本要件は学習のためのもので、現実的なTODO管理アプリケーションとしては適切ではない。
 
 |
 
-アプリケーションの画面遷移
+アプリケーションの処理仕様
 --------------------------------------------------------------------------------
+アプリケーションの処理仕様と画面遷移は、以下の通りとする。
 
-
-.. figure:: ./images/image002.png
+ .. figure:: ./images/image002.png
    :width: 60%
 
-
-
-.. tabularcolumns:: |p{0.10\linewidth}|p{0.20\linewidth}|p{0.15\linewidth}|p{0.15\linewidth}|p{0.40\linewidth}|
-.. list-table::
+ .. tabularcolumns:: |p{0.10\linewidth}|p{0.20\linewidth}|p{0.15\linewidth}|p{0.15\linewidth}|p{0.40\linewidth}|
+ .. list-table::
     :header-rows: 1
     :widths: 10 20 15 15 40
 
@@ -156,14 +153,17 @@ Delete TODO
 * フォームから送信されたtodoIdに対応するTODOを削除する
 * 該当するTODOが存在しない場合はエラーコードE404でビジネス例外をスローする
 
+|
 
 エラーメッセージ一覧
 --------------------------------------------------------------------------------
 
-.. tabularcolumns:: |p{0.15\linewidth}|p{0.45\linewidth}|p{0.40\linewidth}|
-.. list-table::
+エラーメッセージとして、以下の3つを定義する。
+
+ .. tabularcolumns:: |p{0.15\linewidth}|p{0.45\linewidth}|p{0.30\linewidth}|
+ .. list-table::
     :header-rows: 1
-    :widths: 15 45 40
+    :widths: 15 45 30
 
     * - エラーコード
       - メッセージ
@@ -186,232 +186,209 @@ Delete TODO
 プロジェクトの作成
 --------------------------------------------------------------------------------
 
-「File」->「Other」->「Maven」->「Maven Project」を選択して「Next」。
+本チュートリアルでは、インフラストラクチャ層のRepositoryImplの実装として、
+
+* データベースを使用せずMapを使ったインメモリ実装のRepositoryImpl
+* Spring Data JPAの使用してデータベースにアクセスするRepositoryImpl
+* TERASOLUNA DAO(MyBatis2)を使用してデータベースにアクセスするRepositoryImpl
+
+の3種類を用意している。
+
+まず、\ ``mvn archetype:generate``\ を利用して、実装するインフラストラクチャ層向けのブランクプロジェクトを作成する。
+
+ここでは、Windows上にブランクプロジェクトを作成する手順となっている。
 
 
+* データベースを使用せずMapを使ったインメモリ実装のRepositoryImpl用のプロジェクトを作成する場合は、O/R Mapperに依存しないブランクプロジェクトを作成するために、コマンドプロンプトで以下のコマンドを実行する。
 
-.. figure:: ./images/image004.jpg
+ .. code-block:: console
+
+    mvn archetype:generate -B^
+     -DarchetypeCatalog=http://repo.terasoluna.org/nexus/content/repositories/terasoluna-gfw-releases^
+     -DarchetypeGroupId=org.terasoluna.gfw.blank^
+     -DarchetypeArtifactId=terasoluna-gfw-web-blank-archetype^
+     -DarchetypeVersion=1.0.1.RELEASE^
+     -DgroupId=todo^
+     -DartifactId=todo^
+     -Dversion=1.0.0-SNAPSHOT
+
+* Spring Data JPAの使用してデータベースにアクセスするRepositoryImpl用のプロジェクトを作成する場合は、JPA用のブランクプロジェクトを作成するために、コマンドプロンプトで以下のコマンドを実行する。
+
+ .. code-block:: console
+
+    mvn archetype:generate -B^
+     -DarchetypeCatalog=http://repo.terasoluna.org/nexus/content/repositories/terasoluna-gfw-releases^
+     -DarchetypeGroupId=org.terasoluna.gfw.blank^
+     -DarchetypeArtifactId=terasoluna-gfw-web-blank-jpa-archetype^
+     -DarchetypeVersion=1.0.1.RELEASE^
+     -DgroupId=todo^
+     -DartifactId=todo^
+     -Dversion=1.0.0-SNAPSHOT
+
+* TERASOLUNA DAO(MyBatis2)を使用してデータベースにアクセスするRepositoryImpl用のプロジェクトを作成する場合は、TERASOLUNA DAO(MyBatis2)用のブランクプロジェクトを作成するために、コマンドプロンプトで以下のコマンドを実行する。
+
+ .. code-block:: console
+
+    mvn archetype:generate -B^
+     -DarchetypeCatalog=http://repo.terasoluna.org/nexus/content/repositories/terasoluna-gfw-releases^
+     -DarchetypeGroupId=org.terasoluna.gfw.blank^
+     -DarchetypeArtifactId=terasoluna-gfw-web-blank-mybatis2-archetype^
+     -DarchetypeVersion=1.0.1.RELEASE^
+     -DgroupId=todo^
+     -DartifactId=todo^
+     -Dversion=1.0.0-SNAPSHOT
+
+コンソール上に以下のようなログが表示されれば、ブランクプロジェクトの作成は成功となる。
+
+ .. code-block:: console
+
+    C:\work>mvn archetype:generate -B^
+    More?  -DarchetypeCatalog=http://repo.terasoluna.org/nexus/content/repositories/terasoluna-gfw-releases^
+    More?  -DarchetypeGroupId=org.terasoluna.gfw.blank^
+    More?  -DarchetypeArtifactId=terasoluna-gfw-web-blank-archetype^
+    More?  -DarchetypeVersion=1.0.1.RELEASE^
+    More?  -DgroupId=todo^
+    More?  -DartifactId=todo^
+    More?  -Dversion=1.0.0-SNAPSHOT
+    [INFO] Scanning for projects...
+    [INFO]
+    [INFO] ------------------------------------------------------------------------
+    [INFO] Building Maven Stub Project (No POM) 1
+    [INFO] ------------------------------------------------------------------------
+    [INFO]
+    [INFO] >>> maven-archetype-plugin:2.2:generate (default-cli) @ standalone-pom >>>
+    [INFO]
+    [INFO] <<< maven-archetype-plugin:2.2:generate (default-cli) @ standalone-pom <<<
+    [INFO]
+    [INFO] --- maven-archetype-plugin:2.2:generate (default-cli) @ standalone-pom ---
+    [INFO] Generating project in Batch mode
+    [INFO] Archetype repository missing. Using the one from [org.terasoluna.gfw.blank:terasoluna-gfw-web-blank-archetype:1.0.0.RELEASE -> http://repo.terasoluna.org/nexus/content/repositories/terasoluna-gfw-releases] found in catalog http://repo.terasoluna.org/nexus/content/repositories/terasoluna-gfw-releases
+    [INFO] ----------------------------------------------------------------------------
+    [INFO] Using following parameters for creating project from Archetype: terasoluna-gfw-web-blank-archetype:1.0.1.RELEASE
+    [INFO] ----------------------------------------------------------------------------
+    [INFO] Parameter: groupId, Value: todo
+    [INFO] Parameter: artifactId, Value: todo
+    [INFO] Parameter: version, Value: 1.0.0-SNAPSHOT
+    [INFO] Parameter: package, Value: todo
+    [INFO] Parameter: packageInPathFormat, Value: todo
+    [INFO] Parameter: package, Value: todo
+    [INFO] Parameter: version, Value: 1.0.0-SNAPSHOT
+    [INFO] Parameter: groupId, Value: todo
+    [INFO] Parameter: artifactId, Value: todo
+    [INFO] project created from Archetype in dir: C:\work\todo
+    [INFO] ------------------------------------------------------------------------
+    [INFO] BUILD SUCCESS
+    [INFO] ------------------------------------------------------------------------
+    [INFO] Total time: 12.084s
+    [INFO] Finished at: Mon Aug 25 18:59:57 JST 2014
+    [INFO] Final Memory: 9M/23M
+    [INFO] ------------------------------------------------------------------------
+    C:\work>
+
+STSのメニューから、[File] -> [Import] -> [Maven] -> [Existing Maven Projects] -> [Next]を選択し、archetypeで作成したプロジェクトを選択する。
+
+ .. figure:: images/NewMVCProjectImport.png
+   :alt: New MVC Project Import
    :width: 60%
 
-「Create a simple project」にチェックを入れて「Next」。
+Root Directoryに \ ``C:\work\todo``\ を設定し、Projectsにtodoのpom.xmlが選択された状態で、 [Finish] を押下する。
 
-.. figure:: ./images/image006.jpg
+ .. figure:: images/NewMVCProjectCreate.png
+   :alt: New MVC Project Import
    :width: 60%
 
+Package Explorerに、次のようなプロジェクトが生成される( **要インターネット接続** )。
 
-.. tabularcolumns:: |p{0.25\linewidth}|p{0.75\linewidth}|
-.. list-table::
-    :widths: 25 75
-    :stub-columns: 1
+ .. figure:: images/image004.jpg
+   :alt: workspace
+   :width: 30%
 
-    * - Group Id:
-      - org.terasoluna.tutorial
-    * - Artifact Id:
-      - todo
-    * - Packaging:
-      - war
+ .. note::
 
-で「Finish」
+    パッケージ構成上、Package PresentaionをHierarchicalにしたほうが見通しがよい。
 
-.. figure:: ./images/image008.jpg
-   :width: 60%
-
-以下のようなプロジェクトが作成される。
+      .. figure:: ./images/presentation-hierarchical.png
+         :width: 80%
 
 
-.. figure:: ./images/image009.png
-   :width: 40%
 
-|
+ .. note::
 
-.. note::
+    Bash上で\ ``mvn archetype:generate``\ を実行する場合は以下のように\ ``^``\ を\ ``\``\ に置き換えて実行する必要がある。
+    
+      .. code-block:: bash
+      
+        mvn archetype:generate -B\
+         -DarchetypeCatalog=http://repo.terasoluna.org/nexus/content/repositories/terasoluna-gfw-releases\
+         -DarchetypeGroupId=org.terasoluna.gfw.blank\
+         -DarchetypeArtifactId=terasoluna-gfw-web-blank-archetype\
+         -DarchetypeVersion=1.0.1.RELEASE\
+         -DgroupId=todo\
+         -DartifactId=todo\
+         -Dversion=1.0.0-SNAPSHOT
 
-  パッケージ構成上、Package PresentaionをHierarchicalにしたほうが見通しがよい。
 
-  .. figure:: ./images/presentation-hierarchical.png
-     :width: 80%
 
 Mavenの設定
 --------------------------------------------------------------------------------
 
-pom.xmlを以下のように変更する。
-Mavenの知識がない場合は、pom.xmlをコピーするだけで、解説は読み飛ばしてよい。
+| チュートリアルで必要となるライブラリへの依存関係の設定などは、作成したブランクプロジェクトに既に設定済みの状態である。
+| そのため、設定の追加や変更は不要である。
 
-.. code-block:: xml
-   :emphasize-lines: 9-83
+ .. note::
+ 
+    Proxyサーバーを介してインターネットアクセスする必要がある場合は、
+    \ :file:`<HOME>/.m2/settings.xml`\に以下のような設定を行う必要がある。
+    (Windows7の場合C:\\Users\\<YourName>\\.m2\settings.xml)
 
+        .. code-block:: xml
 
-    <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-        xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
-        <modelVersion>4.0.0</modelVersion>
+            <settings>
+              <proxies>
+                <proxy>
+                  <active>true</active>
+                  <protocol>[Proxy Server Protocol (http)]</protocol>
+                  <port>[Proxy Server Port]</port>
+                  <host>[Proxy Server Host]</host>
+                  <username>[Username]</username>
+                  <password>[Password]</password>
+                </proxy>
+              </proxies>
+            </settings>
 
-        <groupId>org.terasoluna.tutorial</groupId>
-        <artifactId>todo</artifactId>
-        <version>0.0.1-SNAPSHOT</version>
-        <packaging>war</packaging>
-        <!-- (1) -->
-        <parent>
-            <groupId>org.terasoluna.gfw</groupId>
-            <artifactId>terasoluna-gfw-parent</artifactId>
-            <version>1.0.0.RELEASE</version>
-        </parent>
+ .. note::
 
-        <!-- (2) -->
-        <repositories>
-            <repository>
-                <releases>
-                    <enabled>true</enabled>
-                </releases>
-                <snapshots>
-                    <enabled>false</enabled>
-                </snapshots>
-                <id>terasoluna-gfw-releases</id>
-                <url>http://repo.terasoluna.org/nexus/content/repositories/terasoluna-gfw-releases/</url>
-            </repository>
-            <repository>
-                <releases>
-                    <enabled>false</enabled>
-                </releases>
-                <snapshots>
-                    <enabled>true</enabled>
-                </snapshots>
-                <id>terasoluna-gfw-snapshots</id>
-                <url>http://repo.terasoluna.org/nexus/content/repositories/terasoluna-gfw-snapshots/</url>
-            </repository>
-            <repository>
-                <releases>
-                    <enabled>true</enabled>
-                </releases>
-                <snapshots>
-                    <enabled>false</enabled>
-                </snapshots>
-                <id>terasoluna-gfw-3rdparty</id>
-                <url>http://repo.terasoluna.org/nexus/content/repositories/terasoluna-gfw-3rdparty/</url>
-            </repository>
-        </repositories>
+    インポート後にビルドエラーが発生する場合は、プロジェクト名を右クリックし、「Maven」->「Update Project」をクリックし、
+    「OK」ボタンをクリックすることでエラーが解消されるケースがある。
 
-        <dependencies>
-            <!-- (3) -->
-            <!-- TERASOLUNA -->
-            <dependency>
-                <groupId>org.terasoluna.gfw</groupId>
-                <artifactId>terasoluna-gfw-web</artifactId>
-            </dependency>
-            <!-- (4) -->
-            <dependency>
-                <groupId>org.terasoluna.gfw</groupId>
-                <artifactId>terasoluna-gfw-security-web</artifactId>
-            </dependency>
-            <!-- (5) -->
-            <dependency>
-                <groupId>org.terasoluna.gfw</groupId>
-                <artifactId>terasoluna-gfw-recommended-dependencies</artifactId>
-                <type>pom</type>
-            </dependency>
-
-            <!-- (6) -->
-            <!-- Servlet API/ JSP API -->
-            <dependency>
-                <groupId>org.apache.tomcat</groupId>
-                <artifactId>tomcat-servlet-api</artifactId>
-                <version>7.0.40</version>
-                <scope>provided</scope>
-            </dependency>
-            <dependency>
-                <groupId>org.apache.tomcat</groupId>
-                <artifactId>tomcat-jsp-api</artifactId>
-                <version>7.0.40</version>
-                <scope>provided</scope>
-            </dependency>
-        </dependencies>
-    </project>
+     .. figure:: ./images/update-project.png
+        :width: 60%
 
 
-pom.xmlを編集した後、プロジェクト名を右クリックし、「Maven」->「Update Project」をクリックし、
+ .. warning::
+ 
+    O/R Mapperを使用するブランクプロジェクトの場合、H2 Databaseがdependencyとして定義されているが、
+    この設定は簡易的なアプリケーションを簡単に作成するためのものであり、実際のアプリケーション開発で使用されることは想定していない。
+    
+    以下の定義は、実際のアプリケーション開発を行う際は削除すること。
+    
+     .. code-block:: xml
 
-
-.. figure:: ./images/update-project.png
-   :width: 60%
-
-「OK」ボタンをクリックする。
-
-以下のように"JRE System Library"のバージョンが"[JavaSE-1.6]"になっていることを確認する。
-
-.. figure:: ./images/check-jre.jpg
-   :width: 30%
-
-|
-
-    .. note::
-        JDKのバージョンを7に変更したい場合は、pom.xmlの ``<properties>`` に ``<java-version>1.7</java-version>`` を設定した後、
-        「Update Project」を実施すること。
-
-            .. code-block:: xml
-               :emphasize-lines: 4-6
-
-                <project>
-                    <!-- omitted -->
-
-                    <properties>
-                        <java-version>1.7</java-version>
-                    </properties>
-                </project>
-
-Mavenの知識がある場合は、以下の解説を確認すること。
-
-.. tabularcolumns:: |p{0.10\linewidth}|p{0.90\linewidth}|
-.. list-table::
-   :header-rows: 1
-   :widths: 10 90
-
-   * - 項番
-     - 説明
-   * - | (1)
-     - | TERASOLUNA Global Frameworkの親pomファイルを指定する。
-       | これにより、terasoluna-parentで定義されているライブラリは、versionを指定しなくても、dependencyに追加することができる。
-   * - | (2)
-     - | TERASOLUNA Global Frameworkを使うためのMavenレポジトリのURLを指定する。
-   * - | (3)
-     - | TERASOLUNA Global Frameworkの共通ライブラリ(Web用)をdependencyに追加する。
-   * - | (4)
-     - | TERASOLUNA Global Frameworkの共通ライブラリ(セキュリティWeb用)をdependencyに追加する。
-   * - | (5)
-     - | TERASOLUNA Global Frameworkで推奨されるライブラリ群を追加する。
-       | terasoluna-gfw-recommended-dependenciesはただのpomファイルであるため ``<type>pom</type>`` を記述する必要がある。
-   * - | (6)
-     - | Servlet/JSP APIをdependencyに追加する。Servlet3に対応する必要がある。
-       | これらはscope=provided(本来APサーバーから提供される)であり、warには含まれないが、eclipse上でコンパイルするためには明示的にdependencyに追加する必要がある。
-       | （尚、dependency名がtomcat-xxxとなっているが、内包するクラスのパッケージはjavax.servletであるためtomcatに依存しているわけではない。）
-
-|
-
-    .. note:: Proxyサーバーを介してインターネットアクセスする必要がある場合は、
-        <HOME>/.m2/settings.xmlに以下のような設定を行う。
-        (Windows7の場合C:\\Users\\<YourName>\\.m2\settings.xml)
-
-            .. code-block:: xml
-
-                    <settings>
-                      <proxies>
-                        <proxy>
-                          <active>true</active>
-                          <protocol>[Proxy Server Protocol (http)]</protocol>
-                          <port>[Proxy Server Port]</port>
-                          <host>[Proxy Server Host]</host>
-                          <username>[Username]</username>
-                          <password>[Password]</password>
-                        </proxy>
-                      </proxies>
-                    </settings>
+        <dependency>
+            <groupId>com.h2database</groupId>
+            <artifactId>h2</artifactId>
+            <version>1.3.172</version>
+            <scope>compile</scope>
+        </dependency>
 
 |
 
 プロジェクト構成
 --------------------------------------------------------------------------------
 
-今後作成していくプロジェクトの構成について、以下に示す。
+チュートリアルで作成していくプロジェクトの構成について、以下に示す。
 
-.. code-block:: console
+ .. code-block:: console
 
     src
       └main
@@ -432,41 +409,35 @@ Mavenの知識がある場合は、以下の解説を確認すること。
               └WEB-INF
                   └views ... jspを格納
 
+ .. note::
 
-順番に作成していくので、最初に上記構成を用意する必要はない。
-
-|
-
-    .. note::
-
-         :ref:`前節の「プロジェクト構成」 <application-layering_project-structure>` ではマルチプロジェクトにすることを推奨していたが、
-         本チュートリアルでは、学習容易性を重視しているためシングルプロジェクト構成にしている。ただし、実プロジェクトで適用する場合は、
-         マルチプロジェクト構成を強く推奨する。
+    :ref:`前節の「プロジェクト構成」 <application-layering_project-structure>` ではマルチプロジェクトにすることを推奨していたが、
+    本チュートリアルでは、学習容易性を重視しているためシングルプロジェクト構成にしている。
+    
+    **ただし、実プロジェクトで適用する場合は、マルチプロジェクト構成を強く推奨する。**
 
 |
 
-設定ファイルの作成
+設定ファイルの確認
 --------------------------------------------------------------------------------
+チュートリアルを進める上で必要となる設定の多くは、作成したブランクプロジェクトに既に設定済みの状態である。
 
-web.xmlの設定
+本節では、アプリケーションを動かすためにどのような設定ファイルが必要なのかを理解するために、 設定ファイルの確認をしていく。
+
+ .. note::
+ 
+    まず、手を動かしてTodoアプリを作成したい場合は、本節を読み飛ばしてもよいが、
+    Todoアプリを作成した後に必ず一読して頂きたい。
+
+
+web.xmlの確認
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-src/main/webapp/WEB-INF/web.xmlを作成して、サーブレットやフィルタの定義を行う。
-WEB-INFフォルダは「New」->「Folder」で新規作成すること。
+\ :file:`web.xml`\には、WebアプリケーションとしてTodoアプリをデプロイするための設定を行う。
 
+作成したブランクプロジェクトの\ :file:`src/main/webapp/WEB-INF/web.xml`\は、以下のような設定となっている。
 
-.. figure:: ./images/image010.jpg
-   :width: 40%
-
-「New」->「File」でweb.xmlを作成し、
-
-
-.. figure:: ./images/image011.jpg
-   :width: 40%
-
-
-内容は以下のように記述する。
-
-.. code-block:: xml
+ .. code-block:: xml
+    :emphasize-lines: 2, 6, 22, 78, 95, 106, 120 
 
     <?xml version="1.0" encoding="UTF-8"?>
     <!-- (1) -->
@@ -477,15 +448,46 @@ WEB-INFフォルダは「New」->「Folder」で新規作成すること。
         <listener>
             <listener-class>org.springframework.web.context.ContextLoaderListener</listener-class>
         </listener>
+        <listener>
+            <listener-class>org.terasoluna.gfw.web.logging.HttpSessionEventLoggingListener</listener-class>
+        </listener>
         <context-param>
             <param-name>contextConfigLocation</param-name>
             <!-- Root ApplicationContext -->
             <param-value>
                 classpath*:META-INF/spring/applicationContext.xml
+                classpath*:META-INF/spring/spring-security.xml
             </param-value>
         </context-param>
 
         <!-- (3) -->
+        <filter>
+            <filter-name>MDCClearFilter</filter-name>
+            <filter-class>org.terasoluna.gfw.web.logging.mdc.MDCClearFilter</filter-class>
+        </filter>
+        <filter-mapping>
+            <filter-name>MDCClearFilter</filter-name>
+            <url-pattern>/*</url-pattern>
+        </filter-mapping>
+
+        <filter>
+            <filter-name>exceptionLoggingFilter</filter-name>
+            <filter-class>org.springframework.web.filter.DelegatingFilterProxy</filter-class>
+        </filter>
+        <filter-mapping>
+            <filter-name>exceptionLoggingFilter</filter-name>
+            <url-pattern>/*</url-pattern>
+        </filter-mapping>
+
+        <filter>
+            <filter-name>XTrackMDCPutFilter</filter-name>
+            <filter-class>org.terasoluna.gfw.web.logging.mdc.XTrackMDCPutFilter</filter-class>
+        </filter>
+        <filter-mapping>
+            <filter-name>XTrackMDCPutFilter</filter-name>
+            <url-pattern>/*</url-pattern>
+        </filter-mapping>
+
         <filter>
             <filter-name>CharacterEncodingFilter</filter-name>
             <filter-class>org.springframework.web.filter.CharacterEncodingFilter</filter-class>
@@ -502,6 +504,17 @@ WEB-INFフォルダは「New」->「Folder」で新規作成すること。
             <filter-name>CharacterEncodingFilter</filter-name>
             <url-pattern>/*</url-pattern>
         </filter-mapping>
+
+        <filter>
+            <filter-name>springSecurityFilterChain</filter-name>
+            <filter-class>org.springframework.web.filter.DelegatingFilterProxy</filter-class>
+        </filter>
+
+        <filter-mapping>
+            <filter-name>springSecurityFilterChain</filter-name>
+            <url-pattern>/*</url-pattern>
+        </filter-mapping>
+
 
         <!-- (4) -->
         <servlet>
@@ -530,120 +543,185 @@ WEB-INFフォルダは「New」->「Folder」で新規作成すること。
                 <include-prelude>/WEB-INF/views/common/include.jsp</include-prelude>
             </jsp-property-group>
         </jsp-config>
+
+        <!-- (6) -->
+        <error-page>
+            <error-code>500</error-code>
+            <location>/WEB-INF/views/common/error/systemError.jsp</location>
+        </error-page>
+        <error-page>
+            <error-code>404</error-code>
+            <location>/WEB-INF/views/common/error/resourceNotFoundError.jsp</location>
+        </error-page>
+        <error-page>
+            <exception-type>java.lang.Exception</exception-type>
+            <location>/WEB-INF/views/common/error/unhandledSystemError.html</location>
+        </error-page>
+
+        <!-- (7) -->
+        <session-config>
+            <!-- 30min -->
+            <session-timeout>30</session-timeout>
+        </session-config>
+    
     </web-app>
 
 
-.. tabularcolumns:: |p{0.10\linewidth}|p{0.90\linewidth}|
-.. list-table::
+ .. tabularcolumns:: |p{0.10\linewidth}|p{0.80\linewidth}|
+ .. list-table::
    :header-rows: 1
-   :widths: 10 90
+   :widths: 10 80
 
    * - 項番
      - 説明
    * - | (1)
      - | Servlet3.0を使用するための宣言。
    * - | (2)
-     - | ``ContextLoaderListener`` の定義。このリスナーが作成する ``ApplicationContext`` がルートコンテキストとなる。
-       | Bean定義ファイルのパスをclasspath直下のMETA-INF/spring/applicationContext.xmlとする。
+     - | サーブレットコンテキストリスナーの定義。
+
+       ブランクプロジェクトでは、
+       
+       * アプリケーション全体で使用される\ ``ApplicationContext``\を作成するための\ ``ContextLoaderListener``\
+       * HttpSessionに対する操作をログ出力するための \ ``HttpSessionEventLoggingListener``\
+
+       が設定済みである。
    * - | (3)
-     - | ``CharacterEncodingFilter`` の定義。リクエストとレスポンスの文字コードをUTF-8にするための設定。
+     - | サーブレットフィルタの定義。
+
+       ブランクプロジェクトでは、
+       
+       * 共通ライブラリから提供しているサーブレットフィルタ
+       * Spring Frameworkから提供されている文字エンコーディングを指定するための\ ``CharacterEncodingFilter``\
+       * Spring Securityから提供されている認証・認可用のサーブレットフィルタ
+
+       が設定済みである。
    * - | (4)
      - | Spring MVCのエントリポイントとなるDispatcherServletの定義。
-       | Spring MVCで使用するBean定義ファイルのパスをclasspath直下のMETA-INF/spring/spring-mvc.xmlとする。
-       | ここで作成される ``ApplicationContext`` は(2)で作成される ``ApplicatnionContext`` の子となる。
+       |
+       | DispatcherServletの中で使用する\ ``ApplicationContext``\を、(2)で作成した\ ``ApplicatnionContext``\の子として作成する。
+       | (2)で作成した\ ``ApplicatnionContext``\を親にすることで、(2)で読み込まれたコンポーネントも使用することができる。
    * - | (5)
-     - | JSP共通でincludeするJSPの定義。任意のJSP(\*.jsp)に対して、/WEB-INF/views/common/include.jspをincludeする。
+     - | JSPの共通定義。
+     
+       ブランクプロジェクトでは、
+       
+       * JSP内でEL式が使用可能な状態
+       * JSPのページエンコーディングとしてUTF-8
+       * JSP内でスクリプティングが使用可能な状態
+       * 各JSPの先頭でインクルードするJSPとして、\ :file:`/WEB-INF/views/common/include.jsp`\
 
+       が設定済みである。
+   * - | (6)
+     - | エラーページの定義。
+     
+       ブランクプロジェクトでは、
+       
+       * サーブレットコンテナにHTTPステータスコードとして、\ ``404``\又は\ ``500``\が応答
+       * サーブレットコンテナに例外が通知
 
-.. figure:: ./images/image013.png
-   :width: 40%
+       された際の遷移先が定義済みである。
+   * - | (7)
+     - | セッション管理の定義。
+     
+       ブランクプロジェクトでは、
+       
+       * セッションタイムアウトとして、30分
+
+       が定義済みである。
+
 
 |
 
-共通JSPの設定
+インクルードJSPの確認
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+インクルードJSPには、全てのJSPに適用するJSPの設定や、タグライブラリの設定を行う。
 
-src/main/webapp/WEB-INF/views/common/include.jspに各JSP共通でincludeする内容を記述する。taglibの定義を共通的に行う。
-views/commonフォルダ、include.jspファイルを作成し、以下のように記述する。
+作成したブランクプロジェクトの\ :file:`src/main/webapp/WEB-INF/views/common/include.jsp`\は、以下のような設定となっている。
 
+ .. code-block:: jsp
+    :emphasize-lines: 1, 3, 6, 9, 11 
 
-.. code-block:: jsp
-
-    <%@ page session="false"%>
     <!-- (1) -->
+    <%@ page session="false"%>
+    <!-- (2) -->
     <%@ taglib uri="http://java.sun.com/jsp/jstl/core" prefix="c"%>
     <%@ taglib uri="http://java.sun.com/jsp/jstl/fmt" prefix="fmt"%>
-    <!-- (2)  -->
+    <!-- (3)  -->
     <%@ taglib uri="http://www.springframework.org/tags" prefix="spring"%>
     <%@ taglib uri="http://www.springframework.org/tags/form" prefix="form"%>
-    <!-- (3) -->
-    <%@ taglib uri="http://www.springframework.org/security/tags" prefix="sec"%>
     <!-- (4) -->
+    <%@ taglib uri="http://www.springframework.org/security/tags" prefix="sec"%>
+    <!-- (5) -->
     <%@ taglib uri="http://terasoluna.org/functions" prefix="f"%>
     <%@ taglib uri="http://terasoluna.org/tags" prefix="t"%>
 
-
-.. tabularcolumns:: |p{0.10\linewidth}|p{0.90\linewidth}|
-.. list-table::
+ .. tabularcolumns:: |p{0.10\linewidth}|p{0.80\linewidth}|
+ .. list-table::
    :header-rows: 1
-   :widths: 10 90
+   :widths: 10 80
 
    * - 項番
      - 説明
    * - | (1)
-     - | 標準タグライブラリを定義する。
+     - | JSP実行時にセッションを作成しないようにするための定義。
    * - | (2)
-     - | Spring MVC用タグライブラリを定義する。
+     - | 標準タグライブラリの定義。
    * - | (3)
-     - | Spring Security用タグライブラリを定義する。(ただし本チュートリアルでは使用しない。)
+     - | Spring MVC用タグライブラリの定義。
    * - | (4)
-     - | 共通ライブラリで提供されている、EL関数、タグライブラリを定義する。
-
-
-
-
-.. figure:: ./images/image014.png
-   :width: 40%
+     - | Spring Security用タグライブラリの定義(本チュートリアルでは使用しない。)
+   * - | (5)
+     - | 共通ライブラリで提供されている、EL関数、タグライブラリの定義。
 
 |
 
-Bean定義ファイルの設定
+Bean定義ファイルの確認
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-Bean定義ファイルは、以下4種類のファイルを作成する。
+作成したブランクプロジェクトには、以下のBean定義ファイルとプロパティファイルが作成される。
 
-* applicationContext.xml
-* todo-domain.xml
-* todo-infra.xml
-* spring-mvc.xml
+* :file:`src/main/resources/META-INF/spring/applicationContext.xml`
+* :file:`src/main/resources/META-INF/spring/todo-domain.xml`
+* :file:`src/main/resources/META-INF/spring/todo-infra.xml`
+* :file:`src/main/resources/META-INF/spring/todo-infra.properties`
+* :file:`src/main/resources/META-INF/spring/todo-env.xml`
+* :file:`src/main/resources/META-INF/spring/spring-mvc.xml`
 
-上から順に説明する。
+ .. note::
+ 
+    O/R Mapperに依存しないブランクプロジェクトを作成した場合は、\ ``todo-infra.properties``\と\ ``todo-env.xml``\は作成されない。
 
+ .. note::
 
-applicationContext.xml
+    本ガイドラインでは、Bean定義ファイルを役割(層)ごとにファイルを分割することを推奨している。
+    
+    これは、どこに何が定義されているか想像しやすく、メンテナンス性が向上するからである。
+    今回のチュートリアルのような小さなアプリケーションでは効果はないが、アプリケーションの規模が大きくなるにつれ、効果が大きくなる。
+
+|
+
+applicationContext.xmlの確認
 """"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
-src/main/resources/META-INF/spring/applicationContext.xmlに、Todoアプリ全体に関わる設定を行う。
+\ :file:`applicationContext.xml`\には、Todoアプリ全体に関わる設定を行う。
 
+| 作成したブランクプロジェクトの\ :file:`src/main/resources/META-INF/spring/applicationContext.xml`\は、以下のような設定となっている。
+| なお、チュートリアルで使用しないコンポーネントについての説明は割愛する。
 
-META-INF/springフォルダを作成し、「New」->「Spring Bean Configuration File」でapplicationContext.xmlを作成する。
-
-
-
-.. figure:: ./images/image016.jpg
-   :width: 40%
-
-
-
-.. code-block:: xml
+ .. code-block:: xml
+    :emphasize-lines: 9-10, 14-16, 18-19
 
     <?xml version="1.0" encoding="UTF-8"?>
     <beans xmlns="http://www.springframework.org/schema/beans"
         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:context="http://www.springframework.org/schema/context"
+        xmlns:aop="http://www.springframework.org/schema/aop"
         xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd
-            http://www.springframework.org/schema/context http://www.springframework.org/schema/context/spring-context.xsd">
+            http://www.springframework.org/schema/context http://www.springframework.org/schema/context/spring-context.xsd
+            http://www.springframework.org/schema/aop http://www.springframework.org/schema/aop/spring-aop.xsd">
 
         <!-- (1) -->
         <import resource="classpath:/META-INF/spring/todo-domain.xml" />
+
+        <bean id="passwordEncoder" class="org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder" />
 
         <!-- (2) -->
         <context:property-placeholder
@@ -655,257 +733,767 @@ META-INF/springフォルダを作成し、「New」->「Spring Bean Configuratio
                 value="classpath*:/META-INF/dozer/**/*-mapping.xml" />
         </bean>
 
+        <!-- Message -->
+        <bean id="messageSource"
+            class="org.springframework.context.support.ResourceBundleMessageSource">
+            <property name="basenames">
+                <list>
+                    <value>i18n/application-messages</value>
+                </list>
+            </property>
+        </bean>
+
+        <!-- Exception Code Resolver. -->
+        <bean id="exceptionCodeResolver"
+            class="org.terasoluna.gfw.common.exception.SimpleMappingExceptionCodeResolver">
+            <!-- Setting and Customization by project. -->
+            <property name="exceptionMappings">
+                <map>
+                    <entry key="ResourceNotFoundException" value="e.xx.fw.5001" />
+                    <entry key="InvalidTransactionTokenException" value="e.xx.fw.7001" />
+                    <entry key="BusinessException" value="e.xx.fw.8001" />
+                    <entry key=".DataAccessException" value="e.xx.fw.9002" />
+                </map>
+            </property>
+            <property name="defaultExceptionCode" value="e.xx.fw.9001" />
+        </bean>
+
+        <!-- Exception Logger. -->
+        <bean id="exceptionLogger"
+            class="org.terasoluna.gfw.common.exception.ExceptionLogger">
+            <property name="exceptionCodeResolver" ref="exceptionCodeResolver" />
+        </bean>
+
+        <!-- Filter. -->
+        <bean id="exceptionLoggingFilter"
+            class="org.terasoluna.gfw.web.exception.ExceptionLoggingFilter" >
+            <property name="exceptionLogger" ref="exceptionLogger" />
+        </bean>
+
     </beans>
 
 
-.. tabularcolumns:: |p{0.10\linewidth}|p{0.90\linewidth}|
-.. list-table::
+ .. tabularcolumns:: |p{0.10\linewidth}|p{0.90\linewidth}|
+ .. list-table::
    :header-rows: 1
    :widths: 10 90
 
    * - 項番
      - 説明
    * - | (1)
-     - | 次に説明する、ドメイン層に関するBean定義ファイルをimportする。
+     - | ドメイン層に関するBean定義ファイルをimportする。
    * - | (2)
      - | プロパティファイルの読み込み設定を行う。
        | src/main/resources/META-INF/spring直下の任意のプロパティファイルを読み込む。
        | この設定により、プロパティファイルの値をBean定義ファイル内で${propertyName}形式で埋め込んだり、Javaクラスに@Value("${propertyName}")でインジェクションすることができる。
    * - | (3)
      - | Bean変換用ライブラリDozerのMapperを定義する。
-       | (今回は使用しないが、マッピング用XMLファイルを定義する場合はsrc/main/resources/META-INF/dozer/xxx-mapping.xmlという形式でマッピングファイルを作成すること。
        | マッピングファイルに関して `Dozerマニュアル <http://dozer.sourceforge.net/documentation/mappings.html>`_ を参照されたい。)
 
-.. figure:: ./images/image018.png
-   :width: 40%
+ .. note::
 
-|
-
-    .. note::
-        上記内容をコピーせず手入力を行う場合は、「namespace」タブを開き、「Configure Namspecse」で「beans」と「context」にチェックを入れること。
-        また「Namespace Versions」でバージョンなしのxsdファイルを選択することを推奨する。
+        エディタの「Configure Namspecse」タブにて、以下のように「beans」と「context」にチェックを入れると、
+        XML編集時にCtrl+Spaceを使用して入力を補完することができる。
 
         .. figure:: ./images/image021.jpg
            :width: 60%
            :align: center
 
-        これにより、XML編集時にCtrl+Spaceを使用して入力を補完することができる。
+        「Namespace Versions」にはバージョンなしのxsdファイルを選択することを推奨する。
+        バージョンなしのxsdファイルを選択することで、常にjarに含まれる最新のxsdが使用されるため、
+        Springのバージョンアップを意識する必要がなくなる。
 
         .. figure:: ./images/image023.png
            :width: 60%
            :align: center
 
-        またバージョンを指定しないことにより、常にjarに含まれる最新のxsdが使用される。
-
 |
 
-todo-domain.xml
+todo-domain.xmlの確認
 """"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
-src/main/resources/META-INF/spring/todo-domain.xmlに、ドメイン層に関わる設定を行う。
 
+\ :file:`todo-domain.xml`\には、Todoアプリのドメイン層に関わる設定を行う。
 
-META-INF/spring直下において、「New」->「Spring Bean Configuration File」でtodo-domain.xmlを作成する。
+| 作成したブランクプロジェクトの\ :file:`src/main/resources/META-INF/spring/todo-domain.xml`\は、以下のような設定となっている。
+| なお、チュートリアルで使用しないコンポーネントについての説明は割愛する。
 
-
-.. code-block:: xml
-
+ .. code-block:: xml
+    :emphasize-lines: 9-10, 12-13
 
     <?xml version="1.0" encoding="UTF-8"?>
     <beans xmlns="http://www.springframework.org/schema/beans"
         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:context="http://www.springframework.org/schema/context"
+        xmlns:aop="http://www.springframework.org/schema/aop"
         xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd
-            http://www.springframework.org/schema/context http://www.springframework.org/schema/context/spring-context.xsd">
+            http://www.springframework.org/schema/context http://www.springframework.org/schema/context/spring-context.xsd
+            http://www.springframework.org/schema/aop http://www.springframework.org/schema/aop/spring-aop.xsd">
+
         <!-- (1) -->
-        <import resource="classpath:META-INF/spring/todo-infra.xml"/>
+        <import resource="classpath:META-INF/spring/todo-infra.xml" />
+
         <!-- (2) -->
         <context:component-scan base-package="todo.domain" />
+
+        <!-- AOP. -->
+        <bean id="resultMessagesLoggingInterceptor"
+            class="org.terasoluna.gfw.common.exception.ResultMessagesLoggingInterceptor">
+            <property name="exceptionLogger" ref="exceptionLogger" />
+        </bean>
+        <aop:config>
+            <aop:advisor advice-ref="resultMessagesLoggingInterceptor"
+                pointcut="@within(org.springframework.stereotype.Service)" />
+        </aop:config>
+
     </beans>
 
 
-.. tabularcolumns:: |p{0.10\linewidth}|p{0.90\linewidth}|
-.. list-table::
+ .. tabularcolumns:: |p{0.10\linewidth}|p{0.80\linewidth}|
+ .. list-table::
    :header-rows: 1
-   :widths: 10 90
+   :widths: 10 80
 
    * - 項番
      - 説明
    * - | (1)
-     - | 次に説明する、インフラストラクチャ層に関するBean定義ファイルをimportする。
+     - | インフラストラクチャ層に関するBean定義ファイルをimportする。
    * - | (2)
      - | ドメイン層のクラスを管理するtodo.domainパッケージ配下をcomponent-scan対象とする。
-       | これにより、todo.domainパッケージ配下のクラスに ``@Repository`` , ``@Service`` , ``@Component`` などのアノテーションを付けることで、Spring Framerowkが管理するBeanとして登録される。
+       | これにより、todo.domainパッケージ配下のクラスに ``@Repository`` , ``@Service`` などのアノテーションを付けることで、Spring Framerowkが管理するBeanとして登録される。
        | 登録されたクラス(Bean)は、ControllerやServiceクラスにDIする事で、利用する事が出来る。
 
-.. figure:: ./images/image024.png
-   :width: 40%
+
+ .. note::
+ 
+    O/R Mapperに依存するブランクプロジェクトを作成した場合は、\ ``@Transactional``\アノテーションによるトランザクション管理を有効にするために、
+    \ ``<tx:annotation-driven>``\タグを設定されている。
+
+     .. code-block:: xml
+        :emphasize-lines: 9-10, 12-13
+
+         <tx:annotation-driven />
 
 |
 
-todo-infra.xml
+todo-infra.xmlの確認
 """"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
-src/main/resources/META-INF/spring/todo-infra.xmlに、インフラストラクチャ層に関するBean定義を行う。
-ここではDBの設定などを行うが、本節ではDBを使用しないため、以下のように空定義で良い。次節でBean定義を行う。
+
+\ :file:`todo-infra.xml`\には、Todoアプリのインフラストラクチャ層に関わる設定を行う。
+
+作成したブランクプロジェクトの\ :file:`src/main/resources/META-INF/spring/todo-infra.xml`\は、
+以下のような設定となっている。
+
+\ :file:`todo-infra.xml`\は、インフラストラクチャ層によって設定が大きく異なるため、
+ブランクプロジェクト毎に説明を行う。
+作成したブランクプロジェクト以外の説明は読み飛ばしてもよい。
 
 
-META-INF/spring直下において、「New」->「Spring Bean Configuration File」でtodo-infra.xmlを作成する。
+O/R Mapperに依存しないブランクプロジェクトを作成した場合
+''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
 
+O/R Mapperに依存しないブランクプロジェクトを作成した場合、以下のように空定義のファイルが作成される。
 
-.. code-block:: xml
+ .. code-block:: xml
 
     <?xml version="1.0" encoding="UTF-8"?>
     <beans xmlns="http://www.springframework.org/schema/beans"
         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
         xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd">
+
+
     </beans>
 
+JPA用のブランクプロジェクトを作成した場合
+''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
+JPA用のブランクプロジェクトを作成した場合、以下のような設定となっている。
 
-.. figure:: ./images/image025.png
-   :width: 40%
+ .. code-block:: xml
+    :emphasize-lines: 9-10, 12-13, 15-17, 22-24, 26-27, 30-31
+
+    <?xml version="1.0" encoding="UTF-8"?>
+    <beans xmlns="http://www.springframework.org/schema/beans"
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:jpa="http://www.springframework.org/schema/data/jpa"
+        xmlns:util="http://www.springframework.org/schema/util"
+        xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd
+            http://www.springframework.org/schema/util http://www.springframework.org/schema/util/spring-util.xsd
+            http://www.springframework.org/schema/data/jpa http://www.springframework.org/schema/data/jpa/spring-jpa.xsd">
+
+        <!-- (1) -->
+        <import resource="classpath:/META-INF/spring/todo-env.xml" />
+
+        <!-- (2) -->
+        <jpa:repositories base-package="todo.domain.repository"></jpa:repositories>
+
+        <!-- (3) -->
+        <bean id="jpaVendorAdapter"
+            class="org.springframework.orm.jpa.vendor.HibernateJpaVendorAdapter">
+            <property name="showSql" value="false" />
+            <property name="database" value="${database}" />
+        </bean>
+
+        <!-- (4) -->
+        <bean
+            class="org.springframework.orm.jpa.LocalContainerEntityManagerFactoryBean"
+            id="entityManagerFactory">
+            <!-- (5) -->
+            <property name="packagesToScan" value="todo.domain.model" />
+            <property name="dataSource" ref="dataSource" />
+            <property name="jpaVendorAdapter" ref="jpaVendorAdapter" />
+            <!-- (6) -->
+            <property name="jpaPropertyMap">
+                <util:map>
+                    <entry key="hibernate.hbm2ddl.auto" value="none" />
+                    <entry key="hibernate.ejb.naming_strategy"
+                        value="org.hibernate.cfg.ImprovedNamingStrategy" />
+                    <entry key="hibernate.connection.charSet" value="UTF-8" />
+                    <entry key="hibernate.show_sql" value="false" />
+                    <entry key="hibernate.format_sql" value="false" />
+                    <entry key="hibernate.use_sql_comments" value="true" />
+                    <entry key="hibernate.jdbc.batch_size" value="30" />
+                    <entry key="hibernate.jdbc.fetch_size" value="100" />
+                </util:map>
+            </property>
+        </bean>
+    
+    </beans>
+
+ .. tabularcolumns:: |p{0.10\linewidth}|p{0.80\linewidth}|
+ .. list-table::
+   :header-rows: 1
+   :widths: 10 80
+
+   * - 項番
+     - 説明
+   * - | (1)
+     - | 環境依存するコンポーネント(データソースやトランザクションマネージャなど)を定義するBean定義ファイルをimportする。
+   * - | (2)
+     - | Spring Data JPAを使用して、Repositoryインタフェースから実装クラスを自動生成する。
+       | <jpa:repository>タグのbase-package属性で、対象のRepositoryを含むパッケージを指定する。
+   * - | (3)
+     - | JPAの実装ベンダの設定を行う。
+       | JPA実装として、Hibernateを使うため、HibernateJpaVendorAdapterを定義している。
+   * - | (4)
+     - | EntityManagerの定義を行う。
+   * - | (5)
+     - | JPAのエンティティとして扱うクラスが格納されているパッケージ名を指定する。
+   * - | (6)
+     - | Hibernateに関する詳細な設定を行う。
+
+
+TERASOLUNA DAO(MyBatis2)用のブランクプロジェクトを作成した場合
+''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
+TERASOLUNA DAO(MyBatis2)用のブランクプロジェクトを作成した場合、以下のような設定となっている。
+
+ .. code-block:: xml
+   :emphasize-lines: 6-7, 9-11, 12-14, 15-17, 21
+
+    <?xml version="1.0" encoding="UTF-8"?>
+    <beans xmlns="http://www.springframework.org/schema/beans"
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd">
+    
+        <!-- (1) -->
+        <import resource="classpath:/META-INF/spring/todo-env.xml" />
+    
+        <!-- (2) -->
+        <bean id="sqlMapClient"
+            class="org.springframework.orm.ibatis.SqlMapClientFactoryBean">
+            <!-- (3) -->
+            <property name="configLocations"
+                value="classpath*:/META-INF/mybatis/config/*sqlMapConfig.xml" />
+            <!-- (4) -->
+            <property name="mappingLocations"
+                value="classpath*:/META-INF/mybatis/sql/**/*-sqlmap.xml" />
+            <property name="dataSource" ref="dataSource" />
+        </bean>
+    
+        <!-- (5) -->
+        <bean id="queryDAO" class="jp.terasoluna.fw.dao.ibatis.QueryDAOiBatisImpl">
+            <property name="sqlMapClient" ref="sqlMapClient" />
+        </bean>
+    
+        <bean id="updateDAO" class="jp.terasoluna.fw.dao.ibatis.UpdateDAOiBatisImpl">
+            <property name="sqlMapClient" ref="sqlMapClient" />
+        </bean>
+    
+        <bean id="spDAO"
+            class="jp.terasoluna.fw.dao.ibatis.StoredProcedureDAOiBatisImpl">
+            <property name="sqlMapClient" ref="sqlMapClient" />
+        </bean>
+    
+        <bean id="queryRowHandleDAO"
+            class="jp.terasoluna.fw.dao.ibatis.QueryRowHandleDAOiBatisImpl">
+            <property name="sqlMapClient" ref="sqlMapClient" />
+        </bean>
+    </beans>
+
+ .. tabularcolumns:: |p{0.10\linewidth}|p{0.80\linewidth}|
+ .. list-table::
+   :header-rows: 1
+   :widths: 10 80
+
+
+   * - 項番
+     - 説明
+   * - | (1)
+     - | 環境依存するコンポーネント(データソースやトランザクションマネージャなど)を定義するBean定義ファイルをimportする。
+   * - | (2)
+     - | SqlMapClientの定義を行う。
+   * - | (3)
+     - | SqlMap設定ファイルのパスを設定する。
+       | ここでは、META-INF/mybatis/config以下の、\*sqlMapConfig.xmlを読み込む。
+   * - | (4)
+     - | SqlMapファイルのパスを設定する。
+       | ここでは、META-INF/mybatis/sql以下の、任意のフォルダの*-sqlmap.xmlを読み込む。
+   * - | (5)
+     - | TERASOLUNA DAOの定義を行う。
+
+ .. note::
+ 
+    \ :file:`sqlMapConfig.xml`\は、MyBatis2自体の動作設定を行う設定ファイルである。
+    
+    ブランクプロジェクトでは、デフォルトで以下の設定が行われている。
+
+     .. code-block:: xml
+
+        <?xml version="1.0" encoding="UTF-8" ?>
+        <!DOCTYPE sqlMapConfig 
+                    PUBLIC "-//ibatis.apache.org//DTD SQL Map Config 2.0//EN"
+                    "http://ibatis.apache.org/dtd/sql-map-config-2.dtd">
+        <sqlMapConfig>
+            <settings useStatementNamespaces="true" />
+        </sqlMapConfig>
+        
+    \ ``useStatementNamespaces``\を\ ``true``\にすることで、SQLIDにネームスペースを指定することが出来る。
+ 
 
 |
 
-    .. note:: todo-domain.xml, todo-infra.xmlの内容もすべてapplicationContext.xmlに記述すればよいように思えるかもしれないが、
-        役割(層)ごとにファイルを分割することを推奨する。どこに何が定義されているか想像しやすく、メンテナンス性が向上するからである。
-        今回のチュートリアルのような小さなアプリケーションでは効果がない。しかし、アプリケーションの規模が大きくなるにつれ、効果が大きくなる。
-
-|
-
-spring-mvc.xml
+todo-infra.propertiesの確認
 """"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
-src/main/resources/META-INF/spring/spring-mvc.xmlに、Spring MVCに関する定義を行う。
+
+\ :file:`todo-infra.properties`\には、Todoアプリのインフラストラクチャ層の環境依存値の設定を行う。
+
+O/R Mapperに依存しないブランクプロジェクトを作成した際は、\ :file:`todo-infra.properties`\は作成されない。
+
+作成したブランクプロジェクトの\ :file:`src/main/resources/META-INF/spring/todo-infra.properties`\は、
+以下のような設定となっている。
+
+ .. code-block:: properties
+    :emphasize-lines: 1, 7
+
+    # (1)
+    database=H2
+    database.url=jdbc:h2:mem:todo;DB_CLOSE_DELAY=-1;
+    database.username=sa
+    database.password=
+    database.driverClassName=org.h2.Driver
+    # (2)
+    # connection pool
+    cp.maxActive=96
+    cp.maxIdle=16
+    cp.minIdle=0
+    cp.maxWait=60000
+
+ .. tabularcolumns:: |p{0.10\linewidth}|p{0.80\linewidth}|
+ .. list-table::
+   :header-rows: 1
+   :widths: 10 80
 
 
-.. code-block:: xml
+   * - 項番
+     - 説明
+   * - | (1)
+     - | データベースに関する設定を行う。
+       | 本チュートリアルでは、データベースのセットアップの手間を省くため、H2 Databaseを使用する。
+   * - | (2)
+     - | コネクションプールに関する設定。
+
+
+ .. note::
+ 
+    これらの設定値は、\ :file:`todo-env.xml`\から参照されている。
+
+|
+
+todo-env.xmlの確認
+""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
+
+\ :file:`todo-env.xml`\には、デプロイする環境によって設定が異なるコンポーネントの設定を行う。
+
+データベースにアクセスしないブランクプロジェクトを作成した際は、\ :file:`todo-env.xml`\は作成されない。
+
+作成したブランクプロジェクトの\ ``src/main/resources/META-INF/spring/todo-env.xml``\は、以下のような設定となっている。
+
+ .. code-block:: xml
+    :emphasize-lines: 8-10, 22-25, 27-31
+
+    <?xml version="1.0" encoding="UTF-8"?>
+    <beans xmlns="http://www.springframework.org/schema/beans"
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd">
+
+        <bean id="dateFactory" class="org.terasoluna.gfw.common.date.DefaultDateFactory" />
+
+        <!-- (1) -->
+        <bean id="realDataSource" class="org.apache.commons.dbcp.BasicDataSource"
+            destroy-method="close">
+            <property name="driverClassName" value="${database.driverClassName}" />
+            <property name="url" value="${database.url}" />
+            <property name="username" value="${database.username}" />
+            <property name="password" value="${database.password}" />
+            <property name="defaultAutoCommit" value="false" />
+            <property name="maxActive" value="${cp.maxActive}" />
+            <property name="maxIdle" value="${cp.maxIdle}" />
+            <property name="minIdle" value="${cp.minIdle}" />
+            <property name="maxWait" value="${cp.maxWait}" />
+        </bean>
+
+        <!-- (2) -->
+        <bean id="dataSource" class="net.sf.log4jdbc.Log4jdbcProxyDataSource">
+            <constructor-arg index="0" ref="realDataSource" />
+        </bean>
+
+        <!-- (3) -->
+        <bean id="transactionManager"
+            class="org.springframework.orm.jpa.JpaTransactionManager">
+            <property name="entityManagerFactory" ref="entityManagerFactory" />
+        </bean>
+        <!--  REMOVE THIS LINE IF YOU USE MyBatis2
+        <bean id="transactionManager"
+            class="org.springframework.jdbc.datasource.DataSourceTransactionManager">
+            <property name="dataSource" ref="dataSource" />
+        </bean>
+              REMOVE THIS LINE IF YOU USE MyBatis2  -->
+    </beans>
+
+ .. tabularcolumns:: |p{0.10\linewidth}|p{0.80\linewidth}|
+ .. list-table::
+   :header-rows: 1
+   :widths: 10 80
+
+
+   * - 項番
+     - 説明
+   * - | (1)
+     - | 実データソースの設定。
+   * - | (2)
+     - | データソースの設定。
+       | JDBC関連のログを出力する機能をもったデータソースを指定している。
+       | \ ``net.sf.log4jdbc.Log4jdbcProxyDataSource``\を使用すると、SQLなどのJDBC関連のログを出力できるため、デバッグに役立つ情報を出力することができる。
+   * - | (3)
+     - | トランザクションマネージャの設定。idは、transactionManagerにすること。
+       | 別の名前を指定する場合は、<tx:annotation-driven>タグにも、トランザクションマネージャ名を指定する必要がある。
+
+ .. note::
+
+    使用するトランザクションマネージャは、使用するO/R Mapperによって切り替える必要がある。
+    
+    作成したブランクプロジェクトが、
+    
+    * JPA用のブランクプロジェクトを作成した場合は、
+      JPAのAPIを使用してトランザクションを制御するクラス(\ ``org.springframework.orm.jpa.JpaTransactionManager``\)
+    
+    * TERASOLUNA DAO(MyBatis2)用のブランクプロジェクトを作成した場合は、
+      JDBCのAPIを使用してトランザクションを制御するクラス(\ ``org.springframework.jdbc.datasource.DataSourceTransactionManager``\)
+    
+    が設定されている。
+
+ .. note::
+ 
+    JavaEEコンテナ上にアプリケーションをデプロイする場合は、
+    JTAのAPIを利用してトランザクションを制御するクラス(\ ``org.springframework.transaction.jta.JtaTransactionManager``\ )を使用したほうがよい。
+    \ ``JtaTransactionManager``\ を使う場合は、
+    \ ``<tx:jta-transaction-manager />``\ を指定してトランザクションマネージャの定義を行う。
+    
+    トランザクションマネージャの設定が、アプリケーションをデプロイする環境によって変わらないプロジェクト(例えば、Tomcatを使用する場合など)は、
+    \ :file:`todo-infra.xml`に定義してもよい。
+
+|
+
+spring-mvc.xmlの確認
+""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
+
+\ :file:`spring-mvc.xml`\には、Spring MVCに関する定義を行う。
+
+| 作成したブランクプロジェクトの\ :file:`src/main/resources/META-INF/spring/spring-mvc.xml`\は、以下のような設定となっている。
+| なお、チュートリアルで使用しないコンポーネントについての説明は割愛する。
+
+ .. code-block:: xml
+    :emphasize-lines: 12-14, 16-22, 26-27, 29-32, 35-42, 61-67
 
     <?xml version="1.0" encoding="UTF-8"?>
     <beans xmlns="http://www.springframework.org/schema/beans"
         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:context="http://www.springframework.org/schema/context"
         xmlns:mvc="http://www.springframework.org/schema/mvc" xmlns:util="http://www.springframework.org/schema/util"
+        xmlns:aop="http://www.springframework.org/schema/aop"
         xsi:schemaLocation="http://www.springframework.org/schema/mvc http://www.springframework.org/schema/mvc/spring-mvc.xsd
             http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd
             http://www.springframework.org/schema/util http://www.springframework.org/schema/util/spring-util.xsd
-            http://www.springframework.org/schema/context http://www.springframework.org/schema/context/spring-context.xsd">
+            http://www.springframework.org/schema/context http://www.springframework.org/schema/context/spring-context.xsd
+            http://www.springframework.org/schema/aop http://www.springframework.org/schema/aop/spring-aop.xsd">
 
         <!-- (1) -->
-        <mvc:annotation-driven></mvc:annotation-driven>
+        <context:property-placeholder
+            location="classpath*:/META-INF/spring/*.properties" />
 
         <!-- (2) -->
-        <context:component-scan base-package="todo.app" />
+        <mvc:annotation-driven>
+            <mvc:argument-resolvers>
+                <bean
+                    class="org.springframework.data.web.PageableHandlerMethodArgumentResolver" />
+            </mvc:argument-resolvers>
+        </mvc:annotation-driven>
+
+        <mvc:default-servlet-handler />
 
         <!-- (3) -->
+        <context:component-scan base-package="todo.app" />
+
+        <!-- (4) -->
         <mvc:resources mapping="/resources/**"
             location="/resources/,classpath:META-INF/resources/"
             cache-period="#{60 * 60}" />
 
         <mvc:interceptors>
-            <!-- (4) -->
+            <!-- (5) -->
             <mvc:interceptor>
                 <mvc:mapping path="/**" />
                 <mvc:exclude-mapping path="/resources/**" />
+                <mvc:exclude-mapping path="/**/*.html" />
                 <bean
                     class="org.terasoluna.gfw.web.logging.TraceLoggingInterceptor" />
             </mvc:interceptor>
+            <mvc:interceptor>
+                <mvc:mapping path="/**" />
+                <mvc:exclude-mapping path="/resources/**" />
+                <mvc:exclude-mapping path="/**/*.html" />
+                <bean
+                    class="org.terasoluna.gfw.web.token.transaction.TransactionTokenInterceptor" />
+            </mvc:interceptor>
+            <!--  REMOVE THIS LINE IF YOU USE JPA
+            <mvc:interceptor>
+                <mvc:mapping path="/**" />
+                <mvc:exclude-mapping path="/resources/**" />
+                <mvc:exclude-mapping path="/**/*.html" />
+                <bean
+                    class="org.springframework.orm.jpa.support.OpenEntityManagerInViewInterceptor" />
+            </mvc:interceptor>
+                REMOVE THIS LINE IF YOU USE JPA  -->
         </mvc:interceptors>
 
-        <!-- (5) -->
+        <!-- (7) -->
+        <!-- Settings View Resolver. -->
         <bean id="viewResolver"
             class="org.springframework.web.servlet.view.InternalResourceViewResolver">
             <property name="prefix" value="/WEB-INF/views/" />
             <property name="suffix" value=".jsp" />
         </bean>
+
+        <bean id="requestDataValueProcessor"
+            class="org.terasoluna.gfw.web.mvc.support.CompositeRequestDataValueProcessor">
+            <constructor-arg>
+                <util:list>
+                    <bean class="org.springframework.security.web.servlet.support.csrf.CsrfRequestDataValueProcessor" factory-method="create" />
+                    <bean
+                        class="org.terasoluna.gfw.web.token.transaction.TransactionTokenRequestDataValueProcessor" />
+                </util:list>
+            </constructor-arg>
+        </bean>
+
+        <!-- Setting Exception Handling. -->
+        <!-- Exception Resolver. -->
+        <bean class="org.terasoluna.gfw.web.exception.SystemExceptionResolver">
+            <property name="exceptionCodeResolver" ref="exceptionCodeResolver" />
+            <!-- Setting and Customization by project. -->
+            <property name="order" value="3" />
+            <property name="exceptionMappings">
+                <map>
+                    <entry key="ResourceNotFoundException" value="common/error/resourceNotFoundError" />
+                    <entry key="BusinessException" value="common/error/businessError" />
+                    <entry key="InvalidTransactionTokenException" value="common/error/transactionTokenError" />
+                    <entry key=".DataAccessException" value="common/error/dataAccessError" />
+                </map>
+            </property>
+            <property name="statusCodes">
+                <map>
+                    <entry key="common/error/resourceNotFoundError" value="404" />
+                    <entry key="common/error/businessError" value="409" />
+                    <entry key="common/error/transactionTokenError" value="409" />
+                    <entry key="common/error/dataAccessError" value="500" />
+                </map>
+            </property>
+            <property name="defaultErrorView" value="common/error/systemError" />
+            <property name="defaultStatusCode" value="500" />
+        </bean>
+        <!-- Setting AOP. -->
+        <bean id="handlerExceptionResolverLoggingInterceptor"
+            class="org.terasoluna.gfw.web.exception.HandlerExceptionResolverLoggingInterceptor">
+            <property name="exceptionLogger" ref="exceptionLogger" />
+        </bean>
+        <aop:config>
+            <aop:advisor advice-ref="handlerExceptionResolverLoggingInterceptor"
+                pointcut="execution(* org.springframework.web.servlet.HandlerExceptionResolver.resolveException(..))" />
+        </aop:config>
+
     </beans>
 
-.. tabularcolumns:: |p{0.10\linewidth}|p{0.90\linewidth}|
-.. list-table::
+ .. tabularcolumns:: |p{0.10\linewidth}|p{0.80\linewidth}|
+ .. list-table::
    :header-rows: 1
-   :widths: 10 90
+   :widths: 10 80
 
    * - 項番
      - 説明
    * - | (1)
-     - | Spring MVCのアノテーションベースのデフォルト設定を行う。
+     - | プロパティファイルの読み込み設定を行う。
+       | src/main/resources/META-INF/spring直下の任意のプロパティファイルを読み込む。
+       | この設定により、プロパティファイルの値をBean定義ファイル内で${propertyName}形式で埋め込んだり、Javaクラスに@Value("${propertyName}")でインジェクションすることができる。
    * - | (2)
-     - | アプリケーション層のクラスを管理するtodo.appパッケージ配下をcomponent-scan対象とする。
+     - | Spring MVCのアノテーションベースのデフォルト設定を行う。
    * - | (3)
+     - | アプリケーション層のクラスを管理するtodo.appパッケージ配下をcomponent-scan対象とする。
+   * - | (4)
      - | 静的リソース(css, images, jsなど)アクセスのための設定を行う。
        | mapping属性にURLのパスを、location属性に物理的なパスの設定を行う。
        | この設定の場合<contextPath>/rerources/css/styles.cssに対してリクエストが来た場合、WEB-INF/resources/css/styles.cssを探し、見つからなければクラスパス上(src/main/resourcesやjar内)のresources/css/style.cssを探す。
        | WEB-INF/resources/css/styles.cssが見つからなければ、404エラーを返す。
        | ここではcache-period属性で静的リソースのキャッシュ時間(3600秒=60分)も設定している。
        | ``cache-period="3600"`` と設定しても良いが、60分であることを明示するために `SpEL <http://static.springsource.org/spring/docs/3.2.x/spring-framework-reference/html/expressions.html#expressions-beandef-xml-based>`_ を使用して ``cache-period="#{60 * 60}"`` と書く方が分かりやすい。
-       | 尚、本チュートリアルでは静的リソースは使用しない。
-   * - | (4)
-     - | コントローラ処理のTraceログを出力するインターセプタを設定する。/resources以下を除く任意のパスに適用されるように設定する。
    * - | (5)
+     - | コントローラ処理のTraceログを出力するインターセプタを設定する。/resources以下を除く任意のパスに適用されるように設定する。
+   * - | (6)
      - | ViewResolverの設定を行う。この設定により、例えばコントローラからview名”hello”が返却された場合には/WEB-INF/views/hello.jspが実行される。
 
+ .. note::
+ 
+    JPA用のブランクプロジェクトを作成した場合は、\ ``<mvc:interceptors>``\の定義として、
+    \ ``OpenEntityManagerInViewInterceptor``\の定義が有効な状態となっている。
+    
+     .. code-block:: xml
+    
+        <mvc:interceptor>
+            <mvc:mapping path="/**" />
+            <mvc:exclude-mapping path="/resources/**" />
+            <mvc:exclude-mapping path="/**/*.html" />
+            <bean
+                class="org.springframework.orm.jpa.support.OpenEntityManagerInViewInterceptor" />
+        </mvc:interceptor>    
 
-.. figure:: ./images/image026.png
-   :width: 40%
+
+    \ ``OpenEntityManagerInViewInterceptor``\は、EntityManagerのライフサイクルの開始と終了を行うInterceptorである。
+    この設定を追加することで、アプリケーション層(Contollerや、Viewクラス)でのLazy Loadが、サポートされる。
+
+ .. note:: 
+
+    エディタの「Configure Namspecse」タブにて、\ :file:`todo-domain.xml`\で説明した操作に加え、「mvc」と「util」にもチェックを入れると、
+    「mvc」と「util」ネームスペースについても、XML編集時にCtrl+Spaceを使用して入力を補完することができる。
+
+    .. figure:: ./images/image028.png
+       :width: 60%
+       :align: center
 
 |
 
-    .. note:: 上記内容をコピーせず手入力を行う場合は、todo-domain.xmlで説明した操作に加え、「mvc」と「util」にもチェックを入れること。
-
-        .. figure:: ./images/image028.png
-           :width: 60%
-           :align: center
-
-|
-
-logback.xmlの設定
+logback.xmlの確認
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-src/main/resources/logback.xmlに、logbackによるログの出力設定を行う。
 
+\ :file:`logback.xml`\には、ログ出力に関する定義を行う。
 
-src/main/resources/直下において、「New」->「File」でlogback.xmlを作成する。
+| 作成したブランクプロジェクトの\ :file:`src/main/resources/logback.xml`\は、以下のような設定となっている。
+| なお、チュートリアルで使用しないログ設定についての説明は割愛する。
 
-.. code-block:: xml
+ .. code-block:: xml
+    :emphasize-lines: 4-9, 36-39, 45-48
 
     <!DOCTYPE logback>
     <configuration>
+    
         <!-- (1) -->
         <appender name="STDOUT" class="ch.qos.logback.core.ConsoleAppender">
             <encoder>
-                <pattern><![CDATA[%d{yyyy-MM-dd HH:mm:ss} [%thread] [%-5level] [%-48logger{48}] - %msg%n]]></pattern>
+                <pattern><![CDATA[date:%d{yyyy-MM-dd HH:mm:ss}\tthread:%thread\tX-Track:%X{X-Track}\tlevel:%-5level\tlogger:%-48logger{48}\tmessage:%msg%n]]></pattern>
             </encoder>
         </appender>
-
+    
+        <appender name="APPLICATION_LOG_FILE" class="ch.qos.logback.core.rolling.RollingFileAppender">
+            <file>log/todo-application.log</file>
+            <rollingPolicy class="ch.qos.logback.core.rolling.TimeBasedRollingPolicy">
+                <fileNamePattern>log/todo-application-%d{yyyyMMdd}.log</fileNamePattern>
+                <maxHistory>7</maxHistory>
+            </rollingPolicy>
+            <encoder>
+                <charset>UTF-8</charset>
+                <pattern><![CDATA[date:%d{yyyy-MM-dd HH:mm:ss}\tthread:%thread\tX-Track:%X{X-Track}\tlevel:%-5level\tlogger:%-48logger{48}\tmessage:%msg%n]]></pattern>
+            </encoder>
+        </appender>
+    
+        <appender name="MONITORING_LOG_FILE" class="ch.qos.logback.core.rolling.RollingFileAppender">
+            <file>log/todo-monitoring.log</file>
+            <rollingPolicy class="ch.qos.logback.core.rolling.TimeBasedRollingPolicy">
+                <fileNamePattern>log/todo-monitoring-%d{yyyyMMdd}.log</fileNamePattern>
+                <maxHistory>7</maxHistory>
+            </rollingPolicy>
+            <encoder>
+                <charset>UTF-8</charset>
+                <pattern><![CDATA[date:%d{yyyy-MM-dd HH:mm:ss}\tX-Track:%X{X-Track}\tlevel:%-5level\tmessage:%msg%n]]></pattern>
+            </encoder>
+        </appender>
+    
         <!-- Application Loggers -->
         <!-- (2) -->
         <logger name="todo">
             <level value="debug" />
         </logger>
-
+    
         <!-- TERASOLUNA -->
-        <!-- (3) -->
         <logger name="org.terasoluna.gfw">
-            <level value="info" />
+            <level value="debug" />
         </logger>
-        <!-- (4) -->
+        <!-- (3) -->
         <logger name="org.terasoluna.gfw.web.logging.TraceLoggingInterceptor">
             <level value="trace" />
         </logger>
-
+        <logger name="org.terasoluna.gfw.common.exception.ExceptionLogger">
+            <level value="info" />
+        </logger>
+        <logger name="org.terasoluna.gfw.common.exception.ExceptionLogger.Monitoring" additivity="false">
+            <level value="error" />
+            <appender-ref ref="MONITORING_LOG_FILE" />
+        </logger>
+    
         <!-- 3rdparty Loggers -->
-        <!-- (5) -->
         <logger name="org.springframework">
             <level value="warn" />
         </logger>
-
-        <!-- (6) -->
+    
         <logger name="org.springframework.web.servlet">
             <level value="info" />
         </logger>
-
-        <!-- (7) -->
-        <root level="WARN">
+    
+        <!--  REMOVE THIS LINE IF YOU USE JPA
+        <logger name="org.hibernate.engine.transaction">
+            <level value="debug" />
+        </logger>
+              REMOVE THIS LINE IF YOU USE JPA  -->
+        <!--  REMOVE THIS LINE IF YOU USE MyBatis2
+        <logger name="org.springframework.jdbc.datasource.DataSourceTransactionManager">
+            <level value="debug" />
+        </logger>
+              REMOVE THIS LINE IF YOU USE MyBatis2  -->
+    
+        <logger name="jdbc.sqltiming">
+            <level value="debug" />
+        </logger>
+    
+        <root level="warn">
             <appender-ref ref="STDOUT" />
+            <appender-ref ref="APPLICATION_LOG_FILE" />
         </root>
+    
     </configuration>
 
-.. tabularcolumns:: |p{0.10\linewidth}|p{0.90\linewidth}|
-.. list-table::
+ .. tabularcolumns:: |p{0.10\linewidth}|p{0.90\linewidth}|
+ .. list-table::
    :header-rows: 1
    :widths: 10 90
 
@@ -913,85 +1501,98 @@ src/main/resources/直下において、「New」->「File」でlogback.xmlを�
    * - 項番
      - 説明
    * - | (1)
-     - | 標準出力でログを出力するアペンダを設定する。
+     - | 標準出力でログを出力するアペンダを設定。
    * - | (2)
-     - | todoパッケージ以下はdebugレベル以上を出力するように設定する。
+     - | todoパッケージ以下はdebugレベル以上を出力するように設定。
    * - | (3)
-     - | 共通ライブラリのログレベルをinfoにする。
-   * - | (4)
-     - | spring-mvc.xmlに設定した ``TraceLoggingInterceptor`` に出力されるようにtraceレベルで設定する。
-   * - | (5)
-     - | Springframeworkのログはwarnレベル以上を出力するように設定する。
-   * - | (6)
-     - | Springframeworkのログの中でもorg.springframework.web.servlet以下は開発中に有益なログを出力するためinfoレベル以上で設定する。
-   * - | (7)
-     - | デフォルトはwarnレベル以上を出力するように設定する。
+     - | spring-mvc.xmlに設定した ``TraceLoggingInterceptor`` に出力されるようにtraceレベルで設定。
 
 
-.. figure:: ./images/image029.png
-   :width: 40%
+ .. note::
+ 
+    O/R Mapperを使用するブランクプロジェクトを作成した場合は、トランザクション制御関連のログを出力するロガーが有効な状態となっている。
+    
+    * JPA用のブランクプロジェクト
+    
+     .. code-block:: xml
+
+        <logger name="org.hibernate.engine.transaction">
+            <level value="debug" />
+        </logger>
+
+    * TERASOLUNA DAO(MyBatis2)用のブランクプロジェクト
+
+     .. code-block:: xml
+
+        <logger name="org.springframework.jdbc.datasource.DataSourceTransactionManager">
+            <level value="debug" />
+        </logger>
 
 |
 
-動作確認
+ブランクプロジェクトの動作確認
 --------------------------------------------------------------------------------
-Todoアプリケーションの開発を始める前に、SpringMVCのHelloWorldアプリケーションを作成して、動作確認を行う。「New」->「Class」で
+Todoアプリケーションの開発を始める前に、ブランクプロジェクトの動作確認を行う。
 
+ブランクプロジェクトでは、トップページを表示するためのControllerとJSPの実装が用意されているため、
+トップページを表示する事で動作確認を行う事ができる。
 
-.. tabularcolumns:: |p{0.25\linewidth}|p{0.75\linewidth}|
-.. list-table::
-   :widths: 25 75
-   :stub-columns: 1
+ブランクプロジェクトから提供されているController(\ :file:`src/main/java/todo/app/welcome/HomeController.java`\)は、
+以下のような実装となっている。
 
-   * - Package:
-     - todo.app.hello
-   * - Name:
-     - HelloController
+ .. code-block:: java
+    :emphasize-lines: 17-18, 21-23, 28-29, 31-32, 40-41, 43-44
 
-でtodo.app.hello.HelloControllerを作成する。
+    package todo.app.welcome;
 
-
-.. figure:: ./images/image030.jpg
-   :width: 40%
-
-
-HelloControllerを以下のように編集する。
-
-.. code-block:: java
-
-    package todo.app.hello;
-
+    import java.text.DateFormat;
     import java.util.Date;
+    import java.util.Locale;
 
     import org.slf4j.Logger;
     import org.slf4j.LoggerFactory;
     import org.springframework.stereotype.Controller;
     import org.springframework.ui.Model;
     import org.springframework.web.bind.annotation.RequestMapping;
+    import org.springframework.web.bind.annotation.RequestMethod;
 
+    /**
+     * Handles requests for the application home page.
+     */
     // (1)
     @Controller
-    public class HelloController {
+    public class HomeController {
+
         // (2)
         private static final Logger logger = LoggerFactory
-                .getLogger(HelloController.class);
+                .getLogger(HomeController.class);
 
+        /**
+         * Simply selects the home view to render by returning its name.
+         */
         // (3)
-        @RequestMapping("/")
-        public String hello(Model model) {
-            Date now = new Date();
+        @RequestMapping(value = "/", method = {RequestMethod.GET, RequestMethod.POST})
+        public String home(Locale locale, Model model) {
             // (4)
-            logger.debug("hello {}", now);
+            logger.info("Welcome home! The client locale is {}.", locale);
+    
+            Date date = new Date();
+            DateFormat dateFormat = DateFormat.getDateTimeInstance(DateFormat.LONG,
+                    DateFormat.LONG, locale);
+
+            String formattedDate = dateFormat.format(date);
+
             // (5)
-            model.addAttribute("now", now);
+            model.addAttribute("serverTime", formattedDate);
+
             // (6)
-            return "hello";
+            return "welcome/home";
         }
+
     }
 
-
-.. tabularcolumns:: |p{0.10\linewidth}|p{0.90\linewidth}|
-.. list-table::
+ .. tabularcolumns:: |p{0.10\linewidth}|p{0.90\linewidth}|
+ .. list-table::
    :header-rows: 1
    :widths: 10 90
 
@@ -999,41 +1600,46 @@ HelloControllerを以下のように編集する。
    * - 項番
      - 説明
    * - | (1)
-     - | Controllerとしてcomponent-scanの対象とするため、クラスレベルに ``@Controller`` アノテーションをつける。
+     - | Controllerとしてcomponent-scanの対象とするため、クラスレベルに ``@Controller`` アノテーションが付与している。
    * - | (2)
-     - | ロガーの生成を行う。ロガーの実装はlogbackのものであるが、APIはSLF4Jのものであるため、``org.slf4j.Logger`` を使用すること。
+     - | (4)でログ出力するためのロガーの生成している。
+       | ロガーの実装はlogbackのものであるが、APIはSLF4Jの ``org.slf4j.Logger`` を使用している。
    * - | (3)
-     - | ``@RequestMapping`` で”/”(ルート)へのアクセスに対するメソッドのマッピングを設定する。
+     - | ``@RequestMapping`` アノテーションを使用して、”/”(ルート)へのアクセスに対するメソッドとしてマッピングを行っている。
    * - | (4)
-     - | debugログを出力する。”{}”はプレースホルダである。
+     - | メソッドが呼ばれたことを通知するためのログをinfoレベルで出力している。
    * - | (5)
-     - | 画面へ日付を渡すためにModelに”now”という名前でDateオブジェクトを追加する。
+     - | 画面に表示するための日付文字列を、"serverTime"という属性名でModelに設定している。
    * - | (6)
-     - | view名としてhelloを返す。ViewResolverの設定により、WEB-INF/views/hello.jspが出力される。
+     - | view名として"welcome/home"を返す。ViewResolverの設定により、WEB-INF/views/welcome/home.jspが呼び出される。
 
+|
 
-次にview(jsp)を作成する。src/main/webapp/WEB-INF/views/hello.jspを作成して、以下のように記述する。
+ブランクプロジェクトから提供されているJSP(\ :file:`src/main/webapp/WEB-INF/views/welcome/home.jsp`\)は、
+以下のような実装となっている。
 
-.. code-block:: jsp
+ .. code-block:: jsp
+    :emphasize-lines: 12-13
 
     <!DOCTYPE html>
     <html>
     <head>
-    <title>Hello World!</title>
+    <meta charset="utf-8">
+    <title>Home</title>
+    <link rel="stylesheet"
+        href="${pageContext.request.contextPath}/resources/app/css/styles.css">
     </head>
     <body>
-        <h1>Hello World!</h1>
-        <p>
-            Today is
+        <div id="wrapper">
+            <h1>Hello world!</h1>
             <!-- (1) -->
-            <fmt:formatDate value="${now}" pattern="yyyy-MM-dd HH:mm:ss" />
-        </p>
+            <p>The time on the server is ${serverTime}.</p>
+        </div>
     </body>
     </html>
 
-
-.. tabularcolumns:: |p{0.10\linewidth}|p{0.90\linewidth}|
-.. list-table::
+ .. tabularcolumns:: |p{0.10\linewidth}|p{0.90\linewidth}|
+ .. list-table::
    :header-rows: 1
    :widths: 10 90
 
@@ -1041,67 +1647,71 @@ HelloControllerを以下のように編集する。
    * - 項番
      - 説明
    * - | (1)
-     - | Controllerから渡された”now”を表示する。ここでは ``<fmt:formatDate>`` タグを用いて日付フォーマットを行っている。
+     - | ControllerでModelに設定した”serverTime”を表示する。
+       | ここでは、XSS対策を行っていないが、ユーザの入力値を表示する場合は、\ ``f:h()``\ 関数を用いて、必ずXSS対策を行うこと。
+
+|
 
 パッケージプロジェクト名”todo”を右クリックして「Run As」->「Run on Server」
 
 
 
-.. figure:: ./images/image031.jpg
-   :width: 40%
+ .. figure:: ./images/image031.jpg
+   :width: 60%
 
-実行したいAPサーバー(ここではVMWare vFabric tc Server Developer Edition v2.8)を選び
+|
+
+実行したいAPサーバー(ここではVMWare vFabric tc Server Developer Edition v2.9)を選び
 「Next」をクリック
 
-.. figure:: ./images/image032.jpg
-   :width: 40%
+ .. figure:: ./images/image032.jpg
+   :width: 60%
+
+|
 
 todoが「Configured」に含まれていることを確認して「Finish」をクリックしてサーバーを起動する。
 
 
-.. figure:: ./images/image033.jpg
-   :width: 40%
+ .. figure:: ./images/image033.jpg
+   :width: 60%
 
 
-起動すると以下のようなログが出力される。”/”というパスに対して ``todo.app.hello.HelloController`` のhelloメソッドがマッピングされていることが分かる。
+起動すると以下のようなログが出力される。
+”/”というパスに対して ``todo.app.welcome.HomeController`` のhelloメソッドがマッピングされていることが分かる。
 
 
-.. code-block:: guess
-   :emphasize-lines: 3
+ .. code-block:: text
+   :emphasize-lines: 2
 
-    2013-06-14 14:26:54 [localhost-startStop-1] [WARN ] [org.dozer.config.GlobalSettings                 ] - Dozer configuration file not found: dozer.properties.  Using defaults for all Dozer global properties.
-    2013-06-14 14:26:54 [localhost-startStop-1] [INFO ] [o.springframework.web.servlet.DispatcherServlet ] - FrameworkServlet 'appServlet': initialization started
-    2013-06-14 14:26:54 [localhost-startStop-1] [INFO ] [o.s.w.s.m.m.a.RequestMappingHandlerMapping      ] - Mapped "{[/],methods=[],params=[],headers=[],consumes=[],produces=[],custom=[]}" onto public java.lang.String todo.app.hello.HelloController.hello(org.springframework.ui.Model)
-    2013-06-14 14:26:55 [localhost-startStop-1] [INFO ] [o.s.web.servlet.handler.SimpleUrlHandlerMapping ] - Mapped URL path [/resources/**] onto handler 'org.springframework.web.servlet.resource.ResourceHttpRequestHandler#0'
-    2013-06-14 14:26:55 [localhost-startStop-1] [INFO ] [o.springframework.web.servlet.DispatcherServlet ] - FrameworkServlet 'appServlet': initialization completed in 986 ms
+    date:2014-08-25 12:35:34    thread:localhost-startStop-1    X-Track:    level:INFO  logger:o.springframework.web.servlet.DispatcherServlet  message:FrameworkServlet 'appServlet': initialization started
+    date:2014-08-25 12:35:35    thread:localhost-startStop-1    X-Track:    level:INFO  logger:o.s.w.s.m.m.a.RequestMappingHandlerMapping       message:Mapped "{[/],methods=[GET || POST],params=[],headers=[],consumes=[],produces=[],custom=[]}" onto public java.lang.String todo.app.welcome.HomeController.home(java.util.Locale,org.springframework.ui.Model)
+    date:2014-08-25 12:35:36    thread:localhost-startStop-1    X-Track:    level:INFO  logger:o.s.web.servlet.handler.SimpleUrlHandlerMapping  message:Mapped URL path [/**] onto handler 'org.springframework.web.servlet.resource.DefaultServletHttpRequestHandler#0'
+    date:2014-08-25 12:35:36    thread:localhost-startStop-1    X-Track:    level:INFO  logger:o.s.web.servlet.handler.SimpleUrlHandlerMapping  message:Mapped URL path [/resources/**] onto handler 'org.springframework.web.servlet.resource.ResourceHttpRequestHandler#0'
+    date:2014-08-25 12:35:36    thread:localhost-startStop-1    X-Track:    level:INFO  logger:o.springframework.web.servlet.DispatcherServlet  message:FrameworkServlet 'appServlet': initialization completed in 1862 ms
 
 |
-
-    .. note:: 一行目のWARNログは無視しても良い。抑止したい場合はsrc/main/resourcesに空のdozer.propertiesを作成すること。
-
 
 ブラウザでhttp://localhost:8080/todo
 にアクセスすると、以下のように表示される。
 
 
-.. figure:: ./images/image034.png
-   :width: 40%
+ .. figure:: ./images/image034.png
+   :width: 60%
 
 
-コンソールを見ると ``TraceLoggingInterceptor`` によるTRACEログとControllerで実装したdebugログが出力されていることがわかる。
+コンソールを見ると ``TraceLoggingInterceptor`` によるTRACEログとControllerで実装したinfoログが出力されていることがわかる。
 
-.. code-block:: guess
+ .. code-block:: text
 
-    2013-06-14 15:40:59 [tomcat-http--3] [TRACE] [o.t.gfw.web.logging.TraceLoggingInterceptor     ] - [START CONTROLLER] HelloController.hello(Model)
-    2013-06-14 15:40:59 [tomcat-http--3] [DEBUG] [todo.app.hello.HelloController                  ] - hello Fri Jun 14 15:40:59 JST 2013
-    2013-06-14 15:40:59 [tomcat-http--3] [TRACE] [o.t.gfw.web.logging.TraceLoggingInterceptor     ] - [END CONTROLLER  ] HelloController.hello(Model)-> view=hello, model={now=Fri Jun 14 15:40:59 JST 2013}
-    2013-06-14 15:40:59 [tomcat-http--3] [TRACE] [o.t.gfw.web.logging.TraceLoggingInterceptor     ] - [HANDLING TIME   ] HelloController.hello(Model)-> 15,043,704 ns
 
-|
+    date:2014-08-25 12:35:41    thread:tomcat-http--3   X-Track:94bc5651406e4333a4b47b2276707b5c    level:TRACE logger:o.t.gfw.web.logging.TraceLoggingInterceptor      message:[START CONTROLLER] HomeController.home(Locale,Model)
+    date:2014-08-25 12:35:41    thread:tomcat-http--3   X-Track:94bc5651406e4333a4b47b2276707b5c    level:INFO  logger:todo.app.welcome.HomeController                  message:Welcome home! The client locale is en.
+    date:2014-08-25 12:35:41    thread:tomcat-http--3   X-Track:94bc5651406e4333a4b47b2276707b5c    level:TRACE logger:o.t.gfw.web.logging.TraceLoggingInterceptor      message:[END CONTROLLER  ] HomeController.home(Locale,Model)-> view=welcome/home, model={serverTime=August 25, 2014 12:35:41 PM UTC}
+    date:2014-08-25 12:35:41    thread:tomcat-http--3   X-Track:94bc5651406e4333a4b47b2276707b5c    level:TRACE logger:o.t.gfw.web.logging.TraceLoggingInterceptor      message:[HANDLING TIME   ] HomeController.home(Locale,Model)-> 41,090,439 ns
 
-    .. note:: ``TraceLoggingInterceptor`` はControllerの開始、終了でログを出力する。終了時にはViewとModelの情報および処理時間を出力する。
-
-ログの確認後は、HelloController, hello.jspの2ファイルを削除しても構わない。
+ .. note::
+ 
+    ``TraceLoggingInterceptor`` はControllerの開始、終了でログを出力する。終了時にはViewとModelの情報および処理時間が出力される。
 
 |
 
@@ -1113,6 +1723,7 @@ Todoアプリケーションの作成
 
  * Domain Object作成
  * Repository作成
+ * RepositoryImpl作成
  * Service作成
 
 * アプリケーション層
@@ -1121,7 +1732,12 @@ Todoアプリケーションの作成
  * Form作成
  * View作成
 
-なお、本節では、Todoの保存にDBを使用しない。DBを使用するRepositoryの作成は、\ :ref:`tutorial-todo_infra`\ で行う。
+|
+
+RepositoryImplの作成は、選択したインフラストラクチャ層の種類に応じて実装方法が異なる。
+
+本節では、データベースを使用せずMapを使ったインメモリ実装のRepositoryImplを作成する方法について説明を行っているので、
+データベースを使用する場合は、「:ref:`tutorial-todo_infra`」に記載されている内容で読み替えて、Todoアプリケーションを作成して頂きたい。
 
 |
 
@@ -1140,28 +1756,14 @@ Domain Objectの作成
 
 である。
 
-以下の、Domainオブジェクトを作成する。
-FQCNは、todo.domain.model.Todoとする。JavaBeanとして実装すればよい。
+| Domainオブジェクトを作成する。
+| FQCNは、\ ``todo.domain.model.Todo``\とする。
+
+ .. figure:: ./images/image057.png
+   :width: 60%
 
 
-.. tabularcolumns:: |p{0.25\linewidth}|p{0.75\linewidth}|
-.. list-table::
-   :widths: 25 75
-   :stub-columns: 1
-
-   * - Package:
-     - todo.domain.model
-   * - Name:
-     - Todo
-   * - Interfaces:
-     - java.io.Serializable
-
-
-.. figure:: ./images/image057.png
-   :width: 40%
-
-
-.. code-block:: java
+ .. code-block:: java
 
     package todo.domain.model;
 
@@ -1214,24 +1816,21 @@ FQCNは、todo.domain.model.Todoとする。JavaBeanとして実装すればよ�
     }
 
 
-.. figure:: ./images/image058.png
+ .. figure:: ./images/image058.png
    :width: 40%
 
+ .. note::
+    Getter/Setterは自動生成できる。フィールドを定義した後、右クリックで「Source」->「Generate Getter and Setters…」
+
+        .. figure:: ./images/image059.png
+           :width: 60%
+
+    serialVersionUID以外を選択して「OK」
+
+        .. figure:: ./images/image060.png
+           :width: 60%
+
 |
-
-    .. note::
-        Getter/Setterは自動生成できる。フィールドを定義した後、右クリックで「Source」->「Generate Getter and Setters…」
-
-
-            .. figure:: ./images/image059.png
-               :width: 40%
-
-
-        serialVersionUID以外を選択して「OK」
-
-
-            .. figure:: ./images/image060.png
-               :width: 40%
 
 Repositoryの作成
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
@@ -1243,10 +1842,12 @@ Repositoryの作成
 * TODOの1件更新
 * 完了済みTODO件数の取得
 
-である。これらの操作を定義するインタフェースTodoRepositoryを作成する。
-FQCNは、todo.domain.repository.todo.TodoRepositoryとする。
+である。
 
-.. code-block:: java
+| これらの操作を定義するインタフェースTodoRepositoryを作成する。
+| FQCNは、\ ``todo.domain.repository.todo.TodoRepository``\とする。
+
+ .. code-block:: java
 
     package todo.domain.repository.todo;
 
@@ -1266,20 +1867,32 @@ FQCNは、todo.domain.repository.todo.TodoRepositoryとする。
         long countByFinished(boolean finished);
     }
 
-
-.. figure:: ./images/image061.png
+ .. figure:: ./images/image061.png
    :width: 40%
 
-.. note::
-   ここで、TodoRepositoryの汎用性を上げるため、「完了済み件数の取得」ではなく、「完了状態がxである件数」を取得するメソッドとして定義した。
+ .. note::
+
+    ここでは、TodoRepositoryの汎用性を上げるため、「完了済み件数の取得する」メソッド(\ ``long countFinished()``\)ではなく、
+    「完了状態がxである件数を取得する」メソッド(\ ``long countByFinished(boolean)``\)として定義している。
+    
+    \ ``long countByFinished(boolean)``\の引数として\ ``true``\を渡すと「完了済みの件数」、
+    \ ``false``\を渡すと「未完了の件数」が取得できる仕様としている。
+
+|
 
 RepositoryImplの作成(インフラストラクチャ層)
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-| 説明を単純化するため、Repositotyの実装は、Mapを使ったインメモリ実装とする。
-| DBを使用したRepositoryの実装は、\ :ref:`tutorial-todo_infra`\ で説明する。
-| FQCNはtodo.domain.repository.todo.TodoRepositoryImplとする。クラスレベルに、\ ``@Repository``\ アノテーションをつけること。
 
-.. code-block:: java
+| 本節では、説明を単純化するため、Mapを使ったインメモリ実装のRepositotyImplを作成する。
+| データベースを使用する場合は、「:ref:`tutorial-todo_infra`」に記載されている内容で読み替えて、RepositoryImplを作成する。
+| FQCNは、\ ``todo.domain.repository.todo.TodoRepositoryImpl``\とする。
+
+ .. note::
+ 
+    RepositoryImplには、業務ロジックは含めず、Domainオブジェクトの保存先への出し入れ(CRUD操作)に終始することが実装ポイントである。
+
+ .. code-block:: java
+    :emphasize-lines: 11
 
     package todo.domain.repository.todo;
 
@@ -1328,31 +1941,28 @@ RepositoryImplの作成(インフラストラクチャ層)
         }
     }
 
+ .. figure:: ./images/image062.png
+   :width: 40%
 
-.. tabularcolumns:: |p{0.10\linewidth}|p{0.90\linewidth}|
-.. list-table::
+ .. tabularcolumns:: |p{0.10\linewidth}|p{0.80\linewidth}|
+ .. list-table::
    :header-rows: 1
-   :widths: 10 90
-
+   :widths: 10 80
 
    * - 項番
      - 説明
    * - | (1)
      - | Repositoryとして、component-scan対象とするため、クラスレベルに\ ``@Repository``\ アノテーションをつける。
 
+ .. note::
+ 
+    本チュートリアルでは、インフラストラクチャ層に属するクラス(RepositoryImpl)をドメイン層のパッケージ(\ ``todo.domain``\)に格納しているが、
+    完全に層別にパッケージを分けるのであれば、インフラストラクチャ層のクラスは、\ ``todo.infra``\以下に作成した方が良い。
 
-Repositoryは、業務ルールを含まないので、保存先(この場合は、Map)への出し入れに終始することに注意する。
+    ただし、通常のプロジェクトでは、インフラストラクチャ層が変更されることを前提としていない(そのような前提で進めるプロジェクトは、少ない)。
+    そこで、作業効率向上のために、ドメイン層のRepositotyインタフェースと同じ階層に、RepositoryImplを作成しても良い。
 
-
-.. figure:: ./images/image062.png
-   :width: 40%
-
-.. note::
-
-  完全に層別パッケージを分けるのであれば、インフラストラクチャ層のクラスは、todo.infrastructure以下に作成した方が良い。
-
-  ただし、通常のプロジェクトでは、インフラストラクチャ層が変更されることを前提としていない(そのような前提で進めるプロジェクトは、少ない)。
-  そこで、作業効率向上のために、ドメイン層のrepositotyと同じ階層に、RepositoryImplを作成しても良い。
+|
 
 Serviceの作成
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
@@ -1363,10 +1973,12 @@ Serviceの作成
 * Todoの完了
 * Todoの削除
 
-である。まずは、TodoServiceインタフェースを作成して、これらを定義する。
-FQCNは、todo.domain.serivce.todo.TodoServiceとする。
+である。
 
-.. code-block:: java
+| まずは、TodoServiceインタフェースを作成して、これらの処理を行うメソッドを定義する。
+| FQCNは、\ ``todo.domain.serivce.todo.TodoService``\とする。
+
+ .. code-block:: java
 
     package todo.domain.service.todo;
 
@@ -1384,6 +1996,9 @@ FQCNは、todo.domain.serivce.todo.TodoServiceとする。
         void delete(String todoId);
     }
 
+ .. figure:: ./images/image063.png
+   :width: 40%
+
 必要な処理と、実装するメソッドの対応は、以下の通りである。
 
 * Todoの全件取得→findAllメソッド
@@ -1392,13 +2007,10 @@ FQCNは、todo.domain.serivce.todo.TodoServiceとする。
 * Todoの削除→deleteメソッド
 
 
-.. figure:: ./images/image063.png
-   :width: 40%
+実装クラスのFQCNは、\ ``todo.domain.service.TodoServiceImpl``\とする。
 
-
-実装クラスのFQCNを、todo.domain.service.TodoServiceImplとする。
-
-.. code-block:: java
+ .. code-block:: java
+    :emphasize-lines: 19, 20, 25-26, 28-29, 32-33, 37-38, 44, 57-58, 61-62
 
     package todo.domain.service.todo;
 
@@ -1409,7 +2021,7 @@ FQCNは、todo.domain.serivce.todo.TodoServiceとする。
     import javax.inject.Inject;
 
     import org.springframework.stereotype.Service;
-    //import org.springframework.transaction.annotation.Transactional;
+    import org.springframework.transaction.annotation.Transactional;
     import org.terasoluna.gfw.common.exception.BusinessException;
     import org.terasoluna.gfw.common.exception.ResourceNotFoundException;
     import org.terasoluna.gfw.common.message.ResultMessage;
@@ -1419,12 +2031,13 @@ FQCNは、todo.domain.serivce.todo.TodoServiceとする。
     import todo.domain.repository.todo.TodoRepository;
 
     @Service// (1)
-    // @Transactional // (2)
+    @Transactional // (2)
     public class TodoServiceImpl implements TodoService {
-        @Inject// (3)
-        protected TodoRepository todoRepository;
 
         private static final long MAX_UNFINISHED_COUNT = 5;
+
+        @Inject// (3)
+        TodoRepository todoRepository;
 
         // (4)
         public Todo findOne(String todoId) {
@@ -1442,6 +2055,7 @@ FQCNは、todo.domain.serivce.todo.TodoServiceとする。
         }
 
         @Override
+        @Transactional(readOnly = true) // (7)
         public Collection<Todo> findAll() {
             return todoRepository.findAll();
         }
@@ -1454,11 +2068,11 @@ FQCNは、todo.domain.serivce.todo.TodoServiceとする。
                 messages.add(ResultMessage
                         .fromText("[E001] The count of un-finished Todo must not be over "
                                 + MAX_UNFINISHED_COUNT + "."));
-                // (7)
+                // (8)
                 throw new BusinessException(messages);
             }
 
-            // (8)
+            // (9)
             String todoId = UUID.randomUUID().toString();
             Date createdAt = new Date();
 
@@ -1494,10 +2108,10 @@ FQCNは、todo.domain.serivce.todo.TodoServiceとする。
     }
 
 
-.. tabularcolumns:: |p{0.10\linewidth}|p{0.90\linewidth}|
-.. list-table::
+ .. tabularcolumns:: |p{0.10\linewidth}|p{0.80\linewidth}|
+ .. list-table::
    :header-rows: 1
-   :widths: 10 90
+   :widths: 10 80
 
 
    * - 項番
@@ -1505,8 +2119,11 @@ FQCNは、todo.domain.serivce.todo.TodoServiceとする。
    * - | (1)
      - | Serviceとしてcomponent-scanの対象とするため、クラスレベルに\ ``@Service``\ アノテーションをつける。
    * - | (2)
-     - | 今回の実装では、DBを使用しないため、トランザクション管理は不要であるが、DBを使用する場合は、クラスレベルに\ ``@Transactional``\ アノテーションをつけること。
-       | 詳しくは、\ :ref:`tutorial-todo_infra`\ で説明する。
+     - | クラスレベルに、\ ``@Transactional``\ アノテーションをつけることで、公開メソッドをすべてトランザクション管理する。
+       | アノテーションを付与することで、メソッド開始時にトランザクションを開始、メソッド正常終了時にトランザクションをコミットが行われる。
+       | また、途中で非検査例外が発生した場合は、トランザクションをロールバックされる。
+       |
+       | データベースを使用しない場合は、\ ``@Transactional``\ アノテーションは不要である。
    * - | (3)
      - | \ ``@Inject``\ アノテーションで、TodoRepositoryの実装をインジェクションする。
    * - | (4)
@@ -1517,22 +2134,34 @@ FQCNは、todo.domain.serivce.todo.TodoServiceとする。
    * - | (6)
      - | 対象のデータが存在しない場合、共通ライブラリで用意されているorg.terasoluna.gfw.common.exception.ResourceNotFoundExceptionをスローする。
    * - | (7)
-     - | 業務エラーが発生した場合、共通ライブラリで用意されているorg.terasoluna.gfw.common.exception.BusinessExceptionをスローする。
+     - | 参照のみ行う処理に関しては、readOnly=trueをつける。
+       | O/R Mapperによっては、この設定により、参照時のトランザクション制御の最適化が行われる(JPAを使用する場合、効果はない)。
+       |
+       | データベースを使用しない場合は、\ ``@Transactional``\ アノテーションは不要である。
    * - | (8)
-     - | 一意性のある値を生成するために、UUIDを使用している。DBのシーケンスを用いてもよい。
+     - | 業務エラーが発生した場合、共通ライブラリで用意されているorg.terasoluna.gfw.common.exception.BusinessExceptionをスローする。
+   * - | (9)
+     - | 一意性のある値を生成するために、UUIDを使用している。データベースのシーケンスを用いてもよい。
 
-.. note::
+ .. note::
 
-  本節では、説明を単純化するため、エラーメッセージをハードコードしているが、メンテナンスの観点で本来は好ましくない。
-  通常、メッセージは、プロパティファイルに外部化することが推奨される。
-  プロパティファイルに外部化する方法は、\ :doc:`../ArchitectureInDetail/PropertyManagement`\ を参照されたい。
+    本節では、説明を単純化するため、エラーメッセージをハードコードしているが、メンテナンスの観点で本来は好ましくない。
+    通常、メッセージは、プロパティファイルに外部化することが推奨される。
+    プロパティファイルに外部化する方法は、\ :doc:`../ArchitectureInDetail/PropertyManagement`\ を参照されたい。
 
-.. figure:: ./images/image064.png
+ .. figure:: ./images/image064.png
    :width: 40%
+
+|
 
 ServiceのJUnit作成
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-TBD
+
+ .. todo:: **TBD**
+ 
+    ServiceのUnitテストの方法については、次版以降で記載する予定である。
+
+|
 
 アプリケーション層の作成
 --------------------------------------------------------------------------------
@@ -1541,10 +2170,12 @@ TBD
 
 Controllerの作成
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-| まずは、todo管理業務にかかわる画面遷移を、制御するTodoControllerを作成する。
-| FQCNはtodo.app.todo.TodoControllerとする。上位パッケージがドメイン層とは異なるので注意すること。
+| まずは、todo管理業務にかかわる画面遷移を、制御するControllerを作成する。
+| FQCNは、\ ``todo.app.todo.TodoController``\とする。
+| **上位パッケージがドメイン層とは異なるので注意すること。**
 
-.. code-block:: java
+ .. code-block:: java
+    :emphasize-lines: 6, 7
 
     package todo.app.todo;
 
@@ -1558,10 +2189,10 @@ Controllerの作成
     }
 
 
-.. tabularcolumns:: |p{0.10\linewidth}|p{0.90\linewidth}|
-.. list-table::
+ .. tabularcolumns:: |p{0.10\linewidth}|p{0.80\linewidth}|
+ .. list-table::
    :header-rows: 1
-   :widths: 10 90
+   :widths: 10 80
 
 
    * - 項番
@@ -1572,12 +2203,13 @@ Controllerの作成
      - | TodoControllerが扱う画面遷移のパスを、すべて<contextPath>/todo配下にするため、クラスレベルに@RequestMapping(“todo”)を設定する。
 
 
-.. figure:: ./images/image065.png
+ .. figure:: ./images/image065.png
    :width: 40%
 
+|
 
 Show all TODO
-""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 この画面では、
 
 * 新規作成フォームの表示
@@ -1586,10 +2218,11 @@ Show all TODO
 を行う。
 
 Formの作成
-''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
-Formには、タイトル情報があればよいので、次のようなJavaBeanになる。FQCNは、todo.app.todo.TodoFormとする。
+""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
+| Formには、タイトル情報があればよいので、次のようなJavaBeanになる。
+| FQCNは、\ ``todo.app.todo.TodoForm``\とする。
 
-.. code-block:: java
+ .. code-block:: java
 
     package todo.app.todo;
 
@@ -1610,16 +2243,15 @@ Formには、タイトル情報があればよいので、次のようなJavaBea
 
     }
 
-
-.. figure:: ./images/image066.png
+ .. figure:: ./images/image066.png
    :width: 40%
 
 Controllerの実装
-''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
+""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 TodoControllerに、setUpFormメソッドと、listメソッドを実装する。
 
-.. code-block:: java
-   :emphasize-lines: 18-32
+ .. code-block:: java
+    :emphasize-lines: 18-19, 21-22, 27, 30, 31
 
     package todo.app.todo;
 
@@ -1639,7 +2271,7 @@ TodoControllerに、setUpFormメソッドと、listメソッドを実装する�
     @RequestMapping("todo")
     public class TodoController {
         @Inject // (3)
-        protected TodoService todoService;
+        TodoService todoService;
 
         @ModelAttribute // (4)
         public TodoForm setUpForm() {
@@ -1650,17 +2282,15 @@ TodoControllerに、setUpFormメソッドと、listメソッドを実装する�
         @RequestMapping(value = "list") // (5)
         public String list(Model model) {
             Collection<Todo> todos = todoService.findAll();
-            model.addAttribute("todos", todos); // (6
+            model.addAttribute("todos", todos); // (6)
             return "todo/list"; // (7)
         }
     }
 
-
-.. tabularcolumns:: |p{0.10\linewidth}|p{0.90\linewidth}|
-.. list-table::
+ .. tabularcolumns:: |p{0.10\linewidth}|p{0.80\linewidth}|
+ .. list-table::
    :header-rows: 1
-   :widths: 10 90
-
+   :widths: 10 80
 
    * - 項番
      - 説明
@@ -1675,14 +2305,16 @@ TodoControllerに、setUpFormメソッドと、listメソッドを実装する�
    * - | (6)
      - | ModelにTodoのリストを追加して、Viewに渡す。
    * - | (7)
-     - | View名として”todo/list”を返すと、spring-mvc.xmlに定義したInternalResourceViewResolverによって、WEB-INF/views/todo/list.jspがレンダリングされることになる。
+     - | View名として”todo/list”を返すと、spring-mvc.xmlに定義したInternalResourceViewResolverによって、\ :file:`WEB-INF/views/todo/list.jsp`\がレンダリングされることになる。
 
 JSPの作成
-''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
-WEB-INF/views/todo/list.jspで、Controllerから渡されたModelを表示する。
+""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
+\ :file:`src/main/webapp/WEB-INF/views/todo/list.jsp`\を作成し、Controllerから渡されたModelを表示する。
+
 まずは、”Finish”,”Delete”ボタン以外を作成する。
 
-.. code-block:: jsp
+ .. code-block:: jsp
+    :emphasize-lines: 15, 19-20, 27-28, 30, 32-33
 
     <!DOCTYPE html>
     <html>
@@ -1729,12 +2361,10 @@ WEB-INF/views/todo/list.jspで、Controllerから渡されたModelを表示す�
     </body>
     </html>
 
-
-.. tabularcolumns:: |p{0.10\linewidth}|p{0.90\linewidth}|
-.. list-table::
+ .. tabularcolumns:: |p{0.10\linewidth}|p{0.80\linewidth}|
+ .. list-table::
    :header-rows: 1
-   :widths: 10 90
-
+   :widths: 10 80
 
    * - 項番
      - 説明
@@ -1755,20 +2385,20 @@ WEB-INF/views/todo/list.jspで、Controllerから渡されたModelを表示す�
 | ブラウザで”http://localhost:8080/todo/todo/list”にアクセスすると、以下のような画面が表示される。
 
 
-.. figure:: ./images/image067.png
+ .. figure:: ./images/image067.png
    :width: 40%
 
 
 Create TODO
-""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 次に、一覧表示画面から”Create TODO”ボタンを押した後の、新規作成処理を実装する。
 
 Controllerの修正
-''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
-TodoControllerに、createメソッドを追加する。
+""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
+\ ``TodoController``\に、createメソッドを追加する。
 
-.. code-block:: java
-   :emphasize-lines: 8,29-31,46-70
+ .. code-block:: java
+    :emphasize-lines: 8,29-31,46-70
 
     package todo.app.todo;
 
@@ -1796,11 +2426,11 @@ TodoControllerに、createメソッドを追加する。
     @RequestMapping("todo")
     public class TodoController {
         @Inject
-        protected TodoService todoService;
+        TodoService todoService;
 
         // (8)
         @Inject
-        protected Mapper beanMapper;
+        Mapper beanMapper;
 
         @ModelAttribute
         public TodoForm setUpForm() {
@@ -1843,10 +2473,10 @@ TodoControllerに、createメソッドを追加する。
 
     }
 
-.. tabularcolumns:: |p{0.10\linewidth}|p{0.90\linewidth}|
-.. list-table::
+ .. tabularcolumns:: |p{0.10\linewidth}|p{0.80\linewidth}|
+ .. list-table::
    :header-rows: 1
-   :widths: 10 90
+   :widths: 10 80
 
 
    * - 項番
@@ -1872,11 +2502,11 @@ TodoControllerに、createメソッドを追加する。
 
 
 Formの修正
-''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
+""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 入力チェックのルールを定義するため、Formオブジェクトにアノテーションを追加する。
 
-.. code-block:: java
-   :emphasize-lines: 3-4,8-9
+ .. code-block:: java
+    :emphasize-lines: 3-4,8-9
 
     package todo.app.todo;
 
@@ -1899,10 +2529,10 @@ Formの修正
     }
 
 
-.. tabularcolumns:: |p{0.10\linewidth}|p{0.90\linewidth}|
-.. list-table::
+ .. tabularcolumns:: |p{0.10\linewidth}|p{0.80\linewidth}|
+ .. list-table::
    :header-rows: 1
-   :widths: 10 90
+   :widths: 10 80
 
 
    * - 項番
@@ -1913,11 +2543,11 @@ Formの修正
      - | 1文字以上30文字以下であるので、\ ``@Size``\ アノテーションで、範囲を指定する。
 
 JSPの修正
-''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
+""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 結果メッセージ表示用のタグを追加する。
 
-.. code-block:: jsp
-   :emphasize-lines: 16,22
+ .. code-block:: jsp
+    :emphasize-lines: 15-16,22
 
     <!DOCTYPE html>
     <html>
@@ -1965,10 +2595,10 @@ JSPの修正
     </html>
 
 
-.. tabularcolumns:: |p{0.10\linewidth}|p{0.90\linewidth}|
-.. list-table::
+ .. tabularcolumns:: |p{0.10\linewidth}|p{0.80\linewidth}|
+ .. list-table::
    :header-rows: 1
-   :widths: 10 90
+   :widths: 10 80
 
 
    * - 項番
@@ -1982,32 +2612,32 @@ JSPの修正
 フォームに適切な値を入力してsubmitすると、以下のように、成功メッセージが表示される。
 
 
-.. figure:: ./images/image068.png
+ .. figure:: ./images/image068.png
    :width: 40%
 
 
-.. figure:: ./images/image069.png
+ .. figure:: ./images/image069.png
    :width: 40%
 
 
 
 6件以上登録した場合は、業務エラーとなり、エラーメッセージが表示される。
 
-.. figure:: ./images/image070.png
+ .. figure:: ./images/image070.png
    :width: 40%
 
 
 入力フォームを、空文字にしてsubmitすると、以下のように、エラーメッセージが表示される。
 
 
-.. figure:: ./images/image071.png
+ .. figure:: ./images/image071.png
    :width: 40%
 
 メッセージ表示のカスタマイズ
-''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
+""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 <t:messagesPanel>の結果はデフォルトで、
 
-.. code-block:: html
+ .. code-block:: html
 
     <div class="alert alert-success"><ul><li>Created successfully!</li></ul></div>
 
@@ -2015,7 +2645,7 @@ JSPの修正
 と出力される。
 スタイルシート(list.jspの<style>タグ内)に、以下の修正を加えて、結果メッセージの見た目をカスタマイズする。
 
-.. code-block:: css
+ .. code-block:: css
 
     .alert {
         border: 1px solid;
@@ -2038,25 +2668,25 @@ JSPの修正
 
 
 
-.. figure:: ./images/image072.png
+ .. figure:: ./images/image072.png
    :width: 40%
 
 
 
-.. figure:: ./images/image073.png
+ .. figure:: ./images/image073.png
    :width: 40%
 
 
 また、<form:errors>タグのcssClass属性で、入力エラーメッセージのclassを指定できる。JSPを次のように修正し、
 
-.. code-block:: html
+ .. code-block:: html
 
     <form:errors path="todoTitle" cssClass="text-error" />
 
 
 スタイルシートに、以下を追加する。
 
-.. code-block:: css
+ .. code-block:: css
 
     .text-error {
         color: #c60f13;
@@ -2066,23 +2696,25 @@ JSPの修正
 入力エラーは、以下のように装飾される。
 
 
-.. figure:: ./images/image074.png
+ .. figure:: ./images/image074.png
    :width: 40%
 
+|
+
 Finish TODO
-""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 一覧表示画面に”Finish”ボタンを追加して、ボタンをsubmitすると、hiddenで対象のtodoIdが送られ、Todoを完了するように実装する。
 
 
 JSPの修正
-''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
+""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 
 完了用のformを追加する。
 
 
-.. code-block:: jsp
-   :emphasize-lines: 56-67
+ .. code-block:: jsp
+    :emphasize-lines: 56-67
 
     <!DOCTYPE html>
     <html>
@@ -2160,10 +2792,10 @@ JSPの修正
     </html>
 
 
-.. tabularcolumns:: |p{0.10\linewidth}|p{0.90\linewidth}|
-.. list-table::
+ .. tabularcolumns:: |p{0.10\linewidth}|p{0.80\linewidth}|
+ .. list-table::
    :header-rows: 1
-   :widths: 10 90
+   :widths: 10 80
 
 
    * - 項番
@@ -2174,13 +2806,13 @@ JSPの修正
      - | <form:hidden>タグでtodoIdを渡す。value属性に値を設定する場合も、 **必ずf:h()関数でHTMLエスケープすること。**
 
 Formの修正
-''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
+""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 完了用のフォームも、TodoFormを用いる。
 TodoFormに、todoIdプロパティを追加する必要があるが、そのままだと、新規作成用の入力チェックルールが適用されてしまう。
 一つのFormに、新規作成用と完了用で、別々のルールを指定するために、group属性を設定する。
 
-.. code-block:: java
-   :emphasize-lines: 8-9,11-12,15-16,19,23-29
+ .. code-block:: java
+    :emphasize-lines: 7-9,11-12,14-16,18-19,23-29
 
     package todo.app.todo;
 
@@ -2223,10 +2855,10 @@ TodoFormに、todoIdプロパティを追加する必要があるが、そのま
     }
 
 
-.. tabularcolumns:: |p{0.10\linewidth}|p{0.90\linewidth}|
-.. list-table::
+ .. tabularcolumns:: |p{0.10\linewidth}|p{0.80\linewidth}|
+ .. list-table::
    :header-rows: 1
-   :widths: 10 90
+   :widths: 10 80
 
 
    * - 項番
@@ -2240,13 +2872,13 @@ TodoFormに、todoIdプロパティを追加する必要があるが、そのま
      - | 新規作成用のルールは、完了処理には不要であるので、\ ``@NotNull``\ アノテーション、\ ``@Size``\ アノテーション、それぞれのgroup属性にTodoCreate.classを設定する。
 
 Controllerの修正
-''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
+""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 
 完了処理をTodoControllerに追加する。
 グループ化したバリデーションを実行するために、\ **@Valid アノテーションの代わりに、@Validated アノテーションを使用すること**\ に注意する。
 
-.. code-block:: java
-   :emphasize-lines: 6,12,50,72-94
+ .. code-block:: java
+    :emphasize-lines: 6,12,50,72-94
 
     package todo.app.todo;
 
@@ -2277,10 +2909,10 @@ Controllerの修正
     @RequestMapping("todo")
     public class TodoController {
         @Inject
-        protected TodoService todoService;
+        TodoService todoService;
 
         @Inject
-        protected Mapper beanMapper;
+        Mapper beanMapper;
 
         @ModelAttribute
         public TodoForm setUpForm() {
@@ -2345,10 +2977,10 @@ Controllerの修正
     }
 
 
-.. tabularcolumns:: |p{0.10\linewidth}|p{0.90\linewidth}|
-.. list-table::
+ .. tabularcolumns:: |p{0.10\linewidth}|p{0.80\linewidth}|
+ .. list-table::
    :header-rows: 1
-   :widths: 10 90
+   :widths: 10 80
 
 
    * - 項番
@@ -2368,36 +3000,38 @@ Controllerの修正
    * - | (21)
      - | 正常に作成が完了したので、結果メッセージをflashスコープに追加して、一覧画面でリダイレクトする。
 
-.. note::
+ .. note::
 
-  Create用、Finish用に、別々のFormを作成しても良い。その場合は、必要なパラメータだけが、Formのプロパティになる。
-  ただし、クラス数が増え、プロパティも重複することが多いので、仕様変更が発生した場合に、修正コストが高くなる。
-  また、同一のController内で、複数のFormオブジェクトを、 ``@ModelAttribute`` メソッドによって初期化すると、
-  毎回すべてのFormが初期化されてしまうので、不要なインスタンスが生成されてしまう。そのため、
-  基本的に、一つのControllerで利用するFormは、できるだけ集約し、グループ化したバリデーションの設定を行うことを推奨する。
+    Create用、Finish用に、別々のFormを作成しても良い。その場合は、必要なパラメータだけが、Formのプロパティになる。
+    ただし、クラス数が増え、プロパティも重複することが多いので、仕様変更が発生した場合に、修正コストが高くなる。
+    また、同一のController内で、複数のFormオブジェクトを、 ``@ModelAttribute`` メソッドによって初期化すると、
+    毎回すべてのFormが初期化されてしまうので、不要なインスタンスが生成されてしまう。そのため、
+    基本的に、一つのControllerで利用するFormは、できるだけ集約し、グループ化したバリデーションの設定を行うことを推奨する。
 
 
 Todoを新規作成した後に、FinishボタンをSubmitすると、以下のように打ち消し線が入り、完了したことがわかる。
 
 
-.. figure:: ./images/image075.png
+ .. figure:: ./images/image075.png
    :width: 40%
 
 
-.. figure:: ./images/image076.png
+ .. figure:: ./images/image076.png
    :width: 40%
+
+|
 
 Delete TODO
-""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 一覧表示画面に"Delete"ボタンを追加して、ボタンをsubmitすると、hiddenで対象のtodoIdが送られ、Todoを完了するように実装する。
 
 JSPの修正
-''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
+""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 削除用のformを追加する。
 
 
-.. code-block:: jsp
-   :emphasize-lines: 68-77
+ .. code-block:: jsp
+    :emphasize-lines: 68-77
 
     <!DOCTYPE html>
     <html>
@@ -2483,10 +3117,10 @@ JSPの修正
     </body>
     </html>
 
-.. tabularcolumns:: |p{0.10\linewidth}|p{0.90\linewidth}|
-.. list-table::
+ .. tabularcolumns:: |p{0.10\linewidth}|p{0.80\linewidth}|
+ .. list-table::
    :header-rows: 1
-   :widths: 10 90
+   :widths: 10 80
 
 
    * - 項番
@@ -2497,13 +3131,13 @@ JSPの修正
      - | <form:hidden>タグで、todoIdを渡す。value属性に値を設定する場合も、\ **必ずf:h()関数でHTMLエスケープすること。**\
 
 Formの修正
-''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
+""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 
 Delete用のグループを、TodoFormに追加する。ルールは、Finish用と同じである。
 
 
-.. code-block:: java
-   :emphasize-lines: 14-15,18
+ .. code-block:: java
+    :emphasize-lines: 13-15,17-18
 
     package todo.app.todo;
 
@@ -2547,10 +3181,10 @@ Delete用のグループを、TodoFormに追加する。ルールは、Finish用
 
     }
 
-.. tabularcolumns:: |p{0.10\linewidth}|p{0.90\linewidth}|
-.. list-table::
+ .. tabularcolumns:: |p{0.10\linewidth}|p{0.80\linewidth}|
+ .. list-table::
    :header-rows: 1
-   :widths: 10 90
+   :widths: 10 80
 
 
    * - 項番
@@ -2561,12 +3195,12 @@ Delete用のグループを、TodoFormに追加する。ルールは、Finish用
      - | todoIdプロパティに対して、TodoDeleteグループのバリデーションを行うように設定する。
 
 Controllerの修正
-''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
+""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 
 削除処理を、TodoControllerに追加する。完了処理とほぼ同じである。
 
-.. code-block:: java
-   :emphasize-lines: 94-114
+ .. code-block:: java
+    :emphasize-lines: 94-114
 
     package todo.app.todo;
 
@@ -2598,10 +3232,10 @@ Controllerの修正
     @RequestMapping("todo")
     public class TodoController {
         @Inject
-        protected TodoService todoService;
+        TodoService todoService;
 
         @Inject
-        protected Mapper beanMapper;
+        Mapper beanMapper;
 
         @ModelAttribute
         public TodoForm setUpForm() {
@@ -2661,7 +3295,7 @@ Controllerの修正
             return "redirect:/todo/list";
         }
 
-        @RequestMapping(value = "delete", method = RequestMethod.POST)
+        @RequestMapping(value = "delete", method = RequestMethod.POST) // (22)
         public String delete(
                 @Validated({ Default.class, TodoDelete.class }) TodoForm form,
                 BindingResult bindingResult, Model model,
@@ -2685,553 +3319,105 @@ Controllerの修正
 
     }
 
+ .. tabularcolumns:: |p{0.10\linewidth}|p{0.80\linewidth}|
+ .. list-table::
+   :header-rows: 1
+   :widths: 10 80
 
-Todoに対して、”Delete”ボタンをsubmitすると、以下のように、対象のTODOが削除される。
+
+   * - 項番
+     - 説明
+   * - | (22)
+     - | Todoに対して、”Delete”ボタンをsubmitすると、以下のように、対象のTODOが削除される。
 
 
-.. figure:: ./images/image077.png
+ .. figure:: ./images/image077.png
    :width: 40%
 
 
-.. figure:: ./images/image078.png
+ .. figure:: ./images/image078.png
    :width: 40%
 
 |
 
 .. _tutorial-todo_infra:
 
-インフラストラクチャ層の変更
+データベースアクセスを伴うインフラストラクチャ層の作成
 ================================================================================
 
-| 前節までは、インフラストラクチャ層はメモリによる実装であった。
-| 本節では、DBに永続化する実装を行う。DBアクセスするためにO/R Mapperを使用するが、
-| ここで、Spring Data JPAによる方法と、TERASOLUNA DAOによる方法の2通りについて、説明する。
+本節では、Domainオブジェクトをデータベースに永続化するためのインフラストラクチャ層の作成方法について、説明する。
+
+本チュートリアルでは、以下の2つのO/R Mapperを使用したインフラストラクチャ層の作成について、説明する。
+
+* Spring Data JPA
+* TERASOLUNA DAO(MyBatis2)
 
 
 共通設定
 --------------------------------------------------------------------------------
 
 | まずは、Spring Data JPA版、TERASOLUNA Dao版の両方に共通して適用する設定を行う。
-| 今回は、DBセットアップの手間を省くため、H2Databaseを使用する。
+| 今回は、データベースのセットアップの手間を省くため、H2 Databaseを使用する。
 
-
-pom.xmlの修正
+todo-infra.propertiesの修正
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-pom.xmlに、H2Databaseを使用するためのdependencyを定義する。
+APサーバ起動時にH2 Database上にテーブルが作成されるようにするために、
+\ :file:`src/main/resources/META-INF/spring/todo-infra.properties`\の設定を変更する。
 
-
-.. code-block:: xml
-
-    <dependency>
-        <groupId>com.h2database</groupId>
-        <artifactId>h2</artifactId>
-        <version>1.3.172</version>
-        <scope>runtime</scope>
-    </dependency>
-
-.. warning::
-
-  この設定は\ **サンプルアプリケーションを簡単に試すためのもの**\ であり、実際の開発で使用されることを想定していない。
-  実際の開発では、H2Databaseのdependencyは削除すること。
-  
-  また、実際の開発では、アプリケーションサーバから提供されているデータソースを使用する事が一般的である。
-  アプリケーションサーバから提供されているデータソースする場合は、JDBCドライバの\ ``<scope>``\ は\ ``provided``\ にすべきである。
-
-
-データソースの定義
-^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-
-todo-infra.xmlの修正
-""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
-
-データソースの定義は、インフラストラクチャ層に関わるので、todo-infra.xmlに定義すべきであるが、
-データベースのユーザー名や、パスワードなど、環境に依存する情報を含む定義は、別のBean定義ファイル(todo-env.xml)に定義することを推奨する。
-
-ここでは、todo-env.xmlのインポートのみ行う。
-
- .. code-block:: xml
-
-     <?xml version="1.0" encoding="UTF-8"?>
-     <beans xmlns="http://www.springframework.org/schema/beans"
-         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-         xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd">
-
-         <import resource="classpath:/META-INF/spring/todo-env.xml" />
-     </beans>
-
-
- .. note::
-
-    xxx-env.xmlを別ファイルにし、Mavenなどのビルドツールでこのファイルだけ差し替えることにより、環境ごと(開発環境、テスト環境など)で異なる設定値を管理できる。
-    また、特定の環境だけに対して、データソースをJNDIから取得するような設定ファイルの管理もできる。
-
-
-todo-env.xmlの作成
-""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
-| src/main/resources/META-INF/spring/todo-env.xmlを作成し、以下のように設定する。
-| このファイルに対して、環境に依存する設定(ここでは、DataSource)を含む定義をする。
-
-.. code-block:: xml
-
-    <?xml version="1.0" encoding="UTF-8"?>
-    <beans xmlns="http://www.springframework.org/schema/beans"
-        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-        xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd">
-
-        <bean id="dataSource" class="org.apache.commons.dbcp.BasicDataSource"
-            destroy-method="close">
-            <property name="driverClassName" value="${database.driverClassName}" />
-            <property name="url" value="${database.url}" />
-            <property name="username" value="${database.username}" />
-            <property name="password" value="${database.password}" />
-            <property name="defaultAutoCommit" value="false" />
-            <property name="maxActive" value="${cp.maxActive}" />
-            <property name="maxIdle" value="${cp.maxIdle}" />
-            <property name="minIdle" value="${cp.minIdle}" />
-            <property name="maxWait" value="${cp.maxWait}" />
-        </bean>
-    </beans>
-
-
-メンテナンス性向上のため、プロパティ値は外部化し、プロパティファイルに定義する。
-\
-
- .. note::
-
-    環境(Application Server)によっては、DataSourceをJNDIで取得したほうがよい。
-    その場合は<jee:jndi-lookup id="dataSource" jndi-name="JNDI名" />という定義を行う。
-    ビルド時に開発環境ではcommons-dbcpを使用し、テスト環境ではJNDIを使用する、というような切り替えができるように、envファイルを作成している。
-
-
-todo-infra.properties
-""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
-src/main/resources/META-INF/spring/todo-infra.propertiesに、インフラストラクチャ層に関するプロパティ値を定義する。
-
-.. code-block:: properties
+ .. code-block:: properties
+    :emphasize-lines: 2-3
 
     database=H2
-    ## (1)
+    # (1)
     database.url=jdbc:h2:mem:todo;DB_CLOSE_DELAY=-1;INIT=create table if not exists todo(todo_id varchar(36) primary key, todo_title varchar(30), finished boolean, created_at timestamp)
     database.username=sa
     database.password=
     database.driverClassName=org.h2.Driver
     # connection pool
-    ## (2)
     cp.maxActive=96
     cp.maxIdle=16
     cp.minIdle=0
     cp.maxWait=60000
 
-
-.. tabularcolumns:: |p{0.10\linewidth}|p{0.90\linewidth}|
-.. list-table::
+ .. tabularcolumns:: |p{0.10\linewidth}|p{0.80\linewidth}|
+ .. list-table::
    :header-rows: 1
-   :widths: 10 90
+   :widths: 10 80
 
 
    * - 項番
      - 説明
    * - | (1)
-     - | データベースに関する設定を行う。H2のURL,ドライバを設定する。
-       | ここでは、説明を単純化するため、インメモリDBを使用して、APサーバーが起動するたびに初期化DDLが実行されるように設定している。
-   * - | (2)
-     - | コネクションプールに関する設定。ここでは、サンプルの値を設定している。実際の値は、サーバーの性能によって異なることに注意する。
+     - | 接続URLのINITパラメータに、テーブルを作成するDDL文を指定する。
+     
+ .. note::
+ 
+    INITパラメータに設定しているDDL文は以下の通り。
+    
+     .. code-block:: sql
 
+        create table if not exists todo(
+            todo_id varchar(36) primary key,
+            todo_title varchar(30),
+            finished boolean,
+            created_at timestamp
+        )
 
-todo-domain.xmlの修正
-^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-\ ``@Transactional``\ アノテーションによるトランザクション管理を有効にするために、<tx:annotation-driven>タグを設定する。
+|
 
-.. code-block:: xml
-   :emphasize-lines: 5,7,11
-
-    <?xml version="1.0" encoding="UTF-8"?>
-    <beans xmlns="http://www.springframework.org/schema/beans"
-        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-        xmlns:context="http://www.springframework.org/schema/context"
-        xmlns:tx="http://www.springframework.org/schema/tx"
-        xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd
-            http://www.springframework.org/schema/tx http://www.springframework.org/schema/tx/spring-tx.xsd
-            http://www.springframework.org/schema/context http://www.springframework.org/schema/context/spring-context.xsd">
-        <context:component-scan base-package="todo.domain" />
-        <import resource="classpath:META-INF/spring/todo-infra.xml"/>
-        <tx:annotation-driven/>
-    </beans>
-
-
-TodoServiceImplの修正
-^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-
-.. code-block:: java
-   :emphasize-lines: 10,20,40
-
-    package todo.domain.service.todo;
-
-    import java.util.Collection;
-    import java.util.Date;
-    import java.util.UUID;
-
-    import javax.inject.Inject;
-
-    import org.springframework.stereotype.Service;
-    import org.springframework.transaction.annotation.Transactional;
-    import org.terasoluna.gfw.common.exception.BusinessException;
-    import org.terasoluna.gfw.common.exception.ResourceNotFoundException;
-    import org.terasoluna.gfw.common.message.ResultMessage;
-    import org.terasoluna.gfw.common.message.ResultMessages;
-
-    import todo.domain.model.Todo;
-    import todo.domain.repository.todo.TodoRepository;
-
-    @Service
-    @Transactional // (9)
-    public class TodoServiceImpl implements TodoService {
-        @Inject
-        protected TodoRepository todoRepository;
-
-        private static final long MAX_UNFINISHED_COUNT = 5;
-
-        public Todo findOne(String todoId) {
-            Todo todo = todoRepository.findOne(todoId);
-            if (todo == null) {
-                ResultMessages messages = ResultMessages.error();
-                messages.add(ResultMessage
-                        .fromText("[E404] The requested Todo is not found. (id="
-                                + todoId + ")"));
-                throw new ResourceNotFoundException(messages);
-            }
-            return todo;
-        }
-
-        @Override
-        @Transactional(readOnly = true) // (10)
-        public Collection<Todo> findAll() {
-            return todoRepository.findAll();
-        }
-
-        @Override
-        public Todo create(Todo todo) {
-            long unfinishedCount = todoRepository.countByFinished(false);
-            if (unfinishedCount >= MAX_UNFINISHED_COUNT) {
-                ResultMessages messages = ResultMessages.error();
-                messages.add(ResultMessage
-                        .fromText("[E001] The count of un-finished Todo must not be over "
-                                + MAX_UNFINISHED_COUNT + "."));
-
-                throw new BusinessException(messages);
-            }
-
-            String todoId = UUID.randomUUID().toString();
-            Date createdAt = new Date();
-
-            todo.setTodoId(todoId);
-            todo.setCreatedAt(createdAt);
-            todo.setFinished(false);
-
-            todoRepository.save(todo);
-
-            return todo;
-        }
-
-        @Override
-        public Todo finish(String todoId) {
-            Todo todo = findOne(todoId);
-            if (todo.isFinished()) {
-                ResultMessages messages = ResultMessages.error();
-                messages.add(ResultMessage
-                        .fromText("[E002] The requested Todo is already finished. (id="
-                                + todoId + ")"));
-                throw new BusinessException(messages);
-            }
-            todo.setFinished(true);
-            todoRepository.save(todo);
-            return todo;
-        }
-
-        @Override
-        public void delete(String todoId) {
-            Todo todo = findOne(todoId);
-            todoRepository.delete(todo);
-        }
-    }
-
-.. tabularcolumns:: |p{0.10\linewidth}|p{0.90\linewidth}|
-.. list-table::
-   :header-rows: 1
-   :widths: 10 90
-
-
-   * - 項番
-     - 説明
-   * - | (9)
-     - | クラスレベルに、\ ``@Transactional``\ アノテーションをつけることで、公開メソッドをすべてトランザクション管理する。
-       | これにより、メソッド開始時にトランザクションを開始し、メソッド正常終了時に、トランザクションをコミットする。
-       | 途中で非検査例外が発生した場合は、トランザクションをロールバックする。
-   * - | (10)
-     - | 参照のみ行う処理に関しては、readOnly=trueをつける。
-       | O/R Mapperによっては、この設定により、参照時に最適化が行われる(JPAを使用する場合、効果はない)。
-
-
-Spring Data JPAを使用する
+Spring Data JPAを使用したインフラストラクチャ層の作成
 --------------------------------------------------------------------------------
 
-本節では、インフラストラクチャ層において、 `Spring Data JPA <http://www.springsource.org/spring-data/jpa>`_ を使用する場合の設定方法について、説明する。
+本節では、インフラストラクチャ層において、 `Spring Data JPA <http://www.springsource.org/spring-data/jpa>`_ を使用する方法について、説明する。
 TERASOLUNA DAOを使用する場合は、本節を読み飛ばして、\ :ref:`using_terasolunaDao`\ に進んでよい。
-
-Spring Data JPAを使用するための設定ファイルの修正
-^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-
-pom.xmlの修正
-""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
-Spring Data JPAに関する依存ライブラリを追加するために、pom.xmlに、以下を追加する。
-
-.. code-block:: xml
-
-    <dependency>
-        <groupId>org.terasoluna.gfw</groupId>
-        <artifactId>terasoluna-gfw-jpa</artifactId>
-    </dependency>
-
-
-todo-infra.xmlの修正
-""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
-todo-infra.xmlに、JPA、およびSpring Data JPAを使用するための設定を行う。JPAのEntityManagerFactoryは、ここで定義する。
-
-.. code-block:: xml
-   :emphasize-lines: 4-5,7-8,12-44
-
-    <?xml version="1.0" encoding="UTF-8"?>
-	<beans xmlns="http://www.springframework.org/schema/beans"
-    	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-    	xmlns:jpa="http://www.springframework.org/schema/data/jpa"
-    	xmlns:util="http://www.springframework.org/schema/util"
-    	xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd
-        	http://www.springframework.org/schema/util http://www.springframework.org/schema/util/spring-util.xsd
-        	http://www.springframework.org/schema/data/jpa http://www.springframework.org/schema/data/jpa/spring-jpa.xsd">
-
-        <import resource="classpath:/META-INF/spring/todo-env.xml" />
-
-        <!-- (1) -->
-        <jpa:repositories base-package="todo.domain.repository"></jpa:repositories>
-
-        <!-- (2) -->
-        <bean id="jpaVendorAdapter"
-            class="org.springframework.orm.jpa.vendor.HibernateJpaVendorAdapter">
-            <property name="showSql" value="false" />
-            <property name="database" value="${database}" />
-        </bean>
-
-        <!-- (3) -->
-        <bean
-            class="org.springframework.orm.jpa.LocalContainerEntityManagerFactoryBean"
-            id="entityManagerFactory">
-            <!-- (4) -->
-            <property name="packagesToScan" value="todo.domain.model" />
-            <property name="dataSource" ref="dataSource" />
-            <property name="jpaVendorAdapter" ref="jpaVendorAdapter" />
-            <!-- (5) -->
-            <property name="jpaPropertyMap">
-                <util:map>
-                    <entry key="hibernate.hbm2ddl.auto" value="none" />
-                    <entry key="hibernate.ejb.naming_strategy"
-                        value="org.hibernate.cfg.ImprovedNamingStrategy" />
-                    <entry key="hibernate.connection.charSet" value="UTF-8" />
-                    <entry key="hibernate.show_sql" value="false" />
-                    <entry key="hibernate.format_sql" value="false" />
-                    <entry key="hibernate.use_sql_comments" value="true" />
-                    <entry key="hibernate.jdbc.batch_size" value="30" />
-                    <entry key="hibernate.jdbc.fetch_size" value="100" />
-                </util:map>
-            </property>
-        </bean>
-
-    </beans>
-
-.. tabularcolumns:: |p{0.10\linewidth}|p{0.90\linewidth}|
-.. list-table::
-   :header-rows: 1
-   :widths: 10 90
-
-
-   * - 項番
-     - 説明
-   * - | (1)
-     - | Spring Data JPAを使用すると、Repositoryインタフェースから実装クラスを自動生成する。
-       | <jpa:repository>タグのbase-package属性で、対象のRepositoryを含むパッケージを指定する。
-   * - | (2)
-     - | JPAの実装ベンダの設定を行う。JPA実装として、Hibernateを使うため、HibernateJpaVendorAdapterを定義する。
-   * - | (3)
-     - | EntityManagerの定義を行う。
-   * - | (4)
-     - | エンティティのパッケージ名を指定する。
-   * - | (5)
-     - | Hibernateに関する詳細な設定を行う。
-
-
-todo-env.xmlの修正
-""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
-トランザクションマネージャに関連するBean定義を追加する。
-
-.. code-block:: xml
-   :emphasize-lines: 20-24
-
-    <?xml version="1.0" encoding="UTF-8"?>
-    <beans xmlns="http://www.springframework.org/schema/beans"
-        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-        xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd">
-
-        <bean id="dataSource" class="org.apache.commons.dbcp.BasicDataSource"
-            destroy-method="close">
-            <property name="driverClassName" value="${database.driverClassName}" />
-            <property name="url" value="${database.url}" />
-            <property name="username" value="${database.username}" />
-            <property name="password" value="${database.password}" />
-            <property name="defaultAutoCommit" value="false" />
-            <property name="maxActive" value="${cp.maxActive}" />
-            <property name="maxIdle" value="${cp.maxIdle}" />
-            <property name="minIdle" value="${cp.minIdle}" />
-            <property name="maxWait" value="${cp.maxWait}" />
-        </bean>
-
-        <!-- (6) -->
-        <bean class="org.springframework.orm.jpa.JpaTransactionManager"
-            id="transactionManager">
-            <property name="entityManagerFactory" ref="entityManagerFactory" />
-        </bean>
-
-
-    </beans>
-
-.. tabularcolumns:: |p{0.10\linewidth}|p{0.90\linewidth}|
-.. list-table::
-   :header-rows: 1
-   :widths: 10 90
-
-
-   * - 項番
-     - 説明
-   * - | (6)
-     - | トランザクションマネージャの設定。idは、transactionManagerにすること。
-       | 別の名前を指定する場合は、todo-domain.xmlの<tx:annotation-driven>タグと、todo-infra.xmlの<jpa:repository>タグにもトランザクションマネージャ名を指定する必要がある。
-
-.. note::
-    JavaEEコンテナ上で、トランザクションマネージャは、JtaTransactionManagerを使用したほうがよい。この場合、<tx:jta-transaction-manager />でトランザクションマネージャの定義を行う。
-
-    これらの設定が、環境によって変わらないプロジェクト(例えば、Tomcatを使用する場合など)は、todo-infra.xmlに定義してもよい。
-
-
-spring-mvc.xml
-""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
-spring-mvc.xmlにOpenEntityManagerInViewInterceptorを追加し、Interceptorで、EntityManagerのライフサイクルの開始と終了を行う。
-この設定を追加することで、アプリケーション層(Contollerや、Viewクラス)でのLazy Loadが、サポートされる。
-
-.. code-block:: xml
-
-    <mvc:interceptors>
-
-        <!-- ... -->
-
-        <!-- (6) -->
-        <mvc:interceptor>
-            <mvc:mapping path="/**" />
-            <mvc:exclude-mapping path="/resources/**" />
-            <bean
-                class="org.springframework.orm.jpa.support.OpenEntityManagerInViewInterceptor" />
-        </mvc:interceptor>
-
-    </mvc:interceptors>
-
-.. tabularcolumns:: |p{0.10\linewidth}|p{0.90\linewidth}|
-.. list-table::
-   :header-rows: 1
-   :widths: 10 90
-
-
-   * - 項番
-     - 説明
-   * - | (6)
-     - | 静的リソース(css, js, imageなど)へのアクセス(\ ``/resources/**``\ )の場合は、データアクセスが確実に発生しないため、Interceptorの適用対象外としている。
-
-
-logback.xmlの修正
-""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
-.. code-block:: xml
-   :emphasize-lines: 32-45
-
-    <!DOCTYPE logback>
-    <configuration>
-        <appender name="STDOUT" class="ch.qos.logback.core.ConsoleAppender">
-            <encoder>
-                <pattern><![CDATA[%d{yyyy-MM-dd HH:mm:ss} [%thread] [%-5level] [%-48logger{48}] - %msg%n]]></pattern>
-            </encoder>
-        </appender>
-
-        <!-- Application Loggers -->
-        <logger name="todo">
-            <level value="debug" />
-        </logger>
-
-        <!-- TERASOLUNA -->
-        <logger name="org.terasoluna.gfw">
-            <level value="info" />
-        </logger>
-
-        <logger name="org.terasoluna.gfw.web.logging.TraceLoggingInterceptor">
-            <level value="trace" />
-        </logger>
-
-        <!-- 3rdparty Loggers -->
-        <logger name="org.springframework">
-            <level value="warn" />
-        </logger>
-
-        <logger name="org.springframework.web.servlet">
-            <level value="info" />
-        </logger>
-
-        <!-- (8) -->
-        <logger name="org.hibernate.SQL">
-            <level value="debug" />
-        </logger>
-
-        <!-- (9) -->
-        <logger name="org.hibernate.type.descriptor.sql.BasicBinder">
-            <level value="trace" />
-        </logger>
-
-        <!-- (10) -->
-        <logger name="org.hibernate.engine.transaction">
-            <level value="debug" />
-        </logger>
-
-        <root level="WARN">
-            <appender-ref ref="STDOUT" />
-        </root>
-    </configuration>
-
-.. tabularcolumns:: |p{0.10\linewidth}|p{0.90\linewidth}|
-.. list-table::
-   :header-rows: 1
-   :widths: 10 90
-
-
-   * - 項番
-     - 説明
-   * - | (8)
-     - | HibernateによるSQLログを、出力するための設定。
-   * - | (9)
-     - | HibernateによるSQLのバインド変数を、出力するための設定。
-   * - | (10)
-     - | Hibernateによるトランザクションのログを、出力するための設定。
-
 
 Entityの設定
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 Todoクラスを、データベースとマッピングするために、JPAのアノテーションを設定する。
 
-.. code-block:: java
-   :emphasize-lines: 6-11,13-15,19-22,25,28,31,33
+ .. code-block:: java
+    :emphasize-lines: 6-11,13-15,19-22,25,28,31,33
 
     package todo.domain.model;
 
@@ -3301,8 +3487,8 @@ Todoクラスを、データベースとマッピングするために、JPAの�
         }
     }
 
-.. tabularcolumns:: |p{0.10\linewidth}|p{0.90\linewidth}|
-.. list-table::
+ .. tabularcolumns:: |p{0.10\linewidth}|p{0.90\linewidth}|
+ .. list-table::
    :header-rows: 1
    :widths: 10 90
 
@@ -3321,8 +3507,11 @@ Todoクラスを、データベースとマッピングするために、JPAの�
 
 TodoRepositoryの修正
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-.. code-block:: java
-   :emphasize-lines: 3-5,10-12
+
+Spring Data JPAのRepository機能を使用するための修正を行う。
+
+ .. code-block:: java
+    :emphasize-lines: 3-5,9-10,12,13
 
     package todo.domain.repository.todo;
 
@@ -3334,13 +3523,14 @@ TodoRepositoryの修正
 
     // (1)
     public interface TodoRepository extends JpaRepository<Todo, String> {
+
         @Query(value = "SELECT COUNT(x) FROM Todo x WHERE x.finished = :finished") // (2)
         long countByFinished(@Param("finished") boolean finished); // (3)
+
     }
 
-
-.. tabularcolumns:: |p{0.10\linewidth}|p{0.90\linewidth}|
-.. list-table::
+ .. tabularcolumns:: |p{0.10\linewidth}|p{0.90\linewidth}|
+ .. list-table::
    :header-rows: 1
    :widths: 10 90
 
@@ -3357,32 +3547,37 @@ TodoRepositoryの修正
        | ここでは、JPQL中の\ ``”:finished”``\ を埋めるためのメソッド引数に、@Param(“finished”)を付けている。
 
 
-TodoRepositoryImplの修正
+TodoRepositoryImplの作成
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 | Spring Data JPAを使用した場合、RepositoryImplは、インタフェースから自動生成される。
-| TodoRepositoryImplは、不要であるため、削除する。
+| そのため、TodoRepositoryImplの作成は、不要である。
 
-| 以上で、Spring Data JPAを使う対応が完了した。
-| APサーバーを起動し、Todoの表示を行うと、以下のようなSQLログや、トランザクションログが出力される。
+|
 
-.. code-block:: guess
+以上で、Spring Data JPAを使用したインフラストラクチャ層の作成が完了したので、Service及びアプリケーション層の作成を行う。
+
+Service及びアプリケーション層を作成後にAPサーバーを起動し、Todoの表示を行うと、以下のようなSQLログや、トランザクションログが出力される。
+
+ .. code-block:: text
    :emphasize-lines: 2-6
 
-    2014-03-27 11:31:13 [tomcat-http--50] [TRACE] [o.t.gfw.web.logging.TraceLoggingInterceptor     ] - [START CONTROLLER] TodoController.list(Model)
-    2014-03-27 11:31:13 [tomcat-http--50] [DEBUG] [o.h.e.transaction.spi.AbstractTransactionImpl   ] - begin
-    2014-03-27 11:31:13 [tomcat-http--50] [DEBUG] [o.h.e.transaction.internal.jdbc.JdbcTransaction ] - initial autocommit status: false
-    2014-03-27 11:31:13 [tomcat-http--50] [DEBUG] [org.hibernate.SQL                               ] - /* select generatedAlias0 from Todo as generatedAlias0 */ select todo0_.todo_id as todo1_0_, todo0_.created_at as created2_0_, todo0_.finished as finished3_0_, todo0_.todo_title as todo4_0_ from todo todo0_
-    2014-03-27 11:31:13 [tomcat-http--50] [DEBUG] [o.h.e.transaction.spi.AbstractTransactionImpl   ] - committing
-    2014-03-27 11:31:13 [tomcat-http--50] [DEBUG] [o.h.e.transaction.internal.jdbc.JdbcTransaction ] - committed JDBC Connection
-    2014-03-27 11:31:13 [tomcat-http--50] [TRACE] [o.t.gfw.web.logging.TraceLoggingInterceptor     ] - [END CONTROLLER  ] TodoController.list(Model)-> view=todo/list, model={todoForm=todo.app.todo.TodoForm@211dcc, todos=[], org.springframework.validation.BindingResult.todoForm=org.springframework.validation.BeanPropertyBindingResult: 0 errors}
-    2014-03-27 11:31:13 [tomcat-http--50] [TRACE] [o.t.gfw.web.logging.TraceLoggingInterceptor     ] - [HANDLING TIME   ] TodoController.list(Model)-> 2,959,644 ns
+    date:2014-08-26 12:57:48    thread:tomcat-http--3   X-Track:2705c06e0eae416591bc1f27efc84cd6    level:TRACE logger:o.t.gfw.web.logging.TraceLoggingInterceptor      message:[START CONTROLLER] TodoController.list(Model)
+    date:2014-08-26 12:57:48    thread:tomcat-http--3   X-Track:2705c06e0eae416591bc1f27efc84cd6    level:DEBUG logger:o.h.e.transaction.spi.AbstractTransactionImpl    message:begin
+    date:2014-08-26 12:57:48    thread:tomcat-http--3   X-Track:2705c06e0eae416591bc1f27efc84cd6    level:DEBUG logger:o.h.e.transaction.internal.jdbc.JdbcTransaction  message:initial autocommit status: false
+    date:2014-08-26 12:57:48    thread:tomcat-http--3   X-Track:2705c06e0eae416591bc1f27efc84cd6    level:DEBUG logger:jdbc.sqltiming                                   message: org.hibernate.engine.jdbc.internal.ResultSetReturnImpl.extract(ResultSetReturnImpl.java:56)
+    2. /* select generatedAlias0 from Todo as generatedAlias0 */ select todo0_.todo_id as todo1_0_, todo0_.created_at as created2_0_, todo0_.finished as finished3_0_, todo0_.todo_title as todo4_0_ from todo todo0_ {executed in 5 msec}
+    date:2014-08-26 12:57:48    thread:tomcat-http--3   X-Track:2705c06e0eae416591bc1f27efc84cd6    level:DEBUG logger:o.h.e.transaction.spi.AbstractTransactionImpl    message:committing
+    date:2014-08-26 12:57:48    thread:tomcat-http--3   X-Track:2705c06e0eae416591bc1f27efc84cd6    level:DEBUG logger:o.h.e.transaction.internal.jdbc.JdbcTransaction  message:committed JDBC Connection
+    date:2014-08-26 12:57:48    thread:tomcat-http--3   X-Track:2705c06e0eae416591bc1f27efc84cd6    level:TRACE logger:o.t.gfw.web.logging.TraceLoggingInterceptor      message:[END CONTROLLER  ] TodoController.list(Model)-> view=todo/list, model={todoForm=todo.app.todo.TodoForm@11d3160, todos=[], org.springframework.validation.BindingResult.todoForm=org.springframework.validation.BeanPropertyBindingResult: 0 errors}
+    date:2014-08-26 12:57:48    thread:tomcat-http--3   X-Track:2705c06e0eae416591bc1f27efc84cd6    level:TRACE logger:o.t.gfw.web.logging.TraceLoggingInterceptor      message:[HANDLING TIME   ] TodoController.list(Model)-> 239,725,570 ns
 
+|
 
 .. _using_terasolunaDao:
 
-TERASOLUNA DAOを使用する
+TERASOLUNA DAO(MyBatis2)を使用したインフラストラクチャ層の作成
 --------------------------------------------------------------------------------
-本節では、インフラストラクチャ層において、TERASOLUNA DAOを使用する場合の設定方法について説明する。
+本節では、インフラストラクチャ層において、TERASOLUNA DAO(MyBatis2)を使用する場合の設定方法について説明する。
 
  .. note::
     TERASOLUNA DAOとは、MyBatis2.3.5とSpringの連携クラスであるorg.springframework.orm.ibatis.support.SqlMapClientDaoSupportを、用途別に拡張した簡易SQLマッパーを提供するライブラリである。
@@ -3395,237 +3590,14 @@ TERASOLUNA DAOを使用する
 
     それぞれのインタフェースに対して、\ ``jp.terasoluna.fw.dao.ibatis.XxxDAOiBatisImpl``\ という実装を持つ。
 
-
-TERASOLUNA DAOを使用するための設定
+RepositoryImplの作成
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-pom.xmlの修正
-""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
-TERASOLUNA DAOに関する依存ライブラリを追加するために、pom.xmlに、以下の内容を追加する。
+TERASOLUNA DAO(MyBatis2)を使用した場合、RepositoryImplは、TERASOLUNA DAOから提供されているクラスを呼び出しことで、
+データベースにアクセスを行うように実装する。
 
-.. code-block:: xml
-
-    <dependency>
-        <groupId>org.terasoluna.gfw</groupId>
-        <artifactId>terasoluna-gfw-mybatis2</artifactId>
-    </dependency>
-
-
-todo-infra.xmlの修正
-""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
-todo-infra.xmlに、TERASOLUNA DAOを使用するための設定を行う。
-
-.. code-block:: xml
-   :emphasize-lines: 8-37
-
-    <?xml version="1.0" encoding="UTF-8"?>
-    <beans xmlns="http://www.springframework.org/schema/beans"
-        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-        xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd">
-
-        <import resource="classpath:/META-INF/spring/todo-env.xml" />
-
-        <!-- (1) -->
-        <bean id="sqlMapClient"
-            class="org.springframework.orm.ibatis.SqlMapClientFactoryBean">
-            <!-- (2) -->
-            <property name="configLocations"
-                value="classpath*:/META-INF/mybatis/config/*sqlMapConfig.xml" />
-            <!-- (3) -->
-            <property name="mappingLocations"
-                value="classpath*:/META-INF/mybatis/sql/**/*-sqlmap.xml" />
-            <property name="dataSource" ref="dataSource" />
-        </bean>
-
-        <!-- (4) -->
-        <bean id="queryDAO" class="jp.terasoluna.fw.dao.ibatis.QueryDAOiBatisImpl">
-            <property name="sqlMapClient" ref="sqlMapClient" />
-        </bean>
-
-        <bean id="updateDAO" class="jp.terasoluna.fw.dao.ibatis.UpdateDAOiBatisImpl">
-            <property name="sqlMapClient" ref="sqlMapClient" />
-        </bean>
-
-        <bean id="spDAO"
-            class="jp.terasoluna.fw.dao.ibatis.StoredProcedureDAOiBatisImpl">
-            <property name="sqlMapClient" ref="sqlMapClient" />
-        </bean>
-
-        <bean id="queryRowHandleDAO"
-            class="jp.terasoluna.fw.dao.ibatis.QueryRowHandleDAOiBatisImpl">
-            <property name="sqlMapClient" ref="sqlMapClient" />
-        </bean>
-    </beans>
-
-
-.. tabularcolumns:: |p{0.10\linewidth}|p{0.90\linewidth}|
-.. list-table::
-   :header-rows: 1
-   :widths: 10 90
-
-
-   * - 項番
-     - 説明
-   * - | (1)
-     - | SqlMapClientの定義を行う。
-   * - | (2)
-     - | SqlMap設定ファイルのパスを設定する。ここでは、META-INF/mybatis/config以下の、\*sqlMapConfig.xmlを読み込む。
-   * - | (3)
-     - | SqlMapファイルのパスを設定する。ここでは、META-INF/mybatis/sql以下の、任意のフォルダの*-sqlmap.xmlを読み込む。
-   * - | (4)
-     - | TERASOLUNA DAOの定義を行う。
-
-
-todo-env.xmlの修正
-""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
-
-| トランザクションマネージャの定義を追加する。
-| JavaEEコンテナ上で、トランザクションマネージャは、JtaTransactionManagerを使用することもあるため、環境依存設定ファイルに定義する。
-
-.. code-block:: xml
-   :emphasize-lines: 19-23
-
-    <?xml version="1.0" encoding="UTF-8"?>
-    <beans xmlns="http://www.springframework.org/schema/beans"
-        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-        xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd">
-
-        <bean id="dataSource" class="org.apache.commons.dbcp.BasicDataSource"
-            destroy-method="close">
-            <property name="driverClassName" value="${database.driverClassName}" />
-            <property name="url" value="${database.url}" />
-            <property name="username" value="${database.username}" />
-            <property name="password" value="${database.password}" />
-            <property name="defaultAutoCommit" value="false" />
-            <property name="maxActive" value="${cp.maxActive}" />
-            <property name="maxIdle" value="${cp.maxIdle}" />
-            <property name="minIdle" value="${cp.minIdle}" />
-            <property name="maxWait" value="${cp.maxWait}" />
-        </bean>
-
-        <!-- (1) -->
-        <bean id="transactionManager"
-            class="org.springframework.jdbc.datasource.DataSourceTransactionManager">
-            <property name="dataSource" ref="dataSource" />
-        </bean>
-
-    </beans>
-
-.. tabularcolumns:: |p{0.10\linewidth}|p{0.90\linewidth}|
-.. list-table::
-   :header-rows: 1
-   :widths: 10 90
-
-
-   * - 項番
-     - 説明
-   * - | (1)
-     - | トランザクションマネージャの設定。idは、transactionManagerにすること。
-       | 別の名前を指定する場合は、<tx:annotation-driven>タグにも、トランザクションマネージャ名を指定する必要がある。
-
-
-logback.xmlの修正
-""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
-
-.. code-block:: xml
-   :emphasize-lines: 32-43
-
-    <!DOCTYPE logback>
-    <configuration>
-        <appender name="STDOUT" class="ch.qos.logback.core.ConsoleAppender">
-            <encoder>
-                <pattern><![CDATA[%d{yyyy-MM-dd HH:mm:ss} [%thread] [%-5level] [%-48logger{48}] - %msg%n]]></pattern>
-            </encoder>
-        </appender>
-
-        <!-- Application Loggers -->
-        <logger name="todo">
-            <level value="debug" />
-        </logger>
-
-        <!-- TERASOLUNA -->
-        <logger name="org.terasoluna.gfw">
-            <level value="info" />
-        </logger>
-
-        <logger name="org.terasoluna.gfw.web.logging.TraceLoggingInterceptor">
-            <level value="trace" />
-        </logger>
-
-        <!-- 3rdparty Loggers -->
-        <logger name="org.springframework">
-            <level value="warn" />
-        </logger>
-
-        <logger name="org.springframework.web.servlet">
-            <level value="info" />
-        </logger>
-
-        <!-- (8) -->
-        <logger name="org.springframework.jdbc.datasource.DataSourceTransactionManager">
-            <level value="debug" />
-        </logger>
-
-        <!-- (9) -->
-        <logger name="java.sql.Connection">
-            <level value="trace" />
-        </logger>
-        <logger name="java.sql.PreparedStatement">
-            <level value="debug" />
-        </logger>
-
-        <root level="WARN">
-            <appender-ref ref="STDOUT" />
-        </root>
-    </configuration>
-
-
-.. tabularcolumns:: |p{0.10\linewidth}|p{0.90\linewidth}|
-.. list-table::
-   :header-rows: 1
-   :widths: 10 90
-
-
-   * - 項番
-     - 説明
-   * - | (8)
-     - | DataSourceTransactionManagerによる、トランザクションのログを出力するための設定。
-   * - | (9)
-     - | SQLログを出力するための設定。
-
-
-sqlMapConfigの作成
-^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-src/main/resources/META-INF/mybatis/config/sqlMapConfig.xmlを作成し、以下のように記述する。
-
-.. code-block:: xml
-
-    <?xml version="1.0" encoding="UTF-8" ?>
-    <!DOCTYPE sqlMapConfig
-                PUBLIC "-//ibatis.apache.org//DTD SQL Map Config 2.0//EN"
-                "http://ibatis.apache.org/dtd/sql-map-config-2.dtd">
-    <sqlMapConfig>
-        <!-- (1) -->
-        <settings useStatementNamespaces="true" />
-    </sqlMapConfig>
-
-.. tabularcolumns:: |p{0.10\linewidth}|p{0.90\linewidth}|
-.. list-table::
-   :header-rows: 1
-   :widths: 10 90
-
-
-   * - 項番
-     - 説明
-   * - | (1)
-     - | SQLIDに、名前空間を与える設定を行う。
-
-
-RepositoryImplの修正
-^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-
-.. code-block:: java
-   :emphasize-lines: 5,7,8,11,16,17,19-21,23-24,28,30,34,36,41-47,50,52,63,65
+ .. code-block:: java
+    :emphasize-lines: 5,7,8,11,15,16,19-21,23-24,28,30,34,36,41-47,50,52,63,65
 
     package todo.domain.repository.todo;
 
@@ -3641,18 +3613,18 @@ RepositoryImplの修正
 
     import todo.domain.model.Todo;
 
-    @Repository
-    // (1)
-    @Transactional
+    @Repository // (1)
+    @Transactional // (2)
     public class TodoRepositoryImpl implements TodoRepository {
-        // (2)
-        @Inject
-        protected QueryDAO queryDAO;
-
-        @Inject
-        protected UpdateDAO updateDAO;
 
         // (3)
+        @Inject
+        QueryDAO queryDAO;
+
+        @Inject
+        UpdateDAO updateDAO;
+
+        // (4)
         @Override
         @Transactional(readOnly = true)
         public Todo findOne(String todoId) {
@@ -3667,7 +3639,7 @@ RepositoryImplの修正
 
         @Override
         public Todo save(Todo todo) {
-            // (4)
+            // (5)
             if (exists(todo.getTodoId())) {
                 updateDAO.execute("todo.update", todo);
             } else {
@@ -3697,28 +3669,30 @@ RepositoryImplの修正
     }
 
 
-.. tabularcolumns:: |p{0.10\linewidth}|p{0.90\linewidth}|
-.. list-table::
+ .. tabularcolumns:: |p{0.10\linewidth}|p{0.80\linewidth}|
+ .. list-table::
    :header-rows: 1
-   :widths: 10 90
+   :widths: 10 80
 
 
    * - 項番
      - 説明
    * - | (1)
+     - | Repositoryとして、component-scan対象とするため、クラスレベルに@Repositoryアノテーションをつける。
+   * - | (2)
      - | クラスレベルに、\ ``@Transactional``\ アノテーションをつけることで、公開メソッドをすべてトランザクション管理する。
        | Repositoryを呼び出すService側でも設定しているため、\ ``@Transactional``\ をつけなくともトランザクション管理になるが、propagation属性は、デフォルトのREQUIREDであるため、トランザクションがネストした場合、内側(Repository側)のトランザクションは、外側(Service側)のトランザクションに参加する。
-   * - | (2)
-     - | \ ``@Inject``\ アノテーションで、QueryDAO, UpdateDAOをインジェクションする。
    * - | (3)
+     - | \ ``@Inject``\ アノテーションで、QueryDAO, UpdateDAOをインジェクションする。
+   * - | (4)
      - | Repositoryのメソッド実装は、基本的には、TERASOLUNA DAOにSQLIDと、パラメータを渡すことになる。
        | 参照系の場合はQueryDAO、更新系の場合はUpdateDAOを使用する。SQLIDに対応するSQLの設定は、次に行う。
-   * - | (4)
+   * - | (5)
      - | saveメソッドで新規作成と、更新の両方を実装している。
        | どちらの処理を行うか判断するために、existsメソッドを作成する。
        | このメソッドでは、対象のtodoIdの件数を取得し、件数が0より大きいかどうかで存在を確認する。
 
-.. note::
+ .. note::
 
     saveメソッドは、新規作成でも更新でも利用できるメリットがある。
     しかしながら、2回SQLが実行されるという性能面でのデメリットもある。
@@ -3727,9 +3701,10 @@ RepositoryImplの修正
 
 SQLMapファイルの作成
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-src/main/resources/META-INF/mybatis/sql/todo-sqlmap.xmlを作成し、TodoRepositoryImplで使用したSQLIDに対応するsqlを、以下のように記述する。
+\ :file:`src/main/resources/META-INF/mybatis/sql/todo-sqlmap.xml`\を作成し、
+\ ``TodoRepositoryImpl``\で使用したSQLIDに対応するsqlを、以下のように記述する。
 
-.. code-block:: xml
+ .. code-block:: xml
 
     <?xml version="1.0" encoding="UTF-8" ?>
     <!DOCTYPE sqlMap
@@ -3744,83 +3719,116 @@ src/main/resources/META-INF/mybatis/sql/todo-sqlmap.xmlを作成し、TodoReposi
         </resultMap>
 
         <select id="findOne" parameterClass="java.lang.String"
-            resultMap="todo"><![CDATA[
-    SELECT todo_id,
-           todo_title,
-           finished,
-           created_at
-    FROM   todo
-    WHERE  todo_id = #value#
-    ]]></select>
+            resultMap="todo">
+        <![CDATA[
+            SELECT
+                todo_id,
+                todo_title,
+                finished,
+                created_at
+            FROM
+                todo
+            WHERE
+                todo_id = #value#
+        ]]>
+        </select>
 
-        <select id="findAll" resultMap="todo"><![CDATA[
-    SELECT todo_id,
-           todo_title,
-           finished,
-           created_at
-    FROM   todo
-    ]]></select>
+        <select id="findAll" resultMap="todo">
+        <![CDATA[
+            SELECT
+                todo_id,
+                todo_title,
+                finished,
+                created_at
+            FROM
+                todo
+        ]]>
+        </select>
 
-        <insert id="create" parameterClass="todo.domain.model.Todo"><![CDATA[
-    INSERT INTO todo
-                (todo_id,
-                 todo_title,
-                 finished,
-                 created_at)
-    VALUES      ( #todoId#,
-                 #todoTitle#,
-                 #finished#,
-                 #createdAt# )
-    ]]></insert>
+        <insert id="create" parameterClass="todo.domain.model.Todo">
+        <![CDATA[
+            INSERT INTO todo
+            (
+                todo_id,
+                todo_title,
+                finished,
+                created_at
+            )
+            VALUES
+            (
+                #todoId#,
+                #todoTitle#,
+                #finished#,
+                #createdAt#
+            )
+        ]]>
+        </insert>
 
-        <update id="update" parameterClass="todo.domain.model.Todo"><![CDATA[
-    UPDATE todo
-    SET    todo_title = #todoTitle#,
-           finished = #finished#,
-           created_at = #createdAt#
-    WHERE  todo_id = #todoId#
-    ]]></update>
+        <update id="update" parameterClass="todo.domain.model.Todo">
+        <![CDATA[
+            UPDATE todo
+            SET
+                todo_title = #todoTitle#,
+                finished = #finished#,
+                created_at = #createdAt#
+            WHERE
+                todo_id = #todoId#
+        ]]>
+        </update>
 
-        <delete id="delete" parameterClass="todo.domain.model.Todo"><![CDATA[
-    DELETE FROM todo
-    WHERE  todo_id = #todoId#
-    ]]></delete>
+        <delete id="delete" parameterClass="todo.domain.model.Todo">
+        <![CDATA[
+            DELETE FROM
+                todo
+            WHERE
+                todo_id = #todoId#
+        ]]>
+        </delete>
 
         <select id="countByFinished" parameterClass="java.lang.Boolean"
-            resultClass="java.lang.Long"><![CDATA[
-    SELECT COUNT(*)
-    FROM   todo
-    WHERE  finished = #value#
-    ]]></select>
+            resultClass="java.lang.Long">
+        <![CDATA[
+            SELECT
+                COUNT(*)
+            FROM
+                todo
+            WHERE
+                finished = #value#
+        ]]>
+        </select>
 
         <select id="exists" parameterClass="java.lang.String"
-            resultClass="java.lang.Long"><![CDATA[
-    SELECT COUNT(*)
-    FROM   todo
-    WHERE  todo_id = #value#
-    ]]></select>
+            resultClass="java.lang.Long">
+        <![CDATA[
+            SELECT
+                COUNT(*)
+            FROM
+                todo
+            WHERE
+                todo_id = #value#
+        ]]>
+        </select>
     </sqlMap>
 
-| 以上で、TERASOLUNA DAOを使う対応が完了した。
-| APサーバーを起動し、Todoの表示を行うと、以下のようなSQLログやトランザクションログが出力される。
+|
 
-.. code-block:: guess
-   :emphasize-lines: 2-12
+以上で、TERASOLUNA DAOを使用したインフラストラクチャ層の作成が完了したので、Service及びアプリケーション層の作成を行う。
 
-    2013-11-28 14:15:37 [tomcat-http--3] [TRACE] [o.t.gfw.web.logging.TraceLoggingInterceptor     ] - [START CONTROLLER] TodoController.list(Model)
-    2013-11-28 14:15:37 [tomcat-http--3] [DEBUG] [o.s.jdbc.datasource.DataSourceTransactionManager] - Creating new transaction with name [todo.domain.serivce.todo.TodoServiceImpl.findAll]: PROPAGATION_REQUIRED,ISOLATION_DEFAULT,readOnly; ''
-    2013-11-28 14:15:37 [tomcat-http--3] [DEBUG] [o.s.jdbc.datasource.DataSourceTransactionManager] - Acquired Connection [jdbc:h2:mem:todo, UserName=SA, H2 JDBC Driver] for JDBC transaction
-    2013-11-28 14:15:37 [tomcat-http--3] [DEBUG] [o.s.jdbc.datasource.DataSourceTransactionManager] - Participating in existing transaction
-    2013-11-28 14:15:37 [tomcat-http--3] [DEBUG] [java.sql.Connection                             ] - {conn-100014} Connection
-    2013-11-28 14:15:37 [tomcat-http--3] [DEBUG] [java.sql.Connection                             ] - {conn-100014} Preparing Statement:  SELECT todo_id,        todo_title,        finished,        created_at FROM   todo 
-    2013-11-28 14:15:37 [tomcat-http--3] [DEBUG] [java.sql.PreparedStatement                      ] - {pstm-100015} Executing Statement:  SELECT todo_id,        todo_title,        finished,        created_at FROM   todo 
-    2013-11-28 14:15:37 [tomcat-http--3] [DEBUG] [java.sql.PreparedStatement                      ] - {pstm-100015} Parameters: []
-    2013-11-28 14:15:37 [tomcat-http--3] [DEBUG] [java.sql.PreparedStatement                      ] - {pstm-100015} Types: []
-    2013-11-28 14:15:37 [tomcat-http--3] [DEBUG] [o.s.jdbc.datasource.DataSourceTransactionManager] - Initiating transaction commit
-    2013-11-28 14:15:37 [tomcat-http--3] [DEBUG] [o.s.jdbc.datasource.DataSourceTransactionManager] - Committing JDBC transaction on Connection [jdbc:h2:mem:todo, UserName=SA, H2 JDBC Driver]
-    2013-11-28 14:15:37 [tomcat-http--3] [DEBUG] [o.s.jdbc.datasource.DataSourceTransactionManager] - Releasing JDBC Connection [jdbc:h2:mem:todo, UserName=SA, H2 JDBC Driver] after transaction
-    2013-11-28 14:15:37 [tomcat-http--3] [TRACE] [o.t.gfw.web.logging.TraceLoggingInterceptor     ] - [END CONTROLLER  ] TodoController.list(Model)-> view=todo/list, model={todoForm=todo.app.todo.TodoForm@1386751, todos=[todo.domain.model.Todo@72edc], org.springframework.validation.BindingResult.todoForm=org.springframework.validation.BeanPropertyBindingResult: 0 errors}
-    2013-11-28 14:15:37 [tomcat-http--3] [TRACE] [o.t.gfw.web.logging.TraceLoggingInterceptor     ] - [HANDLING TIME   ] TodoController.list(Model)-> 2,461,131 ns
+Service及びアプリケーション層を作成後にAPサーバーを起動し、Todoの表示を行うと、以下のようなSQLログや、トランザクションログが出力される。
+
+ .. code-block:: text
+   :emphasize-lines: 2-8
+
+    date:2014-08-26 13:39:08    thread:tomcat-http--9   X-Track:49fbb5426f574375b8169d39c330ec7f    level:TRACE logger:o.t.gfw.web.logging.TraceLoggingInterceptor      message:[START CONTROLLER] TodoController.list(Model)
+    date:2014-08-26 13:39:08    thread:tomcat-http--9   X-Track:49fbb5426f574375b8169d39c330ec7f    level:DEBUG logger:o.s.jdbc.datasource.DataSourceTransactionManager message:Creating new transaction with name [todo.domain.repository.todo.TodoRepositoryImpl.findAll]: PROPAGATION_REQUIRED,ISOLATION_DEFAULT,readOnly; ''
+    date:2014-08-26 13:39:08    thread:tomcat-http--9   X-Track:49fbb5426f574375b8169d39c330ec7f    level:DEBUG logger:o.s.jdbc.datasource.DataSourceTransactionManager message:Acquired Connection [net.sf.log4jdbc.ConnectionSpy@1d7541c] for JDBC transaction
+    date:2014-08-26 13:39:08    thread:tomcat-http--9   X-Track:49fbb5426f574375b8169d39c330ec7f    level:DEBUG logger:jdbc.sqltiming                                   message: com.ibatis.sqlmap.engine.execution.DefaultSqlExecutor.executeQuery(DefaultSqlExecutor.java:183)
+    4. SELECT             todo_id,             todo_title,             finished,             created_at         FROM             todo {executed in 0 msec}
+    date:2014-08-26 13:39:08    thread:tomcat-http--9   X-Track:49fbb5426f574375b8169d39c330ec7f    level:DEBUG logger:o.s.jdbc.datasource.DataSourceTransactionManager message:Initiating transaction commit
+    date:2014-08-26 13:39:08    thread:tomcat-http--9   X-Track:49fbb5426f574375b8169d39c330ec7f    level:DEBUG logger:o.s.jdbc.datasource.DataSourceTransactionManager message:Committing JDBC transaction on Connection [net.sf.log4jdbc.ConnectionSpy@1d7541c]
+    date:2014-08-26 13:39:08    thread:tomcat-http--9   X-Track:49fbb5426f574375b8169d39c330ec7f    level:DEBUG logger:o.s.jdbc.datasource.DataSourceTransactionManager message:Releasing JDBC Connection [net.sf.log4jdbc.ConnectionSpy@1d7541c] after transaction
+    date:2014-08-26 13:39:08    thread:tomcat-http--9   X-Track:49fbb5426f574375b8169d39c330ec7f    level:TRACE logger:o.t.gfw.web.logging.TraceLoggingInterceptor      message:[END CONTROLLER  ] TodoController.list(Model)-> view=todo/list, model={todoForm=todo.app.todo.TodoForm@c7582d, todos=[], org.springframework.validation.BindingResult.todoForm=org.springframework.validation.BeanPropertyBindingResult: 0 errors}
+    date:2014-08-26 13:39:08    thread:tomcat-http--9   X-Track:49fbb5426f574375b8169d39c330ec7f    level:TRACE logger:o.t.gfw.web.logging.TraceLoggingInterceptor      message:[HANDLING TIME   ] TodoController.list(Model)-> 2,521,308 ns
 
 |
 

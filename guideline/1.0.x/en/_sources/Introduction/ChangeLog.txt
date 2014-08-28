@@ -9,7 +9,7 @@ Change Log
     * - Modified on
       - Modified locations
       - Modification details
-    * - 2014-08-xx
+    * - 2014-08-27
       - \-
       - Released "1.0.1 RELEASE" version
         

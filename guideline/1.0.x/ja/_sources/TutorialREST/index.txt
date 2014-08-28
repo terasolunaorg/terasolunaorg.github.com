@@ -117,79 +117,44 @@ Chromeのアプリケーション一覧を開く(ブラウザのアドレスバ�
 
 以下のコマンドを実行し、MyBatis2版のMavenプロジェクトを作成する。
 
- .. code-block:: guess
+ .. code-block:: console
 
-    > mvn archetype:generate -DarchetypeCatalog=http://repo.terasoluna.org/nexus/content/repositories/terasoluna-gfw-releases
+    mvn archetype:generate -B^
+     -DarchetypeCatalog=http://repo.terasoluna.org/nexus/content/repositories/terasoluna-gfw-releases^
+     -DarchetypeGroupId=org.terasoluna.gfw.blank^
+     -DarchetypeArtifactId=terasoluna-gfw-web-blank-mybatis2-archetype^
+     -DarchetypeVersion=1.0.1.RELEASE^
+     -DgroupId=todo^
+     -DartifactId=todo-api^
+     -Dversion=1.0-SNAPSHOT
 
-| コマンドを実行すると、プロンプト上に以下の順で６つの入力が求められる。
-| 本チュートリアルでは、入力値は以下に示す値とする。
+コンソール上に以下のようなログが表示されれば、ブランクプロジェクトの作成は成功となる。
 
- .. tabularcolumns:: |p{0.10\linewidth}|p{0.70\linewidth}|p{0.20\linewidth}|
- .. list-table::
-    :header-rows: 1
-    :widths: 10 70 20
-
-    * - 項番
-      - プロンプト内容
-      - 入力値
-    * - | (1)
-      - | \ ``Choose a number or apply filter (format: [groupId:]artifactId, case sensitive contains): :``\
-      - | \ ``3``\
-    * - | (2)
-      - | \ ``Define value for property 'groupId': :``\
-      - | \ ``todo``\
-    * - | (3)
-      - | \ ``Define value for property 'artifactId': :``\
-      - | \ ``todo-api``\
-    * - | (4)
-      - | \ ``Define value for property 'version':  1.0-SNAPSHOT: :``\
-      - | (Press Enter)
-    * - | (5)
-      - | \ ``Define value for property 'package':  todo: :``\
-      - | (Press Enter)
-    * - | (6)
-      - | \ ``Confirm properties configuration:``\
-        | \ ``groupId: todo``\
-        | \ ``artifactId: todo-api``\
-        | \ ``version: 1.0-SNAPSHOT``\
-        | \ ``package: todo``\
-        | \ ``Y: :``\
-      - | (Press Enter)
-
-
-
- .. code-block:: text
-    :emphasize-lines: 1, 17-21, 27
+ .. code-block:: console
     
-    C:\workspace>mvn archetype:generate -DarchetypeCatalog=http://repo.terasoluna.org/nexus/content/repositories/terasoluna-gfw-releases
+    C:\workspace>mvn archetype:generate -B^
+    More?  -DarchetypeCatalog=http://repo.terasoluna.org/nexus/content/repositories/terasoluna-gfw-releases^
+    More?  -DarchetypeGroupId=org.terasoluna.gfw.blank^
+    More?  -DarchetypeArtifactId=terasoluna-gfw-web-blank-mybatis2-archetype^
+    More?  -DarchetypeVersion=1.0.1.RELEASE^
+    More?  -DgroupId=todo^
+    More?  -DartifactId=todo-api^
+    More?  -Dversion=1.0-SNAPSHOT
     [INFO] Scanning for projects...
-    [INFO] Searching repository for plugin with prefix: 'archetype'.
+    [INFO]
     [INFO] ------------------------------------------------------------------------
-    [INFO] Building Maven Default Project
-    [INFO]    task-segment: [archetype:generate] (aggregator-style)
+    [INFO] Building Maven Stub Project (No POM) 1
     [INFO] ------------------------------------------------------------------------
-    [INFO] Preparing archetype:generate
-    [INFO] No goals needed for project - skipping
-    [INFO] [archetype:generate {execution: default-cli}]
-    [INFO] Generating project in Interactive mode
-    [INFO] No archetype defined. Using maven-archetype-quickstart (org.apache.maven.archetypes:maven-archetype-quickstart:1.0)
-    Choose archetype:
-    1: http://repo.terasoluna.org/nexus/content/repositories/terasoluna-gfw-releases -> org.terasoluna.gfw.blank:terasoluna-gfw-web-blank-archetype (Blank project using TERASOLUNA Global Framework)
-    2: http://repo.terasoluna.org/nexus/content/repositories/terasoluna-gfw-releases -> org.terasoluna.gfw.blank:terasoluna-gfw-web-blank-jpa-archetype (Blank project using TERASOLUNA Global Framework (JPA))
-    3: http://repo.terasoluna.org/nexus/content/repositories/terasoluna-gfw-releases -> org.terasoluna.gfw.blank:terasoluna-gfw-web-blank-mybatis2-archetype (Blank project using TERASOLUNA Global Framework (MyBatis2))
-    Choose a number or apply filter (format: [groupId:]artifactId, case sensitive contains): : 3
-    Define value for property 'groupId': : todo
-    Define value for property 'artifactId': : todo-api
-    Define value for property 'version': 1.0-SNAPSHOT:
-    Define value for property 'package': todo:
-    Confirm properties configuration:
-    groupId: todo
-    artifactId: todo-api
-    version: 1.0-SNAPSHOT
-    package: todo
-    Y:
+    [INFO]
+    [INFO] >>> maven-archetype-plugin:2.2:generate (default-cli) @ standalone-pom >>>
+    [INFO]
+    [INFO] <<< maven-archetype-plugin:2.2:generate (default-cli) @ standalone-pom <<<
+    [INFO]
+    [INFO] --- maven-archetype-plugin:2.2:generate (default-cli) @ standalone-pom ---
+    [INFO] Generating project in Batch mode
+    [INFO] Archetype repository missing. Using the one from [org.terasoluna.gfw.blank:terasoluna-gfw-web-blank-mybatis2-archetype:1.0.0.RELEASE -> http://repo.terasoluna.org/nexus/content/repositories/terasoluna-gfw-releases] found in catalog http://repo.terasoluna.org/nexus/content/repositories/terasoluna-gfw-releases
     [INFO] ----------------------------------------------------------------------------
-    [INFO] Using following parameters for creating project from Archetype: terasoluna-gfw-web-blank-mybatis2-archetype:1.0.0.RELEASE
+    [INFO] Using following parameters for creating project from Archetype: terasoluna-gfw-web-blank-mybatis2-archetype:1.0.1.RELEASE
     [INFO] ----------------------------------------------------------------------------
     [INFO] Parameter: groupId, Value: todo
     [INFO] Parameter: artifactId, Value: todo-api
@@ -202,13 +167,14 @@ Chromeのアプリケーション一覧を開く(ブラウザのアドレスバ�
     [INFO] Parameter: artifactId, Value: todo-api
     [INFO] project created from Archetype in dir: C:\workspace\todo-api
     [INFO] ------------------------------------------------------------------------
-    [INFO] BUILD SUCCESSFUL
+    [INFO] BUILD SUCCESS
     [INFO] ------------------------------------------------------------------------
-    [INFO] Total time: 14 seconds
-    [INFO] Finished at: Tue Apr 01 16:09:59 JST 2014
-    [INFO] Final Memory: 21M/52M
+    [INFO] Total time: 2.287s
+    [INFO] Finished at: Fri Aug 22 20:20:55 JST 2014
+    [INFO] Final Memory: 11M/231M
     [INFO] ------------------------------------------------------------------------
     C:\workspace>
+
 
 プロジェクトのインポート
 --------------------------------------------------------------------------------

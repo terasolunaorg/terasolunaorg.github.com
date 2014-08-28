@@ -9,7 +9,7 @@
     * - 更新日付
       - 更新箇所
       - 更新内容
-    * - 2014-08-xx
+    * - 2014-08-27
       - \-
       - 1.0.1 RELEASE版公開
         
@@ -81,6 +81,19 @@
         ガイドラインのバグを修正
         
         * \ ``MultipartFilter``\を設定した場合、\ ``SystemExceptionResolver``\を使用して\ ``MultipartException``\をハンドリングする事が出来ないため、サーブレットコンテナのerror-page機能を使用してハンドリングする方法を追加。修正内容の詳細は、\ `guideline#59のIssue <https://github.com/terasolunaorg/guideline/issues/59>`_\ を参照されたい。
+    * - 
+      - 日本語版
+      - 以下のプロジェクト作成方法を\ ``mvn archetype:generate``\ から行うように変更
+      
+        * :doc:`../Overview/FirstApplication`
+        * :doc:`../TutorialTodo/index`
+        * :doc:`../TutorialTodo/index`
+    * - 
+      - 日本語版
+      - 以下のMavenアーキタイプ作成方法を微修正
+      
+        * :doc:`../Security/Tutorial`
+        * :doc:`../Appendix/CreateProjectFromBlank`
     * - 2013-12-17
       - 日本語版
       - 1.0.0 Public Review版公開

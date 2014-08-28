@@ -25,13 +25,13 @@ Spring MVCを用いたWebアプリケーションの開発に対するイメー�
    * - Product
      - Version
    * - JDK
-     - 1.6.0\_33
+     - 1.7.0\_55
    * - SpringSource Tool Suite (STS)
-     - 3.2.0
+     - 3.5.0.RELEASE
    * - VMware vFabric tc Server Developer Edition
-     - 2.8
+     - 2.9
    * - Fire Fox
-     - 21.0
+     - ESR 24
 
 .. note::
 
@@ -39,35 +39,79 @@ Spring MVCを用いたWebアプリケーションの開発に対するイメー�
   以下の作業を行うため、STSのProxy設定と、 `MavenのProxy設定 <http://maven.apache.org/guides/mini/guide-proxies.html>`_\ が必要である。
 
 
-.. warning::
-
-  この節で使用するSpring Tool Suiteの「Spring Template Project」はSpiring Tool Suite 3.4から廃止されたため、この節の内容はSpiring Tool Suite 3.3以前でしか確認できない。
-  
-  Spiring Tool Suite 3.4を使用する場合は\ :doc:`../Appendix/CreateProjectFromBlank`\ を参照されたい。
-  
-  今後、検証環境を更新する予定である。
-
 新規プロジェクト作成
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-SpringSource Tool Suiteのメニューから、[File] -> [New] -> [Spring Template Project] -> [Spring MVC Project] -> [Next]を選択し、
-Spring MVCプロジェクトを作成する。
+インターネットから `mvn archetype:generate` を利用して、プロジェクトを作成する。
 
-.. note::
+.. code-block:: console
 
-    Proxyサーバーを経由している場合、Spring Template Projectが選択できないことがある。
-    これを解決するには、以下のように、実施すること。
+    mvn archetype:generate -B^
+     -DarchetypeCatalog=http://repo.terasoluna.org/nexus/content/repositories/terasoluna-gfw-releases^
+     -DarchetypeGroupId=org.terasoluna.gfw.blank^
+     -DarchetypeArtifactId=terasoluna-gfw-web-blank-archetype^
+     -DarchetypeVersion=1.0.1.RELEASE^
+     -DgroupId=com.example.helloworld^
+     -DartifactId=helloworld^
+     -Dversion=1.0.0-SNAPSHOT
 
-    * まず、[window] -> [Preferences] -> [Spring] -> [Template Projects] を選択し、"spring-defaults"を残して、他項目をRemoveする。
-    * 次に、Preferences右下のApplyをクリックする。
-    * 最後に、[File] -> [New] -> [Spring Project]をクリックすると、Templetesから[Spring MVC Project]が、選択できるようになる。
+ここではwindows上にプロジェクトの元を作成する。
 
+.. code-block:: console
 
+    C:\work>mvn archetype:generate -B^
+    More?  -DarchetypeCatalog=http://repo.terasoluna.org/nexus/content/repositories/terasoluna-gfw-releases^
+    More?  -DarchetypeGroupId=org.terasoluna.gfw.blank^
+    More?  -DarchetypeArtifactId=terasoluna-gfw-web-blank-archetype^
+    More?  -DarchetypeVersion=1.0.1.RELEASE^
+    More?  -DgroupId=com.example.helloworld^
+    More?  -DartifactId=helloworld^
+    More?  -Dversion=1.0.0-SNAPSHOT
+    [INFO] Scanning for projects...
+    [INFO]
+    [INFO] ------------------------------------------------------------------------
+    [INFO] Building Maven Stub Project (No POM) 1
+    [INFO] ------------------------------------------------------------------------
+    [INFO]
+    [INFO] >>> maven-archetype-plugin:2.2:generate (default-cli) @ standalone-pom >>>
+    [INFO]
+    [INFO] <<< maven-archetype-plugin:2.2:generate (default-cli) @ standalone-pom <<<
+    [INFO]
+    [INFO] --- maven-archetype-plugin:2.2:generate (default-cli) @ standalone-pom ---
+    [INFO] Generating project in Batch mode
+    [INFO] Archetype repository missing. Using the one from [org.terasoluna.gfw.blank:terasoluna-gfw-web-blank-archetype:1.0.0.RELEASE -> http://repo.terasoluna.org/nexus/content/repositories/terasoluna-gfw-releases] found in catalog http://repo.terasoluna.org/nexus/content/repositories/terasoluna-gfw-releases
+    [INFO] ----------------------------------------------------------------------------
+    [INFO] Using following parameters for creating project from Archetype: terasoluna-gfw-web-blank-archetype:1.0.1.RELEASE
+    [INFO] ----------------------------------------------------------------------------
+    [INFO] Parameter: groupId, Value: com.example.helloworld
+    [INFO] Parameter: artifactId, Value: helloworld
+    [INFO] Parameter: version, Value: 1.0.0-SNAPSHOT
+    [INFO] Parameter: package, Value: com.example.helloworld
+    [INFO] Parameter: packageInPathFormat, Value: com/example/helloworld
+    [INFO] Parameter: package, Value: com.example.helloworld
+    [INFO] Parameter: version, Value: 1.0.0-SNAPSHOT
+    [INFO] Parameter: groupId, Value: com.example.helloworld
+    [INFO] Parameter: artifactId, Value: helloworld
+    [INFO] project created from Archetype in dir: C:\work\helloworld
+    [INFO] ------------------------------------------------------------------------
+    [INFO] BUILD SUCCESS
+    [INFO] ------------------------------------------------------------------------
+    [INFO] Total time: 6.047s
+    [INFO] Finished at: Fri Aug 22 14:51:57 JST 2014
+    [INFO] Final Memory: 14M/182M
+    [INFO] ------------------------------------------------------------------------
+    C:\work>
 
-次の画面で、[Project Name]に"helloworld"、[Please specify the top-level package]に"com.example.helloworld"を入力し、[Finish]をクリックする。
+SpringSource Tool Suiteのメニューから、[File] -> [Import] -> [Maven] -> [Existing Maven Projects] -> [Next]を選択し、archetypeで作成したプロジェクトを選択する。
 
-.. figure:: images/NewSpringMVCProject.png
-   :alt: New Spring MVC Project
+.. figure:: images/NewMVCProjectImport.png
+   :alt: New MVC Project Import
+   :width: 60%
+
+Root Directoryに \ ``C:\work\helloworld``\ を設定し、Projectsにhelloworldのpom.xmlが選択された状態で、 [Finish] を押下する。
+
+.. figure:: images/NewMVCProjectCreate.png
+   :alt: New MVC Project Import
    :width: 60%
 
 Package Explorerに、次のようなプロジェクトが生成される( **要インターネット接続** )。
@@ -75,10 +119,123 @@ Package Explorerに、次のようなプロジェクトが生成される( **要
 .. figure:: images/HelloWorldWorkspace.png
    :alt: workspace
 
-Spring MVCの設定方法を理解するために、生成されたSpring MVCの設定ファイル(src/main/webapp/WEB-INF/spring/appServlet/servlet-context.xml)について、簡単に説明する。
+Spring MVCの設定方法を理解するために、生成されたSpring MVCの設定ファイル(src/main/resources/META-INF/spring/spring-mvc.xml)について、簡単に説明する。
 
-.. literalinclude:: ../../resources/helloworld/src/main/webapp/WEB-INF/spring/appServlet/servlet-context.xml
-   :language: xml
+.. code-block:: xml
+    :emphasize-lines: 15-16, 25-26, 58-64 
+
+    <?xml version="1.0" encoding="UTF-8"?>
+    <beans xmlns="http://www.springframework.org/schema/beans"
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:context="http://www.springframework.org/schema/context"
+        xmlns:mvc="http://www.springframework.org/schema/mvc" xmlns:util="http://www.springframework.org/schema/util"
+        xmlns:aop="http://www.springframework.org/schema/aop"
+        xsi:schemaLocation="http://www.springframework.org/schema/mvc http://www.springframework.org/schema/mvc/spring-mvc.xsd
+            http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd
+            http://www.springframework.org/schema/util http://www.springframework.org/schema/util/spring-util.xsd
+            http://www.springframework.org/schema/context http://www.springframework.org/schema/context/spring-context.xsd
+            http://www.springframework.org/schema/aop http://www.springframework.org/schema/aop/spring-aop.xsd">
+    
+        <context:property-placeholder
+            location="classpath*:/META-INF/spring/*.properties" />
+    
+        <!-- (1) Enables the Spring MVC @Controller programming model -->
+        <mvc:annotation-driven>
+            <mvc:argument-resolvers>
+                <bean
+                    class="org.springframework.data.web.PageableHandlerMethodArgumentResolver" />
+            </mvc:argument-resolvers>
+        </mvc:annotation-driven>
+    
+        <mvc:default-servlet-handler />
+    
+        <!-- (2) -->
+        <context:component-scan base-package="com.example.helloworld.app" />
+    
+        <mvc:resources mapping="/resources/**"
+            location="/resources/,classpath:META-INF/resources/"
+            cache-period="#{60 * 60}" />
+    
+        <mvc:interceptors>
+            <mvc:interceptor>
+                <mvc:mapping path="/**" />
+                <mvc:exclude-mapping path="/resources/**" />
+                <mvc:exclude-mapping path="/**/*.html" />
+                <bean
+                    class="org.terasoluna.gfw.web.logging.TraceLoggingInterceptor" />
+            </mvc:interceptor>
+            <mvc:interceptor>
+                <mvc:mapping path="/**" />
+                <mvc:exclude-mapping path="/resources/**" />
+                <mvc:exclude-mapping path="/**/*.html" />
+                <bean
+                    class="org.terasoluna.gfw.web.token.transaction.TransactionTokenInterceptor" />
+            </mvc:interceptor>
+            <!--  REMOVE THIS LINE IF YOU USE JPA
+            <mvc:interceptor>
+                <mvc:mapping path="/**" />
+                <mvc:exclude-mapping path="/resources/**" />
+                <mvc:exclude-mapping path="/**/*.html" />
+                <bean
+                    class="org.springframework.orm.jpa.support.OpenEntityManagerInViewInterceptor" />
+            </mvc:interceptor>
+                REMOVE THIS LINE IF YOU USE JPA  -->
+        </mvc:interceptors>
+    
+        <!-- (3) Resolves views selected for rendering by @Controllers to .jsp resources in the /WEB-INF/views directory -->
+        <!-- Settings View Resolver. -->
+        <bean id="viewResolver"
+            class="org.springframework.web.servlet.view.InternalResourceViewResolver">
+            <property name="prefix" value="/WEB-INF/views/" />
+            <property name="suffix" value=".jsp" />
+        </bean>
+    
+        <bean id="requestDataValueProcessor"
+            class="org.terasoluna.gfw.web.mvc.support.CompositeRequestDataValueProcessor">
+            <constructor-arg>
+                <util:list>
+                    <bean class="org.springframework.security.web.servlet.support.csrf.CsrfRequestDataValueProcessor" factory-method="create" />
+                    <bean
+                        class="org.terasoluna.gfw.web.token.transaction.TransactionTokenRequestDataValueProcessor" />
+                </util:list>
+            </constructor-arg>
+        </bean>
+    
+        <!-- Setting Exception Handling. -->
+        <!-- Exception Resolver. -->
+        <bean class="org.terasoluna.gfw.web.exception.SystemExceptionResolver">
+            <property name="exceptionCodeResolver" ref="exceptionCodeResolver" />
+            <!-- Setting and Customization by project. -->
+            <property name="order" value="3" />
+            <property name="exceptionMappings">
+                <map>
+                    <entry key="ResourceNotFoundException" value="common/error/resourceNotFoundError" />
+                    <entry key="BusinessException" value="common/error/businessError" />
+                    <entry key="InvalidTransactionTokenException" value="common/error/transactionTokenError" />
+                    <entry key=".DataAccessException" value="common/error/dataAccessError" />
+                </map>
+            </property>
+            <property name="statusCodes">
+                <map>
+                    <entry key="common/error/resourceNotFoundError" value="404" />
+                    <entry key="common/error/businessError" value="409" />
+                    <entry key="common/error/transactionTokenError" value="409" />
+                    <entry key="common/error/dataAccessError" value="500" />
+                </map>
+            </property>
+            <property name="defaultErrorView" value="common/error/systemError" />
+            <property name="defaultStatusCode" value="500" />
+        </bean>
+        <!-- Setting AOP. -->
+        <bean id="handlerExceptionResolverLoggingInterceptor"
+            class="org.terasoluna.gfw.web.exception.HandlerExceptionResolverLoggingInterceptor">
+            <property name="exceptionLogger" ref="exceptionLogger" />
+        </bean>
+        <aop:config>
+            <aop:advisor advice-ref="handlerExceptionResolverLoggingInterceptor"
+                pointcut="execution(* org.springframework.web.servlet.HandlerExceptionResolver.resolveException(..))" />
+        </aop:config>
+    
+    </beans>
 
 
 .. tabularcolumns:: |p{0.10\linewidth}|p{0.90\linewidth}|
@@ -89,17 +246,60 @@ Spring MVCの設定方法を理解するために、生成されたSpring MVCの
    * - 項番
      - 説明
    * - | (1)
-     - <annotation-driven /> を定義することにより、Spring MVCのデフォルト設定が行われる。デフォルトの設定については、 Springの公式ページである `Enabling the MVC Java Config or the MVC XML Namespace <http://docs.spring.io/spring/docs/3.2.x/spring-framework-reference/html/mvc.html#mvc-config-enable>`_ を参照されたい。
+     - \ ``<mvc:annotation-driven>``\要素を定義することにより、Spring MVCのデフォルト設定が行われる。デフォルトの設定については、 Springの公式ページである `Enabling the MVC Java Config or the MVC XML Namespace <http://docs.spring.io/spring/docs/3.2.x/spring-framework-reference/html/mvc.html#mvc-config-enable>`_ を参照されたい。
    * - | (2)
-     - ViewのResolverを指定し、Viewの配置場所を定義する。
-   * - | (3)
      - Spring MVCで使用するコンポーネントを探すパッケージを定義する。
+   * - | (3)
+     - ViewのResolverを指定し、Viewの配置場所を定義する。
 
-``com.example.helloworld.HomeController`` を以下に示す(ただし、説明用に、シンプルな形に修正している)。
+``com.example.helloworld.app.welcome.HomeController`` を以下に示す。
 
-.. literalinclude:: ../../resources/helloworld/src/main/java/com/example/helloworld/HomeController.java
-   :language: java
-   :emphasize-lines: 15,24,25,31
+
+.. code-block:: java
+   :emphasize-lines: 17,26,36,38
+
+    package com.example.helloworld.app.welcome;
+    
+    import java.text.DateFormat;
+    import java.util.Date;
+    import java.util.Locale;
+    
+    import org.slf4j.Logger;
+    import org.slf4j.LoggerFactory;
+    import org.springframework.stereotype.Controller;
+    import org.springframework.ui.Model;
+    import org.springframework.web.bind.annotation.RequestMapping;
+    import org.springframework.web.bind.annotation.RequestMethod;
+    
+    /**
+     * Handles requests for the application home page.
+     */
+    @Controller // (1)
+    public class HomeController {
+    
+        private static final Logger logger = LoggerFactory
+                .getLogger(HomeController.class);
+    
+        /**
+         * Simply selects the home view to render by returning its name.
+         */
+        @RequestMapping(value = "/", method = {RequestMethod.GET, RequestMethod.POST}) // (2)
+        public String home(Locale locale, Model model) {
+            logger.info("Welcome home! The client locale is {}.", locale);
+    
+            Date date = new Date();
+            DateFormat dateFormat = DateFormat.getDateTimeInstance(DateFormat.LONG,
+                    DateFormat.LONG, locale);
+    
+            String formattedDate = dateFormat.format(date);
+    
+            model.addAttribute("serverTime", formattedDate); // (3)
+    
+            return "welcome/home"; // (4)
+        }
+    
+    }
+
 
 簡単に、解説を行う。
 
@@ -112,26 +312,42 @@ Spring MVCの設定方法を理解するために、生成されたSpring MVCの
    * - 項番
      - 説明
    * - | (1)
-     - ``@Controller`` アノテーションを付けることで、DIコンテナにより、コントローラクラスが自動で読み込まれる。前述「Spring MVCの設定ファイルの説明(3)」の設定により、component-scanの対象となっている。
+     - ``@Controller`` アノテーションを付けることで、DIコンテナにより、コントローラクラスが自動で読み込まれる。前述「Spring MVCの設定ファイルの説明(2)」の設定により、component-scanの対象となっている。
    * - | (2)
      - HTTPメソッドがGETで、Resource（もしくはRequest URL）が"/"で、アクセスする際に実行される。
    * - | (3)
      - Viewに渡したいオブジェクトを設定する。
    * - | (4)
-     - View名を返却する。前述「Spring MVCの設定ファイルの説明(2)」の設定により、"WEB-INF/views/home.jsp"がレンダリングされる。
+     - View名を返却する。前述「Spring MVCの設定ファイルの説明(3)」の設定により、"WEB-INF/views/home.jsp"がレンダリングされる。
 
 Modelに設定したオブジェクトが、HttpServletRequestに設定される。
 home.jspで以下のように ``${serverTime}`` を記述することで、Controllerから渡された値を出力することができる。
 ( **ただし、${XXX}の記述は、XSS対象になる可能性があるので、文字列を出力する場合は、後述のようにHTMLエスケープする必要があることに注意する。** )
 
-.. literalinclude:: ../../resources/helloworld/src/main/webapp/WEB-INF/views/home.jsp
-   :language: jsp
+.. code-block:: jsp
+
+    <!DOCTYPE html>
+    <html>
+    <head>
+    <meta charset="utf-8">
+    <title>Home</title>
+    <link rel="stylesheet"
+        href="${pageContext.request.contextPath}/resources/app/css/styles.css">
+    </head>
+    <body>
+        <div id="wrapper">
+            <h1>Hello world!</h1>
+            <p>The time on the server is ${serverTime}.</p>
+        </div>
+    </body>
+    </html>
+
 
 |
 
 サーバーを起動する
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-| STSで、"helloworld"プロジェクトを右クリックして、"Run As" -> "Run On Server" -> "localhost" -> "VMware vFabric tc Server Developer Edition v2.8" -> "Finish"を実行し、helloworldプロジェクトを起動する。
+| STSで、"helloworld"プロジェクトを右クリックして、"Run As" -> "Run On Server" -> "localhost" -> "VMware vFabric tc Server Developer Edition v2.9" -> "Finish"を実行し、helloworldプロジェクトを起動する。
 | ブラウザに "http://localhost:8080/helloworld/" を入力し、実行すると下記の画面が表示される。
 
 .. figure:: images/AppHelloWorldIndex.png
@@ -157,21 +373,67 @@ home.jspで以下のように ``${serverTime}`` を記述することで、Contr
 フォームオブジェクトの作成
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 | まずは、テキストフィールドの値を受け取るための、フォームオブジェクトを作成する。
-| \ ``com.example.helloworld.echo``\ パッケージに\ ``EchoForm``\ クラスを作成する。プロパティを1つだけ持つ、単純なJavaBeanである。
+| \ ``com.example.helloworld.app.echo``\ パッケージに\ ``EchoForm``\ クラスを作成する。プロパティを1つだけ持つ、単純なJavaBeanである。
 
-.. literalinclude:: ../../resources/helloworld/src/main/java/com/example/helloworld/echo/EchoForm.java
-   :language: java
+.. code-block:: java
+
+    package com.example.helloworld.app.echo;
+
+    import java.io.Serializable;
+
+    public class EchoForm implements Serializable {
+        private static final long serialVersionUID = 2557725707095364445L;
+
+        private String name;
+
+        public void setName(String name) {
+            this.name = name;
+        }
+
+        public String getName() {
+            return name;
+        }
+    }
 
 |
 
 Controllerの作成
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 | 次に、Controllerを作成する。
-| 同じく ``com.example.helloworld.echo`` パッケージに、``EchoController`` クラスを作成する。
+| 同じく ``com.example.helloworld.app.echo`` パッケージに、``EchoController`` クラスを作成する。
 
-.. literalinclude:: ../../resources/helloworld/src/main/java/com/example/helloworld/echo/EchoController.java
-   :language: java
-   :emphasize-lines: 12,18,20,23-25
+.. code-block:: java
+    :emphasize-lines: 12,18,20,23-25
+
+    package com.example.helloworld.app.echo;
+
+    import org.springframework.stereotype.Controller;
+    import org.springframework.ui.Model;
+    import org.springframework.web.bind.annotation.ModelAttribute;
+    import org.springframework.web.bind.annotation.RequestMapping;
+
+    @Controller
+    @RequestMapping("echo")
+    public class EchoController {
+
+        @ModelAttribute // (1)
+        public EchoForm setUpEchoForm() {
+            EchoForm form = new EchoForm();
+            return form;
+        }
+
+        @RequestMapping // (2)
+        public String index(Model model) {
+            return "echo/index"; // (3)
+        }
+
+        @RequestMapping("hello") // (4)
+        public String hello(EchoForm form, Model model) {// (5)
+            model.addAttribute("name", form.getName()); // (6)
+            return "echo/hello";
+        }
+    }
+
 
 .. tabularcolumns:: |p{0.10\linewidth}|p{0.90\linewidth}|
 .. list-table::
@@ -187,11 +449,11 @@ Controllerの作成
      - | メソッドに付加した ``@RequestMapping`` アノテーションの ``value`` 属性に、何も指定しない場合、クラスに付加した ``@RequestMapping`` のルートに、マッピングされる。この場合、"<contextPath>/echo"にアクセスすると、 ``index`` メソッドが呼ばれる。
        | ``method`` 属性に何もしない場合は、任意のHTTPメソッドでマッピングされる。
    * - | (3)
-     - | 引数に、EchoFormには(1)によりModelに追加されたEchoFormオブジェクトが渡される。
-   * - | (4)
      - | View名で"echo/index"を返すので、ViewResolverにより、 "WEB-INF/views/echo/index.jsp"がレンダリングされる。
-   * - | (5)
+   * - | (4)
      - | メソッドに付加した ``@RequestMapping`` アノテーションに"hello"を指定しているので、この場合、"<contextPath>/echo/hello"にアクセスすると ``hello`` メソッドが呼ばれる。
+   * - | (5)
+     - | 引数に、EchoFormには(1)によりModelに追加されたEchoFormオブジェクトが渡される。
    * - | (6)
      - | フォームで入力された ``name`` を、Viewにそのまま渡す。
 
@@ -203,8 +465,23 @@ JSPの作成
 
 * 入力画面 src/main/webapp/WEB-INF/views/echo/index.jsp
 
-.. literalinclude:: ../../resources/helloworld/src/main/webapp/WEB-INF/views/echo/index.jsp
-   :language: jsp
+.. code-block:: jsp
+
+    <!DOCTYPE html>
+    <html>
+    <head>
+    <title>Echo Application</title>
+    </head>
+    <body>
+      <!-- (1) -->
+      <form:form modelAttribute="echoForm" action="${pageContext.request.contextPath}/echo/hello">
+        <form:label path="name">Input Your Name:</form:label>
+        <form:input path="name" />
+        <input type="submit" />
+      </form:form>
+    </body>
+    </html>
+
 
 .. tabularcolumns:: |p{0.10\linewidth}|p{0.90\linewidth}|
 .. list-table::
@@ -221,13 +498,19 @@ JSPの作成
 
 .. code-block:: html
 
+    <!DOCTYPE html>
+    <html>
+    <head>
+    <title>Echo Application</title>
+    </head>
     <body>
-
+      <!-- (1) -->
       <form id="echoForm" action="/helloworld/echo/hello" method="post">
         <label for="name">Input Your Name:</label>
         <input id="name" name="name" type="text" value=""/>
         <input type="submit" />
-      </form>
+      <input type="hidden" name="_csrf" value="43595f38-3edd-4c08-843b-3c31a00d2b15" />
+    </form>
     </body>
     </html>
 
@@ -235,18 +518,36 @@ JSPの作成
 
 * 出力画面 src/main/webapp/WEB-INF/views/echo/hello.jsp
 
-.. literalinclude:: ../../resources/helloworld/src/main/webapp/WEB-INF/views/echo/hello.jsp
-   :language: jsp
+.. code-block:: jsp
 
-Controllerから渡された"name"を出力する。 ``c:out`` タグにより、XSS対策を行っている。
+    <!DOCTYPE html>
+    <html>
+    <head>
+    <title>Echo Application</title>
+    </head>
+    <body>
+      <p>
+        Hello <c:out value="${name}" />! <!-- (2) -->
+      </p>
+    </body>
+    </html>
 
-|
+.. tabularcolumns:: |p{0.10\linewidth}|p{0.90\linewidth}|
+.. list-table::
+   :header-rows: 1
+   :widths: 10 90
+
+   * - 項番
+     - 説明
+   * - | (2)
+     - | Controllerから渡された"name"を出力する。 ``c:out`` タグにより、XSS対策を行っている。
 
 .. note::
 
     ここではXSS対策を標準タグの ``c:out`` で実現したが、より容易に使用できる ``f:h()`` 関数を共通ライブラリで用意している。
     詳細は、  :doc:`../Security/XSS` を参照されたい。
 
+|
 
 | これでエコーアプリケーションの実装は完了である。
 | サーバーを起動し、 "http://localhost:8080/helloworld/echo"にアクセスするとフォームが表示される。
@@ -259,18 +560,34 @@ Controllerから渡された"name"を出力する。 ``c:out`` タグにより�
 Spring MVCでは、Bean Validation (`JSR-303 <http://jcp.org/en/jsr/detail?id=303>`_\)をサポートしており、アノテーションベースな入力チェックを、簡単に
 実装することができる。例として、エコーアプリケーションで名前の入力チェックを行う。
 
-Bean Validationを利用するために、pom.xmlのdependenciesの中に、以下のdependencyを追加する。
-
-.. literalinclude:: ../../resources/helloworld2/pom.xml
-   :language: xml
-   :lines: 112-117
-
 ``EchoForm`` を以下の通り、 ``name`` プロパティに ``@NotNull`` アノテーションおよび、 ``@Size`` アノテーションを付加する(getterメソッドに付加してもよい)。
 
+.. code-block:: java
+    :emphasize-lines: 5,6,11,12
 
-.. literalinclude:: ../../resources/helloworld2/src/main/java/com/example/helloworld/echo/EchoForm.java
-   :language: java
-   :emphasize-lines: 5,6,11,12
+    package com.example.helloworld.app.echo;
+
+    import java.io.Serializable;
+
+    import javax.validation.constraints.NotNull;
+    import javax.validation.constraints.Size;
+
+    public class EchoForm implements Serializable {
+        private static final long serialVersionUID = 2557725707095364445L;
+
+        @NotNull // (1)
+        @Size(min = 1, max = 5) // (2)
+        private String name;
+
+        public void setName(String name) {
+            this.name = name;
+        }
+
+        public String getName() {
+            return name;
+        }
+    }
+
 
 .. tabularcolumns:: |p{0.10\linewidth}|p{0.90\linewidth}|
 .. list-table::
@@ -287,9 +604,43 @@ Bean Validationを利用するために、pom.xmlのdependenciesの中に、以�
 ``EchoController`` を以下の通り、 ``@Valid`` アノテーションを追加し、 ``hasErrors`` メソッドを追加する。
 
 
-.. literalinclude:: ../../resources/helloworld2/src/main/java/com/example/helloworld/echo/EchoController.java
-   :language: java
-   :emphasize-lines: 3,7,27-30
+.. code-block:: java
+    :emphasize-lines: 5,6,26-29
+
+    package com.example.helloworld.app.echo;
+
+    import org.springframework.stereotype.Controller;
+    import org.springframework.ui.Model;
+    import org.springframework.validation.BindingResult;
+    import org.springframework.validation.annotation.Validated;
+    import org.springframework.web.bind.annotation.ModelAttribute;
+    import org.springframework.web.bind.annotation.RequestMapping;
+
+    @Controller
+    @RequestMapping("echo")
+    public class EchoController {
+
+        @ModelAttribute
+        public EchoForm setUpEchoForm() {
+            EchoForm form = new EchoForm();
+            return form;
+        }
+
+        @RequestMapping
+        public String index(Model model) {
+            return "echo/index";
+        }
+
+        @RequestMapping("hello")
+        public String hello(@Validated EchoForm form, BindingResult result, Model model) { // (1)
+            if (result.hasErrors()) { // (2)
+                return "echo/index";
+            }
+            model.addAttribute("name", form.getName());
+            return "echo/hello";
+        }
+    }
+
 
 .. tabularcolumns:: |p{0.10\linewidth}|p{0.90\linewidth}|
 .. list-table::
@@ -299,7 +650,7 @@ Bean Validationを利用するために、pom.xmlのdependenciesの中に、以�
    * - 項番
      - 説明
    * - | (1)
-     - | コントローラー側には、Validation対象の引数に ``@Valid`` アノテーションを付加し、 ``BindingResult`` オブジェクトを引数に追加する。
+     - | コントローラー側には、Validation対象の引数に ``@Validated`` アノテーションを付加し、 ``BindingResult`` オブジェクトを引数に追加する。
        | Bean Validationによる入力チェックは、自動で行われる。結果は、 ``BindingResult`` オブジェクトに渡される。
    * - | (2)
      - | ``hasErrors`` メソッドを実行して、エラーがあるかどうかを確認できる。
@@ -307,9 +658,23 @@ Bean Validationを利用するために、pom.xmlのdependenciesの中に、以�
 入力画面 src/main/webapp/WEB-INF/views/echo/index.jsp に、 ``form:errors`` タグを追加する。
 
 
-.. literalinclude:: ../../resources/helloworld2/src/main/webapp/WEB-INF/views/echo/index.jsp
-   :language: jsp
-   :emphasize-lines: 15
+.. code-block:: jsp
+    :emphasize-lines: 15
+
+    <!DOCTYPE html>
+    <html>
+    <head>
+    <title>Echo Application</title>
+    </head>
+    <body>
+      <form:form modelAttribute="echoForm" action="${pageContext.request.contextPath}/echo/hello">
+        <form:label path="name">Input Your Name:</form:label>
+        <form:input path="name" />
+        <form:errors path="name" cssStyle="color:red" /><!-- (1) -->
+        <input type="submit" />
+      </form:form>
+    </body>
+    </html>
 
 .. tabularcolumns:: |p{0.10\linewidth}|p{0.90\linewidth}|
 .. list-table::
@@ -338,14 +703,19 @@ Bean Validationを利用するために、pom.xmlのdependenciesの中に、以�
 
 .. code-block:: html
 
+    <!DOCTYPE html>
+    <html>
+    <head>
+    <title>Echo Application</title>
+    </head>
     <body>
-
       <form id="echoForm" action="/helloworld/echo/hello" method="post">
         <label for="name">Input Your Name:</label>
         <input id="name" name="name" type="text" value=""/>
-        <span id="name.errors" style="color:red">size must be between 1 and 5</span>
+        <span id="name.errors" style="color:red">size must be between 1 and 5</span><!-- (1) -->
         <input type="submit" />
-      </form>
+      <input type="hidden" name="_csrf" value="6e94a78d-4a2c-4a41-a514-0a60f0dbedaf" />
+    </form>
     </body>
     </html>
 
@@ -356,7 +726,8 @@ Bean Validationを利用するために、pom.xmlのdependenciesの中に、以�
 
 この章では、
 
-#. 最も簡易な、SpringMVCの設定ファイル設定方法
+#. \ ``mvn archetype:generate``\を利用したブランクプロジェクトの作成方法
+#. SpringMVCの基本的な設定方法
 #. 最も簡易な、画面遷移方法
 #. 画面間での値の引き渡し方法
 #. シンプルな入力チェック方法
