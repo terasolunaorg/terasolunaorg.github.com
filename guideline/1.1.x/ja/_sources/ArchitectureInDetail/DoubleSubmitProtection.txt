@@ -1321,7 +1321,7 @@ PRG(Post-Redirect-Get)パターンの適用
                       method = RequestMethod.POST)
         @TransactionTokenCheck(value = "create", 
                              type = TransactionTokenType.BEGIN) // (3)
-        public String createConfirm(@Valided
+        public String createConfirm(@Validated
         UserCreateForm form, BindingResult result) {
 
             // omitted
@@ -1331,7 +1331,7 @@ PRG(Post-Redirect-Get)パターンの適用
 
         @RequestMapping(value = "create", method = RequestMethod.POST)
         @TransactionTokenCheck(value = "create") // (4)
-        public String create(@Valided
+        public String create(@Validated
         UserCreateForm form, BindingResult result) {
 
             // omitted

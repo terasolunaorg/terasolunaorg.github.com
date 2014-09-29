@@ -446,7 +446,7 @@ Overview
         # ファイルのアップロードが成功した場合
         i.ex.an.0001={0} upload completed.
         # パスワードの推奨変更期間が過ぎている場合
-        w.ex.an.2001=The recommended change interval has passed password. Please change your password.
+        w.ex.an.2001=The recommended change interval of password has passed. Please change your password.
         # ファイルサイズが制限を超えている場合
         e.ex.an.8001=Cannot upload, Because the file size must be less than {0}MB.
         # データに不整合がある場合

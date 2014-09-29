@@ -895,12 +895,12 @@ bean定義したSequencerからシーケンス値を取得する。
     // omitted
 
     @Transactional
-    public Article createArticle(Article inputtedArticle) {
+    public Article createArticle(Article inputArticle) {
 
         String articleId = articleIdSequencer.getNext(); // (3)
-        inputtedArticle.setArticleId(articleId);
+        inputArticle.setArticleId(articleId);
 
-        Article savedArticle = articleRepository.save(inputtedArticle);
+        Article savedArticle = articleRepository.save(inputArticle);
 
         return savedArticle;
     }

@@ -157,7 +157,7 @@ Servlet3.0のアップロード機能を有効化するために、以下の設�
             </multipart-config>
         </servlet>
 
-        <!-- ommited -->
+        <!-- omitted -->
 
     </web-app>
 
@@ -647,7 +647,7 @@ Controllerの実装
         }
 
         @RequestMapping(value = "upload", method = RequestMethod.GET, params = "complete")
-        public String uploadComplate() {
+        public String uploadComplete() {
             return "article/uploadComplete";
         }
     

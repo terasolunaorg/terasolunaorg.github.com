@@ -3279,7 +3279,7 @@ RESTful Web Serviceで発生した例外のハンドリング方法について�
             return new ApiError(errorCode, localizedMessage);
         }
     
-        // ommited
+        // omitted
     
     }
 
@@ -4087,7 +4087,7 @@ ExceptionCodeResolverを使ったエラーコードとメッセージの解決
     e.ex.fw.9002 = System error occurred.
     e.ex.fw.9003 = System error occurred.
 
-    # ommited
+    # omitted
 
 - | :file:`xxx-web/src/main/resources/ValidationMessages.properties`
   | Bean Validationを使った入力チェックで発生するエラーに対して、エラーコードに対応するメッセージの設定を行う。
@@ -4132,12 +4132,12 @@ ExceptionCodeResolverを使ったエラーコードとメッセージの解決
 
  .. code-block:: properties
 
-    # ommited
+    # omitted
 
     e.ex.mm.5001 = Specified member not found. member id : {0}
     e.ex.mm.8001 = Can not used specified sign id. sign id : {0}
 
-    # ommited
+    # omitted
 
 |
 

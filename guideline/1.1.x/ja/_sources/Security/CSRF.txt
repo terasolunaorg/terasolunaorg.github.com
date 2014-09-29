@@ -54,25 +54,6 @@ Overview
   CSRFトークンチェックは、別サイトからの不正な更新リクエストをチェックし、エラーとするものである。
   ユーザに順序性（一連の業務フロー）を守らせ、チェックするためには、\ :ref:`double-submit_transactiontokencheck`\ を参照されたい。
 
-.. warning::
-
-  CSRF対策機能は、Spring Security3.2から提供される機能であるが、共通ライブラリ(terasoluna-gfw-security-web)の1.0.0.RELEASE版が依存している
-  Spring Securityのバージョンは、3.1.4.RELEASEである(共通ライブラリの1.0.0.RELEASE版リリース時には、Spring Securityの3.2.0.RELEASE版は未リリースであるため)。
-  このため、terasoluna-gfw-security-webプロジェクト内に、1.0.0.RELEASE版リリース時のSprinng SecurityのCSRF対策機能に関する以下のクラスが同梱されている。
-
-  * org.springframework.security.web.authentication.session.CompositeSessionAuthenticationStrategy
-  * org.springframework.security.web.csrf.CsrfAuthenticationStrategy
-  * org.springframework.security.web.csrf.CsrfFilter
-  * org.springframework.security.web.csrf.CsrfLogoutHandler
-  * org.springframework.security.web.csrf.CsrfToken
-  * org.springframework.security.web.csrf.CsrfTokenRepository
-  * org.springframework.security.web.csrf.DefaultCsrfToken
-  * org.springframework.security.web.csrf.HttpSessionCsrfTokenRepository
-  * org.springframework.security.web.csrf.InvalidCsrfTokenException
-  * org.springframework.security.web.servlet.support.csrf.CsrfRequestDataValueProcessor
-
-  共通ライブラリのバージョンアップのタイミングで、Spring Securityのバージョンアップし、上記のクラスは、terasoluna-gfw-security-webプロジェクトからは取り除かれる予定である。
-
 |
 
 How to use
@@ -92,44 +73,46 @@ spring-security.xmlの設定
 
 
 .. code-block:: xml
-   :emphasize-lines: 3-6,10-
+   :emphasize-lines: 3-4,8-
 
     <sec:http auto-config="true" use-expressions="true" >
         <!-- omitted -->
-        <sec:custom-filter ref="csrfFilter" before="LOGOUT_FILTER" />  <!-- (1) -->
-
-        <sec:session-management
-            session-authentication-strategy-ref="sessionAuthenticationStrategy" />  <!-- (2) -->
+        <sec:csrf />  <!-- (1) -->
+        <sec:access-denied-handler ref="accessDeniedHandler"/>  <!-- (2) -->
         <!-- omitted -->
     </sec:http>
 
-    <bean id="csrfFilter" class="org.springframework.security.web.csrf.CsrfFilter">  <!-- (3) -->
-        <constructor-arg index="0" ref="csrfTokenRepository" />  <!-- (4) -->
-        <property name="accessDeniedHandler">
+    <bean id="accessDeniedHandler"
+        class="org.springframework.security.web.access.DelegatingAccessDeniedHandler">  <!-- (3) -->
+        <constructor-arg index="0">  <!-- (4) -->
+            <map>
+                <entry
+                    key="org.springframework.security.web.csrf.InvalidCsrfTokenException">  <!-- (5) -->
+                    <bean
+                        class="org.springframework.security.web.access.AccessDeniedHandlerImpl">  <!-- (5) -->
+                        <property name="errorPage"
+                            value="/WEB-INF/views/common/error/invalidCsrfTokenError.jsp" />  <!-- (5) -->
+                    </bean>
+                </entry>
+                <entry
+                    key="org.springframework.security.web.csrf.MissingCsrfTokenException">  <!-- (6) -->
+                    <bean
+                        class="org.springframework.security.web.access.AccessDeniedHandlerImpl">  <!-- (6) -->
+                        <property name="errorPage"
+                            value="/WEB-INF/views/common/error/missingCsrfTokenError.jsp" />  <!-- (6) -->
+                    </bean>
+                </entry>
+            </map>
+        </constructor-arg>
+        <constructor-arg index="1">  <!-- (7) -->
             <bean
-                class="org.springframework.security.web.access.AccessDeniedHandlerImpl">  <!-- (5) -->
+                class="org.springframework.security.web.access.AccessDeniedHandlerImpl">  <!-- (8) -->
                 <property name="errorPage"
-                    value="/WEB-INF/views/common/error/csrfTokenError.jsp" />  <!-- (6) -->
+                    value="/WEB-INF/views/common/error/accessDeniedError.jsp" />  <!-- (8) -->
             </bean>
-        </property>
-    </bean>
-
-    <bean id="csrfTokenRepository"
-        class="org.springframework.security.web.csrf.HttpSessionCsrfTokenRepository" />  <!-- (7) -->
-
-    <bean id="sessionAuthenticationStrategy"
-        class="org.springframework.security.web.authentication.session.CompositeSessionAuthenticationStrategy"> <!-- (8) -->
-        <constructor-arg index="0">
-            <list>
-                <!-- omitted -->
-                <bean
-                    class="org.springframework.security.web.csrf.CsrfAuthenticationStrategy">  <!-- (9) -->
-                    <constructor-arg index="0"
-                        ref="csrfTokenRepository" />  <!-- (10) -->
-                </bean>
-            </list>
         </constructor-arg>
     </bean>
+
 
 .. tabularcolumns:: |p{0.10\linewidth}|p{0.90\linewidth}|
 .. list-table::
@@ -139,33 +122,54 @@ spring-security.xmlの設定
    * - 項番
      - 説明
    * - | (1)
-     - | \ ``<sec:custom-filter>``\ 要素を定義し、\ ``org.springframework.security.web.authentication.logout.LogoutFilter``\ の前に CSRFのFilter定義を行う。
+     - | \ ``<sec:http>``\ 要素に\ ``<sec:csrf>``\ 要素を定義することで、Spring Security のCSRFトークンチェック機能を利用できるようになる。
+       | デフォルトでチェックされるHTTPメソッドについては、\ :ref:`こちら<csrf_default-add-token-method>`\ を参照されたい。
+       | 詳細については、\ `Spring Securityのレファレンスドキュメント <http://docs.spring.io/spring-security/site/docs/3.2.x/reference/htmlsingle/#csrf-configure>`_\ を参照されたい。
    * - | (2)
-     - | \ ``<sec:session-management>``\ 要素の、\ ``session-authentication-strategy-ref``\ 属性で、
-       | \ ``org.springframework.security.web.authentication.session.SessionAuthenticationStrategy``\ を参照する。
+     - | \ ``AccessDeniedException``\ を継承したExceptionが発生した場合、Exceptionの種類毎に表示するviewを切り替えるためにHandlerを定義する。
+       | 全て同じ画面で良い場合は ``error-page`` 属性に遷移先のjspを指定することで可能となる。
+       | Spring Securityの機能でハンドリングしない場合は、\ :ref:`こちら<csrf_403-webxml-setting>`\ を参照されたい。
    * - | (3)
-     - | \ ``org.springframework.security.web.csrf.CsrfFilter``\ のbean定義を行う。
+     - | エラーページを切り替えるためにSpring Securityで用意されているHandlerのclassに \ ``org.springframework.security.web.access.DelegatingAccessDeniedHandler``\ を指定する。
    * - | (4)
-     - | コンストラクタの第1引数で、トークンの作成、保持を行う\ ``org.springframework.security.web.csrf.CsrfTokenRepository``\ を参照する。
+     - | コンストラクタの第1引数でデフォルト以外のException（\ ``AccessDeniedException``\ を継承したException）の種類毎に表示を変更する画面をMap形式で設定する。
    * - | (5)
-     - | \ ``accessDeniedHandler``\ プロパティに\ ``org.springframework.security.web.access.AccessDeniedHandlerImpl``\ を bean定義する。
+     - | keyに \ ``AccessDeniedException``\ を継承したException を指定する。
+       | 実装クラスとして、Spring Securityで用意されている \ ``org.springframework.security.web.access.AccessDeniedHandlerImpl`` を指定する。
+       | propertyのnameにerrorPageを指定し、valueに表示するviewを指定する。
    * - | (6)
-     - | \ ``AccessDeniedHandlerImpl``\ の\ ``errorPage``\ プロパティに、リクエストに含まれるCSRFトークンが、一致しない場合の遷移先パスを設定する。
-       | 設定を省略した場合、リクエストに含まれるCSRFトークンが一致しない場合、ステータスコード403でクライアントに返却する。
+     - | (5)とExceptionの種類が違う場合に表示の変更を定義する。
    * - | (7)
-     - | \ ``CsrfTokenRepository``\ の実装としてHTTPセッションにCSRFトークンを保存する、\ ``org.springframework.security.web.csrf.HttpSessionCsrfTokenRepository``\ クラスを定義する。
+     - | コンストラクタの第2引数でデフォルト（\ ``AccessDeniedException``\ とコンストラクタの第1引数で指定していない\ ``AccessDeniedException``\を継承したException）の場合のviewを指定する。
    * - | (8)
-     - | \ ``SessionAuthenticationStrategy``\ の実装として、複数の\ ``SessionAuthenticationStrategy``\ を使用できる\ ``org.springframework.security.web.authentication.session.CompositeSessionAuthenticationStrategy``\ 
-   * - | (9)
-     - | \ ``CompositeSessionAuthenticationStrategy``\ に、\ ``org.springframework.security.web.csrf.CsrfAuthenticationStrategy``\ を追加する。
-   * - | (10)
-     - | \ ``CompositeSessionAuthenticationStrategy``\ コンストラクタの第1引数で、\ ``CsrfTokenRepository``\ を参照する。
+     - | 実装クラスとして、Spring Securityで用意されている \ ``org.springframework.security.web.access.AccessDeniedHandlerImpl`` を指定する。
+       | propertyのnameにerrorPageを指定し、valueに表示するviewを指定する。
+
+|
+
+.. tabularcolumns:: |p{0.40\linewidth}|p{0.60\linewidth}|
+.. list-table:: \ ``AccessDeniedException``\ を継承したCSRF対策により発生するExceptionの種類
+   :header-rows: 1
+   :widths: 40 60
+
+   * - Exception
+     - 発生理由
+   * - | \ ``org.springframework.security.web.csrf.InvalidCsrfTokenException``\ 
+     - | クライアントからリクエストしたCSRFトークンとサーバで保持しているCSRFトークンが一致しない場合に発生する。
+   * - | \ ``org.springframework.security.web.csrf.MissingCsrfTokenException``\ 
+     - | CSRFトークンが存在しない場合に発生する。
+       | デフォルトの設定ではトークンをHTTPセッションに保持するため、CSRFトークンが存在しないということはHTTPセッションが破棄されたことを意味する。そのためこの例外が発生する前にセッションタイムアウトの処理が行われる。
+       | \ ``<sec:csrf>``\ 要素の \ ``token-repository-ref``\ 属性でトークンの保存先をキャッシュやDBなどに変更し、一定期間後に削除する運用を行った場合に発生する。
+
+|
+
+.. _csrf_403-webxml-setting:
 
 .. note::
 
-  **AccessDeniedHandlerImplのerrorPageプロパティを省略した場合の、エラーハンドリングについて**
+  **<sec:access-denied-handler>の設定を省略した場合のエラーハンドリングについて**
 
-  web.xmlに、以下の設定を行うことで、任意のページに遷移させることができる。
+  web.xmlに以下の設定を行うことで、任意のページに遷移させることができる。
 
   **web.xml**
 
@@ -173,7 +177,7 @@ spring-security.xmlの設定
 
         <error-page>
             <error-code>403</error-code>  <!-- (1) -->
-            <location>/WEB-INF/views/common/error/csrf-error.jsp</location>  <!-- (2) -->
+            <location>/WEB-INF/views/common/error/accessDeniedError.jsp</location>  <!-- (2) -->
         </error-page>
 
     .. tabularcolumns:: |p{0.10\linewidth}|p{0.90\linewidth}|
@@ -188,22 +192,14 @@ spring-security.xmlの設定
        * - | (2)
          - | location要素に、遷移先のパスを設定する。
 
+.. _csrf_change-httpstatus403:
+
 .. note::
 
   **ステータスコード403以外を返却したい場合**
 
   リクエストに含まれるCSRFトークンが一致しない場合、ステータスコード403以外を返却したい場合は、\ ``org.springframework.security.web.access.AccessDeniedHandler``\ インタフェースを
   実装した、独自のAccessDeniedHandlerを作成する必要がある。
-  詳細は、\ `Spring Securityのレファレンスドキュメント <http://docs.spring.io/spring-security/site/docs/3.2.0.RELEASE/reference/html/csrf.html>`_\ を参照されたい。
-
-.. todo::
-
-    **Spring Security のバージョンが、 3.2.0 以降の場合の設定**
-
-    Spring Security 3.2を使用する場合、\ ``<sec:http>``\ 要素に\ ``<sec:csrf />``\ 要素を設定することで、
-    前述した設定を省略することができる。
-    
-    \ `Spring Securityのレファレンスドキュメント <http://docs.spring.io/spring-security/site/docs/3.2.0.RELEASE/reference/htmlsingle/#csrf-configure>`_\ を参照されたい。
 
 .. _csrf_spring-mvc-setting:
 
@@ -212,15 +208,14 @@ spring-mvc.xmlの設定
 CSRFトークン用の\ ``RequestDataValueProcessor``\ 実装クラスを利用し、Springのタグライブラリの\ ``<form:form>``\ タグを使うことで、自動的にCSRFトークンを、hiddenに埋め込むことができる。
 
 .. code-block:: xml
-   :emphasize-lines: 5-7
+   :emphasize-lines: 1-2,5-6
 
     <bean id="requestDataValueProcessor"
         class="org.terasoluna.gfw.web.mvc.support.CompositeRequestDataValueProcessor"> <!-- (1)  -->
         <constructor-arg>
             <util:list>
                 <bean
-                    class="org.springframework.security.web.servlet.support.csrf.CsrfRequestDataValueProcessor"
-                    factory-method="create" /> <!-- (2)  -->
+                    class="org.springframework.security.web.servlet.support.csrf.CsrfRequestDataValueProcessor" /> <!-- (2)  -->
                 <bean
                     class="org.terasoluna.gfw.web.token.transaction.TransactionTokenRequestDataValueProcessor" />
             </util:list>
@@ -235,15 +230,16 @@ CSRFトークン用の\ ``RequestDataValueProcessor``\ 実装クラスを利用�
    * - 項番
      - 説明
    * - | (1)
-     - | \ ``org.terasoluna.gfw.web.mvc.support.RequestDataValueProcessor``\ を複数定義可能な、
+     - | \ ``org.terasoluna.gfw.web.mvc.support.RequestDataValueProcessor``\ を複数定義可能な
        | \ ``org.terasoluna.gfw.web.mvc.support.CompositeRequestDataValueProcessor``\ をbean定義する。
    * - | (2)
      - | コンストラクタの第1引数に、\ ``org.springframework.security.web.servlet.support.csrf.CsrfRequestDataValueProcessor``\ のbean定義を設定する。
-       | factory-methodに、createメソッドを指定する。
 
 .. note::
 
-  CSRFトークンの生成、チェックは、\ ``CsrfFilter``\ が行うため、Controllerでは特に、CSRF対策は意識しなくてよい。
+  CSRFトークンの生成及びチェックは \ ``<sec:csrf />``\ の設定で有効になる \``CsrfFilter``\ により行われるので、開発者はControllerで特にCSRF対策は意識しなくてよい。
+
+.. _csrf_form-tag-token-send:
 
 フォームによるCSRFトークンの送信
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
@@ -318,6 +314,7 @@ CSRFトークンはログインのタイミングで生成される。
   
   Spring Securityのデフォルト実装は、CSRFトークンをUUIDとして生成し、Session IDは使用しないため、CSRFトークンが漏洩してもSession IDは漏洩することはない。またログインの度にCSRFトークンは変更される。
   また、将来的にはSpring 4でこの問題は解消される(\ ``<form:form method="GET">``\ を使用してもCSRFトークンはURLに現れない)。
+
 .. _csrf_formtag-use:
 
 CSRFトークンを明示的に埋め込む方法
@@ -325,7 +322,7 @@ CSRFトークンを明示的に埋め込む方法
 
 \ ``<form:form>``\ タグを使用しない場合は、明示的に、\ ``<input type="hidden">``\ タグを追加する必要がある。
 
-\ ``CsrfFilter``\ により、\ ``org.springframework.security.web.csrf.CsrfToken``\ オブジェクトが、リクエストスコープの
+\ ``<sec:csrf />``\ の設定で有効になる \ ``CsrfFilter``\ により \ ``org.springframework.security.web.csrf.CsrfToken``\ オブジェクトが、リクエストスコープの
 \ ``_csrf``\ 属性に設定されるため、jspでは、以下のように設定すればよい
 
 .. code-block:: jsp
@@ -356,17 +353,18 @@ CSRFトークンを明示的に埋め込む方法
       <input type="hidden" name="_csrf" value="dea86ae8-58ea-4310-bde1-59805352dec7"/>  <!-- (2) -->
     </form>
 
+.. _csrf_default-add-token-method:
+
 .. note::
 
   CSRFトークンチェック対象のリクエスト(デフォルトでは、HTTPメソッドが、GET, HEAD, TRACE, OPTIONS以外の場合)で、CSRFトークンがない、または
-  サーバー上に保存されているトークン値と、送信されたトークン値が異なる場合は、\ ``AccessDeniedHandler``\ によりアクセス拒否処理が行われる。
-  デフォルトでは403エラーとなり、\ ``AccessDeniedHandlerImpl``\ の\ ``errorPage``\ プロパティで指定したエラーページに遷移する。
-  詳細は、\ :ref:`spring-security.xmlの設定 <csrf_spring-security-setting>`\ を参照されたい。
+  サーバー上に保存されているトークン値と、送信されたトークン値が異なる場合は、\ ``AccessDeniedHandler``\ によりアクセス拒否処理が行われ、HttpStatusの403が返却される。
+  \ :ref:`spring-security.xmlの設定 <csrf_spring-security-setting>`\ を記述している場合は、指定したエラーページに遷移する。
 
 
 AjaxによるCSRFトークンの送信
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-| ``CsrfFilter`` は、前述のようにリクエストパラメータからCSRFトークンを取得するだけでなく、
+| \ ``<sec:csrf />``\ の設定で有効になる \ ``CsrfFilter``\ が、前述のようにリクエストパラメータからCSRFトークンを取得するだけでなく、
 | HTTPリクエストヘッダーからもCSRFトークンを取得する。
 | Ajaxを利用する場合はHTTPヘッダーに、CSRFトークンを設定することを推奨する。JSON形式でリクエストを送る場合にも対応できるためである。
 

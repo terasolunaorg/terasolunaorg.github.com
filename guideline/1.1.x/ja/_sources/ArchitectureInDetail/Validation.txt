@@ -1966,6 +1966,45 @@ Spring Validatorによる相関項目チェック実装
            // omitted
        }
 
+.. note::
+
+   相関項目チェックルールのチェック内容をバリデーショングループに応じて変更したい場合（例えば、特定のバリデーショングループが指定された場合だけ相関項目チェックを実施したい場合など）は、 \ ``org.springframework.validation.Validator``\ インターフェイスを実装する代わりに、 \ ``org.springframework.validation.SmartValidator``\ インターフェイスを実装し、validateメソッド内で処理を切り替えるとよい。
+
+     .. code-block:: java
+
+       package com.example.sample.app.validation;
+
+       import org.apache.commons.lang3.ArrayUtils;
+       import org.springframework.stereotype.Component;
+       import org.springframework.validation.Errors;
+       import org.springframework.validation.SmartValidator;
+
+       @Component
+       public class PasswordEqualsValidator implements SmartValidator { // Implements SmartValidator instead of Validator interface
+
+           @Override
+           public boolean supports(Class<?> clazz) {
+               return PasswordResetForm.class.isAssignableFrom(clazz);
+           }
+
+           @Override
+           public void validate(Object target, Errors errors) {
+               validate(target, errors, new Object[] {});
+           }
+
+           @Override
+           public void validate(Object target, Errors errors, Object... validationHints) {
+               // Check validationHints(groups) and apply validation logic only when 'Update.class' is specified
+               if (ArrayUtils.contains(validationHints, Update.class)) {
+                   PasswordResetForm form = (PasswordResetForm) target;
+                   String password = form.getPassword();
+                   String confirmPassword = form.getConfirmPassword();
+
+                   // omitted...
+               }
+           }
+       }
+
 Bean Validationによる相関項目チェック実装
 """"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 
