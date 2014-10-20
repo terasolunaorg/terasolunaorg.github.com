@@ -1748,7 +1748,7 @@ Appendix
         <h1>Wizard Form(1/3)</h1>
         <form:form action="${pageContext.request.contextPath}/wizard/save" 
             modelAttribute="wizardForm">
-            <form:label path="field1">Filed1</form:label> : 
+            <form:label path="field1">Field1</form:label> : 
             <form:input path="field1" />
             <form:errors path="field1" />
             <div>
@@ -1771,7 +1771,7 @@ Appendix
         <%-- (31) --%>
         <form:form action="${pageContext.request.contextPath}/wizard/save" 
             modelAttribute="wizardForm">
-            <form:label path="field2">Filed2</form:label> : 
+            <form:label path="field2">Field2</form:label> : 
             <form:input path="field2" />
             <form:errors path="field2" />
             <div>
@@ -1805,7 +1805,7 @@ Appendix
         <%-- (32) --%>
         <form:form action="${pageContext.request.contextPath}/wizard/save" 
             modelAttribute="wizardForm">
-            <form:label path="field3">Filed3</form:label> : 
+            <form:label path="field3">Field3</form:label> : 
             <form:input path="field3" />
             <form:errors path="field3" />
             <div>
@@ -1840,13 +1840,13 @@ Appendix
         <form:form action="${pageContext.request.contextPath}/wizard/save" 
             modelAttribute="wizardForm">
             <div>
-                Filed1 : ${f:h(wizardForm.field1)}
+                Field1 : ${f:h(wizardForm.field1)}
             </div>
             <div>
-                Filed2 : ${f:h(wizardForm.field2)}
+                Field2 : ${f:h(wizardForm.field2)}
             </div>
             <div>
-                Filed3 : ${f:h(wizardForm.field3)}
+                Field3 : ${f:h(wizardForm.field3)}
             </div>
             <div>
                 <form:button name="redoForm3">Back</form:button>
@@ -1881,13 +1881,13 @@ Appendix
                 ID : ${f:h(entity.id)}
             </div>
             <div>
-                Filed1 : ${f:h(entity.field1)}
+                Field1 : ${f:h(entity.field1)}
             </div>
             <div>
-                Filed2 : ${f:h(entity.field2)}
+                Field2 : ${f:h(entity.field2)}
             </div>
             <div>
-                Filed3 : ${f:h(entity.field3)}
+                Field3 : ${f:h(entity.field3)}
             </div>
         </div>
         <div>

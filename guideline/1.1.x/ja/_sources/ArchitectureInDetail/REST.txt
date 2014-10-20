@@ -2733,8 +2733,8 @@ URIで指定されたMemberリソースのコレクションをページ検索�
                 MemberResource requestedResource) {
 
             // (4)
-            Member inputtedMember = beanMapper.map(requestedResource, Member.class);
-            Member createdMember = memberSevice.createMember(inputtedMember);
+            Member inputMember = beanMapper.map(requestedResource, Member.class);
+            Member createdMember = memberSevice.createMember(inputMember);
 
             MemberResource responseResource = beanMapper.map(createdMember,
                     MemberResource.class);
@@ -2926,10 +2926,10 @@ URIで指定されたMemberリソースを更新するREST APIの実装例を、
                 MemberResource requestedResource) {
     
             // (4)
-            Member inputtedMember = beanMapper.map(
+            Member inputMember = beanMapper.map(
                 requestedResource, Member.class);
             Member updatedMember = memberSevice.updateMember(
-                memberId, inputtedMember);
+                memberId, inputMember);
     
             MemberResource responseResource = beanMapper.map(updatedMember,
                     MemberResource.class);
@@ -3874,7 +3874,7 @@ RESTful Web Serviceで発生した例外のハンドリング方法について�
     Transfer-Encoding: chunked
     Date: Wed, 19 Feb 2014 09:03:26 GMT
     
-    {"code":"e.ex.mm.8001","message":"Can not used specified sign id. sign id : user1@test.com"}
+    {"code":"e.ex.mm.8001","message":"Cannot use specified sign id. sign id : user1@test.com"}
 
 |
 
@@ -4135,7 +4135,7 @@ ExceptionCodeResolverを使ったエラーコードとメッセージの解決
     # omitted
 
     e.ex.mm.5001 = Specified member not found. member id : {0}
-    e.ex.mm.8001 = Can not used specified sign id. sign id : {0}
+    e.ex.mm.8001 = Cannot use specified sign id. sign id : {0}
 
     # omitted
 
@@ -6458,7 +6458,7 @@ DomainMessageCodes.java
         /** e.ex.mm.5001=Specified member not found. member id : {0} */
         public static final String E_EX_MM_5001 = "e.ex.mm.5001";
     
-        /** e.ex.mm.8001=Can not used specified sign id. sign id : {0} */
+        /** e.ex.mm.8001=Cannot use specified sign id. sign id : {0} */
         public static final String E_EX_MM_8001 = "e.ex.mm.8001";
     }
 

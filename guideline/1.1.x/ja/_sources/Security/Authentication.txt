@@ -342,7 +342,7 @@ spring-security.xml
 
 認証処理の設定
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-Spring Securityにおける認証処理の設定は\ ``AuthenticationProvider``\ と\ ``UserDetailsService``\ の設定が
+Spring Securityで認証処理を設定するために、\ ``AuthenticationProvider``\ と\ ``UserDetailsService``\ を定義する。
 
 \ ``AuthenticationProvider``\ は、次の役割を担う。
 
@@ -569,18 +569,36 @@ Javaクラスで\ ``UserDetails``\ オブジェクトを利用する
 \ ``SecurityContextHolder``\ から\ ``UserDetails``\ オブジェクトを取得する方法は、どこからでもstaticメソッドで利用可能であり、
 便利な反面、モジュール結合度を高めてしまう。テストも実施しづらい。
 
-\ ``UserDetails``\ オブジェクトは\ ``java.security.Principal``\ オブジェクトからも取得可能であるため、Spring MVCのController内では以下のように\ ``SecurityContextHolder``\ を使用せずに\ ``UserDetails``\ オブジェクトを取得できる。
+| \ ``UserDetails``\ オブジェクトは\ ``@AuthenticationPrincipal``\ を利用することで取得可能である。
+| \ ``@AuthenticationPrincipal``\を利用するためには\ ``org.springframework.security.web.bind.support.AuthenticationPrincipalArgumentResolver``\ を\ ``<mvc:argument-resolvers>``\ に設定する必要がある。
+
+- :file:`spring-mvc.xml`
+
+.. code-block:: xml
+   :emphasize-lines: 5-6
+
+    <mvc:annotation-driven>
+        <mvc:argument-resolvers>
+            <bean
+                class="org.springframework.data.web.PageableHandlerMethodArgumentResolver" />
+            <bean
+                class="org.springframework.security.web.bind.support.AuthenticationPrincipalArgumentResolver" />
+        </mvc:argument-resolvers>
+    </mvc:annotation-driven>
+
+
+Spring MVCのController内では以下のように\ ``SecurityContextHolder``\ を使用せずに\ ``UserDetails``\ オブジェクトを取得できる。
 
 .. code-block:: java
 
-  @RequestMapping(method = RequestMethod.GET)
-  public String view(Principal principal, Model model) {
-      // get Authentication 
-      Authentication authentication = (Authentication) principal; // (1)
-      // get UserDetails
-      UserDetails userDetails = (UserDetails) authentication.getPrincipal(); // (2)
-      // omitted ...
-  }
+    @RequestMapping(method = RequestMethod.GET)
+    public String view(@AuthenticationPrincipal SampleUserDetails userDetails, // (1)
+            Model model) {
+        // get account object
+        Account account = userDetails.getAccount(); // (2)
+        model.addAttribute(account);
+        return "account/view";
+    }
 
 .. tabularcolumns:: |p{0.10\linewidth}|p{0.90\linewidth}|
 .. list-table::
@@ -590,9 +608,16 @@ Javaクラスで\ ``UserDetails``\ オブジェクトを利用する
    * - 項番
      - 説明
    * - | (1)
-     - | \ ``java.security.Principal``\ オブジェクトを\ ``org.springframework.security.core.Authentication``\ クラスにキャストする。
+     - | \ ``@AuthenticationPrincipal``\ を利用してログインしているユーザ情報を取得する。
    * - | (2)
-     - | \ ``Authentication``\ オブジェクトから\ ``UserDetails``\ オブジェクトを取得する。
+     - | \ ``SampleUserDetails``\ から\ アカウント情報を取得する。
+
+.. note::
+
+    \ ``@AuthenticationPrincipal``\アノテーションをつける引数の型は\ ``UserDetails``\型を継承したクラスである必要がある。
+    通常は\ :ref:`extendsuserdetailsservice`\ で作成する\ ``UserDetails``\継承クラスを使用すればよい。
+
+    \ ``SampleUserDetails``\ クラスは\ :doc:`Tutorial`\ で作成するクラスである。詳細は\ :ref:`Tutorial_CreateAuthService`\ を参照されたい。
 
 \ **Controller内でUserDetailsオブジェクトにアクセスする場合はこちらの方法を推奨する**\ 。
 
@@ -600,7 +625,7 @@ Javaクラスで\ ``UserDetails``\ オブジェクトを利用する
 
   ServiceクラスではControllerが取得した\ ``UserDetails``\ オブジェクトの情報を使用し、\ ``SecurityContextHolder``\ は使用しないことを推奨する。
 
-  \ ``SecurityContextHolder``\ は\ ``java.security.Principal``\ オブジェクトにアクセスできないメソッド内でのみ利用することが望ましい。
+  \ ``SecurityContextHolder``\ は\ ``UserDetails``\ オブジェクトを引数で渡せないメソッド内でのみ利用することが望ましい。
 
 JSPで\ ``UserDetails``\ にアクセスする
 """"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
@@ -1037,6 +1062,53 @@ spring-security.xml
      - | \ ``delete-cookies``\ 属性に、指定したクッキーを削除する。複数記述する場合は「,」で区切る。
    * - | (5)
      - | \ ``success-handler-ref``\ 属性に、ログアウト成功後に呼び出される、ハンドラクラスを指定する。
+
+.. note::
+
+    \ :doc:`./CSRF`\ で説明している\ ``<sec:csrf>``\ を利用している場合は、CSRFトークンチェックが行われるため、\ **ログアウトのリクエストをPOSTで送信し、CSRFトークンも送信する必要がある**\ 。
+    CSRFトークンを埋め込む方法を以下に記述する。
+
+    * \ :ref:`csrf_formformtag-use`\
+
+        .. code-block:: jsp
+           :emphasize-lines: 1,4
+
+            <form:form method="POST"
+              action="${pageContext.request.contextPath}/logout">
+              <input type="submit" value="Logout" />
+            </form:form>
+
+        この場合は以下のようなHTMLが出力される。CSRFトークンがhiddenで設定されている。
+
+        .. code-block:: html
+
+            <form id="command" action="/your-context-path/logout" method="POST">
+              <input type="submit" value="Logout" />
+              <input type="hidden" name="_csrf" value="5826038f-0a84-495b-a851-c363e501b73b" />
+            </form>
+
+    * \ :ref:`csrf_formtag-use`\
+
+        .. code-block:: jsp
+           :emphasize-lines: 3
+
+            <form  method="POST"
+              action="${pageContext.request.contextPath}/logout">
+              <sec:csrfInput/>
+              <input type="submit" value="Logout" />
+            </form>
+
+        この場合も同様に以下のようなHTMLが出力される。CSRFトークンがhiddenで設定されている。
+
+        .. code-block:: html
+
+            <form  method="POST"
+              action="/your-context-path/logout">
+              <input type="hidden" name="_csrf" value="5826038f-0a84-495b-a851-c363e501b73b" />
+              <input type="submit" value="Logout" />
+            </form>
+
+
 
 \ ``<sec:remember-me>``\ 要素の設定
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^

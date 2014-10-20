@@ -758,11 +758,11 @@ SimpleI18nCodeListの使用方法
      - 50000
    * - en
      - unlimited
-     - Less than $10,000
-     - Less than $20,000
-     - Less than $30,000
-     - Less than $40,000
-     - Less than $50,000
+     - Less than \\10,000
+     - Less than \\20,000
+     - Less than \\30,000
+     - Less than \\40,000
+     - Less than \\50,000
    * - ja
      - 上限なし
      - 10,000円以下
@@ -831,11 +831,11 @@ SimpleI18nCodeListの使用方法
          <property name="map">
              <util:map>
                  <entry key="0" value="unlimited" />
-                 <entry key="10000" value="Less than $10,000" />
-                 <entry key="20000" value="Less than $20,000" />
-                 <entry key="30000" value="Less than $30,000" />
-                 <entry key="40000" value="Less than $40,000" />
-                 <entry key="50000" value="Less than $50,000" />
+                 <entry key="10000" value="Less than \\10,000" />
+                 <entry key="20000" value="Less than \\20,000" />
+                 <entry key="30000" value="Less than \\30,000" />
+                 <entry key="40000" value="Less than \\40,000" />
+                 <entry key="50000" value="Less than \\50,000" />
              </util:map>
          </property>
      </bean>
@@ -923,19 +923,19 @@ SimpleI18nCodeListの使用方法
        - | unlimited
      * - | en
        - | 10000
-       - | Less than $10,000
+       - | Less than \\10,000
      * - | en
        - | 20000
-       - | Less than $20,000
+       - | Less than \\20,000
      * - | en
        - | 30000
-       - | Less than $30,000
+       - | Less than \\30,000
      * - | en
        - | 40000
-       - | Less than $40,000
+       - | Less than \\40,000
      * - | en
        - | 50000
-       - | Less than $50,000
+       - | Less than \\50,000
      * - | ja
        - | 0
        - | 上限なし
@@ -1014,11 +1014,11 @@ JSPでのコードリスト使用
 
   <select id="basePrice" name="basePrice">
     <option value="0">unlimited</option>
-    <option value="1">Less than $10,000</option>
-    <option value="2">Less than $20,000</option>
-    <option value="3">Less than $30,000</option>
-    <option value="4">Less than $40,000</option>
-    <option value="5">Less than $50,000</option>
+    <option value="1">Less than \\10,000</option>
+    <option value="2">Less than \\20,000</option>
+    <option value="3">Less than \\30,000</option>
+    <option value="4">Less than \\40,000</option>
+    <option value="5">Less than \\50,000</option>
   </select>
 
 **出力HTML lang=ja**
@@ -1467,11 +1467,11 @@ SimpleI18nCodeListのコードリスト設定方法
                <entry key="en">
                    <util:map>
                         <entry key="0" value="unlimited" />
-                        <entry key="10000" value="Less than $10,000" />
-                        <entry key="20000" value="Less than $20,000" />
-                        <entry key="30000" value="Less than $30,000" />
-                        <entry key="40000" value="Less than $40,000" />
-                        <entry key="50000" value="Less than $50,000" />
+                        <entry key="10000" value="Less than \\10,000" />
+                        <entry key="20000" value="Less than \\20,000" />
+                        <entry key="30000" value="Less than \\30,000" />
+                        <entry key="40000" value="Less than \\40,000" />
+                        <entry key="50000" value="Less than \\50,000" />
                    </util:map>
                </entry>
                <entry key="ja">
@@ -1522,31 +1522,31 @@ SimpleI18nCodeListのコードリスト設定方法
                </entry>
                <entry key="10000">
                    <util:map>
-                       <entry key="en" value="Less than $10,000" />
+                       <entry key="en" value="Less than \\10,000" />
                        <entry key="ja" value="10,000円以下" />
                    </util:map>
                </entry>
                <entry key="20000">
                    <util:map>
-                       <entry key="en" value="Less than $20,000" />
+                       <entry key="en" value="Less than \\20,000" />
                        <entry key="ja" value="20,000円以下" />
                    </util:map>
                </entry>
                <entry key="30000">
                    <util:map>
-                       <entry key="en" value="Less than $30,000" />
+                       <entry key="en" value="Less than \\30,000" />
                        <entry key="ja" value="30,000円以下" />
                    </util:map>
                </entry>
                <entry key="40000">
                    <util:map>
-                       <entry key="en" value="Less than $40,000" />
+                       <entry key="en" value="Less than \\40,000" />
                        <entry key="ja" value="40,000円以下" />
                    </util:map>
                </entry>
                <entry key="50000">
                    <util:map>
-                       <entry key="en" value="Less than $50,000" />
+                       <entry key="en" value="Less than \\50,000" />
                        <entry key="ja" value="50,000円以下" />
                    </util:map>
                </entry>

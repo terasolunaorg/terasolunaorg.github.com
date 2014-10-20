@@ -320,7 +320,7 @@ CSRFトークンはログインのタイミングで生成される。
 CSRFトークンを明示的に埋め込む方法
 """"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 
-\ ``<form:form>``\ タグを使用しない場合は、明示的に、\ ``<input type="hidden">``\ タグを追加する必要がある。
+\ ``<form:form>``\ タグを使用しない場合は、明示的に、\ ``<sec:csrfInput/>``\ タグを追加する必要がある。
 
 \ ``<sec:csrf />``\ の設定で有効になる \ ``CsrfFilter``\ により \ ``org.springframework.security.web.csrf.CsrfToken``\ オブジェクトが、リクエストスコープの
 \ ``_csrf``\ 属性に設定されるため、jspでは、以下のように設定すればよい
@@ -330,7 +330,7 @@ CSRFトークンを明示的に埋め込む方法
     <form method="POST"
       action="${pageContext.request.contextPath}/csrfTokenCheckExample">
         <input type="submit" name="second" value="second" />
-        <input type="hidden" name="${f:h(_csrf.parameterName)}" value="${f:h(_csrf.token)}"/>  <!-- (1) -->
+        <sec:csrfInput/>  <!-- (1) -->
     </form>
 
 .. tabularcolumns:: |p{0.10\linewidth}|p{0.90\linewidth}|
@@ -341,7 +341,7 @@ CSRFトークンを明示的に埋め込む方法
    * - 項番
      - 説明
    * - | (1)
-     - | \ ``_csrf.parameterName``\ でリクエストパラメータ名を、\ ``_csrf.token``\ で、CSRFトークンを設定する。
+     - | \ ``<sec:csrfInput/>``\ でリクエストパラメータ名とCSRFトークンが設定される。
 
 以下のようなHTMLが、出力される。
 
@@ -362,6 +362,8 @@ CSRFトークンを明示的に埋め込む方法
   \ :ref:`spring-security.xmlの設定 <csrf_spring-security-setting>`\ を記述している場合は、指定したエラーページに遷移する。
 
 
+.. _csrf_ajax-token-setting:
+
 AjaxによるCSRFトークンの送信
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 | \ ``<sec:csrf />``\ の設定で有効になる \ ``CsrfFilter``\ が、前述のようにリクエストパラメータからCSRFトークンを取得するだけでなく、
@@ -381,8 +383,7 @@ AjaxによるCSRFトークンの送信
 
     <!-- omitted -->
     <head>
-      <meta name="_csrf" content="${f:h(_csrf.token)}"/>  <!-- (1) -->
-      <meta name="_csrf_header" content="${f:h(_csrf.headerName)}"/>  <!-- (2) -->
+      <sec:csrfMetaTags />  <!-- (1) -->
       <!-- omitted -->
     </head>
     <!-- omitted -->
@@ -392,10 +393,10 @@ AjaxによるCSRFトークンの送信
 
     <script type="text/javascript">
     var contextPath = "${pageContext.request.contextPath}";
-    var token = $("meta[name='_csrf']").attr("content");  <!-- (3) -->
-    var header = $("meta[name='_csrf_header']").attr("content");  <!-- (4) -->
+    var token = $("meta[name='_csrf']").attr("content");  <!-- (2) -->
+    var header = $("meta[name='_csrf_header']").attr("content");  <!-- (3) -->
     $(document).ajaxSend(function(e, xhr, options) {
-        xhr.setRequestHeader(header, token);  <!-- (5) -->
+        xhr.setRequestHeader(header, token);  <!-- (4) -->
     });
 
     $(function() {
@@ -410,7 +411,7 @@ AjaxによるCSRFトークンの送信
                 $result.html('add: ' + data.addResult + '<br>'
                              + 'subtract: ' + data.subtractResult + '<br>'
                              + 'multipy: ' + data.multipyResult + '<br>'
-                             + 'divide: ' + data.divideResult + '<br>'); // (6)
+                             + 'divide: ' + data.divideResult + '<br>'); // (5)
             }).fail(function(data) {
                 // error handling
                 alert(data.statusText);
@@ -427,16 +428,14 @@ AjaxによるCSRFトークンの送信
    * - 項番
      - 説明
    * - | (1)
-     - | \ ``<meta>``\ タグに、\ ``${f:h(_csrf.token)}``\ で取得したCSRFトークンを設定する。
+     - | \ ``<sec:csrfMetaTags />``\ タグを設定することにより、デフォルトでは\ ``<meta name="_csrf_parameter" content="_csrf" /><meta name="_csrf_header" content="X-CSRF-TOKEN" /><meta name="_csrf" content="**CSRF Token**" />``\ が設定される。
    * - | (2)
-     - | \ ``<meta>``\ タグに、\ ``${f:h(_csrf.headerName)}``\ で取得したヘッダ名を設定する。
+     - | \ ``<meta name="_csrf ...>``\ タグに設定されたCSRFトークンを取得する。
    * - | (3)
-     - | \ ``<meta>``\ タグに、設定したCSRFトークンを取得する。
+     - | \ ``<meta name="_csrf_header" ...>``\ タグに設定されたCSRFヘッダ名を取得する。
    * - | (4)
-     - | \ ``<meta>``\ タグに、設定したCSRFヘッダ名を取得する。
+     - | リクエストヘッダーに、\ ``<meta>``\ タグから取得したヘッダ名(デフォルト:X-CSRF-TOKEN)、CSRFトークンの値を設定する。
    * - | (5)
-     - | リクエストヘッダーに、\ ``<meta>``\ タグで設定したヘッダ名(デフォルト:X-CSRF-TOKEN)、CSRFトークンの値を設定する。
-   * - | (6)
      - | この書き方はXSSの可能性があるので、実際にJavaScriptコードを書くときは気を付けること。
        | 今回の例では\ ``data.addResult``\ 、\ ``data.subtractResult``\ 、\ ``data.multipyResult``\ 、\ ``data.divideResult``\ の全てが数値型であるため、問題ない。
 
