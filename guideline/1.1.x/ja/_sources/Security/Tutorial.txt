@@ -860,7 +860,7 @@ JSPからログインアカウント情報にアクセスする
 
 | 
 
-LoginページのLoginボタンを押下することにより、Webcomeページが表示される。
+LoginページのLoginボタンを押下することにより、Welcomeページが表示される。
 
 .. figure:: ./images_Tutorial/security_tutorial_welcome_page.png
    :width: 80%
