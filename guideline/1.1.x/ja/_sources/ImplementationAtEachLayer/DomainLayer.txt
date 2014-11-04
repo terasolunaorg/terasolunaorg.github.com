@@ -87,7 +87,7 @@
     その場合は、EntityクラスおよびRepositoryを設計するための共通チームを設けることを強く推奨する。
 
     共通チームを設ける体制が組めない場合は、EntityクラスおよびRepositoryの作成せずに、
-    ServiceからO/R Mapper(Mybatisなど)を直接呼び出して、業務データにアクセスする方法を採用することを検討すること。
+    ServiceからO/R Mapper(MyBatisなど)を直接呼び出して、業務データにアクセスする方法を採用することを検討すること。
 
 
 .. _domainlayer_entity:
@@ -142,9 +142,9 @@ Entityクラスの作成方針
  .. note::
 
     テーブルは正規化されていないが、アプリケーションとして、正規化されたEntityとして業務データを扱いたい場合は、
-    インフラストラクチャ層のRepositoryImplの実装として、Mybatisを採用することを推奨する。
+    インフラストラクチャ層のRepositoryImplの実装として、MyBatisを採用することを推奨する。
 
-    Mybatisは、データベースで管理されているレコードとオブジェクトをマッピングするという考え方ではなく、
+    MyBatisは、データベースで管理されているレコードとオブジェクトをマッピングするという考え方ではなく、
     SQLとオブジェクトをマッピングという考え方で開発されたO/R Mapperであるため、
     SQLの実装次第で、テーブル構成に依存しないオブジェクトへのマッピングができる。
 
@@ -1264,7 +1264,8 @@ ServiceおよびSharedServiceでは、アプリケーションで使用する業
 業務データ(Entity)の取得、更新の実装例については、
 
 * JPAを使う場合は、\ :doc:`../ArchitectureInDetail/DataAccessJpa`\
-* Mybatis2を使う場合は、\ :doc:`../ArchitectureInDetail/DataAccessMybatis2`\
+* MyBatis3を使う場合は、\ :doc:`../ArchitectureInDetail/DataAccessMyBatis3`\
+* MyBatis2を使う場合は、\ :doc:`../ArchitectureInDetail/DataAccessMybatis2`\
 
 を参照されたい。
 
@@ -1744,7 +1745,7 @@ PlatformTransactionManagerの設定
       - | org.springframework.jdbc.datasource.
         | DataSourceTransactionManager
       - | JDBC(\ ``java.sql.Connection``\ )のAPIを呼び出して、トランザクションを管理するための実装クラス。
-        | Mybatisや、\ ``JdbcTemplate``\ を使う場合は、本クラスを使用する。
+        | MyBatisや、\ ``JdbcTemplate``\ を使う場合は、本クラスを使用する。
     * - 2.
       - | org.springframework.orm.jpa.
         | JpaTransactionManager

@@ -562,7 +562,7 @@ ANSI/ISO SQL標準では、トランザクションの分離レベル（各ト�
      - データベース
      - 悲観ロック方法
    * - 1.
-     - Oraclel
+     - Oracle
      - FOR UPDATE
    * - 2.
      - PostgreSQL
@@ -790,6 +790,25 @@ ANSI/ISO SQL標準では、トランザクションの分離レベル（各ト�
 
 How to use
 --------------------------------------------------------------------------------
+
+ここからは、O/R Mapperを使用した排他制御の実現方法について説明を行う。
+
+使用するO/R Mapperの実装方法を確認されたい。
+
+* :ref:`ExclusionControlHowToUseJpa`
+* :ref:`ExclusionControlHowToUseMyBatis3`
+* :ref:`ExclusionControlHowToUseMyBatis2`
+
+また、排他エラーのハンドリング方法については、
+
+* :ref:`ExclusionControlHowToUseExceptionHandling`
+
+を参照されたい。
+
+
+|
+
+.. _ExclusionControlHowToUseJpa:
 
 JPA(Spring Data JPA)使用時の実装方法
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
@@ -1187,7 +1206,423 @@ Query毎に適応する方法は、以下の通りである。
       - | タイムアウトをミリ秒で指定する。\ ``2000``\ を指定すると、2秒となる。
         | 全体に指定した値は、上書きされる。
 
-Mybatis使用時の実装方法
+|
+
+.. _ExclusionControlHowToUseMyBatis3:
+
+MyBatis3使用時の実装方法
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+RDBMSの行ロック機能
+""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
+
+RDBMSの行ロック機能を使って排他制御を行う場合は、SQLの中で、
+
+* SET句に指定する更新内容
+* WHERE句に指定する更新条件
+
+を意識する必要がある。
+
+|
+
+- Repositoryインタフェースにメソッドを定義する。
+
+ .. code-block:: java
+
+     public interface StockRepository {
+        // (1)
+        boolean decrementQuantity(@Param("itemCode") String itemCode,
+                                  @Param("quantity") int quantity);
+    }
+
+ .. tabularcolumns:: |p{0.10\linewidth}|p{0.90\linewidth}|
+ .. list-table::
+    :header-rows: 1
+    :widths: 10 90
+
+    * - 項番
+      - 説明
+    * - | (1)
+      - Repositoryインタフェースに、
+        RDBMSの行ロック機能を使ってデータを更新するメソッドを定義する。
+
+        上記例では、在庫数を減らすためのメソッドを定義している。
+        在庫数の減らす事ができた場合は、\ ``true``\が返却される。
+
+|
+
+- RDBMSの行ロック機能を使った排他制御が有効となるSQLを定義する。
+
+ .. code-block:: xml
+
+    <!-- (2) -->
+    <update id="decrementQuantity">
+    <![CDATA[
+        UPDATE
+            m_stock
+        SET
+            /* (3) */
+            quantity = quantity - #{quantity}
+        WHERE
+            item_code = #{itemCode}
+        AND
+            /* (4) */
+            quantity >= #{quantity}
+    ]]>
+    </update>
+
+ .. tabularcolumns:: |p{0.10\linewidth}|p{0.90\linewidth}|
+ .. list-table::
+    :header-rows: 1
+    :widths: 10 90
+
+    * - 項番
+      - 説明
+    * - | (2)
+      - RDBMSの行ロック機能を使ってデータを更新するためのステートメント(SQL)を定義する。
+
+        上記例では、在庫数を減らすためのSQLを定義している。
+
+        RDBMSの行ロック機能を使う場合は、
+
+        * 他のトランザクションが同一データに対してロックを取得している場合は、
+          ロックが解放(コミット or ロールバック)された後にSQLが実行される。
+
+        * 在庫数を減らすことに成功した場合は、
+          RDBMSの行ロックが取得され、他のトランザクションからの更新がロックされる。
+
+        という動作になるため、データを安全に更新する事ができる。
+    * - | (3)
+      - 在庫数の減算処理(\ ``quantity = quantity - #{quantity}``\)は、SQLの中で行う。
+    * - | (4)
+      - 更新条件として、「在庫在庫数が注文数以上ある事(\ ``quantity >= #{quantity}``\)」を加える。
+
+|
+
+- Repositoryのメソッドを呼び出し、RDBMSの行ロック機能を使用してデータを安全に更新する。
+
+ .. code-block:: java
+
+    // (5)
+    boolean updated = stockRepository.decrementQuantity(itemCode, quantityOfOrder);
+    // (6)
+    if (!updated) {
+        // (7)
+        ResultMessages messages = ResultMessages.error().add(ResultMessage
+                .fromText("Not enough stock. Please, change quantity."));
+        throw new BusinessException(messages);
+    }
+
+ .. tabularcolumns:: |p{0.10\linewidth}|p{0.90\linewidth}|
+ .. list-table::
+    :header-rows: 1
+    :widths: 10 90
+
+    * - 項番
+      - 説明
+    * - | (5)
+      - Repositoryのメソッドを呼び出し、更新処理を行う。
+    * - | (6)
+      - Repositoryのメソッドの呼び出し結果を判定する。
+
+        \ ``false``\ の場合、更新条件を充たしていないため、在庫数が不足していることになる。
+    * - | (7)
+      - 業務エラーを発生させる。
+
+        上記例では、ビジネスルールのチェック(在庫数チェック)を排他制御しながら行っているだけなので、
+        更新条件を充たさない場合は、排他エラーではなく業務エラーとしている。
+
+        発生させた業務エラーは、Controllerで適切にハンドリングすること。
+
+|
+
+楽観ロック
+""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
+| MyBatis3では、ライブラリとして楽観ロックを行う仕組みは提供していない。
+| そのため、楽観ロックを行う場合は、SQLの中でバージョンを意識する必要がある。
+
+- Entityにバージョン管理用のプロパティを定義する。
+
+ .. code-block:: java
+
+    public class Stock implements Serializable {
+        private static final long serialVersionUID = 1L;
+
+        private String itemCode;
+        private int quantity;
+        // (1)
+        private long version;
+
+        // ...
+
+    }
+
+ .. tabularcolumns:: |p{0.10\linewidth}|p{0.90\linewidth}|
+ .. list-table::
+    :header-rows: 1
+    :widths: 10 90
+
+    * - 項番
+      - 説明
+    * - | (1)
+      - Entityにバージョン管理用のプロパティを用意する。
+
+|
+
+- Repositoryインタフェースにメソッドを定義する。
+
+ .. code-block:: java
+
+    public interface StockRepository {
+        // (2)
+        Stock findOne(String itemCode);
+        // (3)
+        boolean update(Stock stock);
+    }
+
+ .. tabularcolumns:: |p{0.10\linewidth}|p{0.90\linewidth}|
+ .. list-table::
+    :header-rows: 1
+    :widths: 10 90
+
+    * - 項番
+      - 説明
+    * - | (2)
+      - Repositoryインタフェースに、Entityを取得するためにメソッドを定義する。
+    * - | (3)
+      - Repositoryインタフェースに、楽観ロック機能を使ってデータを更新するメソッドを定義する。
+
+        上記例では、指定されたEntityの内容でレコードを更新するためのメソッドを定義している。
+        更新できた場合は、\ ``true``\が返却される。
+
+|
+
+- マッピングファイルにSQLを定義する。
+
+ .. code-block:: xml
+
+    <!-- (4) -->
+    <select id="findOne" parameterType="string" resultType="Stock">
+        SELECT
+            item_code,
+            quantity,
+            version
+        FROM
+            m_stock
+        WHERE
+            item_code = #{itemCode}
+    </select>
+
+    <!-- (5) -->
+    <update id="update" parameterType="Stock">
+        UPDATE
+            m_stock
+        SET
+            quantity = #{quantity},
+            /* (6) */
+            version = version + 1
+        WHERE
+            item_code = #{itemCode}
+        AND
+            /* (7) */
+            version = #{version}
+    </update>
+
+ .. tabularcolumns:: |p{0.10\linewidth}|p{0.90\linewidth}|
+ .. list-table::
+    :header-rows: 1
+    :widths: 10 90
+
+    * - 項番
+      - 説明
+    * - | (4)
+      - Entityを取得するためのステートメント(SQL)を定義する。
+
+        楽観ロックを使用する場合は、Entity取得時にバージョンを取得しておく必要がある。
+    * - | (5)
+      - 楽観ロック機能を使ってデータを更新するためのステートメント(SQL)を定義する。
+
+        上記例では、指定されたEntityの内容でレコードを更新するSQLを定義している。
+    * - | (6)
+      -  バージョンの更新(\ ``version = version + 1``\)は、SQLの中で行う。
+    * - | (4)
+      - 更新条件として、「バージョンが変わっていない事(\ ``version = #{version}``\)」を加える。
+
+|
+
+- Repositoryのメソッドを呼び出し、楽観ロック機能を使用してデータを安全に更新する。
+
+ .. code-block:: java
+
+    // (5)
+    Stock stock = stockRepository.findOne(itemCode);
+    if (stock == null) {
+        ResultMessages messages = ResultMessages.error().add(ResultMessage
+                .fromText("Stock not found. itemCode : " + itemCode));
+        throw new ResourceNotFoundException(messages);
+    }
+
+    // (6)
+    stock.setQuantity(stock.getQuantity() + addedQuantity);
+
+    // (7)
+    boolean updated = stockRepository.update(stock);
+    if(!updated) {
+        // (8)
+        throw new ObjectOptimisticLockingFailureException(Stock.class, itemCode);
+    }
+
+ .. tabularcolumns:: |p{0.10\linewidth}|p{0.90\linewidth}|
+ .. list-table::
+    :header-rows: 1
+    :widths: 10 90
+
+    * - 項番
+      - 説明
+    * - | (5)
+      - RepositoryインタフェースのfindOneメソッドを呼び出し、Entityを取得する。
+    * - | (6)
+      - (5)で取得したEntityに対して、更新する値を指定する。
+
+        上記例では、仕入れた在庫数を加算している。
+    * - | (7)
+      - Repositoryインタフェースのupdateメソッドを呼び出し、
+        (5)の処理で更新したEntityを永続層(DB)に反映する。
+    * - | (8)
+      - 更新結果を判定し、更新結果が\ ``false``\ の場合は、
+        他のトランザクションによってEntityが更新されたことになるので、
+        楽観ロックエラー(\ ``org.springframework.orm.ObjectOptimisticLockingFailureException``\ )を発生させる。
+
+|
+
+ロングトランザクションに対して楽観ロックを行う場合は、以下の点に注意すること。
+
+ .. warning::
+
+    ロングトランザクションに対して楽観ロックを行う場合は、更新時のチェックとは別に、
+    データ取得時にもバージョンのチェックを行うこと。
+
+
+以下に、実装例を示す。
+
+- データ取得時にもバージョンのチェックを行う。
+
+ .. code-block:: java
+
+    Stock stock = stockRepository.findOne(itemCode);
+    if (stock == null || stock.getVersion() != version) {
+        // (9)
+        throw new ObjectOptimisticLockingFailureException(Stock.class, itemCode);
+    }
+
+    stock.setQuantity(stock.getQuantity() + addedQuantity);
+    boolean updated = stockRepository.update(stock);
+    // ...
+
+ .. tabularcolumns:: |p{0.10\linewidth}|p{0.90\linewidth}|
+ .. list-table::
+    :header-rows: 1
+    :widths: 10 90
+
+    * - 項番
+      - 説明
+    * - | (9)
+      - 別のデータベーストランザクションで取得したEntityのバージョンと、
+        (5)で取得したEntityのバージョンを比較する。
+
+        バージョンが異なる場合は、他のトランザクションによってデータが更新されているので、
+        楽観ロックエラー(\ ``org.springframework.dao.ObjectOptimisticLockingFailureException``\ )を発生させる。
+
+        データが存在しない(\ ``stock == null``\)時の考慮も必要であり、
+        アプリケーションの仕様に対応した実装を行う必要がある。
+        上記例では、楽観ロックエラーとしている。
+
+
+|
+
+RDBMSの行ロック機能と楽観ロック機能を併用するアプリケーション場合は、以下の点に注意すること。
+
+ .. warning::
+
+    RDBMSの行ロック機能を利用して排他制御を行う処理と、
+    楽観ロック機能を利用して排他制御を行う処理が共存するアプリケーションの場合は、
+    RDBMSの行ロック機能を使うSQLの中で、**バージョンの更新(インクリメント)が必要となる。**
+
+    仮にRDBMSの行ロック機能を使って排他制御を行うSQLの中でバージョンを更新しなかった場合、
+    楽観ロック機能を利用して排他制御を行っているSQLでデータを上書きしてしまう可能性がある。
+
+以下に、実装例を示す。
+
+- SQL内でバージョンを更新する。
+
+ .. code-block:: xml
+
+    <update id="decrementQuantity">
+    <![CDATA[
+        UPDATE
+            m_stock
+        SET
+            quantity = quantity - #{quantity},
+            /* (10) */
+            version = version + 1
+        WHERE
+            item_code = #{itemCode}
+        AND
+            quantity >= #{quantity}
+    ]]>
+    </update>
+
+ .. tabularcolumns:: |p{0.10\linewidth}|p{0.90\linewidth}|
+ .. list-table::
+    :header-rows: 1
+    :widths: 10 90
+
+    * - 項番
+      - 説明
+    * - | (10)
+      - バージョンの更新(インクリメント)を行う。
+
+|
+
+悲観ロック
+""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
+| MyBatis3では、ライブラリとして悲観ロックを行う仕組みは提供していない。
+| そのため、悲観ロックを行う場合は、SQLの中でロックを取得するためのキーワードを指定する必要がある。
+
+- SQLの中でロックを取得するためのキーワードを指定する
+
+ .. code-block:: xml
+
+    <select id="findOneForUpdate" parameterType="string" resultType="Stock">
+        SELECT
+            item_code,
+            quantity,
+            version
+        FROM
+            m_stock
+        WHERE
+            item_code = #{itemCode}
+        /* (1) */
+        FOR UPDATE
+    </select>
+
+ .. tabularcolumns:: |p{0.10\linewidth}|p{0.90\linewidth}|
+ .. list-table::
+    :header-rows: 1
+    :widths: 10 90
+
+    * - 項番
+      - 説明
+    * - | (1)
+      - 悲観ロックの取得が必要なSQLに対して、悲観ロックを取得するためのキーワードを指定する。
+
+        キーワードやキーワードの指定位置は、データベースによって異なる。
+
+|
+
+.. _ExclusionControlHowToUseMyBatis2:
+
+MyBatis2使用時の実装方法
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 RDBMSの行ロック機能
@@ -1292,7 +1727,7 @@ RDBMSの行ロック機能を使って排他制御を行う場合は、sqlmapフ
 
 楽観ロック
 """"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
-| Mybatisでは、ライブラリとして楽観ロックを行う仕組みは提供していない。
+| MyBatis2では、ライブラリとして楽観ロックを行う仕組みは提供していない。
 | そのため、楽観ロックを行う場合は、SQLの中でバージョンを意識する必要がある。
 
 - Entity
@@ -1507,7 +1942,7 @@ RDBMSの行ロック機能と楽観ロック機能を両方使用する場合は
 
 悲観ロック
 """"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
-| Mybatisでは、ライブラリとして悲観ロックを行う仕組みは提供していない。
+| MyBatis2では、ライブラリとして悲観ロックを行う仕組みは提供していない。
 | そのため、悲観ロックを行う場合は、SQLの中でロックを取得するためのキーワードを指定する必要がある。
 
 
@@ -1532,6 +1967,9 @@ RDBMSの行ロック機能と楽観ロック機能を両方使用する場合は
       - | 悲観ロックが必要なSQLに対して、悲観ロックを取得するためのキーワードを指定する。
         | キーワードは、データベースによって異なる。
 
+|
+
+.. _ExclusionControlHowToUseExceptionHandling:
 
 排他エラーのハンドリング方法
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^

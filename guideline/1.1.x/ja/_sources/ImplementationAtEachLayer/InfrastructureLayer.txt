@@ -17,10 +17,13 @@ RepositoryImplは、Repositoryインタフェースで定義したメソッド�
 RepositoryImplの実装
 --------------------------------------------------------------------------------
 
-以下に、JPAとMyBatis2系を使って、リレーショナルデータベース用のRepositoryを作成する方法を紹介する。
+以下に、JPAとMyBatisを使って、リレーショナルデータベース用のRepositoryを作成する方法を紹介する。
 
 * :ref:`repository-jpa-label`
+* :ref:`repository-mybatis3-label`
 * :ref:`repository-mybatis2-label`
+
+|
 
 .. _repository-jpa-label:
 
@@ -78,22 +81,136 @@ JPAを使ってRepositoryを実装
     * - | (1)
       - \ ``@Query``\ アノテーションで、クエリ（JPQL）を指定する。
 
-.. _repository-mybatis2-label:
+|
 
-MyBatis2系を使ってRepositoryを実装
+.. _repository-mybatis3-label:
+
+MyBatis3を使ってRepositoryを実装
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-| リレーショナルデータベースとの永続APIとしてMyBatis2系を使う場合、RepositoryImplは、以下のようになる。
-| MyBatis2の使用方法の詳細は、\ :doc:`../ArchitectureInDetail/DataAccessMybatis2`\ を参照されたい。
-| なお、本ガイドラインではMyBatisを直接使うのではなく、MyBatisのAPIをラップしているTERASOLUNA DAOを使うことを前提としている。
+リレーショナルデータベースとの永続APIとしてMyBatis3を使う場合、
+MyBatis3から提供されている「:ref:`DataAccessMyBatis3AppendixAboutMapperMechanism`」を利用してRepositoryインタフェースを作成すると、
+基本的にはRepositoryImplを実装する必要はない。
 
-| MyBatisを使う場合、Repositoryインタフェースは、\ **必要なメソッドの定義のみ行えばよい。**\
+これは、MyBatis3が、Mapperインタフェースのメソッドと呼び出すステートメント(SQL)のマッピングを自動で行う仕組みになっているためである。
+
+MyBatis3を使用する場合、アプリケーション開発者は、
+
+* Repositoryインタフェース(メソッドの定義)
+* マッピングファイル(SQLとO/Rマッピングの定義)
+
+の作成を行う。
+
+| 以下に、Repositoryインタフェースとマッピングファイルの作成例を示す。
+| MyBatis3の使用方法の詳細は、\ :doc:`../ArchitectureInDetail/DataAccessMyBatis3`\ を参照されたい。
+
+- Repositoryインタフェース(Mapperインタフェース)の作成例
+
+ .. code-block:: java
+
+    package com.example.domain.repository.todo;
+
+    import com.example.domain.model.Todo;
+
+    // (1)
+    public interface TodoRepository {
+        // (2)
+        Todo findOne(String todoId);
+    }
+
+ .. tabularcolumns:: |p{0.10\linewidth}|p{0.90\linewidth}|
+ .. list-table::
+    :header-rows: 1
+    :widths: 10 90
+
+    * - 項番
+      - 説明
+    * - | (1)
+      - POJOのインタフェースとして作成する。
+
+        MyBatis3のインタフェースやアノテーションなどを指定する必要はない。
+    * - | (2)
+      - Repositoryのメソッドを定義する。
+
+        基本的には、MyBatis3のアノテーションを付与する必要はないが、
+        一部のケースでアノテーションを指定する事もある。
+
+
+- マッピングファイルの作成例
+
+ .. code-block:: xml
+
+    <?xml version="1.0" encoding="UTF-8"?>
+    <!DOCTYPE mapper PUBLIC "-//mybatis.org/DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+    <!-- (3) -->
+    <mapper namespace="com.example.domain.repository.todo.TodoRepository">
+
+        <!-- (4) -->
+        <select id="findOne" parameterType="string" resultMap="todoResultMap">
+          SELECT
+              todo_id,
+              title,
+              finished
+          FROM
+              t_todo
+          WHERE
+              todo_id = #{todoId}
+        </select>
+
+        <!-- (5) -->
+        <resultMap id="todoResultMap" type="Todo">
+            <result column="todo_id" property="todoId" />
+            <result column="title" property="title" />
+            <result column="finished" property="finished" />
+        </resultMap>
+
+    </mapper>
+
+
+ .. tabularcolumns:: |p{0.10\linewidth}|p{0.90\linewidth}|
+ .. list-table::
+    :header-rows: 1
+    :widths: 10 90
+
+    * - 項番
+      - 説明
+    * - | (3)
+      - Repositoryインタフェース毎にマッピングファイルを作成する。
+
+        マッピングファイルのネームスペース(\ ``mapper``\ 要素の\ ``namespace``\ 属性)には、
+        RepositoryインタフェースのFQCN(Fully Qualified Class Name)を指定する。
+    * - | (4)
+      - Repositoryインタフェースに定義したメソッド毎に実行するステートメント(SQL)の定義を行う。
+
+        ステートメントID(各ステートメント要素(\ ``select``\/\ ``insert``\/\ ``update``\/\ ``delete``\ 要素の\ ``id``\ 属性)には、
+        Repositoryインタフェースのメソッド名を指定する。
+    * - | (5)
+      - クエリを発行する場合は、必要に応じてO/Rマッピングの定義を行う。
+
+        シンプルなO/Rマッピングであれば自動マッピングを利用する事ができるが、複雑なO/Rマッピングを行う場合は、
+        個別にマッピングの定義が必要となる。
+
+        上記例のマッピング定義は、シンプルなO/Rマッピングなので自動マッピングを利用する事もできる。
+
+|
+
+.. _repository-mybatis2-label:
+
+MyBatis2を使ってRepositoryを実装
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+| リレーショナルデータベースとの永続APIとしてMyBatis2を使う場合、RepositoryImplは、以下のようになる。
+| MyBatis2の使用方法の詳細は、\ :doc:`../ArchitectureInDetail/DataAccessMybatis2`\ を参照されたい。
+| なお、本ガイドラインではMyBatis2のAPIを直接使うのではなく、MyBatis2のAPIをラップしているTERASOLUNA DAOを使うことを前提としている。
+
+| MyBatis2を使う場合、Repositoryインタフェースは、\ **必要なメソッドの定義のみ行えばよい。**\
 | もちろん、Spring Dataから提供されているCrudRepositoryや、PagingAndSortingRepositoryを使ってもよいが、すべてのメソッドを使うケースは稀なので、余計な実装が必要になってしまう。
 
-| MyBatisを使う場合、Repositoryインタフェースの定義に加え、RepositoryImplの実装と、SQL定義ファイルの実装が必要となる。
+| MyBatis2を使う場合、Repositoryインタフェースの定義に加え、RepositoryImplの実装と、SQL定義ファイルの実装が必要となる。
 | 下記に、以下2点を目的とした、JpaRepositoryの親インタフェースであるPagingAndSortingRepositoryを実装例を示す。
 
-#. 汎用的なCRUD操作をMyBatisで実装する際のサンプルの提示
+#. 汎用的なCRUD操作をMyBatis2で実装する際のサンプルの提示
 #. Spring Data JPAの仕組みを使ってRepositoryを実装した時との実装比較
 
 - TodoRepository.java

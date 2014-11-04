@@ -153,7 +153,7 @@ BCryptPasswordEncoderの設定例
      * - 項番
        - 説明
      * - | (1)
-       - | Bean定義した、StandardPasswordEncoderをインジェクションする。
+       - | Bean定義した、\ ``PasswordEncoder``\ をインジェクションする。
      * - | (2)
        - | パスワードをハッシュ化する例
          | encodeメソッドの引数に平文のパスワードを指定することで、ハッシュ化されたパスワードが戻り値となる。

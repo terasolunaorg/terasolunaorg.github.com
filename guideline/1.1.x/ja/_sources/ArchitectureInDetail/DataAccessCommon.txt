@@ -24,8 +24,15 @@
 Overview
 --------------------------------------------------------------------------------
 
-| 本節では、RDBMSで管理されているデータにアクセスする方法について、説明する。
-| O/R Mapperに依存する部分については、\ :doc:`DataAccessJpa`\  、\ :doc:`DataAccessMybatis2`\ を参照されたい。
+本節では、RDBMSで管理されているデータにアクセスする方法について、説明する。
+
+O/R Mapperに依存する部分については、
+
+* \ :doc:`DataAccessJpa`\
+* \ :doc:`DataAccessMyBatis3`\
+* \ :doc:`DataAccessMybatis2`\
+
+を参照されたい。
 
 
 JDBC DataSourceについて
@@ -150,7 +157,7 @@ Spring Framework提供のJDBCデータソース
       - | org.springframework.dao.
         | OptimisticLockingFailureException
       - | 楽観ロックに成功しなかった場合に発生する例外。他の処理によって同一データが更新されていた場合に発生する。
-        | 本例外は、O/R MapperとしてJPAを使用する場合に発生する例外である。Mybatisには楽観ロックを行う機能がないため、O/R Mapper本体から本例外が発生することはない。
+        | 本例外は、O/R MapperとしてJPAを使用する場合に発生する例外である。MyBatisには楽観ロックを行う機能がないため、O/R Mapper本体から本例外が発生することはない。
     * - 3.
       - | org.springframework.dao.
         | PessimisticLockingFailureException
@@ -158,7 +165,7 @@ Spring Framework提供のJDBCデータソース
 
  .. note::
 
-    O/R MapperにMybatisを使用して楽観ロックを実現する場合は、ServiceやRepositoryの処理として楽観ロック処理を実装する必要がある。
+    O/R MapperにMyBatisを使用して楽観ロックを実現する場合は、ServiceやRepositoryの処理として楽観ロック処理を実装する必要がある。
 
     本ガイドラインでは、楽観ロックに失敗したことを、Controllerに通知する方法として、\ ``OptimisticLockingFailureException``\ およびその子クラスの例外を発生させることを推奨する。
 
@@ -390,8 +397,15 @@ Bean定義したDataSouceを使用する場合の設定
 
 トランザクション管理を有効化するための設定
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-| トランザクション管理を有効化するための基本的な設定は、\ :doc:`../ImplementationAtEachLayer/DomainLayer`\ の\ :ref:`service_enable_transaction_management`\ を参照されたい。
-| PlatformTransactionManagerについては、使用するO/R Mapperによって使うクラスがかわるので、詳細設定は、\ :doc:`DataAccessJpa`\ 、\ :doc:`DataAccessMybatis2`\ を参照されたい。
+トランザクション管理を有効化するための基本的な設定は、\ :doc:`../ImplementationAtEachLayer/DomainLayer`\ の\ :ref:`service_enable_transaction_management`\ を参照されたい。
+
+PlatformTransactionManagerについては、使用するO/R Mapperによって使うクラスがかわるので、詳細設定は、
+
+* \ :doc:`DataAccessJpa`\
+* \ :doc:`DataAccessMyBatis3`\
+* \ :doc:`DataAccessMybatis2`\
+
+を参照されたい。
 
 JDBCのDebug用ログの設定
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
@@ -788,7 +802,8 @@ LIKE検索時のエスケープについて
 LIKE検索時のエスケープ実装例については、使用するO/R Mapper向けのドキュメントを参照されたい。
 
 * JPA(Spring Data JPA)を使用する場合は、\ :doc:`DataAccessJpa`\ の\ :ref:`data-access-jpa_howtouse_like_escape`\ を参照されたい。
-* Mybatis2(TERASOLUNA DAO)を使用する場合は、\ :doc:`DataAccessMybatis2`\ の\ :ref:`data-access-mybatis2_howtouse_like_escape`\ を参照されたい。
+* MyBatis3を使用する場合は、\ :doc:`DataAccessMyBatis3`\ の\ :ref:`DataAccessMyBatis3HowToUseLikeEscape`\ を参照されたい。
+* MyBatis2(TERASOLUNA DAO)を使用する場合は、\ :doc:`DataAccessMybatis2`\ の\ :ref:`data-access-mybatis2_howtouse_like_escape`\ を参照されたい。
 
 .. _data-access-common_appendix_sequencer:
 
@@ -952,7 +967,7 @@ Spring Frameworkのデータアクセス例外へ変換する役割を持つク�
     * - 3.
       - | org.springframework.jdbc.support.
         | SQLErrorCodeSQLExceptionTranslator
-      - Mybatisや、JdbcTemplateを使った場合、本クラスによって、JDBC例外が、Spring Frameworkのデータアクセス例外に変換される。変換ルールは、XMLファイルに記載されており、デフォルトで使用されるXMLファイルは、spring-jdbc.jar内のorg/springframework/jdbc/support/sql-error-codes.xmlとなる。
+      - MyBatisや、JdbcTemplateを使った場合、本クラスによって、JDBC例外が、Spring Frameworkのデータアクセス例外に変換される。変換ルールは、XMLファイルに記載されており、デフォルトで使用されるXMLファイルは、spring-jdbc.jar内のorg/springframework/jdbc/support/sql-error-codes.xmlとなる。
         クラスパス直下に、XMLファイル（sql-error-codes.xml）を配置することで、デフォルトの動作を変更することもできる。
 
 .. _appendix_datasource_of_spring-label:

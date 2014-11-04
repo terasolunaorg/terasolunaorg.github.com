@@ -1321,7 +1321,7 @@ See the example below wherein transaction token check is applied for the usecase
                       method = RequestMethod.POST)
         @TransactionTokenCheck(value = "create", 
                              type = TransactionTokenType.BEGIN) // (3)
-        public String createConfirm(@Valided
+        public String createConfirm(@Validated
         UserCreateForm form, BindingResult result) {
 
             // omitted
@@ -1331,7 +1331,7 @@ See the example below wherein transaction token check is applied for the usecase
 
         @RequestMapping(value = "create", method = RequestMethod.POST)
         @TransactionTokenCheck(value = "create") // (4)
-        public String create(@Valided
+        public String create(@Validated
         UserCreateForm form, BindingResult result) {
 
             // omitted

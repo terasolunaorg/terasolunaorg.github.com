@@ -79,7 +79,7 @@ Spring Dataより提供されているページ検索用の機能は、以下の
     * - 3
       - | データベースアクセスとしてSpring Data JPAを使用する場合は、RepositoryのQueryメソッドの引数に ``Pageable`` オブジェクトを指定することで、該当ページの情報が ``Page`` オブジェクトとして返却される。
         | 合計件数を取得するSQLの発行、ソート条件の追加、該当ページに一致するデータの抽出などの処理が全て自動で行われる。
-        | データベースアクセスとして、Mybatis2を使用する場合は、Spring Data JPAが自動で行ってくれる処理を、Java又はSQLマッピングファイル内で実装する必要がある。
+        | データベースアクセスとして、MyBatisを使用する場合は、Spring Data JPAが自動で行ってくれる処理を、Java又はSQLマッピングファイル内で実装する必要がある。
 
 .. _pagination_overview_pagesearch_requestparameter:
 
@@ -592,7 +592,14 @@ Spring Dataより提供されているページネーション機能と、共通
 
     Spring Data JPAのRepositoryインタフェースのメソッドを使用した場合は、(5)と(6)の処理はSpring Data JPAの機能で自動的に行われる。
 
-    Mybatis2を使用する場合は、Java又はSQLマッピングファイル内で実装する必要がある。具体的な実装例については、「 :doc:`DataAccessMybatis2` 」を参照されたい。
+    MyBatisを使用する場合は、Java又はSQLマッピングファイル内で実装する必要がある。
+
+    具体的な実装例については、
+
+    * :doc:`DataAccessMyBatis3`
+    * :doc:`DataAccessMybatis2`
+
+    を参照されたい。
 
 
 |
@@ -880,11 +887,17 @@ Spring Dataのページネーション機能を有効化するための設定
 
 |
 
-Serviceの実装(Mybatis2編)
+Serviceの実装(MyBatis編)
 """"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
-| Mybatis2(TERASOLUNA DAO)を使用してデータベースにアクセスする場合は、Controllerから受け取った ``Pageable`` オブジェクトより、必要な情報を抜き出してTERASOLUNA DAOのメソッドを呼び出す。
+| MyBatisを使用してデータベースにアクセスする場合は、Controllerから受け取った ``Pageable`` オブジェクトより、必要な情報を抜き出してO/R Mapperのメソッドを呼び出す。
 | 該当データを抽出するためのSQLやソート条件については、SQLマッピングで実装する必要がある。
-| ドメイン層で実装するページ検索処理の詳細については、 「 :doc:`DataAccessMybatis2` 」 を参照されたい。
+
+ドメイン層で実装するページ検索処理の詳細については、
+
+* :doc:`DataAccessMyBatis3`
+* :doc:`DataAccessMybatis2`
+
+を参照されたい。
 
 |
 

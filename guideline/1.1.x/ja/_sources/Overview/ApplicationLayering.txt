@@ -157,9 +157,17 @@ Spring Data JPAを使用する場合は、Spring Data JPAが実体を(一部)自
 O/R Mapper
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-| データベースとEntityの相互マッピングを担う。
-| JPAや、MyBatis, Spring JDBCが本機能を提供する。
-| 特に、JPAを用いる場合はEntityManager、MyBatis2(TERASOLUNA DAO)を用いる場合は、QueryDAO, UpdateDAOが該当する。
+| O/R Mapperは、データベースとEntityの相互マッピングを担う。
+| JPA / MyBatis / Spring JDBCが、本機能を提供する。
+
+具体的には、
+
+* JPAを用いる場合は、\ ``EntityManager``\
+* MyBatis3を用いる場合は、Mapperインタフェースや\ ``SqlSession``\
+* MyBatis2(TERASOLUNA DAO)を用いる場合は、\ ``QueryDAO``\ や\ ``UpdateDAO``
+* Spring JDBCを用いる場合は、\ ``JdbcTemplate``\
+
+が、O/R Mapperに該当する。
 
 .. note::
 

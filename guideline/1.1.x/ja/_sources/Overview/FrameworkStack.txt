@@ -13,7 +13,7 @@ TERASOLUNA Global FrameworkのSoftware Framework概要
 TERASOLUNA Global Frameworkで使用するSoftware Frameworkは独自のフレームワークではなく、Spring Frameworkを中心としたOSSの組み合わせである。
 
 .. figure:: images/introduction-software-framework.png
-   :width: 80%
+   :width: 95%
 
 
 Software Frameworkの主な構成要素
@@ -22,7 +22,7 @@ Software Frameworkの主な構成要素
 TERASOLUNA Global Frameworkを構成するライブラリを以下に示す。
 
 .. figure:: images/introduction-software-stack.png
-   :width: 80%
+   :width: 95%
 
 DIコンテナ
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
@@ -40,19 +40,19 @@ Web MVCフレームワークとしてSpring MVCを利用する。
 O/R Mapper
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-本ガイドラインでは、以下の\ **どちらか**\ を想定している。
+本ガイドラインでは、以下の\ **いずれか**\ を想定している。
 
 * `JPA2.0 <http://download.oracle.com/otn-pub/jcp/persistence-2.0-fr-eval-oth-JSpec/persistence-2_0-final-spec.pdf>`_
 
   * プロバイダは、\ `Hibernate 4.2 <http://docs.jboss.org/hibernate/orm/4.2/manual/en-US/html/>`_\ を使用する。
 
+* `MyBatis 3 <http://mybatis.github.io/mybatis-3/>`_
+
+  * Spring Frameworkとの連携ライブラリとして、\ `MyBatis-Spring <http://mybatis.github.io/spring/>`_\ を使用する。
+
 * `MyBatis 2.3.5 <https://mybatis.googlecode.com/files/MyBatis-SqlMaps-2_en.pdf>`_
 
   * ラッパーとして、\ `TERASOLUNA Framework <http://sourceforge.jp/projects/terasoluna/releases/?package_id=6896>`_\ のDAO(TERASOLUNA DAO)を使用する。
-
-.. todo::
-
-  今後、MyBatis 3にも対応する予定である。
 
 .. note::
 
@@ -261,21 +261,31 @@ version 1.0.1.RELEASEで利用するOSSの一覧を以下に示す。
       - spring-data-jpa
       - 1.4.3.RELEASE
       - \*1
+    * - MyBatis3
+      - org.mybatis
+      - mybatis
+      - 3.2.8
+      - \*2
+    * - MyBatis3
+      - org.mybatis
+      - mybatis-spring
+      - 1.2.2
+      - \*2
     * - MyBatis2
       - jp.terasoluna.fw
       - terasoluna-dao
       - 2.0.5.0
-      - \*2
+      - \*3
     * - MyBatis2
       - jp.terasoluna.fw
       - terasoluna-ibatis
       - 2.0.5.0
-      - \*2
+      - \*3
     * - MyBatis2
       - org.mybatis
       - mybatis
       - 2.3.5
-      - \*2
+      - \*3
     * - DI
       - javax.inject
       - javax.inject
@@ -350,17 +360,17 @@ version 1.0.1.RELEASEで利用するOSSの一覧を以下に示す。
       - commons-beanutils
       - commons-beanutils
       - 1.8.3
-      - \*3
+      - \*4
     * - Bean変換
       - net.sf.dozer
       - dozer
       - 5.4.0
-      - \*3
+      - \*4
     * - Bean変換
       - org.apache.commons
       - commons-lang3
       - 3.1
-      - \*3
+      - \*4
     * - 日付操作
       - joda-time
       - joda-time
@@ -370,7 +380,7 @@ version 1.0.1.RELEASEで利用するOSSの一覧を以下に示す。
       - joda-time
       - joda-time-jsptags
       - 1.1.1
-      - \*3
+      - \*4
     * - 日付操作
       - org.jadira.usertype
       - usertype.core
@@ -385,42 +395,42 @@ version 1.0.1.RELEASEで利用するOSSの一覧を以下に示す。
       - commons-dbcp
       - commons-dbcp
       - 1.2.2.patch_DBCP264_DBCP372
-      - \*3
+      - \*4
     * - コネクションプール
       - commons-pool
       - commons-pool
       - 1.6
-      - \*3
+      - \*4
     * - Tiles
       - commons-digester
       - commons-digester
       - 2
-      - \*3
+      - \*4
     * - Tiles
       - org.apache.tiles
       - tiles-api
       - 2.2.2
-      - \*3
+      - \*4
     * - Tiles
       - org.apache.tiles
       - tiles-core
       - 2.2.2
-      - \*3
+      - \*4
     * - Tiles
       - org.apache.tiles
       - tiles-jsp
       - 2.2.2
-      - \*3
+      - \*4
     * - Tiles
       - org.apache.tiles
       - tiles-servlet
       - 2.2.2
-      - \*3
+      - \*4
     * - Tiles
       - org.apache.tiles
       - tiles-template
       - 2.2.2
-      - \*3
+      - \*4
     * - ユーティリティ
       - com.google.guava
       - guava
@@ -430,12 +440,12 @@ version 1.0.1.RELEASEで利用するOSSの一覧を以下に示す。
       - commons-collections
       - commons-collections
       - 3.2.1
-      - \*3
+      - \*4
     * - ユーティリティ
       - commons-io
       - commons-io
       - 2.4
-      - \*3
+      - \*4
     * - サーブレット
       - javax.servlet
       - jstl
@@ -443,6 +453,7 @@ version 1.0.1.RELEASEで利用するOSSの一覧を以下に示す。
       -
 
 #. データアクセスに、JPAを使用する場合に依存するライブラリ
+#. データアクセスに、MyBatis3を使用する場合に依存するライブラリ
 #. データアクセスに、MyBatis2を使用する場合に依存するライブラリ
 #. 共通ライブラリに依存しないが、TERASOLUNA Global Frameworkでアプリケーションを開発する場合に、利用することを推奨しているライブラリ
 
@@ -478,14 +489,18 @@ version 1.0.1.RELEASEで利用するOSSの一覧を以下に示す。
       - | JPAを使用する場合の、依存関係定義
       - | 無
     * - | (4)
+      - | terasoluna-gfw-mybatis3
+      - | MyBatis3を使用する場合の、依存関係定義
+      - | 無
+    * - | (5)
       - | terasoluna-gfw-mybatis2
       - | MyBatis2を使用する場合の、依存関係定義
       - | 無
-    * - | (5)
+    * - | (6)
       - | terasoluna-gfw-security-core
       - | Spring Securityを使用する場合の、依存関係定義(Web以外)
       - | 無
-    * - | (6)
+    * - | (7)
       - | terasoluna-gfw-security-web
       - | Spring Securityを使用する場合の依存関係定義(Web関連)、およびSpring Securityの拡張
       - | 有

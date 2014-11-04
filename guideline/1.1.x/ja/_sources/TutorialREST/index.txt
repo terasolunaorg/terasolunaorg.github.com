@@ -2432,7 +2432,20 @@ HTTPレスポンスBODYにエラー情報を出力するための実装
             ...
             
             (omitted)
-     
+
+おわりに
+================================================================================
+このチュートリアルでは、以下の内容を学習した。
+
+* TERASOLUNA Global Frameworkによる基本的なRESTful Webサービスの構築方法
+* REST API(GET, POST, PUT, DELETE)を提供するControllerクラスの実装
+* JavaBeanとJSONの相互変換方法
+* エラーメッセージの定義方法
+* Spring MVCを使用した各種例外のハンドリング方法
+
+ここでは、基本的なRESTful Webサービスの実装法について示した。
+考え方の元となるアーキテクチャ・設計指針等について理解を深める為には、「:doc:`../ArchitectureInDetail/REST`」 を参照されたい。
+
 .. raw:: latex
 
    \newpage

@@ -8,6 +8,7 @@ TERASOLUNA Global Frameworkの機能詳細
 
    DataAccessCommon
    DataAccessJpa
+   DataAccessMyBatis3
    DataAccessMybatis2
    ExclusionControl
    Validation
