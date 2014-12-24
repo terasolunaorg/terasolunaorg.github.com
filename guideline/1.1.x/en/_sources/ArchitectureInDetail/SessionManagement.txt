@@ -1273,7 +1273,7 @@ Appendix
 .. _session-management_appendix_sessionattribute:
 
 Example of screen transition implementation using \ ``@SessionAttributes``\  in wizard format
-^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 Screen transition implementation using \ ``@SessionAttributes``\  annotation in wizard format, is explained below.
 
 Process specifications are as follows:
@@ -1516,7 +1516,7 @@ Example of implementation is as follows:
     * - | (20)
       - | Specify the verification group (\ ``Wizard3.class``\ ) on the third page of input screen, in "value" attribute of \ ``@Validated``\  annotation, so as to perform input validation of only the value entered in third page of input screen.
           
-       .. code-block:: java
+ .. code-block:: java
 
         // (21)
         @RequestMapping(value = "save", method = RequestMethod.POST)
@@ -1926,7 +1926,7 @@ Example of implementation is as follows:
         <!-- ... -->
     </bean>
 
-.. tabularcolumns:: |p{0.10\linewidth}|p{0.90\linewidth}|
+ .. tabularcolumns:: |p{0.10\linewidth}|p{0.90\linewidth}|
  .. list-table::
     :widths: 10 90
     :header-rows: 1
@@ -1974,7 +1974,7 @@ Example of implementation is as follows:
 .. _session-management_appendix_sessionscope:
 
 Example of screen transition across multiple Controllers using session-scoped bean.
-^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 Implementation using session-scoped bean is explained with example of process of performing screen transitions across multiple Controllers.
 
 Process specifications are as follows:

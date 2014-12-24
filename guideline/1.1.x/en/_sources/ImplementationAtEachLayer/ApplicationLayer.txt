@@ -39,7 +39,7 @@ Implementing Controller
    | Receives requests by implementing methods to which \ ``@RequestMapping``\ annotation is assigned.
 #. | **Performs input validation of request parameter.**
    | For request which requires input validation of request parameters, it can be  performed by specifying \ ``@Validated``\  annotation to form object argument of method which receives the request.
-   | Performs single item check using Bean Validation (JSR-303) and correlation check by Spring Validator or Bean Validation (JSR-303).
+   | Performs single item check using Bean Validation and correlation check by Spring Validator or Bean Validation.
 #. | **Calls business logic.**
    | Controller does not implement business logic but delegates by calling Service method.
 #. | **Reflects the output of business logic to Model.**
@@ -1206,15 +1206,21 @@ Retrieving values from URL path
    * - | (3)
      - | Value attribute of ``@PathVariable``\ annotation can be omitted. When it is omitted, the argument name is considered as the request parameter name.
        | For example, when the URL ``"sample/hello/aaaa/1"`` is accessed, value ``"1"`` is passed to argument "version".
-       | However, if value attribute is omitted, the compilation must be done in debug mode.
+       | However, if value attribute is omitted,
+
+       * \ ``-g``\  option (mode for generate debug information)
+       * Java8's \ ``-parameters``\  option (mode for generate metadata of the reflection on the method parameters)
+
+       there is a need to compile with specifying either.
+
 
  .. note::
     Binding argument can be of any data type other than string. In case of different data type, \ ``org.springframework.beans.TypeMismatchException``\ is thrown and default response is 400 (Bad Request). 
     For example, when the URL ``"sample/hello/aaaa/v1"`` is accessed, an exception is thrown since ``"v1"`` cannot be converted into Integer type.
 
- .. warning ::
-    When omitting the value attribute of ``@PathVariable``\ annotation, the application to be deployed must be compiled in debug mode.
-    Compiling in debug mode has an impact on memory and performance, since information or processing required for debugging is inserted to the class after compiling.
+ .. warning::
+    When omitting the value attribute of ``@PathVariable``\ annotation, the application to be deployed must be compiled with \ ``-g``\  option or Java8's \ ``-parameters``\  option.
+    Compiling with those option has possibility of an impact on memory and performance, since information or processing required for debugging is inserted to the class after compiling.
     Basically, explicitly specifying the value attribute is recommended.
 
 |
@@ -1252,7 +1258,12 @@ To retrieve request parameters individually, add \ ``@RequestParam``\ annotation
    * - | (2)
      - | value attribute of ``@RequestParam``\ annotation can be omitted. When it is omitted, the argument name becomes the request parameter name. 
        | For example, when the URL ``"sample/hello?name=bbbb&...."`` is accessed, string ``"bbbb"`` is passed to argument "name".
-       | However, if value attribute is omitted, the compilation should be done in debug mode.
+       | However, if value attribute is omitted,
+
+       * \ ``-g``\  option (mode for generate debug information)
+       * Java8's \ ``-parameters``\  option (mode for generate metadata of the reflection on the method parameters)
+
+       there is a need to compile with specifying either.
    * - | (3)
      - | By default, an error occurs if the specified request parameter does not exist. When request parameter is not required, specify ``false`` in the ``required`` attribute.
        | For example, when it is accessed where request parameter ``age`` does not exist, \ ``null``\ is passed to argument "age".
@@ -2345,7 +2356,7 @@ DataType conversion in controller
 
 Specifying annotation for input validation
 """"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
-Since form object is validated using Bean Validation(JSR-303), it is necessary to specify annotation which indicates constraints of the field.
+Since form object is validated using Bean Validation, it is necessary to specify annotation which indicates constraints of the field.
 Refer to :doc:`../ArchitectureInDetail/Validation`  for the details of input validation.
 
 |

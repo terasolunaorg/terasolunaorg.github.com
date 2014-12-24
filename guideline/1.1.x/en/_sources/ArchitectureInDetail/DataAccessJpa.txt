@@ -2026,7 +2026,7 @@ If no condition is specified, a blank list will be returned.
 
     * - Sr. No.
       - Description
-  * -   | (3)
+    * - | (3)
       - | Create implementation class of custom Repository interface.
     * - | (4)
       - | Inject ``EntityManager``.
@@ -2395,7 +2395,7 @@ Further, the description for fetching all records is omitted.
 
     * - Sr. No.
       - Description
-   * -  | (2)
+    * - | (2)
       - | Implement the query method to fetch the entities corresponding to the specified page, amongst the entities matching the dynamic conditions.
         | In the above example, the method is not split for explanation purpose; however it can be split if required.
     * - | (3)
@@ -4069,7 +4069,7 @@ See the example below.
 
     * - Sr. No.
       - Description
-   * -  | (1)
+    * - | (1)
       - | Assign ``@org.springframework.data.annotation.CreatedBy`` annotation to the field that stores "Created by".
     * - | (2)
       - | Assign ``@org.springframework.data.annotation.CreatedDate`` annotation to the field that stores "Created date-time".

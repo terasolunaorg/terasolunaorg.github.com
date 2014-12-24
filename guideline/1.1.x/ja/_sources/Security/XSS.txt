@@ -50,6 +50,8 @@ How to use
  * JavaScript Escaping
  * Event handler Escaping
 
+.. _xss_how_to_use_ouput_escaping:
+
 Output Escaping
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 | XSSの脆弱性への対応としては、HTML特殊文字をエスケープすることが基本である。
@@ -118,6 +120,8 @@ Output Escaping
    :align: center
 
    **Picture - No Escape Result**
+
+.. _xss_how_to_use_h_function_example:
 
 出力値をf:h()関数でエスケープする例
 """"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
@@ -199,6 +203,8 @@ Output Escaping
 
         上記は、Stringでも問題ないので、\ ``<fmt:formatNumber>``\ タグを使わなくなった場合に ``f:h()`` を付け忘れることを予防するため、\ ``f:h()``\ を明示的に使用している。
 
+.. _xss_how_to_use_javascript_escaping:
+
 JavaScript Escaping
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 | XSSの脆弱性への対応としては、JavaScript特殊文字をエスケープすることが基本である。
@@ -277,6 +283,8 @@ JavaScript Escaping
         業務要件上必要でない限り、JavaScriptの要素をユーザからの入力値に依存して動的に生成する仕様は、
         任意のスクリプトが埋め込まれてしまう可能性があるため、別の方式を検討する、または、極力避けるべきである。
 
+.. _xss_how_to_use_js_function_example:
+
 出力値をf:js()関数でエスケープする例
 """"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 
@@ -309,6 +317,8 @@ JavaScript Escaping
         var aaa = '<script>\x3c\/script\x3e\x3cscript\x3ealert(\'XSS Attack!\');\x3c\/script\x3e<\/script>';
         document.write(aaa);
     </script>
+
+.. _xss_how_to_use_event_handler_escaping:
 
 Event handler Escaping
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
@@ -355,6 +365,8 @@ Event handler Escaping
     <!-- omitted -->
     <input type="text" onmouseover="alert('output is'); alert('XSS Attack!'); // .') ">
     <!-- omitted -->
+
+.. _xss_how_to_use_hjs_function_example:
 
 出力値をf:hjs()関数でエスケープする例
 """"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""

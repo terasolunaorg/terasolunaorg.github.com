@@ -39,7 +39,7 @@ Controllerの実装
    | \ ``@RequestMapping``\ アノテーションが付与されたメソッドを実装することで、リクエストを受け取ることができる。
 #. | **リクエストパラメータの入力チェックを行う。**
    | 入力チェックが必要なリクエストを受け取るメソッドでは、\ ``@Validated``\ アノテーションをフォームオブジェクトの引数に指定することで、リクエストパラメータの入力チェックを行うことができる。
-   | 単項目チェックはBean Validation(JSR-303)、相関チェックはSpring Validator又はBean Validation(JSR-303)でチェックを行う。
+   | 単項目チェックはBean Validation、相関チェックはSpring Validator又はBean Validationでチェックを行う。
 #. | **業務処理の呼び出しを行う。**
    | Controllerでは業務処理の実装は行わず、Serviceのメソッドに処理を委譲する。
 #. | **業務処理の処理結果をModelに反映する。**
@@ -1211,15 +1211,20 @@ URLのパスから値を取得する
    * - | (3)
      - | ``@PathVariable``\ アノテーションのvalue属性は省略可能で、省略した場合は引数名がリクエストパラメータ名となる。
        | 上記例では、 ``"sample/hello/aaaa/1"`` というURLにアクセスした場合、引数versionに数値 ``"1"`` が渡る。
-       | ただし、この方法はコンパイルをdebugモードで行う必要がある。
+       | ただしこの方法は、
+
+       * \ ``-g``\ オプション(デバッグ情報を出力するモード)
+       * Java8から追加された\ ``-parameters``\ オプション(メソッド・パラメータにリフレクション用のメタデータを生成するモード)
+
+       のどちらかを指定してコンパイルする必要がある。
 
  .. note::
     バインドする引数の型はString以外でも良い。型が合わない場合は\ ``org.springframework.beans.TypeMismatchException``\ がスローされ、デフォルトの動作は400(Bad Request)が応答される。
     例えば、上記例で ``"sample/hello/aaaa/v1"`` というURLでアクセスした場合、``"v1"`` をIntegerに変換できないため、例外がスローされる。
 
- .. warning ::
-    ``@PathVariable``\ アノテーションのvalue属性を省略する場合、デプロイするアプリケーションはdebugモードでコンパイルする必要がある。
-    debugモードでコンパイルした場合、コンパイル後のクラスにはデバッグ時に必要となる情報や処理が挿入されるため、メモリや処理性能に影響を与えることがあるので注意が必要である。
+ .. warning::
+    ``@PathVariable``\ アノテーションのvalue属性を省略する場合、デプロイするアプリケーションは\ ``-g``\ オプション又はJava8から追加された\ ``-parameters``\ オプションを指定してコンパイルする必要がある。
+    これらのオプションを指定した場合、コンパイル後のクラスにはデバッグ時に必要となる情報や処理などが挿入されるため、メモリや処理性能に影響を与えることがあるので注意が必要である。
     基本的には、value属性を明示的に指定する方法を推奨する。
 
 |
@@ -1257,7 +1262,12 @@ URLのパスから値を取得する
    * - | (2)
      - | ``@RequestParam``\ アノテーションのvalue属性は省略可能で、省略した場合は引数名がリクエストパラメータ名となる。
        | 上記例では、 ``"sample/hello?name=bbbb&...."`` というURLにアクセスした場合、引数nameに文字列 ``"bbbb"`` が渡る。
-       | ただし、この方法はコンパイルをdebugモードで行う必要がある。
+       | ただしこの方法は、
+
+       * \ ``-g``\ オプション(デバッグ情報を出力するモード)
+       * Java8から追加された\ ``-parameters``\ オプション(メソッド・パラメータにリフレクション用のメタデータを生成するモード)
+
+       のどちらかを指定してコンパイルする必要がある。
    * - | (3)
      - | デフォルトの動作では、指定したリクエストパラメータが存在しないとエラーとなる。リクエストパラメータが存在しないケースを許容する場合は、required属性を ``false`` に指定する。
        | 上記例では、``age`` というリクエストパラメータがない状態でアクセスした場合、引数ageに\ ``null``\ が渡る。
@@ -1724,21 +1734,32 @@ Cookieに値を書き込む
 HTMLを応答する
 """"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 | 処理メソッドの実行結果をHTMLとして応答する場合、処理メソッドの返り値は、JSPのView名を返却する。
-| JSPを使ってHTMLを生成する場合のViewResolverは、基本的には\ ``UrlBasedViewResolver``\ の継承クラス(\ ``InternalViewResolver``\ や \ ``TilesViewResolver``\ 等)となる。
+| JSPを使ってHTMLを生成する場合の\ ``ViewResolver``\ は、基本的には\ ``UrlBasedViewResolver``\ の継承クラス(\ ``InternalViewResolver``\ や \ ``TilesViewResolver``\ 等)となる。
 
-| 以下では、\ ``InternalViewResolver``\ を使用する場合の例を記載するが、画面レイアウトがテンプレート化されている場合は\ ``TilesViewResolver``\ を使用することを推奨する。
+| 以下では、JSP用の\ ``InternalViewResolver``\ を使用する場合の例を記載するが、画面レイアウトがテンプレート化されている場合は\ ``TilesViewResolver``\ を使用することを推奨する。
 | \ ``TilesViewResolver``\ の使用方法については、 :doc:`../ArchitectureInDetail/TilesLayout` を参照されたい。
 
 - spring-mvc.xml
 
- .. code-block:: xml
-    :emphasize-lines: 2-4
+ \ ``<bean>``\ 要素を使用する場合の定義例
 
+ .. code-block:: xml
+
+    <!-- (1) -->
     <bean class="org.springframework.web.servlet.view.InternalResourceViewResolver">
-        <property name="prefix" value="/WEB-INF/views/" /> <!-- (1) -->
-        <property name="suffix" value=".jsp" /> <!-- (2) -->
-        <property name="order" value="1" /> <!-- (3) -->
+        <property name="prefix" value="/WEB-INF/views/" /> <!-- (2) -->
+        <property name="suffix" value=".jsp" /> <!-- (3) -->
+        <property name="order" value="1" /> <!-- (4) -->
     </bean>
+
+ Spring Framework 4.1から追加された\ ``<mvc:view-resolvers>``\ 要素を使用する場合の定義例
+
+ .. code-block:: xml
+
+    <mvc:view-resolvers>
+        <mvc:jsp prefix="/WEB-INF/views/" /> <!-- (5) -->
+    </mvc:view-resolvers>
+
 
 - SampleController.java
 
@@ -1748,7 +1769,7 @@ HTMLを応答する
     @RequestMapping("hello")
     public String hello() {
         // ommited
-        return "sample/hello"; // (4)
+        return "sample/hello"; // (6)
     }
 
  .. tabularcolumns:: |p{0.10\linewidth}|p{0.90\linewidth}|
@@ -1759,15 +1780,32 @@ HTMLを応答する
    * - 項番
      - 説明
    * - | (1)
-     - | JSPファイルが格納されているベースディレクトリ(ファイルパスのプレフィックス)を指定する。
-       | プレフィックスを指定しておくことで、ControllerでView名を返却する際に、JSPの物理的な格納場所を意識する必要がなくなる。
+     - JSP用の\ ``InternalViewResolver``\ を定義する。
    * - | (2)
-     - | JSPファイルの拡張子(ファイルパスのサフィックス)を指定する。
-       | サフィックスを指定しておくことで、ControllerでView名を返却する際に、JSPの拡張子を意識する必要がなくなる。
+     - JSPファイルが格納されているベースディレクトリ(ファイルパスのプレフィックス)を指定する。
+
+       プレフィックスを指定しておくことで、ControllerでView名を返却する際に、JSPの物理的な格納場所を意識する必要がなくなる。
    * - | (3)
-     - | 複数のViewResolverを指定した場合の実行順番を指定する。Integerの範囲で指定することが可能で、値が小さいものから順に実行される。
+     - JSPファイルの拡張子(ファイルパスのサフィックス)を指定する。
+
+       サフィックスを指定しておくことで、ControllerでView名を返却する際に、JSPの拡張子を意識する必要がなくなる。
    * - | (4)
-     - | 処理メソッドの返り値として  ``"sample/hello"`` というView名を返却した場合、 ``"/WEB-INF/views/sample/hello.jsp"`` が呼び出されてHTMLが応答される。
+     - 複数の\ ``ViewResolver``\ を指定した場合の実行順番を指定する。
+
+       \ ``Integer``\ の範囲で指定することが可能で、値が小さいものから順に実行される。
+   * - | (5)
+     - Spring Framework 4.1から追加された\ ``<mvc:jsp>``\ 要素に使用して、JSP用の\ ``InternalViewResolver``\ を定義する。
+
+       * \ ``prefix``\ 属性には、JSPファイルが格納されているベースディレクトリ(ファイルパスのプレフィックス)を指定する。
+       * \ ``prefix``\ 属性には、デフォルト値として\ ``".jsp"``\が適用されているため、明示的に指定する必要はない。
+
+       .. note::
+
+           \ ``<mvc:view-resolvers>``\ 要素を使用すると、\ ``ViewResolver``\ をシンプルに定義することが出来るため、
+           本ガイドラインでは\ ``<mvc:view-resolvers>``\ を使用することを推奨する。
+
+   * - | (6)
+     - 処理メソッドの返り値として ``"sample/hello"`` というView名を返却した場合、 ``"/WEB-INF/views/sample/hello.jsp"`` が呼び出されてHTMLが応答される。
 
 .. note::
     上記の例ではJSPを使ってHTMLを生成しているが、VelocityやFreeMarkerなど他のテンプレートエンジンを使用してHTMLを生成する場合でも、処理メソッドの返り値は ``"sample/hello`` のままでよい。
@@ -1788,12 +1826,31 @@ HTMLを応答する
 
 - spring-mvc.xml
 
- .. code-block:: xml
-    :emphasize-lines: 1-2
+ \ ``<bean>``\ 要素を使用する場合の定義例
 
-    <bean class="org.springframework.web.servlet.view.BeanNameViewResolver"> <!-- (1) -->
-         <property name="order" value="0" /> <!-- (2) -->
+ .. code-block:: xml
+    :emphasize-lines: 1-4
+
+    <!-- (1) -->
+    <bean class="org.springframework.web.servlet.view.BeanNameViewResolver">
+        <property name="order" value="0"/> <!-- (2) -->
     </bean>
+
+    <bean class="org.springframework.web.servlet.view.InternalResourceViewResolver">
+        <property name="prefix" value="/WEB-INF/views/" />
+        <property name="suffix" value=".jsp" />
+        <property name="order" value="1" />
+    </bean>
+
+ Spring Framework 4.1から追加された\ ``<mvc:view-resolvers>``\ 要素を使用する場合の定義例
+
+ .. code-block:: xml
+    :emphasize-lines: 2
+
+    <mvc:view-resolvers>
+        <mvc:bean-name /> <!-- (3) -->
+        <mvc:jsp prefix="/WEB-INF/views/" />
+    </mvc:view-resolvers>
 
 - SampleController.java
 
@@ -1803,7 +1860,7 @@ HTMLを応答する
     @RequestMapping("report")
     public String report() {
         // ommited
-        return "sample/report"; // (3)
+        return "sample/report"; // (4)
     }
 
 
@@ -1812,8 +1869,8 @@ HTMLを応答する
  .. code-block:: java
     :emphasize-lines: 1-2
 
-    @Component("sample/report") // (4)
-    public class XxxExcelView extends AbstractExcelView { // (5)
+    @Component("sample/report") // (5)
+    public class XxxExcelView extends AbstractExcelView { // (6)
         @Override
         protected void buildExcelDocument(Map<String, Object> model,
                 HSSFWorkbook workbook, HttpServletRequest request,
@@ -1841,17 +1898,32 @@ HTMLを応答する
    * - 項番
      - 説明
    * - | (1)
-     - \ ``BeanNameViewResolver``\ は返却されたView名に一致するBeanをアプリケーションコンテキストから探してViewを解決するクラスとなっている。
+     - \ ``BeanNameViewResolver``\ を定義する。
+
+       \ ``BeanNameViewResolver``\ は、返却されたView名に一致するBeanをアプリケーションコンテキストから探してViewを解決するクラスとなっている。
    * - | (2)
-     - | \ ``InternalViewResolver``\ や \ ``TilesViewResolver``\ と併用する場合は、これらの\ ``ViewResolver``\ より、高い優先度を指定する事を推奨する。
-       | 上記例では、 ``"0"`` を指定することで、\ ``InternalViewResolver``\ より先に\ ``BeanNameViewResolver``\によるView解決が行われる。
+     - JSP用の\ ``InternalViewResolver``\ や \ ``TilesViewResolver``\ と併用する場合は、これらの\ ``ViewResolver``\ より、高い優先度を指定する事を推奨する。
+       上記例では、 ``"0"`` を指定することで、\ ``InternalViewResolver``\ より先に\ ``BeanNameViewResolver``\によるView解決が行われる。
    * - | (3)
-     - | 処理メソッドの返り値として ``"sample/report"`` というView名を返却した場合、 (4)でBean登録されたViewインスタンスによって生成されたデータがダウンロードデータとして応答される。
+     - Spring Framework 4.1から追加された\ ``<mvc:bean-name>``\ 要素を使用して、\ ``BeanNameViewResolver``\ を定義する。
+
+       \ ``<mvc:view-resolvers>``\ 要素を使用して\ ``ViewResolver``\ を定義する場合は、子要素に指定する\ ``ViewResolver``\の定義順が優先順位となる。
+       上記例では、JSP用の\ ``InternalViewResolver``\を定義するための要素(\ ``<mvc:jsp>``\)より上に定義することで、JSP用の\ ``InternalViewResolver``\ より先に\ ``BeanNameViewResolver``\によるView解決が行われる。
+
+       .. note::
+
+           \ ``<mvc:view-resolvers>``\ 要素を使用すると、\ ``ViewResolver``\ をシンプルに定義することが出来るため、
+           本ガイドラインでは\ ``<mvc:view-resolvers>``\ を使用することを推奨する。
    * - | (4)
-     - | コンポーネントの名前にView名を指定して、ViewオブジェクトをBeanとして登録する。
-       | 上記例では、 ``"sample/report"`` というbean名(View名)で ``x.y.z.app.views.XxxExcelView`` のインスタンスがBean登録される。
+     - 処理メソッドの返り値として ``"sample/report"`` というView名を返却した場合、 (5)でBean登録されたViewインスタンスによって生成されたデータがダウンロードデータとして応答される。
    * - | (5)
-     - | Viewの実装例。上記例では、 ``org.springframework.web.servlet.view.document.AbstractExcelView`` を継承し、Excelデータを生成するViewクラスの実装となる。
+     - コンポーネントの名前にView名を指定して、ViewオブジェクトをBeanとして登録する。
+
+       上記例では、 ``"sample/report"`` というbean名(View名)で ``x.y.z.app.views.XxxExcelView`` のインスタンスがBean登録される。
+   * - | (6)
+     - Viewの実装例。
+
+       上記例では、 ``org.springframework.web.servlet.view.document.AbstractExcelView`` を継承し、Excelデータを生成するViewクラスの実装となる。
 
 |
 |
@@ -2343,7 +2415,7 @@ Controller単位の型変換
 
 入力チェック用のアノテーションの指定
 """"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
-フォームオブジェクトのバリデーションは、Bean Validation(JSR-303)を使用して行うため、フィールドの制約条件を示すアノテーションを指定する必要がある。
+フォームオブジェクトのバリデーションは、Bean Validationを使用して行うため、フィールドの制約条件を示すアノテーションを指定する必要がある。
 入力チェックの詳細は、:doc:`../ArchitectureInDetail/Validation` を参照されたい。
 
 |
@@ -2625,6 +2697,9 @@ JSPの実装
    * - 3.
      - JSTL
      - - `<http://download.oracle.com/otndocs/jcp/jstl-1.2-mrel2-eval-oth-JSpec/>`_\
+   * - 4.
+     - Common library's tags & el functions
+     - - 本ガイドラインの「:doc:`../Appendix/TagLibAndELFunctions`」
 
  .. warning::
 
@@ -3468,16 +3543,182 @@ HandlerMethodArgumentResolverを実装してControllerの引数として受け�
 
 \ ``@ControllerAdvice``\ の実装
 """"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
-\ ``@ControllerAdvice``\ では、全てのControllerで実行したい処理を実装する。
+\ ``@ControllerAdvice``\ アノテーションを付与したクラスでは、
+複数のControllerで実行したい共通的な処理を実装する。
 
-\ ``@ControllerAdvice``\ では、以下の処理を共通化することができる。
+\ ``@ControllerAdvice``\ アノテーションを付与したクラスを作成すると、
 
-- ``@InitBinder`` メソッドの共通化
-- ``@ExceptionHandler`` メソッドの共通化
-- ``@ModelAttribute`` メソッドの共通化
+- ``@InitBinder`` を付与したメソッド
+- ``@ExceptionHandler`` を付与したメソッド
+- ``@ModelAttribute`` を付与したメソッド
 
+で実装した処理を、複数のControllerに適用する事ができる。
 
-| 以下に、\ ``@InitBinder``\ メソッドのサンプルを示す。
+.. tip::
+
+    \ ``@ControllerAdvice``\ アノテーションは、Spring Framework 3.2 から追加された仕組みだが、
+    全てのControllerに処理が適用される仕組みになっていたため、アプリケーション全体の共通処理しか実装できなかった。
+
+    Spring Framework 4.0 からは、共通処理を適用するControllerを柔軟に指定する事ができるように改善されている。
+    この改善により、様々な粒度で共通処理を実装する事ができるようになった。
+
+|
+
+.. _application_layer_controller_advice_attribute:
+
+以下に、共通処理を適用するControllerを指定する方法(属性の指定方法)について説明する。
+
+.. tabularcolumns:: |p{0.10\linewidth}|p{0.15\linewidth}|p{0.75\linewidth}|
+.. list-table::
+   :header-rows: 1
+   :widths: 10 15 75
+
+   * - 項番
+     - 属性
+     - 説明と指定例
+   * - | (1)
+     - ``annotations``
+     - アノテーションを指定する。
+
+       指定したアノテーションが付与されたControllerに対して共通処理が適用される。
+       以下に指定例を示す。
+
+       .. code-block:: java
+
+           @ControllerAdvice(annotations = RestController.class)
+           public class ApiGlobalExceptionHandler {
+               // ...
+           }
+
+       .. code-block:: java
+
+           @RestController
+           public class SampleRestController {
+               // ...
+           }
+
+       上記例では、\ ``SampleRestController``\ に\ ``@RestController``\ アノテーションを付与しているため、
+       \ ``SampleRestController``\ に共通処理が適用される。
+   * - | (2)
+     - ``assignableTypes``
+     - クラス又はインタフェースを指定する。
+
+       指定したクラス又はインタフェースに割り当て可能(キャスト可能)なControllerに対して共通処理が適用される。
+       本属性を使用する場合は、共通処理を適用するControllerであることを示すためのマーカーインタフェースを属性値に指定するスタイルを採用することを推奨する。
+       このスタイルを採用した場合、Controller側では、適用したい共通処理用のマーカーインタフェースを実装するだけでよい。
+       以下の指定例を示す。
+
+       .. code-block:: java
+
+           @ControllerAdvice(assignableTypes = ISODateApplicable.class)
+           public class ISODateInitBinder {
+               public static interface ISODateApplicable {}
+               // ...
+           }
+
+       .. code-block:: java
+
+           @Controller
+           public class SampleController implements ISODateApplicable {
+               // ...
+           }
+
+       上記例では、\ ``SampleController``\ が\ ``@ISODateApplicable``\ インタフェース(マーカーインタフェース)を実装しているため、
+       \ ``SampleController``\ に共通処理が適用される。
+   * - | (3)
+     - ``basePackageClasses``
+     - クラス又はインタフェースを指定する。
+
+       指定したクラス又はインタフェースのパッケージ配下のControllerに対して共通処理が適用される。
+
+       本属性を使用する場合は、
+
+       * \ ``@ControllerAdvice``\ を付与したクラス
+       * パッケージを識別するためのマーカーインタフェース
+
+       を属性値に指定するスタイルを採用することを推奨する。
+       以下に指定例を示す。
+
+       .. code-block:: java
+
+           package com.example.app
+
+           @ControllerAdvice(basePackageClasses = AppGlobalExceptionHandler.class)
+           public class AppGlobalExceptionHandler {
+               // ...
+           }
+
+       .. code-block:: java
+
+           package com.example.app.sample
+
+           @Controller
+           public class SampleController {
+               // ...
+           }
+
+       上記例では、\ ``SampleController``\ が\ ``@ControllerAdvice``\ を付与したクラス(\ ``AppGlobalExceptionHandler``\)が格納されているパッケージ(\ ``com.example.app``\ )配下に格納されているため、
+       \ ``SampleController``\ に共通処理が適用される。
+
+       .. code-block:: java
+
+           package com.example.app.common
+
+           @ControllerAdvice(basePackageClasses = AppPackage.class)
+           public class AppGlobalExceptionHandler {
+               // ...
+           }
+
+       .. code-block:: java
+
+           package com.example.app
+
+           public interface AppPackage {
+           }
+
+       \ ``@ControllerAdvice``\ が付与されているクラスとControllerが格納されているクラスのパッケージ階層が異なる場合や、複数のベースパッケージに共通処理を適用したい場合は、
+       パッケージを識別するためのマーカインタフェースを用意すればよい。
+   * - | (4)
+     - ``basePackages``
+     - パッケージ名を指定する。
+
+       指定したパッケージ配下のControllerに対して共通処理が適用される。
+       以下に指定例を示す。
+
+       .. code-block:: java
+
+           @ControllerAdvice(basePackages = "com.example.app")
+           public class AppGlobalExceptionHandler {
+               // ...
+           }
+   * - | (5)
+     - ``value``
+     - \ ``basePackages``\ へのエイリアス。
+
+       \ ``basePackages``\ 属性を指定した際と同じ動作となる。
+       以下に指定例を示す。
+
+       .. code-block:: java
+
+           @ControllerAdvice("com.example.app")
+           public class AppGlobalExceptionHandler {
+               // ...
+           }
+
+.. tip::
+
+    \ ``basePackageClasses``\ 属性 / \ ``basePackages``\ 属性 / \ ``value``\ 属性は、
+    共通処理を適用したいControllerが格納されているベースパッケージを指定するための属性であるが、
+    \ ``basePackageClasses``\ 属性を使用した場合、
+
+    * 存在しないパッケージを指定してしまう事を防ぐことが出来る
+    * IDE上で行ったパッケージ名変更と連動することが出来る
+
+    ため、タイプセーフな指定方法と言える。
+
+|
+
+| 以下に、\ ``@InitBinder``\ メソッドの実装サンプルを示す。
 | サンプルコードでは、 リクエストパラメータで指定できる日付型で形式を ``"yyyy/MM/dd"`` に設定している。
 
  .. code-block:: java
@@ -3515,8 +3756,9 @@ HandlerMethodArgumentResolverを実装してControllerの引数として受け�
    * - | (4)
      - \ ``@InitBinder``\ メソッドを実装する。全てのControllerに対して\ ``@InitBinder``\ メソッドが適用される。
 
+|
 
-| 以下に、\ ``@ExceptionHandler``\ メソッドのサンプルを示す。
+| 以下に、\ ``@ExceptionHandler``\ メソッドの実装サンプルを示す。
 | サンプルコードでは、  ``org.springframework.dao.PessimisticLockingFailureException`` をハンドリングしてロックエラー画面のViewを返却している。
 
  .. code-block:: java
@@ -3539,7 +3781,9 @@ HandlerMethodArgumentResolverを実装してControllerの引数として受け�
    * - | (1)
      - \ ``@ExceptionHandler``\ メソッドを実装する。全てのControllerに対して\ ``@ExceptionHandler``\ メソッドが適用される。
 
-| 以下に、\ ``@ModelAttribute``\ メソッドのサンプルを示す。
+|
+
+| 以下に、\ ``@ModelAttribute``\ メソッドの実装サンプルを示す。
 | サンプルコードでは、 共通的なリクエストパラメータをJavaBeanに変換して ``Model`` に格納している。
 
 - ControllerAdvice
@@ -3587,7 +3831,6 @@ HandlerMethodArgumentResolverを実装してControllerの引数として受け�
      - \ ``@ModelAttribute``\ メソッドで生成されたオブジェクトが渡る。
 
 
-|
 |
 
 二重送信防止について

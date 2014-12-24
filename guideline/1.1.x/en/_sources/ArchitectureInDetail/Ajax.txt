@@ -81,16 +81,20 @@ The ``HttpMessageConverter`` which is enabled by default on specifying ``<mvc:an
      - | Description
    * - 1.
      - | org.springframework.http.converter.json.
-       | MappingJacksonHttpMessageConverter
+       | MappingJackson2HttpMessageConverter
      - | JSON
      - | ``HttpMessageConverter`` to handle JSON as request body or response body.
-       | `Jackson 1.x <http://jackson.codehaus.org/>`_ system is included in the blank project. Hence, it can be used in its default state.
+       | `Jackson <https://github.com/FasterXML/jackson/>`_ system is included in the blank project. Hence, it can be used in its default state.
    * - 2.
      - | org.springframework.http.converter.xml.
        | Jaxb2RootElementHttpMessageConverter
      - | XML
      - | ``HttpMessageConverter`` to handle XML as request body or response body.
        | JAXB2.0 is included  as standard from JavaSE6. Hence it can be used in its default state.
+
+ .. note::
+
+    **Notice If you change from jackson version 1.xx to jackson version 2.xx**, refer to \ :ref:`here <REST_note_changed_jackson_version>`\ .
 
  .. warning:: **XXE (XML External Entity) Injection measures**
 
@@ -1117,7 +1121,7 @@ Handling HttpMessageNotReadableException
 
         Causes of specific errors differ depending on the implementation of ``HttpMessageConverter`` or library to be used.
 
-        In ``MappingJacksonHttpMessageConverter`` implementation, wherein data in JSON format is to be converted to JavaBean using Jackson, if a string is specified in the Integer field instead of number, ``HttpMessageNotReadableException`` occurs.
+        In ``MappingJackson2HttpMessageConverter`` implementation, wherein data in JSON format is to be converted to JavaBean using Jackson, if a string is specified in the Integer field instead of number, ``HttpMessageNotReadableException`` occurs.
 
 - Controller
 

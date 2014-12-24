@@ -10,8 +10,6 @@
 Spring MVCの、詳細な使い方の解説に入る前に、実際にSpring MVCに触れることで、
 Spring MVCを用いたWebアプリケーションの開発に対するイメージをつかむ。
 
-本節は、全体イメージをつかむことを目的としており、 **次章以降で説明する推奨方式に従っていないことに注意する。**
-
 検証環境
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
@@ -26,7 +24,7 @@ Spring MVCを用いたWebアプリケーションの開発に対するイメー�
      - Version
    * - JDK
      - 1.7.0\_55
-   * - SpringSource Tool Suite (STS)
+   * - Spring Tool Suite (STS)
      - 3.5.0.RELEASE
    * - VMware vFabric tc Server Developer Edition
      - 2.9
@@ -102,7 +100,7 @@ Spring MVCを用いたWebアプリケーションの開発に対するイメー�
     [INFO] ------------------------------------------------------------------------
     C:\work>
 
-SpringSource Tool Suiteのメニューから、[File] -> [Import] -> [Maven] -> [Existing Maven Projects] -> [Next]を選択し、archetypeで作成したプロジェクトを選択する。
+STSのメニューから、[File] -> [Import] -> [Maven] -> [Existing Maven Projects] -> [Next]を選択し、archetypeで作成したプロジェクトを選択する。
 
 .. figure:: images/NewMVCProjectImport.png
    :alt: New MVC Project Import
@@ -114,7 +112,7 @@ Root Directoryに \ ``C:\work\helloworld``\ を設定し、Projectsにhelloworld
    :alt: New MVC Project Import
    :width: 60%
 
-Package Explorerに、次のようなプロジェクトが生成される( **要インターネット接続** )。
+Package Explorerに、次のようなプロジェクトが生成される。
 
 .. figure:: images/HelloWorldWorkspace.png
    :alt: workspace
@@ -183,12 +181,10 @@ Spring MVCの設定方法を理解するために、生成されたSpring MVCの
     
         <!-- (3) Resolves views selected for rendering by @Controllers to .jsp resources in the /WEB-INF/views directory -->
         <!-- Settings View Resolver. -->
-        <bean id="viewResolver"
-            class="org.springframework.web.servlet.view.InternalResourceViewResolver">
-            <property name="prefix" value="/WEB-INF/views/" />
-            <property name="suffix" value=".jsp" />
-        </bean>
-    
+        <mvc:view-resolvers>
+            <mvc:jsp prefix="/WEB-INF/views/" />
+        </mvc:view-resolvers>
+
         <bean id="requestDataValueProcessor"
             class="org.terasoluna.gfw.web.mvc.support.CompositeRequestDataValueProcessor">
             <constructor-arg>
@@ -250,10 +246,26 @@ Spring MVCの設定方法を理解するために、生成されたSpring MVCの
    * - | (2)
      - Spring MVCで使用するコンポーネントを探すパッケージを定義する。
    * - | (3)
-     - ViewのResolverを指定し、Viewの配置場所を定義する。
+     - \ ``ViewのResolver``\ を指定し、\ ``View``\ の配置場所を定義する。
 
-``com.example.helloworld.app.welcome.HomeController`` を以下に示す。
+       .. tip::
 
+           \ ``<mvc:view-resolvers>``\ 要素はSpring Framework 4.1から追加されたXML要素である。
+           \ ``<mvc:view-resolvers>``\ 要素を使用すると、\ ``ViewResolver``\ をシンプルに定義することが出来る。
+
+           従来通り\ ``<bean>``\ 要素を使用した場合の定義例を以下に示す。
+
+            .. code-block:: xml
+
+               <bean id="viewResolver"
+                   class="org.springframework.web.servlet.view.InternalResourceViewResolver">
+                   <property name="prefix" value="/WEB-INF/views/" />
+                   <property name="suffix" value=".jsp" />
+               </bean>
+
+|
+
+次に、Welcomeページを表示するためのController (\ ``com.example.helloworld.app.welcome.HomeController``\ ) を以下に示す。
 
 .. code-block:: java
    :emphasize-lines: 17,26,36,38
@@ -274,7 +286,7 @@ Spring MVCの設定方法を理解するために、生成されたSpring MVCの
     /**
      * Handles requests for the application home page.
      */
-    @Controller // (1)
+    @Controller // (4)
     public class HomeController {
     
         private static final Logger logger = LoggerFactory
@@ -283,7 +295,7 @@ Spring MVCの設定方法を理解するために、生成されたSpring MVCの
         /**
          * Simply selects the home view to render by returning its name.
          */
-        @RequestMapping(value = "/", method = {RequestMethod.GET, RequestMethod.POST}) // (2)
+        @RequestMapping(value = "/", method = {RequestMethod.GET, RequestMethod.POST}) // (5)
         public String home(Locale locale, Model model) {
             logger.info("Welcome home! The client locale is {}.", locale);
     
@@ -293,16 +305,12 @@ Spring MVCの設定方法を理解するために、生成されたSpring MVCの
     
             String formattedDate = dateFormat.format(date);
     
-            model.addAttribute("serverTime", formattedDate); // (3)
+            model.addAttribute("serverTime", formattedDate); // (6)
     
-            return "welcome/home"; // (4)
+            return "welcome/home"; // (7)
         }
     
     }
-
-
-簡単に、解説を行う。
-
 
 .. tabularcolumns:: |p{0.10\linewidth}|p{0.90\linewidth}|
 .. list-table::
@@ -311,20 +319,21 @@ Spring MVCの設定方法を理解するために、生成されたSpring MVCの
 
    * - 項番
      - 説明
-   * - | (1)
-     - ``@Controller`` アノテーションを付けることで、DIコンテナにより、コントローラクラスが自動で読み込まれる。前述「Spring MVCの設定ファイルの説明(2)」の設定により、component-scanの対象となっている。
-   * - | (2)
-     - HTTPメソッドがGETで、Resource（もしくはRequest URL）が"/"で、アクセスする際に実行される。
-   * - | (3)
-     - Viewに渡したいオブジェクトを設定する。
    * - | (4)
+     - ``@Controller`` アノテーションを付けることで、DIコンテナにより、コントローラクラスが自動で読み込まれる。前述「Spring MVCの設定ファイルの説明(2)」の設定により、component-scanの対象となっている。
+   * - | (5)
+     - HTTPメソッドがGETで、Resource（もしくはRequest URL）が"/"で、アクセスする際に実行される。
+   * - | (6)
+     - Viewに渡したいオブジェクトを\ ``Model``\ に設定する。
+   * - | (7)
      - View名を返却する。前述「Spring MVCの設定ファイルの説明(3)」の設定により、"WEB-INF/views/home.jsp"がレンダリングされる。
 
-Modelに設定したオブジェクトが、HttpServletRequestに設定される。
-home.jspで以下のように ``${serverTime}`` を記述することで、Controllerから渡された値を出力することができる。
-( **ただし、${XXX}の記述は、XSS対象になる可能性があるので、文字列を出力する場合は、後述のようにHTMLエスケープする必要があることに注意する。** )
+|
+
+最後に、Welcomeページを表示するためのJSP (\ ``src/main/webapp/WEB-INF/views/welcome/home.jsp``\ ) を以下に示す。
 
 .. code-block:: jsp
+    :emphasize-lines: 12
 
     <!DOCTYPE html>
     <html>
@@ -337,11 +346,23 @@ home.jspで以下のように ``${serverTime}`` を記述することで、Contr
     <body>
         <div id="wrapper">
             <h1>Hello world!</h1>
-            <p>The time on the server is ${serverTime}.</p>
+            <p>The time on the server is ${serverTime}.</p> <%-- (8) --%>
         </div>
     </body>
     </html>
 
+.. tabularcolumns:: |p{0.10\linewidth}|p{0.90\linewidth}|
+.. list-table::
+   :header-rows: 1
+   :widths: 10 90
+
+   * - 項番
+     - 説明
+   * - | (8)
+     - 前述の「Controllerの説明(6)」でModelに設定したオブジェクト(serverTime)は、HttpServletRequestに格納される。
+       そのため、JSPで\ ``${serverTime}``\ と記述することで、Controllerで設定した値を画面に出力することができる。
+
+       **ただし、${XXX}の記述は、XSS対象になる可能性があるので、文字列を出力する場合はHTMLエスケープする必要がある。**
 
 |
 
@@ -403,7 +424,7 @@ Controllerの作成
 | 同じく ``com.example.helloworld.app.echo`` パッケージに、``EchoController`` クラスを作成する。
 
 .. code-block:: java
-    :emphasize-lines: 12,18,20,23-25
+    :emphasize-lines: 10,13,19,21,24-26
 
     package com.example.helloworld.app.echo;
 
@@ -411,6 +432,7 @@ Controllerの作成
     import org.springframework.ui.Model;
     import org.springframework.web.bind.annotation.ModelAttribute;
     import org.springframework.web.bind.annotation.RequestMapping;
+    import org.springframework.web.bind.annotation.RequestMethod;
 
     @Controller
     @RequestMapping("echo")
@@ -427,13 +449,12 @@ Controllerの作成
             return "echo/index"; // (3)
         }
 
-        @RequestMapping("hello") // (4)
+        @RequestMapping(value = "hello", method = RequestMethod.POST) // (4)
         public String hello(EchoForm form, Model model) {// (5)
             model.addAttribute("name", form.getName()); // (6)
             return "echo/hello";
         }
     }
-
 
 .. tabularcolumns:: |p{0.10\linewidth}|p{0.90\linewidth}|
 .. list-table::
@@ -451,11 +472,26 @@ Controllerの作成
    * - | (3)
      - | View名で"echo/index"を返すので、ViewResolverにより、 "WEB-INF/views/echo/index.jsp"がレンダリングされる。
    * - | (4)
-     - | メソッドに付加した ``@RequestMapping`` アノテーションに"hello"を指定しているので、この場合、"<contextPath>/echo/hello"にアクセスすると ``hello`` メソッドが呼ばれる。
+     - | メソッドに付加した ``@RequestMapping`` アノテーションの\ ``value``\ 属性に"hello"を、\ ``method``\ 属性に\ ``RequestMethod.POST``\ を指定しているので、この場合、"<contextPath>/echo/hello"にPOSTメソッドを使用してアクセスすると ``hello`` メソッドが呼ばれる。
    * - | (5)
      - | 引数に、EchoFormには(1)によりModelに追加されたEchoFormオブジェクトが渡される。
    * - | (6)
      - | フォームで入力された ``name`` を、Viewにそのまま渡す。
+
+.. note::
+
+    \ ``@RequestMapping``\ アノテーションの\ ``method``\ 属性に指定する値は、
+    クライアントから送信されたデータの扱い方によって変えるのが一般的である。
+
+    * データをサーバに保存する場合(更新系の処理の場合)は、POSTメソッド。
+    * データをサーバに保存しない場合(参照系の処理の場合)は、GETメソッド又は未指定(任意のメソッド)。
+
+    エコーアプリケーションでは、
+
+    * \ ``index``\ メソッドはデータをサーバに保存しない処理なので未指定(任意のメソッド)
+    * \ ``hello``\ メソッドはデータを\ ``Model``\ オブジェクトに保存する処理なのでPOSTメソッド
+
+    を指定している。
 
 |
 
@@ -463,9 +499,10 @@ JSPの作成
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 最後に、入力画面と、出力画面のJSPを作成する。それぞれのファイルパスは、View名に合わせて、次のようになる。
 
-* 入力画面 src/main/webapp/WEB-INF/views/echo/index.jsp
+入力画面 (src/main/webapp/WEB-INF/views/echo/index.jsp) を作成する。
 
 .. code-block:: jsp
+    :emphasize-lines: 7-8
 
     <!DOCTYPE html>
     <html>
@@ -473,7 +510,7 @@ JSPの作成
     <title>Echo Application</title>
     </head>
     <body>
-      <!-- (1) -->
+      <%-- (1) --%>
       <form:form modelAttribute="echoForm" action="${pageContext.request.contextPath}/echo/hello">
         <form:label path="name">Input Your Name:</form:label>
         <form:input path="name" />
@@ -494,9 +531,14 @@ JSPの作成
      - | タグライブラリを利用し、HTMLフォームを構築している。 ``modelAttribute`` 属性に、Controllerで用意したフォームオブジェクトの名前を指定する。
        | タグライブラリは `こちら <http://docs.spring.io/spring/docs/3.2.x/spring-framework-reference/html/view.html#view-jsp-formtaglib-formtag>`_\を参照されたい。
 
+.. note::
+
+    \ ``<form:form>``\ タグの\ ``method``\ 属性を省略した場合は、POSTメソッドが使用される。
+
 出力されるHTMLは、
 
 .. code-block:: html
+    :emphasize-lines: 7
 
     <!DOCTYPE html>
     <html>
@@ -504,7 +546,6 @@ JSPの作成
     <title>Echo Application</title>
     </head>
     <body>
-      <!-- (1) -->
       <form id="echoForm" action="/helloworld/echo/hello" method="post">
         <label for="name">Input Your Name:</label>
         <input id="name" name="name" type="text" value=""/>
@@ -516,9 +557,12 @@ JSPの作成
 
 となる。
 
-* 出力画面 src/main/webapp/WEB-INF/views/echo/hello.jsp
+|
+
+出力画面 (src/main/webapp/WEB-INF/views/echo/hello.jsp) を作成する。
 
 .. code-block:: jsp
+    :emphasize-lines: 8
 
     <!DOCTYPE html>
     <html>
@@ -527,7 +571,7 @@ JSPの作成
     </head>
     <body>
       <p>
-        Hello <c:out value="${name}" />! <!-- (2) -->
+        Hello <c:out value="${name}" /> <%-- (2) --%>
       </p>
     </body>
     </html>
@@ -557,10 +601,11 @@ JSPの作成
 入力チェックの実装
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 ここまでのアプリケーションでは、入力チェックを行っていない。
-Spring MVCでは、Bean Validation (`JSR-303 <http://jcp.org/en/jsr/detail?id=303>`_\)をサポートしており、アノテーションベースな入力チェックを、簡単に
+Spring MVCでは、 `Bean Validation <http://jcp.org/en/jsr/detail?id=349>`_\ をサポートしており、アノテーションベースな入力チェックを、簡単に
 実装することができる。例として、エコーアプリケーションで名前の入力チェックを行う。
 
-``EchoForm`` を以下の通り、 ``name`` プロパティに ``@NotNull`` アノテーションおよび、 ``@Size`` アノテーションを付加する(getterメソッドに付加してもよい)。
+
+\ ``EchoForm``\ の\ ``name``\ フォールドに、入力チェックルールを指定するアノーテションを付与する。
 
 .. code-block:: java
     :emphasize-lines: 5,6,11,12
@@ -601,11 +646,12 @@ Spring MVCでは、Bean Validation (`JSR-303 <http://jcp.org/en/jsr/detail?id=30
    * - | (2)
      - | ``@Size(min = 1, max = 5)`` をつけることで、``name`` のサイズが、1以上5以下であることを確認する。
 
-``EchoController`` を以下の通り、 ``@Valid`` アノテーションを追加し、 ``hasErrors`` メソッドを追加する。
+|
 
+入力チェックが実行されるように修正し、入力チェックでエラーが発生した場合の処理を実装する。
 
 .. code-block:: java
-    :emphasize-lines: 5,6,26-29
+    :emphasize-lines: 5,6,27-30
 
     package com.example.helloworld.app.echo;
 
@@ -615,6 +661,7 @@ Spring MVCでは、Bean Validation (`JSR-303 <http://jcp.org/en/jsr/detail?id=30
     import org.springframework.validation.annotation.Validated;
     import org.springframework.web.bind.annotation.ModelAttribute;
     import org.springframework.web.bind.annotation.RequestMapping;
+    import org.springframework.web.bind.annotation.RequestMethod;
 
     @Controller
     @RequestMapping("echo")
@@ -631,7 +678,7 @@ Spring MVCでは、Bean Validation (`JSR-303 <http://jcp.org/en/jsr/detail?id=30
             return "echo/index";
         }
 
-        @RequestMapping("hello")
+        @RequestMapping(value = "hello", method = RequestMethod.POST)
         public String hello(@Validated EchoForm form, BindingResult result, Model model) { // (1)
             if (result.hasErrors()) { // (2)
                 return "echo/index";
@@ -653,13 +700,15 @@ Spring MVCでは、Bean Validation (`JSR-303 <http://jcp.org/en/jsr/detail?id=30
      - | コントローラー側には、Validation対象の引数に ``@Validated`` アノテーションを付加し、 ``BindingResult`` オブジェクトを引数に追加する。
        | Bean Validationによる入力チェックは、自動で行われる。結果は、 ``BindingResult`` オブジェクトに渡される。
    * - | (2)
-     - | ``hasErrors`` メソッドを実行して、エラーがあるかどうかを確認できる。
+     - | ``hasErrors`` メソッドを実行して、エラーがあるかどうかを確認する。入力エラーがある場合は、入力画面を表示するためのView名を返却する。
 
-入力画面 src/main/webapp/WEB-INF/views/echo/index.jsp に、 ``form:errors`` タグを追加する。
+|
+
+入力画面 (src/main/webapp/WEB-INF/views/echo/index.jsp) に、入力エラーのメッセージを表示するための実装を追加する。
 
 
 .. code-block:: jsp
-    :emphasize-lines: 15
+    :emphasize-lines: 10
 
     <!DOCTYPE html>
     <html>
@@ -670,7 +719,7 @@ Spring MVCでは、Bean Validation (`JSR-303 <http://jcp.org/en/jsr/detail?id=30
       <form:form modelAttribute="echoForm" action="${pageContext.request.contextPath}/echo/hello">
         <form:label path="name">Input Your Name:</form:label>
         <form:input path="name" />
-        <form:errors path="name" cssStyle="color:red" /><!-- (1) -->
+        <form:errors path="name" cssStyle="color:red" /><%-- (1) --%>
         <input type="submit" />
       </form:form>
     </body>
@@ -686,6 +735,7 @@ Spring MVCでは、Bean Validation (`JSR-303 <http://jcp.org/en/jsr/detail?id=30
    * - | (1)
      - | 入力画面には、エラーがあった場合に、エラーメッセージを表示するため、 ``form:errors`` タグを追加する。
 
+|
 
 | 以上で、入力チェックの実装は完了である。
 | 実際に、次のような場合、エラーメッセージが表示される。
@@ -702,6 +752,7 @@ Spring MVCでは、Bean Validation (`JSR-303 <http://jcp.org/en/jsr/detail?id=30
 出力されるHTMLは、
 
 .. code-block:: html
+    :emphasize-lines: 10
 
     <!DOCTYPE html>
     <html>
@@ -712,7 +763,7 @@ Spring MVCでは、Bean Validation (`JSR-303 <http://jcp.org/en/jsr/detail?id=30
       <form id="echoForm" action="/helloworld/echo/hello" method="post">
         <label for="name">Input Your Name:</label>
         <input id="name" name="name" type="text" value=""/>
-        <span id="name.errors" style="color:red">size must be between 1 and 5</span><!-- (1) -->
+        <span id="name.errors" style="color:red">size must be between 1 and 5</span>
         <input type="submit" />
       <input type="hidden" name="_csrf" value="6e94a78d-4a2c-4a41-a514-0a60f0dbedaf" />
     </form>
@@ -720,6 +771,8 @@ Spring MVCでは、Bean Validation (`JSR-303 <http://jcp.org/en/jsr/detail?id=30
     </html>
 
 となる。
+
+|
 
 まとめ
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^

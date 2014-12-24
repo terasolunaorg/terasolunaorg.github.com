@@ -87,58 +87,58 @@ URL一覧を以下に示す。
 .. code-block:: console
 
     mvn archetype:generate -B^
-     -DarchetypeCatalog=http://repo.terasoluna.org/nexus/content/repositories/terasoluna-gfw-releases^
+     -DarchetypeCatalog=http://repo.terasoluna.org/nexus/content/repositories/terasoluna-gfw-snapshots^
      -DarchetypeGroupId=org.terasoluna.gfw.blank^
-     -DarchetypeArtifactId=terasoluna-gfw-web-blank-mybatis2-archetype^
-     -DarchetypeVersion=1.0.1.RELEASE^
+     -DarchetypeArtifactId=terasoluna-gfw-web-blank-mybatis3-archetype^
+     -DarchetypeVersion=1.1.0-SNAPSHOT^
      -DgroupId=com.example.security^
      -DartifactId=first-springsecurity^
-     -Dversion=1.0-SNAPSHOT
+     -Dversion=1.1.1-SNAPSHOT
 
 コンソール上に以下のようなログが表示されれば、ブランクプロジェクトの作成は成功となる。
 
 .. code-block:: console
 
     C:\work>mvn archetype:generate -B^
-    More?  -DarchetypeCatalog=http://repo.terasoluna.org/nexus/content/repositories/terasoluna-gfw-releases^
+    More?  -DarchetypeCatalog=http://repo.terasoluna.org/nexus/content/repositories/terasoluna-gfw-snapshots^
     More?  -DarchetypeGroupId=org.terasoluna.gfw.blank^
-    More?  -DarchetypeArtifactId=terasoluna-gfw-web-blank-mybatis2-archetype^
-    More?  -DarchetypeVersion=1.0.1.RELEASE^
+    More?  -DarchetypeArtifactId=terasoluna-gfw-web-blank-mybatis3-archetype^
+    More?  -DarchetypeVersion=1.1.0-SNAPSHOT^
     More?  -DgroupId=com.example.security^
     More?  -DartifactId=first-springsecurity^
-    More?  -Dversion=1.0-SNAPSHOT
+    More?  -Dversion=1.1.1-SNAPSHOT
     [INFO] Scanning for projects...
     [INFO]
     [INFO] ------------------------------------------------------------------------
     [INFO] Building Maven Stub Project (No POM) 1
     [INFO] ------------------------------------------------------------------------
     [INFO]
-    [INFO] >>> maven-archetype-plugin:2.2:generate (default-cli) @ standalone-pom >>>
+    [INFO] >>> maven-archetype-plugin:2.2:generate (default-cli) > generate-sources @ standalone-pom >>>
     [INFO]
-    [INFO] <<< maven-archetype-plugin:2.2:generate (default-cli) @ standalone-pom <<<
+    [INFO] <<< maven-archetype-plugin:2.2:generate (default-cli) < generate-sources @ standalone-pom <<<
     [INFO]
     [INFO] --- maven-archetype-plugin:2.2:generate (default-cli) @ standalone-pom ---
     [INFO] Generating project in Batch mode
-    [INFO] Archetype repository missing. Using the one from [org.terasoluna.gfw.blank:terasoluna-gfw-web-blank-mybatis2-archetype:1.0.0.RELEASE -> http://repo.terasoluna.org/nexus/content/repositories/terasoluna-gfw-releases] found in catalog http://repo.terasoluna.org/nexus/content/repositories/terasoluna-gfw-releases
+    [INFO] Archetype repository missing. Using the one from [org.terasoluna.gfw.blank:terasoluna-gfw-web-blank-mybatis3-archetype:1.1.0-BUILD-SNAPSHOT -> http://repo.terasoluna.org/nexus/content/repositories/terasoluna-gfw-snapshots] found in catalog http://repo.terasoluna.org/nexus/content/repositories/terasoluna-gfw-snapshots
     [INFO] ----------------------------------------------------------------------------
-    [INFO] Using following parameters for creating project from Archetype: terasoluna-gfw-web-blank-mybatis2-archetype:1.0.1.RELEASE
+    [INFO] Using following parameters for creating project from Archetype: terasoluna-gfw-web-blank-mybatis3-archetype:1.1.0-SNAPSHOT
     [INFO] ----------------------------------------------------------------------------
     [INFO] Parameter: groupId, Value: com.example.security
     [INFO] Parameter: artifactId, Value: first-springsecurity
-    [INFO] Parameter: version, Value: 1.0-SNAPSHOT
+    [INFO] Parameter: version, Value: 1.1.1-SNAPSHOT
     [INFO] Parameter: package, Value: com.example.security
     [INFO] Parameter: packageInPathFormat, Value: com/example/security
     [INFO] Parameter: package, Value: com.example.security
-    [INFO] Parameter: version, Value: 1.0-SNAPSHOT
+    [INFO] Parameter: version, Value: 1.1.1-SNAPSHOT
     [INFO] Parameter: groupId, Value: com.example.security
     [INFO] Parameter: artifactId, Value: first-springsecurity
-    [INFO] project created from Archetype in dir: C:\work\first-springsecurity
+    [INFO] project created from Archetype in dir: C:\workspace\first-springsecurity
     [INFO] ------------------------------------------------------------------------
     [INFO] BUILD SUCCESS
     [INFO] ------------------------------------------------------------------------
-    [INFO] Total time: 10.207s
-    [INFO] Finished at: Wed Aug 27 14:14:48 JST 2014
-    [INFO] Final Memory: 9M/23M
+    [INFO] Total time: 3.276 s
+    [INFO] Finished at: 2014-11-19T10:43:04+09:00
+    [INFO] Final Memory: 11M/153M
     [INFO] ------------------------------------------------------------------------
     C:\work>
 
@@ -258,69 +258,35 @@ AccountRepositoryの作成
         Account findOne(String username);
     }
 
+* •src/main/resources/com/example/security/domain/repository/account/AccountRepository.xml
 
-* src/main/java/com/example/security/domain/repository/account/AccountRepositoryImpl.java
-
-  データアクセス処理を\ ``AccountRepositoryImpl``\ に実装する。
-
-  .. code-block:: java
-  
-    package com.example.security.domain.repository.account;
-  
-    import javax.inject.Inject;
-  
-    import org.springframework.stereotype.Repository;
-  
-    import jp.terasoluna.fw.dao.QueryDAO;
-  
-    import com.example.security.domain.model.Account;
-  
-    @Repository
-    public class AccountRepositoryImpl implements AccountRepository {
-        @Inject
-        QueryDAO queryDAO;
-  
-        @Override
-        public Account findOne(String username) {
-            Account account = queryDAO.executeForObject("account.findOne",
-                    username, Account.class);
-            return account;
-        }
-  
-    }
-
-  
-* src/main/resources/META-INF/mybatis/sql/account-sqlmap.xml
-
-  \ ``Account``\ を1件取得するためのSQLID\ ``"account.findOne"``\ に対応するSQLをSQLMapファイルに定義する。
+  \ ``Account``\ を1件取得するためのSQLID\ ``"findOne"``\ に対応するSQLをマッピングファイルに定義する。
 
   .. code-block:: xml
 
-    <?xml version="1.0" encoding="UTF-8" ?>
-    <!DOCTYPE sqlMap 
-                PUBLIC "-//ibatis.apache.org//DTD SQL Map 2.0//EN"
-                "http://ibatis.apache.org/dtd/sql-map-2.dtd">
+    <?xml version="1.0" encoding="UTF-8"?>
+    <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+    <mapper namespace="com.example.security.domain.repository.account.AccountRepository">
 
-    <sqlMap namespace="account">
-        <resultMap id="account"
-            class="com.example.security.domain.model.Account">
-            <result property="username" column="username" />
+        <resultMap id="account" type="Account">
+            <id property="username" column="username" />
             <result property="password" column="password" />
             <result property="firstName" column="first_name" />
             <result property="lastName" column="last_name" />
         </resultMap>
 
-
-        <select id="findOne" parameterClass="java.lang.String"
-            resultMap="account"><![CDATA[
-    SELECT username, 
-           password, 
-           first_name, 
-           last_name 
-    FROM   account 
-    WHERE  username = #value# 
-    ]]></select>
-    </sqlMap>
+        <select id="findOne" parameterType="String" resultMap="account">
+            <![CDATA[
+            SELECT username, 
+                   password, 
+                   first_name, 
+                   last_name 
+            FROM   account 
+            WHERE  username = #{username}
+            ]]>
+        </select>
+    </mapper>
 
 AccountServiceの作成
 """"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
@@ -535,8 +501,8 @@ blankプロジェクトからの差分のみ説明する。
 * src/main/resources/META-INF/spring/spring-security.xml
 
   .. code-block:: xml
-     :emphasize-lines: 11-19,32-35
-  
+     :emphasize-lines: 20-25,35-37
+
       <?xml version="1.0" encoding="UTF-8"?>
       <beans xmlns="http://www.springframework.org/schema/beans"
           xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:sec="http://www.springframework.org/schema/security"
@@ -544,75 +510,76 @@ blankプロジェクトからの差分のみ説明する。
           xsi:schemaLocation="http://www.springframework.org/schema/security http://www.springframework.org/schema/security/spring-security.xsd
               http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd
               http://www.springframework.org/schema/context http://www.springframework.org/schema/context/spring-context.xsd">
-  
-          <sec:http pattern="/resources/**" security="none" />
+
+          <sec:http pattern="/resources/**" security="none"/>
           <sec:http auto-config="true" use-expressions="true">
-              <sec:form-login login-page="/login.jsp"
-                  authentication-failure-url="/login.jsp?error=true"
-                  login-processing-url="/authenticate" /><!-- (1) -->
+              <sec:headers>
+                  <sec:cache-control />
+                  <sec:content-type-options />
+                  <sec:hsts />
+                  <sec:frame-options />
+                  <sec:xss-protection />
+              </sec:headers>
+                       <sec:form-login login-page="/login.jsp"
+                   authentication-failure-url="/login.jsp?error=true"
+                   login-processing-url="/authenticate" /><!-- (1) -->
               <sec:logout logout-url="/logout" logout-success-url="/"
-                  delete-cookies="JSESSIONID" /><!-- (2) -->
-  
+                   delete-cookies="JSESSIONID" /><!-- (2) -->
               <sec:intercept-url pattern="/login.jsp"
-                  access="permitAll" /><!-- (3) -->
+                   access="permitAll" /><!-- (3) -->
               <sec:intercept-url pattern="/**" access="isAuthenticated()" /><!-- (4) -->
-  
-              <sec:custom-filter ref="csrfFilter" before="LOGOUT_FILTER" />
-              <sec:custom-filter ref="userIdMDCPutFilter"
-                  after="ANONYMOUS_FILTER" />
-              <sec:session-management
-                  session-authentication-strategy-ref="sessionAuthenticationStrategy" />
+              <sec:csrf />
+              <sec:access-denied-handler ref="accessDeniedHandler"/>
+              <sec:custom-filter ref="userIdMDCPutFilter" after="ANONYMOUS_FILTER"/>
+              <sec:session-management />
           </sec:http>
-  
-  
+
           <sec:authentication-manager>
-              <!-- com.example.security.domain.service.userdetails.SampleUserDetails 
-                  is scaned by component scan with @Service -->
-              <sec:authentication-provider
-                  user-service-ref="sampleUserDetailsService"><!-- (5) -->
+              <!-- com.example.security.domain.service.userdetails.SampleUserDetails
+                   is scaned by component scan with @Service -->
+              <sec:authentication-provider user-service-ref="sampleUserDetailsService"><!-- (5) -->
                   <sec:password-encoder ref="passwordEncoder" /><!-- (6) -->
               </sec:authentication-provider>
           </sec:authentication-manager>
-  
-          <!-- CSRF Protection -->
-          <bean id="csrfTokenRepository"
-              class="org.springframework.security.web.csrf.HttpSessionCsrfTokenRepository" />
-  
-          <bean id="csrfFilter" class="org.springframework.security.web.csrf.CsrfFilter">
-              <constructor-arg index="0" ref="csrfTokenRepository" />
-              <property name="accessDeniedHandler">
+
+          <!-- Change View for CSRF or AccessDenied -->
+          <bean id="accessDeniedHandler"
+              class="org.springframework.security.web.access.DelegatingAccessDeniedHandler">
+              <constructor-arg index="0">
+                  <map>
+                      <entry
+                          key="org.springframework.security.web.csrf.InvalidCsrfTokenException">
+                          <bean
+                              class="org.springframework.security.web.access.AccessDeniedHandlerImpl">
+                              <property name="errorPage"
+                                  value="/WEB-INF/views/common/error/invalidCsrfTokenError.jsp" />
+                          </bean>
+                      </entry>
+                      <entry
+                          key="org.springframework.security.web.csrf.MissingCsrfTokenException">
+                          <bean
+                              class="org.springframework.security.web.access.AccessDeniedHandlerImpl">
+                              <property name="errorPage"
+                                  value="/WEB-INF/views/common/error/missingCsrfTokenError.jsp" />
+                          </bean>
+                      </entry>
+                  </map>
+              </constructor-arg>
+              <constructor-arg index="1">
                   <bean
                       class="org.springframework.security.web.access.AccessDeniedHandlerImpl">
                       <property name="errorPage"
-                          value="/WEB-INF/views/common/error/csrfTokenError.jsp" />
+                          value="/WEB-INF/views/common/error/accessDeniedError.jsp" />
                   </bean>
-              </property>
-          </bean>
-  
-          <bean id="sessionAuthenticationStrategy"
-              class="org.springframework.security.web.authentication.session.CompositeSessionAuthenticationStrategy">
-              <constructor-arg index="0">
-                  <list>
-                      <bean
-                          class="org.springframework.security.web.authentication.session.SessionFixationProtectionStrategy" />
-                      <bean
-                          class="org.springframework.security.web.csrf.CsrfAuthenticationStrategy">
-                          <constructor-arg index="0"
-                              ref="csrfTokenRepository" />
-                      </bean>
-                  </list>
               </constructor-arg>
           </bean>
-  
+
           <!-- Put UserID into MDC -->
-          <bean id="userIdMDCPutFilter"
-              class="org.terasoluna.gfw.security.web.logging.UserIdMDCPutFilter">
-              <property name="removeValue" value="true" />
+          <bean id="userIdMDCPutFilter" class="org.terasoluna.gfw.security.web.logging.UserIdMDCPutFilter">
           </bean>
-  
+
       </beans>
-  
-  
+
   .. tabularcolumns:: |p{0.10\linewidth}|p{0.90\linewidth}|
   .. list-table::
      :header-rows: 1
@@ -645,38 +612,51 @@ blankプロジェクトからの差分のみ説明する。
   SQLスクリプトの設定を追加する。
   
   .. code-block:: xml
-     :emphasize-lines: 3-4,31-35
+     :emphasize-lines: 4-5,44-48
   
       <?xml version="1.0" encoding="UTF-8"?>
       <beans xmlns="http://www.springframework.org/schema/beans"
-          xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:jdbc="http://www.springframework.org/schema/jdbc"
-          xsi:schemaLocation="http://www.springframework.org/schema/jdbc http://www.springframework.org/schema/jdbc/spring-jdbc.xsd
-              http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd">
-  
+          xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+          xmlns:jdbc="http://www.springframework.org/schema/jdbc"
+          xsi:schemaLocation="http://www.springframework.org/schema/jdbc http://www.springframework.org/schema/jdbc/spring-jdbc.xsd 
+          http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd">
+
           <bean id="dateFactory" class="org.terasoluna.gfw.common.date.DefaultDateFactory" />
-  
-          <bean id="realDataSource" class="org.apache.commons.dbcp.BasicDataSource"
+
+          <bean id="realDataSource" class="org.apache.commons.dbcp2.BasicDataSource"
               destroy-method="close">
               <property name="driverClassName" value="${database.driverClassName}" />
               <property name="url" value="${database.url}" />
               <property name="username" value="${database.username}" />
               <property name="password" value="${database.password}" />
               <property name="defaultAutoCommit" value="false" />
-              <property name="maxActive" value="${cp.maxActive}" />
+              <property name="maxTotal" value="${cp.maxActive}" />
               <property name="maxIdle" value="${cp.maxIdle}" />
               <property name="minIdle" value="${cp.minIdle}" />
-              <property name="maxWait" value="${cp.maxWait}" />
+              <property name="maxWaitMillis" value="${cp.maxWait}" />
           </bean>
-  
+
           <bean id="dataSource" class="net.sf.log4jdbc.Log4jdbcProxyDataSource">
               <constructor-arg index="0" ref="realDataSource" />
           </bean>
-  
+
+          <!--  REMOVE THIS LINE IF YOU USE JPA
+          <bean id="transactionManager"
+              class="org.springframework.orm.jpa.JpaTransactionManager">
+              <property name="entityManagerFactory" ref="entityManagerFactory" />
+          </bean>
+                REMOVE THIS LINE IF YOU USE JPA  -->
+          <!--  REMOVE THIS LINE IF YOU USE MyBatis2
           <bean id="transactionManager"
               class="org.springframework.jdbc.datasource.DataSourceTransactionManager">
               <property name="dataSource" ref="dataSource" />
           </bean>
-  
+                REMOVE THIS LINE IF YOU USE MyBatis2  -->
+          <bean id="transactionManager"
+              class="org.springframework.jdbc.datasource.DataSourceTransactionManager">
+              <property name="dataSource" ref="dataSource" />
+          </bean>
+          
           <jdbc:initialize-database data-source="dataSource"
               ignore-failures="ALL"><!-- (1) -->
               <jdbc:script location="classpath:/database/${database}-schema.sql" /><!-- (2) -->
@@ -820,7 +800,7 @@ JSPからログインアカウント情報にアクセスする
   以下のコードを追加する。
 
   .. code-block:: xml
-     :emphasize-lines: 11-18
+     :emphasize-lines: 11-21
   
       <!DOCTYPE html>
       <html>
@@ -838,7 +818,10 @@ JSPからログインアカウント情報にアクセスする
   
               <ul>
                   <li><a href="${pageContext.request.contextPath}/account">view account</a></li>
-                  <li><a href="${pageContext.request.contextPath}/logout">logout</a></li>
+                  <li><a href="#" 
+                      onclick="document.getElementById('logoutForm').submit()">logout</a></li><!-- (3) -->
+                  <form:form id="logoutForm" method="post" 
+                  action="${pageContext.request.contextPath}/logout" />
               </ul>
           </div>
       </body>
@@ -857,6 +840,8 @@ JSPからログインアカウント情報にアクセスする
          | ここではログイン中の\ ``Account``\ オブジェクトを変数名\ ``account``\ に格納する。
      * - | (2)
        - | ログイン中の\ ``Account``\ オブジェクトにアクセスして\ ``firstName``\ と\ ``lastName``\ を表示する。
+     * - | (3)
+       - | ログアウトは\ ``spring-security.xml`` \の\ ``<sec:logout>`` \タグで設定したURLに\ ``POST`` \でリクエストする。
 
 | 
 
@@ -871,36 +856,31 @@ LoginページのLoginボタンを押下することにより、Welcomeページ
 
 * src/main/java/com/example/security/app/account/AccountController.java
 
-  ログイン済みの\ ``UserDetails``\ オブジェクトは\ ``java.security.Principal``\ オブジェクト内に格納されている。Controllerの処理メソッドの引数で\ ``Principal``\ オブジェクトを受け取ることにより、Controller内でログイン済みの\ ``UserDetails``\ オブジェクトにアクセスすることができる。
+  ログイン済みの\ ``UserDetails``\ オブジェクトはControllerの処理メソッドの引数で受け取る。
 
   .. code-block:: java
+     :emphasize-lines: 17,20
   
       package com.example.security.app.account;
-  
-      import java.security.Principal;
-  
-      import org.springframework.security.core.Authentication;
+
+      import org.springframework.security.web.bind.annotation.AuthenticationPrincipal;
       import org.springframework.stereotype.Controller;
       import org.springframework.ui.Model;
       import org.springframework.web.bind.annotation.RequestMapping;
       import org.springframework.web.bind.annotation.RequestMethod;
-  
+
       import com.example.security.domain.model.Account;
       import com.example.security.domain.service.userdetails.SampleUserDetails;
-  
+
       @Controller
       @RequestMapping("account")
       public class AccountController {
-  
-          @RequestMapping(method = RequestMethod.GET)
-          public String view(/* (1) */ Principal principal, Model model) {
-              // get login user information
-              Authentication authentication = (Authentication) principal; // (2)
-              // get UserDetails
-              SampleUserDetails userDetails = (SampleUserDetails) authentication
-                      .getPrincipal(); // (3)
+
+          public String view(
+                  /* (1) */@AuthenticationPrincipal SampleUserDetails userDetails,
+                  Model model) {
               // get account object
-              Account account = userDetails.getAccount(); // (4)
+              Account account = userDetails.getAccount(); // (2)
               model.addAttribute(account);
               return "account/view";
           }
@@ -914,13 +894,8 @@ LoginページのLoginボタンを押下することにより、Welcomeページ
      * - 項番
        - 説明
      * - | (1)
-       - | ログイン中の\ ``UserDetails``\ オブジェクトを格納した\ ``Principal``\ オブジェクトを受け取る。
+       - | ログイン中の\ ``UserDetails``\ オブジェクトを受け取る。
      * - | (2)
-       - | \ ``org.springframework.security.core.Authentication``\ は\ ``Principal``\ インタフェースでもあり、コントローラに渡る\ ``Principal``\ オブジェクトは実際は\ ``Authentication``\ オブジェクトである。
-         | \ ``UserDetails``\ オブジェクトにアクセスするために、\ ``Authentication``\ クラスにキャストする。
-     * - | (3)
-       - | \ ``Authentication.getPrincipal()``\ メソッドにより、ログイン中の\ ``UserDetails``\ オブジェクトを取得できる。ここでは、本プロジェクト用の\ ``SampleUserDetails``\ クラスにキャストする。
-     * - | (4)
        - | \ ``SampleUserDetails``\ オブジェクトからログイン中の\ ``Account``\ オブジェクトを取得する。
 
 | 

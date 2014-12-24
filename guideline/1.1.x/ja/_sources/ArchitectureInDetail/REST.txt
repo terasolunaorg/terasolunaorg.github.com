@@ -370,7 +370,7 @@ REST APIの実装サンプル
       - | Todoリソースを削除する。
 
  .. code-block:: java
-    :emphasize-lines: 31-35, 44-48, 54-58, 64-68, 74-78
+    :emphasize-lines: 30-34, 42-45, 51-55, 59-63, 68-72
 
     package todo.api.todo;
 
@@ -382,19 +382,18 @@ REST APIの実装サンプル
 
     import org.dozer.Mapper;
     import org.springframework.http.HttpStatus;
-    import org.springframework.stereotype.Controller;
     import org.springframework.validation.annotation.Validated;
     import org.springframework.web.bind.annotation.PathVariable;
     import org.springframework.web.bind.annotation.RequestBody;
     import org.springframework.web.bind.annotation.RequestMapping;
     import org.springframework.web.bind.annotation.RequestMethod;
-    import org.springframework.web.bind.annotation.ResponseBody;
     import org.springframework.web.bind.annotation.ResponseStatus;
+    import org.springframework.web.bind.annotation.RestController;
 
     import todo.domain.model.Todo;
     import todo.domain.service.todo.TodoService;
 
-    @Controller
+    @RestController
     @RequestMapping("todos")
     public class TodoRestController {
         @Inject
@@ -404,7 +403,6 @@ REST APIの実装サンプル
 
         // (1)
         @RequestMapping(method = RequestMethod.GET)
-        @ResponseBody
         @ResponseStatus(HttpStatus.OK)
         public List<TodoResource> getTodos() {
             Collection<Todo> todos = todoService.findAll();
@@ -417,7 +415,6 @@ REST APIの実装サンプル
 
         // (2)
         @RequestMapping(method = RequestMethod.POST)
-        @ResponseBody
         @ResponseStatus(HttpStatus.CREATED)
         public TodoResource postTodos(@RequestBody @Validated TodoResource todoResource) {
             Todo createdTodo = todoService.create(beanMapper.map(todoResource, Todo.class));
@@ -427,7 +424,6 @@ REST APIの実装サンプル
 
         // (3)
         @RequestMapping(value="{todoId}", method = RequestMethod.GET)
-        @ResponseBody
         @ResponseStatus(HttpStatus.OK)
         public TodoResource getTodo(@PathVariable("todoId") String todoId) {
             Todo todo = todoService.findOne(todoId);
@@ -437,7 +433,6 @@ REST APIの実装サンプル
 
         // (4)
         @RequestMapping(value="{todoId}", method = RequestMethod.PUT)
-        @ResponseBody
         @ResponseStatus(HttpStatus.OK)
         public TodoResource putTodo(@PathVariable("todoId") String todoId) {
             Todo finishedTodo = todoService.finish(todoId);
@@ -447,7 +442,6 @@ REST APIの実装サンプル
         
         // (5)
         @RequestMapping(value="{todoId}", method = RequestMethod.DELETE)
-        @ResponseBody
         @ResponseStatus(HttpStatus.NO_CONTENT)
         public void deleteTodo(@PathVariable("todoId") String todoId) {
             todoService.delete(todoId);
@@ -1673,12 +1667,12 @@ RESTful Web Serviceで必要となるSpring MVCのコンポーネントを有効
             location="classpath*:/META-INF/spring/*.properties" />
     
         <bean id="jsonMessageConverter"
-            class="org.springframework.http.converter.json.MappingJacksonHttpMessageConverter">
+            class="org.springframework.http.converter.json.MappingJackson2HttpMessageConverter">
             <property name="objectMapper">
-                <bean id="objectMapper" class="org.codehaus.jackson.map.ObjectMapper">
+                <bean id="objectMapper" class="com.fasterxml.jackson.databind.ObjectMapper">
                     <!-- (2) -->
                     <property name="dateFormat">
-                        <bean class="org.codehaus.jackson.map.util.StdDateFormat" />
+                        <bean class="com.fasterxml.jackson.databind.util.StdDateFormat" />
                     </property>
                 </bean>
             </property>
@@ -1755,6 +1749,33 @@ RESTful Web Serviceで必要となるSpring MVCのコンポーネントを有効
     * - | (7)
       - | Spring MVCのフレームワークでハンドリングされた例外を、ログ出力するためのAOP定義を指定する。
         | \ ``HandlerExceptionResolverLoggingInterceptor``\については、「\ :doc:`ExceptionHandling`\」を参照されたい。
+
+.. _REST_note_changed_jackson_version:
+
+.. note::
+
+    **jackson version 1.x.x から jackson version 2.x.xへ変更する場合の注意点**
+    
+    * パッケージの変更
+
+     .. tabularcolumns:: |p{0.10\linewidth}|p{0.90\linewidth}|
+     .. list-table::
+        :header-rows: 1
+        :widths: 10 90
+
+        * - verision
+          - package
+        * - | 1.x.x
+          - | `org.codehaus.jackson`
+        * - | 2.x.x
+          - | `com.fasterxml.jackson`
+
+     * 注意事項として、配下のパッケージ構成も変更されている。
+
+    * Deprecated一覧
+
+     * http://fasterxml.github.io/jackson-core/javadoc/2.3.0/deprecated-list.html
+     * http://fasterxml.github.io/jackson-databind/javadoc/2.3.0/deprecated-list.html
 
 |
 
@@ -2265,7 +2286,7 @@ Resourceクラスの役割は以下の通りである。
 * :file:`MemberCredentialResource.java`
 
  .. code-block:: java
-    :emphasize-lines: 14, 23
+    :emphasize-lines: 13, 22
 
     package org.terasoluna.examples.rest.api.member;
     
@@ -2275,8 +2296,7 @@ Resourceクラスの役割は以下の通りである。
     import javax.validation.constraints.Null;
     import javax.validation.constraints.Size;
     
-    import org.codehaus.jackson.map.annotate.JsonSerialize;
-    import org.codehaus.jackson.map.annotate.JsonSerialize.Inclusion;
+    import com.fasterxml.jackson.annotation.JsonInclude;
     import org.hibernate.validator.constraints.Email;
     import org.joda.time.DateTime;
 
@@ -2290,7 +2310,7 @@ Resourceクラスの役割は以下の通りである。
         private String signId;
 
         // (5)
-        @JsonSerialize(include = Inclusion.NON_NULL)
+        @JsonInclude(JsonInclude.Include.NON_NULL)
         @NotNull
         @Size(min = 8, max = 32)
         private String password;
@@ -2336,14 +2356,16 @@ Controllerクラスの作成
 | 全てのAPIの実装が完了した際のソースコードについては、\ :ref:`Appendix <RESTAppendixSoruceCodesOfMemberRestController>`\を参照されたい。
 
  .. code-block:: java
-    :emphasize-lines: 5
+    :emphasize-lines: 7-8
 
     package org.terasoluna.examples.rest.api.member;
     
     // omitted
+    import org.springframework.web.bind.annotation.RestController;
+    // omitted
 
     @RequestMapping("members") // (1)
-    @Controller
+    @RestController // (2)
     public class MemberRestController {
 
         // omitted ...
@@ -2361,6 +2383,44 @@ Controllerクラスの作成
       - | Controllerに対して、リソースのコレクション用のURI(サーブレットパス)をマッピングする。
         | 具体的には、\ ``@RequestMapping``\アノテーションのvalue属性に、リソースのコレクションを表すサーブレットパスを指定する。
         | 上記例では、 \ ``/api/v1/members``\ というサーブレットパスをマッピングしている。
+    * - | (2)
+      - Controllerに対して、\ ``@RestController``\ アノテーションを付与する。
+
+        \ ``@RestController``\ アノテーションを付与することで、
+
+        * クラスに\ ``org.springframework.stereotype.Controller``\ アノテーションを付与
+        * 以降で説明するControllerのメソッドに\ ``@org.springframework.web.bind.annotation.ResponseBody``\ アノテーションを付与
+
+        したのと同じ意味となる。
+
+        Controllerのメソッドに\ ``@ResponseBody``\ を付与することで、返却したResourceオブジェクトがJSONやXMLにmarshalされ、レスポンスBODYに設定される。
+
+ .. tip::
+
+    \ ``@RestController``\ アノテーションは、Spring Framework 4.0 から追加されたアノテーションである。
+
+    \ ``@RestController``\ アノテーションの登場により、Controllerの各メソッドに\ ``@ResponseBody``\ アノテーションを付与する必要がなくなったため、
+    REST API用のControllerをよりシンプルに作成出来るようになった。
+    \ ``@RestController``\ アノテーションの詳細については、\ `こちら <http://docs.spring.io/spring/docs/current/javadoc-api/org/springframework/web/bind/annotation/RestController.html>`_\ を参照されたい。
+
+    従来通り\ ``@Controller``\ アノテーションと\ ``@ResponseBody``\ アノテーションを組み合わせてREST API用のControllerを作成する例を以下に示す。
+
+     .. code-block:: java
+
+        @RequestMapping("members")
+        @Controller
+        public class MemberRestController {
+
+            @RequestMapping(method = RequestMethod.GET)
+            @ResponseStatus(HttpStatus.OK)
+            @ResponseBody
+            public Page<MemberResource> getMembers() {
+                // ...
+            }
+
+            // ...
+
+        }
 
 |
 
@@ -2414,10 +2474,10 @@ URIで指定されたMemberリソースのコレクションをページ検索�
   | Memberリソースのコレクションをページ検索する処理を実装する。
   
  .. code-block:: java
-    :emphasize-lines: 13, 15, 17, 20, 22, 25, 28, 36
+    :emphasize-lines: 13, 15, 18, 20, 23, 26, 34
 
     @RequestMapping("members")
-    @Controller
+    @RestController
     public class MemberRestController {
     
         // omitted
@@ -2431,19 +2491,17 @@ URIで指定されたMemberリソースのコレクションをページ検索�
         // (3)
         @RequestMapping(method = RequestMethod.GET)
         // (4)
-        @ResponseBody
-        // (5)
         @ResponseStatus(HttpStatus.OK)
         public Page<MemberResource> getMembers(
-                // (6)
+                // (5)
                 @Validated MembersSearchQuery query,
-                // (7)
+                // (6)
                 Pageable pageable) {
     
-            // (8)
+            // (7)
             Page<Member> page = memberSevice.searchMembers(query.getName(), pageable);
     
-            // (9)
+            // (8)
             List<MemberResource> memberResources = new ArrayList<>();
             for (Member member : page.getContent()) {
                 memberResources.add(beanMapper.map(member, MemberResource.class));
@@ -2451,7 +2509,7 @@ URIで指定されたMemberリソースのコレクションをページ検索�
             Page<MemberResource> responseResource = new PageImpl<>(memberResources, 
                     pageable, page.getTotalElements());
     
-            // (10)
+            // (9)
             return responseResource;
         }
 
@@ -2469,9 +2527,6 @@ URIで指定されたMemberリソースのコレクションをページ検索�
     * - | (3)
       - | \ ``@RequestMapping``\アノテーションのmethod属性に、\ ``RequestMethod.GET``\を指定する。
     * - | (4)
-      - | メソッドアノテーションとして、\ ``@org.springframework.web.bind.annotation.ResponseBody``\アノテーションを付与する。
-        | このアノテーションを付与することで、返却したResourceオブジェクトがJSONやXMLにmarshalされ、レスポンスBODYに設定される。
-    * - | (5)
       - | メソッドアノテーションとして、\ ``@org.springframework.web.bind.annotation.ResponseStatus``\アノテーションを付与し、応答するステータスコードを指定する。
         | \ ``@ResponseStatus``\アノテーションのvalue属性には、200(OK)を設定する。
         
@@ -2493,30 +2548,30 @@ URIで指定されたMemberリソースのコレクションをページ検索�
             応答するステータスコードを処理内容や処理結果に応じて変える必要がある場合は、上記実装例の様に、\ ``org.springframework.http.ResponseEntity``\を使用する事になる。
 
 
-    * - | (6)
+    * - | (5)
       - | 検索条件を受け取るためのJavaBeanを引数に指定する。
         | 入力チェックが必要な場合は、引数アノテーションとして、\ ``@Validated``\アノテーションを付与する。入力チェックの詳細については、「\ :doc:`Validation`\」を参照されたい。
-    * - | (7)
+    * - | (6)
       - | ページ検索が必要な場合は、\ ``org.springframework.data.domain.Pageable``\を引数に指定する。
         | ページ検索の詳細については、「:doc:`Pagination`」を参照されたい。
-    * - | (8)
+    * - | (7)
       - | ドメイン層のServiceのメソッドを呼び出し、条件に一致するリソースの情報(Entityなど)を取得する。
         | ドメイン層の実装については、「:doc:`../ImplementationAtEachLayer/DomainLayer`」を参照されたい。
-    * - | (9)
+    * - | (8)
       - | 条件に一致したリソースの情報(Entityなど)をもとに、Web上に公開する情報を保持するResourceオブジェクトを生成する。
         | ページ検索の結果を応答する際は、 \ ``org.springframework.data.domain.PageImpl``\クラスを使用することで、ページ検索時の応答として必要な項目をクライアントに返却する事ができる。
         |
         | 上記例では、Beanマッピングライブラリを使用してEntityからResourceオブジェクトを生成している。Beanマッピングライブラリについては、「\ :doc:`Utilities/Dozer`\」を参照されたい。
         | **Resourceオブジェクトを生成するためのコード量が多くなる場合は、HelperクラスにResourceオブジェクトを生成するためのメソッドを作成することを推奨する。**
-    * - | (10)
-      - | (9)で生成したResourceオブジェクトを返却する。
+    * - | (9)
+      - | (8)で生成したResourceオブジェクトを返却する。
         | ここで返却したオブジェクトがJSONやXMLにmarshalされ、レスポンスBODYに設定される。
 
  | \ ``PageImpl``\クラスを使用した時のレスポンスは以下の様になる。
  | ハイライトしている部分が、ページ検索固有の項目となる。
  
  .. code-block:: json
-    :emphasize-lines: 37-49
+    :emphasize-lines: 37-50
     
     {
       "content" : [ {
@@ -2554,20 +2609,36 @@ URIで指定されたMemberリソースのコレクションをページ検索�
         "createdAt" : "2014-03-13T10:18:08.003Z",
         "lastModifiedAt" : "2014-03-13T10:18:08.003Z"
       } ],
+      "last" : false,
+      "totalPages" : 13,
+      "totalElements" : 25,
+      "size" : 2,
+      "number" : 1,
       "sort" : [ {
         "direction" : "DESC",
         "property" : "lastModifiedAt",
         "ignoreCase" : false,
+        "nullHandling": "NATIVE",
         "ascending" : false
       } ],
-      "lastPage" : false,
-      "firstPage" : false,
-      "totalElements" : 25,
       "numberOfElements" : 2,
-      "totalPages" : 13,
-      "size" : 2,
-      "number" : 1
+      "first" : false
     }
+
+ .. note:: **Spring Data CommonsのAPI仕様の変更に伴う注意点**
+
+    terasoluna-gfw-common 1.1.0.RELEASE以上が依存するspring-data-commons(1.9.1.RELEASE以上)では、
+    ページ検索機能用のインタフェース(\ ``org.springframework.data.domain.Page``\ )とクラス(\ ``org.springframework.data.domain.PageImpl``\ と\ ``org.springframework.data.domain.Sort.Order``\ )のAPI仕様が変更になっている。
+
+    具体的には、
+
+    * \ ``Page``\ インタフェースと\ ``PageImpl``\ クラスでは、\ ``isFirst()``\ と\ ``isLast()``\ メソッドがspring-data-commons 1.8.0.RELEASEで追加、\ ``isFirstPage()``\ と\ ``isLastPage()``\ メソッドがspring-data-commons 1.9.0.RELEASEで削除
+    * \ ``Sort.Order``\ クラスでは、 \ ``nullHandling``\ プロパティがspring-data-commons 1.8.0.RELEASEで追加
+
+    されている。
+
+    REST APIのリソースオブジェクトとして\ ``Page``\ インタフェース(\ ``PageImpl``\ クラス)を使用している場合は、
+    JSONやXMLのフォーマットが変わってしまうため、アプリケーションの修正が必要になるケースがある。
 
 |
 
@@ -2640,7 +2711,7 @@ URIで指定されたMemberリソースのコレクションをページ検索�
     Transfer-Encoding: chunked
     Date: Thu, 13 Mar 2014 11:10:43 GMT
     
-    {"content":[{"memberId":"M000000001","firstName":"John","lastName":"Smith","genderCode":"1","dateOfBirth":"2013-03-13","emailAddress":"user1394709042120@test.com","telephoneNumber":"09012345678","zipCode":"1710051","address":"Tokyo","credential":{"signId":"user1394709042120@test.com","passwordLastChangedAt":"2014-03-13T11:10:43.066Z","lastModifiedAt":"2014-03-13T11:10:43.066Z"},"createdAt":"2014-03-13T11:10:43.066Z","lastModifiedAt":"2014-03-13T11:10:43.066Z"},{"memberId":"M000000002","firstName":"Sophia","lastName":"Smith","genderCode":"2","dateOfBirth":"2013-03-13","emailAddress":"user1394709043663@test.com","telephoneNumber":"09012345678","zipCode":"1710051","address":"Tokyo","credential":{"signId":"user1394709043663@test.com","passwordLastChangedAt":"2014-03-13T11:10:43.678Z","lastModifiedAt":"2014-03-13T11:10:43.678Z"},"createdAt":"2014-03-13T11:10:43.678Z","lastModifiedAt":"2014-03-13T11:10:43.678Z"}],"sort":null,"firstPage":true,"lastPage":true,"totalPages":1,"numberOfElements":2,"totalElements":2,"size":2,"number":0}
+    {"content":[{"memberId":"M000000001","firstName":"John","lastName":"Smith","genderCode":"1","dateOfBirth":"2013-03-13","emailAddress":"user1394709042120@test.com","telephoneNumber":"09012345678","zipCode":"1710051","address":"Tokyo","credential":{"signId":"user1394709042120@test.com","passwordLastChangedAt":"2014-03-13T11:10:43.066Z","lastModifiedAt":"2014-03-13T11:10:43.066Z"},"createdAt":"2014-03-13T11:10:43.066Z","lastModifiedAt":"2014-03-13T11:10:43.066Z"},{"memberId":"M000000002","firstName":"Sophia","lastName":"Smith","genderCode":"2","dateOfBirth":"2013-03-13","emailAddress":"user1394709043663@test.com","telephoneNumber":"09012345678","zipCode":"1710051","address":"Tokyo","credential":{"signId":"user1394709043663@test.com","passwordLastChangedAt":"2014-03-13T11:10:43.678Z","lastModifiedAt":"2014-03-13T11:10:43.678Z"},"createdAt":"2014-03-13T11:10:43.678Z","lastModifiedAt":"2014-03-13T11:10:43.678Z"}],"last":true,"totalPages":1,"totalElements":2,"size":2,"number":0,"sort":null,"numberOfElements":2,"first":true}
 
 |
 
@@ -2654,7 +2725,6 @@ URIで指定されたMemberリソースのコレクションをページ検索�
         :emphasize-lines: 4
 
         @RequestMapping(method = RequestMethod.GET)
-        @ResponseBody
         @ResponseStatus(HttpStatus.OK)
         public List<MemberResource> getMembers(
                 @Validated MembersSearchQuery query) {
@@ -2714,17 +2784,16 @@ URIで指定されたMemberリソースのコレクションをページ検索�
   | 指定されたMemberリソースを作成し、Memberリソースをコレクションに追加する処理を実装する。
 
  .. code-block:: java
-    :emphasize-lines: 7, 10, 13, 17
+    :emphasize-lines: 7, 9, 12, 16
 
     @RequestMapping("members")
-    @Controller
+    @RestController
     public class MemberRestController {
     
         // omitted
 
         // (1)
         @RequestMapping(method = RequestMethod.POST)
-        @ResponseBody
         // (2)
         @ResponseStatus(HttpStatus.CREATED)
         public MemberResource postMember(
@@ -2813,17 +2882,16 @@ URIで指定されたMemberリソースを取得するREST APIの実装例を、
   | URIで指定されたMemberリソースを取得する処理を実装する。
 
  .. code-block:: java
-    :emphasize-lines: 7, 10, 13, 16
+    :emphasize-lines: 7, 9, 12, 15
 
     @RequestMapping("members")
-    @Controller
+    @RestController
     public class MemberRestController {
 
         // omitted
 
         // (1)
         @RequestMapping(value = "{memberId}", method = RequestMethod.GET)
-        @ResponseBody
         // (2)
         @ResponseStatus(HttpStatus.OK)
         public MemberResource getMember(
@@ -2906,17 +2974,16 @@ URIで指定されたMemberリソースを更新するREST APIの実装例を、
   | URIで指定されたMemberリソースを更新する処理を実装する。
 
  .. code-block:: java
-    :emphasize-lines: 7, 10, 14, 18
+    :emphasize-lines: 7, 9, 13, 17
 
     @RequestMapping("members")
-    @Controller
+    @RestController
     public class MemberRestController {
 
         // omitted
 
         // (1)
         @RequestMapping(value = "{memberId}", method = RequestMethod.PUT)
-        @ResponseBody
         // (2)
         @ResponseStatus(HttpStatus.OK)
         public MemberResource putMember(
@@ -3012,17 +3079,16 @@ URIで指定されたMemberリソースを削除するREST APIの実装例を、
   | URIで指定されたMemberリソースを削除する処理を実装する。
 
  .. code-block:: java
-    :emphasize-lines: 7, 10, 15
+    :emphasize-lines: 7, 9, 14
 
     @RequestMapping("members")
-    @Controller
+    @RestController
     public class MemberRestController {
 
         // omitted
 
         // (1)
         @RequestMapping(value = "{memberId}", method = RequestMethod.DELETE)
-        @ResponseBody
         // (2)
         @ResponseStatus(HttpStatus.NO_CONTENT)
         public void deleteMember(
@@ -3173,7 +3239,7 @@ RESTful Web Serviceで発生した例外のハンドリング方法について�
 * エラー情報を保持するJavaBeanを作成する。
 
  .. code-block:: java
-    :emphasize-lines: 10, 20, 23
+    :emphasize-lines: 9, 19, 22
 
     package org.terasoluna.examples.rest.api.common.error;
     
@@ -3181,8 +3247,7 @@ RESTful Web Serviceで発生した例外のハンドリング方法について�
     import java.util.ArrayList;
     import java.util.List;
     
-    import org.codehaus.jackson.map.annotate.JsonSerialize;
-    import org.codehaus.jackson.map.annotate.JsonSerialize.Inclusion;
+    import com.fasterxml.jackson.annotation.JsonInclude;
 
     // (1)
     public class ApiError implements Serializable {
@@ -3193,10 +3258,10 @@ RESTful Web Serviceで発生した例外のハンドリング方法について�
     
         private final String message;
     
-        @JsonSerialize(include = Inclusion.NON_EMPTY)
+        @JsonInclude(JsonInclude.Include.NON_EMPTY)
         private final String target; // (2)
     
-        @JsonSerialize(include = Inclusion.NON_EMPTY)
+        @JsonInclude(JsonInclude.Include.NON_EMPTY)
         private final List<ApiError> details = new ArrayList<>(); // (3)
     
         public ApiError(String code, String message) {
@@ -3252,8 +3317,8 @@ RESTful Web Serviceで発生した例外のハンドリング方法について�
 
  .. tip::   
  
-    フィールドに\ ``@JsonSerialize(include = Inclusion.NON_EMPTY)``\を指定することで、値が\ ``null``\や空の場合にJSONに項目が出力されないようにする事が出来る。
-    項目を出力させないための条件を\ ``null``\に限定したい場合は、\ ``@JsonSerialize(include = Inclusion.NON_NULL)``\を指定すればよい。
+    フィールドに\ ``@JsonInclude(JsonInclude.Include.NON_EMPTY)``\を指定することで、値が\ ``null``\や空の場合にJSONに項目が出力されないようにする事が出来る。
+    項目を出力させないための条件を\ ``null``\に限定したい場合は、\ ``@JsonInclude(JsonInclude.Include.NON_NULL)``\を指定すればよい。
 
 |
 
@@ -3314,7 +3379,7 @@ RESTful Web Serviceで発生した例外のハンドリング方法について�
  .. code-block:: java
     :emphasize-lines: 1-2, 10-12, 16, 24
 
-    @ControllerAdvice // (6)
+    @ControllerAdvice(annotations = RestController.class) // (6)
     public class ApiGlobalExceptionHandler extends ResponseEntityExceptionHandler {
     
         @Inject
@@ -3354,7 +3419,7 @@ RESTful Web Serviceで発生した例外のハンドリング方法について�
     * - 項番
       - 説明
     * - | (6)
-      - | Spring MVCから提供されている\ ``ResponseEntityExceptionHandler``\を継承したクラスを作成し、\ ``@ControllerAdvice``\アノテーションを付与する。
+      - | Spring MVCから提供されている\ ``ResponseEntityExceptionHandler``\を継承したクラスを作成し、\ ``@ControllerAdvice``\アノテーションを付与し、\ ``@RestController``\アノテーションが付与されている全てのControllerで利用可能とする。
     * - | (7)
       - | \ ``ResponseEntityExceptionHandler``\のhandleExceptionInternalメソッドをオーバライドする。
     * - | (8)
@@ -3370,6 +3435,12 @@ RESTful Web Serviceで発生した例外のハンドリング方法について�
         |
         | ステータスコードには、Spring MVCから提供されている\ ``ResponseEntityExceptionHandler``\によって適切な値が設定される。
         | 設定されるステータスコードについては、「\ :ref:`exception-handling-appendix-defaulthandlerexceptionresolver-label`\」を参照されたい。
+
+ .. tip:: **Spring Framework 4.0 より追加された@ControllerAdviceアノテーションの属性について**
+
+    \ ``@ControllerAdvice``\ アノテーションの属性を指定することで、
+    \ ``@ControllerAdvice``\ が付与されたクラスで実装したメソッドを適用するControllerを柔軟に指定できるように改善されている。
+    属性の詳細については、\ :ref:`@ControllerAdviceの属性 <application_layer_controller_advice_attribute>`\ を参照されたい。
 
 |
 
@@ -3502,7 +3573,7 @@ RESTful Web Serviceで発生した例外のハンドリング方法について�
  .. code-block:: java
     :emphasize-lines: 12-14, 21-23, 29-31, 34-36, 44-45
 
-    @ControllerAdvice
+    @ControllerAdvice(annotations = RestController.class)
     public class ApiGlobalExceptionHandler extends ResponseEntityExceptionHandler {
     
         @Inject
@@ -3602,15 +3673,15 @@ RESTful Web Serviceで発生した例外のハンドリング方法について�
           - 例外クラス
           - 説明
         * - | (1)
-          - | org.codehaus.jackson.
+          - | com.fasterxml.jackson.core.
             | JsonParseException
           - | JSONとして不正な構文が含まれる場合に発生する。
         * - | (2)
-          - | org.codehaus.jackson.map.exc.
+          - | com.fasterxml.jackson.databind.exc.
             | UnrecognizedPropertyException
           - | Resourceオブジェクトに存在しないフィールドがJSONに指定されている場合に発生する。
         * - | (3)
-          - | org.codehaus.jackson.map.
+          - | com.fasterxml.jackson.databind.
             | JsonMappingException
           - | JSONからResourceオブジェクトへ変換する際に、値の型変換エラーが発生した場合に発生する。
 
@@ -3744,7 +3815,7 @@ RESTful Web Serviceで発生した例外のハンドリング方法について�
  .. code-block:: java
     :emphasize-lines: 12-13, 17, 22-23
 
-    @ControllerAdvice
+    @ControllerAdvice(annotations = RestController.class)
     public class ApiGlobalExceptionHandler extends ResponseEntityExceptionHandler {
     
         @Inject
@@ -3828,7 +3899,7 @@ RESTful Web Serviceで発生した例外のハンドリング方法について�
  .. code-block:: java
     :emphasize-lines: 6-7, 11
 
-    @ControllerAdvice
+    @ControllerAdvice(annotations = RestController.class)
     public class ApiGlobalExceptionHandler extends ResponseEntityExceptionHandler {
 
         // omitted
@@ -3891,7 +3962,7 @@ RESTful Web Serviceで発生した例外のハンドリング方法について�
  .. code-block:: java
     :emphasize-lines: 6-8, 12
 
-    @ControllerAdvice
+    @ControllerAdvice(annotations = RestController.class)
     public class ApiGlobalExceptionHandler extends ResponseEntityExceptionHandler {
     
         // omitted
@@ -3954,7 +4025,7 @@ RESTful Web Serviceで発生した例外のハンドリング方法について�
  .. code-block:: java
     :emphasize-lines: 6-7, 11
 
-    @ControllerAdvice
+    @ControllerAdvice(annotations = RestController.class)
     public class ApiGlobalExceptionHandler extends ResponseEntityExceptionHandler {
     
         // omitted
@@ -4101,9 +4172,9 @@ ExceptionCodeResolverを使ったエラーコードとメッセージの解決
     # for bean validation of standard
     javax.validation.constraints.AssertFalse.message = "{0}" must be false.
     javax.validation.constraints.AssertTrue.message  = "{0}" must be true.
-    javax.validation.constraints.DecimalMax.message  = "{0}" must be less than or equal to {value}.
-    javax.validation.constraints.DecimalMin.message  = "{0}" must be greater than or equal to {value}.
-    javax.validation.constraints.Digits.message      = "{0}" numeric value out of bounds. (<{integer} digits>.<{fraction} digits> expected)
+    javax.validation.constraints.DecimalMax.message  = "{0}" must be less than ${inclusive == true ? 'or equal to ' : ''}{value}.
+    javax.validation.constraints.DecimalMin.message  = "{0}" must be greater than ${inclusive == true ? 'or equal to ' : ''}{value}.
+    javax.validation.constraints.Digits.message      = "{0}" numeric value out of bounds (<{integer} digits>.<{fraction} digits> expected).
     javax.validation.constraints.Future.message      = "{0}" must be in the future.
     javax.validation.constraints.Max.message         = "{0}" must be less than or equal to {value}.
     javax.validation.constraints.Min.message         = "{0}" must be greater than or equal to {value}.
@@ -4114,18 +4185,28 @@ ExceptionCodeResolverを使ったエラーコードとメッセージの解決
     javax.validation.constraints.Size.message        = "{0}" size must be between {min} and {max}.
     
     # for bean validation of hibernate
-    org.hibernate.validator.constraints.CreditCardNumber.message = "{0}" invalid credit card number.
-    org.hibernate.validator.constraints.Email.message            = "{0}" not a well-formed email address.
-    org.hibernate.validator.constraints.Length.message           = "{0}" length must be between {min} and {max}.
-    org.hibernate.validator.constraints.NotBlank.message         = "{0}" may not be empty.
-    org.hibernate.validator.constraints.NotEmpty.message         = "{0}" may not be empty.
-    org.hibernate.validator.constraints.Range.message            = "{0}" must be between {min} and {max}.
-    org.hibernate.validator.constraints.SafeHtml.message         = "{0}" may have unsafe html content.
-    org.hibernate.validator.constraints.ScriptAssert.message     = "{0}" script expression "{script}" didn't evaluate to true.
-    org.hibernate.validator.constraints.URL.message              = "{0}" must be a valid URL.
-    
+    org.hibernate.validator.constraints.CreditCardNumber.message        = "{0}" invalid credit card number.
+    org.hibernate.validator.constraints.EAN.message                     = "{0}" invalid {type} barcode.
+    org.hibernate.validator.constraints.Email.message                   = "{0}" not a well-formed email address.
+    org.hibernate.validator.constraints.Length.message                  = "{0}" length must be between {min} and {max}.
+    org.hibernate.validator.constraints.LuhnCheck.message               = "{0}" The check digit for ${validatedValue} is invalid, Luhn Modulo 10 checksum failed.
+    org.hibernate.validator.constraints.Mod10Check.message              = "{0}" The check digit for ${validatedValue} is invalid, Modulo 10 checksum failed.
+    org.hibernate.validator.constraints.Mod11Check.message              = "{0}" The check digit for ${validatedValue} is invalid, Modulo 11 checksum failed.
+    org.hibernate.validator.constraints.ModCheck.message                = "{0}" The check digit for ${validatedValue} is invalid, ${modType} checksum failed.
+    org.hibernate.validator.constraints.NotBlank.message                = "{0}" may not be empty.
+    org.hibernate.validator.constraints.NotEmpty.message                = "{0}" may not be empty.
+    org.hibernate.validator.constraints.ParametersScriptAssert.message  = "{0}" script expression "{script}" didn't evaluate to true.
+    org.hibernate.validator.constraints.Range.message                   = "{0}" must be between {min} and {max}.
+    org.hibernate.validator.constraints.SafeHtml.message                = "{0}" may have unsafe html content.
+    org.hibernate.validator.constraints.ScriptAssert.message            = "{0}" script expression "{script}" didn't evaluate to true.
+    org.hibernate.validator.constraints.URL.message                     = "{0}" must be a valid URL.
+
+    org.hibernate.validator.constraints.br.CNPJ.message                 = "{0}" invalid Brazilian corporate taxpayer registry number (CNPJ).
+    org.hibernate.validator.constraints.br.CPF.message                  = "{0}" invalid Brazilian individual taxpayer registry number (CPF).
+    org.hibernate.validator.constraints.br.TituloEleitoral.message      = "{0}" invalid Brazilian Voter ID card number.
+
     # for common library
-    org.terasoluna.gfw.common.codelist.ExistInCodeList = "{0}" must exist in code list of {codeListId}.
+    org.terasoluna.gfw.common.codelist.ExistInCodeList.message   = "{0}" must exist in code list of {codeListId}.
 
 - | :file:`xxx-domain/src/main/resources/i18n/domain-messages.properties`
   | ドメイン層で発生するエラーに対して、エラーコード(例外コード)に対応するメッセージの設定を行う。
@@ -4199,7 +4280,7 @@ Filterでエラーが発生した場合や\ ``HttpServletResponse#sendError``\�
 サーブレットコンテナに通知されたエラーのエラー応答を行うControllerを作成する。
 
  .. code-block:: java
-    :emphasize-lines: 15-28, 20-21, 23, 27, 29, 33, 36
+    :emphasize-lines: 14-17, 19-20, 22-27, 31, 34
 
     package org.terasoluna.examples.rest.api.common.error;
     
@@ -4208,16 +4289,15 @@ Filterでエラーが発生した場合や\ ``HttpServletResponse#sendError``\�
     
     import org.springframework.http.HttpStatus;
     import org.springframework.http.ResponseEntity;
-    import org.springframework.stereotype.Controller;
     import org.springframework.web.bind.annotation.RequestMapping;
     import org.springframework.web.bind.annotation.RequestParam;
-    import org.springframework.web.bind.annotation.ResponseBody;
     import org.springframework.web.context.request.RequestAttributes;
+    import org.springframework.web.bind.annotation.RestController;
     import org.springframework.web.context.request.WebRequest;
 
     // (1)
     @RequestMapping("error")
-    @Controller
+    @RestController
     public class ApiErrorPageController {
     
         @Inject
@@ -4225,7 +4305,6 @@ Filterでエラーが発生した場合や\ ``HttpServletResponse#sendError``\�
     
         // (3)
         @RequestMapping
-        @ResponseBody
         public ResponseEntity<ApiError> handleErrorPage(
                 @RequestParam("errorCode") String errorCode, // (4)
                 WebRequest request) {
@@ -4321,7 +4400,7 @@ Filterでエラーが発生した場合や\ ``HttpServletResponse#sendError``\�
       - 説明
     * - | (1)
       - | 必要に応じてレスポンスコードによるエラーページの定義を追加する。
-        | 上記例では、\ ``"404 Not Found"``\が発生した際に、「\ ``/api/v1/error?errorCode=e.ex.fw.5001``\」というリクエストにマッピングされているController(\`` ApiErrorPageController``\)を呼び出してエラー応答を行っている。
+        | 上記例では、\ ``"404 Not Found"``\が発生した際に、「\ ``/api/v1/error?errorCode=e.ex.fw.5001``\」というリクエストにマッピングされているController(\ ``ApiErrorPageController``\)を呼び出してエラー応答を行っている。
     * - | (2)
       - | 致命的なエラーをハンドリングするための定義を追加する。
         | 致命的なエラーが発生していた場合、レスポンス情報を作成する処理で二重障害が発生する可能性があるため、予め用意している静的なJSONを応答する事を推奨する。
@@ -4570,7 +4649,7 @@ JSONの中に関連リソースへのハイパーメディアリンクを含め�
 * リンク情報のコレクションを保持するResourceの抽象クラスを作成する。
 
  .. code-block:: java
-    :emphasize-lines: 10, 13, 21, 27, 32
+    :emphasize-lines: 9, 12, 20, 26, 31
 
     package org.terasoluna.examples.rest.api.common.resource;
     
@@ -4578,14 +4657,13 @@ JSONの中に関連リソースへのハイパーメディアリンクを含め�
     import java.util.LinkedHashSet;
     import java.util.Set;
     
-    import org.codehaus.jackson.map.annotate.JsonSerialize;
-    import org.codehaus.jackson.map.annotate.JsonSerialize.Inclusion;
+    import com.fasterxml.jackson.annotation.JsonInclude;
     
     // (2)
     public abstract class AbstractLinksSupportedResource {
 
         // (3)
-        @JsonSerialize(include = Inclusion.NON_EMPTY)
+        @JsonInclude(JsonInclude.Include.NON_EMPTY)
         private final Set<Link> links = new LinkedHashSet<>();
     
         public Set<Link> getLinks() {
@@ -4622,7 +4700,7 @@ JSONの中に関連リソースへのハイパーメディアリンクを含め�
         | 本クラスは、パイパーメディアリンクをサポートするResourceクラスによって、継承される事を想定したクラスである。
     * - | (3)
       - | リンク情報を複数保持するフィールドを定義する。
-        | 上記例では、リンクの指定がない時にJSONに出力しないようにするために、\ ``@JsonSerialize(include = Inclusion.NON_EMPTY)``\を指定している。
+        | 上記例では、リンクの指定がない時にJSONに出力しないようにするために、\ ``@JsonInclude(JsonInclude.Include.NON_EMPTY)``\を指定している。
     * - | (4)
       - | リンク情報を追加するためのメソッドを用意する。
     * - | (5)
@@ -4631,55 +4709,6 @@ JSONの中に関連リソースへのハイパーメディアリンクを含め�
 
 |
 
-* リンク情報に設定するURIを組み立てるためのクラスを作成する。
-
- .. code-block:: java
-    :emphasize-lines: 13
-
-    package org.terasoluna.examples.rest.api.common.resource;
-    
-    import java.net.URI;
-    
-    import org.springframework.stereotype.Component;
-    import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
-    
-    @Component
-    public class ResourceUriBuilder {
-        
-        // omitted
-        
-        // (6)
-        public URI self() {
-            return ServletUriComponentsBuilder.fromCurrentRequest().build().toUri();
-        }
-    
-        // omitted
-
-    }
-
- .. tabularcolumns:: |p{0.10\linewidth}|p{0.90\linewidth}|
- .. list-table::
-    :header-rows: 1
-    :widths: 10 90
-
-    * - 項番
-      - 説明
-    * - | (6)
-      - | 自身のリソースにアクセスするためのURIを組み立てるためのメソッド。
-        | 上記例では、Spring MVCから提供されている\ ``org.springframework.web.servlet.support.ServletUriComponentsBuilder``\を使用して、URIの組み立て処理を行っている。
-        |
-        | \ ``ServletUriComponentsBuilder``\クラスのメソッドを使用してURIを組み立てると、リクエスト情報をベースにURIを組み立てる事ができる。
-        | そのため、リソースに依存しない汎用的な組み立て処理を実装することが可能となる。
-        | 例えば、\ ``http://example.com/api/v1/members/M000000001``\に対してリクエストした場合、selfメソッドの返り値は、リクエストされたURIと同じ値(\ ``http://example.com/api/v1/members/M000000001``\)になる。
-        |
-        | 必要に応じてリンク情報に設定するURIを組み立てるためのメソッドを実装すること。
-
- .. tip::
-
-    \ ``ServletUriComponentsBuilder``\では、URIを組み立てる際に\ ``X-Forwarded-Host``\ ヘッダを参照することで、クライアントとアプリケーションサーバの間にロードバランサやWebサーバがある構成を考慮している。
-    ただし、パスの構成を合わせておかないと期待通りのURIにならないので注意が必要である。
-
-|
 
 リソース毎の実装
 """"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
@@ -4710,30 +4739,24 @@ JSONの中に関連リソースへのハイパーメディアリンクを含め�
       - | リンク情報のコレクションを保持するResourceの抽象クラスを継承する。
         | 継承することで、リンク情報のコレクションを保持するフィールド(\ ``links``\)が取り込まれ、ハイパーメディアリンクをサポートするResourceクラスとなる。
 
-|
 
 * REST APIの処理で、ハイパーメディアリンクを追加する。
 
  .. code-block:: java
-    :emphasize-lines: 7-8, 24
+    :emphasize-lines: 11, 19
 
     @RequestMapping("members")
-    @Controller
+    @RestController
     public class MemberRestController {
 
         // omitted
 
-        // (2)
-        @Inject
-        ResourceUriBuilder resourceUriBuilder;
-
-        // omitted
-
         @RequestMapping(value = "{memberId}", method = RequestMethod.GET)
-        @ResponseBody
         @ResponseStatus(HttpStatus.OK)
         public MemberResource getMember(
-                @PathVariable("memberId") String memberId) {
+                @PathVariable("memberId") String memberId
+                // (2)
+                UriComponentsBuilder uriBuilder) {
     
             Member member = memberSevice.getMember(memberId);
     
@@ -4741,7 +4764,8 @@ JSONの中に関連リソースへのハイパーメディアリンクを含め�
                     MemberResource.class);
     
             // (3)
-            responseResource.addSelf(resourceUriBuilder.self());
+            responseResource.addSelf(uriBuilder.path("/members").pathSegment(memberId)
+                    .build().toUri());
     
             return responseResource;
         }
@@ -4758,12 +4782,26 @@ JSONの中に関連リソースへのハイパーメディアリンクを含め�
     * - 項番
       - 説明
     * - | (2)
-      - | リンク情報に設定するURIを組み立てるためのオブジェクトをインジェクションする。
+      - | リンク情報に設定するURIを組み立てるため、Spring MVCから提供されている\ ``org.springframework.web.util.UriComponentsBuilder``\クラスをメソッドの引数に指定する。
+        | \ ``UriComponentsBuilder``\ クラスをControllerのメソッドの引数に指定すると、メソッド実行時に、Spring MVCにより\ ``UriComponentsBuilder``\ クラスを継承した
+        | \ ``org.springframework.web.servlet.support.ServletUriComponentsBuilder``\クラスのインスタンスが渡される。
     * - | (3)
       - | リソースにリンク情報を追加する。
-        | 上記例では、リンク情報に設定するURIを組み立てるためのオブジェクトのメソッドを呼び出し、自身のリソースにアクセスするためのURIをリソースに追加している。
+        | 上記例では、リンク情報に設定するURIを組み立てるため \ ``UriComponentsBuilder``\ クラスのメソッドを呼び出し、自身のリソースにアクセスするためのURIをリソースに追加している。
+        |
+        | Controllerのメソッドの引数として渡された\ ``ServletUriComponentsBuilder``\ のインスタンスは、web.xmlに記載の\ ``<servlet-mapping>``\要素の情報を元に初期化されており、リソースには依存しない。
+        | そのため、Spring Frameworkから提供される `URI Template Patterns <http://static.springsource.org/spring/docs/3.2.x/spring-framework-reference/html/mvc.html#mvc-ann-requestmapping-uri-templates>`_\ 等を利用し、
+        | リクエスト情報をベースにURIを組み立てる事により、リソースに依存しない汎用的な組み立て処理を実装することが可能となる。
+        | 
+        | 例えば、上記例において\ ``http://example.com/api/v1/members/M000000001``\に対してGETした場合、組み立てられるURIは、リクエストされたURIと同じ値\ ``（http://example.com/api/v1/members/M000000001）``\になる。
+        | 
+        | 必要に応じてリンク情報に設定するURIを組み立てるためのメソッドを実装すること。
 
-|
+ .. tip::
+
+    \ ``ServletUriComponentsBuilder``\では、URIを組み立てる際に「\ ``X-Forwarded-Host``\」ヘッダを参照することで、クライアントとアプリケーションサーバの間にロードバランサやWebサーバがある構成を考慮している。 
+    ただし、パスの構成を合わせておかないと期待通りのURIにならないので注意が必要である。
+
 
 * | レスポンス例
   | 実際に動かすと、以下のようなレスポンスとなる。
@@ -4816,63 +4854,7 @@ POST時のLocationヘッダの設定
 | HTTPの仕様に準拠する場合、POST時のレスポンスヘッダー(「Locationヘッダ」)には、作成したリソースのURIを設定する必要がある。
 | POST時のレスポンスヘッダ(「Locationヘッダ」)に、作成したリソースのURIを設定するための実装方法について説明する。
 
-共通部品の実装
-""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 
-* | Locationヘッダに設定するURIを組み立てるためのクラスを作成する。
-  | 本クラスは、「:ref:`RESTAppendixHyperMediaLink`」で説明したクラスと同じクラスである。
-
- .. code-block:: java
-    :emphasize-lines: 13
-
-    package org.terasoluna.examples.rest.api.common.resource;
-    
-    import java.net.URI;
-    
-    import org.springframework.stereotype.Component;
-    import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
-    
-    @Component
-    public class ResourceUriBuilder<T> {
-    
-        // omitted
-
-        // (1)
-        public URI created(T id) {
-            return childrens(String.valueOf(id));
-        }
-    
-        public URI childrens(String... paths) {
-            return ServletUriComponentsBuilder.fromCurrentRequestUri().path("/")
-                    .pathSegment(paths).build().toUri();
-        }
-    
-        // omitted
-    
-    }
-
- .. tabularcolumns:: |p{0.10\linewidth}|p{0.90\linewidth}|
- .. list-table::
-    :header-rows: 1
-    :widths: 10 90
-
-    * - 項番
-      - 説明
-    * - | (1)
-      - | 作成したリソースのURIを組み立てるためのメソッド。
-        | 上記例では、Spring MVCから提供されている\ ``org.springframework.web.servlet.support.ServletUriComponentsBuilder``\を使用して、URIの組み立て処理を行っている。
-        |
-        | \ ``ServletUriComponentsBuilder``\クラスのメソッドを使用してURIを組み立てると、リクエスト情報をベースにURIを組み立てる事ができる。
-        | そのため、リソースに依存しない汎用的な組み立て処理を実装することが可能となる。
-        | 例えば、\ ``http://example.com/api/v1/members``\に対してPOSTした場合、createdメソッドの返り値は、「リクエストされたURI + \ ``"/"``\ + 引数に指定したID」となる。
-        | 具体的には、IDに\ ``"M000000001"``\を指定した場合、 ``http://example.com/api/v1/members/M000000001``\となる。
-
- .. tip::
-
-    \ ``ServletUriComponentsBuilder``\では、URIを組み立てる際に「\ ``X-Forwarded-Host``\」ヘッダを参照することで、クライアントとアプリケーションサーバの間にロードバランサやWebサーバがある構成を考慮している。
-    ただし、パスの構成を合わせておかないと期待通りのURIにならないので注意が必要である。
-
-|
 
 リソース毎の実装
 """"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
@@ -4880,26 +4862,21 @@ POST時のLocationヘッダの設定
 * REST APIの処理で、作成したリソースのURIをLocationヘッダに設定する。
 
  .. code-block:: java
-    :emphasize-lines: 7, 27, 30, 34
+    :emphasize-lines: 12, 22, 26, 30
 
     @RequestMapping("members")
-    @Controller
+    @RestController
     public class MemberRestController {
 
         // omitted
 
-        // (1)
-        @Inject
-        ResourceUriBuilder resourceUriBuilder;
-
-        // omitted
-
         @RequestMapping(method = RequestMethod.POST)
-        @ResponseBody
         @ResponseStatus(HttpStatus.CREATED)
         public HttpEntity<MemberResource> postMembers(
                 @RequestBody @Validated({ PostMembers.class, Default.class })
-                MemberResource requestedResource) {
+                MemberResource requestedResource,
+                // (1)
+                UriComponentsBuilder uriBuilder) {
     
             Member creatingMember = beanMapper.map(requestedResource, Member.class);
     
@@ -4909,8 +4886,9 @@ POST時のLocationヘッダの設定
                     MemberResource.class);
 
             // (2)
-            URI createdUri = resourceUriBuilder.created(responseResource.getMemberId());
-                    
+            URI createdUri = uriBuilder.path("/members/{memberId}")
+                    .buildAndExpand(responseResource.getMemberId()).toUri();
+    
             // (3)
             HttpHeaders responseHeaders = new HttpHeaders();
             responseHeaders.setLocation(createdUri);
@@ -4931,16 +4909,33 @@ POST時のLocationヘッダの設定
     * - 項番
       - 説明
     * - | (1)
-      - | 作成したリソースのURIを組み立てるオブジェクトをインジェクションする。
+      - | 作成したリソースのURIを組み立てるため、Spring MVCから提供されている\ ``org.springframework.web.util.UriComponentsBuilder``\クラスをメソッドの引数に指定する。
+        | \ ``UriComponentsBuilder``\ クラスをControllerのメソッドの引数に指定すると、メソッド実行時に、Spring MVCにより\ ``UriComponentsBuilder``\ クラスを継承した
+        | \ ``org.springframework.web.servlet.support.ServletUriComponentsBuilder``\クラスのインスタンスが渡される。
     * - | (2)
       - | 作成したリソースのURIを組み立てる。
-        | 上記例では、作成したリソースのURIを組み立てるオブジェクトのメソッドを呼び出し、作成したリソースのURIを組み立てている。
+        | 上記例では、引数として渡された\ ``ServletUriComponentsBuilder``\ のインスタンスに\ ``path``\ メソッドで、URI Template Patternsを用いたパスを追加し、
+        | \ ``buildAndExpand``\ メソッドを呼び出して、作成したリソースのIDをバインドすることで、作成したリソースのURIを組み立てている。
+        | 
+        | Controllerのメソッドの引数として渡された\ ``ServletUriComponentsBuilder``\ のインスタンスは、web.xmlに記載の\ ``<servlet-mapping>``\要素の情報を元に初期化されており、リソースには依存しない。
+        | そのため、Spring Frameworkから提供される `URI\ Template\ Patterns <http://static.springsource.org/spring/docs/3.2.x/spring-framework-reference/html/mvc.html#mvc-ann-requestmapping-uri-templates>`_\ 等を利用し、
+        | リクエスト情報をベースにURIを組み立てる事により、リソースに依存しない汎用的な組み立て処理を実装することが可能となる。
+        | 
+        | 例えば、上記例において\ ``http://example.com/api/v1/members``\に対してPOSTした場合、組み立てられるURIは、「リクエストされたURI + \ ``"/"``\ + 作成したリソースのID」となる。
+        | 具体的には、IDに\ ``"M000000001"``\を指定した場合、\ ``http://example.com/api/v1/members/M000000001``\となる。
+        | 
+        | 必要に応じてリンク情報に設定するURIを組み立てるためのメソッドを実装すること。
     * - | (3)
       - | 作成したリソースのURIをLocationヘッダに設定する。
     * - | (4)
       - | \ ``org.springframework.http.HttpEntity``\に、Resourceオブジェクトとレスポンスヘッダに設定する情報を格納し、返却する。
 
-|
+
+ .. tip::
+
+    \ ``ServletUriComponentsBuilder``\では、URIを組み立てる際に「\ ``X-Forwarded-Host``\」ヘッダを参照することで、クライアントとアプリケーションサーバの間にロードバランサやWebサーバがある構成を考慮している。 
+    ただし、パスの構成を合わせておかないと期待通りのURIにならないので注意が必要である。
+
 
 * | レスポンス例
   | 実際に動かすと、以下のようなレスポンスヘッダとなる。
@@ -5012,16 +5007,15 @@ OPTIONSメソッドの実装
   | URIで指定されたリソースでサポートされているHTTPメソッド(REST API)のリストを応答する処理を実装する。
 
  .. code-block:: java
-    :emphasize-lines: 9, 14, 17
+    :emphasize-lines: 8, 13, 16
 
     @RequestMapping("members")
-    @Controller
+    @RestController
     public class MembersRestController {
 
         // omitted
 
         @RequestMapping(value = "{memberId}", method = RequestMethod.OPTIONS)
-        @ResponseBody
         // (1)
         @ResponseStatus(HttpStatus.OK)
         public HttpEntity<Void> optionsMember(
@@ -5121,7 +5115,7 @@ HEADメソッドの実装
     :emphasize-lines: 9
 
     @RequestMapping("members")
-    @Controller
+    @RestController
     public class MemberRestController {
 
         // omitted
@@ -5129,7 +5123,6 @@ HEADメソッドの実装
         @RequestMapping(value = "{memberId}",
                         method = { RequestMethod.GET,
                                    RequestMethod.HEAD }) // (1)
-        @ResponseBody
         @ResponseStatus(HttpStatus.OK)
         public MemberResource getMember(
                 @PathVariable("memberId") String memberId) {
@@ -5517,21 +5510,20 @@ MemberRestController.java
     import org.springframework.data.domain.PageImpl;
     import org.springframework.data.domain.Pageable;
     import org.springframework.http.HttpStatus;
-    import org.springframework.stereotype.Controller;
     import org.springframework.validation.annotation.Validated;
     import org.springframework.web.bind.annotation.PathVariable;
     import org.springframework.web.bind.annotation.RequestBody;
     import org.springframework.web.bind.annotation.RequestMapping;
     import org.springframework.web.bind.annotation.RequestMethod;
-    import org.springframework.web.bind.annotation.ResponseBody;
     import org.springframework.web.bind.annotation.ResponseStatus;
+    import org.springframework.web.bind.annotation.RestController;
     import org.terasoluna.examples.rest.api.member.MemberResource.PostMembers;
     import org.terasoluna.examples.rest.api.member.MemberResource.PutMember;
     import org.terasoluna.examples.rest.domain.model.Member;
     import org.terasoluna.examples.rest.domain.service.member.MemberService;
     
     @RequestMapping("members")
-    @Controller
+    @RestController
     public class MemberRestController {
     
         @Inject
@@ -5541,7 +5533,6 @@ MemberRestController.java
         Mapper beanMapper;
     
         @RequestMapping(method = RequestMethod.GET)
-        @ResponseBody
         @ResponseStatus(HttpStatus.OK)
         public Page<MemberResource> getMembers(@Validated MembersSearchQuery query,
                 Pageable pageable) {
@@ -5559,7 +5550,6 @@ MemberRestController.java
         }
     
         @RequestMapping(method = RequestMethod.POST)
-        @ResponseBody
         @ResponseStatus(HttpStatus.CREATED)
         public MemberResource postMembers(@RequestBody @Validated({
                 PostMembers.class, Default.class }) MemberResource requestedResource) {
@@ -5575,7 +5565,6 @@ MemberRestController.java
         }
     
         @RequestMapping(value = "{memberId}", method = RequestMethod.GET)
-        @ResponseBody
         @ResponseStatus(HttpStatus.OK)
         public MemberResource getMember(@PathVariable("memberId") String memberId) {
     
@@ -5588,7 +5577,6 @@ MemberRestController.java
         }
     
         @RequestMapping(value = "{memberId}", method = RequestMethod.PUT)
-        @ResponseBody
         @ResponseStatus(HttpStatus.OK)
         public MemberResource putMember(
                 @PathVariable("memberId") String memberId,
@@ -5607,7 +5595,6 @@ MemberRestController.java
         }
     
         @RequestMapping(value = "{memberId}", method = RequestMethod.DELETE)
-        @ResponseBody
         @ResponseStatus(HttpStatus.NO_CONTENT)
         public void deleteMember(@PathVariable("memberId") String memberId) {
     
@@ -5738,7 +5725,7 @@ ApiGlobalExceptionHandler.java
     import org.terasoluna.gfw.common.exception.ResourceNotFoundException;
     import org.terasoluna.gfw.common.exception.ResultMessagesNotificationException;
     
-    @ControllerAdvice
+    @ControllerAdvice(annotations = RestController.class)
     public class ApiGlobalExceptionHandler extends ResponseEntityExceptionHandler {
     
         @Inject

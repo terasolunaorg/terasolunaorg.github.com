@@ -266,7 +266,7 @@ Using codelist in Java class
 
       @Inject
       @Named("CL_ORDERSTATUS")
-      protected CodeList orderStatusCodeList; // (1)
+      CodeList orderStatusCodeList; // (1)
 
       public boolean existOrderStatus(String target) {
           return orderStatusCodeList.asMap().containsKey(target); // (2)
@@ -658,69 +658,6 @@ Using codelist in Java class
 
 |
 
-.. _codelist-validate:
-
-Input validation of code value using codelist
-^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-| When checking whether the input value is the key value defined in codelist,
-| ``org.terasoluna.gfw.common.codelist.ExistInCodeList`` annotation for BeanValidation is provided in common library.
-
-| For details on BeanValidation and message output method, refer to :doc:`Validation`.
-
-|
-
-Example of @ExistInCodeList settings
-""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
-| See below the example of input validation method using codelist.
-
-**Bean definition file**
-
-- xxx-codelist.xml
-
-.. code-block:: xml
-
-    <bean id="CL_GENDER" class="org.terasoluna.gfw.common.codelist.SimpleMapCodeList">
-        <property name="map">
-            <map>
-                <entry key="M" value="Male" />
-                <entry key="F" value="Female" />
-            </map>
-        </property>
-    </bean>
-
-**Form object**
-
-.. code-block:: java
-
-    public class Person {
-        @ExistInCodeList(codeListId = "CL_GENDER")  // (1)
-        private String gender;
-
-        // getter and setter omitted
-    }
-
-.. tabularcolumns:: |p{0.10\linewidth}|p{0.90\linewidth}|
-.. list-table::
-   :header-rows: 1
-   :widths: 10 90
-
-   * - Sr. No.
-     - Description
-   * - | (1)
-     - | Set ``@ExistInCodeList`` annotation for the field for which input is to be validated,
-       | and specify the target codelist in codeListId.
-
-As a result of above settings, when characters other than M, F are stored in ``gender``, the system throws an error.
-
-|
-
-    .. tip::
-
-       ``@ExistInCodeList`` input validation supports only ``String`` or ``Character`` data types.
-       Therefore, even if the fields with ``@ExistInCodeList`` may contain integer values, they should be defined as String data type. (such as Year/Month/Day)
-
-|
-
 .. _codelisti18n:
 
 How to use SimpleI18nCodeList
@@ -1058,7 +995,7 @@ Using codelist in Java class
 
       @Inject
       @Named("CL_I18N_PRICE")
-      protected I18nCodeList priceCodeList;
+      I18nCodeList priceCodeList;
 
       private String getPriceMessage(String targetPrice, Locale locale) {
            return priceCodeList.asMap(locale).get(targetPrice);  // (1)
@@ -1078,6 +1015,89 @@ Using codelist in Java class
 
 |
 
+.. _codelist-validate:
+
+Input validation of code value using codelist
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+| When checking whether the input value is the key value defined in codelist,
+| ``org.terasoluna.gfw.common.codelist.ExistInCodeList`` annotation for BeanValidation is provided in common library.
+
+| For details on BeanValidation and message output method, refer to :doc:`Validation`.
+
+See below the default message definition that provided by common library.
+Please change the message to fit the application requirements.
+
+.. code-block:: properties
+
+    org.terasoluna.gfw.common.codelist.ExistInCodeList.message = Does not exist in {codeListId}
+
+.. note::
+
+    In the terasoluna-gfw-common 1.1.0.RELEASE or later,
+    the property key has been changed to standard format of Bean Validation(FQCN of annotation class + \ ``.message``\).
+
+    See below the default message definition in the version 1.0.x.RELEASE.
+
+     .. code-block:: properties
+
+        org.terasoluna.gfw.common.codelist.ExistInCodeList = Does not exist in {codeListId}
+
+    If have change the message to fit the application requirements,
+    need to change the property key when migrate to the version 1.1.0.RELEASE from the version 1.0.x.RELEASE.
+
+|
+
+Example of @ExistInCodeList settings
+""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
+| See below the example of input validation method using codelist.
+
+**Bean definition file**
+
+- xxx-codelist.xml
+
+.. code-block:: xml
+
+    <bean id="CL_GENDER" class="org.terasoluna.gfw.common.codelist.SimpleMapCodeList">
+        <property name="map">
+            <map>
+                <entry key="M" value="Male" />
+                <entry key="F" value="Female" />
+            </map>
+        </property>
+    </bean>
+
+**Form object**
+
+.. code-block:: java
+
+    public class Person {
+        @ExistInCodeList(codeListId = "CL_GENDER")  // (1)
+        private String gender;
+
+        // getter and setter omitted
+    }
+
+.. tabularcolumns:: |p{0.10\linewidth}|p{0.90\linewidth}|
+.. list-table::
+   :header-rows: 1
+   :widths: 10 90
+
+   * - Sr. No.
+     - Description
+   * - | (1)
+     - | Set ``@ExistInCodeList`` annotation for the field for which input is to be validated,
+       | and specify the target codelist in codeListId.
+
+As a result of above settings, when characters other than M, F are stored in ``gender``, the system throws an error.
+
+|
+
+    .. tip::
+
+       ``@ExistInCodeList`` input validation supports only ``String`` or ``Character`` data types.
+       Therefore, even if the fields with ``@ExistInCodeList`` may contain integer values, they should be defined as String data type. (such as Year/Month/Day)
+
+|
 
 How to extend
 --------------------------------------------------------------------------------
@@ -1255,7 +1275,7 @@ Calling refresh method in Controller (Service) class
   public class CodeListContoller {
 
       @Inject
-      protected CodeListService codeListService; // (1)
+      CodeListService codeListService; // (1)
 
       @RequestMapping(method = RequestMethod.GET, params = "refresh")
       public String refreshJdbcCodeList() {
@@ -1287,7 +1307,7 @@ The description below is given only for the implementation class. Description fo
 
       @Inject
       @Named(value = "CL_AUTHORITIES") // (2)
-      protected ReloadableCodeList codeListItem; // (3)
+      ReloadableCodeList codeListItem; // (3)
 
       @Override
       public void refresh() { // (4)
@@ -1362,7 +1382,7 @@ Customizing the codelist independently
   public class DepYearCodeList extends AbstractCodeList { // (2)
 
       @Inject
-      protected DateFactory dateFactory; // (3)
+      DateFactory dateFactory; // (3)
 
       @Override
       public Map<String, String> asMap() {  // (4)
@@ -1452,7 +1472,7 @@ Setting SimpleI18nCodeList
 | The respective setting methods are explained using the example of selectbox for selecting charges.
 
 Set \ ``java.util.Map``\  (key = code value, value = label) for each locale by rows
-""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
+"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 
 **Bean definition file**
 
@@ -1502,7 +1522,7 @@ Set \ ``java.util.Map``\  (key = code value, value = label) for each locale by r
 |
 
 Set \ ``java.util.Map``\ (key = locale, value = label) for each code value by columns
-""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
+"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 
 **Bean definition file**
 

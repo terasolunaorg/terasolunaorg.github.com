@@ -12,7 +12,7 @@ Overview
 | When developing a Web application with common layouts such as header, footer and side menu, maintaining the layouts becomes complicated if the common parts are coded in all JSPs.
 | For example, if the header design needs to be modified, the same modifications must be done for all JSPs.
 
-| In JSP development, when the same layout is used in many screens, it is recommended to use `Apache Tiles <http://tiles.apache.org/2.2/framework/index.html>`_\  (hereafter referred to as Tiles).
+| In JSP development, when the same layout is used in many screens, it is recommended to use `Apache Tiles <http://tiles.apache.org/>`_\  (hereafter referred to as Tiles).
 | Reasons for using Tiles are as follows:
 
 #. To eliminate layout errors by designer
@@ -104,7 +104,7 @@ pom.xml setting
 Integration of Spring MVC and Tiles
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-| ``org.springframework.web.servlet.view.tiles2.TilesViewResolver`` can be used to integrate Spring MVC and Tiles.
+| ``org.springframework.web.servlet.view.tiles3.TilesViewResolver`` can be used to integrate Spring MVC and Tiles.
 | Implementation of Spring MVC Controller (returning View name) need not be changed.
 
 How to configure is shown below.
@@ -123,12 +123,12 @@ How to configure is shown below.
     </bean>
 
     <bean id="tilesViewResolver"
-        class="org.springframework.web.servlet.view.tiles2.TilesViewResolver"> <!-- (2) -->
+        class="org.springframework.web.servlet.view.tiles3.TilesViewResolver"> <!-- (2) -->
         <property name="order" value="1" />
     </bean>
 
     <bean id="tilesConfigurer"
-        class="org.springframework.web.servlet.view.tiles2.TilesConfigurer"> <!-- (3) -->
+        class="org.springframework.web.servlet.view.tiles3.TilesConfigurer"> <!-- (3) -->
         <property name="definitions">
             <list>
                 <value>/WEB-INF/tiles/tiles-definitions.xml</value>
@@ -153,7 +153,7 @@ How to configure is shown below.
    * - | (2)
      - | Define TilesViewResovler.
        | Specify "1" in 'order' of property definition and define the priority so that configuration file tiles-definitions.xml is used first.
-       | When file name of the jsp which is read matches with the name attribute pattern of definition tag in Tiles definition file, ``org.springframework.web.servlet.view.tiles2.TilesViewResolver`` is used.
+       | When file name of the jsp which is read matches with the name attribute pattern of definition tag in Tiles definition file, ``org.springframework.web.servlet.view.tiles3.TilesViewResolver`` is used.
    * - | (3)
      - | Specify the location of Tiles definition file.
        | Read /WEB-INF/tiles/tiles-definitions.xml.
@@ -166,8 +166,8 @@ How to configure is shown below.
 
     <?xml version="1.0" encoding="UTF-8" ?>
     <!DOCTYPE tiles-definitions PUBLIC
-       "-//Apache Software Foundation//DTD Tiles Configuration 2.1//EN"
-       "http://tiles.apache.org/dtds/tiles-config_2_1.dtd"> <!-- (1) -->
+       "-//Apache Software Foundation//DTD Tiles Configuration 3.0//EN"
+       "http://tiles.apache.org/dtds/tiles-config_3_0.dtd"> <!-- (1) -->
 
     <tiles-definitions>
         <definition name="layouts"
@@ -245,14 +245,15 @@ Custom tag (TLD) needs to be set to use Tiles.
  .. code-block:: jsp
 
   <%@ page session="false"%>
-  <%@ taglib uri=" http://java.sun.com/jsp/jstl/core" prefix="c"%>
-  <%@ taglib uri=" http://java.sun.com/jsp/jstl/fmt" prefix="fmt"%>
-  <%@ taglib uri=" http://www.springframework.org/tags" prefix="spring"%>
-  <%@ taglib uri=" http://www.springframework.org/tags/form" prefix="form"%>
-  <%@ taglib uri=" http://www.springframework.org/security/tags" prefix="sec"%>
-  <%@ taglib uri=" http://terasoluna.org/functions" prefix="f"%>
-  <%@ taglib uri=" http://terasoluna.org/tags" prefix="t"%>
+  <%@ taglib uri="http://java.sun.com/jsp/jstl/core" prefix="c"%>
+  <%@ taglib uri="http://java.sun.com/jsp/jstl/fmt" prefix="fmt"%>
+  <%@ taglib uri="http://www.springframework.org/tags" prefix="spring"%>
+  <%@ taglib uri="http://www.springframework.org/tags/form" prefix="form"%>
+  <%@ taglib uri="http://www.springframework.org/security/tags" prefix="sec"%>
+  <%@ taglib uri="http://terasoluna.org/functions" prefix="f"%>
+  <%@ taglib uri="http://terasoluna.org/tags" prefix="t"%>
   <%@ taglib uri="http://tiles.apache.org/tags-tiles" prefix="tiles"%> <!-- (1) -->
+  <%@ taglib uri="http://tiles.apache.org/tags-tiles-extras" prefix="tilesx"%> <!-- (2) -->
 
  .. tabularcolumns:: |p{0.10\linewidth}|p{0.90\linewidth}|
  .. list-table::
@@ -263,6 +264,16 @@ Custom tag (TLD) needs to be set to use Tiles.
      - Description
    * - | (1)
      - | Add the custom tag (TLD) definition for Tiles.
+   * - | (2)
+     - | Add the custom tag (TLD) definition for Tiles-extras.
+
+For custom tags details on View, refer to \ `Tiles Tag Reference <http://tiles.apache.org/framework/tiles-jsp/tagreference.html>`_\ .
+
+.. tip::
+
+    | Tiles version-2 had one taglib, but tiles-extras taglib is added in version-3.
+    | "useAttribute" tag move from tiles taglib to tiles-extras taglib in version-3, hence should be careful while using.
+    | e.g. ) `<tiles:useAttribute>` : version 2 -> `<tilesx:useAttribute>` : version 3
 
 
 - web.xml
@@ -518,8 +529,8 @@ Setting multiple layouts
 
     <?xml version="1.0" encoding="UTF-8" ?>
     <!DOCTYPE tiles-definitions PUBLIC
-       "-//Apache Software Foundation//DTD Tiles Configuration 2.1//EN"
-       "http://tiles.apache.org/dtds/tiles-config_2_1.dtd">
+       "-//Apache Software Foundation//DTD Tiles Configuration 3.0//EN"
+       "http://tiles.apache.org/dtds/tiles-config_3_0.dtd">
 
     <tiles-definitions>
         <definition name="layoutsOfSearch"

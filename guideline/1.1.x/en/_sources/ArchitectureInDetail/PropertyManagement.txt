@@ -168,7 +168,7 @@ Using properties in bean definition file
 
    <bean id="dataSource" 
        destroy-method="close" 
-       class="org.apache.commons.dbcp.BasicDataSource">
+       class="org.apache.commons.dbcp2.BasicDataSource">
        <property name="driverClassName" 
                  value="${database.driverClassName}"/>  <!-- (1) -->
        <property name="url" value="${database.url}"/>  <!-- (2) -->
@@ -203,7 +203,7 @@ As a result of reading the properties file key, the values are replaced as follo
 
    <bean id="dataSource" 
        destroy-method="close" 
-       class="org.apache.commons.dbcp.BasicDataSource">
+       class="org.apache.commons.dbcp2.BasicDataSource">
        <property name="driverClassName" value="org.postgresql.Driver"/>
        <property name="url" 
                  value="jdbc:postgresql://localhost:5432/shopping"/>

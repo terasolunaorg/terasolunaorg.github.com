@@ -239,7 +239,7 @@ Use \ ``org.terasoluna.gfw.common.date.JdbcFixedDateFactory``\ . For details, re
 |
 
 Returning time obtained by adding the difference registered in DB to the server system time
-^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 | Use \ ``org.terasoluna.gfw.common.date.JdbcAdjustedDateFactory``\ .
 | Fetch the difference in time by executing SQL set in \ ``adjustedValueQuery``\  property .

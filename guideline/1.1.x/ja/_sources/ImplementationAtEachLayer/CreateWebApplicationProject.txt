@@ -1,0 +1,1651 @@
+Webアプリケーション向け開発プロジェクトの作成
+================================================================================
+
+.. only:: html
+
+ .. contents:: 目次
+    :depth: 3
+    :local:
+
+本節では、Webアプリケーション向けの開発プロジェクトを作成する方法について説明する。
+
+本ガイドラインでは、マルチプロジェクト構成を採用することを推奨している。
+推奨するマルチプロジェクト構成の説明については、「:ref:`application-layering_project-structure`」を参照されたい。
+
+開発プロジェクトの作成
+--------------------------------------------------------------------------------
+
+マルチプロジェクト構成の開発プロジェクトを、
+`Maven Archetype Plugin <http://maven.apache.org/archetype/maven-archetype-plugin/>`_ の `archetype:generate <http://maven.apache.org/archetype/maven-archetype-plugin/generate-mojo.html>`_ を使用して作成する。
+
+.. note:: **前提条件**
+
+    以降の説明では、
+
+    * `Maven <http://maven.apache.org/>`_ (\ ``mvn``\ コマンド)が使用可能であること
+    * インターネットに繋がっていること
+    * インターネットにプロキシ経由で繋ぐ場合は、`Mavenのプロキシ設定 <http://maven.apache.org/guides/mini/guide-proxies.html>`_  が行われていること
+
+    を前提としている。
+
+    前提条件が整っていない場合は、まずこれらのセットアップを行ってほしい。
+
+|
+
+| \ ``mvn archetype:generate``\ を実行する。
+| マルチプロジェクトを作成するためのArchetypeとして、以下の3種類を用意している。
+
+.. tabularcolumns:: |p{0.5\linewidth}|p{0.30\linewidth}|p{0.65\linewidth}|
+.. list-table::
+    :header-rows: 1
+    :widths: 5 30 65
+
+    * - 項番
+      - Archetype(ArtifactId)
+      - 説明
+    * - 1.
+      - terasoluna-gfw-multi-web-blank-mybatis3-archetype
+      - O/R MapperとしてMyBatis3を使用するためのプロジェクトを生成するためのArchetype。
+
+        \ ``archetype:generate``\ の実行方法は、
+        「`MyBatis3用マルチプロジェクトの作成方法 <https://github.com/terasolunaorg/terasoluna-gfw-web-multi-blank#multi-blank-project-with-mybatis3>`_」を参照されたい。
+    * - 2.
+      - terasoluna-gfw-multi-web-blank-mybatis2-archetype
+      - O/R MapperとしてMyBatis2(with TERASOLUNA DAO)を使用するためのプロジェクトを生成するためのArchetype。
+
+        \ ``archetype:generate``\ の実行方法は、
+        「`MyBatis2用マルチプロジェクトの作成方法 <https://github.com/terasolunaorg/terasoluna-gfw-web-multi-blank#multi-blank-project-with-mybatis2>`_」を参照されたい。
+    * - 3.
+      - terasoluna-gfw-multi-web-blank-jpa-archetype
+      - O/R MapperとしてJPA(with Spring Data JPA and Hibernate)を使用するためのプロジェクトを生成するためのArchetype。
+
+        \ ``archetype:generate``\ の実行方法は、
+        「`JPA用マルチプロジェクトの作成方法 <https://github.com/terasolunaorg/terasoluna-gfw-web-multi-blank#multi-blank-project-with-jpa>`_」を参照されたい。
+
+.. note:: **プロジェクト固有の情報の指定方法について**
+
+    作成するプロジェクトの、
+
+    * groupId
+    * artifactId
+    * version
+    * package (ベースのパッケージ名)
+
+    は対話形式で指定ことになる。
+
+    \ ``archetype:generate``\ では、これらのパラメータを指定して実行するバッチモードも用意されているが、
+    ここではバッチモードの説明は割愛する。
+
+|
+
+groupId、artifactId、version、package を指定する。
+
+.. code-block:: console
+
+    Define value for property 'groupId': : com.example.todo
+    Define value for property 'artifactId': : todo
+    Define value for property 'version':  1.0-SNAPSHOT: : 1.0.0-SNAPSHOT
+    Define value for property 'package':  com.example.todo: :
+    Confirm properties configuration:
+    groupId: com.example.todo
+    artifactId: todo
+    version: 1.0.0-SNAPSHOT
+    package: com.example.todo
+     Y: : Y
+
+|
+
+プロジェクトの作成が成功した場合、以下のようなログが出力される。
+(以下は、MyBatis3用のArchetypeを使用して作成した場合の出力例)
+
+.. code-block:: console
+
+    [INFO] ----------------------------------------------------------------------------
+    [INFO] Using following parameters for creating project from Archetype: terasoluna-gfw-multi-web-blank-mybatis3-archetype:1.1.0-SNAPSHOT
+    [INFO] ----------------------------------------------------------------------------
+    [INFO] Parameter: groupId, Value: com.example.todo
+    [INFO] Parameter: artifactId, Value: todo
+    [INFO] Parameter: version, Value: 1.0.0-SNAPSHOT
+    [INFO] Parameter: package, Value: com.example.todo
+    [INFO] Parameter: packageInPathFormat, Value: com/example/todo
+    [INFO] Parameter: package, Value: com.example.todo
+    [INFO] Parameter: version, Value: 1.0.0-SNAPSHOT
+    [INFO] Parameter: groupId, Value: com.example.todo
+    [INFO] Parameter: artifactId, Value: todo
+    [INFO] Parent element not overwritten in /work/blank/todo/todo-env/pom.xml
+    [INFO] Parent element not overwritten in /work/blank/todo/todo-domain/pom.xml
+    [INFO] Parent element not overwritten in /work/blank/todo/todo-web/pom.xml
+    [INFO] Parent element not overwritten in /work/blank/todo/todo-initdb/pom.xml
+    [INFO] Parent element not overwritten in /work/blank/todo/todo-selenium/pom.xml
+    [INFO] project created from Archetype in dir: /work/blank/todo
+    [INFO] ------------------------------------------------------------------------
+    [INFO] BUILD SUCCESS
+    [INFO] ------------------------------------------------------------------------
+    [INFO] Total time: 02:13 min
+    [INFO] Finished at: 2014-12-13T22:19:11+09:00
+    [INFO] Final Memory: 15M/194M
+    [INFO] ------------------------------------------------------------------------
+
+|
+
+プロジェクトの作成が成功した場合、Mavenのマルチプロジェクトが作成される。
+Maven Archetypeで作成したプロジェクトの詳細な説明については、「:ref:`CreateWebApplicationProjectConfiguration`」を参照されたい。
+
+.. code-block:: console
+
+    todo
+    ├── pom.xml
+    ├── todo-domain
+    ├── todo-env
+    ├── todo-initdb
+    ├── todo-selenium
+    └── todo-web
+
+|
+
+.. _CreateWebApplicationProjectCustomize:
+
+開発プロジェクトのカスタマイズ
+--------------------------------------------------------------------------------
+
+Maven Archetypeで作成したプロジェクトには、アプリケーション毎にカスタマイズが必要な箇所がいくつか存在する。
+
+カスタマイズが必要な箇所を以下に示す。
+
+- :ref:`CreateWebApplicationProjectCustomizeProjectInformation`
+- :ref:`CreateWebApplicationProjectCustomizeMessageId`
+- :ref:`CreateWebApplicationProjectCustomizeMessageWording`
+- :ref:`CreateWebApplicationProjectCustomizeErrorScreen`
+- :ref:`CreateWebApplicationProjectCustomizeCopyrightOnScreenFooter`
+- :ref:`CreateWebApplicationProjectCustomizeMyBatis3MapperDirectory`
+- :ref:`CreateWebApplicationProjectCustomizeInMemoryDatabase`
+- :ref:`CreateWebApplicationProjectCustomizeDataSource`
+
+.. note::
+
+    上記以外のカスタマイズポイントとしては、
+
+    * :doc:`../Security/Authentication`・:doc:`../Security/Authorization` の設定
+    * :doc:`../ArchitectureInDetail/FileUpload` を有効化するための設定
+    * :doc:`../ArchitectureInDetail/Internationalization` を有効化するための設定
+    * :doc:`../ArchitectureInDetail/Logging` の定義
+    * :doc:`../ArchitectureInDetail/ExceptionHandling` の定義
+    * :doc:`../ArchitectureInDetail/REST` 向けの設定の適用
+
+    などがある。
+
+    これらのカスタマイズについては、各節のHow to useを参照し、必要に応じてカスタマイズしてほしい。
+
+|
+
+.. _CreateWebApplicationProjectCustomizeProjectInformation:
+
+POMファイルのプロジェクト情報
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+Maven Archetypeで作成したプロジェクトのPOMファイルでは、
+
+* プロジェクト名(\ ``name``\ 要素)
+* プロジェクト説明(\ ``description``\ 要素)
+* プロジェクトURL(\ ``url``\ 要素)
+* プロジェクト創設年(\ ``inceptionYear``\ 要素)
+* プロジェクトライセンス(\ ``licenses``\ 要素)
+* プロジェクト組織(\ ``organization``\ 要素)
+
+といったプロジェクト情報が、Archetype自身のプロジェクト情報が設定されている状態となっている。
+実際の設定内容を以下に示す。
+
+.. code-block:: xml
+
+    <!-- ... -->
+
+    <name>TERASOLUNA Global Framework Web Blank Multi Project</name>
+    <description>Web Blank Multi Project using TERASOLUNA Global Framework</description>
+    <url>http://terasoluna.org</url>
+    <inceptionYear>2014</inceptionYear>
+    <licenses>
+        <license>
+            <name>Apache License, Version 2.0</name>
+            <url>http://www.apache.org/licenses/LICENSE-2.0.txt</url>
+            <distribution>manual</distribution>
+        </license>
+    </licenses>
+    <organization>
+        <name>TERASOLUNA Framework Team</name>
+        <url>http://terasoluna.org</url>
+    </organization>
+
+    <!-- ... -->
+
+.. note::
+
+    **プロジェクト情報には、適切な値を設定すること。**
+
+|
+
+カスタマイズ対象のファイルとカスタマイズ方法を以下に示す。
+
+.. tabularcolumns:: |p{0.10\linewidth}|p{0.45\linewidth}|p{0.45\linewidth}|
+.. list-table::
+    :header-rows: 1
+    :widths: 10 45 45
+
+    * - 項番
+      - 対象ファイル
+      - カスタマイズ方法
+    * - 1.
+      - マルチプロジェクト全体の構成を定義するPOM(Project Object Model)ファイル
+
+        ``artifactId/pom.xml``
+      - プロジェクト情報に適切な値を指定する。
+
+|
+
+.. _CreateWebApplicationProjectCustomizeMessageId:
+
+x.xx.fw.9999形式のメッセージID
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+Maven Archetypeで作成したプロジェクトでは、\ ``x.xx.fw.9999``\ 形式のメッセージIDを、
+
+* エラー画面に表示するメッセージ
+* 例外発生時に出力するエラーログ
+
+を生成する際に使用している。実際の使用箇所(サンプリング)を以下に示す。
+
+.. code-block:: properties
+
+    e.xx.fw.5001 = Resource not found.
+
+.. code-block:: jsp
+
+    <div class="error">
+        <c:if test="${!empty exceptionCode}">[${f:h(exceptionCode)}]</c:if>
+        <spring:message code="e.xx.fw.5001" />
+    </div>
+
+.. code-block:: xml
+
+    <bean id="exceptionCodeResolver"
+        class="org.terasoluna.gfw.common.exception.SimpleMappingExceptionCodeResolver">
+        <!-- ... -->
+                <entry key="ResourceNotFoundException" value="e.xx.fw.5001" />
+        <!-- ... -->
+    </bean>
+
+\ ``x.xx.fw.9999``\ 形式のメッセージIDは、
+本ガイドラインの「:doc:`../ArchitectureInDetail/MessageManagement`」で紹介しているメッセージID体系であるが、
+プロジェクト区分の値が暫定値「\ ``xx``\ 」の状態になっている。
+
+.. note::
+
+    * **本ガイドラインで紹介しているメッセージID体系を利用する場合は、プロジェクト区分に適切な値を指定すること。** 本ガイドラインで紹介しているメッセージID体系については、「:ref:`message-management_result-rule`」を参照されたい。
+    * 本ガイドラインで紹介しているメッセージID体系を利用しない場合は、以下に示す修正対象ファイル内で使用しているメッセージIDを全て置き換える必要がある。
+
+|
+
+カスタマイズ対象のファイルとカスタマイズ方法を以下に示す。
+
+.. tabularcolumns:: |p{0.10\linewidth}|p{0.45\linewidth}|p{0.45\linewidth}|
+.. list-table::
+    :header-rows: 1
+    :widths: 10 45 45
+
+    * - 項番
+      - 対象ファイル
+      - カスタマイズ方法
+    * - 1.
+      - メッセージ定義ファイル
+
+        ``artifactId/artifactId-web/src/main/resources/i18n/application-messages.properties``
+      - プロパティキーに指定しているメッセージIDのプロジェクト区分の暫定値「\ ``xx``\ 」を、適切な値に修正する。
+    * - 2.
+      - エラー画面用のJSP
+
+        ``artifactId/artifactId-web/src/main/webapp/WEB-INF/views/common/error/*.jsp``
+      - \ ``<spring:message>``\ 要素の\ ``code``\ 属性に指定しているメッセージIDのプロジェクト区分の暫定値「\ ``xx``\ 」を、適切な値に修正する。
+    * - 3.
+      - Webアプリケーション用のアプリケーションコンテキストを作成するためのBean定義ファイル
+
+        ``artifactId/artifactId-web/src/main/resources/META-INF/spring/applicationContext.xml``
+      - BeanIDが\ ``"exceptionCodeResolver"``\ のBean定義内で指定している例外コード(メッセージID)のプロジェクト区分の暫定値「\ ``xx``\ 」を、適切な値に修正する。
+
+|
+
+.. _CreateWebApplicationProjectCustomizeMessageWording:
+
+メッセージ文言
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+Maven Archetypeで作成したプロジェクトでは、いくつかのメッセージ定義を提供しているが、
+メッセージ文言は簡易的なメッセージになっている。
+実際のメッセージ(サンプリング)を以下に示す。
+
+.. code-block:: properties
+
+    e.xx.fw.5001 = Resource not found.
+
+    # ...
+
+    # typemismatch
+    typeMismatch="{0}" is invalid.
+
+    # ...
+
+.. note::
+
+    **メッセージ文言については、アプリケーション要件(メッセージ規約など)に合わせて修正すること。**
+
+|
+
+カスタマイズ対象のファイルとカスタマイズ方法を以下に示す。
+
+.. tabularcolumns:: |p{0.10\linewidth}|p{0.45\linewidth}|p{0.45\linewidth}|
+.. list-table::
+    :header-rows: 1
+    :widths: 10 45 45
+
+    * - 項番
+      - 対象ファイル
+      - カスタマイズ方法
+    * - 1.
+      - メッセージ定義ファイル
+
+        ``artifactId/artifactId-web/src/main/resources/i18n/application-messages.properties``
+      - アプリケーション要件に応じたメッセージに修正する。
+
+        入力チェックでエラーとなった際に表示するメッセージ(Bean Validationのメッセージ)についても、
+        アプリケーション要件に応じて修正(デフォルトメッセージの上書き)が必要になる。
+        デフォルトメッセージの上書き方法については、「:ref:`Validation_message_def`」を参照されたい。
+
+|
+
+.. _CreateWebApplicationProjectCustomizeErrorScreen:
+
+エラー画面
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+Maven Archetypeで作成したプロジェクトでは、エラーの種類毎にエラー画面を表示するためのJSP及びHTMLを提供しているが、
+
+* 画面レイアウト
+* 画面タイトル
+* メッセージの文言
+
+などが簡易的な実装になっている。実際のJSPの実装(サンプリング)を以下に示す。
+
+.. code-block:: jsp
+
+    <!DOCTYPE html>
+    <html>
+    <head>
+    <meta charset="utf-8">
+    <title>Resource Not Found Error!</title>
+    <link rel="stylesheet"
+        href="${pageContext.request.contextPath}/resources/app/css/styles.css">
+    </head>
+    <body>
+        <div id="wrapper">
+            <h1>Resource Not Found Error!</h1>
+            <div class="error">
+                <c:if test="${!empty exceptionCode}">[${f:h(exceptionCode)}]</c:if>
+                <spring:message code="e.xx.fw.5001" />
+            </div>
+            <t:messagesPanel />
+        <br>
+        <!-- ... -->
+        <br>
+        </div>
+    </body>
+    </html>
+
+.. note::
+
+    **エラー画面を表示するためのJSPとHTMLについては、アプリケーション要件(UI規約など)に合わせて修正すること。**
+
+|
+
+カスタマイズ対象のファイルとカスタマイズ方法を以下に示す。
+
+.. tabularcolumns:: |p{0.10\linewidth}|p{0.45\linewidth}|p{0.45\linewidth}|
+.. list-table::
+    :header-rows: 1
+    :widths: 10 45 45
+
+    * - 項番
+      - 対象ファイル
+      - カスタマイズ方法
+    * - 1.
+      - エラー画面用のJSP
+
+        ``artifactId/artifactId-web/src/main/webapp/WEB-INF/views/common/error/*.jsp``
+      - アプリケーション要件(UI規約など)に合わせて修正する。
+
+        エラー画面を表示するJSPをカスタマイズする際は、「:doc:`../ArchitectureInDetail/ExceptionHandling` の :ref:`exception-handling-how-to-use-codingpoint-jsp-label`」を参照されたい。
+    * - 2.
+      - エラー画面用のHTML
+
+        ``artifactId/artifactId-web/src/main/webapp/WEB-INF/views/common/error/unhandledSystemError.html``
+      - アプリケーション要件(UI規約など)に合わせて修正する。
+
+|
+
+.. _CreateWebApplicationProjectCustomizeCopyrightOnScreenFooter:
+
+画面フッターの著作権
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+Maven Archetypeで作成したプロジェクトでは、Tilesを使用して画面レイアウトを構成しているが、
+画面フッター部の著作権が暫定値「\ ``Copyright &copy; 20XX CompanyName``\ 」の状態になっている。
+実際のJSPの実装(サンプリング)を以下に示す。
+
+
+.. code-block:: jsp
+
+    <div class="container">
+      <tiles:insertAttribute name="header" />
+      <tiles:insertAttribute name="body" />
+      <hr>
+      <p style="text-align: center; background: #e5eCf9;">Copyright
+        &copy; 20XX CompanyName</p>
+    </div>
+
+.. note::
+
+    **Tilesを使用して画面レイアウトを構成する場合は、著作権に適切な値を指定すること。**
+
+|
+
+カスタマイズ対象のファイルとカスタマイズ方法を以下に示す。
+
+.. tabularcolumns:: |p{0.10\linewidth}|p{0.45\linewidth}|p{0.45\linewidth}|
+.. list-table::
+    :header-rows: 1
+    :widths: 10 45 45
+
+    * - 項番
+      - 対象ファイル
+      - カスタマイズ方法
+    * - 1.
+      - Tiles用のテンプレートJSP
+
+        ``artifactId/artifactId-web/src/main/webapp/WEB-INF/views/layout/template.jsp``
+      - 著作権の暫定値「\ ``Copyright &copy; 20XX CompanyName``\ 」を適切な値に修正する。
+
+|
+
+.. _CreateWebApplicationProjectCustomizeMyBatis3MapperDirectory:
+
+MyBatis3用のMapperファイル格納ディレクトリ
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+Maven Archetypeで作成したMyBatis3用のプロジェクトでは、Mapperファイルを格納するディレクトリ名が、
+パッケージ名で置き換わっていない(\ ``xxxxxx/yyyyyy/zzzzzz``\ の状態になっている)。
+実際のディレクトリ構成を以下に示す。
+
+.. code-block:: console
+
+    artifactId-domain
+      (...)
+        └── src
+            ├── main
+            │   ├── java
+           (...)
+            │   └── resources
+            │       (...)
+            │       └── xxxxxx
+            │           └── yyyyyy
+            │               └── zzzzzz
+            │                   └── domain
+            │                       └── repository
+            │                           └── sample
+            │                               └── SampleRepository.xml
+
+.. note::
+
+    **プロジェクト作成時に指定したpackageに置き換えること。**
+
+|
+
+プロジェクト作成時に指定したpackageに置き換える。
+以下は、プロジェクト作成時のpackageに、\ ``com.example.project``\ を指定した場合の変更例である。
+
+
+.. code-block:: console
+
+    artifactId-domain
+      (...)
+        └── src
+            ├── main
+            │   ├── java
+           (...)
+            │   └── resources
+            │       (...)
+            │       └── com
+            │           └── example
+            │               └── project
+            │                   └── domain
+            │                       └── repository
+            │                           └── sample
+            │                               └── SampleRepository.xml
+
+|
+
+.. _CreateWebApplicationProjectCustomizeInMemoryDatabase:
+
+インメモリデータベース(H2 Database)
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+Maven Archetypeで作成したプロジェクトには、インメモリデータベース(H2 Database)をセットアップするための設定が行われているが、
+これはちょっとした動作検証(プロトタイプ作成やPOC(Proof Of Concept))を行うための設定である。
+そのため、本格的なアプリケーション開発を行う場合は、不要な設定になる。
+
+.. code-block:: xml
+
+    <jdbc:initialize-database data-source="dataSource"
+        ignore-failures="ALL">
+        <jdbc:script location="classpath:/database/${database}-schema.sql" />
+        <jdbc:script location="classpath:/database/${database}-dataload.sql" />
+    </jdbc:initialize-database>
+
+.. code-block:: console
+
+        └── src
+            └── main
+                └── resources
+                    ├── META-INF
+                  (...)
+                    ├── database
+                    │   ├── H2-dataload.sql
+                    │   └── H2-schema.sql
+
+.. note::
+
+    **本格的なアプリケーション開発を行う場合は、インメモリデータベース(H2 Database)をセットアップするための定義とSQLを管理するためのディレクトリを削除すること。**
+
+|
+
+カスタマイズ対象のファイルとカスタマイズ方法を以下に示す。
+
+.. tabularcolumns:: |p{0.10\linewidth}|p{0.45\linewidth}|p{0.45\linewidth}|
+.. list-table::
+    :header-rows: 1
+    :widths: 10 45 45
+
+    * - 項番
+      - 対象ファイル
+      - カスタマイズ方法
+    * - 1.
+      - 環境依存するコンポーネントを定義するBean定義ファイル
+
+        ``artifactId-env/src/main/resources/META-INF/spring/artifactId-env.xml``
+      - \ ``<jdbc:initialize-database>``\ 要素を削除する。
+    * - 2.
+      - インメモリデータベース(H2 Database)をセットアップするためのSQLを格納するディレクトリ
+
+        ``artifactId/artifactId-env/src/main/resources/database/``
+      - ディレクトリを削除する。
+
+|
+
+.. _CreateWebApplicationProjectCustomizeDataSource:
+
+データソース設定
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+Maven Archetypeで作成したプロジェクトでは、インメモリデータベース(H2 Database)にアクセスするためのデータソース設定が行われているが、
+これはちょっとした動作検証(プロトタイプ作成やPOC(Proof Of Concept))を行うための設定である。
+そのため、本格的なアプリケーション開発を行う場合は、
+アプリケーション稼働時に利用するデータベースにアクセスするためのデータソース設定に変更する必要がある。
+
+.. code-block:: xml
+
+    <dependency>
+        <groupId>com.h2database</groupId>
+        <artifactId>h2</artifactId>
+        <scope>runtime</scope>
+    </dependency>
+
+.. code-block:: properties
+
+    database=H2
+    database.url=jdbc:h2:mem:todo;DB_CLOSE_DELAY=-1
+    database.username=sa
+    database.password=
+    database.driverClassName=org.h2.Driver
+    # connection pool
+    cp.maxActive=96
+    cp.maxIdle=16
+    cp.minIdle=0
+    cp.maxWait=60000
+
+.. code-block:: xml
+
+    <bean id="realDataSource" class="org.apache.commons.dbcp2.BasicDataSource"
+        destroy-method="close">
+        <property name="driverClassName" value="${database.driverClassName}" />
+        <property name="url" value="${database.url}" />
+        <property name="username" value="${database.username}" />
+        <property name="password" value="${database.password}" />
+        <property name="defaultAutoCommit" value="false" />
+        <property name="maxTotal" value="${cp.maxActive}" />
+        <property name="maxIdle" value="${cp.maxIdle}" />
+        <property name="minIdle" value="${cp.minIdle}" />
+        <property name="maxWaitMillis" value="${cp.maxWait}" />
+    </bean>
+
+.. note::
+
+    **本格的なアプリケーション開発を行う場合は、アプリケーション稼働時に利用するデータベースにアクセスするためのデータソース設定に変更すること。**
+
+    Maven Archetypeで作成したプロジェクトでは、Apache Commons DBCPを使用する設定となっているが、
+    アプリケーションサーバから提供されているデータソースを使用して、
+    JNDI(Java Naming and Directory Interface)経由でデータソースにアクセスする方法を採用するケースも多い。
+
+    開発環境ではApache Commons DBCPのデータソースを使用して、
+    テスト環境及び商用環境ではアプリケーションサーバから提供されているデータソースを使用するといった使い分けを行うケースもある。
+
+    データソースの設定方法については、「:doc:`../ArchitectureInDetail/DataAccessCommon` の :ref:`data-access-common_howtouse_datasource`」を参照されたい。
+
+|
+
+カスタマイズ対象のファイルとカスタマイズ方法を以下に示す。
+
+.. tabularcolumns:: |p{0.10\linewidth}|p{0.45\linewidth}|p{0.45\linewidth}|
+.. list-table::
+    :header-rows: 1
+    :widths: 10 45 45
+
+    * - 項番
+      - 対象ファイル
+      - カスタマイズ方法
+    * - 1.
+      - POMファイル
+
+        * ``artifactId/pom.xml``
+        * ``artifactId/artifactId-domain/pom.xml``
+      - インメモリデータベース(H2 Database)のJDBCドライバを依存ライブラリから削除する。
+
+        アプリケーション稼働時に利用するデータベースにアクセスするためのJDBCドライバを依存ライブラリに追加する。
+
+    * - 2.
+      - 環境依存する設定値を定義するプロパティファイル
+
+        ``artifactId/artifactId-env/src/main/resources/META-INF/spring/artifactId-infra.properties``
+      - データソースとしてApache Commons DBCPを使用する場合は、以下のプロパティにアプリケーション稼働時に利用するデータベースにアクセスするための接続情報を指定する。
+
+        * ``database``
+        * ``database.url``
+        * ``database.username``
+        * ``database.password``
+        * ``database.driverClassName``
+
+        アプリケーションサーバから提供されているデータソースを使用する場合は、以下のプロパティ以外は不要なプロパティになるので削除する。
+
+        * ``database``
+
+    * - 3.
+      - 環境依存するコンポーネントを定義するBean定義ファイル
+
+        ``artifactId/artifactId-env/src/main/resources/META-INF/spring/artifactId-env.xml``
+      - アプリケーションサーバから提供されているデータソースを使用する場合は、JNDI経由で取得したデータソースを使用するように設定を変更する。
+
+        データソースの設定方法については、「:doc:`../ArchitectureInDetail/DataAccessCommon` の :ref:`data-access-common_howtouse_datasource`」を参照されたい。
+
+.. note:: **環境依存する設定値を定義するプロパティファイルのdatabaseプロパティについて**
+
+    O/R MapperとしてMyBatisを使用する場合は、\ ``database``\ プロパティは不要なプロパティである。
+    削除してもよいが、使用しているデータベースを明示するために設定を残しておいてもよい。
+
+.. tip:: **JDBCドライバの追加方法について**
+
+    使用するデータベースがPostgreSQLとOracleの場合は、POMファイル内のコメントアウトを外せばよい。
+    JDBCドライバのバージョンについては、使用するデータベースのバージョンに対応するバージョンに修正すること。
+
+    ただしOracleを使用する場合は、コメントを外す前に、
+    MavenのローカルリポジトリにOracleのJDBCドライバをインストールしておく必要がある。
+
+    以下は、PostgreSQLを使用する場合の設定例である。
+
+    * ``artifactId/pom.xml``
+
+     .. code-block:: xml
+
+                         <dependency>
+                             <groupId>org.postgresql</groupId>
+                             <artifactId>postgresql</artifactId>
+                             <version>${postgresql.version}</version>
+                             <scope>provided</scope>
+                         </dependency>
+        <!--             <dependency> -->
+        <!--                 <groupId>com.oracle</groupId> -->
+        <!--                 <artifactId>ojdbc7</artifactId> -->
+        <!--                 <version>${ojdbc.version}</version> -->
+        <!--                 <scope>provided</scope> -->
+        <!--             </dependency> -->
+
+            <!-- ... -->
+
+            <postgresql.version>9.3-1102-jdbc41</postgresql.version>
+            <ojdbc.version>12.1.0.2</ojdbc.version>
+
+    * ``artifactId/artifactId-domain/pom.xml``
+
+     .. code-block:: xml
+
+                     <dependency>
+                         <groupId>org.postgresql</groupId>
+                         <artifactId>postgresql</artifactId>
+                         <scope>provided</scope> -->
+                     </dependency> -->
+        <!--         <dependency> -->
+        <!--             <groupId>com.oracle</groupId> -->
+        <!--             <artifactId>ojdbc7</artifactId> -->
+        <!--             <scope>provided</scope> -->
+        <!--         </dependency> -->
+
+|
+
+.. _CreateWebApplicationProjectConfiguration:
+
+開発プロジェクトの構成
+--------------------------------------------------------------------------------
+
+Maven Archetypeで作成したプロジェクトの構成について説明する。
+
+Maven Archetypeで作成したプロジェクトは、以下の構成になっている。
+
+* 本ガイドラインで推奨しているレイヤ毎のプロジェクト構成
+* 本ガイドラインで紹介している環境依存性の排除を考慮したプロジェクト構成
+* CI(Continuous Integration)を意識したプロジェクト構成
+
+また、本ガイドラインで推奨している各種設定が盛り込まれた、
+
+* Webアプリケーションの構成定義ファイル(web.xml)
+* Spring FrameworkのBean定義ファイル
+* Spring MVC用のBean定義ファイル
+* Spring Security用のBean定義ファイル
+* O/R Mapperの設定ファイル
+* Tiles用の設定ファイル
+* プロパティファイル(メッセージ定義ファイルなど)
+
+と、アプリケーション要件との依存度が低い(=どんなアプリケーションでも作成する必要がある)コンポーネントの簡易実装として、
+
+* Welcomeページを表示するためのControllerとJSP
+* エラー画面を表示するためのJSP(HTML)
+* Tiles用のテンプレートJSP
+* JSPタグライブラリの読み込み設定などが定義されているインクルード用JSP
+* アプリケーション全体の画面スタイルを定義するCSSファイル
+
+などが提供されている。
+
+.. warning:: **簡易実装として提供しているコンポーネントの扱いについて**
+
+    簡易実装として提供しているコンポーネントは、以下のいずれかの対応を行うこと。
+
+    * アプリケーション要件にあわせて修正
+    * 不要なコンポーネントは削除
+
+.. note:: **REST API用のプロジェクトを作成する場合の手順について**
+
+    Maven Archetypeで作成したプロジェクトは、
+    伝統的なWebアプリケーション(リクエストパラメータを受け取ってHTMLを応答するアプリケーション)を構築する際に必要となる推奨設定が行われている。
+
+    そのため、JSONやXMLを扱うREST APIを構築する際には不要な設定が存在する。
+    REST APIを構築するためのプロジェクトを作成する場合は、「:doc:`../ArchitectureInDetail/REST` の :ref:`RESTHowToUseApplicationSettings`」を参照し、
+    REST API向けの設定を適用してほしい。
+
+|
+
+.. _CreateWebApplicationProjectConfigurationMulti:
+
+マルチプロジェクトの構成
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+まず、マルチプロジェクト全体の構成について説明する。
+
+.. note::
+
+    以降の説明で\ ``artifactId``\ と表現している部分は、
+    プロジェクト作成時に指定した\ ``artifactId``\ に置き換えて読み進めてほしい。
+
+.. code-block:: console
+
+    artifactId
+        ├── pom.xml  ... (1)
+        ├── artifactId-web  ... (2)
+        ├── artifactId-domain  ... (3)
+        ├── artifactId-env  ... (4)
+        ├── artifactId-initdb  ... (5)
+        └── artifactId-selenium  ... (6)
+
+.. tabularcolumns:: |p{0.10\linewidth}|p{0.90\linewidth}|
+.. list-table::
+    :header-rows: 1
+    :widths: 10 90
+
+    * - | 項番
+      - | 説明
+    * - | (1)
+      - マルチプロジェクト全体の構成を定義するPOM(Project Object Model)ファイル。
+
+        このファイルでは、主に以下の定義を行う。
+
+        * 依存ライブラリのバージョン
+        * ビルド用のプラグインの設定(ビルド方法の設定)
+
+        マルチプロジェクトの階層関係については、「:ref:`CreateWebApplicationProjectAppendixProjectHierarchicalStructure`」を参照されたい。
+
+    * - | (2)
+      - アプリケーション層(Web層)のコンポーネントを管理するモジュール。
+
+        このモジュールでは、主に以下のコンポーネントやファイルを管理する。
+
+        * Controllerクラス
+        * 相関チェック用のValidatorクラス
+        * Formクラス(REST APIの場合はResourceクラス)
+        * View(JSP)
+        * CSSファイル
+        * JavaScriptファイル
+        * アプリケーション層のコンポーネント用のJUnit
+        * アプリケーション層のコンポーネントを定義するためのBean定義ファイル
+        * Webアプリケーションの構成定義ファイル(web.xml)
+        * メッセージ定義ファイル
+
+    * - | (3)
+      - ドメイン層のコンポーネントを管理するモジュール。
+
+        このモジュールでは、主に以下のコンポーネントやファイルを管理する。
+
+        * Entityなどのドメインオブジェクト
+        * Repository
+        * Service
+        * DTO
+        * ドメイン層のコンポーネント用のJUnit
+        * ドメイン層のコンポーネントを定義するためのBean定義ファイル
+
+    * - | (4)
+      - 環境依存性をもつ設定ファイルを管理するモジュール。
+
+        このモジュールでは、主に以下のファイルを管理する。
+
+        * 環境依存するコンポーネントを定義するためのBean定義ファイル
+        * 環境依存するプロパティ値を定義するプロパティファイル
+
+    * - | (5)
+      - データベースを初期化するためのSQLファイルを管理するモジュール
+
+        このモジュールでは、主に以下のファイルを管理する。
+
+        * テーブルなどのデータベースオブジェクトを作成するためのSQLファイル
+        * マスタデータなどの初期データを投入するためのSQLファイル
+        * E2E(End To End)テストで使用するテストデータを投入するためのSQLファイル
+
+    * - | (6)
+      - Seleniumを使用したE2Eテスト用のコンポーネントを管理するモジュール。
+
+        このモジュールでは、主に以下のファイルを管理する。
+
+        * Seleniumを操作してテストを行うJUnit
+        * Assert時に使用する期待値ファイル(必要に応じて)
+
+.. note:: **本ガイドラインにおける「マルチプロジェクト」の用語定義について**
+
+    Maven Archetypeで作成したプロジェクトは、正確にはマルチモジュール構成のプロジェクトとなる。
+
+    本ガイドラインでは、マルチモジュールとマルチプロジェクトを同じ意味で使用していることを補足しておく。
+
+|
+
+.. _CreateWebApplicationProjectConfigurationWeb:
+
+webモジュールの構成
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+アプリケーション層(Web層)のコンポーネントを管理するモジュールの構成について説明する。
+
+.. code-block:: console
+
+    artifactId-web
+        ├── pom.xml  ... (1)
+
+.. tabularcolumns:: |p{0.10\linewidth}|p{0.90\linewidth}|
+.. list-table::
+    :header-rows: 1
+    :widths: 10 90
+
+    * - | 項番
+      - | 説明
+    * - | (1)
+      - webモジュールの構成を定義するPOM(Project Object Model)ファイル。
+        このファイルでは、以下の定義を行う。
+
+        * 依存ライブラリとビルド用プラグインの定義
+        * warファイルを作成するための定義
+
+.. note:: **REST API用のプロジェクトを作成する際のwebモジュールのモジュール名について**
+
+    REST APIを構築する場合は、モジュール名を\ ``artifactId-api``\といった感じの名前にしておくと、
+    アプリケーションの種類が識別しやすくなる。
+
+|
+
+.. code-block:: console
+
+        └── src
+            ├── main
+            │   ├── java
+            │   │   └── com
+            │   │       └── example
+            │   │           └── project
+            │   │               └── app  ... (2)
+            │   │                   └── welcome
+            │   │                       └── HelloController.java  ... (3)
+            │   ├── resources
+            │   │   ├── META-INF
+            │   │   │   ├── dozer  ... (4)
+            │   │   │   └── spring  ... (5)
+            │   │   │       ├── application.properties  ... (6)
+            │   │   │       ├── applicationContext.xml  ... (7)
+            │   │   │       ├── spring-mvc.xml  ... (8)
+            │   │   │       └── spring-security.xml  ... (9)
+            │   │   └── i18n  ... (10)
+            │   │       └── application-messages.properties  ... (11)
+
+.. tabularcolumns:: |p{0.10\linewidth}|p{0.90\linewidth}|
+.. list-table::
+    :header-rows: 1
+    :widths: 10 90
+
+    * - | 項番
+      - | 説明
+    * - | (2)
+      - アプリケーション層のクラスを格納するためのパッケージ。
+
+        REST APIを構築する場合は、パッケージ名を\ ``api``\ といった感じの名前にしておくと、
+        コンポーネントの種類が識別しやすくなる。
+    * - | (3)
+      - Welcomeページを表示するためのリクエストを受け取るためのControllerクラス。
+    * - | (4)
+      - Dozer(Bean Mapper)のマッピング定義ファイルを格納するディレクトリ。
+        Dozerについては、「:doc:`../ArchitectureInDetail/Utilities/Dozer`」を参照されたい。
+
+        作成時点では空のディレクトリである。
+        マッピングファイルが必要になった場合(高度なマッピングが必要になった場合)は、
+        このディレクトリ配下に格納すると、自動的にマッピングファイルが読み込まれる。
+
+        .. note::
+
+            このディレクトリには、以下のファイルを格納する。
+
+            * アプリケーション層のJavaBeanとドメイン層のJavaBeanをマッピングするための定義ファイル
+            * アプリケーション層のJavaBean同士をマッピングするための定義ファイル
+
+            ドメイン層のJavaBean同士のマッピングはドメイン層のディレクトリに格納することを推奨している。
+
+    * - | (5)
+      - Spring FrameworkのBean定義ファイルとプロパティファイルを格納するディレクトリ。
+    * - | (6)
+      - アプリケーション層で使用する設定値を定義するプロパティファイル。
+
+        作成時点では、空のファイルである。
+    * - | (7)
+      - Webアプリケーション用のアプリケーションコンテキストを作成するためのBean定義ファイル。
+
+        このファイルには、以下のBeanを定義する。
+
+        * Webアプリケーション全体で使用するコンポーネント
+        * ドメイン層のコンポーネント(ドメイン層のコンポーネントが定義されているBean定義ファイルをimportする)
+
+    * - | (8)
+      - \ ``DispatcherServlet``\ 用のアプリケーションコンテキストを作成するためのBean定義ファイル。
+
+        このファイルには、以下のBeanを定義する。
+
+        * Spring MVCのコンポーネント
+        * アプリケーション層のコンポーネント
+
+        REST APIを構築する場合は、ファイル名を\ ``spring-mvc-api.xml``\ といった感じの名前にしておくと、 アプリケーションの種類が識別しやすくなる。
+
+    * - | (9)
+      - Spring Securityのコンポーネントを定義するためのBean定義ファイル。
+
+        このファイルは、Webアプリケーション用のアプリケーションコンテキストを作成する際に読み込む。
+    * - | (10)
+      - アプリケーション層で使用するメッセージ定義ファイルを格納するディレクトリ。
+    * - | (11)
+      - アプリケーション層で使用するメッセージを定義するプロパティファイル。
+
+        作成時点では、いくつかの汎用的なメッセージが定義されている。
+
+        .. note::
+
+            **メッセージについては、アプリケーションの要件(メッセージ規約など)にあわせて必ず修正すること。**
+            メッセージ定義については、「:doc:`../ArchitectureInDetail/MessageManagement`」を参照されたい。
+
+.. note::
+
+    アプリケーションコンテキストとBean定義ファイルの関連については、
+    「:ref:`CreateWebApplicationProjectAppendixApplicationContext`」を参照されたい。
+
+|
+
+.. code-block:: console
+
+            │   └── webapp
+            │       ├── WEB-INF
+            │       │   ├── tiles  ... (12)
+            │       │   │   └── tiles-definitions.xml
+            │       │   ├── views  ... (13)
+            │       │   │   ├── common
+            │       │   │   │   ├── error  ... (14)
+            │       │   │   │   │   ├── accessDeniedError.jsp
+            │       │   │   │   │   ├── businessError.jsp
+            │       │   │   │   │   ├── dataAccessError.jsp
+            │       │   │   │   │   ├── invalidCsrfTokenError.jsp
+            │       │   │   │   │   ├── missingCsrfTokenError.jsp
+            │       │   │   │   │   ├── resourceNotFoundError.jsp
+            │       │   │   │   │   ├── systemError.jsp
+            │       │   │   │   │   ├── transactionTokenError.jsp
+            │       │   │   │   │   └── unhandledSystemError.html
+            │       │   │   │   └── include.jsp  ... (15)
+            │       │   │   ├── layout  ... (16)
+            │       │   │   │   ├── header.jsp
+            │       │   │   │   └── template.jsp
+            │       │   │   └── welcome
+            │       │   │       └── home.jsp  ... (17)
+            │       │   └── web.xml  ... (18)
+            │       └── resources  ... (19)
+            │           └── app
+            │               └── css
+            │                   └── styles.css  ... (20)
+            └── test
+                ├── java
+                └── resources
+
+.. tabularcolumns:: |p{0.10\linewidth}|p{0.90\linewidth}|
+.. list-table::
+    :header-rows: 1
+    :widths: 10 90
+
+    * - | 項番
+      - | 説明
+    * - | (12)
+      - Tilesの設定ファイルを格納するディレクトリ。
+        Tilesの設定ファイルについては、「:doc:`../ArchitectureInDetail/TilesLayout`」を参照されたい。
+    * - | (13)
+      - Viewを構築するテンプレートファイル(JSPなど)を格納するディレクトリ。
+    * - | (14)
+      - エラー画面を表示するためのJSP及びHTMLを格納するディレクトリ。
+
+        作成時点では、アプリケーション実行時に発生する可能性があるエラーに対応するJSP(HTML)が格納されている。
+
+        .. note::
+
+            **エラー画面用のJSP及びHTMLについては、アプリケーションの要件(UI規約など)にあわせて必ず修正すること。**
+
+    * - | (15)
+      - インクルード用の共通JSPファイル。
+
+
+        このファイルは、全てのJSPファイルの先頭にインクルードされる。
+        インクルード用の共通JSPファイルについては、「:ref:`view_jsp_include-label`」を参照されたい。
+    * - | (16)
+      - Tilesのレイアウト用のJSPファイルを格納するディレクトリ。
+        Tilesのレイアウト用のJSPファイルについては、「:doc:`../ArchitectureInDetail/TilesLayout`」を参照されたい。
+    * - | (17)
+      - Welcomeページを表示するJSPファイル。
+    * - | (18)
+      - Webアプリケーションの構成定義ファイル。
+    * - | (19)
+      - 静的なリソースファイルを格納するディレクトリ。
+
+        このディレクトリは、リクエストの内容によって応答する内容がかわらないファイルを格納する。
+        具体的には以下のファイルを格納する。
+
+        * JavaScriptファイル
+        * CSSファイル
+        * 画像ファイル
+        * HTMLファイル
+
+        Spring MVCが提供する静的リソースの管理メカニズムを適用しやすくするために、
+        専用のディレクトリを設ける構成を採用している。
+    * - | (20)
+      - アプリケーション全体に適用する画面スタイルを定義するCSSファイル。
+
+|
+
+.. _CreateWebApplicationProjectConfigurationDomain:
+
+domainモジュールの構成
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+ドメイン層のコンポーネントを管理するモジュールの構成について説明する。
+
+.. code-block:: console
+
+    artifactId-domain
+        ├── pom.xml  ... (1)
+
+.. tabularcolumns:: |p{0.10\linewidth}|p{0.90\linewidth}|
+.. list-table::
+    :header-rows: 1
+    :widths: 10 90
+
+    * - | 項番
+      - | 説明
+    * - | (1)
+      - domainモジュールの構成を定義するPOM(Project Object Model)ファイル。
+        このファイルでは、以下の定義を行う。
+
+        * 依存ライブラリとビルド用プラグインの定義
+        * jarファイルを作成するための定義
+
+|
+
+.. code-block:: console
+
+        └── src
+            ├── main
+            │   ├── java
+            │   │   └── com
+            │   │       └── example
+            │   │           └── project
+            │   │               └── domain  ... (2)
+            │   │                   ├── model
+            │   │                   ├── repository
+            │   │                   └── service
+            │   └── resources
+            │       └── META-INF
+            │           ├── dozer  ... (3)
+            │           └── spring  ... (4)
+            │               ├── artifactId-codelist.xml  ... (5)
+            │               ├── artifactId-domain.xml  ... (6)
+            │               └── artifactId-infra.xml  ... (7)
+
+
+.. tabularcolumns:: |p{0.10\linewidth}|p{0.90\linewidth}|
+.. list-table::
+    :header-rows: 1
+    :widths: 10 90
+
+    * - | 項番
+      - | 説明
+    * - | (2)
+      - ドメイン層のクラスを格納するためのパッケージ。
+    * - | (3)
+      - Dozer(Bean Mapper)のマッピング定義ファイルを格納するディレクトリ。
+        Dozerについては、「:doc:`../ArchitectureInDetail/Utilities/Dozer`」を参照されたい。
+
+        作成時点では空のディレクトリである。
+        マッピングファイルが必要になった場合(高度なマッピングが必要になった場合)は、
+        このディレクトリ配下に格納すると、自動的にマッピングファイルが読み込まれる。
+
+        .. note::
+
+            このディレクトリには、以下のファイルを格納する。
+
+            * ドメイン層のJavaBean同士をマッピングするための定義ファイル
+
+    * - | (4)
+      - Spring FrameworkのBean定義ファイルとプロパティファイルを格納するディレクトリ。
+    * - | (5)
+      - コードリストを定義するためのBean定義ファイル。
+    * - | (6)
+      - ドメイン層のコンポーネントを定義するためのBean定義ファイル。
+
+        このファイルには、以下のBeanを定義する。
+
+        * ドメイン層のコンポーネント(Service, Repositoryなど)
+        * インフラストラクチャ層のコンポーネント(インフラストラクチャ層のコンポーネントが定義されているBean定義ファイルをimportする)
+        * Spring Frameworkから提供されているトランザクション管理用のコンポーネント
+
+    * - | (7)
+      - インフラストラクチャ層のコンポーネントを定義するためのBean定義ファイル。
+
+        このファイルには、O/R MapperなどのBean定義を行う。
+
+|
+
+.. code-block:: console
+
+            └── test
+                ├── java
+                │   └── com
+                │       └── example
+                │           └── project
+                │               └── domain
+                │                   ├── repository
+                │                   └── service
+                └── resources
+                    └── test-context.xml  ... (8)
+
+
+.. tabularcolumns:: |p{0.10\linewidth}|p{0.90\linewidth}|
+.. list-table::
+    :header-rows: 1
+    :widths: 10 90
+
+    * - | 項番
+      - | 説明
+    * - | (8)
+      - ドメイン層のユニットテスト用のコンポーネントを定義するためのBean定義ファイル。
+
+|
+
+**MyBatis3用のプロジェクトを作成した場合**
+
+.. code-block:: console
+
+        └── src
+            ├── main
+            │   ├── java
+           (...)
+            │   └── resources
+            │       ├── META-INF
+            │       │   ├── dozer
+            │       │   ├── mybatis  ... (9)
+            │       │   │   └── mybatis-config.xml  ... (10)
+            │       │   └── spring
+           (...)
+            │       └── xxxxxx
+            │           └── yyyyyy
+            │               └── zzzzzz
+            │                   └── domain
+            │                       └── repository  ... (11)
+            │                           └── sample
+            │                               └── SampleRepository.xml  ... (12)
+
+.. tabularcolumns:: |p{0.10\linewidth}|p{0.90\linewidth}|
+.. list-table::
+    :header-rows: 1
+    :widths: 10 90
+
+    * - | 項番
+      - | 説明
+    * - | (9)
+      - MyBatis3の設定ファイルを格納するディレクトリ。
+    * - | (10)
+      - MyBatis3の設定ファイル。
+
+        作成時点では、いくつかの推奨設定が定義されている。
+    * - | (11)
+      - MyBatis3のMapperファイルを格納するディレクトリ。
+
+        作成時点では、ベースのディレクトリが「xxxxxx/yyyyyy/zzzzzz」となっているので、
+        プロジェクトのパッケージに合わせてディレクトリ名を修正する必要がある。
+    * - | (12)
+      - MyBatis3のMapperファイルのサンプルファイル。
+
+        作成時点では、サンプル実装がコメントアウトされた状態になっている。
+        **このファイルは最終的には不要なファイルである。**
+
+|
+
+**MyBatis2用のプロジェクトを作成した場合**
+
+.. code-block:: console
+
+        └── src
+            ├── main
+            │   ├── java
+           (...)
+            │   └── resources
+            │       └── META-INF
+            │           ├── dozer
+            │           ├── mybatis  ... (13)
+            │           │   ├── config  ... (14)
+            │           │   │   └── sqlMapConfig.xml  ... (15)
+            │           │   └── sql  ... (16)
+            │           │       └── sample-sqlmap.xml  ... (17)
+            │           └── spring
+
+.. tabularcolumns:: |p{0.10\linewidth}|p{0.90\linewidth}|
+.. list-table::
+    :header-rows: 1
+    :widths: 10 90
+
+    * - | 項番
+      - | 説明
+    * - | (13)
+      - MyBatis2の設定ファイルとSqlMapファイルを格納するディレクトリ。
+    * - | (14)
+      - MyBatis2の設定ファイルを格納するディレクトリ。
+    * - | (15)
+      - MyBatis2の設定ファイル。
+
+        作成時点では、ネームスペースを有効にするための設定がが定義されている。
+    * - | (16)
+      - MyBatis2のSqlMapファイルを格納するディレクトリ。
+    * - | (17)
+      - MyBatis2のSqlMapファイルのサンプルファイル。
+
+        作成時点では、サンプル実装がコメントアウトされた状態になっている。
+        **このファイルは最終的には不要なファイルである。**
+
+|
+
+.. _CreateWebApplicationProjectConfigurationEnv:
+
+envモジュールの構成
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+環境依存性をもつ設定ファイルを管理するモジュールの構成について説明する。
+
+.. code-block:: console
+
+    artifactId-env
+        ├── configs  ... (1)
+        │   ├── production-server  ... (2)
+        │   │   └── resources
+        │   └── test-server
+        │       └── resources
+        ├── pom.xml  ... (3)
+
+
+.. tabularcolumns:: |p{0.10\linewidth}|p{0.90\linewidth}|
+.. list-table::
+    :header-rows: 1
+    :widths: 10 90
+
+    * - | 項番
+      - | 説明
+    * - | (1)
+      - 環境依存する設定ファイルを管理するためのディレクトリ。
+
+        環境毎にサブディレクトリを作成し、環境依存する設定ファイルを管理する。
+    * - | (2)
+      - 環境毎の設定ファイルを管理するためのディレクトリ。
+
+        作成時点では、最もシンプルな構成として、以下のディレクトリ(雛形のディレクトリ)が用意されている。
+
+        * production-server (商用環境向けの設定ファイルを格納するディレクトリ)
+        * test-server (テスト環境向けの設定ファイルを格納するディレクトリ)
+
+    * - | (3)
+      - envモジュールの構成を定義するPOM(Project Object Model)ファイル。
+        このファイルでは、以下の定義を行う。
+
+        * 依存ライブラリとビルド用プラグインの定義
+        * 環境毎のjarファイルを作成するためのProfileの定義
+
+|
+
+.. code-block:: console
+
+        └── src
+            └── main
+                └── resources  ... (4)
+                    ├── META-INF
+                    │   └── spring
+                    │       ├── artifactId-env.xml  ... (5)
+                    │       └── artifactId-infra.properties  ... (6)
+                    ├── database  ... (7)
+                    │   ├── H2-dataload.sql
+                    │   └── H2-schema.sql
+                    ├── dozer.properties  ... (8)
+                    ├── log4jdbc.properties  ... (9)
+                    └── logback.xml  ... (10)
+
+.. tabularcolumns:: |p{0.10\linewidth}|p{0.90\linewidth}|
+.. list-table::
+    :header-rows: 1
+    :widths: 10 90
+
+    * - | 項番
+      - | 説明
+    * - | (4)
+      - 開発用の設定ファイルを管理するためのディレクトリ。
+    * - | (5)
+      - 環境依存するコンポーネントを定義するBean定義ファイル。
+
+        このファイルには、以下のBeanを定義する。
+
+        * データソース
+        * 共通ライブラリから提供している\ ``DateFactory``\ (環境によって異なる実装を使用する場合)
+        * Spring Frameworkから提供されているトランザクション管理用のコンポーネント (環境によって異なる実装を使用する場合)
+
+    * - | (6)
+      - 環境依存する設定値を定義するプロパティファイル。
+
+        作成時点では、データソースの設定値(接続情報とコネクションプールの設定値)が定義されている。
+    * - | (7)
+      - インメモリデータベース(H2 Database)をセットアップするためのSQLを格納するディレクトリ。
+
+        このディレクトリは、ちょっとした動作検証を行う時のために用意しているディレクトリである。
+        **実際のアプリケーション開発で使用することは想定していないので、基本的にはこのディレクトリは削除すること。**
+    * - | (8)
+      - Dozer(Bean Mapper)のグローバル設定を行うためのプロパティファイル。
+        Dozerについては、「:doc:`../ArchitectureInDetail/Utilities/Dozer`」を参照されたい。
+
+        作成時点では、空のファイルである。(ファイルがないと起動時に警告ログが出力されるため、これを防ぐために空のファイルを用意している)
+    * - | (9)
+      - Log4jdbc-remix(JDBC関連のログ出力を行うライブラリ)のグローバル設定を行うためのプロパティファイル。
+        Log4jdbc-remixについては、「:ref:`DataAccessCommonDataSourceDebug`」を参照されたい。
+
+        作成時点では、ログに出力するSQLの改行に関する設定のみ指定されている。
+    * - | (10)
+      - Logback(ログ出力)の設定ファイル。
+        ログ出力については、「:doc:`../ArchitectureInDetail/Logging`」を参照されたい。
+
+|
+
+.. _CreateWebApplicationProjectConfigurationInitdb:
+
+initdbモジュールの構成
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+データベースを初期化するためのSQLファイルを管理するモジュールの構成について説明する。
+
+.. code-block:: console
+
+    artifactId-initdb
+        ├── pom.xml  ... (1)
+        └── src
+            └── main
+                └── sqls  ... (2)
+
+.. tabularcolumns:: |p{0.10\linewidth}|p{0.90\linewidth}|
+.. list-table::
+    :header-rows: 1
+    :widths: 10 90
+
+    * - | 項番
+      - | 説明
+    * - | (1)
+      - initdbモジュールの構成を定義するPOM(Project Object Model)ファイル。
+        このファイルでは、以下の定義を行う。
+
+        * ビルド用プラグイン(`SQL Maven Plugin <http://mojo.codehaus.org/sql-maven-plugin/index.html>`_)の定義
+
+        作成時点では、PostgreSQL用の雛形設定が定義されている。
+    * - | (2)
+      - データベースを初期化するためのSQLファイルを格納するためのディレクトリ。
+
+        作成時点では、空のディレクトリである。
+        作成例については、`サンプルアプリケーションのinitdbプロジェクト <https://github.com/terasolunaorg/terasoluna-tourreservation-mybatis3/tree/master/terasoluna-tourreservation-initdb/src/sqls>`_ を参照されたい。
+
+|
+
+.. _CreateWebApplicationProjectConfigurationSelenium:
+
+seleniumモジュールの構成
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+Seleniumを使用したE2E(End To End)テスト用のコンポーネントを管理するモジュールの構成について説明する。
+
+.. code-block:: console
+
+    artifactId-selenium
+        ├── pom.xml  ... (1)
+        └── src
+            └── test  ... (2)
+                ├── java
+                └── resources
+
+.. tabularcolumns:: |p{0.10\linewidth}|p{0.90\linewidth}|
+.. list-table::
+    :header-rows: 1
+    :widths: 10 90
+
+    * - | 項番
+      - | 説明
+    * - | (1)
+      - seleniumモジュールの構成を定義するPOM(Project Object Model)ファイル。
+
+        このファイルでは、以下の定義を行う。
+
+        * 依存ライブラリとビルド用プラグインの定義
+        * jarファイルを作成するための定義
+
+    * - | (2)
+      - テスト用のコンポーネントと設定ファイルを格納するディレクトリ。
+
+        作成例については、`サンプルアプリケーションのseleniumプロジェクト <https://github.com/terasolunaorg/terasoluna-tourreservation-mybatis3/tree/master/terasoluna-tourreservation-selenium>`_ を参照されたい。
+
+
+|
+
+.. _CreateWebApplicationProjectAppendix:
+
+Appendix
+--------------------------------------------------------------------------------
+
+.. _CreateWebApplicationProjectAppendixProjectHierarchicalStructure:
+
+プロジェクトの階層構造
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+Maven Archetypeで作成したプロジェクトのプロジェクト階層の構造を以下に示す。
+
+.. figure:: images_CreateWebApplicationProject/CreateWebApplicationProjectHierarchicalStructure.png
+
+.. tabularcolumns:: |p{0.10\linewidth}|p{0.90\linewidth}|
+.. list-table::
+    :header-rows: 1
+    :widths: 10 90
+
+    * - | 項番
+      - | 説明
+    * - | (1)
+      - Maven Archetypeで作成したプロジェクト。
+
+        Maven Archetypeで作成したプロジェクトはマルチモジュール構成となっており、
+        親プロジェクトと各サブモジュールは相互参照の関係になっている。
+
+        version 1.1.0.RELEASE用のMaven Archetypeで作成したプロジェクトでは、
+        親プロジェクトとして「org.terasoluna.gfw:terasoluna-gfw-parent:1.1.0.RELEASE」を指定している。
+    * - | (2)
+      - TERASOLUNA Global Framework Parentプロジェクト。
+
+        TERASOLUNA Global Framework Parentプロジェクトでは、
+
+        * ビルド用のプラグインの設定
+        * Spring IO Platform経由で管理されているライブラリのカスタマイズ(バージョンとスコープの調整)
+        * Spring IO Platformで管理されていない推奨ライブラリのバージョン管理
+
+        を行っている。
+
+        親プロジェクトとして「io.spring.platform:platform-bom:1.1.0.RELEASE」を指定している。
+    * - | (3)
+      - Spring IO Platformプロジェクト。
+
+        親プロジェクトとして「org.springframework.boot:spring-boot-starter-parent:1.2.0.RELEASE」を指定している。
+    * - | (4)
+      - Spring Boot Starter Parentプロジェクト。
+
+        親プロジェクトとして「org.springframework.boot:spring-boot-dependencies:1.2.0.RELEASE」を指定している。
+    * - | (5)
+      - Spring Boot Dependenciesプロジェクト。
+
+.. tip::
+
+    version 1.1.0.RELEASEより、Spring IO Platformを親プロジェクトに指定する構成に変更しており、
+    推奨ライブラリのバージョン管理をSpring IO Platformに委譲するスタイルを採用している。
+
+.. warning::
+
+    version 1.1.0.RELEASEより、Spring IO Platformを親プロジェクトに指定する構成に変更したため、
+    依存ライブラリのバージョンを管理するためのプロパティの名前が大幅に変更されている。
+
+    そのため、プロジェクト側でプロパティ値を上書きしている場合は、version 1.0.xからバージョンアップする際は注意が必要である。
+
+|
+
+.. _CreateWebApplicationProjectAppendixApplicationContext:
+
+アプリケーションコンテキストの構成とBean定義ファイルの関係
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+Spring Frameworkのアプリケーションコンテキスト(DIコンテナ)の構成とBean定義ファイルの関係を以下に示す。
+
+.. figure:: images_CreateWebApplicationProject/CreateWebApplicationProjectApplicationContext.png
+
+.. tabularcolumns:: |p{0.10\linewidth}|p{0.90\linewidth}|
+.. list-table::
+    :header-rows: 1
+    :widths: 10 90
+
+    * - | 項番
+      - | 説明
+    * - | (1)
+      - Webアプリケーション用のアプリケーションコンテキスト。
+
+        上記図で示す通り、
+
+        * artifactId-web/src/main/resource/META-INF/spring/applicationContext.xml
+        * artifactId-domain/src/main/resource/META-INF/spring/artifactId-domain.xml
+        * artifactId-domain/src/main/resource/META-INF/spring/artifactId-infra.xml
+        * artifactId-env/src/main/resource/META-INF/spring/artifactId-env.xml
+        * artifactId-domain/src/main/resource/META-INF/spring/artifactId-codelist.xml
+        * artifactId-web/src/main/resource/META-INF/spring/spring-security.xml
+
+        で定義したコンポーネントがWebアプリケーション用のアプリケーションコンテキスト(DIコンテナ)に登録される。
+
+        Webアプリケーション用のアプリケーションコンテキストに登録されているコンポーネントは、
+        各\ ``DispatcherServlet``\ 用のアプリケーションコンテキストから参照する事ができる仕組みとなっている。
+    * - | (2)
+      - \ ``DispatcherServlet``\ 用のアプリケーションコンテキスト。
+
+        上記図で示す通り、
+
+        * artifactId-web/src/main/resource/META-INF/spring/spring-mvc.xml
+
+        で定義したコンポーネントが\ ``DispatcherServlet``\ 用のアプリケーションコンテキスト(DIコンテナ)に登録される。
+
+        \ ``DispatcherServlet``\ 用のアプリケーションコンテキストに存在しないコンポーネントは、
+        Webアプリケーション用のアプリケーションコンテキスト(親コンテキスト)を参照して取得する仕組みになっているため、
+        ドメイン層のコンポーネントをアプリケーション層のコンポーネントに対してインジェクションする事ができる。
+
+
+.. note:: **同じコンポーネントを両方のアプリケーションコンテキストに登録した時の動作について**
+
+    Webアプリケーション用のアプリケーションコンテキストと\ ``DispatcherServlet``\ 用のアプリケーションコンテキストの両方に同じコンポーネントが登録されている場合は、
+    同じアプリケーションコンテキスト(\ ``DispatcherServlet``\ 用のアプリケーションコンテキスト)内に登録されているコンポーネントがインジェクションされる点を補足しておく。
+
+    特に、ドメイン層のコンポーネント(ServiceやRepositoryなど)を\ ``DispatcherServlet``\ 用のアプリケーションコンテキストに登録しないように注意する必要である。
+
+    ドメイン層のコンポーネントを\ ``DispatcherServlet``\ 用のアプリケーションコンテキストに登録してしまうと、
+    トランザクション制御を行うコンポーネント(AOP)が有効にならないため、データベースへの操作がコミットされない不具合が発生してしまう。
+
+    なお、Maven Archetypeで作成したプロジェクトでは、上記のような現象は発生しないように設定が行われている。
+    設定の追加又は変更を行う場合は、注意してほしい。
+
+|
+
+.. _CreateWebApplicationProjectAppendixDescribeConfigurationFile:
+
+設定ファイルの解説
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+.. todo::
+
+    各種設定が意味することの理解度を高めるために、設定ファイルの解説を追加する予定である。
+
+    * 機能詳細に説明があるものについては、機能詳細への参照を記載する。
+    * 機能詳細に記載がないものについては、ここに説明を記載する。
+
+    具体的な対応時期は未定。
+
+.. raw:: latex
+
+   \newpage

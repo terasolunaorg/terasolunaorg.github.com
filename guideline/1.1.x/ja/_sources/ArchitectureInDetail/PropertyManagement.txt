@@ -167,7 +167,7 @@ bean定義ファイル内でプロパティを使用する
 
    <bean id="dataSource" 
        destroy-method="close" 
-       class="org.apache.commons.dbcp.BasicDataSource">
+       class="org.apache.commons.dbcp2.BasicDataSource">
        <property name="driverClassName" 
                  value="${database.driverClassName}"/>  <!-- (1) -->
        <property name="url" value="${database.url}"/>  <!-- (2) -->
@@ -202,7 +202,7 @@ propertiesファイルのキーが読み込まれた結果、以下のように�
 
    <bean id="dataSource" 
        destroy-method="close" 
-       class="org.apache.commons.dbcp.BasicDataSource">
+       class="org.apache.commons.dbcp2.BasicDataSource">
        <property name="driverClassName" value="org.postgresql.Driver"/>
        <property name="url" 
                  value="jdbc:postgresql://localhost:5432/shopping"/>

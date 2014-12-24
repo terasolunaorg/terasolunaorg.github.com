@@ -133,6 +133,22 @@ Spring Dataより提供されているページ検索用の機能は、以下の
 
     terasoluna-gfw-common 1.0.0.RELEASEを使用している場合は、terasoluna-gfw-common 1.0.1.RELEASE以上へバージョンアップする必要がある。
 
+ .. note:: **Spring Data CommonsのAPI仕様の変更に伴う注意点**
+
+    terasoluna-gfw-common 1.1.0.RELEASE以上が依存するspring-data-commons(1.9.1.RELEASE以上)では、
+    ページ検索機能用のインタフェース(\ ``org.springframework.data.domain.Page``\ )とクラス(\ ``org.springframework.data.domain.PageImpl``\ と\ ``org.springframework.data.domain.Sort.Order``\ )のAPI仕様が変更になっている。
+
+    具体的には、
+
+    * \ ``Page``\ インタフェースと\ ``PageImpl``\ クラスでは、\ ``isFirst()``\ と\ ``isLast()``\ メソッドがspring-data-commons 1.8.0.RELEASEで追加、\ ``isFirstPage()``\ と\ ``isLastPage()``\ メソッドがspring-data-commons 1.9.0.RELEASEで削除
+    * \ ``Sort.Order``\ クラスでは、 \ ``nullHandling``\ プロパティがspring-data-commons 1.8.0.RELEASEで追加
+
+    されている。
+
+    削除されたAPIを使用している場合はコンパイルエラーとなるので、アプリケーションの修正が必要になる。
+    加えて、REST APIのリソースオブジェクトとして\ ``Page``\ インタフェース(\ ``PageImpl``\ クラス)を使用している場合は、
+    JSONやXMLのフォーマットが変わってしまうため、こちらもアプリケーションの修正が必要になるケースがある。
+
 |
 
 .. _pagination_overview_paginationlink:
@@ -343,6 +359,8 @@ Spring Dataより提供されているページ検索用の機能は、以下の
     「指定したページに移動するためのリンク」以外は、JSPタグライブラリのパラメータの指定によって、別の値に変更することができる。
 
 |
+
+.. _pagination_overview_paginationlink_taglibparameters:
 
 JSPタブライブラリのパラメータについて
 """"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
@@ -1019,6 +1037,8 @@ JSPの実装(基本編)
 
 |
 
+.. _pagination_how_to_use_make_jsp_basic_paginationlink:
+
 ページネーションリンクの表示
 """"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 ページ移動するためのリンク(ページネーションリンク)を表示するための実装例を以下に示す。
@@ -1328,6 +1348,8 @@ JSPの実装(基本編)
 
 |
 
+.. _pagination_how_to_use_make_jsp_basic_search_criteria:
+
 ページリンクで検索条件を引き継ぐ
 """"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 検索条件をページ移動時のリクエストに引き継ぐ方法を、以下に示す。
@@ -1380,6 +1402,8 @@ JSPの実装(基本編)
     JavaBeanの場合はプロパティ名がリクエストパラメータ名となり、 ``Map`` オブジェクトの場合はマップのキー名がリクエストパラメータとなる。
     生成されるクエリ文字列は、UTF-8のURLエンコーディングが行われる。
 
+    \ ``f:query``\ の詳細な仕様(URLエンコーディングの仕様など)については、「:ref:`TagLibAndELFunctionsHowToUseELFunctionQuery`」を参照されたい。
+
  .. warning:: **f:queryを使用して生成したクエリ文字列をqueryTmpl属性に指定した際の動作について**
 
     \ ``f:query``\を使用して生成したクエリ文字列をqueryTmpl属性に指定すると、URLエンコーディングが重複してしまい、特殊文字の引き継ぎが正しく行われないことが判明している。
@@ -1413,6 +1437,8 @@ JSPの実装(基本編)
         | 上記例の場合、 ``"?page=0&size=20&sort=ソート項目,ソート順(ASC or DESC)"`` がクエリ文字列となる。
 
 |
+
+.. _pagination_how_to_use_make_jsp_layout:
 
 JSPの実装(レイアウト変更編)
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^

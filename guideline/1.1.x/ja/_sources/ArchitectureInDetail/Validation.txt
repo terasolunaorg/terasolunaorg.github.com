@@ -71,7 +71,7 @@ Webアプリケーションの入力チェックには、サーバサイドで�
        | または Bean Validation
 
 
-Spring は、Java標準であるJSR-303のBean Validationをサポートしている。
+Spring は、Java標準であるBean Validationをサポートしている。
 単項目チェックには、このBean Validationを利用する。
 相関項目チェックの場合は、Bean ValidationまたはSpringが提供している\ ``org.springframework.validation.Validator``\ インタフェースを利用する。
 
@@ -81,6 +81,57 @@ Spring は、Java標準であるJSR-303のBean Validationをサポートして�
 
 How to use
 --------------------------------------------------------------------------------
+
+.. ValidationAddDependencyLibrary:
+
+依存ライブラリの追加
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+Bean Validation 1.1(Hibernate Validator 5.x)以上を使用する場合、
+Bean ValidationのAPI仕様クラス(\ ``javax.validation``\ パッケージのクラス)が格納されているjarファイルとHibernate Validatorのjarファイルに加えて、
+
+* Expression Language 2.2以上のAPI仕様クラス (\ ``javax.el``\ パッケージのクラス)
+* Expression Language 2.2以上のリファレンス実装クラス
+
+が格納されているライブラリが必要となる。
+
+アプリケーションサーバにデプロイして動かす場合は、
+これらのライブラリはアプリケーションサーバから提供されているため、
+依存ライブラリの追加は不要である。
+ただし、スタンドアロン環境(JUnitなど)で動かす場合は、これらのライブラリを依存ライブラリとして追加する必要がある。
+
+スタンドアロン環境でBean Validation 1.1以上を動かす際に必要となるライブラリの追加例を以下に示す。
+
+.. code-block:: xml
+
+    <!-- (1) -->
+    <dependency>
+        <groupId>org.apache.tomcat.embed</groupId>
+        <artifactId>tomcat-embed-el</artifactId>
+        <scope>test</scope> <!-- (2) -->
+    </dependency>
+
+.. tabularcolumns:: |p{0.10\linewidth}|p{0.90\linewidth}|
+.. list-table::
+    :header-rows: 1
+    :widths: 10 90
+
+    * - 項番
+      - 説明
+    * - | (1)
+      - スタンドアロン環境で動かすプロジェクトの :file:`pom.xml` ファイルに、
+        Expression Language用のクラスが格納されているライブラリを追加する。
+
+        上記例では、組込み用のApache Tomcat向けに提供されているライブラリを指定している。
+        \ ``tomcat-embed-el``\ のjarファイルには、Expression LanguageのAPI仕様クラスとリファレンス実装クラスの両方が格納されている。
+
+    * - | (2)
+      - JUnitを実行するために依存ライブラリが必要になる場合は、スコープは \ ``test``\ が適切である。
+
+.. note::
+
+    上記設定例では、依存ライブラリのバージョンは親プロジェクトで管理する前提である。
+    そのため、\ ``<version>``\ 要素は指定していない。
+
 
 .. _Validation_single_check:
 
@@ -541,14 +592,14 @@ NameとEmailが空文字であることに対するエラーメッセージと�
 .. note::
 
    エラーメッセージの出力順序はデフォルトでは順不同である。
-   \ `@GroupSequenceアノテーション <http://docs.jboss.org/hibernate/validator/4.3/reference/en-US/html/validator-usingvalidator.html#section-default-group-class>`_\ によって、
+   \ `@GroupSequenceアノテーション <http://docs.jboss.org/hibernate/validator/5.1/reference/en-US/html/chapter-groups.html#section-default-group-class>`_\ によって、
    順序制御することもできるが、対応コストが高い。
-  
+
    「エラーメッセージを一覧で表示する」方式では、
-  
+
    * フィード単位のエラーメッセージ定義
    * エラーメッセージの順序制御
-  
+
    のコストがかかるため、
    画面要件による制約がなければ、「入力フィールドの横にエラーメッセージを表示する」方式を推奨する。
 
@@ -557,10 +608,10 @@ NameとEmailが空文字であることに対するエラーメッセージと�
 
 
    エラーメッセージまとめて表示する際に、\ ``<form:form>``\ タグの外に表示したい場合は以下のように\ ``<spring:nestedPath>``\ タグを使用する。
-  
+
      .. code-block:: jsp
        :emphasize-lines: 1,4
-  
+
        <spring:nestedPath path="userForm">
            <form:errors path="*" element="div"
                cssClass="error-message-list" />
@@ -2200,6 +2251,48 @@ Bean Validationのアノテーションの\ ``message``\ 属性に指定され�
   \ ``{0}``\ でフィールド名を埋め込めむのは、Bean Validationの機能ではなく、Springの機能である。
   したがって、フィールド名変更の設定は、Spring管理下のapplication-messages.properties(\ ``ResourceBundleMessageSource``\ )に定義する必要がある。
 
+.. tip::
+
+    Bean Validation 1.1より、
+    :file:`ValidationMessages.properties` に指定するメッセージの中にExpression Language(以降、「EL式」と呼ぶ)を使用する事ができるようになった。
+    Hibernate Validator 5.xでは、Expression Language 2.2以上をサポートしている。
+
+    実行可能なEL式のバージョンは、アプリケーションサーバのバージョンによって異なる。
+    そのため、EL式を使用する場合は、**アプリケーションサーバがサポートしているEL式のバージョンを確認した上で使用すること。**
+
+    以下に、Hibernate Validatorがデフォルトで用意している :file:`ValidationMessages.properties` に定義されているメッセージを例に、EL式の使用例を示す。
+
+     .. code-block:: properties
+
+        # ...
+        # (1)
+        javax.validation.constraints.DecimalMax.message  = must be less than ${inclusive == true ? 'or equal to ' : ''}{value}
+        # ...
+
+     .. tabularcolumns:: |p{0.10\linewidth}|p{0.90\linewidth}|
+     .. list-table::
+        :header-rows: 1
+        :widths: 10 90
+
+        * - 項番
+          - 説明
+        * - | (1)
+          - メッセージの中の 「\ ``${inclusive == true ? 'or equal to ' : ''}``\」の部分がEL式である。
+
+            上記のメッセージ定義から実際に生成されるメッセージのパターンは、
+
+            * must be less than or equal to {value}
+            * must be less than {value}
+
+            の2パターンとなる。(\ ``{value}``\ の部分には、\ ``@DecimalMax``\ アノテーションの \ ``value``\ 属性に指定した値が埋め込まれる)
+
+            前者は\ ``@DecimalMax``\ アノテーションの \ ``inclusive``\ 属性に \ ``true``\ を指定した場合(又は指定しなかった場合)、
+            後者は\ ``@DecimalMax``\ アノテーションの \ ``inclusive``\ 属性に \ ``false``\ を指定した場合に生成される。
+
+            Bean ValidationにおけるEL式の扱いについては、
+            \ `Hibernate Validator Reference Guide(Interpolation with message expressions) <http://docs.jboss.org/hibernate/validator/5.1/reference/en-US/html/chapter-message-interpolation.html#section-interpolation-with-message-expressions>`_\ を参照されたい。
+
+
 .. _Validation_message_in_application_messages:
 
 application-messages.propertiesに定義するメッセージ
@@ -2520,7 +2613,7 @@ Bean Validationは標準で用意されているチェックルール以外に�
 
     1つのアノテーションに複数のルールを設定した場合、それらのAND条件が複合ルールとなる。
     Hibernate Validatorでは、OR条件を実現するための\ ``@ConstraintComposition``\ アノテーションが用意されている。
-    詳細は、\ `Hibernate Validatorのドキュメント <http://docs.jboss.org/hibernate/validator/4.3/reference/en-US/html/validator-specifics.html#d0e3701>`_\ を参照されたい。
+    詳細は、\ `Hibernate Validatorのドキュメント <http://docs.jboss.org/hibernate/validator/5.1/reference/en-US/html/validator-specifics.html#section-boolean-constraint-composition>`_\ を参照されたい。
 
 新規ルールを実装したBean Validationアノテーションの作成
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
@@ -2758,7 +2851,7 @@ Bean Validationは標準で用意されているチェックルール以外に�
             } else {
                 context.disableDefaultConstraintViolation(); // (3)
                 context.buildConstraintViolationWithTemplate(message)
-                        .addNode(field).addConstraintViolation(); // (4)
+                        .addPropertyNode(field).addConstraintViolation(); // (4)
                 return false;
             }
         }
@@ -2782,8 +2875,16 @@ Bean Validationは標準で用意されているチェックルール以外に�
      * - | (4)
        - | 独自\ ``ConstraintViolation``\ オブジェクトを生成する。
          | \ ``ConstraintValidatorContext.buildConstraintViolationWithTemplate``\ で出力するメッセージを定義する。
-         | \ ``ConstraintViolationBuilder.addNode``\ でエラーメッセージを出力したいフィールド名を指定する。
-         | 詳細は、以下の\ `JavaDoc <http://docs.oracle.com/javaee/6/api/javax/validation/ConstraintValidatorContext.html>`_\ を参照されたい。
+         | \ ``ConstraintViolationBuilder.addPropertyNode``\ でエラーメッセージを出力したいフィールド名を指定する。
+         | 詳細は、以下の\ `JavaDoc <http://docs.oracle.com/javaee/7/api/javax/validation/ConstraintValidatorContext.html>`_\ を参照されたい。
+
+ .. tip::
+
+    \ ``ConstraintViolationBuilder.addPropertyNode``\ メソッドは、Bean Validation 1.1 から追加されたメソッドである。
+
+    Bean Validation 1.0では \ ``ConstraintViolationBuilder.addNode``\ というメソッドを使用していたが、Bean Validation 1.1から非推奨のAPIとなっている。
+
+    Bean Validationの非推奨APIについては、\ `Bean Validation API Document(Deprecated API) <http://docs.jboss.org/hibernate/beanvalidation/spec/1.1/api/deprecated-list.html>`_\ を参照されたい。
 
 
 この\ ``@Confirm``\ アノテーションを使用して、前述の「パスワードリセット」処理を再実装すると、以下のようになる。
@@ -2993,17 +3094,17 @@ Appendix
 
 Hibernate Validatorが用意する入力チェックルール
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-| Hibernate ValidatorはJSR-303で定義されたアノテーションに加え、検証できるアノテーションを追加している。
-| 検証に使用することができるアノテーションのリストは、\ `こちら <http://docs.jboss.org/hibernate/validator/4.3/reference/en-US/html_single/#section-builtin-constraints>`_\ を参照されたい。
+| Hibernate ValidatorはBean Validationで定義されたアノテーションに加え、検証できるアノテーションを追加している。
+| 検証に使用することができるアノテーションのリストは、\ `こちら <http://docs.jboss.org/hibernate/validator/5.1/reference/en-US/html/chapter-bean-constraints.html#section-builtin-constraints>`_\ を参照されたい。
 
 .. _Validation_jsr303_doc:
 
-JSR-303のチェックルール
+Bean Validationのチェックルール
 """"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 
-JSR-303アノテーションを、以下に示す。
+Bean Validationの標準アノテーションを、以下に示す。
 
-詳細は、\ `JSR-303 Specification <http://download.oracle.com/otn-pub/jcp/bean_validation-1.0-fr-oth-JSpec/bean_validation-1_0-final-spec.pdf>`_\ の6章を参照されたい。
+詳細は、\ `Bean Validation specification <http://download.oracle.com/otn-pub/jcp/bean_validation-1_1-fr-eval-spec/bean-validation-specification.pdf>`_\ の7章を参照されたい。
 
 .. tabularcolumns:: |p{0.25\linewidth}|p{0.25\linewidth}|p{0.25\linewidth}|p{0.25\linewidth}|
 .. list-table::
@@ -3045,12 +3146,14 @@ JSR-303アノテーションを、以下に示す。
    * - \ ``@DecimalMin``\
      - BigDecimal, BigInteger, String, byte, short, int, longおよびラッパー
        (Hibernate Validator実装では任意のNumber,CharSequence継承クラスにも適用可能)
-     - Decimal型の値が最小値以上であるかどうかを検証する。
+     - | Decimal型の値が、最小値以上であるかどうかを検証する。
+       | \ ``inclusive = false``\ を指定する事で、最小値より大きいかどうかを検証するように動作を変更する事ができる。
      - @DecimalMax参照
    * - \ ``@DecimalMax``\
      - BigDecimal, BigInteger, String, byte, short, int, longおよびラッパー
        (Hibernate Validator実装では任意のNumber,CharSequence継承クラスにも適用可能)
-     - Decimal型の値が、最大値以下であるかどうかを検証する。
+     - | Decimal型の値が、最大値以下であるかどうかを検証する。
+       | \ ``inclusive = false``\ を指定する事で、最大値より小さいかどうかを検証するように動作を変更する事ができる。
      - | @DecimalMin("0.0")
        | @DecimalMax("99999.99")
        | private BigDecimal price;
@@ -3098,6 +3201,13 @@ JSR-303アノテーションを、以下に示す。
        | @Valid
        | private Dept dept;
 
+.. tip::
+
+     \ ``@DecimalMin``\  と \ ``@DecimalMax``\ アノテーションの \ ``inclusive``\ 属性は、
+     Bean Validation 1.1 から追加された属性である。
+
+     \ ``inclusive``\ 属性のデフォルト値には \ ``true``\ (指定した閾値と同じ値を許容する)が指定されており、
+     Bean Validation 1.0 との互換性が保たれている。
 
 .. _Validation_validator_list:
 
@@ -3106,7 +3216,7 @@ Hibernate Validatorのチェックルール
 
 Hibernate Validatorの代表的なアノテーションを、以下に示す。
 
-詳細は、\ `Hibernate Validator仕様 <http://docs.jboss.org/hibernate/validator/4.3/reference/en-US/html_single/#table-custom-constraints>`_\ を参照されたい。
+詳細は、\ `Hibernate Validator仕様 <http://docs.jboss.org/hibernate/validator/5.1/reference/en-US/html/chapter-bean-constraints.html#validator-defineconstraints-hv-constraints>`_\ を参照されたい。
 
 .. tabularcolumns:: |p{0.25\linewidth}|p{0.25\linewidth}|p{0.25\linewidth}|p{0.25\linewidth}|
 .. list-table::
@@ -3118,7 +3228,8 @@ Hibernate Validatorの代表的なアノテーションを、以下に示す。
      - 使用例
    * - \ ``@CreditCardNumber``\
      - 任意のCharSequence継承クラスに適用可能
-     - Luhnアルゴリズムでクレジットカード番号が妥当かどうかを検証する。使用可能な番号かどうかをチェックするわけではない。
+     - | Luhnアルゴリズムでクレジットカード番号が妥当かどうかを検証する。使用可能な番号かどうかをチェックするわけではない。
+       | \ ``ignoreNonDigitCharacters = true``\ を指定する事で、数字以外の文字を無視して検証する事ができる。
      - | @CreditCardNumber
        | private String cardNumber;
    * - \ ``@Email``\
@@ -3144,6 +3255,26 @@ Hibernate Validatorの代表的なアノテーションを、以下に示す。
        | private String password;
 
 
+.. warning::
+
+    Hibernate Validatorから提供されている以下のアノテーションを使用した場合、
+    デフォルトで提供されているメッセージを使用するとメッセージが正しく生成されないバグ(\ `HV-881 <https://hibernate.atlassian.net/browse/HV-881>`_\ 、\ `HV-949 <https://hibernate.atlassian.net/browse/HV-949>`_\ )が存在する。
+
+    * \ ``@CreditCardNumber``\ (メッセージは表示されるがWARNログが出力される)
+    * \ ``@LuhnCheck``\
+    * \ ``@Mod10Check``\
+    * \ ``@Mod11Check``\
+    * \ ``@ModCheck``\ (5.1.0.Finalから非推奨API)
+
+    このバグは、デフォルトで提供されているメッセージ定義の不備が原因なので、
+    デフォルトで提供されているメッセージを適切なメッセージで上書きする事で回避可能である。
+
+    デフォルトで提供されているメッセージを上書きする場合は、
+    クラスパス直下(通常src/main/resources)に :file:`ValidationMessages.properties` を作成し、
+    適切なメッセージ定義を行えばよい。
+
+    適切なメッセージ定義については、
+    \ `Hibernate Validator 5.2系(次のマイナーバージョンアップ)に対して行われている修正内容 <https://github.com/hibernate/hibernate-validator/commit/5a9d7bae26bccb15229ae5612d67506a7a775b48#diff-762e02c90cfb2f00b0b2788486e3fd5e>`_\ を参照されたい。
 
 .. _Validation_default_message_in_hibernate_validator:
 
@@ -3156,8 +3287,8 @@ hibernate-validator-<version>.jar内のorg/hibernate/validatorに、ValidationMe
 
   javax.validation.constraints.AssertFalse.message = must be false
   javax.validation.constraints.AssertTrue.message  = must be true
-  javax.validation.constraints.DecimalMax.message  = must be less than or equal to {value}
-  javax.validation.constraints.DecimalMin.message  = must be greater than or equal to {value}
+  javax.validation.constraints.DecimalMax.message  = must be less than ${inclusive == true ? 'or equal to ' : ''}{value}
+  javax.validation.constraints.DecimalMin.message  = must be greater than ${inclusive == true ? 'or equal to ' : ''}{value}
   javax.validation.constraints.Digits.message      = numeric value out of bounds (<{integer} digits>.<{fraction} digits> expected)
   javax.validation.constraints.Future.message      = must be in the future
   javax.validation.constraints.Max.message         = must be less than or equal to {value}
@@ -3168,19 +3299,25 @@ hibernate-validator-<version>.jar内のorg/hibernate/validatorに、ValidationMe
   javax.validation.constraints.Pattern.message     = must match "{regexp}"
   javax.validation.constraints.Size.message        = size must be between {min} and {max}
 
-  org.hibernate.validator.constraints.CreditCardNumber.message = invalid credit card number
-  org.hibernate.validator.constraints.Email.message            = not a well-formed email address
-  org.hibernate.validator.constraints.Length.message           = length must be between {min} and {max}
-  org.hibernate.validator.constraints.NotBlank.message         = may not be empty
-  org.hibernate.validator.constraints.NotEmpty.message         = may not be empty
-  org.hibernate.validator.constraints.Range.message            = must be between {min} and {max}
-  org.hibernate.validator.constraints.SafeHtml.message         = may have unsafe html content
-  org.hibernate.validator.constraints.ScriptAssert.message     = script expression "{script}" didn't evaluate to true
-  org.hibernate.validator.constraints.URL.message              = must be a valid URL
-  org.hibernate.validator.constraints.br.CNPJ.message          = invalid Brazilian corporate taxpayer registry number (CNPJ)
-  org.hibernate.validator.constraints.br.CPF.message           = invalid Brazilian individual taxpayer registry number (CPF)
-  org.hibernate.validator.constraints.br.TituloEleitor.message = invalid Brazilian Voter ID card number
+  org.hibernate.validator.constraints.CreditCardNumber.message        = invalid credit card number
+  org.hibernate.validator.constraints.EAN.message                     = invalid {type} barcode
+  org.hibernate.validator.constraints.Email.message                   = not a well-formed email address
+  org.hibernate.validator.constraints.Length.message                  = length must be between {min} and {max}
+  org.hibernate.validator.constraints.LuhnCheck.message               = The check digit for ${validatedValue} is invalid, Luhn Modulo 10 checksum failed
+  org.hibernate.validator.constraints.Mod10Check.message              = The check digit for ${validatedValue} is invalid, Modulo 10 checksum failed
+  org.hibernate.validator.constraints.Mod11Check.message              = The check digit for ${validatedValue} is invalid, Modulo 11 checksum failed
+  org.hibernate.validator.constraints.ModCheck.message                = The check digit for ${validatedValue} is invalid, ${modType} checksum failed
+  org.hibernate.validator.constraints.NotBlank.message                = may not be empty
+  org.hibernate.validator.constraints.NotEmpty.message                = may not be empty
+  org.hibernate.validator.constraints.ParametersScriptAssert.message  = script expression "{script}" didn't evaluate to true
+  org.hibernate.validator.constraints.Range.message                   = must be between {min} and {max}
+  org.hibernate.validator.constraints.SafeHtml.message                = may have unsafe html content
+  org.hibernate.validator.constraints.ScriptAssert.message            = script expression "{script}" didn't evaluate to true
+  org.hibernate.validator.constraints.URL.message                     = must be a valid URL
 
+  org.hibernate.validator.constraints.br.CNPJ.message                 = invalid Brazilian corporate taxpayer registry number (CNPJ)
+  org.hibernate.validator.constraints.br.CPF.message                  = invalid Brazilian individual taxpayer registry number (CPF)
+  org.hibernate.validator.constraints.br.TituloEleitoral.message      = invalid Brazilian Voter ID card number
 
 
 型のミスマッチ
@@ -3283,6 +3420,12 @@ application-messages.propertiesに以下の定義を行った場合、
 この設定により、Controller毎に空文字を\ ``null``\ とみなすかどうかを設定できる。
 
 プロジェクト全体で空文字を\ ``null``\ にしたい場合は、プロジェクト共通設定として\ :ref:`@ControllerAdvice <application_layer_controller_advice>`\ で設定すればよい。
+
+.. tip:: **Spring Framework 4.0 より追加された@ControllerAdviceアノテーションの属性について**
+
+    \ ``@ControllerAdvice``\ アノテーションの属性を指定することで、
+    \ ``@ControllerAdvice``\ が付与されたクラスで実装したメソッドを適用するControllerを柔軟に指定できるように改善されている。
+    属性の詳細については、\ :ref:`@ControllerAdviceの属性 <application_layer_controller_advice_attribute>`\ を参照されたい。
 
 .. code-block:: java
 

@@ -245,7 +245,7 @@ Implementation of Eco application is completed here. Start the server, access th
 Implement Input Validation
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 Input validation is not performed in this application till this point.
-In Spring MVC, Bean Validation (\ `JSR-303 <http://jcp.org/en/jsr/detail?id=303>`_\ ) and annotation based input validation can be easily implemented. For example input validation of name is performed in Eco Application. 
+In Spring MVC, `Bean Validation <http://jcp.org/en/jsr/detail?id=349>`_\  and annotation based input validation can be easily implemented. For example input validation of name is performed in Eco Application.
 
 Following dependency is added to pom.xml for using Bean Validation. 
 

@@ -8,6 +8,7 @@ The architecture adopted in this guideline is explained in detail here.
 
    DataAccessCommon
    DataAccessJpa
+   DataAccessMyBatis3
    DataAccessMybatis2
    ExclusionControl
    Validation

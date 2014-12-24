@@ -1738,9 +1738,9 @@ Entityの検索方法について、目的別に説明する。
  .. code-block:: java
 
     public List<Account> getAccounts(Date targetDate) {
-        DateMidnight targetDateMidnight = new DateMidnight(targetDate);
-        Date fromDate = targetDateMidnight.toDate();
-        Date toDate = targetDateMidnight.dayOfYear().addToCopy(1).toDate();
+        LocalDate targetLocalDate = new LocalDate(targetDate);
+        Date fromDate = targetLocalDate.toDate();
+        Date toDate = targetLocalDate.dayOfYear().addToCopy(1).toDate();
 
         // (2)
         List<Account> accounts = accountRepository.findByCreatedDate(fromDate,
@@ -1830,9 +1830,9 @@ Entityの検索方法について、目的別に説明する。
 
     public Page<Account> getAccounts(Date targetDate ,Pageable pageable) {
 
-        DateMidnight targetDateMidnight = new DateMidnight(targetDate);
-        Date fromDate = targetDateMidnight.toDate();
-        Date toDate = targetDateMidnight.dayOfYear().addToCopy(1).toDate();
+        LocalDate targetLocalDate = new LocalDate(targetDate);
+        Date fromDate = targetLocalDate.toDate();
+        Date toDate = targetLocalDate.dayOfYear().addToCopy(1).toDate();
 
         // (3)
         Page<Account> page = accountRepository.findByCreatedDate(fromDate,

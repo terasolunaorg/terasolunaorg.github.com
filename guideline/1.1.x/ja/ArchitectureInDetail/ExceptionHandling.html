@@ -539,10 +539,14 @@
 <div class="admonition note">
 <p class="first admonition-title">Note</p>
 <p><strong>Spring Framework 3.2 より追加された&#64;ControllerAdviceアノテーションについて</strong></p>
-<p class="last"><tt class="docutils literal"><span class="pre">&#64;ControllerAdvice</span></tt>の登場により、サーブレット単位で、<tt class="docutils literal"><span class="pre">&#64;ExceptionHandler</span></tt>を使った例外ハンドリングを行えるようになった。
+<p><tt class="docutils literal"><span class="pre">&#64;ControllerAdvice</span></tt>の登場により、サーブレット単位で、<tt class="docutils literal"><span class="pre">&#64;ExceptionHandler</span></tt>を使った例外ハンドリングを行えるようになった。
 <tt class="docutils literal"><span class="pre">&#64;ControllerAdvice</span></tt>アノテーションが付与されたクラスで、<tt class="docutils literal"><span class="pre">&#64;ExceptionHandler</span></tt>アノテーションを付与したメソッドを定義すると、サーブレット内のすべてのControllerに適用される。
 以前のバージョンで同じことを実現する場合、<tt class="docutils literal"><span class="pre">&#64;ExceptionHandler</span></tt>アノテーションが付与されたメソッドを、Controllerのベースクラスのメソッドとして定義し、
 各Controllerでベースクラスを継承する必要があった。</p>
+<p><strong>Spring Framework 4.0 より追加された&#64;ControllerAdviceアノテーションの属性について</strong></p>
+<p class="last"><tt class="docutils literal"><span class="pre">&#64;ControllerAdvice</span></tt>アノテーションの属性を指定することで、
+<tt class="docutils literal"><span class="pre">&#64;ControllerAdvice</span></tt>が付与されたクラスで実装したメソッドを適用するControllerを柔軟に指定できるように改善されている。
+属性の詳細については、<a class="reference internal" href="../ImplementationAtEachLayer/ApplicationLayer.html#application-layer-controller-advice-attribute"><em>&#64;ControllerAdviceの属性</em></a>を参照されたい。</p>
 </div>
 <div class="admonition note">
 <p class="first admonition-title">Note</p>
@@ -1609,11 +1613,9 @@ ResultMessagesLoggingInterceptorはResultMessagesNotificationExceptionのサブ�
 </span><span class="nt">&lt;/bean&gt;</span>
 
 <span class="c">&lt;!-- Settings View Resolver. --&gt;</span>
-<span class="nt">&lt;bean</span> <span class="na">id=</span><span class="s">&quot;viewResolver&quot;</span>
-<span class="hll">    <span class="na">class=</span><span class="s">&quot;org.springframework.web.servlet.view.InternalResourceViewResolver&quot;</span><span class="nt">&gt;</span> <span class="c">&lt;!-- (8) --&gt;</span>
-</span>    <span class="nt">&lt;property</span> <span class="na">name=</span><span class="s">&quot;prefix&quot;</span> <span class="na">value=</span><span class="s">&quot;/WEB-INF/views/&quot;</span> <span class="nt">/&gt;</span>
-    <span class="nt">&lt;property</span> <span class="na">name=</span><span class="s">&quot;suffix&quot;</span> <span class="na">value=</span><span class="s">&quot;.jsp&quot;</span> <span class="nt">/&gt;</span>
-<span class="nt">&lt;/bean&gt;</span>
+<span class="nt">&lt;mvc:view-resolvers&gt;</span>
+<span class="hll">    <span class="nt">&lt;mvc:jsp</span> <span class="na">prefix=</span><span class="s">&quot;/WEB-INF/views/&quot;</span> <span class="nt">/&gt;</span> <span class="c">&lt;!-- (8) --&gt;</span>
+</span><span class="nt">&lt;/mvc:view-resolvers&gt;</span>
 </pre></div>
 </div>
 <table border="1" class="docutils">
@@ -1713,9 +1715,30 @@ Viewの解決を<tt class="docutils literal"><span class="pre">web.xml</span></t
 <div class="line">(8)</div>
 </div>
 </td>
-<td><div class="first last line-block">
-<div class="line">実際に遷移するViewは、ViewResolverの設定に依存する。</div>
-<div class="line">上記の設定では、&#8221;/WEB-INF/views/common/error/systemError.jsp&#8221;、&#8221;/WEB-INF/views/common/error/resourceNotFoundError.jsp&#8221;、&#8221;/WEB-INF/views/common/error/businessError.jsp&#8221;、&#8221;/WEB-INF/views/common/error/transactionTokenError.jsp&#8221;、&#8221;/WEB-INF/views/common/error/dataAccessError.jsp&#8221;が遷移先となる。</div>
+<td><p class="first">実際に遷移する<tt class="docutils literal"><span class="pre">View</span></tt>は、<tt class="docutils literal"><span class="pre">ViewResolver</span></tt>の設定に依存する。</p>
+<p>上記の設定では、</p>
+<ul class="simple">
+<li><tt class="docutils literal"><span class="pre">/WEB-INF/views/common/error/systemError.jsp</span></tt></li>
+<li><tt class="docutils literal"><span class="pre">/WEB-INF/views/common/error/resourceNotFoundError.jsp</span></tt></li>
+<li><tt class="docutils literal"><span class="pre">/WEB-INF/views/common/error/businessError.jsp</span></tt></li>
+<li><tt class="docutils literal"><span class="pre">/WEB-INF/views/common/error/transactionTokenError.jsp</span></tt></li>
+<li><tt class="docutils literal"><span class="pre">/WEB-INF/views/common/error/dataAccessError.jsp</span></tt></li>
+</ul>
+<p>が遷移先となる。</p>
+<div class="last admonition tip">
+<p class="first admonition-title">Tip</p>
+<p><tt class="docutils literal"><span class="pre">&lt;mvc:view-resolvers&gt;</span></tt>要素はSpring Framework 4.1から追加されたXML要素である。
+<tt class="docutils literal"><span class="pre">&lt;mvc:view-resolvers&gt;</span></tt>要素を使用すると、<tt class="docutils literal"><span class="pre">ViewResolver</span></tt>をシンプルに定義することが出来る。</p>
+<p>従来通り<tt class="docutils literal"><span class="pre">&lt;bean&gt;</span></tt>要素を使用した場合の定義例を以下に示す。</p>
+<blockquote class="last">
+<div><div class="highlight-xml"><div class="highlight"><pre><span class="nt">&lt;bean</span> <span class="na">id=</span><span class="s">&quot;viewResolver&quot;</span>
+    <span class="na">class=</span><span class="s">&quot;org.springframework.web.servlet.view.InternalResourceViewResolver&quot;</span><span class="nt">&gt;</span>
+    <span class="nt">&lt;property</span> <span class="na">name=</span><span class="s">&quot;prefix&quot;</span> <span class="na">value=</span><span class="s">&quot;/WEB-INF/views/&quot;</span> <span class="nt">/&gt;</span>
+    <span class="nt">&lt;property</span> <span class="na">name=</span><span class="s">&quot;suffix&quot;</span> <span class="na">value=</span><span class="s">&quot;.jsp&quot;</span> <span class="nt">/&gt;</span>
+<span class="nt">&lt;/bean&gt;</span>
+</pre></div>
+</div>
+</div></blockquote>
 </div>
 </td>
 </tr>

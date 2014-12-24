@@ -10,7 +10,7 @@ Spring MVCアーキテクチャ概要
 
 Spring MVCは、公式で以下のように説明されている。
 
-`Spring Reference Document <http://static.springsource.org/spring/docs/3.2.x/spring-framework-reference/html/mvc.html>`_\ .
+`Spring Reference Document <http://docs.spring.io/spring/docs/4.1.2.RELEASE/spring-framework-reference/html/mvc.html>`_\ .
 
      Spring's web MVC framework is, like many other web MVC frameworks, request-driven,
      designed around a central Servlet that dispatches requests to controllers and offers other functionality
@@ -26,7 +26,7 @@ Overview of Spring MVC Processing Sequence
 
 .. figure:: ./images/RequestLifecycle.png
    :alt: request lifecycle
-   :width: 80%
+   :width: 100%
 
 1. \ ``DispatcherServlet``\ が、リクエストを受け取る。
 2. \ ``DispatcherServlet``\ は、リクエスト処理を行う\ ``Controller``\ の選択を\ ``HandlerMapping``\ に委譲する。\ ``HandlerMapping``\ は、リクエストURLにマッピングされている\ ``Controller``\ を選定し\ ``（Choose Handler）``\ 、 \ ``Controller``\ を\ ``DispatcherServlet``\ へ返却する。
@@ -57,7 +57,7 @@ Springから提供されている\ ``HandlerMapping``\ のクラス階層を、�
 
 | Spring3.1からは、\ ``RequestMappingHandlerMapping``\ は、\ ``DispatcherServlet``\ が読み込むBean定義ファイルに、
 | \ ``<mvc:annotation-driven>``\ の設定がある場合、デフォルトで設定される。
-| (\ ``<mvc:annotation-driven>``\ アノテーションで有効になる設定は、\ `Web MVC framework <http://static.springsource.org/spring/docs/3.2.x/spring-framework-reference/html/mvc.html#mvc-config-enable>`_\ を参照されたい。)
+| (\ ``<mvc:annotation-driven>``\ アノテーションで有効になる設定は、\ `Web MVC framework <http://docs.spring.io/spring/docs/4.1.2.RELEASE/spring-framework-reference/html/mvc.html#mvc-config-enable>`_\ を参照されたい。)
 
 
 Implementaion of HandlerAdapter
@@ -78,7 +78,7 @@ Implementaion of ViewResolver
 
 Springおよび依存ライブラリから提供されている\ ``ViewResolver``\ のクラスを、以下に示す。
 
-.. figure:: ./images/ViewResolver-Hierarchy.jpg
+.. figure:: ./images/ViewResolver-Hierarchy.png
    :alt: ViewResolver Hierarchy
 
 通常(JSPを使う場合)は、
@@ -87,7 +87,7 @@ Springおよび依存ライブラリから提供されている\ ``ViewResolver`
 
 テンプレートエンジンTilesを使う場合は、
 
-* \ ``org.springframework.web.servlet.view.tiles2.TilesViewResolver``\
+* \ ``org.springframework.web.servlet.view.tiles3.TilesViewResolver``\
 
 ファイルダウンロード用にストリームを返す場合は
 
@@ -107,7 +107,7 @@ Implementaion of View
 
 Springおよび依存ライブラリから提供されている\ ``View``\ のクラスを、以下に示す。
 
-.. figure:: ./images/View-Hierarchy.jpg
+.. figure:: ./images/View-Hierarchy.png
    :alt: View Hierarchy
 
 | \ ``View``\ は、返したいレスポンスの種類によって変わる。

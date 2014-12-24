@@ -237,7 +237,7 @@ CSRFトークン用の\ ``RequestDataValueProcessor``\ 実装クラスを利用�
 
 .. note::
 
-  CSRFトークンの生成及びチェックは \ ``<sec:csrf />``\ の設定で有効になる \``CsrfFilter``\ により行われるので、開発者はControllerで特にCSRF対策は意識しなくてよい。
+  CSRFトークンの生成及びチェックは \ ``<sec:csrf />``\ の設定で有効になる \ ``CsrfFilter``\ により行われるので、開発者はControllerで特にCSRF対策は意識しなくてよい。
 
 .. _csrf_form-tag-token-send:
 
@@ -247,7 +247,7 @@ CSRFトークン用の\ ``RequestDataValueProcessor``\ 実装クラスを利用�
 JSPで、フォームからCSRFトークンを送信するには
 
 * \ ``<form:form>``\ タグを使用してCSRFトークンが埋め込まれた\ ``<input type="hidden">``\ タグを自動的に追加する
-* \ ``<input type="hidden">``\ タグを作成し、明示的にCSRFトークンを埋め込む
+* \ ``<sec:csrfInput/>``\ タグを使用してCSRFトークンが埋め込まれた\ ``<input type="hidden">``\ タグを明示的に追加する
 
 のどちらかを行う必要がある。
 
@@ -257,7 +257,7 @@ CSRFトークンを自動で埋め込む方法
 """"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 
 \ :ref:`spring-mvc.xmlの設定<csrf_spring-mvc-setting>`\ の通り、\ ``CsrfRequestDataValueProcessor``\ が定義されている場合、
-\ ``<form:form>``\ タグを使うことで、CSRFトークンの埋め込まれた\ ``<input type="hidden">``\ タグが、自動的に追加される。
+\ ``<form:form>``\ タグを使うことで、CSRFトークンが埋め込まれた\ ``<input type="hidden">``\ タグが、自動的に追加される。
 
 JSPで、CSRFトークンを意識する必要はない。
 
@@ -274,63 +274,7 @@ JSPで、CSRFトークンを意識する必要はない。
 
     <form action="/terasoluna/csrfTokenCheckExample" method="POST">
       <input type="submit" name="second" value="second" />
-      <input type="hidden" name="_csrf" value="dea86ae8-58ea-4310-bde1-59805352dec7" />
-    </form>
-
-自動で、\ ``_name``\ 属性が\ ``_csrf``\ である、\ ``<input type="hidden">``\ タグが追加され、CSRFトークンが埋め込まれているとわかる。
-
-CSRFトークンはログインのタイミングで生成される。
-
-.. warning::
-
-  \ ``CsrfRequestDataValueProcessor``\ の設定をしている場合、すべてのリクエストにCSRFトークンを埋め込むため、\ ``<form:form method="GET" ...>...</form:form>``\ のように、
-  \ ``<form:form>``\ でGETを指定してフォームを送信した場合、ブラウザのアドレスバーのURLに、CSRFトークンが含まれ、ブックマークバーやアクセスログに残る。
-  
-  これを回避するためには、
-
-    .. code-block:: jsp
-    
-      <form:form method="GET" modelAttribute="xxxForm" action="...">
-      ...
-      </form:form>
-  
-  と書く代わりに、
-  
-    .. code-block:: jsp
-    
-      <form method="GET" action="...">
-        <spring:nestedPath path="xxxForm">
-        ...
-        </spring:nestedPath>
-      </form>`
-
-  と記述すればよい。
-
-  \ `OWASP Top 10 <https://code.google.com/p/owasptop10/>`_\ では
-  
-      The unique token can also be included in the URL itself, or a URL parameter. However, such placement runs a greater risk that the URL will be exposed to an attacker, thus compromising the secret token.
-  
-  と説明されており、必須ではないが対応することが推奨される。
-  
-  Spring Securityのデフォルト実装は、CSRFトークンをUUIDとして生成し、Session IDは使用しないため、CSRFトークンが漏洩してもSession IDは漏洩することはない。またログインの度にCSRFトークンは変更される。
-  また、将来的にはSpring 4でこの問題は解消される(\ ``<form:form method="GET">``\ を使用してもCSRFトークンはURLに現れない)。
-
-.. _csrf_formtag-use:
-
-CSRFトークンを明示的に埋め込む方法
-""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
-
-\ ``<form:form>``\ タグを使用しない場合は、明示的に、\ ``<sec:csrfInput/>``\ タグを追加する必要がある。
-
-\ ``<sec:csrf />``\ の設定で有効になる \ ``CsrfFilter``\ により \ ``org.springframework.security.web.csrf.CsrfToken``\ オブジェクトが、リクエストスコープの
-\ ``_csrf``\ 属性に設定されるため、jspでは、以下のように設定すればよい
-
-.. code-block:: jsp
-
-    <form method="POST"
-      action="${pageContext.request.contextPath}/csrfTokenCheckExample">
-        <input type="submit" name="second" value="second" />
-        <sec:csrfInput/>  <!-- (1) -->
+      <input type="hidden" name="_csrf" value="dea86ae8-58ea-4310-bde1-59805352dec7" /> <!-- (1) -->
     </form>
 
 .. tabularcolumns:: |p{0.10\linewidth}|p{0.90\linewidth}|
@@ -341,10 +285,50 @@ CSRFトークンを明示的に埋め込む方法
    * - 項番
      - 説明
    * - | (1)
-     - | \ ``<sec:csrfInput/>``\ でリクエストパラメータ名とCSRFトークンが設定される。
+     - | Spring Securityのデフォルト実装では、\ ``name``\ 属性に\ ``_csrf``\ が設定されている \ ``<input type="hidden">``\ タグが追加され、CSRFトークンが埋め込まれる。
+
+
+CSRFトークンはログインのタイミングで生成される。
+
+.. tip::
+
+    Spring 4上で\ ``CsrfRequestDataValueProcessor``\ を使用すると、
+    \ ``<form:form>``\ タグの\ ``method``\ 属性に指定した値がCSRFトークンチェック対象のHTTPメソッド(Spring Securityのデフォルト実装ではGET,HEAD,TRACE,OPTIONS以外のHTTPメソッド)と一致する場合に限り、
+    CSRFトークンが埋め込まれた\ ``<input type="hidden">``\ タグが出力される。
+
+    例えば、以下の例のように \ ``method``\ 属性にGETメソッドを指定した場合は、
+    CSRFトークンが埋め込まれた\ ``<input type="hidden">``\ タグは出力されない。
+
+        .. code-block:: jsp
+
+            <form:form method="GET" modelAttribute="xxxForm" action="...">
+                <%-- ... --%>
+            </form:form>
+
+    これは、\ `OWASP Top 10 <https://code.google.com/p/owasptop10/>`_\ で説明されている、
+
+        The unique token can also be included in the URL itself, or a URL parameter. However, such placement runs a greater risk that the URL will be exposed to an attacker, thus compromising the secret token.
+
+    に対応している事を意味しており、セキュアなWebアプリケーション構築の手助けとなる。
+
+.. _csrf_formtag-use:
+
+CSRFトークンを明示的に埋め込む方法
+""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
+
+\ ``<form:form>``\ タグを使用しない場合は、明示的に、\ ``<sec:csrfInput/>``\ タグを追加する必要がある。
+
+\ ``<sec:csrfInput/>``\ タグを使用すると、CSRFトークンが埋め込まれた\ ``<input type="hidden">``\ タグが出力される。
+
+.. code-block:: jsp
+
+    <form method="POST"
+      action="${pageContext.request.contextPath}/csrfTokenCheckExample">
+        <input type="submit" name="second" value="second" />
+        <sec:csrfInput/>  <!-- (1) -->
+    </form>
 
 以下のようなHTMLが、出力される。
-
 
 .. code-block:: html
 
@@ -352,6 +336,18 @@ CSRFトークンを明示的に埋め込む方法
       <input type="submit" name="second" value="second" />
       <input type="hidden" name="_csrf" value="dea86ae8-58ea-4310-bde1-59805352dec7"/>  <!-- (2) -->
     </form>
+
+.. tabularcolumns:: |p{0.10\linewidth}|p{0.90\linewidth}|
+.. list-table::
+   :header-rows: 1
+   :widths: 10 90
+
+   * - 項番
+     - 説明
+   * - | (1)
+     - | CSRFトークンが埋め込まれた\ ``<input type="hidden">``\ タグを出力するために、\ ``<sec:csrfInput/>``\ タグを指定する。
+   * - | (2)
+     - | Spring Securityのデフォルト実装では、\ ``name``\ 属性に\ ``_csrf``\ が設定されている \ ``<input type="hidden">``\ タグが追加され、CSRFトークンが埋め込まれる。
 
 .. _csrf_default-add-token-method:
 
@@ -366,7 +362,7 @@ CSRFトークンを明示的に埋め込む方法
 
 AjaxによるCSRFトークンの送信
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-| \ ``<sec:csrf />``\ の設定で有効になる \ ``CsrfFilter``\ が、前述のようにリクエストパラメータからCSRFトークンを取得するだけでなく、
+| \ ``<sec:csrf />``\ の設定で有効になる \ ``CsrfFilter``\ は、前述のようにリクエストパラメータからCSRFトークンを取得するだけでなく、
 | HTTPリクエストヘッダーからもCSRFトークンを取得する。
 | Ajaxを利用する場合はHTTPヘッダーに、CSRFトークンを設定することを推奨する。JSON形式でリクエストを送る場合にも対応できるためである。
 
@@ -428,11 +424,15 @@ AjaxによるCSRFトークンの送信
    * - 項番
      - 説明
    * - | (1)
-     - | \ ``<sec:csrfMetaTags />``\ タグを設定することにより、デフォルトでは\ ``<meta name="_csrf_parameter" content="_csrf" /><meta name="_csrf_header" content="X-CSRF-TOKEN" /><meta name="_csrf" content="**CSRF Token**" />``\ が設定される。
+     - | \ ``<sec:csrfMetaTags />``\ タグを設定することにより、デフォルトでは、以下の\ ``meta``\ タグが出力される。
+
+       * \ ``<meta name="_csrf_parameter" content="_csrf" />``\
+       * \ ``<meta name="_csrf_header" content="X-CSRF-TOKEN" />``\
+       * \ ``<meta name="_csrf" content="dea86ae8-58ea-4310-bde1-59805352dec7" />``\ (\ ``content``\ 属性の値はランダムなUUIDが設定される)
    * - | (2)
-     - | \ ``<meta name="_csrf ...>``\ タグに設定されたCSRFトークンを取得する。
+     - | \ ``<meta name="_csrf">``\ タグに設定されたCSRFトークンを取得する。
    * - | (3)
-     - | \ ``<meta name="_csrf_header" ...>``\ タグに設定されたCSRFヘッダ名を取得する。
+     - | \ ``<meta name="_csrf_header">``\ タグに設定されたCSRFヘッダ名を取得する。
    * - | (4)
      - | リクエストヘッダーに、\ ``<meta>``\ タグから取得したヘッダ名(デフォルト:X-CSRF-TOKEN)、CSRFトークンの値を設定する。
    * - | (5)
@@ -456,11 +456,25 @@ JSONでリクエストを送信する場合も、同様にHTTPヘッダを設定
 * \ ``org.springframework.web.multipart.support.MultipartFilter``\ を使用する
 * クエリのパラメータでCSRFトークンを送信する
 
+.. note::
+
+    それぞれメリット・デメリットが存在するため、システム要件を考慮して、採用する対策方法を決めて頂きたい。
+
+ファイルアップロードの詳細については、\ :doc:`FileUpload <../ArchitectureInDetail/FileUpload>`\ を参照されたい。
+
+
 MultipartFilterを使用する方法
 """"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 | 通常、マルチパートリクエストの場合、formから送信された値は\ ``Filter``\ 内で取得できない。
 | \ ``org.springframework.web.multipart.support.MultipartFilter``\ を使用することで、マルチパートリクエストでも、\ ``Filter``\ 内で、
 | formから送信された値を取得することができる。
+
+
+.. warning::
+
+    \ ``MultipartFilter``\ を使用した場合、\ ``springSecurityFilterChain``\による認証・認可処理が行われる前にアップロード処理が行われるため、
+    認証又は認可されていないユーザーからのアップロード(一時ファイル作成)を許容してしまう。
+
 
 \ ``MultipartFilter``\ を使用するには、以下のように設定すればよい。
 
@@ -528,8 +542,27 @@ MultipartFilterを使用する方法
        | **<form> タグを使用する場合**
        | \ :ref:`csrf_formtag-use`\ でCSRFトークンを設定すること。
 
+
 クエリパラメータでCSRFトークンを送る方法
 """"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
+
+認証又は認可されていないユーザーからのアップロード(一時ファイル作成)を防ぎたい場合は、
+\ ``MultipartFilter``\ は使用せず、クエリパラメータでCSRFトークンを送る必要がある。
+
+.. warning::
+
+    この方法でCSRFトークンを送った場合、
+
+    * ブラウザのアドレスバーにCSRFトークンが表示される
+    * ブックマークした場合、ブックマークにCSRFトークンが記録される
+    * WebサーバのアクセスログにCSRFトークンが記録される
+
+    ため、\ ``MultipartFilter``\ を使用する方法と比べると、攻撃者にCSRFトークンを悪用されるリスクが高くなる。
+
+    Spring Securityのデフォルト実装では、CSRFトークンの値としてランダムなUUIDを生成しているため、
+    仮にCSRFトークンが漏洩してもセッションハイジャックされる事はないという点を補足しておく。
+
+以下に、CSRFトークンをクエリパラメータとして送る実装例を示す。
 
 **JSPの実装例**
 
@@ -559,15 +592,6 @@ MultipartFilterを使用する方法
        | \ ``?${f:h(_csrf.parameterName)}=${f:h(_csrf.token)}``\
        | \ ``<form>``\ タグを使用する場合も、同様の設定が必要である。
 
-| ファイルアップロードの詳細については、\ :doc:`FileUpload <../ArchitectureInDetail/FileUpload>`\ を参照されたい。
-
-.. warning::
-
-  この方法も前述したCSRFがURLに現れるという問題がある。
-  \ ``MultipartFilter``\ を使用する場合は\ ``springSecurityFilterChain``\ による処理がアップロードの後になるため、
-  認証されていないユーザーのアップロード(一時ファイル作成)を許容してしまう。これを防ぐ必要がある場合に、クエリパラメータでCSRFトークンを送る必要がある。
-  
-  
 .. raw:: latex
 
    \newpage
