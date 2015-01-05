@@ -1,14 +1,13 @@
 Reference Books
 ================================================================================
-Listed books were referred on writing this guideline. It should be referred to as needed.
-
+This guideline was prepared after referring to the following books. Refer to them as per the requirements.
 
 .. tabularcolumns:: |p{0.60\linewidth}|p{0.25\linewidth}|p{0.15\linewidth}|
 .. list-table::
    :header-rows: 1
    :widths: 60 25 15
 
-   * - Book titles
+   * - Book name
      - Publisher
      - Remarks
    * - `Pro Spring 3 <http://www.apress.com/9781430241072>`_
@@ -33,15 +32,14 @@ Listed books were referred on writing this guideline. It should be referred to a
      - Packt Publishing
      - 
    * - `Spring3入門―Javaフレームワーク・より良い設計とアーキテクチャ <http://gihyo.jp/book/2012/978-4-7741-5380-3>`_
-     - 技術評論社
+     - Gihyo Digital Publishing
      - Japanese
    * - `Beginning Java EE 6 GlassFish 3で始めるエンタープライズJava <http://books.shoeisha.co.jp/book/b92647.html>`_
-     - 翔泳社
+     - Shoeisha Co., Ltd
      - Japanese
    * - Seasar2とHibernateで学ぶデータベースアクセス JPA入門
-     - 毎日コミュニケーションズ
+     - Mynavi Corporation
      - Japanese
-
 
 .. raw:: latex
 

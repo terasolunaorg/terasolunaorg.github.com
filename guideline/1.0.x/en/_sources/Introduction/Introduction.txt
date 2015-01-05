@@ -15,7 +15,7 @@ and knowledge of the following.
 * Basic knowledge of DI and AOP of Spring Framework
 * Web development experience using Servlet/JSP
 * Knowledge of SQL
-* Experience of configuration management with Maven
+* Experience of building Web Application using Maven
 
 This guideline is not for beginners.
 

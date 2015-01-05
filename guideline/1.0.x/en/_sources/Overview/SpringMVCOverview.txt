@@ -1,5 +1,5 @@
 Overview of Spring MVC Architecture 
---------------------------------
+-------------------------------------
 
 .. only:: html
 
@@ -17,7 +17,7 @@ Official website of Spring MVC says the following
      It is completely integrated with the Spring IoC container and as such allows you to use every other feature that Spring has.
 
 Overview of Spring MVC Processing Sequence
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 .. The request processing workflow of the Spring MVC is illustrated in the following diagram.
 
@@ -37,12 +37,12 @@ The processing flow of Spring MVC from receiving the request till the response i
 8. ``View`` renders ``Model`` data and returns the response.
 
 Implementation of each component
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 Among the components explained previously, the extendable components are implemented.
 
 Implementation of HandlerMapping
-^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 Class hierarchy of ``HandlerMapping`` provided by Spring framework is shown below.
 
@@ -58,7 +58,7 @@ In Spring3.1, ``RequestMappingHandlerMapping`` is enabled by default when ``<mvc
 
 
 Implementation of HandlerAdapter
-^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 Class hierarchy of ``HandlerAdapter`` provided by Spring framework is shown below.
 
@@ -70,7 +70,7 @@ Usually ``org.springframework.web.servlet.mvc.method.annotation.RequestMappingHa
 In Spring 3.1, this class is also configured by default throught ``<mvc:annotation-driven>``.
 
 Implementation of ViewResolver
-^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 Classes that implement ``ViewResolver`` provided by Spring framework and dependent libraries are shown below.
 
@@ -98,7 +98,7 @@ Thereby, it is required to use different viewResolver based on the type of the V
 
 
 Implementation of View
-^^^^^^^^^^^^^^^^^^^^^
+^^^^^^^^^^^^^^^^^^^^^^^^
 
 Classes that implement ``View`` provided by Spring framework and its dependent libraries are shown below.
 

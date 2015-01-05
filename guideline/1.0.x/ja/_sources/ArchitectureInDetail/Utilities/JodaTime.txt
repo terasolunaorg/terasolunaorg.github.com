@@ -115,6 +115,31 @@ Joda Time, Joda Time JSP tags の利用方法を、以下で説明する。
 
 |
 
+タイムゾーンを指定せず現在時刻を取得
+''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
+
+| タイムゾーンを指定せず現在時刻を取得したい場合に使用する。以下に、使用方法を示す。
+
+.. code-block:: java
+
+    LocalDateTime localDateTime = new LocalDateTime();
+
+\ ``org.terasoluna.gfw.common.date.DateFactory``\ を利用する場合は、以下のようになる。
+
+.. code-block:: java
+
+    // Fetching current system date using default TimeZone
+    LocalDateTime localDateTime = dateFactory.newDateTime().toLocalDateTime();
+
+|
+
+    .. note::
+
+        TimeZoneを意識する必要がない場合は、\ ``DateTime``\ ではなく\ ``LocalDateTime``\ を利用することを推奨する。
+
+|
+
+
 年月日時分秒を指定して取得
 ''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
 コンストラクタで、特定の時間を指定することができる。以下に例を示す。

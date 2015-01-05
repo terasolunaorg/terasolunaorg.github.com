@@ -1036,15 +1036,15 @@ LOB型更新の実装例
             InputStream contentInputStream) {
 
         // (7)
-        BinaryFile inputtedFile = new BinaryFile();
-        inputtedFile.setFileId(UUID.randomUUID().toString());
-        inputtedFile.setFileName(fileName);
-        inputtedFile.setContent(contentInputStream);
+        BinaryFile inputFile = new BinaryFile();
+        inputFile.setFileId(UUID.randomUUID().toString());
+        inputFile.setFileName(fileName);
+        inputFile.setContent(contentInputStream);
 
         // (8)
-        updateDAO.execute("example.uploadBinary", inputtedFile);
+        updateDAO.execute("example.uploadBinary", inputFile);
 
-        return inputtedFile;
+        return inputFile;
     }
 
     // omitted

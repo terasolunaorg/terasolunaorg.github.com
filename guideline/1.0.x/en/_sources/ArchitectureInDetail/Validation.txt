@@ -69,7 +69,7 @@ Input validation is classified into single item check and correlation item check
        | interface
 
 
-Spring supports JSR-303 Bean Validation.
+Spring supports Bean Validation.
 This Bean Validation is used for single item check.
 Bean Validation or \ ``org.springframework.validation.Validator``\  interface provided by Spring is used for correlation item check.
 
@@ -2939,17 +2939,17 @@ Appendix
 
 Input validation rules provided by Hibernate Validator
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-| Hibernate Validator provides additional validation annotations, in addition to the annotation defined in JSR-303.
+| Hibernate Validator provides additional validation annotations, in addition to the annotation defined in Bean Validation.
 | Refer to \ `<http://docs.jboss.org/hibernate/validator/4.3/reference/en-US/html_single/#section-builtin-constraints>`_\ for the annotation list that can be used for validation.
 
 .. _Validation_jsr303_doc:
 
-JSR-303 check rules
+Bean Validation check rules
 """"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 
-JSR-303 annotations are shown below.
+Bean Validation standard annotations are shown below.
 
-Refer to Chapter 6 \ `JSR-303 Specification <http://download.oracle.com/otn-pub/jcp/bean_validation-1.0-fr-oth-JSpec/bean_validation-1_0-final-spec.pdf>`_\  for details. 
+Refer to Chapter 6 \ `Bean Validation specification <http://download.oracle.com/otn-pub/jcp/bean_validation-1.0-fr-oth-JSpec/bean_validation-1_0-final-spec.pdf>`_\  for details.
 
 .. tabularcolumns:: |p{0.25\linewidth}|p{0.25\linewidth}|p{0.25\linewidth}|p{0.25\linewidth}|
 .. list-table::

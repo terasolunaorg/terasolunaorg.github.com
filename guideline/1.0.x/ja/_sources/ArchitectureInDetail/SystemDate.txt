@@ -106,7 +106,7 @@ How to use
 .. code-block:: java
 
     @Inject
-    protected DateFactory dateFactory;  // (1)
+    DateFactory dateFactory;  // (1)
 
     public TourInfoSearchCriteria setUpTourInfoSearchCriteria() {
 
@@ -193,7 +193,7 @@ DBから取得した固定の時刻を返却する
 .. code-block:: java
 
     @Inject
-    protected DateFactory dateFactory;
+    DateFactory dateFactory;
 
     @RequestMapping(value="datetime", method = RequestMethod.GET)
     public String listConfirm(Model model) {
@@ -309,7 +309,7 @@ DBから取得した固定の時刻を返却する
 .. code-block:: java
 
     @Inject
-    protected DateFactory dateFactory;
+    DateFactory dateFactory;
 
     @RequestMapping(value="datetime", method = RequestMethod.GET)
     public String listConfirm(Model model) {
@@ -394,7 +394,7 @@ DBから取得した固定の時刻を返却する
     public class ReloadAdjustedValueController {
 
         @Inject
-        protected JdbcAdjustedDateFactory dateFactory;
+        JdbcAdjustedDateFactory dateFactory;
 
         // omitted
 
@@ -468,10 +468,10 @@ Unit Test
     // omitted
 
     @Inject
-    protected StaffRepository staffRepository;
+    StaffRepository staffRepository;
 
     @Inject
-    protected DateFactory dateFactory;
+    DateFactory dateFactory;
 
     @Override
     public Staff staffUpdateTel(String staffId, String tel) {
@@ -575,7 +575,7 @@ Unit Test
     // omitted
 
     @Inject
-    protected DateFactory dateFactory;
+    DateFactory dateFactory;
 
     // omitted
 

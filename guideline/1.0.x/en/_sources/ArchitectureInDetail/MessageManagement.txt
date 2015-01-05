@@ -201,9 +201,9 @@ Title
 
     .. code-block:: properties
 
-        In case of # "/WEB-INF/views/admin/top.jsp"
+        # In case of "/WEB-INF/views/admin/top.jsp"
         title.admin.top=Admin Top
-        In case of # "/WEB-INF/views/staff/createForm.jsp"
+        # In case of "/WEB-INF/views/staff/createForm.jsp"
         title.staff.createForm=Staff Register Input
 
     .. tip::
@@ -285,8 +285,8 @@ The method of defining message ID to be used in screen label and fixed text of r
 
     .. note::
 
-    In case of multiple projects, define a project code to avoid duplication of message ID.
-    Even if there is a single project, it is recommended to define a project code for future enhancements.
+        In case of multiple projects, define a project code to avoid duplication of message ID.
+        Even if there is a single project, it is recommended to define a project code for future enhancements.
 
 Result messages
 """"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""

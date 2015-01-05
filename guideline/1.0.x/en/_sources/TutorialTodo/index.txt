@@ -1,4 +1,4 @@
-﻿Tutorial (Todo Application)
+Tutorial (Todo Application)
 ********************************************************************************
 
 .. only:: html
@@ -385,7 +385,7 @@ If you are familiar with the Maven, and to make sure the following discussion.
 
 	.. note:: When proxy server is used to access the internet,
 	     perform the following settings in <HOME>/.m2/settings.xml.
-	    (In case of Windows7 C:\\Users\\<YourName>\\.m2\settings.xml)
+	    (In case of Windows7 C:\\Users\\<YourName>\\.m2\\settings.xml)
 
 	    	.. code-block:: xml
 
@@ -1314,8 +1314,7 @@ Creation of RepositoryImpl (Infrastructure layer)
         @Override
         public long countByFinished(boolean finished) {
             long count = 0;
-            for (Map.Entry<String, Todo> e : TODO_MAP.entrySet()) {
-                Todo todo = e.getValue();
+            for (Todo todo : TODO_MAP.values()) {
                 if (finished == todo.isFinished()) {
                     count++;
                 }
@@ -1797,11 +1796,11 @@ Add ``create`` method to TodoController.
     @RequestMapping("todo")
     public class TodoController {
         @Inject
-        protected TodoService todoService;
+        TodoService todoService;
 
         // (8)
         @Inject
-        protected Mapper beanMapper;
+        Mapper beanMapper;
 
         @ModelAttribute
         public TodoForm setUpForm() {
@@ -1878,14 +1877,17 @@ Modifications in Form
 To define input validation rules, add annotations in form class.
 
 .. code-block:: java
-   :emphasize-lines: 3-4,8-9
+   :emphasize-lines: 5-6,11-12
 
     package todo.app.todo;
+
+    import java.io.Serializable;
 
     import javax.validation.constraints.NotNull;
     import javax.validation.constraints.Size;
 
-    public class TodoForm {
+    public class TodoForm implements Serializable {
+        private static final long serialVersionUID = 1L;
 
         @NotNull // (1)
         @Size(min = 1, max = 30) // (2)
@@ -2188,20 +2190,24 @@ For specifying separate rules for new creation and completion in a single Form, 
 
 
 .. code-block:: java
-   :emphasize-lines: 8-9,11-12,15-16,19,23-29
+   :emphasize-lines: 9-11,13-14,18-20,22-23,27-33
 
     package todo.app.todo;
+
+    import java.io.Serializable;
 
     import javax.validation.constraints.NotNull;
     import javax.validation.constraints.Size;
 
-    public class TodoForm {
+    public class TodoForm implements Serializable {
         // (3)
         public static interface TodoCreate {
         };
 
         public static interface TodoFinish {
         };
+
+        private static final long serialVersionUID = 1L;
 
         // (4)
         @NotNull(groups = { TodoFinish.class })
@@ -2285,10 +2291,10 @@ Take precaution of using **@Validated instead of @Valid** for executing the grou
     @RequestMapping("todo")
     public class TodoController {
         @Inject
-        protected TodoService todoService;
+        TodoService todoService;
 
         @Inject
-        protected Mapper beanMapper;
+        Mapper beanMapper;
 
         @ModelAttribute
         public TodoForm setUpForm() {
@@ -2513,14 +2519,16 @@ Add group for Delete to TodoForm. Rules are almost same as for Finish.
 
 
 .. code-block:: java
-   :emphasize-lines: 14-15,18
+   :emphasize-lines: 15-17,21-22
 
     package todo.app.todo;
+
+    import java.io.Serializable;
 
     import javax.validation.constraints.NotNull;
     import javax.validation.constraints.Size;
 
-    public class TodoForm {
+    public class TodoForm implements Serializable {
         public static interface TodoCreate {
         };
 
@@ -2530,6 +2538,8 @@ Add group for Delete to TodoForm. Rules are almost same as for Finish.
         // (6)
         public static interface TodoDelete {
         }
+
+        private static final long serialVersionUID = 1L;
 
         // (7)
         @NotNull(groups = { TodoFinish.class, TodoDelete.class })
@@ -2609,10 +2619,10 @@ Add the logic for delete processing to TodoController. It is almost same as the 
     @RequestMapping("todo")
     public class TodoController {
         @Inject
-        protected TodoService todoService;
+        TodoService todoService;
 
         @Inject
-        protected Mapper beanMapper;
+        Mapper beanMapper;
 
         @ModelAttribute
         public TodoForm setUpForm() {
@@ -2899,7 +2909,7 @@ Modifications in TodoServiceImpl
     @Transactional // (9)
     public class TodoServiceImpl implements TodoService {
         @Inject
-        protected TodoRepository todoRepository;
+        TodoRepository todoRepository;
 
         private static final long MAX_UNFINISHED_COUNT = 5;
 
@@ -3648,10 +3658,10 @@ Modifications in RepositoryImpl
     public class TodoRepositoryImpl implements TodoRepository {
         // (2)
         @Inject
-        protected QueryDAO queryDAO;
+        QueryDAO queryDAO;
 
         @Inject
-        protected UpdateDAO updateDAO;
+        UpdateDAO updateDAO;
 
         // (3)
         @Override

@@ -113,7 +113,7 @@ Beanマッピングを行いたいクラスに、 ``Mapper`` をインジェク�
 .. code-block:: java
 
     @Inject
-    protected Mapper beanMapper;
+    Mapper beanMapper;
 
 
 .. _beanconverter-basic-mapping-label:

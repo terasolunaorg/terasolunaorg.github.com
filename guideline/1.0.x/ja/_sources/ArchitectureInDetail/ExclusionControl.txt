@@ -562,7 +562,7 @@ ANSI/ISO SQL標準では、トランザクションの分離レベル（各ト�
      - データベース
      - 悲観ロック方法
    * - 1.
-     - Oraclel
+     - Oracle
      - FOR UPDATE
    * - 2.
      - PostgreSQL

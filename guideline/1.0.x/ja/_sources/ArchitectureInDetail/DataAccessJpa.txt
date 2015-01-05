@@ -525,9 +525,9 @@ Spring Data JPAを有効化するための設定
 
     * - 項番
       - 説明
-    * - | (2)
-      - | Spring Data JPAのコンフィギュレーション用のスキーマ定義を取り込み、ネームスペースとして(\ ``"jpa"``\ )を付与する。
     * - | (1)
+      - | Spring Data JPAのコンフィギュレーション用のスキーマ定義を取り込み、ネームスペースとして(\ ``"jpa"``\ )を付与する。
+    * - | (2)
       - | RepositoryインタフェースおよびカスタムRepositoryクラスが格納されているベースパッケージを指定する。
         | ``org.springframework.data.repository.Repository`` を継承しているインタフェースと、\ ``org.springframework.data.repository.RepositoryDefinition``\ アノテーションが付与されているインタフェースが、 Spring Data JPAのRepositoryクラスとして自動的にbean定義される。
 
@@ -902,11 +902,11 @@ Spring Dataから提供されているインタフェースを継承してEntity
  - flush時のフロー
 
   .. figure:: images/dataaccess_jpa_persistence_flow_flush.png
-    :alt: Sequence of persistence processing when use flush method
+    :alt: Sequence of persistence processing when using flush method
     :width: 100%
     :align: center
 
-    **Picture - Sequence of persistence processing when use flush method**
+    **Picture - Sequence of persistence processing when using flush method**
 
 .. _how_to_create_repository_extends_springdata_flush_timing_note2:
 
@@ -925,11 +925,11 @@ Spring Dataから提供されているインタフェースを継承してEntity
  - Query発行時のフロー
 
   .. figure:: images/dataaccess_jpa_persistence_flow_query.png
-    :alt: Sequence of persistence processing when use query method
+    :alt: Sequence of persistence processing when using query method
     :width: 100%
     :align: center
 
-    **Picture - Sequence of persistence processing when use query method**
+    **Picture - Sequence of persistence processing when using query method**
 
 .. _how_to_create_repository_extends_myinterface-label:
 
