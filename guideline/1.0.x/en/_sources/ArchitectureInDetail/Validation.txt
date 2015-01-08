@@ -533,6 +533,7 @@ An example of error message is shown when the following CSS class is applied.
 
 | By default, field name is not included in error message, so it is difficult to understand, which error message corresponds to which field.
 | Therefore, when error message is to be displayed in a list, it is necessary to define the message such that field name is included in the error message.
+| About how to define error message, refer to ":ref:`Validation_message_def`".
 
 .. note::
 
@@ -1601,7 +1602,7 @@ Till now, 2 patterns of using grouped validation have been explained.
      - \ ``group``\  attribute should be set for the rules that need not be grouped making the process complicated.
      - Should be used when there are many group patterns and majority of patterns have a common value.
 
-\ ** If none of the above decision points are applicable, then using Bean Validation itself might not be a good idea.**\
+\ **If none of the above decision points are applicable, then using Bean Validation itself might not be a good idea.**\
 After reviewing the design, usage of Spring Validator or implementation of validation in business logic should be considered.
 
 
@@ -1625,12 +1626,13 @@ After reviewing the design, usage of Spring Validator or implementation of valid
 
          @RequestMapping(value = "create", method = RequestMethod.POST, params = "confirm")
          public String createConfirm(/* (2) */ UserForm form, BindingResult result) {
+             // (3)
              Class<?> validationGroup = Default.class;
              // logic to determine validation group
              // if (xxx) {
              //     validationGroup = Xxx.class;
              // }
-             smartValidator.validate(form, result, validationGroup); // (3)
+             smartValidator.validate(form, result, validationGroup); // (4)
              if (result.hasErrors()) {
                  return "user/createForm";
              }
@@ -1651,6 +1653,9 @@ After reviewing the design, usage of Spring Validator or implementation of valid
       * - | (2)
         - | Do not use \ ``@Validated``\  annotation.
       * - | (3)
+        - | Determine validation group.
+          | Logic to determine validation group recommend to delegate to Helper class and keep Controller's source code with simple state.
+      * - | (4)
         - | Execute grouped validation using \ ``validate``\  method of \ ``SmartValidator``\.
           | Multiple groups can be specified in \ ``validate``\  method.
 
@@ -1768,14 +1773,15 @@ Check rule "Must be same as confirmPassword" is validation of correlated items a
 
         @Override
         public void validate(Object target, Errors errors) {
+
+            if (errors.hasFieldErrors("password")) { // (3)
+                return;
+            }
+
             PasswordResetForm form = (PasswordResetForm) target;
             String password = form.getPassword();
             String confirmPassword = form.getConfirmPassword();
 
-            if (password == null || confirmPassword == null) { // (3)
-                // must be checked by @NotNull
-                return;
-            }
             if (!password.equals(confirmPassword)) { // (4)
                 errors.rejectValue(/* (5) */ "password",
                 /* (6) */ "PasswordEqualsValidator.passwordResetForm.password",
@@ -1796,7 +1802,8 @@ Check rule "Must be same as confirmPassword" is validation of correlated items a
      * - | (2)
        - | Decide the argument is check target of this validator or not. Here \ ``PasswordResetForm``\  class is the target to be checked.
      * - | (3)
-       - | Use \ ``@NotNull``\  annotation to check whether the field is \ ``null``\.  Thereby, consider the value to be valid if the field is \ ``null``\  in this Validator.
+       - | If occurred error at the target fields during a single item check, does not perform correlation item check by in this Validator.
+         | If it is necessary to perform the correlation item check always, this logic is unnecessary.
      * - | (4)
        - | Implement check logic.
      * - | (5)
@@ -1973,7 +1980,8 @@ Method to change error messages of input validation is explained.
 
 Error messages of Bean Validation in Spring MVC are resolved in the following order.
 
-#. If there is any message which matches with the rule, among the messages defined in \ ``org.springframework.context.MessageSource``\, then it will be used as error message (Spring rule).
+#. | If there is any message which matches with the rule, among the messages defined in \ ``org.springframework.context.MessageSource``\, then it will be used as error message (Spring rule).
+   | About default rule of Spring, refer to "`DefaultMessageCodesResolverのJavaDoc <http://docs.spring.io/spring/docs/4.1.3.RELEASE/javadoc-api/org/springframework/validation/DefaultMessageCodesResolver.html>`_".
 #. If message cannot be found as mentioned in step 1, then error message is acquired from the \ ``message``\  attribute of the annotation. (Bean Validation rule)
 
   #. When the value of \ ``message``\  attribute is not in "{message key}" format, use that text as error message.
@@ -3020,7 +3028,7 @@ Refer to Chapter 6 \ `Bean Validation specification <http://download.oracle.com/
        | private boolean checked;
    * - \ ``@AssertFalse``\
      - boolean,Boolean
-     - Validate that the target field is 'false'(Example: Whether it agrees to the terms）
+     - Validate that the target field is 'false'
      - | @AssertFalse
        | private boolean checked;
    * - \ ``@Future``\

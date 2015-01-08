@@ -10,13 +10,13 @@
 Overview
 --------------------------------------------------------------------------------
 
-| アプリケーション開発中は、サーバーのシステム時刻ではなく、任意の日時でテストを行う必要が生じる。
-| Production環境においても日付を戻してリカバリ処理を行うことも想定される。
+アプリケーション開発中は、サーバーのシステム時刻ではなく、任意の日時でテストを行う必要が生じる。
+Production環境においても日付を戻してリカバリ処理を行うことも想定される。
 
-| そのため、日時の取得ではサーバーのシステム時刻ではなく、開発・運用側で任意の日時に設定可能になっていることが望ましい。
+そのため、日時の取得ではサーバーのシステム時刻ではなく、開発・運用側で任意の日時に設定可能になっていることが望ましい。
 
-| 共通ライブラリでは、返却する時刻を任意に変更できる ``org.terasoluna.gfw.common.date.DateFactory`` インタフェースを提供している。
-| ``DateFactory``\ により、以下5種類の型で日付を返却することができる。
+共通ライブラリでは、返却する時刻を任意に変更できる ``org.terasoluna.gfw.common.date.DateFactory`` インタフェースを提供している。
+``DateFactory``\ により、以下5種類の型で日付を返却することができる。
 
 .. tabularcolumns:: |p{0.30\linewidth}|p{0.70\linewidth}|
 .. list-table::
@@ -36,6 +36,15 @@ Overview
    * - newTime
      - java.sql.Time
 
+.. note::
+
+    Joda Timeについては、 :doc:`./Utilities/JodaTime` を参照されたい。
+
+.. tip::
+
+    JUnitなどで日時を変更して試験を行いたい場合、Factoryの実装クラスをmockクラスに差し替えることで、
+    任意の日時を設定することも可能である。
+
 |
 
 How to use
@@ -53,28 +62,29 @@ How to use
    * - クラス名
      - 概要
      - 備考
-   * - | org.terasoluna.gfw.common.date.DefaultDateFactory
+   * - | org.terasoluna.gfw.common.date.
+       | DefaultDateFactory
      - | アプリケーションサーバーのシステム時刻を返却する。
      - | new DateTime()での取得値と同等であり、時刻の変更はできない。
-   * - | org.terasoluna.gfw.common.date.JdbcFixedDateFactory
+   * - | org.terasoluna.gfw.common.date.
+       | JdbcFixedDateFactory
      - | DBに登録した固定の時刻を返却
      - | 完全に時刻を固定する必要のあるIntegration Test環境で使用されることを想定している。
        | Performance Test環境や、Production環境では使用しない。
        | テーブルの定義が必要である。
-   * - | org.terasoluna.gfw.common.date.JdbcAdjustedDateFactory
+   * - | org.terasoluna.gfw.common.date.
+       | JdbcAdjustedDateFactory
      - | アプリケーションサーバーのシステム時刻にDBに登録した
        | 差分(ミリ秒)を加算した時刻を返却する。
      - | Integration Test環境やSystem Test環境で使用されることを想定している。
        | 差分値を0に設定することでProduction環境でも使用できる。
        | テーブルの定義が必要である。
 
-|
+.. note::
 
-    .. note::
-
-        各クラスを設定するbean定義ファイルは、環境ごとに切り替えられるように、[projectname]-env .xmlに定義することを推奨する。
-        DateFactoryを利用することにより、bean定義ファイルの設定を変更するだけで、ソースを変更せずに日時の変更が可能となる。
-        bean定義ファイルの記載例は後述する。
+    各クラスを設定するbean定義ファイルは、環境ごとに切り替えられるように、[projectName]-env .xmlに定義することを推奨する。
+    DateFactoryを利用することにより、bean定義ファイルの設定を変更するだけで、ソースを変更せずに日時の変更が可能となる。
+    bean定義ファイルの記載例は後述する。
 
 |
 
@@ -99,6 +109,8 @@ How to use
    * - | (1)
      - | DefaultDateFactoryクラスをbean定義する。
 
+|
+
 .. _dateFactory-java:
 
 **Javaクラス**
@@ -106,11 +118,11 @@ How to use
 .. code-block:: java
 
     @Inject
-    DateFactory dateFactory;  // (1)
+    DateFactory dateFactory;  // (2)
 
     public TourInfoSearchCriteria setUpTourInfoSearchCriteria() {
 
-        DateTime dateTime = dateFactory.newDateTime();  // (2)
+        DateTime dateTime = dateFactory.newDateTime();  // (3)
 
         // omitted
     }
@@ -122,20 +134,11 @@ How to use
 
    * - 項番
      - 説明
-   * - | (1)
-     - | DateFactoryを利用するクラスにインジェクションする。
    * - | (2)
+     - | DateFactoryを利用するクラスにインジェクションする。
+   * - | (3)
      - | 利用したい日付のクラスインスタンスを返却するメソッドを呼び出す。
-       | ``org.joda.time.DateTime`` 型で取得する。
-
-|
-
-    .. note::
-       Joda Time、フォーマットなどについては、 :doc:`./Utilities/JodaTime` を参照されたい。
-
-    .. note::
-        JUnitなどで日時を変更して試験を行いたい場合、Factoryの実装クラスをmockクラスに差し替えることで、
-        任意の日時を設定することも可能である。
+       | 上記例では、``org.joda.time.DateTime`` 型のインスタンスを取得している。
 
 |
 
@@ -168,10 +171,11 @@ DBから取得した固定の時刻を返却する
      - | 固定時刻取得SQL(``currentTimestampQuery``)の設定。
        | テーブルに指定した、日時を返却するSQLを設定する。
 
+|
 
 **テーブル設定例**
 
-| 以下のようにテーブルを作成し、レコードを追加する必要がある。
+以下のようにテーブルを作成し、レコードを追加する必要がある。
 
 .. code-block:: sql
 
@@ -188,6 +192,8 @@ DBから取得した固定の時刻を返却する
    * - 1
      - 2013-01-01 01:01:01.000
 
+|
+
 **Javaクラス**
 
 .. code-block:: java
@@ -199,18 +205,12 @@ DBから取得した固定の時刻を返却する
     public String listConfirm(Model model) {
 
         for (int i=0; i < 3; i++) {
-            model.addAttribute("jdbcFixedDateFactory" + i, dateFactory.newDateTime()); // (1)
-            model.addAttribute("DateTime" + i, new DateTime()); // (2)
+            model.addAttribute("jdbcFixedDateFactory" + i, dateFactory.newDateTime()); // (4)
+            model.addAttribute("DateTime" + i, new DateTime()); // (5)
         }
 
         return "date/dateTimeDisplay";
     }
-
-**実行結果**
-
-.. figure:: ./images/system-date-jdbc-fixed-date-factory.png
-   :alt: system-date-jdbc-fixed-date-factory
-   :width: 30%
 
 .. tabularcolumns:: |p{0.10\linewidth}|p{0.90\linewidth}|
 .. list-table::
@@ -219,32 +219,43 @@ DBから取得した固定の時刻を返却する
 
    * - 項番
      - 説明
-   * - | (1)
+   * - | (4)
      - | ``JdbcFixedDateFactory.newDateTime()`` の結果を画面に渡す。
        | DBに設定した固定の値が出力されている。
-   * - | (2)
+   * - | (5)
      - | 確認用に\ ``new DateTime()``\ の結果を画面に渡す。
        | 出力結果が毎回異なる値となっている。
 
+|
+
+**実行結果**
+
+.. figure:: ./images/system-date-jdbc-fixed-date-factory.png
+    :alt: system-date-jdbc-fixed-date-factory
+    :width: 40%
+
+|
+
 **SQLログ**
 
-.. code-block:: xml
+.. code-block:: console
 
     16. SELECT now FROM system_date {executed in 0 msec}
     17. SELECT now FROM system_date {executed in 1 msec}
     18. SELECT now FROM system_date {executed in 0 msec}
 
-| ``JdbcFixedDateFactory.newDateTime()`` による、DBへのアクセスログが出力される。
-| SQLログを出力するために、 :doc:`./DataAccessCommon` で説明した\ ``Log4jdbcProxyDataSource``\ を使用している。
+``JdbcFixedDateFactory.newDateTime()`` メソッドを使用すると、DBへのアクセスログが出力される。
+SQLログを出力するために、 :doc:`./DataAccessCommon` で説明した\ ``Log4jdbcProxyDataSource``\ を使用している。
 
 |
 
 サーバーのシステム時刻にDBに登録した差分値を加算した時刻を返却する
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-| ``org.terasoluna.gfw.common.date.JdbcAdjustedDateFactory``\ を使用する。
-| ``adjustedValueQuery``\ プロパティに設定されたSQLを実行して差分値を取得する。
-| 利用方法は、以下を参照されたい。
+``org.terasoluna.gfw.common.date.JdbcAdjustedDateFactory``\ を使用する。
+``adjustedValueQuery``\ プロパティに設定されたSQLを実行して差分値を取得する。
+
+利用方法は、以下を参照されたい。
 
 **bean定義ファイル**
 
@@ -277,9 +288,11 @@ DBから取得した固定の時刻を返却する
    * - | (5)
      - | operation_dateテーブルに登録した差分値の単位を"days"として使用する場合のSQL
 
+|
+
 **テーブル設定例**
 
-| 以下のようにテーブルを作成し、レコードを追加する必要がある。
+以下のようにテーブルを作成し、レコードを追加する必要がある。
 
 .. code-block:: sql
 
@@ -300,9 +313,11 @@ DBから取得した固定の時刻を返却する
 | 取得結果をミリ秒（整数値）に変換することで、DB上の値の単位は、日・時・分・秒・ミリ秒のいずれでも問題ない。
 
 
-    .. note::
+.. note::
 
-        上記のSQLはPostgreSQL用である。Oracleの場合は\ ``BIGINT``\ の代わりに\ ``NUMBER(19)``\ を使用すればよい。
+    上記のSQLはPostgreSQL用である。Oracleの場合は\ ``BIGINT``\ の代わりに\ ``NUMBER(19)``\ を使用すればよい。
+
+|
 
 **Javaクラス**
 
@@ -314,18 +329,12 @@ DBから取得した固定の時刻を返却する
     @RequestMapping(value="datetime", method = RequestMethod.GET)
     public String listConfirm(Model model) {
 
-        model.addAttribute("firstExpectedDate", new DateTime());  // (1)
-        model.addAttribute("serverTime", dateFactory.newDateTime());  // (2)
-        model.addAttribute("lastExpectedDate", new DateTime());  // (3)
+        model.addAttribute("firstExpectedDate", new DateTime());  // (6)
+        model.addAttribute("serverTime", dateFactory.newDateTime());  // (7)
+        model.addAttribute("lastExpectedDate", new DateTime());  // (8)
 
         return "date/dateTimeDisplay";
     }
-
-**実行結果**
-
-.. figure:: ./images/system-date-jdbc-adjusted-date-factory.png
-   :alt: system-date-jdbc-fixed-date-factory
-   :width: 30%
 
 .. tabularcolumns:: |p{0.10\linewidth}|p{0.90\linewidth}|
 .. list-table::
@@ -334,13 +343,23 @@ DBから取得した固定の時刻を返却する
 
    * - 項番
      - 説明
-   * - | (1)
+   * - | (6)
      - | 確認用に、\ ``dateFactory``\ による\ ``DateTime``\ 生成よりも前の時刻を画面に渡す。
-   * - | (2)
+   * - | (7)
      - | ``JdbcAdjustedDateFactory.newDateTime()``\ の結果を画面に渡す。
        | 実行時から1440分を引いた時刻が取得されている。
-   * - | (3)
+   * - | (8)
      - | 確認用に、\ ``dateFactory``\ による\ ``DateTime``\ 生成よりも後の時刻を設定する
+
+|
+
+**実行結果**
+
+.. figure:: ./images/system-date-jdbc-adjusted-date-factory.png
+    :alt: system-date-jdbc-fixed-date-factory
+    :width: 40%
+
+|
 
 **SQLログ**
 
@@ -348,7 +367,7 @@ DBから取得した固定の時刻を返却する
 
     17. SELECT diff * 60 * 1000 FROM operation_date {executed in 1 msec}
 
-| ``dateFactory.newDateTime()`` による、DBへのアクセスログが出力される。
+``dateFactory.newDateTime()`` による、DBへのアクセスログが出力される。
 
 |
 
@@ -382,6 +401,8 @@ DBから取得した固定の時刻を返却する
      - | trueの場合、テーブルから取得した値をキャッシュする。デフォルトはfalseでキャッシュは行わない。
        | falseの場合はDateFactory利用時に毎回SQLを実行する。
 
+|
+
 キャッシュの設定をしたうえで、差分値を変更したい場合はテーブルの値を変更後、
 ``JdbcAdjustedDateFactory.reload()``\ メソッドを実行することで、キャッシュする値を再読み込みすることができる。
 
@@ -401,10 +422,11 @@ DBから取得した固定の時刻を返却する
         @RequestMapping(method = RequestMethod.GET)
         public String reload() {
 
-            long adjustedValue = dateFactory.reload(); // (1)
+            long adjustedValue = dateFactory.reload(); // (2)
 
             // omitted
         }
+    }
 
 .. tabularcolumns:: |p{0.10\linewidth}|p{0.90\linewidth}|
 .. list-table::
@@ -413,7 +435,7 @@ DBから取得した固定の時刻を返却する
 
    * - 項番
      - 説明
-   * - | (1)
+   * - | (2)
      - | JdbcAdjustedDateFactoryのreloadメソッドを実行することで、
        | テーブルから差分を読み直す。
 
@@ -422,42 +444,55 @@ DBから取得した固定の時刻を返却する
 Testing
 --------------------------------------------------------------------------------
 
-| テストを実施する際には、現在日時ではなく別の日時に変更することが必要になる場合がある。
+テストを実施する際には、現在日時ではなく別の日時に変更することが必要になる場合がある。
 
-+----------------------+-------------------------+-----------------------------------------------------------------------------------------------+
-| 環境                 | 使用するDateFactory     | 試験内容                                                                                      |
-+======================+=========================+===============================================================================================+
-| Unit Test            | DefaultDateFactory      | 日付に関わる試験はDataFactoryをmock化する。                                                   |
-+----------------------+-------------------------+-----------------------------------------------------------------------------------------------+
-| Integration Test     | DefaultDateFactory      | 日付に関わらない試験                                                                          |
-|                      +-------------------------+-----------------------------------------------------------------------------------------------+
-|                      | JdbcFixedDateFactory    | 特定の日付、時刻に固定して試験を実施する場合                                                  |
-|                      +-------------------------+-----------------------------------------------------------------------------------------------+
-|                      | JdbcAdjustedDateFactory | 外部システムとの連携があり、1日の試験の中で日付の流れを考慮して複数日の試験を実施する場合     |
-+----------------------+-------------------------+-----------------------------------------------------------------------------------------------+
-| System Test          | JdbcAdjustedDateFactory | 試験の日付を指定して実施する場合や、未来の日付における試験を実施する場合                      |
-+----------------------+-------------------------+-----------------------------------------------------------------------------------------------+
-| Production           | DefaultDateFactory      | 実際の時刻と変更する可能性が無い場合                                                          |
-|                      +-------------------------+-----------------------------------------------------------------------------------------------+
-|                      | JdbcAdjustedDateFactory || **時刻を変更する可能性を運用上残しておきたい場合。**                                         |
-|                      |                         || **通常時は差を0とし、必要な際のみ差を与える。**                                              |
-|                      |                         || **必ず、** :ref:`useCache<useCache>` **をtrueに設定すること**                                |
-+----------------------+-------------------------+-----------------------------------------------------------------------------------------------+
+.. tabularcolumns:: |p{0.15\linewidth}|p{0.25\linewidth}|p{0.60\linewidth}|
+.. list-table::
+    :header-rows: 1
+    :widths: 15 25 60
+
+    * - 環境
+      - 使用するDateFactory
+      - 試験内容
+    * - Unit Test
+      - DefaultDateFactory
+      - 日付に関わる試験はDataFactoryをmock化する。
+    * - Integration Test
+      - DefaultDateFactory
+      - 日付に関わらない試験
+    * -
+      - JdbcFixedDateFactory
+      - 特定の日付、時刻に固定して試験を実施する場合
+    * -
+      - JdbcAdjustedDateFactory
+      - 外部システムとの連携があり、1日の試験の中で日付の流れを考慮して複数日の試験を実施する場合
+    * - System Test
+      - JdbcAdjustedDateFactory
+      - 試験の日付を指定して実施する場合や、未来の日付における試験を実施する場合
+    * - Production
+      - DefaultDateFactory
+      - 実際の時刻と変更する可能性が無い場合
+    * -
+      - JdbcAdjustedDateFactory
+      - **時刻を変更する可能性を運用上残しておきたい場合。**
+
+        **通常時は差を0とし、必要な際のみ差を与える。**
+        **必ず、** :ref:`useCache<useCache>` **をtrueに設定すること**
 
 |
 
 Unit Test
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-| UnitTestでは、時刻を登録してその時刻が想定通りに更新されたのかを検証したい場合がある。
+UnitTestでは、時刻を登録してその時刻が想定通りに更新されたのかを検証したい場合がある。
 
-| そのような場合、処理中にサーバー時刻をそのまま登録してしまうと、
-| テスト実行のたびに値が異なるため、JUnitでの回帰試験が難しくなる。
-| そこで、DateFacotyを用いることで、登録する時刻を任意の値に固定化することができる。
+そのような場合、処理中にサーバー時刻をそのまま登録してしまうと、
+テスト実行のたびに値が異なるため、JUnitでの回帰試験が難しくなる。
+そこで、DateFacotyを用いることで、登録する時刻を任意の値に固定化することができる。
 
 
-| ミリ秒単位で時刻が一致するようにするため、mockを使用する。dateFactoryに値を設定し、固定日付を返却する例を下記に示す。
-| 本例では、mockに\ `mockito <https://code.google.com/p/mockito/>`_\ を使用する。
+ミリ秒単位で時刻が一致するようにするため、mockを使用する。dateFactoryに値を設定し、固定日付を返却する例を下記に示す。
+本例では、mockに\ `mockito <https://code.google.com/p/mockito/>`_\ を使用する。
 
 **Javaクラス**
 
@@ -564,7 +599,7 @@ Unit Test
 日付によって処理が変わる場合の例
 """"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 
-| "予約したツアーは出発日の7日前を過ぎるとキャンセル出来ない"という仕様を実装したServiceクラスを例に用いて説明する。
+"予約したツアーは出発日の7日前を過ぎるとキャンセル出来ない"という仕様を実装したServiceクラスを例に用いて説明する。
 
 **Javaクラス**
 
@@ -609,6 +644,8 @@ Unit Test
    * - | (4)
      - | キャンセル期限日を過ぎた場合は\ ``BusinessException``\ をスローする。
 
+|
+
 **JUnitソース**
 
 .. code-block:: java
@@ -620,7 +657,7 @@ Unit Test
       // omitted
 
       Reserve reserveResult = new Reserve();
-      reserveResult.setDepDay(new LocalDate(2012, 10, 10)); // (1)
+      reserveResult.setDepDay(new LocalDate(2012, 10, 10)); // (5)
       when(reserveRepository.findOne((String) anyObject())).thenReturn(
               reserveResult);
       dateFactory = mock(DateFactory.class);
@@ -633,10 +670,10 @@ Unit Test
     // omitted
 
     now = new DateTime(2012, 10, 1, 0, 0, 0, 0);
-    when(dateFactory.newDateTime()).thenReturn(now); // (2)
+    when(dateFactory.newDateTime()).thenReturn(now); // (6)
 
     // run
-    service.cancel(reserveNo); // (3)
+    service.cancel(reserveNo); // (7)
 
     // omitted
   }
@@ -647,11 +684,11 @@ Unit Test
     // omitted
 
     now = new DateTime(2012, 10, 9, 0, 0, 0, 0);
-    when(dateFactory.newDateTime()).thenReturn(now); // (4)
+    when(dateFactory.newDateTime()).thenReturn(now); // (8)
 
     try {
         // run
-        service.cancel(reserveNo); // (5)
+        service.cancel(reserveNo); // (9)
         fail("Illegal Route");
     } catch (BusinessException e) {
         // assert message if required
@@ -666,15 +703,15 @@ Unit Test
 
    * - 項番
      - 説明
-   * - | (1)
-     - | Repositoryクラスからの取得するツアー予約情報の出発日を2012/10/10とする。
-   * - | (2)
-     - | dateFactory.newDateTime()の返り値を2012/10/1とする。
-   * - | (3)
-     - | cancelを実行し、キャンセル可能な日付より前なので、キャンセルが成功する。
-   * - | (4)
-     - | dateFactory.newDateTime()の返り値を2012/10/9とする。
    * - | (5)
+     - | Repositoryクラスからの取得するツアー予約情報の出発日を2012/10/10とする。
+   * - | (6)
+     - | dateFactory.newDateTime()の返り値を2012/10/1とする。
+   * - | (7)
+     - | cancelを実行し、キャンセル可能な日付より前なので、キャンセルが成功する。
+   * - | (8)
+     - | dateFactory.newDateTime()の返り値を2012/10/9とする。
+   * - | (9)
      - | cancel実行し、キャンセル可能な日付より後なので、キャンセルが失敗する。
 
 |
@@ -682,15 +719,15 @@ Unit Test
 Integration Test
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-| Integration Testでは、システム連携先と疎通・連携確認のために1日の間に
-| 何日分ものデータ（例えばファイル）を作成して受け渡しを行う場合がある。
+Integration Testでは、システム連携先と疎通・連携確認のために1日の間に
+何日分ものデータ（例えばファイル）を作成して受け渡しを行う場合がある。
 
 .. figure:: ./images/DateFactoryIT.png
    :alt: DateFactorySI
-   :width: 60%
+   :width: 90%
 
-| 実際の日付が2012/10/1の場合
-| JdbcAdjustedDateFactoryを使用し、試験対象の日付との差分を計算するSQLを設定する。
+実際の日付が2012/10/1の場合、
+JdbcAdjustedDateFactoryを使用し、試験対象の日付との差分を計算するSQLを設定する。
 
 
 .. tabularcolumns:: |p{0.10\linewidth}|p{0.90\linewidth}|
@@ -720,36 +757,36 @@ System Testでは運用日を想定してテストシナリオを作成し、試
 
 .. figure:: ./images/DateFactoryST.png
    :alt: DateFactoryPT
-   :width: 60%
+   :width: 90%
 
-| JdbcAdjustedDateFactoryを使用し、日付差を計算するSQLを設定する。
-| 図中の1,2,3,4のように実際の日付と運用日の対応表を作成する。テーブルの差分値を変更するのみで、思い通りの日付でテストすることが可能となる。
+JdbcAdjustedDateFactoryを使用し、日付差を計算するSQLを設定する。
+図中の1,2,3,4のように実際の日付と運用日の対応表を作成する。テーブルの差分値を変更するのみで、思い通りの日付でテストすることが可能となる。
 
 |
 
 Production
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-| JdbcAdjustedDateFactoryを使用し、差分値を0とすることで、ソースを変更せずdateFactoryの返り値を、
-| 実際の日付と同じにできる。bean定義ファイルもSystem Testの時から変更を必要としない。
-| また、日時を変更する必要が生じてもテーブルの値を変更することで、dateFactoryの返り値を変更できる。
+JdbcAdjustedDateFactoryを使用し、差分値を0とすることで、ソースを変更せずdateFactoryの返り値を、
+実際の日付と同じにできる。bean定義ファイルもSystem Testの時から変更を必要としない。
+また、日時を変更する必要が生じてもテーブルの値を変更することで、dateFactoryの返り値を変更できる。
 
-    .. warning::
+.. warning::
 
-        Production環境で使用する場合は、production環境で使用するテーブルの差分値が0となっていることを確認すること。
+    Production環境で使用する場合は、production環境で使用するテーブルの差分値が0となっていることを確認すること。
 
-        **設定例**
+    **設定例**
 
-        - production環境で初めてテーブルを使用する場合
-            - INSERT INTO operation_date (diff) VALUES (0);
-        - production環境で試験実施済みの場合
-            - UPDATE operation_date SET diff=0;
+    - production環境で初めてテーブルを使用する場合
+        - INSERT INTO operation_date (diff) VALUES (0);
+    - production環境で試験実施済みの場合
+        - UPDATE operation_date SET diff=0;
 
-        を実行すること。
+    を実行すること。
 
-        **必ず、** :ref:`useCache<useCache>` **をtrueに設定すること**
+    **必ず、** :ref:`useCache<useCache>` **をtrueに設定すること**
 
-| 時間を変更することがない場合は、DefaultDateFactoryに設定ファイルを変更することを推奨する。
+時間を変更することがない場合は、DefaultDateFactoryに設定ファイルを変更することを推奨する。
 
 .. raw:: latex
 
