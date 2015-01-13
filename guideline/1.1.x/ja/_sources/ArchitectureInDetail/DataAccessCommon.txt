@@ -392,7 +392,7 @@ Bean定義したDataSouceを使用する場合の設定
         | 設定項目の詳細については、\ `DBCP Configuration <http://commons.apache.org/proper/commons-dbcp/configuration.html>`_\ を参照されたい。
     * - | (8)
       - | 設定例では値を直接指定しているが、環境によって設定値がかわる項目については、Placeholder(${...})を使用して、実際の設定値はプロパティファイルに指定すること。
-        | Placeholderについては、\ `Spring Reference Document <http://static.springsource.org/spring/docs/3.2.x/spring-framework-reference/html/beans.html#beans-factory-extension-factory-postprocessors>`_\ の\  ``PropertyPlaceholderConfigurer``\ を参照されたい。
+        | Placeholderについては、\ `Spring Reference Document <http://docs.spring.io/spring/docs/4.1.3.RELEASE/spring-framework-reference/html/beans.html#beans-factory-extension-factory-postprocessors>`_\ の\  ``PropertyPlaceholderConfigurer``\ を参照されたい。
 
 
 トランザクション管理を有効化するための設定

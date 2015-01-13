@@ -67,7 +67,7 @@ Webアプリケーションの入力チェックには、サーバサイドで�
    * - 相関項目チェック
      - | 複数のフィールドを比較するチェック
      - | パスワードと確認用パスワードの一致チェック
-     - | `org.springframework.validation.Validator <http://docs.spring.io/spring/docs/3.2.x/spring-framework-reference/html/validation.html#validator>`_\ インタフェースを実装したValidationクラス
+     - | `org.springframework.validation.Validator <http://docs.spring.io/spring/docs/4.1.3.RELEASE/spring-framework-reference/html/validation.html#validator>`_\ インタフェースを実装したValidationクラス
        | または Bean Validation
 
 
@@ -587,7 +587,8 @@ NameとEmailが空文字であることに対するエラーメッセージと�
 
 
 | デフォルトでは、エラーメッセージにフィールド名は含まれず、どのフィールドのエラーメッセージなのかが分かりにくい。
-| そのため、エラーメッセージを一覧で表示する場合は、フィールド単位にエラーメッセージが出力されるようにメッセージを定義する必要がある。
+| そのため、エラーメッセージを一覧で表示する場合は、エラーメッセージの中にフィールド名を含めるようにメッセージを定義する必要がある。
+| エラーメッセージの定義方法については、「:ref:`Validation_message_def`」を参照されたい。
 
 .. note::
 
@@ -1685,12 +1686,13 @@ Bean Validationでグループを指定する場合、アノテーションの\ 
 
          @RequestMapping(value = "create", method = RequestMethod.POST, params = "confirm")
          public String createConfirm(/* (2) */ UserForm form, BindingResult result) {
+             // (3)
              Class<?> validationGroup = Default.class;
              // logic to determine validation group
              // if (xxx) {
              //     validationGroup = Xxx.class;
              // }
-             smartValidator.validate(form, result, validationGroup); // (3)
+             smartValidator.validate(form, result, validationGroup); // (4)
              if (result.hasErrors()) {
                  return "user/createForm";
              }
@@ -1711,6 +1713,9 @@ Bean Validationでグループを指定する場合、アノテーションの\ 
       * - | (2)
         - | \ ``@Validated``\ アノテーションは使わない。
       * - | (3)
+        - | バリデーショングループを決定する。
+          | バリデーショングループを決定するロジックは、Helperクラスに委譲して、Controller内のロジックをシンプルな状態に保つことを推奨する。
+      * - | (4)
         - | \ ``SmartValidator``\ の\ ``validate``\ メソッドを使用して、グループを指定したバリデーションを実行する。
           | グループの指定は可変長引数になっており、複数指定できる。
 
@@ -1828,14 +1833,15 @@ Spring Validatorによる相関項目チェック実装
 
         @Override
         public void validate(Object target, Errors errors) {
+
+            if (errors.hasFieldErrors("password")) { // (3)
+                return;
+            }
+
             PasswordResetForm form = (PasswordResetForm) target;
             String password = form.getPassword();
             String confirmPassword = form.getConfirmPassword();
 
-            if (password == null || confirmPassword == null) { // (3)
-                // must be checked by @NotNull
-                return;
-            }
             if (!password.equals(confirmPassword)) { // (4)
                 errors.rejectValue(/* (5) */ "password",
                 /* (6) */ "PasswordEqualsValidator.passwordResetForm.password",
@@ -1856,7 +1862,8 @@ Spring Validatorによる相関項目チェック実装
      * - | (2)
        - | このValidatorのチェック対象であるかどうかを判別する。ここでは、\ ``PasswordResetForm``\ クラスをチェック対象とする。
      * - | (3)
-       - | Bean Validationのルールと同様に、フィールドが\ ``null``\ かどうかのチェックは、\ ``@NotNull``\ アノテーションに任せ、このValidatorでは、フィールドが\ ``null``\ の場合は正常値とみなす。
+       - | 単項目チェック時に対象フィールドでエラーが発生している場合は、このValidatorで相関チェックは行わない。
+         | 相関チェックを必ず行う必要がある場合は、この判定ロジックは不要である。
      * - | (4)
        - | チェックロジックを実装する。
      * - | (5)
@@ -2072,7 +2079,8 @@ Bean Validationによって、相関項目チェックの実装するために�
 
 Spring MVCによるBean Validationのエラーメッセージは、以下の順で解決される。
 
-#. \ ``org.springframework.context.MessageSource``\ に定義されているメッセージの中に、ルールに合致するものがあればそれをエラーメッセージとして使用する (Springのルール)
+#. | \ ``org.springframework.context.MessageSource``\ に定義されているメッセージの中に、ルールに合致するものがあればそれをエラーメッセージとして使用する (Springのルール)。
+   | Springのデフォルトのルールについては、「`DefaultMessageCodesResolverのJavaDoc <http://docs.spring.io/spring/docs/4.1.3.RELEASE/javadoc-api/org/springframework/validation/DefaultMessageCodesResolver.html>`_」を参照されたい。
 #. 1.でメッセージが見つからない場合、アノテーションの\ ``message``\ 属性に、指定されたメッセージからエラーメッセージを取得する (Bean Validationのルール)
 
   #. \ ``message``\ 属性に指定されたメッセージが、"{メッセージキー}"形式でない場合、そのテキストをエラーメッセージとして使用する。
@@ -2337,7 +2345,7 @@ ValidationMessages.propertiesでシステムで利用するデフォルトのメ
 
 .. note::
 
-  application-messages.propertiesのメッセージキーの形式は、\ `これ以外にも用意されている <http://docs.spring.io/spring/docs/3.2.x/javadoc-api/org/springframework/validation/DefaultMessageCodesResolver.html>`_\ が、
+  application-messages.propertiesのメッセージキーの形式は、\ `これ以外にも用意されている <http://docs.spring.io/spring/docs/4.1.3.RELEASE/javadoc-api/org/springframework/validation/DefaultMessageCodesResolver.html>`_\ が、
   デフォルトメッセージを一部上書きする目的で使用するのであれば、基本的に、\ ``アノテーション名.フォーム属性名.プロパティ名``\ 形式でよい。
 
 |
@@ -2403,8 +2411,8 @@ Bean Validationは標準で用意されているチェックルール以外に�
 
 | または、ドメイン共通で、
 
-* 「ユーザーID」は、特定の4文字以上20文字以下の半角英字に制限したい
-* 「年齢」は、特定の1歳以上150歳以下に制限したい
+* 「ユーザーID」は、4文字以上20文字以下の半角英字に制限したい
+* 「年齢」は、1歳以上150歳以下に制限したい
 
 | という制約がある場合を考える。
 | これらは既存ルールの\ ``@Pattern``\ 、\ ``@Size``\ 、\ ``@Min``\ 、\ ``@Max``\ 等を組み合わせることでも実現できるが、
@@ -3177,7 +3185,7 @@ Bean Validationの標準アノテーションを、以下に示す。
        | private boolean checked;
    * - \ ``@AssertFalse``\
      - boolean,Boolean
-     - 対象のフィールドがfalseであることを検証する(例：規約に同意したかどうか）
+     - 対象のフィールドがfalseであることを検証する
      - | @AssertFalse
        | private boolean checked;
    * - \ ``@Future``\
@@ -3387,7 +3395,7 @@ application-messages.propertiesに以下の定義を行った場合、
 
 .. tip::
 
-  メッセージキーのルールの詳細は、\ `Javadoc <http://docs.spring.io/spring/docs/3.2.x/javadoc-api/org/springframework/validation/DefaultMessageCodesResolver.html>`_\ を参照されたい。
+  メッセージキーのルールの詳細は、\ `Javadoc <http://docs.spring.io/spring/docs/4.1.3.RELEASE/javadoc-api/org/springframework/validation/DefaultMessageCodesResolver.html>`_\ を参照されたい。
 
 
 .. _Validation_string_trimmer_editor:

@@ -45,14 +45,14 @@ Types of Logs
      - Output contents
    * - TRACE
      - Performance log
-     - Measurement of request processing time
+     - | Measurement of request processing time
+       | (Should not be output during production environment operations)
      - | Process start and end time, process elapsed time (ms),
        | Information that can identify the execution process etc. (execution controller + method, request URL etc.).
-       | Should not be output during production environment operations
    * - DEBUG
      - Debug log
      - | Debug at the time of development
-       | Should not be output during production environment operations
+       | (Should not be output during production environment operations)
      - Optional (Executed query, Input parameter, Return value etc.)
    * - INFO
      - Access log
@@ -93,37 +93,11 @@ Output contents of log
 
 | It is important to note the points given below for the output contents of log.
 
-#. | ID to be output to log
+1. | ID to be output to log
    | When log is to be monitored during the operation, it is recommended to include a message ID in the log to be monitored.
    | Further, when the business process volume is to be assessed using an access log, the log should be output according to the ID assigned to each business process as explained in Message Management.
    | This facilitates overall data compilation.
-#. | Traceability
-   | To improve the traceability, it is recommended to output a unique track ID (hereafter referred to as X-Track) at request level in each log.
-   | Example of logs including X-Track is given below.
 
-
-    .. code-block:: xml
-
-      date:2013-09-06 19:36:31	X-Track:85a437108e9f4a959fd227f07f72ca20	message:[START CONTROLLER] (omitted)
-      date:2013-09-06 19:36:31	X-Track:85a437108e9f4a959fd227f07f72ca20	message:[END CONTROLLER  ] (omitted)
-      date:2013-09-06 19:36:31	X-Track:85a437108e9f4a959fd227f07f72ca20	message:[HANDLING TIME   ] (omitted)
-      date:2013-09-06 19:36:33	X-Track:948c8b9fd04944b78ad8aa9e24d9f263	message:[START CONTROLLER] (omitted)
-      date:2013-09-06 19:36:33	X-Track:142ff9674efd486cbd1e293e5aa53a78	message:[START CONTROLLER] (omitted)
-      date:2013-09-06 19:36:33	X-Track:142ff9674efd486cbd1e293e5aa53a78	message:[END CONTROLLER  ] (omitted)
-      date:2013-09-06 19:36:33	X-Track:142ff9674efd486cbd1e293e5aa53a78	message:[HANDLING TIME   ] (omitted)
-      date:2013-09-06 19:36:33	X-Track:948c8b9fd04944b78ad8aa9e24d9f263	message:[END CONTROLLER  ] (omitted)
-      date:2013-09-06 19:36:33	X-Track:948c8b9fd04944b78ad8aa9e24d9f263	message:[HANDLING TIME   ] (omitted)
-
-
-   | Logs can be linked together using Track IDs even when the output is irregular.
-   | In the above example, it can be clearly understood that 4th, 8th and 9th rows in the log are pertaining to the same request.
-   | In common library, \ ``org.terasoluna.gfw.web.logging.mdc.XTrackMDCPutFilter``\  to be added to MDC is provided by generating a unique key for each request.
-   | \ ``XTrackMDCPutFilter``\  sets Track ID in "X-Track" of HTTP response header as well. X-Track is used as a Track ID label in the log.
-   | Refer to \ :ref:`About MDC <log_MDC> `\  for the usage methods.
-#. | Log mask
-   | If personal information, credit card number etc. are output to the log file as is, the information that has security threat should be masked if needed.
-
-\
  .. note::
 
      The readability of log is enhanced by including an ID in the log thereby reducing the time required for primary isolation of failure analysis.
@@ -135,6 +109,35 @@ Output contents of log
 
      However, note that the vulnerabilities of the system may be exposed if errors are displayed on the screen along with the failure details.
 
+     In common library, the mechanism(component) is provided to include the message ID(exception code) into the log and the screen when an exception is occurred.
+     Details refer to ":doc:`ExceptionHandling`".
+
+2. | Traceability
+   | To improve the traceability, it is recommended to output a unique track ID (hereafter referred to as X-Track) at request level in each log.
+   | Example of logs including X-Track is given below.
+
+ .. code-block:: console
+
+    date:2013-09-06 19:36:31	X-Track:85a437108e9f4a959fd227f07f72ca20	message:[START CONTROLLER] (omitted)
+    date:2013-09-06 19:36:31	X-Track:85a437108e9f4a959fd227f07f72ca20	message:[END CONTROLLER  ] (omitted)
+    date:2013-09-06 19:36:31	X-Track:85a437108e9f4a959fd227f07f72ca20	message:[HANDLING TIME   ] (omitted)
+    date:2013-09-06 19:36:33	X-Track:948c8b9fd04944b78ad8aa9e24d9f263	message:[START CONTROLLER] (omitted)
+    date:2013-09-06 19:36:33	X-Track:142ff9674efd486cbd1e293e5aa53a78	message:[START CONTROLLER] (omitted)
+    date:2013-09-06 19:36:33	X-Track:142ff9674efd486cbd1e293e5aa53a78	message:[END CONTROLLER  ] (omitted)
+    date:2013-09-06 19:36:33	X-Track:142ff9674efd486cbd1e293e5aa53a78	message:[HANDLING TIME   ] (omitted)
+    date:2013-09-06 19:36:33	X-Track:948c8b9fd04944b78ad8aa9e24d9f263	message:[END CONTROLLER  ] (omitted)
+    date:2013-09-06 19:36:33	X-Track:948c8b9fd04944b78ad8aa9e24d9f263	message:[HANDLING TIME   ] (omitted)
+
+\
+
+   | Logs can be linked together using Track IDs even when the output is irregular.
+   | In the above example, it can be clearly understood that 4th, 8th and 9th rows in the log are pertaining to the same request.
+   | In common library, \ ``org.terasoluna.gfw.web.logging.mdc.XTrackMDCPutFilter``\  to be added to MDC is provided by generating a unique key for each request.
+   | \ ``XTrackMDCPutFilter``\  sets Track ID in "X-Track" of HTTP response header as well. X-Track is used as a Track ID label in the log.
+   | Refer to \ :ref:`About MDC <log_MDC>`\  for the usage methods.
+
+3. | Log mask
+   | If personal information, credit card number etc. are output to the log file as is, the information that has security threat should be masked if needed.
 
 Log output points
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
@@ -211,9 +214,9 @@ Settings of Logback
      and \ `specify the configuration file in system properties  <http://logback.qos.ch/manual/configuration.html#configFileProperty>`_\ .
 
 
-- logback.xml
+logback.xml
 
- .. code-block:: xml
+.. code-block:: xml
 
   <!DOCTYPE logback>
   <configuration>
@@ -323,14 +326,25 @@ Settings of Logback
    * - | (12)
      - | It is set in such a way that ConsoleAppender, RollingFileAppender (application logs) are used by default.
 
+.. tip:: **About LTSV(Labeled Tab Separated Value)**
 
+    \ `LTSV <http://ltsv.org/>`_\  is one of text data formats, and mainly used as the log format.
+
+    For log fomart, LTSV is easy to parse using some tools because it has following features.
+
+    * It's easy to split the field compared to other delimiters because tabs is used as field delimiters.
+    * Even if the field definition (changing the position of field or adding the field or removing the field) is changed, it does not affect to parsing because of including a label(name) in the field.
+
+    It is also one of features that there are that pasting on the Excel can format it with the least effort.
+
+|
 
 The following three items should be set in logback.xml.
 
-.. tabularcolumns:: |p{0.10\linewidth}|p{0.50\linewidth}|
+.. tabularcolumns:: |p{0.20\linewidth}|p{0.80\linewidth}|
 .. list-table::
    :header-rows: 1
-   :widths: 10 50
+   :widths: 20 80
 
    * - Type
      - Overview
@@ -341,15 +355,17 @@ The following three items should be set in logback.xml.
    * - logger
      - "Which logger (package or class etc.)" is to be output at which minimum "log level"
 
+|
+
 In <appender> element, the "location" and the "layout" to be used for output are defined.
 It is not used at the time of the log output only by defining the appender.
 It is used for the first time when it is referred in <logger> element or <root> element.
 There are two attributes, namely, "name" and "class" and both are mandatory.
 
-.. tabularcolumns:: |p{0.10\linewidth}|p{0.50\linewidth}|
+.. tabularcolumns:: |p{0.20\linewidth}|p{0.80\linewidth}|
 .. list-table::
    :header-rows: 1
-   :widths: 10 50
+   :widths: 20 80
 
    * - Attribute
      - Overview
@@ -358,12 +374,14 @@ There are two attributes, namely, "name" and "class" and both are mandatory.
    * - class
      - FQCN of appender implementation class.
 
+|
+
 The main appenders that are provided are shown below.
 
-.. tabularcolumns:: |p{0.10\linewidth}|p{0.50\linewidth}|
+.. tabularcolumns:: |p{0.30\linewidth}|p{0.70\linewidth}|
 .. list-table::
    :header-rows: 1
-   :widths: 10 50
+   :widths: 30 70
 
    * - Appender
      - Overview
@@ -377,6 +395,8 @@ The main appenders that are provided are shown below.
      - Asynchronous output. It is used for logging in processes with high performance requirement. (It is necessary to set the output destination in other Appender.)
 
 Refer to \ `Official Manual <http://logback.qos.ch/manual/appenders.html>`_\  for detailed Appender types.
+
+|
 
 Basic log output by calling API of SLF4J
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^

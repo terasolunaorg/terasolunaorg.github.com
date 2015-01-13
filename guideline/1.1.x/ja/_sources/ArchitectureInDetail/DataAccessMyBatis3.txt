@@ -2773,7 +2773,7 @@ Entityを1件登録する際の実装例を以下に示す。
 
     import org.springframework.stereotype.Service;
     import org.springframework.transaction.annotation.Transactional;
-    import org.terasoluna.gfw.common.date.DateFactory;
+    import org.terasoluna.gfw.common.date.jodatime.JodaTimeDateFactory;
 
     import com.example.domain.model.Todo;
     import com.example.domain.repository.todo.TodoRepository;
@@ -2787,7 +2787,7 @@ Entityを1件登録する際の実装例を以下に示す。
         TodoRepository todoRepository;
 
         @Inject
-        DateFactory dateFactory;
+        JodaTimeDateFactory dateFactory;
 
         @Override
         public Todo create(Todo todo) {

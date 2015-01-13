@@ -11,7 +11,7 @@ Overview
 --------------------------------------------------------------------------------
 
 | A message consists of fixed text displayed on screens or reports, or dynamic text displayed depending on screen operations performed by user.
-| It is recommended to define a message in as much details as possible.
+| It is also recommended to define a error message in as much details as possible.
 \
     .. warning::
        In following cases, there is a risk of inability to identify error cause during the production phase or during the testing just before entering into production phase (however, such risks may not surface during the development phase).
@@ -25,7 +25,7 @@ Overview
 Types of messages
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-| Messages should be classified into following 3 types depending on the message contents.
+| Message that display according to the result of the user's screen operation should be classified into following 3 types depending on the message contents.
 | When defining any message, it important to note its type.
 
 .. _message-level-table-label:
@@ -43,7 +43,7 @@ Types of messages
      - This message is displayed when a process is executed normally by the user.
    * - warn
      - Warning message
-     - This message is displayed to indicate that there are some problems in the execution; however the process can be continued. (Example: Notification indicating that the password is about to expire)
+     - This message is displayed to indicate waring to be focused on; however the process can be continued. (Example: Notification indicating that the password is about to expire)
    * - error
      - Input error message
      - This message is displayed on input screen when value entered by the user is invalid.
@@ -63,14 +63,14 @@ Message output patterns are shown below.
 
 .. figure:: ./images/message-pattern.png
    :alt: message pattern
-   :width: 80%
+   :width: 95%
 
 Message patterns, message display contents and the message type are shown below.
 
-.. tabularcolumns:: |p{0.05\linewidth}|p{0.15\linewidth}|p{0.15\linewidth}|p{0.15\linewidth}|p{0.50\linewidth}|
+.. tabularcolumns:: |p{0.05\linewidth}|p{0.15\linewidth}|p{0.20\linewidth}|p{0.10\linewidth}|p{0.50\linewidth}|
 .. list-table::
    :header-rows: 1
-   :widths: 5 15 15 15 50
+   :widths: 5 15 20 10 50
 
    * - Symbol
      - Pattern
@@ -84,9 +84,10 @@ Message patterns, message display contents and the message type are shown below.
      - * Employee Registration screen
    * - |
      - | Label
-     - | Screen, report field name
-       | Table field name
+     - | Screen field name
+       | Report field name
        | Comment
+       | Guidance
      - | -
      - * User name
        * Password
@@ -271,6 +272,22 @@ The method of defining message ID to be used in screen label and fixed text of r
          - | Variable length：Optional
          - | Label name, Caption
          - |
+
+    .. note::
+
+        When including the field name into validation error message, define messages as follows.
+
+        * model attribute name of form + "." + field name
+
+         .. code-block:: properties
+
+            staffForm.staffName = Staff name
+
+        * filed name
+
+         .. code-block:: properties
+
+            staffName = Staff name
 
 * Example
 

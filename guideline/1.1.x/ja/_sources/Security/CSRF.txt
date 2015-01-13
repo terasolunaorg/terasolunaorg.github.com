@@ -124,7 +124,7 @@ spring-security.xmlの設定
    * - | (1)
      - | \ ``<sec:http>``\ 要素に\ ``<sec:csrf>``\ 要素を定義することで、Spring Security のCSRFトークンチェック機能を利用できるようになる。
        | デフォルトでチェックされるHTTPメソッドについては、\ :ref:`こちら<csrf_default-add-token-method>`\ を参照されたい。
-       | 詳細については、\ `Spring Securityのレファレンスドキュメント <http://docs.spring.io/spring-security/site/docs/3.2.x/reference/htmlsingle/#csrf-configure>`_\ を参照されたい。
+       | 詳細については、\ `Spring Securityのレファレンスドキュメント <http://docs.spring.io/spring-security/site/docs/3.2.5.RELEASE/reference/htmlsingle/#csrf-configure>`_\ を参照されたい。
    * - | (2)
      - | \ ``AccessDeniedException``\ を継承したExceptionが発生した場合、Exceptionの種類毎に表示するviewを切り替えるためにHandlerを定義する。
        | 全て同じ画面で良い場合は ``error-page`` 属性に遷移先のjspを指定することで可能となる。

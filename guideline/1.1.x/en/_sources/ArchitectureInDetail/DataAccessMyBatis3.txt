@@ -2773,7 +2773,7 @@ Implementation example for registering a single Entity record is given below.
 
     import org.springframework.stereotype.Service;
     import org.springframework.transaction.annotation.Transactional;
-    import org.terasoluna.gfw.common.date.DateFactory;
+    import org.terasoluna.gfw.common.date.jodatime.JodaTimeDateFactory;
 
     import com.example.domain.model.Todo;
     import com.example.domain.repository.todo.TodoRepository;
@@ -2787,7 +2787,7 @@ Implementation example for registering a single Entity record is given below.
         TodoRepository todoRepository;
 
         @Inject
-        DateFactory dateFactory;
+        JodaTimeDateFactory dateFactory;
 
         @Override
         public Todo create(Todo todo) {

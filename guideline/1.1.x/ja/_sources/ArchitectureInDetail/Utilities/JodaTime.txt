@@ -66,7 +66,7 @@ Joda Time, Joda Time JSP tags の利用方法を、以下で説明する。
     .. note::
 
         実際ServiceやControllerで現在時刻を取得するときのDateTime, LocalDate や、 LocalTimeのインスタンス取得には、
-        \ ``org.terasoluna.gfw.common.date.DateFactory``\を利用することを推奨する。
+        \ ``org.terasoluna.gfw.common.date.jodatime.JodaTimeDateFactory``\を利用することを推奨する。
 
             .. code-block:: java
 
@@ -97,7 +97,7 @@ Joda Time, Joda Time JSP tags の利用方法を、以下で説明する。
     DateTime dateTime = new DateTime(DateTimeZone.forID("Asia/Tokyo"));
 
 
-\ ``org.terasoluna.gfw.common.date.DateFactory``\を利用する場合は、以下のようになる。
+\ ``org.terasoluna.gfw.common.date.jodatime.JodaTimeDateFactory``\を利用する場合は、以下のようになる。
 
 .. code-block:: java
 
@@ -122,7 +122,7 @@ Joda Time, Joda Time JSP tags の利用方法を、以下で説明する。
 
     LocalDateTime localDateTime = new LocalDateTime();
 
-\ ``org.terasoluna.gfw.common.date.DateFactory``\ を利用する場合は、以下のようになる。
+\ ``org.terasoluna.gfw.common.date.jodatime.JodaTimeDateFactory``\ を利用する場合は、以下のようになる。
 
 .. code-block:: java
 

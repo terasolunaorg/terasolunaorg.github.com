@@ -322,10 +322,12 @@ Spring Dataより提供されているページ検索用の機能は、以下の
 
  .. note:: **「Page Link URL」のデフォルト値について**
 
-    リンクの状態が ``"disabled"`` の場合は ``"#"`` 、 ``"disabled"`` 以外の場合は ``"?page={page}&size={size}"`` となる。
+    リンクの状態が\ ``"disabled"``\と\ ``"active"``\ の場合は\ ``"javascript:void(0)"``\ 、それ以外の場合は\ ``"?page={page}&size={size}"``\ となる。
 
     「Page Link URL」は、JSPタグライブラリのパラメータの指定によって別の値に変更することができる。
 
+    terasoluna-gfw-web 1.1.0.RELEASEより、\ ``"active"``\ 状態のリンクのデフォルト値を\ ``"?page={page}&size={size}"``\から\ ``"javascript:void(0)"``\に変更している。
+    これは、メジャーなWebサイトのページネーションリンクの実装やメジャーなCSSライブラリ(Bootstrapなど)の実装に合わせるためである。
 
 .. _pagination_overview_paginationlink_pagelinktext:
 
@@ -424,11 +426,6 @@ JSPタグライブラリのパラメータに値を指定することで、デ�
         | ``0`` を指定すると、「指定したページに移動するためのリンク」自体が出力されなくなる。
         | 例) 5
 
- .. warning:: **active状態のページリンクの制約事項**
-
-    ``"active"`` 状態のページリンクを無効化する仕組みは提供していないため、ページリンクが押下された場合は、該当ページを取得するためのリクエストが送信される。
-    リクエストが送信されないようにする必要がある場合は、共通ライブラリから提供しているJSPタグライブラリを拡張するか、JavaScriptによってリクエストが送信されないように制御する必要がある。
-
 |
 
  レイアウトを制御するためのパラメータを、全てデフォルトから変更した時に出力されるHTMLは以下の通り。
@@ -473,7 +470,6 @@ JSPタグライブラリのパラメータに値を指定することで、デ�
     * - 1.
       - disabledHref
       - | ``"disabled"`` 状態のリンクの「Page Link URL」に設定する値を指定する。
-        | 例) \javascript:void(0);\
     * - 2.
       - pathTmpl
       - | 「Page Link URL」に設定するリクエストパスのテンプレートを指定する。
@@ -505,11 +501,26 @@ JSPタグライブラリのパラメータに値を指定することで、デ�
         | **trueを指定する場合は、XSS対策が必要な文字がクエリ文字列内に含まれない事が保証されていること。**
         |
         | terasoluna-gfw-web 1.0.1.RELEASE以上で利用可能なパラメータである。
+    * - 6.
+      - enableLinkOfCurrentPage
+      - | \ ``"active"``\ 状態のページリンクを押下した際に、該当ページを再表示するためのリクエストを送信するためのフラグ。
+        | \ ``true``\ を指定する事で、「Page Link URL」に該当ページを再表示するためのURL(デフォルト値は\ ``"?page={page}&size={size}"``\ )が設定される。(デフォルト値は\ ``false``\で、「Page Link URL」には\ ``disabledHref``\ 属性の値が設定される)
+        |
+        | terasoluna-gfw-web 1.1.0.RELEASE以上で利用可能なパラメータである。
 
  .. note:: **disabledHrefの設定値について**
 
-    デフォルトでは、 ``disabledHref`` には ``"#"`` が設定されているため、ページリンクを押すとフォーカスがページのトップに移動する。
-    ページリンク押下時の動作を完全に無効化したい場合は、 ``"javascript:void(0);"`` を指定する必要がある。
+    デフォルトでは、\ ``disabledHref``\ 属性には\ ``"javascript:void(0)"``\ が設定されている。
+    ページリンク押下時の動作を無効化するだけであれば、デフォルトのままでよい。
+
+    ただし、デフォルトの状態でページリンクにフォーカスを移動又はマウスオーバーした場合、
+    ブラウザのステータスバーに\ ``"javascript:void(0)"``\ が表示されることがある。
+    この挙動を変えたい場合は、JavaScriptを使用してページリンク押下時の動作を無効化する必要がある。
+    実装例については、「:ref:`PaginationHowToUseDisablePageLinkUsingJavaScript`」を参照されたい。
+
+    terasoluna-gfw-web 1.1.0.RELEASEより、\ ``disabledHref``\ 属性のデフォルト値を\ ``"#"``\から\ ``"javascript:void(0)"``\ に変更している。
+    この変更を行うことで、\ ``"disabled"``\ 状態のページリンクを押下した際に、フォーカスがページのトップへ移動しないようになっている。
+
 
  .. note:: **パス変数(プレースホルダ)について**
 
@@ -546,7 +557,7 @@ JSPタグライブラリのパラメータに値を指定することで、デ�
 
 |
 
- 動作を制御するためのパラメータを、全てデフォルトから変更した時に出力されるHTMLは、以下の通り。
+ 動作を制御するためのパラメータを変更した時に出力されるHTMLは、以下の通り。
  図中の番号は、上記で説明したパラメータ一覧の項番に対応している。
 
  - JSP
@@ -554,10 +565,11 @@ JSPタグライブラリのパラメータに値を指定することで、デ�
   .. code-block:: jsp
 
     <t:pagination page="${page}"
-        disabledHref="javascript:void(0);"
+        disabledHref="#"
         pathTmpl="${pageContext.request.contextPath}/article/list/{page}/{size}"
         queryTmpl="sort={sortOrderProperty},{sortOrderDirection}"
-        criteriaQuery="${f:query(articleSearchCriteriaForm)}" />
+        criteriaQuery="${f:query(articleSearchCriteriaForm)}"
+        enableLinkOfCurrentPage="true" />
 
  - 出力されるHTML
 
@@ -1091,9 +1103,9 @@ JSPの実装(基本編)
  .. code-block:: html
 
      <ul>
-        <li class="disabled"><a href="#">&lt;&lt;</a></li>
-        <li class="disabled"><a href="#">&lt;</a></li>
-        <li class="active"><a href="?page=0&size=6">1</a></li>
+        <li class="disabled"><a href="javascript:void(0)">&lt;&lt;</a></li>
+        <li class="disabled"><a href="javascript:void(0)">&lt;</a></li>
+        <li class="active"><a href="javascript:void(0)">1</a></li>
         <li><a href="?page=1&size=6">2</a></li>
         <li><a href="?page=2&size=6">3</a></li>
         <li><a href="?page=3&size=6">4</a></li>
@@ -1650,6 +1662,58 @@ JSPの実装(動作編)
       - | クライアントからソート条件を指定する場合は、 ソート条件を指定するためのパラメータを追加する。
         | ソート条件を指定するためのパラメータの仕様については、「 :ref:`ページ検索用のリクエストパラメータについて <pagination_overview_pagesearch_requestparameter>` 」を参照されたい。
         | 上記例では、publishedDateの昇順と降順をプルダウンで選択できるようにしている。
+
+|
+
+.. _PaginationHowToUseDisablePageLinkUsingJavaScript:
+
+JavaScriptを使用したページリンクの無効化
+""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
+デフォルトでは、\ ``"disabled"``\ 状態と\ ``"active"``\ 状態のページリンク押下時の動作を無効化するために、\ ``<t:pagination>``\ タグの\ ``disabledHref``\ 属性に\ ``"javascript:void(0)"``\ を設定している。
+この状態でページリンクにフォーカスを移動又はマウスオーバーすると、 ブラウザのステータスバーに\ ``"javascript:void(0)"``\ が表示されることがある。
+この挙動を変えたい場合は、JavaScriptを使用してページリンク押下時の動作を無効化する必要がある。
+
+以下に実装例を示す。
+
+**JSP**
+
+.. code-block:: jsp
+
+    <%-- (1) --%>
+    <script type="text/javascript"
+            src="${pageContext.request.contextPath}/resources/vendor/js/jquery.js"></script>
+
+    <%-- (2) --%>
+    <script type="text/javascript">
+        $(function(){
+            $(document).on("click", ".disabled a, .active a", function(){
+                return false;
+            });
+        });
+    </script>
+
+    <%-- ... --%>
+
+    <%-- (3) --%>
+    <t:pagination page="${page}" disabledHref="#" />
+
+.. tabularcolumns:: |p{0.10\linewidth}|p{0.90\linewidth}|
+.. list-table::
+    :header-rows: 1
+    :widths: 10 90
+
+    * - 項番
+      - 説明
+    * - | (1)
+      - jQueryのjsファイルを読み込む。
+
+        上記例では、JavaScriptを使用してページリンク押下時の動作を無効化するためにjQueryのAPIを利用する。
+    * - | (2)
+      - jQueryのAPIを使用して、\ ``"disabled"``\ 状態と\ ``"active"``\ 状態のページリンクのクリックイベントを無効化する。
+
+        ただし、\ ``<t:pagination>``\ タグの\ ``enableLinkOfCurrentPage``\ 属性に\ ``"true"``\ を指定している場合は、\ ``"active"``\ 状態のページリンクのクリックイベントを無効化してはいけない。
+    * - | (3)
+      - \ ``disabledHref``\ 属性に\ ``"#"``\ を指定する。
 
 |
 

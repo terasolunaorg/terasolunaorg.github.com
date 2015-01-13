@@ -826,7 +826,7 @@ Define Spring MVC related definitions in ``src/main/resources/META-INF/spring/sp
        | If not found, ``resources/css/style.css`` is searched in classpath (src/main/resources and jar). If not found again, 404 error is returned.
        | Cache period (3600 seconds = 60 minutes) of static resources is set in ``cache-period`` attribute.
        | Further, static resources are not used in this tutorial.
-       | ``cache-period="3600"`` is also correct, however, in order to demostrate that it is 60 minutes, it is better to write as ``cache-period="#{60 * 60}"`` which uses `SpEL <http://static.springsource.org/spring/docs/3.2.x/spring-framework-reference/html/expressions.html#expressions-beandef-xml-based>`_ .
+       | ``cache-period="3600"`` is also correct, however, in order to demostrate that it is 60 minutes, it is better to write as ``cache-period="#{60 * 60}"`` which uses `SpEL <http://docs.spring.io/spring/docs/4.1.3.RELEASE/spring-framework-reference/html/expressions.html#expressions-beandef-xml-based>`_ .
    * - | (4)
      - | Set interceptor that outputs trace log of controller processing. Set so that it excludes the path under ``/resources`` from mapping.
    * - | (5)

@@ -126,7 +126,7 @@ How to use
        - | 「http」、もしくは「https」を指定する。指定したプロトコルでのアクセスを強制する。
          | 指定しない場合、どちらでもアクセスできる。
 
-  | 上記以外の属性については、\ `B.1.10 <intercept-url> <http://static.springsource.org/spring-security/site/docs/3.1.x/reference/appendix-namespace.html#nsa-intercept-url>`_\ を参照されたい。
+  | 上記以外の属性については、\ `<intercept-url> <http://docs.spring.io/spring-security/site/docs/3.2.5.RELEASE/reference/htmlsingle/#nsa-intercept-url>`_\ を参照されたい。
 
 | ログインユーザーに「ROLE_USER」「ROLE_ADMIN」というロールがある場合を例に、設定例を示す。
 
@@ -216,7 +216,7 @@ How to use
        - | リクエストURL、およびJSPタグへのアクセス認可のみで、有効となる。
          | 指定のIPアドレスからのリクエストであれば、真を返す。
   
-  | その他、使用可能なSpring EL式は、 \ `Common built-in expressions <http://static.springsource.org/spring-security/site/docs/3.1.x/reference/el-access.html#Common Built-In Expressions>`_\ を参照されたい。
+  | その他、使用可能なSpring EL式は、 \ `Common built-in expressions <http://docs.spring.io/spring-security/site/docs/3.2.5.RELEASE/reference/htmlsingle/#el-common-built-in>`_\ を参照されたい。
   
   | 演算子を使用した判定も行うことができる。
   | 以下の例では、ロールと、リクエストされたIPアドレス両方に合致した場合、アクセス可能となる。
@@ -429,7 +429,7 @@ URLパターンでの例外処理
        - | アクセス制御式を記述する。メソッドを実行する前に式が評価され、真であれば、メソッドが実行される。
          | 偽であれば、\ ``org.springframework.security.access.AccessDeniedException``\ がスローされる。
          | 設定可能な値は、\ :ref:`authorization-intercept-url`\ で述べたExpressionや、および
-         | \ `Spring Expression Language (SpEL) <http://docs.spring.io/spring/docs/3.2.x/spring-framework-reference/html/expressions.html>`_\ で記述された式である。
+         | \ `Spring Expression Language (SpEL) <http://docs.spring.io/spring/docs/4.1.3.RELEASE/spring-framework-reference/html/expressions.html>`_\ で記述された式である。
 
   .. tip::
   
@@ -439,7 +439,7 @@ URLパターンでの例外処理
     * \ ``org.springframework.security.access.prepost.PreFilter``\ 
     * \ ``org.springframework.security.access.prepost.PostFilter``\ 
   
-    これらの詳細は\ `Spring Security マニュアル <http://docs.spring.io/spring-security/site/docs/3.1.x/reference/el-access.html#el-pre-post-annotations>`_\ を参照されたい。
+    これらの詳細は\ `Spring Security マニュアル <http://docs.spring.io/spring-security/site/docs/3.2.5.RELEASE/reference/htmlsingle/#el-pre-post-annotations>`_\ を参照されたい。
 
   .. note::
 

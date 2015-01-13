@@ -7,7 +7,7 @@
     :depth: 3
     :local:
 
-本ガイドラインでは、アプリケーションを、次の3レイヤで分割する。
+本ガイドラインでは、アプリケーションを、次の3レイヤに分割する。
 
 * アプリケーション層
 * ドメイン層
@@ -17,11 +17,11 @@
 
 .. figure:: images/ApplicationLayer.png
    :alt: application layers
-   :width: 80%
+   :width: 95%
 
 
 
-| アプリケーション層も、インフラストラクチャ層も、ドメイン層に依存するが、\ **ドメイン層が、他の層に依存してはいけない。**
+| アプリケーション層とインフラストラクチャ層は、ドメイン層に依存するが、\ **ドメイン層が、他の層に依存してはいけない。**
 | ドメイン層の変更によって、アプリケーション層に変更が生じるのは良いが、
 | アプリケーション層の変更によって、ドメイン層の変更が生じるべきではない。
 
@@ -33,6 +33,7 @@
   Eric Evansの"Domain-Driven Design (2004, Addison-Wesley)"で説明されてる用語である。
   ただし、用語は使用しているが以後Domain Driven Designの考えにのっとっているわけではない。
 
+|
 
 レイヤの定義
 ================================================================================
@@ -43,194 +44,304 @@
 アプリケーション層
 --------------------------------------------------------------------------------
 
-| 情報の入出力となるUIを提供したり、リクエスト情報をドメイン層や、他システムから呼び出し、表示用の出力を返す手続きを行うなど、
-| アプリケーションを構築するための層である。\ **この層は、できるだけ薄く保たれるべきであり、ビジネスルールを含んではいけない。**
+アプリケーション層は、クライアントとのデータの入出力を制御する層である。
+
+この層では、
+
+* データの入出力を行うUI(User Interface)の提供
+* クライアントからのリクエストハンドリング
+* 入力データの妥当性チェック
+* リクエスト内容に対応するドメイン層のコンポーネントの呼び出し
+
+などの実装を行う。
+
+**この層で行う実装は、できるだけ薄く保たれるべきであり、ビジネスルールを含んではいけない。**
 
 Controller
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-| 基本的には、リクエストを処理にマッピングし、結果をViewに渡すという画面遷移と、セッション管理を担う。
-| 主処理は、Controller内では行わず、ドメイン層のServiceを呼び出す。
+Controllerは、主に以下の役割を担う。
 
-Spring MVCでは、\ ``@Controller``\ アノテーションがついた、POJOクラスが該当する。
-Controllerの結果がView(の論理名)になる。
+* 画面遷移の制御（リクエストマッピングと処理結果に対応するViewを返却する)
+* ドメイン層のServiceの呼び出し (リクエストに対応する主処理の実行する)
 
+Spring MVCでは、\ ``@Controller``\ アノテーションが付与されているPOJOクラスが該当する。
+
+.. note::
+
+    クライアントとの入出力データをセッションに格納する場合は、
+    セッションに格納するデータのライフサイクルを制御する役割も担う。
+
+|
 
 View
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-| クライアントへの出力を担う。JSP/PDF/Excel/JSONなど、様々な出力結果を返す。
-| Spring MVCでは、\ ``View``\ クラスが該当する。
+Viewは、クライアントへの出力(UIの提供を含む)を担う。HTML/PDF/Excel/JSONなど、様々な形式で出力結果を返す。
+
+Spring MVCでは、\ ``View``\ クラスが該当する。
+
+.. tip::
+
+    REST APIやAjax向けのリクエストでJSONやXML形式の出力を行う場合は、\ ``HttpMessageConverter``\ クラスが\ ``View``\の役割を担う。
+
+    詳細は、「:doc:`../ArchitectureInDetail/REST`」を参照されたい。
+
+|
 
 Form
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-| 画面のフォームを表現する。フォームの情報をControllerに渡したり、Contollerからフォームに出力する際に用いられる。
-| ドメイン層がアプリケーション層に依存しないように、FormからDomain Object(Entity等)への変換や、
-| Domain ObjectからFormへの変換は、アプリケーション層で行う必要ある。
+Formは、主に以下の役割を担う。
 
-.. note::
- 
-  変換処理を実装する際、Controller内で行うと、ソースコードが長くなり、
-  本来のControllerの処理(画面遷移など)の見通しが、悪くなりがちである。
-  その場合は、Helperクラスを作成し、変換処理を委譲することを推奨する。
+* HTMLのフォームを表現（フォームのデータをControllerに渡したり、処理結果をフォームに出力する）
+* 入力チェックルールの宣言 (Bean Validationのアノテーションを付与する)
 
 Spring MVCでは、Formオブジェクトは、リクエストパラメータを保持するPOJOクラスが該当する。form backing beanと呼ばれる。
 
+.. note::
+
+    ドメイン層がアプリケーション層に依存しないようにするために、以下の変換処理をアプリケーション層で行う。
+
+    * FormからDomain Object(Entity等)への変換処理
+    * Domain ObjectからFormへの変換処理
+
+    これらの変換処理をController内で行うと、ソースコードが長くなり、
+    本来のControllerの処理(画面遷移など)の見通しが、悪くなりがちである。
+
+    変換処理のコードが多くなる場合は、以下のいずれか又は両方の対策を行い、
+    Controller内のソースコードをシンプルな状態に保つこと推奨する。
+
+    * Helperクラスを作成して変換処理を委譲する
+    * :doc:`Dozer <../ArchitectureInDetail/Utilities/Dozer>` を使用する
+
+.. tip::
+
+    REST APIやAjax向けのリクエストでJSONやXML形式の入力を受ける場合は、\ ``Resource``\ クラスが\ ``Form``\の役割を担う。
+    また、JSONやXML形式の入力データを\ ``Resource``\ クラスに変換する役割は、\ ``HttpMessageConverter``\ クラスが担う。
+
+    詳細は、「:doc:`../ArchitectureInDetail/REST`」を参照されたい。
+
+|
 
 Helper
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-| Controllerを補助する役割を担い、Application層とDomain層のモデル相互変換など、Controller本来の処理以外の処理を行う。
-| Controllerの一部とみなしてよい。
+Helperは、Controllerを補助する役割を担う。
 
-Helperはoptionであり、必要に応じて、POJOクラスとして作成すること。
+Helperの作成はオプションである。必要に応じて、POJOクラスとして作成すること。
 
 .. note::
 
-  HelperはControllerの見通しを良くするためのものであり、HelperはControllerの一部だと思えばよい。
+  Controllerの役割はルーティング(URLマッピングと遷移先の返却)であり、
+  それ以外の処理(JavaBeanの変換等)が必要になったらHelperに切り出して、そちらに処理を委譲すことを推奨する。
   
-  Controllerの役割はルーティング(URLマッピングと遷移先の返却)であり、それ以外の処理(JavaBeanの変換等)が必要になったらHelperに切り出してそちらに処理を移すことを推奨する。
-  
-  あくまでもControllerをすっきりさせて、本来のControllerの処理が見やすくなることを目的としており、Controller内のprivateメソッドみたいなものである。
+  HelperはControllerの見通しを良くするためのものであるため、HelperはControllerの一部として扱ってよい。
+  (Controller内のprivateメソッドみたいなものである)
 
-    
+|
 
 ドメイン層
 --------------------------------------------------------------------------------
 
-| ドメイン層は、アプリケーションのコアとなる層である。ビジネス上の解決すべき問題を表現し、
-| ビジネスオブジェクトや、ビジネスルールを含む(口座へ入金する場合に、残高が十分であるかどうかのチェックなど)。
-| ドメイン層は、他の層からは疎であり、再利用できる。
+ドメイン層は、アプリケーションのコアとなる層であり、ビジネスルールを実行(業務処理を提供)する。
+
+この層では、
+
+* Domain Object
+* Domain Objectに対するビジネスルールのチェック(口座へ入金する場合に、残高が十分であるかどうかのチェックなど)
+* Domain Objectに対するビジネスルールの実行(ビジネスルールに則った値の反映)
+* Domain Objectに対するCRUD操作
+
+などの実装を行う。
+
+ドメイン層は、他の層からは疎であり、再利用できる。
 
 Domain Object
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-| Domain Objectはビジネスを行う上で必要な資源や、ビジネスを行っていく過程で発生するものを表現するモデル。
-| 大きく分けて、以下3つに分類される。
-* EmployeeやCustomer, Productなどのリソース系モデル(一般的には、名詞で表現される）,
-* Order, Paymentなどイベント系モデル(一般的には動詞で表現される)、
+Domain Objectはビジネスを行う上で必要な資源や、ビジネスを行っていく過程で発生するものを表現するモデルである。
+
+Domain Objectは、大きく分けて、以下3つに分類される。
+
+* EmployeeやCustomer, Productなどのリソース系モデル(一般的には、名詞で表現される）
+* Order, Paymentなどイベント系モデル(一般的には動詞で表現される)
 * YearlySales, MonthlySalesなどのサマリ系モデル
 
-データベースのあるテーブルの、1レコードを表現するオブジェクトを表現するEntityは、Domain Objectである。
+データベースのテーブルの1レコードを表現するクラスであるEntityは、Domain Objectである。
 
 .. note::
-  本ガイドラインでは主に、\ `状態のみもつモデル <http://martinfowler.com/bliki/AnemicDomainModel.html>`_\ を扱う。
 
-  Martin Fowlerの"Patterns of Enterprise Application Architecture (2002, Addison-Wesley)"では、
-  Domain Modelは、\ `状態と振る舞いをもつもの <http://martinfowler.com/eaaCatalog/domainModel.html>`_\ と定義されているが、
-  厳密には触れない。
+   本ガイドラインでは主に、\ `状態のみもつモデル <http://martinfowler.com/bliki/AnemicDomainModel.html>`_\ を扱う。
 
-  Eric Evansの提唱するような\ `Richなドメインモデル <http://domaindrivendesign.org>`_\ も、本ガイドラインでは扱わないが、
-  分類上はここに含まれる。
+   Martin Fowlerの"Patterns of Enterprise Application Architecture (2002, Addison-Wesley)"では、
+   Domain Modelは、\ `状態と振る舞いをもつもの <http://martinfowler.com/eaaCatalog/domainModel.html>`_\ と定義されているが、
+   厳密には触れない。
+
+   Eric Evansの提唱するような\ `Richなドメインモデル <http://domaindrivendesign.org>`_\ も、本ガイドラインでは扱わないが、
+   分類上はここに含まれる。
+
+|
 
 Repository
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-| Domain Objectのコレクションのような位置づけであり、Domain Objectの問い合わせや、作成、更新、削除のようなCRUD処理を担う。
-| この層では、インタフェースのみ定義され、実体は、インフラストラクチャ層のRepositoryImplで実装されるため、
-| どのようなデータアクセスが行われているかについての情報は持たない。
+Domain Objectのコレクションのような位置づけであり、Domain Objectの問い合わせや、作成、更新、削除のようなCRUD処理を担う。
+
+この層では、インタフェースのみ定義する。
+
+実体はインフラストラクチャ層のRepositoryImplで実装するため、
+どのようなデータアクセスが行われているかについての情報は持たない。
+
+|
 
 Service
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 業務処理を提供する。
-この処理も、トランザクション境界となる。
 
-| Serviceでは、FormやHttpRequestなど、Webに関わる情報を扱うべきではない。
-| これらの情報は、Serviceの前のApplication層で、ドメイン層のオブジェクトに変換されるべきである。
+本ガイドラインでは、Serviceのメソッドをトランザクション境界にすることを推奨している。
+
+.. note::
+
+    Serviceでは、FormやHttpRequestなど、Webに関わる情報を扱うべきではない。
+
+    これらの情報は、Serviceのメソッドを呼び出す前に、アプリケーション層でドメイン層のオブジェクトに変換すべきである。
+
+|
 
 インフラストラクチャ層
 --------------------------------------------------------------------------------
 
-| インフラストラクチャ層では、ドメイン層(Repositoryインタフェース)の実装を提供する。
-| データストア(RDBMSや、NoSQLなどのデータを格納する場所)への永続化や、メッセージの送信などを担う。
+インフラストラクチャ層は、ドメイン層(Repositoryインタフェース)の実装を提供する層である。
+
+データストア(RDBMSや、NoSQLなどのデータを格納する場所)への永続化や、メッセージの送信などを担う。
 
 RepositoryImpl
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-| RepositoryImplは、Repositoryの実装であり、Domain Objectのライフサイクル管理を隠蔽する。
-| これにより、ドメイン層がどのようにデータアクセスされているか意識しなくて済む。
+RepositoryImplは、Repositoryインタフェースの実装として、Domain Objectのライフサイクル管理を行う処理を提供する。
 
-Spring Data JPAを使用する場合は、Spring Data JPAが実体を(一部)自動で作成する。
+RepositoryImplの実装はRepositoryインタフェースによって隠蔽されるため、
+ドメイン層のコンポーネント(Serviceなど)では、どのようにデータアクセスされているか意識しなくて済む。
+
+要件によっては、この処理もトランザクション境界となりうる。
+
+.. tip::
+
+    Spring Data JPAやMyBatis3を使用する場合は、RepositoryImplの実体を(一部)自動で作成する仕組みが提供されている。
+
+|
 
 O/R Mapper
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-| O/R Mapperは、データベースとEntityの相互マッピングを担う。
-| JPA / MyBatis / Spring JDBCが、本機能を提供する。
+O/R Mapperは、データベースとEntityの相互マッピングを担う。
+
+JPA / MyBatis / Spring JDBCが、本機能を提供する。
 
 具体的には、
 
 * JPAを用いる場合は、\ ``EntityManager``\
 * MyBatis3を用いる場合は、Mapperインタフェースや\ ``SqlSession``\
-* MyBatis2(TERASOLUNA DAO)を用いる場合は、\ ``QueryDAO``\ や\ ``UpdateDAO``
+* MyBatis2(TERASOLUNA DAO)を用いる場合は、\ ``QueryDAO``\ や\ ``UpdateDAO``\
 * Spring JDBCを用いる場合は、\ ``JdbcTemplate``\
 
 が、O/R Mapperに該当する。
+
+O/R Mapperは、Repositoryインタフェースの実装に用いられる。
 
 .. note::
 
   MyBatis, Spring JDBCは「O/R Mapper」というより、「SQL Mapper」と呼んだ方が正確であるが、本ガイドラインでは「O/R Mapper」に分類する。
 
+|
+
 Integration System Connector
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-| メッセージングシステムや、Key-Value-Store、Webサービス、既存システムなど、
-| データベース以外のデータストア、あるいは外部システムとの連携を担う。
-| Repositoryの実装に用いられる。
+Integration System Connectorは、
+データベース以外のデータストア（メッセージングシステム、Key-Value-Store、Webサービス、既存システム、外部システムなど）との連携を担う。
+
+Integration System Connectorは、Repositoryインタフェースの実装に用いられる。
 
 |
 
 レイヤ間の依存関係
 ================================================================================
 
-| 冒頭で説明したとおり、ドメイン層がコアとなり、アプリケーション層、インフラストラクチャ層がそれに依存する形となる。
+冒頭で説明したとおり、ドメイン層がコアとなり、アプリケーション層、インフラストラクチャ層がそれに依存する形となる。
 
-| 本ガイドラインでは、実装技術として、
+本ガイドラインでは、実装技術として、
+
 * アプリケーション層にSpring MVC
 * インフラストラクチャ層にSpring Data JPA, MyBatis
-| を使用することを想定しているが、本質的には、実装技術が変わっても、それぞれの層で違いが吸収され、ドメイン層には影響を与えない。
-| レイヤ間の結合部は、インタフェースとして公開することで、各層が使用している実装技術に依存しない形式とすることができる。
+
+を使用することを想定しているが、本質的には、実装技術が変わっても、それぞれの層で違いが吸収され、ドメイン層には影響を与えない。
+レイヤ間の結合部は、インタフェースとして公開することで、各層が使用している実装技術に依存しない形式とすることができる。
 
 レイヤ化を意識して、疎結合な設計を行うことを推奨する。
 
 .. figure:: images/LayerDependencies.png
-   :width: 80%
+   :width: 95%
 
+|
 
 各レイヤのオブジェクトの依存関係は、DIコンテナによって解決される。
 
 .. figure:: images/LayerDependencyInjection.png
-   :width: 90%
+   :width: 95%
 
+|
+
+Repositoryを使用する時の処理の流れ
+--------------------------------------------------------------------------------
 
 入力から出力までの流れで表現すると、次の図のようになる。
 
 .. figure:: images/LayeringPattern1.png
-   :alt: Data flow from request to reponse
+   :alt: Data flow from request to response
    :width: 100%
 
 更新系の処理を例に、シーケンスを説明する。
 
-#. Controllerが、Requestを受け付ける
-#. (Optional) Controllerは、Helperを呼び出し、Formの情報を、Domain ObjectまたはDTOに変換する
-#. Controllerは、Domain ObjectまたはDTOを用いて、Serviceを呼び出す
-#. Serviceは、Repositoryを呼び出して、業務処理を行う
-#. Repositoryは、O/R Mapperを呼び出し、Domain ObjectまたはDTOを永続化する
-#. (実装依存) O/R Mapperは、DBにDomain ObjectまたはDTOの情報を保存する
-#. Serviceは、業務処理結果のDomain ObjectまたはDTOを、Controllerに返却する
-#. (Optional) Controllerは、Helperを呼び出し、Domain ObjectまたはDTOを、Formに変換する
-#. Controllerは、遷移先のView名を返却する
-#. Viewは、Responseを出力する。
+.. tabularcolumns:: |p{0.10\linewidth}|p{0.90\linewidth}|
+.. list-table::
+    :header-rows: 1
+    :widths: 10 90
 
+    * - 項番
+      - 説明
+    * - 1.
+      - Controllerが、Requestを受け付ける
+    * - 2.
+      - (Optional) Controllerは、Helperを呼び出し、Formの情報を、Domain ObjectまたはDTOに変換する
+    * - 3.
+      - Controllerは、Domain ObjectまたはDTOを用いて、Serviceを呼び出す
+    * - 4.
+      - Serviceは、Repositoryを呼び出して、業務処理を行う
+    * - 5.
+      - Repositoryは、O/R Mapperを呼び出し、Domain ObjectまたはDTOを永続化する
+    * - 6.
+      - (実装依存) O/R Mapperは、DBにDomain ObjectまたはDTOの情報を保存する
+    * - 7.
+      - Serviceは、業務処理結果のDomain ObjectまたはDTOを、Controllerに返却する
+    * - 8.
+      - (Optional) Controllerは、Helperを呼び出し、Domain ObjectまたはDTOを、Formに変換する
+    * - 9.
+      - Controllerは、遷移先のView名を返却する
+    * - 10.
+      - Viewは、Responseを出力する。
 
-この場合の各コンポーネント間の呼び出し可否を、以下にまとめる。
+|
+
+各コンポーネント間の呼び出し可否を、以下にまとめる。
 
 .. tabularcolumns:: |p{0.20\linewidth}|p{0.20\linewidth}|p{0.20\linewidth}|p{0.20\linewidth}|p{0.20\linewidth}|
-.. list-table:: コンポーネント間の呼び出し可否
+.. list-table:: **コンポーネント間の呼び出し可否**
     :header-rows: 1
     :stub-columns: 1
+    :widths: 20 20 20 20 20
 
     * - Caller/Callee
       - Controller
@@ -266,33 +377,42 @@ Integration System Connector
            :align: center
 
 
-| 注意するべきことは、\ **基本的にServiceからServiceの呼び出しは、禁止している**\ 点である。
-| もし他のサービスからも利用可能なサービスが必要な場合は、呼び出し可否を明確にするために、SharedServiceを作成すること。
-| 詳細については、\ :doc:`../ImplementationAtEachLayer/DomainLayer`\ を参照されたい。
+注意するべきことは、\ **基本的にServiceからServiceの呼び出しは、禁止している**\ 点である。
+
+もし他のサービスからも利用可能なサービスが必要な場合は、呼び出し可否を明確にするために、SharedServiceを作成すること。
+詳細については、\ :doc:`../ImplementationAtEachLayer/DomainLayer`\ を参照されたい。
 
 
 .. note::
-   この呼び出し可否ルールを守ることは、アプリケーション開発の初期段階では、煩わしく感じられるかもしれない。
-   確かに、一つの処理だけみると、たとえばControllerから直接Repositoryを呼び出したほうが、速くアプリケーションを作成できる。
-   しかし、ルールを守らない場合、開発規模が大きくなった際に、修正の影響範囲が分かりにくくなったり、横断的な共通処理を追加しにくくなるなど、
-   保守性に大きな問題が生じることが多い。後で問題にならないように、初めから依存関係に気を付けて開発することを強く推奨する。
 
+    この呼び出し可否ルールを守ることは、アプリケーション開発の初期段階では、煩わしく感じられるかもしれない。
+    確かに、一つの処理だけみると、たとえばControllerから直接Repositoryを呼び出したほうが、速くアプリケーションを作成できる。
+    しかし、ルールを守らない場合、開発規模が大きくなった際に、修正の影響範囲が分かりにくくなったり、横断的な共通処理を追加しにくくなるなど、
+    保守性に大きな問題が生じることが多い。後で問題にならないように、初めから依存関係に気を付けて開発することを強く推奨する。
 
-| Repositoryを作成することにより、永続化技術を隠蔽できたり、データアクセス処理を共通化できるなどのメリットがある。
-| しかし、プロジェクトのチーム体制によっては、データアクセスの共通化が難しい場合がある（複数の会社が、別々に業務処理を実装し、共通化のコントロールが難しい場合など）。
-| その場合、データアクセスの抽象化が必要ないのであれば、Repositoryは作成せず、以下の図のように、Serviceから直接O/R Mapperを呼び出すようにすればよい。
+|
+
+Repositoryを使用しない時の処理の流れ
+--------------------------------------------------------------------------------
+
+Repositoryを作成することにより、永続化技術を隠蔽できたり、データアクセス処理を共通化できるなどのメリットがある。
+
+しかし、プロジェクトのチーム体制によっては、データアクセスの共通化が難しい場合がある（複数の会社が、別々に業務処理を実装し、共通化のコントロールが難しい場合など）。
+その場合、データアクセスの抽象化が必要ないのであれば、Repositoryは作成せず、以下の図のように、Serviceから直接O/R Mapperを呼び出すようにすればよい。
 
 .. figure:: images/LayeringPattern2.png
-   :alt: Data flow from request to reponse (without Repository)
+   :alt: Data flow from request to response (without Repository)
    :width: 100%
 
+|
 
-この場合の呼び出し可否は、次のようになる。
+各コンポーネント間の呼び出し可否を、以下にまとめる。
 
 .. tabularcolumns:: |p{0.25\linewidth}|p{0.25\linewidth}|p{0.25\linewidth}|p{0.25\linewidth}|
-.. list-table:: コンポーネント間の呼び出し可否 (without Repository)
+.. list-table:: **コンポーネント間の呼び出し可否 (without Repository)**
     :header-rows: 1
     :stub-columns: 1
+    :widths: 25 25 25 25
 
     * - Caller/Callee
       - Controller
@@ -326,30 +446,44 @@ Integration System Connector
 
 基本的には、以下の構成でマルチプロジェクトを作成することを推奨する。
 
-* [projectname]-domain ... ドメイン層に関するクラス・設定ファイルを格納するプロジェクト
-* [projectname]-web ... アプリケーション層に関するクラス・設定ファイルを格納するプロジェクト
-* [projectname]-env ... 環境に依存するファイル等を格納するプロジェクト
+|
 
-([projectname]には、対象のプロジェクト名を入れること)
+.. tabularcolumns:: |p{0.30\linewidth}|p{0.70\linewidth}|
+.. list-table::
+    :header-rows: 1
+    :widths: 30 70
+
+    * - プロジェクト名
+      - 説明
+    * - [projectName]-domain
+      - ドメイン層に関するクラス・設定ファイルを格納するプロジェクト
+    * - [projectName]-web
+      - アプリケーション層に関するクラス・設定ファイルを格納するプロジェクト
+    * - [projectName]-env
+      - 環境に依存するファイル等を格納するプロジェクト
+
+([projectName]には、対象のプロジェクト名を入れること)
 
 
 .. note::
 
-  RepositoryImplなどインフラストラクチャ層のクラスも、project-domainに含める。
+    RepositoryImplなどインフラストラクチャ層のクラスも、project-domainに含める。
 
-  本来は、[projectname]-infraプロジェクトを別途作成すべきであるが、
-  通常infraプロジェクトを隠蔽化する必要がなく、domainプロジェクトに格納されている方が開発しやすいためである。
-  必要であれば、[projectname]-infraプロジェクトを作成してよい。
+    本来は、[projectName]-infraプロジェクトを別途作成すべきであるが、
+    通常infraプロジェクトを隠蔽化する必要がなく、domainプロジェクトに格納されている方が開発しやすいためである。
+    必要であれば、[projectName]-infraプロジェクトを作成してよい。
 
 
 .. tip::
 
-  マルチプロジェクト構成の例として、\ `サンプルアプリケーション <https://github.com/terasolunaorg/terasoluna-tourreservation>`_\ や\ `共通ライブラリのテストアプリケーション <https://github.com/terasolunaorg/terasoluna-gfw-functionaltest>`_\ を参照されたい。
+    マルチプロジェクト構成の例として、\ `サンプルアプリケーション <https://github.com/terasolunaorg/terasoluna-tourreservation>`_\ や\ `共通ライブラリのテストアプリケーション <https://github.com/terasolunaorg/terasoluna-gfw-functionaltest>`_\ を参照されたい。
 
-[projectname]-domain
+|
+
+[projectName]-domain
 --------------------------------------------------------------------------------
 
-[projectname]-domainのプロジェクト推奨構成を、以下に示す。
+[projectName]-domainのプロジェクト推奨構成を、以下に示す。
 
 .. code-block:: console
 
@@ -360,11 +494,11 @@ Integration System Connector
               │  └com
               │      └example
               │          └domain ...(1)
-              │              ├model
+              │              ├model ...(2)
               │              │  ├Xxx.java
               │              │  ├Yyy.java
               │              │  └Zzz.java
-              │              ├repository ...(2)
+              │              ├repository ...(3)
               │              │  ├xxx
               │              │  │  └XxxRepository.java
               │              │  ├yyy
@@ -372,7 +506,7 @@ Integration System Connector
               │              │  └zzz
               │              │      ├ZzzRepository.java
               │              │      └ZzzRepositoryImpl.java
-              │              └service ...(3)
+              │              └service ...(4)
               │                  ├aaa
               │                  │  ├AaaService.java
               │                  │  └AaaServiceImpl.java
@@ -382,8 +516,9 @@ Integration System Connector
               └resources
                   └META-INF
                       └spring
-                          ├[projectname]-domain.xml ...(4)
-                          └[projectname]-infra.xml ...(5)
+                          ├[projectName]-codelist.xml ...(5)
+                          ├[projectName]-domain.xml ...(6)
+                          └[projectName]-infra.xml ...(7)
 
 
 .. tabularcolumns:: |p{0.10\linewidth}|p{0.90\linewidth}|
@@ -394,26 +529,35 @@ Integration System Connector
     * - 項番
       - 説明
     * - | (1)
-      - | ドメインオブジェクトを格納する。
+      - ドメイン層の構成要素を格納するパッケージ。
     * - | (2)
-      - | リポジトリを格納する。エンティティごとにパッケージを作成する。
-        | 関連するエンティティがあれば、主となるエンティティのパッケージに、従となるエンティティのRepositoryも配置する。
-        | (OrderとOrderLineなど)。DTOが必要な場合は、このパッケージに配置する。
-        | RepositoryImplは、インフラストラクチャ層に属するが、通常、このプロジェクトに含めても問題ない。
-        | 異なるデータストアを使うなど、複数の永続化先があり、実装を隠蔽したい場合は、別プロジェクト(またはパッケージ)に、RepositoryImplを実装するようにする。
+      - Domain Objectを格納するパッケージ。
     * - | (3)
-      - | サービスを格納する。業務(またはエンティティ)ごとに、パッケージインタフェースと実装を、同じ階層に配置する。
-        | 入出力クラスが必要な場合は、このパッケージに配置する。
+      - リポジトリを格納するパッケージ。
+
+        エンティティごとにパッケージを作成する。
+        関連するエンティティがあれば、主となるエンティティのパッケージに、従となるエンティティ(OrderとOrderLineの関係であればOrderLine)のRepositoryも配置する。
+        また、検索条件などを保持するDTOなどが必要な場合は、このパッケージに配置する。
+
+        RepositoryImplは、インフラストラクチャ層に属するが、通常、このプロジェクトに含めても問題ない。
+        異なるデータストアを使うなど、複数の永続化先があり、実装を隠蔽したい場合は、別プロジェクト(またはパッケージ)に、RepositoryImplを実装するようにする。
     * - | (4)
-      - | ドメイン層に関するBean定義を行う。
+      - サービスを格納するパッケージ。
+
+        業務(またはエンティティ)ごとに、パッケージインタフェースと実装を、同じ階層に配置する。入出力クラスが必要な場合は、このパッケージに配置する。
     * - | (5)
-      - | インフラストラクチャ層に関するBean定義を行う。
+      - コードリストのBean定義を行う。
+    * - | (6)
+      - ドメイン層に関するBean定義を行う。
+    * - | (7)
+      - インフラストラクチャ層に関するBean定義を行う。
 
+|
 
-[projectname]-web
+[projectName]-web
 --------------------------------------------------------------------------------
 
-[projectname]-webのプロジェクト推奨構成を、以下に示す。
+[projectName]-webのプロジェクト推奨構成を、以下に示す。
 
 .. code-block:: console
 
@@ -442,15 +586,16 @@ Integration System Connector
               │  └i18n
               │      └application-messages.properties ...(6)
               └webapp
+                  ├resources ...(7)
                   └WEB-INF
-                      ├views ...(7)
+                      ├views ...(8)
                       │  ├abc
                       │  │ ├list.jsp
                       │  │ └createForm.jsp
                       │  └def
                       │     ├list.jsp
                       │     └createForm.jsp
-                      └web.xml
+                      └web.xml ...(9)
 
 .. tabularcolumns:: |p{0.10\linewidth}|p{0.90\linewidth}|
 .. list-table::
@@ -460,35 +605,48 @@ Integration System Connector
     * - 項番
       - 説明
     * - | (1)
-      - | アプリケーション層の構成要素を格納するパッケージ。
+      - アプリケーション層の構成要素を格納するパッケージ。
     * - | (2)
-      - | アプリケーション全体に関するBean定義を行う。
+      - アプリケーション全体に関するBean定義を行う。
     * - | (3)
-      - | アプリケーションで使用するプロパティを定義する。
+      - アプリケーションで使用するプロパティを定義する。
     * - | (4)
-      - | SpringMVCの設定を行うBean定義を行う。
+      - SpringMVCの設定を行うBean定義を行う。
     * - | (5)
-      - | SpringSecurityの設定を行うBean定義を行う。
+      - SpringSecurityの設定を行うBean定義を行う。
     * - | (6)
-      - | 画面表示用のメッセージ(国際化対応)定義を行う。
+      - 画面表示用のメッセージ(国際化対応)定義を行う。
     * - | (7)
-      - | View(jsp)を格納する。
+      - 静的リソース(css、js、画像など)を格納する。
+    * - | (8)
+      - View(jsp)を格納する。
+    * - | (9)
+      - Servletのデプロイメント定義を行う。
 
-[projectname]-env
+|
+
+[projectName]-env
 --------------------------------------------------------------------------------
 
-[projectname]-envのプロジェクト推奨構成を、以下に示す。
+[projectName]-envのプロジェクト推奨構成を、以下に示す。
 
 .. code-block:: console
 
     [projectName]-env
+      ├configs ...(1)
+      │   └[envName] ...(2)
+      │       └resources ...(3)
       └src
           └main
-              └resources
-                  └META-INF
-                      └spring
-                          ├[projectname]-env.xml ...(1)
-                          └[projectname]-infra.properties ...(2)
+              └resources ...(4)
+                 ├META-INF
+                 │  └spring
+                 │      ├[projectName]-env.xml ...(5)
+                 │      └[projectName]-infra.properties ...(6)
+                 ├dozer.properties
+                 ├log4jdbc.properties
+                 └logback.xml ...(7)
+
 
 
 .. tabularcolumns:: |p{0.10\linewidth}|p{0.90\linewidth}|
@@ -499,32 +657,46 @@ Integration System Connector
     * - 項番
       - 説明
     * - | (1)
-      - | 環境に依存するBean定義(DataSource等)を行う。
+      - 全環境の環境依存ファイルを管理するためのディレクトリ。
     * - | (2)
-      - | 環境に依存するプロパティを定義する。
+      - 環境毎の環境依存ファイルを管理するためのディレクトリ。
+
+        ディレクトリ名は、環境を識別する名前を指定する。
+    * - | (3)
+      - 環境毎の設定ファイルを管理するためのディレクトリ。
+
+        サブディレクトリの構成や管理する設定ファイルは、(4)と同様。
+    * - | (4)
+      - ローカル開発環境用の設定ファイルを管理するためのディレクトリ。
+    * - | (5)
+      - ローカル開発環境用のBean定義(DataSource等)を行う。
+    * - | (6)
+      - ローカル開発環境用のプロパティを定義する。
+    * - | (7)
+      - ローカル開発環境用のログ出力定義を行う。
 
 
 .. note::
 
-  [projectname]-domainと[projectname]-webを別プロジェクトに分ける理由は、依存関係の逆転を防ぐためである。
+    [projectName]-domainと[projectName]-webを別プロジェクトに分ける理由は、依存関係の逆転を防ぐためである。
   
-  [projectname]-webが[projectname]-domainを使用するのは当然であるが、[projectname]-domainが[projectname]-webを参照してはいけない。
+    [projectName]-webが[projectName]-domainを使用するのは当然であるが、[projectName]-domainが[projectName]-webを参照してはいけない。
   
-  1つのプロジェクトに[projectname]-webと[projectname]-domainの構成要素をまとめてしまうと、誤って不正な参照してしまうことがある。
-  プロジェクトを分けて参照順序をつけることで[projectname]-domainが[projectname]-webを参照できないようにすることを強く推奨する。
+    1つのプロジェクトに[projectName]-webと[projectName]-domainの構成要素をまとめてしまうと、誤って不正な参照してしまうことがある。
+    プロジェクトを分けて参照順序をつけることで[projectName]-domainが[projectName]-webを参照できないようにすることを強く推奨する。
 
 .. note::
 
-  [projectname]-envを作成する理由は環境に依存する情報を外出し、環境毎に切り替えられるようにするためである。
+    [projectName]-envを作成する理由は環境に依存する情報を外出し、環境毎に切り替えられるようにするためである。
   
-  たとえばデフォルトではローカル開発環境用の設定をして、アプリビルド時には[projectname]-envを除いてwarを作成する。
-  結合テスト用の環境やシステムテスト用の環境を別々のjarとして作成すると、そこだけ差し替えてデプロイするということが可能である。
+    たとえばデフォルトではローカル開発環境用の設定をして、アプリケーションビルド時には[projectName]-envを除いてwarを作成する。
+    結合テスト用の環境やシステムテスト用の環境を別々のjarとして作成すると、そこだけ差し替えてデプロイするということが可能である。
   
-  また使用するRDBMSが変わるようなプロジェクトの場合にも影響を最小限に抑えることができる。
+    また使用するRDBMSが変わるようなプロジェクトの場合にも影響を最小限に抑えることができる。
   
-  この点を考慮しない場合は、環境ごとに設定ファイルの内容を行いビルドしなおすという作業が入る。
+    この点を考慮しない場合は、環境ごとに設定ファイルの内容を行いビルドしなおすという作業が入る。
   
-  環境依存に関するファイルを別プロジェクトにする意義については、\ :doc:`../Appendix/EnvironmentIndependency`\ を参照されたい。
+    環境依存に関するファイルを別プロジェクトにする意義については、\ :doc:`../Appendix/EnvironmentIndependency`\ を参照されたい。
 
 .. raw:: latex
 

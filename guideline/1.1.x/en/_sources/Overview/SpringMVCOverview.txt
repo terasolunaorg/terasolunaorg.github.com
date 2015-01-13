@@ -9,7 +9,7 @@ Overview of Spring MVC Architecture
 
 Official website of Spring MVC says the following
 
-`Spring Reference Document <http://docs.spring.io/spring/docs/4.1.2.RELEASE/spring-framework-reference/html/mvc.html>`_\ .
+`Spring Reference Document <http://docs.spring.io/spring/docs/4.1.3.RELEASE/spring-framework-reference/html/mvc.html>`_\ .
 
      Spring's web MVC framework is, like many other web MVC frameworks, request-driven,
      designed around a central Servlet that dispatches requests to controllers and offers other functionality
@@ -54,7 +54,7 @@ Usually ``org.springframework.web.servlet.mvc.method.annotation.RequestMappingHa
 
 In Spring3.1, ``RequestMappingHandlerMapping`` is enabled by default when ``<mvc:annotation-driven>`` is set in Bean definition file read by ``DispatcherServlet``.
 (For the settings which get enabled with the use of ``<mvc:annotation-driven>`` annotation, refer
-`Web MVC framework <http://docs.spring.io/spring/docs/4.1.2.RELEASE/spring-framework-reference/html/mvc.html#mvc-config-enable>`_\.)
+`Web MVC framework <http://docs.spring.io/spring/docs/4.1.3.RELEASE/spring-framework-reference/html/mvc.html#mvc-config-enable>`_\.)
 
 
 Implementation of HandlerAdapter

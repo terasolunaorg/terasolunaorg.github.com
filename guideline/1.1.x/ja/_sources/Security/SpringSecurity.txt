@@ -168,7 +168,7 @@ spring-security.xmlの設定
       .. note::
           use-expressions="true" で有効になるSpring EL式は、以下を参照されたい。
 
-          \ `Expression-Based Access Control <http://static.springsource.org/spring-security/site/docs/3.1.x/reference/el-access.html>`_\
+          \ `Expression-Based Access Control <http://docs.spring.io/spring-security/site/docs/3.2.5.RELEASE/reference/htmlsingle/#el-access>`_\
 
 Appendix
 --------------------------------------------------------------------------------
@@ -318,7 +318,7 @@ Appendix
     * https://www.owasp.org/index.php/List_of_useful_HTTP_headers (X-Content-Type-Options, X-XSS-Protection)
 
 
-詳細については\ `公式リファレンス <http://docs.spring.io/spring-security/site/docs/3.2.4.RELEASE/reference/htmlsingle/#default-security-headers>`_\ を参照されたい。
+詳細については\ `公式リファレンス <http://docs.spring.io/spring-security/site/docs/3.2.5.RELEASE/reference/htmlsingle/#default-security-headers>`_\ を参照されたい。
 
     
 .. raw:: latex

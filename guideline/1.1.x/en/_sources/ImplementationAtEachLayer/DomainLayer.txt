@@ -1048,7 +1048,7 @@ Below are the points to be taken care of while creating Service class.
 
     #. If interface is there, When using AOP, Dynamic proxies functionality of standard JDK is used.
        In case of no interface, CGLIB included in Spring Framework is used. In case of CGLIB there are certain restrictions like "Advice can not be applied on final methods" etc.
-       Refer to \ `Spring Reference Document <http://static.springsource.org/spring/docs/3.2.x/spring-framework-reference/html/aop.html#aop-proxying>`_\ for details.
+       Refer to \ `Spring Reference Document <http://docs.spring.io/spring/docs/4.1.3.RELEASE/spring-framework-reference/html/aop.html#aop-proxying>`_\ for details.
     #. It becomes easier to create a stub of business logic. When application layer and domain layer are developed in parallel using different development teams, stubs of Service
        are required. When there is a need to create stubs, it is recommended to have interface .
 
@@ -1513,7 +1513,7 @@ In "Declarative transaction management", the information required for transactio
 * Declaration in XML(bean definition file).
 * **Declaration using annotation (@Transactional) (Recommended).**
 
-Refer to \ `Spring Reference Document <http://static.springsource.org/spring/docs/3.2.x/spring-framework-reference/html/transaction.html#transaction-declarative>`_\ for 
+Refer to \ `Spring Reference Document <http://docs.spring.io/spring/docs/4.1.3.RELEASE/spring-framework-reference/html/transaction.html#transaction-declarative>`_\ for
 the details of "Declarative type transaction management" provided by Spring Framework.
 \
 
@@ -1605,7 +1605,7 @@ Information required for "Declarative transaction management"
 
     **It is recommended to specify the annotation at the class level or method level of the class.**
     Must be noted that it should not interface or method of interface.
-    Refer to 2nd Tip on \ `Spring Reference Document <http://static.springsource.org/spring/docs/3.2.x/spring-framework-reference/html/transaction.html#transaction-declarative-annotations>`_\  for reason.
+    Refer to 2nd Tip on \ `Spring Reference Document <http://docs.spring.io/spring/docs/4.1.3.RELEASE/spring-framework-reference/html/transaction.html#transaction-declarative-annotations>`_\  for reason.
 
  .. warning:: **Default operations of rollback and commit when exception occurs**
 
@@ -1618,7 +1618,7 @@ Information required for "Declarative transaction management"
 
     There is a value attribute in \ ``@Transactional``\ annotation. However, this attribute specifies which Transaction Manager to be used when multiple Transaction Managers are declared.
     It is not required to specify when there is only one Transaction Manager.
-    When it is required to use multiple Transaction Managers, refer to \ `Spring Reference Document <http://static.springsource.org/spring/docs/3.2.x/spring-framework-reference/html/transaction.html#tx-multiple-tx-mgrs-with-attransactional>`_\.
+    When it is required to use multiple Transaction Managers, refer to \ `Spring Reference Document <http://docs.spring.io/spring/docs/4.1.3.RELEASE/spring-framework-reference/html/transaction.html#tx-multiple-tx-mgrs-with-attransactional>`_\.
 
  .. note:: **Default isolation levels of main DB are given below.**
 
@@ -1857,7 +1857,7 @@ Programmatic transaction management
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 In this guideline, "Declarative transaction management" is recommended. However, programmatic transaction management is also possible.
-Refer to \ `Spring Reference Document <http://static.springsource.org/spring/docs/3.2.x/spring-framework-reference/html/transaction.html#transaction-programmatic>`_\ for details.
+Refer to \ `Spring Reference Document <http://docs.spring.io/spring/docs/4.1.3.RELEASE/spring-framework-reference/html/transaction.html#transaction-programmatic>`_\ for details.
 
 .. _domainlayer_appendix_blogic:
 

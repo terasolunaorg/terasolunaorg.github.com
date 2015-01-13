@@ -125,7 +125,7 @@ Setting \ ``<sec:intercept-url>``\  element
        - | Specifies "http" or "https". It enforces access to the specified protocol.
          | When not specified, both protocols can be accessed.
 
-  | For attributes other than the above, refer to \ `B.1.10 <intercept-url> <http://static.springsource.org/spring-security/site/docs/3.1.x/reference/appendix-namespace.html#nsa-intercept-url>`_\ .
+  | For attributes other than the above, refer to \ `<intercept-url> <http://docs.spring.io/spring-security/site/docs/3.2.5.RELEASE/reference/htmlsingle/#nsa-intercept-url>`_\ .
 
 | A setting example with roles namely "ROLE_USER" and "ROLE_ADMIN" assigned to login user, is shown below.
 
@@ -215,7 +215,7 @@ Setting \ ``<sec:intercept-url>``\  element
        - | Enabled only by the access authorization to request URL and JSP tag.
          | Returns true if there is a request from specified IP address.
   
-  | For other available Spring EL, refer to \ `Common built-in expressions <http://static.springsource.org/spring-security/site/docs/3.1.x/reference/el-access.html#Common Built-In Expressions>`_\ .
+  | For other available Spring EL, refer to \ `Common built-in expressions <http://docs.spring.io/spring-security/site/docs/3.2.5.RELEASE/reference/htmlsingle/#el-common-built-in>`_\ .
 
   | Determination can also be performed using operator.
   | In the following example, it can be accessed when it matches with both the role and the requested IP address.
@@ -428,7 +428,7 @@ Access authorization (Method)
        - | State the access control expression. The expression is evaluated before executing the method and if it is true, the method is executed.
          | If the expression is false, \ ``org.springframework.security.access.AccessDeniedException``\  is thrown.
          | Expression stated in \ :ref:`authorization-intercept-url`\  and
-         | the expression stated in \ `Spring Expression Language (SpEL) <http://docs.spring.io/spring/docs/3.2.x/spring-framework-reference/html/expressions.html>`_\  can be set as the value.
+         | the expression stated in \ `Spring Expression Language (SpEL) <http://docs.spring.io/spring/docs/4.1.3.RELEASE/spring-framework-reference/html/expressions.html>`_\  can be set as the value.
 
   .. tip::
   
@@ -438,7 +438,7 @@ Access authorization (Method)
     * \ ``org.springframework.security.access.prepost.PreFilter``\ 
     * \ ``org.springframework.security.access.prepost.PostFilter``\ 
   
-    For their details, refer \ `Spring Security manual <http://docs.spring.io/spring-security/site/docs/3.1.x/reference/el-access.html#el-pre-post-annotations>`_\ .
+    For their details, refer \ `Spring Security manual <http://docs.spring.io/spring-security/site/docs/3.2.5.RELEASE/reference/htmlsingle/#el-pre-post-annotations>`_\ .
 
   .. note::
 

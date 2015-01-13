@@ -671,7 +671,7 @@ Settings of SQL scripts to be executed at the time of starting the application
           xsi:schemaLocation="http://www.springframework.org/schema/jdbc http://www.springframework.org/schema/jdbc/spring-jdbc.xsd
               http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd">
   
-          <bean id="dateFactory" class="org.terasoluna.gfw.common.date.DefaultDateFactory" />
+          <bean id="dateFactory" class="org.terasoluna.gfw.common.date.jodatime.DefaultJodaTimeDateFactory" />
   
           <bean id="realDataSource" class="org.apache.commons.dbcp2.BasicDataSource"
               destroy-method="close">

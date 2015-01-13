@@ -45,14 +45,14 @@ Overview
      - 出力内容
    * - TRACE
      - 性能ログ
-     - リクエストの処理時間の測定
+     - | リクエストの処理時間の測定
+       | (本番環境運用時は出力対象としない)
      - | 処理開始終了時間、処理経過時間(ms)、
        | 実行処理を判別できる情報(実行コントローラ + メソッド、リクエストURLなど)等
-       | 本番環境運用時は出力対象としない
    * - DEBUG
      - デバッグログ
      - | 開発時のデバック
-       | 本番環境運用時には出力対象としない
+       | (本番環境運用時には出力対象としない)
      - 任意(実行したクエリ、入力パラメータ、戻り値など)
    * - INFO
      - アクセスログ
@@ -93,37 +93,10 @@ Overview
 
 | ログの出力内容として考慮すべき点を、以下に示す。
 
-#. | ログに出力するIDについて
+1. | ログに出力するIDについて
    | ログを運用で監視する場合は、運用監視で使用するログに、メッセージIDを含めることを推奨する。
    | また、アクセスログを用いて業務量を把握する場合は、集計を容易にするため、メッセージ管理で示しているように、業務ごとに切り分けられるIDをあわせて出力すること。
-#. | トレーサビリティ
-   | トレーサビリティ向上のために、各ログにリクエスト単位で、一意となるようなTrack ID(以降X-Trackと呼ぶ)を出力させることを推奨する。
-   | X-Trackを含めたログの例を、以下に示す。
 
-
-    .. code-block:: xml
-
-      date:2013-09-06 19:36:31	X-Track:85a437108e9f4a959fd227f07f72ca20	message:[START CONTROLLER] (omitted)
-      date:2013-09-06 19:36:31	X-Track:85a437108e9f4a959fd227f07f72ca20	message:[END CONTROLLER  ] (omitted)
-      date:2013-09-06 19:36:31	X-Track:85a437108e9f4a959fd227f07f72ca20	message:[HANDLING TIME   ] (omitted)
-      date:2013-09-06 19:36:33	X-Track:948c8b9fd04944b78ad8aa9e24d9f263	message:[START CONTROLLER] (omitted)
-      date:2013-09-06 19:36:33	X-Track:142ff9674efd486cbd1e293e5aa53a78	message:[START CONTROLLER] (omitted)
-      date:2013-09-06 19:36:33	X-Track:142ff9674efd486cbd1e293e5aa53a78	message:[END CONTROLLER  ] (omitted)
-      date:2013-09-06 19:36:33	X-Track:142ff9674efd486cbd1e293e5aa53a78	message:[HANDLING TIME   ] (omitted)
-      date:2013-09-06 19:36:33	X-Track:948c8b9fd04944b78ad8aa9e24d9f263	message:[END CONTROLLER  ] (omitted)
-      date:2013-09-06 19:36:33	X-Track:948c8b9fd04944b78ad8aa9e24d9f263	message:[HANDLING TIME   ] (omitted)
-
-
-   | Track ID を出力させることで、不規則に出力された場合でも、ログを結びつけることができる。
-   | 上記の例だと、4行目と8,9行目が、同じリクエストに関するログであることがわかる。
-   | 共通ライブラリでは、リクエスト毎のユニークキーを生成し、MDCに追加する\ ``org.terasoluna.gfw.web.logging.mdc.XTrackMDCPutFilter``\ を提供している。
-   | \ ``XTrackMDCPutFilter``\ は、HTTPレスポンスヘッダの"X-Track"にもTrack IDを設定する。ログ中では、Track IDのラベルとして、X-Trackを使用している。
-   | 使用方法については、\ :ref:`MDCについて<log_MDC>`\ を参照されたい。
-#. | ログのマスクについて
-   | 個人情報、クレジットカード番号など、
-   | ログファイルにそのまま出力すると、セキュリティ上問題のある情報は、必要に応じてマスクすること。
-
-\
  .. note::
 
      ログにIDを含めることにより、ログの可読性が高まるため、システム運用時は、故障解析の一次切り分けの短時間化につながる。
@@ -135,6 +108,36 @@ Overview
 
      ただし、障害の内容までエラーが画面に表示してしまうと、システムの脆弱性を晒してしまう可能性があるため、注意すること。
 
+     例外が発生した際に、ログや画面にメッセージID(例外コード)を含めるための仕組み(コンポーネント)を共通ライブラリから提供している。
+     詳細については、「:doc:`ExceptionHandling`」を参照されたい。
+
+2. | トレーサビリティ
+   | トレーサビリティ向上のために、各ログにリクエスト単位で、一意となるようなTrack ID(以降X-Trackと呼ぶ)を出力させることを推奨する。
+   | X-Trackを含めたログの例を、以下に示す。
+
+ .. code-block:: console
+
+    date:2013-09-06 19:36:31	X-Track:85a437108e9f4a959fd227f07f72ca20	message:[START CONTROLLER] (omitted)
+    date:2013-09-06 19:36:31	X-Track:85a437108e9f4a959fd227f07f72ca20	message:[END CONTROLLER  ] (omitted)
+    date:2013-09-06 19:36:31	X-Track:85a437108e9f4a959fd227f07f72ca20	message:[HANDLING TIME   ] (omitted)
+    date:2013-09-06 19:36:33	X-Track:948c8b9fd04944b78ad8aa9e24d9f263	message:[START CONTROLLER] (omitted)
+    date:2013-09-06 19:36:33	X-Track:142ff9674efd486cbd1e293e5aa53a78	message:[START CONTROLLER] (omitted)
+    date:2013-09-06 19:36:33	X-Track:142ff9674efd486cbd1e293e5aa53a78	message:[END CONTROLLER  ] (omitted)
+    date:2013-09-06 19:36:33	X-Track:142ff9674efd486cbd1e293e5aa53a78	message:[HANDLING TIME   ] (omitted)
+    date:2013-09-06 19:36:33	X-Track:948c8b9fd04944b78ad8aa9e24d9f263	message:[END CONTROLLER  ] (omitted)
+    date:2013-09-06 19:36:33	X-Track:948c8b9fd04944b78ad8aa9e24d9f263	message:[HANDLING TIME   ] (omitted)
+
+\
+
+   | Track ID を出力させることで、不規則に出力された場合でも、ログを結びつけることができる。
+   | 上記の例だと、4行目と8,9行目が、同じリクエストに関するログであることがわかる。
+   | 共通ライブラリでは、リクエスト毎のユニークキーを生成し、MDCに追加する\ ``org.terasoluna.gfw.web.logging.mdc.XTrackMDCPutFilter``\ を提供している。
+   | \ ``XTrackMDCPutFilter``\ は、HTTPレスポンスヘッダの"X-Track"にもTrack IDを設定する。ログ中では、Track IDのラベルとして、X-Trackを使用している。
+   | 使用方法については、\ :ref:`MDCについて<log_MDC>`\ を参照されたい。
+
+3. | ログのマスクについて
+   | 個人情報、クレジットカード番号など、
+   | ログファイルにそのまま出力すると、セキュリティ上問題のある情報は、必要に応じてマスクすること。
 
 ログの出力ポイント
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
@@ -211,9 +214,9 @@ Logbackの設定
      \ `システムプロパティで設定ファイルを指定 <http://logback.qos.ch/manual/configuration.html#configFileProperty>`_\ することができる。
 
 
-- logback.xml
+logback.xml
 
- .. code-block:: xml
+.. code-block:: xml
 
   <!DOCTYPE logback>
   <configuration>
@@ -323,14 +326,25 @@ Logbackの設定
    * - | (12)
      - | デフォルトでConsoleAppender, RollingFileAppender(アプリケーションログ)が使用されるように設定する。
 
+.. tip:: **LTSV(Labeled Tab Separated Value)について**
 
+    \ `LTSV <http://ltsv.org/>`_\ は、テキストデータのフォーマットの一つであり、主にログのフォーマットとして使用される。
+
+    LTSVは、
+
+    * フィールドの区切り文字としてタブを使用することで、他の区切り文字に比べてフォールドを分割しやすい。
+    * フィールドにラベル(名前)を設けることで、フィールド定義の変更(定義位置の変更、フィールドの追加、フィールドの削除)を行ってもパース処理には影響を与えない。
+
+    また、エクセルに貼付けるだけで最低限のフォーマットが行える点も特徴の一つである。
+
+|
 
 logback.xmlで設定するものは、次の3つになる。
 
-.. tabularcolumns:: |p{0.10\linewidth}|p{0.50\linewidth}|
+.. tabularcolumns:: |p{0.20\linewidth}|p{0.80\linewidth}|
 .. list-table::
    :header-rows: 1
-   :widths: 10 50
+   :widths: 20 80
 
    * - 種類
      - 概要
@@ -341,15 +355,17 @@ logback.xmlで設定するものは、次の3つになる。
    * - logger
      - 「どのロガー(パッケージやクラス等)」は、「どのログレベル」以上で出力するのか
 
+|
+
 <appender>要素には、「どの場所に」「どんなレイアウト」で出力するのかを定義する。
 appenderを定義しただけではログ出力の際に使用されず、
 <logger>要素や<root>要素に参照されると、初めて使用される。
 属性は、nameとclassの2つで、共に必須である。
 
-.. tabularcolumns:: |p{0.10\linewidth}|p{0.50\linewidth}|
+.. tabularcolumns:: |p{0.20\linewidth}|p{0.80\linewidth}|
 .. list-table::
    :header-rows: 1
-   :widths: 10 50
+   :widths: 20 80
 
    * - 属性
      - 概要
@@ -358,12 +374,14 @@ appenderを定義しただけではログ出力の際に使用されず、
    * - class
      - appender実装クラスのFQCN。
 
+|
+
 提供されている主なappenderを、以下に示す
 
-.. tabularcolumns:: |p{0.10\linewidth}|p{0.50\linewidth}|
+.. tabularcolumns:: |p{0.30\linewidth}|p{0.70\linewidth}|
 .. list-table::
    :header-rows: 1
-   :widths: 10 50
+   :widths: 30 70
 
    * - Appender
      - 概要
@@ -377,6 +395,8 @@ appenderを定義しただけではログ出力の際に使用されず、
      - 非同期出力。性能を求められる処理中のロギングに使用する。（出力先は、他のAppenderで設定する必要がある。）
 
 Appenderの詳細な種類は、\ `公式マニュアル <http://logback.qos.ch/manual/appenders.html>`_\ を参照されたい。
+
+|
 
 SLF4JのAPI呼び出しによる基本的なログ出力
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^

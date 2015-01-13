@@ -634,26 +634,30 @@ version 1.1.0.RELEASEで利用するOSSの一覧を以下に示す。
       - | Webに限らず、汎用的に使用できる機能
       - | 有
     * - | (2)
+      - | terasoluna-gfw-jodatime
+      - | Joda Timeに依存する機能
+      - | 有
+    * - | (3)
       - | terasoluna-gfw-web
       - | Webアプリケーションを作成する場合に使用する機能群
       - | 有
-    * - | (3)
+    * - | (4)
       - | terasoluna-gfw-jpa
       - | JPAを使用する場合の、依存関係定義
       - | 無
-    * - | (4)
+    * - | (5)
       - | terasoluna-gfw-mybatis3
       - | MyBatis3を使用する場合の、依存関係定義
       - | 無
-    * - | (5)
+    * - | (6)
       - | terasoluna-gfw-mybatis2
       - | MyBatis2を使用する場合の、依存関係定義
       - | 無
-    * - | (6)
+    * - | (7)
       - | terasoluna-gfw-security-core
       - | Spring Securityを使用する場合の、依存関係定義(Web以外)
       - | 無
-    * - | (7)
+    * - | (8)
       - | terasoluna-gfw-security-web
       - | Spring Securityを使用する場合の依存関係定義(Web関連)、およびSpring Securityの拡張
       - | 有
@@ -699,6 +703,24 @@ terasoluna-gfw-commonは以下の部品を提供している。
     * -
       - シーケンサ
       - シーケンス値を取得するためのクラスを提供する。
+
+terasoluna-gfw-jodatime
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+terasoluna-gfw-jodatimeは以下の部品を提供している。
+
+.. tabularcolumns:: |p{0.30\linewidth}|p{0.35\linewidth}|p{0.30\linewidth}|
+.. list-table::
+    :header-rows: 1
+    :widths: 20 30 50
+
+    * - 分類
+      - 部品名
+      - 説明
+    * - :doc:`../ArchitectureInDetail/SystemDate`
+      - Joda Time用システム時刻ファクトリ
+      - Joda TimeのAPIを利用してシステム時刻を取得するためのクラスを提供する。
+
 
 terasoluna-gfw-web
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^

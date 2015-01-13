@@ -124,7 +124,7 @@ The locations where additional settings are required, are highlighted.
    * - | (1)
      - | Spring Security's CSRF token check functionality can be used by defining \ ``<sec:csrf>``\  element in \ ``<sec:http>``\  element.
        | For HTTP methods that are checked by default, refer \ :ref:`Here <csrf_default-add-token-method>`\ .
-       | For details, refer \ `Spring Security Reference Document <http://docs.spring.io/spring-security/site/docs/3.2.x/reference/htmlsingle/#csrf-configure>`_\ .
+       | For details, refer \ `Spring Security Reference Document <http://docs.spring.io/spring-security/site/docs/3.2.5.RELEASE/reference/htmlsingle/#csrf-configure>`_\ .
    * - | (2)
      - | Define the Handler that changes the view to be displayed according to each type of exception when the exception inheriting \ ``AccessDeniedException``\  occurs.
        | It is possible to display all the exceptions on the same screen by specifying the destination jsp in ``error-page`` attribute.

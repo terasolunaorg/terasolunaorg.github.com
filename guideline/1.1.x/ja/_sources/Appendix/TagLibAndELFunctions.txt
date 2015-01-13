@@ -384,7 +384,7 @@ f:query() 関数仕様
     指定されたオブジェクトのフィールド値は、
     \ ``org.springframework.format.support.DefaultFormattingConversionService``\ の \ ``convert``\ メソッドを使用して文字列に変換される。
     \ ``ConversionService``\ については、
-    \ `Spring Framework Reference Documentation(Spring Type Conversion) <http://docs.spring.io/spring/docs/4.1.2.RELEASE/spring-framework-reference/html/validation.html#core-convert>`_\ を参照されたい。
+    \ `Spring Framework Reference Documentation(Spring Type Conversion) <http://docs.spring.io/spring/docs/4.1.3.RELEASE/spring-framework-reference/html/validation.html#core-convert>`_\ を参照されたい。
 
 
 **戻り値**

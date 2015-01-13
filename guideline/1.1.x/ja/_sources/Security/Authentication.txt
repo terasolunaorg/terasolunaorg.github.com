@@ -16,11 +16,11 @@ Spring Securityで提供している認証方式として、DB認証、LDAP認�
 .. tip::
   DB認証以外の詳細は、各認証方式の公式ドキュメントを参照されたい。
 
-  * \ `LDAP Authentication <http://docs.spring.io/spring-security/site/docs/3.1.x/reference/ldap.html>`_\
-  * \ `CAS Authentication <http://docs.spring.io/spring-security/site/docs/3.1.x/reference/cas.html>`_\
-  * \ `Java Authentication and Authorization Service (JAAS) Provider <http://docs.spring.io/spring-security/site/docs/3.1.x/reference/jaas.html>`_\
-  * \ `X.509 Authentication <http://docs.spring.io/spring-security/site/docs/3.1.x/reference/x509.html>`_\
-  * \ `Basic and Digest Authentication <http://docs.spring.io/spring-security/site/docs/3.1.x/reference/basic.html>`_\
+  * \ `LDAP Authentication <http://docs.spring.io/spring-security/site/docs/3.2.5.RELEASE/reference/htmlsingle/#ldap>`_\
+  * \ `CAS Authentication <http://docs.spring.io/spring-security/site/docs/3.2.5.RELEASE/reference/htmlsingle/#cas>`_\
+  * \ `Java Authentication and Authorization Service (JAAS) Provider <http://docs.spring.io/spring-security/site/docs/3.2.5.RELEASE/reference/htmlsingle/#jaas>`_\
+  * \ `X.509 Authentication <http://docs.spring.io/spring-security/site/docs/3.2.5.RELEASE/reference/htmlsingle/#x509>`_\
+  * \ `Basic and Digest Authentication <http://docs.spring.io/spring-security/site/docs/3.2.5.RELEASE/reference/htmlsingle/#basic>`_\
 
 Login
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
@@ -123,7 +123,7 @@ How to use
        * - | \ ``<http-basic>``\ 
          - | \ ``org.springframework.security.web.authentication.www.BasicAuthenticationFilter``\ が有効になる。
            | BasicAuthenticationFilterは、Basic認証の処理を実施するFilterであり、RFC1945に準拠して実装されている。
-           | 詳細な利用方法は、\ `BasicAuthenticationFilter JavaDoc <http://docs.spring.io/spring-security/site/docs/3.1.x/apidocs/org/springframework/security/web/authentication/www/BasicAuthenticationFilter.html>`_\ を参照されたい。
+           | 詳細な利用方法は、\ `BasicAuthenticationFilter JavaDoc <http://docs.spring.io/spring-security/site/docs/3.2.5.RELEASE/apidocs/org/springframework/security/web/authentication/www/BasicAuthenticationFilter.html>`_\ を参照されたい。
        * - | \ ``<logout>``\ 
          - | \ ``org.springframework.security.web.authentication.logout.LogoutFilter``\ ,
            | \ ``org.springframework.security.web.authentication.logout.SecurityContextLogoutHandler``\ が有効になる。
@@ -194,7 +194,7 @@ spring-security.xml
    * - | (7)
      - | \ ``default-target-url``\ 属性に認証成功時に呼ばれる、ハンドラクラスを指定する。
 
-上記以外の属性については、\ `Spring Securityのマニュアル <http://docs.spring.io/spring-security/site/docs/3.1.x/reference/appendix-namespace.html#nsa-form-login>`_\ を参照されたい。
+上記以外の属性については、\ `Spring Securityのマニュアル <http://docs.spring.io/spring-security/site/docs/3.2.5.RELEASE/reference/htmlsingle/#nsa-form-login>`_\ を参照されたい。
 
 .. warning:: **Spring Security のデフォルト値「j_spring_security_check」の使用を推奨しない理由**
 
@@ -380,7 +380,7 @@ Spring Securityで認証処理を設定するために、\ ``AuthenticationProvi
      * - | (1)
        - | \ ``<sec:authentication-manager>``\ 要素内に\ ``<sec:authentication-provider>``\ 要素を定義する。複数指定して、認証方法を組み合わせることが可能であるが、ここでは説明しない。
      * - | (2)
-       - | \ ``<sec:authentication-provider>``\ 要素で\ ``AuthenticationProvider``\ を定義する。デフォルトで、\ ``DaoAuthenticationProvider``\ が有効になる。これ以外の\ ``AuthenticationProvider``\ を指定する場合は\ `ref属性で、対象のAuthenticationProviderのBean IDを指定する <http://docs.spring.io/spring-security/site/docs/3.1.x/reference/appendix-namespace.html#nsa-authentication-provider>`_\ 。
+       - | \ ``<sec:authentication-provider>``\ 要素で\ ``AuthenticationProvider``\ を定義する。デフォルトで、\ ``DaoAuthenticationProvider``\ が有効になる。これ以外の\ ``AuthenticationProvider``\ を指定する場合は\ `ref属性で、対象のAuthenticationProviderのBean IDを指定する <http://docs.spring.io/spring-security/site/docs/3.2.5.RELEASE/reference/htmlsingle/#nsa-authentication-provider>`_\ 。
          |
          | \ ``user-service-ref``\ 属性に、認証ユーザ情報を取得する\ ``UserDetailsService``\ のBean Idを指定する。\ ``DaoAuthenticationProvider``\ を使用する場合、この設定は必須である。
          | 詳細は、\ :ref:`userDetailsService`\ を参照されたい。
@@ -419,11 +419,11 @@ Spring Securityで認証処理を設定するために、\ ``AuthenticationProvi
     <property name="dataSource" ref="dataSource"/>
   </bean>
 
-| \ ``JdbcDaoImpl``\ は、認証ユーザー情報と認可情報を取得するためのデフォルトSQLを定義しており、これらに対応したテーブルが用意されていることが前提となっている。前提としているテーブル定義は\ `Spring Securityのマニュアル <http://docs.spring.io/spring-security/site/docs/3.1.x/reference/appendix-schema.html>`_\ を参照されたい。
+| \ ``JdbcDaoImpl``\ は、認証ユーザー情報と認可情報を取得するためのデフォルトSQLを定義しており、これらに対応したテーブルが用意されていることが前提となっている。前提としているテーブル定義は\ `Spring Securityのマニュアル <http://docs.spring.io/spring-security/site/docs/3.2.5.RELEASE/reference/htmlsingle/#appendix-schema>`_\ を参照されたい。
 | 既存のテーブルからユーザー情報、認可情報を取得したい場合は、発行されるSQLを既存のテーブルに合わせて修正すればよい。
 | 使用するSQLは以下の3つである。
 
-*  \ `ユーザ情報取得クエリ <http://docs.spring.io/spring-security/site/docs/3.1.x/apidocs/constant-values.html#org.springframework.security.core.userdetails.jdbc.JdbcDaoImpl.DEF_USERS_BY_USERNAME_QUERY>`_\
+*  \ `ユーザ情報取得クエリ <http://docs.spring.io/spring-security/site/docs/3.2.5.RELEASE/apidocs/constant-values.html#org.springframework.security.core.userdetails.jdbc.JdbcDaoImpl.DEF_USERS_BY_USERNAME_QUERY>`_\
 
   | ユーザ情報取得クエリに合致するテーブルを作成することで、後述する設定ファイルへのクエリ指定が不要となる。
   | 「username」、「password」、「enabled」フィールドは必須であるが、
@@ -436,11 +436,11 @@ Spring Securityで認証処理を設定するために、\ ``AuthenticationProvi
 
   | \ :ref:`form-login-JSP`\ で前述した、「ユーザID」がクエリのパラメータに指定される。
 
-* \ `ユーザ権限取得クエリ <http://docs.spring.io/spring-security/site/docs/3.1.x/apidocs/constant-values.html#org.springframework.security.core.userdetails.jdbc.JdbcDaoImpl.DEF_AUTHORITIES_BY_USERNAME_QUERY>`_\ 
+* \ `ユーザ権限取得クエリ <http://docs.spring.io/spring-security/site/docs/3.2.5.RELEASE/apidocs/constant-values.html#org.springframework.security.core.userdetails.jdbc.JdbcDaoImpl.DEF_AUTHORITIES_BY_USERNAME_QUERY>`_\
 
   | ユーザに対する認可情報を取得するクエリである。
 
-* \ `グループ権限取得クエリ <http://docs.spring.io/spring-security/site/docs/3.1.x/apidocs/constant-values.html#org.springframework.security.core.userdetails.jdbc.JdbcDaoImpl.DEF_GROUP_AUTHORITIES_BY_USERNAME_QUERY>`_\
+* \ `グループ権限取得クエリ <http://docs.spring.io/spring-security/site/docs/3.2.5.RELEASE/apidocs/constant-values.html#org.springframework.security.core.userdetails.jdbc.JdbcDaoImpl.DEF_GROUP_AUTHORITIES_BY_USERNAME_QUERY>`_\
 
   | ユーザーが所属するグループの認可情報を取得するクエリである。グループ権限はデフォルトでは無効になっており、本ガイドラインでも扱わない。
 
@@ -737,13 +737,13 @@ Spring Securityにおけるセッション管理
        | \ ``migrateSession``\ ：ログイン前のセッション情報を引き継ぎ（コピー）、IDのみ新規作成する。デフォルトの設定である。
        | \ ``newSession``\ ：ログイン前のセッション情報を引き継がず、ID、セッション内容を新規作成する。
        |
-       | 本機能の目的は、新しいセッションIDをログイン毎に割り振ることで、\ `セッション・フィクセーション攻撃 <http://docs.spring.io/spring-security/site/docs/3.1.x/reference/ns-config.html#ns-session-fixation>`_\を防ぐことにある。そのため、明確な意図がない限り、デフォルトの設定を推奨する。
+       | 本機能の目的は、新しいセッションIDをログイン毎に割り振ることで、\ `セッション・フィクセーション攻撃 <http://docs.spring.io/spring-security/site/docs/3.2.5.RELEASE/reference/htmlsingle/#ns-session-fixation>`_\を防ぐことにある。そのため、明確な意図がない限り、デフォルトの設定を推奨する。
 
 .. _authentication_control-user-samatime-session:
 
 Concurrent Session Controlの利用設定
 """"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
-| Spring Securityでは、1ユーザが保持できる最大セッション数を、任意に変更できる機能(\ `Concurrent Session Control <http://docs.spring.io/spring-security/site/docs/3.1.x/reference/session-mgmt.html#concurrent-sessions>`_\ )を提供している。
+| Spring Securityでは、1ユーザが保持できる最大セッション数を、任意に変更できる機能(\ `Concurrent Session Control <http://docs.spring.io/spring-security/site/docs/3.2.5.RELEASE/reference/htmlsingle/#concurrent-sessions>`_\ )を提供している。
 | ここでいうユーザとは、\ ``Authentication.getPrincipal()``\ で取得される、認証ユーザーオブジェクトのことである。
 
 .. note::
@@ -781,7 +781,7 @@ Concurrent Session Controlの利用設定
 \ ``<sec:concurrency-control>``\ の設定
 """"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 
-``<sec:session-management>``\ 要素では\ ``session-authentication-strategy-ref``\ 属性を指定せず、\ ``<sec:session-management>``\ 要素の子要素として\ `<sec:concurrency-control> <http://docs.spring.io/spring-security/site/docs/3.2.0.RELEASE/reference/htmlsingle/#ns-concurrent-sessions>`_\ 要素を使用することもできる。
+``<sec:session-management>``\ 要素では\ ``session-authentication-strategy-ref``\ 属性を指定せず、\ ``<sec:session-management>``\ 要素の子要素として\ `<sec:concurrency-control> <http://docs.spring.io/spring-security/site/docs/3.2.5.RELEASE/reference/htmlsingle/#ns-concurrent-sessions>`_\ 要素を使用することもできる。
 
 .. code-block:: xml
 
@@ -1133,7 +1133,7 @@ spring-security.xml
 \ ``<sec:remember-me>``\ 要素の設定
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-| 「\ `Remeber Me <http://docs.spring.io/spring-security/site/docs/3.1.x/reference/remember-me.html>`_\ 」とは、websiteに頻繁にアクセスするユーザの利便性を、高めるための機能の一つとして、
+| 「\ `Remeber Me <http://docs.spring.io/spring-security/site/docs/3.2.5.RELEASE/reference/htmlsingle/#remember-me>`_\ 」とは、websiteに頻繁にアクセスするユーザの利便性を、高めるための機能の一つとして、
 | ログイン状態を保持する機能である。
 | 本機能は、ユーザがログイン状態を保持することを許可していた場合、ブラウザを閉じた後も
 | cookieにログイン情報を保持し、ユーザ名、パスワードを再入力しなくともログインすることができる機能である。
@@ -1165,7 +1165,7 @@ spring-security.xml
      - | 「\ ``token-validity-seconds``\ 属性に、Remeber Me用のcookieの有効時間を秒単位で指定する。この例では30日間を設定している。
        | 指定が無い場合、デフォルトで14日間が有効期限になる。
 
-上記以外の属性については、\ `Spring Securityのマニュアル <http://docs.spring.io/spring-security/site/docs/3.1.x/reference/appendix-namespace.html#nsa-remember-me>`_\ を参照されたい。
+上記以外の属性については、\ `Spring Securityのマニュアル <http://docs.spring.io/spring-security/site/docs/3.2.5.RELEASE/reference/htmlsingle/#nsa-remember-me>`_\ を参照されたい。
 
 ログインフォームには以下のように「Remeber Me」機能を有効にするためのフラグを用意する必要がある。
 
@@ -1372,7 +1372,7 @@ How to extend
 
   内容をもう一度見直す。
 
-| Spring Securityで\ `デフォルトで用意されている認証プロバイダ <http://docs.spring.io/spring-security/site/docs/3.1.x/apidocs/org/springframework/security/authentication/AuthenticationProvider.html>`_\ で対応できない業務要件がある場合、
+| Spring Securityで\ `デフォルトで用意されている認証プロバイダ <http://docs.spring.io/spring-security/site/docs/3.2.5.RELEASE/apidocs/org/springframework/security/authentication/AuthenticationProvider.html>`_\ で対応できない業務要件がある場合、
 | \ ``org.springframework.security.authentication.AuthenticationProvider``\ を実装したクラスを作成する必要がある。
 
 | \ ``AuthenticationProvider``\ では、\ ``org.springframework.security.core.Authentication``\ を実装したクラスを戻り値として返却する必要がある。

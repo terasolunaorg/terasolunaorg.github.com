@@ -10,32 +10,28 @@
 Overview
 --------------------------------------------------------------------------------
 
-| A codelist is a pair comprising of "Code values (Value) and their display names (Label)".
+A codelist is a pair comprising of "Code values (Value) and their display names (Label)".
 
-| It is used for mapping code values with the labels to be displayed on screen such as selectbox.
+It is used for mapping code values with the labels to be displayed on screen such as selectbox.
 
-| 
-| Common library provides the following functionalities:
+Common library provides the following functionalities:
 
 * Functionality to read and cache the codelist defined in xml file or DB at the time of launching the application.
 * Functionality to refer to the codelist from JSP or Java class
 * Functionality to perform input validation using codelist
 
-| 
-| Moreover, it also supports
+Moreover, it also supports
 
 * internationalization of codelist
 * reloading of cached codelist
 
+.. note::
 
-
-    .. note::
-
-      As per standard specifications, only the codelist defined in DB is reloadable.
+    As per standard specifications, only the codelist defined in DB is reloadable.
 
 |
 
-| Following four types of codelists are implemented in common library.
+Following four types of codelists are implemented in common library.
 
 .. _listOfCodeList:
 
@@ -76,13 +72,13 @@ Codelist class diagram provided in common library is as follows:
 How to use
 --------------------------------------------------------------------------------
 
-| This section describes settings for various codelists and their implementation methods.
+This section describes settings for various codelists and their implementation methods.
 
- * :ref:`codelist-simple`
- * :ref:`codelist-number`
- * :ref:`codelist-jdbc`
- * :ref:`codelisti18n`
- * :ref:`codelist-validate`
+* :ref:`codelist-simple`
+* :ref:`codelist-number`
+* :ref:`codelist-jdbc`
+* :ref:`codelisti18n`
+* :ref:`codelist-validate`
 
 |
 
@@ -90,10 +86,9 @@ How to use
 
 Using SimpleMapCodeList
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-| ``org.terasoluna.gfw.common.codelist.SimpleMapCodeList`` reads
-| the code values defined in xml file at the time of launching the application and uses them as is.
+``org.terasoluna.gfw.common.codelist.SimpleMapCodeList`` reads the code values defined in xml file at the time of launching the application and uses them as is.
 
-* SimpleMapCodeList image
+**SimpleMapCodeList image**
 
 .. figure:: ./images/codelist-simple.png
    :alt: codelist simple
@@ -104,11 +99,9 @@ Using SimpleMapCodeList
 Example of codelist settings
 """"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 
+**Definition of Bean definition file(xxx-codelist.xml)**
+
 It is recommended to create a bean definition file for codelist.
-
-**Bean definition file**
-
-- xxx-codelist.xml
 
 .. code-block:: xml
    :emphasize-lines: 1,4
@@ -137,14 +130,16 @@ It is recommended to create a bean definition file for codelist.
      - | Define Key, Value pairs of Map.
        | When map-class attribute is omitted, it is registered in ``java.util.LinkedHashMap``; hence in the above example, "Name and value" are stored in Map in the order of registration.
 
-| Once the bean definition file for codelist is created, it should be imported to already existing bean definition file.
+|
 
-- xxx-domain.xml
+**Definition of Bean definition file(xxx-domain.xml)**
+
+Once the bean definition file for codelist is created, it should be imported to already existing bean definition file.
 
 .. code-block:: xml
    :emphasize-lines: 1,4
 
-    <import resource="classpath:META-INF/spring/projectName-codelist.xml" /> <!-- (1) -->
+    <import resource="classpath:META-INF/spring/projectName-codelist.xml" /> <!-- (3) -->
     <context:component-scan base-package="com.example.domain" />
 
     <!-- omitted -->
@@ -156,7 +151,7 @@ It is recommended to create a bean definition file for codelist.
 
    * - Sr. No.
      - Description
-   * - | (1)
+   * - | (3)
      - | Import bean definition file for codelist.
        | Resource information of import is necessary during component-scan;
        | hence import should be set above ``<context:component-scan base-package="com.example.domain" />``.
@@ -168,12 +163,10 @@ It is recommended to create a bean definition file for codelist.
 Using codelist in JSP
 """"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 
-| By using the interceptor of common library,
-| codelist can be set automatically in request scope and can be easily referred from JSP.
+By using the interceptor of common library,
+codelist can be set automatically in request scope and can be easily referred from JSP.
 
-**Bean definition file**
-
-- spring-mvc.xml
+**Definition of Bean definition file(spring-mvc.xml)**
 
 .. code-block:: xml
    :emphasize-lines: 3,5,6
@@ -207,14 +200,19 @@ Using codelist in JSP
        | In pattern, regular expression used in ``java.util.regex.Pattern`` should be set.
        | In the above example, only the data in which id is defined in "CL\_XXX" format is targeted. In that case, bean definition wherein id does not start with "CL\_" should not be imported.
        | beanID defined in "CL\_" can be used in JSP since it is set in the request scope.
+       |
+       | \ ``codeListIdPattern``\  property can be omitted.
+       | If omitting \ ``codeListIdPattern``\  property, all of \ ``CodeList``\s (all beans which implements ``org.terasoluna.gfw.common.codelist.CodeList``) are available in JSP.
+
+|
 
 **Example of implementing the codelist in jsp**
 
 .. code-block:: jsp
 
   <form:select path="orderStatus">
-    <form:option value="" label="--Select--" /> <!-- (1) -->
-    <form:options items="${CL_ORDERSTATUS}" /> <!-- (2) -->
+    <form:option value="" label="--Select--" /> <!-- (4) -->
+    <form:options items="${CL_ORDERSTATUS}" /> <!-- (5) -->
   </form:select>
 
 .. tabularcolumns:: |p{0.10\linewidth}|p{0.90\linewidth}|
@@ -224,9 +222,9 @@ Using codelist in JSP
 
    * - Sr. No.
      - Description
-   * - | (1)
+   * - | (4)
      - | When setting dummy value at the top of the selectbox, null characters should be specified in the value.
-   * - | (2)
+   * - | (5)
      - | Specify the beanID for which codelist is defined.
 
 **Output HTML**
@@ -244,7 +242,7 @@ Using codelist in JSP
 
 .. figure:: ./images/codelist_selectbox.png
    :alt: codelist selectbox
-   :width: 30%
+   :width: 40%
 
 |
 
@@ -252,9 +250,10 @@ Using codelist in JSP
 
 Using codelist in Java class
 """"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
-| When using the codelist in Java class, inject the codelist by setting ``javax.inject.Inject`` annotation and 
-| ``javax.inject.Named`` annotation.
-| Specify the codelist name in ``@Named`` annotation.
+
+When using the codelist in Java class,
+inject the codelist by setting ``javax.inject.Inject`` annotation and ``javax.inject.Named`` annotation.
+Specify the codelist name in ``@Named`` annotation.
 
 .. code-block:: java
 
@@ -262,7 +261,7 @@ Using codelist in Java class
 
   import org.terasoluna.fw.common.codelist.CodeList;
 
-  public class CodeListController {
+  public class OrderServiceImpl implements OrderService {
 
       @Inject
       @Named("CL_ORDERSTATUS")
@@ -291,29 +290,33 @@ Using codelist in Java class
 
 Using NumberRangeCodeList
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-| ``org.terasoluna.gfw.common.codelist.NumberRangeCodeList`` is a codelist
-| that creates the list of numeric values of specified range at the time of launching the application.
-| It is assumed that this codelist will mainly be used in the selectboxes having only numbers i.e. selectbox for month, date etc.
 
-* Image of NumberRangeCodeList
+``org.terasoluna.gfw.common.codelist.NumberRangeCodeList`` is a codelist that creates the list of numeric values of specified range at the time of launching the application.
+It is assumed that this codelist will mainly be used in the selectboxes having only numbers i.e. selectbox for month, date etc.
+
+**Image of NumberRangeCodeList**
 
 .. figure:: ./images/codelist-number.png
    :alt: codelist number
    :width: 100%
 
+.. tip::
+
+    NumberRangeCodeList supports only Arabic numbers and does not support Chinese and Roman numbers.
+    Chinese and Roman numbers can be supported by using JdbcCodeList and SimpleMapCodeList.
+
 |
-
-    .. tip::
-
-        NumberRangeCodeList supports only Arabic numbers and does not support Chinese and Roman numbers.
-        Chinese and Roman numbers can be supported by using JdbcCodeList and SimpleMapCodeList.
 
 NumberRangeCodeList has the following features:
 
-#. Increment (decrement) can be changed by setting intervals.
 #. In order to set From value < To value, the values increased in accordance with the interval are set in From-To range in ascending order.
 #. In order to set To value < From value, the values decreased in accordance with the interval are set in To-From range in descending order.
+#. Increment (decrement) can be changed by setting intervals.
 
+|
+
+The information here describes how to configure the ascending \ ``NumberRangeCodeList``\ .
+For how to create the descending \ ``NumberRangeCodeList``\  or change interval, refer to ":ref:`CodeListAppendixNumberRangeCodeListVariation`".
 |
 
 Example of codelist settings
@@ -321,9 +324,7 @@ Example of codelist settings
 
 Example of setting From value < To value is shown below.
 
-**Bean definition file**
-
-- xxx-codelist.xml
+**Definition of Bean definition file(xxx-codelist.xml)**
 
 .. code-block:: xml
 
@@ -350,10 +351,10 @@ Example of setting From value < To value is shown below.
    * - | (3)
      - | Specify the range end value. It cannot be blank.
    * - | (4)
-     - | Specify the format of the key to be set in Map. Format used should be ``java.lang.String.format``.
+     - | Specify the format of the code value. Format used should be ``java.lang.String.format``.
        | When omitted, "%s" is set.
    * - | (5)
-     - | Specify the format of the value to be set in Map. Format used should be ``java.lang.String.format``.
+     - | Specify the format of the code name. Format used should be ``java.lang.String.format``.
        | When omitted, "%s" is set.
    * - | (6)
      - | Set the increment value. When omitted, "1" is set.
@@ -362,7 +363,8 @@ Example of setting From value < To value is shown below.
 
 Using codelist in JSP
 """"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
-| For details on settings shown below, refer to :ref:`Using codelist in JSP <clientSide>` described earlier.
+
+For details on settings shown below, refer to :ref:`Using codelist in JSP <clientSide>` described earlier.
 
 **Example of jsp implementation**
 
@@ -395,145 +397,12 @@ Using codelist in JSP
    :alt: codelist numberrange
    :width: 5%
 
-
-Example of setting To value < From value is shown below.
-
-**Bean definition file**
-
-- xxx-codelist.xml
-
-.. code-block:: xml
-
-    <bean id="CL_BIRTH_YEAR"
-        class="org.terasoluna.gfw.common.codelist.NumberRangeCodeList">
-        <property name="from" value="2013" /> <!-- (1) -->
-        <property name="to" value="2000" /> <!-- (2) -->
-    </bean>
-
-.. tabularcolumns:: |p{0.10\linewidth}|p{0.90\linewidth}|
-.. list-table::
-   :header-rows: 1
-   :widths: 10 90
-
-   * - Sr. No.
-     - Description
-   * - | (1)
-     - | Specify the range start value. Specify a value greater than the one specified in "value" attribute of "to" property.
-       | As per this specification, display the values decreased in accordance with the interval in To-From range in descending order.
-       | Since interval is not set, default value 1 is applied.
-   * - | (2)
-     - | Specify the range end value.
-       | In this example, since 2000 is specified as range end value; the value is reduced by 1 and stored in descending order from 2013 to 2000.
-
-
-**Example of jsp implementation**
-
-.. code-block:: jsp
-
-  <form:select path="birthYear" items="${CL_BIRTH_YEAR}" />
-
-**Output HTML**
-
-.. code-block:: html
-
-  <select id="birthYear" name="birthYear">
-    <option value="2013">2013</option>
-    <option value="2012">2012</option>
-    <option value="2011">2011</option>
-    <option value="2010">2010</option>
-    <option value="2009">2009</option>
-    <option value="2008">2008</option>
-    <option value="2007">2007</option>
-    <option value="2006">2006</option>
-    <option value="2005">2005</option>
-    <option value="2004">2004</option>
-    <option value="2003">2003</option>
-    <option value="2002">2002</option>
-    <option value="2001">2001</option>
-    <option value="2000">2000</option>
-  </select>
-
-**Output screen**
-
-.. figure:: ./images/codelist_numberrenge2.png
-   :alt: codelist numberrenge2
-   :width: 5%
-
-Example of setting interval value is shown below.
-
-**Bean definition file**
-
-- xxx-codelist.xml
-
-.. code-block:: xml
-
-    <bean id="CL_BULK_ORDER_QUANTITY_UNIT"
-        class="org.terasoluna.gfw.common.codelist.NumberRangeCodeList">
-        <property name="from" value="10" />
-        <property name="to" value="50" />
-        <property name="interval" value="10" /> <!-- (1) -->
-    </bean>
-
-.. tabularcolumns:: |p{0.10\linewidth}|p{0.90\linewidth}|
-.. list-table::
-   :header-rows: 1
-   :widths: 10 90
-
-   * - Sr. No.
-     - Description
-   * - | (1)
-     - | Specify increment (decrement) value. Then, store the values obtained upon increasing (decreasing) the interval value within From-To range as codelist.
-       | In the above example, the values are stored in the order of \ ``10``\,\ ``20``\,\ ``30``\,\ ``40``\,\ ``50``\  in the codelist.
-
-**Example of jsp implementation**
-
-.. code-block:: jsp
-
-  <form:select path="quantity" items="${CL_BULK_ORDER_QUANTITY_UNIT}" />
-
-**Output HTML**
-
-.. code-block:: html
-
-    <select id="quantity" name="quantity">
-        <option value="10">10</option>
-        <option value="20">20</option>
-        <option value="30">30</option>
-        <option value="40">40</option>
-        <option value="50">50</option>
-    </select>
-
-**Output screen**
-
-.. figure:: ./images/codelist_numberrenge3.png
-   :alt: codelist numberrenge3
-
-.. note::
-
-    If From-To value exceeds the specified range, then the value increased (decreased) in accordance with interval is not stored in the codelist.
-    
-    i.e. in case of following definition, 
-
-     .. code-block:: xml
-    
-        <bean id="CL_BULK_ORDER_QUANTITY_UNIT"
-            class="org.terasoluna.gfw.common.codelist.NumberRangeCodeList">
-            <property name="from" value="10" />
-            <property name="to" value="55" />
-            <property name="interval" value="10" />
-        </bean>
-        
-    
-    
-    5 values of \ ``10``\,\ ``20``\,\ ``30``\,\ ``40``\,\ ``50``\  are stored in the codelist.
-    The value of subsequent interval \ ``60``\  and the range threshold value \ ``55``\  are not stored in the codelist.
-
-
 |
 
 Using codelist in Java class
 """"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
-| For details on settings shown below, refer to :ref:`Using codelist in Java class <serverSide>` described earlier.
+
+For details on settings shown below, refer to :ref:`Using codelist in Java class <serverSide>` described earlier.
 
 |
 
@@ -541,11 +410,13 @@ Using codelist in Java class
 
 Using JdbcCodeList
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-| ``org.terasoluna.gfw.common.codelist.JdbcCodeList`` is a class for creating codelist
-| by fetching values from DB at the time of launching the application. This list is cached.
-| The fetched values can be changed dynamically by reloading. For details, refer to :ref:`codeListTaskScheduler`.
 
-* JdbcCodeList image
+``org.terasoluna.gfw.common.codelist.JdbcCodeList`` is a class for creating codelist by fetching values from DB at the time of launching the application.
+This list is cached.
+
+The fetched values can be changed dynamically by reloading. For details, refer to :ref:`codeListTaskScheduler`.
+
+**JdbcCodeList image**
 
 .. figure:: ./images/codelist-jdbc.png
    :alt: codelist simple
@@ -556,7 +427,7 @@ Using JdbcCodeList
 Example of codelist settings
 """"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 
-**Table definition (authority)**
+**Definition of Table(authority)**
 
 .. tabularcolumns:: |p{0.40\linewidth}|p{0.60\linewidth}|
 .. list-table::
@@ -576,9 +447,9 @@ Example of codelist settings
    * - | 05
      - | SHOW_SHOPPING_CENTER
 
-**Bean definition file**
+|
 
-- xxx-codelist.xml
+**Definition of Bean definition file(xxx-codelist.xml)**
 
 .. code-block:: xml
 
@@ -648,13 +519,14 @@ Using codelist in JSP
 
 .. figure:: ./images/codelist_checkbox.png
    :alt: codelist checkbox
-   :width: 30%
+   :width: 50%
 
 |
 
 Using codelist in Java class
 """"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
-| For details on settings shown below, refer to :ref:`Using codelist in Java class <serverSide>` described earlier.
+
+For details on settings shown below, refer to :ref:`Using codelist in Java class <serverSide>` described earlier.
 
 |
 
@@ -662,10 +534,11 @@ Using codelist in Java class
 
 How to use SimpleI18nCodeList
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-| ``org.terasoluna.gfw.common.codelist.i18n.SimpleI18nCodeList`` is a codelist supporting internationalization.
-| By setting the codelist for each locale, the codelist corresponding to locale can be returned.
 
-* SimpleI18nCodeList image
+``org.terasoluna.gfw.common.codelist.i18n.SimpleI18nCodeList`` is a codelist supporting internationalization.
+By setting the codelist for each locale, the codelist corresponding to locale can be returned.
+
+**SimpleI18nCodeList image**
 
 .. figure:: ./images/codelist-i18n.png
    :alt: codelist i18n
@@ -678,7 +551,7 @@ Example of setting a codelist
 
 It is easier to understand if you consider \ ``SimpleI18nCodeList``\  as two dimensional table wherein row is \ ``Locale``\ , column contains code values and cell details are labels.
 
-| The table would be as follows in case of a selectbox for selecting charges.
+The table would be as follows in case of a selectbox for selecting charges.
 
 .. tabularcolumns:: |p{0.10\linewidth}|p{0.15\linewidth}|p{0.15\linewidth}|p{0.15\linewidth}|p{0.15\linewidth}|p{0.15\linewidth}|p{0.15\linewidth}|
 .. list-table::
@@ -710,204 +583,206 @@ It is easier to understand if you consider \ ``SimpleI18nCodeList``\  as two dim
 
 
 
-| For creating a codelist table that supports internationalization, \ ``SimpleI18nCodeList``\  has been set in following 3 ways.
+For creating a codelist table that supports internationalization, \ ``SimpleI18nCodeList``\  has been set in following 3 ways.
 
 * Set \ ``CodeList``\  for each locale by rows.
 * Set \ ``java.util.Map``\ (key = code value, value = label) for each locale by rows.
 * Set \ ``java.util.Map``\ (key = locale, value = label) for each code value by columns.
 
-| It is recommended that you set the codelist using "Set \ ``CodeList``\  for each locale by rows." method. 
+It is recommended that you set the codelist using "Set \ ``CodeList``\  for each locale by rows." method.
 
-| The way of setting the \ ``CodeList``\  for each locale by rows considering the above example of selectbox for selecting charges, is mentioned below.
-| For other setting methods, refer to :ref:`afterCodelisti18n`.
+The way of setting the \ ``CodeList``\  for each locale by rows considering the above example of selectbox for selecting charges, is mentioned below.
+For other setting methods, refer to :ref:`afterCodelisti18n`.
 
+|
 
-* Bean definition file (xxx-codelist.xml)
+**Definition of Bean definition file (xxx-codelist.xml)**
 
-  .. code-block:: xml
+.. code-block:: xml
   
-     <bean id="CL_I18N_PRICE"
-         class="org.terasoluna.gfw.common.codelist.i18n.SimpleI18nCodeList">
-         <property name="rowsByCodeList"> <!-- (1) -->
-             <util:map>
-                 <entry key="en" value-ref="CL_PRICE_EN" />
-                 <entry key="ja" value-ref="CL_PRICE_JA" />
-             </util:map>
-         </property>
-     </bean>
+    <bean id="CL_I18N_PRICE"
+        class="org.terasoluna.gfw.common.codelist.i18n.SimpleI18nCodeList">
+        <property name="rowsByCodeList"> <!-- (1) -->
+            <util:map>
+                <entry key="en" value-ref="CL_PRICE_EN" />
+                <entry key="ja" value-ref="CL_PRICE_JA" />
+            </util:map>
+        </property>
+    </bean>
   
-  .. tabularcolumns:: |p{0.10\linewidth}|p{0.90\linewidth}|
-  .. list-table::
-     :header-rows: 1
-     :widths: 10 90
+.. tabularcolumns:: |p{0.10\linewidth}|p{0.90\linewidth}|
+.. list-table::
+    :header-rows: 1
+    :widths: 10 90
   
-     * - Sr. No.
-       - Description
-     * - | (1)
-       - | Set Map wherein key is \ ``java.lang.Locale``\ , in rowsByCodeList properties.
-         | In Map, specify locale in key and a reference link to codelist class corresponding to locale in value-ref.
-         | For Map values, refer to codelist class corresponding to each locale.
-  
-  | For value-ref codelist class, codelist can be defined in 2 ways i.e. ``SimpleMapCodeList`` and ``JdbcCodeList``.
+    * - Sr. No.
+      - Description
+    * - | (1)
+      - | Set Map wherein key is \ ``java.lang.Locale``\ , in rowsByCodeList properties.
+        | In Map, specify locale in key and a reference link to codelist class corresponding to locale in value-ref.
+        | For Map values, refer to codelist class corresponding to each locale.
 
-* Bean definition file (xxx-codelist.xml) when creating \ ``SimpleMapCodeList``\  for each locale
+|
 
-  .. code-block:: xml
-  
-     <bean id="CL_I18N_PRICE"
-         class="org.terasoluna.gfw.common.codelist.i18n.SimpleI18nCodeList">
-         <property name="rowsByCodeList">
-             <util:map>
-                 <entry key="en" value-ref="CL_PRICE_EN" />
-                 <entry key="ja" value-ref="CL_PRICE_JA" />
-             </util:map>
-         </property>
-     </bean>
-  
-     <bean id="CL_PRICE_EN" class="org.terasoluna.gfw.common.codelist.SimpleMapCodeList">  <!-- (1) -->
-         <property name="map">
-             <util:map>
-                 <entry key="0" value="unlimited" />
-                 <entry key="10000" value="Less than $10,000" />
-                 <entry key="20000" value="Less than $20,000" />
-                 <entry key="30000" value="Less than $30,000" />
-                 <entry key="40000" value="Less than $40,000" />
-                 <entry key="50000" value="Less than $50,000" />
-             </util:map>
-         </property>
-     </bean>
-  
-     <bean id="CL_PRICE_JA" class="org.terasoluna.gfw.common.codelist.SimpleMapCodeList">  <!-- (2) -->
-         <property name="map">
-             <util:map>
-                 <entry key="0" value="上限なし" />
-                 <entry key="10000" value="10,000円以下" />
-                 <entry key="20000" value="20,000円以下" />
-                 <entry key="30000" value="30,000円以下" />
-                 <entry key="40000" value="40,000円以下" />
-                 <entry key="50000" value="50,000円以下" />
-             </util:map>
-         </property>
-     </bean>
-  
-  .. tabularcolumns:: |p{0.10\linewidth}|p{0.90\linewidth}|
-  .. list-table::
-     :header-rows: 1
-     :widths: 10 90
-  
-     * - Sr. No.
-       - Description
-     * - | (1)
-       - | For bean definition ``CL_PRICE_EN`` where locale is "en", codelist class is set in ``SimpleMapCodeList``.
-     * - | (2)
-       - | For bean definition ``CL_PRICE_JA`` where locale is "ja", codelist class is set in ``SimpleMapCodeList``.
+**Definition of Bean definition file(xxx-codelist.xml) when creating SimpleMapCodeList for each locale**
 
-* Bean definition file (xxx-codelist.xml) when creating \ ``JdbcCodeList``\  for each locale
+.. code-block:: xml
+  
+    <bean id="CL_I18N_PRICE"
+        class="org.terasoluna.gfw.common.codelist.i18n.SimpleI18nCodeList">
+        <property name="rowsByCodeList">
+            <util:map>
+                <entry key="en" value-ref="CL_PRICE_EN" />
+                <entry key="ja" value-ref="CL_PRICE_JA" />
+            </util:map>
+        </property>
+    </bean>
+  
+    <bean id="CL_PRICE_EN" class="org.terasoluna.gfw.common.codelist.SimpleMapCodeList">  <!-- (2) -->
+        <property name="map">
+            <util:map>
+                <entry key="0" value="unlimited" />
+                <entry key="10000" value="Less than $10,000" />
+                <entry key="20000" value="Less than $20,000" />
+                <entry key="30000" value="Less than $30,000" />
+                <entry key="40000" value="Less than $40,000" />
+                <entry key="50000" value="Less than $50,000" />
+            </util:map>
+        </property>
+    </bean>
+  
+    <bean id="CL_PRICE_JA" class="org.terasoluna.gfw.common.codelist.SimpleMapCodeList">  <!-- (3) -->
+        <property name="map">
+            <util:map>
+                <entry key="0" value="上限なし" />
+                <entry key="10000" value="10,000円以下" />
+                <entry key="20000" value="20,000円以下" />
+                <entry key="30000" value="30,000円以下" />
+                <entry key="40000" value="40,000円以下" />
+                <entry key="50000" value="50,000円以下" />
+            </util:map>
+        </property>
+    </bean>
+  
+.. tabularcolumns:: |p{0.10\linewidth}|p{0.90\linewidth}|
+.. list-table::
+    :header-rows: 1
+    :widths: 10 90
+  
+    * - Sr. No.
+      - Description
+    * - | (2)
+      - | For bean definition ``CL_PRICE_EN`` where locale is "en", codelist class is set in ``SimpleMapCodeList``.
+    * - | (3)
+      - | For bean definition ``CL_PRICE_JA`` where locale is "ja", codelist class is set in ``SimpleMapCodeList``.
 
-  .. code-block:: xml
+|
+
+**Definition of Bean definition file(xxx-codelist.xml) when creating JdbcCodeList for each locale**
+
+.. code-block:: xml
   
-     <bean id="CL_I18N_PRICE"
-         class="org.terasoluna.gfw.common.codelist.i18n.SimpleI18nCodeList">
-         <property name="rowsByCodeList">
-             <util:map>
-                 <entry key="en" value-ref="CL_PRICE_EN" />
-                 <entry key="ja" value-ref="CL_PRICE_JA" />
-             </util:map>
-         </property>
-     </bean>
+    <bean id="CL_I18N_PRICE"
+        class="org.terasoluna.gfw.common.codelist.i18n.SimpleI18nCodeList">
+        <property name="rowsByCodeList">
+            <util:map>
+                <entry key="en" value-ref="CL_PRICE_EN" />
+                <entry key="ja" value-ref="CL_PRICE_JA" />
+            </util:map>
+        </property>
+    </bean>
   
-     <bean id="CL_PRICE_EN" class="org.terasoluna.gfw.common.codelist.JdbcCodeList">  <!-- (1) -->
-         <property name="dataSource" ref="dataSource" />
-         <property name="querySql"
-             value="SELECT code, label FROM price WHERE locale = 'en' ORDER BY code" />
-         <property name="valueColumn" value="code" />
-         <property name="labelColumn" value="label" />
-     </bean>
+    <bean id="CL_PRICE_EN" class="org.terasoluna.gfw.common.codelist.JdbcCodeList">  <!-- (4) -->
+        <property name="dataSource" ref="dataSource" />
+        <property name="querySql"
+            value="SELECT code, label FROM price WHERE locale = 'en' ORDER BY code" />
+        <property name="valueColumn" value="code" />
+        <property name="labelColumn" value="label" />
+    </bean>
   
-     <bean id="CL_PRICE_JA" class="org.terasoluna.gfw.common.codelist.JdbcCodeList">  <!-- (2) -->
-         <property name="dataSource" ref="dataSource" />
-         <property name="querySql"
-             value="SELECT code, label FROM price WHERE locale = 'ja' ORDER BY code" />
-         <property name="valueColumn" value="code" />
-         <property name="labelColumn" value="label" />
-     </bean>
+    <bean id="CL_PRICE_JA" class="org.terasoluna.gfw.common.codelist.JdbcCodeList">  <!-- (5) -->
+        <property name="dataSource" ref="dataSource" />
+        <property name="querySql"
+            value="SELECT code, label FROM price WHERE locale = 'ja' ORDER BY code" />
+        <property name="valueColumn" value="code" />
+        <property name="labelColumn" value="label" />
+    </bean>
   
-  .. tabularcolumns:: |p{0.10\linewidth}|p{0.90\linewidth}|
-  .. list-table::
-     :header-rows: 1
-     :widths: 10 90
+.. tabularcolumns:: |p{0.10\linewidth}|p{0.90\linewidth}|
+.. list-table::
+    :header-rows: 1
+    :widths: 10 90
   
-     * - Sr. No.
-       - Description
-     * - | (1)
-       - | For bean definition ``CL_PRICE_EN`` where locale is "en", codelist class is set in ``JdbcCodeList``.
-     * - | (2)
-       - | For bean definition ``CL_PRICE_JA`` where locale is "ja", codelist class is set in ``JdbcCodeList``.
+    * - Sr. No.
+      - Description
+    * - | (4)
+      - | For bean definition ``CL_PRICE_EN`` where locale is "en", codelist class is set in ``JdbcCodeList``.
+    * - | (5)
+      - | For bean definition ``CL_PRICE_JA`` where locale is "ja", codelist class is set in ``JdbcCodeList``.
   
 
-  Insert the following data in Table Definition (price table).
+Insert the following data in Table Definition (price table).
 
-  .. tabularcolumns:: |p{0.20\linewidth}|p{0.20\linewidth}|p{0.60\linewidth}|
-  .. list-table::
-     :header-rows: 1
-     :widths: 20 20 60
+.. tabularcolumns:: |p{0.20\linewidth}|p{0.20\linewidth}|p{0.60\linewidth}|
+.. list-table::
+    :header-rows: 1
+    :widths: 20 20 60
   
-     * - locale
-       - code
-       - label
-     * - | en
-       - | 0
-       - | unlimited
-     * - | en
-       - | 10000
-       - | Less than $10,000
-     * - | en
-       - | 20000
-       - | Less than $20,000
-     * - | en
-       - | 30000
-       - | Less than $30,000
-     * - | en
-       - | 40000
-       - | Less than $40,000
-     * - | en
-       - | 50000
-       - | Less than $50,000
-     * - | ja
-       - | 0
-       - | 上限なし
-     * - | ja
-       - | 10000
-       - | 10,000円以下
-     * - | ja
-       - | 20000
-       - | 20,000円以下
-     * - | ja
-       - | 30000
-       - | 30,000円以下
-     * - | ja
-       - | 40000
-       - | 40,000円以下
-     * - | ja
-       - | 50000
-       - | 50,000円以下
+    * - locale
+      - code
+      - label
+    * - | en
+      - | 0
+      - | unlimited
+    * - | en
+      - | 10000
+      - | Less than $10,000
+    * - | en
+      - | 20000
+      - | Less than $20,000
+    * - | en
+      - | 30000
+      - | Less than $30,000
+    * - | en
+      - | 40000
+      - | Less than $40,000
+    * - | en
+      - | 50000
+      - | Less than $50,000
+    * - | ja
+      - | 0
+      - | 上限なし
+    * - | ja
+      - | 10000
+      - | 10,000円以下
+    * - | ja
+      - | 20000
+      - | 20,000円以下
+    * - | ja
+      - | 30000
+      - | 30,000円以下
+    * - | ja
+      - | 40000
+      - | 40,000円以下
+    * - | ja
+      - | 50000
+      - | 50,000円以下
 
-  .. warning::
+.. warning::
 
-      Currently ``SimpleI18nCodeList`` does not support reloadable functionality.
-      It should be noted that even if ``JdbcCodeList`` (reloadable CodeList) referred by ``SimpleI18nCodeList`` is reloaded, it does not get reflected in ``SimpleI18nCodeList``.
-      In order to make it reloadable, it should be implemented independently.
-      For implementation method, refer to :ref:`originalCustomizeCodeList`.
+    Currently ``SimpleI18nCodeList`` does not support reloadable functionality.
+    It should be noted that even if ``JdbcCodeList`` (reloadable CodeList) referred by ``SimpleI18nCodeList`` is reloaded, it does not get reflected in ``SimpleI18nCodeList``.
+    In order to make it reloadable, it should be implemented independently.
+    For implementation method, refer to :ref:`originalCustomizeCodeList`.
 
 |
 
 Using codelist in JSP
 """"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
-| Description of basic settings is omitted since it is same as :ref:`Using codelist in JSP <clientSide>` described earlier.
 
-**Bean definition file**
+Description of basic settings is omitted since it is same as :ref:`Using codelist in JSP <clientSide>` described earlier.
 
-- spring-mvc.xml
+**Definition of Bean definition file(spring-mvc.xml)**
 
 .. code-block:: xml
 
@@ -938,6 +813,8 @@ Using codelist in JSP
        | codelist is fetched using the locale set in fallbackTo property.
        | When fallbackTo property is not set, default JVM locale is used as fallbackTo property.
        | When codelist cannot be fetched even after using the locale set in fallbackTo property, WARN log is output and empty Map is returned.
+
+|
 
 **Example of jsp implementation**
 
@@ -975,33 +852,45 @@ Using codelist in JSP
 
 .. figure:: ./images/codelist_i18n_en.png
    :alt: codelist i18n en
-   :width: 15%
+   :width: 20%
 
 **Output screen lang=ja**
 
 .. figure:: ./images/codelist_i18n_ja.png
    :alt: codelist i18n ja
-   :width: 15%
+   :width: 20%
 
 |
 
 Using codelist in Java class
 """"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
-| Description of basic settings is omitted since it is same as :ref:`Using codelist in Java class <serverSide>` described earlier.
+
+Description of basic settings is omitted since it is same as :ref:`Using codelist in Java class <serverSide>` described earlier.
 
 .. code-block:: java
 
-  public class CodeListController {
+    @RequestMapping("orders")
+    @Controller
+    public class OrderController {
 
-      @Inject
-      @Named("CL_I18N_PRICE")
-      I18nCodeList priceCodeList;
+        @Inject
+        @Named("CL_I18N_PRICE")
+        I18nCodeList priceCodeList;
 
-      private String getPriceMessage(String targetPrice, Locale locale) {
-           return priceCodeList.asMap(locale).get(targetPrice);  // (1)
-      }
+        // ...
 
-  }
+        @RequestMapping(method = RequestMethod.POST, params = "confirm")
+        public String confirm(OrderForm form, Locale locale) {
+            // ...
+            String priceMassage = getPriceMessage(form.getPriceCode(), locale);
+            // ...
+        }
+
+        private String getPriceMessage(String targetPrice, Locale locale) {
+             return priceCodeList.asMap(locale).get(targetPrice);  // (1)
+        }
+
+    }
 
 .. tabularcolumns:: |p{0.10\linewidth}|p{0.90\linewidth}|
 .. list-table::
@@ -1019,10 +908,11 @@ Using codelist in Java class
 
 Input validation of code value using codelist
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-| When checking whether the input value is the key value defined in codelist,
-| ``org.terasoluna.gfw.common.codelist.ExistInCodeList`` annotation for BeanValidation is provided in common library.
 
-| For details on BeanValidation and message output method, refer to :doc:`Validation`.
+When checking whether the input value is the code value defined in codelist,
+``org.terasoluna.gfw.common.codelist.ExistInCodeList`` annotation for BeanValidation is provided in common library.
+
+For details on BeanValidation and message output method, refer to :doc:`Validation`.
 
 See below the default message definition that provided by common library.
 Please change the message to fit the application requirements.
@@ -1049,11 +939,10 @@ Please change the message to fit the application requirements.
 
 Example of @ExistInCodeList settings
 """"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
-| See below the example of input validation method using codelist.
 
-**Bean definition file**
+See below the example of input validation method using codelist.
 
-- xxx-codelist.xml
+**Definition of Bean definition file(xxx-codelist.xml)**
 
 .. code-block:: xml
 
@@ -1090,12 +979,10 @@ Example of @ExistInCodeList settings
 
 As a result of above settings, when characters other than M, F are stored in ``gender``, the system throws an error.
 
-|
+.. tip::
 
-    .. tip::
-
-       ``@ExistInCodeList`` input validation supports only ``String`` or ``Character`` data types.
-       Therefore, even if the fields with ``@ExistInCodeList`` may contain integer values, they should be defined as String data type. (such as Year/Month/Day)
+    ``@ExistInCodeList`` input validation supports only ``String`` or ``Character`` data types.
+    Therefore, even if the fields with ``@ExistInCodeList`` may contain integer values, they should be defined as String data type. (such as Year/Month/Day)
 
 |
 
@@ -1108,18 +995,18 @@ How to extend
 When large number of records need to be read from JdbcCodeList
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-| When large number of records (in hundreds) need to be read from JdbcCodeList, Web application takes time to start.
-| This is because all records may be fetched at the same time during DB inquiry and it may take time to fetch the list from DB.
-| (fetchSize may be set to Fetch All by default.)
+When large number of records (in hundreds) need to be read from JdbcCodeList, Web application takes time to start.
 
-| This problem can be resolved by specifying appropriate value for fetchSize.
-| In order to change the fetchSize, it is necessary to set the fetchSize of ``org.springframework.jdbc.core.JdbcTemplate``.
-| See the example below.
+This is because all records may be fetched at the same time during DB inquiry and it may take time to fetch the list from DB.
+(fetchSize may be set to Fetch All by default.)
+
+This problem can be resolved by specifying appropriate value for fetchSize.
+In order to change the fetchSize, it is necessary to set the fetchSize of ``org.springframework.jdbc.core.JdbcTemplate``.
+
+See the example below.
 
 
-**Bean definition file**
-
-- xxx-infra.xml
+**Definition of Bean definition file(xxx-infra.xml)**
 
 .. code-block:: xml
 
@@ -1170,26 +1057,27 @@ When large number of records need to be read from JdbcCodeList
 
 When reloading the codelist
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-| Codelist provided in common library is read at the time of launching the application and it is never updated subsequently.
-| However, in some cases, when the master data of the codelist is updated, the codelist also needs to be updated.
-| Example: Updating the codelist when DB master is updated using JdbcCodeList.
+Codelist provided in common library is read at the time of launching the application and it is never updated subsequently.
+However, in some cases, when the master data of the codelist is updated, the codelist also needs to be updated.
 
-| Common library provides ``org.terasoluna.gfw.common.codelist.ReloadableCodeList`` interface.
-| The class implementing the above interface, implements refresh method. Codelist can be updated by calling this refresh method.
-| JdbcCodeList implements ReloadableCodeList interface; hence it is possible to update the codelist.
+Example: Updating the codelist when DB master is updated using JdbcCodeList.
 
-| Codelist can be updated in following two ways.
+Common library provides ``org.terasoluna.gfw.common.codelist.ReloadableCodeList`` interface.
+The class implementing the above interface, implements refresh method. Codelist can be updated by calling this refresh method.
+JdbcCodeList implements ReloadableCodeList interface; hence it is possible to update the codelist.
+
+Codelist can be updated in following two ways.
 
 #. By using Task Scheduler
 #. By calling refresh method in Controller (Service) class
 
-| This guideline recommends the method to reload the codelist periodically using \ `Spring Task Scheduler <http://docs.spring.io/spring/docs/3.2.x/spring-framework-reference/html/scheduling.html>`_\ .
+This guideline recommends the method to reload the codelist periodically using \ `Spring Task Scheduler <http://docs.spring.io/spring/docs/4.1.3.RELEASE/spring-framework-reference/html/scheduling.html>`_\ .
 
-| However, when it is necessary to arbitrarily refresh the codelist, it is appropriate to call refresh method in Controller class.
+However, when it is necessary to arbitrarily refresh the codelist, it is appropriate to call refresh method in Controller class.
 
-    .. note::
+.. note::
 
-     For the codelist having ReloadableCodeList interface, refer to :ref:`List of codelist types <listOfCodeList>`.
+    For the codelist having ReloadableCodeList interface, refer to :ref:`List of codelist types <listOfCodeList>`.
 
 |
 
@@ -1198,9 +1086,7 @@ Using Task Scheduler
 
 Example for setting the Task Scheduler is shown below.
 
-**Bean definition file**
-
-- xxx-codelist.xml
+**Definition of Bean definition file(xxx-codelist.xml)**
 
 .. code-block:: xml
 
@@ -1242,19 +1128,17 @@ Example for setting the Task Scheduler is shown below.
        | execution every hour 9:00-17:00 on weekdays "0 0 9-17 \* \* MON-FRI"
        |
        | For details, refer to JavaDoc.
-       | http://static.springsource.org/spring/docs/3.2.x/javadoc-api/org/springframework/scheduling/support/CronSequenceGenerator.html
+       | http://docs.spring.io/spring/docs/4.1.3.RELEASE/javadoc-api/org/springframework/scheduling/support/CronSequenceGenerator.html
 
 |
 
 Calling refresh method in Controller (Service) class
 """"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 
-| See the example below for directly calling refresh method of JdbcCodeList in Service class.
+See the example below for directly calling refresh method of JdbcCodeList in Service class.
 
 
-**Bean definition file**
-
-- xxx-codelist.xml
+**Definition of Bean definition file(xxx-codelist.xml)**
 
 .. code-block:: xml
 
@@ -1270,19 +1154,19 @@ Calling refresh method in Controller (Service) class
 
 .. code-block:: java
 
-  @Controller
-  @RequestMapping(value = "codelist")
-  public class CodeListContoller {
+    @Controller
+    @RequestMapping(value = "codelist")
+    public class CodeListContoller {
 
-      @Inject
-      CodeListService codeListService; // (1)
+        @Inject
+        CodeListService codeListService; // (1)
 
-      @RequestMapping(method = RequestMethod.GET, params = "refresh")
-      public String refreshJdbcCodeList() {
-          codeListService.refresh(); // (2)
-          return "codelist/jdbcCodeList";
-      }
-  }
+        @RequestMapping(method = RequestMethod.GET, params = "refresh")
+        public String refreshJdbcCodeList() {
+            codeListService.refresh(); // (2)
+            return "codelist/jdbcCodeList";
+        }
+    }
 
 .. tabularcolumns:: |p{0.10\linewidth}|p{0.90\linewidth}|
 .. list-table::
@@ -1303,15 +1187,15 @@ The description below is given only for the implementation class. Description fo
 .. code-block:: java
 
   @Service
-  public class CodeListServiceImpl implements CodeListService { // (1)
+  public class CodeListServiceImpl implements CodeListService { // (3)
 
       @Inject
-      @Named(value = "CL_AUTHORITIES") // (2)
-      ReloadableCodeList codeListItem; // (3)
+      @Named(value = "CL_AUTHORITIES") // (4)
+      ReloadableCodeList codeListItem; // (5)
 
       @Override
-      public void refresh() { // (4)
-          codeListItem.refresh(); // (5)
+      public void refresh() { // (6)
+          codeListItem.refresh(); // (7)
       }
   }
 
@@ -1324,19 +1208,19 @@ The description below is given only for the implementation class. Description fo
 
    * - Sr. No.
      - Description
-   * - | (1)
+   * - | (3)
      - | Implement ``CodeListService`` interface for ``CodeListServiceImpl`` class.
-   * - | (2)
+   * - | (4)
      - | Specify the corresponding codelist using ``@Named`` annotation at the time of injecting the codelist.
        | ID of the bean to be fetched should be specified in ``value`` attribute.
        | Codelist of ID attribute "CL_AUTHORITIES" of bean tag defined in Bean definition file is injected.
-   * - | (3)
+   * - | (5)
      - | ReloadableCodeList interface should be defined in field type.
-       | ReloadableCodeList interface should be implemented for Bean fetched in (1).
-   * - | (4)
+       | ReloadableCodeList interface should be implemented for Bean specified in (4).
+   * - | (6)
      - | refresh method defined in Service class
        | is called from Controller class.
-   * - | (5)
+   * - | (7)
      - | refresh method of codelist wherein ReloadableCodeList interface is implemented.
        | Codelist is updated by executing refresh method.
 
@@ -1347,8 +1231,8 @@ The description below is given only for the implementation class. Description fo
 Customizing the codelist independently
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-| In order to create a codelist which does not fall under the 4 types provided by the common library, the existing codelist can be customized independently.
-| Refer to the table below for the implementation method and type of codelist that can be created.
+In order to create a codelist which does not fall under the 4 types provided by the common library, the existing codelist can be customized independently.
+Refer to the table below for the implementation method and type of codelist that can be created.
 
 .. tabularcolumns:: |p{0.10\linewidth}|p{0.15\linewidth}|p{0.30\linewidth}|p{0.45\linewidth}|
 .. list-table::
@@ -1368,37 +1252,37 @@ Customizing the codelist independently
      - | ``org.terasoluna.gfw.common.codelist.AbstractReloadableCodeList``
      - | Override ``retrieveMap``
 
-| The codelist can be customized by directly implementing ``org.terasoluna.gfw.common.codelist.CodeList`` and ``org.terasoluna.gfw.common.codelist.ReloadableCodeList`` interfaces; however extending the abstract class provided in common library minimizes the implementation efforts.
+The codelist can be customized by directly implementing ``org.terasoluna.gfw.common.codelist.CodeList`` and ``org.terasoluna.gfw.common.codelist.ReloadableCodeList`` interfaces; however extending the abstract class provided in common library minimizes the implementation efforts.
 
-| Actual example of independent customization is shown below.
-| It illustrates a codelist for creating a list of current year and the next year.
-| (Example: If current year is 2013, it is stored in codelist in the order of "2013, 2014".)
+Actual example of independent customization is shown below.
+It illustrates a codelist for creating a list of current year and the next year.
+(Example: If current year is 2013, it is stored in codelist in the order of "2013, 2014".)
 
 **Codelist class**
 
 .. code-block:: java
 
-  @Component("CL_YEAR") // (1)
-  public class DepYearCodeList extends AbstractCodeList { // (2)
+    @Component("CL_YEAR") // (1)
+    public class DepYearCodeList extends AbstractCodeList { // (2)
 
-      @Inject
-      DateFactory dateFactory; // (3)
+        @Inject
+        JodaTimeDateFactory dateFactory; // (3)
 
-      @Override
-      public Map<String, String> asMap() {  // (4)
-          DateTime dateTime = dateFactory.newDateTime();
-          DateTime nextYearDateTime = dateTime.plusYears(1);
+        @Override
+        public Map<String, String> asMap() {  // (4)
+            DateTime dateTime = dateFactory.newDateTime();
+            DateTime nextYearDateTime = dateTime.plusYears(1);
 
-          Map<String, String> depYearMap = new LinkedHashMap<String, String>();
+            Map<String, String> depYearMap = new LinkedHashMap<String, String>();
 
-          String thisYear = dateTime.toString("Y");
-          String nextYear = nextYearDateTime.toString("Y");
-          depYearMap.put(thisYear, thisYear);
-          depYearMap.put(nextYear, nextYear);
+            String thisYear = dateTime.toString("Y");
+            String nextYear = nextYearDateTime.toString("Y");
+            depYearMap.put(thisYear, thisYear);
+            depYearMap.put(nextYear, nextYear);
 
-          return Collections.unmodifiableMap(depYearMap);
-      }
-  }
+            return Collections.unmodifiableMap(depYearMap);
+        }
+    }
 
 .. tabularcolumns:: |p{0.10\linewidth}|p{0.90\linewidth}|
 .. list-table::
@@ -1415,18 +1299,20 @@ Customizing the codelist independently
      - | Inherit ``org.terasoluna.gfw.common.codelist.AbstractCodeList``.
        | When creating the list of current year and next year, reloading is not necessary since it is created dynamically by calculating from system date.
    * - | (3)
-     - | ``org.terasoluna.gfw.common.date.DateFactory`` creating the Date class of system date is injected.
-       | Current year and next year can be fetched using ``DateFactory``.
-       | Class that implements DateFactory interface should be set in advance in bean definition file.
+     - | ``org.terasoluna.gfw.common.date.jodatime.JodaTimeDateFactory`` creating the Date class of system date is injected.
+       | Current year and next year can be fetched using ``JodaTimeDateFactory``.
+       | Class that implements ``JodaTimeDateFactory`` interface should be set in advance in bean definition file.
    * - | (4)
      - | Override ``asMap()`` method and create the list of current year and next year.
        | Implementation differs with every created codelist.
+
+|
 
 **Example of jsp implementation**
 
 .. code-block:: jsp
 
-  <form:select path="mostRecentYear" items="${CL_YEAR}" /> <!-- (1) -->
+  <form:select path="mostRecentYear" items="${CL_YEAR}" /> <!-- (5) -->
 
 .. tabularcolumns:: |p{0.10\linewidth}|p{0.90\linewidth}|
 .. list-table::
@@ -1435,7 +1321,7 @@ Customizing the codelist independently
 
    * - Sr. No.
      - Description
-   * - | (1)
+   * - | (5)
      - | ``"CL_YEAR"`` registered as component in items attribute should be specified in ``${}`` placeholder to fetch the corresponding codelist.
 
 **Output HTML**
@@ -1453,11 +1339,9 @@ Customizing the codelist independently
    :alt: customized codelist
    :width: 10%
 
-|
+.. note::
 
-    .. note::
-
-      Implementation should be made thread-safe at the time of customizing the reloadable CodeList independently.
+    Implementation should be made thread-safe at the time of customizing the reloadable CodeList independently.
 
 |
 
@@ -1468,45 +1352,44 @@ Appendix
 
 Setting SimpleI18nCodeList
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-| Apart from the settings mentioned in :ref:`codelisti18n`, SimpleI18nCodeList can be set in following 2 ways.
-| The respective setting methods are explained using the example of selectbox for selecting charges.
+
+Apart from the settings mentioned in :ref:`codelisti18n`, SimpleI18nCodeList can be set in following 2 ways.
+The respective setting methods are explained using the example of selectbox for selecting charges.
 
 Set \ ``java.util.Map``\  (key = code value, value = label) for each locale by rows
 """""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 
-**Bean definition file**
-
-- xxx-codelist.xml
+**Definition of Bean definition file(xxx-codelist.xml)**
 
 .. code-block:: xml
 
-   <bean id="CL_I18N_PRICE"
-       class="org.terasoluna.gfw.common.codelist.i18n.SimpleI18nCodeList">
-       <property name="rows"> <!-- (1) -->
-           <util:map>
-               <entry key="en">
-                   <util:map>
+    <bean id="CL_I18N_PRICE"
+        class="org.terasoluna.gfw.common.codelist.i18n.SimpleI18nCodeList">
+        <property name="rows"> <!-- (1) -->
+            <util:map>
+                <entry key="en">
+                    <util:map>
                         <entry key="0" value="unlimited" />
                         <entry key="10000" value="Less than $10,000" />
                         <entry key="20000" value="Less than $20,000" />
                         <entry key="30000" value="Less than $30,000" />
                         <entry key="40000" value="Less than $40,000" />
                         <entry key="50000" value="Less than $50,000" />
-                   </util:map>
-               </entry>
-               <entry key="ja">
-                   <util:map>
+                    </util:map>
+                </entry>
+                <entry key="ja">
+                    <util:map>
                         <entry key="0" value="unlimited" />
                         <entry key="10000" value="10,000円以下" />
                         <entry key="20000" value="20,000円以下" />
                         <entry key="30000" value="30,000円以下" />
                         <entry key="40000" value="40,000円以下" />
                         <entry key="50000" value="50,000円以下" />
-                   </util:map>
-               </entry>
-           </util:map>
-       </property>
-   </bean>
+                    </util:map>
+                </entry>
+            </util:map>
+        </property>
+    </bean>
 
 .. tabularcolumns:: |p{0.10\linewidth}|p{0.90\linewidth}|
 .. list-table::
@@ -1524,55 +1407,53 @@ Set \ ``java.util.Map``\  (key = code value, value = label) for each locale by r
 Set \ ``java.util.Map``\ (key = locale, value = label) for each code value by columns
 """""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 
-**Bean definition file**
-
-- xxx-codelist.xml
+**Definition of Bean definition file(xxx-codelist.xml)**
 
 .. code-block:: xml
 
-   <bean id="CL_I18N_PRICE"
-       class="org.terasoluna.gfw.common.codelist.i18n.SimpleI18nCodeList">
-       <property name="columns"> <!-- (1) -->
-           <util:map>
-               <entry key="0">
-                   <util:map>
-                       <entry key="en" value="unlimited" />
-                       <entry key="ja" value="上限なし" />
-                   </util:map>
-               </entry>
-               <entry key="10000">
-                   <util:map>
-                       <entry key="en" value="Less than $10,000" />
-                       <entry key="ja" value="10,000円以下" />
-                   </util:map>
-               </entry>
-               <entry key="20000">
-                   <util:map>
-                       <entry key="en" value="Less than $20,000" />
-                       <entry key="ja" value="20,000円以下" />
-                   </util:map>
-               </entry>
-               <entry key="30000">
-                   <util:map>
-                       <entry key="en" value="Less than $30,000" />
-                       <entry key="ja" value="30,000円以下" />
-                   </util:map>
-               </entry>
-               <entry key="40000">
-                   <util:map>
-                       <entry key="en" value="Less than $40,000" />
-                       <entry key="ja" value="40,000円以下" />
-                   </util:map>
-               </entry>
-               <entry key="50000">
-                   <util:map>
-                       <entry key="en" value="Less than $50,000" />
-                       <entry key="ja" value="50,000円以下" />
-                   </util:map>
-               </entry>
-           </util:map>
-       </property>
-   </bean>
+    <bean id="CL_I18N_PRICE"
+        class="org.terasoluna.gfw.common.codelist.i18n.SimpleI18nCodeList">
+        <property name="columns"> <!-- (1) -->
+            <util:map>
+                <entry key="0">
+                    <util:map>
+                        <entry key="en" value="unlimited" />
+                        <entry key="ja" value="上限なし" />
+                    </util:map>
+                </entry>
+                <entry key="10000">
+                    <util:map>
+                        <entry key="en" value="Less than $10,000" />
+                        <entry key="ja" value="10,000円以下" />
+                    </util:map>
+                </entry>
+                <entry key="20000">
+                    <util:map>
+                        <entry key="en" value="Less than $20,000" />
+                        <entry key="ja" value="20,000円以下" />
+                    </util:map>
+                </entry>
+                <entry key="30000">
+                    <util:map>
+                        <entry key="en" value="Less than $30,000" />
+                        <entry key="ja" value="30,000円以下" />
+                    </util:map>
+                </entry>
+                <entry key="40000">
+                    <util:map>
+                        <entry key="en" value="Less than $40,000" />
+                        <entry key="ja" value="40,000円以下" />
+                    </util:map>
+                </entry>
+                <entry key="50000">
+                    <util:map>
+                        <entry key="en" value="Less than $50,000" />
+                        <entry key="ja" value="50,000円以下" />
+                    </util:map>
+                </entry>
+            </util:map>
+        </property>
+    </bean>
 
 .. tabularcolumns:: |p{0.10\linewidth}|p{0.90\linewidth}|
 .. list-table::
@@ -1584,6 +1465,150 @@ Set \ ``java.util.Map``\ (key = locale, value = label) for each code value by co
    * - | (1)
      - | Set "Map of Map" for columns property. External Map key is a code value.
        | Internal Map key is \ ``java.lang.Locale``\  and value is a label corresponding to locale.
+
+
+|
+
+.. _CodeListAppendixNumberRangeCodeListVariation:
+
+Variations of NumberRangeCodeList
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+Create the Descending NumberRangeCodeList
+""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
+
+Example of setting To value < From value is shown below.
+
+**Definition of Bean definition file(xxx-codelist.xml)**
+
+.. code-block:: xml
+
+    <bean id="CL_BIRTH_YEAR"
+        class="org.terasoluna.gfw.common.codelist.NumberRangeCodeList">
+        <property name="from" value="2013" /> <!-- (1) -->
+        <property name="to" value="2000" /> <!-- (2) -->
+    </bean>
+
+.. tabularcolumns:: |p{0.10\linewidth}|p{0.90\linewidth}|
+.. list-table::
+    :header-rows: 1
+    :widths: 10 90
+
+    * - Sr. No.
+      - Description
+    * - | (1)
+      - | Specify the range start value. Specify a value greater than the one specified in "value" attribute of "to" property.
+        | As per this specification, display the values decreased in accordance with the interval in To-From range in descending order.
+        | Since interval is not set, default value 1 is applied.
+    * - | (2)
+      - | Specify the range end value.
+        | In this example, since 2000 is specified as range end value; the value is reduced by 1 and stored in descending order from 2013 to 2000.
+
+|
+
+**Example of jsp implementation**
+
+.. code-block:: jsp
+
+  <form:select path="birthYear" items="${CL_BIRTH_YEAR}" />
+
+**Output HTML**
+
+.. code-block:: html
+
+  <select id="birthYear" name="birthYear">
+    <option value="2013">2013</option>
+    <option value="2012">2012</option>
+    <option value="2011">2011</option>
+    <option value="2010">2010</option>
+    <option value="2009">2009</option>
+    <option value="2008">2008</option>
+    <option value="2007">2007</option>
+    <option value="2006">2006</option>
+    <option value="2005">2005</option>
+    <option value="2004">2004</option>
+    <option value="2003">2003</option>
+    <option value="2002">2002</option>
+    <option value="2001">2001</option>
+    <option value="2000">2000</option>
+  </select>
+
+**Output screen**
+
+.. figure:: ./images/codelist_numberrenge2.png
+    :alt: codelist numberrenge2
+
+|
+
+Change interval of NumberRangeCodeList
+""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
+
+Example of setting interval value is shown below.
+
+**Definition of Bean definition file(xxx-codelist.xml)**
+
+.. code-block:: xml
+
+    <bean id="CL_BULK_ORDER_QUANTITY_UNIT"
+        class="org.terasoluna.gfw.common.codelist.NumberRangeCodeList">
+        <property name="from" value="10" />
+        <property name="to" value="50" />
+        <property name="interval" value="10" /> <!-- (1) -->
+    </bean>
+
+.. tabularcolumns:: |p{0.10\linewidth}|p{0.90\linewidth}|
+.. list-table::
+    :header-rows: 1
+    :widths: 10 90
+
+    * - Sr. No.
+      - Description
+    * - | (1)
+      - | Specify increment (decrement) value. Then, store the values obtained upon increasing (decreasing) the interval value within From-To range as codelist.
+        | In the above example, the values are stored in the order of \ ``10``\,\ ``20``\,\ ``30``\,\ ``40``\,\ ``50``\  in the codelist.
+
+|
+
+**Example of jsp implementation**
+
+.. code-block:: jsp
+
+    <form:select path="quantity" items="${CL_BULK_ORDER_QUANTITY_UNIT}" />
+
+**Output HTML**
+
+.. code-block:: html
+
+    <select id="quantity" name="quantity">
+        <option value="10">10</option>
+        <option value="20">20</option>
+        <option value="30">30</option>
+        <option value="40">40</option>
+        <option value="50">50</option>
+    </select>
+
+**Output screen**
+
+.. figure:: ./images/codelist_numberrenge3.png
+    :alt: codelist numberrenge3
+
+.. note::
+
+    If From-To value exceeds the specified range, then the value increased (decreased) in accordance with interval is not stored in the codelist.
+
+    i.e. in case of following definition,
+
+     .. code-block:: xml
+
+        <bean id="CL_BULK_ORDER_QUANTITY_UNIT"
+            class="org.terasoluna.gfw.common.codelist.NumberRangeCodeList">
+            <property name="from" value="10" />
+            <property name="to" value="55" />
+            <property name="interval" value="10" />
+        </bean>
+
+    5 values of \ ``10``\,\ ``20``\,\ ``30``\,\ ``40``\,\ ``50``\  are stored in the codelist.
+    The value of subsequent interval \ ``60``\  and the range threshold value \ ``55``\  are not stored in the codelist.
 
 .. raw:: latex
 

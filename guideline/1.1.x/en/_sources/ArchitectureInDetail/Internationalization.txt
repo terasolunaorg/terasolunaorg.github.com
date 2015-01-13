@@ -12,61 +12,55 @@ Overview
 
 Internationalization is a process wherein the display of labels and messages in an application is not fixed to a specific language. It supports multiple languages. The language switching can be achieved by specifying a unit called "Locale" expressing language, country and region.
 
-This chapter explains different methods for internationalization of messages.
+This section explains how to internationalize messages to display on the screen.
 
-| The following points should be noted to support internationalization.
+In order to internationalization, following requrements should be meeted.
 
-* Text elements such as status, messages and labels of GUI components etc. should not be hardcoded in the program.
-* These elements should be stored in external data other than program data.
+* Text elements on the screen(code name, messages, labels of GUI components etc.) should be retrieve from external definitions such as properties file. (should not be hard-coding in the source code)
+* The mechanism to specify the locale of the clients should be provided.
 
-For implementing internationalization, locale needs to be stored. Locale can mainly be stored in,
+Methods to specify the locale are as follows:
 
-* Session
-* Cookie
+* Using standard request header (specify the locale by language settings of browsers)
+* Saving the locale into the Cookie using request parameter
+* Saving the locale into the Session using request parameter
 
 
+The image of switching locale is as follows:
 
-The image of changing locale is as follows:
-
- .. figure:: ./images_Internationalization/i18n_change_image.png
+.. figure:: ./images_Internationalization/i18n_change_image.png
     :alt: locale change image
-    :width: 40%
+    :width: 90%
 
-The location of storing locale is decided depending on the implementation method.
 
-This chapter states various rules to use internationalization and the recommended implementation methods.
+.. note::
 
-    .. note::
+    For internationalization of Codelist, refer to :doc:`Codelist`.
 
-      The most commonly known abbreviation of internationalization is i18n.
-      Internationalization is abbreviated as i18n because the number of letters between the first "i" and 
-      the last "n" is 18 i.e. "nternationalizatio".
+.. tip::
 
-    .. tip::
-
-      For internationalization of Codelist, refer to :doc:`Codelist`.
+    The most commonly known abbreviation of internationalization is i18n.
+    Internationalization is abbreviated as i18n because the number of letters between the first "i" and
+    the last "n" is 18 i.e. "nternationalizatio".
 
 |
 
 How to use
+--------------------------------------------------------------------------------
 
-Changing locale as per user terminal (or browser) settings
+Configuration to define messages
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-| By using Spring ``org.springframework.context.support.ResourceBundleMessageSource``, locale can be changed as per the settings of user terminal (or browser).
-| Here, internationalization when MessageSource is being used is explained.
+To internationalize the messages on the screen, use the one of following \ ``MessageSource``\ imelementations for managing messages.
 
-    .. tip::
+* ``org.springframework.context.support.ResourceBundleMessageSource``
+* ``org.springframework.context.support.ReloadableResourceBundleMessageSource``
 
-     For MessageSource details and definition methods, refer to :doc:`MessageManagement`.
+The information here explains an example of using the \ ``ResourceBundleMessageSource``\ .
 
-|
+**applicationContext.xml**
 
-**bean definition file**
-
-- applicationContext.xml
-
- .. code-block:: xml
+.. code-block:: xml
 
     <bean id="messageSource"
         class="org.springframework.context.support.ResourceBundleMessageSource">
@@ -77,26 +71,75 @@ Changing locale as per user terminal (or browser) settings
         </property>
     </bean>
 
- .. tabularcolumns:: |p{0.10\linewidth}|p{0.90\linewidth}|
- .. list-table::
+.. tabularcolumns:: |p{0.10\linewidth}|p{0.90\linewidth}|
+.. list-table::
     :header-rows: 1
     :widths: 10 90
 
     * - | Sr. No.
       - | Description
     * - | (1)
-      - | Specify i18n/application-messages as base name of properties file.
+      - | Specify \ ``i18n/application-messages``\  as base name of properties file.
         | It is recommended to store message properties file under i18n directory to support internationalization.
+        |
+        | For MessageSource details and definition methods, refer to :doc:`MessageManagement`.
 
-- spring-mvc.xml
 
- .. code-block:: xml
+|
+
+**Example of storing properties files**
+
+.. figure:: ./images_Internationalization/i18n_properties_filepath.png
+    :alt: properties filepath
+    :width: 50%
+
+Properties file should be created in accordance with the following rules.
+
+* File name should be defined in \ :file:`application-messages_XX.properties`\  format. (Specify locale in XX portion)
+* The messages defined in \ :file:`application-messages.properties`\  should be created in default language.
+* **Make sure you create** \ :file:`application-messages.properties`\ . If it does not exist, messages cannot be fetched from \ ``MessageSource``\  and \ ``JspTagException``\  occurs while setting the messages in JSP.
+
+When creating property files as above, it is determined which to use the file as follows:
+
+* When the locale resolved by \ ``LocaleResolver``\  is zh, \ :file:`application-messages_zh.properties`\  is used.
+* when the locale resolved by \ ``LocaleResolver``\  is ja, \ :file:`application-messages_ja.properties`\  is used.
+* When properties file does not exist corresponding to the locale resolved by \ ``LocaleResolver``\ , \ :file:`application-messages.properties`\  is used as default. ("_XX" portion does not exist in file name)
+
+.. note::
+
+  The locate to use is determined in the following order until a properties file is found corresponding to the locale.
+
+  #. Locale sent from clients
+  #. Locale specified by JVM on which application server runs (it may not be set in some cases)
+  #. Locale specified by OS on which application server runs
+
+  It is frequently misunderstood that default properties file is used when properties file does not exist corresponding to the locale sent from clients .
+  In this case, then it is checked whether the file is available corresponding to the locale specified by the application server.
+  If not found, finally the default properties file is used.
+
+.. tip::
+
+   For description of message properties file, refer to :doc:`MessageManagement`.
+
+|
+
+Changing locale as per browser settings
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+Settings of AcceptHeaderLocaleResolver
+""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
+
+If switch the locale using browser settings, use the \ ``AcceptHeaderLocaleResolver``\ .
+
+**spring-mvc.xml**
+
+.. code-block:: xml
 
     <bean id="localeResolver"
         class="org.springframework.web.servlet.i18n.AcceptHeaderLocaleResolver" /> <!-- (1) -->
 
- .. tabularcolumns:: |p{0.10\linewidth}|p{0.90\linewidth}|
- .. list-table::
+.. tabularcolumns:: |p{0.10\linewidth}|p{0.90\linewidth}|
+.. list-table::
     :header-rows: 1
     :widths: 10 90
 
@@ -104,64 +147,41 @@ Changing locale as per user terminal (or browser) settings
       - | Description
     * - | (1)
       - | Specify ``org.springframework.web.servlet.i18n.AcceptHeaderLocaleResolver`` in id attribute "localeResolver" of bean tag.
-        | If this localeResolver is used, HTTP header "accept-language" is added for each request and locale gets specified.
+        | If this \ ``LocaleResolver``\  is used, HTTP header "accept-language" is added for each request and locale gets specified.
 
- .. note::
+.. note::
 
-  When localeResolver is not set, ``org.springframework.web.servlet.i18n.AcceptHeaderLocaleResolver`` is used by default; hence localeResolver need not be set.
+  When \ ``LocaleResolver``\  is not set, ``org.springframework.web.servlet.i18n.AcceptHeaderLocaleResolver`` is used by default; hence \ ``LocaleResolver``\  need not be set.
 
+|
 
-**File path**
+Definition of messages 
+""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 
- .. figure:: ./images_Internationalization/i18n_properties_filepath.png
-    :alt: properties filepath
-    :width: 40%
+See the example of definition of messages below.
 
-| File name should be defined in \ :file:`application-messages_XX.properties`\  format. Specify locale in XX portion.
-| When locale resolved using \ ``LocaleResolver``\  is zh, \ :file:`application-messages_zh.properties`\  is used, and
-| when locale resolved using \ ``LocaleResolver``\  is ja, \ :file:`application-messages_ja.properties`\  is used.
-| When properties file corresponding to locale resolved using \ ``LocaleResolver``\  does not exist, \ :file:`application-messages.properties`\  is used by default. ("_XX" portion does not exist in file name)
-| Note the following while using \ :file:`application-messages.properties`\ .
+**application-messages.properties**
 
-* The messages defined in \ :file:`application-messages.properties`\  should be created in default language.
-* **Make sure you create** \ :file:`application-messages.properties`\ . If it does not exist, messages cannot be fetched from MessageSource and JspTagException occurs while setting the messages in JSP.
-
- .. tip::
-
-   For description of message properties file, refer to :doc:`MessageManagement`.
-
- .. note::
-
-  In locale determination, locale is verified until properties file of the corresponding locale is found in the following order.
-
-  #. Locale specified in HTTP header "accept-language" of request
-  #. Locale specified in JVM of application server (may not be set in some cases)
-  #. Locale specified in OS of application server
-
-  It is frequently misunderstood that when properties file of locale corresponding to value of HTTP header "accept-language" of request does not exist, default properties file is used.
-  In actual scenario, locale specified in the application server in subsequent process is verified and even then the properties file of the corresponding locale is not found, default properties file is used.
-
-Example of setting message definition is as follows:
-
-**Properties file**
-
-- application-messages.properties
-
- .. code-block:: properties
+.. code-block:: properties
 
     title.admin.top = Admin Top
 
-- application-messages_jp.properties
+**application-messages_ja.properties**
 
- .. code-block:: properties
+.. code-block:: properties
 
     title.admin.top = 管理画面 Top
 
-**JSP file**
+|
 
-- include.jsp(Common jsp file to be included)
+Implementation of JSP
+""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 
- .. code-block:: jsp
+See the example of implementaion of messages below.
+
+**include.jsp(Common jsp file to be included)**
+
+.. code-block:: jsp
 
   <%@ page session="false"%>
   <%@ taglib uri="http://java.sun.com/jsp/jstl/core" prefix="c"%>
@@ -172,8 +192,8 @@ Example of setting message definition is as follows:
   <%@ taglib uri="http://terasoluna.org/functions" prefix="f"%>
   <%@ taglib uri="http://terasoluna.org/tags" prefix="t"%>
 
- .. tabularcolumns:: |p{0.10\linewidth}|p{0.90\linewidth}|
- .. list-table::
+.. tabularcolumns:: |p{0.10\linewidth}|p{0.90\linewidth}|
+.. list-table::
     :header-rows: 1
     :widths: 10 90
 
@@ -183,70 +203,81 @@ Example of setting message definition is as follows:
       - | When message is to be output in JSP, it is output using Spring tag library; hence custom tag needs to be defined.
         | ``<%@taglib uri="http://www.springframework.org/tags" prefix="spring"%>``  should be defined.
 
- .. note::
+.. note::
 
   For details on common jsp files to be included, refer to :ref:`view_jsp_include-label`.
 
 
-- JSP file for screen display
+|
 
- .. code-block:: java
+**JSP file for screen display**
 
-  <spring:message code="title.admin.top" />  <!-- (1) -->
+.. code-block:: jsp
 
- .. tabularcolumns:: |p{0.10\linewidth}|p{0.90\linewidth}|
- .. list-table::
+  <spring:message code="title.admin.top" />  <!-- (2) -->
+
+.. tabularcolumns:: |p{0.10\linewidth}|p{0.90\linewidth}|
+.. list-table::
     :header-rows: 1
     :widths: 10 90
 
     * - | Sr. No.
       - | Description
-    * - | (1)
+    * - | (2)
       - | Output the message using ``<spring:message>``  which is a Spring tag library of JSP.
         | In code attribute, set the key specified in properties.
         | In this example, if locale is ja, "管理画面 Top" is output and for other locales, "Admin Top" is output.
 
 |
 
-For dynamically changing locale depending on screen operations
+Changing locale depending on screen operations dynamically
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-| The method of dynamically changing the locale depending on screen operations etc. is effective in case of selecting a specific language irrespective of user terminal (browser) settings.
-| 
-| This can be implemented using ``org.springframework.web.servlet.i18n.LocaleChangeInterceptor``.
-| LocaleChangeInterceptor stores the data in ``org.springframework.web.servlet.LocaleResolver``
-| using the locale value specified in request parameter.
+The method of dynamic changing the locale depending on screen operations etc. is effective in case of selecting a specific language irrespective of user terminal (browser) settings.
 
-| Select the implementation class of LocaleResolver from the following table as per the storage location  of locale.
+Following is an example of changing locale depending on screen operations.
 
- .. tabularcolumns:: |p{0.05\linewidth}|p{0.60\linewidth}|p{0.35\linewidth}|
- .. list-table:: **Types of LocaleResolver for using Interceptor**
+.. figure:: ./images_Internationalization/i18n_change_locale_on_screen.png
+    :alt: i18n change locale on screen
+    :align: center
+    :width: 40%
+
+To use the language selected by a user, chooose \ ``org.springframework.web.servlet.i18n.LocaleChangeInterceptor``\ .
+
+\ ``LocaleChangeInterceptor``\ is an interceptor to save the locale value specified by the request parameter using \ ``org.springframework.web.servlet.LocaleResolver``\ .
+
+Select the implementation class of \ ``LocaleResolver``\  from the following table.
+
+.. tabularcolumns:: |p{0.05\linewidth}|p{0.60\linewidth}|p{0.35\linewidth}|
+.. list-table:: **Types of LocaleResolver**
     :header-rows: 1
     :widths: 5 60 35
 
     * - No
       - Implementation class
-      - How to store locale
+      - How to save locale
     * - 1.
       - ``org.springframework.web.servlet.i18n.SessionLocaleResolver``
-      - | Store in server
+      - | Save in server(using \ ``HttpSession``\ )
     * - 2.
       - ``org.springframework.web.servlet.i18n.CookieLocaleResolver``
-      - | Store in client
+      - | Save in client(using \ ``Cookie``\ )
 
 .. note::
 
- When ``org.springframework.web.servlet.i18n.AcceptHeaderLocaleResolver`` is used in LocaleResolver,
- locale cannot be changed dynamically using ``org.springframework.web.servlet.i18n.LocaleChangeInterceptor``.
+ When \ ``org.springframework.web.servlet.i18n.AcceptHeaderLocaleResolver``\  is used in \ ``LocaleResolver``\ ,
+ locale cannot be changed dynamically using \ ``org.springframework.web.servlet.i18n.LocaleChangeInterceptor``\ .
 
-**Bean definition file**
+|
 
-In case of SessionLocaleResolver
+How to define LocaleChangeInterceptor
+""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 
-- spring-mvc.xml
+If switching the locale using the request parameter, use the \ ``LocaleChangeInterceptor``\ .
 
- .. code-block:: xml
+**spring-mvc.xml**
 
-  <!-- omitted -->
+.. code-block:: xml
+
   <mvc:interceptors>
     <mvc:interceptor>
       <mvc:mapping path="/**" />
@@ -255,157 +286,160 @@ In case of SessionLocaleResolver
       <bean
         class="org.springframework.web.servlet.i18n.LocaleChangeInterceptor">  <!-- (1) -->
       </bean>
-	  <!-- omitted -->
+      <!-- omitted -->
     </mvc:interceptor>
   </mvc:interceptors>
 
-  <bean id="localeResolver" class="org.springframework.web.servlet.i18n.SessionLocaleResolver">  <!-- (2) -->
-      <property name="defaultLocale" value="en"/>  <!-- (3) -->
+.. tabularcolumns:: |p{0.10\linewidth}|p{0.90\linewidth}|
+.. list-table::
+    :header-rows: 1
+    :widths: 10 90
+
+    * - | 項番
+      - | 説明
+    * - | (1)
+      - | Define ``org.springframework.web.servlet.i18n.LocaleChangeInterceptor`` in interceptor of Spring MVC.
+
+.. note::
+
+    **How to change the name of request parameter to specify locale**
+
+     .. code-block:: xml
+
+        <bean
+            class="org.springframework.web.servlet.i18n.LocaleChangeInterceptor">
+            <property name="paramName" value="lang"/>  <!-- (2) -->
+        </bean>
+
+     .. tabularcolumns:: |p{0.10\linewidth}|p{0.90\linewidth}|
+     .. list-table::
+        :header-rows: 1
+        :widths: 10 90
+
+        * - | Sr. No.
+          - | Description
+        * - | (2)
+          - | In \ ``paramName``\ property, specify the name of request parameter. In this example, it is "request URL?lang=xx".
+            | **When paramName property is omitted, "locale" gets set.** With "request URL?locale=xx", it becomes :ref:`enabled<i18n_set_locale_jsp>`.
+
+|
+
+How to define SessionLocaleResolver
+""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
+
+If saving the locale in the server side, use the  \ ``SessionLocaleResolver``\ .
+
+**spring-mvc.xml**
+
+.. code-block:: xml
+
+  <bean id="localeResolver" class="org.springframework.web.servlet.i18n.SessionLocaleResolver">  <!-- (1) -->
+      <property name="defaultLocale" value="en"/>  <!-- (2) -->
   </bean>
 
- .. tabularcolumns:: |p{0.10\linewidth}|p{0.90\linewidth}|
- .. list-table::
+.. tabularcolumns:: |p{0.10\linewidth}|p{0.90\linewidth}|
+.. list-table::
     :header-rows: 1
     :widths: 10 90
 
     * - | Sr. No.
       - | Description
     * - | (1)
-      - | Define ``org.springframework.web.servlet.i18n.LocaleChangeInterceptor`` in interceptor of Spring MVC.
-    * - | (2)
       - | Define id attribute of bean tag in "localeResolver" and specify the class wherein ``org.springframework.web.servlet.LocaleResolver`` is implemented.
         | In this example, ``org.springframework.web.servlet.i18n.SessionLocaleResolver`` that stores locale in session is specified.
         | id attribute of bean tag should be set as "localeResolver".
-        | By performing these settings, LocaleResolver used in ``org.springframework.web.servlet.i18n.LocaleChangeInterceptor`` gets set in LocaleResolver of (3).
-    * - | (3)
-      - | When locale is not specified in request parameter, locale specified in defaultLocale is enabled. In this case, the value fetched in ``HttpServletRequest#getLocale`` is considered.
+        | By performing these settings, \ ``SessionLocaleResolver``\  will be used at the \ ``LocaleChangeInterceptor``\ .
+    * - | (2)
+      - | When locale is not specified in request parameter, locale specified in \ ``defaultLocale``\  property is enabled. In this case, the value fetched in \ ``HttpServletRequest#getLocale``\  is considered.
 
-.. _i18n_change_locale_key:
+|
 
-* When changing key of locale to be set in request parameter
+How to define CookieLocaleResolver
+""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 
-- spring-mvc.xml
+If saving the locale in the client side, use the  \ ``CookieLocaleResolver``\ .
 
- .. code-block:: xml
+**spring-mvc.xml**
 
-      <bean
-        class="org.springframework.web.servlet.i18n.LocaleChangeInterceptor">
-        <property name="paramName" value="lang"/>  <!-- (1) -->
-      </bean>
+.. code-block:: xml
 
- .. tabularcolumns:: |p{0.10\linewidth}|p{0.90\linewidth}|
- .. list-table::
-    :header-rows: 1
-    :widths: 10 90
-
-    * - | Sr. No.
-      - | Description
-    * - | (1)
-      - | In paramName, specify the key of locale set in request parameter. In this example, it is "request URL?lang=xx".
-        | **When key is not specified, "locale" gets set.** With "request URL?locale=xx", it becomes :ref:`enabled<i18n_set_locale_jsp>`.
-
-
-In case of CookieLocaleResolver
-
-- spring-mvc.xml
-
- .. code-block:: xml
-
-  <!-- omitted -->
-  <mvc:interceptors>
-    <mvc:interceptor>
-      <mvc:mapping path="/**" />
-      <mvc:exclude-mapping path="/resources/**" />
-      <mvc:exclude-mapping path="/**/*.html" />
-      <bean
-        class="org.springframework.web.servlet.i18n.LocaleChangeInterceptor">  <!-- (1) -->
-      </bean>
-	  <!-- omitted -->
-    </mvc:interceptor>
-  </mvc:interceptors>
-
-  <bean id="localeResolver" class="org.springframework.web.servlet.i18n.CookieLocaleResolver">  <!-- (2) -->
-        <property name="defaultLocale" value="en"/>  <!-- (3) -->
-        <property name="cookieName" value="localeCookie"/>  <!-- (4) -->
+  <bean id="localeResolver" class="org.springframework.web.servlet.i18n.CookieLocaleResolver">  <!-- (1) -->
+        <property name="defaultLocale" value="en"/>  <!-- (2) -->
+        <property name="cookieName" value="localeCookie"/>  <!-- (3) -->
   </bean>
 
- .. tabularcolumns:: |p{0.10\linewidth}|p{0.90\linewidth}|
- .. list-table::
+.. tabularcolumns:: |p{0.10\linewidth}|p{0.90\linewidth}|
+.. list-table::
     :header-rows: 1
     :widths: 10 90
 
     * - | Sr. No.
       - | Description
     * - | (1)
-      - | Define ``org.springframework.web.servlet.i18n.LocaleChangeInterceptor`` in Spring MVC interceptor.
-    * - | (2)
       - | In id attribute "localeResolver" of bean tag, specify ``org.springframework.web.servlet.i18n.CookieLocaleResolver``.
         | id attribute of bean tag should be set as "localeResolver".
-        | By performing these settings, LocaleResolver used in ``org.springframework.web.servlet.i18n.LocaleChangeInterceptor`` is set to LocaleResolver of (3).
+        | By performing these settings, \ ``CookieLocaleResolver``\  will be used at the \ ``LocaleChangeInterceptor``\ .
+    * - | (2)
+      - | When locale is not specified, locale specified in \ ``defaultLocale``\  property is enabled. In this case, the value fetched in \ ``HttpServletRequest#getLocale``\  is considered.
     * - | (3)
-      - | When locale is not specified, locale specified in defaultLocale is enabled. In this case, the value fetched in ``HttpServletRequest#getLocale`` is considered.
-    * - | (4)
-      - | The value specified in cookieName properties is considered cookie name. If not specified, it is considered as ``org.springframework.web.servlet.i18n.CookieLocaleResolver.LOCALE``. It is recommended to change the same since use of springframework is explicit.
+      - | The value specified in \ ``cookieName``\  property is used as cookie name. If not specified, the value of \ ``org.springframework.web.servlet.i18n.CookieLocaleResolver.LOCALE``\ is used as default. **It is recommended to change not to tell the user explicitly Spring Framework is used.**
 
-* When changing the key of locale to be set in request parameter
+|
 
-:ref:`settings<i18n_change_locale_key>` are similar to SessionLocaleResolver.
+Messages settings
+""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 
-See the example below for properties settings.
+See the example below for messages settings.
 
+**application-messages.properties**
 
-**Properties file**
-
-- application-messages.properties
-
- .. code-block:: properties
+.. code-block:: properties
 
     i.xx.yy.0001 = changed locale
     i.xx.yy.0002 = Confirm change of locale at next screen
 
-- application-messages_ja.properties
+**application-messages_ja.properties**
 
- .. code-block:: properties
+.. code-block:: properties
 
     i.xx.yy.0001 = Localeを変更しました。
     i.xx.yy.0002 = 次の画面でのLocale変更を確認
 
+|
+
 .. _i18n_set_locale_jsp:
 
-**JSP file**
+Implementation of JSP
+""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 
-- JSP file for screen display
+See the example of implementation of JSP below.
 
- .. code-block:: jsp
+**JSP file for screen display**
+
+.. code-block:: jsp
 
     <a href='${pageContext.request.contextPath}?locale=en'>English</a>  <!-- (1) -->
     <a href='${pageContext.request.contextPath}?locale=ja'>Japanese</a>
     <spring:message code="i.xx.yy.0001" />
 
- .. tabularcolumns:: |p{0.10\linewidth}|p{0.90\linewidth}|
- .. list-table::
+.. tabularcolumns:: |p{0.10\linewidth}|p{0.90\linewidth}|
+.. list-table::
     :header-rows: 1
     :widths: 10 90
 
     * - | Sr. No.
       - | Description
     * - | (1)
-      - | Submit the request parameter key specified in paramName of LocaleChangeInterceptor.
+      - | Submit the request parameter to switch the locale.
+        | Request parameter name is specified in \ ``paramName``\  property of \ ``LocaleChangeInterceptor``\ . (In the example above, the default parameter name is used)
         | In the above example, it is changed to English locale in English link and to Japanese locale in Japanese link.
         | Hereafter, the selected locale is enabled.
         | As "en" properties file does not exist, English locale is read from properties file by default.
 
- .. tip::
+.. tip::
 
      * Spring tag library should be defined in common jsp files to be included.
      * For details on common jsp files to be included, refer to :ref:`view_jsp_include-label`.
-
-Following is an example of changing locale depending on screen operations.
-
-.. figure:: ./images_Internationalization/i18n_change_locale_on_screen.png
-   :alt: i18n change locale on screen
-   :width: 30%
-   :align: center
 
 .. raw:: latex
 

@@ -65,7 +65,7 @@ See the method below for defining a properties file
         | Multiple paths separated by comma can be specified in location attribute.
         | By performing above settings, read properties file under META-INF/spring directory of class path.
         | Once these settings are done, just add the properties file under META-INF/spring.
-        | For details on location value, see \ `Reference <http://docs.spring.io/spring/docs/3.2.x/spring-framework-reference/html/resources.html>`_\ .
+        | For details on location value, see \ `Reference <http://docs.spring.io/spring/docs/4.1.3.RELEASE/spring-framework-reference/html/resources.html>`_\ .
 
  .. note::
 

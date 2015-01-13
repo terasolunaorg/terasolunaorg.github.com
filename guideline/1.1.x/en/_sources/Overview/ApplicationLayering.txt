@@ -17,11 +17,11 @@ Each layer has the following components.
 
 .. figure:: images/ApplicationLayer.png
    :alt: application layers
-   :width: 80%
+   :width: 95%
 
 
 
-Application layer as well as infrastructure layer depends on domain layer, however
+Both application layer and infrastructure layer depend on domain layer, however
 \ **domain layer should not depend on other layers.**
 There can be changes in the application layer with the changes in domain layer,
 However, there should be no changes in domain layer with the changes in application layer.
@@ -33,6 +33,7 @@ Each layer is explained.
     explained in "Domain-Driven Design (2004, Addison-Wesley)" of Eric Evans.
     However, though the terms are used, they are not necessarily as per the concept used in Domain Driven Design.
 
+|
 
 Layer definition
 ================================================================================
@@ -43,148 +44,247 @@ hence explanation is given in this sequence.
 Application layer
 --------------------------------------------------------------------------------
 
-Application layer does the wiring part of the application. It provides a UI to input/output information, 
-calls the domain layer by converting request information into model information and also constructs the output from the processing result.
-\ **This layer should be as thin as possible and should not contain any business rules.**
+Application layer does the wiring part of the application.
+
+In this layer, it provides the following implementations:
+
+* Provides UI(User Interface) to input and output information.
+* Handles the request from clients.
+* Validates the input data from a clients
+* Calls components in the domain layer corresponding to the request from clients.
+
+**This layer should be as thin as possible and should not contain any business rules.**
 
 Controller
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-Controller is responsible for mapping the requests to the process and passing the results to the view as well as session management.
-Main logic processing must be done in Service of domain layer without performing them in the Controller.
+
+Controller is mainly responsible for the below:
+
+* Controls of screen flow (mapping the request to the corresponding process and returning the result)
+* Calls services in the domain layer (executing main logic corresponding to the request)
 
 In Spring MVC, POJO class having ``@Controller`` annotation becomes the Controller class.
-The output of Controller is (logical name of) the View.
-
-
-View
-^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-View generates output to the Client. Returns output results in various formats such as JSP/PDF/Excel/JSON.
-In Spring MVC, all this is done by ``View`` class. 
-
-Form
-^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-Represents the form of the screen. Used for sending form information to the Controller and data output from Controller to form of the screen.
-Conversion from Form to DomainObject(such as Entity) and conversion from DomainObject to Form has to be done in application layer,
-so that domain layer does not dependent on the application layer.
-
 
 .. note::
 
-  When conversion is done in controller, source code of controller can get too long and visibility of Controller's main responsibility (like screen transition) becomes poor.
-  In that case, it is recommended to create helper class and delegate conversion logic to helper classes.
+  When storing the data in the session, controllers also have a role to controll the lifecycle of objects in the session.
+
+View
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+View's responsibilities is generating output to the client.
+Returns output results in various formats such as HTML/PDF/Excel/JSON.
+
+In Spring MVC, all this is done by ``View`` class.
+
+.. tip::
+
+    If use the JSON or XML as output results at REST API or Ajax request,
+    \ ``HttpMessageConverter``\  class plays this responsibility.
+
+    Details refer to ":doc:`../ArchitectureInDetail/REST`".
+
+|
+
+Form
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+Form's main responsibilities are the following:
+
+* Represents the form of HTML. (sending form information to the Controller, or outputting the processing result data to form of HTML)
+* Defines validation rules for input data. (by adding annotations of Bean Validation)
 
 In Spring MVC, form object are the POJO class that store request parameters. It is called as form backing bean.
 
+.. note::
+
+    To retain the domain layer which is independent from the application layer,
+    need to perform following processing at the application layer.
+
+    * Conversion from Form to DomainObject(such as Entity)
+    * conversion from DomainObject to Form
+
+    If conversion code is too many,
+    recommend to perform of either or both of the following measures and keep Controller's source code with simple state.
+
+    * Create helper class and delegate conversion logic to helper classes.
+    * Use the :doc:`Dozer <../ArchitectureInDetail/Utilities/Dozer>`.
+
+
+.. tip::
+
+    If use the JSON or XML as input data at REST API or Ajax request,
+    \ ``Resource``\  class plays this responsibility.
+    Also, \ ``HttpMessageConverter``\  class plays responsibility to convert from input data of JSON or XML format to \ ``Resource``\  class.
+
+    Details refer to ":doc:`../ArchitectureInDetail/REST`".
+
+|
 
 Helper
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-It plays the role of assisting the Controller and performs the processes other than original duties of Controller such as mutual conversion of model 
-between Application layer and Domain layer. It can be considered as a part of Controller.
+It plays the role of assisting the Controller.
 
-Helper is an option, and should be created as POJO class if required.
+Helper is an option. Please create as POJO class if required.
 
 .. note::
 
-  Helper class exists to improve the visibility of Controller; hence, it is OK to think of it as a part of Controller.
+    The main duty of Controller is routing (URL mapping and sepcifying the destination).
+    If there is any processing required (converting JavaBean etc),
+    then that part must be cut-off from controller and must be delegated to helper classes.
   
-  The main duty of Controller is routing (URL mapping and sepcifying the destination). If there is any processing required (converting JavaBean etc), 
-  then that part must be cut-off from controller and must be delegated to helper classes.
-  
-  The purpose is to keep the controller class clean; hence, helper class is similar to private methods of Controller.
+    Helper class exists to improve the visibility of Controller; hence, it is OK to think of it as a part of Controller.
+    (Helper class is similar to private methods of Controller)
 
+|
 
 Domain layer
 --------------------------------------------------------------------------------
 
-Domain layer is the core of the application. Represents the business issues to be resolved and has business object and business rules 
-(checks like whether there is sufficient balance when crediting amount into the account).
+Domain layer is the core of the application, and execute business rules.
+
+In this layer, it provides the following implementations.
+
+* DomainObject
+* Checking business rules corresponding to the DomainObject (like whether there is sufficient balance when crediting amount into the account)
+* Executing business rules (reflects values corresponding to business rules)
+* Executing CRUD operations for the DomainObject
+
 Domain layer is not so thick as compared to other layers and is reusable.
 
 DomainObject
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-| DomainObject is a model that represents resources required for business and items generated in the business process.
-| Models are broadly classified into following 3 categories.
-* Resource models such as Employee, Customer, Product etc. (generally indicated by a noun),  
-* Event models such as Order, Payment (generally indicated by a verb), 
-* Summary model such as YearlySales, MonthlySales.
+DomainObject is a model that represents resources required for business and items generated in the business process.
+
+Models are broadly classified into following 3 categories.
+
+* Resource models such as Employee, Customer, Product etc. (generally indicated by a noun)
+* Event models such as Order, Payment etc.(generally indicated by a verb)
+* Summary model such as YearlySales, MonthlySales etc.
 
 Domain Object is the Entity that represents an object which indicates 1 record of database table.
 
 .. note::
-  Mainly \ `Models holding state only <http://martinfowler.com/bliki/AnemicDomainModel.html>`_\ are handled in this guideline.
+
+    Mainly \ `Models holding state only <http://martinfowler.com/bliki/AnemicDomainModel.html>`_\  are handled in this guideline.
   
-  In "Patterns of Enterprise Application Architecture (2002, Addison-Wesley)" of Martin Fowler,
-  Domain Model is defined as \ `Item having state and behavior <http://martinfowler.com/eaaCatalog/domainModel.html>`_\. 
-  We will not be touching such models in detail.
+    In "Patterns of Enterprise Application Architecture (2002, Addison-Wesley)" of Martin Fowler,
+    Domain Model is defined as \ `Item having state and behavior <http://martinfowler.com/eaaCatalog/domainModel.html>`_\.
+    We will not be touching such models in detail.
   
-  In this guideline, \ `Rich domain model <http://domaindrivendesign.org>`_\  proposed by Eric Evans is also not included.
-  However, it is mentioned here for classification.
+    In this guideline, \ `Rich domain model <http://domaindrivendesign.org>`_\  proposed by Eric Evans is also not included.
+    However, it is mentioned here for classification.
+
+|
 
 Repository
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 It can be thought of as a collection of DomainObjects and is responsible for CRUD operations such as create, read, update and delete of DomainObject.
-In this layer, only interface is defined. It is implemented by RepositoryImpl of infrastructure layer. Hence, in this layer, there is no information about
-how data access is implemented.
+
+In this layer, only interface is defined.
+
+It is implemented by RepositoryImpl of infrastructure layer.
+Hence, in this layer, there is no information about how data access is implemented.
+
+|
 
 Service
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-Provides the business logic. This is also the transaction boundary. 
 
-Information related to Web such as Form and HttpRequest should not be handled in service.
-This information should be converted to object of domain layer in Application layer before calling Service. 
+Provides the business logic.
+
+In this guideline, it is recommended to draw the transaction boundary at the method of Service.
+
+.. note::
+
+    Information related to Web such as Form and HttpRequest should not be handled in service.
+
+    This information should be converted to object of domain layer in Application layer before calling Service.
+
+|
 
 Infrastructure layer
 --------------------------------------------------------------------------------
 
 Implementation (Repository interface) of domain layer is provided in infrastructure layer.
+
 It is responsible for storing the data permanently (location where data is stored such as RDBMS, NoSQL etc.) as well as transmission of messages.
 
 RepositoryImpl
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
 Represents implementation of Repository interface of domain layer. It covers life cycle management of DomainObject.
+
 With the help of this structure, it is possible to hide implementation details from domain layer.
-When using Spring Data JPA, a few RepositoryImpls are created by Spring Data JPA automatically.
+
+This layer also can be the transaction boundary depending on the requirements.
+
+.. tip::
+
+    When using Spring Data JPA or MyBatis3, most RepositoryImpls are created automatically.
+
+|
 
 O/R Mapper
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 It is responsible for mapping database with Entity.
+
 This function is provided by JPA, MyBatis and Spring JDBC.
-When using JPA specifically, EntityManager can be used. In case of MyBatis2 (TERASOLUNA DAO), QueryDAO and UpdateDAO are applicable are used.
+
+Specifically, the following classes are the O/R Mapper.
+
+* \ ``EntityManager``\  in case of using JPA,
+* Mapper interface or \ ``SqlSession``\  in case of using MyBatis3
+* \ ``QueryDAO``\  or \ ``UpdateDAO``\  in case of using MyBatis2(TERASOLUNA DAO)
+* \ ``JdbcTemplate``\  in case of using plain Spring JDBC
+
+O/R Mapper used for implementation of Repository.
 
 .. note::
 
   It is more correct to classify MyBatis and Spring JDBC as "SQL Mapper" and not "O/R Mapper"; however, in this guideline it is treated as "O/R Mapper".
 
+|
 
 Integration System Connector
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-It links a data store other than the database; such as messaging system, Key-Value-Store, Web service, existing legacy system etc. 
-It also links with some external systems. Used for implementation of Repository.
 
+It integrates a data store other than the database; such as messaging system, Key-Value-Store, Web service, existing legacy system, external system etc.
+
+It is also used for implementation of Repository.
+
+|
 
 Dependency between layers
 ================================================================================
-| As explained earlier, domain layer is the core of the application, and application layer and infrastructure layer are dependent on it.
+As explained earlier, domain layer is the core of the application, and application layer and infrastructure layer are dependent on it.
 
-| In this guideline, it is assumed that, 
-* Spring MVC is used in application layer 
+In this guideline, it is assumed that,
+
+* Spring MVC is used in application layer
 * Spring Data JPA and MyBatis are used in infrastructure layer
-| Even if there is change in implementation technology, the differences can be absorbed in respective layers and there should not be any impact on domain layer.
-| Coupling between layers is done by using interfaces and hence they can be made independent of implementation technology being used in each layer.
+
+Even if there is change in implementation technology, the differences can be absorbed in respective layers and there should not be any impact on domain layer.
+Coupling between layers is done by using interfaces and hence they can be made independent of implementation technology being used in each layer.
 
 It is recommended to make loosely-coupled design by understanding the layering.
 
 .. figure:: images/LayerDependencies.png
-   :width: 80%
+   :width: 95%
 
+|
 
 Object dependency in each layer can be resolved by DI container.
 
 .. figure:: images/LayerDependencyInjection.png
-   :width: 90%
+   :width: 95%
 
+|
+
+Processing and data flow with Repository
+--------------------------------------------------------------------------------
 
 The flow from input to output is given in the following figure.
 
@@ -194,24 +294,43 @@ The flow from input to output is given in the following figure.
 
 Sequence is explained using the example of update operation.
 
-#. Controller receives the Request.
-#. (Optional) Controller calls Helper and converts the Form information to DomainObject or DTO.
-#. Controller calls the Service by using DomainObject or DTO.
-#. Service calls the Repository and executes business logic.
-#. Repository calls the O/R Mapper and persists DomainObject or DTO.
-#. (Implementation dependency) O/R Mapper stores DomainObject or DTO information in DB.
-#. Service returns DomainObject or DTO which is the result of business logic execution to Controller.
-#. (Optional) Controller calls the Helper and converts DomainObject or DTO to Form.
-#. Controller returns View name of transition destination.
-#. View outputs Response.
+.. tabularcolumns:: |p{0.10\linewidth}|p{0.90\linewidth}|
+.. list-table::
+    :header-rows: 1
+    :widths: 10 90
 
+    * - No.
+      - Description
+    * - 1.
+      - Controller receives the Request.
+    * - 2.
+      - (Optional) Controller calls Helper and converts the Form information to DomainObject or DTO.
+    * - 3.
+      - Controller calls the Service by using DomainObject or DTO.
+    * - 4.
+      - Service calls the Repository and executes business logic.
+    * - 5.
+      - Repository calls the O/R Mapper and persists DomainObject or DTO.
+    * - 6.
+      - (Implementation dependency) O/R Mapper stores DomainObject or DTO information in DB.
+    * - 7.
+      - Service returns DomainObject or DTO which is the result of business logic execution to Controller.
+    * - 8.
+      - (Optional) Controller calls the Helper and converts DomainObject or DTO to Form.
+    * - 9.
+      - Controller returns View name of transition destination.
+    * - 10.
+      - View outputs Response.
+
+|
 
 Please refer to the below table to determine whether it is OK to call a component from another component.
 
 .. tabularcolumns:: |p{0.20\linewidth}|p{0.20\linewidth}|p{0.20\linewidth}|p{0.20\linewidth}|p{0.20\linewidth}|
-.. list-table:: Possibility of calling between components
+.. list-table:: **Possibility of calling between components**
     :header-rows: 1
     :stub-columns: 1
+    :widths: 20 20 20 20 20
 
     * - Caller/Callee
       - Controller
@@ -248,18 +367,25 @@ Please refer to the below table to determine whether it is OK to call a componen
 
 
 Note that \ **calling a Service from another Service is basically prohibited**\.
+
 If services that can be used even from other services are required,
 SharedService should be created in order to clarify such a possibility.
 Refer to \ :doc:`../ImplementationAtEachLayer/DomainLayer`\  for the details.
 
 .. note::
-  It may be difficult to follow the above rules at the initial phase of application development.
-  If looking at a very small application, it can be created quickly by directly calling the Repository from Controller.
-  However, when rules are not followed, there will be many maintainability issues when development scope becoms larger. It may be difficult to understand the impact of modifications and to add common logic which is cross-cutting in nature.
-  It is strongly recommended to pay attention to dependency from the beginning of development so that there will be no problem later on.
 
+    It may be difficult to follow the above rules at the initial phase of application development.
+    If looking at a very small application, it can be created quickly by directly calling the Repository from Controller.
+    However, when rules are not followed, there will be many maintainability issues when development scope becoms larger. It may be difficult to understand the impact of modifications and to add common logic which is cross-cutting in nature.
+    It is strongly recommended to pay attention to dependency from the beginning of development so that there will be no problem later on.
+
+|
+
+Processing and data flow without Repository
+--------------------------------------------------------------------------------
 
 Hiding the implementation details and sharing of data access logic are the merits of creating a Repository.
+
 However, it is difficult to share data access logic depending on the project team structure (multiple companies may separately implement business processes and control on sharing may be difficult etc.)
 In such cases, if abstraction of data access is not required, O/R Mapper can be called directly from Service as shown in the following diagram, without creating the repository.
 
@@ -267,13 +393,15 @@ In such cases, if abstraction of data access is not required, O/R Mapper can be 
    :alt: Data flow from request to response (without Repository)
    :width: 100%
 
+|
 
 Inter-dependency between components in this case must be as shown below:
 
 .. tabularcolumns:: |p{0.25\linewidth}|p{0.25\linewidth}|p{0.25\linewidth}|p{0.25\linewidth}|
-.. list-table:: Inter-dependency between components (without Repository)
+.. list-table:: **Inter-dependency between components (without Repository)**
     :header-rows: 1
     :stub-columns: 1
+    :widths: 25 25 25 25
 
     * - Caller/Callee
       - Controller
@@ -294,6 +422,8 @@ Inter-dependency between components in this case must be as shown below:
       - .. image:: images/tick.png
            :align: center
 
+|
+
 .. _application-layering_project-structure:
 
 Project structure
@@ -305,27 +435,42 @@ The standard maven directory structure is pre-requisite.
 
 Basically, it is recommended to create the multiple projects with the following configuration.
 
-* [projectname]-domain ... Project for storing classes/configuration files related to domain layer
-* [projectname]-web ... Project for storing classes/configuration files related to application layer
-* [projectname]-env ... Project for storing files dependent on environment
+|
 
-([projectname] is the target project name)
+.. tabularcolumns:: |p{0.30\linewidth}|p{0.70\linewidth}|
+.. list-table::
+    :header-rows: 1
+    :widths: 30 70
+
+    * - Project Name
+      - Description
+    * - [projectName]-domain
+      - Project for storing classes/configuration files related to domain layer
+    * - [projectName]-web
+      - Project for storing classes/configuration files related to application layer
+    * - [projectName]-env
+      - Project for storing files dependent on environment
+
+([projectName] is the target project name)
 
 .. note::
+
     Classes of infrastructure layer such as RepositoryImpl are also included in project-domain.
-    Originally, [projectname]-infra project should be created separately; however, normally there 
+    Originally, [projectName]-infra project should be created separately; however, normally there 
     is no need to conceal the implementation details in the infra project and development becomes easy if implementation is also stored in domain project. 
-    Moreover, when required, [projectname]-infra project can be created.
+    Moreover, when required, [projectName]-infra project can be created.
 
 
 .. tip::
+
     For the example of multi-project structure, refer to \ `Sample Application <https://github.com/terasolunaorg/terasoluna-tourreservation>`_\  or \ `Test Application of Common Library <https://github.com/terasolunaorg/terasoluna-gfw-functionaltest>`_\ .
 
+|
 
-[projectname]-domain
+[projectName]-domain
 --------------------------------------------------------------------------------
 
-Recommended structure of [projectname]-domain project is as below:
+Recommended structure of [projectName]-domain project is as below:
 
 .. code-block:: console
 
@@ -336,11 +481,11 @@ Recommended structure of [projectname]-domain project is as below:
               │  └com
               │      └example
               │          └domain ...(1)
-              │              ├model
+              │              ├model ...(2)
               │              │  ├Xxx.java
               │              │  ├Yyy.java
               │              │  └Zzz.java
-              │              ├repository ...(2)
+              │              ├repository ...(3)
               │              │  ├xxx
               │              │  │  └XxxRepository.java
               │              │  ├yyy
@@ -348,7 +493,7 @@ Recommended structure of [projectname]-domain project is as below:
               │              │  └zzz
               │              │      ├ZzzRepository.java
               │              │      └ZzzRepositoryImpl.java
-              │              └service ...(3)
+              │              └service ...(4)
               │                  ├aaa
               │                  │  ├AaaService.java
               │                  │  └AaaServiceImpl.java
@@ -358,8 +503,9 @@ Recommended structure of [projectname]-domain project is as below:
               └resources
                   └META-INF
                       └spring
-                          ├[projectname]-domain.xml ...(4)
-                          └[projectname]-infra.xml ...(5)
+                          ├[projectName]-codelist.xml ...(5)
+                          ├[projectName]-domain.xml ...(6)
+                          └[projectName]-infra.xml ...(7)
 
 
 .. tabularcolumns:: |p{0.10\linewidth}|p{0.90\linewidth}|
@@ -370,26 +516,37 @@ Recommended structure of [projectname]-domain project is as below:
     * - No.
       - Details
     * - | (1)
-      - | Store DomainObjects
+      - Package to store configuration elements of domain layer.
     * - | (2)
-      - | Store Repository interfaces. Create a separate package for each Entity.
-        | If there are associated Entities to the main entity, then Repository interfaces of associated Entities must also be placed in the same package as main Entity.
-        | (For example, Order and OrderLine). If DTO is also required, it too must be placed in this package.
-        | RepositoryImpl belongs to Infrastructure layer; however, there is no problem in keeping it in this project. 
-        | In case of using different data stores or existance of multiple persistence platforms, RepositoryImpl class must be kept in separate project or separate package so that implementation related details are concealed.
+      - Package to store DomainObjects classes.
     * - | (3)
-      - | Service classes are kept here. Package must be created based on Entity Model or other functional unit. Interface and Implementation class must be kept at the same level of package.
-        | If input/output classes are also required, then they must be placed in this package.
+      - Package to store Repository interfaces.
+
+        Create a separate package for each Entity.
+        If there are associated Entities to the main entity, then Repository interfaces of associated Entities must also be placed in the same package as main Entity.
+        (For example, Order and OrderLine).
+        If DTO(holds such as search criteria) is also required, it too must be placed in this package.
+
+        RepositoryImpl belongs to Infrastructure layer; however, there is no problem in keeping it in this project.
+        In case of using different data stores or existance of multiple persistence platforms, RepositoryImpl class must be kept in separate project or separate package so that implementation related details are concealed.
     * - | (4)
-      - | Bean definition pertaining to domain layer.
+      - Package to store Service classes.
+
+        Package must be created based on Entity Model or other functional unit. Interface and Implementation class must be kept at the same level of package.
+        If input/output classes are also required, then they must be placed in this package.
     * - | (5)
-      - | Bean definition pertaining to infrastructure layer.
+      - Bean definition for CodeList.
+    * - | (6)
+      - Bean definition pertaining to domain layer.
+    * - | (7)
+      - Bean definition pertaining to infrastructure layer.
 
+|
 
-[projectname]-web
+[projectName]-web
 --------------------------------------------------------------------------------
 
-Recommended structure of [projectname]-web
+Recommended structure of [projectName]-web
 
 .. code-block:: console
 
@@ -418,15 +575,16 @@ Recommended structure of [projectname]-web
               │  └i18n
               │      └application-messages.properties ...(6)
               └webapp
+                  ├resources ...(7)
                   └WEB-INF
-                      ├views ...(7)
+                      ├views ...(8)
                       │  ├abc
                       │  │ ├list.jsp
                       │  │ └createForm.jsp
                       │  └def
                       │     ├list.jsp
                       │     └createForm.jsp
-                      └web.xml
+                      └web.xml ...(9)
 
 .. tabularcolumns:: |p{0.10\linewidth}|p{0.90\linewidth}|
 .. list-table::
@@ -436,35 +594,47 @@ Recommended structure of [projectname]-web
     * - No,
       - Details
     * - | (1)
-      - | Package to store configuration elements of application layer.
+      - Package to store configuration elements of application layer.
     * - | (2)
-      - | Bean definited related to the entire application.
+      - Bean definited related to the entire application.
     * - | (3)
-      - | Define the properties to be used in the application.
+      - Define the properties to be used in the application.
     * - | (4)
-      - | Bean definitions related to Spring MVC.
+      - Bean definitions related to Spring MVC.
     * - | (5)
-      - | Bean definitions related to Spring Security
+      - Bean definitions related to Spring Security
     * - | (6)
-      - | Define the messages and other contents to be used for screen display (internationalization).
+      - Define the messages and other contents to be used for screen display (internationalization).
     * - | (7)
-      - | Store View(jsp) files.
+      - Store static resources(css、js、image, etc)
+    * - | (8)
+      - Store View(jsp) files.
+    * - | (9)
+      - Servlet definitions
 
-[projectname]-env
+|
+
+[projectName]-env
 --------------------------------------------------------------------------------
 
-The recommended structure of [projectname]-env project is below:
+The recommended structure of [projectName]-env project is below:
 
 .. code-block:: console
 
     [projectName]-env
+      ├configs ...(1)
+      │   └[envName] ...(2)
+      │       └resources ...(3)
       └src
           └main
-              └resources
-                  └META-INF
-                      └spring
-                          ├[projectname]-env.xml ...(1)
-                          └[projectname]-infra.properties ...(2)
+              └resources ...(4)
+                 ├META-INF
+                 │  └spring
+                 │      ├[projectName]-env.xml ...(5)
+                 │      └[projectName]-infra.properties ...(6)
+                 ├dozer.properties
+                 ├log4jdbc.properties
+                 └logback.xml ...(7)
 
 
 .. tabularcolumns:: |p{0.10\linewidth}|p{0.90\linewidth}|
@@ -475,32 +645,46 @@ The recommended structure of [projectname]-env project is below:
     * - No.
       - Details
     * - | (1)
-      - | Bean definitions that depend on the environment (like dataSource etc).
+      - Directory to define configurations depends on the environment for all environments.
     * - | (2)
-      - | Property definitions which depend on the environment.
+      - Directory to define configurations depeands on each environment.
+
+        The directory name is used as the name to identify the environment.
+    * - | (3)
+      - Directory to define configurations depeands on each environment.
+
+        The sub directory structure and files are same as (4).
+    * - | (4)
+      - Directory to define configurations depeands on the local development environment.
+    * - | (5)
+      - Bean definitions that depend on the local development environment (like dataSource etc).
+    * - | (6)
+      - Property definitions which depend on the local development environment.
+    * - | (7)
+      - Log output definitions which depend on the local development environment.
 
 
 .. note::
 
-  The purpose of separating [projectname]-domain and [projectname]-web into different projects is to prevent reverse dependency among them. 
+    The purpose of separating [projectName]-domain and [projectName]-web into different projects is to prevent reverse dependency among them.
   
-  It is natural that [projectname]-web uses [projectname]-domain; however, [projectname]-domain must not refer projectname]-web.
+    It is natural that [projectName]-web uses [projectName]-domain; however, [projectName]-domain must not refer projectname]-web.
   
-  If configruation elements of both, [projectname]-web and [projectname]-domain, are kept in a single project, it may lead to an incorrect reference by mistake. 
-  It is strongly recommended to prevent reference to [projectname]-web from [projectname]-domain by separating the project and setting order of reference.
+    If configruation elements of both, [projectName]-web and [projectName]-domain, are kept in a single project, it may lead to an incorrect reference by mistake.
+    It is strongly recommended to prevent reference to [projectName]-web from [projectName]-domain by separating the project and setting order of reference.
 
 .. note::
 
-  The reason for creating [projectname]-env is to separate the information depending on the environment and thereby enable switching of environment.
+    The reason for creating [projectName]-env is to separate the information depending on the environment and thereby enable switching of environment.
   
-  For example, set local development environment by default and at the time of building the application, create war file without including [projectname]-env.  
-  By creating a separate jar for integration test environment or system test environment, deployment becomes possible just by replacing the jar of corresponding environment. 
+    For example, set local development environment by default and at the time of building the application, create war file without including [projectName]-env.
+    By creating a separate jar for integration test environment or system test environment, deployment becomes possible just by replacing the jar of corresponding environment.
   
-  Further, it is also possible to minimize the changes in case of project where RDBMS being used changes.
+    Further, it is also possible to minimize the changes in case of project where RDBMS being used changes.
     
-  If the above point is not considered, contents of configuration files have to changed according to the target environment and the project has to be re-build.
+    If the above point is not considered, contents of configuration files have to changed according to the target environment and the project has to be re-build.
   
-  For further details regarding significance of creating a separate project for environment dependent files, refer to \ :doc:`../Appendix/EnvironmentIndependency`\ .
+    For further details regarding significance of creating a separate project for environment dependent files, refer to \ :doc:`../Appendix/EnvironmentIndependency`\ .
 
 
 .. raw:: latex
