@@ -1,0 +1,3579 @@
+<!DOCTYPE html>
+
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>4.2. ドメイン層の実装 &mdash; TERASOLUNA Global Framework Development Guideline 5.0.0-SNAPSHOT documentation</title>
+    
+    <link rel="stylesheet" href="../_static/solar.css" type="text/css" />
+    <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+    
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    '../',
+        VERSION:     '5.0.0-SNAPSHOT',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true
+      };
+    </script>
+    <script type="text/javascript" src="../_static/jquery.js"></script>
+    <script type="text/javascript" src="../_static/underscore.js"></script>
+    <script type="text/javascript" src="../_static/doctools.js"></script>
+    <link rel="top" title="TERASOLUNA Global Framework Development Guideline 5.0.0-SNAPSHOT documentation" href="../index.html" />
+    <link rel="up" title="4. TERASOLUNA Global Frameworkによるアプリケーション開発" href="index.html" />
+    <link rel="next" title="4.3. インフラストラクチャ層の実装" href="InfrastructureLayer.html" />
+    <link rel="prev" title="4.1. Webアプリケーション向け開発プロジェクトの作成" href="CreateWebApplicationProject.html" /><script src="../_static/jquery.treeview.js" type="text/javascript"></script>
+<!-- <link href='http://fonts.googleapis.com/css?family=Source+Code+Pro|Open+Sans:300italic,400italic,700italic,400,300,700' rel='stylesheet' type='text/css'> -->
+<link href="../_static/solarized-dark.css" rel="stylesheet">
+<link href="../_static/jquery.treeview.css" rel="stylesheet">
+  </head>
+  <body>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="InfrastructureLayer.html" title="4.3. インフラストラクチャ層の実装"
+             accesskey="N">next</a> |</li>
+        <li class="right" >
+          <a href="CreateWebApplicationProject.html" title="4.1. Webアプリケーション向け開発プロジェクトの作成"
+             accesskey="P">previous</a> |</li>
+        <li><a href="../index.html">TERASOLUNA Global Framework Development Guideline 5.0.0-SNAPSHOT documentation</a> &raquo;</li>
+          <li><a href="index.html" accesskey="U">4. TERASOLUNA Global Frameworkによるアプリケーション開発</a> &raquo;</li> 
+      </ul>
+    </div>
+      <div class="sphinxsidebar">
+        <div class="sphinxsidebarwrapper"><label><input id="scroll" type="checkbox" checked> scroll sidebar</label>
+
+  <h3><a href="../index.html">Table Of Contents</a></h3>
+  <ul>
+<li><a class="reference internal" href="#">4.2. ドメイン層の実装</a><ul>
+<li><a class="reference internal" href="#id3">4.2.1. ドメイン層の役割</a></li>
+<li><a class="reference internal" href="#id4">4.2.2. ドメイン層の開発の流れ</a></li>
+<li><a class="reference internal" href="#entity">4.2.3. Entityの実装</a><ul>
+<li><a class="reference internal" href="#id5">4.2.3.1. Entityクラスの作成方針</a></li>
+<li><a class="reference internal" href="#domainlayer-entity-example">4.2.3.2. Entityクラスの作成例</a><ul>
+<li><a class="reference internal" href="#id7">4.2.3.2.1. テーブル構成</a></li>
+<li><a class="reference internal" href="#id8">4.2.3.2.2. Entity構成</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li><a class="reference internal" href="#repository">4.2.4. Repositoryの実装</a><ul>
+<li><a class="reference internal" href="#id9">4.2.4.1. Repositoryの役割</a></li>
+<li><a class="reference internal" href="#id10">4.2.4.2. Repositoryの構成</a></li>
+<li><a class="reference internal" href="#id11">4.2.4.3. Repositoryの作成方針</a></li>
+<li><a class="reference internal" href="#id12">4.2.4.4. Repositoryの作成例</a><ul>
+<li><a class="reference internal" href="#id13">4.2.4.4.1. Repository構成</a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#repository-interface-label">4.2.4.5. Repositoryインタフェースの定義</a><ul>
+<li><a class="reference internal" href="#id15">4.2.4.5.1. Repositoryインタフェースの作成</a></li>
+<li><a class="reference internal" href="#id16">4.2.4.5.2. Repositoryインタフェースのメソッド定義</a></li>
+<li><a class="reference internal" href="#repositoryimpl">4.2.4.5.3. RepositoryImplの作成</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li><a class="reference internal" href="#service">4.2.5. Serviceの実装</a><ul>
+<li><a class="reference internal" href="#id17">4.2.5.1. Serviceの役割</a></li>
+<li><a class="reference internal" href="#service-constitution-role-label">4.2.5.2. Serviceのクラス構成</a><ul>
+<li><a class="reference internal" href="#servicesharedservice">4.2.5.2.1. ServiceクラスとSharedServiceクラスを分ける理由について</a></li>
+<li><a class="reference internal" href="#serviceservice">4.2.5.2.2. Serviceクラスから、別のServiceクラスの呼び出しを禁止する理由について</a></li>
+<li><a class="reference internal" href="#id19">4.2.5.2.3. メソッドのシグネチャを限定するようなインタフェースや基底クラスについて</a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#service-creation-unit-label">4.2.5.3. Serviceの作成単位</a><ul>
+<li><a class="reference internal" href="#entityservice">4.2.5.3.1. Entity毎にServiceを作成する際の開発イメージ</a></li>
+<li><a class="reference internal" href="#id21">4.2.5.3.2. ユースケース毎に作成する際の開発イメージ</a></li>
+<li><a class="reference internal" href="#id22">4.2.5.3.3. イベント毎に作成する際の開発イメージ</a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#service-class-label">4.2.5.4. Serviceクラスの作成</a><ul>
+<li><a class="reference internal" href="#service-class-creation-label">4.2.5.4.1. Serviceクラスの作成方法</a></li>
+<li><a class="reference internal" href="#service-class-method-creation-label">4.2.5.4.2. Serviceクラスのメソッドの作成方法</a></li>
+<li><a class="reference internal" href="#service-class-method-args-return-label">4.2.5.4.3. Serviceクラスのメソッド引数と返り値について</a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#sharedservice">4.2.5.5. SharedServiceクラスの実装</a><ul>
+<li><a class="reference internal" href="#shared-service-class-creation-label">4.2.5.5.1. SharedServiceクラスの作成方法</a></li>
+<li><a class="reference internal" href="#shared-service-class-method-creation-label">4.2.5.5.2. SharedServiceクラスのメソッドの作成方法</a></li>
+<li><a class="reference internal" href="#shared-service-class-method-args-return-label">4.2.5.5.3. SharedServiceクラスのメソッド引数と返り値について</a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#service-implementation-label">4.2.5.6. 処理の実装</a><ul>
+<li><a class="reference internal" href="#id31">4.2.5.6.1. 業務データを操作する</a></li>
+<li><a class="reference internal" href="#service-return-message-label">4.2.5.6.2. メッセージを返却する</a></li>
+<li><a class="reference internal" href="#service-return-warnmessage-label">4.2.5.6.3. 警告メッセージを返却する</a></li>
+<li><a class="reference internal" href="#service-return-businesserrormessage-label">4.2.5.6.4. 業務エラーを通知する</a></li>
+<li><a class="reference internal" href="#service-return-systemerrormessage-label">4.2.5.6.5. システムエラーを通知する</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li><a class="reference internal" href="#service-transaction-management">4.2.6. トランザクション管理について</a><ul>
+<li><a class="reference internal" href="#id37">4.2.6.1. トランザクション管理の方法</a><ul>
+<li><a class="reference internal" href="#id38">4.2.6.1.1. 宣言型トランザクション管理</a></li>
+<li><a class="reference internal" href="#transaction-management-declare-transaction-info-label">4.2.6.1.2. 「宣言型トランザクション管理」で必要となる情報</a></li>
+<li><a class="reference internal" href="#id43">4.2.6.1.3. トランザクションの伝播</a></li>
+<li><a class="reference internal" href="#id44">4.2.6.1.4. トランザクション管理対象となるメソッドの呼び出し方</a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#service-enable-transaction-management">4.2.6.2. トランザクション管理を使うための設定について</a><ul>
+<li><a class="reference internal" href="#platformtransactionmanager">4.2.6.2.1. PlatformTransactionManagerの設定</a></li>
+<li><a class="reference internal" href="#transactional">4.2.6.2.2. &#64;Transactionalを有効化するための設定</a></li>
+<li><a class="reference internal" href="#tx-annotation-driven">4.2.6.2.3. &lt;tx:annotation-driven&gt;要素の属性について</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li><a class="reference internal" href="#appendix">4.2.7. Appendix</a><ul>
+<li><a class="reference internal" href="#id46">4.2.7.1. トランザクション管理の落とし穴について</a></li>
+<li><a class="reference internal" href="#id48">4.2.7.2. プログラマティックにトランザクションを管理する方法</a></li>
+<li><a class="reference internal" href="#domainlayer-appendix-blogic">4.2.7.3. シグネチャを制限するインタフェースおよび基底クラスの実装サンプル</a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#tips">4.2.8. Tips</a><ul>
+<li><a class="reference internal" href="#tips-business-error-label">4.2.8.1. ビジネスルールの違反をフィールドエラーとして扱う方法</a></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+
+
+  <h4>Previous topic</h4>
+  <p class="topless"><a href="CreateWebApplicationProject.html"
+                        title="previous chapter">4.1. Webアプリケーション向け開発プロジェクトの作成</a></p>
+  <h4>Next topic</h4>
+  <p class="topless"><a href="InfrastructureLayer.html"
+                        title="next chapter">4.3. インフラストラクチャ層の実装</a></p>
+  <h3>This Page</h3>
+  <ul class="this-page-menu">
+    <li><a href="../_sources/ImplementationAtEachLayer/DomainLayer.txt"
+           rel="nofollow">Show Source</a></li>
+  </ul>
+<div id="searchbox" style="display: none">
+  <h3>Quick search</h3>
+    <form class="search" action="../search.html" method="get">
+      <input type="text" name="q" />
+      <input type="submit" value="Go" />
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+    <p class="searchtip" style="font-size: 90%">
+    Enter search terms or a module, class or function name.
+    </p>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body">
+            
+  <div class="section" id="id1">
+<h1>4.2. ドメイン層の実装<a class="headerlink" href="#id1" title="Permalink to this headline">¶</a></h1>
+<div class="contents local topic" id="id2">
+<p class="topic-title first">目次</p>
+<ul class="simple">
+<li><a class="reference internal" href="#id3" id="id52">ドメイン層の役割</a></li>
+<li><a class="reference internal" href="#id4" id="id53">ドメイン層の開発の流れ</a></li>
+<li><a class="reference internal" href="#entity" id="id54">Entityの実装</a><ul>
+<li><a class="reference internal" href="#id5" id="id55">Entityクラスの作成方針</a></li>
+<li><a class="reference internal" href="#domainlayer-entity-example" id="id56">Entityクラスの作成例</a><ul>
+<li><a class="reference internal" href="#id7" id="id57">テーブル構成</a></li>
+<li><a class="reference internal" href="#id8" id="id58">Entity構成</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li><a class="reference internal" href="#repository" id="id59">Repositoryの実装</a><ul>
+<li><a class="reference internal" href="#id9" id="id60">Repositoryの役割</a></li>
+<li><a class="reference internal" href="#id10" id="id61">Repositoryの構成</a></li>
+<li><a class="reference internal" href="#id11" id="id62">Repositoryの作成方針</a></li>
+<li><a class="reference internal" href="#id12" id="id63">Repositoryの作成例</a><ul>
+<li><a class="reference internal" href="#id13" id="id64">Repository構成</a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#repository-interface-label" id="id65">Repositoryインタフェースの定義</a><ul>
+<li><a class="reference internal" href="#id15" id="id66">Repositoryインタフェースの作成</a></li>
+<li><a class="reference internal" href="#id16" id="id67">Repositoryインタフェースのメソッド定義</a></li>
+<li><a class="reference internal" href="#repositoryimpl" id="id68">RepositoryImplの作成</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li><a class="reference internal" href="#service" id="id69">Serviceの実装</a><ul>
+<li><a class="reference internal" href="#id17" id="id70">Serviceの役割</a></li>
+<li><a class="reference internal" href="#service-constitution-role-label" id="id71">Serviceのクラス構成</a><ul>
+<li><a class="reference internal" href="#servicesharedservice" id="id72">ServiceクラスとSharedServiceクラスを分ける理由について</a></li>
+<li><a class="reference internal" href="#serviceservice" id="id73">Serviceクラスから、別のServiceクラスの呼び出しを禁止する理由について</a></li>
+<li><a class="reference internal" href="#id19" id="id74">メソッドのシグネチャを限定するようなインタフェースや基底クラスについて</a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#service-creation-unit-label" id="id75">Serviceの作成単位</a><ul>
+<li><a class="reference internal" href="#entityservice" id="id76">Entity毎にServiceを作成する際の開発イメージ</a></li>
+<li><a class="reference internal" href="#id21" id="id77">ユースケース毎に作成する際の開発イメージ</a></li>
+<li><a class="reference internal" href="#id22" id="id78">イベント毎に作成する際の開発イメージ</a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#service-class-label" id="id79">Serviceクラスの作成</a><ul>
+<li><a class="reference internal" href="#service-class-creation-label" id="id80">Serviceクラスの作成方法</a></li>
+<li><a class="reference internal" href="#service-class-method-creation-label" id="id81">Serviceクラスのメソッドの作成方法</a></li>
+<li><a class="reference internal" href="#service-class-method-args-return-label" id="id82">Serviceクラスのメソッド引数と返り値について</a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#sharedservice" id="id83">SharedServiceクラスの実装</a><ul>
+<li><a class="reference internal" href="#shared-service-class-creation-label" id="id84">SharedServiceクラスの作成方法</a></li>
+<li><a class="reference internal" href="#shared-service-class-method-creation-label" id="id85">SharedServiceクラスのメソッドの作成方法</a></li>
+<li><a class="reference internal" href="#shared-service-class-method-args-return-label" id="id86">SharedServiceクラスのメソッド引数と返り値について</a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#service-implementation-label" id="id87">処理の実装</a><ul>
+<li><a class="reference internal" href="#id31" id="id88">業務データを操作する</a></li>
+<li><a class="reference internal" href="#service-return-message-label" id="id89">メッセージを返却する</a></li>
+<li><a class="reference internal" href="#service-return-warnmessage-label" id="id90">警告メッセージを返却する</a></li>
+<li><a class="reference internal" href="#service-return-businesserrormessage-label" id="id91">業務エラーを通知する</a></li>
+<li><a class="reference internal" href="#service-return-systemerrormessage-label" id="id92">システムエラーを通知する</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li><a class="reference internal" href="#service-transaction-management" id="id93">トランザクション管理について</a><ul>
+<li><a class="reference internal" href="#id37" id="id94">トランザクション管理の方法</a><ul>
+<li><a class="reference internal" href="#id38" id="id95">宣言型トランザクション管理</a></li>
+<li><a class="reference internal" href="#transaction-management-declare-transaction-info-label" id="id96">「宣言型トランザクション管理」で必要となる情報</a></li>
+<li><a class="reference internal" href="#id43" id="id97">トランザクションの伝播</a></li>
+<li><a class="reference internal" href="#id44" id="id98">トランザクション管理対象となるメソッドの呼び出し方</a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#service-enable-transaction-management" id="id99">トランザクション管理を使うための設定について</a><ul>
+<li><a class="reference internal" href="#platformtransactionmanager" id="id100">PlatformTransactionManagerの設定</a></li>
+<li><a class="reference internal" href="#transactional" id="id101">&#64;Transactionalを有効化するための設定</a></li>
+<li><a class="reference internal" href="#tx-annotation-driven" id="id102">&lt;tx:annotation-driven&gt;要素の属性について</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li><a class="reference internal" href="#appendix" id="id103">Appendix</a><ul>
+<li><a class="reference internal" href="#id46" id="id104">トランザクション管理の落とし穴について</a></li>
+<li><a class="reference internal" href="#id48" id="id105">プログラマティックにトランザクションを管理する方法</a></li>
+<li><a class="reference internal" href="#domainlayer-appendix-blogic" id="id106">シグネチャを制限するインタフェースおよび基底クラスの実装サンプル</a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#tips" id="id107">Tips</a><ul>
+<li><a class="reference internal" href="#tips-business-error-label" id="id108">ビジネスルールの違反をフィールドエラーとして扱う方法</a></li>
+</ul>
+</li>
+</ul>
+</div>
+<div class="section" id="id3">
+<h2><a class="toc-backref" href="#id52">4.2.1. ドメイン層の役割</a><a class="headerlink" href="#id3" title="Permalink to this headline">¶</a></h2>
+<p>ドメイン層は、 アプリケーション層に提供する<strong>業務ロジックを実装する</strong>ためのレイヤとなる。</p>
+<p>ドメイン層の実装は、以下3つに分かれる。</p>
+<blockquote>
+<div><table border="1" class="docutils">
+<colgroup>
+<col width="10%" />
+<col width="30%" />
+<col width="60%" />
+</colgroup>
+<thead valign="bottom">
+<tr class="row-odd"><th class="head">項番</th>
+<th class="head">分類</th>
+<th class="head">説明</th>
+</tr>
+</thead>
+<tbody valign="top">
+<tr class="row-even"><td><div class="first last line-block">
+<div class="line">1.</div>
+</div>
+</td>
+<td><div class="first last line-block">
+<div class="line"><a class="reference internal" href="#domainlayer-entity"><em>Entityの実装</em></a></div>
+</div>
+</td>
+<td><div class="first last line-block">
+<div class="line">業務データを保持するためのクラス(Entityクラス)を作成する。</div>
+</div>
+</td>
+</tr>
+<tr class="row-odd"><td><div class="first last line-block">
+<div class="line">2.</div>
+</div>
+</td>
+<td><div class="first last line-block">
+<div class="line"><a class="reference internal" href="#repository-label"><em>Repositoryの実装</em></a></div>
+</div>
+</td>
+<td><div class="first last line-block">
+<div class="line">業務データを操作するためのメソッドを実装し、Serviceクラスに提供する。</div>
+<div class="line">業務データを操作するためのメソッドとは、具体的には、Entityオブジェクトに対するCRUD操作となる。</div>
+</div>
+</td>
+</tr>
+<tr class="row-even"><td><div class="first last line-block">
+<div class="line">3.</div>
+</div>
+</td>
+<td><div class="first last line-block">
+<div class="line"><a class="reference internal" href="#service-label"><em>Serviceの実装</em></a></div>
+</div>
+</td>
+<td><div class="first last line-block">
+<div class="line">業務ロジックを実行するためのメソッドを実装し、アプリケーション層に提供する。</div>
+<div class="line">業務ロジック内で必要となる業務データは、Repositoryを介して、Entityオブジェクトとして取得する。</div>
+</div>
+</td>
+</tr>
+</tbody>
+</table>
+</div></blockquote>
+<p>本ガイドラインでは、以下2点を目的として、EntityクラスおよびRepositoryを作成する構成を推奨している。</p>
+<ol class="arabic simple">
+<li>業務ロジック(Service)と業務データへアクセスするためのロジックを分離することで、<strong>業務ロジックの実装範囲をビジネスルールに関する実装に専念させる。</strong></li>
+<li>業務データに対する操作をRepositoryに集約することで、<strong>業務データへのアクセスの共通化を行う。</strong></li>
+</ol>
+<blockquote>
+<div><div class="admonition note">
+<p class="first admonition-title">Note</p>
+<p>本ガイドラインでは、EntityクラスおよびRepositoryを作成する構成を推奨しているが、この構成で開発することを強制するものではない。</p>
+<p class="last">作成するアプリケーションの特性、プロジェクトの特性(開発体制や開発プロセスなど)を加味して、採用する構成を決めて頂きたい。</p>
+</div>
+</div></blockquote>
+</div>
+<div class="section" id="id4">
+<h2><a class="toc-backref" href="#id53">4.2.2. ドメイン層の開発の流れ</a><a class="headerlink" href="#id4" title="Permalink to this headline">¶</a></h2>
+<div class="line-block">
+<div class="line">ドメイン層の開発の流れと、役割分担について説明する。</div>
+<div class="line">下記の説明では、複数の開発チームが存在する状態でアプリケーションを構築するケースを想定しているが、 １チームで開発する場合でも、開発フロー自体は変わらない。</div>
+</div>
+<blockquote>
+<div><div class="figure align-center">
+<a class="reference internal image-reference" href="../_images/service_implementation_flow.png"><img alt="implementation flow of domain layer" src="../_images/service_implementation_flow.png" style="width: 100%;" /></a>
+</div>
+<table border="1" class="docutils">
+<colgroup>
+<col width="9%" />
+<col width="18%" />
+<col width="73%" />
+</colgroup>
+<thead valign="bottom">
+<tr class="row-odd"><th class="head">項番</th>
+<th class="head">担当チーム</th>
+<th class="head">説明</th>
+</tr>
+</thead>
+<tbody valign="top">
+<tr class="row-even"><td><div class="first last line-block">
+<div class="line">(1)</div>
+</div>
+</td>
+<td><div class="first last line-block">
+<div class="line">共通開発チーム</div>
+</div>
+</td>
+<td><div class="first last line-block">
+<div class="line">共通開発チームは、Entityクラスの設計およびEntityクラスの作成を行う。</div>
+</div>
+</td>
+</tr>
+<tr class="row-odd"><td><div class="first last line-block">
+<div class="line">(2)</div>
+</div>
+</td>
+<td><div class="first last line-block">
+<div class="line">共通開発チーム</div>
+</div>
+</td>
+<td><div class="first last line-block">
+<div class="line">共通開発チームは、(1)で抽出したEntityクラスに対するアクセスパターンを整理し、Repositoryインタフェースのメソッド設計を行う。</div>
+<div class="line">複数の開発チームで共有するメソッドに対する実装については、共通開発チームで実装することが望ましい。</div>
+</div>
+</td>
+</tr>
+<tr class="row-even"><td><div class="first last line-block">
+<div class="line">(3)</div>
+</div>
+</td>
+<td><div class="first last line-block">
+<div class="line">共通開発チーム</div>
+</div>
+</td>
+<td><div class="first last line-block">
+<div class="line">共通開発チームは、(1)と(2)で作成したEntityクラスと、Repositoryを業務アプリケーション開発チームに提供する。</div>
+<div class="line">このタイミングで、各業務アプリケーション開発チームに対して、Repositoryインタフェースの実装を依頼する。</div>
+</div>
+</td>
+</tr>
+<tr class="row-odd"><td><div class="first last line-block">
+<div class="line">(4)</div>
+</div>
+</td>
+<td><div class="first last line-block">
+<div class="line">業務アプリケーション開発チーム</div>
+</div>
+</td>
+<td><div class="first last line-block">
+<div class="line">業務アプリケーション開発チームは、自チーム担当分のRepositoryインタフェースの実装を行う。</div>
+</div>
+</td>
+</tr>
+<tr class="row-even"><td><div class="first last line-block">
+<div class="line">(5)</div>
+</div>
+</td>
+<td><div class="first last line-block">
+<div class="line">業務アプリケーション開発チーム</div>
+</div>
+</td>
+<td><div class="first last line-block">
+<div class="line">業務アプリケーション開発チームは、共通開発チームから提供されたEntityクラスおよびRepositoryと自チームで作成したRepositoryを利用して、ServiceインタフェースおよびServiceクラスの実装を行う。</div>
+</div>
+</td>
+</tr>
+</tbody>
+</table>
+<div class="admonition warning">
+<p class="first admonition-title">Warning</p>
+<p>開発規模が大きいシステムでは、アプリケーションを複数のチームに分担して開発を行う場合がある。
+その場合は、EntityクラスおよびRepositoryを設計するための共通チームを設けることを強く推奨する。</p>
+<p class="last">共通チームを設ける体制が組めない場合は、EntityクラスおよびRepositoryの作成せずに、
+ServiceからO/R Mapper(MyBatisなど)を直接呼び出して、業務データにアクセスする方法を採用することを検討すること。</p>
+</div>
+</div></blockquote>
+</div>
+<div class="section" id="entity">
+<span id="domainlayer-entity"></span><h2><a class="toc-backref" href="#id54">4.2.3. Entityの実装</a><a class="headerlink" href="#entity" title="Permalink to this headline">¶</a></h2>
+<div class="section" id="id5">
+<h3><a class="toc-backref" href="#id55">4.2.3.1. Entityクラスの作成方針</a><a class="headerlink" href="#id5" title="Permalink to this headline">¶</a></h3>
+<div class="line-block">
+<div class="line">Entityは原則以下の方針で作成する。</div>
+<div class="line">具体的な作成方法については、<a class="reference internal" href="#domainlayer-entity-example"><em>Entityクラスの作成例</em></a>で示す。</div>
+</div>
+<blockquote>
+<div><table border="1" class="docutils">
+<colgroup>
+<col width="10%" />
+<col width="35%" />
+<col width="55%" />
+</colgroup>
+<thead valign="bottom">
+<tr class="row-odd"><th class="head">項番</th>
+<th class="head">方針</th>
+<th class="head">補足</th>
+</tr>
+</thead>
+<tbody valign="top">
+<tr class="row-even"><td><div class="first last line-block">
+<div class="line">1.</div>
+</div>
+</td>
+<td><div class="first last line-block">
+<div class="line">Entityクラスは、テーブル毎に作成する。</div>
+</div>
+</td>
+<td><div class="first last line-block">
+<div class="line">ただし、テーブル間の関連を保持するためのマッピングテーブルについては、Entityクラスは不要である。</div>
+<div class="line">また、テーブルが正規化されていない場合は、必ずしもテーブル毎にはならない。テーブルが正規化されていない時のアプローチは、<a class="reference internal" href="#domainlayer-entity-policy-warning-note"><em>表外の警告欄と備考欄</em></a>を参照されたい。</div>
+</div>
+</td>
+</tr>
+<tr class="row-odd"><td><div class="first last line-block">
+<div class="line">2.</div>
+</div>
+</td>
+<td><div class="first last line-block">
+<div class="line">テーブルにFK(Foreign Key)がある場合は、FK先のテーブルのEntityクラスをプロパティとして定義する。</div>
+</div>
+</td>
+<td><div class="first last line-block">
+<div class="line">FK先のテーブルとの関係が、1:Nになる場合は、<tt class="docutils literal"><span class="pre">java.util.List&lt;E&gt;</span></tt>または<tt class="docutils literal"><span class="pre">java.util.Set&lt;E&gt;</span></tt>のどちらかを使用する。</div>
+<div class="line">FK先のテーブルに対応するEntityのことを、本ガイドライン上では、関連Entityと呼ぶ。</div>
+</div>
+</td>
+</tr>
+<tr class="row-even"><td><div class="first last line-block">
+<div class="line">3.</div>
+</div>
+</td>
+<td><div class="first last line-block">
+<div class="line">コード系テーブルは、Entityとして扱うのではなく、<tt class="docutils literal"><span class="pre">java.lang.String</span></tt>などの基本型で扱う。</div>
+</div>
+</td>
+<td><div class="first last line-block">
+<div class="line">コード系テーブルとは、コード値と、コード名のペアを管理するためのテーブルのことである。</div>
+<div class="line">コード値によって処理分岐する必要がある場合は、コード値に対応するenumクラスを作成し、作成したenumをプロパティとして定義することを推奨する。</div>
+</div>
+</td>
+</tr>
+</tbody>
+</table>
+</div></blockquote>
+<blockquote id="domainlayer-entity-policy-warning-note">
+<div><div class="admonition warning">
+<p class="first admonition-title">Warning</p>
+<p>テーブルが正規化されていない場合は、 以下の点を考慮して <strong>EntityクラスおよびRepositoryを作成する方式を採用すべきか検討した方がよい。</strong>
+特に正規化されていないテーブルとJPAとの相性はあまりよくないので、テーブルが正規化されていない場合は、JPAを使用してEntityオブジェクトを操作する方式は採用しない方が無難である。</p>
+<ul>
+<li><div class="first line-block">
+<div class="line">Entityを作成する難易度が高くなるため、適切なEntityクラスの作成が出来ない可能性がある。</div>
+<div class="line">加えて、Entityクラスを作成するために、必要な工数が多くなる可能性も高い。</div>
+<div class="line">前者は、「適切に正規化できるエンジニアをアサインできるか？」という観点、後者は、「工数をかけて正規化されたEntityクラスを作成する価値があるか？」という観点で、検討することになる。</div>
+</div>
+</li>
+<li><div class="first line-block">
+<div class="line">業務データにアクセスする際の処理として、Entityクラスとテーブルの構成の差分を埋めるための処理が、必要となる。</div>
+<div class="line">これは、「工数をかけて、Entityとテーブルの差分を埋めるための処理を実装する価値があるか？」という観点で検討することになる。</div>
+</div>
+</li>
+</ul>
+<p class="last">EntityクラスとRepositoryを作成する方式を採用することを推奨するが、作成するアプリケーションの特性、
+プロジェクトの特性(開発体制や開発プロセスなど)を加味して、採用する構成を決めて頂きたい。</p>
+</div>
+</div></blockquote>
+<blockquote id="domainlayer-entity-policy-note">
+<div><div class="admonition note">
+<p class="first admonition-title">Note</p>
+<p>テーブルは正規化されていないが、アプリケーションとして、正規化されたEntityとして業務データを扱いたい場合は、
+インフラストラクチャ層のRepositoryImplの実装として、MyBatisを採用することを推奨する。</p>
+<p class="last">MyBatisは、データベースで管理されているレコードとオブジェクトをマッピングするという考え方ではなく、
+SQLとオブジェクトをマッピングという考え方で開発されたO/R Mapperであるため、
+SQLの実装次第で、テーブル構成に依存しないオブジェクトへのマッピングができる。</p>
+</div>
+</div></blockquote>
+</div>
+<div class="section" id="domainlayer-entity-example">
+<span id="id6"></span><h3><a class="toc-backref" href="#id56">4.2.3.2. Entityクラスの作成例</a><a class="headerlink" href="#domainlayer-entity-example" title="Permalink to this headline">¶</a></h3>
+<div class="line-block">
+<div class="line">Entityクラスの作成方法を、具体例を用いて説明する。</div>
+<div class="line">以下は、ショッピングサイトで商品を購入する際に必要となる業務データを、Entityクラスとして作成する例となっている。</div>
+</div>
+<div class="section" id="id7">
+<h4><a class="toc-backref" href="#id57">4.2.3.2.1. テーブル構成</a><a class="headerlink" href="#id7" title="Permalink to this headline">¶</a></h4>
+<p>商品を購入する際に必要となる業務データを保持するテーブルは、以下の構成となっている。</p>
+<blockquote>
+<div><div class="figure align-center">
+<a class="reference internal image-reference" href="../_images/service_entity_table_layout1.png"><img alt="Example of table layout" src="../_images/service_entity_table_layout1.png" style="width: 100%;" /></a>
+</div>
+<table border="1" class="docutils">
+<colgroup>
+<col width="10%" />
+<col width="20%" />
+<col width="15%" />
+<col width="55%" />
+</colgroup>
+<thead valign="bottom">
+<tr class="row-odd"><th class="head">項番</th>
+<th class="head">分類</th>
+<th class="head">テーブル名</th>
+<th class="head">説明</th>
+</tr>
+</thead>
+<tbody valign="top">
+<tr class="row-even"><td><div class="first last line-block">
+<div class="line">(1)</div>
+</div>
+</td>
+<td><div class="first last line-block">
+<div class="line">トランザクション系</div>
+</div>
+</td>
+<td><div class="first last line-block">
+<div class="line">t_order</div>
+</div>
+</td>
+<td><div class="first last line-block">
+<div class="line">注文を保持するテーブル。１つの注文に対して1レコードが格納される。</div>
+</div>
+</td>
+</tr>
+<tr class="row-odd"><td><div class="first last line-block">
+<div class="line">(2)</div>
+</div>
+</td>
+<td><div class="first last line-block">
+<div class="line"><br /></div>
+</div>
+</td>
+<td><div class="first last line-block">
+<div class="line">t_order_item</div>
+</div>
+</td>
+<td><div class="first last line-block">
+<div class="line">１つの注文で購入された商品を保持するテーブル。１つの注文で複数の商品が購入された場合は商品数分レコードが格納される。</div>
+</div>
+</td>
+</tr>
+<tr class="row-even"><td><div class="first last line-block">
+<div class="line">(3)</div>
+</div>
+</td>
+<td><div class="first last line-block">
+<div class="line"><br /></div>
+</div>
+</td>
+<td><div class="first last line-block">
+<div class="line">t_order_coupon</div>
+</div>
+</td>
+<td><div class="first last line-block">
+<div class="line">１つの注文で使用されたクーポンを保持するテーブル。１つの注文で複数のクーポンが使用された場合はクーポン数分レコードが格納される。クーポンを使用しなかった場合はレコードは格納されない。</div>
+</div>
+</td>
+</tr>
+<tr class="row-odd"><td><div class="first last line-block">
+<div class="line">(4)</div>
+</div>
+</td>
+<td><div class="first last line-block">
+<div class="line">マスタ系</div>
+</div>
+</td>
+<td><div class="first last line-block">
+<div class="line">m_item</div>
+</div>
+</td>
+<td><div class="first last line-block">
+<div class="line">商品を定義するマスタテーブル。</div>
+</div>
+</td>
+</tr>
+<tr class="row-even"><td><div class="first last line-block">
+<div class="line">(5)</div>
+</div>
+</td>
+<td><div class="first last line-block">
+<div class="line"><br /></div>
+</div>
+</td>
+<td><div class="first last line-block">
+<div class="line">m_category</div>
+</div>
+</td>
+<td><div class="first last line-block">
+<div class="line">商品のカテゴリを定義するマスタテーブル。</div>
+</div>
+</td>
+</tr>
+<tr class="row-odd"><td><div class="first last line-block">
+<div class="line">(6)</div>
+</div>
+</td>
+<td><div class="first last line-block">
+<div class="line"><br /></div>
+</div>
+</td>
+<td><div class="first last line-block">
+<div class="line">m_item_category</div>
+</div>
+</td>
+<td><div class="first last line-block">
+<div class="line">商品が所属するカテゴリを定義するマスタテーブル。商品とカテゴリのマッピングを保持している。1つの商品は複数のカテゴリに属すことができるモデルとなっている。</div>
+</div>
+</td>
+</tr>
+<tr class="row-even"><td><div class="first last line-block">
+<div class="line">(7)</div>
+</div>
+</td>
+<td><div class="first last line-block">
+<div class="line"><br /></div>
+</div>
+</td>
+<td><div class="first last line-block">
+<div class="line">m_coupon</div>
+</div>
+</td>
+<td><div class="first last line-block">
+<div class="line">クーポンを定義するマスタテーブル。</div>
+</div>
+</td>
+</tr>
+<tr class="row-odd"><td><div class="first last line-block">
+<div class="line">(8)</div>
+</div>
+</td>
+<td><div class="first last line-block">
+<div class="line">コード系</div>
+</div>
+</td>
+<td><div class="first last line-block">
+<div class="line">c_order_status</div>
+</div>
+</td>
+<td><div class="first last line-block">
+<div class="line">注文ステータスを定義するコードテーブル。</div>
+</div>
+</td>
+</tr>
+</tbody>
+</table>
+</div></blockquote>
+</div>
+<div class="section" id="id8">
+<h4><a class="toc-backref" href="#id58">4.2.3.2.2. Entity構成</a><a class="headerlink" href="#id8" title="Permalink to this headline">¶</a></h4>
+<p>上記テーブルから作成方針に則ってEntityクラスを作成すると、以下のような構成となる。</p>
+<blockquote>
+<div><div class="figure align-center">
+<a class="reference internal image-reference" href="../_images/service_entity_entity_layout.png"><img alt="Example of entity layout" src="../_images/service_entity_entity_layout.png" style="width: 100%;" /></a>
+</div>
+<table border="1" class="docutils">
+<colgroup>
+<col width="11%" />
+<col width="17%" />
+<col width="72%" />
+</colgroup>
+<thead valign="bottom">
+<tr class="row-odd"><th class="head">項番</th>
+<th class="head">クラス名</th>
+<th class="head">説明</th>
+</tr>
+</thead>
+<tbody valign="top">
+<tr class="row-even"><td><div class="first last line-block">
+<div class="line">(1)</div>
+</div>
+</td>
+<td><div class="first last line-block">
+<div class="line">Order</div>
+</div>
+</td>
+<td><div class="first last line-block">
+<div class="line">t_orderテーブルの1レコードを表現するEntityクラス。</div>
+<div class="line">関連Entityとして、<tt class="docutils literal"><span class="pre">OrderItem</span></tt>および<tt class="docutils literal"><span class="pre">OrderCoupon</span></tt>を複数保持する。</div>
+</div>
+</td>
+</tr>
+<tr class="row-odd"><td><div class="first last line-block">
+<div class="line">(2)</div>
+</div>
+</td>
+<td><div class="first last line-block">
+<div class="line">OrderItem</div>
+</div>
+</td>
+<td><div class="first last line-block">
+<div class="line">t_order_itemテーブルの1レコードを表現するEntityクラス。</div>
+<div class="line">関連Entityとして、 <tt class="docutils literal"><span class="pre">Item</span></tt> を保持する。</div>
+</div>
+</td>
+</tr>
+<tr class="row-even"><td><div class="first last line-block">
+<div class="line">(3)</div>
+</div>
+</td>
+<td><div class="first last line-block">
+<div class="line">OrderCoupon</div>
+</div>
+</td>
+<td><div class="first last line-block">
+<div class="line">t_order_couponテーブルの1コードを表現するEntityクラス。</div>
+<div class="line">関連Entityとして、<tt class="docutils literal"><span class="pre">Coupon</span></tt>を保持する。</div>
+</div>
+</td>
+</tr>
+<tr class="row-odd"><td><div class="first last line-block">
+<div class="line">(4)</div>
+</div>
+</td>
+<td><div class="first last line-block">
+<div class="line">Item</div>
+</div>
+</td>
+<td><div class="first last line-block">
+<div class="line">m_itemテーブルの1コードを表現するEntityクラス。</div>
+<div class="line">関連Entityとして、所属している<tt class="docutils literal"><span class="pre">Category</span></tt>を複数保持する。<tt class="docutils literal"><span class="pre">Item</span></tt>と<tt class="docutils literal"><span class="pre">Category</span></tt>の紐づけは、m_item_categoryテーブルによって行われる。</div>
+</div>
+</td>
+</tr>
+<tr class="row-even"><td><div class="first last line-block">
+<div class="line">(5)</div>
+</div>
+</td>
+<td><div class="first last line-block">
+<div class="line">Category</div>
+</div>
+</td>
+<td><div class="first last line-block">
+<div class="line">m_categoryテーブルの1レコードを表現するEntityクラス。</div>
+</div>
+</td>
+</tr>
+<tr class="row-odd"><td><div class="first last line-block">
+<div class="line">(6)</div>
+</div>
+</td>
+<td><div class="first last line-block">
+<div class="line">ItemCategory</div>
+</div>
+</td>
+<td><div class="first last line-block">
+<div class="line">m_item_categoryテーブルは、m_itemテーブルとm_categoryテーブルとの関連を保持するためのマッピングテーブルなので、Entityクラスは作成しない。</div>
+</div>
+</td>
+</tr>
+<tr class="row-even"><td><div class="first last line-block">
+<div class="line">(7)</div>
+</div>
+</td>
+<td><div class="first last line-block">
+<div class="line">Coupon</div>
+</div>
+</td>
+<td><div class="first last line-block">
+<div class="line">m_couponテーブルの1レコードを表現するEntityクラス。</div>
+</div>
+</td>
+</tr>
+<tr class="row-odd"><td><div class="first last line-block">
+<div class="line">(8)</div>
+</div>
+</td>
+<td><div class="first last line-block">
+<div class="line">OrderStatus</div>
+</div>
+</td>
+<td><div class="first last line-block">
+<div class="line">c_order_statusテーブルはコード系テーブルなので、Entityクラスは作成しない。</div>
+</div>
+</td>
+</tr>
+</tbody>
+</table>
+</div></blockquote>
+<p>上記のエンティティ図をみると、ショッピングサイトのアプリケーションとして主体のEntityクラスとして扱われるのは、
+Orderクラスのみと思ってしまうかもしれないが、主体となる得るEntityクラスはOrderクラス以外にも存在する。</p>
+<p>以下に、主体のEntityとしてなり得るEntityと、主体のEntityにならないEntityを分類する。</p>
+<blockquote>
+<div><div class="figure align-center">
+<a class="reference internal image-reference" href="../_images/service_entity_entity_class_layout.png"><img alt="Example of entity layout" src="../_images/service_entity_entity_class_layout.png" style="width: 100%;" /></a>
+</div>
+</div></blockquote>
+<div class="line-block">
+<div class="line"><br /></div>
+</div>
+<p>ショッピングサイトのアプリケーションを作成する上で、主体のEntityとしてなり得るのは、以下4つである。</p>
+<blockquote>
+<div><table border="1" class="docutils">
+<colgroup>
+<col width="10%" />
+<col width="30%" />
+<col width="60%" />
+</colgroup>
+<thead valign="bottom">
+<tr class="row-odd"><th class="head">項番</th>
+<th class="head">Entityクラス</th>
+<th class="head">主体のEntityとなる得る理由</th>
+</tr>
+</thead>
+<tbody valign="top">
+<tr class="row-even"><td><div class="first last line-block">
+<div class="line">(1)</div>
+</div>
+</td>
+<td><div class="first last line-block">
+<div class="line">Orderクラス</div>
+</div>
+</td>
+<td><div class="first last line-block">
+<div class="line">ショッピングサイトにおいて、最も重要な主体となるEntityクラスのひとつである。</div>
+<div class="line">Orderクラスは、注文そのものを表現するEntityであり、Orderクラスなくしてショッピングサイトを作成することはできない。</div>
+</div>
+</td>
+</tr>
+<tr class="row-odd"><td><div class="first last line-block">
+<div class="line">(2)</div>
+</div>
+</td>
+<td><div class="first last line-block">
+<div class="line">Itemクラス</div>
+</div>
+</td>
+<td><div class="first last line-block">
+<div class="line">ショッピングサイトにおいて、最も重要な主体となるEntityクラスのひとつである。</div>
+<div class="line">Itemクラスは、ショッピングサイトで扱っている商品そのものを表現するEntityであり、Itemクラスなくしてショッピングサイトを作成することはできない。</div>
+</div>
+</td>
+</tr>
+<tr class="row-even"><td><div class="first last line-block">
+<div class="line">(3)</div>
+</div>
+</td>
+<td><div class="first last line-block">
+<div class="line">Categoryクラス</div>
+</div>
+</td>
+<td><div class="first last line-block">
+<div class="line">一般的なショッピングサイトでは、トップページや共通的メニューとして、サイトで扱っている商品のカテゴリを表示している。</div>
+<div class="line">このようなショッピングサイトのアプリケーションでは、Categoryクラスを主体のEntityとして扱うことになる。カテゴリの一覧検索などの処理が想定される。</div>
+</div>
+</td>
+</tr>
+<tr class="row-odd"><td><div class="first last line-block">
+<div class="line">(4)</div>
+</div>
+</td>
+<td><div class="first last line-block">
+<div class="line">Couponクラス</div>
+</div>
+</td>
+<td><div class="first last line-block">
+<div class="line">ショッピングサイトにおいて、商品の販売促進を行う手段としてクーポンによる値引きを行うことがある。</div>
+<div class="line">このようなショッピングサイトのアプリケーションでは、Couponクラスを主体のEntityとして扱うことなる。クーポンの一覧検索などの処理が想定される。</div>
+</div>
+</td>
+</tr>
+</tbody>
+</table>
+</div></blockquote>
+<p>ショッピングサイトのアプリケーションを作成する上で、主体のEntityとならないのは、以下2つである。</p>
+<blockquote>
+<div><table border="1" class="docutils">
+<colgroup>
+<col width="10%" />
+<col width="30%" />
+<col width="60%" />
+</colgroup>
+<thead valign="bottom">
+<tr class="row-odd"><th class="head">項番</th>
+<th class="head">Entityクラス</th>
+<th class="head">主体のEntityにならない理由</th>
+</tr>
+</thead>
+<tbody valign="top">
+<tr class="row-even"><td><div class="first last line-block">
+<div class="line">(5)</div>
+</div>
+</td>
+<td><div class="first last line-block">
+<div class="line">OrderItemクラス</div>
+</div>
+</td>
+<td><div class="first last line-block">
+<div class="line">このクラスは、1つの注文で購入された商品1つを表現するクラスであり、Orderクラスの関連Entityとしてのみ存在するクラスとなる。</div>
+<div class="line">そのため、OrderItemクラスが、主体のEntityとして扱われることは原則ない。</div>
+</div>
+</td>
+</tr>
+<tr class="row-odd"><td><div class="first last line-block">
+<div class="line">(6)</div>
+</div>
+</td>
+<td><div class="first last line-block">
+<div class="line">OrderCoupon</div>
+</div>
+</td>
+<td><div class="first last line-block">
+<div class="line">このクラスは、1つの注文で使用されたクーポン1つを表現するクラスであり、Orderクラスの関連Entityとしてのみ存在するクラスとなる。</div>
+<div class="line">そのため、OrderCouponクラスが主体のEntityとして扱われることは原則ない。</div>
+</div>
+</td>
+</tr>
+</tbody>
+</table>
+</div></blockquote>
+</div>
+</div>
+</div>
+<div class="section" id="repository">
+<span id="repository-label"></span><h2><a class="toc-backref" href="#id59">4.2.4. Repositoryの実装</a><a class="headerlink" href="#repository" title="Permalink to this headline">¶</a></h2>
+<div class="section" id="id9">
+<h3><a class="toc-backref" href="#id60">4.2.4.1. Repositoryの役割</a><a class="headerlink" href="#id9" title="Permalink to this headline">¶</a></h3>
+<p>Repositoryは、以下2つの役割を担う。</p>
+<ol class="arabic">
+<li><div class="first line-block">
+<div class="line"><strong>Serviceに対して、Entityのライフサイクルを制御するための操作（Repositoryインタフェース）を提供する。</strong></div>
+<div class="line">Entityのライフサイクルを制御するための操作は、EntityオブジェクトへのCRUD操作となる。</div>
+</div>
+</li>
+</ol>
+<blockquote>
+<div><div class="figure align-center">
+<a class="reference internal image-reference" href="../_images/repository_responsibility_1.png"><img alt="provide access operations to entity" src="../_images/repository_responsibility_1.png" style="width: 100%;" /></a>
+</div>
+</div></blockquote>
+<ol class="arabic" start="2">
+<li><div class="first line-block">
+<div class="line"><strong>Entityを永続化する処理(Repositoryインタフェースの実装クラス)を提供する。</strong></div>
+<div class="line">Entityオブジェクトは、アプリケーションのライフサイクル(サーバの起動や、停止など)に依存しないレイヤに、永続化しておく必要がある。</div>
+<div class="line">Entityの永続先は、リレーショナルデータベースになることが多いが、NoSQLデータベース、キャッシュサーバ、外部システム、ファイル（共有ディスク）などになることもある。</div>
+<div class="line">実際の永続化処理は、O/R Mapperなどから提供されているAPIを使って行う。</div>
+<div class="line">この役割は、インフラストラクチャ層のRepositoryImplで実装することになる。詳細については、<a class="reference internal" href="InfrastructureLayer.html"><em>インフラストラクチャ層の実装</em></a>を参照されたい。</div>
+</div>
+</li>
+</ol>
+<blockquote>
+<div><div class="figure align-center">
+<a class="reference internal image-reference" href="../_images/repository_responsibility_2.png"><img alt="persist entity" src="../_images/repository_responsibility_2.png" style="width: 100%;" /></a>
+</div>
+</div></blockquote>
+</div>
+<div class="section" id="id10">
+<h3><a class="toc-backref" href="#id61">4.2.4.2. Repositoryの構成</a><a class="headerlink" href="#id10" title="Permalink to this headline">¶</a></h3>
+<p>Repositoryは、RepositoryインタフェースとRepositoryImplで構成され、それぞれ以下の役割を担う。</p>
+<blockquote>
+<div><div class="figure align-center">
+<a class="reference internal image-reference" href="../_images/repository_classes_responsibility.png"><img alt="persist entity" src="../_images/repository_classes_responsibility.png" style="width: 100%;" /></a>
+</div>
+<table border="1" class="docutils">
+<colgroup>
+<col width="10%" />
+<col width="20%" />
+<col width="30%" />
+<col width="40%" />
+</colgroup>
+<thead valign="bottom">
+<tr class="row-odd"><th class="head">項番</th>
+<th class="head">クラス(インタフェース)</th>
+<th class="head">役割</th>
+<th class="head">説明</th>
+</tr>
+</thead>
+<tbody valign="top">
+<tr class="row-even"><td><div class="first last line-block">
+<div class="line">(1)</div>
+</div>
+</td>
+<td><div class="first last line-block">
+<div class="line">Repositoryインタフェース</div>
+</div>
+</td>
+<td><div class="first last line-block">
+<div class="line">業務ロジック(Service)を実装する上で必要となるEntityのライフサイクルを制御するメソッドを定義する。</div>
+</div>
+</td>
+<td><div class="first last line-block">
+<div class="line">永続先に依存しないEntityの、CRUD操作用のメソッドを定義する。</div>
+<div class="line">Repositoryインタフェースは、業務ロジック(Service)を実装する上で必要となるEntityの操作を定義する役割を担うので、ドメイン層に属することになる。</div>
+</div>
+</td>
+</tr>
+<tr class="row-odd"><td><div class="first last line-block">
+<div class="line">(2)</div>
+</div>
+</td>
+<td><div class="first last line-block">
+<div class="line">RepositoryImpl</div>
+</div>
+</td>
+<td><div class="first last line-block">
+<div class="line">Repositoryインタフェースで定義されたメソッドの実装を行う。</div>
+</div>
+</td>
+<td><div class="first last line-block">
+<div class="line">永続先に依存したEntityのCRUD操作の実装を行う。実際のCRUD処理は、Spring Framework、O/R Mapper、ミドルウェアなどから提供されている永続処理用のAPIを利用して行う。</div>
+<div class="line">RepositoryImplは、Repositoryインタフェースで定義された操作の実装を行う役割を担うので、インフラストラクチャ層に属することになる。</div>
+<div class="line">RepositoryImplの実装については、<a class="reference internal" href="InfrastructureLayer.html"><em>インフラストラクチャ層の実装</em></a>を参照されたい。</div>
+</div>
+</td>
+</tr>
+</tbody>
+</table>
+</div></blockquote>
+<div class="line-block">
+<div class="line">永続先が複数になる場合、以下のような構成となる。</div>
+<div class="line">以下のような構成を取ることで、Entityの永続先に依存したロジックを、業務ロジック(Service)から排除することができる。</div>
+</div>
+<blockquote>
+<div><div class="figure align-center">
+<a class="reference internal image-reference" href="../_images/repository_not_depends_on.png"><img alt="persist entity" src="../_images/repository_not_depends_on.png" style="width: 100%;" /></a>
+</div>
+<div class="admonition note">
+<p class="first admonition-title">Note</p>
+<p><strong>永続先に依存したロジックを、Serviceから100％排除できるのか？</strong></p>
+<p>永続先の制約や、使用するライブラリの制約などにより、排除できないケースもある。
+可能な限り、永続先に依存するロジックは、Serviceではなく、RepositoryImplで実装することを推奨するが、
+永続先に依存するロジックを排除するのが難しい場合や、排除することで得られるメリットが少ない場合は、
+無理に排除せず、業務ロジック(Service)の処理として、永続先に依存するロジックを実装してもよい。</p>
+<p class="last">排除できない具体例として、Spring Data JPAから提供されている<tt class="docutils literal"><span class="pre">org.springframework.data.jpa.repository.JpaRepository</span></tt>インタフェース
+のsaveメソッドの呼び出し時に、一意制約エラーをハンドリングしたい場合である。
+JPAではEntityへの操作はキャッシュされ、トランザクションコミット時にSQLを発行する仕組みになっている。
+そのため、JpaRepositoryのsaveメソッドを呼び出しても、SQLは発行されないので、一意制約違反をロジックでハンドリングすることができない。
+JPAでは、明示的にSQLを発行する手段として、キャッシュされている操作を反映するためのメソッド（flushメソッド）があり、
+JpaRepositoryではsaveAndFlush、flushというメソッドが同じ目的で提供されている。
+そのため、Spring Data JPAのJpaRepositoryを使って、一意制約違反エラーをハンドリングする必要がある場合は、
+JPA依存のメソッド（saveAndFlushや、flush）を呼び出す必要がある。</p>
+</div>
+<div class="admonition warning">
+<p class="first admonition-title">Warning</p>
+<p class="last">Repositoryを設ける最も重要な目的は、永続先に依存するロジックを、業務ロジックから排除することではないという点である。
+最も重要な目的は、業務データへアクセスするための操作をRepositoryへ分離することで、業務ロジック(Service)の実装範囲をビジネスルールに関する実装に専念させるという点である。
+結果として、永続先に依存するロジックは業務ロジック(Service)ではなく、Repository側に実装される事になる。</p>
+</div>
+</div></blockquote>
+</div>
+<div class="section" id="id11">
+<h3><a class="toc-backref" href="#id62">4.2.4.3. Repositoryの作成方針</a><a class="headerlink" href="#id11" title="Permalink to this headline">¶</a></h3>
+<p>Repositoryは原則以下の方針で作成する。</p>
+<blockquote>
+<div><table border="1" class="docutils">
+<colgroup>
+<col width="10%" />
+<col width="35%" />
+<col width="55%" />
+</colgroup>
+<thead valign="bottom">
+<tr class="row-odd"><th class="head">項番</th>
+<th class="head">方針</th>
+<th class="head">補足</th>
+</tr>
+</thead>
+<tbody valign="top">
+<tr class="row-even"><td><div class="first last line-block">
+<div class="line">1.</div>
+</div>
+</td>
+<td><div class="first last line-block">
+<div class="line">Repositoryは、主体となるEntityに対して作成する。</div>
+</div>
+</td>
+<td><div class="first last line-block">
+<div class="line">これは、関連Entityを操作するためだけのRepositoryが不要であることを意味する。</div>
+<div class="line">ただし、アプリケーションの特性(高い性能要件があるアプリケーションなど)では、関連Entityを操作するためのRepositoryを設けた方が、よい場合もある。</div>
+</div>
+</td>
+</tr>
+<tr class="row-odd"><td><div class="first last line-block">
+<div class="line">2.</div>
+</div>
+</td>
+<td><div class="first last line-block">
+<div class="line">Repositoryインタフェースと、RepositoryImplは、基本的にドメイン層の同じパッケージに配置する。</div>
+</div>
+</td>
+<td><div class="first last line-block">
+<div class="line">Repositoryは、Repositoryインタフェースがドメイン層、RepositoryImplがインフラストラクチャ層に属することとなるが、</div>
+<div class="line">Javaのパッケージとしては、基本的には、ドメイン層のRepositoryインタフェースと同じパッケージでよい。</div>
+</div>
+</td>
+</tr>
+<tr class="row-even"><td><div class="first last line-block">
+<div class="line">3.</div>
+</div>
+</td>
+<td><div class="first last line-block">
+<div class="line">Repositoryで使用するDTOは、Repositoryインタフェースと同じパッケージに配置する。</div>
+</div>
+</td>
+<td><div class="first last line-block">
+<div class="line">例えば、検索条件を保持するDTOや、Entityの一部の項目のみを定義したサマリ用のDTOなどがあげられる。</div>
+</div>
+</td>
+</tr>
+</tbody>
+</table>
+</div></blockquote>
+</div>
+<div class="section" id="id12">
+<h3><a class="toc-backref" href="#id63">4.2.4.4. Repositoryの作成例</a><a class="headerlink" href="#id12" title="Permalink to this headline">¶</a></h3>
+<div class="line-block">
+<div class="line">Repositoryの作成例を説明する。</div>
+<div class="line">以下は、<a class="reference internal" href="#domainlayer-entity-example"><em>Entityクラスの作成例</em></a>の説明で使用した、EntityクラスのRepositoryを作成する例となっている。</div>
+</div>
+<div class="section" id="id13">
+<h4><a class="toc-backref" href="#id64">4.2.4.4.1. Repository構成</a><a class="headerlink" href="#id13" title="Permalink to this headline">¶</a></h4>
+<p><a class="reference internal" href="#domainlayer-entity-example"><em>Entityクラスの作成例</em></a>の説明で使用した、EntityクラスのRepositoryを作成すると、以下のような構成となる。</p>
+<blockquote>
+<div><div class="figure align-center">
+<a class="reference internal image-reference" href="../_images/domainlayer_repository_layout.png"><img alt="Example of repository layout" src="../_images/domainlayer_repository_layout.png" style="width: 100%;" /></a>
+</div>
+</div></blockquote>
+<div class="line-block">
+<div class="line">主体となるEntityクラスに対して、Repositoryを作成している。</div>
+<div class="line">パッケージの推奨構成については、<a class="reference internal" href="../Overview/ApplicationLayering.html#application-layering-project-structure"><em>プロジェクト構成</em></a>を参照されたい。</div>
+</div>
+</div>
+</div>
+<div class="section" id="repository-interface-label">
+<span id="id14"></span><h3><a class="toc-backref" href="#id65">4.2.4.5. Repositoryインタフェースの定義</a><a class="headerlink" href="#repository-interface-label" title="Permalink to this headline">¶</a></h3>
+<div class="section" id="id15">
+<h4><a class="toc-backref" href="#id66">4.2.4.5.1. Repositoryインタフェースの作成</a><a class="headerlink" href="#id15" title="Permalink to this headline">¶</a></h4>
+<p>以下にRepositoryインタフェースの作成例を紹介する。</p>
+<ul class="simple">
+<li><tt class="file docutils literal"><span class="pre">SimpleCrudRepository.java</span></tt></li>
+</ul>
+<blockquote>
+<div><div class="line-block">
+<div class="line">このインタフェースは、シンプルなCRUD操作のみを提供している。</div>
+<div class="line">メソッドのシグネチャは、Spring Dataから提供されている<tt class="docutils literal"><span class="pre">CrudRepository</span></tt>インタフェースや、 <tt class="docutils literal"><span class="pre">PagingAndSortingRepository</span></tt>インタフェースを参考に作成している。</div>
+</div>
+<div class="highlight-java"><div class="highlight"><pre><span class="kd">public</span> <span class="kd">interface</span> <span class="nc">SimpleCrudRepository</span><span class="o">&lt;</span><span class="n">T</span><span class="o">,</span> <span class="n">ID</span> <span class="kd">extends</span> <span class="n">Serializable</span><span class="o">&gt;</span> <span class="o">{</span>
+    <span class="c1">// (1)</span>
+    <span class="n">T</span> <span class="nf">findOne</span><span class="o">(</span><span class="n">ID</span> <span class="n">id</span><span class="o">);</span>
+    <span class="c1">// (2)</span>
+    <span class="kt">boolean</span> <span class="nf">exists</span><span class="o">(</span><span class="n">ID</span> <span class="n">id</span><span class="o">);</span>
+    <span class="c1">// (3)</span>
+    <span class="n">List</span><span class="o">&lt;</span><span class="n">T</span><span class="o">&gt;</span> <span class="n">findAll</span><span class="o">();</span>
+    <span class="c1">// (4)</span>
+    <span class="n">Page</span><span class="o">&lt;</span><span class="n">T</span><span class="o">&gt;</span> <span class="n">findAll</span><span class="o">(</span><span class="n">Pageable</span> <span class="n">pageable</span><span class="o">);</span>
+    <span class="c1">// (5)</span>
+    <span class="kt">long</span> <span class="nf">count</span><span class="o">();</span>
+    <span class="c1">// (6)</span>
+    <span class="n">T</span> <span class="nf">save</span><span class="o">(</span><span class="n">T</span> <span class="n">entity</span><span class="o">);</span>
+    <span class="c1">// (7)</span>
+    <span class="kt">void</span> <span class="nf">delete</span><span class="o">(</span><span class="n">T</span> <span class="n">entity</span><span class="o">);</span>
+<span class="o">}</span>
+</pre></div>
+</div>
+<table border="1" class="docutils">
+<colgroup>
+<col width="10%" />
+<col width="90%" />
+</colgroup>
+<thead valign="bottom">
+<tr class="row-odd"><th class="head">項番</th>
+<th class="head">説明</th>
+</tr>
+</thead>
+<tbody valign="top">
+<tr class="row-even"><td><div class="first last line-block">
+<div class="line">(1)</div>
+</div>
+</td>
+<td><div class="first last line-block">
+<div class="line">指定したIDに対応するEntityを、取得するためのメソッド。</div>
+</div>
+</td>
+</tr>
+<tr class="row-odd"><td><div class="first last line-block">
+<div class="line">(2)</div>
+</div>
+</td>
+<td><div class="first last line-block">
+<div class="line">指定したIDに対応するEntityが、存在するか判定するためのメソッド。</div>
+</div>
+</td>
+</tr>
+<tr class="row-even"><td><div class="first last line-block">
+<div class="line">(3)</div>
+</div>
+</td>
+<td><div class="first last line-block">
+<div class="line">全てのEntityを取得するためのメソッド。 Spring Dataでは、<tt class="docutils literal"><span class="pre">java.util.Iterable</span></tt>であったが、サンプルとしては、<tt class="docutils literal"><span class="pre">java.util.List</span></tt>にしている。</div>
+</div>
+</td>
+</tr>
+<tr class="row-odd"><td><div class="first last line-block">
+<div class="line">(4)</div>
+</div>
+</td>
+<td><div class="first last line-block">
+<div class="line">指定したページネーション情報（取得開始位置、取得件数、ソート情報）に該当するEntityのコレクションを取得するためのメソッド。</div>
+<div class="line"><tt class="docutils literal"><span class="pre">Pageable</span></tt> インタフェースおよび<tt class="docutils literal"><span class="pre">Page</span></tt>インタフェースはSpring Dataより提供されているクラス（インターフェース）である。</div>
+</div>
+</td>
+</tr>
+<tr class="row-even"><td><div class="first last line-block">
+<div class="line">(5)</div>
+</div>
+</td>
+<td><div class="first last line-block">
+<div class="line">Entityの総件数を取得するためのメソッド。</div>
+</div>
+</td>
+</tr>
+<tr class="row-odd"><td><div class="first last line-block">
+<div class="line">(6)</div>
+</div>
+</td>
+<td><div class="first last line-block">
+<div class="line">指定されたEntityのコレクションを保存（作成、更新）するためのメソッド。</div>
+</div>
+</td>
+</tr>
+<tr class="row-even"><td><div class="first last line-block">
+<div class="line">(7)</div>
+</div>
+</td>
+<td><div class="first last line-block">
+<div class="line">指定したEntityを、削除するためのメソッド。</div>
+</div>
+</td>
+</tr>
+</tbody>
+</table>
+</div></blockquote>
+<ul class="simple">
+<li><tt class="file docutils literal"><span class="pre">TodoRepository.java</span></tt></li>
+</ul>
+<blockquote>
+<div><p>下記は、チュートリアルで作成したTodoエンティティのRepositoryを、上で作成した<tt class="docutils literal"><span class="pre">SimpleCrudRepository</span></tt>インタフェースベースに作成した場合の例である。</p>
+<div class="highlight-java"><div class="highlight"><pre><span class="c1">// (1)</span>
+<span class="kd">public</span> <span class="kd">interface</span> <span class="nc">TodoRepository</span> <span class="kd">extends</span> <span class="n">SimpleCrudRepository</span><span class="o">&lt;</span><span class="n">Todo</span><span class="o">,</span> <span class="n">String</span><span class="o">&gt;</span> <span class="o">{</span>
+    <span class="c1">// (2)</span>
+    <span class="kt">long</span> <span class="nf">countByFinished</span><span class="o">(</span><span class="kt">boolean</span> <span class="n">finished</span><span class="o">);</span>
+<span class="o">}</span>
+</pre></div>
+</div>
+<table border="1" class="docutils">
+<colgroup>
+<col width="10%" />
+<col width="90%" />
+</colgroup>
+<thead valign="bottom">
+<tr class="row-odd"><th class="head">項番</th>
+<th class="head">説明</th>
+</tr>
+</thead>
+<tbody valign="top">
+<tr class="row-even"><td><div class="first last line-block">
+<div class="line">(1)</div>
+</div>
+</td>
+<td><div class="first last line-block">
+<div class="line">エンティティの型を示すジェネリック型「T」にTodoエンティティ、エンティティのID型を示すジェネリック型「ID」にStringクラスを指定することで、</div>
+<div class="line">Todoエンティティ用のRepositoryインタフェースが生成される。</div>
+</div>
+</td>
+</tr>
+<tr class="row-odd"><td><div class="first last line-block">
+<div class="line">(2)</div>
+</div>
+</td>
+<td><div class="first last line-block">
+<div class="line"><tt class="docutils literal"><span class="pre">SimpleCrudRepository</span></tt>インタフェースから提供されていないメソッドを追加している。</div>
+<div class="line">ここでは、「指定したタスクの終了状態に一致するTodoエンティティの件数を取得するメソッド」を追加している。</div>
+</div>
+</td>
+</tr>
+</tbody>
+</table>
+</div></blockquote>
+</div>
+<div class="section" id="id16">
+<h4><a class="toc-backref" href="#id67">4.2.4.5.2. Repositoryインタフェースのメソッド定義</a><a class="headerlink" href="#id16" title="Permalink to this headline">¶</a></h4>
+<div class="line-block">
+<div class="line">汎用的なCRUD操作を行うメソッドについては、Spring Dataから提供されている<tt class="docutils literal"><span class="pre">CrudRepository</span></tt>や、<tt class="docutils literal"><span class="pre">PagingAndSortingRepository</span></tt>と同じシグネチャにすることを推奨する。</div>
+<div class="line">ただし、コレクションを返却する場合は、<tt class="docutils literal"><span class="pre">java.lang.Iterable</span></tt>ではなく、ロジックで扱いやすいインタフェース（<tt class="docutils literal"><span class="pre">java.util.Collection</span></tt>や、<tt class="docutils literal"><span class="pre">java.util.List</span></tt>）でもよい。</div>
+<div class="line">実際のアプリケーション開発では、汎用的なCRUD操作のみで開発できることは稀で、かならずメソッドの追加が必要になる。</div>
+<div class="line">追加するメソッドは、以下のルールに則り追加することを推奨する。</div>
+</div>
+<blockquote>
+<div><table border="1" class="docutils">
+<colgroup>
+<col width="10%" />
+<col width="20%" />
+<col width="70%" />
+</colgroup>
+<thead valign="bottom">
+<tr class="row-odd"><th class="head">項番</th>
+<th class="head">メソッドの種類</th>
+<th class="head">ルール</th>
+</tr>
+</thead>
+<tbody valign="top">
+<tr class="row-even"><td><ol class="first last arabic simple">
+<li></li>
+</ol>
+</td>
+<td>1件検索系のメソッド</td>
+<td><ol class="first last arabic simple">
+<li>メソッド名は、条件に一致するEntityを、1件取得するためのメソッドであることを明示するために、<strong>findOneBy</strong>で始める。</li>
+<li>メソッド名のfindOneBy以降は、検索条件となるフィールドの物理名、または、論理的な条件名などを指定し、どのような状態のEntityが取得されるのか、推測できる名前とする。</li>
+<li>引数は、条件となるフィールド毎に用意する。ただし、条件が多い場合は、条件をまとめたDTOを用意してもよい。</li>
+<li>返り値は、Entityクラスを指定する。</li>
+</ol>
+</td>
+</tr>
+<tr class="row-odd"><td><ol class="first last arabic simple" start="2">
+<li></li>
+</ol>
+</td>
+<td>複数件検索系のメソッド</td>
+<td><ol class="first last arabic simple">
+<li>メソッド名は、条件に一致するEntityを、すべて取得するためのメソッドであることを明示するために、 <strong>findAllBy</strong> で始める。</li>
+<li>メソッド名のfindAllBy以降は、検索条件となるフィールドの物理名または論理的な条件名を指定し、どのような状態のEntityが取得されるのか推測できる名前とする。</li>
+<li>引数は、条件となるフィールド毎に用意する。ただし、条件が多い場合は、条件をまとめたDTOを用意してもよい。</li>
+<li>返り値は、Entityクラスのコレクションを指定する。</li>
+</ol>
+</td>
+</tr>
+<tr class="row-even"><td><ol class="first last arabic simple" start="3">
+<li></li>
+</ol>
+</td>
+<td>複数件ページ検索系のメソッド</td>
+<td><ol class="first last arabic simple">
+<li>メソッド名は、条件に一致するEntityの該当ページ部分を取得するためのメソッドである事を明示するために、 <strong>findPageBy</strong> で始める。</li>
+<li>メソッド名のfindPageBy以降は、検索条件となるフィールドの物理名または論理的な条件名を指定し、どのような状態のEntityが取得されるのか推測できる名前とする。</li>
+<li>引数は、条件となるフィールド毎に用意する。ただし、条件が多い場合は、条件をまとめたDTOを用意してもよい。ページネーション情報（取得開始位置、取得件数、ソート情報）は、Spring Dataより提供されている <tt class="docutils literal"><span class="pre">Pageable</span></tt> インタフェースとすることを推奨する。</li>
+<li>返り値は、Spring Dataより提供されている <tt class="docutils literal"><span class="pre">Page</span></tt> インタフェースとすることを推奨する。</li>
+</ol>
+</td>
+</tr>
+<tr class="row-odd"><td><ol class="first last arabic simple" start="4">
+<li></li>
+</ol>
+</td>
+<td>件数のカウント系のメソッド</td>
+<td><ol class="first last arabic simple">
+<li>メソッド名は、条件に一致するEntityの件数をカウントするためのメソッドである事を明示するために、 <strong>countBy</strong> で始める。</li>
+<li>返り値は、long型にする。</li>
+<li>メソッド名のcountBy以降は、検索条件となるフィールドの物理名または論理的な条件名を指定し、どのような状態のEntityの件数が取得されるのか推測できる名前とする。</li>
+<li>引数は、条件となるフィールド毎に用意する。ただし、条件が多い場合は、条件をまとめたDTOを用意してもよい。</li>
+</ol>
+</td>
+</tr>
+<tr class="row-even"><td><ol class="first last arabic simple" start="5">
+<li></li>
+</ol>
+</td>
+<td>存在判定系のメソッド</td>
+<td><ol class="first last arabic simple">
+<li>メソッド名は、条件に一致するEntityが存在するかチェックするためのメソッドである事を明示するために、 <strong>existsBy</strong> で始める。</li>
+<li>メソッド名のexistsBy以降は、検索条件となるフィールドの物理名または論理的な条件名を指定し、どのような状態のEntityの存在チェックを行うのか推測できる名前とする。</li>
+<li>引数は、条件となるフィールド毎に用意する。ただし、条件が多い場合は、条件をまとめたDTOを用意してもよい。</li>
+<li>返り値は、boolean型にする。</li>
+</ol>
+</td>
+</tr>
+</tbody>
+</table>
+<div class="admonition note">
+<p class="first admonition-title">Note</p>
+<p class="last">更新系のメソッドも、同様のルールに則り、追加することを推奨する。
+findの部分が、updateまたはdeleteとなる。</p>
+</div>
+</div></blockquote>
+<ul class="simple">
+<li><tt class="file docutils literal"><span class="pre">Todo.java</span></tt> (Entity)</li>
+</ul>
+<blockquote>
+<div><div class="highlight-java"><div class="highlight"><pre><span class="kd">public</span> <span class="kd">class</span> <span class="nc">Todo</span> <span class="kd">implements</span> <span class="n">Serializable</span> <span class="o">{</span>
+    <span class="kd">private</span> <span class="n">String</span> <span class="n">todoId</span><span class="o">;</span>
+    <span class="kd">private</span> <span class="n">String</span> <span class="n">todoTitle</span><span class="o">;</span>
+    <span class="kd">private</span> <span class="kt">boolean</span> <span class="n">finished</span><span class="o">;</span>
+    <span class="kd">private</span> <span class="n">Date</span> <span class="n">createdAt</span><span class="o">;</span>
+    <span class="c1">// ...</span>
+ <span class="o">}</span>
+</pre></div>
+</div>
+</div></blockquote>
+<div class="line-block">
+<div class="line"><br /></div>
+</div>
+<ul class="simple">
+<li><tt class="file docutils literal"><span class="pre">TodoRepository.java</span></tt></li>
+</ul>
+<blockquote>
+<div><div class="highlight-java"><div class="highlight"><pre><span class="kd">public</span> <span class="kd">interface</span> <span class="nc">TodoRepository</span> <span class="kd">extends</span> <span class="n">SimpleCrudRepository</span><span class="o">&lt;</span><span class="n">Todo</span><span class="o">,</span> <span class="n">String</span><span class="o">&gt;</span> <span class="o">{</span>
+    <span class="c1">// (1)</span>
+    <span class="n">Todo</span> <span class="nf">findOneByTodoTitle</span><span class="o">(</span><span class="n">String</span> <span class="n">todoTitle</span><span class="o">);</span>
+    <span class="c1">// (2)</span>
+    <span class="n">List</span><span class="o">&lt;</span><span class="n">Todo</span><span class="o">&gt;</span> <span class="n">findAllByUnfinished</span><span class="o">();</span>
+    <span class="c1">// (3)</span>
+    <span class="n">Page</span><span class="o">&lt;</span><span class="n">Todo</span><span class="o">&gt;</span> <span class="n">findPageByUnfinished</span><span class="o">();</span>
+    <span class="c1">// (4)</span>
+    <span class="kt">long</span> <span class="nf">countByExpired</span><span class="o">(</span><span class="kt">int</span> <span class="n">validDays</span><span class="o">);</span>
+    <span class="c1">// (5)</span>
+    <span class="kt">boolean</span> <span class="nf">existsByCreateAt</span><span class="o">(</span><span class="n">Date</span> <span class="n">date</span><span class="o">);</span>
+<span class="o">}</span>
+</pre></div>
+</div>
+<table border="1" class="docutils">
+<colgroup>
+<col width="10%" />
+<col width="90%" />
+</colgroup>
+<thead valign="bottom">
+<tr class="row-odd"><th class="head">項番</th>
+<th class="head">説明</th>
+</tr>
+</thead>
+<tbody valign="top">
+<tr class="row-even"><td><div class="first last line-block">
+<div class="line">(1)</div>
+</div>
+</td>
+<td><div class="first last line-block">
+<div class="line">タイトルが一致するTODO(todoTitle=引数で指定した値のTODO)を取得するメソッドの定義例。</div>
+<div class="line">findOneBy以降に、条件となるフィールドの物理名(todoTitle)を指定している。</div>
+</div>
+</td>
+</tr>
+<tr class="row-odd"><td><div class="first last line-block">
+<div class="line">(2)</div>
+</div>
+</td>
+<td><div class="first last line-block">
+<div class="line">未完了のTODO(finished=falseのTODO)を全件取得するメソッドの定義例。</div>
+<div class="line">findAllBy以降に、論理的な条件名を指定している。</div>
+</div>
+</td>
+</tr>
+<tr class="row-even"><td><div class="first last line-block">
+<div class="line">(3)</div>
+</div>
+</td>
+<td><div class="first last line-block">
+<div class="line">未完了のTODO(finished=falseのTODO)の該当ページ部分を取得するメソッドの定義例。</div>
+<div class="line">findPageBy以降に、論理的な条件名を指定している。</div>
+</div>
+</td>
+</tr>
+<tr class="row-odd"><td><div class="first last line-block">
+<div class="line">(4)</div>
+</div>
+</td>
+<td><div class="first last line-block">
+<div class="line">完了期限を過ぎたTODO(createdAt &lt; sysdate - 引数で指定した有効日数 &amp;&amp; finished=falseのTODO)の件数を取得するメソッドの定義例。</div>
+<div class="line">countBy以降に、論理的な条件名を指定している。</div>
+</div>
+</td>
+</tr>
+<tr class="row-even"><td><div class="first last line-block">
+<div class="line">(5)</div>
+</div>
+</td>
+<td><div class="first last line-block">
+<div class="line">指定日に作成されている、TODO(createdAt=指定日)が存在するか判定するメソッドの定義例。</div>
+<div class="line">existsBy以降に、条件となるフィールドの物理名(createdAt)を指定している。</div>
+</div>
+</td>
+</tr>
+</tbody>
+</table>
+</div></blockquote>
+</div>
+<div class="section" id="repositoryimpl">
+<h4><a class="toc-backref" href="#id68">4.2.4.5.3. RepositoryImplの作成</a><a class="headerlink" href="#repositoryimpl" title="Permalink to this headline">¶</a></h4>
+<p>RepositoryImplの実装については、<a class="reference internal" href="InfrastructureLayer.html"><em>インフラストラクチャ層の実装</em></a>を参照されたい。</p>
+</div>
+</div>
+</div>
+<div class="section" id="service">
+<span id="service-label"></span><h2><a class="toc-backref" href="#id69">4.2.5. Serviceの実装</a><a class="headerlink" href="#service" title="Permalink to this headline">¶</a></h2>
+<div class="section" id="id17">
+<h3><a class="toc-backref" href="#id70">4.2.5.1. Serviceの役割</a><a class="headerlink" href="#id17" title="Permalink to this headline">¶</a></h3>
+<p>Serviceは、以下2つの役割を担う。</p>
+<ol class="arabic">
+<li><div class="first line-block">
+<div class="line"><strong>Controllerに対して業務ロジックを提供する。</strong></div>
+<div class="line">業務ロジックは、アプリケーションで使用する業務データの参照、更新、整合性チェックおよびビジネスルールに関わる各種処理で構成される。</div>
+<div class="line">業務データの参照および更新処理をRepository(またはO/R Mapper)に委譲し、<strong>Serviceではビジネスルールに関わる処理の実装に専念することを推奨する。</strong></div>
+</div>
+</li>
+</ol>
+<blockquote>
+<div><div class="admonition note">
+<p class="first admonition-title">Note</p>
+<p><strong>ControllerとServiceで実装するロジックの責任分界点について</strong></p>
+<p>本ガイドラインでは、ControllerとServiceで実装するロジックは、以下のルールに則って実装することを推奨する。</p>
+<ol class="last arabic simple">
+<li>クライアントからリクエストされたデータに対する単項目チェック、相関項目チェックはController側(Bean ValidationまたはSpring Validator)で行う。</li>
+<li>Serviceに渡すデータへの変換処理(Bean変換、型変換、形式変換など)は、ServiceではなくController側で行う。</li>
+<li><strong>ビジネスルールに関わる処理はServiceで行う。</strong>業務データへのアクセスは、RepositoryまたはO/R Mapperに委譲する。</li>
+<li>ServiceからControllerに返却するデータ（クライアントへレスポンスするデータ）に対する値の変換処理(型変換、形式変換など)は、Serviceではなく、Controller側（Viewクラスなど）で行う。</li>
+</ol>
+</div>
+<div class="figure align-center">
+<a class="reference internal image-reference" href="../_images/service_responsibility-of-logic.png"><img alt="responsibility of logic" src="../_images/service_responsibility-of-logic.png" style="width: 90%;" /></a>
+</div>
+</div></blockquote>
+<ol class="arabic" start="2">
+<li><div class="first line-block">
+<div class="line"><strong>トランザクション境界を宣言する。</strong></div>
+<div class="line">データの一貫性を保障する必要がある処理（主にデータの更新処理）を行う業務ロジックの場合、トランザクション境界を宣言する。</div>
+<div class="line">データの参照処理の場合でも業務要件によっては、トランザクション管理が必要になる場合もあるので、その場合は、トランザクション境界を宣言する。</div>
+<div class="line"><strong>トランザクション境界は、原則Serviceに設ける。</strong>アプリケーション層(Web層)にトランザクション境界が設けられている場合、業務ロジックの抽出が正しく行われていない可能性があるので、見直しを行うこと。</div>
+</div>
+</li>
+</ol>
+<blockquote>
+<div><div class="figure align-center">
+<a class="reference internal image-reference" href="../_images/service_transaction-boundary.png"><img alt="transaction boundary" src="../_images/service_transaction-boundary.png" style="width: 90%;" /></a>
+</div>
+<p>詳細は、<a class="reference internal" href="#service-transaction-management"><em>トランザクション管理について</em></a>を参照されたい。</p>
+</div></blockquote>
+</div>
+<div class="section" id="service-constitution-role-label">
+<span id="id18"></span><h3><a class="toc-backref" href="#id71">4.2.5.2. Serviceのクラス構成</a><a class="headerlink" href="#service-constitution-role-label" title="Permalink to this headline">¶</a></h3>
+<div class="line-block">
+<div class="line">Serviceは、ServiceクラスとSharedServiceクラスで構成され、それぞれ以下の役割を担う。</div>
+<div class="line">本ガイドラインでは、<tt class="docutils literal"><span class="pre">&#64;Service</span></tt>アノテーションが付与されたPOJO(Plain Old Java Object)のことを、ServiceクラスおよびSharedServiceクラスと定義しているが、メソッドのシグネチャを限定するようなインタフェースや、基底クラスを作成することを、禁止しているわけではない。</div>
+</div>
+<blockquote>
+<div><table border="1" class="docutils">
+<colgroup>
+<col width="10%" />
+<col width="15%" />
+<col width="30%" />
+<col width="45%" />
+</colgroup>
+<thead valign="bottom">
+<tr class="row-odd"><th class="head">項番</th>
+<th class="head">クラス</th>
+<th class="head">役割</th>
+<th class="head">依存関係に関する注意点</th>
+</tr>
+</thead>
+<tbody valign="top">
+<tr class="row-even"><td><ol class="first last arabic simple">
+<li></li>
+</ol>
+</td>
+<td>Serviceクラス</td>
+<td><div class="first last line-block">
+<div class="line"><strong>特定のControllerに対して業務ロジックを提供する。</strong></div>
+<div class="line">Serviceクラスのメソッドは、<strong>再利用されることを考慮したロジックは実装しない。</strong></div>
+</div>
+</td>
+<td><ol class="first last arabic simple">
+<li><strong>他のServiceクラスのメソッドを呼び出すことは、原則禁止とする（※図中1-1）。</strong>他のServiceと処理を共有したい場合は、SharedServiceクラスのメソッドを作成し、呼び出すようにすることを推奨する。</li>
+<li>Serviceクラスのメソッドは、複数のControllerから呼び出してもよい（※図中1-2）。ただし、<strong>呼び出し元のControllerによって、処理分岐が必要になる場合は、Controller毎に、Serviceクラスのメソッドを作成することを推奨する。</strong>その上で共通的な処理は、SharedServiceクラスのメソッドを作成し呼び出すようにする。</li>
+</ol>
+</td>
+</tr>
+<tr class="row-odd"><td>2</td>
+<td>SharedServiceクラス</td>
+<td><div class="first last line-block">
+<div class="line">複数のControllerやServiceクラスで、<strong>共有(再利用)されるロジックを提供する。</strong></div>
+</div>
+</td>
+<td><ol class="first last arabic simple">
+<li>他のSharedServiceクラスのメソッドを呼び出してもよいが（※図中2-1）、 <strong>呼び出し階層が複雑にならないように考慮すること。</strong> 呼び出し階層が複雑になると保守性が低下する危険性が高まるので注意が必要。</li>
+<li>ControllerからSharedServiceクラスのメソッドを呼び出してもよい（※図中2-2）が、<strong>トランザクション管理の観点で問題がない場合に限る。</strong>直接呼び出した場合に、トランザクション管理の観点で問題がある場合は、Serviceクラスにメソッドを用意し、適切なトランザクション管理が行われるようにすること。</li>
+<li>SharedServiceクラスから<strong>Serviceクラスのメソッドを呼び出すことは禁止する（※図中2-3）。</strong></li>
+</ol>
+</td>
+</tr>
+</tbody>
+</table>
+</div></blockquote>
+<div class="line-block">
+<div class="line">Serviceクラスと、SharedServiceクラスの依存関係を、以下に示す。</div>
+<div class="line">図中の番号は、上の表の「依存関係に関する注意点」欄の記載と連動しているため、あわせて確認すること。</div>
+</div>
+<blockquote>
+<div><div class="figure align-center">
+<a class="reference internal image-reference" href="../_images/service_class-dependency.png"><img alt="class dependency" src="../_images/service_class-dependency.png" style="width: 100%;" /></a>
+</div>
+</div></blockquote>
+<div class="section" id="servicesharedservice">
+<h4><a class="toc-backref" href="#id72">4.2.5.2.1. ServiceクラスとSharedServiceクラスを分ける理由について</a><a class="headerlink" href="#servicesharedservice" title="Permalink to this headline">¶</a></h4>
+<div class="line-block">
+<div class="line">業務ロジックを構成する処理の中には、再利用できない(すべきでない)ロジックと再利用できる（すべき）ロジックが存在する。</div>
+<div class="line">この二つのロジックを、同じクラスのメソッドとして実装してしまうと、再利用してよいメソッドか否かの判断が、難しくなる。</div>
+<div class="line">この問題を回避する目的として、本ガイドラインでは、<strong>再利用されることを想定しているメソッドについては、SharedServiceクラスに実装することを強く推奨している。</strong></div>
+</div>
+</div>
+<div class="section" id="serviceservice">
+<h4><a class="toc-backref" href="#id73">4.2.5.2.2. Serviceクラスから、別のServiceクラスの呼び出しを禁止する理由について</a><a class="headerlink" href="#serviceservice" title="Permalink to this headline">¶</a></h4>
+<div class="line-block">
+<div class="line">本ガイドラインでは、Serviceクラスのメソッドから、別のServiceクラスのメソッドを呼び出すことを、原則禁止としている。</div>
+<div class="line">これは、Serviceクラスは、特定のControllerに対して業務ロジックを提供するクラスであり、別のServiceから利用される前提で作成しないためである。</div>
+<div class="line">仮に、別のServiceクラスから直接呼び出してしまうと、以下のような状況が発生しやすくなり、<strong>保守性などを低下させる危険性が、高まる。</strong></div>
+</div>
+<blockquote>
+<div><table border="1" class="docutils">
+<colgroup>
+<col width="10%" />
+<col width="90%" />
+</colgroup>
+<thead valign="bottom">
+<tr class="row-odd"><th class="head">項番</th>
+<th class="head">発生しうる状況</th>
+</tr>
+</thead>
+<tbody valign="top">
+<tr class="row-even"><td><ol class="first last arabic simple">
+<li></li>
+</ol>
+</td>
+<td><div class="first last line-block">
+<div class="line">本来は、呼び出し元のServiceクラスで実装すべきロジックが、処理を一ヶ所にまとめたいという理由などにより、呼び出し先のServiceクラスで実装されてしまう。</div>
+<div class="line">その際に、<strong>呼び出し元を意識するための引数（フラグ）などが、安易に追加され、間違った共通化が行われてしまう。結果として、見通しの悪いモジュール構成になってしまう。</strong></div>
+</div>
+</td>
+</tr>
+<tr class="row-odd"><td><ol class="first last arabic simple" start="2">
+<li></li>
+</ol>
+</td>
+<td><div class="first last line-block">
+<div class="line">呼び出し経路やパターンが多くなることで、<strong>仕様変更や、バグ改修の際のソース修正に対する影響範囲の把握が難しくなる。</strong></div>
+</div>
+</td>
+</tr>
+</tbody>
+</table>
+</div></blockquote>
+</div>
+<div class="section" id="id19">
+<h4><a class="toc-backref" href="#id74">4.2.5.2.3. メソッドのシグネチャを限定するようなインタフェースや基底クラスについて</a><a class="headerlink" href="#id19" title="Permalink to this headline">¶</a></h4>
+<div class="line-block">
+<div class="line">業務ロジックの作りを統一したい場合に、シグネチャを限定するようなインタフェースや、基底クラスを作成することがある。</div>
+<div class="line">シグネチャを限定するインタフェースや基底クラスを設けることで、開発者ごとに、作りの違いが発生しないようにする目的もある。</div>
+</div>
+<blockquote>
+<div><div class="admonition note">
+<p class="first admonition-title">Note</p>
+<p>大規模開発において、サービスイン後の保守性等を考慮して業務ロジックの作りを合わせておきたい場合や、開発者のひとりひとりのスキルがあまり高くない場合などの状況下では、
+シグネチャを限定するようなインタフェースを設けることも、選択肢の一つとして考えてもよい。</p>
+<p class="last">本ガイドラインでは、シグネチャを限定するようなインタフェースを作成することは、特に推奨していないが、
+プロジェクトの特性を加味して、どのようなアーキテクチャにするか決めて頂きたい。</p>
+</div>
+</div></blockquote>
+<p></p>
+<div class="line-block">
+<div class="line">Appendixに、シグネチャを限定するようなインタフェースと規定クラスを作成するの、サンプルを示す。</div>
+<div class="line">詳細は、<a class="reference internal" href="#domainlayer-appendix-blogic"><em>シグネチャを制限するインタフェースおよび基底クラスの実装サンプル</em></a>を参照されたい。</div>
+</div>
+</div>
+</div>
+<div class="section" id="service-creation-unit-label">
+<span id="id20"></span><h3><a class="toc-backref" href="#id75">4.2.5.3. Serviceの作成単位</a><a class="headerlink" href="#service-creation-unit-label" title="Permalink to this headline">¶</a></h3>
+<p>Serviceの作成単位は主に以下の３パターンとなる。</p>
+<blockquote>
+<div><table border="1" class="docutils">
+<colgroup>
+<col width="10%" />
+<col width="15%" />
+<col width="25%" />
+<col width="50%" />
+</colgroup>
+<thead valign="bottom">
+<tr class="row-odd"><th class="head">項番</th>
+<th class="head">単位</th>
+<th class="head">作成方法</th>
+<th class="head">特徴</th>
+</tr>
+</thead>
+<tbody valign="top">
+<tr class="row-even"><td><ol class="first last arabic simple">
+<li></li>
+</ol>
+</td>
+<td><div class="first last line-block">
+<div class="line">Entity毎</div>
+</div>
+</td>
+<td><div class="first last line-block">
+<div class="line">主体となるEntityと対でServiceを作成する。</div>
+</div>
+</td>
+<td><div class="first last line-block">
+<div class="line">主体となるEntityとは、業務データの事であり、 <strong>業務データを中心にしてアプリケーションを設計・実装する場合は、この単位でServiceを作成することを推奨する。</strong></div>
+<div class="line"><br /></div>
+<div class="line">この単位でServiceを作成すると、業務データ毎に業務ロジックが集約されるため、業務処理の共通化が図られやすい。</div>
+<div class="line">ただし、このパターンでServiceを作成した場合、同時に大量の開発者を投入して作成するアプリケーションとの相性は、あまりよくない。どちらかと言うと、小規模・中規模のアプリケーションを開発する場合に向いているパターンと言える。</div>
+</div>
+</td>
+</tr>
+<tr class="row-odd"><td><ol class="first last arabic simple" start="2">
+<li></li>
+</ol>
+</td>
+<td><div class="first last line-block">
+<div class="line">ユースケース毎</div>
+</div>
+</td>
+<td><div class="first last line-block">
+<div class="line">ユースケースと対でServiceを作成する。</div>
+</div>
+</td>
+<td><div class="first last line-block">
+<div class="line"><strong>画面からのイベントを中心にしてアプリケーションを設計・実装する場合は、この単位でServiceを作成することになる。</strong></div>
+<div class="line"><br /></div>
+<div class="line">この単位でServiceを作成する場合は、ユースケース毎に担当者を割り当てることが出来るため、同時に大量の開発者を投入して開発するアプリケーションとの相性はよい。</div>
+<div class="line">一方で、このパターンでServiceを作成すると、ユースケース内での業務ロジックの共通化は行うことができるが、ユースケースを跨いだ業務ロジックの共通化は行われない可能性が高くなる。</div>
+<div class="line">ユースケースを跨いで業務ロジックの共通化を行う必要がある場合は、共通化を行うための共通チームを設けるなどの工夫が必要となる。</div>
+</div>
+</td>
+</tr>
+<tr class="row-even"><td>3</td>
+<td><div class="first last line-block">
+<div class="line">イベント毎</div>
+</div>
+</td>
+<td><div class="first last line-block">
+<div class="line">画面から発生するイベントと対でServiceを作成する。</div>
+</div>
+</td>
+<td><div class="first last line-block">
+<div class="line"><strong>画面からのイベントを中心にしてアプリケーションを設計・実装する場合で且つ「TERASOLUNA ViSC」を使用してBLogicクラスを生成する場合は、この単位でServiceを作成することになる。</strong></div>
+<div class="line">本ガイドラインでは、このような単位で作成されるServiceクラスの事を、BLogicと呼ぶ。</div>
+<div class="line"><br /></div>
+<div class="line">この単位でServiceを作成する場合の特徴としては、基本的にはユースケース毎に作成する際と同じである。</div>
+<div class="line">ただし、イベント毎にServiceクラスを設計・実装する事になるため、ユースケース毎に作成する場合に比べて、より共通化が行われない可能性が高くなる。</div>
+<div class="line">本ガイドラインとしては、イベント毎に作成するパターンは特に推奨しない。ただし、大規模開発において、保守性等を考慮して業務ロジックの作りを合わせておきたいといった理由がある場合は、イベント毎に作成する事を選択肢の一つとして考えてもよい。</div>
+</div>
+</td>
+</tr>
+</tbody>
+</table>
+<div class="admonition warning">
+<p class="first admonition-title">Warning</p>
+<p><strong>Serviceの作成単位については、開発するアプリケーションの特性や開発体制などを加味して決めて頂きたい。</strong></p>
+<p>また、提示した３つの作成パターンの <strong>どれか一つのパターンに絞る必要はない。</strong>
+無秩序にいろいろな単位のServiceを作成する事は避けるべきだが、 <strong>アーキテクトによって方針が示されている状況下においては、併用しても特に問題はない。</strong>
+例えば、以下のような組み合わせが考えられる。</p>
+<p>【組み合わせて使用する場合の例】</p>
+<ul class="last simple">
+<li>アプリケーションとして重要な業務ロジックについては、Entity毎のSharedServiceクラスとして作成する。</li>
+<li>画面からのイベントを処理するための業務ロジックについては、Controller毎のServiceクラスとして作成する。</li>
+<li>Controller毎のServiceクラスでは、必要に応じてSharedServiceクラスのメソッドを呼び出す事で業務ロジックを実装する。</li>
+</ul>
+</div>
+<div class="admonition tip">
+<p class="first admonition-title">Tip</p>
+<p class="last">「TERASOLUNA ViSC」を使用する場合は、BLogicは設計書から出力される。</p>
+</div>
+</div></blockquote>
+<div class="line-block">
+<div class="line"><br /></div>
+</div>
+<div class="section" id="entityservice">
+<h4><a class="toc-backref" href="#id76">4.2.5.3.1. Entity毎にServiceを作成する際の開発イメージ</a><a class="headerlink" href="#entityservice" title="Permalink to this headline">¶</a></h4>
+<p>Entity毎にServiceを作成する場合は、以下のような開発イメージとなる。</p>
+<blockquote>
+<div><div class="admonition note">
+<p class="first admonition-title">Note</p>
+<p>Entity毎にServiceを作成する代表的なアプリケーションの例としては、RESTアプリケーションがあげられる。
+RESTアプリケーションは、HTTP上に公開するリソースに対してCRUD操作(HTTPのPOST, GET, PUT, DELETE)を提供する事になる。
+HTTP上に公開するリソースは、業務データ(Entity)または業務データ(Entity)の一部となる事が多いため、Entity毎にServiceを作成する方法との相性がよい。</p>
+<p class="last">RESTアプリケーションの場合は、ユースケースがEntity毎に抽出されることが多い。そのため、ユースケース毎に作成する際の構成イメージと似た構成となる。</p>
+</div>
+</div></blockquote>
+<div class="line-block">
+<div class="line"><br /></div>
+</div>
+<blockquote>
+<div><div class="figure align-center">
+<a class="reference internal image-reference" href="../_images/service_unit_resource.png"><img alt="multiple controller unit" src="../_images/service_unit_resource.png" style="width: 100%;" /></a>
+</div>
+<table border="1" class="docutils">
+<colgroup>
+<col width="10%" />
+<col width="90%" />
+</colgroup>
+<thead valign="bottom">
+<tr class="row-odd"><th class="head">項番</th>
+<th class="head">説明</th>
+</tr>
+</thead>
+<tbody valign="top">
+<tr class="row-even"><td><div class="first last line-block">
+<div class="line">(1)</div>
+</div>
+</td>
+<td><div class="first last line-block">
+<div class="line">Entity毎に開発者を割り当てて、Serviceを実装する。</div>
+<div class="line">特に理由がない場合は、ControllerもEntity毎に作成し、Serviceと同じ開発者を担当者にすることが望ましい。</div>
+</div>
+</td>
+</tr>
+<tr class="row-odd"><td><div class="first last line-block">
+<div class="line">(2)</div>
+</div>
+</td>
+<td><div class="first last line-block">
+<div class="line">複数の業務ロジックで共有したいロジックがある場合は、SharedServiceに実装する。</div>
+<div class="line">上の図では、別の開発者(共通チームの担当者)を割り当てているが、プロジェクトの体制によっては(1)と同じ開発者でもよい。</div>
+</div>
+</td>
+</tr>
+</tbody>
+</table>
+</div></blockquote>
+<div class="line-block">
+<div class="line"><br /></div>
+</div>
+</div>
+<div class="section" id="id21">
+<h4><a class="toc-backref" href="#id77">4.2.5.3.2. ユースケース毎に作成する際の開発イメージ</a><a class="headerlink" href="#id21" title="Permalink to this headline">¶</a></h4>
+<div class="line-block">
+<div class="line">ユースケース毎にServiceを作成する場合は、以下のような開発イメージとなる。</div>
+<div class="line">EntityのCRUD操作を行う様なユースケースの場合は、Entity毎にServiceを作成する際の構成イメージと同じ構成となる。</div>
+</div>
+<blockquote>
+<div><div class="figure align-center">
+<a class="reference internal image-reference" href="../_images/service_unit_controller.png"><img alt="controller unit" src="../_images/service_unit_controller.png" style="width: 100%;" /></a>
+</div>
+<table border="1" class="docutils">
+<colgroup>
+<col width="10%" />
+<col width="90%" />
+</colgroup>
+<thead valign="bottom">
+<tr class="row-odd"><th class="head">項番</th>
+<th class="head">説明</th>
+</tr>
+</thead>
+<tbody valign="top">
+<tr class="row-even"><td><div class="first last line-block">
+<div class="line">(1)</div>
+</div>
+</td>
+<td><div class="first last line-block">
+<div class="line">ユースケース毎に開発者を割り当てて、Serviceを実装する。</div>
+<div class="line">特に理由がない場合は、Controllerもユースケース毎に作成し、Serviceと同じ開発者を担当者にすることが望ましい。</div>
+</div>
+</td>
+</tr>
+<tr class="row-odd"><td><div class="first last line-block">
+<div class="line">(2)</div>
+</div>
+</td>
+<td><div class="first last line-block">
+<div class="line">複数の業務ロジックで共有したいロジックがある場合は、SharedServiceに実装する。</div>
+<div class="line">上の図では、別の開発者(共通チームの担当者)を割り当てているが、プロジェクトの体制によっては(1)と同じ開発者でもよい。</div>
+</div>
+</td>
+</tr>
+</tbody>
+</table>
+<div class="admonition note">
+<p class="first admonition-title">Note</p>
+<p class="last">ユースケースの規模が大きくなると、一人が担当する開発範囲が大きくなるため、作業分担しづらくなる。
+同時に大量の開発者を投入して開発するアプリケーションの場合は、ユースケースを更に分割して、担当者を割り当てる事を検討すること。</p>
+</div>
+</div></blockquote>
+<div class="line-block">
+<div class="line"><br /></div>
+</div>
+<div class="line-block">
+<div class="line">ユースケースを更に分割した場合は、以下のような開発イメージとなる。</div>
+<div class="line">ユースケースの分割を行うことで、SharedServiceに影響はないため、説明は割愛している。</div>
+</div>
+<blockquote>
+<div><div class="figure align-center">
+<a class="reference internal image-reference" href="../_images/service_unit_controller2.png"><img alt="multiple controller unit" src="../_images/service_unit_controller2.png" style="width: 100%;" /></a>
+</div>
+<table border="1" class="docutils">
+<colgroup>
+<col width="10%" />
+<col width="90%" />
+</colgroup>
+<thead valign="bottom">
+<tr class="row-odd"><th class="head">項番</th>
+<th class="head">説明</th>
+</tr>
+</thead>
+<tbody valign="top">
+<tr class="row-even"><td><div class="first last line-block">
+<div class="line">(1)</div>
+</div>
+</td>
+<td><div class="first last line-block">
+<div class="line">ユースケースを構成する処理単位に分割し、処理毎に開発者を割り当てて、Serviceを実装する。</div>
+<div class="line">ここで言う処理とは、検索処理、登録処理、更新処理、削除処理といった単位であり、画面から発生するイベント毎の処理ではない点に注意すること。</div>
+<div class="line">例えば「更新処理」であれば、「更新対象データの取得」や「更新内容の妥当性チェック」といった単位の処理が複数含まれる。</div>
+<div class="line">特に理由がない場合は、Controllerも処理毎に作成し、Serviceと同じ開発者を担当者にすることが望ましい。</div>
+</div>
+</td>
+</tr>
+</tbody>
+</table>
+<div class="admonition tip">
+<p class="first admonition-title">Tip</p>
+<p class="last">本ガイドライン上で使っている「ユースケース」と「処理」の事を、「ユースケースグループ」と「ユースケース」と呼ぶプロジェクトもある。</p>
+</div>
+</div></blockquote>
+<div class="line-block">
+<div class="line"><br /></div>
+</div>
+</div>
+<div class="section" id="id22">
+<h4><a class="toc-backref" href="#id78">4.2.5.3.3. イベント毎に作成する際の開発イメージ</a><a class="headerlink" href="#id22" title="Permalink to this headline">¶</a></h4>
+<p>イベント毎にService(BLogic)を作成する場合は、以下のような開発イメージとなる。</p>
+<blockquote>
+<div><div class="figure align-center">
+<a class="reference internal image-reference" href="../_images/service_unit_business-ligic.png"><img alt="constitution image of business logic unit" src="../_images/service_unit_business-ligic.png" style="width: 100%;" /></a>
+</div>
+<table border="1" class="docutils">
+<colgroup>
+<col width="10%" />
+<col width="90%" />
+</colgroup>
+<thead valign="bottom">
+<tr class="row-odd"><th class="head">項番</th>
+<th class="head">説明</th>
+</tr>
+</thead>
+<tbody valign="top">
+<tr class="row-even"><td><div class="first last line-block">
+<div class="line">(1)</div>
+</div>
+</td>
+<td><div class="first last line-block">
+<div class="line">イベント毎に開発者を割り当てて、Service(BLogic)を実装する。</div>
+<div class="line">上記例ではそれぞれ別の担当者を割り当てる図になっているが、これは極端な例である。</div>
+<div class="line">実際は、ユースケース毎に担当者を割り当てる事になる。</div>
+</div>
+</td>
+</tr>
+<tr class="row-odd"><td><div class="first last line-block">
+<div class="line">(2)</div>
+</div>
+</td>
+<td><div class="first last line-block">
+<div class="line">特に理由がない場合は、Controllerはユースケース毎に作成することが望ましい。</div>
+</div>
+</td>
+</tr>
+<tr class="row-even"><td><div class="first last line-block">
+<div class="line">(3)</div>
+</div>
+</td>
+<td><div class="first last line-block">
+<div class="line">イベント毎にService(BLogic)を実装する場合でも、担当者はユースケース毎に割り当てることを推奨する。</div>
+</div>
+</td>
+</tr>
+<tr class="row-odd"><td><div class="first last line-block">
+<div class="line">(4)</div>
+</div>
+</td>
+<td><div class="first last line-block">
+<div class="line">複数の業務ロジックで共有したいロジックがある場合は、SharedServiceに実装する。</div>
+<div class="line">上の図では、別の開発者(共通チームの担当者)を割り当てているが、プロジェクトの体制によっては(1)と同じ開発者でもよい。</div>
+</div>
+</td>
+</tr>
+</tbody>
+</table>
+<div class="admonition note">
+<p class="first admonition-title">Note</p>
+<p class="last">ユースケースの規模が大きくなると、一人が担当する開発範囲が大きくなるため、作業分担しづらくなる。
+同時に大量の開発者を投入して開発するアプリケーションの場合は、ユースケースを更に分割して、担当者を割り当てる事を検討すること。</p>
+</div>
+</div></blockquote>
+<div class="line-block">
+<div class="line"><br /></div>
+</div>
+<div class="line-block">
+<div class="line">ユースケースを更に分割した場合は、以下のような開発イメージとなる。</div>
+<div class="line">ユースケースの分割を行うことで、SharedServiceに影響はないため、説明は割愛している。</div>
+</div>
+<blockquote>
+<div><div class="figure align-center">
+<a class="reference internal image-reference" href="../_images/service_unit_business-ligic2.png"><img alt="multiple controller unit" src="../_images/service_unit_business-ligic2.png" style="width: 100%;" /></a>
+</div>
+<table border="1" class="docutils">
+<colgroup>
+<col width="10%" />
+<col width="90%" />
+</colgroup>
+<thead valign="bottom">
+<tr class="row-odd"><th class="head">項番</th>
+<th class="head">説明</th>
+</tr>
+</thead>
+<tbody valign="top">
+<tr class="row-even"><td><div class="first last line-block">
+<div class="line">(1)</div>
+</div>
+</td>
+<td><div class="first last line-block">
+<div class="line">ユースケースを構成する処理単位に分割し、処理毎に開発者を割り当てて、Service(BLogic)を実装する。</div>
+<div class="line">ここで言う処理とは、検索処理、登録処理、更新処理、削除処理といった単位であり、画面から発生するイベント毎の処理ではない点に注意すること。</div>
+<div class="line">例えば「更新処理」であれば、「更新対象データの取得」や「更新内容の妥当性チェック」といった単位の処理が複数含まれる。</div>
+<div class="line">特に理由がない場合は、Controllerも処理毎に作成し、Serviceと同じ開発者を担当者にすることが望ましい。</div>
+</div>
+</td>
+</tr>
+</tbody>
+</table>
+</div></blockquote>
+</div>
+</div>
+<div class="section" id="service-class-label">
+<span id="id23"></span><h3><a class="toc-backref" href="#id79">4.2.5.4. Serviceクラスの作成</a><a class="headerlink" href="#service-class-label" title="Permalink to this headline">¶</a></h3>
+<div class="section" id="service-class-creation-label">
+<span id="id24"></span><h4><a class="toc-backref" href="#id80">4.2.5.4.1. Serviceクラスの作成方法</a><a class="headerlink" href="#service-class-creation-label" title="Permalink to this headline">¶</a></h4>
+<p>Serviceクラスを作成する際の注意点を、以下に示す。</p>
+<ul class="simple">
+<li>Serviceインタフェースの作成</li>
+</ul>
+<blockquote>
+<div><div class="highlight-java"><div class="highlight"><pre><span class="kd">public</span> <span class="kd">interface</span> <span class="nc">CartService</span> <span class="o">{</span> <span class="c1">// (1)</span>
+    <span class="c1">// omitted</span>
+<span class="o">}</span>
+</pre></div>
+</div>
+<table border="1" class="docutils">
+<colgroup>
+<col width="10%" />
+<col width="90%" />
+</colgroup>
+<thead valign="bottom">
+<tr class="row-odd"><th class="head">項番</th>
+<th class="head">説明</th>
+</tr>
+</thead>
+<tbody valign="top">
+<tr class="row-even"><td><div class="first last line-block">
+<div class="line">(1)</div>
+</div>
+</td>
+<td><div class="first last line-block">
+<div class="line"><strong>Serviceインタフェースを作成することを推奨する。</strong></div>
+<div class="line">インタフェースを設けることで、Serviceとして公開するメソッドを明確にすることが出来る。</div>
+</div>
+</td>
+</tr>
+</tbody>
+</table>
+</div></blockquote>
+<p></p>
+<blockquote>
+<div><div class="admonition note">
+<p class="first admonition-title">Note</p>
+<p><strong>アーキテクチャ観点でのメリット例</strong></p>
+<ol class="last arabic simple">
+<li>AOPを使う場合に、JDK標準のDynamic proxies機能が使われる。
+インタフェースがない場合はSpring Frameworkに内包されているCGLIBが使われるが、finalメソッドに対してAdviceできないなどの制約がある。
+詳細は、<a class="reference external" href="http://docs.spring.io/spring/docs/4.1.3.RELEASE/spring-framework-reference/html/aop.html#aop-proxying">Spring Reference Document</a>を参照されたい。</li>
+<li>業務ロジックをスタブ化しやすくなる。
+アプリケーション層とドメイン層を別々の体制で並行して開発する場合は、アプリケーション層を開発するために、Serviceのスタブが必要になるケースがある。
+スタブを作成する必要がある場合は、インタフェースを設けておくことを推奨する。</li>
+</ol>
+</div>
+</div></blockquote>
+<ul class="simple">
+<li>Serviceクラスの作成</li>
+</ul>
+<blockquote>
+<div><div class="highlight-java"><div class="highlight"><pre><span class="nd">@Service</span> <span class="c1">// (1)</span>
+<span class="nd">@Transactional</span> <span class="c1">// (2)</span>
+<span class="kd">public</span> <span class="kd">class</span> <span class="nc">CartServiceImpl</span> <span class="kd">implements</span> <span class="n">CartService</span> <span class="o">{</span> <span class="c1">// (3) (4)</span>
+    <span class="c1">// omitted</span>
+<span class="o">}</span>
+</pre></div>
+</div>
+<div class="highlight-xml"><div class="highlight"><pre><span class="nt">&lt;context:component-scan</span> <span class="na">base-package=</span><span class="s">&quot;xxx.yyy.zzz.domain&quot;</span> <span class="nt">/&gt;</span> <span class="c">&lt;!-- (1) --&gt;</span>
+</pre></div>
+</div>
+<table border="1" class="docutils">
+<colgroup>
+<col width="10%" />
+<col width="90%" />
+</colgroup>
+<thead valign="bottom">
+<tr class="row-odd"><th class="head">項番</th>
+<th class="head">説明</th>
+</tr>
+</thead>
+<tbody valign="top">
+<tr class="row-even"><td><div class="first last line-block">
+<div class="line">(1)</div>
+</div>
+</td>
+<td><div class="first last line-block">
+<div class="line"><strong>クラスに &#64;Service アノテーションを付加する。</strong></div>
+<div class="line">アノテーションを付与することで、componentがscan対象となり、設定ファイルへのbean定義が、不要となる。</div>
+<div class="line">&lt;context:component-scan&gt;要素のbase-package属性に、componentをscanする対象のパッケージを指定する。</div>
+<div class="line">上記設定の場合、「xxx.yyy.zzz.domain」パッケージ配下に格納されているクラスが、コンテナに登録される。</div>
+</div>
+</td>
+</tr>
+<tr class="row-odd"><td><div class="first last line-block">
+<div class="line">(2)</div>
+</div>
+</td>
+<td><div class="first last line-block">
+<div class="line"><strong>クラスに &#64;Transactional アノテーションを付加する。</strong></div>
+<div class="line">アノテーションを付与することで、すべての業務ロジックに対してトランザクション境界が設定される。</div>
+<div class="line">属性値については、要件に応じた値を指定すること。</div>
+<div class="line">詳細は、<a class="reference internal" href="#transaction-management-declare-transaction-info-label"><em>「宣言型トランザクション管理」で必要となる情報</em></a>を参照されたい。</div>
+</div>
+</td>
+</tr>
+<tr class="row-even"><td><div class="first last line-block">
+<div class="line">(3)</div>
+</div>
+</td>
+<td><div class="first last line-block">
+<div class="line"><strong>インターフェース名はXxxService、クラス名はXxxServiceImplとする。</strong></div>
+<div class="line">上記以外の命名規約でもよいが、ServiceクラスとSharedServiceクラスは、区別できる命名規約を設けることを推奨する。</div>
+</div>
+</td>
+</tr>
+<tr class="row-odd"><td><div class="first last line-block">
+<div class="line">(4)</div>
+</div>
+</td>
+<td><div class="first last line-block">
+<div class="line"><strong>Serviceクラスでは状態は保持せず、singletonスコープのbeanとしてコンテナに登録する 。</strong></div>
+<div class="line">フィールド変数には、スレッド毎に状態が変わるオブジェクト(Entity/DTO/VOなどのPOJO)や、値(プリミティブ型、プリミティブラッパークラスなど)を保持してはいけない。</div>
+<div class="line">また、<tt class="docutils literal"><span class="pre">&#64;Scope</span></tt>アノテーションを使ってsingleton以外のスコープ(prototype, request, session)にしてはいけない。</div>
+</div>
+</td>
+</tr>
+</tbody>
+</table>
+</div></blockquote>
+<p></p>
+<blockquote>
+<div><div class="admonition note">
+<p class="first admonition-title">Note</p>
+<p><strong>クラスに &#64;Transactional アノテーションを付加する理由</strong></p>
+<p class="last">トランザクション境界の設定が必須なのは更新処理を含む業務ロジックのみだが、設定漏れによるバグを防ぐ事を目的として、クラスレベルにアノテーションを付与することを推奨している。
+もちろん必要な箇所（更新処理を行うメソッド）のみに、<tt class="docutils literal"><span class="pre">&#64;Transactional</span></tt>アノテーションを定義する方法を採用してもよい。</p>
+</div>
+<div class="admonition note">
+<p class="first admonition-title">Note</p>
+<p><strong>singleton以外のスコープを禁止する理由</strong></p>
+<ol class="last arabic simple">
+<li>prototype, request, sessionは、状態を保持するbeanを登録するためのスコープであるため、Serviceクラスに対して使用すべきでない。</li>
+<li>スコープをrequestやprototypeにした場合、DIコンテナによるbeanの生成頻度が高くなるため、性能に影響を与えることがある。</li>
+<li>スコープをrequestやsessionにした場合、Webアプリケーション以外のアプリケーション(例えば、Batchアプリケーションなど)で使用できなくなる。</li>
+</ol>
+</div>
+</div></blockquote>
+</div>
+<div class="section" id="service-class-method-creation-label">
+<span id="id25"></span><h4><a class="toc-backref" href="#id81">4.2.5.4.2. Serviceクラスのメソッドの作成方法</a><a class="headerlink" href="#service-class-method-creation-label" title="Permalink to this headline">¶</a></h4>
+<p>Serviceクラスのメソッドを作成する際の注意点を、以下に示す。</p>
+<ul class="simple">
+<li>Serviceインタフェースのメソッド作成</li>
+</ul>
+<blockquote>
+<div><div class="highlight-java"><div class="highlight"><pre><span class="kd">public</span> <span class="kd">interface</span> <span class="nc">CartService</span> <span class="o">{</span>
+    <span class="n">Cart</span> <span class="nf">createCart</span><span class="o">();</span> <span class="c1">// (1) (2)</span>
+    <span class="n">Cart</span> <span class="nf">findCart</span><span class="o">(</span><span class="n">String</span> <span class="n">cartId</span><span class="o">);</span> <span class="c1">// (1) (2)</span>
+<span class="o">}</span>
+</pre></div>
+</div>
+</div></blockquote>
+<ul class="simple">
+<li>Serviceクラスのメソッドの作成</li>
+</ul>
+<blockquote>
+<div><div class="highlight-java"><div class="highlight"><pre><span class="nd">@Service</span>
+<span class="nd">@Transactional</span>
+<span class="kd">public</span> <span class="kd">class</span> <span class="nc">CartServiceImpl</span> <span class="kd">implements</span> <span class="n">CartService</span> <span class="o">{</span>
+
+    <span class="nd">@Inject</span>
+    <span class="n">CartRepository</span> <span class="n">cartRepository</span><span class="o">;</span>
+
+    <span class="kd">public</span> <span class="n">Cart</span> <span class="nf">createCart</span><span class="o">()</span> <span class="o">{</span> <span class="c1">// (1) (2)</span>
+        <span class="n">Cart</span> <span class="n">cart</span> <span class="o">=</span> <span class="k">new</span> <span class="n">Cart</span><span class="o">();</span>
+        <span class="c1">// ...</span>
+        <span class="n">cartRepository</span><span class="o">.</span><span class="na">save</span><span class="o">(</span><span class="n">cart</span><span class="o">);</span>
+        <span class="k">return</span> <span class="n">cart</span><span class="o">;</span>
+    <span class="o">}</span>
+
+    <span class="nd">@Transactional</span><span class="o">(</span><span class="n">readOnly</span> <span class="o">=</span> <span class="kc">true</span><span class="o">)</span> <span class="c1">// (3)</span>
+    <span class="kd">public</span> <span class="n">Cart</span> <span class="nf">findCart</span><span class="o">(</span><span class="n">String</span> <span class="n">cartId</span><span class="o">)</span> <span class="o">{</span> <span class="c1">// (1) (2)</span>
+        <span class="n">Cart</span> <span class="n">cart</span> <span class="o">=</span> <span class="n">cartRepository</span><span class="o">.</span><span class="na">findByCartId</span><span class="o">(</span><span class="n">cartId</span><span class="o">);</span>
+        <span class="c1">// ...</span>
+        <span class="k">return</span> <span class="n">cart</span><span class="o">;</span>
+    <span class="o">}</span>
+
+<span class="o">}</span>
+</pre></div>
+</div>
+<table border="1" class="docutils">
+<colgroup>
+<col width="10%" />
+<col width="90%" />
+</colgroup>
+<thead valign="bottom">
+<tr class="row-odd"><th class="head">項番</th>
+<th class="head">説明</th>
+</tr>
+</thead>
+<tbody valign="top">
+<tr class="row-even"><td><div class="first last line-block">
+<div class="line">(1)</div>
+</div>
+</td>
+<td><div class="first last line-block">
+<div class="line"><strong>Serviceクラスのメソッドは、業務ロジック毎に作成する。</strong></div>
+</div>
+</td>
+</tr>
+<tr class="row-odd"><td><div class="first last line-block">
+<div class="line">(2)</div>
+</div>
+</td>
+<td><div class="first last line-block">
+<div class="line"><strong>業務ロジックは、Serviceインタフェースでメソッドの定義を行い、Serviceクラスのメソッドで実装を行う。</strong></div>
+</div>
+</td>
+</tr>
+<tr class="row-even"><td><div class="first last line-block">
+<div class="line">(3)</div>
+</div>
+</td>
+<td><div class="first last line-block">
+<div class="line"><strong>業務ロジックのトランザクション定義をデフォルト（クラスアノテーションで指定した定義）から変更する場合は、&#64;Transactionalアノテーションを付加する。</strong></div>
+<div class="line">属性値については、要件に応じた値を指定すること。</div>
+<div class="line">詳細は、<a class="reference internal" href="#transaction-management-declare-transaction-info-label"><em>「宣言型トランザクション管理」で必要となる情報</em></a> を参照されたい。</div>
+</div>
+</td>
+</tr>
+</tbody>
+</table>
+</div></blockquote>
+<p></p>
+<blockquote>
+<div><div class="admonition warning">
+<p class="first admonition-title">Warning</p>
+<p><strong>参照系の業務ロジックのトランザクション定義について</strong></p>
+<p class="last">参照系の業務ロジックの場合、<tt class="docutils literal"><span class="pre">&#64;Transactional(readOnly</span> <span class="pre">=</span> <span class="pre">true)</span></tt>を設定を行うことで、
+参照系の処理として必要なトランザクション管理が行われるケースがあるが、
+JPAを使う場合は「readOnly = true」は意味がないので指定しなくてもよい。
+詳細は、<a class="reference external" href="http://www.ibm.com/developerworks/java/library/j-ts1/index.html">IBM DeveloperWorks の記事</a>の
+「Listing 7. Using read-only with REQUIRED propagation mode — JPA」辺りを参照されたい。</p>
+</div>
+<div class="admonition note">
+<p class="first admonition-title">Note</p>
+<p><strong>新しいトランザクションを開始する必要がある場合のトランザクション定義について</strong></p>
+<p class="last">呼び出し元のメソッドが参加しているトランザクションには参加せず、
+新しいトランザクションを開始する必要がある場合は、<tt class="docutils literal"><span class="pre">&#64;Transactional(propagation</span> <span class="pre">=</span> <span class="pre">Propagation.REQUIRES_NEW)</span></tt>を設定する。</p>
+</div>
+</div></blockquote>
+</div>
+<div class="section" id="service-class-method-args-return-label">
+<span id="id26"></span><h4><a class="toc-backref" href="#id82">4.2.5.4.3. Serviceクラスのメソッド引数と返り値について</a><a class="headerlink" href="#service-class-method-args-return-label" title="Permalink to this headline">¶</a></h4>
+<p>Serviceクラスのメソッド引数と返り値は、以下の点を考慮すること。</p>
+<div class="line-block">
+<div class="line">Serviceクラスの引数と返り値は、Serialize可能なクラス(<tt class="docutils literal"><span class="pre">java.io.Serializable</span></tt>を実装しているクラス)とする。</div>
+<div class="line">Serviceクラスは、分散アプリケーションとしてデプロイされる可能性もあるので、引数と返り値は、Serialize可能なクラスのみ、許可することを推奨する。</div>
+</div>
+<p><strong>メソッド引数/返り値となる代表的な型を以下に示す。</strong></p>
+<blockquote>
+<div><ul class="simple">
+<li>プリミティブ型(<tt class="docutils literal"><span class="pre">int</span></tt>, <tt class="docutils literal"><span class="pre">long</span></tt>など)</li>
+<li>プリミティブラッパークラス(<tt class="docutils literal"><span class="pre">java.lang.Integer</span></tt>, <tt class="docutils literal"><span class="pre">java.lang.Long</span></tt>など)</li>
+<li>java標準クラス(<tt class="docutils literal"><span class="pre">java.lang.String</span></tt>, <tt class="docutils literal"><span class="pre">java.util.Date</span></tt>など)</li>
+<li>ドメインオブジェクト(Entity、DTOなど)</li>
+<li>入出力オブジェクト(DTO)</li>
+<li>上記型のコレクション(<tt class="docutils literal"><span class="pre">java.util.Collection</span></tt>の実装クラス)</li>
+<li>void</li>
+<li>etc ...</li>
+</ul>
+</div></blockquote>
+<p></p>
+<blockquote>
+<div><div class="admonition note">
+<p class="first admonition-title">Note</p>
+<p><strong>入出力オブジェクトとは</strong></p>
+<ol class="arabic simple">
+<li>入力オブジェクトとは、Serviceのメソッドを実行するために必要な入力値をまとめたオブジェクトのことをさす。</li>
+<li>出力オブジェクトとは、Serviceのメソッドの実行結果（出力値）をまとめたオブジェクトのことをさす。</li>
+</ol>
+<blockquote class="last">
+<div>「TERASOLUNA ViSC」を使用して、業務ロジック(BLogicクラス)を生成する場合、BLogicの引数と返り値には、入出力オブジェクトを使用することになる。</div></blockquote>
+</div>
+</div></blockquote>
+<p><strong>メソッド引数/返り値として禁止するものを以下に示す。</strong></p>
+<blockquote>
+<div><ul class="simple">
+<li>アプリケーション層の実装アーキテクチャ(Servlet APIやSpringのweb層のAPIなど)に依存するオブジェクト(<tt class="docutils literal"><span class="pre">javax.servlet.http.HttpServletRequest</span></tt> 、 <tt class="docutils literal"><span class="pre">javax.servlet.http.HttpServletResponse</span></tt> 、 <tt class="docutils literal"><span class="pre">javax.servlet.http.HttpSession</span></tt> 、 <tt class="docutils literal"><span class="pre">org.springframework.http.server.ServletServerHttpRequest</span></tt> など)</li>
+<li>アプリケーション層のモデル(Form,DTOなど)</li>
+<li><tt class="docutils literal"><span class="pre">java.util.Map</span></tt> の実装クラス</li>
+</ul>
+<div class="admonition note">
+<p class="first admonition-title">Note</p>
+<p><strong>禁止する理由</strong></p>
+<ol class="arabic simple">
+<li>アプリケーション層の実装アーキテクチャに依存するオブジェクトを許可してしまうと、アプリケーション層とドメイン層が密結合になってしまう。</li>
+<li><tt class="docutils literal"><span class="pre">java.util.Map</span></tt>は、インタフェースとして汎用性が高すぎるため、メソッドの引数や返り値に使うと、
+どのようなオブジェクが格納されているかわかりづらい。 また、値の管理がキー名で行われるため、以下の問題が発生しやすくなる。</li>
+</ol>
+<blockquote class="last">
+<div><ul class="simple">
+<li>値を設定する処理と値を取得する処理で異なるキー名を指定してしまい、値が取得できない。</li>
+<li>キー名の変更した場合の影響範囲の把握が困難になる。</li>
+</ul>
+</div></blockquote>
+</div>
+</div></blockquote>
+<p><strong>アプリケーション層とドメイン層で同じDTOを共有する場合の方針を、以下に示す。</strong></p>
+<ul class="simple">
+<li>ドメイン層のパッケージに属するDTOとして作成し、アプリケーション層で利用する。</li>
+</ul>
+<p></p>
+<blockquote>
+<div><div class="admonition warning">
+<p class="first admonition-title">Warning</p>
+<p class="last">アプリケーション層のFormやDTOを、ドメイン層で利用してはいけない。</p>
+</div>
+</div></blockquote>
+</div>
+</div>
+<div class="section" id="sharedservice">
+<span id="shared-service-class-label"></span><h3><a class="toc-backref" href="#id83">4.2.5.5. SharedServiceクラスの実装</a><a class="headerlink" href="#sharedservice" title="Permalink to this headline">¶</a></h3>
+<div class="section" id="shared-service-class-creation-label">
+<span id="id27"></span><h4><a class="toc-backref" href="#id84">4.2.5.5.1. SharedServiceクラスの作成方法</a><a class="headerlink" href="#shared-service-class-creation-label" title="Permalink to this headline">¶</a></h4>
+<div class="line-block">
+<div class="line">SharedServiceクラスを作成する際の注意点を、以下に示す。</div>
+<div class="line">ここではServiceクラスと異なる箇所にフォーカスを当てて説明する。</div>
+</div>
+<ol class="arabic">
+<li><div class="first line-block">
+<div class="line"><strong>必要に応じて、クラスに &#64;Transactional アノテーションを付加する。</strong></div>
+<div class="line">データアクセスを伴わない場合は、<tt class="docutils literal"><span class="pre">&#64;Transactional</span></tt>アノテーションは不要である。</div>
+</div>
+</li>
+<li><div class="first line-block">
+<div class="line"><strong>インターフェース名はXxxSharedService、クラス名はXxxSharedServiceImplとする。</strong></div>
+<div class="line">上記以外の命名規約でもよいが、ServiceクラスとSharedServiceクラスは、区別できる命名規約を設けることを推奨する。</div>
+</div>
+</li>
+</ol>
+</div>
+<div class="section" id="shared-service-class-method-creation-label">
+<span id="id28"></span><h4><a class="toc-backref" href="#id85">4.2.5.5.2. SharedServiceクラスのメソッドの作成方法</a><a class="headerlink" href="#shared-service-class-method-creation-label" title="Permalink to this headline">¶</a></h4>
+<div class="line-block">
+<div class="line">SharedServiceクラスのメソッドを作成する際の注意点を、以下に示す。</div>
+<div class="line">ここでは、Serviceクラスと異なる箇所にフォーカスを当てて説明する。</div>
+</div>
+<ol class="arabic">
+<li><p class="first"><strong>SharedServiceクラスのメソッドは、複数の業務ロジックで共有されるロジック毎に作成する。</strong></p>
+</li>
+<li><div class="first line-block">
+<div class="line"><strong>必要に応じて、クラスに &#64;Transactional アノテーションを付加する。</strong></div>
+<div class="line">データアクセスを伴わない場合は、アノテーションは不要である。</div>
+</div>
+</li>
+</ol>
+</div>
+<div class="section" id="shared-service-class-method-args-return-label">
+<span id="id29"></span><h4><a class="toc-backref" href="#id86">4.2.5.5.3. SharedServiceクラスのメソッド引数と返り値について</a><a class="headerlink" href="#shared-service-class-method-args-return-label" title="Permalink to this headline">¶</a></h4>
+<p><a class="reference internal" href="#service-class-method-args-return-label"><em>Serviceクラスのメソッド引数と返り値について</em></a>と同様の点を考慮すること。</p>
+</div>
+</div>
+<div class="section" id="service-implementation-label">
+<span id="id30"></span><h3><a class="toc-backref" href="#id87">4.2.5.6. 処理の実装</a><a class="headerlink" href="#service-implementation-label" title="Permalink to this headline">¶</a></h3>
+<p>ServiceおよびSharedServiceのメソッドで実装する処理について説明する。</p>
+<p>ServiceおよびSharedServiceでは、アプリケーションで使用する業務データの取得、更新、整合性チェックおよびビジネスルールに関わる各種ロジックの実装を行う。</p>
+<p>以下に、代表的な処理の実装例について説明する。</p>
+<div class="section" id="id31">
+<h4><a class="toc-backref" href="#id88">4.2.5.6.1. 業務データを操作する</a><a class="headerlink" href="#id31" title="Permalink to this headline">¶</a></h4>
+<p>業務データ(Entity)の取得、更新の実装例については、</p>
+<ul class="simple">
+<li>JPAを使う場合は、<a class="reference internal" href="../ArchitectureInDetail/DataAccessJpa.html"><em>データベースアクセス（JPA編）</em></a></li>
+<li>MyBatis3を使う場合は、<a class="reference internal" href="../ArchitectureInDetail/DataAccessMyBatis3.html"><em>データベースアクセス（MyBatis3編）</em></a></li>
+<li>MyBatis2を使う場合は、<a class="reference internal" href="../ArchitectureInDetail/DataAccessMybatis2.html"><em>データベースアクセス（Mybatis2編）</em></a></li>
+</ul>
+<p>を参照されたい。</p>
+</div>
+<div class="section" id="service-return-message-label">
+<span id="id32"></span><h4><a class="toc-backref" href="#id89">4.2.5.6.2. メッセージを返却する</a><a class="headerlink" href="#service-return-message-label" title="Permalink to this headline">¶</a></h4>
+<div class="line-block">
+<div class="line">Serviceで解決すべきメッセージは、警告メッセージ、業務エラーメッセージの２つとなる(下図赤破線部参照)。</div>
+<div class="line">それ以外のメッセージは、アプリケーション層で解決される。</div>
+<div class="line">メッセージの種類とメッセージのパターンについては、<a class="reference internal" href="../ArchitectureInDetail/MessageManagement.html"><em>メッセージ管理</em></a>を参照されたい。</div>
+</div>
+<blockquote>
+<div><div class="figure align-center">
+<a class="reference internal image-reference" href="../_images/service_target-resolving-message.png"><img alt="target of resolving message" src="../_images/service_target-resolving-message.png" style="width: 100%;" /></a>
+</div>
+</div></blockquote>
+<p></p>
+<blockquote>
+<div><div class="admonition note">
+<p class="first admonition-title">Note</p>
+<p><strong>メッセージの解決について</strong></p>
+<p class="last">Serviceで解決するのは、メッセージ文言ではなく、<strong>メッセージ文言を組み立てるために必要な情報（メッセージコード、メッセージ埋め込み値）の解決</strong>であるという点を補足しておく。</p>
+</div>
+</div></blockquote>
+<p>詳細な実装方法は、</p>
+<ul class="simple">
+<li><a class="reference internal" href="#service-return-warnmessage-label"><em>警告メッセージを返却する</em></a></li>
+<li><a class="reference internal" href="#service-return-businesserrormessage-label"><em>業務エラーを通知する</em></a></li>
+</ul>
+<p>を参照されたい。</p>
+</div>
+<div class="section" id="service-return-warnmessage-label">
+<span id="id33"></span><h4><a class="toc-backref" href="#id90">4.2.5.6.3. 警告メッセージを返却する</a><a class="headerlink" href="#service-return-warnmessage-label" title="Permalink to this headline">¶</a></h4>
+<div class="line-block">
+<div class="line">警告メッセージの返却は、戻り値としてメッセージオブジェクトを返却する。</div>
+<div class="line">Entityなどのドメイン層のオブジェクトと一緒に返却する必要がある場合は、出力オブジェクト(DTO)にメッセージオブジェクトとドメインオブジェクトを詰めて返却する。</div>
+</div>
+<div class="line-block">
+<div class="line">共通ライブラリとしてメッセージオブジェクト(<tt class="docutils literal"><span class="pre">org.terasoluna.fw.common.message.ResultMessages</span></tt>)を用意している。</div>
+<div class="line">共通ライブラリで用意しているクラスだと要件を満たせない場合は、プロジェクト毎にメッセージオブジェクトを作成すること。</div>
+</div>
+<ul class="simple">
+<li>DTOの作成</li>
+</ul>
+<blockquote>
+<div><div class="highlight-java"><div class="highlight"><pre><span class="kd">public</span> <span class="kd">class</span> <span class="nc">OrderResult</span> <span class="kd">implements</span> <span class="n">Serializable</span> <span class="o">{</span>
+    <span class="kd">private</span> <span class="n">ResultMessages</span> <span class="n">warnMessages</span><span class="o">;</span>
+    <span class="kd">private</span> <span class="n">Order</span> <span class="n">order</span><span class="o">;</span>
+
+    <span class="c1">// omitted</span>
+
+<span class="o">}</span>
+</pre></div>
+</div>
+</div></blockquote>
+<div class="line-block">
+<div class="line"><br /></div>
+</div>
+<ul class="simple">
+<li>Serviceクラスのメソッドの実装</li>
+</ul>
+<blockquote>
+<div><p>下記の例では、注文した商品の中に取り寄せ商品が含まれているため、分割配達となる可能性がある旨を警告メッセージとして表示する場合の実装例である。</p>
+<div class="highlight-java"><div class="highlight"><pre><span class="kd">public</span> <span class="n">OrderResult</span> <span class="nf">submitOrder</span><span class="o">(</span><span class="n">Order</span> <span class="n">order</span><span class="o">)</span> <span class="o">{</span>
+
+    <span class="c1">// omitted</span>
+
+    <span class="kt">boolean</span> <span class="n">hasOrderProduct</span> <span class="o">=</span> <span class="n">orderRepository</span><span class="o">.</span><span class="na">existsByOrderProduct</span><span class="o">(</span><span class="n">order</span><span class="o">);</span> <span class="c1">// (1)</span>
+
+    <span class="c1">// omitted</span>
+
+    <span class="n">Order</span> <span class="n">order</span> <span class="o">=</span> <span class="n">orderRepository</span><span class="o">.</span><span class="na">save</span><span class="o">(</span><span class="n">order</span><span class="o">);</span>
+
+    <span class="c1">// omitted</span>
+
+    <span class="n">ResultMessages</span> <span class="n">warnMessages</span> <span class="o">=</span> <span class="kc">null</span><span class="o">;</span>
+    <span class="c1">// (2)</span>
+    <span class="k">if</span><span class="o">(</span><span class="n">hasOrderProduct</span><span class="o">)</span> <span class="o">{</span>
+        <span class="n">warnMessages</span> <span class="o">=</span> <span class="n">ResultMessages</span><span class="o">.</span><span class="na">warn</span><span class="o">().</span><span class="na">add</span><span class="o">(</span><span class="s">&quot;w.xx.xx.0001&quot;</span><span class="o">);</span>
+    <span class="o">}</span>
+    <span class="c1">// (3)</span>
+    <span class="n">OrderResult</span> <span class="n">orderResult</span> <span class="o">=</span> <span class="k">new</span> <span class="n">OrderResult</span><span class="o">();</span>
+    <span class="n">orderResult</span><span class="o">.</span><span class="na">setOrder</span><span class="o">(</span><span class="n">order</span><span class="o">);</span>
+    <span class="n">orderResult</span><span class="o">.</span><span class="na">setWarnMessages</span><span class="o">(</span><span class="n">warnMessages</span><span class="o">);</span>
+    <span class="k">return</span> <span class="n">orderResult</span><span class="o">;</span>
+<span class="o">}</span>
+</pre></div>
+</div>
+<table border="1" class="docutils">
+<colgroup>
+<col width="10%" />
+<col width="90%" />
+</colgroup>
+<thead valign="bottom">
+<tr class="row-odd"><th class="head">項番</th>
+<th class="head">説明</th>
+</tr>
+</thead>
+<tbody valign="top">
+<tr class="row-even"><td><div class="first last line-block">
+<div class="line">(1)</div>
+</div>
+</td>
+<td><div class="first last line-block">
+<div class="line">取り寄せ商品が含まれる場合は、<tt class="docutils literal"><span class="pre">hasOrderProduct</span></tt>に<tt class="docutils literal"><span class="pre">true</span></tt>が設定される。</div>
+</div>
+</td>
+</tr>
+<tr class="row-odd"><td><div class="first last line-block">
+<div class="line">(2)</div>
+</div>
+</td>
+<td><div class="first last line-block">
+<div class="line">上記例では、取り寄せ商品が含まれる場合に、警告メッセージを生成している。</div>
+</div>
+</td>
+</tr>
+<tr class="row-even"><td><div class="first last line-block">
+<div class="line">(3)</div>
+</div>
+</td>
+<td><div class="first last line-block">
+<div class="line">上記例では、登録した<tt class="docutils literal"><span class="pre">Order</span></tt>オブジェクトと警告メッセージを一緒に返却するために、<tt class="docutils literal"><span class="pre">OrderResult</span></tt>というDTOにオブジェクトを格納して返却している。</div>
+</div>
+</td>
+</tr>
+</tbody>
+</table>
+</div></blockquote>
+</div>
+<div class="section" id="service-return-businesserrormessage-label">
+<span id="id34"></span><h4><a class="toc-backref" href="#id91">4.2.5.6.4. 業務エラーを通知する</a><a class="headerlink" href="#service-return-businesserrormessage-label" title="Permalink to this headline">¶</a></h4>
+<div class="line-block">
+<div class="line">業務ロジック実行中に、ビジネスルールの違反が発生した場合はビジネス例外をスローする。</div>
+<div class="line">例えば次のような場合である。</div>
+</div>
+<ul class="simple">
+<li>旅行を予約する際に予約日が期限を過ぎている場合</li>
+<li>商品を注文する際に在庫切れの場合</li>
+<li>etc ...</li>
+</ul>
+<div class="line-block">
+<div class="line">共通ライブラリとしてビジネス例外(<tt class="docutils literal"><span class="pre">org.terasoluna.fw.common.exception.BusinessException</span></tt>)を用意している。</div>
+<div class="line">共通ライブラリで用意しているビジネス例外クラスだと要件を満たせない場合は、プロジェクト毎にビジネス例外クラスを作成すること。</div>
+<div class="line"><strong>ビジネス例外クラスは、java.lang.RuntimeException のサブクラスとして作成することを推奨する</strong> 。</div>
+</div>
+<p></p>
+<blockquote>
+<div><div class="admonition note">
+<p class="first admonition-title">Note</p>
+<p><strong>ビジネス例外を非検査例外にする理由</strong></p>
+<p class="last">ビジネス例外は、Controllerでハンドリングが必要になるため、本来は検査例外にした方がよい。
+しかし、本ガイドラインでは、設定漏れによるバグを防ぐ事を目的として、デフォルトでロールバックされる java.lang.RuntimeException のサブクラスとすることを推奨する。
+もちろん検査例外のサブクラスとしてビジネス例外を作成し、ビジネス例外クラスをロールバック対象として定義する方法を採用してもよい。</p>
+</div>
+</div></blockquote>
+<div class="line-block">
+<div class="line">ビジネス例外のスロー例を以下に示す。</div>
+<div class="line">下記の例では、予約期限日が過ぎていることを業務エラーとして通知する際の実装例である。</div>
+</div>
+<blockquote>
+<div><div class="highlight-java"><div class="highlight"><pre><span class="c1">// omitted</span>
+
+<span class="k">if</span><span class="o">(</span><span class="n">currentDate</span><span class="o">.</span><span class="na">after</span><span class="o">(</span><span class="n">reservationLimitDate</span><span class="o">))</span> <span class="o">{</span> <span class="c1">// (1)</span>
+    <span class="k">throw</span> <span class="k">new</span> <span class="nf">BusinessException</span><span class="o">(</span><span class="n">ResultMessages</span><span class="o">.</span><span class="na">error</span><span class="o">().</span><span class="na">add</span><span class="o">(</span><span class="s">&quot;e.xx.xx.0001&quot;</span><span class="o">));</span>
+<span class="o">}</span>
+
+<span class="c1">// omitted</span>
+</pre></div>
+</div>
+<table border="1" class="docutils">
+<colgroup>
+<col width="10%" />
+<col width="90%" />
+</colgroup>
+<thead valign="bottom">
+<tr class="row-odd"><th class="head">項番</th>
+<th class="head">説明</th>
+</tr>
+</thead>
+<tbody valign="top">
+<tr class="row-even"><td><div class="first last line-block">
+<div class="line">(1)</div>
+</div>
+</td>
+<td>旅行を予約する際に、予約日が期限を過ぎているので、ビジネス例外をスローしている。</td>
+</tr>
+</tbody>
+</table>
+</div></blockquote>
+<p>例外ハンドリング全体の詳細は、<a class="reference internal" href="../ArchitectureInDetail/ExceptionHandling.html"><em>例外ハンドリング</em></a>を参照されたい。</p>
+</div>
+<div class="section" id="service-return-systemerrormessage-label">
+<span id="id35"></span><h4><a class="toc-backref" href="#id92">4.2.5.6.5. システムエラーを通知する</a><a class="headerlink" href="#service-return-systemerrormessage-label" title="Permalink to this headline">¶</a></h4>
+<div class="line-block">
+<div class="line">業務ロジック実行中に、システムとして異常な状態が発生した場合は、システム例外をスローする。</div>
+<div class="line">例えば、次のような場合である。</div>
+</div>
+<ul class="simple">
+<li>事前に存在しているはずのマスタデータ、ディレクトリ、ファイルなどが存在しない場合</li>
+<li>利用しているライブラリのメソッドから発生する検査例外のうち、システム異常に分類される例外を補足した場合</li>
+<li>etc ...</li>
+</ul>
+<div class="line-block">
+<div class="line">共通ライブラリとしてシステム例外(<tt class="docutils literal"><span class="pre">org.terasoluna.fw.common.exception.SystemException</span></tt>)を用意している。</div>
+<div class="line">共通ライブラリで用意しているシステム例外クラスだと要件を満たせない場合は、プロジェクト毎にシステム例外クラスを作成すること。</div>
+<div class="line"><strong>システム例外クラスは、java.lang.RuntimeException のサブクラスとして作成することを推奨する</strong> 。</div>
+<div class="line">理由は、システム例外は、アプリケーションのコード上でハンドリングする必要がないという点と、<tt class="docutils literal"><span class="pre">&#64;Transactinal</span></tt>アノテーションのデフォルトのロールバック対象が、<tt class="docutils literal"><span class="pre">java.lang.RuntimeException</span></tt>のためである。</div>
+</div>
+<div class="line-block">
+<div class="line">システム例外のスロー例を以下に示す。</div>
+<div class="line">下記の例では、指定された商品が、商品マスタに存在しないことを、システムエラーとして通知する際の実装例である。</div>
+</div>
+<blockquote>
+<div><div class="highlight-java"><div class="highlight"><pre><span class="n">ItemMaster</span> <span class="n">itemMaster</span> <span class="o">=</span> <span class="n">itemMasterRepository</span><span class="o">.</span><span class="na">findOne</span><span class="o">(</span><span class="n">itemCode</span><span class="o">);</span>
+<span class="k">if</span><span class="o">(</span><span class="n">itemMaster</span> <span class="o">==</span> <span class="kc">null</span><span class="o">)</span> <span class="o">{</span> <span class="c1">// (1)</span>
+    <span class="k">throw</span> <span class="k">new</span> <span class="nf">SystemException</span><span class="o">(</span><span class="s">&quot;e.xx.fw.0001&quot;</span><span class="o">,</span>
+        <span class="s">&quot;Item master data is not found. item code is &quot;</span> <span class="o">+</span> <span class="n">itemCode</span> <span class="o">+</span> <span class="s">&quot;.&quot;</span><span class="o">);</span>
+<span class="o">}</span>
+</pre></div>
+</div>
+<table border="1" class="docutils">
+<colgroup>
+<col width="10%" />
+<col width="90%" />
+</colgroup>
+<thead valign="bottom">
+<tr class="row-odd"><th class="head">項番</th>
+<th class="head">説明</th>
+</tr>
+</thead>
+<tbody valign="top">
+<tr class="row-even"><td><div class="first last line-block">
+<div class="line">(1)</div>
+</div>
+</td>
+<td>事前に存在しているはずのマスタデータがないので、システム例外をスローしている。（ロジックで、システム異常を検知した場合の実装例）</td>
+</tr>
+</tbody>
+</table>
+</div></blockquote>
+<p>下記の例では、ファイルコピー時のIOエラーをシステムエラーとして通知する際の実装例である。</p>
+<blockquote>
+<div><div class="highlight-java"><div class="highlight"><pre><span class="c1">// ...</span>
+
+<span class="k">try</span> <span class="o">{</span>
+    <span class="n">FileUtils</span><span class="o">.</span><span class="na">copy</span><span class="o">(</span><span class="n">srcFile</span><span class="o">,</span> <span class="n">destFile</span><span class="o">);</span>
+<span class="o">}</span> <span class="k">catch</span><span class="o">(</span><span class="n">IOException</span> <span class="n">e</span><span class="o">)</span> <span class="o">{</span> <span class="c1">// (1)</span>
+    <span class="k">throw</span> <span class="k">new</span> <span class="nf">SystemException</span><span class="o">(</span><span class="s">&quot;e.xx.fw.0002&quot;</span><span class="o">,</span>
+        <span class="s">&quot;Failed file copy. src file &#39;&quot;</span> <span class="o">+</span> <span class="n">srcFile</span> <span class="o">+</span> <span class="s">&quot;&#39; dest file &#39;&quot;</span> <span class="o">+</span> <span class="n">destFile</span> <span class="o">+</span> <span class="s">&quot;&#39;.&quot;</span><span class="o">,</span> <span class="n">e</span><span class="o">);</span>
+<span class="o">}</span>
+</pre></div>
+</div>
+<table border="1" class="docutils">
+<colgroup>
+<col width="10%" />
+<col width="90%" />
+</colgroup>
+<thead valign="bottom">
+<tr class="row-odd"><th class="head">項番</th>
+<th class="head">説明</th>
+</tr>
+</thead>
+<tbody valign="top">
+<tr class="row-even"><td><div class="first last line-block">
+<div class="line">(1)</div>
+</div>
+</td>
+<td><div class="first last line-block">
+<div class="line">利用しているライブラリのメソッドから、システム異常に分類される例外が発生したシステム例外をスローしている。</div>
+<div class="line"><strong>利用しているライブラリから発生した例外は、原因例外としてシステム例外クラスに必ず渡すこと。</strong></div>
+<div class="line">原因例外が失われると、スタックトレースよりエラー発生箇所および本質的なエラー原因が追えなくなってしまう。</div>
+</div>
+</td>
+</tr>
+</tbody>
+</table>
+</div></blockquote>
+<p></p>
+<blockquote>
+<div><div class="admonition note">
+<p class="first admonition-title">Note</p>
+<p><strong>データアクセスエラーの扱いについて</strong></p>
+<p class="last">業務ロジック実行中に、RepositoryやO/R Mapperでデータアクセスエラーが発生した場合、<tt class="docutils literal"><span class="pre">org.springframework.dao.DataAccessException</span></tt>のサブクラスに変換されてスローされる。
+基本的には、業務ロジックではキャッチせず、アプリケーション層でエラーハンドリングすればよいが、
+一意制約違反などの一部のエラーについては、業務要件によっては、業務ロジックでハンドリングする必要がある。
+詳細は、<a class="reference internal" href="../ArchitectureInDetail/DataAccessCommon.html"><em>データベースアクセス（共通編）</em></a>を参照されたい。</p>
+</div>
+</div></blockquote>
+</div>
+</div>
+</div>
+<div class="section" id="service-transaction-management">
+<span id="id36"></span><h2><a class="toc-backref" href="#id93">4.2.6. トランザクション管理について</a><a class="headerlink" href="#service-transaction-management" title="Permalink to this headline">¶</a></h2>
+<p>データの一貫性を保証する必要がある処理ではトランザクションの管理が必要となる。</p>
+<div class="section" id="id37">
+<h3><a class="toc-backref" href="#id94">4.2.6.1. トランザクション管理の方法</a><a class="headerlink" href="#id37" title="Permalink to this headline">¶</a></h3>
+<p>トランザクションの管理方法はいろいろあるが、本ガイドラインでは、<strong>Spring Frameworkから提供されている「宣言型トランザクション管理」を利用することを推奨する。</strong></p>
+<div class="section" id="id38">
+<h4><a class="toc-backref" href="#id95">4.2.6.1.1. 宣言型トランザクション管理</a><a class="headerlink" href="#id38" title="Permalink to this headline">¶</a></h4>
+<p>「宣言型トランザクション管理」では、トランザクション管理に必要な情報を以下に２つの方法で宣言することができる。</p>
+<ul class="simple">
+<li>XML(bean定義ファイル)で宣言する。</li>
+<li><strong>アノテーション（&#64;Transactional）で宣言する。（推奨）</strong></li>
+</ul>
+<p>Spring Frameworkから提供されている「宣言型トランザクション管理」の詳細については、<a class="reference external" href="http://docs.spring.io/spring/docs/4.1.3.RELEASE/spring-framework-reference/html/transaction.html#transaction-declarative">Spring Reference Document</a>を参照されたい。
+</p>
+<blockquote>
+<div><div class="admonition note">
+<p class="first admonition-title">Note</p>
+<p><strong>「アノテーションで指定する」方法を推奨する理由</strong></p>
+<ol class="last arabic simple">
+<li>ソースコードを見ただけで、どのようなトランザクション管理が行われるかについて、把握することができる。</li>
+<li>XMLにトランザクション管理するためのAOPの設定が不要であり、XMLがシンプルになる。</li>
+</ol>
+</div>
+</div></blockquote>
+</div>
+<div class="section" id="transaction-management-declare-transaction-info-label">
+<span id="id40"></span><h4><a class="toc-backref" href="#id96">4.2.6.1.2. 「宣言型トランザクション管理」で必要となる情報</a><a class="headerlink" href="#transaction-management-declare-transaction-info-label" title="Permalink to this headline">¶</a></h4>
+<div class="line-block">
+<div class="line">トランザクション管理対象とするクラスまたはクラスメソッドに対して<tt class="docutils literal"><span class="pre">&#64;Transactional</span></tt>アノテーションを指定する。</div>
+<div class="line">トランザクション制御に必要となる情報は、<tt class="docutils literal"><span class="pre">&#64;Transactional</span></tt>アノテーションの属性で指定する。</div>
+</div>
+<blockquote>
+<div><div class="admonition note">
+<p class="first admonition-title">Note</p>
+<p class="last">本ガイドラインでは、Spring Frameworkから提供されている <tt class="docutils literal"><span class="pre">&#64;org.springframework.transaction.annotation.Transactional</span></tt>アノテーションを使用する前提である。</p>
+</div>
+<div class="admonition tip">
+<p class="first admonition-title">Tip</p>
+<p>Spring 4からは、JTA 1.2から追加された <tt class="docutils literal"><span class="pre">&#64;javax.transaction.Transactional</span></tt>アノテーションを使用する事ができる。</p>
+<p>ただし、本ガイドラインでは、「宣言型トランザクション管理」で必要となる情報をより細かく指定できるSpring Frameworkのアノテーションを使用することを推奨する。</p>
+<p>Spring Frameworkのアノテーションを使用すると、</p>
+<ul class="simple">
+<li>トランザクションの伝播方法(<tt class="docutils literal"><span class="pre">propagation</span></tt>属性)の属性値として<tt class="docutils literal"><span class="pre">NESTED</span></tt>(JDBCのセーブポイント)</li>
+<li>トランザクションの独立レベル(<tt class="docutils literal"><span class="pre">isolation</span></tt>属性)</li>
+<li>トランザクションのタイムアウト時間(<tt class="docutils literal"><span class="pre">timeout</span></tt>属性)</li>
+<li>トランザクションの読み取り専用フラグ(<tt class="docutils literal"><span class="pre">readOnly</span></tt>属性)</li>
+</ul>
+<p class="last">の指定が可能となる。</p>
+</div>
+<table border="1" class="docutils">
+<colgroup>
+<col width="10%" />
+<col width="10%" />
+<col width="80%" />
+</colgroup>
+<thead valign="bottom">
+<tr class="row-odd"><th class="head">項番</th>
+<th class="head">属性名</th>
+<th class="head">説明</th>
+</tr>
+</thead>
+<tbody valign="top">
+<tr class="row-even"><td>1</td>
+<td>propagation</td>
+<td><div class="first last line-block">
+<div class="line">トランザクションの伝播方法を指定する。</div>
+<div class="line"><br /></div>
+<div class="line"><strong>[REQUIRE]</strong></div>
+<div class="line">トランザクションが開始されていなければ開始する。 (省略時のデフォルト)</div>
+<div class="line"><strong>[REQUIRES_NEW]</strong></div>
+<div class="line">常に、新しいトランザクションを開始する。</div>
+<div class="line"><strong>[SUPPORTS]</strong></div>
+<div class="line">トランザクションが開始されていれば、それを利用する。開始されていなければ、利用しない。</div>
+<div class="line"><strong>[NOT_SUPPORTED]</strong></div>
+<div class="line">トランザクションを利用しない。</div>
+<div class="line"><strong>[MANDATORY]</strong></div>
+<div class="line">トランザクションが開始されている必要がある。開始されていなければ、例外が発生する。</div>
+<div class="line"><strong>[NEVER]</strong></div>
+<div class="line">トランザクションを利用しない（開始されていてはいけない）。開始していれば、例外が発生する。</div>
+<div class="line"><strong>[NESTED]</strong></div>
+<div class="line">セーブポイントが設定される。JDBCのみ有効である。</div>
+</div>
+</td>
+</tr>
+<tr class="row-odd"><td>2</td>
+<td>isolation</td>
+<td><div class="first last line-block">
+<div class="line">トランザクションの独立レベルを指定する。</div>
+<div class="line">この設定は、DBの仕様に依存するため、使用するDBの仕様を確認し、設定値を決めること。</div>
+<div class="line"><br /></div>
+<div class="line"><strong>[DEFAULT]</strong></div>
+<div class="line">DBが提供するデフォルトの独立性レベル。(省略時のデフォルト)</div>
+<div class="line"><strong>[READ_UNCOMMITTED]</strong></div>
+<div class="line">他のトランザクションで変更中（未コミット）のデータが読める。</div>
+<div class="line"><strong>[READ_COMMITTED]</strong></div>
+<div class="line">他のトランザクションで変更中（未コミット）のデータは読めない。</div>
+<div class="line"><strong>[REPEATABLE_READ]</strong></div>
+<div class="line">他のトランザクションが読み出したデータは更新できない。</div>
+<div class="line"><strong>[SERIALIZABLE]</strong></div>
+<div class="line">トランザクションを完全に独立させる。</div>
+<div class="line"><br /></div>
+<div class="line">トランザクションの独立レベルは、排他制御に関連するパラメータとなる。</div>
+<div class="line">排他制御については、<a class="reference internal" href="../ArchitectureInDetail/ExclusionControl.html"><em>排他制御</em></a>を参照されたい。</div>
+</div>
+</td>
+</tr>
+<tr class="row-even"><td>3</td>
+<td>timeout</td>
+<td><div class="first last line-block">
+<div class="line">トランザクションのタイムアウト時間(秒)を指定する。</div>
+<div class="line">デフォルトは-1(使用するDBの仕様や設定に依存)</div>
+</div>
+</td>
+</tr>
+<tr class="row-odd"><td>4</td>
+<td>readOnly</td>
+<td><div class="first last line-block">
+<div class="line">トランザクションの読み取り専用フラグを指定する。</div>
+<div class="line">デフォルトはfalse(読み取り専用でない)</div>
+</div>
+</td>
+</tr>
+<tr class="row-even"><td>5</td>
+<td>rollbackFor</td>
+<td><div class="first last line-block">
+<div class="line">トランザクションのロールバック対象とする例外クラスのリストを指定する。</div>
+<div class="line">デフォルトは空（指定なし）</div>
+</div>
+</td>
+</tr>
+<tr class="row-odd"><td>6</td>
+<td>rollbackForClassName</td>
+<td><div class="first last line-block">
+<div class="line">トランザクションのロールバック対象とする例外クラス名のリストを指定する。</div>
+<div class="line">デフォルトは空（指定なし）</div>
+</div>
+</td>
+</tr>
+<tr class="row-even"><td>7</td>
+<td>noRollbackFor</td>
+<td><div class="first last line-block">
+<div class="line">トランザクションのコミット対象とする例外クラスのリストを指定する。</div>
+<div class="line">デフォルトは空（指定なし）</div>
+</div>
+</td>
+</tr>
+<tr class="row-odd"><td>8</td>
+<td>noRollbackForClassName</td>
+<td><div class="first last line-block">
+<div class="line">トランザクションのコミット対象とする例外クラス名のリストを指定する。</div>
+<div class="line">デフォルトは空（指定なし）</div>
+</div>
+</td>
+</tr>
+</tbody>
+</table>
+</div></blockquote>
+<p></p>
+<blockquote>
+<div><div class="admonition note">
+<p class="first admonition-title">Note</p>
+<p><strong>&#64;Transactionalアノテーションを指定する場所</strong></p>
+<p class="last"><strong>クラスまたはクラスのメソッドに指定することを推奨する。</strong>
+インタフェースまたはインタフェースのメソッドでない点が、ポイント。
+理由は、<a class="reference external" href="http://docs.spring.io/spring/docs/4.1.3.RELEASE/spring-framework-reference/html/transaction.html#transaction-declarative-annotations">Spring Reference Document</a>の2個めのTipsを参照されたい。</p>
+</div>
+<div class="admonition warning">
+<p class="first admonition-title">Warning</p>
+<p><strong>例外発生時のrollbackとcommitのデフォルト動作</strong></p>
+<p>rollbackForおよびnoRollbackForを指定しない場合、Spring Frameworkは、以下の動作となる。</p>
+<ul class="last simple">
+<li>非検査例外クラス（java.lang.RuntimeExceptionおよびjava.lang.Error）またはそのサブクラスの例外が発生した場合は、rollbackする。</li>
+<li>検査例外クラス（java.lang.Exception）またはそのサブクラスの例外が発生した場合は、commitする。<strong>(注意が必要)</strong></li>
+</ul>
+</div>
+<div class="admonition note">
+<p class="first admonition-title">Note</p>
+<p><strong>&#64;Transactionalアノテーションのvalue属性について</strong></p>
+<p class="last"><tt class="docutils literal"><span class="pre">&#64;Transactional</span></tt>アノテーションにはvalue属性があるが、これは複数のTransaction Managerを宣言した際に、どのTransaction Managerを使うのかを指定する属性である。
+Transaction Managerが一つの場合は指定は不要である。
+複数のTransaction Managerを使う必要がある場合は、<a class="reference external" href="http://docs.spring.io/spring/docs/4.1.3.RELEASE/spring-framework-reference/html/transaction.html#tx-multiple-tx-mgrs-with-attransactional">Spring Reference Document</a>を参照されたい。</p>
+</div>
+<div class="admonition note">
+<p class="first admonition-title">Note</p>
+<p><strong>主要DBのisolationのデフォルトについて</strong></p>
+<p>主要DBのデフォルトの独立性レベルは、以下の通りである。</p>
+<ul class="last simple">
+<li>Oracle : READ_COMMITTED</li>
+<li>DB2 : READ_COMMITTED</li>
+<li>PostgreSQL : READ_COMMITTED</li>
+<li>SQL Server : READ_COMMITTED</li>
+<li>MySQL : REPEATABLE_READ</li>
+</ul>
+</div>
+</div></blockquote>
+</div>
+<div class="section" id="id43">
+<h4><a class="toc-backref" href="#id97">4.2.6.1.3. トランザクションの伝播</a><a class="headerlink" href="#id43" title="Permalink to this headline">¶</a></h4>
+<div class="line-block">
+<div class="line">トランザクションの伝播方法は、ほとんどの場合は「REQUIRED」でよい。</div>
+<div class="line">ただし、 <strong>アプリケーションの要件によっては「REQUIRES_NEW」を使うこともある</strong> ので、「REQUIRED」と「REQUIRES_NEW」を指定した場合のトランザクション制御フローを、以下に示す。</div>
+<div class="line">他の伝播方法の使用頻度は低いと思われるので、本ガイドラインでの説明は省略する。</div>
+</div>
+<div class="line-block">
+<div class="line"><strong>トランザクションの伝播方法を「REQUIRED」にした場合のトランザクション管理フロー</strong></div>
+<div class="line">トランザクションの伝播方法を「REQUIRED」にした場合、Controllerから呼び出された一連の処理が、すべて同じトランザクション内で処理される。</div>
+</div>
+<blockquote>
+<div><div class="figure align-center">
+<a class="reference internal image-reference" href="../_images/service_transaction-propagation-required.png"><img alt="transaction management flow of REQUIRED" src="../_images/service_transaction-propagation-required.png" style="width: 100%;" /></a>
+</div>
+</div></blockquote>
+<ol class="arabic simple">
+<li>Controllerからトランザクション管理対象のServiceのメソッドを呼び出す。
+この時点で開始されているトランザクションは存在しないため、<tt class="docutils literal"><span class="pre">TransactionInterceptor</span></tt>によってトランザクションが開始される。</li>
+<li><tt class="docutils literal"><span class="pre">TransactionInterceptor</span></tt>は、トランザクション開始した後に、トランザクション管理対象のメソッドを呼び出す。</li>
+<li>Serviceからトランザクション管理対象の<tt class="docutils literal"><span class="pre">SharedService</span></tt>のメソッドを呼び出す。
+この時点で開始済みのトランザクションが存在しているため、<tt class="docutils literal"><span class="pre">TransactionInterceptor</span></tt>は、新たにトランザクションは開始せず、開始済みのトランザクションに参加する。</li>
+<li><tt class="docutils literal"><span class="pre">TransactionInterceptor</span></tt>は、開始済みのトランザクションに参加した後に、トランザクション管理対象のメソッドを呼び出す。</li>
+<li><tt class="docutils literal"><span class="pre">TransactionInterceptor</span></tt>は、処理結果に応じてコミットまたはロールバックを行い、トランザクションを終了する。</li>
+</ol>
+<div class="admonition note">
+<p class="first admonition-title">Note</p>
+<p><strong>org.springframework.transaction.UnexpectedRollbackExceptionが発生する理由</strong></p>
+<p class="last">トランザクションの伝播方法を「REQUIRED」にした場合、物理的なトランザクションは一つだが、Spring Frameworkでは内部的なトランザクション制御境界が設けられている。
+上記例だと、SharedServiceが呼び出された際に実行される<tt class="docutils literal"><span class="pre">TransactionInterceptor</span></tt>が、内部的なトランザクション制御を行っている。
+そのため、<tt class="docutils literal"><span class="pre">SharedService</span></tt>でロールバック対象の例外が発生した場合、<tt class="docutils literal"><span class="pre">TransactionInterceptor</span></tt>によって、
+トランザクションはロールバック状態（rollback-only）に設定され、トランザクションをコミットすることはできなくなる。
+この状態でトランザクションのコミットを行おうとすると、Spring Frameworkは、<tt class="docutils literal"><span class="pre">UnexpectedRollbackException</span></tt>を発生させ、トランザクション制御に矛盾が発生している事を通知してくれる。
+<tt class="docutils literal"><span class="pre">UnexpectedRollbackException</span></tt>が発生した場合、rollbackForおよびnoRollbackForの定義に、矛盾がないか、確認すること。</p>
+</div>
+<div class="line-block">
+<div class="line"><strong>トランザクションの伝播方法を「REQUIRES_NEW」にした場合のトランザクション管理フロー</strong></div>
+<div class="line">トランザクションの伝播方法を「REQUIRES_NEW」にした場合、Controllerから呼び出された時に行われる一連の処理の一部（SharedServiceで行っている処理）が別のトランザクションで処理される。</div>
+</div>
+<blockquote>
+<div><div class="figure align-center">
+<a class="reference internal image-reference" href="../_images/service_transaction-propagation-requires_new.png"><img alt="transaction management flow of REQUIRES_NEW" src="../_images/service_transaction-propagation-requires_new.png" style="width: 100%;" /></a>
+</div>
+</div></blockquote>
+<ol class="arabic simple">
+<li>Controllerからトランザクション管理対象のServiceのメソッドを呼び出す。この時点で開始されているトランザクションは存在しないため、 <tt class="docutils literal"><span class="pre">TransactionInterceptor</span></tt> によってトランザクションが開始される(ここで開始したトランザクションを以降「Transaction A」と呼ぶ)。</li>
+<li><tt class="docutils literal"><span class="pre">TransactionInterceptor</span></tt> は、トランザクション（Transaction A）を開始した後に、トランザクション管理対象のメソッドを呼び出す。</li>
+<li>Serviceからトランザクション管理対象の <tt class="docutils literal"><span class="pre">SharedService</span></tt> のメソッドを呼び出す。この時点で開始済みのトランザクション（Transaction A）が存在しているが、トランザクションの伝播方法が「REQUIRES_NEW」なので <tt class="docutils literal"><span class="pre">TransactionInterceptor</span></tt> によって新しいトランザクションが開始される(ここで開始したトランザクションを以降「Transaction B」と呼ぶ)。この時点で「Transaction A」のトランザクションは、中断され再開待ちの状態となる。</li>
+<li><tt class="docutils literal"><span class="pre">TransactionInterceptor</span></tt>は、トランザクション（Transaction B）を開始した後に、トランザクション管理対象のメソッドを呼び出す。</li>
+<li><tt class="docutils literal"><span class="pre">TransactionInterceptor</span></tt>は、処理結果に応じてコミットまたはロールバックを行い、トランザクション（Transaction B）を終了する。
+この時点で、「Transaction A」のトランザクションが再開され、アクティブな状態になる。</li>
+<li><tt class="docutils literal"><span class="pre">TransactionInterceptor</span></tt>は、処理結果に応じてコミットまたはロールバックを行い、トランザクション（Transaction A）を終了する。</li>
+</ol>
+</div>
+<div class="section" id="id44">
+<h4><a class="toc-backref" href="#id98">4.2.6.1.4. トランザクション管理対象となるメソッドの呼び出し方</a><a class="headerlink" href="#id44" title="Permalink to this headline">¶</a></h4>
+<div class="line-block">
+<div class="line">Spring Frameworkから提供されている「宣言型トランザクション管理」はAOPで実現されているため、AOPが有効となるメソッド呼び出しに対してのみ、トランザクション管理が適用される。</div>
+<div class="line">デフォルトのAOPモードが、<strong>proxyモードなので、別のクラスからpublicメソッドが呼び出された場合のみトランザクション管理対象となる。</strong></div>
+<div class="line"><strong>publicメソッドであっても、内部呼び出しの場合は、トランザクション管理対象にならない</strong>ので注意が必要となる。</div>
+</div>
+<ul class="simple">
+<li><strong>トランザクション管理対象となるメソッドの呼び出し方</strong></li>
+</ul>
+<blockquote>
+<div><div class="figure align-center">
+<a class="reference internal image-reference" href="../_images/service_transaction-valid-call.png"><img alt="enabled method calls of transaction management" src="../_images/service_transaction-valid-call.png" style="width: 100%;" /></a>
+</div>
+</div></blockquote>
+<ul class="simple">
+<li><strong>トランザクション管理対象にならないメソッドの呼び出し方</strong></li>
+</ul>
+<blockquote>
+<div><div class="figure align-center">
+<a class="reference internal image-reference" href="../_images/service_transaction-invalid-call.png"><img alt="not enabled method calls of transaction management" src="../_images/service_transaction-invalid-call.png" style="width: 100%;" /></a>
+</div>
+<div class="admonition note">
+<p class="first admonition-title">Note</p>
+<p><strong>内部呼び出しをトランザクション管理対象にしたい場合</strong></p>
+<p class="last">AOPモードを<tt class="docutils literal"><span class="pre">&quot;aspectj&quot;</span></tt>にすることで、内部呼び出しをトランザクション管理対象にすることができる。
+ただし、内部呼び出しもトランザクション管理対象にしてしまうと、トランザクション管理の経路が複雑になる可能性があるので、
+基本的にはAOPモードはデフォルトの<tt class="docutils literal"><span class="pre">&quot;proxy&quot;</span></tt>を使用することを推奨する。</p>
+</div>
+</div></blockquote>
+</div>
+</div>
+<div class="section" id="service-enable-transaction-management">
+<span id="id45"></span><h3><a class="toc-backref" href="#id99">4.2.6.2. トランザクション管理を使うための設定について</a><a class="headerlink" href="#service-enable-transaction-management" title="Permalink to this headline">¶</a></h3>
+<p>トランザクション管理を使うために必要な設定について説明する。</p>
+<div class="section" id="platformtransactionmanager">
+<h4><a class="toc-backref" href="#id100">4.2.6.2.1. PlatformTransactionManagerの設定</a><a class="headerlink" href="#platformtransactionmanager" title="Permalink to this headline">¶</a></h4>
+<div class="line-block">
+<div class="line">トランザクション管理を行う場合、<tt class="docutils literal"><span class="pre">PlatformTransactionManager</span></tt>のbeanを設定する必要がある。</div>
+<div class="line">Spring Frameworkより用途毎のクラスが提供されているので、使用するクラスを指定すればよい。</div>
+</div>
+<ul class="simple">
+<li><tt class="file docutils literal"><span class="pre">xxx-env.xml</span></tt></li>
+</ul>
+<blockquote>
+<div><p>以下に、DataSourceから取得されるJDBCコネクションの機能を使って、トランザクションを管理する場合の設定例を示す。</p>
+<div class="highlight-xml"><div class="highlight"><pre><span class="c">&lt;!-- (1) --&gt;</span>
+<span class="nt">&lt;bean</span> <span class="na">id=</span><span class="s">&quot;transactionManager&quot;</span>
+      <span class="na">class=</span><span class="s">&quot;org.springframework.jdbc.datasource.DataSourceTransactionManager&quot;</span><span class="nt">&gt;</span>
+    <span class="nt">&lt;property</span> <span class="na">name=</span><span class="s">&quot;dataSource&quot;</span> <span class="na">ref=</span><span class="s">&quot;dataSource&quot;</span> <span class="nt">/&gt;</span>
+<span class="nt">&lt;/bean&gt;</span>
+</pre></div>
+</div>
+<table border="1" class="docutils">
+<colgroup>
+<col width="10%" />
+<col width="90%" />
+</colgroup>
+<thead valign="bottom">
+<tr class="row-odd"><th class="head">項番</th>
+<th class="head">説明</th>
+</tr>
+</thead>
+<tbody valign="top">
+<tr class="row-even"><td><div class="first last line-block">
+<div class="line">(1)</div>
+</div>
+</td>
+<td><div class="first last line-block">
+<div class="line">用途にあった<tt class="docutils literal"><span class="pre">PlatformTransactionManager</span></tt>の実装クラスを指定する。</div>
+<div class="line">idは「transactionManager」としておくことを推奨する。</div>
+</div>
+</td>
+</tr>
+</tbody>
+</table>
+</div></blockquote>
+<p></p>
+<blockquote>
+<div><div class="admonition note">
+<p class="first admonition-title">Note</p>
+<p><strong>複数DB（複数リソース）に対するトランザクション管理（グローバルトランザクションの管理）が必要な場合</strong></p>
+<ul class="last simple">
+<li><tt class="docutils literal"><span class="pre">org.springframework.transaction.jta.JtaTransactionManager</span></tt>を利用し、アプリケーションサーバから提供されているJTAの機能を使って、トランザクション管理を行う必要がある。</li>
+<li>WebSphere、Oracle WebLogic Server、Oracle OC4JでJTAを使う場合、&lt;tx:jta-transaction-manager/&gt; を指定することで、
+アプリケーションサーバ用に拡張された<tt class="docutils literal"><span class="pre">JtaTransactionManager</span></tt>が、自動的で設定される。</li>
+</ul>
+</div>
+<table border="1" class="docutils">
+<caption><strong>Spring Frameworkから提供されているPlatformTransactionManagerの実装クラス</strong></caption>
+<colgroup>
+<col width="10%" />
+<col width="35%" />
+<col width="55%" />
+</colgroup>
+<thead valign="bottom">
+<tr class="row-odd"><th class="head">項番</th>
+<th class="head">クラス名</th>
+<th class="head">説明</th>
+</tr>
+</thead>
+<tbody valign="top">
+<tr class="row-even"><td><ol class="first last arabic simple">
+<li></li>
+</ol>
+</td>
+<td><div class="first last line-block">
+<div class="line">org.springframework.jdbc.datasource.</div>
+<div class="line">DataSourceTransactionManager</div>
+</div>
+</td>
+<td><div class="first last line-block">
+<div class="line">JDBC(<tt class="docutils literal"><span class="pre">java.sql.Connection</span></tt>)のAPIを呼び出して、トランザクションを管理するための実装クラス。</div>
+<div class="line">MyBatisや、<tt class="docutils literal"><span class="pre">JdbcTemplate</span></tt>を使う場合は、本クラスを使用する。</div>
+</div>
+</td>
+</tr>
+<tr class="row-odd"><td><ol class="first last arabic simple" start="2">
+<li></li>
+</ol>
+</td>
+<td><div class="first last line-block">
+<div class="line">org.springframework.orm.jpa.</div>
+<div class="line">JpaTransactionManager</div>
+</div>
+</td>
+<td><div class="first last line-block">
+<div class="line">JPA(<tt class="docutils literal"><span class="pre">javax.persistence.EntityTransaction</span></tt>)のAPIを呼び出して、トランザクションを管理するための実装クラス。</div>
+<div class="line">JPAを使う場合は、本クラスを使用する。</div>
+</div>
+</td>
+</tr>
+<tr class="row-even"><td><ol class="first last arabic simple" start="3">
+<li></li>
+</ol>
+</td>
+<td><div class="first last line-block">
+<div class="line">org.springframework.transaction.jta.</div>
+<div class="line">JtaTransactionManager</div>
+</div>
+</td>
+<td><div class="first last line-block">
+<div class="line">JTA(<tt class="docutils literal"><span class="pre">javax.transaction.UserTransaction</span></tt>)のAPIを呼び出してトランザクションを管理するための実装クラス。</div>
+<div class="line">アプリケーションサーバから提供されているJTS(Java Transaction Service)を利用して、リソース(データベース/メッセージングサービス/汎用EIS(Enterprise Information System)など)とのトランザクションを管理する場合は、本クラスを使用する。</div>
+<div class="line">複数のリソースに対する操作を同一トランザクションで行う必要がある場合は、JTAを利用して、リソースとのトランザクションを管理する必要がある。</div>
+</div>
+</td>
+</tr>
+</tbody>
+</table>
+</div></blockquote>
+</div>
+<div class="section" id="transactional">
+<h4><a class="toc-backref" href="#id101">4.2.6.2.2. &#64;Transactionalを有効化するための設定</a><a class="headerlink" href="#transactional" title="Permalink to this headline">¶</a></h4>
+<div class="line-block">
+<div class="line">本ガイドラインでは、<tt class="docutils literal"><span class="pre">&#64;Transactional</span></tt>アノテーションを使った「宣言型トランザクション管理」を使って、トランザクション管理することを推奨している。</div>
+<div class="line">ここでは、<tt class="docutils literal"><span class="pre">&#64;Transactional</span></tt>アノテーションを使うために、必要な設定について説明する。</div>
+</div>
+<ul class="simple">
+<li><tt class="file docutils literal"><span class="pre">xxx-domain.xml</span></tt></li>
+</ul>
+<blockquote>
+<div><div class="highlight-xml"><div class="highlight"><pre><span class="nt">&lt;tx:annotation-driven</span> <span class="nt">/&gt;</span> <span class="c">&lt;!-- (1) --&gt;</span>
+</pre></div>
+</div>
+<table border="1" class="docutils">
+<colgroup>
+<col width="10%" />
+<col width="90%" />
+</colgroup>
+<thead valign="bottom">
+<tr class="row-odd"><th class="head">項番</th>
+<th class="head">説明</th>
+</tr>
+</thead>
+<tbody valign="top">
+<tr class="row-even"><td><div class="first last line-block">
+<div class="line">(1)</div>
+</div>
+</td>
+<td>&lt;tx:annotation-driven&gt;要素をXML（bean定義ファイル）に追加することで、<tt class="docutils literal"><span class="pre">&#64;Transactional</span></tt>アノテーションを使ったトランザクション境界の指定が有効となる。</td>
+</tr>
+</tbody>
+</table>
+</div></blockquote>
+</div>
+<div class="section" id="tx-annotation-driven">
+<h4><a class="toc-backref" href="#id102">4.2.6.2.3. &lt;tx:annotation-driven&gt;要素の属性について</a><a class="headerlink" href="#tx-annotation-driven" title="Permalink to this headline">¶</a></h4>
+<p>&lt;tx:annotation-driven&gt;にはいくつかの属性が指定でき、デフォルトの振る舞いを拡張することができる。</p>
+<ul class="simple">
+<li><tt class="file docutils literal"><span class="pre">xxx-domain.xml</span></tt></li>
+</ul>
+<blockquote>
+<div><div class="highlight-xml"><div class="highlight"><pre><span class="nt">&lt;tx:annotation-driven</span>
+     <span class="na">transaction-manager=</span><span class="s">&quot;txManager&quot;</span>
+     <span class="na">mode=</span><span class="s">&quot;aspectj&quot;</span>
+     <span class="na">proxy-target-class=</span><span class="s">&quot;true&quot;</span>
+     <span class="na">order=</span><span class="s">&quot;0&quot;</span> <span class="nt">/&gt;</span>
+</pre></div>
+</div>
+<table border="1" class="docutils">
+<colgroup>
+<col width="10%" />
+<col width="15%" />
+<col width="75%" />
+</colgroup>
+<thead valign="bottom">
+<tr class="row-odd"><th class="head">項番</th>
+<th class="head">属性</th>
+<th class="head">説明</th>
+</tr>
+</thead>
+<tbody valign="top">
+<tr class="row-even"><td>1</td>
+<td>transaction-manager</td>
+<td><tt class="docutils literal"><span class="pre">PlatformTransactionManager</span></tt>のbeanを指定する。省略した場合「transactionManager」というbean名で登録されているbeanが使用される。</td>
+</tr>
+<tr class="row-odd"><td>2</td>
+<td>mode</td>
+<td>AOPのモードを指定する。省略した場合、<tt class="docutils literal"><span class="pre">&quot;proxy&quot;</span></tt>となる。<tt class="docutils literal"><span class="pre">&quot;aspectj&quot;</span></tt>を指定できるが、原則デフォルトの<tt class="docutils literal"><span class="pre">&quot;proxy&quot;</span></tt>を使う。</td>
+</tr>
+<tr class="row-even"><td>3</td>
+<td>proxy-target-class</td>
+<td><p class="first">proxyのターゲットをクラスに限定するかを指定するフラグ（mode=&#8221;proxy&#8221;の場合のみ、有効な設定）。省略した場合「false」となる。</p>
+<ul class="last simple">
+<li>false の場合、対象がインタフェースを実装している場合は、JDK標準のDynamic proxies機能によってproxyされ、
+インタフェースを実装していない場合はSpring Frameworkに内包されているGCLIBの機能によってproxyされる。</li>
+<li>true の場合、インタフェースの実装有無に関係なく、GCLIBの機能によってproxyされる。</li>
+</ul>
+</td>
+</tr>
+<tr class="row-odd"><td>4</td>
+<td>order</td>
+<td>AOPでAdviceされる順番（優先度）を指定する。省略した場合「最後（もっとも低い優先度）」となる。</td>
+</tr>
+</tbody>
+</table>
+</div></blockquote>
+<div class="line-block">
+<div class="line"><br /></div>
+</div>
+</div>
+</div>
+</div>
+<div class="section" id="appendix">
+<h2><a class="toc-backref" href="#id103">4.2.7. Appendix</a><a class="headerlink" href="#appendix" title="Permalink to this headline">¶</a></h2>
+<div class="section" id="id46">
+<h3><a class="toc-backref" href="#id104">4.2.7.1. トランザクション管理の落とし穴について</a><a class="headerlink" href="#id46" title="Permalink to this headline">¶</a></h3>
+<div class="line-block">
+<div class="line">IBM DeveloperWorksに「トランザクションの落とし穴を理解する」という記事がある。</div>
+<div class="line">この記事ではトランザクション管理で注意しなくてはいけないことや、Spring Frameworkの&#64;Transactionalを使う場合の注意点がまとめられているので、ぜひ一読してほしい。</div>
+</div>
+<p>詳細は、<a class="reference external" href="http://www.ibm.com/developerworks/java/library/j-ts1/index.html">IBM DeveloperWorksの記事</a>を参照されたい。</p>
+</div>
+<div class="section" id="id48">
+<h3><a class="toc-backref" href="#id105">4.2.7.2. プログラマティックにトランザクションを管理する方法</a><a class="headerlink" href="#id48" title="Permalink to this headline">¶</a></h3>
+<p>本ガイドラインでは、「宣言型トランザクション管理」を推奨しているが、プログラマティックにトランザクションを管理することもできる。
+詳細については、<a class="reference external" href="http://docs.spring.io/spring/docs/4.1.3.RELEASE/spring-framework-reference/html/transaction.html#transaction-programmatic">Spring Reference Document</a>を参照されたい。</p>
+</div>
+<div class="section" id="domainlayer-appendix-blogic">
+<span id="id50"></span><h3><a class="toc-backref" href="#id106">4.2.7.3. シグネチャを制限するインタフェースおよび基底クラスの実装サンプル</a><a class="headerlink" href="#domainlayer-appendix-blogic" title="Permalink to this headline">¶</a></h3>
+<ul class="simple">
+<li>シグネチャを限定するようなインタフェース</li>
+</ul>
+<blockquote>
+<div><div class="highlight-java"><div class="highlight"><pre><span class="c1">// (1)</span>
+<span class="kd">public</span> <span class="kd">interface</span> <span class="nc">BLogic</span><span class="o">&lt;</span><span class="n">I</span><span class="o">,</span> <span class="n">O</span><span class="o">&gt;</span> <span class="o">{</span>
+  <span class="n">O</span> <span class="nf">execute</span><span class="o">(</span><span class="n">I</span> <span class="n">input</span><span class="o">);</span>
+<span class="o">}</span>
+</pre></div>
+</div>
+<table border="1" class="docutils">
+<colgroup>
+<col width="10%" />
+<col width="90%" />
+</colgroup>
+<thead valign="bottom">
+<tr class="row-odd"><th class="head">項番</th>
+<th class="head">説明</th>
+</tr>
+</thead>
+<tbody valign="top">
+<tr class="row-even"><td><div class="first last line-block">
+<div class="line">(1)</div>
+</div>
+</td>
+<td><div class="first last line-block">
+<div class="line">業務ロジックの実装メソッドのシグニチャを制限するためのインタフェース。</div>
+<div class="line">上記例では、入力情報(I)と出力情報(O)の総称型として定義されており、 業務ロジックを実行するためのメソッド(execute)を一つもつ。</div>
+<div class="line">本ガイドラインでは、上記のようなインタフェースを、BLogicインタフェースと呼ぶ。</div>
+</div>
+</td>
+</tr>
+</tbody>
+</table>
+</div></blockquote>
+<ul class="simple">
+<li>Controller</li>
+</ul>
+<blockquote>
+<div><div class="highlight-java"><div class="highlight"><pre><span class="c1">// (2)</span>
+<span class="nd">@Inject</span>
+<span class="n">XxxBLogic</span><span class="o">&lt;</span><span class="n">XxxInput</span><span class="o">,</span> <span class="n">XxxOutput</span><span class="o">&gt;</span> <span class="n">xxxBLogic</span><span class="o">;</span>
+
+<span class="kd">public</span> <span class="n">String</span> <span class="nf">reserve</span><span class="o">(</span><span class="n">XxxForm</span> <span class="n">form</span><span class="o">,</span> <span class="n">RedirectAttributes</span> <span class="n">redirectAttributes</span><span class="o">)</span> <span class="o">{</span>
+
+    <span class="n">XxxInput</span> <span class="n">input</span> <span class="o">=</span> <span class="k">new</span> <span class="n">XxxInput</span><span class="o">();</span>
+    <span class="c1">// omitted</span>
+
+    <span class="c1">// (3)</span>
+    <span class="n">XxxOutput</span> <span class="n">output</span> <span class="o">=</span> <span class="n">xxxBlogic</span><span class="o">.</span><span class="na">execute</span><span class="o">(</span><span class="n">input</span><span class="o">);</span>
+
+    <span class="c1">// omitted</span>
+
+    <span class="n">redirectAttributes</span><span class="o">.</span><span class="na">addFlashAttribute</span><span class="o">(</span><span class="n">output</span><span class="o">.</span><span class="na">getTourReservation</span><span class="o">());</span>
+    <span class="k">return</span> <span class="s">&quot;redirect:/xxx?complete&quot;</span><span class="o">;</span>
+<span class="o">}</span>
+</pre></div>
+</div>
+<table border="1" class="docutils">
+<colgroup>
+<col width="10%" />
+<col width="90%" />
+</colgroup>
+<thead valign="bottom">
+<tr class="row-odd"><th class="head">項番</th>
+<th class="head">説明</th>
+</tr>
+</thead>
+<tbody valign="top">
+<tr class="row-even"><td><div class="first last line-block">
+<div class="line">(2)</div>
+</div>
+</td>
+<td><div class="first last line-block">
+<div class="line">Controllerは、呼び出すBLogicインタフェースをInjectする。</div>
+</div>
+</td>
+</tr>
+<tr class="row-odd"><td><div class="first last line-block">
+<div class="line">(3)</div>
+</div>
+</td>
+<td><div class="first last line-block">
+<div class="line">Controllerは、BLogicインタフェースのexecuteメソッドを呼び出し、業務ロジックを実行する。</div>
+</div>
+</td>
+</tr>
+</tbody>
+</table>
+</div></blockquote>
+<p>定型的な共通処理をServiceに盛り込む場合、ビジネスロジックの処理フローを統一したい場合に、メソッドのシグネチャを限定するような基底クラスを作成することがある。</p>
+<ul class="simple">
+<li>シグネチャを限定するような基底クラス</li>
+</ul>
+<blockquote>
+<div><div class="highlight-java"><div class="highlight"><pre><span class="kd">public</span> <span class="kd">abstract</span> <span class="kd">class</span> <span class="nc">AbstractBLogic</span><span class="o">&lt;</span><span class="n">I</span><span class="o">,</span> <span class="n">O</span><span class="o">&gt;</span> <span class="kd">implements</span> <span class="n">BLogic</span><span class="o">&lt;</span><span class="n">I</span><span class="o">,</span> <span class="n">O</span><span class="o">&gt;</span> <span class="o">{</span>
+
+    <span class="kd">public</span> <span class="n">O</span> <span class="nf">execute</span><span class="o">(</span><span class="n">I</span> <span class="n">input</span><span class="o">){</span>
+      <span class="k">try</span><span class="o">{</span>
+
+          <span class="c1">// omitted</span>
+
+          <span class="c1">// (4)</span>
+          <span class="n">preExecute</span><span class="o">(</span><span class="n">input</span><span class="o">);</span>
+
+          <span class="c1">// (5)</span>
+          <span class="n">O</span> <span class="n">output</span> <span class="o">=</span> <span class="n">doExecute</span><span class="o">(</span><span class="n">input</span><span class="o">);</span>
+
+          <span class="c1">// omitted</span>
+
+          <span class="k">return</span> <span class="n">output</span><span class="o">;</span>
+      <span class="o">}</span> <span class="k">finally</span> <span class="o">{</span>
+          <span class="c1">// omitted</span>
+      <span class="o">}</span>
+
+    <span class="o">}</span>
+
+    <span class="kd">protected</span> <span class="kd">abstract</span> <span class="kt">void</span> <span class="nf">preExecute</span><span class="o">(</span><span class="n">I</span> <span class="n">input</span><span class="o">);</span>
+
+    <span class="kd">protected</span> <span class="kd">abstract</span> <span class="n">O</span> <span class="nf">doExecute</span><span class="o">(</span><span class="n">I</span> <span class="n">input</span><span class="o">);</span>
+
+<span class="o">}</span>
+</pre></div>
+</div>
+<table border="1" class="docutils">
+<colgroup>
+<col width="10%" />
+<col width="90%" />
+</colgroup>
+<thead valign="bottom">
+<tr class="row-odd"><th class="head">項番</th>
+<th class="head">説明</th>
+</tr>
+</thead>
+<tbody valign="top">
+<tr class="row-even"><td><div class="first last line-block">
+<div class="line">(4)</div>
+</div>
+</td>
+<td><div class="first last line-block">
+<div class="line">基底クラスより、業務ロジックを実行する前の、事前処理を行うメソッドを呼び出す。</div>
+<div class="line">上記のような事前処理を行うメソッドでは、ビジネスルールのチェックなどを実装することになる。</div>
+</div>
+</td>
+</tr>
+<tr class="row-odd"><td><div class="first last line-block">
+<div class="line">(5)</div>
+</div>
+</td>
+<td><div class="first last line-block">
+<div class="line">基底クラスより、業務ロジックを実行するメソッドを呼び出す。</div>
+</div>
+</td>
+</tr>
+</tbody>
+</table>
+</div></blockquote>
+<p>以下に、シグネチャを限定するような、基底クラスを継承する場合の、サンプルを示す。</p>
+<ul class="simple">
+<li>BLogicクラス(Service)</li>
+</ul>
+<blockquote>
+<div><div class="highlight-java"><div class="highlight"><pre><span class="kd">public</span> <span class="kd">class</span> <span class="nc">XxxBLogic</span> <span class="kd">extends</span> <span class="n">AbstractBLogic</span><span class="o">&lt;</span><span class="n">XxxInput</span><span class="o">,</span> <span class="n">XxxOutput</span><span class="o">&gt;</span> <span class="o">{</span>
+
+    <span class="c1">// (6)</span>
+    <span class="kd">protected</span> <span class="kt">void</span> <span class="nf">preExecute</span><span class="o">(</span><span class="n">XxxInput</span> <span class="n">input</span><span class="o">)</span> <span class="o">{</span>
+
+        <span class="c1">// omitted</span>
+        <span class="n">Tour</span> <span class="n">tour</span> <span class="o">=</span> <span class="n">tourRepository</span><span class="o">.</span><span class="na">findOne</span><span class="o">(</span><span class="n">input</span><span class="o">.</span><span class="na">getTourId</span><span class="o">());</span>
+        <span class="n">Date</span> <span class="n">reservationLimitDate</span> <span class="o">=</span> <span class="n">tour</span><span class="o">.</span><span class="na">reservationLimitDate</span><span class="o">();</span>
+        <span class="k">if</span><span class="o">(</span><span class="n">input</span><span class="o">.</span><span class="na">getReservationDate</span><span class="o">().</span><span class="na">after</span><span class="o">(</span><span class="n">reservationLimitDate</span><span class="o">)){</span>
+            <span class="k">throw</span> <span class="k">new</span> <span class="nf">BusinessException</span><span class="o">(</span><span class="n">ResultMessages</span><span class="o">.</span><span class="na">error</span><span class="o">().</span><span class="na">add</span><span class="o">(</span><span class="s">&quot;e.xx.xx.0001&quot;</span><span class="o">));</span>
+        <span class="o">}</span>
+
+    <span class="o">}</span>
+
+    <span class="c1">// (7)</span>
+    <span class="kd">protected</span> <span class="n">XxxOutput</span> <span class="nf">doExecute</span><span class="o">(</span><span class="n">XxxInput</span> <span class="n">input</span><span class="o">)</span> <span class="o">{</span>
+        <span class="n">TourReservation</span> <span class="n">tourReservation</span> <span class="o">=</span> <span class="k">new</span> <span class="n">TourReservation</span><span class="o">();</span>
+
+        <span class="c1">// omitted</span>
+
+        <span class="n">tourReservationRepository</span><span class="o">.</span><span class="na">save</span><span class="o">(</span><span class="n">tourReservation</span><span class="o">);</span>
+        <span class="n">XxxOutput</span> <span class="n">output</span> <span class="o">=</span> <span class="k">new</span> <span class="n">XxxOutput</span><span class="o">();</span>
+        <span class="n">output</span><span class="o">.</span><span class="na">setTourReservation</span><span class="o">(</span><span class="n">tourReservation</span><span class="o">);</span>
+
+        <span class="c1">// omitted</span>
+        <span class="k">return</span> <span class="n">output</span><span class="o">;</span>
+    <span class="o">}</span>
+
+<span class="o">}</span>
+</pre></div>
+</div>
+<table border="1" class="docutils">
+<colgroup>
+<col width="10%" />
+<col width="90%" />
+</colgroup>
+<thead valign="bottom">
+<tr class="row-odd"><th class="head">項番</th>
+<th class="head">説明</th>
+</tr>
+</thead>
+<tbody valign="top">
+<tr class="row-even"><td><div class="first last line-block">
+<div class="line">(6)</div>
+</div>
+</td>
+<td><div class="first last line-block">
+<div class="line">業務ロジックを実行する前の事前処理を実装する。</div>
+<div class="line">ビジネスルールのチェックなどを実装する事になる。</div>
+</div>
+</td>
+</tr>
+<tr class="row-odd"><td><div class="first last line-block">
+<div class="line">(7)</div>
+</div>
+</td>
+<td><div class="first last line-block">
+<div class="line">業務ロジックを実装する。</div>
+<div class="line">ビジネスルールを充たすために、ロジックを実装する事になる。</div>
+</div>
+</td>
+</tr>
+</tbody>
+</table>
+</div></blockquote>
+<div class="line-block">
+<div class="line"><br /></div>
+</div>
+</div>
+</div>
+<div class="section" id="tips">
+<h2><a class="toc-backref" href="#id107">4.2.8. Tips</a><a class="headerlink" href="#tips" title="Permalink to this headline">¶</a></h2>
+<div class="section" id="tips-business-error-label">
+<span id="id51"></span><h3><a class="toc-backref" href="#id108">4.2.8.1. ビジネスルールの違反をフィールドエラーとして扱う方法</a><a class="headerlink" href="#tips-business-error-label" title="Permalink to this headline">¶</a></h3>
+<div class="line-block">
+<div class="line">ビジネスルールのエラーをフィールド毎に出力する必要がある場合、Controller側(Bean ValidationまたはSpring Validator)の仕組みを利用する必要がある。</div>
+<div class="line">このケースの場合、チェックロジック自体はServiceとして実装し、Bean ValidationまたはSpring ValidatorからServiceのメソッドを呼び出す方式で実現することを推奨する。</div>
+<div class="line">詳細は、<a class="reference internal" href="../ArchitectureInDetail/Validation.html"><em>入力チェック</em></a>の業務ロジックチェックを参照されたい。</div>
+</div>
+</div>
+</div>
+</div>
+
+
+          </div>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="InfrastructureLayer.html" title="4.3. インフラストラクチャ層の実装"
+             >next</a> |</li>
+        <li class="right" >
+          <a href="CreateWebApplicationProject.html" title="4.1. Webアプリケーション向け開発プロジェクトの作成"
+             >previous</a> |</li>
+        <li><a href="../index.html">TERASOLUNA Global Framework Development Guideline 5.0.0-SNAPSHOT documentation</a> &raquo;</li>
+          <li><a href="index.html" >4. TERASOLUNA Global Frameworkによるアプリケーション開発</a> &raquo;</li> 
+      </ul>
+    </div>
+    <div class="footer">
+        &copy; Copyright 2013-2015, NTT DATA.
+    Created using <a href="http://sphinx.pocoo.org/">Sphinx</a> 1.2.Theme by <a href="http://github.com/vkvn">vkvn</a>
+    </div>
+    
+    <script>
+    
+    $(function() {
+    	var $sidebar	= $('.sphinxsidebar'),
+    		$window		= $(window),
+    		offset		= $sidebar.offset(),
+    		topPadding	= 3,
+    		$scroll		= $('#scroll');
+    	
+    	$window.scroll(function() {
+    		if ($scroll.is(':checked')) {
+				if ($window.scrollTop() > offset.top) {
+					$sidebar.stop().animate({
+						marginTop:$window.scrollTop() - offset.top + topPadding
+					});
+				} else {
+					$sidebar.stop().animate({
+						marginTop:0
+					});
+				}
+			}
+		});
+    	
+    	var $navList = $('ul:first', $sidebar);
+    	$('li:first', $navList).addClass('open');
+    	
+    	$navList.treeview({
+    		persist: "location",
+    		collapsed: true,
+    		unique: false
+    	});
+    	
+	});
+    (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+        (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+            m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+    })(window,document,'script','//www.google-analytics.com/analytics.js','ga');
+
+    ga('create', 'UA-46550814-1', 'terasolunaorg.github.io');
+    ga('send', 'pageview');
+    </script>
+  </body>
+</html>

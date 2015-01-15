@@ -1,0 +1,1046 @@
+<!DOCTYPE html>
+
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>2.4. アプリケーションのレイヤ化 &mdash; TERASOLUNA Global Framework Development Guideline 5.0.0-SNAPSHOT documentation</title>
+    
+    <link rel="stylesheet" href="../_static/solar.css" type="text/css" />
+    <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+    
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    '../',
+        VERSION:     '5.0.0-SNAPSHOT',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true
+      };
+    </script>
+    <script type="text/javascript" src="../_static/jquery.js"></script>
+    <script type="text/javascript" src="../_static/underscore.js"></script>
+    <script type="text/javascript" src="../_static/doctools.js"></script>
+    <link rel="top" title="TERASOLUNA Global Framework Development Guideline 5.0.0-SNAPSHOT documentation" href="../index.html" />
+    <link rel="up" title="2. TERASOLUNA Global Frameworkのアーキテクチャ概要" href="index.html" />
+    <link rel="next" title="3. チュートリアル(Todoアプリケーション)" href="../TutorialTodo/index.html" />
+    <link rel="prev" title="2.3. はじめてのSpring MVCアプリケーション" href="FirstApplication.html" /><script src="../_static/jquery.treeview.js" type="text/javascript"></script>
+<!-- <link href='http://fonts.googleapis.com/css?family=Source+Code+Pro|Open+Sans:300italic,400italic,700italic,400,300,700' rel='stylesheet' type='text/css'> -->
+<link href="../_static/solarized-dark.css" rel="stylesheet">
+<link href="../_static/jquery.treeview.css" rel="stylesheet">
+  </head>
+  <body>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="../TutorialTodo/index.html" title="3. チュートリアル(Todoアプリケーション)"
+             accesskey="N">next</a> |</li>
+        <li class="right" >
+          <a href="FirstApplication.html" title="2.3. はじめてのSpring MVCアプリケーション"
+             accesskey="P">previous</a> |</li>
+        <li><a href="../index.html">TERASOLUNA Global Framework Development Guideline 5.0.0-SNAPSHOT documentation</a> &raquo;</li>
+          <li><a href="index.html" accesskey="U">2. TERASOLUNA Global Frameworkのアーキテクチャ概要</a> &raquo;</li> 
+      </ul>
+    </div>
+      <div class="sphinxsidebar">
+        <div class="sphinxsidebarwrapper"><label><input id="scroll" type="checkbox" checked> scroll sidebar</label>
+
+  <h3><a href="../index.html">Table Of Contents</a></h3>
+  <ul>
+<li><a class="reference internal" href="#">2.4. アプリケーションのレイヤ化</a><ul>
+<li><a class="reference internal" href="#id3">2.4.1. レイヤの定義</a><ul>
+<li><a class="reference internal" href="#id4">2.4.1.1. アプリケーション層</a><ul>
+<li><a class="reference internal" href="#controller">2.4.1.1.1. Controller</a></li>
+<li><a class="reference internal" href="#view">2.4.1.1.2. View</a></li>
+<li><a class="reference internal" href="#form">2.4.1.1.3. Form</a></li>
+<li><a class="reference internal" href="#helper">2.4.1.1.4. Helper</a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#id5">2.4.1.2. ドメイン層</a><ul>
+<li><a class="reference internal" href="#domain-object">2.4.1.2.1. Domain Object</a></li>
+<li><a class="reference internal" href="#repository">2.4.1.2.2. Repository</a></li>
+<li><a class="reference internal" href="#service">2.4.1.2.3. Service</a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#id8">2.4.1.3. インフラストラクチャ層</a><ul>
+<li><a class="reference internal" href="#repositoryimpl">2.4.1.3.1. RepositoryImpl</a></li>
+<li><a class="reference internal" href="#o-r-mapper">2.4.1.3.2. O/R Mapper</a></li>
+<li><a class="reference internal" href="#integration-system-connector">2.4.1.3.3. Integration System Connector</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li><a class="reference internal" href="#id9">2.4.2. レイヤ間の依存関係</a><ul>
+<li><a class="reference internal" href="#id10">2.4.2.1. Repositoryを使用する時の処理の流れ</a></li>
+<li><a class="reference internal" href="#id11">2.4.2.2. Repositoryを使用しない時の処理の流れ</a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#application-layering-project-structure">2.4.3. プロジェクト構成</a><ul>
+<li><a class="reference internal" href="#projectname-domain">2.4.3.1. [projectName]-domain</a></li>
+<li><a class="reference internal" href="#projectname-web">2.4.3.2. [projectName]-web</a></li>
+<li><a class="reference internal" href="#projectname-env">2.4.3.3. [projectName]-env</a></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+
+
+  <h4>Previous topic</h4>
+  <p class="topless"><a href="FirstApplication.html"
+                        title="previous chapter">2.3. はじめてのSpring MVCアプリケーション</a></p>
+  <h4>Next topic</h4>
+  <p class="topless"><a href="../TutorialTodo/index.html"
+                        title="next chapter">3. チュートリアル(Todoアプリケーション)</a></p>
+  <h3>This Page</h3>
+  <ul class="this-page-menu">
+    <li><a href="../_sources/Overview/ApplicationLayering.txt"
+           rel="nofollow">Show Source</a></li>
+  </ul>
+<div id="searchbox" style="display: none">
+  <h3>Quick search</h3>
+    <form class="search" action="../search.html" method="get">
+      <input type="text" name="q" />
+      <input type="submit" value="Go" />
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+    <p class="searchtip" style="font-size: 90%">
+    Enter search terms or a module, class or function name.
+    </p>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body">
+            
+  <div class="section" id="id1">
+<h1>2.4. アプリケーションのレイヤ化<a class="headerlink" href="#id1" title="Permalink to this headline">¶</a></h1>
+<div class="contents local topic" id="id2">
+<p class="topic-title first">目次</p>
+<ul class="simple">
+<li><a class="reference internal" href="#id3" id="id15">レイヤの定義</a><ul>
+<li><a class="reference internal" href="#id4" id="id16">アプリケーション層</a><ul>
+<li><a class="reference internal" href="#controller" id="id17">Controller</a></li>
+<li><a class="reference internal" href="#view" id="id18">View</a></li>
+<li><a class="reference internal" href="#form" id="id19">Form</a></li>
+<li><a class="reference internal" href="#helper" id="id20">Helper</a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#id5" id="id21">ドメイン層</a><ul>
+<li><a class="reference internal" href="#domain-object" id="id22">Domain Object</a></li>
+<li><a class="reference internal" href="#repository" id="id23">Repository</a></li>
+<li><a class="reference internal" href="#service" id="id24">Service</a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#id8" id="id25">インフラストラクチャ層</a><ul>
+<li><a class="reference internal" href="#repositoryimpl" id="id26">RepositoryImpl</a></li>
+<li><a class="reference internal" href="#o-r-mapper" id="id27">O/R Mapper</a></li>
+<li><a class="reference internal" href="#integration-system-connector" id="id28">Integration System Connector</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li><a class="reference internal" href="#id9" id="id29">レイヤ間の依存関係</a><ul>
+<li><a class="reference internal" href="#id10" id="id30">Repositoryを使用する時の処理の流れ</a></li>
+<li><a class="reference internal" href="#id11" id="id31">Repositoryを使用しない時の処理の流れ</a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#application-layering-project-structure" id="id32">プロジェクト構成</a><ul>
+<li><a class="reference internal" href="#projectname-domain" id="id33">[projectName]-domain</a></li>
+<li><a class="reference internal" href="#projectname-web" id="id34">[projectName]-web</a></li>
+<li><a class="reference internal" href="#projectname-env" id="id35">[projectName]-env</a></li>
+</ul>
+</li>
+</ul>
+</div>
+<p>本ガイドラインでは、アプリケーションを、次の3レイヤに分割する。</p>
+<ul class="simple">
+<li>アプリケーション層</li>
+<li>ドメイン層</li>
+<li>インフラストラクチャ層</li>
+</ul>
+<p>各層には、以下のコンポーネントが含まれる。</p>
+<div class="figure">
+<a class="reference internal image-reference" href="../_images/ApplicationLayer.png"><img alt="application layers" src="../_images/ApplicationLayer.png" style="width: 95%;" /></a>
+</div>
+<div class="line-block">
+<div class="line">アプリケーション層とインフラストラクチャ層は、ドメイン層に依存するが、<strong>ドメイン層が、他の層に依存してはいけない。</strong></div>
+<div class="line">ドメイン層の変更によって、アプリケーション層に変更が生じるのは良いが、</div>
+<div class="line">アプリケーション層の変更によって、ドメイン層の変更が生じるべきではない。</div>
+</div>
+<p>各層について、説明する。</p>
+<div class="admonition note">
+<p class="first admonition-title">Note</p>
+<p class="last">アプリケーション層、ドメイン層、インフラストラクチャー層は
+Eric Evansの&#8221;Domain-Driven Design (2004, Addison-Wesley)&#8221;で説明されてる用語である。
+ただし、用語は使用しているが以後Domain Driven Designの考えにのっとっているわけではない。</p>
+</div>
+<div class="line-block">
+<div class="line"><br /></div>
+</div>
+<div class="section" id="id3">
+<h2><a class="toc-backref" href="#id15">2.4.1. レイヤの定義</a><a class="headerlink" href="#id3" title="Permalink to this headline">¶</a></h2>
+<p>入力から出力までのデータの流れは、アプリケーション層→ドメイン層→インフラストラクチャ層であるため、
+この順に説明する。</p>
+<div class="section" id="id4">
+<h3><a class="toc-backref" href="#id16">2.4.1.1. アプリケーション層</a><a class="headerlink" href="#id4" title="Permalink to this headline">¶</a></h3>
+<p>アプリケーション層は、クライアントとのデータの入出力を制御する層である。</p>
+<p>この層では、</p>
+<ul class="simple">
+<li>データの入出力を行うUI(User Interface)の提供</li>
+<li>クライアントからのリクエストハンドリング</li>
+<li>入力データの妥当性チェック</li>
+<li>リクエスト内容に対応するドメイン層のコンポーネントの呼び出し</li>
+</ul>
+<p>などの実装を行う。</p>
+<p><strong>この層で行う実装は、できるだけ薄く保たれるべきであり、ビジネスルールを含んではいけない。</strong></p>
+<div class="section" id="controller">
+<h4><a class="toc-backref" href="#id17">2.4.1.1.1. Controller</a><a class="headerlink" href="#controller" title="Permalink to this headline">¶</a></h4>
+<p>Controllerは、主に以下の役割を担う。</p>
+<ul class="simple">
+<li>画面遷移の制御（リクエストマッピングと処理結果に対応するViewを返却する)</li>
+<li>ドメイン層のServiceの呼び出し (リクエストに対応する主処理の実行する)</li>
+</ul>
+<p>Spring MVCでは、<tt class="docutils literal"><span class="pre">&#64;Controller</span></tt>アノテーションが付与されているPOJOクラスが該当する。</p>
+<div class="admonition note">
+<p class="first admonition-title">Note</p>
+<p class="last">クライアントとの入出力データをセッションに格納する場合は、
+セッションに格納するデータのライフサイクルを制御する役割も担う。</p>
+</div>
+<div class="line-block">
+<div class="line"><br /></div>
+</div>
+</div>
+<div class="section" id="view">
+<h4><a class="toc-backref" href="#id18">2.4.1.1.2. View</a><a class="headerlink" href="#view" title="Permalink to this headline">¶</a></h4>
+<p>Viewは、クライアントへの出力(UIの提供を含む)を担う。HTML/PDF/Excel/JSONなど、様々な形式で出力結果を返す。</p>
+<p>Spring MVCでは、<tt class="docutils literal"><span class="pre">View</span></tt>クラスが該当する。</p>
+<div class="admonition tip">
+<p class="first admonition-title">Tip</p>
+<p>REST APIやAjax向けのリクエストでJSONやXML形式の出力を行う場合は、<tt class="docutils literal"><span class="pre">HttpMessageConverter</span></tt>クラスが<tt class="docutils literal"><span class="pre">View</span></tt>の役割を担う。</p>
+<p class="last">詳細は、「<a class="reference internal" href="../ArchitectureInDetail/REST.html"><em>RESTful Web Service</em></a>」を参照されたい。</p>
+</div>
+<div class="line-block">
+<div class="line"><br /></div>
+</div>
+</div>
+<div class="section" id="form">
+<h4><a class="toc-backref" href="#id19">2.4.1.1.3. Form</a><a class="headerlink" href="#form" title="Permalink to this headline">¶</a></h4>
+<p>Formは、主に以下の役割を担う。</p>
+<ul class="simple">
+<li>HTMLのフォームを表現（フォームのデータをControllerに渡したり、処理結果をフォームに出力する）</li>
+<li>入力チェックルールの宣言 (Bean Validationのアノテーションを付与する)</li>
+</ul>
+<p>Spring MVCでは、Formオブジェクトは、リクエストパラメータを保持するPOJOクラスが該当する。form backing beanと呼ばれる。</p>
+<div class="admonition note">
+<p class="first admonition-title">Note</p>
+<p>ドメイン層がアプリケーション層に依存しないようにするために、以下の変換処理をアプリケーション層で行う。</p>
+<ul class="simple">
+<li>FormからDomain Object(Entity等)への変換処理</li>
+<li>Domain ObjectからFormへの変換処理</li>
+</ul>
+<p>これらの変換処理をController内で行うと、ソースコードが長くなり、
+本来のControllerの処理(画面遷移など)の見通しが、悪くなりがちである。</p>
+<p>変換処理のコードが多くなる場合は、以下のいずれか又は両方の対策を行い、
+Controller内のソースコードをシンプルな状態に保つこと推奨する。</p>
+<ul class="last simple">
+<li>Helperクラスを作成して変換処理を委譲する</li>
+<li><a class="reference internal" href="../ArchitectureInDetail/Utilities/Dozer.html"><em>Dozer</em></a> を使用する</li>
+</ul>
+</div>
+<div class="admonition tip">
+<p class="first admonition-title">Tip</p>
+<p>REST APIやAjax向けのリクエストでJSONやXML形式の入力を受ける場合は、<tt class="docutils literal"><span class="pre">Resource</span></tt>クラスが<tt class="docutils literal"><span class="pre">Form</span></tt>の役割を担う。
+また、JSONやXML形式の入力データを<tt class="docutils literal"><span class="pre">Resource</span></tt>クラスに変換する役割は、<tt class="docutils literal"><span class="pre">HttpMessageConverter</span></tt>クラスが担う。</p>
+<p class="last">詳細は、「<a class="reference internal" href="../ArchitectureInDetail/REST.html"><em>RESTful Web Service</em></a>」を参照されたい。</p>
+</div>
+<div class="line-block">
+<div class="line"><br /></div>
+</div>
+</div>
+<div class="section" id="helper">
+<h4><a class="toc-backref" href="#id20">2.4.1.1.4. Helper</a><a class="headerlink" href="#helper" title="Permalink to this headline">¶</a></h4>
+<p>Helperは、Controllerを補助する役割を担う。</p>
+<p>Helperの作成はオプションである。必要に応じて、POJOクラスとして作成すること。</p>
+<div class="admonition note">
+<p class="first admonition-title">Note</p>
+<p>Controllerの役割はルーティング(URLマッピングと遷移先の返却)であり、
+それ以外の処理(JavaBeanの変換等)が必要になったらHelperに切り出して、そちらに処理を委譲すことを推奨する。</p>
+<p class="last">HelperはControllerの見通しを良くするためのものであるため、HelperはControllerの一部として扱ってよい。
+(Controller内のprivateメソッドみたいなものである)</p>
+</div>
+<div class="line-block">
+<div class="line"><br /></div>
+</div>
+</div>
+</div>
+<div class="section" id="id5">
+<h3><a class="toc-backref" href="#id21">2.4.1.2. ドメイン層</a><a class="headerlink" href="#id5" title="Permalink to this headline">¶</a></h3>
+<p>ドメイン層は、アプリケーションのコアとなる層であり、ビジネスルールを実行(業務処理を提供)する。</p>
+<p>この層では、</p>
+<ul class="simple">
+<li>Domain Object</li>
+<li>Domain Objectに対するビジネスルールのチェック(口座へ入金する場合に、残高が十分であるかどうかのチェックなど)</li>
+<li>Domain Objectに対するビジネスルールの実行(ビジネスルールに則った値の反映)</li>
+<li>Domain Objectに対するCRUD操作</li>
+</ul>
+<p>などの実装を行う。</p>
+<p>ドメイン層は、他の層からは疎であり、再利用できる。</p>
+<div class="section" id="domain-object">
+<h4><a class="toc-backref" href="#id22">2.4.1.2.1. Domain Object</a><a class="headerlink" href="#domain-object" title="Permalink to this headline">¶</a></h4>
+<p>Domain Objectはビジネスを行う上で必要な資源や、ビジネスを行っていく過程で発生するものを表現するモデルである。</p>
+<p>Domain Objectは、大きく分けて、以下3つに分類される。</p>
+<ul class="simple">
+<li>EmployeeやCustomer, Productなどのリソース系モデル(一般的には、名詞で表現される）</li>
+<li>Order, Paymentなどイベント系モデル(一般的には動詞で表現される)</li>
+<li>YearlySales, MonthlySalesなどのサマリ系モデル</li>
+</ul>
+<p>データベースのテーブルの1レコードを表現するクラスであるEntityは、Domain Objectである。</p>
+<div class="admonition note">
+<p class="first admonition-title">Note</p>
+<p>本ガイドラインでは主に、<a class="reference external" href="http://martinfowler.com/bliki/AnemicDomainModel.html">状態のみもつモデル</a>を扱う。</p>
+<p>Martin Fowlerの&#8221;Patterns of Enterprise Application Architecture (2002, Addison-Wesley)&#8221;では、
+Domain Modelは、<a class="reference external" href="http://martinfowler.com/eaaCatalog/domainModel.html">状態と振る舞いをもつもの</a>と定義されているが、
+厳密には触れない。</p>
+<p class="last">Eric Evansの提唱するような<a class="reference external" href="http://domaindrivendesign.org">Richなドメインモデル</a>も、本ガイドラインでは扱わないが、
+分類上はここに含まれる。</p>
+</div>
+<div class="line-block">
+<div class="line"><br /></div>
+</div>
+</div>
+<div class="section" id="repository">
+<h4><a class="toc-backref" href="#id23">2.4.1.2.2. Repository</a><a class="headerlink" href="#repository" title="Permalink to this headline">¶</a></h4>
+<p>Domain Objectのコレクションのような位置づけであり、Domain Objectの問い合わせや、作成、更新、削除のようなCRUD処理を担う。</p>
+<p>この層では、インタフェースのみ定義する。</p>
+<p>実体はインフラストラクチャ層のRepositoryImplで実装するため、
+どのようなデータアクセスが行われているかについての情報は持たない。</p>
+<div class="line-block">
+<div class="line"><br /></div>
+</div>
+</div>
+<div class="section" id="service">
+<h4><a class="toc-backref" href="#id24">2.4.1.2.3. Service</a><a class="headerlink" href="#service" title="Permalink to this headline">¶</a></h4>
+<p>業務処理を提供する。</p>
+<p>本ガイドラインでは、Serviceのメソッドをトランザクション境界にすることを推奨している。</p>
+<div class="admonition note">
+<p class="first admonition-title">Note</p>
+<p>Serviceでは、FormやHttpRequestなど、Webに関わる情報を扱うべきではない。</p>
+<p class="last">これらの情報は、Serviceのメソッドを呼び出す前に、アプリケーション層でドメイン層のオブジェクトに変換すべきである。</p>
+</div>
+<div class="line-block">
+<div class="line"><br /></div>
+</div>
+</div>
+</div>
+<div class="section" id="id8">
+<h3><a class="toc-backref" href="#id25">2.4.1.3. インフラストラクチャ層</a><a class="headerlink" href="#id8" title="Permalink to this headline">¶</a></h3>
+<p>インフラストラクチャ層は、ドメイン層(Repositoryインタフェース)の実装を提供する層である。</p>
+<p>データストア(RDBMSや、NoSQLなどのデータを格納する場所)への永続化や、メッセージの送信などを担う。</p>
+<div class="section" id="repositoryimpl">
+<h4><a class="toc-backref" href="#id26">2.4.1.3.1. RepositoryImpl</a><a class="headerlink" href="#repositoryimpl" title="Permalink to this headline">¶</a></h4>
+<p>RepositoryImplは、Repositoryインタフェースの実装として、Domain Objectのライフサイクル管理を行う処理を提供する。</p>
+<p>RepositoryImplの実装はRepositoryインタフェースによって隠蔽されるため、
+ドメイン層のコンポーネント(Serviceなど)では、どのようにデータアクセスされているか意識しなくて済む。</p>
+<p>要件によっては、この処理もトランザクション境界となりうる。</p>
+<div class="admonition tip">
+<p class="first admonition-title">Tip</p>
+<p class="last">Spring Data JPAやMyBatis3を使用する場合は、RepositoryImplの実体を(一部)自動で作成する仕組みが提供されている。</p>
+</div>
+<div class="line-block">
+<div class="line"><br /></div>
+</div>
+</div>
+<div class="section" id="o-r-mapper">
+<h4><a class="toc-backref" href="#id27">2.4.1.3.2. O/R Mapper</a><a class="headerlink" href="#o-r-mapper" title="Permalink to this headline">¶</a></h4>
+<p>O/R Mapperは、データベースとEntityの相互マッピングを担う。</p>
+<p>JPA / MyBatis / Spring JDBCが、本機能を提供する。</p>
+<p>具体的には、</p>
+<ul class="simple">
+<li>JPAを用いる場合は、<tt class="docutils literal"><span class="pre">EntityManager</span></tt></li>
+<li>MyBatis3を用いる場合は、Mapperインタフェースや<tt class="docutils literal"><span class="pre">SqlSession</span></tt></li>
+<li>MyBatis2(TERASOLUNA DAO)を用いる場合は、<tt class="docutils literal"><span class="pre">QueryDAO</span></tt>や<tt class="docutils literal"><span class="pre">UpdateDAO</span></tt></li>
+<li>Spring JDBCを用いる場合は、<tt class="docutils literal"><span class="pre">JdbcTemplate</span></tt></li>
+</ul>
+<p>が、O/R Mapperに該当する。</p>
+<p>O/R Mapperは、Repositoryインタフェースの実装に用いられる。</p>
+<div class="admonition note">
+<p class="first admonition-title">Note</p>
+<p class="last">MyBatis, Spring JDBCは「O/R Mapper」というより、「SQL Mapper」と呼んだ方が正確であるが、本ガイドラインでは「O/R Mapper」に分類する。</p>
+</div>
+<div class="line-block">
+<div class="line"><br /></div>
+</div>
+</div>
+<div class="section" id="integration-system-connector">
+<h4><a class="toc-backref" href="#id28">2.4.1.3.3. Integration System Connector</a><a class="headerlink" href="#integration-system-connector" title="Permalink to this headline">¶</a></h4>
+<p>Integration System Connectorは、
+データベース以外のデータストア（メッセージングシステム、Key-Value-Store、Webサービス、既存システム、外部システムなど）との連携を担う。</p>
+<p>Integration System Connectorは、Repositoryインタフェースの実装に用いられる。</p>
+<div class="line-block">
+<div class="line"><br /></div>
+</div>
+</div>
+</div>
+</div>
+<div class="section" id="id9">
+<h2><a class="toc-backref" href="#id29">2.4.2. レイヤ間の依存関係</a><a class="headerlink" href="#id9" title="Permalink to this headline">¶</a></h2>
+<p>冒頭で説明したとおり、ドメイン層がコアとなり、アプリケーション層、インフラストラクチャ層がそれに依存する形となる。</p>
+<p>本ガイドラインでは、実装技術として、</p>
+<ul class="simple">
+<li>アプリケーション層にSpring MVC</li>
+<li>インフラストラクチャ層にSpring Data JPA, MyBatis</li>
+</ul>
+<p>を使用することを想定しているが、本質的には、実装技術が変わっても、それぞれの層で違いが吸収され、ドメイン層には影響を与えない。
+レイヤ間の結合部は、インタフェースとして公開することで、各層が使用している実装技術に依存しない形式とすることができる。</p>
+<p>レイヤ化を意識して、疎結合な設計を行うことを推奨する。</p>
+<div class="figure">
+<a class="reference internal image-reference" href="../_images/LayerDependencies.png"><img alt="../_images/LayerDependencies.png" src="../_images/LayerDependencies.png" style="width: 95%;" /></a>
+</div>
+<div class="line-block">
+<div class="line"><br /></div>
+</div>
+<p>各レイヤのオブジェクトの依存関係は、DIコンテナによって解決される。</p>
+<div class="figure">
+<a class="reference internal image-reference" href="../_images/LayerDependencyInjection.png"><img alt="../_images/LayerDependencyInjection.png" src="../_images/LayerDependencyInjection.png" style="width: 95%;" /></a>
+</div>
+<div class="line-block">
+<div class="line"><br /></div>
+</div>
+<div class="section" id="id10">
+<h3><a class="toc-backref" href="#id30">2.4.2.1. Repositoryを使用する時の処理の流れ</a><a class="headerlink" href="#id10" title="Permalink to this headline">¶</a></h3>
+<p>入力から出力までの流れで表現すると、次の図のようになる。</p>
+<div class="figure">
+<a class="reference internal image-reference" href="../_images/LayeringPattern1.png"><img alt="Data flow from request to response" src="../_images/LayeringPattern1.png" style="width: 100%;" /></a>
+</div>
+<p>更新系の処理を例に、シーケンスを説明する。</p>
+<table border="1" class="docutils">
+<colgroup>
+<col width="10%" />
+<col width="90%" />
+</colgroup>
+<thead valign="bottom">
+<tr class="row-odd"><th class="head">項番</th>
+<th class="head">説明</th>
+</tr>
+</thead>
+<tbody valign="top">
+<tr class="row-even"><td><ol class="first last arabic simple">
+<li></li>
+</ol>
+</td>
+<td>Controllerが、Requestを受け付ける</td>
+</tr>
+<tr class="row-odd"><td><ol class="first last arabic simple" start="2">
+<li></li>
+</ol>
+</td>
+<td>(Optional) Controllerは、Helperを呼び出し、Formの情報を、Domain ObjectまたはDTOに変換する</td>
+</tr>
+<tr class="row-even"><td><ol class="first last arabic simple" start="3">
+<li></li>
+</ol>
+</td>
+<td>Controllerは、Domain ObjectまたはDTOを用いて、Serviceを呼び出す</td>
+</tr>
+<tr class="row-odd"><td><ol class="first last arabic simple" start="4">
+<li></li>
+</ol>
+</td>
+<td>Serviceは、Repositoryを呼び出して、業務処理を行う</td>
+</tr>
+<tr class="row-even"><td><ol class="first last arabic simple" start="5">
+<li></li>
+</ol>
+</td>
+<td>Repositoryは、O/R Mapperを呼び出し、Domain ObjectまたはDTOを永続化する</td>
+</tr>
+<tr class="row-odd"><td><ol class="first last arabic simple" start="6">
+<li></li>
+</ol>
+</td>
+<td>(実装依存) O/R Mapperは、DBにDomain ObjectまたはDTOの情報を保存する</td>
+</tr>
+<tr class="row-even"><td><ol class="first last arabic simple" start="7">
+<li></li>
+</ol>
+</td>
+<td>Serviceは、業務処理結果のDomain ObjectまたはDTOを、Controllerに返却する</td>
+</tr>
+<tr class="row-odd"><td><ol class="first last arabic simple" start="8">
+<li></li>
+</ol>
+</td>
+<td>(Optional) Controllerは、Helperを呼び出し、Domain ObjectまたはDTOを、Formに変換する</td>
+</tr>
+<tr class="row-even"><td><ol class="first last arabic simple" start="9">
+<li></li>
+</ol>
+</td>
+<td>Controllerは、遷移先のView名を返却する</td>
+</tr>
+<tr class="row-odd"><td><ol class="first last arabic simple" start="10">
+<li></li>
+</ol>
+</td>
+<td>Viewは、Responseを出力する。</td>
+</tr>
+</tbody>
+</table>
+<div class="line-block">
+<div class="line"><br /></div>
+</div>
+<p>各コンポーネント間の呼び出し可否を、以下にまとめる。</p>
+<table border="1" class="docutils">
+<caption><strong>コンポーネント間の呼び出し可否</strong></caption>
+<colgroup>
+<col width="20%" />
+<col width="20%" />
+<col width="20%" />
+<col width="20%" />
+<col width="20%" />
+</colgroup>
+<thead valign="bottom">
+<tr class="row-odd"><th class="head stub">Caller/Callee</th>
+<th class="head">Controller</th>
+<th class="head">Service</th>
+<th class="head">Repository</th>
+<th class="head">O/R Mapper</th>
+</tr>
+</thead>
+<tbody valign="top">
+<tr class="row-even"><th class="stub">Controller</th>
+<td><img alt="../_images/cross.png" class="first last align-center" src="../_images/cross.png" />
+</td>
+<td><img alt="../_images/tick.png" class="first last align-center" src="../_images/tick.png" />
+</td>
+<td><img alt="../_images/cross.png" class="first last align-center" src="../_images/cross.png" />
+</td>
+<td><img alt="../_images/cross.png" class="first last align-center" src="../_images/cross.png" />
+</td>
+</tr>
+<tr class="row-odd"><th class="stub">Service</th>
+<td><img alt="../_images/cross.png" class="first last align-center" src="../_images/cross.png" />
+</td>
+<td><img alt="../_images/exclamation.png" class="first last align-center" src="../_images/exclamation.png" />
+</td>
+<td><img alt="../_images/tick.png" class="first last align-center" src="../_images/tick.png" />
+</td>
+<td><img alt="../_images/cross.png" class="first last align-center" src="../_images/cross.png" />
+</td>
+</tr>
+<tr class="row-even"><th class="stub">Repository</th>
+<td><img alt="../_images/cross.png" class="first last align-center" src="../_images/cross.png" />
+</td>
+<td><img alt="../_images/cross.png" class="first last align-center" src="../_images/cross.png" />
+</td>
+<td><img alt="../_images/cross.png" class="first last align-center" src="../_images/cross.png" />
+</td>
+<td><img alt="../_images/tick.png" class="first last align-center" src="../_images/tick.png" />
+</td>
+</tr>
+</tbody>
+</table>
+<p>注意するべきことは、<strong>基本的にServiceからServiceの呼び出しは、禁止している</strong>点である。</p>
+<p>もし他のサービスからも利用可能なサービスが必要な場合は、呼び出し可否を明確にするために、SharedServiceを作成すること。
+詳細については、<a class="reference internal" href="../ImplementationAtEachLayer/DomainLayer.html"><em>ドメイン層の実装</em></a>を参照されたい。</p>
+<div class="admonition note">
+<p class="first admonition-title">Note</p>
+<p class="last">この呼び出し可否ルールを守ることは、アプリケーション開発の初期段階では、煩わしく感じられるかもしれない。
+確かに、一つの処理だけみると、たとえばControllerから直接Repositoryを呼び出したほうが、速くアプリケーションを作成できる。
+しかし、ルールを守らない場合、開発規模が大きくなった際に、修正の影響範囲が分かりにくくなったり、横断的な共通処理を追加しにくくなるなど、
+保守性に大きな問題が生じることが多い。後で問題にならないように、初めから依存関係に気を付けて開発することを強く推奨する。</p>
+</div>
+<div class="line-block">
+<div class="line"><br /></div>
+</div>
+</div>
+<div class="section" id="id11">
+<h3><a class="toc-backref" href="#id31">2.4.2.2. Repositoryを使用しない時の処理の流れ</a><a class="headerlink" href="#id11" title="Permalink to this headline">¶</a></h3>
+<p>Repositoryを作成することにより、永続化技術を隠蔽できたり、データアクセス処理を共通化できるなどのメリットがある。</p>
+<p>しかし、プロジェクトのチーム体制によっては、データアクセスの共通化が難しい場合がある（複数の会社が、別々に業務処理を実装し、共通化のコントロールが難しい場合など）。
+その場合、データアクセスの抽象化が必要ないのであれば、Repositoryは作成せず、以下の図のように、Serviceから直接O/R Mapperを呼び出すようにすればよい。</p>
+<div class="figure">
+<a class="reference internal image-reference" href="../_images/LayeringPattern2.png"><img alt="Data flow from request to response (without Repository)" src="../_images/LayeringPattern2.png" style="width: 100%;" /></a>
+</div>
+<div class="line-block">
+<div class="line"><br /></div>
+</div>
+<p>各コンポーネント間の呼び出し可否を、以下にまとめる。</p>
+<table border="1" class="docutils">
+<caption><strong>コンポーネント間の呼び出し可否 (without Repository)</strong></caption>
+<colgroup>
+<col width="25%" />
+<col width="25%" />
+<col width="25%" />
+<col width="25%" />
+</colgroup>
+<thead valign="bottom">
+<tr class="row-odd"><th class="head stub">Caller/Callee</th>
+<th class="head">Controller</th>
+<th class="head">Service</th>
+<th class="head">O/R Mapper</th>
+</tr>
+</thead>
+<tbody valign="top">
+<tr class="row-even"><th class="stub">Controller</th>
+<td><img alt="../_images/cross.png" class="first last align-center" src="../_images/cross.png" />
+</td>
+<td><img alt="../_images/tick.png" class="first last align-center" src="../_images/tick.png" />
+</td>
+<td><img alt="../_images/cross.png" class="first last align-center" src="../_images/cross.png" />
+</td>
+</tr>
+<tr class="row-odd"><th class="stub">Service</th>
+<td><img alt="../_images/cross.png" class="first last align-center" src="../_images/cross.png" />
+</td>
+<td><img alt="../_images/exclamation.png" class="first last align-center" src="../_images/exclamation.png" />
+</td>
+<td><img alt="../_images/tick.png" class="first last align-center" src="../_images/tick.png" />
+</td>
+</tr>
+</tbody>
+</table>
+<div class="line-block">
+<div class="line"><br /></div>
+</div>
+</div>
+</div>
+<div class="section" id="application-layering-project-structure">
+<span id="id12"></span><h2><a class="toc-backref" href="#id32">2.4.3. プロジェクト構成</a><a class="headerlink" href="#application-layering-project-structure" title="Permalink to this headline">¶</a></h2>
+<p>上記のように、アプリケーションのレイヤ化を行った場合に推奨する構成について、説明する。</p>
+<p>ここでは、Mavenの標準ディレクトリ構造を前提とする。</p>
+<p>基本的には、以下の構成でマルチプロジェクトを作成することを推奨する。</p>
+<div class="line-block">
+<div class="line"><br /></div>
+</div>
+<table border="1" class="docutils">
+<colgroup>
+<col width="30%" />
+<col width="70%" />
+</colgroup>
+<thead valign="bottom">
+<tr class="row-odd"><th class="head">プロジェクト名</th>
+<th class="head">説明</th>
+</tr>
+</thead>
+<tbody valign="top">
+<tr class="row-even"><td>[projectName]-domain</td>
+<td>ドメイン層に関するクラス・設定ファイルを格納するプロジェクト</td>
+</tr>
+<tr class="row-odd"><td>[projectName]-web</td>
+<td>アプリケーション層に関するクラス・設定ファイルを格納するプロジェクト</td>
+</tr>
+<tr class="row-even"><td>[projectName]-env</td>
+<td>環境に依存するファイル等を格納するプロジェクト</td>
+</tr>
+</tbody>
+</table>
+<p>([projectName]には、対象のプロジェクト名を入れること)</p>
+<div class="admonition note">
+<p class="first admonition-title">Note</p>
+<p>RepositoryImplなどインフラストラクチャ層のクラスも、project-domainに含める。</p>
+<p class="last">本来は、[projectName]-infraプロジェクトを別途作成すべきであるが、
+通常infraプロジェクトを隠蔽化する必要がなく、domainプロジェクトに格納されている方が開発しやすいためである。
+必要であれば、[projectName]-infraプロジェクトを作成してよい。</p>
+</div>
+<div class="admonition tip">
+<p class="first admonition-title">Tip</p>
+<p class="last">マルチプロジェクト構成の例として、<a class="reference external" href="https://github.com/terasolunaorg/terasoluna-tourreservation">サンプルアプリケーション</a>や<a class="reference external" href="https://github.com/terasolunaorg/terasoluna-gfw-functionaltest">共通ライブラリのテストアプリケーション</a>を参照されたい。</p>
+</div>
+<div class="line-block">
+<div class="line"><br /></div>
+</div>
+<div class="section" id="projectname-domain">
+<h3><a class="toc-backref" href="#id33">2.4.3.1. [projectName]-domain</a><a class="headerlink" href="#projectname-domain" title="Permalink to this headline">¶</a></h3>
+<p>[projectName]-domainのプロジェクト推奨構成を、以下に示す。</p>
+<div class="highlight-console"><div class="highlight"><pre><span class="go">[projectName]-domain</span>
+<span class="go">  └src</span>
+<span class="go">      └main</span>
+<span class="go">          ├java</span>
+<span class="go">          │  └com</span>
+<span class="go">          │      └example</span>
+<span class="go">          │          └domain ...(1)</span>
+<span class="go">          │              ├model ...(2)</span>
+<span class="go">          │              │  ├Xxx.java</span>
+<span class="go">          │              │  ├Yyy.java</span>
+<span class="go">          │              │  └Zzz.java</span>
+<span class="go">          │              ├repository ...(3)</span>
+<span class="go">          │              │  ├xxx</span>
+<span class="go">          │              │  │  └XxxRepository.java</span>
+<span class="go">          │              │  ├yyy</span>
+<span class="go">          │              │  │  └YyyRepository.java</span>
+<span class="go">          │              │  └zzz</span>
+<span class="go">          │              │      ├ZzzRepository.java</span>
+<span class="go">          │              │      └ZzzRepositoryImpl.java</span>
+<span class="go">          │              └service ...(4)</span>
+<span class="go">          │                  ├aaa</span>
+<span class="go">          │                  │  ├AaaService.java</span>
+<span class="go">          │                  │  └AaaServiceImpl.java</span>
+<span class="go">          │                  └bbb</span>
+<span class="go">          │                      ├BbbService.java</span>
+<span class="go">          │                      └BbbServiceImpl.java</span>
+<span class="go">          └resources</span>
+<span class="go">              └META-INF</span>
+<span class="go">                  └spring</span>
+<span class="go">                      ├[projectName]-codelist.xml ...(5)</span>
+<span class="go">                      ├[projectName]-domain.xml ...(6)</span>
+<span class="go">                      └[projectName]-infra.xml ...(7)</span>
+</pre></div>
+</div>
+<table border="1" class="docutils">
+<colgroup>
+<col width="10%" />
+<col width="90%" />
+</colgroup>
+<thead valign="bottom">
+<tr class="row-odd"><th class="head">項番</th>
+<th class="head">説明</th>
+</tr>
+</thead>
+<tbody valign="top">
+<tr class="row-even"><td><div class="first last line-block">
+<div class="line">(1)</div>
+</div>
+</td>
+<td>ドメイン層の構成要素を格納するパッケージ。</td>
+</tr>
+<tr class="row-odd"><td><div class="first last line-block">
+<div class="line">(2)</div>
+</div>
+</td>
+<td>Domain Objectを格納するパッケージ。</td>
+</tr>
+<tr class="row-even"><td><div class="first last line-block">
+<div class="line">(3)</div>
+</div>
+</td>
+<td><p class="first">リポジトリを格納するパッケージ。</p>
+<p>エンティティごとにパッケージを作成する。
+関連するエンティティがあれば、主となるエンティティのパッケージに、従となるエンティティ(OrderとOrderLineの関係であればOrderLine)のRepositoryも配置する。
+また、検索条件などを保持するDTOなどが必要な場合は、このパッケージに配置する。</p>
+<p class="last">RepositoryImplは、インフラストラクチャ層に属するが、通常、このプロジェクトに含めても問題ない。
+異なるデータストアを使うなど、複数の永続化先があり、実装を隠蔽したい場合は、別プロジェクト(またはパッケージ)に、RepositoryImplを実装するようにする。</p>
+</td>
+</tr>
+<tr class="row-odd"><td><div class="first last line-block">
+<div class="line">(4)</div>
+</div>
+</td>
+<td><p class="first">サービスを格納するパッケージ。</p>
+<p class="last">業務(またはエンティティ)ごとに、パッケージインタフェースと実装を、同じ階層に配置する。入出力クラスが必要な場合は、このパッケージに配置する。</p>
+</td>
+</tr>
+<tr class="row-even"><td><div class="first last line-block">
+<div class="line">(5)</div>
+</div>
+</td>
+<td>コードリストのBean定義を行う。</td>
+</tr>
+<tr class="row-odd"><td><div class="first last line-block">
+<div class="line">(6)</div>
+</div>
+</td>
+<td>ドメイン層に関するBean定義を行う。</td>
+</tr>
+<tr class="row-even"><td><div class="first last line-block">
+<div class="line">(7)</div>
+</div>
+</td>
+<td>インフラストラクチャ層に関するBean定義を行う。</td>
+</tr>
+</tbody>
+</table>
+<div class="line-block">
+<div class="line"><br /></div>
+</div>
+</div>
+<div class="section" id="projectname-web">
+<h3><a class="toc-backref" href="#id34">2.4.3.2. [projectName]-web</a><a class="headerlink" href="#projectname-web" title="Permalink to this headline">¶</a></h3>
+<p>[projectName]-webのプロジェクト推奨構成を、以下に示す。</p>
+<div class="highlight-console"><div class="highlight"><pre><span class="go">[projectName]-web</span>
+<span class="go">  └src</span>
+<span class="go">      └main</span>
+<span class="go">          ├java</span>
+<span class="go">          │  └com</span>
+<span class="go">          │      └example</span>
+<span class="go">          │          └app ...(1)</span>
+<span class="go">          │              ├abc</span>
+<span class="go">          │              │  ├AbcController.java</span>
+<span class="go">          │              │  ├AbcForm.java</span>
+<span class="go">          │              │  └AbcHelper.java</span>
+<span class="go">          │              └def</span>
+<span class="go">          │                  ├DefController.java</span>
+<span class="go">          │                  ├DefForm.java</span>
+<span class="go">          │                  └DefOutput.java</span>
+<span class="go">          ├resources</span>
+<span class="go">          │  ├META-INF</span>
+<span class="go">          │  │  └spring</span>
+<span class="go">          │  │      ├applicationContext.xml ...(2)</span>
+<span class="go">          │  │      ├application.properties ...(3)</span>
+<span class="go">          │  │      ├spring-mvc.xml ...(4)</span>
+<span class="go">          │  │      └spring-security.xml ...(5)</span>
+<span class="go">          │  └i18n</span>
+<span class="go">          │      └application-messages.properties ...(6)</span>
+<span class="go">          └webapp</span>
+<span class="go">              ├resources ...(7)</span>
+<span class="go">              └WEB-INF</span>
+<span class="go">                  ├views ...(8)</span>
+<span class="go">                  │  ├abc</span>
+<span class="go">                  │  │ ├list.jsp</span>
+<span class="go">                  │  │ └createForm.jsp</span>
+<span class="go">                  │  └def</span>
+<span class="go">                  │     ├list.jsp</span>
+<span class="go">                  │     └createForm.jsp</span>
+<span class="go">                  └web.xml ...(9)</span>
+</pre></div>
+</div>
+<table border="1" class="docutils">
+<colgroup>
+<col width="10%" />
+<col width="90%" />
+</colgroup>
+<thead valign="bottom">
+<tr class="row-odd"><th class="head">項番</th>
+<th class="head">説明</th>
+</tr>
+</thead>
+<tbody valign="top">
+<tr class="row-even"><td><div class="first last line-block">
+<div class="line">(1)</div>
+</div>
+</td>
+<td>アプリケーション層の構成要素を格納するパッケージ。</td>
+</tr>
+<tr class="row-odd"><td><div class="first last line-block">
+<div class="line">(2)</div>
+</div>
+</td>
+<td>アプリケーション全体に関するBean定義を行う。</td>
+</tr>
+<tr class="row-even"><td><div class="first last line-block">
+<div class="line">(3)</div>
+</div>
+</td>
+<td>アプリケーションで使用するプロパティを定義する。</td>
+</tr>
+<tr class="row-odd"><td><div class="first last line-block">
+<div class="line">(4)</div>
+</div>
+</td>
+<td>SpringMVCの設定を行うBean定義を行う。</td>
+</tr>
+<tr class="row-even"><td><div class="first last line-block">
+<div class="line">(5)</div>
+</div>
+</td>
+<td>SpringSecurityの設定を行うBean定義を行う。</td>
+</tr>
+<tr class="row-odd"><td><div class="first last line-block">
+<div class="line">(6)</div>
+</div>
+</td>
+<td>画面表示用のメッセージ(国際化対応)定義を行う。</td>
+</tr>
+<tr class="row-even"><td><div class="first last line-block">
+<div class="line">(7)</div>
+</div>
+</td>
+<td>静的リソース(css、js、画像など)を格納する。</td>
+</tr>
+<tr class="row-odd"><td><div class="first last line-block">
+<div class="line">(8)</div>
+</div>
+</td>
+<td>View(jsp)を格納する。</td>
+</tr>
+<tr class="row-even"><td><div class="first last line-block">
+<div class="line">(9)</div>
+</div>
+</td>
+<td>Servletのデプロイメント定義を行う。</td>
+</tr>
+</tbody>
+</table>
+<div class="line-block">
+<div class="line"><br /></div>
+</div>
+</div>
+<div class="section" id="projectname-env">
+<h3><a class="toc-backref" href="#id35">2.4.3.3. [projectName]-env</a><a class="headerlink" href="#projectname-env" title="Permalink to this headline">¶</a></h3>
+<p>[projectName]-envのプロジェクト推奨構成を、以下に示す。</p>
+<div class="highlight-console"><div class="highlight"><pre><span class="go">[projectName]-env</span>
+<span class="go">  ├configs ...(1)</span>
+<span class="go">  │   └[envName] ...(2)</span>
+<span class="go">  │       └resources ...(3)</span>
+<span class="go">  └src</span>
+<span class="go">      └main</span>
+<span class="go">          └resources ...(4)</span>
+<span class="go">             ├META-INF</span>
+<span class="go">             │  └spring</span>
+<span class="go">             │      ├[projectName]-env.xml ...(5)</span>
+<span class="go">             │      └[projectName]-infra.properties ...(6)</span>
+<span class="go">             ├dozer.properties</span>
+<span class="go">             ├log4jdbc.properties</span>
+<span class="go">             └logback.xml ...(7)</span>
+</pre></div>
+</div>
+<table border="1" class="docutils">
+<colgroup>
+<col width="10%" />
+<col width="90%" />
+</colgroup>
+<thead valign="bottom">
+<tr class="row-odd"><th class="head">項番</th>
+<th class="head">説明</th>
+</tr>
+</thead>
+<tbody valign="top">
+<tr class="row-even"><td><div class="first last line-block">
+<div class="line">(1)</div>
+</div>
+</td>
+<td>全環境の環境依存ファイルを管理するためのディレクトリ。</td>
+</tr>
+<tr class="row-odd"><td><div class="first last line-block">
+<div class="line">(2)</div>
+</div>
+</td>
+<td><p class="first">環境毎の環境依存ファイルを管理するためのディレクトリ。</p>
+<p class="last">ディレクトリ名は、環境を識別する名前を指定する。</p>
+</td>
+</tr>
+<tr class="row-even"><td><div class="first last line-block">
+<div class="line">(3)</div>
+</div>
+</td>
+<td><p class="first">環境毎の設定ファイルを管理するためのディレクトリ。</p>
+<p class="last">サブディレクトリの構成や管理する設定ファイルは、(4)と同様。</p>
+</td>
+</tr>
+<tr class="row-odd"><td><div class="first last line-block">
+<div class="line">(4)</div>
+</div>
+</td>
+<td>ローカル開発環境用の設定ファイルを管理するためのディレクトリ。</td>
+</tr>
+<tr class="row-even"><td><div class="first last line-block">
+<div class="line">(5)</div>
+</div>
+</td>
+<td>ローカル開発環境用のBean定義(DataSource等)を行う。</td>
+</tr>
+<tr class="row-odd"><td><div class="first last line-block">
+<div class="line">(6)</div>
+</div>
+</td>
+<td>ローカル開発環境用のプロパティを定義する。</td>
+</tr>
+<tr class="row-even"><td><div class="first last line-block">
+<div class="line">(7)</div>
+</div>
+</td>
+<td>ローカル開発環境用のログ出力定義を行う。</td>
+</tr>
+</tbody>
+</table>
+<div class="admonition note">
+<p class="first admonition-title">Note</p>
+<p>[projectName]-domainと[projectName]-webを別プロジェクトに分ける理由は、依存関係の逆転を防ぐためである。</p>
+<p>[projectName]-webが[projectName]-domainを使用するのは当然であるが、[projectName]-domainが[projectName]-webを参照してはいけない。</p>
+<p class="last">1つのプロジェクトに[projectName]-webと[projectName]-domainの構成要素をまとめてしまうと、誤って不正な参照してしまうことがある。
+プロジェクトを分けて参照順序をつけることで[projectName]-domainが[projectName]-webを参照できないようにすることを強く推奨する。</p>
+</div>
+<div class="admonition note">
+<p class="first admonition-title">Note</p>
+<p>[projectName]-envを作成する理由は環境に依存する情報を外出し、環境毎に切り替えられるようにするためである。</p>
+<p>たとえばデフォルトではローカル開発環境用の設定をして、アプリケーションビルド時には[projectName]-envを除いてwarを作成する。
+結合テスト用の環境やシステムテスト用の環境を別々のjarとして作成すると、そこだけ差し替えてデプロイするということが可能である。</p>
+<p>また使用するRDBMSが変わるようなプロジェクトの場合にも影響を最小限に抑えることができる。</p>
+<p>この点を考慮しない場合は、環境ごとに設定ファイルの内容を行いビルドしなおすという作業が入る。</p>
+<p class="last">環境依存に関するファイルを別プロジェクトにする意義については、<a class="reference internal" href="../Appendix/EnvironmentIndependency.html"><em>環境依存性の排除</em></a>を参照されたい。</p>
+</div>
+</div>
+</div>
+</div>
+
+
+          </div>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="../TutorialTodo/index.html" title="3. チュートリアル(Todoアプリケーション)"
+             >next</a> |</li>
+        <li class="right" >
+          <a href="FirstApplication.html" title="2.3. はじめてのSpring MVCアプリケーション"
+             >previous</a> |</li>
+        <li><a href="../index.html">TERASOLUNA Global Framework Development Guideline 5.0.0-SNAPSHOT documentation</a> &raquo;</li>
+          <li><a href="index.html" >2. TERASOLUNA Global Frameworkのアーキテクチャ概要</a> &raquo;</li> 
+      </ul>
+    </div>
+    <div class="footer">
+        &copy; Copyright 2013-2015, NTT DATA.
+    Created using <a href="http://sphinx.pocoo.org/">Sphinx</a> 1.2.Theme by <a href="http://github.com/vkvn">vkvn</a>
+    </div>
+    
+    <script>
+    
+    $(function() {
+    	var $sidebar	= $('.sphinxsidebar'),
+    		$window		= $(window),
+    		offset		= $sidebar.offset(),
+    		topPadding	= 3,
+    		$scroll		= $('#scroll');
+    	
+    	$window.scroll(function() {
+    		if ($scroll.is(':checked')) {
+				if ($window.scrollTop() > offset.top) {
+					$sidebar.stop().animate({
+						marginTop:$window.scrollTop() - offset.top + topPadding
+					});
+				} else {
+					$sidebar.stop().animate({
+						marginTop:0
+					});
+				}
+			}
+		});
+    	
+    	var $navList = $('ul:first', $sidebar);
+    	$('li:first', $navList).addClass('open');
+    	
+    	$navList.treeview({
+    		persist: "location",
+    		collapsed: true,
+    		unique: false
+    	});
+    	
+	});
+    (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+        (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+            m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+    })(window,document,'script','//www.google-analytics.com/analytics.js','ga');
+
+    ga('create', 'UA-46550814-1', 'terasolunaorg.github.io');
+    ga('send', 'pageview');
+    </script>
+  </body>
+</html>

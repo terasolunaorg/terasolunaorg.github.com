@@ -1,0 +1,2997 @@
+<!DOCTYPE html>
+
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>6.3. 認証 &mdash; TERASOLUNA Global Framework Development Guideline 5.0.0-SNAPSHOT documentation</title>
+    
+    <link rel="stylesheet" href="../_static/solar.css" type="text/css" />
+    <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+    
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    '../',
+        VERSION:     '5.0.0-SNAPSHOT',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true
+      };
+    </script>
+    <script type="text/javascript" src="../_static/jquery.js"></script>
+    <script type="text/javascript" src="../_static/underscore.js"></script>
+    <script type="text/javascript" src="../_static/doctools.js"></script>
+    <link rel="top" title="TERASOLUNA Global Framework Development Guideline 5.0.0-SNAPSHOT documentation" href="../index.html" />
+    <link rel="up" title="6. TERASOLUNA Global Frameworkによるセキュリティ対策" href="index.html" />
+    <link rel="next" title="6.4. パスワードハッシュ化" href="PasswordHashing.html" />
+    <link rel="prev" title="6.2. Spring Securtityチュートリアル" href="Tutorial.html" /><script src="../_static/jquery.treeview.js" type="text/javascript"></script>
+<!-- <link href='http://fonts.googleapis.com/css?family=Source+Code+Pro|Open+Sans:300italic,400italic,700italic,400,300,700' rel='stylesheet' type='text/css'> -->
+<link href="../_static/solarized-dark.css" rel="stylesheet">
+<link href="../_static/jquery.treeview.css" rel="stylesheet">
+  </head>
+  <body>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="PasswordHashing.html" title="6.4. パスワードハッシュ化"
+             accesskey="N">next</a> |</li>
+        <li class="right" >
+          <a href="Tutorial.html" title="6.2. Spring Securtityチュートリアル"
+             accesskey="P">previous</a> |</li>
+        <li><a href="../index.html">TERASOLUNA Global Framework Development Guideline 5.0.0-SNAPSHOT documentation</a> &raquo;</li>
+          <li><a href="index.html" accesskey="U">6. TERASOLUNA Global Frameworkによるセキュリティ対策</a> &raquo;</li> 
+      </ul>
+    </div>
+      <div class="sphinxsidebar">
+        <div class="sphinxsidebarwrapper"><label><input id="scroll" type="checkbox" checked> scroll sidebar</label>
+
+  <h3><a href="../index.html">Table Of Contents</a></h3>
+  <ul>
+<li><a class="reference internal" href="#">6.3. 認証</a><ul>
+<li><a class="reference internal" href="#overview">6.3.1. Overview</a><ul>
+<li><a class="reference internal" href="#login">6.3.1.1. Login</a></li>
+<li><a class="reference internal" href="#logout">6.3.1.2. Logout</a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#how-to-use">6.3.2. How to use</a><ul>
+<li><a class="reference internal" href="#sec-http">6.3.2.1. <tt class="docutils literal"><span class="pre">&lt;sec:http&gt;</span></tt>要素の設定</a></li>
+<li><a class="reference internal" href="#sec-form-login">6.3.2.2. <tt class="docutils literal"><span class="pre">&lt;sec:form-login&gt;</span></tt>要素の設定</a><ul>
+<li><a class="reference internal" href="#form-login-jsp">6.3.2.2.1. ログインフォームの作成</a></li>
+<li><a class="reference internal" href="#id4">6.3.2.2.2. ログインフォームの属性名変更</a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#id5">6.3.2.3. 認証処理の設定</a><ul>
+<li><a class="reference internal" href="#authenticationprovider">6.3.2.3.1. <tt class="docutils literal"><span class="pre">AuthenticationProvider</span></tt>クラスの設定</a></li>
+<li><a class="reference internal" href="#userdetailsservice">6.3.2.3.2. <tt class="docutils literal"><span class="pre">UserDetailsService</span></tt>クラスの設定</a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#userdetails">6.3.2.4. <tt class="docutils literal"><span class="pre">UserDetails</span></tt>クラスの利用方法</a><ul>
+<li><a class="reference internal" href="#javauserdetails">6.3.2.4.1. Javaクラスで<tt class="docutils literal"><span class="pre">UserDetails</span></tt>オブジェクトを利用する</a></li>
+<li><a class="reference internal" href="#jspuserdetails">6.3.2.4.2. JSPで<tt class="docutils literal"><span class="pre">UserDetails</span></tt>にアクセスする</a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#authentication-spring-security-how-to-use-sessionmanagement">6.3.2.5. Spring Securityにおけるセッション管理</a><ul>
+<li><a class="reference internal" href="#concurrent-session-control">6.3.2.5.1. Concurrent Session Controlの利用設定</a></li>
+<li><a class="reference internal" href="#sec-concurrency-control">6.3.2.5.2. <tt class="docutils literal"><span class="pre">&lt;sec:concurrency-control&gt;</span></tt>の設定</a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#authentication-failure-handler-ref">6.3.2.6. 認証エラー時のハンドラクラスの設定</a></li>
+<li><a class="reference internal" href="#sec-logout">6.3.2.7. <tt class="docutils literal"><span class="pre">&lt;sec:logout&gt;</span></tt>要素の設定</a></li>
+<li><a class="reference internal" href="#sec-remember-me">6.3.2.8. <tt class="docutils literal"><span class="pre">&lt;sec:remember-me&gt;</span></tt>要素の設定</a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#how-to-extend">6.3.3. How to extend</a><ul>
+<li><a class="reference internal" href="#extendsuserdetailsservice">6.3.3.1. <tt class="docutils literal"><span class="pre">UserDetailsService</span></tt>の拡張</a><ul>
+<li><a class="reference internal" href="#id18">6.3.3.1.1. <tt class="docutils literal"><span class="pre">UserDetails</span></tt>の拡張</a></li>
+<li><a class="reference internal" href="#id19">6.3.3.1.2. 独自<tt class="docutils literal"><span class="pre">UserDetailsService</span></tt>の実装</a></li>
+<li><a class="reference internal" href="#id20">6.3.3.1.3. 使用方法</a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#id21">6.3.3.2. <tt class="docutils literal"><span class="pre">AuthenticationProvider</span></tt>の拡張</a><ul>
+<li><a class="reference internal" href="#usernamepasswordauthenticationtoken">6.3.3.2.1. <tt class="docutils literal"><span class="pre">UsernamePasswordAuthenticationToken</span></tt>の拡張</a></li>
+<li><a class="reference internal" href="#id23">6.3.3.2.2. 独自<tt class="docutils literal"><span class="pre">AuthenticationProvider</span></tt>の実装</a></li>
+<li><a class="reference internal" href="#usernamepasswordauthenticationfilter">6.3.3.2.3. <tt class="docutils literal"><span class="pre">UsernamePasswordAuthenticationFilter</span></tt>の拡張</a></li>
+<li><a class="reference internal" href="#id24">6.3.3.2.4. 使用方法</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li><a class="reference internal" href="#appendix">6.3.4. Appendix</a></li>
+</ul>
+</li>
+</ul>
+
+
+  <h4>Previous topic</h4>
+  <p class="topless"><a href="Tutorial.html"
+                        title="previous chapter">6.2. Spring Securtityチュートリアル</a></p>
+  <h4>Next topic</h4>
+  <p class="topless"><a href="PasswordHashing.html"
+                        title="next chapter">6.4. パスワードハッシュ化</a></p>
+  <h3>This Page</h3>
+  <ul class="this-page-menu">
+    <li><a href="../_sources/Security/Authentication.txt"
+           rel="nofollow">Show Source</a></li>
+  </ul>
+<div id="searchbox" style="display: none">
+  <h3>Quick search</h3>
+    <form class="search" action="../search.html" method="get">
+      <input type="text" name="q" />
+      <input type="submit" value="Go" />
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+    <p class="searchtip" style="font-size: 90%">
+    Enter search terms or a module, class or function name.
+    </p>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body">
+            
+  <div class="section" id="id1">
+<h1>6.3. 認証<a class="headerlink" href="#id1" title="Permalink to this headline">¶</a></h1>
+<div class="contents local topic" id="id2">
+<p class="topic-title first">目次</p>
+<ul class="simple">
+<li><a class="reference internal" href="#overview" id="id25">Overview</a><ul>
+<li><a class="reference internal" href="#login" id="id26">Login</a></li>
+<li><a class="reference internal" href="#logout" id="id27">Logout</a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#how-to-use" id="id28">How to use</a><ul>
+<li><a class="reference internal" href="#sec-http" id="id29"><tt class="docutils literal"><span class="pre">&lt;sec:http&gt;</span></tt>要素の設定</a></li>
+<li><a class="reference internal" href="#sec-form-login" id="id30"><tt class="docutils literal"><span class="pre">&lt;sec:form-login&gt;</span></tt>要素の設定</a><ul>
+<li><a class="reference internal" href="#form-login-jsp" id="id31">ログインフォームの作成</a></li>
+<li><a class="reference internal" href="#id4" id="id32">ログインフォームの属性名変更</a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#id5" id="id33">認証処理の設定</a><ul>
+<li><a class="reference internal" href="#authenticationprovider" id="id34"><tt class="docutils literal"><span class="pre">AuthenticationProvider</span></tt>クラスの設定</a></li>
+<li><a class="reference internal" href="#userdetailsservice" id="id35"><tt class="docutils literal"><span class="pre">UserDetailsService</span></tt>クラスの設定</a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#userdetails" id="id36"><tt class="docutils literal"><span class="pre">UserDetails</span></tt>クラスの利用方法</a><ul>
+<li><a class="reference internal" href="#javauserdetails" id="id37">Javaクラスで<tt class="docutils literal"><span class="pre">UserDetails</span></tt>オブジェクトを利用する</a></li>
+<li><a class="reference internal" href="#jspuserdetails" id="id38">JSPで<tt class="docutils literal"><span class="pre">UserDetails</span></tt>にアクセスする</a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#authentication-spring-security-how-to-use-sessionmanagement" id="id39">Spring Securityにおけるセッション管理</a><ul>
+<li><a class="reference internal" href="#concurrent-session-control" id="id40">Concurrent Session Controlの利用設定</a></li>
+<li><a class="reference internal" href="#sec-concurrency-control" id="id41"><tt class="docutils literal"><span class="pre">&lt;sec:concurrency-control&gt;</span></tt>の設定</a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#authentication-failure-handler-ref" id="id42">認証エラー時のハンドラクラスの設定</a></li>
+<li><a class="reference internal" href="#sec-logout" id="id43"><tt class="docutils literal"><span class="pre">&lt;sec:logout&gt;</span></tt>要素の設定</a></li>
+<li><a class="reference internal" href="#sec-remember-me" id="id44"><tt class="docutils literal"><span class="pre">&lt;sec:remember-me&gt;</span></tt>要素の設定</a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#how-to-extend" id="id45">How to extend</a><ul>
+<li><a class="reference internal" href="#extendsuserdetailsservice" id="id46"><tt class="docutils literal"><span class="pre">UserDetailsService</span></tt>の拡張</a><ul>
+<li><a class="reference internal" href="#id18" id="id47"><tt class="docutils literal"><span class="pre">UserDetails</span></tt>の拡張</a></li>
+<li><a class="reference internal" href="#id19" id="id48">独自<tt class="docutils literal"><span class="pre">UserDetailsService</span></tt>の実装</a></li>
+<li><a class="reference internal" href="#id20" id="id49">使用方法</a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#id21" id="id50"><tt class="docutils literal"><span class="pre">AuthenticationProvider</span></tt>の拡張</a><ul>
+<li><a class="reference internal" href="#usernamepasswordauthenticationtoken" id="id51"><tt class="docutils literal"><span class="pre">UsernamePasswordAuthenticationToken</span></tt>の拡張</a></li>
+<li><a class="reference internal" href="#id23" id="id52">独自<tt class="docutils literal"><span class="pre">AuthenticationProvider</span></tt>の実装</a></li>
+<li><a class="reference internal" href="#usernamepasswordauthenticationfilter" id="id53"><tt class="docutils literal"><span class="pre">UsernamePasswordAuthenticationFilter</span></tt>の拡張</a></li>
+<li><a class="reference internal" href="#id24" id="id54">使用方法</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li><a class="reference internal" href="#appendix" id="id55">Appendix</a></li>
+</ul>
+</div>
+<div class="section" id="overview">
+<h2><a class="toc-backref" href="#id25">6.3.1. Overview</a><a class="headerlink" href="#overview" title="Permalink to this headline">¶</a></h2>
+<p>本節では、Spring Securityで提供している認証機能を説明する。</p>
+<p>Spring Securityでは、設定ファイルの記述のみで、ユーザ認証を実装することができる。
+Spring Securityで提供している認証方式として、DB認証、LDAP認証、CAS認証、JAAS認証、X509認証、Basic認証がサポートされているが、本ガイドラインでは、DB認証についてのみ説明する。</p>
+<div class="admonition tip">
+<p class="first admonition-title">Tip</p>
+<p>DB認証以外の詳細は、各認証方式の公式ドキュメントを参照されたい。</p>
+<ul class="last simple">
+<li><a class="reference external" href="http://docs.spring.io/spring-security/site/docs/3.2.5.RELEASE/reference/htmlsingle/#ldap">LDAP Authentication</a></li>
+<li><a class="reference external" href="http://docs.spring.io/spring-security/site/docs/3.2.5.RELEASE/reference/htmlsingle/#cas">CAS Authentication</a></li>
+<li><a class="reference external" href="http://docs.spring.io/spring-security/site/docs/3.2.5.RELEASE/reference/htmlsingle/#jaas">Java Authentication and Authorization Service (JAAS) Provider</a></li>
+<li><a class="reference external" href="http://docs.spring.io/spring-security/site/docs/3.2.5.RELEASE/reference/htmlsingle/#x509">X.509 Authentication</a></li>
+<li><a class="reference external" href="http://docs.spring.io/spring-security/site/docs/3.2.5.RELEASE/reference/htmlsingle/#basic">Basic and Digest Authentication</a></li>
+</ul>
+</div>
+<div class="section" id="login">
+<h3><a class="toc-backref" href="#id26">6.3.1.1. Login</a><a class="headerlink" href="#login" title="Permalink to this headline">¶</a></h3>
+<p>Spring Securityによるログイン処理の流れを以下に示す。</p>
+<div class="figure align-center">
+<a class="reference internal image-reference" href="../_images/Authentication_Login_overview.png"><img alt="Authentication(Login)" src="../_images/Authentication_Login_overview.png" style="width: 80%;" /></a>
+</div>
+<ol class="arabic simple">
+<li>認証処理を指定したリクエストを受信すると、認証フィルタが起動する。</li>
+<li>認証フィルタは、リクエストからユーザ、パスワードを抽出し、認証情報を生成する。
+生成した認証情報をパラメータとし、認証マネージャの認証処理を実行する。</li>
+<li>認証マネージャは、指定された認証プロバイダの認証処理を実行する。
+認証プロバイダは、データソース（DBやLDAP）からユーザ情報を取得し、パスワード照合等のユーザ認証を行う。
+認証成功時には、認証済みの情報を保持する認証情報を作成し、
+認証マネージャに返す。認証失敗の場合は、認証失敗例外を送出する。</li>
+<li>認証マネージャは、受け取った認証情報を認証フィルタに返す。</li>
+<li>認証フィルタは、受け取った認証情報（認証済み）をセッションに格納する。</li>
+<li>認証成功時は、認証前のセッション情報を初期化し、新たにセッション情報を作成する。</li>
+<li>指定された認証成功/失敗時のパスへリダイレクトする。セッションIDをクライアントに返却する。</li>
+</ol>
+</div>
+<div class="section" id="logout">
+<h3><a class="toc-backref" href="#id27">6.3.1.2. Logout</a><a class="headerlink" href="#logout" title="Permalink to this headline">¶</a></h3>
+<p>Spring Securityによるログアウト処理の流れを以下に示す。</p>
+<div class="figure align-center">
+<a class="reference internal image-reference" href="../_images/Authentication_Logout_overview.png"><img alt="Authentication(Logout)" src="../_images/Authentication_Logout_overview.png" style="width: 80%;" /></a>
+</div>
+<ol class="arabic simple">
+<li>指定されたログアウト処理へのリクエストを受信すると、ログアウトフィルタが起動する。</li>
+<li>ログアウトフィルタはセッション情報を破棄する。
+また、クライアントのクッキー（図中のCookie）を破棄するようなレスポンスを設定する。</li>
+<li>指定されたログアウト時のパスへ、リダイレクトする。</li>
+</ol>
+<dl class="docutils">
+<dt></dt>
+<dd><div class="first last admonition note">
+<p class="first admonition-title">Note</p>
+<p class="last">ログアウト後、残存するセッション情報が第三者に利用されることによるなりすましを防ぐため、
+セッション情報は、ログアウト時に<tt class="docutils literal"><span class="pre">org.springframework.security.web.session.ConcurrentSessionFilter</span></tt>で破棄される。</p>
+</div>
+</dd>
+</dl>
+<div class="line-block">
+<div class="line"><br /></div>
+</div>
+</div>
+</div>
+<div class="section" id="how-to-use">
+<h2><a class="toc-backref" href="#id28">6.3.2. How to use</a><a class="headerlink" href="#how-to-use" title="Permalink to this headline">¶</a></h2>
+<div class="line-block">
+<div class="line">認証機能を使用するために、Spring Securityの設定ファイルに記述する内容を以下に示す。</div>
+<div class="line">基本設定については、<a class="reference internal" href="SpringSecurity.html"><em>Spring Security概要</em></a>を参照されたい。</div>
+</div>
+<div class="section" id="sec-http">
+<h3><a class="toc-backref" href="#id29">6.3.2.1. <tt class="docutils literal"><span class="pre">&lt;sec:http&gt;</span></tt>要素の設定</a><a class="headerlink" href="#sec-http" title="Permalink to this headline">¶</a></h3>
+<div class="line-block">
+<div class="line">以下の設定例のように、spring-security.xmlの<tt class="docutils literal"><span class="pre">&lt;http&gt;</span></tt>要素の<tt class="docutils literal"><span class="pre">auto-config</span></tt>属性を<tt class="docutils literal"><span class="pre">true</span></tt>とすることで、</div>
+<div class="line">Spring Securityの認証機能の基本的な設定を、省略することができる。</div>
+</div>
+<div class="highlight-xml"><div class="highlight"><pre><span class="nt">&lt;beans</span> <span class="na">xmlns=</span><span class="s">&quot;http://www.springframework.org/schema/beans&quot;</span>
+    <span class="na">xmlns:xsi=</span><span class="s">&quot;http://www.w3.org/2001/XMLSchema-instance&quot;</span>
+    <span class="na">xmlns:sec=</span><span class="s">&quot;http://www.springframework.org/schema/security&quot;</span>
+    <span class="na">xmlns:context=</span><span class="s">&quot;http://www.springframework.org/schema/context&quot;</span>
+    <span class="na">xsi:schemaLocation=</span><span class="s">&quot;http://www.springframework.org/schema/security</span>
+<span class="s">        http://www.springframework.org/schema/security/spring-security.xsd</span>
+<span class="s">        http://www.springframework.org/schema/beans</span>
+<span class="s">        http://www.springframework.org/schema/beans/spring-beans.xsd</span>
+<span class="s">        http://www.springframework.org/schema/context</span>
+<span class="s">        http://www.springframework.org/schema/context/spring-context.xsd&quot;</span><span class="nt">&gt;</span>
+    <span class="nt">&lt;sec:http</span> <span class="na">auto-config=</span><span class="s">&quot;true&quot;</span> <span class="na">use-expressions=</span><span class="s">&quot;true&quot;</span><span class="nt">&gt;</span>  <span class="c">&lt;!-- (1) --&gt;</span>
+      <span class="c">&lt;!-- omitted --&gt;</span>
+    <span class="nt">&lt;/sec:http&gt;</span>
+<span class="nt">&lt;/beans&gt;</span>
+</pre></div>
+</div>
+<table border="1" class="docutils">
+<colgroup>
+<col width="10%" />
+<col width="90%" />
+</colgroup>
+<thead valign="bottom">
+<tr class="row-odd"><th class="head">項番</th>
+<th class="head">説明</th>
+</tr>
+</thead>
+<tbody valign="top">
+<tr class="row-even"><td><div class="first last line-block">
+<div class="line">(1)</div>
+</div>
+</td>
+<td><div class="first last line-block">
+<div class="line"><tt class="docutils literal"><span class="pre">auto-config=&quot;true&quot;</span></tt>と設定することで、</div>
+<div class="line"><tt class="docutils literal"><span class="pre">&lt;form-login&gt;</span></tt>、<tt class="docutils literal"><span class="pre">&lt;http-basic&gt;</span></tt>、<tt class="docutils literal"><span class="pre">&lt;logout&gt;</span></tt>要素を設定しなくても有効になる。</div>
+</div>
+</td>
+</tr>
+</tbody>
+</table>
+<div class="admonition note">
+<p class="first admonition-title">Note</p>
+<p><tt class="docutils literal"><span class="pre">&lt;form-login&gt;</span></tt>、<tt class="docutils literal"><span class="pre">&lt;http-basic&gt;</span></tt>、<tt class="docutils literal"><span class="pre">&lt;logout&gt;</span></tt>要素について説明する。</p>
+<blockquote class="last">
+<div><table border="1" class="docutils">
+<colgroup>
+<col width="15%" />
+<col width="85%" />
+</colgroup>
+<thead valign="bottom">
+<tr class="row-odd"><th class="head">要素名</th>
+<th class="head">説明</th>
+</tr>
+</thead>
+<tbody valign="top">
+<tr class="row-even"><td><div class="first last line-block">
+<div class="line"><tt class="docutils literal"><span class="pre">&lt;form-login&gt;</span></tt></div>
+</div>
+</td>
+<td><div class="first last line-block">
+<div class="line"><tt class="docutils literal"><span class="pre">org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter</span></tt>が有効になる。</div>
+<div class="line">UsernamePasswordAuthenticationFilterは、ユーザ名、パスワードをPOST時に、リクエストから取り出し、認証を行うFilterである。</div>
+<div class="line">詳細は、<a class="reference internal" href="#form-login"><em>&lt;sec:form-login&gt;要素の設定</em></a>を参照されたい。</div>
+</div>
+</td>
+</tr>
+<tr class="row-odd"><td><div class="first last line-block">
+<div class="line"><tt class="docutils literal"><span class="pre">&lt;http-basic&gt;</span></tt></div>
+</div>
+</td>
+<td><div class="first last line-block">
+<div class="line"><tt class="docutils literal"><span class="pre">org.springframework.security.web.authentication.www.BasicAuthenticationFilter</span></tt>が有効になる。</div>
+<div class="line">BasicAuthenticationFilterは、Basic認証の処理を実施するFilterであり、RFC1945に準拠して実装されている。</div>
+<div class="line">詳細な利用方法は、<a class="reference external" href="http://docs.spring.io/spring-security/site/docs/3.2.5.RELEASE/apidocs/org/springframework/security/web/authentication/www/BasicAuthenticationFilter.html">BasicAuthenticationFilter JavaDoc</a>を参照されたい。</div>
+</div>
+</td>
+</tr>
+<tr class="row-even"><td><div class="first last line-block">
+<div class="line"><tt class="docutils literal"><span class="pre">&lt;logout&gt;</span></tt></div>
+</div>
+</td>
+<td><div class="first last line-block">
+<div class="line"><tt class="docutils literal"><span class="pre">org.springframework.security.web.authentication.logout.LogoutFilter</span></tt>,</div>
+<div class="line"><tt class="docutils literal"><span class="pre">org.springframework.security.web.authentication.logout.SecurityContextLogoutHandler</span></tt>が有効になる。</div>
+<div class="line">LogoutFilterは、ログアウト時に呼ばれるFilterであり、</div>
+<div class="line"><tt class="docutils literal"><span class="pre">org.springframework.security.web.authentication.rememberme.TokenBasedRememberMeServices</span></tt>(Cookieの削除) や、</div>
+<div class="line">SecurityContextLogoutHandler(セッションの無効化)を呼び出している。</div>
+<div class="line">詳細は、<a class="reference internal" href="#form-logout"><em>&lt;sec:logout&gt;要素の設定</em></a>を参照されたい。</div>
+</div>
+</td>
+</tr>
+</tbody>
+</table>
+</div></blockquote>
+</div>
+</div>
+<div class="section" id="sec-form-login">
+<span id="form-login"></span><h3><a class="toc-backref" href="#id30">6.3.2.2. <tt class="docutils literal"><span class="pre">&lt;sec:form-login&gt;</span></tt>要素の設定</a><a class="headerlink" href="#sec-form-login" title="Permalink to this headline">¶</a></h3>
+<div class="line-block">
+<div class="line">本節では、<tt class="docutils literal"><span class="pre">&lt;sec:form-login&gt;</span></tt>要素の設定方法を説明する。</div>
+<div class="line"><br /></div>
+<div class="line">form-login要素の属性について、以下に示す。</div>
+</div>
+<p>spring-security.xml</p>
+<div class="highlight-xml"><div class="highlight"><pre><span class="nt">&lt;beans</span> <span class="na">xmlns=</span><span class="s">&quot;http://www.springframework.org/schema/beans&quot;</span>
+    <span class="na">xmlns:xsi=</span><span class="s">&quot;http://www.w3.org/2001/XMLSchema-instance&quot;</span>
+    <span class="na">xmlns:sec=</span><span class="s">&quot;http://www.springframework.org/schema/security&quot;</span>
+    <span class="na">xmlns:context=</span><span class="s">&quot;http://www.springframework.org/schema/context&quot;</span>
+    <span class="na">xsi:schemaLocation=</span><span class="s">&quot;http://www.springframework.org/schema/security</span>
+<span class="s">        http://www.springframework.org/schema/security/spring-security.xsd</span>
+<span class="s">        http://www.springframework.org/schema/beans</span>
+<span class="s">        http://www.springframework.org/schema/beans/spring-beans.xsd</span>
+<span class="s">        http://www.springframework.org/schema/context</span>
+<span class="s">        http://www.springframework.org/schema/context/spring-context.xsd&quot;</span><span class="nt">&gt;</span>
+  <span class="nt">&lt;sec:http</span> <span class="na">auto-config=</span><span class="s">&quot;true&quot;</span> <span class="na">use-expressions=</span><span class="s">&quot;true&quot;</span><span class="nt">&gt;</span>
+    <span class="nt">&lt;sec:form-login</span> <span class="na">login-page=</span><span class="s">&quot;/login&quot;</span>
+        <span class="na">default-target-url=</span><span class="s">&quot;/&quot;</span>
+        <span class="na">login-processing-url=</span><span class="s">&quot;/authentication&quot;</span>
+        <span class="na">always-use-default-target=</span><span class="s">&quot;false&quot;</span>
+        <span class="na">authentication-failure-url=</span><span class="s">&quot;/login?error=true&quot;</span>
+        <span class="na">authentication-failure-handler-ref=</span><span class="s">&quot;authenticationFailureHandler&quot;</span>
+        <span class="na">authentication-success-handler-ref=</span><span class="s">&quot;authenticationSuccessHandler&quot;</span> <span class="nt">/&gt;</span> <span class="c">&lt;!-- 属性の指定順番で(1)～(7) --&gt;</span>
+  <span class="nt">&lt;/sec:http&gt;</span>
+<span class="nt">&lt;/beans&gt;</span>
+</pre></div>
+</div>
+<table border="1" class="docutils">
+<colgroup>
+<col width="10%" />
+<col width="90%" />
+</colgroup>
+<thead valign="bottom">
+<tr class="row-odd"><th class="head">項番</th>
+<th class="head">説明</th>
+</tr>
+</thead>
+<tbody valign="top">
+<tr class="row-even"><td><div class="first last line-block">
+<div class="line">(1)</div>
+</div>
+</td>
+<td><div class="first last line-block">
+<div class="line"><tt class="docutils literal"><span class="pre">login-page</span></tt>属性にログインフォーム画面のパスを指定する。</div>
+<div class="line">「未認証ユーザ」が「認証ユーザ」しかアクセスできないページにアクセスした際に、</div>
+<div class="line">強制リダイレクトさせるパス。</div>
+</div>
+</td>
+</tr>
+<tr class="row-odd"><td><div class="first last line-block">
+<div class="line">(2)</div>
+</div>
+</td>
+<td><div class="first last line-block">
+<div class="line"><tt class="docutils literal"><span class="pre">default-target-url</span></tt>属性に認証成功時の遷移先パスを指定する。指定がない場合、&#8221;/&#8221;が、デフォルトのパスになる。</div>
+</div>
+</td>
+</tr>
+<tr class="row-even"><td><div class="first last line-block">
+<div class="line">(3)</div>
+</div>
+</td>
+<td><div class="first last line-block">
+<div class="line"><tt class="docutils literal"><span class="pre">login-processing-url</span></tt>属性に認証処理を行うパスを指定する。指定がない場合、「j_spring_security_check」がデフォルトのパスになる。</div>
+<div class="line"><strong>本ガイドラインでは、上記のデフォルト値「j_spring_security_check」を使用せず、システム独自の値に変更することを推奨する。</strong>この例では&#8221;/authentication&#8221;を指定している。</div>
+</div>
+</td>
+</tr>
+<tr class="row-odd"><td><div class="first last line-block">
+<div class="line">(4)</div>
+</div>
+</td>
+<td><div class="first last line-block">
+<div class="line">ログイン成功後に<tt class="docutils literal"><span class="pre">default-target-url</span></tt>に指定したパスに常に遷移するかどうかを<tt class="docutils literal"><span class="pre">always-use-default-target</span></tt>属性に設定する。</div>
+<div class="line">デフォルトは、<tt class="docutils literal"><span class="pre">false</span></tt>である。<tt class="docutils literal"><span class="pre">false</span></tt>に設定されている場合、認証成功のハンドラの基底クラスである<tt class="docutils literal"><span class="pre">org.springframework.security.web.authentication.AbstractAuthenticationTargetUrlRequestHandler</span></tt>で</div>
+<div class="line">リダイレクト先が指定されていれば、指定先に遷移する。指定がない場合、<tt class="docutils literal"><span class="pre">default-target-url</span></tt>に指定したパスに遷移する。</div>
+</div>
+</td>
+</tr>
+<tr class="row-even"><td><div class="first last line-block">
+<div class="line">(5)</div>
+</div>
+</td>
+<td><div class="first last line-block">
+<div class="line"><tt class="docutils literal"><span class="pre">authentication-failure-url</span></tt>に認証失敗時の遷移先を設定する。</div>
+<div class="line"><tt class="docutils literal"><span class="pre">authentication-failure-handler-ref</span></tt>属性の指定がない場合、認証エラーの種別を問わず、一律、本設定の遷移先に遷移する。</div>
+</div>
+</td>
+</tr>
+<tr class="row-odd"><td><div class="first last line-block">
+<div class="line">(6)</div>
+</div>
+</td>
+<td><div class="first last line-block">
+<div class="line"><tt class="docutils literal"><span class="pre">default-target-url</span></tt>属性に認証失敗時に呼ばれる、ハンドラクラスを指定する。</div>
+<div class="line">詳細は、<a class="reference internal" href="#authentication-failure-handler-ref"><em>認証エラー時のハンドラクラスの設定</em></a>を参照されたい。</div>
+</div>
+</td>
+</tr>
+<tr class="row-even"><td><div class="first last line-block">
+<div class="line">(7)</div>
+</div>
+</td>
+<td><div class="first last line-block">
+<div class="line"><tt class="docutils literal"><span class="pre">default-target-url</span></tt>属性に認証成功時に呼ばれる、ハンドラクラスを指定する。</div>
+</div>
+</td>
+</tr>
+</tbody>
+</table>
+<p>上記以外の属性については、<a class="reference external" href="http://docs.spring.io/spring-security/site/docs/3.2.5.RELEASE/reference/htmlsingle/#nsa-form-login">Spring Securityのマニュアル</a>を参照されたい。</p>
+<div class="admonition warning">
+<p class="first admonition-title">Warning</p>
+<p><strong>Spring Security のデフォルト値「j_spring_security_check」の使用を推奨しない理由</strong></p>
+<p class="last">デフォルト値を使用している場合、そのアプリケーションが、Spring Securityを使用していることについて、露見してしまう。
+そのため、Spring Securityの脆弱性が発見された場合、脆弱性をついた攻撃を受けるリスクが高くなる。
+前述のリスクを避けるためにも、デフォルト値を使用しないことを推奨する。</p>
+</div>
+<div class="section" id="form-login-jsp">
+<span id="id3"></span><h4><a class="toc-backref" href="#id31">6.3.2.2.1. ログインフォームの作成</a><a class="headerlink" href="#form-login-jsp" title="Permalink to this headline">¶</a></h4>
+<div class="line-block">
+<div class="line">認証時に使用するログインフォームをJSPで作成する。</div>
+</div>
+<ul>
+<li><p class="first">src/main/webapp/WEB-INF/views/login.jsp</p>
+<div class="highlight-jsp"><div class="highlight"><pre><span class="nt">&lt;form:form</span> <span class="na">action=</span><span class="s">&quot;${pageContext.request.contextPath}/authentication&quot;</span> <span class="na">method=</span><span class="s">&quot;post&quot;</span><span class="nt">&gt;</span><span class="c">&lt;!-- (1) --&gt;</span>
+    <span class="c">&lt;!-- omitted --&gt;</span>
+    <span class="nt">&lt;input</span> <span class="na">type=</span><span class="s">&quot;text&quot;</span> <span class="na">id=</span><span class="s">&quot;username&quot;</span> <span class="na">name=</span><span class="s">&quot;j_username&quot;</span><span class="nt">&gt;</span><span class="c">&lt;!-- (2) --&gt;</span>
+    <span class="nt">&lt;input</span> <span class="na">type=</span><span class="s">&quot;password&quot;</span> <span class="na">id=</span><span class="s">&quot;password&quot;</span> <span class="na">name=</span><span class="s">&quot;j_password&quot;</span><span class="nt">&gt;</span><span class="c">&lt;!-- (5) --&gt;</span>
+    <span class="nt">&lt;input</span> <span class="na">type=</span><span class="s">&quot;submit&quot;</span> <span class="na">value=</span><span class="s">&quot;Login&quot;</span><span class="nt">&gt;</span>
+<span class="nt">&lt;/form:form&gt;</span>
+</pre></div>
+</div>
+<table border="1" class="docutils">
+<colgroup>
+<col width="10%" />
+<col width="90%" />
+</colgroup>
+<thead valign="bottom">
+<tr class="row-odd"><th class="head"><p class="first last">項番</p>
+</th>
+<th class="head"><p class="first last">説明</p>
+</th>
+</tr>
+</thead>
+<tbody valign="top">
+<tr class="row-even"><td><div class="first last line-block">
+<div class="line">(1)</div>
+</div>
+</td>
+<td><div class="first last line-block">
+<div class="line">formのaction属性に認証処理を行うための遷移先を指定する。</div>
+<div class="line">遷移先のパスはlogin-processing-url属性で指定した、/authentication を指定すること。</div>
+<div class="line">${pageContext.request.contextPath}/authenticationにアクセスすることで認証処理が実行される。</div>
+<div class="line">HTTPメソッドは、「POST」を指定すること。</div>
+</div>
+</td>
+</tr>
+<tr class="row-odd"><td><div class="first last line-block">
+<div class="line">(4)</div>
+</div>
+</td>
+<td><div class="first last line-block">
+<div class="line">認証処理において、「ユーザID」として扱われる要素。</div>
+<div class="line">name属性には、Spring Securityのデフォルト値である「j_username」を指定すること。</div>
+</div>
+</td>
+</tr>
+<tr class="row-even"><td><div class="first last line-block">
+<div class="line">(5)</div>
+</div>
+</td>
+<td><div class="first last line-block">
+<div class="line">認証処理において、「パスワード」として扱われる要素。</div>
+<div class="line">name属性には、Spring Securityのデフォルト値である「j_password」を指定すること。</div>
+</div>
+</td>
+</tr>
+</tbody>
+</table>
+<p>認証エラーメッセージを表示する場合は以下の追加する</p>
+<div class="highlight-jsp"><div class="highlight"><pre><span class="nt">&lt;c:if</span> <span class="na">test=</span><span class="s">&quot;${param.error}&quot;</span><span class="nt">&gt;</span><span class="c">&lt;!-- (1) --&gt;</span>
+    <span class="nt">&lt;t:messagesPanel</span>
+        <span class="na">messagesAttributeName=</span><span class="s">&quot;SPRING_SECURITY_LAST_EXCEPTION&quot;</span><span class="nt">/&gt;</span><span class="c">&lt;!-- (2) --&gt;</span>
+<span class="nt">&lt;/c:if&gt;</span>
+</pre></div>
+</div>
+<table border="1" class="docutils">
+<colgroup>
+<col width="10%" />
+<col width="90%" />
+</colgroup>
+<thead valign="bottom">
+<tr class="row-odd"><th class="head"><p class="first last">項番</p>
+</th>
+<th class="head"><p class="first last">説明</p>
+</th>
+</tr>
+</thead>
+<tbody valign="top">
+<tr class="row-even"><td><div class="first last line-block">
+<div class="line">(1)</div>
+</div>
+</td>
+<td><div class="first last line-block">
+<div class="line">リクエストパラメータに設定されたエラーメッセージの判定を行う。</div>
+<div class="line">form-login要素のauthentication-failure-url属性に設定された値や、</div>
+<div class="line">認証エラーハンドラの&#8221;defaultFailureUrl&#8221;に設定された値によって、判定処理を変更する必要があるので注意すること。</div>
+<div class="line">本例では、authentication-failure-url=&#8221;/login?error=true&#8221;のような設定がある場合の、例を示している。</div>
+</div>
+</td>
+</tr>
+<tr class="row-odd"><td><div class="first last line-block">
+<div class="line">(2)</div>
+</div>
+</td>
+<td><div class="first last line-block">
+<div class="line">認証エラー時に出力させる例外メッセージを出力する。</div>
+<div class="line">共通ライブラリで提供している<tt class="docutils literal"><span class="pre">org.terasoluna.gfw.web.message.MessagesPanelTag</span></tt>を指定して出力させることを推奨する。</div>
+<div class="line">「<tt class="docutils literal"><span class="pre">&lt;t:messagesPanel&gt;</span></tt>」タグの使用方法は、<a class="reference internal" href="../ArchitectureInDetail/MessageManagement.html"><em>メッセージ管理</em></a>を参照されたい。</div>
+</div>
+</td>
+</tr>
+</tbody>
+</table>
+</li>
+<li><p class="first">spring-mvc.xml</p>
+<p>ログインフォームを表示するControllerを定義する。</p>
+<div class="highlight-xml"><div class="highlight"><pre><span class="nt">&lt;mvc:view-controller</span> <span class="na">path=</span><span class="s">&quot;/login&quot;</span> <span class="na">view-name=</span><span class="s">&quot;login&quot;</span> <span class="nt">/&gt;</span><span class="c">&lt;!-- (1) --&gt;</span>
+</pre></div>
+</div>
+<table border="1" class="docutils">
+<colgroup>
+<col width="10%" />
+<col width="90%" />
+</colgroup>
+<thead valign="bottom">
+<tr class="row-odd"><th class="head"><p class="first last">項番</p>
+</th>
+<th class="head"><p class="first last">説明</p>
+</th>
+</tr>
+</thead>
+<tbody valign="top">
+<tr class="row-even"><td><div class="first last line-block">
+<div class="line">(1)</div>
+</div>
+</td>
+<td><div class="first last line-block">
+<div class="line">&#8220;/login&#8221;にアクセスされたら、view名として&#8221;login&#8221;を返却するだけのControllerを定義する。<tt class="docutils literal"><span class="pre">InternalResourceViewResolver</span></tt>によってsrc/main/webapp/WEB-INF/views/login.jspが出力される。</div>
+<div class="line">この単純なコントローラはJavaによる実装が不要である。</div>
+</div>
+</td>
+</tr>
+</tbody>
+</table>
+<div class="admonition note">
+<p class="first admonition-title">Note</p>
+<p>上記の設定は次のControllerと同義である。</p>
+<blockquote>
+<div><div class="highlight-java"><div class="highlight"><pre><span class="nd">@Controller</span>
+<span class="nd">@RequestMapping</span><span class="o">(</span><span class="s">&quot;/login&quot;</span><span class="o">)</span>
+<span class="kd">public</span> <span class="kd">class</span> <span class="nc">LoginController</span> <span class="o">{</span>
+
+    <span class="nd">@RequestMapping</span>
+    <span class="kd">public</span> <span class="n">String</span> <span class="nf">index</span><span class="o">()</span> <span class="o">{</span>
+        <span class="k">return</span> <span class="s">&quot;login&quot;</span><span class="o">;</span>
+    <span class="o">}</span>
+<span class="o">}</span>
+</pre></div>
+</div>
+</div></blockquote>
+<p>単純にview名を返すだけのメソッドが一つだけあるControllerが必要であれば、<tt class="docutils literal"><span class="pre">&lt;mvc:view-controller&gt;</span></tt>を使用すればよい。</p>
+<p>ログインフォームをController経由で表示するメリットは、CSRFトークンを自動で埋め込める点にある。Controllerを経由しない場合は、
+<a class="reference internal" href="Tutorial.html"><em>Spring Securtityチュートリアル</em></a>で実施したようにjspに直接CSRFトークンを埋め込む必要がある。</p>
+<p class="last">チュートリアルではController作成の説明を省くために、ログインフォームの表示はControllerを経由していない。CSRF対策の詳細は<a class="reference internal" href="CSRF.html"><em>CSRF対策</em></a>を参照されたい。</p>
+</div>
+</li>
+</ul>
+</div>
+<div class="section" id="id4">
+<h4><a class="toc-backref" href="#id32">6.3.2.2.2. ログインフォームの属性名変更</a><a class="headerlink" href="#id4" title="Permalink to this headline">¶</a></h4>
+<p>「j_username」、「j_password」は、Spring Securityのデフォルト値である。<tt class="docutils literal"><span class="pre">&lt;form-login&gt;</span></tt>要素の設定で、任意の値に変更することができる。</p>
+<ul>
+<li><p class="first">spring-security.xml</p>
+<p><tt class="docutils literal"><span class="pre">username</span></tt>、<tt class="docutils literal"><span class="pre">password</span></tt>の属性</p>
+<div class="highlight-xml"><div class="highlight"><pre><span class="nt">&lt;sec:http</span> <span class="na">auto-config=</span><span class="s">&quot;true&quot;</span> <span class="na">use-expressions=</span><span class="s">&quot;true&quot;</span><span class="nt">&gt;</span>
+  <span class="nt">&lt;sec:form-login</span>
+      <span class="na">username-parameter=</span><span class="s">&quot;username&quot;</span>
+      <span class="na">password-parameter=</span><span class="s">&quot;password&quot;</span> <span class="nt">/&gt;</span> <span class="c">&lt;!-- 属性の指定順番で(1)～(2) --&gt;</span>
+  <span class="c">&lt;!-- omitted --&gt;</span>
+<span class="nt">&lt;/sec:http&gt;</span>
+</pre></div>
+</div>
+<table border="1" class="docutils">
+<colgroup>
+<col width="10%" />
+<col width="90%" />
+</colgroup>
+<thead valign="bottom">
+<tr class="row-odd"><th class="head"><p class="first last">項番</p>
+</th>
+<th class="head"><p class="first last">説明</p>
+</th>
+</tr>
+</thead>
+<tbody valign="top">
+<tr class="row-even"><td><div class="first last line-block">
+<div class="line">(1)</div>
+</div>
+</td>
+<td><div class="first last line-block">
+<div class="line"><tt class="docutils literal"><span class="pre">username-parameter</span></tt>属性で<tt class="docutils literal"><span class="pre">username</span></tt>の入力フィールドの<tt class="docutils literal"><span class="pre">name</span></tt>属性を、「username」に変更している。</div>
+</div>
+</td>
+</tr>
+<tr class="row-odd"><td><div class="first last line-block">
+<div class="line">(2)</div>
+</div>
+</td>
+<td><div class="first last line-block">
+<div class="line"><tt class="docutils literal"><span class="pre">password-parameter</span></tt>属性で<tt class="docutils literal"><span class="pre">password</span></tt>の入力フィールドの<tt class="docutils literal"><span class="pre">name</span></tt>属性を、「password」に変更している。</div>
+</div>
+</td>
+</tr>
+</tbody>
+</table>
+</li>
+</ul>
+</div>
+</div>
+<div class="section" id="id5">
+<h3><a class="toc-backref" href="#id33">6.3.2.3. 認証処理の設定</a><a class="headerlink" href="#id5" title="Permalink to this headline">¶</a></h3>
+<p>Spring Securityで認証処理を設定するために、<tt class="docutils literal"><span class="pre">AuthenticationProvider</span></tt>と<tt class="docutils literal"><span class="pre">UserDetailsService</span></tt>を定義する。</p>
+<p><tt class="docutils literal"><span class="pre">AuthenticationProvider</span></tt>は、次の役割を担う。</p>
+<ul class="simple">
+<li>認証に成功した場合、認証ユーザー情報を返却する</li>
+<li>認証に失敗した場合、例外をスローする</li>
+</ul>
+<p><tt class="docutils literal"><span class="pre">UserDetailsService</span></tt>は、認証ユーザー情報を永続化層から取得する役割を担う。</p>
+<p>それぞれデフォルトで用意されているものを使用してもよいし、独自拡張して使用しても良い。
+組み合わせも自由である。</p>
+<div class="section" id="authenticationprovider">
+<h4><a class="toc-backref" href="#id34">6.3.2.3.1. <tt class="docutils literal"><span class="pre">AuthenticationProvider</span></tt>クラスの設定</a><a class="headerlink" href="#authenticationprovider" title="Permalink to this headline">¶</a></h4>
+<div class="line-block">
+<div class="line"><tt class="docutils literal"><span class="pre">AuthenticationProvider</span></tt>の実装として、DB認証を行うためのプロバイダ<tt class="docutils literal"><span class="pre">org.springframework.security.authentication.dao.DaoAuthenticationProvider</span></tt>を使用する方法を説明する。</div>
+</div>
+<ul>
+<li><p class="first">spring-security.xml</p>
+<div class="highlight-xml"><div class="highlight"><pre><span class="nt">&lt;sec:authentication-manager&gt;</span><span class="c">&lt;!-- (1) --&gt;</span>
+    <span class="nt">&lt;sec:authentication-provider</span> <span class="na">user-service-ref=</span><span class="s">&quot;userDetailsService&quot;</span><span class="nt">&gt;</span><span class="c">&lt;!-- (2) --&gt;</span>
+        <span class="nt">&lt;sec:password-encoder</span> <span class="na">ref=</span><span class="s">&quot;passwordEncoder&quot;</span> <span class="nt">/&gt;</span><span class="c">&lt;!-- (3) --&gt;</span>
+    <span class="nt">&lt;/sec:authentication-provider&gt;</span>
+<span class="nt">&lt;/sec:authentication-manager&gt;</span>
+</pre></div>
+</div>
+<table border="1" class="docutils">
+<colgroup>
+<col width="10%" />
+<col width="90%" />
+</colgroup>
+<thead valign="bottom">
+<tr class="row-odd"><th class="head"><p class="first last">項番</p>
+</th>
+<th class="head"><p class="first last">説明</p>
+</th>
+</tr>
+</thead>
+<tbody valign="top">
+<tr class="row-even"><td><div class="first last line-block">
+<div class="line">(1)</div>
+</div>
+</td>
+<td><div class="first last line-block">
+<div class="line"><tt class="docutils literal"><span class="pre">&lt;sec:authentication-manager&gt;</span></tt>要素内に<tt class="docutils literal"><span class="pre">&lt;sec:authentication-provider&gt;</span></tt>要素を定義する。複数指定して、認証方法を組み合わせることが可能であるが、ここでは説明しない。</div>
+</div>
+</td>
+</tr>
+<tr class="row-odd"><td><div class="first last line-block">
+<div class="line">(2)</div>
+</div>
+</td>
+<td><div class="first last line-block">
+<div class="line"><tt class="docutils literal"><span class="pre">&lt;sec:authentication-provider&gt;</span></tt>要素で<tt class="docutils literal"><span class="pre">AuthenticationProvider</span></tt>を定義する。デフォルトで、<tt class="docutils literal"><span class="pre">DaoAuthenticationProvider</span></tt>が有効になる。これ以外の<tt class="docutils literal"><span class="pre">AuthenticationProvider</span></tt>を指定する場合は<a class="reference external" href="http://docs.spring.io/spring-security/site/docs/3.2.5.RELEASE/reference/htmlsingle/#nsa-authentication-provider">ref属性で、対象のAuthenticationProviderのBean IDを指定する</a>。</div>
+<div class="line"><br /></div>
+<div class="line"><tt class="docutils literal"><span class="pre">user-service-ref</span></tt>属性に、認証ユーザ情報を取得する<tt class="docutils literal"><span class="pre">UserDetailsService</span></tt>のBean Idを指定する。<tt class="docutils literal"><span class="pre">DaoAuthenticationProvider</span></tt>を使用する場合、この設定は必須である。</div>
+<div class="line">詳細は、<a class="reference internal" href="#userdetailsservice"><em>UserDetailsServiceクラスの設定</em></a>を参照されたい。</div>
+</div>
+</td>
+</tr>
+<tr class="row-even"><td><div class="first last line-block">
+<div class="line">(3)</div>
+</div>
+</td>
+<td><div class="first last line-block">
+<div class="line">パスワード照合時に、フォームから入力されたパスワードのエンコードを行うクラスのBean IDを指定する。</div>
+<div class="line">指定がない場合に、「平文」でパスワードが扱われる。詳細は、<a class="reference internal" href="PasswordHashing.html"><em>パスワードハッシュ化</em></a>を参照されたい。</div>
+</div>
+</td>
+</tr>
+</tbody>
+</table>
+</li>
+</ul>
+<div class="line-block">
+<div class="line">「ユーザーID」と「パスワード」だけで永続化層からデータを取得し、認証するという要件であればこの<tt class="docutils literal"><span class="pre">DaoAuthenticationProvider</span></tt>を使用すれば良い。</div>
+<div class="line">永続化層からのデータ取得方法は次に説明する<tt class="docutils literal"><span class="pre">UserDetailsService</span></tt>で決める。</div>
+</div>
+</div>
+<div class="section" id="userdetailsservice">
+<span id="id6"></span><h4><a class="toc-backref" href="#id35">6.3.2.3.2. <tt class="docutils literal"><span class="pre">UserDetailsService</span></tt>クラスの設定</a><a class="headerlink" href="#userdetailsservice" title="Permalink to this headline">¶</a></h4>
+<div class="line-block">
+<div class="line"><tt class="docutils literal"><span class="pre">AuthenticationProvider</span></tt>の<tt class="docutils literal"><span class="pre">userDetailsService</span></tt>プロパティに指定したBeanを設定する。</div>
+</div>
+<p><tt class="docutils literal"><span class="pre">UserDetailsService</span></tt>は次のメソッドをもつインタフェースである。</p>
+<div class="highlight-java"><div class="highlight"><pre><span class="n">UserDetails</span> <span class="nf">loadUserByUsername</span><span class="o">(</span><span class="n">String</span> <span class="n">username</span><span class="o">)</span> <span class="kd">throws</span> <span class="n">UsernameNotFoundException</span>
+</pre></div>
+</div>
+<p>このインタフェースを実装すれば、任意の保存場所から認証ユーザー情報を取得することができる。</p>
+<p>ここでは、JDBCを使用して、DBからユーザ情報を取得する <tt class="docutils literal"><span class="pre">org.springframework.security.core.userdetails.jdbc.JdbcDaoImpl</span></tt>を説明する。</p>
+<p><tt class="docutils literal"><span class="pre">JdbcDaoImpl</span></tt>を使用するにはspring-security.xmlに以下のBean定義を行えば良い。</p>
+<div class="highlight-xml"><div class="highlight"><pre><span class="c">&lt;!-- omitted --&gt;</span>
+
+<span class="nt">&lt;bean</span> <span class="na">id=</span><span class="s">&quot;userDetailsService&quot;</span>
+  <span class="na">class=</span><span class="s">&quot;org.springframework.security.core.userdetails.jdbc.JdbcDaoImpl&quot;</span><span class="nt">&gt;</span>
+  <span class="nt">&lt;property</span> <span class="na">name=</span><span class="s">&quot;dataSource&quot;</span> <span class="na">ref=</span><span class="s">&quot;dataSource&quot;</span><span class="nt">/&gt;</span>
+<span class="nt">&lt;/bean&gt;</span>
+</pre></div>
+</div>
+<div class="line-block">
+<div class="line"><tt class="docutils literal"><span class="pre">JdbcDaoImpl</span></tt>は、認証ユーザー情報と認可情報を取得するためのデフォルトSQLを定義しており、これらに対応したテーブルが用意されていることが前提となっている。前提としているテーブル定義は<a class="reference external" href="http://docs.spring.io/spring-security/site/docs/3.2.5.RELEASE/reference/htmlsingle/#appendix-schema">Spring Securityのマニュアル</a>を参照されたい。</div>
+<div class="line">既存のテーブルからユーザー情報、認可情報を取得したい場合は、発行されるSQLを既存のテーブルに合わせて修正すればよい。</div>
+<div class="line">使用するSQLは以下の3つである。</div>
+</div>
+<ul class="simple">
+<li><a class="reference external" href="http://docs.spring.io/spring-security/site/docs/3.2.5.RELEASE/apidocs/constant-values.html#org.springframework.security.core.userdetails.jdbc.JdbcDaoImpl.DEF_USERS_BY_USERNAME_QUERY">ユーザ情報取得クエリ</a></li>
+</ul>
+<blockquote>
+<div><div class="line-block">
+<div class="line">ユーザ情報取得クエリに合致するテーブルを作成することで、後述する設定ファイルへのクエリ指定が不要となる。</div>
+<div class="line">「username」、「password」、「enabled」フィールドは必須であるが、</div>
+<div class="line">後述する設定ファイルへのクエリ指定で、別名を付与することにより、テーブル名、カラム名が一致しなくても問題ない。</div>
+<div class="line">例えば次のようなSQLを設定すれば「email」カラムを「username」として使用することができ、「enabled」は常に<tt class="docutils literal"><span class="pre">true</span></tt>となる。</div>
+</div>
+<div class="highlight-sql"><div class="highlight"><pre><span class="k">SELECT</span> <span class="n">email</span> <span class="k">AS</span> <span class="n">username</span><span class="p">,</span> <span class="n">pwd</span> <span class="k">AS</span> <span class="n">password</span><span class="p">,</span> <span class="k">true</span> <span class="k">AS</span> <span class="n">enabled</span> <span class="k">FROM</span> <span class="n">customer</span> <span class="k">WHERE</span> <span class="n">email</span> <span class="o">=</span> <span class="o">?</span>
+</pre></div>
+</div>
+<div class="line-block">
+<div class="line"><a class="reference internal" href="#form-login-jsp"><em>ログインフォームの作成</em></a>で前述した、「ユーザID」がクエリのパラメータに指定される。</div>
+</div>
+</div></blockquote>
+<ul>
+<li><p class="first"><a class="reference external" href="http://docs.spring.io/spring-security/site/docs/3.2.5.RELEASE/apidocs/constant-values.html#org.springframework.security.core.userdetails.jdbc.JdbcDaoImpl.DEF_AUTHORITIES_BY_USERNAME_QUERY">ユーザ権限取得クエリ</a></p>
+<div class="line-block">
+<div class="line">ユーザに対する認可情報を取得するクエリである。</div>
+</div>
+</li>
+<li><p class="first"><a class="reference external" href="http://docs.spring.io/spring-security/site/docs/3.2.5.RELEASE/apidocs/constant-values.html#org.springframework.security.core.userdetails.jdbc.JdbcDaoImpl.DEF_GROUP_AUTHORITIES_BY_USERNAME_QUERY">グループ権限取得クエリ</a></p>
+<div class="line-block">
+<div class="line">ユーザーが所属するグループの認可情報を取得するクエリである。グループ権限はデフォルトでは無効になっており、本ガイドラインでも扱わない。</div>
+</div>
+</li>
+</ul>
+<div class="line-block">
+<div class="line">以下に、DBの定義例、Spring Securityの設定ファイル例を示す。</div>
+</div>
+<div class="line-block">
+<div class="line">テーブルの定義について</div>
+<div class="line">DB認証処理を実装するにあたり、必要となるテーブルを定義する。</div>
+<div class="line">前述した、デフォルトのユーザ情報取得クエリ合致するテーブルとなっている。</div>
+<div class="line">そのため、下記が最低限必要となるテーブルの定義となる（物理名は仮称）。</div>
+</div>
+<p>テーブル名: account</p>
+<table border="1" class="docutils">
+<colgroup>
+<col width="15%" />
+<col width="15%" />
+<col width="10%" />
+<col width="60%" />
+</colgroup>
+<thead valign="bottom">
+<tr class="row-odd"><th class="head">論理名</th>
+<th class="head">物理名</th>
+<th class="head">型</th>
+<th class="head">説明</th>
+</tr>
+</thead>
+<tbody valign="top">
+<tr class="row-even"><td>ユーザID</td>
+<td>username</td>
+<td>文字列</td>
+<td>ユーザを一意に識別するためのユーザID。</td>
+</tr>
+<tr class="row-odd"><td>パスワード</td>
+<td>password</td>
+<td>文字列</td>
+<td>ユーザパスワード。ハッシュ化された状態で格納する。</td>
+</tr>
+<tr class="row-even"><td>有効フラグ</td>
+<td>enabled</td>
+<td>真偽値</td>
+<td>無効ユーザ、有効ユーザを表すフラグ。「false」に設定されたユーザは無効ユーザとして、認証エラーとなる。</td>
+</tr>
+<tr class="row-odd"><td>権限名</td>
+<td>authority</td>
+<td>文字列</td>
+<td>認可機能を必要としない場合は不要。</td>
+</tr>
+</tbody>
+</table>
+<p><tt class="docutils literal"><span class="pre">JdbcDaoImpl</span></tt>をカスタマイズして設定する例を以下に示す。</p>
+<div class="highlight-xml"><div class="highlight"><pre><span class="c">&lt;!-- omitted --&gt;</span>
+
+<span class="nt">&lt;bean</span> <span class="na">id=</span><span class="s">&quot;userDetailsService&quot;</span>
+  <span class="na">class=</span><span class="s">&quot;org.springframework.security.core.userdetails.jdbc.JdbcDaoImpl&quot;</span><span class="nt">&gt;</span>
+  <span class="nt">&lt;property</span> <span class="na">name=</span><span class="s">&quot;rolePrefix&quot;</span> <span class="na">value=</span><span class="s">&quot;ROLE_&quot;</span> <span class="nt">/&gt;</span><span class="c">&lt;!-- (1) --&gt;</span>
+  <span class="nt">&lt;property</span> <span class="na">name=</span><span class="s">&quot;dataSource&quot;</span> <span class="na">ref=</span><span class="s">&quot;dataSource&quot;</span> <span class="nt">/&gt;</span>
+  <span class="nt">&lt;property</span> <span class="na">name=</span><span class="s">&quot;enableGroups&quot;</span> <span class="na">value=</span><span class="s">&quot;false&quot;</span> <span class="nt">/&gt;</span><span class="c">&lt;!-- (2) --&gt;</span>
+  <span class="nt">&lt;property</span> <span class="na">name=</span><span class="s">&quot;usersByUsernameQuery&quot;</span>
+    <span class="na">value=</span><span class="s">&quot;SELECT username, password, enabled FROM account WHERE username = ?&quot;</span> <span class="nt">/&gt;</span><span class="c">&lt;!-- (3) --&gt;</span>
+  <span class="nt">&lt;property</span> <span class="na">name=</span><span class="s">&quot;authoritiesByUsernameQuery&quot;</span>
+    <span class="na">value=</span><span class="s">&quot;SELECT username, authority FROM account WHERE username = ?&quot;</span> <span class="nt">/&gt;</span><span class="c">&lt;!-- (4) --&gt;</span>
+<span class="nt">&lt;/bean&gt;</span>
+</pre></div>
+</div>
+<table border="1" class="docutils">
+<colgroup>
+<col width="10%" />
+<col width="90%" />
+</colgroup>
+<thead valign="bottom">
+<tr class="row-odd"><th class="head">項番</th>
+<th class="head">説明</th>
+</tr>
+</thead>
+<tbody valign="top">
+<tr class="row-even"><td><div class="first last line-block">
+<div class="line">(1)</div>
+</div>
+</td>
+<td><div class="first last line-block">
+<div class="line">権限名のprefixを指定する。DB上に格納されている権限名が&#8221;USER&#8221;の場合、この認証ユーザーオブジェクトが持つ権限名は&#8221;ROLE_USER&#8221;になる。</div>
+<div class="line">認可機能と命名規則を合わせて設定する必要がある。認可機能の詳細は、<a class="reference internal" href="Authorization.html"><em>認可</em></a>を参照されたい。</div>
+</div>
+</td>
+</tr>
+<tr class="row-odd"><td><div class="first last line-block">
+<div class="line">(2)</div>
+</div>
+</td>
+<td><div class="first last line-block">
+<div class="line">認可機能において、「グループ権限」の概念を用いる場合に指定する。</div>
+<div class="line">本ガイドラインでは扱わない。</div>
+</div>
+</td>
+</tr>
+<tr class="row-even"><td><div class="first last line-block">
+<div class="line">(3)</div>
+</div>
+</td>
+<td><div class="first last line-block">
+<div class="line">ユーザ情報を取得するクエリを設定する。取得するデータは、「ユーザID」、「パスワード」、「有効フラグ」の順とする。</div>
+<div class="line">「有効フラグ」による認証判定を行わない場合には、「有効フラグ」のSELECT結果を「true」固定とする。</div>
+<div class="line">なお、ユーザを一意に取得できるクエリを記述すること。複数件数取得された場合には、１件目のレコードがユーザとして使われる。</div>
+</div>
+</td>
+</tr>
+<tr class="row-odd"><td><div class="first last line-block">
+<div class="line">(4)</div>
+</div>
+</td>
+<td><div class="first last line-block">
+<div class="line">ユーザの権限を取得するクエリを設定する。取得するデータは、「ユーザID」、「権限ID」の順とする。</div>
+<div class="line">認可の機能を使用しない場合は、「権限ID」は任意の固定値でよい。</div>
+</div>
+</td>
+</tr>
+</tbody>
+</table>
+<div class="admonition note">
+<p class="first admonition-title">Note</p>
+<p class="last">クエリを変更するだけでは実現できない認証を行う場合、<tt class="docutils literal"><span class="pre">UserDetailsService</span></tt>を拡張して実現する必要がある。
+拡張方法については、<a class="reference internal" href="#extendsuserdetailsservice"><em>UserDetailsServiceの拡張</em></a>を参照されたい。</p>
+</div>
+</div>
+</div>
+<div class="section" id="userdetails">
+<h3><a class="toc-backref" href="#id36">6.3.2.4. <tt class="docutils literal"><span class="pre">UserDetails</span></tt>クラスの利用方法</a><a class="headerlink" href="#userdetails" title="Permalink to this headline">¶</a></h3>
+<div class="line-block">
+<div class="line">認証に成功した後に<tt class="docutils literal"><span class="pre">UserDetailsService</span></tt>が作成した<tt class="docutils literal"><span class="pre">UserDetails</span></tt>の利用方法について、説明する。</div>
+</div>
+<div class="section" id="javauserdetails">
+<h4><a class="toc-backref" href="#id37">6.3.2.4.1. Javaクラスで<tt class="docutils literal"><span class="pre">UserDetails</span></tt>オブジェクトを利用する</a><a class="headerlink" href="#javauserdetails" title="Permalink to this headline">¶</a></h4>
+<div class="line-block">
+<div class="line">認証に成功した後、<tt class="docutils literal"><span class="pre">UserDetails</span></tt>クラスは</div>
+<div class="line"><tt class="docutils literal"><span class="pre">org.springframework.security.core.context.SecurityContextHolder</span></tt>に格納される。</div>
+</div>
+<p><tt class="docutils literal"><span class="pre">SecurityContextHolder</span></tt>から<tt class="docutils literal"><span class="pre">UserDetails</span></tt>を取得する例を示す。</p>
+<div class="highlight-java"><div class="highlight"><pre><span class="kd">public</span> <span class="kd">static</span> <span class="n">String</span> <span class="nf">getUsername</span><span class="o">()</span> <span class="o">{</span>
+    <span class="n">Authentication</span> <span class="n">authentication</span> <span class="o">=</span> <span class="n">SecurityContextHolder</span><span class="o">.</span><span class="na">getContext</span><span class="o">()</span>
+            <span class="o">.</span><span class="na">getAuthentication</span><span class="o">();</span> <span class="c1">// (1)</span>
+    <span class="k">if</span> <span class="o">(</span><span class="n">authentication</span> <span class="o">!=</span> <span class="kc">null</span><span class="o">)</span> <span class="o">{</span>
+        <span class="n">Object</span> <span class="n">principal</span> <span class="o">=</span> <span class="n">authentication</span><span class="o">.</span><span class="na">getPrincipal</span><span class="o">();</span> <span class="c1">// (2)</span>
+        <span class="k">if</span> <span class="o">(</span><span class="n">principal</span> <span class="k">instanceof</span> <span class="n">UserDetails</span><span class="o">)</span> <span class="o">{</span>
+            <span class="k">return</span> <span class="o">((</span><span class="n">UserDetails</span><span class="o">)</span> <span class="n">principal</span><span class="o">).</span><span class="na">getUsername</span><span class="o">();</span> <span class="c1">// (3)</span>
+        <span class="o">}</span>
+        <span class="k">return</span> <span class="o">(</span><span class="n">String</span><span class="o">)</span> <span class="n">principal</span><span class="o">.</span><span class="na">toString</span><span class="o">();</span>
+    <span class="o">}</span>
+    <span class="k">return</span> <span class="kc">null</span><span class="o">;</span>
+<span class="o">}</span>
+</pre></div>
+</div>
+<table border="1" class="docutils">
+<colgroup>
+<col width="10%" />
+<col width="90%" />
+</colgroup>
+<thead valign="bottom">
+<tr class="row-odd"><th class="head">項番</th>
+<th class="head">説明</th>
+</tr>
+</thead>
+<tbody valign="top">
+<tr class="row-even"><td><div class="first last line-block">
+<div class="line">(1)</div>
+</div>
+</td>
+<td><div class="first last line-block">
+<div class="line"><tt class="docutils literal"><span class="pre">SecurityContextHolder</span></tt>から<tt class="docutils literal"><span class="pre">org.springframework.security.core.Authentication</span></tt>オブジェクトを取得する。</div>
+</div>
+</td>
+</tr>
+<tr class="row-odd"><td><div class="first last line-block">
+<div class="line">(2)</div>
+</div>
+</td>
+<td><div class="first last line-block">
+<div class="line"><tt class="docutils literal"><span class="pre">Authentication</span></tt>オブジェクトから<tt class="docutils literal"><span class="pre">UserDetails</span></tt>オブジェクトを取得する。</div>
+</div>
+</td>
+</tr>
+<tr class="row-even"><td><div class="first last line-block">
+<div class="line">(3)</div>
+</div>
+</td>
+<td><div class="first last line-block">
+<div class="line"><tt class="docutils literal"><span class="pre">UserDetails</span></tt>オブジェクトから、ユーザ名を取得する。</div>
+</div>
+</td>
+</tr>
+</tbody>
+</table>
+<p><tt class="docutils literal"><span class="pre">SecurityContextHolder</span></tt>から<tt class="docutils literal"><span class="pre">UserDetails</span></tt>オブジェクトを取得する方法は、どこからでもstaticメソッドで利用可能であり、
+便利な反面、モジュール結合度を高めてしまう。テストも実施しづらい。</p>
+<div class="line-block">
+<div class="line"><tt class="docutils literal"><span class="pre">UserDetails</span></tt>オブジェクトは<tt class="docutils literal"><span class="pre">&#64;AuthenticationPrincipal</span></tt>を利用することで取得可能である。</div>
+<div class="line"><tt class="docutils literal"><span class="pre">&#64;AuthenticationPrincipal</span></tt>を利用するためには<tt class="docutils literal"><span class="pre">org.springframework.security.web.bind.support.AuthenticationPrincipalArgumentResolver</span></tt>を<tt class="docutils literal"><span class="pre">&lt;mvc:argument-resolvers&gt;</span></tt>に設定する必要がある。</div>
+</div>
+<ul class="simple">
+<li><tt class="file docutils literal"><span class="pre">spring-mvc.xml</span></tt></li>
+</ul>
+<div class="highlight-xml"><div class="highlight"><pre> <span class="nt">&lt;mvc:annotation-driven&gt;</span>
+     <span class="nt">&lt;mvc:argument-resolvers&gt;</span>
+         <span class="nt">&lt;bean</span>
+             <span class="na">class=</span><span class="s">&quot;org.springframework.data.web.PageableHandlerMethodArgumentResolver&quot;</span> <span class="nt">/&gt;</span>
+<span class="hll">         <span class="nt">&lt;bean</span>
+</span><span class="hll">             <span class="na">class=</span><span class="s">&quot;org.springframework.security.web.bind.support.AuthenticationPrincipalArgumentResolver&quot;</span> <span class="nt">/&gt;</span>
+</span>     <span class="nt">&lt;/mvc:argument-resolvers&gt;</span>
+ <span class="nt">&lt;/mvc:annotation-driven&gt;</span>
+</pre></div>
+</div>
+<p>Spring MVCのController内では以下のように<tt class="docutils literal"><span class="pre">SecurityContextHolder</span></tt>を使用せずに<tt class="docutils literal"><span class="pre">UserDetails</span></tt>オブジェクトを取得できる。</p>
+<div class="highlight-java"><div class="highlight"><pre><span class="nd">@RequestMapping</span><span class="o">(</span><span class="n">method</span> <span class="o">=</span> <span class="n">RequestMethod</span><span class="o">.</span><span class="na">GET</span><span class="o">)</span>
+<span class="kd">public</span> <span class="n">String</span> <span class="nf">view</span><span class="o">(</span><span class="nd">@AuthenticationPrincipal</span> <span class="n">SampleUserDetails</span> <span class="n">userDetails</span><span class="o">,</span> <span class="c1">// (1)</span>
+        <span class="n">Model</span> <span class="n">model</span><span class="o">)</span> <span class="o">{</span>
+    <span class="c1">// get account object</span>
+    <span class="n">Account</span> <span class="n">account</span> <span class="o">=</span> <span class="n">userDetails</span><span class="o">.</span><span class="na">getAccount</span><span class="o">();</span> <span class="c1">// (2)</span>
+    <span class="n">model</span><span class="o">.</span><span class="na">addAttribute</span><span class="o">(</span><span class="n">account</span><span class="o">);</span>
+    <span class="k">return</span> <span class="s">&quot;account/view&quot;</span><span class="o">;</span>
+<span class="o">}</span>
+</pre></div>
+</div>
+<table border="1" class="docutils">
+<colgroup>
+<col width="10%" />
+<col width="90%" />
+</colgroup>
+<thead valign="bottom">
+<tr class="row-odd"><th class="head">項番</th>
+<th class="head">説明</th>
+</tr>
+</thead>
+<tbody valign="top">
+<tr class="row-even"><td><div class="first last line-block">
+<div class="line">(1)</div>
+</div>
+</td>
+<td><div class="first last line-block">
+<div class="line"><tt class="docutils literal"><span class="pre">&#64;AuthenticationPrincipal</span></tt>を利用してログインしているユーザ情報を取得する。</div>
+</div>
+</td>
+</tr>
+<tr class="row-odd"><td><div class="first last line-block">
+<div class="line">(2)</div>
+</div>
+</td>
+<td><div class="first last line-block">
+<div class="line"><tt class="docutils literal"><span class="pre">SampleUserDetails</span></tt>からアカウント情報を取得する。</div>
+</div>
+</td>
+</tr>
+</tbody>
+</table>
+<div class="admonition note">
+<p class="first admonition-title">Note</p>
+<p><tt class="docutils literal"><span class="pre">&#64;AuthenticationPrincipal</span></tt>アノテーションをつける引数の型は<tt class="docutils literal"><span class="pre">UserDetails</span></tt>型を継承したクラスである必要がある。
+通常は<a class="reference internal" href="#extendsuserdetailsservice"><em>UserDetailsServiceの拡張</em></a>で作成する<tt class="docutils literal"><span class="pre">UserDetails</span></tt>継承クラスを使用すればよい。</p>
+<p class="last"><tt class="docutils literal"><span class="pre">SampleUserDetails</span></tt>クラスは<a class="reference internal" href="Tutorial.html"><em>Spring Securtityチュートリアル</em></a>で作成するクラスである。詳細は<a class="reference internal" href="Tutorial.html#tutorial-createauthservice"><em>認証サービスの作成</em></a>を参照されたい。</p>
+</div>
+<p><strong>Controller内でUserDetailsオブジェクトにアクセスする場合はこちらの方法を推奨する</strong>。</p>
+<div class="admonition note">
+<p class="first admonition-title">Note</p>
+<p>ServiceクラスではControllerが取得した<tt class="docutils literal"><span class="pre">UserDetails</span></tt>オブジェクトの情報を使用し、<tt class="docutils literal"><span class="pre">SecurityContextHolder</span></tt>は使用しないことを推奨する。</p>
+<p class="last"><tt class="docutils literal"><span class="pre">SecurityContextHolder</span></tt>は<tt class="docutils literal"><span class="pre">UserDetails</span></tt>オブジェクトを引数で渡せないメソッド内でのみ利用することが望ましい。</p>
+</div>
+</div>
+<div class="section" id="jspuserdetails">
+<h4><a class="toc-backref" href="#id38">6.3.2.4.2. JSPで<tt class="docutils literal"><span class="pre">UserDetails</span></tt>にアクセスする</a><a class="headerlink" href="#jspuserdetails" title="Permalink to this headline">¶</a></h4>
+<div class="line-block">
+<div class="line">Spring Securityでは、JSPで認証情報を利用するための仕組みとして、JSP taglibを提供している。このtaglibを使うために以下の宣言が必要である。</div>
+</div>
+<div class="highlight-jsp"><div class="highlight"><pre><span class="k">&lt;%@</span> <span class="n">taglib</span> <span class="n">uri</span><span class="o">=</span><span class="s">&quot;http://www.springframework.org/security/tags&quot;</span> <span class="n">prefix</span><span class="o">=</span><span class="s">&quot;sec&quot;</span><span class="k">%&gt;</span>
+</pre></div>
+</div>
+<div class="admonition note">
+<p class="first admonition-title">Note</p>
+<p class="last"><a class="reference external" href="https://github.com/terasolunaorg/terasoluna-gfw-web-blank">TERASOLUNA Global Frameworkの雛形</a>を使用している場合はWEB-INF/views/common/include.jspに設定済みである。</p>
+</div>
+<div class="line-block">
+<div class="line">認証ユーザ名をJSPで表示する場合を例に、使用方法を示す。</div>
+</div>
+<div class="highlight-jsp"><div class="highlight"><pre><span class="nt">&lt;sec:authentication</span> <span class="na">property=</span><span class="s">&quot;principal.username&quot;</span> <span class="nt">/&gt;</span><span class="c">&lt;!-- (1) --&gt;</span>
+</pre></div>
+</div>
+<table border="1" class="docutils">
+<colgroup>
+<col width="10%" />
+<col width="90%" />
+</colgroup>
+<thead valign="bottom">
+<tr class="row-odd"><th class="head">項番</th>
+<th class="head">説明</th>
+</tr>
+</thead>
+<tbody valign="top">
+<tr class="row-even"><td><div class="first last line-block">
+<div class="line">(1)</div>
+</div>
+</td>
+<td><div class="first last line-block">
+<div class="line"><tt class="docutils literal"><span class="pre">&lt;sec:authentication&gt;</span></tt> タグで<tt class="docutils literal"><span class="pre">Authentication</span></tt>オブジェクトにアクセスでき、<tt class="docutils literal"><span class="pre">property</span></tt>属性に指定したプロパティアクセスできる。この例では<tt class="docutils literal"><span class="pre">getPrincipal().getUsername()</span></tt>の結果を出力する。</div>
+</div>
+</td>
+</tr>
+</tbody>
+</table>
+<div class="highlight-jsp"><div class="highlight"><pre><span class="nt">&lt;sec:authentication</span> <span class="na">property=</span><span class="s">&quot;principal&quot;</span> <span class="na">var=</span><span class="s">&quot;userDetails&quot;</span> <span class="nt">/&gt;</span> <span class="c">&lt;!-- (1) --&gt;</span>
+
+${f:h(userDetails.username)} <span class="c">&lt;!-- (2) --&gt;</span>
+</pre></div>
+</div>
+<table border="1" class="docutils">
+<colgroup>
+<col width="10%" />
+<col width="90%" />
+</colgroup>
+<thead valign="bottom">
+<tr class="row-odd"><th class="head">項番</th>
+<th class="head">説明</th>
+</tr>
+</thead>
+<tbody valign="top">
+<tr class="row-even"><td><div class="first last line-block">
+<div class="line">(1)</div>
+</div>
+</td>
+<td><div class="first last line-block">
+<div class="line"><tt class="docutils literal"><span class="pre">property</span></tt>属性に指定したプロパティを<tt class="docutils literal"><span class="pre">var</span></tt>属性にした名前で変数に格納できる。</div>
+</div>
+</td>
+</tr>
+<tr class="row-odd"><td><div class="first last line-block">
+<div class="line">(2)</div>
+</div>
+</td>
+<td><div class="first last line-block">
+<div class="line">(1)で変数に格納した後はJSP内で<tt class="docutils literal"><span class="pre">UserDetails</span></tt>にアクセスできる。</div>
+</div>
+</td>
+</tr>
+</tbody>
+</table>
+<div class="admonition note">
+<p class="first admonition-title">Note</p>
+<p class="last">Controller内で<tt class="docutils literal"><span class="pre">UserDetails</span></tt>を取得して<tt class="docutils literal"><span class="pre">Model</span></tt>に追加することもできるが、JSPに表示する際はJSPタグを使用すればよい。</p>
+</div>
+<div class="admonition note">
+<p class="first admonition-title">Note</p>
+<p class="last"><a class="reference internal" href="#userdetailsservice"><em>UserDetailsServiceクラスの設定</em></a>で説明した<tt class="docutils literal"><span class="pre">JdbcDaoImpl</span></tt>が生成する<tt class="docutils literal"><span class="pre">UserDetails</span></tt>は「ユーザーID」や「権限」といった最低限の情報しか保持していない。
+画面の表示項目として「ユーザー姓名」など他のユーザー情報が必要な場合は<tt class="docutils literal"><span class="pre">UserDetails</span></tt>と <tt class="docutils literal"><span class="pre">UserDetailsService</span></tt>を拡張する必要がある。
+拡張方法については、<a class="reference internal" href="#extendsuserdetailsservice"><em>UserDetailsServiceの拡張</em></a>を参照されたい。</p>
+</div>
+</div>
+</div>
+<div class="section" id="authentication-spring-security-how-to-use-sessionmanagement">
+<span id="id11"></span><h3><a class="toc-backref" href="#id39">6.3.2.5. Spring Securityにおけるセッション管理</a><a class="headerlink" href="#authentication-spring-security-how-to-use-sessionmanagement" title="Permalink to this headline">¶</a></h3>
+<div class="line-block">
+<div class="line">ログイン時のセッション情報の生成方式や、例外発生時の設定を行う方法について説明する。</div>
+<div class="line"><tt class="docutils literal"><span class="pre">&lt;session-management&gt;</span></tt>タグを指定することで、<tt class="docutils literal"><span class="pre">org.springframework.security.web.session.SessionManagementFilter</span></tt>が有効になる。</div>
+<div class="line">以下にspring-security.xmlの設定例を示す。</div>
+</div>
+<div class="highlight-xml"><div class="highlight"><pre><span class="nt">&lt;sec:http</span> <span class="na">auto-config=</span><span class="s">&quot;true&quot;</span> <span class="na">create-session=</span><span class="s">&quot;ifRequired&quot;</span> <span class="nt">&gt;</span><span class="c">&lt;!-- (1) --&gt;</span>
+  <span class="c">&lt;!-- omitted --&gt;</span>
+  <span class="nt">&lt;sec:session-management</span>
+    <span class="na">invalid-session-url=</span><span class="s">&quot;/&quot;</span>
+    <span class="na">session-authentication-error-url=</span><span class="s">&quot;/&quot;</span>
+    <span class="na">session-fixation-protection=</span><span class="s">&quot;migrateSession&quot;</span> <span class="nt">/&gt;</span><span class="c">&lt;!-- 属性の指定順番で(2)～(4) --&gt;</span>
+  <span class="c">&lt;!-- omitted --&gt;</span>
+<span class="nt">&lt;/sec:http&gt;</span>
+</pre></div>
+</div>
+<table border="1" class="docutils">
+<colgroup>
+<col width="10%" />
+<col width="90%" />
+</colgroup>
+<thead valign="bottom">
+<tr class="row-odd"><th class="head">項番</th>
+<th class="head">説明</th>
+</tr>
+</thead>
+<tbody valign="top">
+<tr class="row-even"><td><div class="first last line-block">
+<div class="line">(1)</div>
+</div>
+</td>
+<td><div class="first last line-block">
+<div class="line"><tt class="docutils literal"><span class="pre">create-session</span></tt>属性でセッションの作成方針を指定する。</div>
+<div class="line">以下の値を指定することができる。</div>
+<div class="line"><tt class="docutils literal"><span class="pre">always</span></tt>: Spring Securityは、既存のセッションがない場合にセッションを新規作成する、セッションが存在すれば、再利用する。</div>
+<div class="line"><tt class="docutils literal"><span class="pre">ifRequired</span></tt>: Spring Securityは、セッションが必要であれば作成する。デフォルトの設定である。セッションがすでにあれば、作成せずに再利用する。</div>
+<div class="line"><tt class="docutils literal"><span class="pre">never</span></tt>: Spring Securityは、セッションを作成しないが、セッションが存在すれば、再利用する。</div>
+<div class="line"><tt class="docutils literal"><span class="pre">stateless</span></tt>: Spring Securityは、セッションを作成しない、セッションが存在しても使用しない。そのため、毎回認証を行う必要がある。</div>
+</div>
+</td>
+</tr>
+<tr class="row-odd"><td><div class="first last line-block">
+<div class="line">(2)</div>
+</div>
+</td>
+<td><div class="first last line-block">
+<div class="line"><tt class="docutils literal"><span class="pre">invalid-session-url</span></tt>属性で無効なセッションIDがリクエストされた場合に遷移するパスを指定する。</div>
+<div class="line">設定しない場合、<tt class="docutils literal"><span class="pre">org.springframework.security.web.session.SimpleRedirectInvalidSessionStrategy</span></tt></div>
+<div class="line">の設定に依存したパスに遷移する。</div>
+</div>
+</td>
+</tr>
+<tr class="row-even"><td><div class="first last line-block">
+<div class="line">(3)</div>
+</div>
+</td>
+<td><div class="first last line-block">
+<div class="line"><tt class="docutils literal"><span class="pre">org.springframework.security.web.authentication.session.SessionAuthenticationStrategy</span></tt>で</div>
+<div class="line">例外が発生した場合、遷移するパスに<tt class="docutils literal"><span class="pre">session-authentication-error-url</span></tt>属性に指定する。</div>
+<div class="line">指定しない場合、<tt class="docutils literal"><span class="pre">org.springframework.security.web.authentication.SimpleUrlAuthenticationFailureHandler</span></tt></div>
+<div class="line">の設定に依存する。</div>
+</div>
+</td>
+</tr>
+<tr class="row-odd"><td><div class="first last line-block">
+<div class="line">(4)</div>
+</div>
+</td>
+<td><div class="first last line-block">
+<div class="line"><tt class="docutils literal"><span class="pre">session-fixation-protection</span></tt>属性でセッション管理方式を指定する。</div>
+<div class="line">以下の値を指定することができる。</div>
+<div class="line"><tt class="docutils literal"><span class="pre">migrateSession</span></tt>：ログイン前のセッション情報を引き継ぎ（コピー）、IDのみ新規作成する。デフォルトの設定である。</div>
+<div class="line"><tt class="docutils literal"><span class="pre">newSession</span></tt>：ログイン前のセッション情報を引き継がず、ID、セッション内容を新規作成する。</div>
+<div class="line"><br /></div>
+<div class="line">本機能の目的は、新しいセッションIDをログイン毎に割り振ることで、<a class="reference external" href="http://docs.spring.io/spring-security/site/docs/3.2.5.RELEASE/reference/htmlsingle/#ns-session-fixation">セッション・フィクセーション攻撃</a>を防ぐことにある。そのため、明確な意図がない限り、デフォルトの設定を推奨する。</div>
+</div>
+</td>
+</tr>
+</tbody>
+</table>
+<div class="section" id="concurrent-session-control">
+<span id="authentication-control-user-samatime-session"></span><h4><a class="toc-backref" href="#id40">6.3.2.5.1. Concurrent Session Controlの利用設定</a><a class="headerlink" href="#concurrent-session-control" title="Permalink to this headline">¶</a></h4>
+<div class="line-block">
+<div class="line">Spring Securityでは、1ユーザが保持できる最大セッション数を、任意に変更できる機能(<a class="reference external" href="http://docs.spring.io/spring-security/site/docs/3.2.5.RELEASE/reference/htmlsingle/#concurrent-sessions">Concurrent Session Control</a>)を提供している。</div>
+<div class="line">ここでいうユーザとは、<tt class="docutils literal"><span class="pre">Authentication.getPrincipal()</span></tt>で取得される、認証ユーザーオブジェクトのことである。</div>
+</div>
+<div class="admonition note">
+<p class="first admonition-title">Note</p>
+<p class="last">この機能はアプリケーションサーバが1台構成、またはセッションサーバやクラスタによるセッションレプリケーションを実施している（つまり、全てのアプリケーションが同じセッション領域を利用している）場合に有効である。
+複数台または複数インスタンスで構成していて、セッション領域が別々に存在する場合は、本機能では同時ログインを制御できないので注意すること。</p>
+</div>
+<div class="line-block">
+<div class="line">最大セッション数を超えた場合の制御方法は、次のパターンが存在する。業務要件によって使い分けること。</div>
+</div>
+<ol class="arabic simple">
+<li>1ユーザの最大セッション数を超過した場合、最も使用されていないユーザを無効にする (後勝ち)</li>
+<li>1ユーザの最大セッション数を超過した場合、新規ログインを受け付けない (先勝ち)</li>
+</ol>
+<p>どちらの場合も、この機能を有効にするためにはweb.xmlに以下の設定を追加する必要がある。</p>
+<div class="highlight-xml" id="httpsessioneventpublisher-ref"><div class="highlight"><pre><span class="nt">&lt;listener&gt;</span>
+  <span class="nt">&lt;listener-class&gt;</span>org.springframework.security.web.session.HttpSessionEventPublisher<span class="nt">&lt;/listener-class&gt;</span><span class="c">&lt;!-- (1) --&gt;</span>
+<span class="nt">&lt;/listener&gt;</span>
+</pre></div>
+</div>
+<table border="1" class="docutils">
+<colgroup>
+<col width="10%" />
+<col width="90%" />
+</colgroup>
+<thead valign="bottom">
+<tr class="row-odd"><th class="head">項番</th>
+<th class="head">説明</th>
+</tr>
+</thead>
+<tbody valign="top">
+<tr class="row-even"><td><div class="first last line-block">
+<div class="line">(1)</div>
+</div>
+</td>
+<td><div class="first last line-block">
+<div class="line">Concurrent Session Control を使用するに当たり、<tt class="docutils literal"><span class="pre">org.springframework.security.web.session.HttpSessionEventPublisher</span></tt>を、listenerに定義する必要がある。</div>
+</div>
+</td>
+</tr>
+</tbody>
+</table>
+</div>
+<div class="section" id="sec-concurrency-control">
+<span id="authentication-concurrency-control"></span><h4><a class="toc-backref" href="#id41">6.3.2.5.2. <tt class="docutils literal"><span class="pre">&lt;sec:concurrency-control&gt;</span></tt>の設定</a><a class="headerlink" href="#sec-concurrency-control" title="Permalink to this headline">¶</a></h4>
+<p><tt class="docutils literal"><span class="pre">&lt;sec:session-management&gt;</span></tt>要素では<tt class="docutils literal"><span class="pre">session-authentication-strategy-ref</span></tt>属性を指定せず、<tt class="docutils literal"><span class="pre">&lt;sec:session-management&gt;</span></tt>要素の子要素として<a class="reference external" href="http://docs.spring.io/spring-security/site/docs/3.2.5.RELEASE/reference/htmlsingle/#ns-concurrent-sessions">&lt;sec:concurrency-control&gt;</a>要素を使用することもできる。</p>
+<div class="highlight-xml"><div class="highlight"><pre><span class="nt">&lt;sec:http</span> <span class="na">auto-config=</span><span class="s">&quot;true&quot;</span> <span class="nt">&gt;</span>
+  <span class="nt">&lt;sec:session-management&gt;</span>
+      <span class="nt">&lt;sec:concurrency-control</span>
+          <span class="na">error-if-maximum-exceeded=</span><span class="s">&quot;true&quot;</span>
+          <span class="na">max-sessions=</span><span class="s">&quot;2&quot;</span>
+          <span class="na">expired-url=</span><span class="s">&quot;/alreadyLogin.jsp&quot;</span> <span class="nt">/&gt;</span><span class="c">&lt;!-- 属性の指定順番で(1)～(3) --&gt;</span>
+      <span class="nt">&lt;/sec:session-management&gt;</span>
+  <span class="nt">&lt;/sec:session-management&gt;</span>
+<span class="nt">&lt;/sec:http&gt;</span>
+</pre></div>
+</div>
+<table border="1" class="docutils">
+<colgroup>
+<col width="5%" />
+<col width="20%" />
+<col width="35%" />
+<col width="10%" />
+<col width="30%" />
+</colgroup>
+<thead valign="bottom">
+<tr class="row-odd"><th class="head">項番</th>
+<th class="head">属性名</th>
+<th class="head">説明</th>
+<th class="head">デフォルト値</th>
+<th class="head">デフォルト値説明</th>
+</tr>
+</thead>
+<tbody valign="top">
+<tr class="row-even"><td><div class="first last line-block">
+<div class="line">(1)</div>
+</div>
+</td>
+<td><div class="first last line-block">
+<div class="line"><tt class="docutils literal"><span class="pre">error-if-maximum-exceeded</span></tt></div>
+</div>
+</td>
+<td><div class="first last line-block">
+<div class="line">新規ログインの可否。</div>
+<div class="line"><tt class="docutils literal"><span class="pre">true</span></tt>を設定することによりmax-sessionsの数を越えた場合、新規ログインを受け付けない。エラー後は<tt class="docutils literal"><span class="pre">&lt;sec:form-login&gt;</span></tt>要素の<tt class="docutils literal"><span class="pre">authentication-failure-url</span></tt>属性で指定したurlへ遷移することになる。（先勝ち）</div>
+</div>
+</td>
+<td><div class="first last line-block">
+<div class="line">false</div>
+</div>
+</td>
+<td><div class="first last line-block">
+<div class="line">後からログインが可能となり、max-sessionsの数を越えた場合、先にログインしていたセッションが無効となる。先にログインしていたユーザは次のリクエストで<tt class="docutils literal"><span class="pre">expired-url</span></tt>属性で指定したurlへ遷移することになる。（後勝ち）</div>
+</div>
+</td>
+</tr>
+<tr class="row-odd"><td><div class="first last line-block">
+<div class="line">(2)</div>
+</div>
+</td>
+<td><div class="first last line-block">
+<div class="line"><tt class="docutils literal"><span class="pre">max-sessions</span></tt></div>
+</div>
+</td>
+<td><div class="first last line-block">
+<div class="line">1ユーザでログイン可能なセッション数を決定する。</div>
+<div class="line">2を設定した場合、同じユーザで2つのセッションでログインが可能となる。</div>
+</div>
+</td>
+<td><div class="first last line-block">
+<div class="line">1</div>
+</div>
+</td>
+<td><div class="first last line-block">
+<div class="line">デフォルトは1ユーザのみ</div>
+</div>
+</td>
+</tr>
+<tr class="row-even"><td><div class="first last line-block">
+<div class="line">(3)</div>
+</div>
+</td>
+<td><div class="first last line-block">
+<div class="line"><tt class="docutils literal"><span class="pre">expired-url</span></tt></div>
+</div>
+</td>
+<td><div class="first last line-block">
+<div class="line">セッションが無効化された場合に遷移するURL。</div>
+</div>
+</td>
+<td><div class="first last line-block">
+<div class="line">無し</div>
+</div>
+</td>
+<td><div class="first last line-block">
+<div class="line">動作としては先頭ページ&#8221;/&#8221;</div>
+</div>
+</td>
+</tr>
+</tbody>
+</table>
+<div class="admonition note" id="authentication-session-authentication-strategy-ref">
+<p class="first admonition-title">Note</p>
+<p><tt class="docutils literal"><span class="pre">&lt;sec:concurrency-control&gt;</span></tt>の設定を使用せずに、<tt class="docutils literal"><span class="pre">&lt;sec:session-management&gt;</span></tt>要素での<tt class="docutils literal"><span class="pre">session-authentication-strategy-ref</span></tt>属性を指定することでも同じ事が可能である。
+<tt class="docutils literal"><span class="pre">session-authentication-strategy-ref</span></tt>属性で指定した場合の例を記載する。</p>
+<ol class="arabic simple" id="authentication-user-not-used-most">
+<li>最も使用されていないユーザを無効にする場合</li>
+</ol>
+<blockquote>
+<div><p>spring-security.xmlに以下の設定を追加する。</p>
+<div class="highlight-xml"><div class="highlight"><pre><span class="nt">&lt;sec:http</span> <span class="na">auto-config=</span><span class="s">&quot;true&quot;</span> <span class="nt">&gt;</span>
+  <span class="c">&lt;!-- omitted --&gt;</span>
+  <span class="nt">&lt;sec:session-management</span>
+    <span class="na">session-authentication-strategy-ref=</span><span class="s">&quot;sessionStrategy&quot;</span> <span class="nt">/&gt;</span>  <span class="c">&lt;!-- (1) --&gt;</span>
+
+  <span class="nt">&lt;sec:custom-filter</span> <span class="na">position=</span><span class="s">&quot;CONCURRENT_SESSION_FILTER&quot;</span> <span class="na">ref=</span><span class="s">&quot;concurrencyFilter&quot;</span> <span class="nt">/&gt;</span>  <span class="c">&lt;!-- (5) --&gt;</span>
+  <span class="c">&lt;!-- omitted --&gt;</span>
+<span class="nt">&lt;/sec:http&gt;</span>
+
+<span class="nt">&lt;bean</span> <span class="na">id=</span><span class="s">&quot;sessionStrategy&quot;</span>
+    <span class="na">class=</span><span class="s">&quot;org.springframework.security.web.authentication.session.CompositeSessionAuthenticationStrategy&quot;</span><span class="nt">&gt;</span>
+    <span class="nt">&lt;constructor-arg</span> <span class="na">index=</span><span class="s">&quot;0&quot;</span><span class="nt">&gt;</span>
+        <span class="nt">&lt;list&gt;</span>
+            <span class="c">&lt;!-- omitted --&gt;</span>
+            <span class="nt">&lt;bean</span> <span class="na">class=</span>
+                <span class="s">&quot;org.springframework.security.web.authentication.session.ConcurrentSessionControlStrategy&quot;</span><span class="nt">&gt;</span>  <span class="c">&lt;!-- (2) --&gt;</span>
+                <span class="nt">&lt;constructor-arg</span> <span class="na">index=</span><span class="s">&quot;0&quot;</span> <span class="na">ref=</span><span class="s">&quot;sessionRegistry&quot;</span> <span class="nt">/&gt;</span>  <span class="c">&lt;!-- (3) --&gt;</span>
+                <span class="nt">&lt;property</span> <span class="na">name=</span><span class="s">&quot;maximumSessions&quot;</span> <span class="na">value=</span><span class="s">&quot;2&quot;</span> <span class="nt">/&gt;</span>  <span class="c">&lt;!-- (4) --&gt;</span>
+            <span class="nt">&lt;/bean&gt;</span>
+        <span class="nt">&lt;/list&gt;</span>
+    <span class="nt">&lt;/constructor-arg&gt;</span>
+<span class="nt">&lt;/bean&gt;</span>
+
+<span class="nt">&lt;bean</span> <span class="na">id=</span><span class="s">&quot;sessionRegistry&quot;</span> <span class="na">class=</span><span class="s">&quot;org.springframework.security.core.session.SessionRegistryImpl&quot;</span> <span class="nt">/&gt;</span>
+
+<span class="nt">&lt;bean</span> <span class="na">id=</span><span class="s">&quot;concurrencyFilter&quot;</span>
+   <span class="na">class=</span><span class="s">&quot;org.springframework.security.web.session.ConcurrentSessionFilter&quot;</span><span class="nt">&gt;</span>  <span class="c">&lt;!-- (6) --&gt;</span>
+   <span class="nt">&lt;constructor-arg</span> <span class="na">index=</span><span class="s">&quot;0&quot;</span> <span class="na">ref=</span><span class="s">&quot;sessionRegistry&quot;</span> <span class="nt">/&gt;</span>  <span class="c">&lt;!-- (7) --&gt;</span>
+   <span class="nt">&lt;constructor-arg</span> <span class="na">index=</span><span class="s">&quot;1&quot;</span> <span class="na">value=</span><span class="s">&quot;/alreadyLogin.jsp&quot;</span> <span class="nt">/&gt;</span>  <span class="c">&lt;!-- (8) --&gt;</span>
+<span class="nt">&lt;/bean&gt;</span>
+<span class="c">&lt;!-- omitted --&gt;</span>
+</pre></div>
+</div>
+<table border="1" class="docutils">
+<colgroup>
+<col width="10%" />
+<col width="90%" />
+</colgroup>
+<thead valign="bottom">
+<tr class="row-odd"><th class="head">項番</th>
+<th class="head">説明</th>
+</tr>
+</thead>
+<tbody valign="top">
+<tr class="row-even"><td><div class="first last line-block">
+<div class="line">(1)</div>
+</div>
+</td>
+<td><div class="first last line-block">
+<div class="line"><tt class="docutils literal"><span class="pre">&lt;sec:session-management&gt;</span></tt>要素の<tt class="docutils literal"><span class="pre">session-authentication-strategy-ref</span></tt>属性にセッションの取り扱いを決めるidを指定する。<tt class="docutils literal"><span class="pre">org.springframework.security.web.authentication.session.CompositeSessionAuthenticationStrategy</span></tt>を参照指定する。</div>
+</div>
+</td>
+</tr>
+<tr class="row-odd"><td><div class="first last line-block">
+<div class="line">(2)</div>
+</div>
+</td>
+<td><div class="first last line-block">
+<div class="line">同一ユーザでログインできる数を制限するために、CompositeSessionAuthenticationStrategyの第1引数に、</div>
+<div class="line"><tt class="docutils literal"><span class="pre">org.springframework.security.web.authentication.session.ConcurrentSessionControlStrategy</span></tt>を指定する。</div>
+</div>
+</td>
+</tr>
+<tr class="row-even"><td><div class="first last line-block">
+<div class="line">(3)</div>
+</div>
+</td>
+<td><div class="first last line-block">
+<div class="line">コンストラクタの第1引数に、<tt class="docutils literal"><span class="pre">org.springframework.security.core.session.SessionRegistryImpl</span></tt>を参照指定する。</div>
+</div>
+</td>
+</tr>
+<tr class="row-odd"><td><div class="first last line-block">
+<div class="line">(4)</div>
+</div>
+</td>
+<td><div class="first last line-block">
+<div class="line"><tt class="docutils literal"><span class="pre">maximumSessions</span></tt>属性に、1ユーザが許容する最大セッション数を定義することができる。</div>
+<div class="line">上記例では、2を指定しているため、1ユーザが許容するセッションは2つになる。</div>
+<div class="line">ユーザーが複数のブラウザでログインした場合、使用した日時が最も古いセッションに対して期限切れにする。</div>
+<div class="line">指定しない場合、1（1ユーザが許容するセッションは1つ）が設定される。</div>
+</div>
+</td>
+</tr>
+<tr class="row-even"><td><div class="first last line-block">
+<div class="line">(5)</div>
+</div>
+</td>
+<td><div class="first last line-block">
+<div class="line">期限切れになったセッションが遷移するパスを指定するために、<tt class="docutils literal"><span class="pre">&lt;custom-filter&gt;</span></tt>要素の、<tt class="docutils literal"><span class="pre">position</span></tt>属性に<tt class="docutils literal"><span class="pre">CONCURRENT_SESSION_FILTER</span></tt>を指定する。</div>
+</div>
+</td>
+</tr>
+<tr class="row-odd"><td><div class="first last line-block">
+<div class="line">(6)</div>
+</div>
+</td>
+<td><div class="first last line-block">
+<div class="line"><tt class="docutils literal"><span class="pre">org.springframework.security.web.session.ConcurrentSessionFilter</span></tt>クラスをBean定義する。</div>
+</div>
+</td>
+</tr>
+<tr class="row-even"><td><div class="first last line-block">
+<div class="line">(7)</div>
+</div>
+</td>
+<td><div class="first last line-block">
+<div class="line">コンストラクタの第1引数に、<tt class="docutils literal"><span class="pre">org.springframework.security.core.session.SessionRegistryImpl</span></tt>を参照指定する。</div>
+</div>
+</td>
+</tr>
+<tr class="row-odd"><td><div class="first last line-block">
+<div class="line">(8)</div>
+</div>
+</td>
+<td><div class="first last line-block">
+<div class="line">コンストラクタの第2引数に、期限切れになったセッションが遷移するパスを指定する。</div>
+</div>
+</td>
+</tr>
+</tbody>
+</table>
+</div></blockquote>
+<ol class="arabic simple" start="2">
+<li>新規ログインを受け付けない</li>
+</ol>
+<blockquote class="last">
+<div><p>spring-security.xmlに以下の設定を行う。</p>
+<div class="highlight-xml"><div class="highlight"><pre><span class="nt">&lt;bean</span> <span class="na">id=</span><span class="s">&quot;concurrencyFilter&quot;</span>
+   <span class="na">class=</span><span class="s">&quot;org.springframework.security.web.session.ConcurrentSessionFilter&quot;</span><span class="nt">&gt;</span>
+   <span class="nt">&lt;constructor-arg</span> <span class="na">index=</span><span class="s">&quot;0&quot;</span> <span class="na">ref=</span><span class="s">&quot;sessionRegistry&quot;</span> <span class="nt">/&gt;</span>
+   <span class="nt">&lt;constructor-arg</span> <span class="na">index=</span><span class="s">&quot;1&quot;</span> <span class="na">value=</span><span class="s">&quot;/&quot;</span> <span class="nt">/&gt;</span>
+<span class="nt">&lt;/bean&gt;</span>
+
+<span class="nt">&lt;bean</span> <span class="na">id=</span><span class="s">&quot;sessionAuthenticationStrategy&quot;</span>
+    <span class="na">class=</span><span class="s">&quot;org.springframework.security.web.authentication.session.CompositeSessionAuthenticationStrategy&quot;</span><span class="nt">&gt;</span>
+    <span class="nt">&lt;constructor-arg</span> <span class="na">index=</span><span class="s">&quot;0&quot;</span><span class="nt">&gt;</span>
+        <span class="nt">&lt;list&gt;</span>
+            <span class="c">&lt;!-- omitted --&gt;</span>
+            <span class="nt">&lt;bean</span> <span class="na">class=</span>
+                <span class="s">&quot;org.springframework.security.web.authentication.session.ConcurrentSessionControlStrategy&quot;</span><span class="nt">&gt;</span>
+                <span class="nt">&lt;constructor-arg</span> <span class="na">index=</span><span class="s">&quot;0&quot;</span> <span class="na">ref=</span><span class="s">&quot;sessionRegistry&quot;</span> <span class="nt">/&gt;</span>
+                <span class="nt">&lt;property</span> <span class="na">name=</span><span class="s">&quot;maximumSessions&quot;</span> <span class="na">value=</span><span class="s">&quot;2&quot;</span> <span class="nt">/&gt;</span>
+<span class="hll">                <span class="nt">&lt;property</span> <span class="na">name=</span><span class="s">&quot;exceptionIfMaximumExceeded&quot;</span> <span class="na">value=</span><span class="s">&quot;true&quot;</span><span class="nt">/&gt;</span> <span class="c">&lt;!-- (1) --&gt;</span>
+</span>            <span class="nt">&lt;/bean&gt;</span>
+        <span class="nt">&lt;/list&gt;</span>
+    <span class="nt">&lt;/constructor-arg&gt;</span>
+<span class="nt">&lt;/bean&gt;</span>
+<span class="c">&lt;!-- omitted --&gt;</span>
+</pre></div>
+</div>
+<table border="1" class="docutils">
+<colgroup>
+<col width="10%" />
+<col width="90%" />
+</colgroup>
+<thead valign="bottom">
+<tr class="row-odd"><th class="head">項番</th>
+<th class="head">説明</th>
+</tr>
+</thead>
+<tbody valign="top">
+<tr class="row-even"><td><div class="first last line-block">
+<div class="line">(1)</div>
+</div>
+</td>
+<td><div class="first last line-block">
+<div class="line"><tt class="docutils literal"><span class="pre">exceptionIfMaximumExceeded</span></tt>属性を<tt class="docutils literal"><span class="pre">true</span></tt>に設定することにより、 最大セッション数を超過した場合、</div>
+<div class="line"><tt class="docutils literal"><span class="pre">org.springframework.security.web.authentication.session.SessionAuthenticationException</span></tt>がスローされる。</div>
+<div class="line">そのため、<tt class="docutils literal"><span class="pre">ConcurrentSessionFilter</span></tt>の第2引数で定義したパスには遷移せず、<tt class="docutils literal"><span class="pre">&lt;sec:form-login&gt;</span></tt>要素の<tt class="docutils literal"><span class="pre">authentication-failure-url</span></tt>属性で指定したurlへ遷移するため注意すること。</div>
+<div class="line"><tt class="docutils literal"><span class="pre">exceptionIfMaximumExceeded</span></tt>属性の設定を省略した場合は、<tt class="docutils literal"><span class="pre">false</span></tt>が設定される。(後勝ち)</div>
+</div>
+</td>
+</tr>
+</tbody>
+</table>
+</div></blockquote>
+</div>
+</div>
+</div>
+<div class="section" id="authentication-failure-handler-ref">
+<span id="id15"></span><h3><a class="toc-backref" href="#id42">6.3.2.6. 認証エラー時のハンドラクラスの設定</a><a class="headerlink" href="#authentication-failure-handler-ref" title="Permalink to this headline">¶</a></h3>
+<div class="line-block">
+<div class="line-block">
+<div class="line"><tt class="docutils literal"><span class="pre">&lt;sec:form-login&gt;</span></tt>要素の<tt class="docutils literal"><span class="pre">authentication-failure-handler-ref</span></tt>属性に</div>
+</div>
+<div class="line"><tt class="docutils literal"><span class="pre">org.springframework.security.web.authentication.ExceptionMappingAuthenticationFailureHandler</span></tt>クラスの設定をし、</div>
+<div class="line">認証エラー時に送出される例外と、それに対応した遷移先を指定できる。</div>
+<div class="line">指定する遷移先は、未認証ユーザがアクセス可能であること。</div>
+</div>
+<p>spring-security.xml</p>
+<div class="highlight-xml"><div class="highlight"><pre><span class="nt">&lt;sec:http</span> <span class="na">auto-config=</span><span class="s">&quot;true&quot;</span> <span class="na">use-expressions=</span><span class="s">&quot;true&quot;</span><span class="nt">&gt;</span>
+  <span class="nt">&lt;sec:form-login</span> <span class="na">login-page=</span><span class="s">&quot;/login&quot;</span>
+      <span class="na">authentication-failure-handler-ref=</span><span class="s">&quot;authenticationFailureHandler&quot;</span>
+      <span class="na">authentication-success-handler-ref=</span><span class="s">&quot;authenticationSuccessHandler&quot;</span> <span class="nt">/&gt;</span>
+<span class="nt">&lt;/sec:http&gt;</span>
+
+<span class="nt">&lt;bean</span> <span class="na">id=</span><span class="s">&quot;authenticationFailureHandler&quot;</span>
+<span class="na">class=</span><span class="s">&quot;org.springframework.security.web.authentication.ExceptionMappingAuthenticationFailureHandler&quot;</span><span class="nt">&gt;</span>
+<span class="nt">&lt;property</span> <span class="na">name=</span><span class="s">&quot;defaultFailureUrl&quot;</span> <span class="na">value=</span><span class="s">&quot;/login/defaultError&quot;</span> <span class="nt">/&gt;</span><span class="c">&lt;!-- (1) --&gt;</span>
+  <span class="nt">&lt;property</span> <span class="na">name=</span><span class="s">&quot;exceptionMappings&quot;</span><span class="nt">&gt;</span><span class="c">&lt;!-- (2) --&gt;</span>
+    <span class="nt">&lt;props&gt;</span>
+      <span class="nt">&lt;prop</span> <span class="na">key=</span>
+        <span class="s">&quot;org.springframework.security.authentication.BadCredentialsException&quot;</span><span class="nt">&gt;</span><span class="c">&lt;!-- (3) --&gt;</span>
+          /login/badCredentials
+      <span class="nt">&lt;/prop&gt;</span>
+      <span class="nt">&lt;prop</span> <span class="na">key=</span>
+        <span class="s">&quot;org.springframework.security.core.userdetails.UsernameNotFoundException&quot;</span><span class="nt">&gt;</span><span class="c">&lt;!-- (4) --&gt;</span>
+          /login/usernameNotFound
+      <span class="nt">&lt;/prop&gt;</span>
+      <span class="nt">&lt;prop</span> <span class="na">key=</span>
+        <span class="s">&quot;org.springframework.security.authentication.DisabledException&quot;</span><span class="nt">&gt;</span><span class="c">&lt;!-- (5) --&gt;</span>
+          /login/disabled
+      <span class="nt">&lt;/prop&gt;</span>
+      <span class="nt">&lt;prop</span> <span class="na">key=</span>
+        <span class="s">&quot;org.springframework.security.authentication.ProviderNotFoundException&quot;</span><span class="nt">&gt;</span><span class="c">&lt;!-- (6) --&gt;</span>
+          /login/providerNotFound
+      <span class="nt">&lt;/prop&gt;</span>
+      <span class="nt">&lt;prop</span> <span class="na">key=</span>
+        <span class="s">&quot;org.springframework.security.authentication.AuthenticationServiceException&quot;</span><span class="nt">&gt;</span><span class="c">&lt;!-- (7) --&gt;</span>
+          /login/authenticationService
+      <span class="nt">&lt;/prop&gt;</span>
+      <span class="c">&lt;!-- omitted --&gt;</span>
+    <span class="nt">&lt;/props&gt;</span>
+  <span class="nt">&lt;/property&gt;</span>
+<span class="nt">&lt;/bean&gt;</span>
+</pre></div>
+</div>
+<table border="1" class="docutils">
+<colgroup>
+<col width="10%" />
+<col width="90%" />
+</colgroup>
+<thead valign="bottom">
+<tr class="row-odd"><th class="head">項番</th>
+<th class="head">説明</th>
+</tr>
+</thead>
+<tbody valign="top">
+<tr class="row-even"><td><div class="first last line-block">
+<div class="line">(1)</div>
+</div>
+</td>
+<td><div class="first last line-block">
+<div class="line">エラー時のデフォルトの遷移先パスを指定する。</div>
+<div class="line">後述する<tt class="docutils literal"><span class="pre">exceptionMappings</span></tt>プロパティに定義していない例外が発生した場合、本プロパティで指定した遷移先に遷移する。</div>
+</div>
+</td>
+</tr>
+<tr class="row-odd"><td><div class="first last line-block">
+<div class="line">(2)</div>
+</div>
+</td>
+<td><div class="first last line-block">
+<div class="line">catchする例外と、例外発生時の遷移先を、リスト形式で指定する。</div>
+<div class="line">keyに例外クラスを指定し、値に遷移先を設定する。</div>
+</div>
+</td>
+</tr>
+</tbody>
+</table>
+<p id="springsecurity-exception">Spring Securityがスローする代表的な例外を、以下に記述する。</p>
+<table border="1" class="docutils">
+<colgroup>
+<col width="10%" />
+<col width="25%" />
+<col width="65%" />
+</colgroup>
+<thead valign="bottom">
+<tr class="row-odd"><th class="head">項番</th>
+<th class="head">エラーの種類</th>
+<th class="head">説明</th>
+</tr>
+</thead>
+<tbody valign="top">
+<tr class="row-even"><td><div class="first last line-block">
+<div class="line">(3)</div>
+</div>
+</td>
+<td><tt class="docutils literal"><span class="pre">BadCredentialsException</span></tt></td>
+<td>パスワード照合失敗による認証エラー時にスローされる。</td>
+</tr>
+<tr class="row-odd"><td><div class="first last line-block">
+<div class="line">(4)</div>
+</div>
+</td>
+<td><tt class="docutils literal"><span class="pre">UsernameNotFoundException</span></tt></td>
+<td><div class="first last line-block">
+<div class="line">不正ユーザID（存在しないユーザID）による認証エラー時にスローされる。</div>
+<div class="line"><tt class="docutils literal"><span class="pre">org.springframework.security.authentication.dao.AbstractUserDetailsAuthenticationProvider</span></tt>を継承したクラスを認証プロバイダに指定している場合、</div>
+<div class="line"><tt class="docutils literal"><span class="pre">hideUserNotFoundExceptions</span></tt>を<tt class="docutils literal"><span class="pre">false</span></tt>に変更しないと上記例外は、<tt class="docutils literal"><span class="pre">BadCredentialsException</span></tt>に変更される。</div>
+</div>
+</td>
+</tr>
+<tr class="row-even"><td><div class="first last line-block">
+<div class="line">(5)</div>
+</div>
+</td>
+<td><tt class="docutils literal"><span class="pre">DisabledException</span></tt></td>
+<td>無効ユーザIDによる認証エラー時に、スローされる。</td>
+</tr>
+<tr class="row-odd"><td><div class="first last line-block">
+<div class="line">(6)</div>
+</div>
+</td>
+<td><tt class="docutils literal"><span class="pre">ProviderNotFoundException</span></tt></td>
+<td><div class="first last line-block">
+<div class="line">認証プロバイダクラス未検出エラー時にスローされる。</div>
+<div class="line">設定誤り等の理由から、認証プロバイダクラスが不正な場合に発生する。</div>
+</div>
+</td>
+</tr>
+<tr class="row-even"><td><div class="first last line-block">
+<div class="line">(7)</div>
+</div>
+</td>
+<td><tt class="docutils literal"><span class="pre">AuthenticationServiceException</span></tt></td>
+<td><div class="first last line-block">
+<div class="line">認証サービスエラー時にスローされる。</div>
+<div class="line">DB接続エラー等、認証サービス内で何らかのエラーが発生した際に発生する。</div>
+</div>
+</td>
+</tr>
+</tbody>
+</table>
+<div class="admonition warning">
+<p class="first admonition-title">Warning</p>
+<p class="last">本例では、<tt class="docutils literal"><span class="pre">UsernameNotFoundException</span></tt>をハンドリングして遷移させているが、
+ユーザIDが存在しないことを利用者に知らせると、特定のIDの存在有無が判明するため、セキュリティの観点上望ましくない。
+そのため、ユーザに通知するメッセージには、例外の種類によって区別をしない画面遷移、メッセージにした方がよい。</p>
+</div>
+</div>
+<div class="section" id="sec-logout">
+<span id="form-logout"></span><h3><a class="toc-backref" href="#id43">6.3.2.7. <tt class="docutils literal"><span class="pre">&lt;sec:logout&gt;</span></tt>要素の設定</a><a class="headerlink" href="#sec-logout" title="Permalink to this headline">¶</a></h3>
+<div class="line-block">
+<div class="line">本節では、<tt class="docutils literal"><span class="pre">&lt;sec:logout&gt;</span></tt>要素の設定方法を説明する。</div>
+</div>
+<p>spring-security.xml</p>
+<div class="highlight-xml"><div class="highlight"><pre><span class="nt">&lt;sec:http</span> <span class="na">auto-config=</span><span class="s">&quot;true&quot;</span> <span class="na">use-expressions=</span><span class="s">&quot;true&quot;</span><span class="nt">&gt;</span>
+  <span class="c">&lt;!-- omitted --&gt;</span>
+  <span class="nt">&lt;sec:logout</span>
+      <span class="na">logout-url=</span><span class="s">&quot;/logout&quot;</span>
+      <span class="na">logout-success-url=</span><span class="s">&quot;/&quot;</span>
+      <span class="na">invalidate-session=</span><span class="s">&quot;true&quot;</span>
+      <span class="na">delete-cookies=</span><span class="s">&quot;JSESSIONID&quot;</span>
+      <span class="na">success-handler-ref=</span><span class="s">&quot;logoutSuccessHandler&quot;</span>
+    <span class="nt">/&gt;</span> <span class="c">&lt;!-- 属性の指定順番で(1)～(5) --&gt;</span>
+  <span class="c">&lt;!-- omitted --&gt;</span>
+<span class="nt">&lt;/sec:http&gt;</span>
+</pre></div>
+</div>
+<table border="1" class="docutils">
+<colgroup>
+<col width="10%" />
+<col width="90%" />
+</colgroup>
+<thead valign="bottom">
+<tr class="row-odd"><th class="head">項番</th>
+<th class="head">説明</th>
+</tr>
+</thead>
+<tbody valign="top">
+<tr class="row-even"><td><div class="first last line-block">
+<div class="line">(1)</div>
+</div>
+</td>
+<td><div class="first last line-block">
+<div class="line"><tt class="docutils literal"><span class="pre">logout-url</span></tt>属性に、ログアウト処理を実行するためのパスを指定する。</div>
+</div>
+</td>
+</tr>
+<tr class="row-odd"><td><div class="first last line-block">
+<div class="line">(2)</div>
+</div>
+</td>
+<td><div class="first last line-block">
+<div class="line"><tt class="docutils literal"><span class="pre">logout-success-url</span></tt>属性に、ログアウト後の遷移先パスを指定する。</div>
+</div>
+</td>
+</tr>
+<tr class="row-even"><td><div class="first last line-block">
+<div class="line">(3)</div>
+</div>
+</td>
+<td><div class="first last line-block">
+<div class="line"><tt class="docutils literal"><span class="pre">invalidate-session</span></tt>属性に、ログアウト時にセッションを破棄するかを設定する。デフォルトは<tt class="docutils literal"><span class="pre">true</span></tt>である。<tt class="docutils literal"><span class="pre">true</span></tt>の場合、ログアウト時にセッションがクリアされる。</div>
+</div>
+</td>
+</tr>
+<tr class="row-odd"><td><div class="first last line-block">
+<div class="line">(4)</div>
+</div>
+</td>
+<td><div class="first last line-block">
+<div class="line"><tt class="docutils literal"><span class="pre">delete-cookies</span></tt>属性に、指定したクッキーを削除する。複数記述する場合は「,」で区切る。</div>
+</div>
+</td>
+</tr>
+<tr class="row-even"><td><div class="first last line-block">
+<div class="line">(5)</div>
+</div>
+</td>
+<td><div class="first last line-block">
+<div class="line"><tt class="docutils literal"><span class="pre">success-handler-ref</span></tt>属性に、ログアウト成功後に呼び出される、ハンドラクラスを指定する。</div>
+</div>
+</td>
+</tr>
+</tbody>
+</table>
+<div class="admonition note">
+<p class="first admonition-title">Note</p>
+<p><a class="reference internal" href="CSRF.html"><em>CSRF対策</em></a>で説明している<tt class="docutils literal"><span class="pre">&lt;sec:csrf&gt;</span></tt>を利用している場合は、CSRFトークンチェックが行われるため、<strong>ログアウトのリクエストをPOSTで送信し、CSRFトークンも送信する必要がある</strong>。
+CSRFトークンを埋め込む方法を以下に記述する。</p>
+<ul class="last">
+<li><p class="first"><a class="reference internal" href="CSRF.html#csrf-formformtag-use"><em>CSRFトークンを自動で埋め込む方法</em></a></p>
+<blockquote>
+<div><div class="highlight-jsp"><div class="highlight"><pre><span class="hll"> <span class="nt">&lt;form:form</span> <span class="na">method=</span><span class="s">&quot;POST&quot;</span>
+</span>   <span class="na">action=</span><span class="s">&quot;${pageContext.request.contextPath}/logout&quot;</span><span class="nt">&gt;</span>
+   <span class="nt">&lt;input</span> <span class="na">type=</span><span class="s">&quot;submit&quot;</span> <span class="na">value=</span><span class="s">&quot;Logout&quot;</span> <span class="nt">/&gt;</span>
+<span class="hll"> <span class="nt">&lt;/form:form&gt;</span>
+</span></pre></div>
+</div>
+<p>この場合は以下のようなHTMLが出力される。CSRFトークンがhiddenで設定されている。</p>
+<div class="highlight-html"><div class="highlight"><pre><span class="nt">&lt;form</span> <span class="na">id=</span><span class="s">&quot;command&quot;</span> <span class="na">action=</span><span class="s">&quot;/your-context-path/logout&quot;</span> <span class="na">method=</span><span class="s">&quot;POST&quot;</span><span class="nt">&gt;</span>
+  <span class="nt">&lt;input</span> <span class="na">type=</span><span class="s">&quot;submit&quot;</span> <span class="na">value=</span><span class="s">&quot;Logout&quot;</span> <span class="nt">/&gt;</span>
+  <span class="nt">&lt;input</span> <span class="na">type=</span><span class="s">&quot;hidden&quot;</span> <span class="na">name=</span><span class="s">&quot;_csrf&quot;</span> <span class="na">value=</span><span class="s">&quot;5826038f-0a84-495b-a851-c363e501b73b&quot;</span> <span class="nt">/&gt;</span>
+<span class="nt">&lt;/form&gt;</span>
+</pre></div>
+</div>
+</div></blockquote>
+</li>
+<li><p class="first"><a class="reference internal" href="CSRF.html#csrf-formtag-use"><em>CSRFトークンを明示的に埋め込む方法</em></a></p>
+<blockquote>
+<div><div class="highlight-jsp"><div class="highlight"><pre> <span class="nt">&lt;form</span>  <span class="na">method=</span><span class="s">&quot;POST&quot;</span>
+   <span class="na">action=</span><span class="s">&quot;${pageContext.request.contextPath}/logout&quot;</span><span class="nt">&gt;</span>
+<span class="hll">   <span class="nt">&lt;sec:csrfInput/&gt;</span>
+</span>   <span class="nt">&lt;input</span> <span class="na">type=</span><span class="s">&quot;submit&quot;</span> <span class="na">value=</span><span class="s">&quot;Logout&quot;</span> <span class="nt">/&gt;</span>
+ <span class="nt">&lt;/form&gt;</span>
+</pre></div>
+</div>
+<p>この場合も同様に以下のようなHTMLが出力される。CSRFトークンがhiddenで設定されている。</p>
+<div class="highlight-html"><div class="highlight"><pre><span class="nt">&lt;form</span>  <span class="na">method=</span><span class="s">&quot;POST&quot;</span>
+  <span class="na">action=</span><span class="s">&quot;/your-context-path/logout&quot;</span><span class="nt">&gt;</span>
+  <span class="nt">&lt;input</span> <span class="na">type=</span><span class="s">&quot;hidden&quot;</span> <span class="na">name=</span><span class="s">&quot;_csrf&quot;</span> <span class="na">value=</span><span class="s">&quot;5826038f-0a84-495b-a851-c363e501b73b&quot;</span> <span class="nt">/&gt;</span>
+  <span class="nt">&lt;input</span> <span class="na">type=</span><span class="s">&quot;submit&quot;</span> <span class="na">value=</span><span class="s">&quot;Logout&quot;</span> <span class="nt">/&gt;</span>
+<span class="nt">&lt;/form&gt;</span>
+</pre></div>
+</div>
+</div></blockquote>
+</li>
+</ul>
+</div>
+</div>
+<div class="section" id="sec-remember-me">
+<h3><a class="toc-backref" href="#id44">6.3.2.8. <tt class="docutils literal"><span class="pre">&lt;sec:remember-me&gt;</span></tt>要素の設定</a><a class="headerlink" href="#sec-remember-me" title="Permalink to this headline">¶</a></h3>
+<div class="line-block">
+<div class="line">「<a class="reference external" href="http://docs.spring.io/spring-security/site/docs/3.2.5.RELEASE/reference/htmlsingle/#remember-me">Remeber Me</a>」とは、websiteに頻繁にアクセスするユーザの利便性を、高めるための機能の一つとして、</div>
+<div class="line">ログイン状態を保持する機能である。</div>
+<div class="line">本機能は、ユーザがログイン状態を保持することを許可していた場合、ブラウザを閉じた後も</div>
+<div class="line">cookieにログイン情報を保持し、ユーザ名、パスワードを再入力しなくともログインすることができる機能である。</div>
+</div>
+<div class="line-block">
+<div class="line"><tt class="docutils literal"><span class="pre">&lt;sec:remember-me&gt;</span></tt>要素の属性について、以下に示す。</div>
+</div>
+<p>spring-security.xml</p>
+<div class="highlight-xml"><div class="highlight"><pre><span class="nt">&lt;sec:http</span> <span class="na">auto-config=</span><span class="s">&quot;true&quot;</span> <span class="na">use-expressions=</span><span class="s">&quot;true&quot;</span><span class="nt">&gt;</span>
+  <span class="c">&lt;!-- omitted --&gt;</span>
+  <span class="nt">&lt;sec:remember-me</span> <span class="na">key=</span><span class="s">&quot;terasoluna-tourreservation-km/ylnHv&quot;</span>
+          <span class="na">token-validity-seconds=</span><span class="s">&quot;#{30 * 24 * 60 * 60}&quot;</span> <span class="nt">/&gt;</span>  <span class="c">&lt;!-- 属性の指定順番で(1)～(2) --&gt;</span>
+  <span class="c">&lt;!-- omitted --&gt;</span>
+<span class="nt">&lt;/sec:http&gt;</span>
+</pre></div>
+</div>
+<table border="1" class="docutils">
+<colgroup>
+<col width="10%" />
+<col width="90%" />
+</colgroup>
+<thead valign="bottom">
+<tr class="row-odd"><th class="head">項番</th>
+<th class="head">説明</th>
+</tr>
+</thead>
+<tbody valign="top">
+<tr class="row-even"><td><div class="first last line-block">
+<div class="line">(1)</div>
+</div>
+</td>
+<td><div class="first last line-block">
+<div class="line"><tt class="docutils literal"><span class="pre">key</span></tt>属性に、Remeber Me用のcookieを保持しておくためのユニークなキーを指定する。</div>
+<div class="line">指定が無い場合、ユニークなキーを起動時に生成するため、起動時間向上を考えた場合指定しておくことを推奨する。</div>
+</div>
+</td>
+</tr>
+<tr class="row-odd"><td><div class="first last line-block">
+<div class="line">(2)</div>
+</div>
+</td>
+<td><div class="first last line-block">
+<div class="line">「<tt class="docutils literal"><span class="pre">token-validity-seconds</span></tt>属性に、Remeber Me用のcookieの有効時間を秒単位で指定する。この例では30日間を設定している。</div>
+<div class="line">指定が無い場合、デフォルトで14日間が有効期限になる。</div>
+</div>
+</td>
+</tr>
+</tbody>
+</table>
+<p>上記以外の属性については、<a class="reference external" href="http://docs.spring.io/spring-security/site/docs/3.2.5.RELEASE/reference/htmlsingle/#nsa-remember-me">Spring Securityのマニュアル</a>を参照されたい。</p>
+<p>ログインフォームには以下のように「Remeber Me」機能を有効にするためのフラグを用意する必要がある。</p>
+<div class="highlight-jsp"><div class="highlight"><pre><span class="nt">&lt;form</span> <span class="na">method=</span><span class="s">&quot;post&quot;</span>
+  <span class="na">action=</span><span class="s">&quot;${pageContext.request.contextPath}/authentication&quot;</span><span class="nt">&gt;</span>
+    <span class="c">&lt;!-- omitted --&gt;</span>
+    <span class="nt">&lt;label</span> <span class="na">for=</span><span class="s">&quot;_spring_security_remember_me&quot;</span><span class="nt">&gt;</span>Remember Me : <span class="nt">&lt;/label&gt;</span>
+    <span class="nt">&lt;input</span> <span class="na">name=</span><span class="s">&quot;_spring_security_remember_me&quot;</span>
+      <span class="na">id=</span><span class="s">&quot;_spring_security_remember_me&quot;</span> <span class="na">type=</span><span class="s">&quot;checkbox&quot;</span>
+<span class="hll">      <span class="na">checked=</span><span class="s">&quot;checked&quot;</span><span class="nt">&gt;</span> <span class="c">&lt;!-- (1) --&gt;</span>
+</span><span class="hll">    <span class="nt">&lt;input</span> <span class="na">type=</span><span class="s">&quot;submit&quot;</span> <span class="na">value=</span><span class="s">&quot;LOGIN&quot;</span><span class="nt">&gt;</span>
+</span><span class="hll">    <span class="c">&lt;!-- omitted --&gt;</span>
+</span><span class="nt">&lt;/form&gt;</span>
+</pre></div>
+</div>
+<table border="1" class="docutils">
+<colgroup>
+<col width="10%" />
+<col width="90%" />
+</colgroup>
+<thead valign="bottom">
+<tr class="row-odd"><th class="head">項番</th>
+<th class="head">説明</th>
+</tr>
+</thead>
+<tbody valign="top">
+<tr class="row-even"><td><div class="first last line-block">
+<div class="line">(1)</div>
+</div>
+</td>
+<td><div class="first last line-block">
+<div class="line">HTTPパラメータに、<tt class="docutils literal"><span class="pre">_spring_security_remember_me</span></tt>を設定することで、</div>
+<div class="line"><tt class="docutils literal"><span class="pre">true</span></tt>でリクエストされた場合、次回の認証を回避することができる。</div>
+</div>
+</td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
+<div class="section" id="how-to-extend">
+<h2><a class="toc-backref" href="#id45">6.3.3. How to extend</a><a class="headerlink" href="#how-to-extend" title="Permalink to this headline">¶</a></h2>
+<div class="section" id="extendsuserdetailsservice">
+<span id="id17"></span><h3><a class="toc-backref" href="#id46">6.3.3.1. <tt class="docutils literal"><span class="pre">UserDetailsService</span></tt>の拡張</a><a class="headerlink" href="#extendsuserdetailsservice" title="Permalink to this headline">¶</a></h3>
+<div class="line-block">
+<div class="line">認証時にユーザID、パスワード以外の情報も取得したい場合、</div>
+</div>
+<ul class="simple">
+<li><tt class="docutils literal"><span class="pre">org.springframework.security.core.userdetails.UserDetails</span></tt></li>
+<li><tt class="docutils literal"><span class="pre">org.springframework.security.core.userdetails.userDetailsService</span></tt></li>
+</ul>
+<p>を実装する必要がある。</p>
+<p>ログインユーザーの氏名や所属部署などの付属情報を常に画面のヘッダーに表示させる必要がある場合、毎リクエストでDBから取得するのは非効率的である。
+<tt class="docutils literal"><span class="pre">UserDetails</span></tt>オブジェクトに保持させて、<tt class="docutils literal"><span class="pre">SecurityContext</span></tt>や<tt class="docutils literal"><span class="pre">&lt;sec:authentication&gt;</span></tt>タグからアクセスできようにするにはこの拡張が必要である。</p>
+<div class="section" id="id18">
+<h4><a class="toc-backref" href="#id47">6.3.3.1.1. <tt class="docutils literal"><span class="pre">UserDetails</span></tt>の拡張</a><a class="headerlink" href="#id18" title="Permalink to this headline">¶</a></h4>
+<p>認証情報以外に顧客情報も保持する<tt class="docutils literal"><span class="pre">ReservationUserDetails</span></tt>クラスを作成する。</p>
+<div class="highlight-java"><div class="highlight"><pre><span class="kd">public</span> <span class="kd">class</span> <span class="nc">ReservationUserDetails</span> <span class="kd">extends</span> <span class="n">User</span> <span class="o">{</span> <span class="c1">// (1)</span>
+    <span class="c1">// omitted</span>
+
+    <span class="kd">private</span> <span class="kd">final</span> <span class="n">Customer</span> <span class="n">customer</span><span class="o">;</span> <span class="c1">// (2)</span>
+
+    <span class="kd">private</span> <span class="kd">static</span> <span class="kd">final</span> <span class="n">List</span><span class="o">&lt;?</span> <span class="kd">extends</span> <span class="n">GrantedAuthority</span><span class="o">&gt;</span> <span class="n">DEFAULT_AUTHORITIES</span> <span class="o">=</span> <span class="n">Collections</span>
+            <span class="o">.</span><span class="na">singletonList</span><span class="o">(</span><span class="k">new</span> <span class="n">SimpleGrantedAuthority</span><span class="o">(</span><span class="s">&quot;ROLE_USER&quot;</span><span class="o">));</span>         <span class="c1">// (3)</span>
+
+    <span class="kd">public</span> <span class="nf">ReservationUserDetails</span><span class="o">(</span><span class="n">Customer</span> <span class="n">customer</span><span class="o">)</span> <span class="o">{</span>
+        <span class="kd">super</span><span class="o">(</span><span class="n">customer</span><span class="o">.</span><span class="na">getCustomerCode</span><span class="o">(),</span>
+                <span class="n">customer</span><span class="o">.</span><span class="na">getCustomerPassword</span><span class="o">(),</span> <span class="kc">true</span><span class="o">,</span> <span class="kc">true</span><span class="o">,</span> <span class="kc">true</span><span class="o">,</span> <span class="kc">true</span><span class="o">,</span> <span class="n">DEFAULT_AUTHORITIES</span><span class="o">);</span> <span class="c1">// (4)</span>
+        <span class="k">this</span><span class="o">.</span><span class="na">customer</span> <span class="o">=</span> <span class="n">customer</span><span class="o">;</span>
+    <span class="o">}</span>
+
+    <span class="kd">public</span> <span class="n">Customer</span> <span class="nf">getCustomer</span><span class="o">()</span> <span class="o">{</span> <span class="c1">// (5)</span>
+        <span class="k">return</span> <span class="n">customer</span><span class="o">;</span>
+    <span class="o">}</span>
+<span class="o">}</span>
+</pre></div>
+</div>
+<table border="1" class="docutils">
+<colgroup>
+<col width="10%" />
+<col width="90%" />
+</colgroup>
+<thead valign="bottom">
+<tr class="row-odd"><th class="head">項番</th>
+<th class="head">説明</th>
+</tr>
+</thead>
+<tbody valign="top">
+<tr class="row-even"><td><div class="first last line-block">
+<div class="line">(1)</div>
+</div>
+</td>
+<td><div class="first last line-block">
+<div class="line"><tt class="docutils literal"><span class="pre">UserDetails</span></tt>のデフォルトクラスである、<tt class="docutils literal"><span class="pre">org.springframework.security.core.userdetails.User</span></tt>クラスを継承する。</div>
+</div>
+</td>
+</tr>
+<tr class="row-odd"><td><div class="first last line-block">
+<div class="line">(2)</div>
+</div>
+</td>
+<td><div class="first last line-block">
+<div class="line">認証情報および顧客情報をもつDomainObjectクラスを保持する。</div>
+</div>
+</td>
+</tr>
+<tr class="row-even"><td><div class="first last line-block">
+<div class="line">(3)</div>
+</div>
+</td>
+<td><div class="first last line-block">
+<div class="line">認可情報を、<tt class="docutils literal"><span class="pre">org.springframework.security.core.authority.SimpleGrantedAuthority</span></tt>のコンストラクタで作成する。ここでは&#8221;ROLE_USER&#8221;という権限を与える。</div>
+<div class="line"><br /></div>
+<div class="line">本実装は簡易実装であり、本来は認可情報はDB上の別のテーブルから取得すべきである。</div>
+</div>
+</td>
+</tr>
+<tr class="row-odd"><td><div class="first last line-block">
+<div class="line">(4)</div>
+</div>
+</td>
+<td><div class="first last line-block">
+<div class="line">スーパークラスのコンストラクタに、DomainObjectが持つユーザID、パスワードを設定する。</div>
+</div>
+</td>
+</tr>
+<tr class="row-even"><td><div class="first last line-block">
+<div class="line">(5)</div>
+</div>
+</td>
+<td><div class="first last line-block">
+<div class="line"><tt class="docutils literal"><span class="pre">UserDetails</span></tt>経由で顧客情報にアクセスするためのメソッド。</div>
+</div>
+</td>
+</tr>
+</tbody>
+</table>
+<div class="admonition note">
+<p class="first admonition-title">Note</p>
+<p class="last"><tt class="docutils literal"><span class="pre">User</span></tt>クラスを継承するだけでは、業務要件を実現できない場合、<tt class="docutils literal"><span class="pre">UserDetails</span></tt>インタフェースを実装すればよい。</p>
+</div>
+</div>
+<div class="section" id="id19">
+<h4><a class="toc-backref" href="#id48">6.3.3.1.2. 独自<tt class="docutils literal"><span class="pre">UserDetailsService</span></tt>の実装</a><a class="headerlink" href="#id19" title="Permalink to this headline">¶</a></h4>
+<div class="line-block">
+<div class="line"><tt class="docutils literal"><span class="pre">UserDetailsService</span></tt>を実装したReservationUserDetailsServiceクラスを作成する。</div>
+<div class="line">本例では、<tt class="docutils literal"><span class="pre">Customer</span></tt>オブジェクトを取得する処理を実装した<tt class="docutils literal"><span class="pre">CustomerSharedService</span></tt>クラスをインジェクションして、DBから顧客情報を取得している。</div>
+</div>
+<div class="highlight-java"><div class="highlight"><pre><span class="kd">public</span> <span class="kd">class</span> <span class="nc">ReservationUserDetailsService</span> <span class="kd">implements</span> <span class="n">UserDetailsService</span> <span class="o">{</span>
+    <span class="nd">@Inject</span>
+    <span class="n">CustomerSharedService</span> <span class="n">customerSharedService</span><span class="o">;</span>
+
+    <span class="nd">@Override</span>
+    <span class="kd">public</span> <span class="n">UserDetails</span> <span class="nf">loadUserByUsername</span><span class="o">(</span><span class="n">String</span> <span class="n">username</span><span class="o">)</span> <span class="kd">throws</span> <span class="n">UsernameNotFoundException</span> <span class="o">{</span>
+        <span class="n">Customer</span> <span class="n">customer</span> <span class="o">=</span> <span class="n">customerSharedService</span><span class="o">.</span><span class="na">findOne</span><span class="o">(</span><span class="n">username</span><span class="o">);</span>
+        <span class="c1">// omitted</span>
+        <span class="k">return</span> <span class="k">new</span> <span class="nf">ReservationUserDetails</span><span class="o">(</span><span class="n">customer</span><span class="o">);</span>
+    <span class="o">}</span>
+
+<span class="o">}</span>
+</pre></div>
+</div>
+</div>
+<div class="section" id="id20">
+<h4><a class="toc-backref" href="#id49">6.3.3.1.3. 使用方法</a><a class="headerlink" href="#id20" title="Permalink to this headline">¶</a></h4>
+<p>作成した<tt class="docutils literal"><span class="pre">ReservationUserDetailsService</span></tt>、<tt class="docutils literal"><span class="pre">ReservationUserDetails</span></tt>の使用方法を説明する。</p>
+<ul>
+<li><p class="first">spring-security.xml</p>
+<div class="highlight-xml"><div class="highlight"><pre><span class="nt">&lt;sec:authentication-manager&gt;</span>
+    <span class="nt">&lt;sec:authentication-provider</span> <span class="na">user-service-ref=</span><span class="s">&quot;userDetailsService&quot;</span><span class="nt">&gt;</span><span class="c">&lt;!-- (1) --&gt;</span>
+        <span class="nt">&lt;sec:password-encoder</span> <span class="na">ref=</span><span class="s">&quot;passwordEncoder&quot;</span> <span class="nt">/&gt;</span>
+    <span class="nt">&lt;/sec:authentication-provider&gt;</span>
+<span class="nt">&lt;/sec:authentication-manager&gt;</span>
+
+<span class="nt">&lt;bean</span> <span class="na">id=</span><span class="s">&quot;userDetailsService&quot;</span>
+    <span class="na">class=</span><span class="s">&quot;com.example.domain.service.userdetails.ReservationUserDetailsService&quot;</span><span class="nt">&gt;</span><span class="c">&lt;!-- (2) --&gt;</span>
+<span class="nt">&lt;/bean&gt;</span>
+<span class="c">&lt;!-- omitted --&gt;</span>
+</pre></div>
+</div>
+<table border="1" class="docutils">
+<colgroup>
+<col width="10%" />
+<col width="90%" />
+</colgroup>
+<thead valign="bottom">
+<tr class="row-odd"><th class="head"><p class="first last">項番</p>
+</th>
+<th class="head"><p class="first last">説明</p>
+</th>
+</tr>
+</thead>
+<tbody valign="top">
+<tr class="row-even"><td><div class="first last line-block">
+<div class="line">(1)</div>
+</div>
+</td>
+<td><div class="first last line-block">
+<div class="line"><tt class="docutils literal"><span class="pre">ReservationUserDetailsService</span></tt>のBean IDをref属性に定義する。</div>
+</div>
+</td>
+</tr>
+<tr class="row-odd"><td><div class="first last line-block">
+<div class="line">(2)</div>
+</div>
+</td>
+<td><div class="first last line-block">
+<div class="line"><tt class="docutils literal"><span class="pre">ReservationUserDetailsService</span></tt>をBean定義する。</div>
+</div>
+</td>
+</tr>
+</tbody>
+</table>
+</li>
+<li><p class="first">JSP</p>
+<p><tt class="docutils literal"><span class="pre">&lt;sec:authentication&gt;</span></tt>タグを使用して<tt class="docutils literal"><span class="pre">Customer</span></tt>オブジェクトにアクセスする。</p>
+<div class="highlight-jsp"><div class="highlight"><pre><span class="nt">&lt;sec:authentication</span> <span class="na">property=</span><span class="s">&quot;principal.customer&quot;</span> <span class="na">var=</span><span class="s">&quot;customer&quot;</span><span class="nt">/&gt;</span><span class="c">&lt;!-- (1) --&gt;</span>
+${f:h(customer.customerName)}<span class="c">&lt;!-- (1) --&gt;</span>
+</pre></div>
+</div>
+<table border="1" class="docutils">
+<colgroup>
+<col width="10%" />
+<col width="90%" />
+</colgroup>
+<thead valign="bottom">
+<tr class="row-odd"><th class="head"><p class="first last">項番</p>
+</th>
+<th class="head"><p class="first last">説明</p>
+</th>
+</tr>
+</thead>
+<tbody valign="top">
+<tr class="row-even"><td><div class="first last line-block">
+<div class="line">(1)</div>
+</div>
+</td>
+<td><div class="first last line-block">
+<div class="line"><tt class="docutils literal"><span class="pre">ReservationUserDetails</span></tt>がもつ<tt class="docutils literal"><span class="pre">Customer</span></tt>オブジェクトを変数に格納する。</div>
+</div>
+</td>
+</tr>
+<tr class="row-odd"><td><div class="first last line-block">
+<div class="line">(2)</div>
+</div>
+</td>
+<td><div class="first last line-block">
+<div class="line">変数に格納した<tt class="docutils literal"><span class="pre">Customer</span></tt>オブジェクトの任意のプロパティを表示する。</div>
+<div class="line"><tt class="docutils literal"><span class="pre">f:h()</span></tt>については、<a class="reference internal" href="XSS.html"><em>XSS対策</em></a>を参照されたい。</div>
+</div>
+</td>
+</tr>
+</tbody>
+</table>
+</li>
+<li><p class="first">Controller</p>
+<div class="highlight-java"><div class="highlight"><pre><span class="nd">@RequestMapping</span><span class="o">(</span><span class="n">method</span> <span class="o">=</span> <span class="n">RequestMethod</span><span class="o">.</span><span class="na">GET</span><span class="o">)</span>
+<span class="kd">public</span> <span class="n">String</span> <span class="nf">view</span><span class="o">(</span><span class="n">Principal</span> <span class="n">principal</span><span class="o">,</span> <span class="n">Model</span> <span class="n">model</span><span class="o">)</span> <span class="o">{</span>
+    <span class="c1">// get Authentication</span>
+    <span class="n">Authentication</span> <span class="n">authentication</span> <span class="o">=</span> <span class="o">(</span><span class="n">Authentication</span><span class="o">)</span> <span class="n">principal</span><span class="o">;</span>
+    <span class="c1">// get UserDetails</span>
+    <span class="n">ReservationUserDetails</span> <span class="n">userDetails</span> <span class="o">=</span> <span class="o">(</span><span class="n">ReservationUserDetails</span><span class="o">)</span> <span class="n">authentication</span><span class="o">.</span><span class="na">getPrincipal</span><span class="o">();</span>
+    <span class="c1">// get Customer</span>
+    <span class="n">Customer</span> <span class="n">customer</span> <span class="o">=</span> <span class="n">userDetails</span><span class="o">.</span><span class="na">getCustomer</span><span class="o">();</span> <span class="c1">// (1)</span>
+    <span class="c1">// omitted ...</span>
+<span class="o">}</span>
+</pre></div>
+</div>
+<table border="1" class="docutils">
+<colgroup>
+<col width="10%" />
+<col width="90%" />
+</colgroup>
+<thead valign="bottom">
+<tr class="row-odd"><th class="head"><p class="first last">項番</p>
+</th>
+<th class="head"><p class="first last">説明</p>
+</th>
+</tr>
+</thead>
+<tbody valign="top">
+<tr class="row-even"><td><div class="first last line-block">
+<div class="line">(1)</div>
+</div>
+</td>
+<td><div class="first last line-block">
+<div class="line"><tt class="docutils literal"><span class="pre">ReservationUserDetails</span></tt>から、ログイン中の<tt class="docutils literal"><span class="pre">Customer</span></tt>オブジェクトを取得する。</div>
+<div class="line">このオブジェクトをServiceクラスに渡して業務処理を行う。</div>
+</div>
+</td>
+</tr>
+</tbody>
+</table>
+</li>
+</ul>
+<div class="admonition note">
+<p class="first admonition-title">Note</p>
+<p>顧客情報が変更された場合、一度ログアウトしないと<tt class="docutils literal"><span class="pre">ReservationUserDetails</span></tt>がもつ<tt class="docutils literal"><span class="pre">Customer</span></tt>オブジェクトは変更されない。</p>
+<p class="last">頻繁に変更されうる情報や、ログインユーザー以外のユーザー(管理者など)によって変更される情報は保持しない方がよい。</p>
+</div>
+</div>
+</div>
+<div class="section" id="id21">
+<h3><a class="toc-backref" href="#id50">6.3.3.2. <tt class="docutils literal"><span class="pre">AuthenticationProvider</span></tt>の拡張</a><a class="headerlink" href="#id21" title="Permalink to this headline">¶</a></h3>
+<div class="admonition-todo admonition" id="index-0">
+<p class="first admonition-title">Todo</p>
+<p class="last">内容をもう一度見直す。</p>
+</div>
+<div class="line-block">
+<div class="line">Spring Securityで<a class="reference external" href="http://docs.spring.io/spring-security/site/docs/3.2.5.RELEASE/apidocs/org/springframework/security/authentication/AuthenticationProvider.html">デフォルトで用意されている認証プロバイダ</a>で対応できない業務要件がある場合、</div>
+<div class="line"><tt class="docutils literal"><span class="pre">org.springframework.security.authentication.AuthenticationProvider</span></tt>を実装したクラスを作成する必要がある。</div>
+</div>
+<div class="line-block">
+<div class="line"><tt class="docutils literal"><span class="pre">AuthenticationProvider</span></tt>では、<tt class="docutils literal"><span class="pre">org.springframework.security.core.Authentication</span></tt>を実装したクラスを戻り値として返却する必要がある。</div>
+<div class="line"><tt class="docutils literal"><span class="pre">Authentication</span></tt>を実装したクラスには、<tt class="docutils literal"><span class="pre">getPrincipal</span></tt>メソッド(認証情報の取得)、</div>
+<div class="line"><tt class="docutils literal"><span class="pre">getCredentials</span></tt>メソッド(principalの正当性を保証する情報の取得)を設定する必要がある。</div>
+</div>
+<div class="line-block">
+<div class="line">ここでは認証時に、ユーザ名、パスワード以外にも認証情報が必要な場合を考える。<tt class="docutils literal"><span class="pre">AuthenticationProvider</span></tt>でこの値にアクセスするために、</div>
+</div>
+<ul class="simple">
+<li><tt class="docutils literal"><span class="pre">org.springframework.security.authentication.UsernamePasswordAuthenticationToken</span></tt></li>
+<li><tt class="docutils literal"><span class="pre">org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter</span></tt></li>
+</ul>
+<p>を継承したクラスを作成する必要がある。</p>
+<div class="line-block">
+<div class="line">ユーザ名、<strong>会社識別子</strong>、パスワードを認証情報とする場合の例を用いて、説明する。</div>
+</div>
+<div class="figure">
+<a class="reference internal image-reference" href="../_images/Authentication_HowToExtends_LoginForm.png"><img alt="Authentication_HowToExtends_LoginForm" src="../_images/Authentication_HowToExtends_LoginForm.png" style="width: 40%;" /></a>
+</div>
+<div class="section" id="usernamepasswordauthenticationtoken">
+<h4><a class="toc-backref" href="#id51">6.3.3.2.1. <tt class="docutils literal"><span class="pre">UsernamePasswordAuthenticationToken</span></tt>の拡張</a><a class="headerlink" href="#usernamepasswordauthenticationtoken" title="Permalink to this headline">¶</a></h4>
+<div class="line-block">
+<div class="line"><tt class="docutils literal"><span class="pre">UsernamePasswordAuthenticationToken</span></tt>を継承した、独自の<tt class="docutils literal"><span class="pre">AuthenticationToken</span></tt>を作成する。</div>
+<div class="line"><tt class="docutils literal"><span class="pre">UsernamePasswordAuthenticationToken</span></tt>を拡張することで、認証情報に会社識別子を持たせることができる。</div>
+</div>
+<div class="highlight-java"><div class="highlight"><pre><span class="c1">// import omitted</span>
+<span class="kd">public</span> <span class="kd">class</span> <span class="nc">CompanyIdUsernamePasswordAuthenticationToken</span> <span class="kd">extends</span>
+                                                                 <span class="n">UsernamePasswordAuthenticationToken</span> <span class="o">{</span>
+
+    <span class="kd">private</span> <span class="kd">static</span> <span class="kd">final</span> <span class="kt">long</span> <span class="n">serialVersionUID</span> <span class="o">=</span> <span class="n">SpringSecurityCoreVersion</span><span class="o">.</span><span class="na">SERIAL_VERSION_UID</span><span class="o">;</span>
+
+    <span class="kd">private</span> <span class="kd">final</span> <span class="n">String</span> <span class="n">companyId</span><span class="o">;</span>  <span class="c1">// (1)</span>
+
+    <span class="kd">public</span> <span class="nf">CompanyIdUsernamePasswordAuthenticationToken</span><span class="o">(</span>
+            <span class="n">Object</span> <span class="n">principal</span><span class="o">,</span> <span class="n">Object</span> <span class="n">credentials</span><span class="o">,</span> <span class="n">String</span> <span class="n">companyId</span><span class="o">)</span> <span class="o">{</span>  <span class="c1">// (2)</span>
+        <span class="kd">super</span><span class="o">(</span><span class="n">principal</span><span class="o">,</span> <span class="n">credentials</span><span class="o">);</span>
+
+        <span class="k">this</span><span class="o">.</span><span class="na">companyId</span> <span class="o">=</span> <span class="n">companyId</span><span class="o">;</span>
+    <span class="o">}</span>
+
+    <span class="kd">public</span> <span class="nf">CompanyIdUsernamePasswordAuthenticationToken</span><span class="o">(</span>
+            <span class="n">Object</span> <span class="n">principal</span><span class="o">,</span> <span class="n">Object</span> <span class="n">credentials</span><span class="o">,</span> <span class="n">String</span> <span class="n">companyId</span><span class="o">,</span>
+            <span class="n">Collection</span><span class="o">&lt;?</span> <span class="kd">extends</span> <span class="n">GrantedAuthority</span><span class="o">&gt;</span> <span class="n">authorities</span><span class="o">)</span> <span class="o">{</span>  <span class="c1">// (3)</span>
+        <span class="kd">super</span><span class="o">(</span><span class="n">principal</span><span class="o">,</span> <span class="n">credentials</span><span class="o">,</span> <span class="n">authorities</span><span class="o">);</span>
+        <span class="k">this</span><span class="o">.</span><span class="na">companyId</span> <span class="o">=</span> <span class="n">companyId</span><span class="o">;</span>
+    <span class="o">}</span>
+
+    <span class="kd">public</span> <span class="n">String</span> <span class="nf">getCompanyId</span><span class="o">()</span> <span class="o">{</span>
+        <span class="k">return</span> <span class="n">companyId</span><span class="o">;</span>
+    <span class="o">}</span>
+<span class="o">}</span>
+</pre></div>
+</div>
+<table border="1" class="docutils">
+<colgroup>
+<col width="10%" />
+<col width="90%" />
+</colgroup>
+<thead valign="bottom">
+<tr class="row-odd"><th class="head">項番</th>
+<th class="head">説明</th>
+</tr>
+</thead>
+<tbody valign="top">
+<tr class="row-even"><td><div class="first last line-block">
+<div class="line">(1)</div>
+</div>
+</td>
+<td><div class="first last line-block">
+<div class="line">会社識別子用のフィールドを作成する。</div>
+</div>
+</td>
+</tr>
+<tr class="row-odd"><td><div class="first last line-block">
+<div class="line">(2)</div>
+</div>
+</td>
+<td><div class="first last line-block">
+<div class="line">認証前に、<tt class="docutils literal"><span class="pre">CompanyIdUsernamePasswordAuthenticationToken</span></tt>のインスタンスを作成する時に使用するコンストラクタ。</div>
+</div>
+</td>
+</tr>
+<tr class="row-even"><td><div class="first last line-block">
+<div class="line">(3)</div>
+</div>
+</td>
+<td><div class="first last line-block">
+<div class="line">認証成功後に、<tt class="docutils literal"><span class="pre">CompanyIdUsernamePasswordAuthenticationToken</span></tt>のインスタンスを作成する時に使用するコンストラクタ。</div>
+<div class="line">親クラスのコンストラクタの引数に認可情報も併せて渡すことで、認証済みの状態となる。</div>
+</div>
+</td>
+</tr>
+</tbody>
+</table>
+</div>
+<div class="section" id="id23">
+<h4><a class="toc-backref" href="#id52">6.3.3.2.2. 独自<tt class="docutils literal"><span class="pre">AuthenticationProvider</span></tt>の実装</a><a class="headerlink" href="#id23" title="Permalink to this headline">¶</a></h4>
+<div class="line-block">
+<div class="line">独自の<tt class="docutils literal"><span class="pre">AuthenticationProvider</span></tt>で<tt class="docutils literal"><span class="pre">CompanyIdUsernamePasswordAuthenticationToken</span></tt>を使用する。</div>
+</div>
+<div class="highlight-java"><div class="highlight"><pre><span class="c1">// import omitted</span>
+<span class="kd">public</span> <span class="kd">class</span> <span class="nc">CompanyIdUsernamePasswordAuthenticationProvider</span> <span class="kd">implements</span>
+                                                                    <span class="n">AuthenticationProvider</span> <span class="o">{</span>
+    <span class="c1">// omitted</span>
+
+    <span class="nd">@Override</span>
+    <span class="kd">public</span> <span class="n">Authentication</span> <span class="nf">authenticate</span><span class="o">(</span><span class="n">Authentication</span> <span class="n">authentication</span><span class="o">)</span> <span class="kd">throws</span> <span class="n">AuthenticationException</span> <span class="o">{</span>
+
+        <span class="n">CompanyIdUsernamePasswordAuthenticationToken</span> <span class="n">authenticationToken</span> <span class="o">=</span>
+            <span class="o">(</span><span class="n">CompanyIdUsernamePasswordAuthenticationToken</span><span class="o">)</span> <span class="n">authentication</span><span class="o">;</span> <span class="c1">// (1)</span>
+
+        <span class="c1">// Obtain userName, password, companyId</span>
+        <span class="n">String</span> <span class="n">username</span> <span class="o">=</span> <span class="n">authenticationToken</span><span class="o">.</span><span class="na">getName</span><span class="o">();</span>
+        <span class="n">String</span> <span class="n">password</span> <span class="o">=</span> <span class="n">authenticationToken</span><span class="o">.</span><span class="na">getCredentials</span><span class="o">().</span><span class="na">toString</span><span class="o">();</span>
+        <span class="n">String</span> <span class="n">companyId</span> <span class="o">=</span> <span class="n">authenticationToken</span><span class="o">.</span><span class="na">getCompanyId</span><span class="o">();</span>
+
+        <span class="c1">// Obtain user (and grants if needed) from database or other system</span>
+        <span class="c1">// UserDetails userDetails = ...</span>
+
+        <span class="c1">// Business logic</span>
+        <span class="c1">// ...</span>
+
+        <span class="k">return</span> <span class="k">new</span> <span class="nf">UsernamePasswordAuthenticationToken</span><span class="o">(</span><span class="n">userDetails</span><span class="o">,</span> <span class="n">authentication</span><span class="o">.</span><span class="na">getCredentials</span><span class="o">(),</span>
+                <span class="n">Collections</span><span class="o">.</span><span class="na">singletonList</span><span class="o">(</span><span class="k">new</span> <span class="n">SimpleGrantedAuthority</span><span class="o">(</span><span class="s">&quot;ROLE_USER&quot;</span><span class="o">)));</span> <span class="c1">// (2)</span>
+    <span class="o">}</span>
+
+    <span class="nd">@Override</span>
+    <span class="kd">public</span> <span class="kt">boolean</span> <span class="nf">supports</span><span class="o">(</span><span class="n">Class</span><span class="o">&lt;?&gt;</span> <span class="n">authentication</span><span class="o">)</span> <span class="o">{</span>
+        <span class="k">return</span> <span class="n">CompanyIdUsernamePasswordAuthenticationToken</span><span class="o">.</span><span class="na">class</span>
+                <span class="o">.</span><span class="na">equals</span><span class="o">(</span><span class="n">authentication</span><span class="o">);</span> <span class="c1">// (3)</span>
+    <span class="o">}</span>
+
+    <span class="c1">// omitted</span>
+<span class="o">}</span>
+</pre></div>
+</div>
+<table border="1" class="docutils">
+<colgroup>
+<col width="10%" />
+<col width="90%" />
+</colgroup>
+<thead valign="bottom">
+<tr class="row-odd"><th class="head">項番</th>
+<th class="head">説明</th>
+</tr>
+</thead>
+<tbody valign="top">
+<tr class="row-even"><td><div class="first last line-block">
+<div class="line">(1)</div>
+</div>
+</td>
+<td><div class="first last line-block">
+<div class="line"><tt class="docutils literal"><span class="pre">UsernamePasswordAuthenticationFilter</span></tt>を拡張したクラスで設定した、独自の<tt class="docutils literal"><span class="pre">AuthenticationToken</span></tt>にキャストする。</div>
+<div class="line">詳細については、後述する<a class="reference internal" href="#authentication-custom-usernamepasswordauthenticationfilter"><em>UsernamePasswordAuthenticationFilter の拡張</em></a>を参照されたい。</div>
+</div>
+</td>
+</tr>
+<tr class="row-odd"><td><div class="first last line-block">
+<div class="line">(2)</div>
+</div>
+</td>
+<td><div class="first last line-block">
+<div class="line">認証処理(ユーザ情報の取得、パスワードチェック、会社識別子チェック等)実施後、</div>
+<div class="line"><tt class="docutils literal"><span class="pre">UsernamePasswordAuthenticationToken</span></tt>を作成して返却する。パラメータに認可情報も併せて設定することで、</div>
+<div class="line">認証済みの<tt class="docutils literal"><span class="pre">AuthenticationToken</span></tt>インスタンスを生成する。<tt class="docutils literal"><span class="pre">UserDetails</span></tt>もコンストラクタのパラメータに渡す。</div>
+<div class="line"><br /></div>
+<div class="line">本例では、簡易実装として、単一のロールのみ使用している。</div>
+<div class="line">権限についての詳細は、<a class="reference internal" href="#userdetailsservice"><em>ユーザ情報管理クラスの設定</em></a>を参照されたい。</div>
+</div>
+</td>
+</tr>
+<tr class="row-even"><td><div class="first last line-block">
+<div class="line">(3)</div>
+</div>
+</td>
+<td><div class="first last line-block">
+<div class="line">独自の<tt class="docutils literal"><span class="pre">AuthenticationToken</span></tt>である、</div>
+<div class="line"><tt class="docutils literal"><span class="pre">CompanyIdUsernamePasswordAuthenticationToken</span></tt>クラスをサポート対象とする。</div>
+</div>
+</td>
+</tr>
+</tbody>
+</table>
+</div>
+<div class="section" id="usernamepasswordauthenticationfilter">
+<span id="authentication-custom-usernamepasswordauthenticationfilter"></span><h4><a class="toc-backref" href="#id53">6.3.3.2.3. <tt class="docutils literal"><span class="pre">UsernamePasswordAuthenticationFilter</span></tt>の拡張</a><a class="headerlink" href="#usernamepasswordauthenticationfilter" title="Permalink to this headline">¶</a></h4>
+<div class="line-block">
+<div class="line"><tt class="docutils literal"><span class="pre">UsernamePasswordAuthenticationFilter</span></tt>を継承した、独自の<tt class="docutils literal"><span class="pre">AuthenticationFilter</span></tt>を作成する。</div>
+<div class="line"><tt class="docutils literal"><span class="pre">UsernamePasswordAuthenticationFilter</span></tt>を拡張することで、<tt class="docutils literal"><span class="pre">CompanyIdUsernamePasswordAuthenticationProvider</span></tt>へ、</div>
+<div class="line"><tt class="docutils literal"><span class="pre">CompanyIdUsernamePasswordAuthenticationToken</span></tt>を渡すことができる。</div>
+</div>
+<div class="highlight-java"><div class="highlight"><pre><span class="c1">// import omitted</span>
+<span class="kd">public</span> <span class="kd">class</span> <span class="nc">CompanyIdUsernamePasswordAuthenticationFilter</span> <span class="kd">extends</span>
+                                                                  <span class="n">UsernamePasswordAuthenticationFilter</span> <span class="o">{</span>
+
+    <span class="nd">@Override</span>
+    <span class="kd">public</span> <span class="n">Authentication</span> <span class="nf">attemptAuthentication</span><span class="o">(</span><span class="n">HttpServletRequest</span> <span class="n">request</span><span class="o">,</span>
+            <span class="n">HttpServletResponse</span> <span class="n">response</span><span class="o">)</span> <span class="kd">throws</span> <span class="n">AuthenticationException</span> <span class="o">{</span>
+
+        <span class="k">if</span> <span class="o">(!</span><span class="n">request</span><span class="o">.</span><span class="na">getMethod</span><span class="o">().</span><span class="na">equals</span><span class="o">(</span><span class="s">&quot;POST&quot;</span><span class="o">))</span> <span class="o">{</span>
+            <span class="k">throw</span> <span class="k">new</span> <span class="nf">AuthenticationServiceException</span><span class="o">(</span><span class="s">&quot;Authentication method not supported: &quot;</span>
+                    <span class="o">+</span> <span class="n">request</span><span class="o">.</span><span class="na">getMethod</span><span class="o">());</span>
+        <span class="o">}</span>
+
+        <span class="c1">// Obtain UserName, Password, CompanyId</span>
+        <span class="n">String</span> <span class="n">username</span> <span class="o">=</span> <span class="kd">super</span><span class="o">.</span><span class="na">obtainUsername</span><span class="o">(</span><span class="n">request</span><span class="o">);</span>
+        <span class="n">String</span> <span class="n">password</span> <span class="o">=</span> <span class="kd">super</span><span class="o">.</span><span class="na">obtainPassword</span><span class="o">(</span><span class="n">request</span><span class="o">);</span>
+        <span class="n">String</span> <span class="n">companyId</span> <span class="o">=</span> <span class="n">obtainCompanyId</span><span class="o">(</span><span class="n">request</span><span class="o">);</span>
+
+        <span class="c1">// username required</span>
+        <span class="k">if</span> <span class="o">(!</span><span class="n">StringUtils</span><span class="o">.</span><span class="na">hasText</span><span class="o">(</span><span class="n">username</span><span class="o">))</span> <span class="o">{</span>
+            <span class="k">throw</span> <span class="k">new</span> <span class="nf">AuthenticationServiceException</span><span class="o">(</span><span class="s">&quot;UserName is required&quot;</span><span class="o">);</span>
+        <span class="o">}</span>
+
+        <span class="c1">// validate password, companyId</span>
+
+        <span class="c1">// omitted other process</span>
+
+        <span class="n">CompanyIdUsernamePasswordAuthenticationToken</span> <span class="n">authRequest</span> <span class="o">=</span>
+                <span class="k">new</span> <span class="nf">CompanyIdUsernamePasswordAuthenticationToken</span><span class="o">(</span><span class="n">username</span><span class="o">,</span> <span class="n">password</span><span class="o">,</span> <span class="n">companyId</span><span class="o">);</span>  <span class="c1">// (1)</span>
+
+        <span class="c1">// Allow subclasses to set the &quot;details&quot; property</span>
+        <span class="n">setDetails</span><span class="o">(</span><span class="n">request</span><span class="o">,</span> <span class="n">authRequest</span><span class="o">);</span>
+
+        <span class="k">return</span> <span class="k">this</span><span class="o">.</span><span class="na">getAuthenticationManager</span><span class="o">().</span><span class="na">authenticate</span><span class="o">(</span><span class="n">authRequest</span><span class="o">);</span>  <span class="c1">// (2)</span>
+    <span class="o">}</span>
+
+    <span class="kd">protected</span> <span class="n">String</span> <span class="nf">obtainCompanyId</span><span class="o">(</span><span class="n">HttpServletRequest</span> <span class="n">request</span><span class="o">)</span> <span class="o">{</span>
+        <span class="k">return</span> <span class="n">request</span><span class="o">.</span><span class="na">getParameter</span><span class="o">(</span><span class="s">&quot;j_companyid&quot;</span><span class="o">);</span>  <span class="c1">// (3)</span>
+    <span class="o">}</span>
+<span class="o">}</span>
+</pre></div>
+</div>
+<table border="1" class="docutils">
+<colgroup>
+<col width="10%" />
+<col width="90%" />
+</colgroup>
+<thead valign="bottom">
+<tr class="row-odd"><th class="head">項番</th>
+<th class="head">説明</th>
+</tr>
+</thead>
+<tbody valign="top">
+<tr class="row-even"><td><div class="first last line-block">
+<div class="line">(1)</div>
+</div>
+</td>
+<td><div class="first last line-block">
+<div class="line"><tt class="docutils literal"><span class="pre">HttpServletRequest</span></tt>から取得した、ユーザ名、パスワード、会社識別子を設定した、</div>
+<div class="line"><tt class="docutils literal"><span class="pre">CompanyIdUsernamePasswordAuthenticationToken</span></tt>のインスタンスを生成する。</div>
+</div>
+</td>
+</tr>
+<tr class="row-odd"><td><div class="first last line-block">
+<div class="line">(2)</div>
+</div>
+</td>
+<td><div class="first last line-block">
+<div class="line">未認証状態の<tt class="docutils literal"><span class="pre">CompanyIdUsernamePasswordAuthenticationToken</span></tt>のインスタンスを</div>
+<div class="line"><tt class="docutils literal"><span class="pre">org.springframework.security.authentication.AuthenticationManager.authenticate</span></tt>のパラメータとして設定する。</div>
+</div>
+</td>
+</tr>
+<tr class="row-even"><td><div class="first last line-block">
+<div class="line">(3)</div>
+</div>
+</td>
+<td><div class="first last line-block">
+<div class="line">会社識別子を、リクエストパラメータより取得する。</div>
+</div>
+</td>
+</tr>
+</tbody>
+</table>
+<div class="admonition note">
+<p class="first admonition-title">Note</p>
+<p><strong>ログイン情報の入力チェックについて</strong></p>
+<p class="last">DBサーバへの負荷軽減等で、あきらかな入力誤りに対しては、事前にチェックを行いたい場合がある。
+その場合は、<a class="reference internal" href="#authentication-custom-usernamepasswordauthenticationfilter"><em>UsernamePasswordAuthenticationFilterの拡張</em></a>のように、
+<tt class="docutils literal"><span class="pre">UsernamePasswordAuthenticationFilter</span></tt>を拡張することで、入力チェック処理を行うことができる。</p>
+</div>
+</div>
+<div class="section" id="id24">
+<h4><a class="toc-backref" href="#id54">6.3.3.2.4. 使用方法</a><a class="headerlink" href="#id24" title="Permalink to this headline">¶</a></h4>
+<ul>
+<li><p class="first">ログインフォームページ(JSP)</p>
+<p><a class="reference internal" href="#form-login-jsp"><em>ログインフォームの作成</em></a>の例に、会社識別子を追加する。</p>
+<div class="highlight-jsp"><div class="highlight"><pre><span class="nt">&lt;form:form</span> <span class="na">action=</span><span class="s">&quot;${pageContext.request.contextPath}/authentication&quot;</span> <span class="na">method=</span><span class="s">&quot;post&quot;</span><span class="nt">&gt;</span>
+    <span class="c">&lt;!-- omitted --&gt;</span>
+    <span class="nt">&lt;span&gt;</span>User Id<span class="nt">&lt;/span&gt;&lt;br&gt;</span>
+    <span class="nt">&lt;input</span> <span class="na">type=</span><span class="s">&quot;text&quot;</span>
+        <span class="na">id=</span><span class="s">&quot;username&quot;</span> <span class="na">name=</span><span class="s">&quot;j_username&quot;</span><span class="nt">&gt;&lt;br&gt;</span>
+    <span class="nt">&lt;span&gt;</span>Company Id<span class="nt">&lt;/span&gt;&lt;br&gt;</span>
+<span class="hll">    <span class="nt">&lt;input</span> <span class="na">type=</span><span class="s">&quot;text&quot;</span>
+</span><span class="hll">        <span class="na">id=</span><span class="s">&quot;companyid&quot;</span> <span class="na">name=</span><span class="s">&quot;j_companyid&quot;</span><span class="nt">&gt;&lt;br&gt;</span>  <span class="c">&lt;!-- (1) --&gt;</span>
+</span>    <span class="nt">&lt;span&gt;</span>Password<span class="nt">&lt;/span&gt;&lt;br&gt;</span>
+    <span class="nt">&lt;input</span> <span class="na">type=</span><span class="s">&quot;password&quot;</span>
+        <span class="na">id=</span><span class="s">&quot;password&quot;</span> <span class="na">name=</span><span class="s">&quot;j_password&quot;</span><span class="nt">&gt;&lt;br&gt;</span>
+    <span class="c">&lt;!-- omitted --&gt;</span>
+<span class="nt">&lt;/form:form&gt;</span>
+</pre></div>
+</div>
+<table border="1" class="docutils">
+<colgroup>
+<col width="10%" />
+<col width="90%" />
+</colgroup>
+<thead valign="bottom">
+<tr class="row-odd"><th class="head"><p class="first last">項番</p>
+</th>
+<th class="head"><p class="first last">説明</p>
+</th>
+</tr>
+</thead>
+<tbody valign="top">
+<tr class="row-even"><td><div class="first last line-block">
+<div class="line">(1)</div>
+</div>
+</td>
+<td><div class="first last line-block">
+<div class="line">会社識別子の入力フィールドのnameは、j_companyid を指定する。</div>
+</div>
+</td>
+</tr>
+</tbody>
+</table>
+</li>
+<li><p class="first">spring-security.xml</p>
+<div class="line-block">
+<div class="line">独自の<tt class="docutils literal"><span class="pre">AuthenticationProvider</span></tt>、<tt class="docutils literal"><span class="pre">AuthenticationFilter</span></tt>を設定する。</div>
+</div>
+<div class="highlight-xml"><div class="highlight"><pre><span class="nt">&lt;sec:http</span> <span class="na">auto-config=</span><span class="s">&quot;false&quot;</span> <span class="na">use-expressions=</span><span class="s">&quot;true&quot;</span> <span class="na">entry-point-ref=</span><span class="s">&quot;loginUrlAuthenticationEntryPoint&quot;</span><span class="nt">&gt;</span>  <span class="c">&lt;!-- (1) --&gt;</span>
+    <span class="c">&lt;!-- omitted --&gt;</span>
+    <span class="nt">&lt;sec:custom-filter</span> <span class="na">position=</span><span class="s">&quot;FORM_LOGIN_FILTER&quot;</span> <span class="na">ref=</span><span class="s">&quot;companyIdUsernamePasswordAuthenticationFilter&quot;</span> <span class="nt">/&gt;</span>  <span class="c">&lt;!-- (2) --&gt;</span>
+
+    <span class="c">&lt;!-- omitted --&gt;</span>
+
+    <span class="nt">&lt;sec:logout</span> <span class="na">logout-url=</span><span class="s">&quot;/logout&quot;</span> <span class="na">logout-success-url=</span><span class="s">&quot;/&quot;</span>
+        <span class="na">delete-cookies=</span><span class="s">&quot;JSESSIONID&quot;</span> <span class="na">invalidate-session=</span><span class="s">&quot;true&quot;</span> <span class="nt">/&gt;</span>
+<span class="nt">&lt;/sec:http&gt;</span>
+
+<span class="nt">&lt;bean</span> <span class="na">id=</span><span class="s">&quot;companyIdUsernamePasswordAuthenticationFilter&quot;</span>
+    <span class="na">class=</span><span class="s">&quot;com.example.app.common.security.CompanyIdUsernamePasswordAuthenticationFilter&quot;</span><span class="nt">&gt;</span>  <span class="c">&lt;!-- (3) --&gt;</span>
+    <span class="nt">&lt;property</span> <span class="na">name=</span><span class="s">&quot;authenticationManager&quot;</span> <span class="na">ref=</span><span class="s">&quot;authenticationManager&quot;</span> <span class="nt">/&gt;</span>  <span class="c">&lt;!-- (4) --&gt;</span>
+    <span class="nt">&lt;property</span> <span class="na">name=</span><span class="s">&quot;authenticationFailureHandler&quot;</span> <span class="na">ref=</span><span class="s">&quot;authenticationFailureHandler&quot;</span> <span class="nt">/&gt;</span>  <span class="c">&lt;!-- (5) --&gt;</span>
+    <span class="nt">&lt;property</span> <span class="na">name=</span><span class="s">&quot;authenticationSuccessHandler&quot;</span> <span class="na">ref=</span><span class="s">&quot;authenticationSuccessHandler&quot;</span> <span class="nt">/&gt;</span>  <span class="c">&lt;!-- (6) --&gt;</span>
+    <span class="nt">&lt;property</span> <span class="na">name=</span><span class="s">&quot;filterProcessesUrl&quot;</span> <span class="na">value=</span><span class="s">&quot;/authentication&quot;</span> <span class="nt">/&gt;</span>  <span class="c">&lt;!-- (7) --&gt;</span>
+<span class="nt">&lt;/bean&gt;</span>
+
+<span class="nt">&lt;bean</span> <span class="na">id=</span><span class="s">&quot;loginUrlAuthenticationEntryPoint&quot;</span> <span class="na">class=</span><span class="s">&quot;org.springframework.security.web.authentication.LoginUrlAuthenticationEntryPoint&quot;</span><span class="nt">&gt;</span>  <span class="c">&lt;!-- (8) --&gt;</span>
+    <span class="nt">&lt;constructor-arg</span> <span class="na">value=</span><span class="s">&quot;/login&quot;</span> <span class="nt">/&gt;</span>  <span class="c">&lt;!-- (9) --&gt;</span>
+<span class="nt">&lt;/bean&gt;</span>
+
+<span class="nt">&lt;sec:authentication-manager</span> <span class="na">alias=</span><span class="s">&quot;authenticationManager&quot;</span><span class="nt">&gt;</span>
+    <span class="nt">&lt;sec:authentication-provider</span> <span class="na">ref=</span><span class="s">&quot;companyIdUsernamePasswordAuthenticationProvider&quot;</span> <span class="nt">/&gt;</span>  <span class="c">&lt;!-- (10) --&gt;</span>
+<span class="nt">&lt;/sec:authentication-manager&gt;</span>
+
+<span class="nt">&lt;bean</span> <span class="na">id=</span><span class="s">&quot;companyIdUsernamePasswordAuthenticationProvider&quot;</span>
+    <span class="na">class=</span><span class="s">&quot;com.example.app.common.security.CompanyIdUsernamePasswordAuthenticationProvider&quot;</span> <span class="nt">/&gt;</span>  <span class="c">&lt;!-- (11) --&gt;</span>
+
+<span class="c">&lt;!-- omitted --&gt;</span>
+</pre></div>
+</div>
+<table border="1" class="docutils">
+<colgroup>
+<col width="10%" />
+<col width="90%" />
+</colgroup>
+<thead valign="bottom">
+<tr class="row-odd"><th class="head"><p class="first last">項番</p>
+</th>
+<th class="head"><p class="first last">説明</p>
+</th>
+</tr>
+</thead>
+<tbody valign="top">
+<tr class="row-even"><td><div class="first last line-block">
+<div class="line">(1)</div>
+</div>
+</td>
+<td><div class="first last line-block">
+<div class="line">custom-filter要素で、&#8221;FORM_LOGIN_FILTER&#8221; を差し替えた場合は、auto-config=&#8221;true&#8221; を指定することができない。</div>
+<div class="line">そのため、auto-configの指定を削除するか、auto-config=&#8221;false&#8221; を指定する必要がある。</div>
+<div class="line">また、form-login要素も指定できないため、entry-point-ref 属性を明示的に設定する必要がある。</div>
+</div>
+</td>
+</tr>
+<tr class="row-odd"><td><div class="first last line-block">
+<div class="line">(2)</div>
+</div>
+</td>
+<td><div class="first last line-block">
+<div class="line">custom-filter要素の position属性に &#8220;FORM_LOGIN_FILTER&#8221; を指定することで、</div>
+<div class="line">UsernamePasswordAuthenticationFilterからCompanyIdUsernamePasswordAuthenticationFilterに差し替えることができる。</div>
+</div>
+</td>
+</tr>
+<tr class="row-even"><td><div class="first last line-block">
+<div class="line">(3)</div>
+</div>
+</td>
+<td><div class="first last line-block">
+<div class="line">CompanyIdUsernamePasswordAuthenticationFilterをbean定義する。</div>
+</div>
+</td>
+</tr>
+<tr class="row-odd"><td><div class="first last line-block">
+<div class="line">(4)</div>
+</div>
+</td>
+<td><div class="first last line-block">
+<div class="line">authenticationManagerプロパティに、authentication-manager要素のalias属性の値を設定する。</div>
+</div>
+</td>
+</tr>
+<tr class="row-even"><td><div class="first last line-block">
+<div class="line">(5)</div>
+</div>
+</td>
+<td><div class="first last line-block">
+<div class="line">authenticationFailureHandlerプロパティに、認証失敗時に呼ばれるハンドラクラスを指定する。</div>
+</div>
+</td>
+</tr>
+<tr class="row-odd"><td><div class="first last line-block">
+<div class="line">(6)</div>
+</div>
+</td>
+<td><div class="first last line-block">
+<div class="line">authenticationSuccessHandlerプロパティに、認証成功時に呼ばれるハンドラクラスを指定する。</div>
+</div>
+</td>
+</tr>
+<tr class="row-even"><td><div class="first last line-block">
+<div class="line">(7)</div>
+</div>
+</td>
+<td><div class="first last line-block">
+<div class="line">filterProcessesUrlプロパティに、認証処理を行うパスを指定する。</div>
+</div>
+</td>
+</tr>
+<tr class="row-odd"><td><div class="first last line-block">
+<div class="line">(8)</div>
+</div>
+</td>
+<td><div class="first last line-block">
+<div class="line">http要素のentry-point-ref属性に指定する、AuthenticationEntryPointを定義する。</div>
+<div class="line">form-login要素を指定した際のデフォルトのAuthenticationEntryPointである、</div>
+<div class="line"><tt class="docutils literal"><span class="pre">org.springframework.security.web.authentication.LoginUrlAuthenticationEntryPoint</span></tt>をbean定義する。</div>
+</div>
+</td>
+</tr>
+<tr class="row-even"><td><div class="first last line-block">
+<div class="line">(9)</div>
+</div>
+</td>
+<td><div class="first last line-block">
+<div class="line">コンストラクタの引数に、ログイン画面のパスを指定する。</div>
+</div>
+</td>
+</tr>
+<tr class="row-odd"><td><div class="first last line-block">
+<div class="line">(10)</div>
+</div>
+</td>
+<td><div class="first last line-block">
+<div class="line">authentication-provider要素にCompanyIdUsernamePasswordAuthenticationProvider を参照設定する。</div>
+</div>
+</td>
+</tr>
+<tr class="row-even"><td><div class="first last line-block">
+<div class="line">(11)</div>
+</div>
+</td>
+<td><div class="first last line-block">
+<div class="line">CompanyIdUsernamePasswordAuthenticationProviderを、bean定義する。</div>
+</div>
+</td>
+</tr>
+</tbody>
+</table>
+<div class="admonition warning">
+<p class="first admonition-title">Warning</p>
+<p class="last">auto-config=&#8221;false&#8221; を指定したことで、<tt class="docutils literal"><span class="pre">&lt;sec:http-basic&gt;</span></tt>、<tt class="docutils literal"><span class="pre">&lt;sec:logout&gt;</span></tt>要素を使用する場合は、明示的に定義する必要がある。</p>
+</div>
+</li>
+</ul>
+</div>
+</div>
+</div>
+<div class="section" id="appendix">
+<h2><a class="toc-backref" href="#id55">6.3.4. Appendix</a><a class="headerlink" href="#appendix" title="Permalink to this headline">¶</a></h2>
+<div class="line-block">
+<div class="line">Spring Securityを使用した認証では、認証に成功した場合設定ファイルに記述したパスに遷移する。</div>
+<div class="line">「続きを読むにはログインする必要がある」のような業務要件がある場合、</div>
+<div class="line">ログイン後の遷移先を動的に変更したい場合がある。</div>
+</div>
+<div class="figure align-center">
+<a class="reference internal image-reference" href="../_images/Authentication_Appendix_ScreenFlow.png"><img alt="Authentication_Appendix_Screen_Flow" src="../_images/Authentication_Appendix_ScreenFlow.png" style="width: 60%;" /></a>
+<p class="caption"><strong>Picture - Screen_Flow</strong></p>
+</div>
+<div class="line-block">
+<div class="line">そのような場合、共通ライブラリで提供している、</div>
+<div class="line"><tt class="docutils literal"><span class="pre">org.terasoluna.gfw.web.security.RedirectAuthenticationHandler</span></tt>を使用する。</div>
+</div>
+<div class="line-block">
+<div class="line">RedirectAuthenticationHandlerを使用した設定例を、下記に示す。</div>
+</div>
+<p><strong>遷移元画面のJSPの記述例</strong></p>
+<div class="highlight-jsp"><div class="highlight"><pre><span class="nt">&lt;form:form</span> <span class="na">action=</span><span class="s">&quot;${pageContext.request.contextPath}/login&quot;</span> <span class="na">method=</span><span class="s">&quot;get&quot;</span><span class="nt">&gt;</span>
+    <span class="c">&lt;!-- omitted --&gt;</span>
+  <span class="nt">&lt;input</span> <span class="na">type=</span><span class="s">&quot;hidden&quot;</span> <span class="na">name=</span><span class="s">&quot;redirectTo&quot;</span>
+    <span class="na">value=</span><span class="s">&quot;${pageContext.request.contextPath}/reservetour/read?</span>
+<span class="s">    ${f:query(reserveTourForm)}&amp;page.page=${f:h(param[&#39;page.page&#39;])}</span>
+<span class="s">    &amp;page.size=${f:h(param[&#39;page.size&#39;])}&quot;</span> <span class="nt">/&gt;</span>  <span class="c">&lt;!-- (1) --&gt;</span>
+<span class="nt">&lt;/form:form&gt;</span>
+</pre></div>
+</div>
+<table border="1" class="docutils">
+<colgroup>
+<col width="10%" />
+<col width="90%" />
+</colgroup>
+<thead valign="bottom">
+<tr class="row-odd"><th class="head">項番</th>
+<th class="head">説明</th>
+</tr>
+</thead>
+<tbody valign="top">
+<tr class="row-even"><td><div class="first last line-block">
+<div class="line">(1)</div>
+</div>
+</td>
+<td><div class="first last line-block">
+<div class="line">リダイレクトURLの設定</div>
+<div class="line">hidden項目の「redirectTo」に遷移先のURLを設定する。</div>
+<div class="line">nameに指定する値は、後述する設定ファイルに記載する、</div>
+<div class="line">targetUrlParameterと一致させること。</div>
+</div>
+</td>
+</tr>
+</tbody>
+</table>
+<p><strong>ログイン画面のJSPの記述例</strong></p>
+<div class="highlight-jsp"><div class="highlight"><pre><span class="nt">&lt;form:form</span> <span class="na">action=</span><span class="s">&quot;${pageContext.request.contextPath}/authentication&quot;</span> <span class="na">method=</span><span class="s">&quot;post&quot;</span><span class="nt">&gt;</span>
+     <span class="c">&lt;!-- omitted --&gt;</span>
+     <span class="nt">&lt;input</span> <span class="na">type=</span><span class="s">&quot;submit&quot;</span>
+       <span class="na">value=</span><span class="s">&quot;Login&quot;</span><span class="nt">&gt;</span>
+     <span class="nt">&lt;input</span> <span class="na">type=</span><span class="s">&quot;hidden&quot;</span> <span class="na">name=</span><span class="s">&quot;redirectTo&quot;</span> <span class="na">value=</span><span class="s">&quot;${f:h(param.redirectTo)}&quot;</span> <span class="nt">/&gt;</span>  <span class="c">&lt;!-- (1) --&gt;</span>
+     <span class="c">&lt;!-- omitted --&gt;</span>
+<span class="nt">&lt;/form:form&gt;</span>
+</pre></div>
+</div>
+<table border="1" class="docutils">
+<colgroup>
+<col width="10%" />
+<col width="90%" />
+</colgroup>
+<thead valign="bottom">
+<tr class="row-odd"><th class="head">項番</th>
+<th class="head">説明</th>
+</tr>
+</thead>
+<tbody valign="top">
+<tr class="row-even"><td><div class="first last line-block">
+<div class="line">(1)</div>
+</div>
+</td>
+<td><div class="first last line-block">
+<div class="line">リダイレクトURLの設定</div>
+<div class="line">遷移元画面からリクエストパラメータで渡された、</div>
+<div class="line">リダイレクトURLをhidden項目に設定する。</div>
+</div>
+</td>
+</tr>
+</tbody>
+</table>
+<p><strong>Spring Security 設定ファイル</strong></p>
+<div class="highlight-xml"><div class="highlight"><pre><span class="nt">&lt;sec:http</span> <span class="na">auto-config=</span><span class="s">&quot;true&quot;</span><span class="nt">&gt;</span>
+                <span class="c">&lt;!-- omitted --&gt;</span>
+    <span class="nt">&lt;sec:form-login</span> <span class="na">login-page=</span><span class="s">&quot;/login&quot;</span> <span class="na">default-target-url=</span><span class="s">&quot;/&quot;</span>
+        <span class="na">always-use-default-target=</span><span class="s">&quot;false&quot;</span>
+        <span class="na">authentication-failure-handler-ref=</span><span class="s">&quot;authenticationFailureHandler&quot;</span>
+        <span class="na">authentication-success-handler-ref=</span><span class="s">&quot;authenticationSuccessHandler&quot;</span> <span class="nt">/&gt;</span>
+                                                                    <span class="c">&lt;!-- (1) --&gt;</span>
+                <span class="c">&lt;!-- omitted --&gt;</span>
+<span class="nt">&lt;/sec:http&gt;</span>
+
+<span class="nt">&lt;bean</span> <span class="na">id=</span><span class="s">&quot;authenticationSuccessHandler&quot;</span>
+    <span class="na">class=</span><span class="s">&quot;org.terasoluna.gfw.web.security.RedirectAuthenticationHandler&quot;</span><span class="nt">&gt;</span>
+                                                                    <span class="c">&lt;!-- (2) --&gt;</span>
+    <span class="nt">&lt;property</span> <span class="na">name=</span><span class="s">&quot;targetUrlParameter&quot;</span> <span class="na">value=</span><span class="s">&quot;redirectTo&quot;</span><span class="nt">/&gt;</span>        <span class="c">&lt;!-- (3) --&gt;</span>
+<span class="nt">&lt;/bean&gt;</span>
+
+<span class="nt">&lt;bean</span> <span class="na">id=</span><span class="s">&quot;authenticationFailureHandler&quot;</span>
+    <span class="na">class=</span><span class="s">&quot;org.springframework.security.web.authentication.ExceptionMappingAuthenticationFailureHandler&quot;</span><span class="nt">&gt;</span>
+                                                                    <span class="c">&lt;!-- (4) --&gt;</span>
+    <span class="nt">&lt;property</span> <span class="na">name=</span><span class="s">&quot;defaultFailureUrl&quot;</span> <span class="na">value=</span><span class="s">&quot;/login?error=true&quot;</span><span class="nt">/&gt;</span> <span class="c">&lt;!-- (5) --&gt;</span>
+    <span class="nt">&lt;property</span> <span class="na">name=</span><span class="s">&quot;useForward&quot;</span> <span class="na">value=</span><span class="s">&quot;true&quot;</span><span class="nt">/&gt;</span>                     <span class="c">&lt;!-- (6) --&gt;</span>
+<span class="nt">&lt;/bean&gt;</span>
+                <span class="c">&lt;!-- omitted --&gt;</span>
+</pre></div>
+</div>
+<table border="1" class="docutils">
+<colgroup>
+<col width="10%" />
+<col width="90%" />
+</colgroup>
+<thead valign="bottom">
+<tr class="row-odd"><th class="head">項番</th>
+<th class="head">説明</th>
+</tr>
+</thead>
+<tbody valign="top">
+<tr class="row-even"><td><div class="first last line-block">
+<div class="line">(1)</div>
+</div>
+</td>
+<td><div class="first last line-block">
+<div class="line">authentication-failure-handler-ref(認証エラー時のハンドラ設定)と</div>
+<div class="line">authentication-success-handler-ref(認証成功時のハンドラ設定)のBeanIdを指定する。</div>
+</div>
+</td>
+</tr>
+<tr class="row-odd"><td><div class="first last line-block">
+<div class="line">(2)</div>
+</div>
+</td>
+<td><div class="first last line-block">
+<div class="line">authentication-success-handler-refの参照クラスとして</div>
+<div class="line"><tt class="docutils literal"><span class="pre">org.terasoluna.gfw.web.security.RedirectAuthenticationHandler</span></tt>を設定する。</div>
+</div>
+</td>
+</tr>
+<tr class="row-even"><td><div class="first last line-block">
+<div class="line">(3)</div>
+</div>
+</td>
+<td><div class="first last line-block">
+<div class="line">前述したJSPのhiddenに記載した値と一致させること。</div>
+<div class="line">本例では、「redirectTo」を指定する。省略した場合、「redirectTo」が設定される。</div>
+</div>
+</td>
+</tr>
+<tr class="row-odd"><td><div class="first last line-block">
+<div class="line">(4)</div>
+</div>
+</td>
+<td><div class="first last line-block">
+<div class="line">authentication-failure-handler-refの参照クラスとして</div>
+<div class="line"><tt class="docutils literal"><span class="pre">org.springframework.security.web.authentication.ExceptionMappingAuthenticationFailureHandler</span></tt>を設定する。</div>
+</div>
+</td>
+</tr>
+<tr class="row-even"><td><div class="first last line-block">
+<div class="line">(5)</div>
+</div>
+</td>
+<td><div class="first last line-block">
+<div class="line">認証失敗時の遷移先パスにはログイン画面のパス、エラーを示すクエリを設定する。</div>
+</div>
+</td>
+</tr>
+<tr class="row-odd"><td><div class="first last line-block">
+<div class="line">(6)</div>
+</div>
+</td>
+<td><div class="first last line-block">
+<div class="line">本機能を使用する場合はuseForwardをtrueに指定する必要がある。</div>
+<div class="line">trueに指定することで、redirectでの遷移から、forwardでの遷移となる。</div>
+<div class="line">リクエストパラメータにリダイレクト先のURLを保持しているため、</div>
+<div class="line">forwardにすることでリクエストパラメータを保持したままにする必要がある。</div>
+</div>
+</td>
+</tr>
+</tbody>
+</table>
+<div class="admonition tip">
+<p class="first admonition-title">Tip</p>
+<p class="last">RedirectAuthenticationHandlerは、オープンリダイレクタ脆弱性対策が施されているため、
+拡張せずに「<a class="reference external" href="http://google.com">http://google.com</a>」のような、外部サイトへの遷移をすることはできない。
+別ドメインに移動したいときは、<tt class="docutils literal"><span class="pre">org.springframework.security.web.RedirectStrategy</span></tt>を実装したクラスを作成する必要がある。
+RedirectStrategyを実装したクラスは、セッターインジェクションでRedirectAuthenticationHandlerのtargetUrlParameterRedirectStrategyに設定する。
+拡張する際の注意点としては、redirectToの値を改竄されても問題ない作りにする必要がある。
+たとえば、リダイレクト先のURLを直接指定せず番号指定にする（ページ番号指定）、
+リダイレクト先のドメインをチェックする等のいずれか対応が必要となる。</p>
+</div>
+</div>
+</div>
+
+
+          </div>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="PasswordHashing.html" title="6.4. パスワードハッシュ化"
+             >next</a> |</li>
+        <li class="right" >
+          <a href="Tutorial.html" title="6.2. Spring Securtityチュートリアル"
+             >previous</a> |</li>
+        <li><a href="../index.html">TERASOLUNA Global Framework Development Guideline 5.0.0-SNAPSHOT documentation</a> &raquo;</li>
+          <li><a href="index.html" >6. TERASOLUNA Global Frameworkによるセキュリティ対策</a> &raquo;</li> 
+      </ul>
+    </div>
+    <div class="footer">
+        &copy; Copyright 2013-2015, NTT DATA.
+    Created using <a href="http://sphinx.pocoo.org/">Sphinx</a> 1.2.Theme by <a href="http://github.com/vkvn">vkvn</a>
+    </div>
+    
+    <script>
+    
+    $(function() {
+    	var $sidebar	= $('.sphinxsidebar'),
+    		$window		= $(window),
+    		offset		= $sidebar.offset(),
+    		topPadding	= 3,
+    		$scroll		= $('#scroll');
+    	
+    	$window.scroll(function() {
+    		if ($scroll.is(':checked')) {
+				if ($window.scrollTop() > offset.top) {
+					$sidebar.stop().animate({
+						marginTop:$window.scrollTop() - offset.top + topPadding
+					});
+				} else {
+					$sidebar.stop().animate({
+						marginTop:0
+					});
+				}
+			}
+		});
+    	
+    	var $navList = $('ul:first', $sidebar);
+    	$('li:first', $navList).addClass('open');
+    	
+    	$navList.treeview({
+    		persist: "location",
+    		collapsed: true,
+    		unique: false
+    	});
+    	
+	});
+    (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+        (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+            m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+    })(window,document,'script','//www.google-analytics.com/analytics.js','ga');
+
+    ga('create', 'UA-46550814-1', 'terasolunaorg.github.io');
+    ga('send', 'pageview');
+    </script>
+  </body>
+</html>
