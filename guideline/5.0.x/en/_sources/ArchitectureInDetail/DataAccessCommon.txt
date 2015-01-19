@@ -385,7 +385,7 @@ Settings when using DataSource for which Bean is defined
         | For more details about settings, refer to \ `DBCP Configuration <http://commons.apache.org/proper/commons-dbcp/configuration.html>`_\ .
     * - | (8)
       - | In the example, values are specified directly; however, for fields where configuration values change with the environment, actual configuration values should be specified in properties file using Placeholder(${...}).
-        | For Placeholder, refer to \ ``PropertyPlaceholderConfigurer``\  of \ `Spring Reference Document <http://docs.spring.io/spring/docs/4.1.3.RELEASE/spring-framework-reference/html/beans.html#beans-factory-extension-factory-postprocessors>`_\ .
+        | For Placeholder, refer to \ ``PropertyPlaceholderConfigurer``\  of \ `Spring Reference Document <http://docs.spring.io/spring/docs/4.1.4.RELEASE/spring-framework-reference/html/beans.html#beans-factory-extension-factory-postprocessors>`_\ .
 
 
 Settings to enable transaction management

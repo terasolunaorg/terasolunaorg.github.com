@@ -428,7 +428,7 @@ Access authorization (Method)
        - | State the access control expression. The expression is evaluated before executing the method and if it is true, the method is executed.
          | If the expression is false, \ ``org.springframework.security.access.AccessDeniedException``\  is thrown.
          | Expression stated in \ :ref:`authorization-intercept-url`\  and
-         | the expression stated in \ `Spring Expression Language (SpEL) <http://docs.spring.io/spring/docs/4.1.3.RELEASE/spring-framework-reference/html/expressions.html>`_\  can be set as the value.
+         | the expression stated in \ `Spring Expression Language (SpEL) <http://docs.spring.io/spring/docs/4.1.4.RELEASE/spring-framework-reference/html/expressions.html>`_\  can be set as the value.
 
   .. tip::
   

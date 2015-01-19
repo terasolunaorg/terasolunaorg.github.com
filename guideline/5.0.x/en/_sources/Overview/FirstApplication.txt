@@ -84,7 +84,7 @@ The generated configuration file (src/main/webapp/WEB-INF/spring/appServlet/serv
    * - Item number
      - Description
    * - | (1)
-     - Default settings of Spring MVC are configured by defining <annotation-driven />. Refer to the official website `Enabling the MVC Java Config or the MVC XML Namespace <http://docs.spring.io/spring/docs/4.1.3.RELEASE/spring-framework-reference/html/mvc.html#mvc-config-enable>`_  of Spring framework for default configuration.
+     - Default settings of Spring MVC are configured by defining <annotation-driven />. Refer to the official website `Enabling the MVC Java Config or the MVC XML Namespace <http://docs.spring.io/spring/docs/4.1.4.RELEASE/spring-framework-reference/html/mvc.html#mvc-config-enable>`_  of Spring framework for default configuration.
    * - | (2)
      - Define the location of View by specifying Resolver of View.
    * - | (3)
@@ -207,7 +207,7 @@ Finally create JSP of input screen and output screen. Each file path must match 
      - Description
    * - | (1)
      - | HTML form is constructed by using tag library. Specify the name of form object created by Controller in ``modelAttribute``.
-       | Refer \ `here <http://docs.spring.io/spring/docs/4.1.3.RELEASE/spring-framework-reference/html/view.html#view-jsp-formtaglib-formtag>`_\ for tag library.
+       | Refer \ `here <http://docs.spring.io/spring/docs/4.1.4.RELEASE/spring-framework-reference/html/view.html#view-jsp-formtaglib-formtag>`_\ for tag library.
 
 The generated HTML is as follows
 

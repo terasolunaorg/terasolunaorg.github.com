@@ -1518,6 +1518,7 @@ Appendix
 Maven Archetypeで作成したプロジェクトのプロジェクト階層の構造を以下に示す。
 
 .. figure:: images_CreateWebApplicationProject/CreateWebApplicationProjectHierarchicalStructure.png
+    :width: 100%
 
 .. tabularcolumns:: |p{0.10\linewidth}|p{0.90\linewidth}|
 .. list-table::
@@ -1545,15 +1546,15 @@ Maven Archetypeで作成したプロジェクトのプロジェクト階層の�
 
         を行っている。
 
-        親プロジェクトとして「io.spring.platform:platform-bom:1.1.0.RELEASE」を指定している。
+        親プロジェクトとして「io.spring.platform:platform-bom:1.1.1.RELEASE」を指定している。
     * - | (3)
       - Spring IO Platformプロジェクト。
 
-        親プロジェクトとして「org.springframework.boot:spring-boot-starter-parent:1.2.0.RELEASE」を指定している。
+        親プロジェクトとして「org.springframework.boot:spring-boot-starter-parent:1.2.1.RELEASE」を指定している。
     * - | (4)
       - Spring Boot Starter Parentプロジェクト。
 
-        親プロジェクトとして「org.springframework.boot:spring-boot-dependencies:1.2.0.RELEASE」を指定している。
+        親プロジェクトとして「org.springframework.boot:spring-boot-dependencies:1.2.1.RELEASE」を指定している。
     * - | (5)
       - Spring Boot Dependenciesプロジェクト。
 
@@ -1579,6 +1580,7 @@ Maven Archetypeで作成したプロジェクトのプロジェクト階層の�
 Spring Frameworkのアプリケーションコンテキスト(DIコンテナ)の構成とBean定義ファイルの関係を以下に示す。
 
 .. figure:: images_CreateWebApplicationProject/CreateWebApplicationProjectApplicationContext.png
+    :width: 100%
 
 .. tabularcolumns:: |p{0.10\linewidth}|p{0.90\linewidth}|
 .. list-table::

@@ -65,7 +65,7 @@ Input validation is classified into single item check and correlation item check
    * - Correlation item check
      - | Check comparing multiple fields
      - | Password and confirm password check
-     - | Bean Validation or Validation class implementing `org.springframework.validation.Validator <http://docs.spring.io/spring/docs/4.1.3.RELEASE/spring-framework-reference/html/validation.html#validator>`_\
+     - | Bean Validation or Validation class implementing `org.springframework.validation.Validator <http://docs.spring.io/spring/docs/4.1.4.RELEASE/spring-framework-reference/html/validation.html#validator>`_\
        | interface
 
 
@@ -1981,7 +1981,7 @@ Method to change error messages of input validation is explained.
 Error messages of Bean Validation in Spring MVC are resolved in the following order.
 
 #. | If there is any message which matches with the rule, among the messages defined in \ ``org.springframework.context.MessageSource``\, then it will be used as error message (Spring rule).
-   | About default rule of Spring, refer to "`DefaultMessageCodesResolverのJavaDoc <http://docs.spring.io/spring/docs/4.1.3.RELEASE/javadoc-api/org/springframework/validation/DefaultMessageCodesResolver.html>`_".
+   | About default rule of Spring, refer to "`DefaultMessageCodesResolverのJavaDoc <http://docs.spring.io/spring/docs/4.1.4.RELEASE/javadoc-api/org/springframework/validation/DefaultMessageCodesResolver.html>`_".
 #. If message cannot be found as mentioned in step 1, then error message is acquired from the \ ``message``\  attribute of the annotation. (Bean Validation rule)
 
   #. When the value of \ ``message``\  attribute is not in "{message key}" format, use that text as error message.
@@ -2200,7 +2200,7 @@ Error messages are changed as follows.
 
 .. note::
 
-  \ `There are other formats  <http://docs.spring.io/spring/docs/4.1.3.RELEASE/javadoc-api/org/springframework/validation/DefaultMessageCodesResolver.html>`_\ as well for the message key application-messages.properties.
+  \ `There are other formats  <http://docs.spring.io/spring/docs/4.1.4.RELEASE/javadoc-api/org/springframework/validation/DefaultMessageCodesResolver.html>`_\ as well for the message key application-messages.properties.
   However, if it is used with the purpose of overwriting some default messages, it should be in \ ``[annotation name].[form attribute name].[property name]``\  format.
 
 |
@@ -3214,7 +3214,7 @@ Error message gets changed as shown below.
 
 .. tip::
 
-  Refer to \ `Javadoc <http://docs.spring.io/spring/docs/4.1.3.RELEASE/javadoc-api/org/springframework/validation/DefaultMessageCodesResolver.html>`_\ for the details of message key rules.
+  Refer to \ `Javadoc <http://docs.spring.io/spring/docs/4.1.4.RELEASE/javadoc-api/org/springframework/validation/DefaultMessageCodesResolver.html>`_\ for the details of message key rules.
 
 .. _Validation_string_trimmer_editor:
 

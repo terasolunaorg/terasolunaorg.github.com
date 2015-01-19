@@ -1071,7 +1071,7 @@ Codelist can be updated in following two ways.
 #. By using Task Scheduler
 #. By calling refresh method in Controller (Service) class
 
-This guideline recommends the method to reload the codelist periodically using \ `Spring Task Scheduler <http://docs.spring.io/spring/docs/4.1.3.RELEASE/spring-framework-reference/html/scheduling.html>`_\ .
+This guideline recommends the method to reload the codelist periodically using \ `Spring Task Scheduler <http://docs.spring.io/spring/docs/4.1.4.RELEASE/spring-framework-reference/html/scheduling.html>`_\ .
 
 However, when it is necessary to arbitrarily refresh the codelist, it is appropriate to call refresh method in Controller class.
 
@@ -1128,7 +1128,7 @@ Example for setting the Task Scheduler is shown below.
        | execution every hour 9:00-17:00 on weekdays "0 0 9-17 \* \* MON-FRI"
        |
        | For details, refer to JavaDoc.
-       | http://docs.spring.io/spring/docs/4.1.3.RELEASE/javadoc-api/org/springframework/scheduling/support/CronSequenceGenerator.html
+       | http://docs.spring.io/spring/docs/4.1.4.RELEASE/javadoc-api/org/springframework/scheduling/support/CronSequenceGenerator.html
 
 |
 

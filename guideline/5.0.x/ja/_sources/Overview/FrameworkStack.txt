@@ -29,13 +29,13 @@ DIコンテナ
 DIコンテナとしてSpring Frameworkを利用する。
 
 
-* `Spring Framework 4.1 <http://docs.spring.io/spring/docs/4.1.3.RELEASE/spring-framework-reference/html/beans.html>`_
+* `Spring Framework 4.1 <http://docs.spring.io/spring/docs/4.1.4.RELEASE/spring-framework-reference/html/beans.html>`_
 
 MVCフレームワーク
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 Web MVCフレームワークとしてSpring MVCを利用する。
 
-* `Spring MVC 4.1 <http://docs.spring.io/spring/docs/4.1.3.RELEASE/spring-framework-reference/html/mvc.html>`_
+* `Spring MVC 4.1 <http://docs.spring.io/spring/docs/4.1.4.RELEASE/spring-framework-reference/html/mvc.html>`_
 
 O/R Mapper
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
@@ -99,7 +99,7 @@ Viewのレイアウトを共通化する場合は、
 
   * 実装は、\ `Hibernate Validator 5.1 <http://docs.jboss.org/hibernate/validator/5.1/reference/en-US/html/>`_\ を利用する。
 
-* 相関チェックには\ `Bean Validation <http://download.oracle.com/otn-pub/jcp/bean_validation-1_1-fr-eval-spec/bean-validation-specification.pdf>`_\ 、もしくは\ `Spring Validation <http://docs.spring.io/spring/docs/4.1.3.RELEASE/spring-framework-reference/html/validation.html#validator>`_\ を利用する。
+* 相関チェックには\ `Bean Validation <http://download.oracle.com/otn-pub/jcp/bean_validation-1_1-fr-eval-spec/bean-validation-specification.pdf>`_\ 、もしくは\ `Spring Validation <http://docs.spring.io/spring/docs/4.1.4.RELEASE/spring-framework-reference/html/validation.html#validator>`_\ を利用する。
 
   * 使い分けについては\ :doc:`../ArchitectureInDetail/Validation`\ を参照されたい。
 
@@ -137,7 +137,7 @@ version 5.0.0.RELEASEで利用するOSSの一覧を以下に示す。
     への依存関係を解決しており、
     TERASOLUNA Global Frameworkで使用するOSSのバージョンは、原則として、Spring IO platformの定義に準じている。
 
-    なお、version 5.0.0.RELEASEで指定しているSpring IO platformのバージョンは、`1.1.0.RELEASE <http://docs.spring.io/platform/docs/1.1.0.RELEASE/reference/htmlsingle/>`_\ である。
+    なお、version 5.0.0.RELEASEで指定しているSpring IO platformのバージョンは、`1.1.1.RELEASE <http://docs.spring.io/platform/docs/1.1.1.RELEASE/reference/htmlsingle/>`_\ である。
 
 .. tabularcolumns:: |p{0.15\linewidth}|p{0.25\linewidth}|p{0.25\linewidth}|p{0.25\linewidth}|p{0.05\linewidth}|p{0.05\linewidth}|
 .. list-table::
@@ -154,73 +154,73 @@ version 5.0.0.RELEASEで利用するOSSの一覧を以下に示す。
     * - Spring
       - org.springframework
       - spring-aop
-      - 4.1.3.RELEASE
+      - 4.1.4.RELEASE
       - \*
       -
     * - Spring
       - org.springframework
       - spring-aspects
-      - 4.1.3.RELEASE
+      - 4.1.4.RELEASE
       - \*
       -
     * - Spring
       - org.springframework
       - spring-beans
-      - 4.1.3.RELEASE
+      - 4.1.4.RELEASE
       - \*
       -
     * - Spring
       - org.springframework
       - spring-context
-      - 4.1.3.RELEASE
+      - 4.1.4.RELEASE
       - \*
       -
     * - Spring
       - org.springframework
       - spring-context-support
-      - 4.1.3.RELEASE
+      - 4.1.4.RELEASE
       - \*
       -
     * - Spring
       - org.springframework
       - spring-core
-      - 4.1.3.RELEASE
+      - 4.1.4.RELEASE
       - \*
       -
     * - Spring
       - org.springframework
       - spring-expression
-      - 4.1.3.RELEASE
+      - 4.1.4.RELEASE
       - \*
       -
     * - Spring
       - org.springframework
       - spring-jdbc
-      - 4.1.3.RELEASE
+      - 4.1.4.RELEASE
       - \*
       -
     * - Spring
       - org.springframework
       - spring-orm
-      - 4.1.3.RELEASE
+      - 4.1.4.RELEASE
       - \*
       -
     * - Spring
       - org.springframework
       - spring-tx
-      - 4.1.3.RELEASE
+      - 4.1.4.RELEASE
       - \*
       -
     * - Spring
       - org.springframework
       - spring-web
-      - 4.1.3.RELEASE
+      - 4.1.4.RELEASE
       - \*
       -
     * - Spring
       - org.springframework
       - spring-webmvc
-      - 4.1.3.RELEASE
+      - 4.1.4.RELEASE
       - \*
       -
     * - Spring
@@ -400,13 +400,13 @@ version 5.0.0.RELEASEで利用するOSSの一覧を以下に示す。
     * - ログ出力
       - org.slf4j
       - jcl-over-slf4j
-      - 1.7.7
+      - 1.7.8
       - \*
       -
     * - ログ出力
       - org.slf4j
       - slf4j-api
-      - 1.7.7
+      - 1.7.8
       - \*
       -
     * - JSON

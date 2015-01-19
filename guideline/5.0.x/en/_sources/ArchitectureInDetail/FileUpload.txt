@@ -110,7 +110,7 @@ Classes provided by Spring Web for uploading a file are as follows:
 
  .. tip::
 
-    In this guideline, it is a prerequisite to use File Upload functionality implemented through Servlet 3.0. However, Spring Web also provides an \ `implementation class for "Apache Commons FileUpload" <http://docs.spring.io/spring/docs/4.1.3.RELEASE/spring-framework-reference/html/mvc.html#mvc-multipart-resolver-commons>`_\ .
+    In this guideline, it is a prerequisite to use File Upload functionality implemented through Servlet 3.0. However, Spring Web also provides an \ `implementation class for "Apache Commons FileUpload" <http://docs.spring.io/spring/docs/4.1.4.RELEASE/spring-framework-reference/html/mvc.html#mvc-multipart-resolver-commons>`_\ .
     The difference in implementation of upload processes is absorbed by \ ``MultipartResolver``\  and \ ``MultipartFile``\  objects; hence it does not affect Controller implementation.
     It should be used when a servlet container (Tomcat6 etc.) not supported by Servlet3.0 needs to be used.
 
@@ -699,7 +699,7 @@ Implementing Controller
  .. note:: **About MultipartFile**
 
     Methods to operate the uploaded file are provided in MultipartFile.
-    For details about using each method, refer to \ `JavaDoc <http://docs.spring.io/spring/docs/4.1.3.RELEASE/javadoc-api/org/springframework/web/multipart/MultipartFile.html> of MultipartFile class `_\ .
+    For details about using each method, refer to \ `JavaDoc <http://docs.spring.io/spring/docs/4.1.4.RELEASE/javadoc-api/org/springframework/web/multipart/MultipartFile.html> of MultipartFile class `_\ .
 
 .. _fileupload_validator:
 
@@ -1480,7 +1480,7 @@ Housekeeping of unnecessary files at the time of temporary upload
     A mechanism should be provided to delete unnecessary files as the disk may run out of space if such files are left to pile up.
 
 This guideline explains about deleting unnecessary files using the "Task Scheduler" functionality provided by Spring Framework.
-For details on "Task Scheduler", refer to the \ `official website "Task Execution and Scheduling" <http://docs.spring.io/spring/docs/4.1.3.RELEASE/spring-framework-reference/html/scheduling.html>`_\ .
+For details on "Task Scheduler", refer to the \ `official website "Task Execution and Scheduling" <http://docs.spring.io/spring/docs/4.1.4.RELEASE/spring-framework-reference/html/scheduling.html>`_\ .
 
  .. note::
 
@@ -1630,7 +1630,7 @@ Carry out bean registration and task schedule settings for the POJO class that d
      * ``0 0 * * * *`` : Executed in 0 minute every hour.
      * ``0 0 9-17 * * MON-FRI`` : Executed in 0 minute every hour from 9:00~17:00 on weekdays.
 
-    For details regarding specified value of cron, refer to \ `CronSequenceGenerator - JavaDoc <http://docs.spring.io/spring/docs/4.1.3.RELEASE/javadoc-api/org/springframework/scheduling/support/CronSequenceGenerator.html>`_\ .
+    For details regarding specified value of cron, refer to \ `CronSequenceGenerator - JavaDoc <http://docs.spring.io/spring/docs/4.1.4.RELEASE/javadoc-api/org/springframework/scheduling/support/CronSequenceGenerator.html>`_\ .
 
     Execution time should be fetched from external properties as it may differ depending on the environment in which the application is to be deployed.
     For details on external properties, refer to \ :doc:`PropertyManagement`\ .

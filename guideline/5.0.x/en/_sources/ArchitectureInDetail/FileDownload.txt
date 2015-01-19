@@ -41,7 +41,7 @@ Overview of File Download process is given below.
 | when rendering Excel files using model information.
 |
 | For file formats other than those specified above, various types of View implementations are provided in Spring.
-| For technical details on View, refer to \ `Spring Reference View technologies <http://docs.spring.io/spring/docs/4.1.3.RELEASE/spring-framework-reference/html/view.html>`_\ .
+| For technical details on View, refer to \ `Spring Reference View technologies <http://docs.spring.io/spring/docs/4.1.4.RELEASE/spring-framework-reference/html/view.html>`_\ .
 
 | \ ``org.terasoluna.gfw.web.download.AbstractFileDownloadView``\  provided by common library is the
 | abstract class to download arbitrary files.
@@ -422,7 +422,7 @@ Specifying View in controller
 
             As described above, Model information can be rendered in various types of Views using Spring.
             Spring supports rendering engine such as Jasper Reports and returns various types of views.
-            For details, refer to the official Spring website  \ `Spring reference <http://docs.spring.io/spring/docs/4.1.3.RELEASE/spring-framework-reference/html/view.html#view-jasper-reports>`_\ .
+            For details, refer to the official Spring website  \ `Spring reference <http://docs.spring.io/spring/docs/4.1.4.RELEASE/spring-framework-reference/html/view.html#view-jasper-reports>`_\ .
 
 .. raw:: latex
 
