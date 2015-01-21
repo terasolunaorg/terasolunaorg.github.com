@@ -340,6 +340,8 @@ spring-security.xml
      * - | (2)
        - |  \ ``password-parameter``\ 属性で\ ``password``\ の入力フィールドの\ ``name``\ 属性を、「password」に変更している。
 
+.. _AuthenticationProviderConfiguration:
+
 認証処理の設定
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 Spring Securityで認証処理を設定するために、\ ``AuthenticationProvider``\ と\ ``UserDetailsService``\ を定義する。
