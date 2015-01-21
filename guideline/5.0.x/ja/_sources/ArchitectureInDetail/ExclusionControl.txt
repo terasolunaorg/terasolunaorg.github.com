@@ -932,6 +932,11 @@ JPAでは、バージョン管理用のプロパティに、\ ``@javax.persisten
     int newQuantity = 30;
 
     Stock stock = stockRepository.findOne(itemCode); // (2)
+    if (stock == null) {
+        ResultMessages messages = ResultMessages.error().add(ResultMessage
+                .fromText("Stock not found. itemCode : " + itemCode));
+        throw new ResourceNotFoundException(messages);
+    }
 
     stock.setQuantity(newQuantity); // (3)
 
@@ -978,7 +983,7 @@ JPAでは、バージョン管理用のプロパティに、\ ``@javax.persisten
     int newQuantity = 30;
 
     Stock stock = stockRepository.findOne(itemCode); // (1)
-    if (stock != null && stock.getVersion() != version) { // (2)
+    if (stock == null || stock.getVersion() != version) { // (2)
         throw new ObjectOptimisticLockingFailureException(Stock.class, itemCode); // (3)
     }
 
@@ -1010,13 +1015,18 @@ JPAでは、バージョン管理用のプロパティに、\ ``@javax.persisten
     以下のような処理をしても、「管理状態のEntity」に設定したバージョンの値は反映されないため、楽観ロックを取得する際に使用されることはない。楽観ロックで使用されるのは、findOneメソッドで取得した時点のバージョンとなる。
 
      .. code-block:: java
-        :emphasize-lines: 6
+        :emphasize-lines: 11
 
         long version = 12;
         String itemCode = "ITM0000001";
         int newQuantity = 30;
 
         Stock stock = stockRepository.findOne(itemCode);
+        if (stock == null) {
+            ResultMessages messages = ResultMessages.error().add(ResultMessage
+                    .fromText("Stock not found. itemCode : " + itemCode));
+            throw new ResourceNotFoundException(messages);
+        }
         stock.setVersion(version); // ★ Invalid Processing
         stock.setQuantity(newQuantity);
 
@@ -1844,6 +1854,11 @@ RDBMSの行ロック機能を使って排他制御を行う場合は、sqlmapフ
     int newQuantity = 30;
 
     Stock stock = stockRepository.findOne(itemCode); // (2)
+    if (stock == null) {
+        ResultMessages messages = ResultMessages.error().add(ResultMessage
+                .fromText("Stock not found. itemCode : " + itemCode));
+        throw new ResourceNotFoundException(messages);
+    }
 
     stock.setQuantity(newQuantity); // (3)
 
@@ -1881,7 +1896,7 @@ RDBMSの行ロック機能を使って排他制御を行う場合は、sqlmapフ
     int newQuantity = 30;
 
     Stock stock = stockRepository.findOne(itemCode); // (1)
-    if (stock != null && stock.getVersion() != version) { // (2)
+    if (stock == null || stock.getVersion() != version) { // (2)
         throw new ObjectOptimisticLockingFailureException(Stock.class, itemCode); // (3)
     }
 

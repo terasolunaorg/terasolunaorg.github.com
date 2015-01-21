@@ -32,8 +32,7 @@ Webアプリケーション向け開発プロジェクトの作成
 
 |
 
-| \ ``mvn archetype:generate``\ を実行する。
-| マルチプロジェクトを作成するためのArchetypeとして、以下の3種類を用意している。
+マルチプロジェクトを作成するためのArchetypeとして、以下の3種類を用意している。
 
 .. tabularcolumns:: |p{0.5\linewidth}|p{0.30\linewidth}|p{0.65\linewidth}|
 .. list-table::
@@ -46,52 +45,73 @@ Webアプリケーション向け開発プロジェクトの作成
     * - 1.
       - terasoluna-gfw-multi-web-blank-mybatis3-archetype
       - O/R MapperとしてMyBatis3を使用するためのプロジェクトを生成するためのArchetype。
-
-        \ ``archetype:generate``\ の実行方法は、
-        「`MyBatis3用マルチプロジェクトの作成方法 <https://github.com/terasolunaorg/terasoluna-gfw-web-multi-blank#multi-blank-project-with-mybatis3>`_」を参照されたい。
     * - 2.
       - terasoluna-gfw-multi-web-blank-mybatis2-archetype
       - O/R MapperとしてMyBatis2(with TERASOLUNA DAO)を使用するためのプロジェクトを生成するためのArchetype。
-
-        \ ``archetype:generate``\ の実行方法は、
-        「`MyBatis2用マルチプロジェクトの作成方法 <https://github.com/terasolunaorg/terasoluna-gfw-web-multi-blank#multi-blank-project-with-mybatis2>`_」を参照されたい。
     * - 3.
       - terasoluna-gfw-multi-web-blank-jpa-archetype
       - O/R MapperとしてJPA(with Spring Data JPA and Hibernate)を使用するためのプロジェクトを生成するためのArchetype。
 
-        \ ``archetype:generate``\ の実行方法は、
-        「`JPA用マルチプロジェクトの作成方法 <https://github.com/terasolunaorg/terasoluna-gfw-web-multi-blank#multi-blank-project-with-jpa>`_」を参照されたい。
-
-.. note:: **プロジェクト固有の情報の指定方法について**
-
-    作成するプロジェクトの、
-
-    * groupId
-    * artifactId
-    * version
-    * package (ベースのパッケージ名)
-
-    は対話形式で指定ことになる。
-
-    \ ``archetype:generate``\ では、これらのパラメータを指定して実行するバッチモードも用意されているが、
-    ここではバッチモードの説明は割愛する。
-
 |
 
-groupId、artifactId、version、package を指定する。
+プロジェクトを作成するフォルダに移動する。
 
 .. code-block:: console
 
-    Define value for property 'groupId': : com.example.todo
-    Define value for property 'artifactId': : todo
-    Define value for property 'version':  1.0-SNAPSHOT: : 1.0.0-SNAPSHOT
-    Define value for property 'package':  com.example.todo: :
-    Confirm properties configuration:
-    groupId: com.example.todo
-    artifactId: todo
-    version: 1.0.0-SNAPSHOT
-    package: com.example.todo
-     Y: : Y
+    cd C:\work
+
+|
+
+`Maven Archetype Plugin <http://maven.apache.org/archetype/maven-archetype-plugin/>`_ の `archetype:generate <http://maven.apache.org/archetype/maven-archetype-plugin/generate-mojo.html>`_ を使用して、プロジェクトを作成する。
+
+.. code-block:: console
+
+    mvn archetype:generate -B^
+     -DarchetypeCatalog=http://repo.terasoluna.org/nexus/content/repositories/terasoluna-gfw-releases^
+     -DarchetypeGroupId=org.terasoluna.gfw.blank^
+     -DarchetypeArtifactId=terasoluna-gfw-multi-web-blank-mybatis3-archetype^
+     -DarchetypeVersion=5.0.0.RELEASE^
+     -DgroupId=com.example.todo^
+     -DartifactId=todo^
+     -Dversion=1.0.0-SNAPSHOT
+
+.. tabularcolumns:: |p{0.25\linewidth}|p{0.75\linewidth}|
+.. list-table::
+    :header-rows: 1
+    :widths: 25 75
+
+    * - パラメータ
+      - 説明
+    * - | \-B
+      - batch mode (対話を省略)
+    * - | \-DarchetypeCatalog
+      - TERASOLUNA Global Frameworkのレポジトリを指定する。(固定)
+    * - | \-DarchetypeGroupId
+      - ブランクプロジェクトのgroupIdを指定する。(固定)
+    * - | \-DarchetypeArtifactId
+      - ブランクプロジェクトのarchetypeId(雛形を特定するためのID)を指定する。**(カスタマイズが必要)**
+
+        以下の何れかのarchetypeIdを指定する。
+
+        * ``terasoluna-gfw-multi-web-blank-mybatis3-archetype``
+        * ``terasoluna-gfw-multi-web-blank-jpa-archetype``
+        * ``terasoluna-gfw-multi-web-blank-mybatis2-archetype``
+
+        上記例では、\ ``terasoluna-gfw-multi-web-blank-mybatis3-archetype``\ を指定している。
+    * - | \-DarchetypeVersion
+      - ブランクプロジェクトのバージョンを指定する。(固定)
+    * - | \-DgroupId
+      - 作成するプロジェクトのgroupIdを指定する。**(カスタマイズが必要)**
+
+        上記例では、\ ``"com.example.todo"``\ を指定している。
+    * - | \-DartifactId
+      - 作成するプロジェクトのartifactIdを指定する。**(カスタマイズが必要)**
+
+        上記例では、\ ``"todo"``\ を指定している。
+    * - | \-Dversion
+      - 作成するプロジェクトのバージョンを指定する。**(カスタマイズが必要)**
+
+        上記例では、\ ``"1.0.0-SNAPSHOT"``\ を指定している。
 
 |
 
@@ -100,8 +120,9 @@ groupId、artifactId、version、package を指定する。
 
 .. code-block:: console
 
+    (... omit)
     [INFO] ----------------------------------------------------------------------------
-    [INFO] Using following parameters for creating project from Archetype: terasoluna-gfw-multi-web-blank-mybatis3-archetype:5.0.0-SNAPSHOT
+    [INFO] Using following parameters for creating project from Archetype: terasoluna-gfw-multi-web-blank-mybatis3-archetype:5.0.0.RELEASE
     [INFO] ----------------------------------------------------------------------------
     [INFO] Parameter: groupId, Value: com.example.todo
     [INFO] Parameter: artifactId, Value: todo
@@ -112,18 +133,18 @@ groupId、artifactId、version、package を指定する。
     [INFO] Parameter: version, Value: 1.0.0-SNAPSHOT
     [INFO] Parameter: groupId, Value: com.example.todo
     [INFO] Parameter: artifactId, Value: todo
-    [INFO] Parent element not overwritten in /work/blank/todo/todo-env/pom.xml
-    [INFO] Parent element not overwritten in /work/blank/todo/todo-domain/pom.xml
-    [INFO] Parent element not overwritten in /work/blank/todo/todo-web/pom.xml
-    [INFO] Parent element not overwritten in /work/blank/todo/todo-initdb/pom.xml
-    [INFO] Parent element not overwritten in /work/blank/todo/todo-selenium/pom.xml
-    [INFO] project created from Archetype in dir: /work/blank/todo
+    [INFO] Parent element not overwritten in C:\work\todo\todo-env\pom.xml
+    [INFO] Parent element not overwritten in C:\work\todo\todo-domain\pom.xml
+    [INFO] Parent element not overwritten in C:\work\todo\todo-web\pom.xml
+    [INFO] Parent element not overwritten in C:\work\todo\todo-initdb\pom.xml
+    [INFO] Parent element not overwritten in C:\work\todo\todo-selenium\pom.xml
+    [INFO] project created from Archetype in dir: C:\work\todo
     [INFO] ------------------------------------------------------------------------
     [INFO] BUILD SUCCESS
     [INFO] ------------------------------------------------------------------------
-    [INFO] Total time: 02:13 min
-    [INFO] Finished at: 2014-12-13T22:19:11+09:00
-    [INFO] Final Memory: 15M/194M
+    [INFO] Total time: 9.929 s
+    [INFO] Finished at: 2015-01-20T12:03:21+00:00
+    [INFO] Final Memory: 10M/26M
     [INFO] ------------------------------------------------------------------------
 
 |
@@ -157,7 +178,6 @@ Maven Archetypeで作成したプロジェクトには、アプリケーショ�
 - :ref:`CreateWebApplicationProjectCustomizeMessageWording`
 - :ref:`CreateWebApplicationProjectCustomizeErrorScreen`
 - :ref:`CreateWebApplicationProjectCustomizeCopyrightOnScreenFooter`
-- :ref:`CreateWebApplicationProjectCustomizeMyBatis3MapperDirectory`
 - :ref:`CreateWebApplicationProjectCustomizeInMemoryDatabase`
 - :ref:`CreateWebApplicationProjectCustomizeDataSource`
 
@@ -175,6 +195,12 @@ Maven Archetypeで作成したプロジェクトには、アプリケーショ�
     などがある。
 
     これらのカスタマイズについては、各節のHow to useを参照し、必要に応じてカスタマイズしてほしい。
+
+
+.. note::
+
+    以降の説明で\ ``artifactId``\ と表現している部分は、
+    プロジェクト作成時に指定した\ ``artifactId``\ に置き換えて読み進めてほしい。
 
 |
 
@@ -253,9 +279,13 @@ Maven Archetypeで作成したプロジェクトでは、\ ``x.xx.fw.9999``\ 形
 
 を生成する際に使用している。実際の使用箇所(サンプリング)を以下に示す。
 
+**[application-messages.properties]**
+
 .. code-block:: properties
 
     e.xx.fw.5001 = Resource not found.
+
+**[JSP]**
 
 .. code-block:: jsp
 
@@ -263,6 +293,8 @@ Maven Archetypeで作成したプロジェクトでは、\ ``x.xx.fw.9999``\ 形
         <c:if test="${!empty exceptionCode}">[${f:h(exceptionCode)}]</c:if>
         <spring:message code="e.xx.fw.5001" />
     </div>
+
+**[applicationContext.xml]**
 
 .. code-block:: xml
 
@@ -272,6 +304,8 @@ Maven Archetypeで作成したプロジェクトでは、\ ``x.xx.fw.9999``\ 形
                 <entry key="ResourceNotFoundException" value="e.xx.fw.5001" />
         <!-- ... -->
     </bean>
+
+|
 
 \ ``x.xx.fw.9999``\ 形式のメッセージIDは、
 本ガイドラインの「:doc:`../ArchitectureInDetail/MessageManagement`」で紹介しているメッセージID体系であるが、
@@ -320,6 +354,8 @@ Maven Archetypeで作成したプロジェクトでは、\ ``x.xx.fw.9999``\ 形
 Maven Archetypeで作成したプロジェクトでは、いくつかのメッセージ定義を提供しているが、
 メッセージ文言は簡易的なメッセージになっている。
 実際のメッセージ(サンプリング)を以下に示す。
+
+**[application-messages.properties]**
 
 .. code-block:: properties
 
@@ -372,6 +408,8 @@ Maven Archetypeで作成したプロジェクトでは、エラーの種類毎�
 * メッセージの文言
 
 などが簡易的な実装になっている。実際のJSPの実装(サンプリング)を以下に示す。
+
+**[JSP]**
 
 .. code-block:: jsp
 
@@ -438,6 +476,7 @@ Maven Archetypeで作成したプロジェクトでは、Tilesを使用して画
 画面フッター部の著作権が暫定値「\ ``Copyright &copy; 20XX CompanyName``\ 」の状態になっている。
 実際のJSPの実装(サンプリング)を以下に示す。
 
+**[template.jsp]**
 
 .. code-block:: jsp
 
@@ -473,63 +512,6 @@ Maven Archetypeで作成したプロジェクトでは、Tilesを使用して画
 
 |
 
-.. _CreateWebApplicationProjectCustomizeMyBatis3MapperDirectory:
-
-MyBatis3用のMapperファイル格納ディレクトリ
-^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-
-Maven Archetypeで作成したMyBatis3用のプロジェクトでは、Mapperファイルを格納するディレクトリ名が、
-パッケージ名で置き換わっていない(\ ``xxxxxx/yyyyyy/zzzzzz``\ の状態になっている)。
-実際のディレクトリ構成を以下に示す。
-
-.. code-block:: console
-
-    artifactId-domain
-      (...)
-        └── src
-            ├── main
-            │   ├── java
-           (...)
-            │   └── resources
-            │       (...)
-            │       └── xxxxxx
-            │           └── yyyyyy
-            │               └── zzzzzz
-            │                   └── domain
-            │                       └── repository
-            │                           └── sample
-            │                               └── SampleRepository.xml
-
-.. note::
-
-    **プロジェクト作成時に指定したpackageに置き換えること。**
-
-|
-
-プロジェクト作成時に指定したpackageに置き換える。
-以下は、プロジェクト作成時のpackageに、\ ``com.example.project``\ を指定した場合の変更例である。
-
-
-.. code-block:: console
-
-    artifactId-domain
-      (...)
-        └── src
-            ├── main
-            │   ├── java
-           (...)
-            │   └── resources
-            │       (...)
-            │       └── com
-            │           └── example
-            │               └── project
-            │                   └── domain
-            │                       └── repository
-            │                           └── sample
-            │                               └── SampleRepository.xml
-
-|
-
 .. _CreateWebApplicationProjectCustomizeInMemoryDatabase:
 
 インメモリデータベース(H2 Database)
@@ -538,6 +520,8 @@ Maven Archetypeで作成したMyBatis3用のプロジェクトでは、Mapperフ
 Maven Archetypeで作成したプロジェクトには、インメモリデータベース(H2 Database)をセットアップするための設定が行われているが、
 これはちょっとした動作検証(プロトタイプ作成やPOC(Proof Of Concept))を行うための設定である。
 そのため、本格的なアプリケーション開発を行う場合は、不要な設定になる。
+
+**[artifactId-env.xml]**
 
 .. code-block:: xml
 
@@ -597,6 +581,8 @@ Maven Archetypeで作成したプロジェクトでは、インメモリデー�
 そのため、本格的なアプリケーション開発を行う場合は、
 アプリケーション稼働時に利用するデータベースにアクセスするためのデータソース設定に変更する必要がある。
 
+**[artifactId/artifactId-domain/pom.xml]**
+
 .. code-block:: xml
 
     <dependency>
@@ -604,6 +590,8 @@ Maven Archetypeで作成したプロジェクトでは、インメモリデー�
         <artifactId>h2</artifactId>
         <scope>runtime</scope>
     </dependency>
+
+**[artifactId-infra.properties]**
 
 .. code-block:: properties
 
@@ -617,6 +605,8 @@ Maven Archetypeで作成したプロジェクトでは、インメモリデー�
     cp.maxIdle=16
     cp.minIdle=0
     cp.maxWait=60000
+
+**[artifactId-env.xml]**
 
 .. code-block:: xml
 
@@ -794,6 +784,11 @@ Maven Archetypeで作成したプロジェクトは、以下の構成になっ�
     REST APIを構築するためのプロジェクトを作成する場合は、「:doc:`../ArchitectureInDetail/REST` の :ref:`RESTHowToUseApplicationSettings`」を参照し、
     REST API向けの設定を適用してほしい。
 
+.. note::
+
+    以降の説明で\ ``artifactId``\ と表現している部分は、
+    プロジェクト作成時に指定した\ ``artifactId``\ に置き換えて読み進めてほしい。
+
 |
 
 .. _CreateWebApplicationProjectConfigurationMulti:
@@ -802,11 +797,6 @@ Maven Archetypeで作成したプロジェクトは、以下の構成になっ�
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 まず、マルチプロジェクト全体の構成について説明する。
-
-.. note::
-
-    以降の説明で\ ``artifactId``\ と表現している部分は、
-    プロジェクト作成時に指定した\ ``artifactId``\ に置き換えて読み進めてほしい。
 
 .. code-block:: console
 
@@ -1247,9 +1237,9 @@ domainモジュールの構成
             │       │   │   └── mybatis-config.xml  ... (10)
             │       │   └── spring
            (...)
-            │       └── xxxxxx
-            │           └── yyyyyy
-            │               └── zzzzzz
+            │       └── com
+            │           └── example
+            │               └── project
             │                   └── domain
             │                       └── repository  ... (11)
             │                           └── sample
@@ -1270,9 +1260,6 @@ domainモジュールの構成
         作成時点では、いくつかの推奨設定が定義されている。
     * - | (11)
       - MyBatis3のMapperファイルを格納するディレクトリ。
-
-        作成時点では、ベースのディレクトリが「xxxxxx/yyyyyy/zzzzzz」となっているので、
-        プロジェクトのパッケージに合わせてディレクトリ名を修正する必要がある。
     * - | (12)
       - MyBatis3のMapperファイルのサンプルファイル。
 

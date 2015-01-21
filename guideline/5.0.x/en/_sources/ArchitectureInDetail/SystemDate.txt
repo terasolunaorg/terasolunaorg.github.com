@@ -15,88 +15,203 @@ Even in Production environment, there could be cases wherein recovery is perform
 
 Therefore, it is desirable to have a setting that can fetch any date and time at development and operation sides instead of system time of the server.
 
-Common library provides ``org.terasoluna.gfw.common.date.DateFactory`` interface that can arbitrarily change the time to be returned.
-Using ``DateFactory``\ , date can be returned in the following 5 formats.
+|
 
-.. tabularcolumns:: |p{0.30\linewidth}|p{0.70\linewidth}|
+About the components that are offered by common library
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+The common library providing a component (In the following, API is referred as "Date Factory") for obtaining the system time.
+
+Component provided by common library is divided into two artifacts terasoluna-gfw-common and terasoluna-gfw-jodatime,
+
+* terasoluna-gfw-common is a Date Factory that uses only the Java standard API
+* terasoluna-gfw-jodatime is a Date Factory that uses Joda Time API
+
+Following is the class diagram of components that provided by the common library.
+
+.. figure:: ./images/systemdate-class-diagram.png
+    :alt: Class Diagram of Date Factory
+    :width: 100%
+
+terasoluna-gfw-common
+""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
+
+Below interface provided as a component of terasoluna-gfw-common.
+
+.. tabularcolumns:: |p{0.35\linewidth}|p{0.65\linewidth}|
 .. list-table::
-   :header-rows: 1
-   :widths: 30 70
+    :header-rows: 1
+    :widths: 35 65
 
-   * - method
-     - type
-   * - newDateTime
-     - org.joda.time.DateTime
-   * - newTimestamp
-     - java.sql.Timestamp
-   * - newDate
-     - java.util.Date
-   * - newSqlDate
-     - java.sql.Date
-   * - newTime
-     - java.sql.Time
+    * - Interface
+      - Description
+    * - | org.terasoluna.gfw.common.date.
+        | ClassicDateFactory
+      - Interface to obtain an instance of the following classes as the system time provided by Java.
+
+        * \ ``java.util.Date``\
+        * \ ``java.sql.Timestamp``\
+        * \ ``java.sql.Date``\
+        * \ ``java.sql.Time``\
+
+        The common library provides the following classes as an implementation class of the interface.
+
+        * \ ``org.terasoluna.gfw.common.date.DefaultClassicDateFactory``\
+
+
+terasoluna-gfw-jodatime
+""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
+
+Below interface provided as a component of terasoluna-gfw-jodatime.
+
+.. tabularcolumns:: |p{0.35\linewidth}|p{0.65\linewidth}|
+.. list-table::
+    :header-rows: 1
+    :widths: 35 65
+
+    * - Interface
+      - Description
+    * - | org.terasoluna.gfw.common.date.jodatime.
+        | JodaTimeDateTimeFactory
+      - Interface to obtain an instance of the following classes as the system time provided by Joda Time.
+
+        * \ ``org.joda.time.DateTime``\
+
+    * - | org.terasoluna.gfw.common.date.jodatime.
+        | JodaTimeDateFactory
+      - Interface that inherits from \ ``ClassicDateFactory`` \ and \ ``JodaTimeDateTimeFactory``\.
+
+        The common library provides the following classes as an implementation class of the interface.
+
+        * \ ``org.terasoluna.gfw.common.date.jodatime.DefaultJodaTimeDateFactory``\
+        * \ ``org.terasoluna.gfw.common.date.jodatime.JdbcFixedJodaTimeDateFactory``\
+        * \ ``org.terasoluna.gfw.common.date.jodatime.JdbcAdjustedJodaTimeDateFactory``\
+
+        **In this guideline, it is recommended that you use the implementation class corresponding to this interface.**
+    * - | org.terasoluna.gfw.common.date.
+        | DateFactory
+      - Interface that inherits from \ ``JodaTimeDateFactory``\ (Deprecated).
+
+        This interface is an interface provided for backward compatibility with \ ``DateFactory`` \ which is offered by terasoluna-gfw-common 1.0.x.
+
+        The common library provides the following classes as an implementation class of the interface.
+
+        * \ ``org.terasoluna.gfw.common.date.DefaultDateFactory``\ (Deprecated)
+        * \ ``org.terasoluna.gfw.common.date.JdbcFixedDateFactory``\ (Deprecated)
+        * \ ``org.terasoluna.gfw.common.date.JdbcAdjustedDateFactory``\ (Deprecated)
+
+        **Since these interfaces and corresponding implementation classes are deprecated API, it is prohibited to use in new applications development.**
 
 .. note::
 
-    About the Joda Time, refer to :doc:`./Utilities/JodaTime` .
-
-.. tip::
-
-    When testing is to be carried out by changing the date and time using JUnit etc.,
-    any date and time can be set by replacing the Factory implementation class with mock class.
+    For Joda Time, refer :doc:`./Utilities/JodaTime`.
 
 |
 
 How to use
 --------------------------------------------------------------------------------
 
-| Define implementation class of \ ``DateFactory``\  in bean definition file and inject it in Java class by \ ``DateFactory``\  interface.
-| Depending on the intended use, select from the following implementation classes.
+The implementation class of Date Factory interface is defined in the bean definition file and an instance of the Date Factory is used by injection in Java class.
 
+Depending on the intended use, select from the following implementation classes.
 
-.. tabularcolumns:: |p{0.30\linewidth}|p{0.35\linewidth}|p{0.35\linewidth}|
+.. tabularcolumns:: |p{0.30\linewidth}|p{0.30\linewidth}|p{0.40\linewidth}|
 .. list-table::
    :header-rows: 1
-   :widths: 30 35 35
+   :widths: 30 30 40
 
    * - Class name
      - Overview
      - Remarks
-   * - | org.terasoluna.gfw.common.date.
-       | DefaultDateFactory
-     - | Returns system time of application server.
-     - | Time cannot be changed as the value is equivalent to that fetched by new DateTime().
-   * - | org.terasoluna.gfw.common.date.
-       | JdbcFixedDateFactory
-     - | Returns the fixed time registered in DB.
-     - | It is assumed to be used in Integration Test environment that requires a completely fixed time.
-       | It is not used in Performance Test environment and Production environment.
-       | Table definition is needed.
-   * - | org.terasoluna.gfw.common.date.
-       | JdbcAdjustedDateFactory
-     - | Returns the time fetched by adding difference (milliseconds) between the time registered in DB and system time of application server.
-     - | It is assumed to be used in Integration Test environment and System Test environment.
-       | It can be used in Production environment by setting the difference value to 0.
-       | Table definition is needed.
+   * - | org.terasoluna.gfw.common.date.jodatime.
+       | DefaultJodaTimeDateFactory
+     - Returns system time of application server.
+     - Time cannot be changed as the value is equivalent to that fetched by new \ ``new DateTime()``\.
+   * - | org.terasoluna.gfw.common.date.jodatime.
+       | JdbcFixedJodaTimeDateFactory
+     - Returns the fixed time registered in DB.
+     - It is assumed to be used in Integration Test environment that requires a completely fixed time. It is not used in Performance Test environment and Production environment.
+
+       In order to use this class, table is required for managing a fixed time.
+   * - | org.terasoluna.gfw.common.date.jodatime.
+       | JdbcAdjustedJodaTimeDateFactory
+     - Returns the time fetched by adding difference (milliseconds) between the time registered in DB and system time of application server.
+     - It is assumed to be used in Integration Test environment and System Test environment but It can also be used in Production environment by setting the difference value as 0.
+
+       In order to use this class, table is required for managing a difference value.
 
 .. note::
 
-    It is recommended to define the bean definition file that sets each class, in [projectName]-env .xml so that it can be changed according to the environment.
-    Using DateFactory, the date and time can be changed just by changing the settings of bean definition file, without having to change the source code.
+    It is recommended to define the bean definition file that sets implementation class in [projectName]-env.xml so that it can be changed according to the environment. 
+    Using Date Factory, the date and time can be changed just by changing the settings of bean definition file, without having to change the source code. 
     Example of Bean definition file is described later.
+
+.. tip::
+
+    If you want to test in JUnit by changing the date and time, it is also possible to set a random time by replacing the implementation class of the interface to mock class.
+    For replacement method refer [:ref:`SystemDateTestingUnitTest`].
+
+|
+
+pom.xml setting
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+| Add terasoluna-gfw-jodatime dependency.
+| In case of multi-project configuration, add in the \ :file:`pom.xml`\(:file:`projectName-domain/pom.xml`) of the domain project.
+
+If project is created from `blank project <https://github.com/terasolunaorg/terasoluna-gfw-web-multi-blank>`_\, dependencies of terasoluna-gfw-jodatime is pre-configured.
+
+.. code-block:: xml
+
+    <dependencies>
+
+        <!-- (1) -->
+        <dependency>
+            <groupId>org.terasoluna.gfw</groupId>
+            <artifactId>terasoluna-gfw-jodatime</artifactId>
+        </dependency>
+
+    </dependencies>
+
+
+.. tabularcolumns:: |p{0.10\linewidth}|p{0.80\linewidth}|
+.. list-table::
+    :header-rows: 1
+    :widths: 10 80
+
+    * - Sr. No.
+      - Description
+    * - (1)
+      - Add a terasoluna-gfw-jodatime into dependencies.
+        The dependencies of Joda Time related to Date Factory and Joda Time libraries are defined.
+
+.. tip:: **The configuration method if do not want to use the terasoluna-gfw-parent as a Parent project**
+
+    If the terasoluna-gfw-parent project is not specified as a parent project, version specification should be done separately.
+
+     .. code-block:: xml
+        :emphasize-lines: 4
+
+            <dependency>
+                <groupId>org.terasoluna.gfw</groupId>
+                <artifactId>terasoluna-gfw-jodatime</artifactId>
+                <version>5.0.0.RELEASE</version>
+            </dependency>
+
+    In the above example 5.0.0.RELEASE is specified  but it should be actual version which is specified at project side.
 
 |
 
 Returning system time of server
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-Use \ ``org.terasoluna.gfw.common.date.DefaultDateFactory``\ . For details, refer to the following.
+Use \ ``org.terasoluna.gfw.common.date.jodatime.DefaultJodaTimeDateFactory``\.
 
-**Bean definition file ([projectname]-env.xml)**
+**Bean definition file([projectname]-env.xml)**
 
 .. code-block:: xml
 
-    <bean id="dateFactory" class="org.terasoluna.gfw.common.date.DefaultDateFactory" />  <!-- (1) -->
+    <bean id="dateFactory" class="org.terasoluna.gfw.common.date.jodatime.DefaultJodaTimeDateFactory" />  <!-- (1) -->
 
 .. tabularcolumns:: |p{0.10\linewidth}|p{0.90\linewidth}|
 .. list-table::
@@ -106,7 +221,7 @@ Use \ ``org.terasoluna.gfw.common.date.DefaultDateFactory``\ . For details, refe
    * - Sr. No.
      - Description
    * - | (1)
-     - | Define DefaultDateFactory class in bean.
+     - | Define \ ``DefaultJodaTimeDateFactory`` \ class in bean.
 
 |
 
@@ -117,7 +232,7 @@ Use \ ``org.terasoluna.gfw.common.date.DefaultDateFactory``\ . For details, refe
 .. code-block:: java
 
     @Inject
-    DateFactory dateFactory;  // (2)
+    JodaTimeDateFactory dateFactory;  // (2)
 
     public TourInfoSearchCriteria setUpTourInfoSearchCriteria() {
 
@@ -134,23 +249,23 @@ Use \ ``org.terasoluna.gfw.common.date.DefaultDateFactory``\ . For details, refe
    * - Sr. No.
      - Description
    * - | (2)
-     - | Inject DateFactory in the class to be used.
+     - | Inject Date Factory in the class to be used.
    * - | (3)
-     - | Call the method that returns the class instance of the date to be used.
-       | In above example, fetch as the ``org.joda.time.DateTime`` instance.
+     - | Call the method that returns the class instance of the date to be used
+       | In above example \ ``org.joda.time.DateTime`` \ type instance is fetched.
 
 |
 
 Returning the fixed time fetched from DB
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-Use \ ``org.terasoluna.gfw.common.date.JdbcFixedDateFactory``\ . For details, refer to the following.
+Use \ ``org.terasoluna.gfw.common.date.jodatime.JdbcFixedJodaTimeDateFactory``\.
 
 **Bean definition file**
 
 .. code-block:: xml
 
-    <bean id="dateFactory" class="org.terasoluna.gfw.common.date.JdbcFixedDateFactory" >  <!-- (1) -->
+    <bean id="dateFactory" class="org.terasoluna.gfw.common.date.jodatime.JdbcFixedJodaTimeDateFactory" >  <!-- (1) -->
         <property name="dataSource" ref="dataSource" />  <!-- (2) -->
         <property name="currentTimestampQuery" value="SELECT now FROM system_date" />  <!-- (3) -->
     </bean>
@@ -163,12 +278,11 @@ Use \ ``org.terasoluna.gfw.common.date.JdbcFixedDateFactory``\ . For details, re
    * - Sr. No.
      - Description
    * - | (1)
-     - | Define ``org.terasoluna.gfw.common.date.JdbcFixedDateFactory`` in bean.
+     - Define \ ``JdbcFixedJodaTimeDateFactory`` \ in bean.
    * - | (2)
-     - Datasource (``javax.sql.DataSource``) settings.
+     - Specifies the datasource (\ ``javax.sql.DataSource``\ ) in the \ ``dataSource`` \ property in which table to manage a fixed time is present.
    * - | (3)
-     - | Settings related to SQL for fetching fixed time ``currentTimestampQuery``.
-       | Set the SQL query that returns the date and time specified in table.
+     - Set the SQL in \ ``currentTimestampQuery`` \ property for obtaining a fixed time.
 
 |
 
@@ -198,7 +312,7 @@ Records need to be added by creating a table as shown below.
 .. code-block:: java
 
     @Inject
-    DateFactory dateFactory;
+    JodaTimeDateFactory dateFactory;
 
     @RequestMapping(value="datetime", method = RequestMethod.GET)
     public String listConfirm(Model model) {
@@ -219,11 +333,13 @@ Records need to be added by creating a table as shown below.
    * - Sr. No.
      - Description
    * - | (4)
-     - | Pass the \ ``JdbcFixedDateFactory.newDateTime()``\  result to screen.
-       | The fixed value set in DB is output.
+     - Pass the system time retrieved from Date Factory to the screen.
+
+       When confirming the results, the output is the fixed value set in DB.
    * - | (5)
-     - | Pass the \ ``new DateTime()``\  result to screen, for confirmation.
-       | Output result shows a different value each time.
+     - Pass the result of \ ``new DateTime()`` \ for confirmation.
+
+       When confirming the results, each time the output is different value (System time of the application server).
 
 |
 
@@ -243,30 +359,23 @@ Records need to be added by creating a table as shown below.
     17. SELECT now FROM system_date {executed in 1 msec}
     18. SELECT now FROM system_date {executed in 0 msec}
 
-Access log is output to DB using ``JdbcFixedDateFactory.newDateTime()``.
-In order to output SQL log, \ ``Log4jdbcProxyDataSource``\  described in :doc:`./DataAccessCommon` is used.
+Access log is output to DB if Date Factory is called. 
+In order to output SQL log, \ ``Log4jdbcProxyDataSource`` \ described in :doc:`./DataAccessCommon` is used.
 
 |
 
 Returning time obtained by adding the difference registered in DB to the server system time
-^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-Use \ ``org.terasoluna.gfw.common.date.JdbcAdjustedDateFactory``\ .
-Fetch the difference in time by executing SQL set in \ ``adjustedValueQuery``\  property .
+Use \ ``org.terasoluna.gfw.common.date.jodatime.JdbcAdjustedJodaTimeDateFactory``\.
 
-For details, refer to the following.
-
-**Bean definition file**
+**bean definition file**
 
 .. code-block:: xml
 
-  <bean id="dateFactory" class="org.terasoluna.gfw.common.date.JdbcAdjustedDateFactory" >
-    <property name="dataSource" ref="dataSource" />
-    <!-- <property name="adjustedValueQuery" value="SELECT diff FROM operation_date" /> --><!-- (1) -->
-    <!-- <property name="adjustedValueQuery" value="SELECT diff * 1000 FROM operation_date" /> --><!-- (2) -->
-    <property name="adjustedValueQuery" value="SELECT diff * 60 * 1000 FROM operation_date" /><!-- (3) -->
-    <!-- <property name="adjustedValueQuery" value="SELECT diff * 60 * 60 * 1000 FROM operation_date" /> --><!-- (4) -->
-    <!-- <property name="adjustedValueQuery" value="SELECT diff * 24 * 60 * 60 * 1000 FROM operation_date" /> --><!-- (5) -->
+  <bean id="dateFactory" class="org.terasoluna.gfw.common.date.jodatime.JdbcAdjustedJodaTimeDateFactory" > <!-- (1) -->
+    <property name="dataSource" ref="dataSource" /> <!-- (2) -->
+    <property name="adjustedValueQuery" value="SELECT diff * 60 * 1000 FROM operation_date" /> <!-- (3) -->
   </bean>
 
 .. tabularcolumns:: |p{0.10\linewidth}|p{0.90\linewidth}|
@@ -277,15 +386,13 @@ For details, refer to the following.
    * - Sr. No.
      - Description
    * - | (1)
-     - | SQL when the difference registered in operation_date table is in "milliseconds" 
+     - Define \ ``JdbcAdjustedJodaTimeDateFactory`` \ in bean.
    * - | (2)
-     - | SQL when the difference registered in operation_date table is in "seconds"
+     - Specifies the datasource (\ ``javax.sql.DataSource``\ ) in the \ ``dataSource`` \ property in which table to manage a difference value is present.
    * - | (3)
-     - | SQL when the difference registered in operation_date table is in "minutes"
-   * - | (4)
-     - | SQL when the difference registered in operation_date table is in "hours"
-   * - | (5)
-     - | SQL when the difference registered in operation_date table is in "days"
+     - Set the SQL in \ ``adjustedValueQuery`` \ property for obtaining a difference value.
+
+       The above SQL is the SQL of the difference values in "minutes" unit.
 
 |
 
@@ -308,27 +415,49 @@ Records need to be added by creating a table as shown below.
    * - 1
      - -1440
 
-| In this example, the difference is in "minutes". (DB data is specified as -1440 minutes = previous day)
+| In this example, the difference is in “minutes”. (DB data is specified as -1440 minutes = previous day)
 | By converting the retrieved result into milliseconds (integer value), the unit for DB value can be set to any one of the units namely, hours, minutes, seconds or milliseconds.
 
 
-    .. note::
+.. note::
 
-        Above SQL is for PostgreSQL. For Oracle, it is better to use \ ``NUMBER(19)``\  instead of \ ``BIGINT``\ .
+    Above SQL is for PostgreSQL. For Oracle, it is better to use \ `NUMBER(19)` \ instead of \ `BIGINT`\.
+
+.. tip::
+
+    If you want to make difference value unit other than the "minutes", the following SQL can be specified in the \ `adjustedValueQuery` \ property.
+
+     .. tabularcolumns:: |p{0.25\linewidth}|p{0.75\linewidth}|
+     .. list-table::
+         :header-rows: 1
+         :widths: 25 75
+
+         * - Difference value unit
+           - SQL
+         * - milliseconds
+           - SELECT diff FROM operation_date
+         * - seconds
+           - SELECT diff * 1000 FROM operation_date
+         * - hours
+           - SELECT diff * 60 * 60 * 1000 FROM operation_date
+         * - days
+           - SELECT diff * 24 * 60 * 60 * 1000 FROM operation_date
+
+|
 
 **Java class**
 
 .. code-block:: java
 
     @Inject
-    DateFactory dateFactory;
+    JodaTimeDateFactory dateFactory;
 
     @RequestMapping(value="datetime", method = RequestMethod.GET)
     public String listConfirm(Model model) {
 
-        model.addAttribute("firstExpectedDate", new DateTime());  // (6)
-        model.addAttribute("serverTime", dateFactory.newDateTime());  // (7)
-        model.addAttribute("lastExpectedDate", new DateTime());  // (8)
+        model.addAttribute("firstExpectedDate", new DateTime());  // (4)
+        model.addAttribute("serverTime", dateFactory.newDateTime());  // (5)
+        model.addAttribute("lastExpectedDate", new DateTime());  // (6)
 
         return "date/dateTimeDisplay";
     }
@@ -340,13 +469,14 @@ Records need to be added by creating a table as shown below.
 
    * - Sr. No.
      - Description
+   * - | (4)
+     - Pass the time that retrieved before calling the Date Factory method to the screen for confirmation.
+   * - | (5)
+     - Pass the system time retrieved from Date Factory to the screen.
+
+       When confirming the results, the output is the time that is 1440 minutes subtracted from the execution time.
    * - | (6)
-     - | For verification purpose, pass a time that is prior to the \ ``DateTime``\  generated by \ ``dateFactory``\ , to screen.
-   * - | (7)
-     - | Pass the result of \ ``JdbcAdjustedDateFactory.newDateTime()``\  to screen.
-       | Fetched time is the time derived by subtracting 1440 minutes from execution time.
-   * - | (8)
-     - | For verification purpose, set a time that is later than the \ ``DateTime``\  generated by \ ``dateFactory``\ .
+     - Pass the time that retrieved after calling the Date Factory method to the screen for confirmation.
 
 |
 
@@ -364,7 +494,7 @@ Records need to be added by creating a table as shown below.
 
     17. SELECT diff * 60 * 1000 FROM operation_date {executed in 1 msec}
 
-Access log is output to DB using ``dateFactory.newDateTime()``.
+Access log is output to DB if Date Factory is called.
 
 |
 
@@ -373,15 +503,15 @@ Caching and reloading the difference
 
 .. _useCache:
 
-When the difference value is set to 0 and used in production environment, performance deteriorates as the difference is fetched each time from DB.
-Therefore, in JdbcAdjustedDateFactory, it is possible to cache the acquisition result.
+When the difference value is set to 0 and used in production environment, performance deteriorates as the difference is fetched each time from DB. 
+Therefore, in \ `JdbcAdjustedJodaTimeDateFactory`\, it is possible to cache the difference values obtained by the SQL. 
 Once the value fetched at booting is cached, table is not accessed for each request.
 
-**Bean definition file**
+**bean definition file**
 
 .. code-block:: xml
 
-  <bean id="dateFactory" class="org.terasoluna.gfw.common.date.JdbcAdjustedDateFactory" >
+  <bean id="dateFactory" class="org.terasoluna.gfw.common.date.jodatime.JdbcAdjustedJodaTimeDateFactory" >
     <property name="dataSource" ref="dataSource" />
     <property name="adjustedValueQuery" value="SELECT diff * 60 * 1000 FROM operation_date" />
     <property name="useCache" value="true" /> <!-- (1) -->
@@ -395,13 +525,13 @@ Once the value fetched at booting is cached, table is not accessed for each requ
    * - Sr. No.
      - Description
    * - | (1)
-     - | When it is 'true', the value fetched from table is cached. By default it is 'false' so the value is not cached.
-       | When it is 'false', SQL is executed each time when DateFactory is used.
+     - | When it is \ `true`\, the difference value fetched from table is cached. By default it is \ `false` \ so the value is not cached.
+       | When it is \ `false`\ , SQL is executed each time when the method of Date Factory is called.
 
 |
 
-When the difference value is to be changed after setting cache, cache value can be reloaded by executing \ ``JdbcAdjustedDateFactory.reload()``\  method after
-changing the table value.
+When the difference value is to be changed after setting cache, 
+cache value can be reloaded by executing \ `JdbcAdjustedJodaTimeDateFactory.reload()` \ method after changing the table value.
 
 **Java class**
 
@@ -412,7 +542,7 @@ changing the table value.
     public class ReloadAdjustedValueController {
 
         @Inject
-        JdbcAdjustedDateFactory dateFactory;
+        JdbcAdjustedJodaTimeDateFactory dateFactory;
 
         // omitted
 
@@ -433,7 +563,7 @@ changing the table value.
    * - Sr. No.
      - Description
    * - | (2)
-     - | By executing reload method of JdbcAdjustedDateFactory, difference can be reloaded from table.
+     - By executing \ `reload` \ method of the \ `JdbcAdjustedJodaTimeDateFactory`\, difference can be reloaded from table.
 
 |
 
@@ -448,53 +578,55 @@ When carrying out testing, it may be necessary to change to another date and tim
     :widths: 15 25 60
 
     * - Environment
-      - DateFactory to be used
+      - Date Factory to be used
       - Test details
     * - Unit Test
-      - DefaultDateFactory
+      - DefaultJodaTimeDateFactory
       - Mock for DataFactory is created for date related testing
     * - Integration Test
-      - DefaultDateFactory
+      - DefaultJodaTimeDateFactory
       - Testing not relating to date
     * -
-      - JdbcFixedDateFactory
+      - JdbcFixedJodaTimeDateFactory
       - When testing is carried out by having a fixed date and time
     * -
-      - JdbcAdjustedDateFactory
+      - JdbcAdjustedJodaTimeDateFactory
       - When linked with an external system and testing is done for multiple days considering the date flow of a testing for a single day
     * - System Test
-      - JdbcAdjustedDateFactory
+      - JdbcAdjustedJodaTimeDateFactory
       - When testing is carried out by specifying the testing date or for a future date
     * - Production
-      - DefaultDateFactory
+      - DefaultJodaTimeDateFactory
       - When there is no possibility of change in actual time
     * -
-      - JdbcAdjustedDateFactory
+      - JdbcAdjustedJodaTimeDateFactory
       - **When the possibility to change the time is to be retained in an operation.**
 
         **Normally the difference is set as 0. It is provided only if required.**
-        :ref:`useCache<useCache>` **should always be set to 'true'.**
+        **Always,** :ref:`useCache<useCache>` **should be set to 'true'.**
 
 |
+
+.. _SystemDateTestingUnitTest:
 
 Unit Test
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 In Unit Test, sometimes it needs to be verified whether the time is registered and the registered time has been updated as expected.
 
-In such cases, if the server time is registered as it is during the process,
-it becomes difficult to perform regression test in JUnit, as the value differs with each test execution.
-Here, by using DateFactory, the time to be registered can be fixed to any value.
+In such cases, if the server time is registered as it is during the process, 
+it becomes difficult to perform regression test in JUnit, as the value differs with each test execution. 
+Here, by using Date Factory, the time to be registered can be fixed to any value.
 
 
-Use mock to match the time in milliseconds. An example wherein fixed date is returned by setting a value in dateFactory, is shown below.
-In this example, \ `mockito <https://code.google.com/p/mockito/>`_\  is used for mock.
+Use mock to match the time in milliseconds. An example wherein fixed date is returned by setting a value in Date Factory, is shown below. 
+In this example, \ `mockito <https://code.google.com/p/mockito/>`_ \ is used for mock.
 
 **Java class**
 
 .. code-block:: java
 
-    import org.terasoluna.gfw.common.date.DateFactory;
+    import org.terasoluna.gfw.common.date.jodatime.JodaTimeDateFactory;
 
     // omitted
 
@@ -502,7 +634,7 @@ In this example, \ `mockito <https://code.google.com/p/mockito/>`_\  is used for
     StaffRepository staffRepository;
 
     @Inject
-    DateFactory dateFactory;
+    JodaTimeDateFactory dateFactory;
 
     @Override
     public Staff staffUpdateTel(String staffId, String tel) {
@@ -534,7 +666,7 @@ In this example, \ `mockito <https://code.google.com/p/mockito/>`_\  is used for
     import org.joda.time.DateTime;
     import org.junit.Before;
     import org.junit.Test;
-    import org.terasoluna.gfw.common.date.DateFactory;
+    import org.terasoluna.gfw.common.date.jodatime.JodaTimeDateFactory;
 
     public class StaffServiceTest {
 
@@ -542,14 +674,14 @@ In this example, \ `mockito <https://code.google.com/p/mockito/>`_\  is used for
 
         StaffRepository repository;
 
-        DateFactory dateFactory;
+        JodaTimeDateFactory dateFactory;
 
         DateTime now;
 
         @Before
         public void setUp() {
             service = new StaffService();
-            dateFactory = mock(DateFactory.class);
+            dateFactory = mock(JodaTimeDateFactory.class);
             repository = mock(StaffRepository.class);
             now = new DateTime();
             service.dateFactory = dateFactory;
@@ -601,12 +733,12 @@ The example below illustrates a Service class which is implemented with the spec
 
 .. code-block:: java
 
-  import org.terasoluna.gfw.common.date.DateFactory;
+    import org.terasoluna.gfw.common.date.jodatime.JodaTimeDateFactory;
 
     // omitted
 
     @Inject
-    DateFactory dateFactory;
+    JodaTimeDateFactory dateFactory;
 
     // omitted
 
@@ -636,9 +768,9 @@ The example below illustrates a Service class which is implemented with the spec
    * - | (2)
      - | Calculate the last date up to which the tour can be cancelled.
    * - | (3)
-     - | Check if today's date is later than the last date for cancellation.
+     - | Check if today’s date is later than the last date for cancellation.
    * - | (4)
-     - | \ ``BusinessException``\  is thrown if the date exceeds the last date for cancellation.
+     - | \ ``BusinessException`` \  is thrown if the date exceeds the last date for cancellation.
 
 |
 
@@ -656,7 +788,7 @@ The example below illustrates a Service class which is implemented with the spec
       reserveResult.setDepDay(new LocalDate(2012, 10, 10)); // (5)
       when(reserveRepository.findOne((String) anyObject())).thenReturn(
               reserveResult);
-      dateFactory = mock(DateFactory.class);
+      dateFactory = mock(JodaTimeDateFactory.class);
       service.dateFactory = dateFactory;
   }
 
@@ -715,15 +847,14 @@ The example below illustrates a Service class which is implemented with the spec
 Integration Test
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-In Integration Test, there may be cases wherein data of several days (for example: files) is created and transferred in a single day,
-for communicating with the system.
+In Integration Test, there may be cases wherein data of several days (for example: files) is created and transferred in a single day, for communicating with the system.
 
 .. figure:: ./images/DateFactoryIT.png
    :alt: DateFactorySI
    :width: 90%
 
-When the actual date is 2012/10/1,
-Use JdbcAdjustedDateFactory and set the SQL to calculate the difference with test execution date.
+When the actual date is 2012/10/1, 
+Use \ `JdbcAdjustedJodaTimeDateFactory` \ and set the SQL to calculate the difference with test execution date.
 
 
 .. tabularcolumns:: |p{0.10\linewidth}|p{0.90\linewidth}|
@@ -734,13 +865,13 @@ Use JdbcAdjustedDateFactory and set the SQL to calculate the difference with tes
    * - Sr. No.
      - Description
    * - | 1
-     - | Set the difference between 9:00-11:00 as "0 days" and return value of dateFactory as 2012/10/1.
+     - | Set the difference between 9:00-11:00 as "0 days" and return value of Date Factory as 2012/10/1.
    * - | 2
-     - | Set the difference between 11:00-13:00 as "0 days" and return value of dateFactory as 2012/10/10.
+     - | Set the difference between 11:00-13:00 as "0 days" and return value of Date Factory as 2012/10/10.
    * - | 3
-     - | Set the difference between 13:00-15:00 as "30 days" and return value of dateFactory as 2012/10/31.
+     - | Set the difference between 13:00-15:00 as "30 days" and return value of Date Factory as 2012/10/31.
    * - | 4
-     - | Set the difference between 15:00-17:00 as "31 days" and return value of dateFactory as 2012/11/1.
+     - | Set the difference between 15:00-17:00 as "31 days" and return value of Date Factory as 2012/11/1.
 
 Date can be changed only by changing the table value.
 
@@ -755,7 +886,7 @@ In System Test, testing may be carried out by creating test scenarios assuming t
    :alt: DateFactoryPT
    :width: 90%
 
-Use JdbcAdjustedDateFactory and set SQL that calculates the date difference.
+Use \ `JdbcAdjustedJodaTimeDateFactory` \  and set SQL that calculates the date difference. 
 Create a mapping table for actual date and operation date like 1, 2, 3 and 4 as shown in the figure. Testing can be carried out on the desired date, only by changing the difference value in the table.
 
 |
@@ -763,9 +894,10 @@ Create a mapping table for actual date and operation date like 1, 2, 3 and 4 as 
 Production
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-By setting the difference value to '0' using JdbcAdjustedDateFactory, the return value of dateFactory can be set to the date same as the actual date,
-without changing the source. Even the bean definition file need not be changed from System Test onwards.
-Further, even if the need to change date and time arises, return value of dateFactory can be changed by changing the table value.
+By setting the difference value to '0' using \ `JdbcAdjustedJodaTimeDateFactory`\, 
+the return value of Date Factory can be set to the date same as the actual date without changing the source. 
+Even the bean definition file need not be changed from System Test onwards. 
+Further, even if the need to change date and time arises, return value of Date Factory can be changed by changing the table value.
 
 .. warning::
 
@@ -773,16 +905,14 @@ Further, even if the need to change date and time arises, return value of dateFa
 
     **Configuration example**
 
-    Execute the following
-
-    - When using the table for the first time in Production environment
+    - •When using the table for the first time in Production environment,
         - INSERT INTO operation_date (diff) VALUES (0);
-    - When test execution is completed in Production environment
+    - •When test execution is completed in Production environment
         - UPDATE operation_date SET diff=0;
 
-    :ref:`useCache<useCache>` **should always be set to 'true'**.
+    **Always,** :ref:`useCache<useCache>` **should be set to 'true'.**
 
-When there is no change in time, it is recommended to change the configuration file to DefaultDateFactory.
+When there is no change in time, it is recommended to change the configuration file to \ `DefaultJodaTimeDateFactory`\.
 
 .. raw:: latex
 
