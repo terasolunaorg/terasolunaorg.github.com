@@ -2177,6 +2177,48 @@ Resourceクラスの役割は以下の通りである。
         | 入力チェックの詳細については、「\ :doc:`Validation`\」を参照されたい。
 
 
+ .. warning:: **循環参照への対策**
+
+     Resourceクラス(JavaBean)をJSONやXML形式にシリアライズする際に、相互参照関係のオブジェクトをプロパティに保持していると、
+     循環参照となり\ ``StackOverflowError``\ や\ ``OutOfMemoryError``\ などが発生するので、注意が必要である。
+
+     循環参照を回避するためには、
+
+     * Jacksonを使用してJSON形式にシリアライズする場合は、シリアライズ対象から除外するプロパティに\ ``@com.fasterxml.jackson.annotation.JsonIgnore``\ アノテーション
+     * JAXBを使用してXML形式にシリアライズする場合は、シリアライズ対象から除外するプロパティに\ ``javax.xml.bind.annotation.XmlTransient``\ アノテーション
+
+     を付与すればよい。
+
+     以下にJacksonを使用してJSON形式にシリアライズする際の回避例を示す。
+
+      .. code-block:: java
+
+          public class Order {
+              private String orderId;
+              private List<OrderLine> orderLines;
+              // ...
+          }
+
+      .. code-block:: java
+
+          public class OrderLine {
+              @JsonIgnore
+              private Order order;
+              private String itemCode;
+              private int quantity;
+              // ...
+          }
+
+      .. tabularcolumns:: |p{0.10\linewidth}|p{0.90\linewidth}|
+      .. list-table::
+          :header-rows: 1
+          :widths: 10 90
+
+          * - 項番
+            - 説明
+          * - | (1)
+            - シリアライズ対象から除外するプロパティに対して\ ``@JsonIgnore``\ アノテーションを付与する。
+
 |
 
 以下にResourceクラスの作成例を示す。

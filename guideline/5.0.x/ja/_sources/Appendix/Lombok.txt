@@ -421,6 +421,102 @@ toStringの対象から特定のフィールドを除外する方法
 
         という文字列に変換される。
 
+|
+
+.. _LombokHowToUseJavaBeanExcludeEqualsAndHashCode:
+
+equalsとhashCodeの対象から特定のフィールドを除外する方法
+""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
+
+Lombokのアノテーションを使用して\ ``equals``\ メソッドと\ ``hashCode``\ メソッドを作成する場合は、
+相互参照関係をもつオブジェクトを保持するフィールドを除外して生成する必要がある。
+
+これらのフィールドを除外せずに生成した場合、
+循環参照となり\ ``StackOverflowError``\ や \ ``OutOfMemoryError``\ などが発生するので、注意が必要である。
+
+.. warning::
+
+    JPAのEntityクラスに\ ``Data``\ アノテーション、\ ``Value``\ アノテーション、\ ``@EqualsAndHash``\を使用する場合は、
+    循環参照になりやすいので特に注意が必要である。
+
+|
+
+以下に、特定のフィールドを除外する方法を示す。
+
+.. code-block:: java
+
+    package com.example.domain.model;
+
+    import java.util.List;
+
+    import lombok.Data;
+
+    @Data
+    public class Order {
+
+        private String orderId;
+        private List<OrderLine> orderLines;
+
+    }
+
+.. code-block:: java
+
+    package com.example.domain.model;
+
+    import lombok.Data;
+    import lombok.EqualsAndHashCode;
+    import lombok.ToString;
+
+    @Data
+    @ToString(exclude = "order")
+    @EqualsAndHashCode(exclude = "order") // (1)
+    public class OrderLine {
+
+        private Order order;
+        private String itemCode;
+        private int quantity;
+
+    }
+
+.. tabularcolumns:: |p{0.10\linewidth}|p{0.90\linewidth}|
+.. list-table::
+    :header-rows: 1
+    :widths: 10 90
+
+    * - 項番
+      - 説明
+    * - | (1)
+      - クラスレベルに\ ``@EqualsAndHashCode``\ アノテーションを指定し、\ ``exclude``\ 属性に除外したいフィールド名を列挙する。
+
+.. tip::
+
+    除外するフィールドを指定するのではなく、特定のフィールドのみを使用するように指定することもできる。
+
+     .. code-block:: java
+
+        @Data
+        @ToString(exclude = "order")
+        @EqualsAndHashCode(of = "itemCode") // (2)
+        public class OrderLine {
+
+            private final Order order;
+            private final String itemCode;
+            private final int quantity;
+
+        }
+
+     .. tabularcolumns:: |p{0.10\linewidth}|p{0.90\linewidth}|
+     .. list-table::
+        :header-rows: 1
+        :widths: 10 90
+
+        * - 項番
+          - 説明
+        * - | (2)
+          - 特定のフィールドのみを使用する場合は、\ ``@EqualsAndHashCode``\ アノテーションの\ ``of``\ 属性に対象のフィールド名を列挙する。
+
+            上記例では、\ ``itemCode``\ フィールドのみを参照して処理を行う\ ``equals``\ メソッドと\ ``hashCode``\ メソッドが生成される。
+
 
 |
 

@@ -151,7 +151,7 @@ In this layer, it provides the following implementations.
 * Executing business rules (reflects values corresponding to business rules)
 * Executing CRUD operations for the DomainObject
 
-Domain layer is not so thick as compared to other layers and is reusable.
+Domain layer is independent from other layers and is reusable.
 
 DomainObject
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^

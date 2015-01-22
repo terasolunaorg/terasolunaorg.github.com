@@ -302,15 +302,6 @@ The scenario in which session timeout is detected using session check process pr
     For the processes having precondition, "Data should be stored in session", session timeout check should always be performed.
     If this check is not performed, unexpected system errors and operations may occur, as data required by the process cannot be fetched.
 
- .. todo::
- 
-    **TBD**
-    
-    When POST method is called on enabling CSRF measures provided by Spring Security, SCRF token error is thrown even before session timeout is detected.
-    
-    Currently, the viewpoint of Spring Security is being inquired in `Spring Security JIRA(SEC-2422) <https://jira.springsource.org/browse/SEC-2422>`_\ .
-    As per Spring Security viewpoint, it is necessary to create a servlet filter to detect session timeout. This servlet filter should be defined before defining the 'servlet filter for CSRF measures' provided by Spring Security.
-    
 
 About using a session
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
