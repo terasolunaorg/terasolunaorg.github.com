@@ -751,8 +751,7 @@ See the example of escaping below.
 
 About escaping methods provided by common library
 """"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
-| List of escaping methods of \ ``QueryEscapeUtils``\  class provided by common library is given below.
-| For usage example, refer to \ :ref:`data-access-common_howtouse_like_escape`\  of How to use.
+List of escaping methods of \ ``QueryEscapeUtils``\  class provided by common library is given below.
 
  .. tabularcolumns:: |p{0.10\linewidth}|p{0.35\linewidth}|p{0.55\linewidth}|
  .. list-table::

@@ -3603,7 +3603,7 @@ TERASOLUNA DAO(MyBatis2)を使用したインフラストラクチャ層の作�
 RepositoryImplの作成
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-TERASOLUNA DAO(MyBatis2)を使用した場合、RepositoryImplは、TERASOLUNA DAOから提供されているクラスを呼び出しことで、
+TERASOLUNA DAO(MyBatis2)を使用した場合、RepositoryImplは、TERASOLUNA DAOから提供されているクラスを呼び出すことで、
 データベースにアクセスを行うように実装する。
 
  .. code-block:: java

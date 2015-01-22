@@ -674,29 +674,79 @@ Appendix
 
 LIKE検索時のエスケープについて
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-| LIKE検索を行う場合は、検索条件として使用する値を、LIKE検索用にエスケープする必要がある。
-| LIKE検索用のエスケープ処理は、共通ライブラリから提供している\ ``org.terasoluna.gfw.common.query.QueryEscapeUtils``\ クラスのメソッドを使用することで、実現することができる。
+LIKE検索を行う場合は、検索条件として使用する値を、LIKE検索用にエスケープする必要がある。
 
+共通ライブラリでは、LIKE検索用のエスケープ処理を行うためのコンポーネントとして、以下のクラスを提供している。
+
+.. tabularcolumns:: |p{0.10\linewidth}|p{0.40\linewidth}|p{0.50\linewidth}|
+.. list-table::
+    :header-rows: 1
+    :widths: 10 40 50
+
+    * - 項番
+      - クラス
+      - 説明
+    * - 1.
+      - | org.terasoluna.gfw.common.query.
+        | QueryEscapeUtils
+      - SQL及びJPQLのエスケープ処理を行うメソッドを提供するユーティリティクラス。
+
+        本クラスでは、
+
+        * LIKE検索用のエスケープ処理を行うメソッド
+
+        を提供している。
+
+    * - 2.
+      - | org.terasoluna.gfw.common.query.
+        | LikeConditionEscape
+      - LIKE検索用のエスケープ処理を行うクラス。
+
+.. note::
+
+    \ ``LikeConditionEscape``\ クラスは、「`LIKE検索用のワイルドカード文字の扱いに関するバグ <https://github.com/terasolunaorg/terasoluna-gfw/issues/78>`_」を修正するために、
+    terasoluna-gfw-common 1.0.2.RELEASEから追加したクラスである。
+
+    \ ``LikeConditionEscape``\ クラスは、データベース及びデータベースのバージョンの違いによるワイルドカード文字の違いを吸収する役割を持つ。
+
+|
 
 共通ライブラリのエスケープ仕様について
 """"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 共通ライブラリから提供しているエスケープ処理の仕様は、以下の通りである。
 
 * エスケープ文字は「 ``"~"`` 」。
-* エスケープ対象文字は「 ``"%"`` , ``"_"`` , ``"％"`` , ``"＿"``」 の4文字。
+* エスケープ対象文字は、デフォルトでは「 ``"%"`` , ``"_"``」の2文字。
+
+.. note::
+
+    エスケープ対象文字は、terasoluna-gfw-common 1.0.1.RELEASEまでは「 ``"%"`` , ``"_"`` , ``"％"`` , ``"＿"``」の4文字であったが、
+    「`LIKE検索用のワイルドカード文字の扱いに関するバグ <https://github.com/terasolunaorg/terasoluna-gfw/issues/78>`_」を修正するために、
+    terasoluna-gfw-common 1.0.2.RELEASEより「 ``"%"`` , ``"_"``」の2文字に変更している。
+
+    なお、エスケープ対象文字として全角文字「``"％"`` , ``"＿"``」を含めてエスケープする方法も提供している。
+
+|
 
 具体的なエスケープ例を以下に示す。
 
- .. tabularcolumns:: |p{0.10\linewidth}|p{0.15\linewidth}|p{0.25\linewidth}|p{0.10\linewidth}|p{0.40\linewidth}|
+**[デフォルト仕様のエスケープ例]**
+
+エスケープ対象文字としてデフォルト値を使用する場合のエスケープ例を以下に示す。
+
+ .. tabularcolumns:: |p{0.10\linewidth}|p{0.15\linewidth}|p{0.20\linewidth}|p{0.10\linewidth}|p{0.45\linewidth}|
  .. list-table::
     :header-rows: 1
-    :widths: 10 15 25 10 40
+    :widths: 10 15 20 10 45
 
-    * - 項番
-      - 対象文字列
-      - エスケープ後文字列
-      - エスケープ有無
-      - 解説
+    * - | 項番
+      - | 対象
+        | 文字列
+      - | エスケープ後
+        | 文字列
+      - | エスケープ
+        | 有無
+      - | 解説
     * - 1.
       - ``"a"``
       - ``"a"``
@@ -724,14 +774,18 @@ LIKE検索時のエスケープについて
       - エスケープ対象文字が含まれているため、エスケープされる。エスケープ対象文字が複数存在する場合はすべてエスケープされる。
     * - 6.
       - ``"a％"``
-      - ``"a~％"``
-      - 有
-      - No.3と同様。
+      - ``"a％"``
+      - 無
+      - No.1と同様。
+
+        terasoluna-gfw-common 1.0.2.RELEASEより、デフォルト仕様では「``"％"``」はエスケープ対象外の文字として扱う。
     * - 7.
       - ``"a＿"``
-      - ``"a~＿"``
-      - 有
-      - No.3と同様。
+      - ``"a＿"``
+      - 無
+      - No.1と同様。
+
+        terasoluna-gfw-common 1.0.2.RELEASEより、デフォルト仕様では「``"＿"``」はエスケープ対象外の文字として扱う。
     * - 8.
       - ``" "``
       - ``" "``
@@ -748,11 +802,42 @@ LIKE検索時のエスケープについて
       - 無
       - No.1と同様。
 
+|
+
+**[全角文字を含める場合のエスケープ例]**
+
+エスケープ対象文字として全角文字を含める場合のエスケープ例を以下に示す。
+項番6と7以外は、デフォルト仕様のエスケープ例を参照されたい。
+
+ .. tabularcolumns:: |p{0.10\linewidth}|p{0.15\linewidth}|p{0.20\linewidth}|p{0.10\linewidth}|p{0.45\linewidth}|
+ .. list-table::
+    :header-rows: 1
+    :widths: 10 15 20 10 45
+
+    * - | 項番
+      - | 対象
+        | 文字列
+      - | エスケープ後
+        | 文字列
+      - | エスケープ
+        | 有無
+      - | 解説
+    * - 6.
+      - ``"a％"``
+      - ``"a~％"``
+      - 有
+      - エスケープ対象文字が含まれているため、エスケープされる。
+    * - 7.
+      - ``"a＿"``
+      - ``"a~＿"``
+      - 有
+      - No.6と同様。
+
+|
 
 共通ライブラリから提供しているエスケープ用のメソッドについて
 """"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
-| 共通ライブラリから提供している\ ``QueryEscapeUtils``\ クラスのエスケープ用メソッドの一覧を、以下に示す。
-| 具体的な使用例については、How to useの\ :ref:`data-access-common_howtouse_like_escape`\ を参照されたい。
+共通ライブラリから提供している\ ``QueryEscapeUtils``\ クラスと\ ``LikeConditionEscape``\ クラスのLIKE検索用のエスケープメソッドの一覧を、以下に示す。
 
  .. tabularcolumns:: |p{0.10\linewidth}|p{0.35\linewidth}|p{0.55\linewidth}|
  .. list-table::
@@ -783,12 +868,56 @@ LIKE検索時のエスケープについて
 
     No.2, 3, 4 については、SQLやJPQL側で一致方法(前方一致、後方一致、部分一致)を指定するのではなく、プログラム側で指定する時に使用するメソッドである。
 
+|
+
 共通ライブラリの使用方法
 """"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
-LIKE検索時のエスケープ実装例については、使用するO/R Mapper向けのドキュメントを参照されたい。
+LIKE検索時のエスケープ処理の実装例については、使用するO/R Mapper向けのドキュメントを参照されたい。
 
 * JPA(Spring Data JPA)を使用する場合は、\ :doc:`DataAccessJpa`\ の\ :ref:`data-access-jpa_howtouse_like_escape`\ を参照されたい。
 * Mybatis2(TERASOLUNA DAO)を使用する場合は、\ :doc:`DataAccessMybatis2`\ の\ :ref:`data-access-mybatis2_howtouse_like_escape`\ を参照されたい。
+
+.. note::
+
+    エスケープ処理を行うために使用するAPIは、使用するデータベースがサポートしているワイルドカード文字によって使い分ける必要がある。
+
+    **[ワイルドカードとして「 "%" , "_"」(半角文字)のみをサポートしているデータベースの場合]**
+
+     .. code-block:: java
+
+        String escapedWord = QueryEscapeUtils.toLikeCondition(word);
+
+     .. tabularcolumns:: |p{0.10\linewidth}|p{0.90\linewidth}|
+     .. list-table::
+        :header-rows: 1
+        :widths: 10 90
+
+        * - | 項番
+          - | 説明
+        * - | (1)
+          -  \ ``QueryEscapeUtils``\ クラスのメソッドを直接使用して、エスケープ処理を行う。
+
+    **[ワイルドカードとして「"％" , "＿"」(全角文字)もサポートしているデータベースの場合]**
+
+     .. code-block:: java
+
+        String escapedWord = QueryEscapeUtils.withFullWidth()  // (2)
+                                .toLikeCondition(word);        // (3)
+
+
+     .. tabularcolumns:: |p{0.10\linewidth}|p{0.90\linewidth}|
+     .. list-table::
+        :header-rows: 1
+        :widths: 10 90
+
+        * - | 項番
+          - | 説明
+        * - | (2)
+          -  \ ``QueryEscapeUtils``\ メソッドの\ ``withFullWidth()``\ メソッドを呼び出して、\ ``LikeConditionEscape``\ クラスのインスタンスを取得する。
+        * - | (3)
+          -  (2)で取得した\ ``LikeConditionEscape``\ クラスのインスタンスのメソッドを使用して、エスケープ処理を行う。
+
+|
 
 .. _data-access-common_appendix_sequencer:
 

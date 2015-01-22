@@ -9,21 +9,65 @@
 
 Overview
 --------------------------------------------------------------------------------
-| This chapter explains about handling of information stored in properties file. 
 
-Environment specific configuration information such as
+This section explains how to manage properties.
 
-* Database connection URL
-* Password etc.
+Value that needs to be managed as properties can be classified into following two categories.
 
-| should be mentioned in properties file so that it can be changed based on the environment.
-| The values of above settings can be set dynamically by maintaining a properties file.
 
-| Information in properties file can be used by,
+.. tabularcolumns:: |p{0.10\linewidth}|p{0.20\linewidth}|p{0.35\linewidth}|p{0.35\linewidth}|
+.. list-table::
+    :header-rows: 1
+    :widths: 10 20 35 35
 
-* using properties in bean definition file
-* using properties in Java class
+    * - Sr. No.
+      - Classification
+      - Description
+      - Example
+    * - 1.
+      - Environment dependent setting
+      - The setting needs to be changed according to the environment on which the application is running.
+
+        It depends on non-functional requirements such as system configuration.
+      - * Database connection information (connection URL, connection user, password, etc)
+        * Destination of the file storage (directory path etc)
+        * more ...
+    * - 2.
+      - Application settings
+      - The settings that can be customize the application behavior.
+
+        It depends on functional requirements.
+      - * Password valid days
+        * Reservation period days
+        * more ...
+
+.. note::
+
+    In this guideline, it is recommended to manage these settings as properties (properties file).
+
+    If an application is mechanized such a way that acquires setting from the properties,
+    there is no need to re-build the application even if there is any changes in these values.
+    Therefore it is possible to release the tested application on production environment.
+
+
+    About how to release the tested application, refer to ":doc:`../Appendix/EnvironmentIndependency`".
+
+.. tip::
+
+    Values that are managed as properties can be acquired from JVM system properties (-D option) or OS environment variables.
+    About access order, refer to ":ref:`PropertiesManagementHowToUse`".
+
 |
+
+
+Values that are managed as properties can be used at the following two locations.
+
+* Bean definition file
+* Java classes managed by DI container
+
+|
+
+.. _PropertiesManagementHowToUse:
 
 How to use
 --------------------------------------------------------------------------------
@@ -449,13 +493,6 @@ Although one can view the contents of properties file, but cannot understand the
    encrypted.property.int=Encrypted:AwI=
    encrypted.property.integer=Encrypted:AwICAgI=
    encrypted.property.file=Encrypted:YkBdQldARkt/U1xTVVdfV1xGHFpGX14=
-
- .. note::
-
-      The functionality can be extended in order to store the properties values on a different server.
-
-      * Use the values in properties file as an inquiry key to different server. 
-      * Fetch the actual values from different server. 
 
 .. raw:: latex
 

@@ -585,8 +585,8 @@ Ajaxを使ってフォームのデータをPOSTし、処理結果を取得する
 
     <meta name="contextPath" content="${pageContext.request.contextPath}" />
 
-    <meta name="_csrf_token" content="${_csrf.token}" />
-    <meta name="_csrf_headerName" content="${_csrf.headerName}" />
+    <meta name="_csrf" content="${_csrf.token}" />
+    <meta name="_csrf_header" content="${_csrf.headerName}" />
 
     <!-- omitted -->
 
@@ -620,8 +620,8 @@ Ajaxを使ってフォームのデータをPOSTし、処理結果を取得する
     var contextPath = $("meta[name='contextPath']").attr("content");
 
     // (9)
-    var csrfToken = $("meta[name='_csrf_token']").attr("content");
-    var csrfHeaderName = $("meta[name='_csrf_headerName']").attr("content");
+    var csrfToken = $("meta[name='_csrf']").attr("content");
+    var csrfHeaderName = $("meta[name='_csrf_header']").attr("content");
     $(document).ajaxSend(function(event, xhr, options) {
         xhr.setRequestHeader(csrfHeaderName, csrfToken);
     });

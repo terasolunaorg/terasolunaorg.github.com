@@ -909,6 +909,11 @@ In JPA, optimistic locking can be performed by specifying \ ``@javax.persistence
     int newQuantity = 30;
 
     Stock stock = stockRepository.findOne(itemCode); // (2)
+    if (stock == null) {
+        ResultMessages messages = ResultMessages.error().add(ResultMessage
+                .fromText("Stock not found. itemCode : " + itemCode));
+        throw new ResourceNotFoundException(messages);
+    }
 
     stock.setQuantity(newQuantity); // (3)
 
@@ -955,7 +960,7 @@ An implementation example is given below.
     int newQuantity = 30;
 
     Stock stock = stockRepository.findOne(itemCode); // (1)
-    if (stock != null && stock.getVersion() != version) { // (2)
+    if (stock == null || stock.getVersion() != version) { // (2)
         throw new ObjectOptimisticLockingFailureException(Stock.class, itemCode); // (3)
     }
 
@@ -987,13 +992,18 @@ An implementation example is given below.
     Even if a process as shown below is carried out, the value of version that is set to "Managed entity" is not reflected. Hence it is not used to fetch an optimistic lock. The version when a value is fetched using findOne method is used for optimistic locking.
 
      .. code-block:: java
-        :emphasize-lines: 6
+        :emphasize-lines: 11
 
         long version = 12;
         String itemCode = "ITM0000001";
         int newQuantity = 30;
 
         Stock stock = stockRepository.findOne(itemCode);
+        if (stock == null) {
+            ResultMessages messages = ResultMessages.error().add(ResultMessage
+                    .fromText("Stock not found. itemCode : " + itemCode));
+            throw new ResourceNotFoundException(messages);
+        }
         stock.setVersion(version); // ★ Invalid Processing
         stock.setQuantity(newQuantity);
 
@@ -1405,6 +1415,11 @@ Optimistic locking
     int newQuantity = 30;
 
     Stock stock = stockRepository.findOne(itemCode); // (2)
+    if (stock == null) {
+        ResultMessages messages = ResultMessages.error().add(ResultMessage
+                .fromText("Stock not found. itemCode : " + itemCode));
+        throw new ResourceNotFoundException(messages);
+    }
 
     stock.setQuantity(newQuantity); // (3)
 
@@ -1442,7 +1457,7 @@ An implementation example is given below.
     int newQuantity = 30;
 
     Stock stock = stockRepository.findOne(itemCode); // (1)
-    if (stock != null && stock.getVersion() != version) { // (2)
+    if (stock == null || stock.getVersion() != version) { // (2)
         throw new ObjectOptimisticLockingFailureException(Stock.class, itemCode); // (3)
     }
 
