@@ -7,12 +7,12 @@ The flow of development in this guideline with be as follows.
 .. toctree::
    :maxdepth: 1
 
+   CreateWebApplicationProject
    DomainLayer
    InfrastructureLayer
    ApplicationLayer
 
 For the definition of layers, refer to  :doc:`Application Layering <../Overview/ApplicationLayering>` .
-
 
 .. raw:: latex
 

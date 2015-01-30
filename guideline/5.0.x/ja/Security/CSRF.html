@@ -343,7 +343,8 @@
 </thead>
 <tbody valign="top">
 <tr class="row-even"><td><div class="first last line-block">
-<div class="line"><tt class="docutils literal"><span class="pre">org.springframework.security.web.csrf.InvalidCsrfTokenException</span></tt></div>
+<div class="line">org.springframework.security.web.csrf.</div>
+<div class="line">InvalidCsrfTokenException</div>
 </div>
 </td>
 <td><div class="first last line-block">
@@ -352,18 +353,34 @@
 </td>
 </tr>
 <tr class="row-odd"><td><div class="first last line-block">
-<div class="line"><tt class="docutils literal"><span class="pre">org.springframework.security.web.csrf.MissingCsrfTokenException</span></tt></div>
+<div class="line">org.springframework.security.web.csrf.</div>
+<div class="line">MissingCsrfTokenException</div>
 </div>
 </td>
 <td><div class="first last line-block">
-<div class="line">CSRFトークンが存在しない場合に発生する。</div>
-<div class="line">デフォルトの設定ではトークンをHTTPセッションに保持するため、CSRFトークンが存在しないということはHTTPセッションが破棄されたことを意味する。そのためこの例外が発生する前にセッションタイムアウトの処理が行われる。</div>
-<div class="line"><tt class="docutils literal"><span class="pre">&lt;sec:csrf&gt;</span></tt>要素の <tt class="docutils literal"><span class="pre">token-repository-ref</span></tt>属性でトークンの保存先をキャッシュやDBなどに変更し、一定期間後に削除する運用を行った場合に発生する。</div>
+<div class="line">CSRFトークンがサーバに存在しない場合に発生する。</div>
+<div class="line">デフォルトの設定ではCSRFトークンをHTTPセッションに保持するため、CSRFトークンが存在しないということはHTTPセッションが破棄された(セッションタイムアウトが発生した)ことを意味する。</div>
+<div class="line"><br /></div>
+<div class="line"><tt class="docutils literal"><span class="pre">&lt;sec:csrf&gt;</span></tt>要素の <tt class="docutils literal"><span class="pre">token-repository-ref</span></tt>属性でCSRFトークンの保存先をキャッシュサーバやDBなどに変更した場合は、CSRFトークンを保存先から削除した場合に<tt class="docutils literal"><span class="pre">MissingCsrfTokenException</span></tt>が発生する。</div>
+<div class="line">これは、トークンの保存先をHTTPセッションにしていない場合は、本機能を使ってセッションタイムアウトの検知が出来ない事を意味している。</div>
 </div>
 </td>
 </tr>
 </tbody>
 </table>
+<div class="admonition note">
+<p class="first admonition-title">Note</p>
+<p>CSRFトークンの保存先としてHTTPセッションを使用する場合は、
+CSRFトークンのチェック対象のリクエストに対してセッションタイムアウトを検出することができる。</p>
+<p>セッションタイムアウト検知後の動作は、<tt class="docutils literal"><span class="pre">&lt;session-management&gt;</span></tt>要素の<tt class="docutils literal"><span class="pre">invalid-session-url</span></tt>属性の指定によって異なる。</p>
+<ul class="simple">
+<li><tt class="docutils literal"><span class="pre">invalid-session-url</span></tt>属性の指定がある場合は、セッションを生成した後に<tt class="docutils literal"><span class="pre">invalid-session-url</span></tt>に指定したパスへリダイレクトされる。</li>
+<li><tt class="docutils literal"><span class="pre">invalid-session-url</span></tt>属性の指定がない場合は、<tt class="docutils literal"><span class="pre">&lt;access-denied-handler&gt;</span></tt>要素に指定した<tt class="docutils literal"><span class="pre">org.springframework.security.web.access.AccessDeniedHandler</span></tt>の定義に従ったハンドリングが行われる。</li>
+</ul>
+<p class="last">CSRFトークンのチェック対象外のリクエストに対してセッションタイムアウトを検出する必要がある場合は、
+<tt class="docutils literal"><span class="pre">&lt;session-management&gt;</span></tt>要素の<tt class="docutils literal"><span class="pre">invalid-session-url</span></tt>属性を指定して検出すればよい。
+詳細は、「<a class="reference internal" href="Authentication.html#authentication-session-timeout"><em>セッションタイムアウトの検出</em></a>」を参照されたい。</p>
+</div>
 <div class="line-block">
 <div class="line"><br /></div>
 </div>
@@ -739,7 +756,7 @@ CSRFトークンが埋め込まれた<tt class="docutils literal"><span class="p
 </div>
 <p>ファイルアップロードの詳細については、<a class="reference internal" href="../ArchitectureInDetail/FileUpload.html"><em>FileUpload</em></a>を参照されたい。</p>
 <div class="section" id="multipartfilter">
-<h4><a class="toc-backref" href="#id19">6.7.2.4.1. MultipartFilterを使用する方法</a><a class="headerlink" href="#multipartfilter" title="Permalink to this headline">¶</a></h4>
+<span id="csrf-use-multipart-filter"></span><h4><a class="toc-backref" href="#id19">6.7.2.4.1. MultipartFilterを使用する方法</a><a class="headerlink" href="#multipartfilter" title="Permalink to this headline">¶</a></h4>
 <div class="line-block">
 <div class="line">通常、マルチパートリクエストの場合、formから送信された値は<tt class="docutils literal"><span class="pre">Filter</span></tt>内で取得できない。</div>
 <div class="line"><tt class="docutils literal"><span class="pre">org.springframework.web.multipart.support.MultipartFilter</span></tt>を使用することで、マルチパートリクエストでも、<tt class="docutils literal"><span class="pre">Filter</span></tt>内で、</div>

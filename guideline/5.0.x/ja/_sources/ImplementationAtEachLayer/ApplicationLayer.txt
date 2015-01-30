@@ -3585,20 +3585,32 @@ HandlerMethodArgumentResolverを実装してControllerの引数として受け�
 
        .. code-block:: java
 
-           @ControllerAdvice(annotations = RestController.class)
-           public class ApiGlobalExceptionHandler {
+           @ControllerAdvice(annotations = LoginFormModelAttributeSetter.LoginFormModelAttribute.class)
+           public class LoginFormModelAttributeSetter {
+               @Target(ElementType.TYPE)
+               @Retention(RetentionPolicy.RUNTIME)
+               public static @interface LoginFormModelAttribute {}
                // ...
            }
 
        .. code-block:: java
 
-           @RestController
-           public class SampleRestController {
+           @LoginFormModelAttribute
+           @Controller
+           public class WelcomeController {
                // ...
            }
 
-       上記例では、\ ``SampleRestController``\ に\ ``@RestController``\ アノテーションを付与しているため、
-       \ ``SampleRestController``\ に共通処理が適用される。
+       .. code-block:: java
+
+           @LoginFormModelAttribute
+           @Controller
+           public class LoginController {
+               // ...
+           }
+
+       上記例では、\ ``WelcomeController``\ と\ ``LoginController``\ に\ ``@LoginFormModelAttribute``\ アノテーションを付与しているため、
+       \ ``WelcomeController``\ と\ ``LoginController``\ に共通処理が適用される。
    * - | (2)
      - ``assignableTypes``
      - クラス又はインタフェースを指定する。
@@ -3610,7 +3622,7 @@ HandlerMethodArgumentResolverを実装してControllerの引数として受け�
 
        .. code-block:: java
 
-           @ControllerAdvice(assignableTypes = ISODateApplicable.class)
+           @ControllerAdvice(assignableTypes = ISODateInitBinder.ISODateApplicable.class)
            public class ISODateInitBinder {
                public static interface ISODateApplicable {}
                // ...

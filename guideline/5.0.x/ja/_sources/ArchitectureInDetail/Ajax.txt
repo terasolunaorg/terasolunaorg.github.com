@@ -1268,12 +1268,12 @@ BindingResult を使用したハンドリング
                 // omitted
 
                 // (1)
-                return new ResponseEntity<CalculationResult>(result, HttpStatus.BAD_REQUEST);
+                return ResponseEntity.badRequest().body(result);
             }
             // omitted
 
             // (2)
-            return new ResponseEntity<CalculationResult>(result, HttpStatus.OK);
+            return ResponseEntity.ok().body(result);
         }
 
       .. tabularcolumns:: |p{0.10\linewidth}|p{0.90\linewidth}|
@@ -1369,12 +1369,12 @@ BindingResult を使用したハンドリング
             // implement error handling.
             // omitted
 
-            return new ResponseEntity<CalculationResult>(result, HttpStatus.CONFLICT);
+            return ResponseEntity.status(HttpStatus.CONFLICT).body(result);
         }
 
         // omitted
 
-        return new ResponseEntity<CalculationResult>(result, HttpStatus.OK);
+        return ResponseEntity.ok().body(result);
     }
 
  .. tabularcolumns:: |p{0.10\linewidth}|p{0.90\linewidth}|

@@ -2526,7 +2526,7 @@ URIで指定されたMemberリソースのコレクションをページ検索�
         // omitted
 
         @Inject
-        MemberService memberSevice;
+        MemberService memberService;
     
         @Inject
         Mapper beanMapper;
@@ -2542,7 +2542,7 @@ URIで指定されたMemberリソースのコレクションをページ検索�
                 Pageable pageable) {
     
             // (7)
-            Page<Member> page = memberSevice.searchMembers(query.getName(), pageable);
+            Page<Member> page = memberService.searchMembers(query.getName(), pageable);
     
             // (8)
             List<MemberResource> memberResources = new ArrayList<>();
@@ -2585,7 +2585,7 @@ URIで指定されたMemberリソースのコレクションをページ検索�
                 
                     // omitted
                     
-                    return new ResponseEntity(responseResource, HttpStatus.OK);
+                    return ResponseEntity.ok().body(responseResource);
                 }
 
             応答するステータスコードを処理内容や処理結果に応じて変える必要がある場合は、上記実装例の様に、\ ``org.springframework.http.ResponseEntity``\を使用する事になる。
@@ -2846,7 +2846,7 @@ URIで指定されたMemberリソースのコレクションをページ検索�
 
             // (4)
             Member inputMember = beanMapper.map(requestedResource, Member.class);
-            Member createdMember = memberSevice.createMember(inputMember);
+            Member createdMember = memberService.createMember(inputMember);
 
             MemberResource responseResource = beanMapper.map(createdMember,
                     MemberResource.class);
@@ -2942,7 +2942,7 @@ URIで指定されたMemberリソースを取得するREST APIの実装例を、
                 @PathVariable("memberId") String memberId) {
     
             // (4)
-            Member member = memberSevice.getMember(memberId);
+            Member member = memberService.getMember(memberId);
     
             MemberResource responseResource = beanMapper.map(member,
                     MemberResource.class);
@@ -3038,7 +3038,7 @@ URIで指定されたMemberリソースを更新するREST APIの実装例を、
             // (4)
             Member inputMember = beanMapper.map(
                 requestedResource, Member.class);
-            Member updatedMember = memberSevice.updateMember(
+            Member updatedMember = memberService.updateMember(
                 memberId, inputMember);
     
             MemberResource responseResource = beanMapper.map(updatedMember,
@@ -3138,7 +3138,7 @@ URIで指定されたMemberリソースを削除するREST APIの実装例を、
                 @PathVariable("memberId") String memberId) {
     
             // (3)
-            memberSevice.deleteMember(memberId);
+            memberService.deleteMember(memberId);
             
         }
 
@@ -3422,7 +3422,7 @@ RESTful Web Serviceで発生した例外のハンドリング方法について�
  .. code-block:: java
     :emphasize-lines: 1-2, 10-12, 16, 24
 
-    @ControllerAdvice(annotations = RestController.class) // (6)
+    @ControllerAdvice // (6)
     public class ApiGlobalExceptionHandler extends ResponseEntityExceptionHandler {
     
         @Inject
@@ -3446,7 +3446,7 @@ RESTful Web Serviceで発生した例外のハンドリング方法について�
                 apiError = body;
             }
             // (9)
-            return new ResponseEntity<>(apiError, headers, status);
+            return ResponseEntity.status(status).headers(headers).body(apiError);
         }
         
         // omitted
@@ -3462,7 +3462,7 @@ RESTful Web Serviceで発生した例外のハンドリング方法について�
     * - 項番
       - 説明
     * - | (6)
-      - | Spring MVCから提供されている\ ``ResponseEntityExceptionHandler``\を継承したクラスを作成し、\ ``@ControllerAdvice``\アノテーションを付与し、\ ``@RestController``\アノテーションが付与されている全てのControllerで利用可能とする。
+      - | Spring MVCから提供されている\ ``ResponseEntityExceptionHandler``\を継承したクラスを作成し、\ ``@ControllerAdvice``\アノテーションを付与する。
     * - | (7)
       - | \ ``ResponseEntityExceptionHandler``\のhandleExceptionInternalメソッドをオーバライドする。
     * - | (8)
@@ -3484,6 +3484,16 @@ RESTful Web Serviceで発生した例外のハンドリング方法について�
     \ ``@ControllerAdvice``\ アノテーションの属性を指定することで、
     \ ``@ControllerAdvice``\ が付与されたクラスで実装したメソッドを適用するControllerを柔軟に指定できるように改善されている。
     属性の詳細については、\ :ref:`@ControllerAdviceの属性 <application_layer_controller_advice_attribute>`\ を参照されたい。
+
+ .. note:: **@ControllerAdviceアノテーションの属性使用時の注意点**
+
+    \ ``@ControllerAdvice``\ アノテーションの属性を使用することで、さまざまな粒度で例外ハンドリングを共通化することができるようになるが、
+    アプリケーション共通の例外ハンドラクラス(上記例の\ ``ApiGlobalExceptionHandler``\ クラスに相当するクラス)に対しては、\ ``@ControllerAdvice``\ アノテーションの属性を指定しない方がよい。
+
+    \ ``ApiGlobalExceptionHandler``\ に付与する\ ``@ControllerAdvice``\ アノテーションに属性を指定した場合、Spring MVCが提供するフレームワーク処理の中で発生する一部の例外をハンドリングできないケースがある。
+
+    具体的には、リクエストに対応するREST API(Controllerの処理メソッド)が見つからない時に発生する例外を\ ``ApiGlobalExceptionHandler``\ クラスでハンドリングする事ができないため、
+    「405 Method Not Allowed」などのエラーを正しく応答する事が出来なくなってしまう。
 
 |
 
@@ -3616,7 +3626,7 @@ RESTful Web Serviceで発生した例外のハンドリング方法について�
  .. code-block:: java
     :emphasize-lines: 12-14, 21-23, 29-31, 34-36, 44-45
 
-    @ControllerAdvice(annotations = RestController.class)
+    @ControllerAdvice
     public class ApiGlobalExceptionHandler extends ResponseEntityExceptionHandler {
     
         @Inject
@@ -3858,7 +3868,7 @@ RESTful Web Serviceで発生した例外のハンドリング方法について�
  .. code-block:: java
     :emphasize-lines: 12-13, 17, 22-23
 
-    @ControllerAdvice(annotations = RestController.class)
+    @ControllerAdvice
     public class ApiGlobalExceptionHandler extends ResponseEntityExceptionHandler {
     
         @Inject
@@ -3942,7 +3952,7 @@ RESTful Web Serviceで発生した例外のハンドリング方法について�
  .. code-block:: java
     :emphasize-lines: 6-7, 11
 
-    @ControllerAdvice(annotations = RestController.class)
+    @ControllerAdvice
     public class ApiGlobalExceptionHandler extends ResponseEntityExceptionHandler {
 
         // omitted
@@ -4005,7 +4015,7 @@ RESTful Web Serviceで発生した例外のハンドリング方法について�
  .. code-block:: java
     :emphasize-lines: 6-8, 12
 
-    @ControllerAdvice(annotations = RestController.class)
+    @ControllerAdvice
     public class ApiGlobalExceptionHandler extends ResponseEntityExceptionHandler {
     
         // omitted
@@ -4068,7 +4078,7 @@ RESTful Web Serviceで発生した例外のハンドリング方法について�
  .. code-block:: java
     :emphasize-lines: 6-7, 11
 
-    @ControllerAdvice(annotations = RestController.class)
+    @ControllerAdvice
     public class ApiGlobalExceptionHandler extends ResponseEntityExceptionHandler {
     
         // omitted
@@ -4359,7 +4369,7 @@ Filterでエラーが発生した場合や\ ``HttpServletResponse#sendError``\�
             ApiError apiError = apiErrorCreator.createApiError(request, errorCode,
                     httpStatus.getReasonPhrase());
             // (7)
-            return new ResponseEntity<>(apiError, httpStatus);
+            return ResponseEntity.status(httpStatus).body(apiError);
         }
     
     }
@@ -4801,7 +4811,7 @@ JSONの中に関連リソースへのハイパーメディアリンクを含め�
                 // (2)
                 UriComponentsBuilder uriBuilder) {
     
-            Member member = memberSevice.getMember(memberId);
+            Member member = memberService.getMember(memberId);
     
             MemberResource responseResource = beanMapper.map(member,
                     MemberResource.class);
@@ -4905,7 +4915,7 @@ POST時のLocationヘッダの設定
 * REST APIの処理で、作成したリソースのURIをLocationヘッダに設定する。
 
  .. code-block:: java
-    :emphasize-lines: 12, 22, 26, 30
+    :emphasize-lines: 11, 21, 25
 
     @RequestMapping("members")
     @RestController
@@ -4914,8 +4924,7 @@ POST時のLocationヘッダの設定
         // omitted
 
         @RequestMapping(method = RequestMethod.POST)
-        @ResponseStatus(HttpStatus.CREATED)
-        public HttpEntity<MemberResource> postMembers(
+        public ResponseEntity<MemberResource> postMembers(
                 @RequestBody @Validated({ PostMembers.class, Default.class })
                 MemberResource requestedResource,
                 // (1)
@@ -4923,7 +4932,7 @@ POST時のLocationヘッダの設定
     
             Member creatingMember = beanMapper.map(requestedResource, Member.class);
     
-            Member createdMember = memberSevice.createMember(creatingMember);
+            Member createdMember = memberService.createMember(creatingMember);
     
             MemberResource responseResource = beanMapper.map(createdMember,
                     MemberResource.class);
@@ -4933,11 +4942,7 @@ POST時のLocationヘッダの設定
                     .buildAndExpand(responseResource.getMemberId()).toUri();
     
             // (3)
-            HttpHeaders responseHeaders = new HttpHeaders();
-            responseHeaders.setLocation(createdUri);
-    
-            // (4)
-            return new HttpEntity<>(responseResource, responseHeaders);
+            return ResponseEntity.created(createdUri).body(responseResource);
         }
 
         // omitted
@@ -4969,10 +4974,11 @@ POST時のLocationヘッダの設定
         | 
         | 必要に応じてリンク情報に設定するURIを組み立てるためのメソッドを実装すること。
     * - | (3)
-      - | 作成したリソースのURIをLocationヘッダに設定する。
-    * - | (4)
-      - | \ ``org.springframework.http.HttpEntity``\に、Resourceオブジェクトとレスポンスヘッダに設定する情報を格納し、返却する。
+      - | 以下のパラメータを使用して\ ``org.springframework.http.ResponseEntity``\ を生成し返却する。
 
+        * ステータスコード : 201(Created)
+        * Locationヘッダ : 作成したリソースのURI
+        * レスポンスBODY : 作成したResourceオブジェクト
 
  .. tip::
 
@@ -5050,7 +5056,7 @@ OPTIONSメソッドの実装
   | URIで指定されたリソースでサポートされているHTTPメソッド(REST API)のリストを応答する処理を実装する。
 
  .. code-block:: java
-    :emphasize-lines: 8, 13, 16
+    :emphasize-lines: 11, 14
 
     @RequestMapping("members")
     @RestController
@@ -5059,17 +5065,17 @@ OPTIONSメソッドの実装
         // omitted
 
         @RequestMapping(value = "{memberId}", method = RequestMethod.OPTIONS)
-        // (1)
-        @ResponseStatus(HttpStatus.OK)
-        public HttpEntity<Void> optionsMember(
+        public ResponseEntity<Void> optionsMember(
             @PathVariable("memberId") String memberId) {
 
-            // (2)
-            memberSevice.getMember(memberId);
+            // (1)
+            memberService.getMember(memberId);
 
-            // (3)
-            return RestResponseUtils.createEntityOfOptions(
-                HttpMethod.GET, HttpMethod.HEAD, HttpMethod.PUT, HttpMethod.DELETE);
+            // (2)
+            return ResponseEntity
+                    .ok()
+                    .allow(HttpMethod.GET, HttpMethod.HEAD, HttpMethod.PUT,
+                            HttpMethod.DELETE, HttpMethod.OPTIONS).build();
         }
     
         // omitted
@@ -5085,35 +5091,9 @@ OPTIONSメソッドの実装
     * - 項番
       - 説明
     * - | (1)
-      - | メソッドアノテーションとして、\ ``@ResponseStatus``\アノテーションを付与し、応答するステータスコードを指定する。
-        | \ ``@ResponseStatus``\アノテーションのvalue属性には、200(OK)を設定する。
-    * - | (2)
       - | ドメイン層のServiceのメソッドを呼び出し、パス変数から取得したIDに一致するリソースが存在するかチェックを行う。
-    * - | (3)
+    * - | (2)
       - | **URIで指定されたリソースでサポートされているHTTPメソッドを、Allowヘッダに設定する。**
-        | 上記例では、 ユーティリティメソッドを呼び出して、HTTPメソッドの一覧が設定されたレスポンスエンティティを生成している。
-
-|
-
-* | ユーティリティメソッド
-  | URIで指定されたリソースでサポートされているHTTPメソッド(API)のリストを応答する処理は、全てのリソースで同じようなロジックを組む事になるため、ユーティリティメソッド化した方がよい。
-
- .. code-block:: java
-
-    public static HttpEntity<Void> createEntityOfOptions(
-            HttpMethod... allowedMethods) {
-
-        Set<HttpMethod> allowedMethodSet = new LinkedHashSet<>(
-                Arrays.asList(allowedMethods));
-        if (!allowedMethodSet.contains(HttpMethod.OPTIONS)) {
-            allowedMethodSet.add(HttpMethod.OPTIONS);
-        }
-
-        HttpHeaders responseHeaders = new HttpHeaders();
-        responseHeaders.setAllow(allowedMethodSet);
-
-        return new HttpEntity<>(responseHeaders);
-    }
 
 |
 
@@ -5240,22 +5220,31 @@ RESTful Web Service向けのリクエストに対して、CSRF対策の処理が
 * :file:`spring-security.xml`
 
  .. code-block:: xml
-    :emphasize-lines: 3-9
+    :emphasize-lines: 3-10
 
     <!-- omitted -->
 
     <!-- (1) -->
-    <sec:http pattern="/api/v1/**"
-        auto-config="true" use-expressions="true" create-session="stateless">
-        <!--<sec:custom-filter ref="csrfFilter" before="LOGOUT_FILTER"/>--> <!-- (2) -->
-        <sec:custom-filter ref="userIdMDCPutFilter" after="ANONYMOUS_FILTER"/>
-        <!--<sec:session-management session-authentication-strategy-ref="sessionAuthenticationStrategy" />--> <!-- (3) -->
+    <sec:http
+        pattern="/api/v1/**"
+        auto-config="true"
+        use-expressions="true"
+        create-session="stateless">
+        <sec:headers />
     </sec:http>
 
     <sec:http auto-config="true" use-expressions="true">
-        <sec:custom-filter ref="csrfFilter" before="LOGOUT_FILTER"/>
+        <sec:headers>
+            <sec:cache-control />
+            <sec:content-type-options />
+            <sec:hsts />
+            <sec:frame-options />
+            <sec:xss-protection />
+        </sec:headers>
+        <sec:csrf />
+        <sec:access-denied-handler ref="accessDeniedHandler"/>
         <sec:custom-filter ref="userIdMDCPutFilter" after="ANONYMOUS_FILTER"/>
-        <sec:session-management session-authentication-strategy-ref="sessionAuthenticationStrategy" />
+        <sec:session-management />
     </sec:http>
 
     <!-- omitted -->
@@ -5272,10 +5261,8 @@ RESTful Web Service向けのリクエストに対して、CSRF対策の処理が
        | \ ``<sec:http>``\要素の\ ``pattern``\属性に、REST API用のリクエストパスのURLパターンを指定している。
        | 上記例では、\ ``/api/v1/``\で始まるリクエストパスをREST API用のリクエストパスとして扱う。
        | また、\ ``create-session``\属性を\ ``stateless``\とする事で、Spring Securityの処理でセッションが使用されなくなる。
-   * - | (2)
-     - | CSRF対策を無効化するために、CSRF対策用のServlet Filterの定義をコメントアウトしている。実際は、物理的に削除してよい。
-   * - | (3)
-     - | セッションを使用しないため、セッション管理に関係するコンポーネントへの参照定義をコメントアウトしている。実際は、物理的に削除してよい。
+       |
+       | CSRF対策を無効化するために、\ ``<sec:csrf>``\ 要素は指定していない。
 
 |
 
@@ -5570,7 +5557,7 @@ MemberRestController.java
     public class MemberRestController {
     
         @Inject
-        MemberService memberSevice;
+        MemberService memberService;
     
         @Inject
         Mapper beanMapper;
@@ -5580,7 +5567,7 @@ MemberRestController.java
         public Page<MemberResource> getMembers(@Validated MembersSearchQuery query,
                 Pageable pageable) {
     
-            Page<Member> page = memberSevice.searchMembers(query.getName(), pageable);
+            Page<Member> page = memberService.searchMembers(query.getName(), pageable);
     
             List<MemberResource> memberResources = new ArrayList<>();
             for (Member member : page.getContent()) {
@@ -5599,7 +5586,7 @@ MemberRestController.java
     
             Member creatingMember = beanMapper.map(requestedResource, Member.class);
     
-            Member createdMember = memberSevice.createMember(creatingMember);
+            Member createdMember = memberService.createMember(creatingMember);
     
             MemberResource responseResource = beanMapper.map(createdMember,
                     MemberResource.class);
@@ -5611,7 +5598,7 @@ MemberRestController.java
         @ResponseStatus(HttpStatus.OK)
         public MemberResource getMember(@PathVariable("memberId") String memberId) {
     
-            Member member = memberSevice.getMember(memberId);
+            Member member = memberService.getMember(memberId);
     
             MemberResource responseResource = beanMapper.map(member,
                     MemberResource.class);
@@ -5628,7 +5615,7 @@ MemberRestController.java
     
             Member updatingMember = beanMapper.map(requestedResource, Member.class);
     
-            Member updatedMember = memberSevice.updateMember(memberId,
+            Member updatedMember = memberService.updateMember(memberId,
                     updatingMember);
     
             MemberResource responseResource = beanMapper.map(updatedMember,
@@ -5641,7 +5628,7 @@ MemberRestController.java
         @ResponseStatus(HttpStatus.NO_CONTENT)
         public void deleteMember(@PathVariable("memberId") String memberId) {
     
-            memberSevice.deleteMember(memberId);
+            memberService.deleteMember(memberId);
     
         }
     
@@ -5768,7 +5755,7 @@ ApiGlobalExceptionHandler.java
     import org.terasoluna.gfw.common.exception.ResourceNotFoundException;
     import org.terasoluna.gfw.common.exception.ResultMessagesNotificationException;
     
-    @ControllerAdvice(annotations = RestController.class)
+    @ControllerAdvice
     public class ApiGlobalExceptionHandler extends ResponseEntityExceptionHandler {
     
         @Inject
@@ -5789,7 +5776,7 @@ ApiGlobalExceptionHandler.java
             } else {
                 apiError = body;
             }
-            return new ResponseEntity<>(apiError, headers, status);
+            return ResponseEntity.status(status).headers(headers).body(apiError);
         }
     
         @Override

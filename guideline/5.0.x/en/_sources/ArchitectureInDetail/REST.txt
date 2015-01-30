@@ -2450,7 +2450,7 @@ Implementing the REST API wherein a page search is performed for member resource
         // omitted
 
         @Inject
-        MemberService memberSevice;
+        MemberService memberService;
     
         @Inject
         Mapper beanMapper;
@@ -2468,7 +2468,7 @@ Implementing the REST API wherein a page search is performed for member resource
                 Pageable pageable) {
     
             // (8)
-            Page<Member> page = memberSevice.searchMembers(query.getName(), pageable);
+            Page<Member> page = memberService.searchMembers(query.getName(), pageable);
     
             // (9)
             List<MemberResource> memberResources = new ArrayList<>();
@@ -2514,7 +2514,7 @@ Implementing the REST API wherein a page search is performed for member resource
                 
                     // omitted
                     
-                    return new ResponseEntity(responseResource, HttpStatus.OK);
+                    return ResponseEntity.ok().body(responseResource);
                 }
 
             When it is necessary to change the responding status codes based on process details or process results, \ ``org.springframework.http.ResponseEntity``\  is used, as shown in the above implementation.
@@ -2761,7 +2761,7 @@ Example of implementation of REST API wherein a specified Member resource is cre
 
             // (4)
             Member inputMember = beanMapper.map(requestedResource, Member.class);
-            Member createdMember = memberSevice.createMember(inputMember);
+            Member createdMember = memberService.createMember(inputMember);
 
             MemberResource responseResource = beanMapper.map(createdMember,
                     MemberResource.class);
@@ -2858,7 +2858,7 @@ Implementation of REST API that fetches the Member resource specified by URI, is
                 @PathVariable("memberId") String memberId) {
     
             // (4)
-            Member member = memberSevice.getMember(memberId);
+            Member member = memberService.getMember(memberId);
     
             MemberResource responseResource = beanMapper.map(member,
                     MemberResource.class);
@@ -2955,7 +2955,7 @@ Implementation of REST API that updates the Member resource specified in URI, is
             // (4)
             Member inputMember = beanMapper.map(
                 requestedResource, Member.class);
-            Member updatedMember = memberSevice.updateMember(
+            Member updatedMember = memberService.updateMember(
                 memberId, inputMember);
     
             MemberResource responseResource = beanMapper.map(updatedMember,
@@ -3056,7 +3056,7 @@ Implementation of REST API that deletes the Member resource specified by URI is 
                 @PathVariable("memberId") String memberId) {
     
             // (3)
-            memberSevice.deleteMember(memberId);
+            memberService.deleteMember(memberId);
             
         }
 
@@ -3364,7 +3364,7 @@ Implementation to output error information in response Body
                 apiError = body;
             }
             // (9)
-            return new ResponseEntity<>(apiError, headers, status);
+            return ResponseEntity.status(status).headers(headers).body(apiError);
         }
         
         // omitted
@@ -4273,7 +4273,7 @@ Controller that sends the error response for the error notified to Servlet Conta
             ApiError apiError = apiErrorCreator.createApiError(request, errorCode,
                     httpStatus.getReasonPhrase());
             // (7)
-            return new ResponseEntity<>(apiError, httpStatus);
+            return ResponseEntity.status(httpStatus).body(apiError);
         }
     
     }
@@ -4770,7 +4770,7 @@ Implementation for each resource
         public MemberResource getMember(
                 @PathVariable("memberId") String memberId) {
     
-            Member member = memberSevice.getMember(memberId);
+            Member member = memberService.getMember(memberId);
     
             MemberResource responseResource = beanMapper.map(member,
                     MemberResource.class);
@@ -4915,7 +4915,7 @@ Implementation for each resource
 * The URI of created resource is set in Location header by REST API process.
 
  .. code-block:: java
-    :emphasize-lines: 7, 27, 30, 34
+    :emphasize-lines: 7, 26, 29
 
     @RequestMapping("members")
     @Controller
@@ -4931,14 +4931,13 @@ Implementation for each resource
 
         @RequestMapping(method = RequestMethod.POST)
         @ResponseBody
-        @ResponseStatus(HttpStatus.CREATED)
-        public HttpEntity<MemberResource> postMembers(
+        public ResponseEntity<MemberResource> postMembers(
                 @RequestBody @Validated({ PostMembers.class, Default.class })
                 MemberResource requestedResource) {
     
             Member creatingMember = beanMapper.map(requestedResource, Member.class);
     
-            Member createdMember = memberSevice.createMember(creatingMember);
+            Member createdMember = memberService.createMember(creatingMember);
     
             MemberResource responseResource = beanMapper.map(createdMember,
                     MemberResource.class);
@@ -4947,11 +4946,7 @@ Implementation for each resource
             URI createdUri = resourceUriBuilder.created(responseResource.getMemberId());
                     
             // (3)
-            HttpHeaders responseHeaders = new HttpHeaders();
-            responseHeaders.setLocation(createdUri);
-    
-            // (4)
-            return new HttpEntity<>(responseResource, responseHeaders);
+            return ResponseEntity.created(createdUri).body(responseResource);
         }
 
         // omitted
@@ -4971,9 +4966,11 @@ Implementation for each resource
       - | URI for created resource is built.
         | In the above example, method of the object that builds URI of created resource is called and the URI is built.
     * - | (3)
-      - | URI of created resource is set in Location header.
-    * - | (4)
-      - | Information to be set in Resource object and response header is stored in \ ``org.springframework.http.HttpEntity``\  and then returned.
+      - | Create the \ ``org.springframework.http.ResponseEntity``\ instance using following parameters, and return it.
+
+        * Status code : 201(Created)
+        * Location header : Created resource's URI
+        * Response body : Created resource object
 
 |
 
@@ -5047,7 +5044,7 @@ Implementing OPTIONS method
   | A process is implemented wherein, list of HTTP methods (REST API) supported by the resource specified in URI is sent as response.
 
  .. code-block:: java
-    :emphasize-lines: 9, 14, 17
+    :emphasize-lines: 11, 14
 
     @RequestMapping("members")
     @Controller
@@ -5057,17 +5054,17 @@ Implementing OPTIONS method
 
         @RequestMapping(value = "{memberId}", method = RequestMethod.OPTIONS)
         @ResponseBody
-        // (1)
-        @ResponseStatus(HttpStatus.OK)
-        public HttpEntity<Void> optionsMember(
+        public ResponseEntity<Void> optionsMember(
             @PathVariable("memberId") String memberId) {
 
             // (2)
-            memberSevice.getMember(memberId);
+            memberService.getMember(memberId);
 
             // (3)
-            return RestResponseUtils.createEntityOfOptions(
-                HttpMethod.GET, HttpMethod.HEAD, HttpMethod.PUT, HttpMethod.DELETE);
+            return ResponseEntity
+                    .ok()
+                    .allow(HttpMethod.GET, HttpMethod.HEAD, HttpMethod.PUT,
+                            HttpMethod.DELETE, HttpMethod.OPTIONS).build();
         }
     
         // omitted
@@ -5089,29 +5086,6 @@ Implementing OPTIONS method
       - | Domain layer Service method is called and a check is performed to confirm if a resource matching with the ID fetched from path variable exists.
     * - | (3)
       - | **The HTTP method supported by resource specified in URI, is set in Allow header.**
-        | In the above example, response entity set with a list of HTTP methods, is generated by calling utility methods.
-
-|
-
-* | Utility methods
-  | The process that responds with a list of HTTP methods (API) supported by resource specified in URI, uses the same logic for all the resources. Hence, it is advisable to adapt them as utility methods.
-
- .. code-block:: java
-
-    public static HttpEntity<Void> createEntityOfOptions(
-            HttpMethod... allowedMethods) {
-
-        Set<HttpMethod> allowedMethodSet = new LinkedHashSet<>(
-                Arrays.asList(allowedMethods));
-        if (!allowedMethodSet.contains(HttpMethod.OPTIONS)) {
-            allowedMethodSet.add(HttpMethod.OPTIONS);
-        }
-
-        HttpHeaders responseHeaders = new HttpHeaders();
-        responseHeaders.setAllow(allowedMethodSet);
-
-        return new HttpEntity<>(responseHeaders);
-    }
 
 |
 
@@ -5239,22 +5213,31 @@ prevented for RESTful Web Service requests.
 * :file:`spring-security.xml`
 
  .. code-block:: xml
-    :emphasize-lines: 3-9
+    :emphasize-lines: 3-10
 
     <!-- omitted -->
 
     <!-- (1) -->
-    <sec:http pattern="/api/v1/**"
-        auto-config="true" use-expressions="true" create-session="stateless">
-        <!--<sec:custom-filter ref="csrfFilter" before="LOGOUT_FILTER"/>--> <!-- (2) -->
-        <sec:custom-filter ref="userIdMDCPutFilter" after="ANONYMOUS_FILTER"/>
-        <!--<sec:session-management session-authentication-strategy-ref="sessionAuthenticationStrategy" />--> <!-- (3) -->
+    <sec:http
+        pattern="/api/v1/**"
+        auto-config="true"
+        use-expressions="true"
+        create-session="stateless">
+        <sec:headers />
     </sec:http>
 
     <sec:http auto-config="true" use-expressions="true">
-        <sec:custom-filter ref="csrfFilter" before="LOGOUT_FILTER"/>
+        <sec:headers>
+            <sec:cache-control />
+            <sec:content-type-options />
+            <sec:hsts />
+            <sec:frame-options />
+            <sec:xss-protection />
+        </sec:headers>
+        <sec:csrf />
+        <sec:access-denied-handler ref="accessDeniedHandler"/>
         <sec:custom-filter ref="userIdMDCPutFilter" after="ANONYMOUS_FILTER"/>
-        <sec:session-management session-authentication-strategy-ref="sessionAuthenticationStrategy" />
+        <sec:session-management />
     </sec:http>
 
     <!-- omitted -->
@@ -5271,10 +5254,8 @@ prevented for RESTful Web Service requests.
        | URL pattern of REST API request path is specified in \ ``pattern``\  attribute of \ ``<sec:http>``\  element.
        | In the above example, request path starting with \ ``/api/v1/``\  is handled as the REST API request path.
        | Further, session is no longer used in Spring Security process by setting \ ``create-session``\  attribute to \ ``stateless``\ .
-   * - | (2)
-     - | Servlet Filter definition of CSRF measures is commented out, so as to disable the CSRF measures. It may be physically deleted in practice.
-   * - | (3)
-     - | The definition used for referring to session management related components is commented out as session is not used. Actually it is better to delete it physically.
+       |
+       | \ ``<sec: csrf>``\  element is not specified to disable the CSRF measures.
 
 |
 
@@ -5570,7 +5551,7 @@ MemberRestController.java
     public class MemberRestController {
     
         @Inject
-        MemberService memberSevice;
+        MemberService memberService;
     
         @Inject
         Mapper beanMapper;
@@ -5581,7 +5562,7 @@ MemberRestController.java
         public Page<MemberResource> getMembers(@Validated MembersSearchQuery query,
                 Pageable pageable) {
     
-            Page<Member> page = memberSevice.searchMembers(query.getName(), pageable);
+            Page<Member> page = memberService.searchMembers(query.getName(), pageable);
     
             List<MemberResource> memberResources = new ArrayList<>();
             for (Member member : page.getContent()) {
@@ -5601,7 +5582,7 @@ MemberRestController.java
     
             Member creatingMember = beanMapper.map(requestedResource, Member.class);
     
-            Member createdMember = memberSevice.createMember(creatingMember);
+            Member createdMember = memberService.createMember(creatingMember);
     
             MemberResource responseResource = beanMapper.map(createdMember,
                     MemberResource.class);
@@ -5614,7 +5595,7 @@ MemberRestController.java
         @ResponseStatus(HttpStatus.OK)
         public MemberResource getMember(@PathVariable("memberId") String memberId) {
     
-            Member member = memberSevice.getMember(memberId);
+            Member member = memberService.getMember(memberId);
     
             MemberResource responseResource = beanMapper.map(member,
                     MemberResource.class);
@@ -5632,7 +5613,7 @@ MemberRestController.java
     
             Member updatingMember = beanMapper.map(requestedResource, Member.class);
     
-            Member updatedMember = memberSevice.updateMember(memberId,
+            Member updatedMember = memberService.updateMember(memberId,
                     updatingMember);
     
             MemberResource responseResource = beanMapper.map(updatedMember,
@@ -5646,7 +5627,7 @@ MemberRestController.java
         @ResponseStatus(HttpStatus.NO_CONTENT)
         public void deleteMember(@PathVariable("memberId") String memberId) {
     
-            memberSevice.deleteMember(memberId);
+            memberService.deleteMember(memberId);
     
         }
     
@@ -5794,7 +5775,7 @@ ApiGlobalExceptionHandler.java
             } else {
                 apiError = body;
             }
-            return new ResponseEntity<>(apiError, headers, status);
+            return ResponseEntity.status(status).headers(headers).body(apiError);
         }
     
         @Override

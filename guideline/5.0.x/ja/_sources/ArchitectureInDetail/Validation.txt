@@ -590,19 +590,30 @@ NameとEmailが空文字であることに対するエラーメッセージと�
 | そのため、エラーメッセージを一覧で表示する場合は、エラーメッセージの中にフィールド名を含めるようにメッセージを定義する必要がある。
 | エラーメッセージの定義方法については、「:ref:`Validation_message_def`」を参照されたい。
 
-.. note::
+.. note:: **エラーメッセージを一覧で表示する際の注意点**
 
-   エラーメッセージの出力順序はデフォルトでは順不同である。
-   \ `@GroupSequenceアノテーション <http://docs.jboss.org/hibernate/validator/5.1/reference/en-US/html/chapter-groups.html#section-default-group-class>`_\ によって、
-   順序制御することもできるが、対応コストが高い。
+   エラーメッセージの出力順序は順不同であり、標準機能で出力順序を制御することはできない。
+   そのため、出力順序を制御する(一定に保つ)必要がある場合は、エラー情報をソートするなどの拡張実装が必要となる。
 
    「エラーメッセージを一覧で表示する」方式では、
 
    * フィード単位のエラーメッセージ定義
-   * エラーメッセージの順序制御
+   * エラーメッセージの出力順序を制御するための拡張実装
 
-   のコストがかかるため、
-   画面要件による制約がなければ、「入力フィールドの横にエラーメッセージを表示する」方式を推奨する。
+   が必要となるため、「入力フィールドの横にエラーメッセージを表示する」方式に比べて対応コストが高くなる。
+   **本ガイドラインでは、画面要件による制約がない場合は「入力フィールドの横にエラーメッセージを表示する」方式を推奨する。**
+
+   なお、エラーメッセージの出力順序を制御するための拡張方法としては、
+   Spring Frameworkから提供されている\ ``org.springframework.validation.beanvalidation.LocalValidatorFactoryBean``\ の継承クラスを作成し、
+   \ ``processConstraintViolations``\ メソッドをオーバーライドしてエラー情報をソートする方法などが考えられる。
+
+.. note:: **@GroupSequenceアノテーションについて**
+
+   チェック順番を制御するための仕組みとして\ `@GroupSequenceアノテーション <http://docs.jboss.org/hibernate/validator/5.1/reference/en-US/html/chapter-groups.html#section-default-group-class>`_\ が提供されているが、
+   この仕組みは以下のような動作になるため、エラーメッセージの出力順序を制御するための仕組みではないという点を補足しておく。
+
+   * エラーが発生した場合に後続のグループのチェックが実行されない。
+   * 同一グループ内のチェックで複数のエラー(複数の項目でエラー)が発生するとエラーメッセージの出力順序は順不同になる。
 
 
 .. note::
@@ -2112,6 +2123,21 @@ Spring MVCによるBean Validationのエラーメッセージは、以下の順�
 
 .. figure:: ./images_Validation/validations-message-properties-position-image.png
   :width: 40%
+
+.. warning::
+
+    \ ``ValidationMessages.properties``\ ファイルは、クラスパスの直下に複数存在させてはいけない。
+
+    クラスパスの直下に複数の\ ``ValidationMessages.properties``\ ファイルが存在する場合、
+    いずれか１つのファイルが読み込まれ、他のファイルが読み込まれないため、適切なメッセージが表示されない可能性がある。
+
+    * マルチプロジェクト構成を採用する場合は、\ ``ValidationMessages.properties``\ ファイルを複数のプロジェクトに配置しないように注意すること。
+    * Bean Validation用の共通部品をjarファイルとして配布する際に、\ ``ValidationMessages.properties``\ ファイルをjarファイルの中に含めないように注意すること。
+
+    なお、version 1.0.2.RELEASE以降の `ブランクプロジェクト <https://github.com/terasolunaorg/terasoluna-gfw-web-multi-blank>`_ \ からプロジェクトを生成した場合は、
+    \ ``xxx-web/src/main/resources``\ の直下に\ ``ValidationMessages.properties``\ が格納されている。
+
+|
 
 
 本ガイドラインでは、以下のように定義を分けることを推奨する。

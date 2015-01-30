@@ -305,6 +305,8 @@ The method of defining message ID to be used in screen label and fixed text of r
         In case of multiple projects, define a project code to avoid duplication of message ID.
         Even if there is a single project, it is recommended to define a project code for future enhancements.
 
+.. _message-management_result-rule:
+
 Result messages
 """"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 

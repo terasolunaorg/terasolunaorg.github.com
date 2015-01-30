@@ -154,12 +154,30 @@ spring-security.xmlの設定
 
    * - Exception
      - 発生理由
-   * - | \ ``org.springframework.security.web.csrf.InvalidCsrfTokenException``\ 
+   * - | org.springframework.security.web.csrf.
+       | InvalidCsrfTokenException
      - | クライアントからリクエストしたCSRFトークンとサーバで保持しているCSRFトークンが一致しない場合に発生する。
-   * - | \ ``org.springframework.security.web.csrf.MissingCsrfTokenException``\ 
-     - | CSRFトークンが存在しない場合に発生する。
-       | デフォルトの設定ではトークンをHTTPセッションに保持するため、CSRFトークンが存在しないということはHTTPセッションが破棄されたことを意味する。そのためこの例外が発生する前にセッションタイムアウトの処理が行われる。
-       | \ ``<sec:csrf>``\ 要素の \ ``token-repository-ref``\ 属性でトークンの保存先をキャッシュやDBなどに変更し、一定期間後に削除する運用を行った場合に発生する。
+   * - | org.springframework.security.web.csrf.
+       | MissingCsrfTokenException
+     - | CSRFトークンがサーバに存在しない場合に発生する。
+       | デフォルトの設定ではCSRFトークンをHTTPセッションに保持するため、CSRFトークンが存在しないということはHTTPセッションが破棄された(セッションタイムアウトが発生した)ことを意味する。
+       |
+       | \ ``<sec:csrf>``\ 要素の \ ``token-repository-ref``\ 属性でCSRFトークンの保存先をキャッシュサーバやDBなどに変更した場合は、CSRFトークンを保存先から削除した場合に\ ``MissingCsrfTokenException``\ が発生する。
+       | これは、トークンの保存先をHTTPセッションにしていない場合は、本機能を使ってセッションタイムアウトの検知が出来ない事を意味している。
+
+.. note::
+
+    CSRFトークンの保存先としてHTTPセッションを使用する場合は、
+    CSRFトークンのチェック対象のリクエストに対してセッションタイムアウトを検出することができる。
+
+    セッションタイムアウト検知後の動作は、\ ``<session-management>``\ 要素の\ ``invalid-session-url``\ 属性の指定によって異なる。
+
+    * \ ``invalid-session-url``\ 属性の指定がある場合は、セッションを生成した後に\ ``invalid-session-url``\ に指定したパスへリダイレクトされる。
+    * \ ``invalid-session-url``\ 属性の指定がない場合は、\ ``<access-denied-handler>``\ 要素に指定した\ ``org.springframework.security.web.access.AccessDeniedHandler``\ の定義に従ったハンドリングが行われる。
+
+    CSRFトークンのチェック対象外のリクエストに対してセッションタイムアウトを検出する必要がある場合は、
+    \ ``<session-management>``\ 要素の\ ``invalid-session-url``\ 属性を指定して検出すればよい。
+    詳細は、「:ref:`authentication_session-timeout`」を参照されたい。
 
 |
 
@@ -462,6 +480,8 @@ JSONでリクエストを送信する場合も、同様にHTTPヘッダを設定
 
 ファイルアップロードの詳細については、\ :doc:`FileUpload <../ArchitectureInDetail/FileUpload>`\ を参照されたい。
 
+
+.. _csrf_use-multipart-filter:
 
 MultipartFilterを使用する方法
 """"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""

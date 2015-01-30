@@ -18,6 +18,14 @@ Overview
 
     本節では、Servlet3.0でサポートされたファイルアップロード機能を使用しているため、Servletのバージョンは、3.0以上であることが前提となる。
 
+ .. note::
+
+    WebLogicなど一部のアプリケーションサーバー上でServlet 3.0のファイルアップロード機能を使用すると、
+    リクエストパラメータやファイル名のマルチバイト文字が文字化けすることがある。
+
+    問題が発生するアプリケーションサーバーを使用する場合は、Commons FileUploadを使用することで問題を回避することができる。
+    Commons FileUploadを使用するための設定方法については、「:ref:`file-upload_usage_commons_fileupload`」を参照されたい。
+
  .. warning::
  
     使用するアプリケーションサーバのファイルアップロードの実装が、Apache Commons FileUploadの実装に依存している場合、\ `CVE-2014-0050 <http://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2014-0050>`_\で報告されているセキュリティの脆弱性が発生する可能性がある。
@@ -112,15 +120,7 @@ Spring Webから提供されているファイルアップロード用のクラ�
 
     本ガイドラインでは、Servlet3.0から導入されたファイルアップロード機能を使うことを前提としているが、Spring Webでは、\ `「Apache Commons FileUpload」用の実装クラスも提供している <http://docs.spring.io/spring/docs/4.1.4.RELEASE/spring-framework-reference/html/mvc.html#mvc-multipart-resolver-commons>`_\ 。
     アップロード処理の実装の違いは、\ ``MultipartResolver``\ と、\ ``MultipartFile``\ オブジェクトによって吸収されるため、Controllerの実装に影響を与えることはない。
-    Servlet3.0に、対応していないサーブレットコンテナ(Tomcat6など)を使用する必要がある場合は、こちらを使用すること。
 
- .. warning::
- 
-    Apache Commons FileUploadを使用する場合、\ `CVE-2014-0050 <http://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2014-0050>`_\で報告されているセキュリティの脆弱性が発生する可能性がある。
-    使用するApache Commons FileUploadのバージョンに脆弱性がない事を確認されたい。
-    
-    Apache Commons FileUploadを使用する場合、1.2系は1.2.1以上、1.3系は1.3.1以上を使用する必要がある。
-    
 |
 
 How to use
@@ -1645,6 +1645,8 @@ How to extend
 
 Appendix
 --------------------------------------------------------------------------------
+ファイルアップロードに関するセキュリティ問題への考慮
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 | ファイルのアップロード機能を提供する場合、以下のようなセキュリティ問題を考慮する必要がある。
 
 #. :ref:`file-upload_security_related_warning_points_dos`
@@ -1656,7 +1658,7 @@ Appendix
 .. _file-upload_security_related_warning_points_dos:
 
 アップロード機能に対するDos攻撃
-^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 アップロード機能に対するDos攻撃とは、巨大なサイズのファイルを連続してアップロードしてサーバに対して負荷を掛けることで、
 サーバのダウンや、レスポンス速度の低下を狙った攻撃方法のことである。
 
@@ -1668,7 +1670,7 @@ Appendix
 .. _file-upload_security_related_warning_points_server_scripting:
 
 アップロードしたファイルをWebサーバ上で実行する攻撃
-^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 | アップロードしたファイルをWebサーバ上で実行する攻撃とは、Webサーバ(アプリケーションサーバ)で実行可能なスクリプトファイル(php, asp, aspx, jspなど)をアップロードし実行することで、Webサーバ内のファイルの閲覧・改竄・削除を行う攻撃方法のことである。
 | また、Webサーバを踏み台とすることで、Webサーバと同一ネットワーク上に存在する別のサーバに対して、攻撃することもできる。
 
@@ -1678,6 +1680,147 @@ Appendix
 * アップロード可能なファイルの拡張子を制限し、Webサーバ(アプリケーションサーバ)で実行可能なスクリプトファイルが、アップロードされないようにする。
 
 いずれかの対策を行うことで攻撃を防ぐことができるが、両方とも対策しておくことを推奨する。
+
+|
+
+.. _file-upload_usage_commons_fileupload:
+
+Commons FileUpload を使用したファイルのアップロード
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+一部のアプリケーションサーバー上でServlet 3.0のファイルアップロード機能を使用すると、
+リクエストパラメータやファイル名のマルチバイト文字が文字化けすることがある。
+
+具体例としては、WebLogic(検証バージョンは12.1.3)でServlet 3.0のファイルアップロード機能を使用すると、
+ファイルと一緒に送信するフィールドのマルチバイト文字が文字化けすることが確認されている。
+アプリケーションサーバーの問題であると思われるが、アプリケーションサーバー側で修正されない限り、
+ファイルとマルチバイト文字を同時に送信する事ができない。
+
+この問題は、Commons FileUploadを使用することで回避できるため、
+本ガイドラインでは、アプリケーションサーバーが修正されるまでの暫定対処として、
+Commons FileUploadを使用したファイルのアップロードについて説明する。
+
+Commons FileUploadを使用する場合は以下の設定を行う。
+
+|
+
+:file:`xxx-web/pom.xml`
+
+.. code-block:: xml
+
+    <!-- (1) -->
+    <dependency>
+        <groupId>commons-fileupload</groupId>
+        <artifactId>commons-fileupload</artifactId>
+    </dependency>
+
+.. tabularcolumns:: |p{0.10\linewidth}|p{0.90\linewidth}|
+.. list-table::
+   :header-rows: 1
+   :widths: 10 90
+
+   * - | 項番
+     - | 説明
+   * - | (1)
+     - | \ ``commons-fileupload``\ への依存関係を追加する。
+       | バージョンはSpring IO Platformによって定義されているため、:file:`pom.xml`\ で指定しなくてよい。
+
+.. warning::
+
+    Apache Commons FileUploadを使用する場合、
+    \ `CVE-2014-0050 <http://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2014-0050>`_\で報告されているセキュリティの脆弱性が発生する可能性がある。
+    使用するApache Commons FileUploadのバージョンに脆弱性がない事を確認されたい。
+
+    Apache Commons FileUploadを使用する場合、1.2系は1.2.1以上、1.3系は1.3.1以上を使用する必要がある。
+
+    なお、Spring IO Platformで管理されているバージョンを使用すれば、CVE-2014-0050で報告されている脆弱性は発生しない。
+
+|
+
+:file:`xxx-web/src/main/resources/META-INF/spring/applicationContext.xml`
+
+.. code-block:: xml
+
+    <!-- (1) -->
+    <bean id="filterMultipartResolver"
+        class="org.springframework.web.multipart.commons.CommonsMultipartResolver">
+        <property name="maxUploadSize" value="10240000" /><!-- (2) -->
+    </bean>
+
+    <!-- ... -->
+
+.. tabularcolumns:: |p{0.10\linewidth}|p{0.90\linewidth}|
+.. list-table::
+   :header-rows: 1
+   :widths: 10 90
+
+   * - | 項番
+     - | 説明
+   * - | (1)
+     - | Commons FileUploadを使用した\ ``MultipartResolver``\ 実装である\ ``CommonsMultipartResolver``\のbean定義を行う。
+       | bean IDには\ ``"filterMultipartResolver"``\ を指定する。
+   * - | (2)
+     - | ファイルアップロードで許容する最大サイズを設定する。
+       | Commons FileUploadに場合、最大値はヘッダ含めたリクエスト全体のサイズであることに注意すること。
+       | また、**デフォルト値は-1(無制限)なので、必ず値を設定すること。** その他のプロパティは\ `JavaDoc <http://docs.spring.io/spring-framework/docs/4.1.4.RELEASE/javadoc-api/org/springframework/web/multipart/commons/CommonsMultipartResolver.html>`_\ を参照されたい。
+
+.. warning::
+
+    Commons Fileuploadを使用する場合は、\ ``MultipartResolver``\ の定義を\ :file:`spring-mvc.xml`\ ではなく、\ :file:`applicationContext.xml`\ に行う必要がある。
+    \ :file:`spring-mvc.xml`\ に定義がある場合は削除すること。
+
+
+|
+
+:file:`xxx-web/src/main/webapp/WEB-INF/web.xml`
+
+.. code-block:: xml
+
+    <web-app xmlns="http://java.sun.com/xml/ns/javaee"
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:schemaLocation="http://java.sun.com/xml/ns/javaee http://java.sun.com/xml/ns/javaee/web-app_3_0.xsd"
+        version="3.0">
+
+        <servlet>
+            <servlet-class>org.springframework.web.servlet.DispatcherServlet</servlet-class>
+            <!-- omitted -->
+            <!-- (1) -->
+            <!-- <multipart-config>...</multipart-config> -->
+        </servlet>
+
+        <!-- (2) -->
+        <filter>
+            <filter-name>MultipartFilter</filter-name>
+            <filter-class>org.springframework.web.multipart.support.MultipartFilter</filter-class>
+        </filter>
+        <filter-mapping>
+            <filter-name>MultipartFilter</filter-name>
+            <url-pattern>/*</url-pattern>
+        </filter-mapping>
+
+        <!-- omitted -->
+
+    </web-app>
+
+.. tabularcolumns:: |p{0.10\linewidth}|p{0.90\linewidth}|
+.. list-table::
+   :header-rows: 1
+   :widths: 10 90
+
+   * - 項番
+     - 説明
+   * - | (1)
+     - | Commons FileUploadを使用する場合、Servlet 3.0のアップロード機能を無効にする必要がある。
+       | \ ``DispatcherServlet``\ の定義の中に\ ``<multipart-config>``\ 要素がある場合は、必ず削除すること。
+   * - | (2)
+     - | Commons Fileuploadを使用する場合、\ :ref:`CSRF対策 <csrf_use-multipart-filter>`\ を有効にするために\ ``MultipartFilter``\ を定義する必要がある。
+       | \ ``MultipartFilter``\ のマッピング定義は、springSecurityFilterChain(Spring SecurityのServlet Filter)の定義より前に行うこと。
+
+.. tip::
+
+    \ ``MultipartFilter``\ は、DIコンテナ(:file:`applicationContext.xml`)から\ ``"filterMultipartResolver"``\ というbean IDで登録されている\ ``MultipartResolver``\ を取得して、
+    ファイルアップロード処理を行う仕組みになっている。
+
+|
 
 .. raw:: latex
 
