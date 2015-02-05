@@ -921,6 +921,28 @@ Javaクラスでのコードリスト使用
 
 BeanValidationや、メッセージ出力方法の詳細については、 :doc:`Validation` を参照されたい。
 
+\ ``@ExistInCodeList``\ アノテーションを使用して入力チェックを行う場合は、
+\ ``@ExistInCodeList``\ 用の「:ref:`Validation_message_def`」を行う必要がある。
+
+`ブランクプロジェクト <https://github.com/terasolunaorg/terasoluna-gfw-web-multi-blank>`_ \ からプロジェクトを生成した場合は、
+\ ``xxx-web/src/main/resources``\ の直下の\ ``ValidationMessages.properties``\ ファイルの中に以下のメッセージが定義されている。
+メッセージは、アプリケーションの要件に合わせて変更すること。
+
+.. code-block:: properties
+
+    org.terasoluna.gfw.common.codelist.ExistInCodeList = Does not exist in {codeListId}
+
+.. note::
+
+    terasoluna-gfw-common 1.0.2.RELEASEより、
+    \ ``@ExistInCodeList``\ のメッセージを定義した\ ``ValidationMessages.properties``\ を、
+    jarファイルの中に含めないようにしている。
+    これは、「`ValidationMessages.propertiesが複数存在する場合にメッセージが表示されないバグ <https://github.com/terasolunaorg/terasoluna-gfw/issues/256>`_」を修正するためである。
+
+    version 1.0.1.RELEASE以前からversion 1.0.2.RELEASE以降にバージョンアップする際に、
+    terasoluna-gfw-commonのjarの中に含まれる\ ``ValidationMessages.properties``\ に定義しているメッセージを使用している場合は、
+    \ ``ValidationMessages.properties``\ を作成してメッセージを定義する必要がある。
+
 |
 
 @ExistInCodeList の設定例

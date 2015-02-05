@@ -2423,7 +2423,7 @@ Implementing the REST API wherein a page search is performed for member resource
         // omitted
 
         @Inject
-        MemberService memberSevice;
+        MemberService memberService;
     
         @Inject
         Mapper beanMapper;
@@ -2441,7 +2441,7 @@ Implementing the REST API wherein a page search is performed for member resource
                 Pageable pageable) {
     
             // (8)
-            Page<Member> page = memberSevice.searchMembers(query.getName(), pageable);
+            Page<Member> page = memberService.searchMembers(query.getName(), pageable);
     
             // (9)
             List<MemberResource> memberResources = new ArrayList<>();
@@ -2734,7 +2734,7 @@ Example of implementation of REST API wherein a specified Member resource is cre
 
             // (4)
             Member inputMember = beanMapper.map(requestedResource, Member.class);
-            Member createdMember = memberSevice.createMember(inputMember);
+            Member createdMember = memberService.createMember(inputMember);
 
             MemberResource responseResource = beanMapper.map(createdMember,
                     MemberResource.class);
@@ -2831,7 +2831,7 @@ Implementation of REST API that fetches the Member resource specified by URI, is
                 @PathVariable("memberId") String memberId) {
     
             // (4)
-            Member member = memberSevice.getMember(memberId);
+            Member member = memberService.getMember(memberId);
     
             MemberResource responseResource = beanMapper.map(member,
                     MemberResource.class);
@@ -2928,7 +2928,7 @@ Implementation of REST API that updates the Member resource specified in URI, is
             // (4)
             Member inputMember = beanMapper.map(
                 requestedResource, Member.class);
-            Member updatedMember = memberSevice.updateMember(
+            Member updatedMember = memberService.updateMember(
                 memberId, inputMember);
     
             MemberResource responseResource = beanMapper.map(updatedMember,
@@ -3029,7 +3029,7 @@ Implementation of REST API that deletes the Member resource specified by URI is 
                 @PathVariable("memberId") String memberId) {
     
             // (3)
-            memberSevice.deleteMember(memberId);
+            memberService.deleteMember(memberId);
             
         }
 
@@ -4735,7 +4735,7 @@ Implementation for each resource
         public MemberResource getMember(
                 @PathVariable("memberId") String memberId) {
     
-            Member member = memberSevice.getMember(memberId);
+            Member member = memberService.getMember(memberId);
     
             MemberResource responseResource = beanMapper.map(member,
                     MemberResource.class);
@@ -4903,7 +4903,7 @@ Implementation for each resource
     
             Member creatingMember = beanMapper.map(requestedResource, Member.class);
     
-            Member createdMember = memberSevice.createMember(creatingMember);
+            Member createdMember = memberService.createMember(creatingMember);
     
             MemberResource responseResource = beanMapper.map(createdMember,
                     MemberResource.class);
@@ -5028,7 +5028,7 @@ Implementing OPTIONS method
             @PathVariable("memberId") String memberId) {
 
             // (2)
-            memberSevice.getMember(memberId);
+            memberService.getMember(memberId);
 
             // (3)
             return RestResponseUtils.createEntityOfOptions(
@@ -5535,7 +5535,7 @@ MemberRestController.java
     public class MemberRestController {
     
         @Inject
-        MemberService memberSevice;
+        MemberService memberService;
     
         @Inject
         Mapper beanMapper;
@@ -5546,7 +5546,7 @@ MemberRestController.java
         public Page<MemberResource> getMembers(@Validated MembersSearchQuery query,
                 Pageable pageable) {
     
-            Page<Member> page = memberSevice.searchMembers(query.getName(), pageable);
+            Page<Member> page = memberService.searchMembers(query.getName(), pageable);
     
             List<MemberResource> memberResources = new ArrayList<>();
             for (Member member : page.getContent()) {
@@ -5566,7 +5566,7 @@ MemberRestController.java
     
             Member creatingMember = beanMapper.map(requestedResource, Member.class);
     
-            Member createdMember = memberSevice.createMember(creatingMember);
+            Member createdMember = memberService.createMember(creatingMember);
     
             MemberResource responseResource = beanMapper.map(createdMember,
                     MemberResource.class);
@@ -5579,7 +5579,7 @@ MemberRestController.java
         @ResponseStatus(HttpStatus.OK)
         public MemberResource getMember(@PathVariable("memberId") String memberId) {
     
-            Member member = memberSevice.getMember(memberId);
+            Member member = memberService.getMember(memberId);
     
             MemberResource responseResource = beanMapper.map(member,
                     MemberResource.class);
@@ -5597,7 +5597,7 @@ MemberRestController.java
     
             Member updatingMember = beanMapper.map(requestedResource, Member.class);
     
-            Member updatedMember = memberSevice.updateMember(memberId,
+            Member updatedMember = memberService.updateMember(memberId,
                     updatingMember);
     
             MemberResource responseResource = beanMapper.map(updatedMember,
@@ -5611,7 +5611,7 @@ MemberRestController.java
         @ResponseStatus(HttpStatus.NO_CONTENT)
         public void deleteMember(@PathVariable("memberId") String memberId) {
     
-            memberSevice.deleteMember(memberId);
+            memberService.deleteMember(memberId);
     
         }
     

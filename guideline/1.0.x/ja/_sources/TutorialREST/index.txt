@@ -1764,7 +1764,7 @@ DELETE Todoの実装
 
 |
 
-| 入力チェック用のエラーコードに対応するエラーメッセージを、Bean Validationのメッセージ用のプロパティファイル(\ :file:`src/main/resources/ValidationMessages.properties`\)を作成し、定義する。
+| 入力チェック用のエラーコードに対応するエラーメッセージを、Bean Validationのメッセージ用のプロパティファイル(\ :file:`src/main/resources/ValidationMessages.properties`\)に定義する。
 | 
 
 * :file:`ValidationMessages.properties`

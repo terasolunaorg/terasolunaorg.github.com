@@ -2423,7 +2423,7 @@ URIで指定されたMemberリソースのコレクションをページ検索�
         // omitted
 
         @Inject
-        MemberService memberSevice;
+        MemberService memberService;
     
         @Inject
         Mapper beanMapper;
@@ -2441,8 +2441,8 @@ URIで指定されたMemberリソースのコレクションをページ検索�
                 Pageable pageable) {
     
             // (8)
-            Page<Member> page = memberSevice.searchMembers(query.getName(), pageable);
-    
+            Page<Member> page = memberService.searchMembers(query.getName(), pageable);
+
             // (9)
             List<MemberResource> memberResources = new ArrayList<>();
             for (Member member : page.getContent()) {
@@ -2734,7 +2734,7 @@ URIで指定されたMemberリソースのコレクションをページ検索�
 
             // (4)
             Member inputMember = beanMapper.map(requestedResource, Member.class);
-            Member createdMember = memberSevice.createMember(inputMember);
+            Member createdMember = memberService.createMember(inputMember);
 
             MemberResource responseResource = beanMapper.map(createdMember,
                     MemberResource.class);
@@ -2831,7 +2831,7 @@ URIで指定されたMemberリソースを取得するREST APIの実装例を、
                 @PathVariable("memberId") String memberId) {
     
             // (4)
-            Member member = memberSevice.getMember(memberId);
+            Member member = memberService.getMember(memberId);
     
             MemberResource responseResource = beanMapper.map(member,
                     MemberResource.class);
@@ -2928,7 +2928,7 @@ URIで指定されたMemberリソースを更新するREST APIの実装例を、
             // (4)
             Member inputMember = beanMapper.map(
                 requestedResource, Member.class);
-            Member updatedMember = memberSevice.updateMember(
+            Member updatedMember = memberService.updateMember(
                 memberId, inputMember);
     
             MemberResource responseResource = beanMapper.map(updatedMember,
@@ -3029,7 +3029,7 @@ URIで指定されたMemberリソースを削除するREST APIの実装例を、
                 @PathVariable("memberId") String memberId) {
     
             // (3)
-            memberSevice.deleteMember(memberId);
+            memberService.deleteMember(memberId);
             
         }
 
@@ -4681,7 +4681,7 @@ JSONの中に関連リソースへのハイパーメディアリンクを含め�
                 // (2)
                 UriComponentsBuilder uriBuilder) {
     
-            Member member = memberSevice.getMember(memberId);
+            Member member = memberService.getMember(memberId);
     
             MemberResource responseResource = beanMapper.map(member,
                     MemberResource.class);
@@ -4804,7 +4804,7 @@ POST時のLocationヘッダの設定
     
             Member creatingMember = beanMapper.map(requestedResource, Member.class);
     
-            Member createdMember = memberSevice.createMember(creatingMember);
+            Member createdMember = memberService.createMember(creatingMember);
     
             MemberResource responseResource = beanMapper.map(createdMember,
                     MemberResource.class);
@@ -4947,7 +4947,7 @@ OPTIONSメソッドの実装
             @PathVariable("memberId") String memberId) {
 
             // (2)
-            memberSevice.getMember(memberId);
+            memberService.getMember(memberId);
 
             // (3)
             return RestResponseUtils.createEntityOfOptions(
@@ -5454,7 +5454,7 @@ MemberRestController.java
     public class MemberRestController {
     
         @Inject
-        MemberService memberSevice;
+        MemberService memberService;
     
         @Inject
         Mapper beanMapper;
@@ -5465,7 +5465,7 @@ MemberRestController.java
         public Page<MemberResource> getMembers(@Validated MembersSearchQuery query,
                 Pageable pageable) {
     
-            Page<Member> page = memberSevice.searchMembers(query.getName(), pageable);
+            Page<Member> page = memberService.searchMembers(query.getName(), pageable);
     
             List<MemberResource> memberResources = new ArrayList<>();
             for (Member member : page.getContent()) {
@@ -5485,7 +5485,7 @@ MemberRestController.java
     
             Member creatingMember = beanMapper.map(requestedResource, Member.class);
     
-            Member createdMember = memberSevice.createMember(creatingMember);
+            Member createdMember = memberService.createMember(creatingMember);
     
             MemberResource responseResource = beanMapper.map(createdMember,
                     MemberResource.class);
@@ -5498,7 +5498,7 @@ MemberRestController.java
         @ResponseStatus(HttpStatus.OK)
         public MemberResource getMember(@PathVariable("memberId") String memberId) {
     
-            Member member = memberSevice.getMember(memberId);
+            Member member = memberService.getMember(memberId);
     
             MemberResource responseResource = beanMapper.map(member,
                     MemberResource.class);
@@ -5516,7 +5516,7 @@ MemberRestController.java
     
             Member updatingMember = beanMapper.map(requestedResource, Member.class);
     
-            Member updatedMember = memberSevice.updateMember(memberId,
+            Member updatedMember = memberService.updateMember(memberId,
                     updatingMember);
     
             MemberResource responseResource = beanMapper.map(updatedMember,
@@ -5530,7 +5530,7 @@ MemberRestController.java
         @ResponseStatus(HttpStatus.NO_CONTENT)
         public void deleteMember(@PathVariable("memberId") String memberId) {
     
-            memberSevice.deleteMember(memberId);
+            memberService.deleteMember(memberId);
     
         }
     

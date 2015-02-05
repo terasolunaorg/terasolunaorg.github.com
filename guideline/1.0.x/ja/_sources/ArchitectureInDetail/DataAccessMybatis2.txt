@@ -250,7 +250,7 @@ BLOBやCLOBなどのLarge Objectを扱う場合は、``SqlMapClient``\ クラス
 
      <!-- (1) -->
     <bean id="nativeJdbcExtractor"
-        class="org.springframework.jdbc.support.nativejdbc.SimpleNativeJdbcExtractor" />
+        class="org.springframework.jdbc.support.nativejdbc.CommonsDbcpNativeJdbcExtractor" />
 
     <!-- (2) -->
     <bean id="lobHandler" class="org.springframework.jdbc.support.lob.OracleLobHandler">
@@ -277,9 +277,9 @@ BLOBやCLOBなどのLarge Objectを扱う場合は、``SqlMapClient``\ クラス
       - 説明
     * - | (1)
       - | \ ``org.springframework.jdbc.support.nativejdbc.NativeJdbcExtractor``\ インタフェースの実装クラスを、bean定義する。
-        | 例では、\ ``org.springframework.jdbc.support.nativejdbc.SimpleNativeJdbcExtractor``\ を指定しているが、
-        | Tomcat以外のAPサーバでは、nativeデータソースを取得できない場合があるので、
-        | Springが提供している他のNativeJdbcExtractorを指定するか、各APサーバ用に、新たに\ ``NativeJdbcExtractor``\ を作成する必要がある。
+        | 例では、\ ``org.springframework.jdbc.support.nativejdbc.CommonsDbcpNativeJdbcExtractor``\ を指定しているが、
+        | Tomcat以外のAPサーバでは、コネクションプールの実装によって、JDBCコネクションを取得できない場合がある。
+        | その場合、Springが提供している他の\ ``NativeJdbcExtractor``\ (\ ``org.springframework.jdbc.support.nativejdbc.WebLogicNativeJdbcExtractor``\ など)を指定するか、各APサーバ用に、新たに\ ``NativeJdbcExtractor``\ を作成する必要がある。
     * - | (2)
       - | \ ``org.springframework.jdbc.support.lob.LobHandler``\ インタフェースの実装クラスをbean定義する。
         | 例では、Oracle使用時に指定する\ ``org.springframework.jdbc.support.lob.OracleLobHandler``\ を指定しているが、
