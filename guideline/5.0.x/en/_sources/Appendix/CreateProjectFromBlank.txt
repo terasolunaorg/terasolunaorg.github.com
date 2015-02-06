@@ -66,7 +66,7 @@ Creating a new project
        * - | \-B
          - | batch mode (skips interaction)
        * - | \-DarchetypeCatalog
-         - | Creates project using Maven archetype. Specifies TERASOLUNA Global Framework repository.
+         - | Creates project using Maven archetype. Specifies TERASOLUNA Server Framework for Java (5.x) repository.
        * - | \-DarchetypeGroupId
          - | terasoluna.gfw blank project GroupID is fixed to org.terasoluna.gfw.blank
        * - | \-DarchetypeArtifactId

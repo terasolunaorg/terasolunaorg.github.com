@@ -1,4 +1,4 @@
-Security for TERASOLUNA Global Framework
+Security for TERASOLUNA Server Framework for Java (5.x)
 ================================================================================
 
 .. toctree::

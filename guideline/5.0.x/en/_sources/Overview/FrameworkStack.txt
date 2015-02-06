@@ -1,4 +1,4 @@
-Stack of TERASOLUNA Global Framework
+Stack of TERASOLUNA Server Framework for Java (5.x)
 ================================================================================
 
 .. only:: html
@@ -7,10 +7,10 @@ Stack of TERASOLUNA Global Framework
     :depth: 3
     :local:
 
-Summary of Software Framework of TERASOLUNA Global Framework
+Summary of Software Framework of TERASOLUNA Server Framework for Java (5.x)
 --------------------------------------------------------------------------------
 
-Software Framework being used in TERASOLUNA Global Framework is not a proprietory Framework but a combination of various OSS technologies around \ `Spring Framework <http://projects.spring.io/spring-framework/>`_\ .
+Software Framework being used in TERASOLUNA Server Framework for Java (5.x) is not a proprietory Framework but a combination of various OSS technologies around \ `Spring Framework <http://projects.spring.io/spring-framework/>`_\ .
 
 .. figure:: images/introduction-software-framework.png
    :width: 80%
@@ -18,7 +18,7 @@ Software Framework being used in TERASOLUNA Global Framework is not a proprietor
 
 Main Structural Elements of Software Framework
 --------------------------------------------------------------------------------
-Libraries which constitute TERASOLUNA Global Framework are as follows:
+Libraries which constitute TERASOLUNA Server Framework for Java (5.x) are as follows:
 
 .. figure:: images/introduction-software-stack.png
    :width: 80%
@@ -443,7 +443,7 @@ List of OSS being used in version 1.0.1.RELEASE.
 
 #. Dependent libraries, when JPA is used for data access.
 #. Dependent libraries, when MyBatis2 is used for data access.
-#. Libraries which are not dependent on Common Library, but recommended in case of application development using TERASOLUNA Global Framework.
+#. Libraries which are not dependent on Common Library, but recommended in case of application development using TERASOLUNA Server Framework for Java (5.x).
 
 
 .. _frameworkstack_common_library:
@@ -452,8 +452,8 @@ List of OSS being used in version 1.0.1.RELEASE.
 Building blocks of Common Library
 --------------------------------------------------------------------------------
 
-\ `Common Library <https://github.com/terasolunaorg/terasoluna-gfw>`_\  includes ``+ alpha`` functionalities which are not available in Spring Ecosystem or other dependent libraries included in TERASOLUNA Global Framework. 
-Basically, application development is possible using TERASOLUNA Global Framework even without this library. It is a "nice to have" kind of existence. 
+\ `Common Library <https://github.com/terasolunaorg/terasoluna-gfw>`_\  includes ``+ alpha`` functionalities which are not available in Spring Ecosystem or other dependent libraries included in TERASOLUNA Server Framework for Java (5.x).
+Basically, application development is possible using TERASOLUNA Server Framework for Java (5.x) even without this library. It is a "nice to have" kind of existence.
 
 .. tabularcolumns:: |p{0.05\linewidth}|p{0.30\linewidth}|p{0.35\linewidth}|p{0.30\linewidth}|
 .. list-table::

@@ -1,5 +1,5 @@
-TERASOLUNA Global Framework Development Guideline
-======================================================
+TERASOLUNA Server Framework for Java (5.x) Development Guideline
+================================================================================
 
 .. note::
 

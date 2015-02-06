@@ -151,7 +151,7 @@
     * - \-B
       - | batch mode (対話を省略)
     * - | \-DarchetypeCatalog
-      - TERASOLUNA Global Frameworkのレポジトリを指定する。(固定)
+      - TERASOLUNA Server Framework for Java (5.x)のレポジトリを指定する。(固定)
     * - | \-DarchetypeGroupId
       - ブランクプロジェクトのgroupIdを指定する。(固定)
     * - | \-DarchetypeArtifactId

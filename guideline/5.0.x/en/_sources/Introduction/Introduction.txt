@@ -30,17 +30,17 @@ Structure of this document
 ================================================================================
 
 * \ :doc:`../Overview/index`\ 
-    Overview of Spring MVC and basic concepts of TERASOLUNA Global Framework is explained.
+    Overview of Spring MVC and basic concepts of TERASOLUNA Server Framework for Java (5.x) is explained.
 * \ :doc:`../TutorialTodo/index`\ 
-    Experience in application development using TERASOLUNA Global Framework through simple application development.
+    Experience in application development using TERASOLUNA Server Framework for Java (5.x) through simple application development.
 * \ :doc:`../ImplementationAtEachLayer/index`\ 
-    Knowledge and methods for application development using TERASOLUNA Global Framework are explained.
+    Knowledge and methods for application development using TERASOLUNA Server Framework for Java (5.x) are explained.
 * \ :doc:`../ArchitectureInDetail/index`\
-    Method to implement the functions required for general application development using TERASOLUNA Global Framework or features of each function is explained.
+    Method to implement the functions required for general application development using TERASOLUNA Server Framework for Java (5.x) or features of each function is explained.
 * \ :doc:`../Security/index`\  
     Security measures are explained focusing on Spring Security.
 * \ :doc:`../Appendix/index`\
-    Describing the additional information when TERASOLUNA Global Framework is being used.
+    Describing the additional information when TERASOLUNA Server Framework for Java (5.x) is being used.
 
 Reading this document
 ================================================================================
@@ -58,7 +58,7 @@ Reading this document
 | it is recommended to read it again and again several times.
 | One can get a better understanding by studying "\ :doc:`../TutorialTodo/index`\ " once again after reading this chapter.
 | 
-| **It is strongly recommended that all the developers who use TERASOLUNA Global Framework read it.**
+| **It is strongly recommended that all the developers who use TERASOLUNA Server Framework for Java (5.x) read it.**
 | 
 | Refer to "\ :doc:`../ArchitectureInDetail/index`\ " and "\ :doc:`../Security/index`\ "
 | as per the requirement. However, read ":doc:`../ArchitectureInDetail/Validation`" since it is normally required for application development.

@@ -81,7 +81,7 @@ Creating environment
 
 Creating project
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-| Create \ `TERASOLUNA Global Framework template <https://github.com/terasolunaorg/terasoluna-gfw-web-blank>`_\  using Maven archetype.
+| Create \ `TERASOLUNA Server Framework for Java (5.x) template <https://github.com/terasolunaorg/terasoluna-gfw-web-blank>`_\  using Maven archetype.
 | For the method  of importing Spring tool suite and method to start the application server, refer to \ :ref:`CreateProjectFromBlank_create-new-project`\ .
 
 .. code-block:: console
@@ -101,9 +101,9 @@ Creating project
     [INFO] Generating project in Interactive mode
     [INFO] No archetype defined. Using maven-archetype-quickstart (org.apache.maven.archetypes:maven-archetype-quickstart:1.0)
     Choose archetype:
-    1: http://repo.terasoluna.org/nexus/content/repositories/terasoluna-gfw-releases -> org.terasoluna.gfw.blank:terasoluna-gfw-web-blank-archetype (Blank project using TERASOLUNA Global Framework)
-    2: http://repo.terasoluna.org/nexus/content/repositories/terasoluna-gfw-releases -> org.terasoluna.gfw.blank:terasoluna-gfw-web-blank-jpa-archetype (Blank project using TERASOLUNA Global Framework (JPA))
-    3: http://repo.terasoluna.org/nexus/content/repositories/terasoluna-gfw-releases -> org.terasoluna.gfw.blank:terasoluna-gfw-web-blank-mybatis2-archetype (Blank project using TERASOLUNA Global Framework (MyBatis2))
+    1: http://repo.terasoluna.org/nexus/content/repositories/terasoluna-gfw-releases -> org.terasoluna.gfw.blank:terasoluna-gfw-web-blank-archetype (Blank project using TERASOLUNA Server Framework for Java (5.x))
+    2: http://repo.terasoluna.org/nexus/content/repositories/terasoluna-gfw-releases -> org.terasoluna.gfw.blank:terasoluna-gfw-web-blank-jpa-archetype (Blank project using TERASOLUNA Server Framework for Java (5.x) (JPA))
+    3: http://repo.terasoluna.org/nexus/content/repositories/terasoluna-gfw-releases -> org.terasoluna.gfw.blank:terasoluna-gfw-web-blank-mybatis2-archetype (Blank project using TERASOLUNA Server Framework for Java (5.x) (MyBatis2))
 
 The user is asked to select a type. Select "3" since this option uses MyBatis2 to access data.
 

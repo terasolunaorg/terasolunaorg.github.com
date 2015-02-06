@@ -638,7 +638,7 @@ Accessing \ ``UserDetails``\  in JSP
 
 .. note::
 
-  \ `It is already set in WEB-INF/views/common/include.jsp when using TERASOLUNA Global Framework sample <https://github.com/terasolunaorg/terasoluna-gfw-web-blank>`_\ .
+  \ `It is already set in WEB-INF/views/common/include.jsp when using TERASOLUNA Server Framework for Java (5.x) sample <https://github.com/terasolunaorg/terasoluna-gfw-web-blank>`_\ .
 
 | An example of using JSP for displaying authentication is as follows:
 

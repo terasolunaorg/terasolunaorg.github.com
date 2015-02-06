@@ -661,7 +661,7 @@ JSPで\ ``UserDetails``\ にアクセスする
 
 .. note::
 
-  \ `TERASOLUNA Global Frameworkの雛形 <https://github.com/terasolunaorg/terasoluna-gfw-web-blank>`_\ を使用している場合はWEB-INF/views/common/include.jspに設定済みである。
+  \ `TERASOLUNA Server Framework for Java (5.x)の雛形 <https://github.com/terasolunaorg/terasoluna-gfw-web-blank>`_\ を使用している場合はWEB-INF/views/common/include.jspに設定済みである。
 
 | 認証ユーザ名をJSPで表示する場合を例に、使用方法を示す。
 

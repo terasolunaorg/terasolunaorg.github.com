@@ -1,4 +1,4 @@
-TERASOLUNA Global Frameworkのスタック
+TERASOLUNA Server Framework for Java (5.x)のスタック
 ================================================================================
 
 .. only:: html
@@ -7,10 +7,10 @@ TERASOLUNA Global Frameworkのスタック
     :depth: 3
     :local:
 
-TERASOLUNA Global FrameworkのSoftware Framework概要
+TERASOLUNA Server Framework for Java (5.x)のSoftware Framework概要
 --------------------------------------------------------------------------------
 
-TERASOLUNA Global Frameworkで使用するSoftware Frameworkは独自のフレームワークではなく、\ `Spring Framework <http://projects.spring.io/spring-framework/>`_\ を中心としたOSSの組み合わせである。
+TERASOLUNA Server Framework for Java (5.x)で使用するSoftware Frameworkは独自のフレームワークではなく、\ `Spring Framework <http://projects.spring.io/spring-framework/>`_\ を中心としたOSSの組み合わせである。
 
 .. figure:: images/introduction-software-framework.png
    :width: 95%
@@ -19,7 +19,7 @@ TERASOLUNA Global Frameworkで使用するSoftware Frameworkは独自のフレ�
 Software Frameworkの主な構成要素
 --------------------------------------------------------------------------------
 
-TERASOLUNA Global Frameworkを構成するライブラリを以下に示す。
+TERASOLUNA Server Framework for Java (5.x)を構成するライブラリを以下に示す。
 
 .. figure:: images/introduction-software-stack.png
    :width: 95%
@@ -135,7 +135,7 @@ version 5.0.0.RELEASEで利用するOSSの一覧を以下に示す。
     * Spring Frameworkと相性のよいOSSライブラリ
 
     への依存関係を解決しており、
-    TERASOLUNA Global Frameworkで使用するOSSのバージョンは、原則として、Spring IO platformの定義に準じている。
+    TERASOLUNA Server Framework for Java (5.x)で使用するOSSのバージョンは、原則として、Spring IO platformの定義に準じている。
 
     なお、version 5.0.0.RELEASEで指定しているSpring IO platformのバージョンは、`1.1.1.RELEASE <http://docs.spring.io/platform/docs/1.1.1.RELEASE/reference/htmlsingle/>`_\ である。
 
@@ -605,11 +605,11 @@ version 5.0.0.RELEASEで利用するOSSの一覧を以下に示す。
 #. | データアクセスに、JPAを使用する場合に依存するライブラリ
 #. | データアクセスに、MyBatis3を使用する場合に依存するライブラリ
 #. | データアクセスに、MyBatis2を使用する場合に依存するライブラリ
-#. | 共通ライブラリに依存しないが、TERASOLUNA Global Frameworkでアプリケーションを開発する場合に、利用することを推奨しているライブラリ
+#. | 共通ライブラリに依存しないが、TERASOLUNA Server Framework for Java (5.x)でアプリケーションを開発する場合に、利用することを推奨しているライブラリ
 #. | Spring IO platformでサポートしているライブラリが個別に依存しているライブラリ
    | (Spring IO platformとしては依存関係の管理は行っていないライブラリ)
 #. | Spring IO platformで適用されるバージョンが、BetaやRC(Release Candidate)であるライブラリ
-   | (TERASOLUNA Global Framework側でGAのバージョンを明示的に指定しているライブラリ)
+   | (TERASOLUNA Server Framework for Java (5.x)側でGAのバージョンを明示的に指定しているライブラリ)
 
 .. _frameworkstack_common_library:
 
@@ -617,8 +617,8 @@ version 5.0.0.RELEASEで利用するOSSの一覧を以下に示す。
 共通ライブラリの構成要素
 --------------------------------------------------------------------------------
 
-\ `共通ライブラリ <https://github.com/terasolunaorg/terasoluna-gfw>`_\ は、TERASOLUNA Global Frameworkが含むSpring Ecosystem や、その他依存ライブラリでは足りない+αな機能を提供するライブラリである。
-基本的には、このライブラリがなくてもTERASOLUNA Global Frameworkによるアプリケーション開発は可能であるが、"あると便利"な存在である。
+\ `共通ライブラリ <https://github.com/terasolunaorg/terasoluna-gfw>`_\ は、TERASOLUNA Server Framework for Java (5.x)が含むSpring Ecosystem や、その他依存ライブラリでは足りない+αな機能を提供するライブラリである。
+基本的には、このライブラリがなくてもTERASOLUNA Server Framework for Java (5.x)によるアプリケーション開発は可能であるが、"あると便利"な存在である。
 
 .. tabularcolumns:: |p{0.05\linewidth}|p{0.30\linewidth}|p{0.35\linewidth}|p{0.30\linewidth}|
 .. list-table::

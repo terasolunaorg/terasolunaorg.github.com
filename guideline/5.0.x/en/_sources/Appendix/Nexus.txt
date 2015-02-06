@@ -52,10 +52,10 @@ Repository list is displayed on clicking Repositories on the menu on the left si
 * **Snapshots** = This repository stores the work products of SNAPSHOT version of the applications developed internally.
 * **Public Repositories** This group repository is used for enabling access to the above repositories through a single URL.
 
-Add TERASOLUNA Global Framework repository
+Add TERASOLUNA Server Framework for Java (5.x) repository
 --------------------------------------------------------------------------------
 
-When an application is to be developed using TERASOLUNA Global Framework, TERASOLUNA Global Framework repository needs to be added in addition to the above repositories.
+When an application is to be developed using TERASOLUNA Server Framework for Java (5.x), TERASOLUNA Server Framework for Java (5.x) repository needs to be added in addition to the above repositories.
 
 .. todo::
 

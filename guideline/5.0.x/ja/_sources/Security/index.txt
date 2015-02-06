@@ -1,4 +1,4 @@
-TERASOLUNA Global Frameworkによるセキュリティ対策
+TERASOLUNA Server Framework for Java (5.x)によるセキュリティ対策
 ================================================================================
 
 .. toctree::

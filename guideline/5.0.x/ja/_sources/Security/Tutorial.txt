@@ -87,7 +87,7 @@ URL一覧を以下に示す。
 プロジェクトの作成
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-Mavenのアーキタイプを利用し、\ `TERASOLUNA Global Frameworkのブランクプロジェクト <https://github.com/terasolunaorg/terasoluna-gfw-web-blank>`_\ を作成する。
+Mavenのアーキタイプを利用し、\ `TERASOLUNA Server Framework for Java (5.x)のブランクプロジェクト <https://github.com/terasolunaorg/terasoluna-gfw-web-blank>`_\ を作成する。
 
 本チュートリアルでは、MyBatis3用のブランクプロジェクトを作成する。
 

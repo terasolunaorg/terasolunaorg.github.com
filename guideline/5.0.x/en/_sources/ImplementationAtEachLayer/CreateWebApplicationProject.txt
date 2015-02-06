@@ -85,7 +85,7 @@ Create project using `archetype:generate <http://maven.apache.org/archetype/mave
     * - | \-B
       - batch mode (skips interaction)
     * - | \-DarchetypeCatalog
-      - Specify TERASOLUNA Global Framework repository.(Fixed)
+      - Specify TERASOLUNA Server Framework for Java (5.x) repository.(Fixed)
     * - | \-DarchetypeGroupId
       - Specify groupId of the blank project.(Fixed)
     * - | \-DarchetypeArtifactId
@@ -223,8 +223,8 @@ The actual settings contents indicated below.
 
     <!-- ... -->
 
-    <name>TERASOLUNA Global Framework Web Blank Multi Project</name>
-    <description>Web Blank Multi Project using TERASOLUNA Global Framework</description>
+    <name>TERASOLUNA Server Framework for Java (5.x) Web Blank Multi Project</name>
+    <description>Web Blank Multi Project using TERASOLUNA Server Framework for Java (5.x)</description>
     <url>http://terasoluna.org</url>
     <inceptionYear>2014</inceptionYear>
     <licenses>
@@ -1518,9 +1518,9 @@ The hierarchical structure of the project indicated below which is created in Ma
         In the project created in version 5.0.0.RELEASE Maven Archetype,
         [org.terasoluna.gfw:terasoluna-gfw-parent:5.0.0.RELEASE] is specified as a parent project.
     * - | (2)
-      - TERASOLUNA Global Framework Parent project.
+      - TERASOLUNA Server Framework for Java (5.x) Parent project.
 
-        In the TERASOLUNA Global Framework Parent project,
+        In the TERASOLUNA Server Framework for Java (5.x) Parent project,
 
         * Plug-ins settings for build
         * Customization of libraries that is managed through Spring IO Platform (adjusted scope and version)

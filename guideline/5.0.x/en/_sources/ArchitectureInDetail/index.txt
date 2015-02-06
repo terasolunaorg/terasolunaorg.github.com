@@ -1,5 +1,5 @@
-Architecture in Detail - TERASOLUNA Global Framework
-======================================================
+Architecture in Detail - TERASOLUNA Server Framework for Java (5.x)
+================================================================================
 
 The architecture adopted in this guideline is explained in detail here.
 

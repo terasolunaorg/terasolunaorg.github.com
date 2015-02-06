@@ -85,7 +85,7 @@ Webアプリケーション向け開発プロジェクトの作成
     * - | \-B
       - batch mode (対話を省略)
     * - | \-DarchetypeCatalog
-      - TERASOLUNA Global Frameworkのレポジトリを指定する。(固定)
+      - TERASOLUNA Server Framework for Java (5.x)のレポジトリを指定する。(固定)
     * - | \-DarchetypeGroupId
       - ブランクプロジェクトのgroupIdを指定する。(固定)
     * - | \-DarchetypeArtifactId
@@ -225,8 +225,8 @@ Maven Archetypeで作成したプロジェクトのPOMファイルでは、
 
     <!-- ... -->
 
-    <name>TERASOLUNA Global Framework Web Blank Multi Project</name>
-    <description>Web Blank Multi Project using TERASOLUNA Global Framework</description>
+    <name>TERASOLUNA Server Framework for Java (5.x) Web Blank Multi Project</name>
+    <description>Web Blank Multi Project using TERASOLUNA Server Framework for Java (5.x)</description>
     <url>http://terasoluna.org</url>
     <inceptionYear>2014</inceptionYear>
     <licenses>
@@ -1523,9 +1523,9 @@ Maven Archetypeで作成したプロジェクトのプロジェクト階層の�
         version 5.0.0.RELEASE用のMaven Archetypeで作成したプロジェクトでは、
         親プロジェクトとして「org.terasoluna.gfw:terasoluna-gfw-parent:5.0.0.RELEASE」を指定している。
     * - | (2)
-      - TERASOLUNA Global Framework Parentプロジェクト。
+      - TERASOLUNA Server Framework for Java (5.x) Parentプロジェクト。
 
-        TERASOLUNA Global Framework Parentプロジェクトでは、
+        TERASOLUNA Server Framework for Java (5.x) Parentプロジェクトでは、
 
         * ビルド用のプラグインの設定
         * Spring IO Platform経由で管理されているライブラリのカスタマイズ(バージョンとスコープの調整)
