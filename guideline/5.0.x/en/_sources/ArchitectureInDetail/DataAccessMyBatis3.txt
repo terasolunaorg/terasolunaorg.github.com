@@ -1894,7 +1894,7 @@ Fetching Entity of composite key
     When multiple method arguments of Repository interface are specified, it is recommended to specify \ ``@org.apache.ibatis.annotations.Param``\  annotation in the argument.
     "Bind variable name" specified while selecting the value from mapping file is specified in the \ ``value``\  attribute of \ ``@Param``\  annotation.
      
-    As shown in the above example, the value specified in the argument can be bound in SQL by specifying \ ``#{orderId}``\  and \ ``#{orderSubId}``\  from mapping file.
+    As shown in the above example, the value specified in the argument can be bound in SQL by specifying \ ``#{orderId}``\  and \ ``#{historyId}``\  from mapping file.
 
      .. code-block:: xml
     

@@ -305,7 +305,7 @@ Root Directoryに \ ``C:\work\todo``\ を設定し、Projectsにtodoのpom.xml�
 
 インポートが完了すると、Package Explorerに次のようなプロジェクトが表示される。
 
-.. figure:: images/image004.jpg
+.. figure:: images/image004.png
    :alt: workspace
 
 .. note::

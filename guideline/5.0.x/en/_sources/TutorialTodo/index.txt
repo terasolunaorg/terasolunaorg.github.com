@@ -305,7 +305,7 @@ Click on [Finish] by selecting \ ``C:\work\todo`` \ in Root Directory and select
 
 When the import is completed, project is displayed in the Package Explorer as follows.
 
-.. figure:: images/image004.jpg
+.. figure:: images/image004.png
    :alt: workspace
 
 .. note::
