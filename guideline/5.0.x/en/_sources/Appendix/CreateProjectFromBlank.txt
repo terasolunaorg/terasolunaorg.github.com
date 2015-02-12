@@ -70,9 +70,8 @@ Creating a new project
        * - | \-DarchetypeGroupId
          - | terasoluna.gfw blank project GroupID is fixed to org.terasoluna.gfw.blank
        * - | \-DarchetypeArtifactId
-         - | terasoluna-gfw-web-blank-archetype = when creating project without using JPA, MyBatis2
+         - | terasoluna-gfw-web-blank-archetype = when creating project without using JPA
            | terasoluna-gfw-web-blank-jpa-archetype = when creating project using JPA
-           | terasoluna-gfw-web-blank-mybatis2-archetype = when creating project using MyBatis2
        * - | \-DarchetypeVersion
          - | Specifies terasoluna.gfw version.
        * - | \-DgroupId

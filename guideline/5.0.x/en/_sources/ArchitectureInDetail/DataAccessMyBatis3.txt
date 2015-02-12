@@ -7722,6 +7722,28 @@ The status of \ ``Order``\  object and related Entities that are actually mapped
 
     **Picture - Mapped object diagram**
 
+
+| Records and columns mapped to \ ``Order``\  object are as follows:
+| By specifying groupBy attribute, grayed out part is merged with the non-grayed part.
+
+ .. figure:: images/dataaccess_sql_result_used.png
+    :alt: Valid Result Set
+    :width: 100%
+    :align: center
+
+    **Picture - Valid Result Set**
+
+.. _DataAccessMyBatis3AppendixAcquireRelatedObjectsWarningSqlMapping:
+
+ .. warning::
+
+     It should be noted that when the records with 1:N relationship are mapped using JOINs, fetching the data of grayed out part becomes unnecessary.
+
+     If the same SQL is used in a process that does not use data from the N part, it results in fetching of unnecessary data. Therefore, two separate SQLs, one that fetches the N part and another that does not fetch the N part should be created.
+
+
+
+
 |
 
 .. _DataAccessMyBatis3AppendixNestedSelect:

@@ -50,26 +50,9 @@ O/R Mapper
 
   * プロバイダは、\ `Hibernate 4.3 <http://docs.jboss.org/hibernate/orm/4.3/manual/en-US/html_single/>`_\ を使用する。
 
-* `MyBatis 2.3.5 <https://mybatis.googlecode.com/files/MyBatis-SqlMaps-2_en.pdf>`_ **(非推奨)**
-
-  * ラッパーとして、\ `TERASOLUNA Framework <http://sourceforge.jp/projects/terasoluna/releases/?package_id=6896>`_\ のDAO(TERASOLUNA DAO)を使用する。
-
 .. note::
 
   MyBatisは正確には「SQL Mapper」であるが、本ガイドラインでは「O/R Mapper」に分類する。
-
-
-.. warning::
-
-  **新規開発においてMyBatisを使用する場合は、MyBatis 3.2を使用することを推奨する。**
-
-  MyBatis 2.3.5は、
-
-  * version 1.0.xからのバージョンアップ
-  * \ `TERASOLUNA Framework <http://sourceforge.jp/projects/terasoluna/releases/?package_id=6896>`_\ を使用して構築されているアプリケーションからのマイグレーション
-
-  を行う際に、ドメイン層の実装を再利用できるようにするためにサポートしているバージョンであり、**新規開発においてMyBatis 2.3.5を使用することは非推奨である。**
-
 
 .. warning::
 
@@ -313,13 +296,13 @@ version 5.0.0.RELEASEで利用するOSSの一覧を以下に示す。
       - hibernate-commons-annotations
       - 4.0.5.Final
       - \*
-      - \*2 \*5
+      - \*2 \*4
     * - JPA(Hibernate)
       - org.hibernate.javax.persistence
       - hibernate-jpa-2.1-api
       - 1.0.0.Final
       - \*
-      - \*2 \*5
+      - \*2 \*4
     * - JPA(Hibernate)
       - org.javassist
       - javassist
@@ -331,43 +314,25 @@ version 5.0.0.RELEASEで利用するOSSの一覧を以下に示す。
       - jandex
       - 1.1.0.Final
       - \*
-      - \*2 \*5
+      - \*2 \*4
     * - JPA(Hibernate)
       - org.jboss.logging
       - jboss-logging-annotations
       - 1.2.0.Final
       - \*
-      - \*2 \*5 \*6
+      - \*2 \*4 \*5
     * - JPA(Hibernate)
       - org.jboss.spec.javax.transaction
       - jboss-transaction-api_1.2_spec
       - 1.0.0.Final
       - \*
-      - \*2 \*5
+      - \*2 \*4
     * - JPA(Hibernate)
       - org.springframework.data
       - spring-data-jpa
       - 1.7.1.RELEASE
       - \*
       - \*2
-    * - MyBatis2
-      - jp.terasoluna.fw
-      - terasoluna-dao
-      - 2.0.5.0
-      -
-      - \*3
-    * - MyBatis2
-      - jp.terasoluna.fw
-      - terasoluna-ibatis
-      - 2.0.5.0
-      -
-      - \*3
-    * - MyBatis2
-      - org.mybatis
-      - mybatis
-      - 2.3.5
-      -
-      - \*3
     * - DI
       - javax.inject
       - javax.inject
@@ -403,7 +368,7 @@ version 5.0.0.RELEASEで利用するOSSの一覧を以下に示す。
       - logback-core
       - 1.1.2
       - \*
-      - \*5
+      - \*4
     * - ログ出力
       - org.lazyluke
       - log4jdbc-remix
@@ -463,37 +428,37 @@ version 5.0.0.RELEASEで利用するOSSの一覧を以下に示す。
       - jboss-logging
       - 3.1.3.GA
       - \*
-      - \*5
+      - \*4
     * - 入力チェック
       - com.fasterxml
       - classmate
       - 1.0.0
       - \*
-      - \*5
+      - \*4
     * - Bean変換
       - commons-beanutils
       - commons-beanutils
       - 1.9.2
       - \*
-      - \*4
+      - \*3
     * - Bean変換
       - net.sf.dozer
       - dozer
       - 5.5.1
       -
-      - \*4
+      - \*3
     * - Bean変換
       - net.sf.dozer
       - dozer-spring
       - 5.5.1
       -
-      - \*4
+      - \*3
     * - Bean変換
       - org.apache.commons
       - commons-lang3
       - 3.3.2
       - \*
-      - \*4
+      - \*3
     * - 日付操作
       - joda-time
       - joda-time
@@ -505,7 +470,7 @@ version 5.0.0.RELEASEで利用するOSSの一覧を以下に示す。
       - joda-time-jsptags
       - 1.1.1
       -
-      - \*4
+      - \*3
     * - 日付操作
       - org.jadira.usertype
       - usertype.core
@@ -523,73 +488,73 @@ version 5.0.0.RELEASEで利用するOSSの一覧を以下に示す。
       - commons-dbcp2
       - 2.0.1
       - \*
-      - \*4
+      - \*3
     * - コネクションプール
       - org.apache.commons
       - commons-pool2
       - 2.2
       - \*
-      - \*4
+      - \*3
     * - Tiles
       - commons-digester
       - commons-digester
       - 2.1
       - \*
-      - \*4
+      - \*3
     * - Tiles
       - org.apache.tiles
       - tiles-api
       - 3.0.5
       - \*
-      - \*4
+      - \*3
     * - Tiles
       - org.apache.tiles
       - tiles-core
       - 3.0.5
       - \*
-      - \*4
+      - \*3
     * - Tiles
       - org.apache.tiles
       - tiles-jsp
       - 3.0.5
       - \*
-      - \*4
+      - \*3
     * - Tiles
       - org.apache.tiles
       - tiles-servlet
       - 3.0.5
       - \*
-      - \*4
+      - \*3
     * - Tiles
       - org.apache.tiles
       - tiles-template
       - 3.0.5
       - \*
-      - \*4 \*5
+      - \*3 \*4
     * - Tiles
       - org.apache.tiles
       - tiles-autotag-core-runtime
       - 1.1.0
       - \*
-      - \*4 \*5
+      - \*3 \*4
     * - Tiles
       - org.apache.tiles
       - tiles-request-servlet
       - 1.0.6
       - \*
-      - \*4 \*5
+      - \*3 \*4
     * - Tiles
       - org.apache.tiles
       - tiles-request-api
       - 1.0.6
       - \*
-      - \*4
+      - \*3
     * - Tiles
       - org.apache.tiles
       - tiles-request-jsp
       - 1.0.6
       - \*
-      - \*4 \*5
+      - \*3 \*4
     * - ユーティリティ
       - com.google.guava
       - guava
@@ -601,13 +566,13 @@ version 5.0.0.RELEASEで利用するOSSの一覧を以下に示す。
       - commons-collections
       - 3.2.1
       - \*
-      - \*4
+      - \*3
     * - ユーティリティ
       - commons-io
       - commons-io
       - 2.4
       - \*
-      - \*4
+      - \*3
     * - サーブレット
       - javax.servlet
       - jstl
@@ -617,7 +582,6 @@ version 5.0.0.RELEASEで利用するOSSの一覧を以下に示す。
 
 #. | データアクセスに、MyBatis3を使用する場合に依存するライブラリ
 #. | データアクセスに、JPAを使用する場合に依存するライブラリ
-#. | データアクセスに、MyBatis2を使用する場合に依存するライブラリ
 #. | 共通ライブラリに依存しないが、TERASOLUNA Server Framework for Java (5.x)でアプリケーションを開発する場合に、利用することを推奨しているライブラリ
 #. | Spring IO platformでサポートしているライブラリが個別に依存しているライブラリ
    | (Spring IO platformとしては依存関係の管理は行っていないライブラリ)
@@ -663,15 +627,10 @@ version 5.0.0.RELEASEで利用するOSSの一覧を以下に示す。
       - | JPAを使用する場合の、依存関係定義
       - | 無
     * - | (6)
-      - | terasoluna-gfw-mybatis2
-      - | MyBatis2を使用する場合の、依存関係定義
-        | **(新規開発での使用は非推奨)**
-      - | 無
-    * - | (7)
       - | terasoluna-gfw-security-core
       - | Spring Securityを使用する場合の、依存関係定義(Web以外)
       - | 無
-    * - | (8)
+    * - | (7)
       - | terasoluna-gfw-security-web
       - | Spring Securityを使用する場合の依存関係定義(Web関連)、およびSpring Securityの拡張
       - | 有

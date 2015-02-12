@@ -33,8 +33,7 @@
 
         version 5.0.0対応に伴う更新
 
-        * 新規開発においてMyBatis2の使用が非推奨である旨を追加。
-        * 各セクションの内容からMyBatis2に関する説明を削除又は「:doc:`../ArchitectureInDetail/DataAccessMybatis2`」内のAppendixに移動。
+        * MyBatis2の説明を削除
     * -
       - :doc:`../Overview/FrameworkStack`
       - Spring IO Platform対応
@@ -107,16 +106,6 @@
       - 新規追加
 
         * O/R MapperとしてMyBatis3を使用してインフラストラクチャ層を実装する方法を追加。
-    * -
-      - :doc:`../ArchitectureInDetail/DataAccessMybatis2`
-      - ガイドラインのバグ修正
-
-        * LOB型を扱うための設定と説明を修正。
-          修正内容の詳細は、\ `guideline#402のIssue <https://github.com/terasolunaorg/guideline/issues/402>`_\ を参照されたい。
-
-        version 5.0.0対応に伴う更新
-
-        * 新規開発においてMyBatis2の使用が非推奨である旨を記載し、Appendixの章へ移動。
     * -
       - :doc:`../ArchitectureInDetail/ExclusionControl`
       - ガイドラインのバグ修正
@@ -346,7 +335,6 @@
         * :doc:`../ArchitectureInDetail/DataAccessCommon`
         * :doc:`../ArchitectureInDetail/DataAccessJpa`
         * :doc:`../ArchitectureInDetail/DataAccessMyBatis3`
-        * :doc:`../ArchitectureInDetail/DataAccessMybatis2`
         * :doc:`../ArchitectureInDetail/ExclusionControl`
         * :doc:`../ArchitectureInDetail/Logging`
         * :doc:`../ArchitectureInDetail/PropertyManagement`

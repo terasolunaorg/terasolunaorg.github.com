@@ -614,7 +614,7 @@ JOIN(Join Fetch)を使用して解決する
     関連テーブルとの関連が、1:Nの場合は、JOIN(Join Fetch)による解決も可能だが、以下の点に注意すること。
 
     * 1:Nの関連をもつレコードをJOINする場合、関連テーブルのレコード数に比例して、無駄なデータを取得することになる。
-      詳細については、\ :ref:`一括取得時の注意事項 <data-access-mybatis2_warning_sqlmapping_bulk>`\ を参照されたい。
+      詳細については、\ :ref:`一括取得時の注意事項 <DataAccessMyBatis3AppendixAcquireRelatedObjectsWarningSqlMapping>`\ を参照されたい。
 
     * JPA(Hibernate)使用する際に、1:NのNの部分が、複数ある場合は、Nの部分を格納するコレクション型は、\ ``java.util.List``\ ではなく、\ ``java.util.Set``\ を使用する必要がある。
 

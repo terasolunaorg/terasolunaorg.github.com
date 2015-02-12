@@ -22,8 +22,7 @@ links to explanation of functionalities related to security have been given
    * - A1
      - `Injection <https://www.owasp.org/index.php/Top_10_2013-A1-Injection>`_ SQL Injection
      - * \ :doc:`../ArchitectureInDetail/DataAccessJpa`\ 
-       * \ :doc:`../ArchitectureInDetail/DataAccessMybatis2`\ 
-       
+
        (Details about using bind variable at the time of placeholders for query parameters)
    * - A1
      - `Injection <https://www.owasp.org/index.php/Top_10_2013-A1-Injection>`_ XXE(XML External Entity) Injection

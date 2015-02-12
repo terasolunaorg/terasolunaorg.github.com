@@ -50,10 +50,6 @@ This guideline assumes the use of **any one of the below**.
 
   * \ `MyBatis-Spring <http://mybatis.github.io/spring/>`_  is used as library for coordinating with Spring Framework.
 
-* `MyBatis 2.3.5 <https://mybatis.googlecode.com/files/MyBatis-SqlMaps-2_en.pdf>`_
-
-  * DAO(TERASOLUNA DAO) of \ `TERASOLUNA Framework <http://sourceforge.jp/projects/terasoluna/releases/?package_id=6896>`_\  is used as wrapper.
-
 .. note::
 
   To be precise MyBatis is a "SQL Mapper", but it is classified as "O/R Mapper" in this guidelines.
@@ -288,13 +284,13 @@ List of OSS being used in version 5.0.0.RELEASE.
       - hibernate-commons-annotations
       - 4.0.5.Final
       - \*
-      - \*1 \*5
+      - \*1 \*4
     * - JPA(Hibernate)
       - org.hibernate.javax.persistence
       - hibernate-jpa-2.1-api
       - 1.0.0.Final
       - \*
-      - \*1 \*5
+      - \*1 \*4
     * - JPA(Hibernate)
       - org.javassist
       - javassist
@@ -306,19 +302,19 @@ List of OSS being used in version 5.0.0.RELEASE.
       - jandex
       - 1.1.0.Final
       - \*
-      - \*1 \*5
+      - \*1 \*4
     * - JPA(Hibernate)
       - org.jboss.logging
       - jboss-logging-annotations
       - 1.2.0.Final
       - \*
-      - \*1 \*5 \*6
+      - \*1 \*4 \*5
     * - JPA(Hibernate)
       - org.jboss.spec.javax.transaction
       - jboss-transaction-api_1.2_spec
       - 1.0.0.Final
       - \*
-      - \*1 \*5
+      - \*1 \*4
     * - JPA(Hibernate)
       - org.springframework.data
       - spring-data-jpa
@@ -337,24 +333,6 @@ List of OSS being used in version 5.0.0.RELEASE.
       - 1.2.2
       -
       - \*2
-    * - MyBatis2
-      - jp.terasoluna.fw
-      - terasoluna-dao
-      - 2.0.5.0
-      -
-      - \*3
-    * - MyBatis2
-      - jp.terasoluna.fw
-      - terasoluna-ibatis
-      - 2.0.5.0
-      -
-      - \*3
-    * - MyBatis2
-      - org.mybatis
-      - mybatis
-      - 2.3.5
-      -
-      - \*3
     * - DI
       - javax.inject
       - javax.inject
@@ -390,7 +368,7 @@ List of OSS being used in version 5.0.0.RELEASE.
       - logback-core
       - 1.1.2
       - \*
-      - \*5
+      - \*4
     * - Log output
       - org.lazyluke
       - log4jdbc-remix
@@ -450,37 +428,37 @@ List of OSS being used in version 5.0.0.RELEASE.
       - jboss-logging
       - 3.1.3.GA
       - \*
-      - \*5
+      - \*4
     * - Input check
       - com.fasterxml
       - classmate
       - 1.0.0
       - \*
-      - \*5
+      - \*4
     * - Bean conversion
       - commons-beanutils
       - commons-beanutils
       - 1.9.2
       - \*
-      - \*4
+      - \*3
     * - Bean conversion
       - net.sf.dozer
       - dozer
       - 5.5.1
       -
-      - \*4
+      - \*3
     * - Bean conversion
       - net.sf.dozer
       - dozer-spring
       - 5.5.1
       -
-      - \*4
+      - \*3
     * - Bean conversion
       - org.apache.commons
       - commons-lang3
       - 3.3.2
       - \*
-      - \*4
+      - \*3
     * - Date operation
       - joda-time
       - joda-time
@@ -492,7 +470,7 @@ List of OSS being used in version 5.0.0.RELEASE.
       - joda-time-jsptags
       - 1.1.1
       -
-      - \*4
+      - \*3
     * - Date operation
       - org.jadira.usertype
       - usertype.core
@@ -510,73 +488,73 @@ List of OSS being used in version 5.0.0.RELEASE.
       - commons-dbcp2
       - 2.0.1
       - \*
-      - \*4
+      - \*3
     * - Connection pool
       - org.apache.commons
       - commons-pool2
       - 2.2
       - \*
-      - \*4
+      - \*3
     * - Tiles
       - commons-digester
       - commons-digester
       - 2.1
       - \*
-      - \*4
+      - \*3
     * - Tiles
       - org.apache.tiles
       - tiles-api
       - 3.0.5
       - \*
-      - \*4
+      - \*3
     * - Tiles
       - org.apache.tiles
       - tiles-core
       - 3.0.5
       - \*
-      - \*4
+      - \*3
     * - Tiles
       - org.apache.tiles
       - tiles-jsp
       - 3.0.5
       - \*
-      - \*4
+      - \*3
     * - Tiles
       - org.apache.tiles
       - tiles-servlet
       - 3.0.5
       - \*
-      - \*4
+      - \*3
     * - Tiles
       - org.apache.tiles
       - tiles-template
       - 3.0.5
       - \*
-      - \*4 \*5
+      - \*3 \*4
     * - Tiles
       - org.apache.tiles
       - tiles-autotag-core-runtime
       - 1.1.0
       - \*
-      - \*4 \*5
+      - \*3 \*4
     * - Tiles
       - org.apache.tiles
       - tiles-request-servlet
       - 1.0.6
       - \*
-      - \*4 \*5
+      - \*3 \*4
     * - Tiles
       - org.apache.tiles
       - tiles-request-api
       - 1.0.6
       - \*
-      - \*4
+      - \*3
     * - Tiles
       - org.apache.tiles
       - tiles-request-jsp
       - 1.0.6
       - \*
-      - \*4 \*5
+      - \*3 \*4
     * - Utility
       - com.google.guava
       - guava
@@ -588,13 +566,13 @@ List of OSS being used in version 5.0.0.RELEASE.
       - commons-collections
       - 3.2.1
       - \*
-      - \*4
+      - \*3
     * - Utility
       - commons-io
       - commons-io
       - 2.4
       - \*
-      - \*4
+      - \*3
     * - Servlet
       - javax.servlet
       - jstl
@@ -604,7 +582,6 @@ List of OSS being used in version 5.0.0.RELEASE.
 
 #. | Dependent libraries, when JPA is used for data access.
 #. | Dependent libraries, when MyBatis3 is used for data access.
-#. | Dependent libraries, when MyBatis2 is used for data access.
 #. | Libraries which are not dependent on Common Library, but recommended in case of application development using TERASOLUNA Server Framework for Java (5.x).
 #. | Libraries that are supported by Spring IO platform, but library that relies individually.
    | (Library is not managed as dependencies in Spring IO platform)
@@ -650,14 +627,10 @@ Basically, application development is possible using TERASOLUNA Server Framework
       - | Dependency definition for using MyBatis3
       - | No
     * - | (6)
-      - | terasoluna-gfw-mybatis2
-      - | Dependency definition for using MyBatis2
-      - | No
-    * - | (7)
       - | terasoluna-gfw-security-core
       - | Dependency definition for using Spring Security (other than Web)
       - | No
-    * - | (8)
+    * - | (7)
       - | terasoluna-gfw-security-web
       - | Dependency definition for using Spring Security (related to Web) and extended classes of Spring Security
       - | Yes

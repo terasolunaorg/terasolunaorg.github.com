@@ -237,7 +237,6 @@ Specifically, the following classes are the O/R Mapper.
 
 * \ ``EntityManager``\  in case of using JPA,
 * Mapper interface or \ ``SqlSession``\  in case of using MyBatis3
-* \ ``QueryDAO``\  or \ ``UpdateDAO``\  in case of using MyBatis2(TERASOLUNA DAO)
 * \ ``JdbcTemplate``\  in case of using plain Spring JDBC
 
 O/R Mapper used for implementation of Repository.

@@ -32,7 +32,7 @@ Webアプリケーション向け開発プロジェクトの作成
 
 |
 
-マルチプロジェクトを作成するためのArchetypeとして、以下の3種類を用意している。
+マルチプロジェクトを作成するためのArchetypeとして、以下の2種類を用意している。
 
 .. tabularcolumns:: |p{0.5\linewidth}|p{0.30\linewidth}|p{0.65\linewidth}|
 .. list-table::
@@ -48,10 +48,6 @@ Webアプリケーション向け開発プロジェクトの作成
     * - 2.
       - terasoluna-gfw-multi-web-blank-jpa-archetype
       - O/R MapperとしてJPA(with Spring Data JPA and Hibernate)を使用するためのプロジェクトを生成するためのArchetype。
-    * - 3.
-      - terasoluna-gfw-multi-web-blank-mybatis2-archetype
-      - O/R MapperとしてMyBatis2(with TERASOLUNA DAO)を使用するためのプロジェクトを生成するためのArchetype。
-        **(新規開発での使用は非推奨)**
 
 |
 
@@ -96,7 +92,6 @@ Webアプリケーション向け開発プロジェクトの作成
 
         * ``terasoluna-gfw-multi-web-blank-mybatis3-archetype``
         * ``terasoluna-gfw-multi-web-blank-jpa-archetype``
-        * ``terasoluna-gfw-multi-web-blank-mybatis2-archetype`` **(新規開発での使用は非推奨)**
 
         上記例では、\ ``terasoluna-gfw-multi-web-blank-mybatis3-archetype``\ を指定している。
     * - | \-DarchetypeVersion
@@ -1261,49 +1256,6 @@ domainモジュールの構成
       - MyBatis3のMapperファイルを格納するディレクトリ。
     * - | (12)
       - MyBatis3のMapperファイルのサンプルファイル。
-
-        作成時点では、サンプル実装がコメントアウトされた状態になっている。
-        **このファイルは最終的には不要なファイルである。**
-
-|
-
-**MyBatis2用のプロジェクトを作成した場合**
-
-.. code-block:: console
-
-        └── src
-            ├── main
-            │   ├── java
-           (...)
-            │   └── resources
-            │       └── META-INF
-            │           ├── dozer
-            │           ├── mybatis  ... (13)
-            │           │   ├── config  ... (14)
-            │           │   │   └── sqlMapConfig.xml  ... (15)
-            │           │   └── sql  ... (16)
-            │           │       └── sample-sqlmap.xml  ... (17)
-            │           └── spring
-
-.. tabularcolumns:: |p{0.10\linewidth}|p{0.90\linewidth}|
-.. list-table::
-    :header-rows: 1
-    :widths: 10 90
-
-    * - | 項番
-      - | 説明
-    * - | (13)
-      - MyBatis2の設定ファイルとSqlMapファイルを格納するディレクトリ。
-    * - | (14)
-      - MyBatis2の設定ファイルを格納するディレクトリ。
-    * - | (15)
-      - MyBatis2の設定ファイル。
-
-        作成時点では、ネームスペースを有効にするための設定が定義されている。
-    * - | (16)
-      - MyBatis2のSqlMapファイルを格納するディレクトリ。
-    * - | (17)
-      - MyBatis2のSqlMapファイルのサンプルファイル。
 
         作成時点では、サンプル実装がコメントアウトされた状態になっている。
         **このファイルは最終的には不要なファイルである。**

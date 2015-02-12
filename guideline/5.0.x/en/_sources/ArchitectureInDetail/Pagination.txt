@@ -79,7 +79,7 @@ Page search functionality provided by Spring Data is as follows:
     * - 3
       - | When Spring Data JPA is used for database access, the information of corresponding page is returned as ``Page``  object by specifying ``Pageable``  object as an argument of Repository Query method.
         | All the processes such as executing SQL to fetch total records, adding sort condition and extracting data matching the corresponding page are carried out automatically.
-        | When Mybatis2 is used for database access, the process that is automatically carried out in Spring Data JPA needs to be carried out in Java or SQL mapping file.
+        | When Mybatis is used for database access, the process that is automatically carried out in Spring Data JPA needs to be carried out in Java or SQL mapping file.
 
 .. _pagination_overview_pagesearch_requestparameter:
 
@@ -592,8 +592,6 @@ Process flow when using pagination functionality of Spring Data and JSP tag libr
 
     When the method of Repository interface of Spring Data JPA is used, the processes (5) and (6) are carried out automatically using Spring Data JPA functionality.
 
-    When using Mybatis2, repository needs to be implemented in Java or SQL mapping file. For example, refer to Åg:doc:`DataAccessMybatis2`Åh.
-
 
 |
 
@@ -877,14 +875,6 @@ Implementation of domain layer (JPA)
       - | Receive the information required for page search ( ``Pageable`` ) as an argument of Repository query method.
         | Return value type should be ``Page<Entity>``.
         | If the above method is created, Spring Data JPA functionality can return ``Page``  object by extracting data corresponding to ``Pageable``  object status.
-
-|
-
-Implementation of Service (Mybatis2)
-""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
-| When accessing the database using Mybatis2(TERASOLUNA DAO), extract the necessary information from ``Pageable``  object received from Controller and call TERASOLUNA DAO method.
-| SQL to fetch the corresponding data and sort condition needs to be executed using SQL mapping.
-| For details on page search to be implemented in domain layer, refer to ":doc:`DataAccessMybatis2`".
 
 |
 

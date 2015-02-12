@@ -7720,6 +7720,26 @@ Couponオブジェクトへのマッピングの実装
 
     **Picture - Mapped object diagram**
 
+
+| \ ``Order``\オブジェクトにマッピングされたレコードとカラムは、以下の通りである。
+| グレーアウトしている部分は、グループ化によって、グレーアウトされていない部分にマージされる。
+
+ .. figure:: images/dataaccess_sql_result_used.png
+    :alt: Valid Result Set
+    :width: 100%
+    :align: center
+
+    **Picture - Valid Result Set**
+
+
+.. _DataAccessMyBatis3AppendixAcquireRelatedObjectsWarningSqlMapping:
+
+ .. warning::
+
+     1:Nの関連をもつレコードをJOINしてマッピングする場合、グレーアウトされている部分のデータの取得が無駄になる点を、意識しておくこと。
+
+     Nの部分のデータを使用しない処理で、同じSQLを使用した場合、さらに無駄なデータの取得となってしまうので、Nの部分を取得するSQLと、取得しないSQLを、別々に用意しておくなどの工夫を行うこと。
+
 |
 
 .. _DataAccessMyBatis3AppendixNestedSelect:

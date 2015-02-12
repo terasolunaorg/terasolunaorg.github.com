@@ -25,7 +25,7 @@ Overview
 --------------------------------------------------------------------------------
 
 | This chapter explains the method of accessing the data stored in RDBMS.
-| For O/R Mapper dependent part, refer to \ :doc:`DataAccessJpa`\  and \ :doc:`DataAccessMybatis2`\ .
+| For O/R Mapper dependent part, refer to \ :doc:`DataAccessJpa`\ .
 
 
 About JDBC DataSource
@@ -367,7 +367,7 @@ Settings when using DataSource for which Bean is defined
 Settings to enable transaction management
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 | For basic settings to enable transaction management, refer to \ :ref:`service_enable_transaction_management`\  of \ :doc:`../ImplementationAtEachLayer/DomainLayer`\ .
-| For PlatformTransactionManager, the class to be used changes depending on the O/R Mapper used; hence for detailed settings, refer to \ :doc:`DataAccessJpa`\ , \ :doc:`DataAccessMybatis2`\ . 
+| For PlatformTransactionManager, the class to be used changes depending on the O/R Mapper used; hence for detailed settings, refer to \ :doc:`DataAccessJpa`\ .
 
 JDBC debug log settings
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
@@ -600,7 +600,7 @@ Resolving N+1 using JOINs (Join Fetch)
     When relation with SubTable is 1:N, the problem can be resolved using JOIN (Join Fetch); however the following points should be noted.
 
     * When JOIN is performed on records having 1:N relation, unnecessary data is fetched depending on the number of records in SubTable.
-      For details, refer to \ :ref:`Notes during collective fetch <data-access-mybatis2_warning_sqlmapping_bulk>`\ .
+      For details, refer to \ :ref:`Notes during collective fetch <DataAccessMyBatis3AppendixAcquireRelatedObjectsWarningSqlMapping>`\ .
 
     * When using JPA (Hibernate), if N portions in 1:N are multiple, then it is necessary to use \ ``java.util.Set``\  instead of \ ``java.util.List``\  as a collection type storage N portion.
 
@@ -763,7 +763,6 @@ How to use common library
 For example of escaping at the time of LIKE search, refer to Document for O/R Mapper to be used.
 
 * When using JPA (Spring Data JPA), refer to \ :ref:`data-access-jpa_howtouse_like_escape`\ of \ :doc:`DataAccessJpa`\ .
-* When using Mybatis2 (TERASOLUNA DAO), refer to \ :ref:`data-access-mybatis2_howtouse_like_escape`\  of \ :doc:`DataAccessMybatis2`\ .
 
 .. _data-access-common_appendix_sequencer:
 

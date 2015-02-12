@@ -244,7 +244,6 @@ JPA / MyBatis / Spring JDBCが、本機能を提供する。
 
 * MyBatis3を用いる場合は、Mapperインタフェースや\ ``SqlSession``\
 * JPAを用いる場合は、\ ``EntityManager``\
-* MyBatis2(TERASOLUNA DAO)を用いる場合は、\ ``QueryDAO``\ や\ ``UpdateDAO``\  **(新規開発での使用は非推奨)**
 * Spring JDBCを用いる場合は、\ ``JdbcTemplate``\
 
 が、O/R Mapperに該当する。

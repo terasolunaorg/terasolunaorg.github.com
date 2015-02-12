@@ -32,7 +32,7 @@ The multi-project structured development project will be created using the
 
 |
 
-As an Archetype following three types are provided for creating multi-project.
+As an Archetype following two types are provided for creating multi-project.
 
 .. tabularcolumns:: |p{0.5\linewidth}|p{0.30\linewidth}|p{0.65\linewidth}|
 .. list-table::
@@ -46,9 +46,6 @@ As an Archetype following three types are provided for creating multi-project.
       - terasoluna-gfw-multi-web-blank-mybatis3-archetype
       - Archetype for generating a project to use MyBatis3 as O/R Mapper.
     * - 2.
-      - terasoluna-gfw-multi-web-blank-mybatis2-archetype
-      - Archetype for generating a project to use MyBatis2(with TERASOLUNA DAO) as O/R Mapper.
-    * - 3.
       - terasoluna-gfw-multi-web-blank-jpa-archetype
       - Archetype for generating a project to use JPA(with Spring Data JPA and Hibernate) as O/R Mapper.
 
@@ -95,7 +92,6 @@ Create project using `archetype:generate <http://maven.apache.org/archetype/mave
 
         * ``terasoluna-gfw-multi-web-blank-mybatis3-archetype``
         * ``terasoluna-gfw-multi-web-blank-jpa-archetype``
-        * ``terasoluna-gfw-multi-web-blank-mybatis2-archetype``
 
         In above example, \ ``terasoluna-gfw-multi-web-blank-mybatis3-archetype`` \ is specified.
     * - | \-DarchetypeVersion
@@ -1257,49 +1253,6 @@ Module that manages the domain layer components are explained.
       - Directory that contains the MyBatis3 Mapper files.
     * - | (12)
       - Sample file of MyBatis3 Mapper file.
-
-        Sample implementation is in commented out state at the time of creation
-        **Lastly, these files will not required.**
-
-|
-
-**In case of project created for MyBatis2**
-
-.. code-block:: console
-
-        └── src
-            ├── main
-            │   ├── java
-           (...)
-            │   └── resources
-            │       └── META-INF
-            │           ├── dozer
-            │           ├── mybatis  ... (13)
-            │           │   ├── config  ... (14)
-            │           │   │   └── sqlMapConfig.xml  ... (15)
-            │           │   └── sql  ... (16)
-            │           │       └── sample-sqlmap.xml  ... (17)
-            │           └── spring
-
-.. tabularcolumns:: |p{0.10\linewidth}|p{0.90\linewidth}|
-.. list-table::
-    :header-rows: 1
-    :widths: 10 90
-
-    * - | Sr. No.
-      - | Description
-    * - | (13)
-      - Directory that contains the MyBatis2 configuration files and SqlMap files.
-    * - | (14)
-      - Directory that contains the MyBatis2 configuration files.
-    * - | (15)
-      - MyBatis2 configuration files
-
-        The setting for enabling namespace defined at the time of creation.
-    * - | (16)
-      - Directory that contains the MyBatis2 SqlMap files.
-    * - | (17)
-      - Sample file of MyBatis2 SqlMap file.
 
         Sample implementation is in commented out state at the time of creation
         **Lastly, these files will not required.**
