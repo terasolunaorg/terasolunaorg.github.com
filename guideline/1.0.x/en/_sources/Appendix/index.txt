@@ -7,6 +7,7 @@ Appendix
 
    ../TutorialREST/index
    CreateProjectFromBlank
+   TagLibAndELFunctions
    Nexus
    ../Appendix/EnvironmentIndependency
    ../Appendix/ProjectStructureStandard.rst

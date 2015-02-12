@@ -299,7 +299,7 @@ Root Directoryに \ ``C:\work\todo``\ を設定し、Projectsにtodoのpom.xml�
 
 Package Explorerに、次のようなプロジェクトが生成される( **要インターネット接続** )。
 
- .. figure:: images/image004.jpg
+ .. figure:: images/image004.png
    :alt: workspace
    :width: 30%
 

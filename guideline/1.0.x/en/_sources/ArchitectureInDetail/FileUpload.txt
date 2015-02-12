@@ -119,7 +119,7 @@ Classes provided by Spring Web for uploading a file are as follows:
     When using Apache Commons FileUpload, vulnerabilities of security mentioned in \ `CVE-2014-0050 <http://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2014-0050>`_\  may occur.
     Ensure that there are no such vulnerabilities in the Apache Commons FileUpload version to be used.
      
-    When using Apache Commons FileUpload, version 1.2.1 or above of the 1.2 series and 1.3.1 or above of the 1.3 series should be used.
+    When using Apache Commons FileUpload, version 1.3.1 or above should be used.
     
 |
 
