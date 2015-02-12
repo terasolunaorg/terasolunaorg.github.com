@@ -78,7 +78,7 @@
 
         * MyBatis3用の設定が盛り込まれた雛形
         * JPA(Spring Data JPA)用の設定が盛り込まれた雛形
-        * MyBatis2(TERASOLUNA DAO)用の設定が盛り込まれた雛形
+        * MyBatis2(TERASOLUNA DAO)用の設定が盛り込まれた雛形 **(新規開発での使用は非推奨)**
 
         **本ガイドラインでは、マルチプロジェクト構成のプロジェクトを使用する事を推奨している。**
     * - | `シングルプロジェクト構成のブランクプロジェクト <https://github.com/terasolunaorg/terasoluna-gfw-web-blank>`_
@@ -89,7 +89,7 @@
 
         * MyBatis3用の設定が盛り込まれた雛形
         * JPA(Spring Data JPA)用の設定が盛り込まれた雛形
-        * MyBatis2(TERASOLUNA DAO)用の設定が盛り込まれた雛形
+        * MyBatis2(TERASOLUNA DAO)用の設定が盛り込まれた雛形 **(新規開発での使用は非推奨)**
         * O/R Mapperに依存しない雛形
 
         本ガイドラインでは、各種チュートリアルをシングルプロジェクトを使用して行う手順となっている。
@@ -164,7 +164,7 @@
         * | ``terasoluna-gfw-web-blank-jpa-archetype``
           | JPA(Spring Data JPA)用の設定が盛り込まれた雛形
         * | ``terasoluna-gfw-web-blank-mybatis2-archetype``
-          | MyBatis2(TERASOLUNA DAO)用の設定が盛り込まれた雛形
+          | MyBatis2(TERASOLUNA DAO)用の設定が盛り込まれた雛形 **(新規開発での使用は非推奨)**
         * | ``terasoluna-gfw-web-blank-archetype``
           | O/R Mapperに依存しない雛形
 

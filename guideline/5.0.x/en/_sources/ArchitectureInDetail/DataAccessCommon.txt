@@ -172,30 +172,6 @@ About exception handling
     **It has been recently found that using JPA (Hibernate) results in occurrence of unexpected errors.**
 
     * In case of unique constraint violation, \ ``org.springframework.dao.DataIntegrityViolationException``\  occurs and not \ ``DuplicateKeyException``\ .
-    * If pessimistic locking fails, the child class of \ ``org.springframework.dao.UncategorizedDataAccessException``\  occurs and not \ ``PessimisticLockingFailureException``\ .
-
-    \ ``UncategorizedDataAccessException``\  that occurs in case of pessimistic locking error is classified as system error; hence handling it in the application is not recommended. However, there might be cases wherein this exception may need to be handled.
-    This exception can be handled since exception notifying the occurrence of pessimistic locking error is saved as the cause of exception.
-
-    ⇒ Further analysis
-
-    **The current behavior is as follows:**
-
-    * PostgreSQL + for update nowait
-
-      - org.springframework.orm.hibernate3.HibernateJdbcException
-      - Caused by: org.hibernate.PessimisticLockException
-
-    * Oracle + for update
-
-      - org.springframework.orm.hibernate3.HibernateSystemException
-      - Caused by: Caused by: org.hibernate.dialect.lock.PessimisticEntityLockException
-      - Caused by: org.hibernate.exception.LockTimeoutException
-
-    * Oracle / PostgreSQL + Unique constraint
-
-      - org.springframework.dao.DataIntegrityViolationException
-      - Caused by: org.hibernate.exception.ConstraintViolationException
 
 
 See the example below for handling unique constraint violation as business exception.
@@ -941,18 +917,22 @@ Classes of Spring Framework which play a role in converting an exception to data
       - Class name
       - Description
     * - 1.
-      - | org.springframework.orm.hibernate3.
-        | SessionFactoryUtils
-      - When JPA (Hibernate implementation) is used, O/R Mapper exception is converted to data access exception of Spring Framework using this class.
+      - | org.springframework.jdbc.support.
+        | SQLErrorCodeSQLExceptionTranslator
+      - When MyBatis or \ ``JdbcTemplate``\  is used, JDBC exception is converted to data access exception of Spring Framework using this class. Conversion rules are mentioned in XML file. XML file used by default is \ ``org/springframework/jdbc/support/sql-error-codes.xml``\  in \ ``spring-jdbc.jar``\ .
+        It is also possible to change the default behavior by placing XML file (\ ``sql-error-codes.xml``\ ) just below class path.
     * - 2.
+      - | org.springframework.orm.jpa.vendor.
+        | HibernateJpaDialect
+      - When JPA (Hibernate implementation) is used, O/R Mapper exception(Hibernate exception) is converted to data access exception of Spring Framework using this class.
+    * - 3.
+      - | org.springframework.orm.jpa.
+        | EntityManagerFactoryUtils
+      - If an exception that can not be converted by \ ``HibernateJpaDialect``\  has occurred, JPA exception is converted to data access exception of Spring Framework using this class.
+    * - 4.
       - | Sub classes of
         | org.hibernate.dialect.Dialect
       - When JPA (Hibernate implementation) is used, exceptions are converted to JDBC exception and O/R Mapper exception using this class.
-    * - 3.
-      - | org.springframework.jdbc.support.
-        | SQLErrorCodeSQLExceptionTranslator
-      - When Mybatis or JdbcTemplate is used, JDBC exception is converted to data access exception of Spring Framework using this class. Conversion rules are mentioned in XML file. XML file used by default is org/springframework/jdbc/support/sql-error-codes.xml in spring-jdbc.jar.
-        It is also possible to change the default behavior by placing XML file (sql-error-codes.xml) just below class path.
 
 .. _appendix_datasource_of_spring-label:
 

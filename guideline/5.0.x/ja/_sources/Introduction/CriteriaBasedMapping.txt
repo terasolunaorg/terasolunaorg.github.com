@@ -19,8 +19,8 @@
      - 関連するガイドライン
    * - A1
      - `Injection <https://www.owasp.org/index.php/Top_10_2013-A1-Injection>`_ SQL Injection
-     - * \ :doc:`../ArchitectureInDetail/DataAccessJpa`\ 
-       * \ :doc:`../ArchitectureInDetail/DataAccessMyBatis3`\
+     - * \ :doc:`../ArchitectureInDetail/DataAccessMyBatis3`\
+       * \ :doc:`../ArchitectureInDetail/DataAccessJpa`\
        * \ :doc:`../ArchitectureInDetail/DataAccessMybatis2`\
        
        (クエリにパラメータを埋め込む場合は、バインド変数を使用する旨を記載)

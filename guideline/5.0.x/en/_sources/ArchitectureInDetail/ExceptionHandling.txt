@@ -259,32 +259,6 @@ Library exceptions that occurs during normal operation
   **Currently it has been found that unexpected errors occur if JPA(Hibernate) is used.**
 
   * In case of unique constraint violation, \ ``org.springframework.dao.DataIntegrityViolationException``\  occurs and not \ ``DuplicateKeyException``\ .
-  * If pessimistic locking fails, the child class of \ ``org.springframework.dao.UncategorizedDataAccessException``\  occurs and not \ ``PessimisticLockingFailureException``\ .
-
-  \ ``UncategorizedDataAccessException``\  that occurs at the time of pessimistic locking error, is classified as system error, 
-  hence handling it in the application is not recommended.
-  However, there might be cases wherein this exception may need to be handled.
-  This exception can be handled since exception notifying the occurrence of pessimistic locking error is saved as the cause of exception.
-
-  =>Further analysis
-
-  **The current behavior is as follows:**
-
-  * PostgreSQL + for update nowait
-
-    - org.springframework.orm.hibernate3.HibernateJdbcException
-    - Caused by: org.hibernate.PessimisticLockException
-
-  * Oracle + for update
-
-    - org.springframework.orm.hibernate3.HibernateSystemException
-    - Caused by: Caused by: org.hibernate.dialect.lock.PessimisticEntityLockException
-    - Caused by: org.hibernate.exception.LockTimeoutException
-
-  * Oracle / PostgreSQL + Unique constraint
-
-    - org.springframework.dao.DataIntegrityViolationException
-    - Caused by: org.hibernate.exception.ConstraintViolationException
 
 
 .. _exception-handling-exception-type-systemexception-label:

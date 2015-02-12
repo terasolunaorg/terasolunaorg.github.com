@@ -268,32 +268,6 @@ Detail
   **JPA(Hibernate)を使用すると、現状意図しないエラーとなることが発覚している。**
 
   * 一意制約違反が発生した場合、\ ``DuplicateKeyException``\ ではなく、\ ``org.springframework.dao.DataIntegrityViolationException``\ が発生する。
-  * 悲観ロックに失敗した場合、\ ``PessimisticLockingFailureException``\ ではなく、\ ``org.springframework.dao.UncategorizedDataAccessException``\ の子クラスが発生する。
-
-  悲観エラー時に発生する\ ``UncategorizedDataAccessException``\ は、システムエラーに分類される例外なので、
-  アプリケーションでハンドリングすることは推奨しない。
-  しかしながら、最悪ハンドリングを行う必要があるかもしれない。
-  原因例外には、悲観ロックエラーが発生したことを通知する例外が格納されているので、ハンドリングできる。
-
-  ⇒継続調査。
-
-  **現状以下の動作となる。**
-
-  * PostgreSQL + for update nowait
-
-    - org.springframework.orm.hibernate3.HibernateJdbcException
-    - Caused by: org.hibernate.PessimisticLockException
-
-  * Oracle + for update
-
-    - org.springframework.orm.hibernate3.HibernateSystemException
-    - Caused by: Caused by: org.hibernate.dialect.lock.PessimisticEntityLockException
-    - Caused by: org.hibernate.exception.LockTimeoutException
-
-  * Oracle / PostgreSQL + 一意制約
-
-    - org.springframework.dao.DataIntegrityViolationException
-    - Caused by: org.hibernate.exception.ConstraintViolationException
 
 
 .. _exception-handling-exception-type-systemexception-label:

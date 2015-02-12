@@ -12,6 +12,7 @@ Appendix
    ../Appendix/EnvironmentIndependency
    ../Appendix/ProjectStructureStandard.rst
    Lombok
+   ../ArchitectureInDetail/DataAccessMybatis2
    ReferenceBooks
    SpringComprehensionCheck
 

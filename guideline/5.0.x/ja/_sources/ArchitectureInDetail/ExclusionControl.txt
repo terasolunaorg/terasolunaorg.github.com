@@ -795,426 +795,14 @@ How to use
 
 使用するO/R Mapperの実装方法を確認されたい。
 
-* :ref:`ExclusionControlHowToUseJpa`
 * :ref:`ExclusionControlHowToUseMyBatis3`
-* :ref:`ExclusionControlHowToUseMyBatis2`
+* :ref:`ExclusionControlHowToUseJpa`
 
 また、排他エラーのハンドリング方法については、
 
 * :ref:`ExclusionControlHowToUseExceptionHandling`
 
 を参照されたい。
-
-
-|
-
-.. _ExclusionControlHowToUseJpa:
-
-JPA(Spring Data JPA)使用時の実装方法
-^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-
-RDBMSの行ロック機能
-""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
-
-| RDBMSの行ロック機能を使って排他制御を行う場合は、RepositoryインタフェースにQueryメソッドを追加して実現する。
-| Queryメソッドについては、\ :ref:`data-access-jpa_how_to_use_querymethod`\ と、\ :ref:`data-access-jpa_howtouse_querymethod_modifying`\ を参照されたい。
-
-- Repositoryインタフェース
-
- .. code-block:: java
-   :emphasize-lines: 5, 7
-
-     public interface StockRepository extends JpaRepository<Stock, String> {
-
-        @Modifying
-        @Query("UPDATE Stock s"
-                + " SET s.quantity = s.quantity - :quantity"
-                + " WHERE s.itemCode = :itemCode"
-                + " AND :quantity <= s.quantity")  // (1)
-        public int decrementQuantity(@Param("itemCode") String itemCode,
-                @Param("quantity") int quantity);
-
-    }
-
- .. tabularcolumns:: |p{0.10\linewidth}|p{0.90\linewidth}|
- .. list-table::
-    :header-rows: 1
-    :widths: 10 90
-
-    * - 項番
-      - 説明
-    * - | (1)
-      - | Queryメソッドに、在庫数が注文数以上ある場合に、在庫数を減らすJPQLを指定する。
-        | 更新件数をチェックする必要があるので、Queryメソッドの返り値は、\ ``int``\ を指定する。
-
-- Service
-
- .. code-block:: java
-
-    String itemCodeOfOrder = "ITM0000001";
-    int quantityOfOrder = 31;
-
-    int updateCount = stockRepository.decrementQuantity(itemCodeOfOrder, quantityOfOrder); // (2)
-    if (updateCount == 0) { // (3)
-        ResultMessages message = ResultMessages.error();
-        message.add(ResultMessage
-                .fromText("Not enough stock. Please, change quantity."));
-        throw new BusinessException(message); // (4)
-    }
-
- .. code-block:: sql
-
-    update m_stock set quantity=quantity-31
-                   where item_code='ITM0000001' and 31<=quantity -- (5)
-
-
- .. tabularcolumns:: |p{0.10\linewidth}|p{0.90\linewidth}|
- .. list-table::
-    :header-rows: 1
-    :widths: 10 90
-
-    * - 項番
-      - 説明
-    * - | (2)
-      - Queryメソッドを呼び出す。
-    * - | (3)
-      - Queryメソッドの呼び出し結果を判定する。\ ``0``\ の場合、更新条件を満たしていないので、在庫数が不足していることになる。
-    * - | (4)
-      - | 在庫がない、または不足している旨のメッセージを格納し、業務エラーを発生させる。
-        | 発生させたエラーは、Controllerで要件に応じて適切にハンドリングすること。
-        | 上記例では、ビジネスルールのチェックを排他制御しながら行っているだけなので、更新条件を満たさない場合は、排他エラーではなく業務エラーとしている。
-        | エラーのハンドリング方法については、\ :ref:`exception-handling-how-to-use-codingpoint-contoller-label`\ を参照されたい。
-    * - | (5)
-      - Queryメソッド呼び出し時に実行されるSQL。
-
-楽観ロック
-""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
-
-JPAでは、バージョン管理用のプロパティに、\ ``@javax.persistence.Version``\ アノテーションを指定することで、楽観ロックを行うことができる。
-
-- Entity
-
- .. code-block:: java
-   :emphasize-lines: 11
-
-    @Entity
-    @Table(name = "m_stock")
-    public class Stock implements Serializable {
-
-        @Id
-        @Column(name = "item_code")
-        private String itemCode;
-
-        private int quantity;
-
-        @Version // (1)
-        private long version;
-
-        // ...
-
-    }
-
- .. tabularcolumns:: |p{0.10\linewidth}|p{0.90\linewidth}|
- .. list-table::
-    :header-rows: 1
-    :widths: 10 90
-
-    * - 項番
-      - 説明
-    * - | (1)
-      - バージョン管理用のプロパティに、\ ``@Version``\ アノテーションを指定する。
-
-- Service
-
- .. code-block:: java
-
-    String itemCode = "ITM0000001";
-    int newQuantity = 30;
-
-    Stock stock = stockRepository.findOne(itemCode); // (2)
-    if (stock == null) {
-        ResultMessages messages = ResultMessages.error().add(ResultMessage
-                .fromText("Stock not found. itemCode : " + itemCode));
-        throw new ResourceNotFoundException(messages);
-    }
-
-    stock.setQuantity(newQuantity); // (3)
-
-    stockRepository.flush(); // (4)
-
- .. code-block:: sql
-
-    update m_stock set quantity=30, version=7
-                   where item_code='ITM0000001' and version=6 -- ( 5)
-
- .. tabularcolumns:: |p{0.10\linewidth}|p{0.90\linewidth}|
- .. list-table::
-    :header-rows: 1
-    :widths: 10 90
-
-    * - 項番
-      - 説明
-    * - | (2)
-      - RepositoryインタフェースのfindOneメソッドを呼び出し、Entityを取得する。
-    * - | (3)
-      - (2)で取得したEntityに対して、更新する値を指定する。
-    * - | (4)
-      - | (3)の変更内容を永続層(DB)に反映する。この処理は説明のために行っている処理のため、通常は不要である。
-        | 通常は、トランザクションコミット時に自動で反映される。
-        | 上記例だと、(2)で取得したEntityがもつバージョンと永続層(DB)で保持しているバージョンが一致しない場合に、楽観ロックエラー(\ ``org.springframework.dao.OptimisticLockingFailureException``\ ) が発生する。
-    * - | (5)
-      - (4)の永続層(DB)に反映する際に実行されるSQL。
-
-ロングトランザクションに対する楽観ロックを行う場合は、以下の点に注意すること。
-
-.. warning::
-
-  ロングトランザクションに対する楽観ロックについては、\ ``@Version``\ アノテーションを付与するだけでは不十分である。
-  ロングトランザクションに対して楽観ロックを行う場合は、JPAの機能で行われる更新時のチェックに加えて、更新対象のデータを取得する際にも、バージョンのチェックを行うこと。
-
-以下に、実装例を示す。
-
-- Service
-
- .. code-block:: java
-
-    long version = 12;
-    String itemCode = "ITM0000001";
-    int newQuantity = 30;
-
-    Stock stock = stockRepository.findOne(itemCode); // (1)
-    if (stock == null || stock.getVersion() != version) { // (2)
-        throw new ObjectOptimisticLockingFailureException(Stock.class, itemCode); // (3)
-    }
-
-    stock.setQuantity(newQuantity);
-
-    stockRepository.flush();
-
- .. tabularcolumns:: |p{0.10\linewidth}|p{0.90\linewidth}|
- .. list-table::
-    :header-rows: 1
-    :widths: 10 90
-
-    * - 項番
-      - 説明
-    * - | (1)
-      - 永続層(DB)からEntityを取得する。
-    * - | (2)
-      - | 事前に別のデータベーストランザクションで取得されたEntityのバージョンと、(1)で取得した永続層(DB)の最新のバージョンを比較する。
-        | バージョンが一致する場合は、以降の処理で\ ``@Version``\ アノテーションを使った楽観ロックの仕組みが有効となる。
-    * - | (3)
-      - バージョンが異なる場合は、楽観ロックエラー(\ ``org.springframework.dao.ObjectOptimisticLockingFailureException``\ )を発生させる。
-
-.. warning:: **Version管理用のプロパティへの値の設定について**
-
-    Repositoryインタフェースを使って取得したEntityは、「管理状態のEntity」と呼ばれる。
-
-     **「管理状態のEntity」に対して、処理でVersion管理用のプロパティの値を設定することはできないので、注意すること。**
-
-    以下のような処理をしても、「管理状態のEntity」に設定したバージョンの値は反映されないため、楽観ロックを取得する際に使用されることはない。楽観ロックで使用されるのは、findOneメソッドで取得した時点のバージョンとなる。
-
-     .. code-block:: java
-        :emphasize-lines: 11
-
-        long version = 12;
-        String itemCode = "ITM0000001";
-        int newQuantity = 30;
-
-        Stock stock = stockRepository.findOne(itemCode);
-        if (stock == null) {
-            ResultMessages messages = ResultMessages.error().add(ResultMessage
-                    .fromText("Stock not found. itemCode : " + itemCode));
-            throw new ResourceNotFoundException(messages);
-        }
-        stock.setVersion(version); // ★ Invalid Processing
-        stock.setQuantity(newQuantity);
-
-        stockRepository.flush();
-
-    例えば、画面から送られてきたバージョンの値を上書きしても、Entityには反映されないため、排他制御が正しく行われなくなってしまう。
-
-
-.. note:: **ロングトランザクションに対する楽観ロック処理の共通化について**
-
-  複数の処理でロングトランザクションに対して楽観ロックが必要になる場合は、上記の(1)～(3)の処理を共通的なメソッドにすることを検討した方がよい。
-  共通化の方法については、\ :ref:`data-access-jpa_how_to_extends_custommethod`\ を参照されたい。
-
-RDBMSの行ロック機能と、楽観ロック機能を両方使用する場合は、以下の点に注意すること。
-
-.. warning::
-
-  同じデータに対して、RDBMSの行ロック機能を利用して排他制御を行う処理と、
-  楽観ロック機能を利用して排他制御を行う処理が共存するアプリケーションの場合は、
-  RDBMSの行ロック機能を使うQueryメソッドにて、\ **Versionの更新を必ず行う必要がある。**\
-
-  RDBMSの行ロック機能を使って、排他制御を行うQueryメソッドでVersionを更新しない場合、
-  Queryメソッドで更新した内容が、別のトランザクションの処理で上書きされる可能性があるため、正しく排他制御が行われない。
-
-以下に、実装例を示す。
-
-- Repositoryインタフェース
-
- .. code-block:: java
-   :emphasize-lines: 5
-
-    public interface StockRepository extends JpaRepository<Stock, String> {
-
-        @Modifying
-        @Query("UPDATE Stock s SET s.quantity = s.quantity - :quantity"
-                + ", s.version = s.version + 1" // (1)
-                + " WHERE s.itemCode = :itemCode"
-                + " AND :quantity <= s.quantity")
-        public int decrementQuantity(@Param("itemCode") String itemCode,
-                @Param("quantity") int quantity);
-
-    }
-
- .. tabularcolumns:: |p{0.10\linewidth}|p{0.90\linewidth}|
- .. list-table::
-    :header-rows: 1
-    :widths: 10 90
-
-    * - 項番
-      - 説明
-    * - | (1)
-      - | Versionの更新(\ ``s.version = s.version + 1``\ )を行う必要がある。
-
-悲観ロック
-""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
-Spring Data JPAでは、\ ``@org.springframework.data.jpa.repository.Lock``\ アノテーションを指定することで、悲観ロックを行うことができる。
-
-- Repositoryインタフェース
-
- .. code-block:: java
-
-    public interface StockRepository extends JpaRepository<Stock, String> {
-
-        @Lock(LockModeType.PESSIMISTIC_WRITE) // (1)
-        @Query("SELECT s FROM Stock s WHERE s.itemCode = :itemCode")
-        Stock findOneForUpdate(@Param("itemCode") String itemCode);
-
-    }
-
- .. code-block:: sql
-
-    -- (2)
-    SELECT
-            stock0_.item_code AS item1_5_
-            ,stock0_.quantity AS quantity2_5_
-            ,stock0_.version AS version3_5_
-        FROM
-            m_stock stock0_
-        WHERE
-            stock0_.item_code = 'ITM0000001'
-        FOR UPDATE;
-
- .. tabularcolumns:: |p{0.10\linewidth}|p{0.90\linewidth}|
- .. list-table::
-    :header-rows: 1
-    :widths: 10 90
-
-    * - 項番
-      - 説明
-    * - | (1)
-      - Queryメソッドに、\ ``@Lock``\ アノテーションを指定する。
-    * - | (2)
-      - 実行されるSQL。上記例ではPostgreSQLを使用した場合に実行されるSQLとなる。
-
-\ ``@Lock``\ アノテーションで指定することができる悲観ロックの種類は、以下の通りである。
-
- .. tabularcolumns:: |p{0.10\linewidth}|p{0.25\linewidth}|p{0.45\linewidth}|p{0.20\linewidth}|
- .. list-table::
-   :header-rows: 1
-   :widths: 10 25 45 20
-
-   * - 項番
-     - LockModeType
-     - 説明
-     - 発行されるSQL
-   * - 1.
-     - PESSIMISTIC_READ
-     - | 参照用の悲観ロックが取得される。データベースによっては、排他ロックではなく共有ロックとなる。
-       | コミットまたはロールバック時に、ロック解放される
-     - | select ... for update / select ... for share
-   * - 2.
-     - PESSIMISTIC_WRITE
-     - | 更新用の悲観ロックが取得され、排他ロックがかかる。
-       | 排他ロックの場合、既にロックがかかっていた場合には、ロックが解放されるまで待機してからエンティティが取得される。
-       | コミットまたはロールバック時に、ロック解放される
-     - | select ... for update
-   * - 3.
-     - PESSIMISTIC_FORCE_INCREMENT
-     - | エンティティを取得した時点から、対象データに対して排他ロックがかかる。取得直後に強制的にバージョンの更新も行われる。
-       | コミットまたはロールバック時に、ロック解放される
-     - | select ... for update + update
-
- .. note:: **ロックタイムアウト時間について**
-
-    JPA(\ ``EntityManager``\ )の設定またはQueryヒントとして、\ ``"javax.persistence.lock.timeout"``\ を指定することで、タイムアウト時間を指定することができる。
-
-ロックのタイムアウト時間の指定は、全体に適用する方法と、Query毎に適用する２つの方法が用意されている。
-
-全体に適用する方法は、以下の通りである。
-
-- :file:`xxx-infra.xml`
-
- .. code-block:: xml
-
-     <bean id="entityManagerFactory"
-         class="org.springframework.orm.jpa.LocalContainerEntityManagerFactoryBean">
-         <property name="packagesToScan" value="xxxxxx.yyyyyy.zzzzzz.domain.model" />
-         <property name="dataSource" ref="dataSource" />
-         <property name="jpaVendorAdapter" ref="jpaVendorAdapter" />
-         <property name="jpaPropertyMap">
-             <util:map>
-                 <!-- ... -->
-                 <entry key="javax.persistence.lock.timeout" value="1000" /> <!-- (1) -->
-             </util:map>
-         </property>
-     </bean>
-
- .. tabularcolumns:: |p{0.10\linewidth}|p{0.90\linewidth}|
- .. list-table::
-    :header-rows: 1
-    :widths: 10 90
-
-    * - 項番
-      - 説明
-    * - | (1)
-      - タイムアウトをミリ秒で指定する。\ ``1000``\ を指定すると、1秒となる。
-
- .. note:: **nowaitのサポート**
-
-    OracleとPostgreSQLについては、\ ``0``\ を指定した場合、\ ``nowait``\ が付加され、他のトランザクションによってロックされていた場合に、ロックの解放待ちを行わずに排他エラーとなる。
-
- .. warning:: **PostgreSQLの制約**
-
-    PostgreSQLではnowaitの指定はできるが、wait時間の指定ができない。
-    そのため、Queryのタイムアウトを別途設けておくなどの対策を行う必要がある。
-
-Query毎に適応する方法は、以下の通りである。
-
-
-- Repositoryインタフェース
-
- .. code-block:: java
-
-    @Lock(LockModeType.PESSIMISTIC_WRITE)
-    @QueryHints(@QueryHint(name = "javax.persistence.lock.timeout", value = "2000")) // (1)
-    @Query("SELECT s FROM Stock s WHERE s.itemCode = :itemCode")
-    Stock findOneForUpdate(@Param("itemCode") String itemCode);
-
- .. tabularcolumns:: |p{0.10\linewidth}|p{0.90\linewidth}|
- .. list-table::
-    :header-rows: 1
-    :widths: 10 90
-
-    * - 項番
-      - 説明
-    * - | (1)
-      - | タイムアウトをミリ秒で指定する。\ ``2000``\ を指定すると、2秒となる。
-        | 全体に指定した値は、上書きされる。
 
 |
 
@@ -1630,29 +1218,33 @@ RDBMSの行ロック機能と楽観ロック機能を併用するアプリケー
 
 |
 
-.. _ExclusionControlHowToUseMyBatis2:
+.. _ExclusionControlHowToUseJpa:
 
-MyBatis2使用時の実装方法
+JPA(Spring Data JPA)使用時の実装方法
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 RDBMSの行ロック機能
 """"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 
-RDBMSの行ロック機能を使って排他制御を行う場合は、sqlmapファイルに、SQL定義を追加して実現する。
+| RDBMSの行ロック機能を使って排他制御を行う場合は、RepositoryインタフェースにQueryメソッドを追加して実現する。
+| Queryメソッドについては、\ :ref:`data-access-jpa_how_to_use_querymethod`\ と、\ :ref:`data-access-jpa_howtouse_querymethod_modifying`\ を参照されたい。
 
-- :file:`xxx-sqlmap.xml`
+- Repositoryインタフェース
 
- .. code-block:: xml
-   :emphasize-lines: 4, 6
+ .. code-block:: java
+   :emphasize-lines: 5, 7
 
-    <update id="decrementQuantity" parameterClass="OrderItem">
+     public interface StockRepository extends JpaRepository<Stock, String> {
 
-        UPDATE m_stock SET
-            quantity = quantity - #quantity#
-        WHERE item_code = #itemCode#
-        AND #quantity# <![CDATA[ <= ]]> quantity <!-- (1) -->
+        @Modifying
+        @Query("UPDATE Stock s"
+                + " SET s.quantity = s.quantity - :quantity"
+                + " WHERE s.itemCode = :itemCode"
+                + " AND :quantity <= s.quantity")  // (1)
+        public int decrementQuantity(@Param("itemCode") String itemCode,
+                @Param("quantity") int quantity);
 
-    </update>
+    }
 
  .. tabularcolumns:: |p{0.10\linewidth}|p{0.90\linewidth}|
  .. list-table::
@@ -1662,28 +1254,29 @@ RDBMSの行ロック機能を使って排他制御を行う場合は、sqlmapフ
     * - 項番
       - 説明
     * - | (1)
-      - sqlmapファイルに、在庫数が注文数以上ある場合に、在庫数を減らすSQLを指定する。
+      - | Queryメソッドに、在庫数が注文数以上ある場合に、在庫数を減らすJPQLを指定する。
+        | 更新件数をチェックする必要があるので、Queryメソッドの返り値は、\ ``int``\ を指定する。
 
-- Repository(RepositoryImpl)
-
- .. code-block:: java
-
-     public interface StockRepository {
-        int decrementQuantity(String itemCode, int quantity);
-    }
+- Service
 
  .. code-block:: java
 
-    public class StockRepositoryImpl implements StockRepository {
+    String itemCodeOfOrder = "ITM0000001";
+    int quantityOfOrder = 31;
 
-        public int decrementQuantity(String itemCode, int quantity) { // (2)
-            OrderItem orderItem = new OrderItem();
-            orderItem.setItemCode(itemCode);
-            orderItem.setQuantity(quantity);
-            return updateDAO.execute("stock.decrementQuantity", orderItem); // (3)
-        }
-
+    int updateCount = stockRepository.decrementQuantity(itemCodeOfOrder, quantityOfOrder); // (2)
+    if (updateCount == 0) { // (3)
+        ResultMessages message = ResultMessages.error();
+        message.add(ResultMessage
+                .fromText("Not enough stock. Please, change quantity."));
+        throw new BusinessException(message); // (4)
     }
+
+ .. code-block:: sql
+
+    update m_stock set quantity=quantity-31
+                   where item_code='ITM0000001' and 31<=quantity -- (5)
+
 
  .. tabularcolumns:: |p{0.10\linewidth}|p{0.90\linewidth}|
  .. list-table::
@@ -1693,63 +1286,39 @@ RDBMSの行ロック機能を使って排他制御を行う場合は、sqlmapフ
     * - 項番
       - 説明
     * - | (2)
-      - Repositoryにメソッドを追加する。
-    * - | (3)
-      - SQL実行に必要なパラメータを生成し、SQLを呼び出す。
-
- .. note:: **Repositoryを作成しない場合**
-
-    Repositoryを作成しない場合は、上記処理はServiceで実装することになる。
-
-
-- Service
-
- .. code-block:: java
-
-    String itemCodeOfOrder = "ITM0000001";
-    int quantityOfOrder = 31;
-
-    int updateCount = stockRepository.decrementQuantity(itemCodeOfOrder, quantityOfOrder); // (4)
-    if (updateCount == 0) { // (5)
-        ResultMessages message = ResultMessages.error();
-        message.add(ResultMessage
-                .fromText("Not enough stock. Please, change quantity."));
-        throw new BusinessException(message); // (6)
-    }
-
-
- .. tabularcolumns:: |p{0.10\linewidth}|p{0.90\linewidth}|
- .. list-table::
-    :header-rows: 1
-    :widths: 10 90
-
-    * - 項番
-      - 説明
-    * - | (4)
       - Queryメソッドを呼び出す。
-    * - | (5)
+    * - | (3)
       - Queryメソッドの呼び出し結果を判定する。\ ``0``\ の場合、更新条件を満たしていないので、在庫数が不足していることになる。
-    * - | (6)
-      - | 在庫がないまたは不足している旨のメッセージを格納し、業務エラーを発生させる。
+    * - | (4)
+      - | 在庫がない、または不足している旨のメッセージを格納し、業務エラーを発生させる。
         | 発生させたエラーは、Controllerで要件に応じて適切にハンドリングすること。
         | 上記例では、ビジネスルールのチェックを排他制御しながら行っているだけなので、更新条件を満たさない場合は、排他エラーではなく業務エラーとしている。
         | エラーのハンドリング方法については、\ :ref:`exception-handling-how-to-use-codingpoint-contoller-label`\ を参照されたい。
+    * - | (5)
+      - Queryメソッド呼び出し時に実行されるSQL。
 
 楽観ロック
 """"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
-| MyBatis2では、ライブラリとして楽観ロックを行う仕組みは提供していない。
-| そのため、楽観ロックを行う場合は、SQLの中でバージョンを意識する必要がある。
+
+JPAでは、バージョン管理用のプロパティに、\ ``@javax.persistence.Version``\ アノテーションを指定することで、楽観ロックを行うことができる。
 
 - Entity
 
  .. code-block:: java
    :emphasize-lines: 11
 
+    @Entity
+    @Table(name = "m_stock")
     public class Stock implements Serializable {
 
+        @Id
+        @Column(name = "item_code")
         private String itemCode;
+
         private int quantity;
-        private long version; // (1)
+
+        @Version // (1)
+        private long version;
 
         // ...
 
@@ -1763,88 +1332,7 @@ RDBMSの行ロック機能を使って排他制御を行う場合は、sqlmapフ
     * - 項番
       - 説明
     * - | (1)
-      - バージョン管理用のプロパティを用意する。
-
-- :file:`xxx-sqlmap.xml`
-
- .. code-block:: xml
-
-    <resultMap id="stockResultMap" class="Stock">
-        <result property="itemCode" column="item_code" />
-        <result property="quantity" column="quantity" />
-        <result property="version" column="version" /> <!-- (2) -->
-    </resultMap>
-
-    <select id="findOne" parameterClass="java.lang.String" resultMap="stockResultMap">
-        SELECT * FROM m_stock WHERE item_code = #itemCode#
-    </select>
-
-    <update id="update" parameterClass="Stock">
-        UPDATE m_stock SET
-            quantity = quantity
-            ,version = version + 1   <!-- (3) -->
-        WHERE item_code = #itemCode#
-        AND version = #version#      <!-- (4) -->
-    </update>
-
- .. tabularcolumns:: |p{0.10\linewidth}|p{0.90\linewidth}|
- .. list-table::
-    :header-rows: 1
-    :widths: 10 90
-
-    * - 項番
-      - 説明
-    * - | (2)
-      - | 更新対象のデータを取得するSQLにて、バージョン管理用のカラムに設定されている値を取得する。
-    * - | (3)
-      - | 更新する際は、バージョンをインクリメントする。
-    * - | (4)
-      - | 更新条件として、バージョンが一致することを加える。
-
-- Repository(RepositoryImpl)
-
- .. code-block:: java
-
-     public interface StockRepository {
-        Stock findOne(String itemCode);
-        Stock save(Stock stock);
-    }
-
- .. code-block:: java
-
-    public class StockRepositoryImpl implements StockRepository {
-
-        public Stock findOne(String itemCode) {
-            return queryDAO.executeForObject("stock.findOne", itemCode, Stock.class);
-        }
-
-        public Stock save(Stock stock) {
-            if(exists(stock.getItemCode())){
-                int updateCount = updateDAO.execute("stock.update", stock);
-                if(updateCount == 0){
-                    throw new ObjectOptimisticLockingFailureException(Stock.class, itemCode); // (5)
-                }
-            } else {
-                updateDAO.execute("stock.insert", stock);
-            }
-            return stock;
-        }
-
-    }
-
- .. tabularcolumns:: |p{0.10\linewidth}|p{0.90\linewidth}|
- .. list-table::
-    :header-rows: 1
-    :widths: 10 90
-
-    * - 項番
-      - 説明
-    * - | (5)
-      - 更新結果が\ ``0``\ 件の場合、他のトランザクションによって更新されたことになるので、楽観ロックエラー(\ ``org.springframework.orm.ObjectOptimisticLockingFailureException``\ )を発生させる。
-
- .. note:: **Repositoryを作成しない場合**
-
-    Repositoryを作成しない場合は、上記処理はServiceで実装することになる。
+      - バージョン管理用のプロパティに、\ ``@Version``\ アノテーションを指定する。
 
 - Service
 
@@ -1862,8 +1350,12 @@ RDBMSの行ロック機能を使って排他制御を行う場合は、sqlmapフ
 
     stock.setQuantity(newQuantity); // (3)
 
-    stock = stockRepository.save(stock); // (4)
+    stockRepository.flush(); // (4)
 
+ .. code-block:: sql
+
+    update m_stock set quantity=30, version=7
+                   where item_code='ITM0000001' and version=6 -- ( 5)
 
  .. tabularcolumns:: |p{0.10\linewidth}|p{0.90\linewidth}|
  .. list-table::
@@ -1877,13 +1369,18 @@ RDBMSの行ロック機能を使って排他制御を行う場合は、sqlmapフ
     * - | (3)
       - (2)で取得したEntityに対して、更新する値を指定する。
     * - | (4)
-      - | (3)の変更内容を永続層(DB)に反映する。
+      - | (3)の変更内容を永続層(DB)に反映する。この処理は説明のために行っている処理のため、通常は不要である。
+        | 通常は、トランザクションコミット時に自動で反映される。
+        | 上記例だと、(2)で取得したEntityがもつバージョンと永続層(DB)で保持しているバージョンが一致しない場合に、楽観ロックエラー(\ ``org.springframework.dao.OptimisticLockingFailureException``\ ) が発生する。
+    * - | (5)
+      - (4)の永続層(DB)に反映する際に実行されるSQL。
 
 ロングトランザクションに対する楽観ロックを行う場合は、以下の点に注意すること。
 
 .. warning::
 
-  ロングトランザクションに対して楽観ロックを行う場合は、更新時のチェックに加えて、データ取得時にもバージョンのチェックを行うこと。
+  ロングトランザクションに対する楽観ロックについては、\ ``@Version``\ アノテーションを付与するだけでは不十分である。
+  ロングトランザクションに対して楽観ロックを行う場合は、JPAの機能で行われる更新時のチェックに加えて、更新対象のデータを取得する際にも、バージョンのチェックを行うこと。
 
 以下に、実装例を示す。
 
@@ -1902,7 +1399,7 @@ RDBMSの行ロック機能を使って排他制御を行う場合は、sqlmapフ
 
     stock.setQuantity(newQuantity);
 
-    stock = stockRepository.save(stock);
+    stockRepository.flush();
 
  .. tabularcolumns:: |p{0.10\linewidth}|p{0.90\linewidth}|
  .. list-table::
@@ -1912,38 +1409,76 @@ RDBMSの行ロック機能を使って排他制御を行う場合は、sqlmapフ
     * - 項番
       - 説明
     * - | (1)
-      - | 永続層(DB)からEntityを取得する。
+      - 永続層(DB)からEntityを取得する。
     * - | (2)
-      - | 事前に、別のデータベーストランザクションで取得されたEntityのバージョンと、(1)で取得した永続層(DB)の最新のバージョンを比較する。
+      - | 事前に別のデータベーストランザクションで取得されたEntityのバージョンと、(1)で取得した永続層(DB)の最新のバージョンを比較する。
+        | バージョンが一致する場合は、以降の処理で\ ``@Version``\ アノテーションを使った楽観ロックの仕組みが有効となる。
     * - | (3)
-      - | バージョンが異なる場合は、楽観ロックエラー(\ ``org.springframework.dao.ObjectOptimisticLockingFailureException``\ )を発生させる。
+      - バージョンが異なる場合は、楽観ロックエラー(\ ``org.springframework.dao.ObjectOptimisticLockingFailureException``\ )を発生させる。
 
-RDBMSの行ロック機能と楽観ロック機能を両方使用する場合は、以下の点に注意すること。
+.. warning:: **Version管理用のプロパティへの値の設定について**
+
+    Repositoryインタフェースを使って取得したEntityは、「管理状態のEntity」と呼ばれる。
+
+     **「管理状態のEntity」に対して、処理でVersion管理用のプロパティの値を設定することはできないので、注意すること。**
+
+    以下のような処理をしても、「管理状態のEntity」に設定したバージョンの値は反映されないため、楽観ロックを取得する際に使用されることはない。楽観ロックで使用されるのは、findOneメソッドで取得した時点のバージョンとなる。
+
+     .. code-block:: java
+        :emphasize-lines: 11
+
+        long version = 12;
+        String itemCode = "ITM0000001";
+        int newQuantity = 30;
+
+        Stock stock = stockRepository.findOne(itemCode);
+        if (stock == null) {
+            ResultMessages messages = ResultMessages.error().add(ResultMessage
+                    .fromText("Stock not found. itemCode : " + itemCode));
+            throw new ResourceNotFoundException(messages);
+        }
+        stock.setVersion(version); // ★ Invalid Processing
+        stock.setQuantity(newQuantity);
+
+        stockRepository.flush();
+
+    例えば、画面から送られてきたバージョンの値を上書きしても、Entityには反映されないため、排他制御が正しく行われなくなってしまう。
+
+
+.. note:: **ロングトランザクションに対する楽観ロック処理の共通化について**
+
+  複数の処理でロングトランザクションに対して楽観ロックが必要になる場合は、上記の(1)～(3)の処理を共通的なメソッドにすることを検討した方がよい。
+  共通化の方法については、\ :ref:`data-access-jpa_how_to_extends_custommethod`\ を参照されたい。
+
+RDBMSの行ロック機能と、楽観ロック機能を両方使用する場合は、以下の点に注意すること。
 
 .. warning::
 
-  同じデータに対して、RDBMSの行ロック機能を利用して排他制御を行う処理と、楽観ロック機能を利用して排他制御を行う処理が共存するアプリケーションの場合は、
-  RDBMSの行ロック機能を使うSQLにて、\ **Versionの更新を必ず行う必要がある。**\
+  同じデータに対して、RDBMSの行ロック機能を利用して排他制御を行う処理と、
+  楽観ロック機能を利用して排他制御を行う処理が共存するアプリケーションの場合は、
+  RDBMSの行ロック機能を使うQueryメソッドにて、\ **Versionの更新を必ず行う必要がある。**\
 
-  RDBMSの行ロック機能を使って排他制御を行SQLでVersionを更新しない場合、
-  Queryメソッドで更新した内容が別のトランザクションの処理で上書きされる可能性があるため、正しく排他制御が行われない。
+  RDBMSの行ロック機能を使って、排他制御を行うQueryメソッドでVersionを更新しない場合、
+  Queryメソッドで更新した内容が、別のトランザクションの処理で上書きされる可能性があるため、正しく排他制御が行われない。
 
 以下に、実装例を示す。
 
-- :file:`xxx-sqlmap.xml`
+- Repositoryインタフェース
 
- .. code-block:: xml
+ .. code-block:: java
    :emphasize-lines: 5
 
-    <update id="decrementQuantity" parameterClass="OrderItem">
+    public interface StockRepository extends JpaRepository<Stock, String> {
 
-        UPDATE m_stock SET
-            quantity = quantity - #quantity#
-            ,version = version + 1 <!-- (1) -->
-        WHERE item_code = #itemCode#
-        AND #quantity# <![CDATA[ <= ]]> quantity
+        @Modifying
+        @Query("UPDATE Stock s SET s.quantity = s.quantity - :quantity"
+                + ", s.version = s.version + 1" // (1)
+                + " WHERE s.itemCode = :itemCode"
+                + " AND :quantity <= s.quantity")
+        public int decrementQuantity(@Param("itemCode") String itemCode,
+                @Param("quantity") int quantity);
 
-    </update>
+    }
 
  .. tabularcolumns:: |p{0.10\linewidth}|p{0.90\linewidth}|
  .. list-table::
@@ -1953,23 +1488,36 @@ RDBMSの行ロック機能と楽観ロック機能を両方使用する場合は
     * - 項番
       - 説明
     * - | (1)
-      - | Versionの更新(\ ``version = version + 1``\ )を行う必要がある。
+      - | Versionの更新(\ ``s.version = s.version + 1``\ )を行う必要がある。
 
 悲観ロック
 """"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
-| MyBatis2では、ライブラリとして悲観ロックを行う仕組みは提供していない。
-| そのため、悲観ロックを行う場合は、SQLの中でロックを取得するためのキーワードを指定する必要がある。
+Spring Data JPAでは、\ ``@org.springframework.data.jpa.repository.Lock``\ アノテーションを指定することで、悲観ロックを行うことができる。
 
+- Repositoryインタフェース
 
-- :file:`xxx-sqlmap.xml`
+ .. code-block:: java
 
- .. code-block:: xml
+    public interface StockRepository extends JpaRepository<Stock, String> {
 
-    <select id="findOneForUpdate" parameterClass="java.lang.String" resultMap="stockResultMap">
-        SELECT * FROM m_stock
-        WHERE item_code = #itemCode#
-        FOR UPDATE <!-- (1) -->
-    </select>
+        @Lock(LockModeType.PESSIMISTIC_WRITE) // (1)
+        @Query("SELECT s FROM Stock s WHERE s.itemCode = :itemCode")
+        Stock findOneForUpdate(@Param("itemCode") String itemCode);
+
+    }
+
+ .. code-block:: sql
+
+    -- (2)
+    SELECT
+            stock0_.item_code AS item1_5_
+            ,stock0_.quantity AS quantity2_5_
+            ,stock0_.version AS version3_5_
+        FROM
+            m_stock stock0_
+        WHERE
+            stock0_.item_code = 'ITM0000001'
+        FOR UPDATE;
 
  .. tabularcolumns:: |p{0.10\linewidth}|p{0.90\linewidth}|
  .. list-table::
@@ -1979,8 +1527,104 @@ RDBMSの行ロック機能と楽観ロック機能を両方使用する場合は
     * - 項番
       - 説明
     * - | (1)
-      - | 悲観ロックが必要なSQLに対して、悲観ロックを取得するためのキーワードを指定する。
-        | キーワードは、データベースによって異なる。
+      - Queryメソッドに、\ ``@Lock``\ アノテーションを指定する。
+    * - | (2)
+      - 実行されるSQL。上記例ではPostgreSQLを使用した場合に実行されるSQLとなる。
+
+\ ``@Lock``\ アノテーションで指定することができる悲観ロックの種類は、以下の通りである。
+
+ .. tabularcolumns:: |p{0.10\linewidth}|p{0.25\linewidth}|p{0.45\linewidth}|p{0.20\linewidth}|
+ .. list-table::
+   :header-rows: 1
+   :widths: 10 25 45 20
+
+   * - 項番
+     - LockModeType
+     - 説明
+     - 発行されるSQL
+   * - 1.
+     - PESSIMISTIC_READ
+     - | 参照用の悲観ロックが取得される。データベースによっては、排他ロックではなく共有ロックとなる。
+       | コミットまたはロールバック時に、ロック解放される
+     - | select ... for update / select ... for share
+   * - 2.
+     - PESSIMISTIC_WRITE
+     - | 更新用の悲観ロックが取得され、排他ロックがかかる。
+       | 排他ロックの場合、既にロックがかかっていた場合には、ロックが解放されるまで待機してからエンティティが取得される。
+       | コミットまたはロールバック時に、ロック解放される
+     - | select ... for update
+   * - 3.
+     - PESSIMISTIC_FORCE_INCREMENT
+     - | エンティティを取得した時点から、対象データに対して排他ロックがかかる。取得直後に強制的にバージョンの更新も行われる。
+       | コミットまたはロールバック時に、ロック解放される
+     - | select ... for update + update
+
+ .. note:: **ロックタイムアウト時間について**
+
+    JPA(\ ``EntityManager``\ )の設定またはQueryヒントとして、\ ``"javax.persistence.lock.timeout"``\ を指定することで、タイムアウト時間を指定することができる。
+
+ロックのタイムアウト時間の指定は、全体に適用する方法と、Query毎に適用する２つの方法が用意されている。
+
+全体に適用する方法は、以下の通りである。
+
+- :file:`xxx-infra.xml`
+
+ .. code-block:: xml
+
+     <bean id="entityManagerFactory"
+         class="org.springframework.orm.jpa.LocalContainerEntityManagerFactoryBean">
+         <property name="packagesToScan" value="xxxxxx.yyyyyy.zzzzzz.domain.model" />
+         <property name="dataSource" ref="dataSource" />
+         <property name="jpaVendorAdapter" ref="jpaVendorAdapter" />
+         <property name="jpaPropertyMap">
+             <util:map>
+                 <!-- ... -->
+                 <entry key="javax.persistence.lock.timeout" value="1000" /> <!-- (1) -->
+             </util:map>
+         </property>
+     </bean>
+
+ .. tabularcolumns:: |p{0.10\linewidth}|p{0.90\linewidth}|
+ .. list-table::
+    :header-rows: 1
+    :widths: 10 90
+
+    * - 項番
+      - 説明
+    * - | (1)
+      - タイムアウトをミリ秒で指定する。\ ``1000``\ を指定すると、1秒となる。
+
+ .. note:: **nowaitのサポート**
+
+    OracleとPostgreSQLについては、\ ``0``\ を指定した場合、\ ``nowait``\ が付加され、他のトランザクションによってロックされていた場合に、ロックの解放待ちを行わずに排他エラーとなる。
+
+ .. warning:: **PostgreSQLの制約**
+
+    PostgreSQLではnowaitの指定はできるが、wait時間の指定ができない。
+    そのため、Queryのタイムアウトを別途設けておくなどの対策を行う必要がある。
+
+Query毎に適応する方法は、以下の通りである。
+
+
+- Repositoryインタフェース
+
+ .. code-block:: java
+
+    @Lock(LockModeType.PESSIMISTIC_WRITE)
+    @QueryHints(@QueryHint(name = "javax.persistence.lock.timeout", value = "2000")) // (1)
+    @Query("SELECT s FROM Stock s WHERE s.itemCode = :itemCode")
+    Stock findOneForUpdate(@Param("itemCode") String itemCode);
+
+ .. tabularcolumns:: |p{0.10\linewidth}|p{0.90\linewidth}|
+ .. list-table::
+    :header-rows: 1
+    :widths: 10 90
+
+    * - 項番
+      - 説明
+    * - | (1)
+      - | タイムアウトをミリ秒で指定する。\ ``2000``\ を指定すると、2秒となる。
+        | 全体に指定した値は、上書きされる。
 
 |
 
@@ -2135,30 +1779,6 @@ Controllerで適切にハンドリングする必要がある。
       - | エラーハンドリングの処理を実装する。エラーを通知するためのメッセージ、画面表示に必要な情報（フォームやその他のモデル）を生成し、遷移先のview名を返却する。
         | エラーハンドリングの詳細については、\ :ref:`exception-handling-how-to-use-codingpoint-contoller-request-label`\ を参照されたい。
 
-.. todo::
-
-    **JPA(Hibernate)を使用すると、現状意図しないエラーとなることが発覚している。**
-
-    * 悲観ロックに失敗した場合、\ ``PessimisticLockingFailureException``\ ではなく、\ ``org.springframework.dao.UncategorizedDataAccessException``\ の子クラスが発生する。
-
-    悲観エラー時に発生する\ ``UncategorizedDataAccessException``\ は、システムエラーに分類される例外なので、
-    アプリケーションでハンドリングすることは推奨されないが、最悪ハンドリングを行う必要があるかもしれない。
-    原因例外には、悲観ロックエラーが発生したことを通知する例外が格納されているので、ハンドリングができる。
-
-    ⇒継続調査。
-
-    **現状以下の動作となる。**
-
-    * PostgreSQL + for update nowait
-
-      - org.springframework.orm.hibernate3.HibernateJdbcException
-      - Caused by: org.hibernate.PessimisticLockException
-
-    * Oracle + for update
-
-      - org.springframework.orm.hibernate3.HibernateSystemException
-      - Caused by: Caused by: org.hibernate.dialect.lock.PessimisticEntityLockException
-      - Caused by: org.hibernate.exception.LockTimeoutException
 
 .. raw:: latex
 

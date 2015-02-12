@@ -1263,9 +1263,8 @@ ServiceおよびSharedServiceでは、アプリケーションで使用する業
 """"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 業務データ(Entity)の取得、更新の実装例については、
 
-* JPAを使う場合は、\ :doc:`../ArchitectureInDetail/DataAccessJpa`\
 * MyBatis3を使う場合は、\ :doc:`../ArchitectureInDetail/DataAccessMyBatis3`\
-* MyBatis2を使う場合は、\ :doc:`../ArchitectureInDetail/DataAccessMybatis2`\
+* JPAを使う場合は、\ :doc:`../ArchitectureInDetail/DataAccessJpa`\
 
 を参照されたい。
 

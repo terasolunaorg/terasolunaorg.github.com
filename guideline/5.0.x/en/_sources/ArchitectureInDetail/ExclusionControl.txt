@@ -1693,30 +1693,6 @@ If there is need to change the operation at request level, it is handled using \
       - | Error handling is performed. The message to notify error and information required for screen display (form or other model) are generated and destination view name is returned.
         | For details of error handling, refer to \ :ref:`exception-handling-how-to-use-codingpoint-contoller-usecase-label`\ .
 
-.. todo::
-
-    **It has been found that an unexpected error occurs if JPA (Hibernate) is used.**
-
-    * When pessimistic locking fails, child class of \ ``org.springframework.dao.UncategorizedDataAccessException``\  is generated instead of \ ``PessimisticLockingFailureException``\ .
-
-    \ ``UncategorizedDataAccessException``\  generated at the time of pessimistic error, is classified as system error,
-    hence handling it in the application is not recommended. However, there might be cases wherein this exception may need to be handled.
-    This exception can be handled since an exception notifying the occurrence of pessimistic locking error is saved as cause of exception.
-
-    ⇒ Further analysis
-
-    **The current behavior is as follows:**
-
-    * PostgreSQL + for update nowait
-
-      - org.springframework.orm.hibernate3.HibernateJdbcException
-      - Caused by: org.hibernate.PessimisticLockException
-
-    * Oracle + for update
-
-      - org.springframework.orm.hibernate3.HibernateSystemException
-      - Caused by: Caused by: org.hibernate.dialect.lock.PessimisticEntityLockException
-      - Caused by: org.hibernate.exception.LockTimeoutException
 
 .. raw:: latex
 

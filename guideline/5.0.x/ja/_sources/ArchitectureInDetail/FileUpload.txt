@@ -1730,7 +1730,7 @@ Commons FileUploadを使用する場合は以下の設定を行う。
     \ `CVE-2014-0050 <http://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2014-0050>`_\で報告されているセキュリティの脆弱性が発生する可能性がある。
     使用するApache Commons FileUploadのバージョンに脆弱性がない事を確認されたい。
 
-    Apache Commons FileUploadを使用する場合、1.2系は1.2.1以上、1.3系は1.3.1以上を使用する必要がある。
+    Apache Commons FileUploadを使用する場合、1.3.1以上を使用する必要がある。
 
     なお、Spring IO Platformで管理されているバージョンを使用すれば、CVE-2014-0050で報告されている脆弱性は発生しない。
 

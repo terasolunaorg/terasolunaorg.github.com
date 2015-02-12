@@ -1922,7 +1922,7 @@ PKが単一カラムで構成されるテーブルより、PKを指定してEnti
 
     \ ``@Param``\アノテーションの指定は必須ではないが、
     指定しないと以下に示すような機械的なバインド変数名を指定する必要がある。
-    \ ``@Param``\アノテーションの指定しない場合のバインド変数名は、「"param" + 引数の宣言位置」という名前になるため、
+    \ ``@Param``\アノテーションの指定しない場合のバインド変数名は、「"param" + 引数の宣言位置(1から開始)」という名前になるため、
     ソースコードのメンテナンス性及び可読性を損なう要因となる。
     
      .. code-block:: xml
@@ -3298,7 +3298,7 @@ Entityを1件更新する際の実装例を以下に示す。
 
             // (4)
             Todo currentTodo = todoRepository.findOne(todo.getTodoId());
-            if (currentTodo != null && currentTodo.getVersion() != todo.getVersion()) {
+            if (currentTodo == null || currentTodo.getVersion() != todo.getVersion()) {
                 throw new ObjectOptimisticLockingFailureException(Todo.class, todo
                         .getTodoId());
             }
@@ -3628,7 +3628,7 @@ Entityを1件削除する際の実装例を以下に示す。
 
             // (4)
             Todo currentTodo = todoRepository.findOne(todoId);
-            if (currentTodo != null && currentTodo.getVersion() != version) {
+            if (currentTodo == null || currentTodo.getVersion() != version) {
                 throw new ObjectOptimisticLockingFailureException(Todo.class, todoId);
             }
 
@@ -3800,7 +3800,7 @@ MyBatis3では、動的にSQLを組み立てるために、以下のXML要素を
       - 組み立てたWHERE句に対して、接頭語及び末尾の付与や除去など行うための要素。
     * - 4.
       - \ ``set``\
-      - 組み立てたSET句用に対して、、接頭語及び末尾の付与や除去など行うための要素。
+      - 組み立てたSET句用に対して、接頭語及び末尾の付与や除去など行うための要素。
     * - 5.
       - \ ``foreach``\
       - コレクションや配列に対して繰り返し処理を行うための要素
@@ -5703,6 +5703,9 @@ RepositoryのBean定義を行えばよい。
 
     * トランザクションがコミットされる直前
     * クエリ(SELECT)を実行する直前
+    * 別の更新用メソッドを呼び出した直後
+
+    Repositoryのメソッドの呼び出し順番に関する注意点は、「:ref:`DataAccessMyBatis3HowToExtendExecutorTypeBatchNotesMethodCallOrder`」を参照されたい。
 
 |
 
@@ -5727,7 +5730,7 @@ RepositoryのBean定義を行えばよい。
 
 バッチモードを使用する場合、Mapperインタフェースのメソッドから返却される更新結果は、
 
-* 返り値が数値(\ ``int``\や\ ``long``\)の場合は、\ ``0``\
+* 返り値が数値(\ ``int``\や\ ``long``\)の場合は、\ `固定値 <http://mybatis.github.io/mybatis-3/apidocs/reference/org/apache/ibatis/executor/BatchExecutor.html#BATCH_UPDATE_RETURN_VALUE>`_\ (\ ``org.apache.ibatis.executor.BatchExecutor#BATCH_UPDATE_RETURN_VALUE``\ )
 * 返り値が\ ``boolean``\の場合は、\ ``false``\
 
 が返却される。
@@ -6087,7 +6090,7 @@ Mapperインタフェースの仕組みについて
 - Mapperインタフェースの作成例
 
   本ガイドラインでは、MyBatis3のMapperインタフェースをRepositoryインタフェースとして使用することを前提としているため、
-  インタフェース名は、「Entity名」 + \ ``"TodoRepository"`` \というネーミングにしている。
+  インタフェース名は、「Entity名」 + \ ``"Repository"`` \というネーミングにしている。
 
  .. code-block:: java
 
@@ -6184,7 +6187,7 @@ Mapperインタフェースの仕組みについて
     * - (1)
       - アプリケーションは、Mapperインタフェースに定義されているメソッドを呼び出す。
 
-        Mapperインタフェースの実装クラス(MapperインタフェースのProxyオブジェクト)は、実行時にMyBatis3のコンポーネントによって生成される。
+        Mapperインタフェースの実装クラス(MapperインタフェースのProxyオブジェクト)は、アプリケーション起動時にMyBatis3のコンポーネントによって生成される。
     * - (2)
       - MapperインタフェースのProxyオブジェクトは、\ ``MapperProxy`` \のinvokeメソッドを呼び出す。
 

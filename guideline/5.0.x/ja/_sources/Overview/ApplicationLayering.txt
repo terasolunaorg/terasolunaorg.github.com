@@ -229,7 +229,7 @@ RepositoryImplの実装はRepositoryインタフェースによって隠蔽さ�
 
 .. tip::
 
-    Spring Data JPAやMyBatis3を使用する場合は、RepositoryImplの実体を(一部)自動で作成する仕組みが提供されている。
+    MyBatis3やSpring Data JPAを使用する場合は、RepositoryImplの実体を(一部)自動で作成する仕組みが提供されている。
 
 |
 
@@ -242,9 +242,9 @@ JPA / MyBatis / Spring JDBCが、本機能を提供する。
 
 具体的には、
 
-* JPAを用いる場合は、\ ``EntityManager``\
 * MyBatis3を用いる場合は、Mapperインタフェースや\ ``SqlSession``\
-* MyBatis2(TERASOLUNA DAO)を用いる場合は、\ ``QueryDAO``\ や\ ``UpdateDAO``\
+* JPAを用いる場合は、\ ``EntityManager``\
+* MyBatis2(TERASOLUNA DAO)を用いる場合は、\ ``QueryDAO``\ や\ ``UpdateDAO``\  **(新規開発での使用は非推奨)**
 * Spring JDBCを用いる場合は、\ ``JdbcTemplate``\
 
 が、O/R Mapperに該当する。

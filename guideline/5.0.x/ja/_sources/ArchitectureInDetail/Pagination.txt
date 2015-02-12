@@ -79,7 +79,7 @@ Spring Dataより提供されているページ検索用の機能は、以下の
     * - 3
       - | データベースアクセスとしてSpring Data JPAを使用する場合は、RepositoryのQueryメソッドの引数に ``Pageable`` オブジェクトを指定することで、該当ページの情報が ``Page`` オブジェクトとして返却される。
         | 合計件数を取得するSQLの発行、ソート条件の追加、該当ページに一致するデータの抽出などの処理が全て自動で行われる。
-        | データベースアクセスとして、MyBatisを使用する場合は、Spring Data JPAが自動で行ってくれる処理を、Java又はSQLマッピングファイル内で実装する必要がある。
+        | データベースアクセスとして、MyBatisを使用する場合は、Spring Data JPAが自動で行ってくれる処理を、Java(Service)及びSQLマッピングファイル内で実装する必要がある。
 
 .. _pagination_overview_pagesearch_requestparameter:
 
@@ -620,14 +620,15 @@ Spring Dataより提供されているページネーション機能と、共通
 
  .. note:: **Repositoryの実装について**
 
-    Spring Data JPAのRepositoryインタフェースのメソッドを使用した場合は、(5)と(6)の処理はSpring Data JPAの機能で自動的に行われる。
+    上記フローの(5)と(6)の処理は、使用するO/R Mapperによって実装方法が異なる。
 
-    MyBatisを使用する場合は、Java又はSQLマッピングファイル内で実装する必要がある。
+    * MyBatis3を使用する場合は、Java(Service)及びSQLマッピングファイルの実装が必要がある。
+    * Spring Data JPAを使用する場合は、Spring Data JPAの機能で自動的で行われるため実装は不要である。
 
     具体的な実装例については、
 
     * :doc:`DataAccessMyBatis3`
-    * :doc:`DataAccessMybatis2`
+    * :doc:`DataAccessJpa`
 
     を参照されたい。
 
@@ -862,70 +863,28 @@ Spring Dataのページネーション機能を有効化するための設定
 
 |
 
-ドメイン層の実装(JPA編)
+ドメイン層の実装(MyBatis3編)
 """"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
-| JPA(Spring Data JPA)を使用してデータベースにアクセスする場合は、Controllerから受け取った ``Pageable`` オブジェクトをRepositoryに引き渡す。
-| 以下にもっともシンプルな実装例を示す。
-| ドメイン層で実装するページ検索処理の詳細については、 「 :doc:`DataAccessJpa` 」 を参照されたい。
-
-- Service
-
- .. code-block:: java
-
-    public Page<Article> searchArticle(ArticleSearchCriteria criteria,
-            Pageable pageable) { // (1)
-
-        String word = QueryEscapeUtils.toLikeCondition(criteria.getWord());
-
-        Page<Article> page = articleRepository.findPageBy(word, pageable); // (2)
-
-        return page; // (3)
-    }
-
- .. tabularcolumns:: |p{0.10\linewidth}|p{0.90\linewidth}|
- .. list-table::
-    :header-rows: 1
-    :widths: 10 90
-
-    * - 項番
-      - 説明
-    * - | (1)
-      - | ページ検索に必要な情報( ``Pageable`` )をServiceのメソッドの引数として受け取る。
-    * - | (2)
-      - | RepositoryのQueryメソッドの引数に ``Pageable`` オブジェクトを指定して呼び出す。
-    * - | (3)
-      - | Repositoryから返却された検索結果( ``Page`` オブジェクト )をControllerに返却する。
-
-- Repository
-
- .. code-block:: java
-
-    @Query("SELECT a FROM Article a WHERE a.title LIKE %:freeWord% ESCAPE '~' OR a.overview LIKE %:freeWord% ESCAPE '~'")
-    Page<Article> findPageByFreeWord(@Param("freeWord") String word, Pageable pageable); // (4)
-
- .. tabularcolumns:: |p{0.10\linewidth}|p{0.90\linewidth}|
- .. list-table::
-    :header-rows: 1
-    :widths: 10 90
-
-    * - 項番
-      - 説明
-    * - | (4)
-      - | ページ検索に必要な情報( ``Pageable`` )をRepositoryのQueryメソッドの引数として受け取る。
-        | 返り値の型は、``Page<Entity>`` とする。
-        | 上記のようなメソッドを用意すると、Spring Data JPAの機能が ``Pageable`` オブジェクトの状態に該当するデータを抽出して ``Page`` オブジェクトを返却してくれる。
-
-|
-
-Serviceの実装(MyBatis編)
-""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
-| MyBatisを使用してデータベースにアクセスする場合は、Controllerから受け取った ``Pageable`` オブジェクトより、必要な情報を抜き出してO/R Mapperのメソッドを呼び出す。
+| MyBatisを使用してデータベースにアクセスする場合は、Controllerから受け取った ``Pageable`` オブジェクトより、必要な情報を抜き出してRepositoryに引き渡す。
 | 該当データを抽出するためのSQLやソート条件については、SQLマッピングで実装する必要がある。
 
 ドメイン層で実装するページ検索処理の詳細については、
 
-* :doc:`DataAccessMyBatis3`
-* :doc:`DataAccessMybatis2`
+* :ref:`DataAccessMyBatis3HowToUseFindPageUsingMyBatisFunction`
+* :ref:`DataAccessMyBatis3HowToUseFindPageUsingSqlFilter`
+
+を参照されたい。
+
+|
+
+ドメイン層の実装(JPA編)
+""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
+JPA(Spring Data JPA)を使用してデータベースにアクセスする場合は、Controllerから受け取った ``Pageable`` オブジェクトをRepositoryに引き渡す。
+
+ドメイン層で実装するページ検索処理の詳細については、
+
+* :ref:`DataAccessJpaHowToUseFindPage`
+
 
 を参照されたい。
 

@@ -2767,7 +2767,7 @@ JSPの実装
    * - | (3)
      - 共通ライブラリから提供しているJSPタグライブラリを宣言している。
    * - | (4)
-     - ``*.jsp`` (拡張子がjsp)のJSPの先頭に指定したJSP( ``/WEB-INF/views/common/include.jsp`` ) がインクルードされる。
+     - インクルード用のJSP(\ ``/WEB-INF/views/common/include.jsp``\ )に指定した内容が、各JSP(\ ``<url-pattern>``\ で指定されているファイル)の先頭にインクルードされる。
 
  .. note::
 

@@ -2651,7 +2651,7 @@ if required, implement the process when Entity cannot be fetched.</p>
 </div></blockquote>
 <p>Although it is not mandatory to specify <tt class="docutils literal"><span class="pre">&#64;Param</span></tt> annotation,
 if it is not specified, a mechanical bind variable name needs to be specified as given below.
-The bind variable name when  <tt class="docutils literal"><span class="pre">&#64;Param</span></tt> annotation is not specified is formed as, &#8221; &#8220;param&#8221; + declared position of the argument&#8221;,
+The bind variable name when  <tt class="docutils literal"><span class="pre">&#64;Param</span></tt> annotation is not specified is formed as, &#8221; &#8220;param&#8221; + declared position of the argument(start from 1)&#8221;,
 and thus can hamper maintainability and readability of the source code.</p>
 <blockquote class="last">
 <div><div class="highlight-xml"><div class="highlight"><pre><span class="c">&lt;!-- omitted --&gt;</span>
@@ -4272,7 +4272,7 @@ JavaBean property name is specified in the bind variable name.</p>
 
         <span class="c1">// (4)</span>
         <span class="n">Todo</span> <span class="n">currentTodo</span> <span class="o">=</span> <span class="n">todoRepository</span><span class="o">.</span><span class="na">findOne</span><span class="o">(</span><span class="n">todo</span><span class="o">.</span><span class="na">getTodoId</span><span class="o">());</span>
-        <span class="k">if</span> <span class="o">(</span><span class="n">currentTodo</span> <span class="o">!=</span> <span class="kc">null</span> <span class="o">&amp;&amp;</span> <span class="n">currentTodo</span><span class="o">.</span><span class="na">getVersion</span><span class="o">()</span> <span class="o">!=</span> <span class="n">todo</span><span class="o">.</span><span class="na">getVersion</span><span class="o">())</span> <span class="o">{</span>
+        <span class="k">if</span> <span class="o">(</span><span class="n">currentTodo</span> <span class="o">==</span> <span class="kc">null</span> <span class="o">||</span> <span class="n">currentTodo</span><span class="o">.</span><span class="na">getVersion</span><span class="o">()</span> <span class="o">!=</span> <span class="n">todo</span><span class="o">.</span><span class="na">getVersion</span><span class="o">())</span> <span class="o">{</span>
             <span class="k">throw</span> <span class="k">new</span> <span class="nf">ObjectOptimisticLockingFailureException</span><span class="o">(</span><span class="n">Todo</span><span class="o">.</span><span class="na">class</span><span class="o">,</span> <span class="n">todo</span>
                     <span class="o">.</span><span class="na">getTodoId</span><span class="o">());</span>
         <span class="o">}</span>
@@ -4654,7 +4654,7 @@ In the above example, JavaBean property name is specified in the bind variable n
 
         <span class="c1">// (4)</span>
         <span class="n">Todo</span> <span class="n">currentTodo</span> <span class="o">=</span> <span class="n">todoRepository</span><span class="o">.</span><span class="na">findOne</span><span class="o">(</span><span class="n">todoId</span><span class="o">);</span>
-        <span class="k">if</span> <span class="o">(</span><span class="n">currentTodo</span> <span class="o">!=</span> <span class="kc">null</span> <span class="o">&amp;&amp;</span> <span class="n">currentTodo</span><span class="o">.</span><span class="na">getVersion</span><span class="o">()</span> <span class="o">!=</span> <span class="n">version</span><span class="o">)</span> <span class="o">{</span>
+        <span class="k">if</span> <span class="o">(</span><span class="n">currentTodo</span> <span class="o">==</span> <span class="kc">null</span> <span class="o">||</span> <span class="n">currentTodo</span><span class="o">.</span><span class="na">getVersion</span><span class="o">()</span> <span class="o">!=</span> <span class="n">version</span><span class="o">)</span> <span class="o">{</span>
             <span class="k">throw</span> <span class="k">new</span> <span class="nf">ObjectOptimisticLockingFailureException</span><span class="o">(</span><span class="n">Todo</span><span class="o">.</span><span class="na">class</span><span class="o">,</span> <span class="n">todoId</span><span class="o">);</span>
         <span class="o">}</span>
 
@@ -7064,10 +7064,12 @@ and the transaction is committed if there is no error.</p>
 <p class="first admonition-title">Note</p>
 <p><strong>Batch execution timing</strong></p>
 <p>Timing of SQL batch execution is as below.</p>
-<ul class="last simple">
+<ul class="simple">
 <li>Immediately before the transaction is committed</li>
 <li>Immediately before executing the query (SELECT)</li>
+<li>Immediately after calling an other update method</li>
 </ul>
+<p class="last">Notes of sequence of calling repository method refer to &#8220;<a class="reference internal" href="#dataaccessmybatis3howtoextendexecutortypebatchnotesmethodcallorder"><em>Sequence of calling Repository method</em></a>&#8221;.</p>
 </div>
 </div></blockquote>
 <div class="line-block">
@@ -7088,7 +7090,7 @@ and the transaction is committed if there is no error.</p>
 <p>When batch mode Repository is used, the validity of update results cannot be checked.</p>
 <p>Update results returned from Mapper interface method when a batch mode is used, are as follows.</p>
 <ul class="simple">
-<li><tt class="docutils literal"><span class="pre">0</span></tt> when return value is numeric (<tt class="docutils literal"><span class="pre">int</span></tt> or <tt class="docutils literal"><span class="pre">long</span></tt>)</li>
+<li><a class="reference external" href="http://mybatis.github.io/mybatis-3/apidocs/reference/org/apache/ibatis/executor/BatchExecutor.html#BATCH_UPDATE_RETURN_VALUE">Fixed value</a>(<tt class="docutils literal"><span class="pre">org.apache.ibatis.executor.BatchExecutor#BATCH_UPDATE_RETURN_VALUE</span></tt>)  when return value is numeric (<tt class="docutils literal"><span class="pre">int</span></tt> or <tt class="docutils literal"><span class="pre">long</span></tt>)</li>
 <li><tt class="docutils literal"><span class="pre">false</span></tt> when return value is <tt class="docutils literal"><span class="pre">boolean</span></tt></li>
 </ul>
 <p>This is due to the mechanism wherein SQL is not executed within the timing of calling  Mapper interface method
@@ -7508,7 +7510,7 @@ can be simply created as a Java interface.</div>
 <ul>
 <li><p class="first">How to create a Mapper interface</p>
 <p>In this guideline, since it is presumed that that the Mapper interface of MyBatis3 is used as Repository interface,
-interface name is in the format,  &#8220;Entity name&#8221; + <tt class="docutils literal"><span class="pre">&quot;TodoRepository&quot;</span></tt> .</p>
+interface name is in the format,  &#8220;Entity name&#8221; + <tt class="docutils literal"><span class="pre">&quot;Repository&quot;</span></tt> .</p>
 </li>
 </ul>
 <blockquote>
@@ -7611,7 +7613,7 @@ The application (Service) transparently executes SQL by calling Mapper object me
 </ol>
 </td>
 <td><p class="first">Application calls the method defined in Mapper interface.</p>
-<p class="last">The implementation class of Mapper interface (Proxy object of Mapper interface) is generated by MyBatis3 components at execution time.</p>
+<p class="last">The implementation class of Mapper interface (Proxy object of Mapper interface) is generated by MyBatis3 components at application startup time.</p>
 </td>
 </tr>
 <tr class="row-odd"><td><ol class="first last arabic simple" start="2">

@@ -702,13 +702,11 @@ Customization method and customization targeted files are indicated below.
                              <groupId>org.postgresql</groupId>
                              <artifactId>postgresql</artifactId>
                              <version>${postgresql.version}</version>
-                             <scope>provided</scope>
                          </dependency>
         <!--             <dependency> -->
         <!--                 <groupId>com.oracle</groupId> -->
         <!--                 <artifactId>ojdbc7</artifactId> -->
         <!--                 <version>${ojdbc.version}</version> -->
-        <!--                 <scope>provided</scope> -->
         <!--             </dependency> -->
 
             <!-- ... -->
@@ -1523,37 +1521,42 @@ The hierarchical structure of the project indicated below which is created in Ma
         In the TERASOLUNA Server Framework for Java (5.x) Parent project,
 
         * Plug-ins settings for build
-        * Customization of libraries that is managed through Spring IO Platform (adjusted scope and version)
+        * Customization of libraries that is managed through Spring IO Platform (adjusted version)
         * Version management of recommended libraries that is not managed by Spring IO Platform
 
         are performed.
 
-        The [io.spring.platform:platform-bom:1.1.1.RELEASE] is specified as a parent project.
+        Furthermore, in order to version management of the dependent libraries via Spring IO Platform, imported the [io.spring.platform:platform-bom:1.1.1.RELEASE] into \ ``<dependencyManagement>`` \ of the current project.
     * - | (3)
       - Spring IO Platform project.
 
-        The [org.springframework.boot:spring-boot-starter-parent:1.2.1.RELEASE] is specified as a parent project.
+        Since [org.springframework.boot:spring-boot-starter-parent:1.2.1.RELEASE] is specified as a parent project, the definition of \ ``<dependencyManagement>`` \ defined into pom file of the spring-boot-starter-parent also imported into pom file of the terasoluna-gfw-parent.
     * - | (4)
       - Spring Boot Starter Parent project.
 
-        The [org.springframework.boot:spring-boot-dependencies:1.2.1.RELEASE] is specified as a parent project.
+        Since [org.springframework.boot:spring-boot-dependencies:1.2.1.RELEASE] is specified as a parent project,  the definition of \ ``<dependencyManagement>`` \ defined into pom file of the spring-boot-dependencies also imported into pom file of the terasoluna-gfw-parent.
     * - | (5)
       - Spring Boot Dependencies project.
 
 .. tip::
 
-    The configuration has been changed like Spring IO Platform is specified in the parent project from version 5.0.0.RELEASE,
+    The configuration has been changed like \ ``<dependencyManagement>`` \ of Spring IO Platform is imported from version 5.0.0.RELEASE,
     we have adopted a style that version management of recommended libraries are done in Spring IO Platform.
 
 
 .. warning::
 
-    Since the configuration has been changed like Spring IO Platform is specified in the parent project from version 5.0.0.RELEASE,
-    the property name for managing the dependencies versions have been changed significantly
+    Since the configuration has been changed like \ ``<dependencyManagement>`` \ of Spring IO Platform is imported from version 5.0.0.RELEASE,
+    You are no longer able to access the version management properties from the child project.
+    
+    Therefore, if property values are referring or overwriting at the child project, pom file should be modified while upgrading from version 1.0.x.
+    
+    Furthermore, it is possible to access the conventional version management properties for recommended libraries (TERASOLUNA Server Framework for Java (5.x) recommended library)
+    which are not managed by the Spring IO Platform.
 
-    Therefore, if property values are overwriting at project side, it should be noted while upgrading from version 1.0.x.
 
 |
+
 
 .. _CreateWebApplicationProjectAppendixApplicationContext:
 

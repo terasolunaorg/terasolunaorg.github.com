@@ -460,31 +460,8 @@
 <div><div class="admonition-todo admonition" id="index-1">
 <p class="first admonition-title">Todo</p>
 <p><strong>It has been recently found that using JPA (Hibernate) results in occurrence of unexpected errors.</strong></p>
-<ul class="simple">
-<li>In case of unique constraint violation, <tt class="docutils literal"><span class="pre">org.springframework.dao.DataIntegrityViolationException</span></tt> occurs and not <tt class="docutils literal"><span class="pre">DuplicateKeyException</span></tt>.</li>
-<li>If pessimistic locking fails, the child class of <tt class="docutils literal"><span class="pre">org.springframework.dao.UncategorizedDataAccessException</span></tt> occurs and not <tt class="docutils literal"><span class="pre">PessimisticLockingFailureException</span></tt>.</li>
-</ul>
-<p><tt class="docutils literal"><span class="pre">UncategorizedDataAccessException</span></tt> that occurs in case of pessimistic locking error is classified as system error; hence handling it in the application is not recommended. However, there might be cases wherein this exception may need to be handled.
-This exception can be handled since exception notifying the occurrence of pessimistic locking error is saved as the cause of exception.</p>
-<p>⇒ Further analysis</p>
-<p><strong>The current behavior is as follows:</strong></p>
 <ul class="last simple">
-<li>PostgreSQL + for update nowait<ul>
-<li>org.springframework.orm.hibernate3.HibernateJdbcException</li>
-<li>Caused by: org.hibernate.PessimisticLockException</li>
-</ul>
-</li>
-<li>Oracle + for update<ul>
-<li>org.springframework.orm.hibernate3.HibernateSystemException</li>
-<li>Caused by: Caused by: org.hibernate.dialect.lock.PessimisticEntityLockException</li>
-<li>Caused by: org.hibernate.exception.LockTimeoutException</li>
-</ul>
-</li>
-<li>Oracle / PostgreSQL + Unique constraint<ul>
-<li>org.springframework.dao.DataIntegrityViolationException</li>
-<li>Caused by: org.hibernate.exception.ConstraintViolationException</li>
-</ul>
-</li>
+<li>In case of unique constraint violation, <tt class="docutils literal"><span class="pre">org.springframework.dao.DataIntegrityViolationException</span></tt> occurs and not <tt class="docutils literal"><span class="pre">DuplicateKeyException</span></tt>.</li>
 </ul>
 </div>
 </div></blockquote>
@@ -1702,13 +1679,36 @@ In actual application development, sometimes the formatted string is also set as
 </ol>
 </td>
 <td><div class="first last line-block">
-<div class="line">org.springframework.orm.hibernate3.</div>
-<div class="line">SessionFactoryUtils</div>
+<div class="line">org.springframework.jdbc.support.</div>
+<div class="line">SQLErrorCodeSQLExceptionTranslator</div>
 </div>
 </td>
-<td>When JPA (Hibernate implementation) is used, O/R Mapper exception is converted to data access exception of Spring Framework using this class.</td>
+<td>When MyBatis or <tt class="docutils literal"><span class="pre">JdbcTemplate</span></tt> is used, JDBC exception is converted to data access exception of Spring Framework using this class. Conversion rules are mentioned in XML file. XML file used by default is <tt class="docutils literal"><span class="pre">org/springframework/jdbc/support/sql-error-codes.xml</span></tt> in <tt class="docutils literal"><span class="pre">spring-jdbc.jar</span></tt>.
+It is also possible to change the default behavior by placing XML file (<tt class="docutils literal"><span class="pre">sql-error-codes.xml</span></tt>) just below class path.</td>
 </tr>
 <tr class="row-odd"><td><ol class="first last arabic simple" start="2">
+<li></li>
+</ol>
+</td>
+<td><div class="first last line-block">
+<div class="line">org.springframework.orm.jpa.vendor.</div>
+<div class="line">HibernateJpaDialect</div>
+</div>
+</td>
+<td>When JPA (Hibernate implementation) is used, O/R Mapper exception(Hibernate exception) is converted to data access exception of Spring Framework using this class.</td>
+</tr>
+<tr class="row-even"><td><ol class="first last arabic simple" start="3">
+<li></li>
+</ol>
+</td>
+<td><div class="first last line-block">
+<div class="line">org.springframework.orm.jpa.</div>
+<div class="line">EntityManagerFactoryUtils</div>
+</div>
+</td>
+<td>If an exception that can not be converted by <tt class="docutils literal"><span class="pre">HibernateJpaDialect</span></tt> has occurred, JPA exception is converted to data access exception of Spring Framework using this class.</td>
+</tr>
+<tr class="row-odd"><td><ol class="first last arabic simple" start="4">
 <li></li>
 </ol>
 </td>
@@ -1718,18 +1718,6 @@ In actual application development, sometimes the formatted string is also set as
 </div>
 </td>
 <td>When JPA (Hibernate implementation) is used, exceptions are converted to JDBC exception and O/R Mapper exception using this class.</td>
-</tr>
-<tr class="row-even"><td><ol class="first last arabic simple" start="3">
-<li></li>
-</ol>
-</td>
-<td><div class="first last line-block">
-<div class="line">org.springframework.jdbc.support.</div>
-<div class="line">SQLErrorCodeSQLExceptionTranslator</div>
-</div>
-</td>
-<td>When Mybatis or JdbcTemplate is used, JDBC exception is converted to data access exception of Spring Framework using this class. Conversion rules are mentioned in XML file. XML file used by default is org/springframework/jdbc/support/sql-error-codes.xml in spring-jdbc.jar.
-It is also possible to change the default behavior by placing XML file (sql-error-codes.xml) just below class path.</td>
 </tr>
 </tbody>
 </table>

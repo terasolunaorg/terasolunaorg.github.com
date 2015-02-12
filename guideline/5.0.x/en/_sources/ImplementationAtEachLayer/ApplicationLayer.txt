@@ -2706,7 +2706,7 @@ Further, this file is provided in blank project also.
    * - | (3)
      - | JSP tag libraries provided by common library are declared.
    * - | (4)
-     - | JSP which is specified at the top of ``*.jsp`` (extension is jsp) has been included (``/WEB-INF/views/common/include.jsp``).
+     - | The content of the include JSP (\ ``/WEB-INF/views/common/include.jsp``\ ) will be replaced at the top of each JSP(each file which is specified at \ ``<url-pattern>``\ ).
 
  .. note::
  

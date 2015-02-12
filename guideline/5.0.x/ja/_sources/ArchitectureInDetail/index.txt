@@ -7,9 +7,8 @@ TERASOLUNA Server Framework for Java (5.x)の機能詳細
    :maxdepth: 1
 
    DataAccessCommon
-   DataAccessJpa
    DataAccessMyBatis3
-   DataAccessMybatis2
+   DataAccessJpa
    ExclusionControl
    Validation
    Logging

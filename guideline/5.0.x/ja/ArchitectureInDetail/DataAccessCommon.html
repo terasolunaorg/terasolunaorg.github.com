@@ -24,7 +24,7 @@
     <script type="text/javascript" src="../_static/doctools.js"></script>
     <link rel="top" title="TERASOLUNA Server Framework for Java (5.x) Development Guideline 5.0.0-SNAPSHOT documentation" href="../index.html" />
     <link rel="up" title="5. TERASOLUNA Server Framework for Java (5.x)の機能詳細" href="index.html" />
-    <link rel="next" title="5.2. データベースアクセス（JPA編）" href="DataAccessJpa.html" />
+    <link rel="next" title="5.2. データベースアクセス（MyBatis3編）" href="DataAccessMyBatis3.html" />
     <link rel="prev" title="5. TERASOLUNA Server Framework for Java (5.x)の機能詳細" href="index.html" /><script src="../_static/jquery.treeview.js" type="text/javascript"></script>
 <!-- <link href='http://fonts.googleapis.com/css?family=Source+Code+Pro|Open+Sans:300italic,400italic,700italic,400,300,700' rel='stylesheet' type='text/css'> -->
 <link href="../_static/solarized-dark.css" rel="stylesheet">
@@ -38,7 +38,7 @@
           <a href="../genindex.html" title="General Index"
              accesskey="I">index</a></li>
         <li class="right" >
-          <a href="DataAccessJpa.html" title="5.2. データベースアクセス（JPA編）"
+          <a href="DataAccessMyBatis3.html" title="5.2. データベースアクセス（MyBatis3編）"
              accesskey="N">next</a> |</li>
         <li class="right" >
           <a href="index.html" title="5. TERASOLUNA Server Framework for Java (5.x)の機能詳細"
@@ -120,8 +120,8 @@
   <p class="topless"><a href="index.html"
                         title="previous chapter">5. TERASOLUNA Server Framework for Java (5.x)の機能詳細</a></p>
   <h4>Next topic</h4>
-  <p class="topless"><a href="DataAccessJpa.html"
-                        title="next chapter">5.2. データベースアクセス（JPA編）</a></p>
+  <p class="topless"><a href="DataAccessMyBatis3.html"
+                        title="next chapter">5.2. データベースアクセス（MyBatis3編）</a></p>
   <h3>This Page</h3>
   <ul class="this-page-menu">
     <li><a href="../_sources/ArchitectureInDetail/DataAccessCommon.txt"
@@ -235,9 +235,8 @@
 <p>本節では、RDBMSで管理されているデータにアクセスする方法について、説明する。</p>
 <p>O/R Mapperに依存する部分については、</p>
 <ul class="simple">
-<li><a class="reference internal" href="DataAccessJpa.html"><em>データベースアクセス（JPA編）</em></a></li>
 <li><a class="reference internal" href="DataAccessMyBatis3.html"><em>データベースアクセス（MyBatis3編）</em></a></li>
-<li><a class="reference internal" href="DataAccessMybatis2.html"><em>データベースアクセス（Mybatis2編）</em></a></li>
+<li><a class="reference internal" href="DataAccessJpa.html"><em>データベースアクセス（JPA編）</em></a></li>
 </ul>
 <p>を参照されたい。</p>
 <div class="section" id="jdbc-datasource">
@@ -464,31 +463,8 @@
 <div><div class="admonition-todo admonition" id="index-1">
 <p class="first admonition-title">Todo</p>
 <p><strong>JPA(Hibernate)を使用すると、現状意図しないエラーとなることが発覚している。</strong></p>
-<ul class="simple">
-<li>一意制約違反が発生した場合、<tt class="docutils literal"><span class="pre">DuplicateKeyException</span></tt>ではなく、<tt class="docutils literal"><span class="pre">org.springframework.dao.DataIntegrityViolationException</span></tt>が発生する。</li>
-<li>悲観ロックに失敗した場合、<tt class="docutils literal"><span class="pre">PessimisticLockingFailureException</span></tt>ではなく、<tt class="docutils literal"><span class="pre">org.springframework.dao.UncategorizedDataAccessException</span></tt>の子クラスが発生する。</li>
-</ul>
-<p>悲観エラー時に発生する<tt class="docutils literal"><span class="pre">UncategorizedDataAccessException</span></tt>は、システムエラーに分類される例外なので、アプリケーションでハンドリングすることは推奨されないが、最悪ハンドリングを行う必要があるかもしれない。
-原因例外には、悲観ロックエラーが発生したことを通知する例外が格納されているので、ハンドリングできる。</p>
-<p>⇒継続調査。</p>
-<p><strong>現状以下の動作となる。</strong></p>
 <ul class="last simple">
-<li>PostgreSQL + for update nowait<ul>
-<li>org.springframework.orm.hibernate3.HibernateJdbcException</li>
-<li>Caused by: org.hibernate.PessimisticLockException</li>
-</ul>
-</li>
-<li>Oracle + for update<ul>
-<li>org.springframework.orm.hibernate3.HibernateSystemException</li>
-<li>Caused by: Caused by: org.hibernate.dialect.lock.PessimisticEntityLockException</li>
-<li>Caused by: org.hibernate.exception.LockTimeoutException</li>
-</ul>
-</li>
-<li>Oracle / PostgreSQL + 一意制約<ul>
-<li>org.springframework.dao.DataIntegrityViolationException</li>
-<li>Caused by: org.hibernate.exception.ConstraintViolationException</li>
-</ul>
-</li>
+<li>一意制約違反が発生した場合、<tt class="docutils literal"><span class="pre">DuplicateKeyException</span></tt>ではなく、<tt class="docutils literal"><span class="pre">org.springframework.dao.DataIntegrityViolationException</span></tt>が発生する。</li>
 </ul>
 </div>
 </div></blockquote>
@@ -825,9 +801,8 @@
 <p>トランザクション管理を有効化するための基本的な設定は、<a class="reference internal" href="../ImplementationAtEachLayer/DomainLayer.html"><em>ドメイン層の実装</em></a>の<a class="reference internal" href="../ImplementationAtEachLayer/DomainLayer.html#service-enable-transaction-management"><em>トランザクション管理を使うための設定について</em></a>を参照されたい。</p>
 <p>PlatformTransactionManagerについては、使用するO/R Mapperによって使うクラスがかわるので、詳細設定は、</p>
 <ul class="simple">
-<li><a class="reference internal" href="DataAccessJpa.html"><em>データベースアクセス（JPA編）</em></a></li>
 <li><a class="reference internal" href="DataAccessMyBatis3.html"><em>データベースアクセス（MyBatis3編）</em></a></li>
-<li><a class="reference internal" href="DataAccessMybatis2.html"><em>データベースアクセス（Mybatis2編）</em></a></li>
+<li><a class="reference internal" href="DataAccessJpa.html"><em>データベースアクセス（JPA編）</em></a></li>
 </ul>
 <p>を参照されたい。</p>
 </div>
@@ -1602,9 +1577,8 @@ terasoluna-gfw-common 1.0.2.RELEASEより「 <tt class="docutils literal"><span 
 <h4><a class="toc-backref" href="#id54">5.1.5.1.3. 共通ライブラリの使用方法</a><a class="headerlink" href="#id20" title="Permalink to this headline">¶</a></h4>
 <p>LIKE検索時のエスケープ処理の実装例については、使用するO/R Mapper向けのドキュメントを参照されたい。</p>
 <ul class="simple">
-<li>JPA(Spring Data JPA)を使用する場合は、<a class="reference internal" href="DataAccessJpa.html"><em>データベースアクセス（JPA編）</em></a>の<a class="reference internal" href="DataAccessJpa.html#data-access-jpa-howtouse-like-escape"><em>LIKE検索時のエスケープについて</em></a>を参照されたい。</li>
 <li>MyBatis3を使用する場合は、<a class="reference internal" href="DataAccessMyBatis3.html"><em>データベースアクセス（MyBatis3編）</em></a>の<a class="reference internal" href="DataAccessMyBatis3.html#dataaccessmybatis3howtouselikeescape"><em>LIKE検索時のエスケープ</em></a>を参照されたい。</li>
-<li>MyBatis2(TERASOLUNA DAO)を使用する場合は、<a class="reference internal" href="DataAccessMybatis2.html"><em>データベースアクセス（Mybatis2編）</em></a>の<a class="reference internal" href="DataAccessMybatis2.html#data-access-mybatis2-howtouse-like-escape"><em>LIKE検索時のエスケープについて</em></a>を参照されたい。</li>
+<li>JPA(Spring Data JPA)を使用する場合は、<a class="reference internal" href="DataAccessJpa.html"><em>データベースアクセス（JPA編）</em></a>の<a class="reference internal" href="DataAccessJpa.html#data-access-jpa-howtouse-like-escape"><em>LIKE検索時のエスケープについて</em></a>を参照されたい。</li>
 </ul>
 <div class="admonition note">
 <p class="first admonition-title">Note</p>
@@ -1940,13 +1914,36 @@ terasoluna-gfw-common 1.0.2.RELEASEより「 <tt class="docutils literal"><span 
 </ol>
 </td>
 <td><div class="first last line-block">
-<div class="line">org.springframework.orm.hibernate3.</div>
-<div class="line">SessionFactoryUtils</div>
+<div class="line">org.springframework.jdbc.support.</div>
+<div class="line">SQLErrorCodeSQLExceptionTranslator</div>
 </div>
 </td>
-<td>JPA(Hibernateの実装)を使った場合、本クラスによって、O/R Mapper例外がSpring Frameworkのデータアクセス例外に変換される。</td>
+<td>MyBatisや、<tt class="docutils literal"><span class="pre">JdbcTemplate</span></tt>を使った場合、本クラスによって、JDBC例外が、Spring Frameworkのデータアクセス例外に変換される。変換ルールは、XMLファイルに記載されており、デフォルトで使用されるXMLファイルは、<tt class="docutils literal"><span class="pre">spring-jdbc.jar</span></tt>内の<tt class="docutils literal"><span class="pre">org/springframework/jdbc/support/sql-error-codes.xml</span></tt>となる。
+クラスパス直下に、XMLファイル（<tt class="docutils literal"><span class="pre">sql-error-codes.xml</span></tt>）を配置することで、デフォルトの動作を変更することもできる。</td>
 </tr>
 <tr class="row-odd"><td><ol class="first last arabic simple" start="2">
+<li></li>
+</ol>
+</td>
+<td><div class="first last line-block">
+<div class="line">org.springframework.orm.jpa.vendor.</div>
+<div class="line">HibernateJpaDialect</div>
+</div>
+</td>
+<td>JPA(Hibernateの実装)を使った場合、本クラスによって、O/R Mapper例外(Hibernateの例外)がSpring Frameworkのデータアクセス例外に変換される。</td>
+</tr>
+<tr class="row-even"><td><ol class="first last arabic simple" start="3">
+<li></li>
+</ol>
+</td>
+<td><div class="first last line-block">
+<div class="line">org.springframework.orm.jpa.</div>
+<div class="line">EntityManagerFactoryUtils</div>
+</div>
+</td>
+<td><tt class="docutils literal"><span class="pre">HibernateJpaDialect</span></tt>で変換できない例外が発生した場合は、本クラスによって、JPA例外がSpring Frameworkのデータアクセス例外に変換される。</td>
+</tr>
+<tr class="row-odd"><td><ol class="first last arabic simple" start="4">
 <li></li>
 </ol>
 </td>
@@ -1956,18 +1953,6 @@ terasoluna-gfw-common 1.0.2.RELEASEより「 <tt class="docutils literal"><span 
 </div>
 </td>
 <td>JPA(Hibernateの実装)を使った場合、本クラスによって、JDBC例外とO/R Mapper例外に変換される。</td>
-</tr>
-<tr class="row-even"><td><ol class="first last arabic simple" start="3">
-<li></li>
-</ol>
-</td>
-<td><div class="first last line-block">
-<div class="line">org.springframework.jdbc.support.</div>
-<div class="line">SQLErrorCodeSQLExceptionTranslator</div>
-</div>
-</td>
-<td>MyBatisや、JdbcTemplateを使った場合、本クラスによって、JDBC例外が、Spring Frameworkのデータアクセス例外に変換される。変換ルールは、XMLファイルに記載されており、デフォルトで使用されるXMLファイルは、spring-jdbc.jar内のorg/springframework/jdbc/support/sql-error-codes.xmlとなる。
-クラスパス直下に、XMLファイル（sql-error-codes.xml）を配置することで、デフォルトの動作を変更することもできる。</td>
 </tr>
 </tbody>
 </table>
@@ -2094,7 +2079,7 @@ terasoluna-gfw-common 1.0.2.RELEASEより「 <tt class="docutils literal"><span 
           <a href="../genindex.html" title="General Index"
              >index</a></li>
         <li class="right" >
-          <a href="DataAccessJpa.html" title="5.2. データベースアクセス（JPA編）"
+          <a href="DataAccessMyBatis3.html" title="5.2. データベースアクセス（MyBatis3編）"
              >next</a> |</li>
         <li class="right" >
           <a href="index.html" title="5. TERASOLUNA Server Framework for Java (5.x)の機能詳細"

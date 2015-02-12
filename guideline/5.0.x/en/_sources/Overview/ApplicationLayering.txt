@@ -60,27 +60,27 @@ Controller
 
 Controller is mainly responsible for the below:
 
-* Controls of screen flow (mapping the request to the corresponding process and returning the result)
+* Controls the screen flow (mapping the request and returning the View corresponding to the result)
 * Calls services in the domain layer (executing main logic corresponding to the request)
 
 In Spring MVC, POJO class having ``@Controller`` annotation becomes the Controller class.
 
 .. note::
 
-  When storing the data in the session, controllers also have a role to controll the lifecycle of objects in the session.
+  When storing the client input data in the session, controllers also have a role to control the life cycle of data to be stored in the session.
 
 View
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-View's responsibilities is generating output to the client.
+View's responsibilities is generating output (including the UI provision) to the client.
 Returns output results in various formats such as HTML/PDF/Excel/JSON.
 
 In Spring MVC, all this is done by ``View`` class.
 
 .. tip::
 
-    If use the JSON or XML as output results at REST API or Ajax request,
-    \ ``HttpMessageConverter``\  class plays this responsibility.
+    If use the JSON or XML format output results for the REST API or Ajax request,
+    \ ``HttpMessageConverter``\  class plays View's responsibility.
 
     Details refer to ":doc:`../ArchitectureInDetail/REST`".
 
@@ -92,20 +92,20 @@ Form
 Form's main responsibilities are the following:
 
 * Represents the form of HTML. (sending form information to the Controller, or outputting the processing result data to form of HTML)
-* Defines validation rules for input data. (by adding annotations of Bean Validation)
+* Declaration of input check rules. (by adding Bean Validation annotation)
 
 In Spring MVC, form object are the POJO class that store request parameters. It is called as form backing bean.
 
 .. note::
 
-    To retain the domain layer which is independent from the application layer,
+    To retain the domain layer independent from the application layer,
     need to perform following processing at the application layer.
 
     * Conversion from Form to DomainObject(such as Entity)
-    * conversion from DomainObject to Form
+    * Conversion from DomainObject to Form
 
     If conversion code is too many,
-    recommend to perform of either or both of the following measures and keep Controller's source code with simple state.
+    recommend to perform of either or both of the following measures and keep Controller's source code in simple state.
 
     * Create helper class and delegate conversion logic to helper classes.
     * Use the :doc:`Dozer <../ArchitectureInDetail/Utilities/Dozer>`.
@@ -113,9 +113,9 @@ In Spring MVC, form object are the POJO class that store request parameters. It 
 
 .. tip::
 
-    If use the JSON or XML as input data at REST API or Ajax request,
-    \ ``Resource``\  class plays this responsibility.
-    Also, \ ``HttpMessageConverter``\  class plays responsibility to convert from input data of JSON or XML format to \ ``Resource``\  class.
+    If use the JSON or XML as input data for REST API or Ajax request,
+    \ ``Resource``\  class plays Form's responsibility.
+    Also, \ ``HttpMessageConverter``\  class plays responsibility to convert JSON or XML input data into \ ``Resource``\  class.
 
     Details refer to ":doc:`../ArchitectureInDetail/REST`".
 
@@ -126,7 +126,7 @@ Helper
 
 It plays the role of assisting the Controller.
 
-Helper is an option. Please create as POJO class if required.
+Creating Helper is an option. Please create as POJO class if required.
 
 .. note::
 
@@ -134,8 +134,8 @@ Helper is an option. Please create as POJO class if required.
     If there is any processing required (converting JavaBean etc),
     then that part must be cut-off from controller and must be delegated to helper classes.
   
-    Helper class exists to improve the visibility of Controller; hence, it is OK to think of it as a part of Controller.
-    (Helper class is similar to private methods of Controller)
+    The existance of Helper class improves the visibility of Controller; hence, it is OK to think as a part of Controller.
+    (Similar to private methods of Controller)
 
 |
 
@@ -148,7 +148,7 @@ In this layer, it provides the following implementations.
 
 * DomainObject
 * Checking business rules corresponding to the DomainObject (like whether there is sufficient balance when crediting amount into the account)
-* Executing business rules (reflects values corresponding to business rules)
+* Executing business rules for the DomainObject (reflects values corresponding to business rules)
 * Executing CRUD operations for the DomainObject
 
 Domain layer is independent from other layers and is reusable.
@@ -201,14 +201,14 @@ In this guideline, it is recommended to draw the transaction boundary at the met
 
     Information related to Web such as Form and HttpRequest should not be handled in service.
 
-    This information should be converted to object of domain layer in Application layer before calling Service.
+    This information should be converted into domain object in Application layer before calling the Service.
 
 |
 
 Infrastructure layer
 --------------------------------------------------------------------------------
 
-Implementation (Repository interface) of domain layer is provided in infrastructure layer.
+Implementation of domain layer (Repository interface) is provided in infrastructure layer.
 
 It is responsible for storing the data permanently (location where data is stored such as RDBMS, NoSQL etc.) as well as transmission of messages.
 
@@ -251,7 +251,7 @@ O/R Mapper used for implementation of Repository.
 Integration System Connector
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-It integrates a data store other than the database; such as messaging system, Key-Value-Store, Web service, existing legacy system, external system etc.
+It integrates a data store other than the database( such as messaging system, Key-Value-Store, Web service, existing legacy system, external system etc.).
 
 It is also used for implementation of Repository.
 
@@ -610,7 +610,7 @@ Recommended structure of [projectName]-web
     * - | (8)
       - Store View(jsp) files.
     * - | (9)
-      - Servlet definitions
+      - Servlet deployment definitions
 
 |
 
