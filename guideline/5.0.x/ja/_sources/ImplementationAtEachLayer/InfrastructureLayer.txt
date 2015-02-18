@@ -17,7 +17,7 @@ RepositoryImplは、Repositoryインタフェースで定義したメソッド�
 RepositoryImplの実装
 --------------------------------------------------------------------------------
 
-以下に、JPAとMyBatisを使って、リレーショナルデータベース用のRepositoryを作成する方法を紹介する。
+以下に、MyBatis3とJPAを使って、リレーショナルデータベース用のRepositoryを作成する方法を紹介する。
 
 * :ref:`repository-mybatis3-label`
 * :ref:`repository-jpa-label`

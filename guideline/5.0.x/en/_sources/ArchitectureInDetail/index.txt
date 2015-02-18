@@ -7,8 +7,8 @@ The architecture adopted in this guideline is explained in detail here.
    :maxdepth: 1
 
    DataAccessCommon
-   DataAccessJpa
    DataAccessMyBatis3
+   DataAccessJpa
    ExclusionControl
    Validation
    Logging

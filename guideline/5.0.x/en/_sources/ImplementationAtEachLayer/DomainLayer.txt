@@ -1276,6 +1276,7 @@ Operate on business data
 """"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 Refer to the following for the examples of data (Entity) fetch and update.
 
+* When using MyBatis3, \ :doc:`../ArchitectureInDetail/DataAccessMyBatis3`\
 * When using JPA, \ :doc:`../ArchitectureInDetail/DataAccessJpa`\
 
 

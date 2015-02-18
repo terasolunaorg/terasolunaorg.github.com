@@ -238,7 +238,7 @@ O/R Mapper
 
 O/R Mapperは、データベースとEntityの相互マッピングを担う。
 
-JPA / MyBatis / Spring JDBCが、本機能を提供する。
+MyBatis / JPA / Spring JDBCが、本機能を提供する。
 
 具体的には、
 
@@ -274,7 +274,7 @@ Integration System Connectorは、Repositoryインタフェースの実装に用
 本ガイドラインでは、実装技術として、
 
 * アプリケーション層にSpring MVC
-* インフラストラクチャ層にSpring Data JPA, MyBatis
+* インフラストラクチャ層にMyBatis, Spring Data JPA
 
 を使用することを想定しているが、本質的には、実装技術が変わっても、それぞれの層で違いが吸収され、ドメイン層には影響を与えない。
 レイヤ間の結合部は、インタフェースとして公開することで、各層が使用している実装技術に依存しない形式とすることができる。

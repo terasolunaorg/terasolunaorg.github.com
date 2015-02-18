@@ -96,7 +96,7 @@
         Spring Framework 4.1対応に伴う修正
 
         * JPA(Hibernate実装)の悲観ロックエラーがSpring Frameworkの\ ``PessimisticLockingFailureException``\ に変換されない問題に関する記載を削除。
-          この問題は、\ `SPR-10815 <https://jira.spring.io/browse/SPR-10815>`\_ (Spring Framework 4.0以降)で解決済みである。
+          この問題は、\ `SPR-10815 <https://jira.spring.io/browse/SPR-10815>`_\ (Spring Framework 4.0以降)で解決済みである。
 
         Apache Commons DBCP 2.0対応に伴う修正
 
@@ -116,7 +116,7 @@
         Spring Framework 4.1対応に伴う修正
 
         * JPA(Hibernate実装)の悲観ロックエラーがSpring Frameworkの\ ``PessimisticLockingFailureException``\ に変換されない問題に関する記載を削除。
-          この問題は、\ `SPR-10815 <https://jira.spring.io/browse/SPR-10815>`\_ (Spring Framework 4.0以降)で解決済みである。
+          この問題は、\ `SPR-10815 <https://jira.spring.io/browse/SPR-10815>`_\ (Spring Framework 4.0以降)で解決済みである。
 
         MyBatis3対応に伴う修正
 
@@ -154,7 +154,7 @@
         Spring Framework 4.1対応に伴う修正
 
         * JPA(Hibernate実装)の悲観ロックエラーがSpring Frameworkの\ ``PessimisticLockingFailureException``\ に変換されない問題に関する記載を削除。
-          この問題は、\ `SPR-10815 <https://jira.spring.io/browse/SPR-10815>`\_ (Spring Framework 4.0以降)で解決済みである。
+          この問題は、\ `SPR-10815 <https://jira.spring.io/browse/SPR-10815>`_\ (Spring Framework 4.0以降)で解決済みである。
     * -
       - :doc:`../ArchitectureInDetail/SessionManagement`
       - Spring Security 3.2対応に伴う修正

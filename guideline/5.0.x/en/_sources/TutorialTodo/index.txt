@@ -3108,13 +3108,13 @@ and click [Finish] after entering above information.
      - | Specify \ ``@Query`` \ annotation to the JPQL executed at the time of calling \ ``countByFinished`` \ method
    * - | (3)
      - | Set bind variable of JPQL specified in (2) by \ ``@Param`` \ annotation.
-       | Here, \ ``@Param(“finished”)`` \ is added in the method argument \ ``finished`` \ for inserting \ ``”:finished”`` \ in JPQL.       
+       | Here, \ ``@Param(“finished”)`` \ is added before the method argument \ ``finished`` \ to embed the value with \ ``”:finished”`` \ of JPQL.       
 
 
 Create TodoRepositoryImpl
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-If Spring Data JPA is used, RepositoryImpl is automatically generated from the Repository interface (Mapper interface).
+If Spring Data JPA is used, RepositoryImpl is automatically generated from the Repository interface.
 Therefore, the creation of \ ``TodoRepositoryImpl`` \ is not required. Remove if it is created.
 
 |

@@ -79,7 +79,7 @@ Page search functionality provided by Spring Data is as follows:
     * - 3
       - | When Spring Data JPA is used for database access, the information of corresponding page is returned as ``Page``  object by specifying ``Pageable``  object as an argument of Repository Query method.
         | All the processes such as executing SQL to fetch total records, adding sort condition and extracting data matching the corresponding page are carried out automatically.
-        | When Mybatis is used for database access, the process that is automatically carried out in Spring Data JPA needs to be carried out in Java or SQL mapping file.
+        | When MyBatis is used for database access, the process that is automatically carried out in Spring Data JPA needs to be carried out in Java(Service) and SQL mapping file.
 
 .. _pagination_overview_pagesearch_requestparameter:
 
@@ -590,7 +590,15 @@ Process flow when using pagination functionality of Spring Data and JSP tag libr
 
  .. note:: **Implementation of Repository**
 
-    When the method of Repository interface of Spring Data JPA is used, the processes (5) and (6) are carried out automatically using Spring Data JPA functionality.
+   The implementation method of (5) & (6)  are different by the O/R Mapper to be used.
+
+   * When using the MyBatis3, implementation are necessary at the Java(Service) and SQL mapping file.
+   * When using Spring Data JPA, implementation are unnecessary because above processes carried out automatically by the Spring Data JPA functionality.
+
+   For implementation example refer to:
+
+   * :doc:`DataAccessMyBatis3`
+   * :doc:`DataAccessJpa`
 
 
 |
@@ -821,60 +829,28 @@ of ``PageableHandlerMethodArgumentResolver``  that is defined in :file:`spring-m
 
 For description of ``fallbackPageable``  and example of settings, refer to ":ref:`paginatin_appendix_pageableHandlerMethodArgumentResolver`".
 
+
+|
+
+Implementation of domain layer (MyBatis3)
+""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
+When accessing the database using MyBatis3, pass to Repository the information that extract from a ``Pageable`` object received from Controller.
+The SQL to select records of specified page is need the implementation into the SQL mapping file.
+
+For details about implementation at domain layer refer to:
+
+* :ref:`DataAccessMyBatis3HowToUseFindPageUsingMyBatisFunction`
+* :ref:`DataAccessMyBatis3HowToUseFindPageUsingSqlFilter`
+
 |
 
 Implementation of domain layer (JPA)
 """"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
-| When accessing the database using JPA (Spring Data JPA), pass ``Pageable``  object received from Controller to Repository.
-| See the example below for simplest way of implementation.
-| For the details on page search to be implemented in domain layer, refer to :doc:`DataAccessJpa`.
+When accessing the database using JPA (Spring Data JPA), pass ``Pageable``  object received from Controller to Repository.
 
-- Service
+For details about implementation at domain layer refer to:
 
- .. code-block:: java
-
-    public Page<Article> searchArticle(ArticleSearchCriteria criteria,
-            Pageable pageable) { // (1)
-
-        String word = QueryEscapeUtils.toLikeCondition(criteria.getWord());
-
-        Page<Article> page = articleRepository.findPageBy(word, pageable); // (2)
-
-        return page; // (3)
-    }
-
- .. tabularcolumns:: |p{0.10\linewidth}|p{0.90\linewidth}|
- .. list-table::
-    :header-rows: 1
-    :widths: 10 90
-
-    * - Sr. No.
-      - Description
-    * - | (1)
-      - | Receive the information required for page search ( ``Pageable`` ) as an argument of Service method.
-    * - | (2)
-      - | Specify the ``Pageable``  object as an argument of Repository query method and then call the same.
-    * - | (3)
-      - | Return the search result ( ``Page`` object ) returned by Repository to Controller.
-
-- Repository
-
- .. code-block:: java
-
-    @Query("SELECT a FROM Article a WHERE a.title LIKE %:freeWord% ESCAPE '~' OR a.overview LIKE %:freeWord% ESCAPE '~'")
-    Page<Article> findPageByFreeWord(@Param("freeWord") String word, Pageable pageable); // (4)
-
- .. tabularcolumns:: |p{0.10\linewidth}|p{0.90\linewidth}|
- .. list-table::
-    :header-rows: 1
-    :widths: 10 90
-
-    * - Sr. No.
-      - Description
-    * - | (4)
-      - | Receive the information required for page search ( ``Pageable`` ) as an argument of Repository query method.
-        | Return value type should be ``Page<Entity>``.
-        | If the above method is created, Spring Data JPA functionality can return ``Page``  object by extracting data corresponding to ``Pageable``  object status.
+* :ref:`DataAccessJpaHowToUseFindPage`
 
 |
 

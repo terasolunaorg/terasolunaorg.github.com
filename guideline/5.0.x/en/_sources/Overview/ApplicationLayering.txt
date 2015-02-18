@@ -223,7 +223,7 @@ This layer also can be the transaction boundary depending on the requirements.
 
 .. tip::
 
-    When using Spring Data JPA or MyBatis3, most RepositoryImpls are created automatically.
+    When using MyBatis3 or Spring Data JPA, most RepositoryImpls are created automatically.
 
 |
 
@@ -231,12 +231,12 @@ O/R Mapper
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 It is responsible for mapping database with Entity.
 
-This function is provided by JPA, MyBatis and Spring JDBC.
+This function is provided by MyBatis, JPA and Spring JDBC.
 
 Specifically, the following classes are the O/R Mapper.
 
-* \ ``EntityManager``\  in case of using JPA,
 * Mapper interface or \ ``SqlSession``\  in case of using MyBatis3
+* \ ``EntityManager``\  in case of using JPA,
 * \ ``JdbcTemplate``\  in case of using plain Spring JDBC
 
 O/R Mapper used for implementation of Repository.
@@ -263,7 +263,7 @@ As explained earlier, domain layer is the core of the application, and applicati
 In this guideline, it is assumed that,
 
 * Spring MVC is used in application layer
-* Spring Data JPA and MyBatis are used in infrastructure layer
+* MyBatis and Spring Data JPA are used in infrastructure layer
 
 Even if there is change in implementation technology, the differences can be absorbed in respective layers and there should not be any impact on domain layer.
 Coupling between layers is done by using interfaces and hence they can be made independent of implementation technology being used in each layer.

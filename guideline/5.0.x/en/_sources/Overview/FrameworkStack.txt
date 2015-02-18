@@ -42,13 +42,13 @@ O/R Mapper
 
 This guideline assumes the use of **any one of the below**.
 
-* `JPA2.1 <http://download.oracle.com/otn-pub/jcp/persistence-2_1-fr-eval-spec/JavaPersistence.pdf>`_
-
-  * \ `Hibernate 4.3 <http://docs.jboss.org/hibernate/orm/4.3/manual/en-US/html_single/>`_  is used as provider.
-
 * `MyBatis 3.2 <http://mybatis.github.io/mybatis-3/>`_
 
   * \ `MyBatis-Spring <http://mybatis.github.io/spring/>`_  is used as library for coordinating with Spring Framework.
+
+* `JPA2.1 <http://download.oracle.com/otn-pub/jcp/persistence-2_1-fr-eval-spec/JavaPersistence.pdf>`_
+
+  * \ `Hibernate 4.3 <http://docs.jboss.org/hibernate/orm/4.3/manual/en-US/html_single/>`_  is used as provider.
 
 .. note::
 
@@ -255,83 +255,83 @@ List of OSS being used in version 5.0.0.RELEASE.
       - 3.2.5.RELEASE
       - \*
       -
-    * - JPA(Hibernate)
-      - antlr
-      - antlr
-      - 2.7.7
-      - \*
-      - \*1
-    * - JPA(Hibernate)
-      - dom4j
-      - dom4j
-      - 1.6.1
-      - \*
-      - \*1
-    * - JPA(Hibernate)
-      - org.hibernate
-      - hibernate-core
-      - 4.3.7.Final
-      - \*
-      - \*1
-    * - JPA(Hibernate)
-      - org.hibernate
-      - hibernate-entitymanager
-      - 4.3.7.Final
-      - \*
-      - \*1
-    * - JPA(Hibernate)
-      - org.hibernate.common
-      - hibernate-commons-annotations
-      - 4.0.5.Final
-      - \*
-      - \*1 \*4
-    * - JPA(Hibernate)
-      - org.hibernate.javax.persistence
-      - hibernate-jpa-2.1-api
-      - 1.0.0.Final
-      - \*
-      - \*1 \*4
-    * - JPA(Hibernate)
-      - org.javassist
-      - javassist
-      - 3.18.1-GA
-      - \*
-      - \*1
-    * - JPA(Hibernate)
-      - org.jboss
-      - jandex
-      - 1.1.0.Final
-      - \*
-      - \*1 \*4
-    * - JPA(Hibernate)
-      - org.jboss.logging
-      - jboss-logging-annotations
-      - 1.2.0.Final
-      - \*
-      - \*1 \*4 \*5
-    * - JPA(Hibernate)
-      - org.jboss.spec.javax.transaction
-      - jboss-transaction-api_1.2_spec
-      - 1.0.0.Final
-      - \*
-      - \*1 \*4
-    * - JPA(Hibernate)
-      - org.springframework.data
-      - spring-data-jpa
-      - 1.7.1.RELEASE
-      - \*
-      - \*1
     * - MyBatis3
       - org.mybatis
       - mybatis
       - 3.2.8
       -
-      - \*2
+      - \*1
     * - MyBatis3
       - org.mybatis
       - mybatis-spring
       - 1.2.2
       -
+      - \*1
+    * - JPA(Hibernate)
+      - antlr
+      - antlr
+      - 2.7.7
+      - \*
+      - \*2
+    * - JPA(Hibernate)
+      - dom4j
+      - dom4j
+      - 1.6.1
+      - \*
+      - \*2
+    * - JPA(Hibernate)
+      - org.hibernate
+      - hibernate-core
+      - 4.3.7.Final
+      - \*
+      - \*2
+    * - JPA(Hibernate)
+      - org.hibernate
+      - hibernate-entitymanager
+      - 4.3.7.Final
+      - \*
+      - \*2
+    * - JPA(Hibernate)
+      - org.hibernate.common
+      - hibernate-commons-annotations
+      - 4.0.5.Final
+      - \*
+      - \*2 \*4
+    * - JPA(Hibernate)
+      - org.hibernate.javax.persistence
+      - hibernate-jpa-2.1-api
+      - 1.0.0.Final
+      - \*
+      - \*2 \*4
+    * - JPA(Hibernate)
+      - org.javassist
+      - javassist
+      - 3.18.1-GA
+      - \*
+      - \*2
+    * - JPA(Hibernate)
+      - org.jboss
+      - jandex
+      - 1.1.0.Final
+      - \*
+      - \*2 \*4
+    * - JPA(Hibernate)
+      - org.jboss.logging
+      - jboss-logging-annotations
+      - 1.2.0.Final
+      - \*
+      - \*2 \*4 \*5
+    * - JPA(Hibernate)
+      - org.jboss.spec.javax.transaction
+      - jboss-transaction-api_1.2_spec
+      - 1.0.0.Final
+      - \*
+      - \*2 \*4
+    * - JPA(Hibernate)
+      - org.springframework.data
+      - spring-data-jpa
+      - 1.7.1.RELEASE
+      - \*
       - \*2
     * - DI
       - javax.inject
@@ -580,8 +580,8 @@ List of OSS being used in version 5.0.0.RELEASE.
       - \*
       -
 
-#. | Dependent libraries, when JPA is used for data access.
 #. | Dependent libraries, when MyBatis3 is used for data access.
+#. | Dependent libraries, when JPA is used for data access.
 #. | Libraries which are not dependent on Common Library, but recommended in case of application development using TERASOLUNA Server Framework for Java (5.x).
 #. | Libraries that are supported by Spring IO platform, but library that relies individually.
    | (Library is not managed as dependencies in Spring IO platform)
@@ -619,12 +619,12 @@ Basically, application development is possible using TERASOLUNA Server Framework
       - | Group of functionalities for creating web application
       - | Yes
     * - | (4)
-      - | terasoluna-gfw-jpa
-      - | Dependency definition for using JPA
-      - | No
-    * - | (5)
       - | terasoluna-gfw-mybatis3
       - | Dependency definition for using MyBatis3
+      - | No
+    * - | (5)
+      - | terasoluna-gfw-jpa
+      - | Dependency definition for using JPA
       - | No
     * - | (6)
       - | terasoluna-gfw-security-core

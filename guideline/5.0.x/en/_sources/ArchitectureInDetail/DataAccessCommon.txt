@@ -371,7 +371,7 @@ Settings to enable transaction management
 
 JDBC debug log settings
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-| When more detailed information than the log output using O/R Mapper(Hibernate, MyBatis) is required, the information output using log4jdbc(log4jdbc-remix) can be used.
+| When more detailed information than the log output using O/R Mapper(MyBatis, Hibernate) is required, the information output using log4jdbc(log4jdbc-remix) can be used.
 | For details on log4jdbc, refer to \ `log4jdbc project page <https://code.google.com/p/log4jdbc/>`_\ .
 | For details on log4jdbc-remix, refer to \ `log4jdbc-remix project page <https://code.google.com/p/log4jdbc-remix/>`_\ .
 \
