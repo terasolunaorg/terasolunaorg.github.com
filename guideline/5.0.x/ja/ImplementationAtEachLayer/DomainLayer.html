@@ -133,7 +133,7 @@
 </ul>
 </li>
 <li><a class="reference internal" href="#appendix">4.2.7. Appendix</a><ul>
-<li><a class="reference internal" href="#id46">4.2.7.1. トランザクション管理の落とし穴について</a></li>
+<li><a class="reference internal" href="#domainlayerappendixtransactionmanagement">4.2.7.1. トランザクション管理の落とし穴について</a></li>
 <li><a class="reference internal" href="#id47">4.2.7.2. プログラマティックにトランザクションを管理する方法</a></li>
 <li><a class="reference internal" href="#domainlayer-appendix-blogic">4.2.7.3. シグネチャを制限するインタフェースおよび基底クラスの実装サンプル</a></li>
 </ul>
@@ -264,7 +264,7 @@
 </ul>
 </li>
 <li><a class="reference internal" href="#appendix" id="id102">Appendix</a><ul>
-<li><a class="reference internal" href="#id46" id="id103">トランザクション管理の落とし穴について</a></li>
+<li><a class="reference internal" href="#domainlayerappendixtransactionmanagement" id="id103">トランザクション管理の落とし穴について</a></li>
 <li><a class="reference internal" href="#id47" id="id104">プログラマティックにトランザクションを管理する方法</a></li>
 <li><a class="reference internal" href="#domainlayer-appendix-blogic" id="id105">シグネチャを制限するインタフェースおよび基底クラスの実装サンプル</a></li>
 </ul>
@@ -2181,11 +2181,14 @@ HTTP上に公開するリソースは、業務データ(Entity)または業務�
 <div class="line">(2)</div>
 </div>
 </td>
-<td><div class="first last line-block">
+<td><div class="first line-block">
 <div class="line"><strong>クラスに &#64;Transactional アノテーションを付加する。</strong></div>
 <div class="line">アノテーションを付与することで、すべての業務ロジックに対してトランザクション境界が設定される。</div>
 <div class="line">属性値については、要件に応じた値を指定すること。</div>
 <div class="line">詳細は、<a class="reference internal" href="#transaction-management-declare-transaction-info-label"><em>「宣言型トランザクション管理」で必要となる情報</em></a>を参照されたい。</div>
+</div>
+<div class="last line-block">
+<div class="line">また、<tt class="docutils literal"><span class="pre">&#64;Transactional</span></tt>アノテーションを使用する際の注意点を理解するために、「<a class="reference internal" href="#domainlayerappendixtransactionmanagement"><em>トランザクション管理の落とし穴について</em></a>」を合わせて確認するとよい。</div>
 </div>
 </td>
 </tr>
@@ -2307,10 +2310,13 @@ HTTP上に公開するリソースは、業務データ(Entity)または業務�
 <div class="line">(3)</div>
 </div>
 </td>
-<td><div class="first last line-block">
+<td><div class="first line-block">
 <div class="line"><strong>業務ロジックのトランザクション定義をデフォルト（クラスアノテーションで指定した定義）から変更する場合は、&#64;Transactionalアノテーションを付加する。</strong></div>
 <div class="line">属性値については、要件に応じた値を指定すること。</div>
 <div class="line">詳細は、<a class="reference internal" href="#transaction-management-declare-transaction-info-label"><em>「宣言型トランザクション管理」で必要となる情報</em></a> を参照されたい。</div>
+</div>
+<div class="last line-block">
+<div class="line">また、<tt class="docutils literal"><span class="pre">&#64;Transactional</span></tt>アノテーションを使用する際の注意点を理解するために、「<a class="reference internal" href="#domainlayerappendixtransactionmanagement"><em>トランザクション管理の落とし穴について</em></a>」を合わせて確認するとよい。</div>
 </div>
 </td>
 </tr>
@@ -2325,6 +2331,12 @@ HTTP上に公開するリソースは、業務データ(Entity)または業務�
 <p>参照系の業務ロジックを実装する場合は、<tt class="docutils literal"><span class="pre">&#64;Transactional(readOnly</span> <span class="pre">=</span> <span class="pre">true)</span></tt>を指定することで、
 JDBCドライバに対して「読み取り専用のトランザクション」のもとでSQLを実行するように指示することができる。</p>
 <p class="last">読み取り専用のトランザクションの扱い方は、JDBCドライバの実装に依存するため、使用するJDBCドライバの仕様を確認されたい。</p>
+</div>
+<div class="admonition note">
+<p class="first admonition-title">Note</p>
+<p><strong>「読み取り専用のトランザクション」を使用する際の注意点</strong></p>
+<p class="last">コネクションプールからコネクションを取得する際にヘルスチェックを行う設定にしている場合、「読み取り専用のトランザクション」が有効にならないケースがある。
+本事象の詳細及び回避方法については、<a class="reference internal" href="#domainlayertransactionmanagementwarningdisablecase"><em>「読み取り専用のトランザクション」が有効にならないケースについて</em></a> を参照されたい。</p>
 </div>
 <div class="admonition note">
 <p class="first admonition-title">Note</p>
@@ -2943,6 +2955,51 @@ Transaction Managerが一つの場合は指定は不要である。
 </ul>
 </div>
 </div></blockquote>
+<blockquote id="domainlayertransactionmanagementwarningdisablecase">
+<div><div class="admonition note">
+<p class="first admonition-title">Note</p>
+<p><strong>「読み取り専用のトランザクション」が有効にならないケースについて</strong></p>
+<p><tt class="docutils literal"><span class="pre">readOnly</span> <span class="pre">=</span> <span class="pre">true</span></tt>を指定することで「読み取り専用のトランザクション」のもとでSQLを実行する仕組みが提供されているが、
+以下の条件にすべて一致する場合、「読み取り専用のトランザクション」が有効にならないJDBCドライバが存在する。</p>
+<p><strong>[本事象の発生条件]</strong></p>
+<ul class="simple">
+<li>コネクションプールからコネクションを取得する際に、ヘルスチェックを行う。</li>
+<li>コネクションプールから取得したコネクションの自動コミットを無効にする。</li>
+<li><tt class="docutils literal"><span class="pre">PlatformTransactionManager</span></tt>として、<tt class="docutils literal"><span class="pre">DataSourceTransactionManager</span></tt>又は<tt class="docutils literal"><span class="pre">JpaTransactionManager</span></tt>を使用する。(<tt class="docutils literal"><span class="pre">JtaTransactionManager</span></tt>を使用する場合は本事象は発生しない)</li>
+</ul>
+<p><strong>[本事象の発生が確認されているJDBCドライバ]</strong></p>
+<ul class="simple">
+<li><tt class="docutils literal"><span class="pre">org.postgresql:postgresql:9.3-1102-jdbc41</span></tt> (PostgreSQL 9.3向けJDBC4.1互換のJDBCドライバ)</li>
+</ul>
+<p><strong>[本事象の回避方法]</strong></p>
+<p>「読み取り専用のトランザクション」が有効にならないケースに一致する場合は、
+<tt class="docutils literal"><span class="pre">readOnly</span> <span class="pre">=</span> <span class="pre">true</span></tt>を指定すると無駄な処理が行われる事になるため、
+参照系の処理についても「更新可能なトランザクション」のもとで実行することを推奨する。</p>
+<p>他の回避方法として、</p>
+<ul class="simple">
+<li>コネクションプールからコネクションを取得する際に、ヘルスチェックを行わない。</li>
+<li>コネクションプールから取得したコネクションの自動コミットを有効にする。(トランザクション管理が必要な時のみ自動コミットを無効にする)</li>
+</ul>
+<p>という方法もあるが、本事象を回避するために、ヘルスチェックや自動コミットに対する設計を変更する事は避けるべきである。</p>
+<p><strong>[備考]</strong></p>
+<ul class="simple">
+<li>本事象の再現確認は、PostgreSQL 9.3及びOracle 12cで行っており、他のデータベース及びバージョンでは行っていない。</li>
+<li>PostgreSQL 9.3では、<tt class="docutils literal"><span class="pre">java.sql.Connection#setReadOnly(boolean)</span></tt> メソッドを呼び出した際に<tt class="docutils literal"><span class="pre">SQLException</span></tt>が発生する。</li>
+<li><a class="reference internal" href="../ArchitectureInDetail/DataAccessCommon.html#dataaccesscommondatasourcedebug"><em>log4jdbc</em></a>を使用してSQLやJDBCのAPIの呼び出しをロギングしている場合、JDBCドライバから発生した<tt class="docutils literal"><span class="pre">SQLException</span></tt>はERRORレベルでログに出力される。</li>
+<li><strong>JDBCドライバから発生するSQLExceptionはSpring Frameworkが行う例外処理によって無視されるため、アプリケーションの動作としてはエラーにはならないが、「読み取り専用のトランザクション」は有効にならない。</strong></li>
+<li>Oracle 12cでは、本事象の発生は確認されていない。</li>
+</ul>
+<p><strong>[参考]</strong></p>
+<p><a class="reference internal" href="../ArchitectureInDetail/DataAccessCommon.html#dataaccesscommondatasourcedebug"><em>log4jdbc</em></a>を使用して以下のようなログが出力された場合は、本事象に該当するケースとなる。</p>
+<blockquote class="last">
+<div><div class="highlight-log"><pre>date:2015-02-20 16:11:56        thread:main     user:   X-Track:        level:ERROR     logger:jdbc.audit                                       message:3. Connection.setReadOnly(true)
+org.postgresql.util.PSQLException: Cannot change transaction read-only property in the middle of a transaction.
+    at org.postgresql.jdbc2.AbstractJdbc2Connection.setReadOnly(AbstractJdbc2Connection.java:741) ~[postgresql-9.3-1102-jdbc41.jar:na]
+    ...</pre>
+</div>
+</div></blockquote>
+</div>
+</div></blockquote>
 </div>
 <div class="section" id="id43">
 <h4><a class="toc-backref" href="#id96">4.2.6.1.3. トランザクションの伝播</a><a class="headerlink" href="#id43" title="Permalink to this headline">¶</a></h4>
@@ -3244,8 +3301,8 @@ Transaction Managerが一つの場合は指定は不要である。
 </div>
 <div class="section" id="appendix">
 <h2><a class="toc-backref" href="#id102">4.2.7. Appendix</a><a class="headerlink" href="#appendix" title="Permalink to this headline">¶</a></h2>
-<div class="section" id="id46">
-<h3><a class="toc-backref" href="#id103">4.2.7.1. トランザクション管理の落とし穴について</a><a class="headerlink" href="#id46" title="Permalink to this headline">¶</a></h3>
+<div class="section" id="domainlayerappendixtransactionmanagement">
+<span id="id46"></span><h3><a class="toc-backref" href="#id103">4.2.7.1. トランザクション管理の落とし穴について</a><a class="headerlink" href="#domainlayerappendixtransactionmanagement" title="Permalink to this headline">¶</a></h3>
 <div class="line-block">
 <div class="line">IBM DeveloperWorksに「トランザクションの落とし穴を理解する」という記事がある。</div>
 <div class="line">この記事ではトランザクション管理で注意しなくてはいけないことや、Spring Frameworkの&#64;Transactionalを使う場合の注意点がまとめられているので、ぜひ一読してほしい。</div>

@@ -547,7 +547,7 @@ Todoアプリケーションの開発を始める前に、プロジェクトの�
    * - | (1)
      - | Controllerとしてcomponent-scanの対象とするため、クラスレベルに\ ``@Controller``\ アノテーションが付与している。
    * - | (2)
-     - | (4)でログ出力するためのロガーの生成している。
+     - | (4)でログ出力するためのロガーを生成している。
        | ロガーの実装はlogbackのものであるが、APIはSLF4Jの\ ``org.slf4j.Logger``\ を使用している。
    * - | (3)
      - | ``@RequestMapping`` アノテーションを使用して、\ ``"/"``\ (ルート)へのアクセスに対するメソッドとしてマッピングを行っている。
@@ -1188,8 +1188,8 @@ Package Explorer上で右クリック -> New -> Class を選択し、「New Java
      - | Serviceとしてcomponent-scanの対象とするため、クラスレベルに\ ``@Service``\ アノテーションをつける。
    * - | (2)
      - | クラスレベルに、\ ``@Transactional``\ アノテーションをつけることで、公開メソッドをすべてトランザクション管理する。
-       | アノテーションを付与することで、メソッド開始時にトランザクションを開始、メソッド正常終了時にトランザクションをコミットが行われる。
-       | また、途中で非検査例外が発生した場合は、トランザクションをロールバックされる。
+       | アノテーションを付与することで、メソッド開始時にトランザクションを開始、メソッド正常終了時にトランザクションのコミットが行われる。
+       | また、途中で非検査例外が発生した場合は、トランザクションがロールバックされる。
        |
        | データベースを使用しない場合は、\ ``@Transactional``\ アノテーションは不要である。
    * - | (3)
@@ -3542,7 +3542,7 @@ applicationContext.xml
        | この設定により、プロパティファイルの値をBean定義ファイル内で\ ``${propertyName}``\ 形式で埋め込んだり、Javaクラスに\ ``@Value("${propertyName}")``\ でインジェクションすることができる。
    * - | (3)
      - | Bean変換用ライブラリDozerのMapperを定義する。
-       | マッピングファイルに関して `Dozerマニュアル <http://dozer.sourceforge.net/documentation/mappings.html>`_ を参照されたい。)
+       | (マッピングファイルに関しては `Dozerマニュアル <http://dozer.sourceforge.net/documentation/mappings.html>`_ を参照されたい。)
 
 .. tip::
 
@@ -3616,7 +3616,7 @@ todo-domain.xml
 .. note::
 
     O/R Mapperに依存するブランクプロジェクトを作成した場合は、\ ``@Transactional``\アノテーションによるトランザクション管理を有効にするために、
-    \ ``<tx:annotation-driven>``\タグを設定されている。
+    \ ``<tx:annotation-driven>``\タグが設定されている。
 
      .. code-block:: xml
         :emphasize-lines: 9-10, 12-13

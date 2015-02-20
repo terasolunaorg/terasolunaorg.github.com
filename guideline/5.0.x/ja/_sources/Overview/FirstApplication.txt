@@ -336,11 +336,11 @@ Spring MVCの設定方法を理解するために、生成されたSpring MVCの
    * - | (4)
      - ``@Controller`` アノテーションを付けることで、DIコンテナにより、コントローラクラスが自動で読み込まれる。前述「Spring MVCの設定ファイルの説明(2)」の設定により、component-scanの対象となっている。
    * - | (5)
-     - HTTPメソッドがGETで、Resource（もしくはRequest URL）が"/"で、アクセスする際に実行される。
+     - HTTPメソッドがGETまたはPOSTで、Resource（もしくはRequest URL）が"/"で、アクセスする際に実行される。
    * - | (6)
      - Viewに渡したいオブジェクトを\ ``Model``\ に設定する。
    * - | (7)
-     - View名を返却する。前述「Spring MVCの設定ファイルの説明(3)」の設定により、"WEB-INF/views/home.jsp"がレンダリングされる。
+     - View名を返却する。前述「Spring MVCの設定ファイルの説明(3)」の設定により、"WEB-INF/views/welcome/home.jsp"がレンダリングされる。
 
 |
 

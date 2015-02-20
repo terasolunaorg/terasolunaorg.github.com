@@ -1069,6 +1069,8 @@ Serviceクラスを作成する際の注意点を、以下に示す。
        | アノテーションを付与することで、すべての業務ロジックに対してトランザクション境界が設定される。
        | 属性値については、要件に応じた値を指定すること。
        | 詳細は、\ :ref:`transaction-management-declare-transaction-info-label`\ を参照されたい。
+
+       | また、\ ``@Transactional``\ アノテーションを使用する際の注意点を理解するために、「:ref:`DomainLayerAppendixTransactionManagement`」を合わせて確認するとよい。
    * - | (3)
      - | **インターフェース名はXxxService、クラス名はXxxServiceImplとする。**
        | 上記以外の命名規約でもよいが、ServiceクラスとSharedServiceクラスは、区別できる命名規約を設けることを推奨する。
@@ -1146,6 +1148,8 @@ Serviceクラスのメソッドを作成する際の注意点を、以下に示�
      - | **業務ロジックのトランザクション定義をデフォルト（クラスアノテーションで指定した定義）から変更する場合は、@Transactionalアノテーションを付加する。**
        | 属性値については、要件に応じた値を指定すること。
        | 詳細は、\ :ref:`transaction-management-declare-transaction-info-label` を参照されたい。
+
+       | また、\ ``@Transactional``\ アノテーションを使用する際の注意点を理解するために、「:ref:`DomainLayerAppendixTransactionManagement`」を合わせて確認するとよい。
 \
 
  .. tip:: **参照系の業務ロジックのトランザクション定義について**
@@ -1154,6 +1158,13 @@ Serviceクラスのメソッドを作成する際の注意点を、以下に示�
     JDBCドライバに対して「読み取り専用のトランザクション」のもとでSQLを実行するように指示することができる。
 
     読み取り専用のトランザクションの扱い方は、JDBCドライバの実装に依存するため、使用するJDBCドライバの仕様を確認されたい。
+
+
+ .. note:: **「読み取り専用のトランザクション」を使用する際の注意点**
+
+    コネクションプールからコネクションを取得する際にヘルスチェックを行う設定にしている場合、「読み取り専用のトランザクション」が有効にならないケースがある。
+    本事象の詳細及び回避方法については、:ref:`「読み取り専用のトランザクション」が有効にならないケースについて <DomainLayerTransactionManagementWarningDisableCase>` を参照されたい。
+
 
  .. note:: **新しいトランザクションを開始する必要がある場合のトランザクション定義について**
 
@@ -1631,6 +1642,56 @@ Spring Frameworkから提供されている「宣言型トランザクション�
     * SQL Server : READ_COMMITTED
     * MySQL : REPEATABLE_READ
 
+.. _DomainLayerTransactionManagementWarningDisableCase:
+
+ .. note:: **「読み取り専用のトランザクション」が有効にならないケースについて**
+
+    \ ``readOnly = true``\ を指定することで「読み取り専用のトランザクション」のもとでSQLを実行する仕組みが提供されているが、
+    以下の条件にすべて一致する場合、「読み取り専用のトランザクション」が有効にならないJDBCドライバが存在する。
+
+    **[本事象の発生条件]**
+
+    * コネクションプールからコネクションを取得する際に、ヘルスチェックを行う。
+    * コネクションプールから取得したコネクションの自動コミットを無効にする。
+    * \ ``PlatformTransactionManager``\ として、\ ``DataSourceTransactionManager``\ 又は\ ``JpaTransactionManager``\ を使用する。(\ ``JtaTransactionManager``\ を使用する場合は本事象は発生しない)
+
+    **[本事象の発生が確認されているJDBCドライバ]**
+
+    * ``org.postgresql:postgresql:9.3-1102-jdbc41`` (PostgreSQL 9.3向けJDBC4.1互換のJDBCドライバ)
+
+    **[本事象の回避方法]**
+
+    「読み取り専用のトランザクション」が有効にならないケースに一致する場合は、
+    \ ``readOnly = true``\ を指定すると無駄な処理が行われる事になるため、
+    参照系の処理についても「更新可能なトランザクション」のもとで実行することを推奨する。
+
+    他の回避方法として、
+
+    * コネクションプールからコネクションを取得する際に、ヘルスチェックを行わない。
+    * コネクションプールから取得したコネクションの自動コミットを有効にする。(トランザクション管理が必要な時のみ自動コミットを無効にする)
+
+    という方法もあるが、本事象を回避するために、ヘルスチェックや自動コミットに対する設計を変更する事は避けるべきである。
+
+    **[備考]**
+
+    * 本事象の再現確認は、PostgreSQL 9.3及びOracle 12cで行っており、他のデータベース及びバージョンでは行っていない。
+    * PostgreSQL 9.3では、\ ``java.sql.Connection#setReadOnly(boolean)``\  メソッドを呼び出した際に\ ``SQLException``\ が発生する。
+    * \ :ref:`log4jdbc <DataAccessCommonDataSourceDebug>`\ を使用してSQLやJDBCのAPIの呼び出しをロギングしている場合、JDBCドライバから発生した\ ``SQLException``\ はERRORレベルでログに出力される。
+    * **JDBCドライバから発生するSQLExceptionはSpring Frameworkが行う例外処理によって無視されるため、アプリケーションの動作としてはエラーにはならないが、「読み取り専用のトランザクション」は有効にならない。**
+    * Oracle 12cでは、本事象の発生は確認されていない。
+
+    **[参考]**
+
+    \ :ref:`log4jdbc <DataAccessCommonDataSourceDebug>`\ を使用して以下のようなログが出力された場合は、本事象に該当するケースとなる。
+
+     .. code-block:: log
+
+        date:2015-02-20 16:11:56	thread:main	user:	X-Track:	level:ERROR	logger:jdbc.audit                                      	message:3. Connection.setReadOnly(true)
+        org.postgresql.util.PSQLException: Cannot change transaction read-only property in the middle of a transaction.
+            at org.postgresql.jdbc2.AbstractJdbc2Connection.setReadOnly(AbstractJdbc2Connection.java:741) ~[postgresql-9.3-1102-jdbc41.jar:na]
+            ...
+
+
 トランザクションの伝播
 """"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 
@@ -1846,6 +1907,8 @@ PlatformTransactionManagerの設定
 
 Appendix
 --------------------------------------------------------------------------------
+
+.. _DomainLayerAppendixTransactionManagement:
 
 トランザクション管理の落とし穴について
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^

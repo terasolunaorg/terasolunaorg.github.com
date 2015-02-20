@@ -9,7 +9,7 @@
     * - 更新日付
       - 更新箇所
       - 更新内容
-    * - 2015-02-xx
+    * - 2015-02-23
       - \-
       - 5.0.0 RELEASE版公開
 
@@ -76,6 +76,11 @@
         * JPA(Hibernate実装)使用時の\ ``@Transactional(readOnly = true)``\ の扱い関する説明を修正。
           \ `SPR-8959 <https://jira.spring.io/browse/SPR-8959>`_\ (Spring Framework 4.1以降)の対応により、
           JDBCドライバに対して「読み取り専用のトランザクション」として扱うように指示できるように改善された。
+
+        記載内容の追加
+
+        * 「読み取り専用のトランザクション」が有効にならないケースに関する注意点を追加。
+          追加内容の詳細は、\ `guideline#861のIssue <https://github.com/terasolunaorg/guideline/issues/861>`_\ を参照されたい。
     * -
       - :doc:`../ImplementationAtEachLayer/InfrastructureLayer`
       - MyBatis3対応に伴う修正
