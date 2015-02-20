@@ -1563,7 +1563,9 @@ by defining their association in the mapping file.
      * When data model (JavaBean) that handles the application and physical table layout do not match
      * When JavaBean has a nested structure (separate JavaBean is nested)
 
-    
+    Also, manual mapping can be mapped efficiently compared with automatic mapping.
+    If prevail efficiency of processing, it is desirable to use manual mapping instead of automatic mapping.
+
 
 |
 

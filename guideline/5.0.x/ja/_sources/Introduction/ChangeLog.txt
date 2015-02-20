@@ -73,6 +73,9 @@
 
         * JTA 1.2の\ ``@Transactional``\ の扱いに関する記載を追加。
           修正内容の詳細は、\ `guideline#562のIssue <https://github.com/terasolunaorg/guideline/issues/562>`_\ を参照されたい。
+        * JPA(Hibernate実装)使用時の\ ``@Transactional(readOnly = true)``\ の扱い関する説明を修正。
+          \ `SPR-8959 <https://jira.spring.io/browse/SPR-8959>`_\ (Spring Framework 4.1以降)の対応により、
+          JDBCドライバに対して「読み取り専用のトランザクション」として扱うように指示できるように改善された。
     * -
       - :doc:`../ImplementationAtEachLayer/InfrastructureLayer`
       - MyBatis3対応に伴う修正

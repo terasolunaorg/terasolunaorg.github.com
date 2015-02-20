@@ -10,6 +10,7 @@ Appendix
    Nexus
    ../Appendix/EnvironmentIndependency
    ../Appendix/ProjectStructureStandard.rst
+   Lombok
    ReferenceBooks
    SpringComprehensionCheck
 

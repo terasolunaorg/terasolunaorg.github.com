@@ -229,7 +229,7 @@ Creating O/R Mapper independent blank project
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 If you want to create a project for RepositoryImpl using \ ``java.util.Map``\ (without accessing the database), 
-run the following command to create O/R Mapper independent blank project in command prompt.
+run the following command to create O/R Mapper independent blank project in command prompt.  \ **If you read through this tutorial in consecutive order, first of all, create a project in this way**\ .
 
 .. code-block:: console
 
@@ -248,7 +248,7 @@ Creating blank project for MyBatis3
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 If you want to create a project for RepositoryImpl to access the database using MyBatis3, 
-run the following command to create a blank project for the MyBatis3.
+run the following command to create a blank project for the MyBatis3. This way to create a project is to be done in \ :ref:`using_MyBatis3`\ .
 
 .. code-block:: console
 
@@ -267,7 +267,7 @@ Creating blank project for JPA
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 If you want to create a project for RepositoryImpl to access the database using Spring Data JPA, 
-run the following command to create a blank project for the JPA.
+run the following command to create a blank project for the JPA. This way to create a project is to be done in \ :ref:`using_SpringDataJPA`\ .
 
 .. code-block:: console
 
@@ -2678,6 +2678,8 @@ In this tutorial, it explains how to implement the infrastructure layer using fo
 
 |
 
+.. _Tutorial_Setup_Database:
+
 Database set-up
 --------------------------------------------------------------------------------
 
@@ -2732,11 +2734,15 @@ for creating tables into H2 Database while booting the AP server.
 
 |
 
+.. _using_MyBatis3:
+
 Creating infrastructure layer with MyBatis3
 --------------------------------------------------------------------------------
 
 Here, How to create RepositoryImpl of infrastructure layer using MyBatis3 is explained.
-It is assumed that the project is created by :ref:`TutorialCreateMyBatis3BlankProject`\.
+
+First, regenerate a project as \ :ref:`TutorialCreateMyBatis3BlankProject`\. And then,
+\ **copy all files other than TodoRepositoryImpl class under src folder into new project**\  which are created until \ :ref:`Tutorial_Setup_Database`\ .
 
 If you want to use the Spring Data JPA, you can skip this section and may proceed to the \ :ref:`using_SpringDataJPA`\.
 
@@ -2955,7 +2961,9 @@ Creating infrastructure layer with Spring Data JPA
 --------------------------------------------------------------------------------
 
 Here, How to create RepositoryImpl of infrastructure layer using \ `Spring Data JPA <http://www.springsource.org/spring-data/jpa>`_ \ is explained.
-It is assumed that the project is created by :ref:`TutorialCreateJPABlankProject`\.
+
+First, regenerate a project as \ :ref:`TutorialCreateJPABlankProject`\. And then,
+\ **copy all files other than TodoRepositoryImpl class under src folder into new project**\  which are created until \ :ref:`Tutorial_Setup_Database`\ .
 
 Modification in Entity
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^

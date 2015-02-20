@@ -1148,13 +1148,12 @@ Serviceクラスのメソッドを作成する際の注意点を、以下に示�
        | 詳細は、\ :ref:`transaction-management-declare-transaction-info-label` を参照されたい。
 \
 
- .. warning:: **参照系の業務ロジックのトランザクション定義について**
+ .. tip:: **参照系の業務ロジックのトランザクション定義について**
 
-    参照系の業務ロジックの場合、\ ``@Transactional(readOnly = true)``\ を設定を行うことで、
-    参照系の処理として必要なトランザクション管理が行われるケースがあるが、
-    JPAを使う場合は「readOnly = true」は意味がないので指定しなくてもよい。
-    詳細は、\ `IBM DeveloperWorks の記事 <http://www.ibm.com/developerworks/java/library/j-ts1/index.html>`_\ の
-    「Listing 7. Using read-only with REQUIRED propagation mode — JPA」辺りを参照されたい。
+    参照系の業務ロジックを実装する場合は、\ ``@Transactional(readOnly = true)``\ を指定することで、
+    JDBCドライバに対して「読み取り専用のトランザクション」のもとでSQLを実行するように指示することができる。
+
+    読み取り専用のトランザクションの扱い方は、JDBCドライバの実装に依存するため、使用するJDBCドライバの仕様を確認されたい。
 
  .. note:: **新しいトランザクションを開始する必要がある場合のトランザクション定義について**
 
@@ -1854,6 +1853,18 @@ Appendix
 | IBM DeveloperWorksに「トランザクションの落とし穴を理解する」という記事がある。
 | この記事ではトランザクション管理で注意しなくてはいけないことや、Spring Frameworkの@Transactionalを使う場合の注意点がまとめられているので、ぜひ一読してほしい。
 詳細は、\ `IBM DeveloperWorksの記事 <http://www.ibm.com/developerworks/java/library/j-ts1/index.html>`_\ を参照されたい。
+
+.. note::
+
+    IBM DeveloperWorksの記事は2009年の記事のため(古いため)、一部の内容がSpring Framework 4.1使用時の動作と異なる部分がある。
+
+    具体的には、「Listing 7. Using read-only with REQUIRED propagation mode — JPA」の内容である。
+
+    Spring Framework 4.1より、JPAのプロバイダとしてHibernate ORM 4.2以上を使用している場合は、
+    JDBCドライバに対して「読み取り専用のトランザクション」のもとでSQLを実行するように指示することが出来るように改善(\ `SPR-8959 <https://jira.spring.io/browse/SPR-8959>`_\ )されている。
+
+    読み取り専用のトランザクションの扱い方は、JDBCドライバの実装に依存するため、使用するJDBCドライバの仕様を確認されたい。
+
 
 プログラマティックにトランザクションを管理する方法
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
