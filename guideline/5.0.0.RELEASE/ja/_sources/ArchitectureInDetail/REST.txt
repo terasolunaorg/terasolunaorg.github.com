@@ -3883,7 +3883,7 @@ RESTful Web Serviceで発生した例外のハンドリング方法について�
         @ExceptionHandler(ResourceNotFoundException.class)
         public ResponseEntity<Object> handleResourceNotFoundException(
                 ResourceNotFoundException ex, WebRequest request) {
-            return handleResultMessagesNotificationException(ex, null,
+            return handleResultMessagesNotificationException(ex, new HttpHeaders(),
                     HttpStatus.NOT_FOUND, request);
         }
 
@@ -3961,7 +3961,7 @@ RESTful Web Serviceで発生した例外のハンドリング方法について�
         @ExceptionHandler(BusinessException.class)
         public ResponseEntity<Object> handleBusinessException(BusinessException ex,
                 WebRequest request) {
-            return handleResultMessagesNotificationException(ex, null,
+            return handleResultMessagesNotificationException(ex, new HttpHeaders(),
                     HttpStatus.CONFLICT, request);
         }
 
@@ -4025,7 +4025,7 @@ RESTful Web Serviceで発生した例外のハンドリング方法について�
                 PessimisticLockingFailureException.class })
         public ResponseEntity<Object> handleLockingFailureException(Exception ex,
                 WebRequest request) {
-            return handleExceptionInternal(ex, null, null,
+            return handleExceptionInternal(ex, null, new HttpHeaders(),
                     HttpStatus.CONFLICT, request);
         }
     
@@ -4087,7 +4087,7 @@ RESTful Web Serviceで発生した例外のハンドリング方法について�
         @ExceptionHandler(Exception.class)
         public ResponseEntity<Object> handleSystemError(Exception ex,
                 WebRequest request) {
-            return handleExceptionInternal(ex, null, null,
+            return handleExceptionInternal(ex, null, new HttpHeaders(),
                     HttpStatus.INTERNAL_SERVER_ERROR, request);
         }
     
@@ -5818,14 +5818,14 @@ ApiGlobalExceptionHandler.java
         @ExceptionHandler(ResourceNotFoundException.class)
         public ResponseEntity<Object> handleResourceNotFoundException(
                 ResourceNotFoundException ex, WebRequest request) {
-            return handleResultMessagesNotificationException(ex, null,
+            return handleResultMessagesNotificationException(ex, new HttpHeaders(),
                     HttpStatus.NOT_FOUND, request);
         }
     
         @ExceptionHandler(BusinessException.class)
         public ResponseEntity<Object> handleBusinessException(BusinessException ex,
                 WebRequest request) {
-            return handleResultMessagesNotificationException(ex, null,
+            return handleResultMessagesNotificationException(ex, new HttpHeaders(),
                     HttpStatus.CONFLICT, request);
         }
     
@@ -5842,14 +5842,14 @@ ApiGlobalExceptionHandler.java
                 PessimisticLockingFailureException.class })
         public ResponseEntity<Object> handleLockingFailureException(Exception ex,
                 WebRequest request) {
-            return handleExceptionInternal(ex, null, null, HttpStatus.CONFLICT,
-                    request);
+            return handleExceptionInternal(ex, null, new HttpHeaders(),
+                    HttpStatus.CONFLICT, request);
         }
     
         @ExceptionHandler(Exception.class)
         public ResponseEntity<Object> handleSystemError(Exception ex,
                 WebRequest request) {
-            return handleExceptionInternal(ex, null, null,
+            return handleExceptionInternal(ex, null, new HttpHeaders(),
                     HttpStatus.INTERNAL_SERVER_ERROR, request);
         }
     

@@ -9,6 +9,18 @@
     * - 更新日付
       - 更新箇所
       - 更新内容
+    * - 2015-03-06
+      - :doc:`../ArchitectureInDetail/REST`
+      - ガイドラインのバグ修正
+
+        * 例外ハンドリング用のサンプルコード(\ ``NullPointerException``\ が発生するコードが含まれている問題)を修正。
+          修正内容の詳細は、\ `guideline#918のIssue <https://github.com/terasolunaorg/guideline/issues/918>`_\ を参照されたい。
+    * -
+      - :doc:`../TutorialREST/index`
+      - ガイドラインのバグ修正
+
+        * 例外ハンドリングの処理で\ ``NullPointerException``\ が発生する問題を修正。
+          修正内容の詳細は、\ `guideline#918のIssue <https://github.com/terasolunaorg/guideline/issues/918>`_\ を参照されたい。
     * - 2015-02-23
       - \-
       - 5.0.0 RELEASE版公開

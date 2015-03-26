@@ -2082,7 +2082,7 @@ HTTPレスポンスBODYにエラー情報を出力するための実装
         @ExceptionHandler(BusinessException.class)
         public ResponseEntity<Object> handleBusinessException(BusinessException ex,
                 WebRequest request) {
-            return handleResultMessagesNotificationException(ex, null,
+            return handleResultMessagesNotificationException(ex, new HttpHeaders(),
                     HttpStatus.CONFLICT, request);
         }
 
@@ -2193,7 +2193,7 @@ HTTPレスポンスBODYにエラー情報を出力するための実装
         @ExceptionHandler(BusinessException.class)
         public ResponseEntity<Object> handleBusinessException(BusinessException ex,
                 WebRequest request) {
-            return handleResultMessagesNotificationException(ex, null,
+            return handleResultMessagesNotificationException(ex, new HttpHeaders(),
                     HttpStatus.CONFLICT, request);
         }
 
@@ -2209,7 +2209,7 @@ HTTPレスポンスBODYにエラー情報を出力するための実装
         @ExceptionHandler(ResourceNotFoundException.class)
         public ResponseEntity<Object> handleResourceNotFoundException(
                 ResourceNotFoundException ex, WebRequest request) {
-            return handleResultMessagesNotificationException(ex, null,
+            return handleResultMessagesNotificationException(ex, new HttpHeaders(),
                     HttpStatus.NOT_FOUND, request);
         }
 
@@ -2309,7 +2309,7 @@ HTTPレスポンスBODYにエラー情報を出力するための実装
         @ExceptionHandler(BusinessException.class)
         public ResponseEntity<Object> handleBusinessException(BusinessException ex,
                 WebRequest request) {
-            return handleResultMessagesNotificationException(ex, null,
+            return handleResultMessagesNotificationException(ex, new HttpHeaders(),
                     HttpStatus.CONFLICT, request);
         }
 
@@ -2325,7 +2325,7 @@ HTTPレスポンスBODYにエラー情報を出力するための実装
         @ExceptionHandler(ResourceNotFoundException.class)
         public ResponseEntity<Object> handleResourceNotFoundException(
                 ResourceNotFoundException ex, WebRequest request) {
-            return handleResultMessagesNotificationException(ex, null,
+            return handleResultMessagesNotificationException(ex, new HttpHeaders(),
                     HttpStatus.NOT_FOUND, request);
         }
 
@@ -2333,7 +2333,7 @@ HTTPレスポンスBODYにエラー情報を出力するための実装
         public ResponseEntity<Object> handleSystemError(Exception ex,
                 WebRequest request) {
             ApiError apiError = createApiError(request, "E500");
-            return handleExceptionInternal(ex, apiError, null,
+            return handleExceptionInternal(ex, apiError, new HttpHeaders(),
                     HttpStatus.INTERNAL_SERVER_ERROR, request);
         }
 
