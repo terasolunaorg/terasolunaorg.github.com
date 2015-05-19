@@ -2183,6 +2183,48 @@ Role of Resource class is as follows.
         | For input validation details, refer to "\ :doc:`Validation`\" .
 
 
+ .. warning:: **Measures to circular reference**
+
+     When you serialize a Resource class (JavaBean) in JSON or XML format and if property holds an object of cross reference relationship,
+     the \ ``StackOverflowError``\  and \ ``OutOfMemoryError``\  occur due to circular reference, hence it is necessary to exercise caution.
+
+     In order to avoid a circular reference,
+
+     * \ ``@com.fasterxml.jackson.annotation.JsonIgnore``\  annotation to exclude the property from serialization in case of serialized in JSON format using the Jackson
+     * \ ``@javax.xml.bind.annotation.XmlTransient``\  annotation to exclude the property from serialization in case of serialized in XML format using the JAXB
+
+     can be added.
+
+     Below is the example of how to exclude specific field from serialization while serializing in JSON format using the Jackson.
+
+      .. code-block:: java
+
+          public class Order {
+              private String orderId;
+              private List<OrderLine> orderLines;
+              // ...
+          }
+
+      .. code-block:: java
+
+          public class OrderLine {
+              @JsonIgnore
+              private Order order;
+              private String itemCode;
+              private int quantity;
+              // ...
+          }
+
+      .. tabularcolumns:: |p{0.10\linewidth}|p{0.90\linewidth}|
+      .. list-table::
+          :header-rows: 1
+          :widths: 10 90
+
+          * - Sr. No.
+            - Description
+          * - | (1)
+            - The \ ``@JsonIgnore``\  annotation is added to exclude the property from serialization.
+
 |
 
 Example of Resource class creation is shown below.
@@ -2543,7 +2585,7 @@ Implementing the REST API wherein a page search is performed for member resource
  | Highlighted portion shows the fields specific for page search.
  
  .. code-block:: json
-    :emphasize-lines: 37-49
+    :emphasize-lines: 37-50
     
     {
       "content" : [ {
@@ -2581,20 +2623,34 @@ Implementing the REST API wherein a page search is performed for member resource
         "createdAt" : "2014-03-13T10:18:08.003Z",
         "lastModifiedAt" : "2014-03-13T10:18:08.003Z"
       } ],
+      "last" : false,
+      "totalPages" : 13,
+      "totalElements" : 25,
+      "size" : 2,
+      "number" : 1,
       "sort" : [ {
         "direction" : "DESC",
         "property" : "lastModifiedAt",
         "ignoreCase" : false,
+        "nullHandling": "NATIVE",
         "ascending" : false
       } ],
-      "lastPage" : false,
-      "firstPage" : false,
-      "totalElements" : 25,
       "numberOfElements" : 2,
-      "totalPages" : 13,
-      "size" : 2,
-      "number" : 1
+      "first" : false
     }
+
+ .. note:: **Points to be noted due to changes in API specifications of Spring Data Commons**
+
+    In case of "terasoluna-gfw-common 5.0.0.RELEASE or later version" dependent spring-data-commons (1.9.1 RELEASE or later),
+    there is a change in API specifications of interface for page search functionality (\ ``org.springframework.data.domain.Page``\ ) and class (\ ``org.springframework.data.domain.PageImpl``\  and \ ``org.springframework.data.domain.Sort.Order``\ ).
+
+    Specifically,
+
+    * In \ ``Page``\  interface and \ ``PageImpl``\  class, \ ``isFirst()``\  and \ ``isLast()``\  methods are added in spring-data-commons 1.8.0.RELEASE, and \ ``isFirstPage()``\  and \ ``isLastPage()``\  methods are deleted from spring-data-commons 1.9.0.RELEASE.
+    * In \ ``Sort.Order``\  class, \ ``nullHandling``\  property is added in spring-data-commons 1.8.0.RELEASE.
+
+    When using \ ``Page``\  interface (\ ``PageImpl``\  class) as resource object of REST API,
+    that application may also need to be modified, as JSON and XML format get changed.
 
 |
 
@@ -2667,7 +2723,7 @@ Implementing the REST API wherein a page search is performed for member resource
     Transfer-Encoding: chunked
     Date: Thu, 13 Mar 2014 11:10:43 GMT
     
-    {"content":[{"memberId":"M000000001","firstName":"John","lastName":"Smith","genderCode":"1","dateOfBirth":"2013-03-13","emailAddress":"user1394709042120@test.com","telephoneNumber":"09012345678","zipCode":"1710051","address":"Tokyo","credential":{"signId":"user1394709042120@test.com","passwordLastChangedAt":"2014-03-13T11:10:43.066Z","lastModifiedAt":"2014-03-13T11:10:43.066Z"},"createdAt":"2014-03-13T11:10:43.066Z","lastModifiedAt":"2014-03-13T11:10:43.066Z"},{"memberId":"M000000002","firstName":"Sophia","lastName":"Smith","genderCode":"2","dateOfBirth":"2013-03-13","emailAddress":"user1394709043663@test.com","telephoneNumber":"09012345678","zipCode":"1710051","address":"Tokyo","credential":{"signId":"user1394709043663@test.com","passwordLastChangedAt":"2014-03-13T11:10:43.678Z","lastModifiedAt":"2014-03-13T11:10:43.678Z"},"createdAt":"2014-03-13T11:10:43.678Z","lastModifiedAt":"2014-03-13T11:10:43.678Z"}],"sort":null,"firstPage":true,"lastPage":true,"totalPages":1,"numberOfElements":2,"totalElements":2,"size":2,"number":0}
+    {"content":[{"memberId":"M000000001","firstName":"John","lastName":"Smith","genderCode":"1","dateOfBirth":"2013-03-13","emailAddress":"user1394709042120@test.com","telephoneNumber":"09012345678","zipCode":"1710051","address":"Tokyo","credential":{"signId":"user1394709042120@test.com","passwordLastChangedAt":"2014-03-13T11:10:43.066Z","lastModifiedAt":"2014-03-13T11:10:43.066Z"},"createdAt":"2014-03-13T11:10:43.066Z","lastModifiedAt":"2014-03-13T11:10:43.066Z"},{"memberId":"M000000002","firstName":"Sophia","lastName":"Smith","genderCode":"2","dateOfBirth":"2013-03-13","emailAddress":"user1394709043663@test.com","telephoneNumber":"09012345678","zipCode":"1710051","address":"Tokyo","credential":{"signId":"user1394709043663@test.com","passwordLastChangedAt":"2014-03-13T11:10:43.678Z","lastModifiedAt":"2014-03-13T11:10:43.678Z"},"createdAt":"2014-03-13T11:10:43.678Z","lastModifiedAt":"2014-03-13T11:10:43.678Z"}],"last":true,"totalPages":1,"totalElements":2,"size":2,"number":0,"sort":null,"numberOfElements":2,"first":true}
 
 |
 
@@ -3785,7 +3841,7 @@ When a resource does not exist, implementation for responding to the "resource n
         @ExceptionHandler(ResourceNotFoundException.class)
         public ResponseEntity<Object> handleResourceNotFoundException(
                 ResourceNotFoundException ex, WebRequest request) {
-            return handleResultMessagesNotificationException(ex, null,
+            return handleResultMessagesNotificationException(ex, new HttpHeaders(),
                     HttpStatus.NOT_FOUND, request);
         }
 
@@ -3863,7 +3919,7 @@ For the details on detecting business errors, refer to "\ :ref:`service-return-b
         @ExceptionHandler(BusinessException.class)
         public ResponseEntity<Object> handleBusinessException(BusinessException ex,
                 WebRequest request) {
-            return handleResultMessagesNotificationException(ex, null,
+            return handleResultMessagesNotificationException(ex, new HttpHeaders(),
                     HttpStatus.CONFLICT, request);
         }
 
@@ -3927,7 +3983,7 @@ Implementing exception handling for exclusive errors
                 PessimisticLockingFailureException.class })
         public ResponseEntity<Object> handleLockingFailureException(Exception ex,
                 WebRequest request) {
-            return handleExceptionInternal(ex, null, null,
+            return handleExceptionInternal(ex, null, new HttpHeaders(),
                     HttpStatus.CONFLICT, request);
         }
     
@@ -3989,7 +4045,7 @@ Refer to "\ :ref:`service-return-systemerrormessage-label`\" for the details on 
         @ExceptionHandler(Exception.class)
         public ResponseEntity<Object> handleSystemError(Exception ex,
                 WebRequest request) {
-            return handleExceptionInternal(ex, null, null,
+            return handleExceptionInternal(ex, null, new HttpHeaders(),
                     HttpStatus.INTERNAL_SERVER_ERROR, request);
         }
     
@@ -5817,14 +5873,14 @@ ApiGlobalExceptionHandler.java
         @ExceptionHandler(ResourceNotFoundException.class)
         public ResponseEntity<Object> handleResourceNotFoundException(
                 ResourceNotFoundException ex, WebRequest request) {
-            return handleResultMessagesNotificationException(ex, null,
+            return handleResultMessagesNotificationException(ex, new HttpHeaders(),
                     HttpStatus.NOT_FOUND, request);
         }
     
         @ExceptionHandler(BusinessException.class)
         public ResponseEntity<Object> handleBusinessException(BusinessException ex,
                 WebRequest request) {
-            return handleResultMessagesNotificationException(ex, null,
+            return handleResultMessagesNotificationException(ex, new HttpHeaders(),
                     HttpStatus.CONFLICT, request);
         }
     
@@ -5841,14 +5897,14 @@ ApiGlobalExceptionHandler.java
                 PessimisticLockingFailureException.class })
         public ResponseEntity<Object> handleLockingFailureException(Exception ex,
                 WebRequest request) {
-            return handleExceptionInternal(ex, null, null, HttpStatus.CONFLICT,
-                    request);
+            return handleExceptionInternal(ex, null, new HttpHeaders(), 
+            		HttpStatus.CONFLICT, request);
         }
     
         @ExceptionHandler(Exception.class)
         public ResponseEntity<Object> handleSystemError(Exception ex,
                 WebRequest request) {
-            return handleExceptionInternal(ex, null, null,
+            return handleExceptionInternal(ex, null, new HttpHeaders(),
                     HttpStatus.INTERNAL_SERVER_ERROR, request);
         }
     

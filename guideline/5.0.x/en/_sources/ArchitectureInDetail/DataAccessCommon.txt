@@ -24,8 +24,12 @@ Database Access (Common)
 Overview
 --------------------------------------------------------------------------------
 
-| This chapter explains the method of accessing the data stored in RDBMS.
-| For O/R Mapper dependent part, refer to \ :doc:`DataAccessJpa`\ .
+This chapter explains the method of accessing the data stored in RDBMS.
+
+For the O/R Mapper dependent part, refer to
+
+* \ :doc:`DataAccessMyBatis3`\
+* \ :doc:`DataAccessJpa`\
 
 
 About JDBC DataSource
@@ -150,7 +154,7 @@ About exception handling
       - | org.springframework.dao.
         | OptimisticLockingFailureException
       - | Exception that occurs in case of optimistic locking failure. It occurs when same data is updated with different logic.
-        | This exception occurs when JPA is used as O/R Mapper. Mybatis does not have optimistic locking function; hence this exception does not occur from O/R Mapper.
+        | This exception occurs when JPA is used as O/R Mapper. MyBatis does not have optimistic locking function; hence this exception does not occur from O/R Mapper.
     * - 3.
       - | org.springframework.dao.
         | PessimisticLockingFailureException
@@ -158,7 +162,7 @@ About exception handling
 
  .. note::
 
-    When optimistic locking is to be implemented using Mybatis in O/R Mapper, it should be implemented as Service or Repository process.
+    When optimistic locking is to be implemented using MyBatis in O/R Mapper, it should be implemented as Service or Repository process.
 
     As a method of notifying the optimistic locking failure to Controller, this guideline recommends generation of \ ``OptimisticLockingFailureException``\  and exception of its child class.
 
@@ -366,8 +370,15 @@ Settings when using DataSource for which Bean is defined
 
 Settings to enable transaction management
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-| For basic settings to enable transaction management, refer to \ :ref:`service_enable_transaction_management`\  of \ :doc:`../ImplementationAtEachLayer/DomainLayer`\ .
-| For PlatformTransactionManager, the class to be used changes depending on the O/R Mapper used; hence for detailed settings, refer to \ :doc:`DataAccessJpa`\ .
+For basic settings to enable transaction management, refer to \ :ref:`service_enable_transaction_management`\  of \ :doc:`../ImplementationAtEachLayer/DomainLayer`\ .
+
+For PlatformTransactionManager, the class to be used changes depending on the O/R Mapper used; hence for detailed settings, refer to:
+
+* \ :doc:`DataAccessMyBatis3`\
+* \ :doc:`DataAccessJpa`\
+
+
+.. _DataAccessCommonDataSourceDebug:
 
 JDBC debug log settings
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
@@ -650,29 +661,79 @@ Appendix
 
 Escaping during LIKE search
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-| While performing LIKE search, the values to be used as search conditions need to be escaped.
-| Escaping for LIKE search can be done using methods of \ ``org.terasoluna.gfw.common.query.QueryEscapeUtils``\  class provided by common library.
+When performing LIKE search, the values to be used as search conditions need to be escaped.
 
+Following class is provided by common library as a component to perform escaping for LIKE search.
+
+.. tabularcolumns:: |p{0.10\linewidth}|p{0.40\linewidth}|p{0.50\linewidth}|
+.. list-table::
+    :header-rows: 1
+    :widths: 10 40 50
+
+    * - Sr. No.
+      - Class
+      - Description
+    * - 1.
+      - | org.terasoluna.gfw.common.query.
+        | QueryEscapeUtils
+      - Utility class that provide methods to perform escaping of SQL and JPQL.
+
+        In this class,
+
+        * method to perform escaping for LIKE search
+
+        is provided.
+
+    * - 2.
+      - | org.terasoluna.gfw.common.query.
+        | LikeConditionEscape
+      - Class to perform escaping for LIKE search.
+
+.. note::
+
+    \ ``LikeConditionEscape``\  is a class added from terasoluna-gfw-common 1.0.2.RELEASE
+    to fix "`Bugs related to handling of wildcard characters for LIKE search <https://github.com/terasolunaorg/terasoluna-gfw/issues/78>`_".
+
+    \ ``LikeConditionEscape``\  class plays a role in absorbing the differences in wildcard characters that occur due to difference in database and database versions.
+
+|
 
 Specifications of escaping of common library
 """"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 Specifications of escaping provided by common library are as follows:
 
 * Escape character is ``"~"`` .
-* Characters to be escaped are 4, namely ``"%"`` , ``"_"`` , ``"％"`` , ``"＿"`` .
+* Characters to be escaped by default are 2, namely " ``"%"`` , ``"_"`` ".
+
+.. note::
+
+    Till terasoluna-gfw-common 1.0.1.RELEASE, the characters to be escaped were 4, namely " ``"%"`` , ``"_"`` , ``"％"`` , ``"＿"`` " ; however,
+    it is changed to 2 characters namely " ``"%"`` , ``"_"`` " from terasoluna-gfw-common 1.0.2.RELEASE 
+    in order to fix the "`Bugs related to handling of wildcard characters for LIKE search <https://github.com/terasolunaorg/terasoluna-gfw/issues/78>`_ ".
+
+    In addition, a method for escaping that includes double byte characters " ``"％"`` , ``"＿"``" as characters to be escaped, is also provided.
+
+|
 
 See the example of escaping below.
 
- .. tabularcolumns:: |p{0.10\linewidth}|p{0.15\linewidth}|p{0.25\linewidth}|p{0.10\linewidth}|p{0.40\linewidth}|
+**[Example of escaping with default specifications]**
+
+Example of escaping when default values used as characters to be escaped is given below.
+
+ .. tabularcolumns:: |p{0.10\linewidth}|p{0.15\linewidth}|p{0.20\linewidth}|p{0.10\linewidth}|p{0.45\linewidth}|
  .. list-table::
     :header-rows: 1
-    :widths: 10 15 25 10 40
+    :widths: 10 15 20 10 45
 
-    * - Sr. No.
-      - Target string
-      - String after escaping
-      - Escape flag
-      - Explanation
+    * - | Sr. No.
+      - | Target
+        | String
+      - | After escaping
+        | String
+      - | Escaping
+        | Flag
+      - | Description
     * - 1.
       - ``"a"``
       - ``"a"``
@@ -700,14 +761,18 @@ See the example of escaping below.
       - Escaping done as the string contains characters to be escaped. When there are multiple characters to be escaped, escaping is done for all characters.
     * - 6.
       - ``"a％"``
-      - ``"a~％"``
-      - ON
-      - Similar to No.3.
+      - ``"a％"``
+      - OFF
+      - Similar to No.1.
+
+        From terasoluna-gfw-common 1.0.2.RELEASE, "``"％"``" is handled as character out of escaping scope in default specifications.
     * - 7.
       - ``"a＿"``
-      - ``"a~＿"``
-      - ON
-      - Similar to No.3.
+      - ``"a＿"``
+      - OFF
+      - Similar to No.1.
+
+        From terasoluna-gfw-common 1.0.2.RELEASE, "``"＿"``" is handled as character out of escaping scope in default specifications.
     * - 8.
       - ``" "``
       - ``" "``
@@ -724,10 +789,43 @@ See the example of escaping below.
       - OFF
       - Similar to No.1.
 
+|
+
+**[Example of escaping when double byte characters are included]**
+
+Example of escaping when double byte characters included as characters to be escaped is given below.
+
+For other than Sr. No. 6 and 7, refer to escaping example of default specifications.
+
+ .. tabularcolumns:: |p{0.10\linewidth}|p{0.15\linewidth}|p{0.20\linewidth}|p{0.10\linewidth}|p{0.45\linewidth}|
+ .. list-table::
+    :header-rows: 1
+    :widths: 10 15 20 10 45
+
+    * - | Sr. No.
+      - | Target
+        | String
+      - | After escaping
+        | String
+      - | Escaping
+        | Flag
+      - | Description
+    * - 6.
+      - ``"a％"``
+      - ``"a~％"``
+      - ON
+      - Escaping done as string contains characters to be escaped.
+    * - 7.
+      - ``"a＿"``
+      - ``"a~＿"``
+      - ON
+      - Similar to No.6.
+
+|
 
 About escaping methods provided by common library
 """"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
-List of escaping methods of \ ``QueryEscapeUtils``\  class provided by common library is given below.
+List of escaping methods for LIKE search of \ ``QueryEscapeUtils``\  class and  \ ``LikeConditionEscape``\  class provided by common library is given below.
 
  .. tabularcolumns:: |p{0.10\linewidth}|p{0.35\linewidth}|p{0.55\linewidth}|
  .. list-table::
@@ -758,11 +856,56 @@ List of escaping methods of \ ``QueryEscapeUtils``\  class provided by common li
 
     Methods of No.2, 3, 4 are used when specifying the type of matching (Forward match, Backward match and Partial match) at program side and not at SQL or JPQL side.
 
+|
+
 How to use common library
 """"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
-For example of escaping at the time of LIKE search, refer to Document for O/R Mapper to be used.
+For example of escaping at the time of LIKE search, refer to the document for O/R Mapper to be used.
 
+* When using MyBatis3, refer to \ :ref:`DataAccessMyBatis3HowToUseLikeEscape`\  of \ :doc:`DataAccessMyBatis3`\ .
 * When using JPA (Spring Data JPA), refer to \ :ref:`data-access-jpa_howtouse_like_escape`\ of \ :doc:`DataAccessJpa`\ .
+
+.. note::
+
+    API for escaping should be used as per wildcard characters supported by database to be used.
+
+    **[In case of database that supports only "%" , "_" (single byte characters) as wildcard]**
+
+     .. code-block:: java
+
+        String escapedWord = QueryEscapeUtils.toLikeCondition(word);
+
+     .. tabularcolumns:: |p{0.10\linewidth}|p{0.90\linewidth}|
+     .. list-table::
+        :header-rows: 1
+        :widths: 10 90
+
+        * - | Sr. No.
+          - | Description
+        * - | (1)
+          -  Escaping is done by directly using method of \ ``QueryEscapeUtils``\  class.
+
+    **[In case of database that also supports "％" , "＿" (double byte characters) as wildcard]**
+
+     .. code-block:: java
+
+        String escapedWord = QueryEscapeUtils.withFullWidth()  // (2)
+                                .toLikeCondition(word);        // (3)
+
+
+     .. tabularcolumns:: |p{0.10\linewidth}|p{0.90\linewidth}|
+     .. list-table::
+        :header-rows: 1
+        :widths: 10 90
+
+        * - | Sr. No.
+          - | Description
+        * - | (2)
+          -  Fetch instance of \ ``LikeConditionEscape``\  class by calling \ ``withFullWidth()``\  method of \ ``QueryEscapeUtils``\  method.
+        * - | (3)
+          -  Perform escaping by using method of \ ``LikeConditionEscape``\  class instance fetched in (2).
+
+|
 
 .. _data-access-common_appendix_sequencer:
 
@@ -869,12 +1012,12 @@ Fetch sequence value from Sequencer for which bean is defined.
     // omitted
 
     @Transactional
-    public Article createArticle(Article inputtedArticle) {
+    public Article createArticle(Article inputArticle) {
 
         String articleId = articleIdSequencer.getNext(); // (3)
-        inputtedArticle.setArticleId(articleId);
+        inputArticle.setArticleId(articleId);
 
-        Article savedArticle = articleRepository.save(inputtedArticle);
+        Article savedArticle = articleRepository.save(inputArticle);
 
         return savedArticle;
     }
@@ -923,11 +1066,11 @@ Classes of Spring Framework which play a role in converting an exception to data
     * - 2.
       - | org.springframework.orm.jpa.vendor.
         | HibernateJpaDialect
-      - When JPA (Hibernate implementation) is used, O/R Mapper exception(Hibernate exception) is converted to data access exception of Spring Framework using this class.
+      - When JPA (Hibernate implementation) is used, O/R Mapper exception (Hibernate exception) is converted to data access exception of Spring Framework using this class.
     * - 3.
       - | org.springframework.orm.jpa.
         | EntityManagerFactoryUtils
-      - If an exception that can not be converted by \ ``HibernateJpaDialect``\  has occurred, JPA exception is converted to data access exception of Spring Framework using this class.
+      - If an exception that cannot be converted by \ ``HibernateJpaDialect``\  has occurred, JPA exception is converted to data access exception of Spring Framework using this class.
     * - 4.
       - | Sub classes of
         | org.hibernate.dialect.Dialect

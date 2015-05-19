@@ -2639,6 +2639,9 @@ In this chapter, usage of main JSP tag libraries are described. However, refer t
    * - 3.
      - JSTL
      - - `<http://download.oracle.com/otndocs/jcp/jstl-1.2-mrel2-eval-oth-JSpec/>`_\
+   * - 4.
+     - Common library's tags & el functions
+     - - [:doc:`../Appendix/TagLibAndELFunctions`] of this guidelin
 
  .. warning::
 

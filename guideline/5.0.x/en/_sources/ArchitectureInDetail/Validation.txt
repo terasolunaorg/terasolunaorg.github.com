@@ -20,7 +20,7 @@ whether order count is within the count of the available stock.
 
 In this section, 1. is explained and this check is called "Input validation".
 2. is called "Business logic check". For business logic check,
-refer to \ :doc:`../ImplementationAtEachLayer/DomainLayer`\.
+refer to \ :doc:`../ImplementationAtEachLayer/DomainLayer`\ .
 
 In this guideline, validation check should be performed in application layer
 whereas business logic check should be performed in domain layer.
@@ -69,7 +69,7 @@ Input validation is classified into single item check and correlation item check
        | interface
 
 
-Spring supports Bean Validation.
+Spring supports Bean Validation which is a Java standard.
 This Bean Validation is used for single item check.
 Bean Validation or \ ``org.springframework.validation.Validator``\  interface provided by Spring is used for correlation item check.
 
@@ -79,6 +79,56 @@ Bean Validation or \ ``org.springframework.validation.Validator``\  interface pr
 
 How to use
 --------------------------------------------------------------------------------
+.. ValidationAddDependencyLibrary:
+
+Adding dependent libraries
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+When Bean validation 1.1 (Hibernate Validator 5.x) or higher version is to be used,
+in addition to jar file of Hibernate Validator and jar file storing API specifications class (\ ``javax.validation``\  package class) of Bean Validation,
+libraries that store the following classes are required.
+
+* API specifications class of Expression Language 2.2 or higher version (\ ``javax.el``\  package class)
+* Reference implementation class of Expression Language 2.2 or higher version
+
+
+If the file is run by deploying on application server,
+dependent libraries need not be added; 
+since these libraries are provided by application server.
+However, when it is run in standalone environment (JUnit etc.), these libraries need to be added as dependent libraries.
+
+An example of adding libraries which are required when running Bean Validation 1.1 or higher version in standalone environment is given below.
+
+.. code-block:: xml
+
+    <!-- (1) -->
+    <dependency>
+        <groupId>org.apache.tomcat.embed</groupId>
+        <artifactId>tomcat-embed-el</artifactId>
+        <scope>test</scope> <!-- (2) -->
+    </dependency>
+
+.. tabularcolumns:: |p{0.10\linewidth}|p{0.90\linewidth}|
+.. list-table::
+    :header-rows: 1
+    :widths: 10 90
+
+    * - Sr. No.
+      - Description
+    * - | (1)
+      - Add a library wherein a class for Expression Language is stored,
+        in :file:`pom.xml` file of the project to be run in standalone environment.
+
+        In the above example, libraries provided for Apache Tomcat to be embedded are specified.
+        API specifications classes of Expression Language and reference implementation classes are both stored in jar file of \ ``tomcat-embed-el``\ .
+
+    * - | (2)
+      - When dependent libraries are required to execute JUnit, an appropriate scope is \ ``test``\ .
+
+.. note::
+
+    In the above example of settings, it is a prerequisite that version of dependent libraries should be stored in the parent project.
+    Therefore, \ ``<version>``\  element is not specified.
+
 
 .. _Validation_single_check:
 
@@ -119,19 +169,19 @@ Implementation method is explained using "New user registration" process as an e
    * - | name
      - | ``java.lang.String``
      - | Mandatory input
-       | 1 or more characters
-       | 20 or less characters
+       | Between 1 and
+       | 20 characters
    * - | email
      - | ``java.lang.String``
      - | Mandatory input
-       | 1 or more characters
-       | 50 or less characters
+       | Between 1 and
+       | 50 characters
        | Email format
    * - | age
      - | ``java.lang.Integer``
      - | Mandatory input
-       | 1 or more
-       | 200 or less
+       | Between 1 and
+       | 200
 
 * Form class
 
@@ -178,10 +228,10 @@ Implementation method is explained using "New user registration" process as an e
      :widths: 10 90
 
 
-     * - S.No.
+     * - Sr. No.
        - Description
      * - | (1)
-       - | Assign \ ``javax.validation.constraints.NotNull``\  indicating that the target field is not \ ``null``\.
+       - | Assign \ ``javax.validation.constraints.NotNull``\  indicating that the target field is not \ ``null``\ .
          |
          | In Spring MVC, when form is sent with input fields left blank,
          | \ **empty string instead of null binds**\ to form object by default.
@@ -193,7 +243,7 @@ Implementation method is explained using "New user registration" process as an e
          | '1 or more character' rule indicates Mandatory input.
      * - | (3)
        - | Assign \ ``org.hibernate.validator.constraints.Email``\  indicating that the target field is in RFC2822-compliant E-mail format.
-         | When E-mail format requirements are flexible than RFC2822-compliant constraints, regular expression should be specified using  \ ``javax.validation.constraints.Pattern``\  instead of \ ``@Email``\.
+         | When E-mail format requirements are flexible than RFC2822-compliant constraints, regular expression should be specified using  \ ``javax.validation.constraints.Pattern``\  instead of \ ``@Email``\ .
      * - | (4)
        - | When form is sent without entering any number in input field, \ ``null`` \ binds to form object so \ ``@NotNull``\  indicates mandatory input of \ ``age``\.
      * - | (5)
@@ -267,7 +317,7 @@ Implementation method is explained using "New user registration" process as an e
      :header-rows: 1
      :widths: 10 90
 
-     * - S.No.
+     * - Sr. No.
        - Description
      * - | (1)
        - | Display "New user registration" form screen.
@@ -282,7 +332,7 @@ Implementation method is explained using "New user registration" process as an e
        - | Use \ ``BindingResult.hasErrors()``\  method to determine the check result of step (2).
          | When the result of  \ ``hasErrors()``\  is \ ``true``\ , return to form display screen as there is an error in input value.
      * - | (5)
-       - | \ **Input validation should be executed again**\ even at the time of submition on the confirmation screen.
+       - | \ **Input validation should be executed again**\ even at the time of submission on the confirmation screen.
          | There is a possibility of data tempering and hence Input validation must be performed just before entering business logic.
 
 
@@ -290,7 +340,7 @@ Implementation method is explained using "New user registration" process as an e
   
     \ ``@Validated``\  is not a standard Bean Validation annotation. It is an independent annotation provided by Spring.
     Bean Validation standard \ ``javax.validation.Valid``\  annotation can also be used. However, \ ``@Validated``\  is better as compared to \ ``@Valid``\  annotation.
-    Validation group can be specified in case of \ ``@Validated``\  and hence \ ``@Validated``\  is recommeded in this guideline.
+    Validation group can be specified in case of \ ``@Validated``\  and hence \ ``@Validated``\  is recommended in this guideline.
 
 
 .. _Validation_jsp_impl_sample:
@@ -329,7 +379,7 @@ Implementation method is explained using "New user registration" process as an e
      :header-rows: 1
      :widths: 10 90
 
-     * - S.No.
+     * - Sr. No.
        - Description
      * - | (1)
        - | Specify target field name in \ ``path``\  attribute of \ ``<form:errors>``\  tag.
@@ -345,7 +395,7 @@ Error message is displayed as follows if this form is sent with all the input fi
 .. figure:: ./images_Validation/validations-first-sample2.png
   :width: 60%
 
-Error messages state that Name and Email are blank and Age is \ ``null``\.
+Error messages state that Name and Email are blank and Age is \ ``null``\ .
 
 .. note::
 
@@ -395,7 +445,7 @@ Change the form as follows to change the style at the time of error.
    :header-rows: 1
    :widths: 10 90
 
-   * - S.No.
+   * - Sr. No.
      - Description
    * - | (1)
      - | Specify class name for \ ``<label>``\  tag in \ ``cssErrorClass``\  attribute at the time of error.
@@ -477,7 +527,7 @@ output them collectively.
    :header-rows: 1
    :widths: 10 90
 
-   * - S.No.
+   * - Sr. No.
      - Description
    * - | (1)
      - | By specifying \ ``*``\  in \ ``path``\  attribute of \ ``<form:errors>``\  in \ ``<form:form>``\  tag,
@@ -531,32 +581,44 @@ An example of error message is shown when the following CSS class is applied.
   :width: 60%
 
 
-| By default, field name is not included in error message, so it is difficult to understand, which error message corresponds to which field.
-| Therefore, when error message is to be displayed in a list, it is necessary to define the message such that field name is included in the error message.
-| About how to define error message, refer to ":ref:`Validation_message_def`".
+| By default, field name is not included in error message, hence it is difficult to understand which error message corresponds to which field.
+| Therefore, when an error message is to be displayed in a list, it is necessary to define the message such that field name is included in the error message.
+| For method of defining error messages, refer to ":ref:`Validation_message_def`".
+
+.. note:: **Points to be noted when displaying error messages in a list**
+
+   Error messages are output in a random order and the output order cannot be controlled by standard function.
+   Therefore, when an output order needs to be controlled (to be kept constant), an extended implementation such as sorting the error information, etc. is required.
+
+   In the method of "Displaying error messages in a list",
+
+   * Error message definition in feed unit
+   * Extended implementation to control the output order of error messages
+
+   are required. Therefore, the cost is higher as compared to "displaying error messages next to input field".
+   **This guideline recommends the method of "displaying error messages next to input field" when there are no constraints due to screen requirements.**
+
+   Further, following method can be considered as extended methods to control output order of error message.
+   Creating inherited class of \ ``org.springframework.validation.beanvalidation.LocalValidatorFactoryBean``\  provided by Spring Framework,
+   and sorting error information by overriding \ ``processConstraintViolations``\  method, etc.
+
+.. note:: **About @GroupSequence annotation**
+
+   A mechanism of \ `@GroupSequence annotation <http://docs.jboss.org/hibernate/validator/5.1/reference/en-US/html/chapter-groups.html#section-default-group-class>`_\  is provided to control the check sequence;
+   however, add a note that this mechanism is not to control the output order of error message as operations given below are performed.
+
+   * When an error occurs, checking for subsequent groups is not executed.
+   * If multiple errors (errors in multiple fields) occur in the check of identical groups, then the output order of error messages would be random. 
+
 
 .. note::
 
-   Error messages are output in random order by default.
-   Order can be controlled using \ `@GroupSequence annotation <http://docs.jboss.org/hibernate/validator/5.1/reference/en-US/html/chapter-groups.html#section-default-group-class>`_\
-   However, cost is high.
-  
-   If error messages are displayed in a list,
-  
-   * Field name must be included in the error message.
-   * Order of the errorm message must be controlled.
-  
-   The above points increase the cost. Hence, "Display error messages next to input field" is recommended if there are no restrictions to do so in screen requirements.
 
+   Use \ ``<spring:nestedPath>``\  tag to display error messages collectively outside the \ ``<form:form>``\  tag.
 
-.. note::
-
-
-   Use \ ``<spring:nestedPath>``\  tag to display messages collectively outside the \ ``<form:form>``\  tag.
-  
      .. code-block:: jsp
        :emphasize-lines: 1,4
-  
+
        <spring:nestedPath path="userForm">
            <form:errors path="*" element="div"
                cssClass="error-message-list" />
@@ -600,38 +662,38 @@ The method to validate nested Bean using Bean Validation is explained below.
    * - | receiverAddress.name
      - | ``java.lang.String``
      - | Mandatory input
-       | 1 or more characters
-       | 50 or less characters
+       | Between 1 and
+       | 50 characters
      - | Receiver name
    * - | receiverAddress.postcode
      - | ``java.lang.String``
      - | Mandatory input
-       | 1 or more characters
-       | 10 or less characters
+       | Between 1 and
+       | 10 characters
      - | Receiver postal code
    * - | receiverAddress.address
      - | ``java.lang.String``
      - | Mandatory input
-       | 1 or more characters
-       | 100 or less characters
+       | Between 1 and
+       | 100 characters
      - | Receiver address
    * - | senderAddress.name
      - | ``java.lang.String``
      - | Mandatory input
-       | 1 or more characters
-       | 50 or less characters
+       | Between 1 and
+       | 50 characters
      - | Sender name
    * - | senderAddress.postcode
      - | ``java.lang.String``
      - | Mandatory input
-       | 1 or more characters
-       | 10 or less characters
+       | Between 1 and
+       | 10 characters
      - | Sender postal code
    * - | senderAddress.address
      - | ``java.lang.String``
      - | Mandatory input
-       | 1 or more characters
-       | 100 or less characters
+       | Between 1 and
+       | 100 characters
      - | Sender address
 
 Use the same form class since \ ``receiverAddress``\  and \ ``senderAddress``\  are objects of the same class.
@@ -701,11 +763,11 @@ Use the same form class since \ ``receiverAddress``\  and \ ``senderAddress``\  
      :header-rows: 1
      :widths: 10 90
 
-     * - S.No.
+     * - Sr. No.
        - Description
      * - | (1)
        - | This indicates that the child form is mandatory.
-         | When not set, it will be considered as valid even if \ ``null``\  is set in \ ``receiverAddress``\.
+         | When not set, it will be considered as valid even if \ ``null``\  is set in \ ``receiverAddress``\ .
      * - | (2)
        - | Assign \ ``javax.validation.Valid``\  annotation to enable Bean Validation of the nested Bean.
 
@@ -834,13 +896,13 @@ Use the same form class since \ ``receiverAddress``\  and \ ``senderAddress``\  
      :header-rows: 1
      :widths: 10 90
 
-     * - S.No.
+     * - Sr. No.
        - Description
      * - | (1)
-       - | When \ ``receiverAddress.name``\, \ ``receiverAddress.postcode``\, \ ``receiverAddress.address``\  are not sent as
+       - | When \ ``receiverAddress.name``\ , \ ``receiverAddress.postcode``\ , \ ``receiverAddress.address``\  are not sent as
          | request parameters due to invalid operation, \ ``receiverAddress``\  is considered as \ ``null``\  and error message is displayed.
      * - | (2)
-       - | Fields of nested bean are specified as \ ``[parent field name].[child field name]``\.
+       - | Fields of nested bean are specified as \ ``[parent field name].[child field name]``\ .
 
 
 Form is displayed as follows.
@@ -856,7 +918,7 @@ Error message is displayed as follows if this form is sent with all the input fi
 
 Validation of nested bean is enabled for collections also.
 
-Add a field such that upto 3 addresses can be registered in "user registration" form explained at the beginning.
+Add a field such that up to 3 addresses can be registered in "user registration" form explained at the beginning.
 
 * Add list of \ ``AddressForm``\  as a field in the form class.
 
@@ -907,7 +969,7 @@ Add a field such that upto 3 addresses can be registered in "user registration" 
      :header-rows: 1
      :widths: 10 90
 
-     * - S.No.
+     * - Sr. No.
        - Description
      * - | (1)
        - | It is possible to use \ ``@Size``\  annotation for checking size of collection as well.
@@ -989,14 +1051,14 @@ Add a field such that upto 3 addresses can be registered in "user registration" 
      :header-rows: 1
      :widths: 10 90
 
-     * - S.No.
+     * - Sr. No.
        - Description
      * - | (1)
        - | Display error message related to \ ``address``\  field.
      * - | (2)
        - | Process the collection of child forms in a loop using \ ``<c:forEach>``\  tag.
      * - | (3)
-       - | Inside the loop, Specify the field of child form using \ ``[parent field name][Index].[child field name]``\.
+       - | Inside the loop, Specify the field of child form using \ ``[parent field name][Index].[child field name]``\ .
 
 
 * Controller class
@@ -1049,7 +1111,7 @@ Add a field such that upto 3 addresses can be registered in "user registration" 
      :header-rows: 1
      :widths: 10 90
 
-     * - S.No.
+     * - Sr. No.
        - Description
      * - | (1)
        - | Edit the form object to display a single address form at the time of initial display of "user registration" form.
@@ -1221,7 +1283,7 @@ An example of executing validation using these groups is shown here.
      :header-rows: 1
      :widths: 10 90
 
-     * - S.No.
+     * - Sr. No.
        - Description
      * - | (1)
        - | Define each group as an interface.
@@ -1341,7 +1403,7 @@ An example of executing validation using these groups is shown here.
      :header-rows: 1
      :widths: 10 90
 
-     * - S.No.
+     * - Sr. No.
        - Description
      * - | (1)
        - | The parameter which is used as condition to dividing between the groups must be set to \ ``param``\  attribute.
@@ -1496,7 +1558,7 @@ Rules are as follows.
      :header-rows: 1
      :widths: 10 90
 
-     * - S.No.
+     * - Sr. No.
        - Description
      * - | (1)
        - | Set all groups to annotations other than \ ``@Min``\  of \ ``age``\  field as well.
@@ -1571,7 +1633,7 @@ Rules are as follows.
      :header-rows: 1
      :widths: 10 90
 
-     * - S.No.
+     * - Sr. No.
        - Description
      * - | (1)
        - | When the field \ ``country``\  does not have a value, the request is mapped to a method in which \ ``Default``\  group is specified in \ ``@Validated``\  annotation.
@@ -1646,20 +1708,20 @@ After reviewing the design, usage of Spring Validator or implementation of valid
       :header-rows: 1
       :widths: 10 90
 
-      * - S.No.
+      * - Sr. No.
         - Description
       * - | (1)
-        - | Inject \ ``SmartValidator``\. Since \ ``SmartValidator``\  can be used if \ ``<mvc:annotation-driven>``\  setting is carried out so there is no need to define separately.
+        - | Inject \ ``SmartValidator``\ . Since \ ``SmartValidator``\  can be used if \ ``<mvc:annotation-driven>``\  setting is carried out so there is no need to define separately.
       * - | (2)
         - | Do not use \ ``@Validated``\  annotation.
       * - | (3)
-        - | Determine validation group.
-          | Logic to determine validation group recommend to delegate to Helper class and keep Controller's source code with simple state.
+        - | Determine a validation group.
+          | Logic to determine a validation group recommends delegating to Helper class and keeping logic in Controller in simple state.
       * - | (4)
-        - | Execute grouped validation using \ ``validate``\  method of \ ``SmartValidator``\.
+        - | Execute grouped validation using \ ``validate``\  method of \ ``SmartValidator``\ .
           | Multiple groups can be specified in \ ``validate``\  method.
 
- Since logic should not be written in Controller, if switching is possible using request parameters in \ ``@RequestMapping``\ annotation, \ ``SmartValidator``\ must not be used.
+ Since logic should not be written in Controller, if switching is possible using request parameters in \ ``@RequestMapping``\ annotation, \ ``SmartValidator``\  must not be used.
 
 
 .. _Validation_correlation_check:
@@ -1795,15 +1857,15 @@ Check rule "Must be same as confirmPassword" is validation of correlated items a
      :header-rows: 1
      :widths: 10 90
 
-     * - S.No.
+     * - Sr. No.
        - Description
      * - | (1)
        - | Assign \ ``@Component``\  to make Validator the target of component scan.
      * - | (2)
        - | Decide the argument is check target of this validator or not. Here \ ``PasswordResetForm``\  class is the target to be checked.
      * - | (3)
-       - | If occurred error at the target fields during a single item check, does not perform correlation item check by in this Validator.
-         | If it is necessary to perform the correlation item check always, this logic is unnecessary.
+       - | If an error occurs at the target fields during a single item check, do not perform correlation check in this Validator.
+         | If it is necessary to perform the correlation check, this determination logic is not required.
      * - | (4)
        - | Implement check logic.
      * - | (5)
@@ -1877,13 +1939,13 @@ Check rule "Must be same as confirmPassword" is validation of correlated items a
      :header-rows: 1
      :widths: 10 90
 
-     * - S.No.
+     * - Sr. No.
        - Description
      * - | (1)
        - | Inject Spring Validator to be used.
      * - | (2)
        - | In the method having \ ``@InitBinder``\  annotation, add Validators using \ ``WebDataBinder.addValidators``\  method. 
-         | By this, the added Validator is called when validation is exected with the use of \ ``@Validated``\  annotation.
+         | By this, the added Validator is called when validation is executed with the use of \ ``@Validated``\  annotation.
      * - | (3)
        - | Implement input validation as per the process performed so far.
 
@@ -1928,7 +1990,7 @@ Error message as shown below is displayed when form is sent by entering differen
 
 .. note::
 
-  When \ ``<form:password>``\ tag is used, data gets cleared at the time of redisplay.
+  When \ ``<form:password>``\  tag is used, data gets cleared at the time of redisplay.
 
 .. note::
 
@@ -1964,7 +2026,46 @@ Error message as shown below is displayed when form is sent by entering differen
            // omitted
        }
 
-implementation of input check of correlated items using Bean Validation
+.. note::
+
+   To change the check contents of correlated items check rules in accordance with a validation group (for example: To implement correlated items check only when specific validation group is specified, etc.), it is better to switch the process within validate method by implementing \ ``org.springframework.validation.SmartValidator``\  interface instead of implementing \ ``org.springframework.validation.Validator``\  interface.
+
+     .. code-block:: java
+
+       package com.example.sample.app.validation;
+
+       import org.apache.commons.lang3.ArrayUtils;
+       import org.springframework.stereotype.Component;
+       import org.springframework.validation.Errors;
+       import org.springframework.validation.SmartValidator;
+
+       @Component
+       public class PasswordEqualsValidator implements SmartValidator { // Implements SmartValidator instead of Validator interface
+
+           @Override
+           public boolean supports(Class<?> clazz) {
+               return PasswordResetForm.class.isAssignableFrom(clazz);
+           }
+
+           @Override
+           public void validate(Object target, Errors errors) {
+               validate(target, errors, new Object[] {});
+           }
+
+           @Override
+           public void validate(Object target, Errors errors, Object... validationHints) {
+               // Check validationHints(groups) and apply validation logic only when 'Update.class' is specified
+               if (ArrayUtils.contains(validationHints, Update.class)) {
+                   PasswordResetForm form = (PasswordResetForm) target;
+                   String password = form.getPassword();
+                   String confirmPassword = form.getConfirmPassword();
+
+                   // omitted...
+               }
+           }
+       }
+
+Implementation of input check of correlated items using Bean Validation
 """"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 
 Independent validation rules should be added to implement validation of correlated items using Bean Validation.
@@ -1980,8 +2081,8 @@ Method to change error messages of input validation is explained.
 
 Error messages of Bean Validation in Spring MVC are resolved in the following order.
 
-#. | If there is any message which matches with the rule, among the messages defined in \ ``org.springframework.context.MessageSource``\, then it will be used as error message (Spring rule).
-   | About default rule of Spring, refer to "`DefaultMessageCodesResolverのJavaDoc <http://docs.spring.io/spring/docs/4.1.4.RELEASE/javadoc-api/org/springframework/validation/DefaultMessageCodesResolver.html>`_".
+#. | If there is any message which matches with the rule, among the messages defined in \ ``org.springframework.context.MessageSource``\ , then it is to be used as error message (Spring rule).
+   | For default rules of Spring, refer to "`JavaDoc <http://docs.spring.io/spring/docs/4.1.4.RELEASE/javadoc-api/org/springframework/validation/DefaultMessageCodesResolver.html>`_ of DefaultMessageCodesResolver".
 #. If message cannot be found as mentioned in step 1, then error message is acquired from the \ ``message``\  attribute of the annotation. (Bean Validation rule)
 
   #. When the value of \ ``message``\  attribute is not in "{message key}" format, use that text as error message.
@@ -1994,7 +2095,7 @@ Basically, it is recommended to define error messages in properties file.
 
 Messages should be defined at following places.
 
-* properties file read by \ ``org.springframework.context.MessageSource``\
+* properties file read by \ ``org.springframework.context.MessageSource``\ 
 * \ ValidationMessages.properties under classpath
 
 Considering that the following settings are done in applicationContext.xml, former is called as "application-messages.properties" and latter is called "ValidationMessages.properties".
@@ -2014,6 +2115,21 @@ Considering that the following settings are done in applicationContext.xml, form
 .. figure:: ./images_Validation/validations-message-properties-position-image.png
   :width: 40%
 
+.. warning::
+
+    Multiple \ ``ValidationMessages.properties``\  files should not exist directly under class path. 
+
+    If multiple \ ``ValidationMessages.properties``\  files exist directly under class path,
+    an appropriate message may not be displayed, as either one file of them is read leaving rest of the files unread.
+
+    * When adopting multi project structure, please take care so that \ ``ValidationMessages.properties``\  file is not placed in multiple projects.
+    * When distributing common parts for Bean Validation as jar file, please take care so that \ ``ValidationMessages.properties``\  file is not included in jar file.
+
+    Further, when a project is created from `Blank project <https://github.com/terasolunaorg/terasoluna-gfw-web-multi-blank>`_ \  of version 1.0.2.RELEASE or higher, 
+    \ ``ValidationMessages.properties``\  is stored directly under \ ``xxx-web/src/main/resources``\ .
+
+|
+
 
 This guideline classifies the definition as follows.
 
@@ -2031,7 +2147,7 @@ This guideline classifies the definition as follows.
      - | Error message of Bean Validation to be overwritten separately
        | Error message of input validation implemented in Spring Validator
 
-When ValidationMessages.properties is not provided, \ :ref:`Default messages provided by Hibernate Validator<Validation_default_message_in_hibernate_validator>`\ is used.
+When ValidationMessages.properties is not provided, \ :ref:`Default messages provided by Hibernate Validator<Validation_default_message_in_hibernate_validator>`\  is used.
 
 
 .. _Validation_message_in_validationmessages:
@@ -2078,8 +2194,8 @@ It is explained below using the following form used at the beginning of \ :ref:`
     # (1)
     javax.validation.constraints.Size.message=size is not in the range {min} through {max}.
     # (2)
-    javax.validation.constraints.Min.message=can not be less than {value}.
-    javax.validation.constraints.Max.message=can not be greater than {value}.
+    javax.validation.constraints.Min.message=cannot be less than {value}.
+    javax.validation.constraints.Max.message=cannot be greater than {value}.
     org.hibernate.validator.constraints.Email.message=is an invalid e-mail address.
 
   .. tabularcolumns:: |p{0.10\linewidth}|p{0.90\linewidth}|
@@ -2087,12 +2203,12 @@ It is explained below using the following form used at the beginning of \ :ref:`
      :header-rows: 1
      :widths: 10 90
 
-     * - S.No.
+     * - Sr. No.
        - Description
      * - | (1)
        - | It is possible to embed the value of attributes specified in the annotation using \ ``{Attribute name}``\ .
      * - | (2)
-       - | It is possible to embed the invalid value using \ ``{value}``\.
+       - | It is possible to embed the invalid value using \ ``{value}``\ .
 
 When the form is sent with input fields left blank after adding the above settings, changed error messages are displayed as shown below.
 
@@ -2113,14 +2229,14 @@ Add \ ``{0}``\  to message as shown below when field name is to be included in e
 
 * ValidationMessages.properties
 
- Change error message of \ ``@NotNull``\ , \ ``@Size``\ , \ ``@Min``\ , \ ``@Max``\  and \ ``@Email``\.
+ Change error message of \ ``@NotNull``\ , \ ``@Size``\ , \ ``@Min``\ , \ ``@Max``\  and \ ``@Email``\ .
 
   .. code-block:: properties
 
     javax.validation.constraints.NotNull.message="{0}" is required.
     javax.validation.constraints.Size.message=The size of "{0}" is not in the range {min} through {max}.
-    javax.validation.constraints.Min.message="{0}" can not be less than {value}.
-    javax.validation.constraints.Max.message="{0}" can not be greater than {value}.
+    javax.validation.constraints.Min.message="{0}" cannot be less than {value}.
+    javax.validation.constraints.Max.message="{0}" cannot be greater than {value}.
     org.hibernate.validator.constraints.Email.message="{0}" is an invalid e-mail address.
 
 Error message is changed as follows.
@@ -2129,7 +2245,7 @@ Error message is changed as follows.
   :width: 60%
 
 In this way, property name of form class gets displayed on the screen and so it is not user friendly.
-To display an appropriate field name,it should be defined in \ **application-messages.properties**\ in the following format.
+To display an appropriate field name, it should be defined in \ **application-messages.properties**\  in the following format.
 
 .. code-block:: properties
 
@@ -2155,6 +2271,48 @@ Error messages are changed as follows.
 
   Inserting field name in place of \ ``{0}``\  is the functionality of Spring and not of Bean Validation.
   Therefore, the settings for changing field name should be defined in application-messages.properties(\ ``ResourceBundleMessageSource``\ ) which is directly under Spring management.
+
+.. tip::
+
+    In Bean Validation 1.1,
+    it is possible to use Expression Language (hereafter referred to as "EL expression") in a message specified in :file:`ValidationMessages.properties`.
+    Hibernate Validator 5.x supports Expression Language 2.2 or higher version.
+
+    Executable EL expression version differs depending on the version of application server.
+    Therefore when EL expression is to be used, **it should be used after confirming the version of EL expression supported by application server.**
+
+    Following is an example of using EL expression in a message which is defined in :file:`ValidationMessages.properties` provided by Hibernate Validator by default.
+
+     .. code-block:: properties
+
+        # ...
+        # (1)
+        javax.validation.constraints.DecimalMax.message  = must be less than ${inclusive == true ? 'or equal to ' : ''}{value}
+        # ...
+
+     .. tabularcolumns:: |p{0.10\linewidth}|p{0.90\linewidth}|
+     .. list-table::
+        :header-rows: 1
+        :widths: 10 90
+
+        * - Sr. No.
+          - Description
+        * - | (1)
+          - An EL expression is a part of "\ ``${inclusive == true ? 'or equal to ' : ''}``\  " in a message.
+
+            From the above mentioned definition of message, 2 patterns of messages are created as given below.
+
+            * must be less than or equal to {value}
+            * must be less than {value}
+
+            (A value specified in \ ``value``\  attribute of \ ``@DecimalMax``\  annotation is embedded in \ ``{value}``\  part)
+
+            Former is created when \ ``true``\  is specified (or when not specified) in \ ``inclusive``\  attribute of \ ``@DecimalMax``\  annotation,
+            Latter is created when \ ``false``\  is specified in \ ``inclusive``\  attribute of \ ``@DecimalMax``\  annotation.
+
+            For handling of EL expressions in Bean Validation refer to:
+            \ `Hibernate Validator Reference Guide(Interpolation with message expressions) <http://docs.jboss.org/hibernate/validator/5.1/reference/en-US/html/chapter-message-interpolation.html#section-interpolation-with-message-expressions>`_\ .
+
 
 .. _Validation_message_in_application_messages:
 
@@ -2200,8 +2358,8 @@ Error messages are changed as follows.
 
 .. note::
 
-  \ `There are other formats  <http://docs.spring.io/spring/docs/4.1.4.RELEASE/javadoc-api/org/springframework/validation/DefaultMessageCodesResolver.html>`_\ as well for the message key application-messages.properties.
-  However, if it is used with the purpose of overwriting some default messages, it should be in \ ``[annotation name].[form attribute name].[property name]``\  format.
+  \ `There are other formats  <http://docs.spring.io/spring/docs/4.1.4.RELEASE/javadoc-api/org/springframework/validation/DefaultMessageCodesResolver.html>`_\ as well for the message key format of application-messages.properties;
+  however, if it is used with the purpose of overwriting some default messages, it should be in \ ``[annotation name].[form attribute name].[property name]``\  format.
 
 |
 
@@ -2264,10 +2422,10 @@ Consider the following restrictions at the system level and domain level respect
 * String must be single byte alphanumeric characters
 * Numbers must be positive
 
-| At the domain level,
+| Or at the domain level,
 
 * "User ID" must be between 4 and 20 single byte characters
-* "Age" must be 1 year or more  and 150 years or less
+* "Age" must be between 1 year and 150 years
 
 | These can be implemented by combining \ ``@Pattern``\ , \ ``@Size``\ , \ ``@Min``\ , \ ``@Max``\  of the existing rules.
 | However, if the same rules are to be used at multiple places, settings get distributed and maintainability worsens.
@@ -2278,7 +2436,7 @@ By this, reusability and maintainability increases. Even if multiple rules are n
 
 Implementation example is shown below.
 
-* Implementation example of \ ``@Alphanumeric``\  annotation which is restricted to single byte alphnumeric characters
+* Implementation example of \ ``@Alphanumeric``\  annotation which is restricted to single byte alphanumeric characters
 
   .. code-block:: java
     :emphasize-lines: 22-23,25
@@ -2327,7 +2485,7 @@ Implementation example is shown below.
      :header-rows: 1
      :widths: 10 90
 
-     * - S.No.
+     * - Sr. No.
        - Description
      * - | (1)
        - | This will consolidate error messages and return only the message of this annotation at the time of error.
@@ -2475,7 +2633,7 @@ Implementation example is shown below.
 
     If multiple rules are set in a single annotation, their AND condition forms the composite annotation.
     In Hibernate Validator, \ ``@ConstraintComposition``\  annotation is provided to implement OR condition.
-    Refer to \ `Hibernate Validator document <http://docs.jboss.org/hibernate/validator/5.1/reference/en-US/html/validator-specifics.html#section-boolean-constraint-composition>`_\ for details.
+    Refer to \ `Hibernate Validator document <http://docs.jboss.org/hibernate/validator/5.1/reference/en-US/html/validator-specifics.html#section-boolean-constraint-composition>`_\  for details.
 
 Creation of Bean Validation annotation by implementing new rules
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
@@ -2490,7 +2648,7 @@ The method of usage is as follows.
 
 Rules that cannot be implemented by combining the existing rules
 """"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
-For the rules that cannot be implemented by combining \ ``@Pattern``\ , \ ``@Size``\ , \ ``@Min``\ , \ ``@Max``\, implement \ ``javax.validation.ConstraintValidator``\.
+For the rules that cannot be implemented by combining \ ``@Pattern``\ , \ ``@Size``\ , \ ``@Min``\ , \ ``@Max``\ , implement \ ``javax.validation.ConstraintValidator``\ .
 
 For example, rules that check ISBN (International Standard Book Number)-13 format are given.
 
@@ -2538,7 +2696,7 @@ For example, rules that check ISBN (International Standard Book Number)-13 forma
      :header-rows: 1
      :widths: 10 90
 
-     * - S.No.
+     * - Sr. No.
        - Description
      * - | (1)
        - | Specify the \ ``ConstraintValidator``\  implementation class which will get executed when this annotation is used. Multiple constraints can also be specified.
@@ -2593,7 +2751,7 @@ For example, rules that check ISBN (International Standard Book Number)-13 forma
      :header-rows: 1
      :widths: 10 90
 
-     * - S.No.
+     * - Sr. No.
        - Description
      * - | (1)
        - | Specify target annotation and field type in generics parameter.
@@ -2602,7 +2760,7 @@ For example, rules that check ISBN (International Standard Book Number)-13 forma
      * - | (3)
        - | Implement input validation in \ ``isValid``\  method.
      * - | (4)
-       - | Consider input value as correct in case of \ ``null``\.
+       - | Consider input value as correct in case of \ ``null``\ .
      * - | (5)
        - | Check ISBN-13 format.
 
@@ -2667,7 +2825,7 @@ Set constraint of assigning "confirm" as the prefix of confirmation field.
      :header-rows: 1
      :widths: 10 90
 
-     * - S.No.
+     * - Sr. No.
        - Description
      * - | (1)
        - | Narrow down the target of using this annotation, such that it can be added only to class or annotation.
@@ -2725,7 +2883,7 @@ Set constraint of assigning "confirm" as the prefix of confirmation field.
      :header-rows: 1
      :widths: 10 90
 
-     * - S.No.
+     * - Sr. No.
        - Description
      * - | (1)
        - | Use \ ``org.springframework.beans.BeanWrapper``\  which is very convenient to access JavaBean properties.
@@ -2734,20 +2892,18 @@ Set constraint of assigning "confirm" as the prefix of confirmation field.
      * - | (3)
        - | Disable the creation of default \ ``ConstraintViolation``\  object.
      * - | (4)
-       - | Create independent \ ``ConstraintViolation``\  object.
+       - | Create an independent \ ``ConstraintViolation``\  object.
          | Define message to be output in \ ``ConstraintValidatorContext.buildConstraintViolationWithTemplate``\ .
-         | Specify field name to output error message in \ ``ConstraintViolationBuilder.addPropertyNode``\.
-         | Refer to \ `JavaDoc <http://docs.oracle.com/javaee/7/api/javax/validation/ConstraintValidatorContext.html>`_\ for details.
+         | Specify field name to output error message in \ ``ConstraintViolationBuilder.addPropertyNode``\ .
+         | Refer to \ `JavaDoc <http://docs.oracle.com/javaee/7/api/javax/validation/ConstraintValidatorContext.html>`_\  for details.
 
  .. tip::
 
-    \ ``ConstraintViolationBuilder.addPropertyNode`` \ method has been added from the Bean Validation 1.1.
+    \ ``ConstraintViolationBuilder.addPropertyNode``\  method has been added from the Bean Validation 1.1.
 
-    In the Bean Validation 1.0,
-    use the \ ``ConstraintViolationBuilder.addNode``\  method,
-    but it has becomes deprecated in the Bean Validation 1.1.
+    \ ``ConstraintViolationBuilder.addNode``\  method had been used in Bean Validation 1.0; however, it is a deprecated API from Bean Validation 1.1.
 
-    Refer to the \ `Bean Validation API Document (Deprecated API) <http://docs.jboss.org/hibernate/beanvalidation/spec/1.1/api/deprecated-list.html>`_\  for the list of deprecated API of Bean Validation.
+    For deprecated API of Bean Validation, refer to \ `Bean Validation API Document (Deprecated API) <http://docs.jboss.org/hibernate/beanvalidation/spec/1.1/api/deprecated-list.html>`_\ .
 
 
 Check below for the changes, if the "Reset password" is re-implemented using \ ``@Confirm``\  annotation.
@@ -2776,7 +2932,7 @@ Check below for the changes, if the "Reset password" is re-implemented using \ `
 
         private String confirmPassword;
 
-        // omitted geter/setter
+        // omitted getter/setter
     }
 
   .. tabularcolumns:: |p{0.10\linewidth}|p{0.90\linewidth}|
@@ -2784,15 +2940,15 @@ Check below for the changes, if the "Reset password" is re-implemented using \ `
      :header-rows: 1
      :widths: 10 90
 
-     * - S.No.
+     * - Sr. No.
        - Description
      * - | (1)
        - | Assign \ ``@Confirm``\  annotation at class level.
-         | By this, form object is passed as an argument to \ ``ConstraintValidator.isValid``\.
+         | By this, form object is passed as an argument to \ ``ConstraintValidator.isValid``\ .
 
 * Controller class
 
-  There is no need to inject Validator and add Validator using \ ``@InitBinder``\.
+  There is no need to inject Validator and add Validator using \ ``@InitBinder``\ .
 
   .. code-block:: java
 
@@ -2840,7 +2996,7 @@ Business logic check
 | Accordingly, it is expected that, \ :ref:`they will be normally displayed at the top of the screen <message-display>`\ .
 
 However, there are cases, where business logic error message (such as, "whether the entered user name is already registered") of target input field is to be displayed next to the field.
-In such a case, service class is injected in Validator class and business logic check is executed in \ ``ConstraintValidator.isValid``\. 
+In such a case, service class is injected in Validator class and business logic check is executed in \ ``ConstraintValidator.isValid``\ . 
 
 An example of implementing, "whether the entered user name is already registered" in Bean Validation is shown below.
 
@@ -2940,7 +3096,7 @@ An example of implementing, "whether the entered user name is already registered
      :header-rows: 1
      :widths: 10 90
 
-     * - S.No.
+     * - Sr. No.
        - Description
      * - | (1)
        - | Settings to enable component scan of the Validator class.
@@ -2957,8 +3113,8 @@ Appendix
 
 Input validation rules provided by Hibernate Validator
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-| Hibernate Validator provides additional validation annotations, in addition to the annotation defined in Bean Validation.
-| Refer to \ `<http://docs.jboss.org/hibernate/validator/5.1/reference/en-US/html/chapter-bean-constraints.html#section-builtin-constraints>`_\ for the annotation list that can be used for validation.
+| Hibernate Validator provides additional validation annotations, in addition to the annotations defined in Bean Validation.
+| Refer to \ `Here <http://docs.jboss.org/hibernate/validator/5.1/reference/en-US/html/chapter-bean-constraints.html#section-builtin-constraints>`_\ for the annotation list that can be used for validation.
 
 .. _Validation_jsr303_doc:
 
@@ -3009,12 +3165,14 @@ Refer to Chapter 7 \ `Bean Validation specification <http://download.oracle.com/
    * - \ ``@DecimalMin``\
      - BigDecimal, BigInteger, String, byte, short, int, long and wrapper
        (In case of Hibernate Validator implementation, it is also possible to use it with arbitrary CharSequence, Number inherited class.)
-     - Validate whether the Decimal value is greater than the minimum value.
+     - |Validate whether the Decimal value is greater than or equal to the minimum value.
+       | By specifying \ ``inclusive = false``\ , it is possible to change to an operation so as to validate whether the value is greater than the minimum value.
      - Refer @DecimalMax
    * - \ ``@DecimalMax``\
      - BigDecimal, BigInteger, String, byte, short, int, long and wrapper
        (In case of Hibernate Validator implementation, it is also possible to use it with arbitrary CharSequence, Number inherited class.)
-     - Validate whether the Decimal value is less than the maximum value.
+     - | Validate whether the decimal value is less than or equal to the maximum value.
+       | By specifying \ ``inclusive = false``\ , it is possible to change to an operation so as to validate whether the value is less than the maximum value.
      - | @DecimalMin("0.0")
        | @DecimalMax("99999.99")
        | private BigDecimal price;
@@ -3038,17 +3196,17 @@ Refer to Chapter 7 \ `Bean Validation specification <http://download.oracle.com/
        | private boolean checked;
    * - \ ``@AssertFalse``\
      - boolean,Boolean
-     - Validate that the target field is 'false'
+     - Validate whether the target field is 'false'
      - | @AssertFalse
        | private boolean checked;
    * - \ ``@Future``\
-     - Date, Calender
+     - Date, Calendar
        (In case of Hibernate Validator implementation, it is also applicable to Joda-Time class)
      - Validate whether it is a future date.
      - | @Future
        | private Date eventDate;
    * - \ ``@Past``\
-     - Date, Calender
+     - Date, Calendar
        (In case of Hibernate Validator implementation, it is also applicable to Joda-Time class)
      - Validate whether it is a past date.
      - | @Past
@@ -3062,6 +3220,14 @@ Refer to Chapter 7 \ `Bean Validation specification <http://download.oracle.com/
        | @Valid
        | private Dept dept;
 
+.. tip::
+
+     \ ``inclusive``\  attribute of \ ``@DecimalMin``\  and \ ``@DecimalMax``\  annotation is,
+     an attribute added from Bean Validation 1.1.
+
+     By specifying \ ``true``\  (to allow same value of specified threshold) to the default value of \ ``inclusive``\  attribute,
+     compatibility with Bean Validation 1.0 is maintained.
+
 
 .. _Validation_validator_list:
 
@@ -3070,7 +3236,7 @@ Hibernate Validator check rules
 
 All the major annotations of Hibernate Validator are shown below.
 
-Refer to \ `Hibernate Validator specifications <http://docs.jboss.org/hibernate/validator/5.1/reference/en-US/html/chapter-bean-constraints.html#validator-defineconstraints-hv-constraints>`_\ for details.
+Refer to \ `Hibernate Validator specifications <http://docs.jboss.org/hibernate/validator/5.1/reference/en-US/html/chapter-bean-constraints.html#validator-defineconstraints-hv-constraints>`_\  for details.
 
 .. tabularcolumns:: |p{0.25\linewidth}|p{0.25\linewidth}|p{0.25\linewidth}|p{0.25\linewidth}|
 .. list-table::
@@ -3081,12 +3247,13 @@ Refer to \ `Hibernate Validator specifications <http://docs.jboss.org/hibernate/
      - Application
      - Usage example
    * - \ ``@CreditCardNumber``\
-     - It is applicable to the any CharSequence inherited class
-     - Validate whether the credit card number is valid as per Luhn algorithm. It does not check whether the credit card number is available.
+     - It is applicable to any CharSequence inherited class
+     - | Validate whether the credit card number is valid as per Luhn algorithm. It does not necessarily check whether the credit card number is available.
+       | By specifying \ ``ignoreNonDigitCharacters = true``\ , it is possible to validate by ignoring non-numeric characters.
      - | @CreditCardNumber
        | private String cardNumber;
    * - \ ``@Email``\
-     - It is applicable to the any CharSequence inherited class
+     - It is applicable to any CharSequence inherited class
      - Validate whether the Email address is complaint with RFC2822.
      - | @Email
        | private String email;
@@ -3107,7 +3274,26 @@ Refer to \ `Hibernate Validator specifications <http://docs.jboss.org/hibernate/
      - | @NotEmpty
        | private String password;
 
+.. warning::
 
+    When following annotations provided by Hibernate Validator are used,
+    if a default message is used, a bug that the message is not generated correctly \ `HV-881 <https://hibernate.atlassian.net/browse/HV-881>`_\ , \ `HV-949 <https://hibernate.atlassian.net/browse/HV-949>`_\ ) occurs.
+
+    * \ ``@CreditCardNumber``\ (message is displayed, but WARN log is output)
+    * \ ``@LuhnCheck``\
+    * \ ``@Mod10Check``\
+    * \ ``@Mod11Check``\
+    * \ ``@ModCheck``\ (deprecated API from 5.1.0.Final)
+
+    This bug occurs because of the flaws in message definitions provided by default,
+    and it is possible to avoid them by overwriting the default messages by an appropriate message.
+
+    In case of overwriting the default messages,
+    it is advisable to define an appropriate message 
+    by creating :file:`ValidationMessages.properties` directly under the class path (normal src/main/resources).
+
+    For appropriate message definition, refer to:
+    \ `Modifications for Hibernate Validator 5.2 version (next minor version upgrade) <https://github.com/hibernate/hibernate-validator/commit/5a9d7bae26bccb15229ae5612d67506a7a775b48#diff-762e02c90cfb2f00b0b2788486e3fd5e>`_\ .
 
 .. _Validation_default_message_in_hibernate_validator:
 
@@ -3120,8 +3306,8 @@ In hibernate-validator-<version>.jar, there is a ValidationMessages.properties f
 
   javax.validation.constraints.AssertFalse.message = must be false
   javax.validation.constraints.AssertTrue.message  = must be true
-  javax.validation.constraints.DecimalMax.message  = must be less than or equal to {value}
-  javax.validation.constraints.DecimalMin.message  = must be greater than or equal to {value}
+  javax.validation.constraints.DecimalMax.message  = must be less than ${inclusive == true ? 'or equal to ' : ''}{value}
+  javax.validation.constraints.DecimalMin.message  = must be greater than ${inclusive == true ? 'or equal to ' : ''}{value}
   javax.validation.constraints.Digits.message      = numeric value out of bounds (<{integer} digits>.<{fraction} digits> expected)
   javax.validation.constraints.Future.message      = must be in the future
   javax.validation.constraints.Max.message         = must be less than or equal to {value}
@@ -3132,19 +3318,25 @@ In hibernate-validator-<version>.jar, there is a ValidationMessages.properties f
   javax.validation.constraints.Pattern.message     = must match "{regexp}"
   javax.validation.constraints.Size.message        = size must be between {min} and {max}
 
-  org.hibernate.validator.constraints.CreditCardNumber.message = invalid credit card number
-  org.hibernate.validator.constraints.Email.message            = not a well-formed email address
-  org.hibernate.validator.constraints.Length.message           = length must be between {min} and {max}
-  org.hibernate.validator.constraints.NotBlank.message         = may not be empty
-  org.hibernate.validator.constraints.NotEmpty.message         = may not be empty
-  org.hibernate.validator.constraints.Range.message            = must be between {min} and {max}
-  org.hibernate.validator.constraints.SafeHtml.message         = may have unsafe html content
-  org.hibernate.validator.constraints.ScriptAssert.message     = script expression "{script}" didn't evaluate to true
-  org.hibernate.validator.constraints.URL.message              = must be a valid URL
-  org.hibernate.validator.constraints.br.CNPJ.message          = invalid Brazilian corporate taxpayer registry number (CNPJ)
-  org.hibernate.validator.constraints.br.CPF.message           = invalid Brazilian individual taxpayer registry number (CPF)
-  org.hibernate.validator.constraints.br.TituloEleitor.message = invalid Brazilian Voter ID card number
+  org.hibernate.validator.constraints.CreditCardNumber.message        = invalid credit card number
+  org.hibernate.validator.constraints.EAN.message                     = invalid {type} barcode
+  org.hibernate.validator.constraints.Email.message                   = not a well-formed email address
+  org.hibernate.validator.constraints.Length.message                  = length must be between {min} and {max}
+  org.hibernate.validator.constraints.LuhnCheck.message               = The check digit for ${validatedValue} is invalid, Luhn Modulo 10 checksum failed
+  org.hibernate.validator.constraints.Mod10Check.message              = The check digit for ${validatedValue} is invalid, Modulo 10 checksum failed
+  org.hibernate.validator.constraints.Mod11Check.message              = The check digit for ${validatedValue} is invalid, Modulo 11 checksum failed
+  org.hibernate.validator.constraints.ModCheck.message                = The check digit for ${validatedValue} is invalid, ${modType} checksum failed
+  org.hibernate.validator.constraints.NotBlank.message                = may not be empty
+  org.hibernate.validator.constraints.NotEmpty.message                = may not be empty
+  org.hibernate.validator.constraints.ParametersScriptAssert.message  = script expression "{script}" didn't evaluate to true
+  org.hibernate.validator.constraints.Range.message                   = must be between {min} and {max}
+  org.hibernate.validator.constraints.SafeHtml.message                = may have unsafe html content
+  org.hibernate.validator.constraints.ScriptAssert.message            = script expression "{script}" didn't evaluate to true
+  org.hibernate.validator.constraints.URL.message                     = must be a valid URL
 
+  org.hibernate.validator.constraints.br.CNPJ.message                 = invalid Brazilian corporate taxpayer registry number (CNPJ)
+  org.hibernate.validator.constraints.br.CPF.message                  = invalid Brazilian individual taxpayer registry number (CPF)
+  org.hibernate.validator.constraints.br.TituloEleitoral.message      = invalid Brazilian Voter ID card number
 
 
 Type mismatch
@@ -3152,13 +3344,13 @@ Type mismatch
 
 Pertaining the non-String fields of the form object, if values which cannot be converted to the corresponding data-type have been submitted, \ ``org.springframework.beans.TypeMismatchException``\  is thrown.
 
-In the "New user registration" example, The data-type of "Age" is \ ``Integer``\. However, if the value entered in this field cannot be converted to an integer, error message is displayed as follows.
+In the "New user registration" example, The data-type of "Age" is \ ``Integer``\ . However, if the value entered in this field cannot be converted to an integer, error message is displayed as follows.
 
 .. figure:: ./images_Validation/validations-typemismatch1.png
   :width: 60%
 
 Cause of exception is displayed as it is and is not appropriate as an error message.
-It is possible to define the error message for type mismatch in the properties file (application-messages.properties) which is read by \ ``org.springframework.context.MessageSource``\.
+It is possible to define the error message for type mismatch in the properties file (application-messages.properties) which is read by \ ``org.springframework.context.MessageSource``\ .
 
 Error messages can be defined with the following rules.
 
@@ -3209,12 +3401,12 @@ Error message gets changed as shown below.
   :width: 60%
 
 
-| Field name can be inserted in the message by specifying \ ``{0}``\  in the message; This is as per the explaination in \ :ref:`Validation_message_in_application_messages`\.
+| Field name can be inserted in the message by specifying \ ``{0}``\  in the message; This is as per the description in \ :ref:`Validation_message_in_application_messages`\ .
 | \ **Default messages should be defined**\.
 
 .. tip::
 
-  Refer to \ `Javadoc <http://docs.spring.io/spring/docs/4.1.4.RELEASE/javadoc-api/org/springframework/validation/DefaultMessageCodesResolver.html>`_\ for the details of message key rules.
+  Refer to \ `Javadoc <http://docs.spring.io/spring/docs/4.1.4.RELEASE/javadoc-api/org/springframework/validation/DefaultMessageCodesResolver.html>`_\  for the details of message key rules.
 
 .. _Validation_string_trimmer_editor:
 
@@ -3225,7 +3417,7 @@ empty string instead of \ ``null``\  binds to form object by default.
 
 In this case, the conditions like "blank is allowed but if specified, it must have at least 6 characters" is not satisfied by the use of existing annotations.
 
-| To bind \ ``null``\  instead of empty string to the properties whichout any input,
+| To bind \ ``null``\  instead of empty string to the properties without any input,
 | \ ``org.springframework.beans.propertyeditors.StringTrimmerEditor``\  can be used as follows.
 
 .. code-block:: java
@@ -3247,6 +3439,13 @@ With the help of this configuration, it can be specified in the controller wheth
 
 \ :ref:`@ControllerAdvice <application_layer_controller_advice>`\  can be set as a configuration common to the entire project when you want to set reply empty string to \ ``null``\  in the entire project.
 
+
+.. tip:: **About attribute of @ControllerAdvice annotation added from Spring Framework 4.0**
+
+    By specifying attribute of \ ``@ControllerAdvice``\  annotation,
+    it has been improved to allow flexibility in specifying Controller to apply a method implemented in a class wherein \ ``@ControllerAdvice``\  is assigned.
+    For details about attribute refer to \ :ref:`Attribute of @ControllerAdvice <application_layer_controller_advice_attribute>`\ .
+
 .. code-block:: java
 
   @ControllerAdvice
@@ -3261,7 +3460,7 @@ With the help of this configuration, it can be specified in the controller wheth
       // omitted ...
   }
 
-| When this setting is made, all empty String values set to String fields of form object become \ ``null``\.
+| When this setting is made, all empty String values set to String fields of form object become \ ``null``\ .
 | Therefore it must be noted that, it becomes necessary to specify \ ``@NotNull``\  in case of mandatory check.
 
 

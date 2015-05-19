@@ -51,6 +51,8 @@ Escaping types:
  * JavaScript Escaping
  * Event handler Escaping
 
+.. _xss_how_to_use_ouput_escaping:
+
 Output Escaping
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 | Escaping HTML special characters is a fundamental countermeasure against XSS vulnerability.
@@ -119,6 +121,8 @@ Example of vulnerability when output values are not escaped
    :align: center
 
    **Picture - No Escape Result**
+
+.. _xss_how_to_use_h_function_example:
 
 Example of escaping output value using f:h() function
 """"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
@@ -202,6 +206,8 @@ Example of escaping output value using f:h() function
 
         There is no problem even if the above is a String; hence when \ ``<fmt:formatNumber>``\  tag is no longer used, \ ``f:h()``\ is being used explicitly so that no one forgets to use ``f:h()``.
 
+.. _xss_how_to_use_javascript_escaping:
+
 JavaScript Escaping
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 | Escaping JavaScript special characters is a fundamental countermeasure against XSS vulnerability.
@@ -280,6 +286,8 @@ Example of vulnerability when output values are not escaped
         Dynamically generated javascript code depending on user input carries a risk of any script being inserted; hence an alternate 
         way should be considered or it should be avoided as much as possible unless there is a specific business requirement.
 
+.. _xss_how_to_use_js_function_example:
+
 Example of escaping output value using f:js() function
 """"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 
@@ -312,6 +320,8 @@ Usage example is shown below.
         var aaa = '<script>\x3c\/script\x3e\x3cscript\x3ealert(\'XSS Attack!\');\x3c\/script\x3e<\/script>';
         document.write(aaa);
     </script>
+
+.. _xss_how_to_use_event_handler_escaping:
 
 Event handler Escaping
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
@@ -358,6 +368,8 @@ Example of vulnerability when output values are not escaped
     <!-- omitted -->
     <input type="text" onmouseover="alert('output is'); alert('XSS Attack!'); // .') ">
     <!-- omitted -->
+
+.. _xss_how_to_use_hjs_function_example:
 
 Example of escaping output value using f:hjs() function
 """"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""

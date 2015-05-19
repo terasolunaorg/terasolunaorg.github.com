@@ -1549,6 +1549,19 @@ The coding points in JSP while handling the exceptions are given below.
 #. :ref:`exception-handling-how-to-use-codingpoint-jsp-panel-label`
 #. :ref:`exception-handling-how-to-use-codingpoint-jsp-exceptioncode-label`
 
+.. tip::
+
+    When Internet Explorer is a support browser, 
+    implementation should be such that size of the HTML responded as error screen should be 513 bytes or more.
+
+    This is because in case of Internet Explorer, 
+    if the following three conditions such as
+    
+    * Response status code is Error (4xx and 5xx)
+    * Response HTML is 512 bytes or less
+    * Browser setting "Show Friendly HTTP Error Messages" is valid
+    
+    are satisfied, the mechanism is such that friendly messages created by Internet Explorer will be displayed.
 
 .. _exception-handling-how-to-use-codingpoint-jsp-panel-label:
 

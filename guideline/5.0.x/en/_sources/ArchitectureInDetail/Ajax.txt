@@ -193,6 +193,49 @@ Prerequisites for the sample code explained hereafter, are as follows.
 * Response data should be in JSON format.
 * JQuery should be used at client side. It should be the latest version of 1.x series (1.10.2), which is used while writing this document.
 
+.. warning:: **Measures to circular reference**
+
+    When you serialize a JavaBean in JSON or XML format using \ ``HttpMessageConverter``\  and
+    if property holds an object of cross reference relationship,
+    the \ ``StackOverflowError``\  and \ ``OutOfMemoryError``\  occur due to circular reference, hence it is necessary to exercise caution.
+
+    In order to avoid a circular reference,
+
+    * \ ``@com.fasterxml.jackson.annotation.JsonIgnore``\  annotation to exclude the property from serialization in case of serialized in JSON format using the Jackson
+    * \ ``@javax.xml.bind.annotation.XmlTransient``\  annotation to exclude the property from serialization in case of serialized in XML format using the JAXB
+
+    can be added.
+
+    Below is the example of how to exclude specific field from serialization while serializing in JSON format using the Jackson.
+
+     .. code-block:: java
+
+         public class Order {
+             private String orderId;
+             private List<OrderLine> orderLines;
+             // ...
+         }
+
+     .. code-block:: java
+
+         public class OrderLine {
+             @JsonIgnore
+             private Order order;
+             private String itemCode;
+             private int quantity;
+             // ...
+         }
+
+     .. tabularcolumns:: |p{0.10\linewidth}|p{0.90\linewidth}|
+     .. list-table::
+         :header-rows: 1
+         :widths: 10 90
+
+         * - Sr. No.
+           - Description
+         * - | (1)
+           - The \ ``@JsonIgnore``\ annotation is added to exclude the property from serialization.
+
 |
 
 Fetching data

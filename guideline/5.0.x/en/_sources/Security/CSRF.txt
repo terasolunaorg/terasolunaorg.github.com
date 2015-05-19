@@ -281,39 +281,27 @@ Following HTML is output.
 
 CSRF token is created at login.
 
-.. warning::
+.. tip::
 
-  When \ ``CsrfRequestDataValueProcessor``\  settings are carried out, in order to insert CSRF tokens in all requests, if form is sent by specifying GET using \ ``<form:form>``\ 
-  same as in \ ``<form:form method="GET" ...>...</form:form>``\ , CSRF token is included in the URL of browser address bar and remains in the bookmark bar and access log.
-  
-  In order to avoid this, instead of writing,
+    If \ ``CsrfRequestDataValueProcessor``\ is used in Spring 4,
+    CSRF token inserted \ ``<input type="hidden">``\ tag is output,
+    only if the value specified in \ ``method``\  attribute of \ ``<form:form>``\  tag matches with HTTP methods (HTTP methods other than GET, HEAD, TRACE, OPTIONS in Spring Security default implementation) of CSRF token check.
 
-    .. code-block:: jsp
-    
-      <form:form method="GET" modelAttribute="xxxForm" action="...">
-      ...
-      </form:form>
-  
-it is advisable to write the code as 
-  
-    .. code-block:: jsp
-    
-      <form method="GET" action="...">
-        <spring:nestedPath path="xxxForm">
-        ...
-        </spring:nestedPath>
-      </form>`
+    For example, when GET method is specified in \ ``method``\  attribute as shown below,
+    CSRF token inserted \ ``<input type="hidden">``\  tag is not output. 
 
+        .. code-block:: jsp
 
+            <form:form method="GET" modelAttribute="xxxForm" action="...">
+                <%-- ... --%>
+            </form:form>
 
-  In \ `OWASP Top 10 <https://code.google.com/p/owasptop10/>`_\ , it is explained as,
-  
-      The unique token can also be included in the URL itself, or a URL parameter. However, such placement runs a greater risk that the URL will be exposed to an attacker, thus compromising the secret token.
-  
-  It is recommended to deal with this issue although the same is not mandatory.
-  
-  For Spring Security default implementation, CSRF token is created as UUID without using Session ID. As a result, Session ID is not revealed even if CSRF token is revealed. Further, CSRF token is changed at each login.
-  In future, this issue will be resolved in Spring 4 (CSRF token will not appear in URL even if \ ``<form:form method="GET">``\  is used).
+    This is as per the following explanation
+
+        The unique token can also be included in the URL itself, or a URL parameter. However, such placement runs a greater risk that the URL will be exposed to an attacker, thus compromising the secret token.
+
+    in \ `OWASP Top 10 <https://code.google.com/p/owasptop10/>`_\  and it helps in building a secure Web application.
+
 
 .. _csrf_formtag-use:
 
@@ -456,11 +444,24 @@ Hence, countermeasures need to be implemented using any one of the following met
 * Using \ ``org.springframework.web.multipart.support.MultipartFilter``\ .
 * Sending CSRF token using query parameter
 
+.. note::
+
+    Since there are merits and demerits respectively, determine the countermeasure method to be used by considering system requirements.
+
+For file upload details, refer to \ :doc:`FileUpload <../ArchitectureInDetail/FileUpload>`\ .
+
+
 How to use MultipartFilter
 """"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 | In case of multipart request, normally the value sent from form cannot be fetched in \ ``Filter``\ .
 | By using \ ``org.springframework.web.multipart.support.MultipartFilter``\ , the value sent by form 
 | can be fetched in \ ``Filter``\  even for a multipart request.
+
+.. warning::
+
+    When \ ``MultipartFilter``\  is used, the upload process is carried out before authentication/authorization is performed using \ ``springSecurityFilterChain``\ ,
+    thereby allowing unauthenticated/unauthorized user to carry out uploading (temporary file creation).
+
 
 To use \ ``MultipartFilter``\ , following settings are recommended.
 
@@ -528,8 +529,27 @@ To use \ ``MultipartFilter``\ , following settings are recommended.
        | **When using <form> tag**
        | CSRF token should be set by \ :ref:`csrf_formtag-use`\ .
 
+
 How to send CSRF token using query parameter
 """"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
+
+To avoid uploading (temporary file creation) by unauthorized/unauthenticated user,
+it is necessary to send CSRF token in query parameter without using \ ``MultipartFilter``\ .
+
+.. warning::
+
+    When CSRF token is sent by this method,
+
+    * CSRF token is displayed in browser address bar
+    * When bookmarked, CSRF token is registered in bookmark
+    * CSRF token is registered in access log of Web server 
+
+    Therefore, risk of misusing CSRF token by attacker is higher as compared to the method of using \ ``MultipartFilter``\ .
+
+    As per default implementation of Spring Security, random UUID is generated as CSRF token value,
+    therefore, session would not be hijacked even though CSRF token is leaked temporarily.
+
+Following is an example of implementation wherein CSRF token is sent as query parameter.
 
 **JSP implementation**
 
@@ -559,15 +579,6 @@ How to send CSRF token using query parameter
        | \ ``?${f:h(_csrf.parameterName)}=${f:h(_csrf.token)}``\
        | Same setting is required even when using \ ``<form>``\  tag.
 
-| For file upload details, refer to \ :doc:`FileUpload <../ArchitectureInDetail/FileUpload>`\ .
-
-.. warning::
-
-  This method also has the problem mentioned earlier wherein, CSRF appears in the URL.
-  When using \ ``MultipartFilter``\ , the process by \ ``springSecurityFilterChain``\  is performed after upload.
-  As a result, upload by an unauthenticated user (temporary file creation) is allowed. When this needs to be prevented, it is necessary to send the CSRF token using query parameter.
-  
-  
 .. raw:: latex
 
    \newpage

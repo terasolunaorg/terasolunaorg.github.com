@@ -1225,6 +1225,8 @@ In such a case, HTML shown below is output in \ ``<t:messagesPanel />`` \ .
 Appendix
 --------------------------------------------------------------------------------
 
+.. _message-management-messagepanel-attribute:
+
 Changing attribute of <t:messagesPanel> tag
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
