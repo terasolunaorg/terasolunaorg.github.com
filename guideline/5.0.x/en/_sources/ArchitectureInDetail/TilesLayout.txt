@@ -104,7 +104,7 @@ pom.xml setting
 Integration of Spring MVC and Tiles
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-| ``org.springframework.web.servlet.view.tiles3.TilesViewResolver`` can be used to integrate Spring MVC and Tiles.
+| It is advisable to use ``org.springframework.web.servlet.view.tiles3.TilesViewResolver`` for integrating Spring MVC and Tiles.
 | Implementation of Spring MVC Controller (returning View name) need not be changed.
 
 How to configure is shown below.
@@ -113,28 +113,17 @@ How to configure is shown below.
 
 - spring-mvc.xml
 
- .. code-block:: guess
+ .. code-block:: xml
 
-    <bean id="viewResolver"
-        class="org.springframework.web.servlet.view.InternalResourceViewResolver"> <!-- (1) -->
-        <property name="prefix" value="/WEB-INF/views/" />
-        <property name="suffix" value=".jsp" />
-        <property name="order" value="2" />
-    </bean>
+    <mvc:view-resolvers>
+        <mvc:tiles /> <!-- (1) -->
+        <mvc:jsp prefix="/WEB-INF/views/" /> <!-- (2) -->
+    </mvc:view-resolvers>
 
-    <bean id="tilesViewResolver"
-        class="org.springframework.web.servlet.view.tiles3.TilesViewResolver"> <!-- (2) -->
-        <property name="order" value="1" />
-    </bean>
-
-    <bean id="tilesConfigurer"
-        class="org.springframework.web.servlet.view.tiles3.TilesConfigurer"> <!-- (3) -->
-        <property name="definitions">
-            <list>
-                <value>/WEB-INF/tiles/tiles-definitions.xml</value>
-            </list>
-        </property>
-    </bean>
+    <!-- (3) -->
+    <mvc:tiles-configurer>
+        <mvc:definitions location="/WEB-INF/tiles/tiles-definitions.xml" />
+    </mvc:tiles-configurer>
 
 
  .. tabularcolumns:: |p{0.10\linewidth}|p{0.90\linewidth}|
@@ -146,17 +135,55 @@ How to configure is shown below.
    * - Sr. No.
      - Description
    * - | (1)
-     - | Define InternalResourceViewResolver.
-       | jsp file saved under /WEB-INF/views/ is considered as the target.
-       | When it does not correspond to the configuration file tiles-definitions.xml that defines Tiles, by specifying "2" in 'order' of property definition, define the priority order so as to use ``org.springframework.web.servlet.view.InternalResourceViewResolver``.
-       | When file name of the jsp which is read does not match with the name attribute pattern of definition tag in Tiles definition file, ``org.springframework.web.servlet.view.InternalResourceViewResolver`` is used.
+     - Define \ ``TilesViewResolver``\  using \ ``<mvc:tiles>``\  element added from Spring Framework 4.1.
+
+       By defining it above \ ``<mvc:jsp>``\   element, first resolve \ ``View``\  by referring to Tiles definition file (:file:`tiles-definitions.xml`).
+       If View name returned from Controller matches with \ ``name``\  attribute pattern of \ ``definition``\  element in Tiles definition file, \ ``View``\  is resolved by \ ``TilesViewResolver``\ .
    * - | (2)
-     - | Define TilesViewResovler.
-       | Specify "1" in 'order' of property definition and define the priority so that configuration file tiles-definitions.xml is used first.
-       | When file name of the jsp which is read matches with the name attribute pattern of definition tag in Tiles definition file, ``org.springframework.web.servlet.view.tiles3.TilesViewResolver`` is used.
+     - Define \ ``InternalResourceViewResolver``\  for JSP using \ ``<mvc:jsp>``\  element added from Spring Framework 4.1.
+
+       By defining it below  \ ``<mvc:tiles>``\  element, resolve \ ``View``\  using "\ ``InternalResourceViewResolver``\  for JSP" only for the View names that could not be resolved using \ ``TilesViewResolver``\ .
+       If a JSP file corresponding to View name exists under \ ``/WEB-INF/views/``\  , \ ``View``\  is resolved by \ ``InternalResourceViewResolver``\  for JSP.
    * - | (3)
-     - | Specify the location of Tiles definition file.
-       | Read /WEB-INF/tiles/tiles-definitions.xml.
+     - Read Tiles definition file using \ ``<mvc:tiles-configurer>``\  element added from Spring Framework 4.1.
+
+       Specify Tiles definition file in \ ``location``\  attribute of \ ``<mvc:definitions>``\  element.
+
+
+ .. tip::
+
+    \ ``<mvc:view-resolvers>``\  element is an XML element added from Spring Framework 4.1.
+    If \ ``<mvc:view-resolvers>`` \  element is used, it is possible to define \ ``ViewResolver`` \  in a simple way.
+
+    Example of definition when \ ``<bean>``\  element is used in a conventional way is given below.
+
+
+     .. code-block:: xml
+        :emphasize-lines: 1-13
+
+        <bean id="tilesViewResolver"
+            class="org.springframework.web.servlet.view.tiles3.TilesViewResolver">
+            <property name="order" value="1" />
+        </bean>
+
+        <bean id="tilesConfigurer"
+            class="org.springframework.web.servlet.view.tiles3.TilesConfigurer">
+            <property name="definitions">
+                <list>
+                    <value>/WEB-INF/tiles/tiles-definitions.xml</value>
+                </list>
+            </property>
+        </bean>
+
+        <bean id="viewResolver"
+            class="org.springframework.web.servlet.view.InternalResourceViewResolver">
+            <property name="prefix" value="/WEB-INF/views/" />
+            <property name="suffix" value=".jsp" />
+            <property name="order" value="2" />
+        </bean>
+
+    In \ ``order``\ property, specify a value that is lesser than \ ``InternalResourceViewResolver``\  to ensure that it gets a high priority.
+
 
 **Tiles Definition**
 
@@ -263,16 +290,16 @@ Custom tag (TLD) needs to be set to use Tiles.
    * - Sr. No.
      - Description
    * - | (1)
-     - | Add the custom tag (TLD) definition for Tiles.
+     - | Add a custom tag (TLD) definition for Tiles.
    * - | (2)
-     - | Add the custom tag (TLD) definition for Tiles-extras.
+     - | Add a custom tag (TLD) definition for Tiles-extras.
 
-For custom tags details on View, refer to \ `Tiles Tag Reference <http://tiles.apache.org/framework/tiles-jsp/tagreference.html>`_\ .
+For details about custom tags of Tiles, refer to \ `Here <http://tiles.apache.org/framework/tiles-jsp/tagreference.html>`_\ .
 
 .. tip::
 
-    | Tiles version-2 had one taglib, but tiles-extras taglib is added in version-3.
-    | "useAttribute" tag move from tiles taglib to tiles-extras taglib in version-3, hence should be careful while using.
+    | Tiles version-2 had one taglib, but tiles-extras taglib is added from version-3.
+    | useAttribute tag which was available in tiles taglib in version-2 is moved to tiles-extras taglib from version-3, hence should be careful while using.
     | e.g. ) `<tiles:useAttribute>` : version 2 -> `<tilesx:useAttribute>` : version 3
 
 
@@ -462,7 +489,7 @@ perform the settings such that "staff/createForm" is returned from the Controlle
 **Creating screen**
 
 When ``<contextPath>/staff/create?form`` is called in request,
-Tiles constructs the layout and creates screen, as shown below.
+Tiles construct the layout and create screen, as shown below.
 
  .. code-block:: xml
 

@@ -119,18 +119,18 @@ Setting \ ``<sec:http>``\  element
        * - | \ ``<form-login>``\ 
          - | \ ``org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter``\  is enabled.
            | UsernamePasswordAuthenticationFilter is the Filter that performs authentication by extracting username and password from the request at the time of POST method.
-           | For details, refer \ :ref:`form-login`\ .
+           | For details, refer to \ :ref:`form-login`\ .
        * - | \ ``<http-basic>``\ 
          - | \ ``org.springframework.security.web.authentication.www.BasicAuthenticationFilter``\  is enabled.
            | BasicAuthenticationFilter is the filter that executes Basic authentication process according to RFC1945.
-           | For details, refer \ `BasicAuthenticationFilter JavaDoc <http://docs.spring.io/spring-security/site/docs/3.2.5.RELEASE/apidocs/org/springframework/security/web/authentication/www/BasicAuthenticationFilter.html>`_\ .
+           | For details on how to use, refer to \ `BasicAuthenticationFilter JavaDoc <http://docs.spring.io/spring-security/site/docs/3.2.5.RELEASE/apidocs/org/springframework/security/web/authentication/www/BasicAuthenticationFilter.html>`_\ .
        * - | \ ``<logout>``\ 
          - | \ ``org.springframework.security.web.authentication.logout.LogoutFilter``\ ,
            | \ ``org.springframework.security.web.authentication.logout.SecurityContextLogoutHandler``\  is enabled.
            | LogoutFilter is the Filter called at the time of Logout.
            | \ ``org.springframework.security.web.authentication.rememberme.TokenBasedRememberMeServices``\  (deleting Cookie) and,
            | SecurityContextLogoutHandler(disabling  session) is called.
-           | For details, refer \ :ref:`form-logout`\ .
+           | For details, refer to \ :ref:`form-logout`\ .
 
 .. _form-login:
 
@@ -182,12 +182,12 @@ spring-security.xml
      - | In \ ``default-target-url``\  attribute, specify the destination path when authentication is successful. 
        | When not specified, "/" will be the default path.
 
-       | When \ ``authentication-success-handler-ref``\ attribute is specified, this setting is not used.
+       | When \ ``authentication-success-handler-ref``\  attribute is specified, this setting is not used.
    * - | (3)
      - | Specify the path for performing authentication process in \ ``login-processing-url``\  attribute. 
-       | When not specified,"j_spring_security_check" will be the default path.
+       | When not specified, "j_spring_security_check" will be the default path.
 
-       | **This guideline recommends changing to a system specific value rather than using the default value  "j_spring_security_check", mentioned above.**\ In this example, "/authentication" is specified.
+       | **This guideline recommends changing to a system specific value rather than using the default value  "j_spring_security_check", mentioned above.**\  In this example, "/authentication" is specified.
    * - | (4)
      - | In \ ``always-use-default-target``\  attribute, specify whether it should always transit to the path specified in \ ``default-target-url``\  after a successful login.
        | When it is set as \ ``true``\ , it always transits to the path specified in \ ``default-target-url``\ .
@@ -196,18 +196,18 @@ spring-security.xml
        | When \ ``authentication-success-handler-ref``\  attribute is specified, this setting is not used. 
    * - | (5)
      - | In \ ``authentication-failure-url``\ , specify the destination when authentication fails.
-       | When not specified, path specified in  \ ``login-page``\  attribute is applicable.
+       | When not specified, the path specified in  \ ``login-page``\  attribute is applicable.
 
        | When \ ``authentication-failure-handler-ref``\  attribute is specified, this setting is not used.
    * - | (6)
      - | Specify the handler class to be called in case of a failed authentication, in \ ``authentication-failure-handler-ref``\  attribute.
-       | For details, refer \ :ref:`authentication-failure-handler-ref`\ .
+       | For details, refer to \ :ref:`authentication-failure-handler-ref`\ .
    * - | (7)
      - | Specify the handler class to be called in case of a successful authentication, in \ ``authentication-success-handler-ref``\  attribute.
 
 For attributes other than those mentioned above, refer to \ `Spring Security manual <http://docs.spring.io/spring-security/site/docs/3.2.5.RELEASE/reference/htmlsingle/#nsa-form-login>`_\ .
 
-.. warning:: **Why it is not recommended to use Spring Security default values, "/spring_security_login, /j_spring_security_check".**
+.. warning:: **Why it is not recommended to use Spring Security default values "/spring_security_login, /j_spring_security_check".**
 
   If default value is used, the fact that the application is using Spring Security is revealed.
   As a result, if any Spring Security related vulnerability is detected, there is a higher risk of receiving an attack due to the vulnerability.
@@ -273,13 +273,13 @@ Creating login form
      * - | (2)
        - | Output the exception message that is to be output at the time of authentication error.
          | It is recommended to output this message by specifying \ ``org.terasoluna.gfw.web.message.MessagesPanelTag``\  provided by common library.
-         | For the details of "\ ``<t:messagesPanel>``\" tag, refer \ :doc:`../ArchitectureInDetail/MessageManagement`\ .
+         | For details of "\ ``<t:messagesPanel>``\" tag, refer to \ :doc:`../ArchitectureInDetail/MessageManagement`\ .
 
 
- .. note:: **Regarding settings required for accessing exception object of authentication error from JSP**
+ .. note:: **Settings required while accessing exception object of authentication error from JSP**
 
     Exception object of authentication error is stored in session scope with the attribute name \ ``"SPRING_SECURITY_LAST_EXCEPTION"``\ .
-    \ ``session``\ attribute of \ ``page``\ directive of JSP should be set to \ ``true``\  for accessing the object stored in session scope from JSP.
+    \ ``session``\  attribute of JSP \ ``page``\  directive should be set to \ ``true``\  for accessing the object stored in session scope from JSP.
 
     * ``src/main/webapp/WEB-INF/views/common/include.jsp``
 
@@ -327,7 +327,7 @@ Creating login form
               }
           }
 
-      If the Controller with a single method that returns only the view name is necessary, \ ``<mvc:view-controller>``\  may be used.
+      If the Controller with a single method that returns only the view name is necessary, it is better to use \ ``<mvc:view-controller>``\  .
 
 
 Changing attribute name of login form
@@ -361,9 +361,11 @@ Changing attribute name of login form
      * - | (2)
        - | In \ ``password-parameter``\  attribute, \ ``name``\  attribute of input field  \ ``password``\  is changed to "password".
 
+.. _AuthenticationProviderConfiguration:
+
 Setting authentication process
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-In order to set the authentication process in Spring Security, define \ ``AuthenticationProvider``\  and \ ``UserDetailsService``\ .
+Define \ ``AuthenticationProvider``\  and \ ``UserDetailsService``\  in order to set the authentication process in Spring Security.
 
 \ ``AuthenticationProvider``\  plays the following roles.
 
@@ -401,13 +403,13 @@ They may also be combined.
      * - | (1)
        - | Define \ ``<sec:authentication-provider>``\  element in \ ``<sec:authentication-manager>``\  element. Authentication methods can be combined by specifying multiple elements. However it is not explained here.
      * - | (2)
-       - | Define \ ``AuthenticationProvider``\  in \ ``<sec:authentication-provider>``\  element. \ ``DaoAuthenticationProvider``\  is enabled by default. To specify an \ ``AuthenticationProvider``\  other than this, \ specify the Bean ID of target AuthenticationProvider, in `ref attribute <http://docs.spring.io/spring-security/site/docs/3.2.5.RELEASE/reference/htmlsingle/#nsa-authentication-provider>`_\ .
+       - | Define \ ``AuthenticationProvider``\  in \ ``<sec:authentication-provider>``\  element. \ ``DaoAuthenticationProvider``\  is enabled by default. To specify \ ``AuthenticationProvider``\  other than this, specify the Bean ID of target AuthenticationProvider, in \`ref attribute <http://docs.spring.io/spring-security/site/docs/3.2.5.RELEASE/reference/htmlsingle/#nsa-authentication-provider>`_\ .
          |
          | Specify the Bean Id of \ ``UserDetailsService``\  that fetches authenticated user information, in \ ``user-service-ref``\  attribute. This setting is mandatory when using \ ``DaoAuthenticationProvider``\ .
-         | For details, refer \ :ref:`userDetailsService`\ .
+         | For details, refer to \ :ref:`userDetailsService`\ .
      * - | (3)
        - | Specify the Bean ID of the class that encodes the password entered from Form, at the time of password verification.
-         | When it is not specified, password is handled in "Plain Text". For details, refer \ :doc:`PasswordHashing`\ .
+         | When it is not specified, password is handled in "Plain Text". For details, refer to \ :doc:`PasswordHashing`\ .
 
 
 | If the requirement is to perform authentication by fetching data from persistence layer using only the "User ID" and "Password", this \ ``DaoAuthenticationProvider``\  may be used.
@@ -440,11 +442,11 @@ In order to use \ ``JdbcDaoImpl``\ , it is advisable to perform following Bean d
     <property name="dataSource" ref="dataSource"/>
   </bean>
 
-| It is assumed that \ ``JdbcDaoImpl``\  defines the default SQL for fetching authenticated user information and authorization information and provides tables corresponding to these. For definitions of assumed tables, refer \ `Spring Security manual <http://docs.spring.io/spring-security/site/docs/3.2.5.RELEASE/reference/htmlsingle/#appendix-schema>`_\ .
+| It is assumed that \ ``JdbcDaoImpl``\  defines the default SQL for fetching authenticated user information and authorization information and provides tables corresponding to these. For definitions of assumed tables, refer to \ `Spring Security manual <http://docs.spring.io/spring-security/site/docs/3.2.5.RELEASE/reference/htmlsingle/#appendix-schema>`_\ .
 | To fetch user information and authorization information from existing tables, the SQL to be executed should be modified according to existing tables.
 | Following 3 SQLs are used.
 
-*  \ `User information acquisition query <http://docs.spring.io/spring-security/site/docs/3.2.5.RELEASE/apidocs/constant-values.html#org.springframework.security.core.userdetails.jdbc.JdbcDaoImpl.DEF_USERS_BY_USERNAME_QUERY>`_\
+*  \ `User information acquisition query <http://docs.spring.io/spring-security/site/docs/3.2.5.RELEASE/apidocs/constant-values.html#org.springframework.security.core.userdetails.jdbc.JdbcDaoImpl.DEF_USERS_BY_USERNAME_QUERY>`_\ 
 
   | By creating a table matching with the query that fetches user information, need of specifying the query to configuration file described later, is eliminated.
   | Fields namely, "username", "password" and "enabled" are mandatory
@@ -457,11 +459,11 @@ In order to use \ ``JdbcDaoImpl``\ , it is advisable to perform following Bean d
 
   | "User ID" described earlier in \ :ref:`form-login-JSP`\ , is specified in query parameter.
 
-* \ `User authorities acquisition query <http://docs.spring.io/spring-security/site/docs/3.2.5.RELEASE/apidocs/constant-values.html#org.springframework.security.core.userdetails.jdbc.JdbcDaoImpl.DEF_AUTHORITIES_BY_USERNAME_QUERY>`_\
+* \ `User authorities acquisition query <http://docs.spring.io/spring-security/site/docs/3.2.5.RELEASE/apidocs/constant-values.html#org.springframework.security.core.userdetails.jdbc.JdbcDaoImpl.DEF_AUTHORITIES_BY_USERNAME_QUERY>`_\ 
 
   | This query fetches authorization information for a user.
 
-* \ `Group authorities acquisition query <http://docs.spring.io/spring-security/site/docs/3.2.5.RELEASE/apidocs/constant-values.html#org.springframework.security.core.userdetails.jdbc.JdbcDaoImpl.DEF_GROUP_AUTHORITIES_BY_USERNAME_QUERY>`_\
+* \ `Group authorities acquisition query <http://docs.spring.io/spring-security/site/docs/3.2.5.RELEASE/apidocs/constant-values.html#org.springframework.security.core.userdetails.jdbc.JdbcDaoImpl.DEF_GROUP_AUTHORITIES_BY_USERNAME_QUERY>`_\ 
 
   | This query fetches authorization information of the group, to which the user belongs. 'Group authorities' is disabled by default and is also out of this guideline's scope.
 
@@ -526,7 +528,7 @@ Following is the example wherein, \ ``JdbcDaoImpl``\  is set through customizati
      - Description
    * - | (1)
      - | Specify the prefix of authorization name. When the authorization name stored on DB is "USER", this authenticated user object has the authorization name as "ROLE_USER".
-       | It is necessary to set the naming conventions and authorization functionality by combining them. For details of authorization functionality, refer \ :doc:`Authorization`\ .
+       | It is necessary to set the naming conventions and authorization functionality by combining them. For details of authorization functionality, refer to \ :doc:`Authorization`\ .
    * - | (2)     
      - | Specify this when the concept of "Group authorities" is to be used in authorization functionality.
        | Not handled in this guideline.
@@ -540,7 +542,7 @@ Following is the example wherein, \ ``JdbcDaoImpl``\  is set through customizati
 
 .. note::
     Authentication that cannot be implemented just by changing query, is necessary to be implemented by extending \ ``UserDetailsService``\ .
-    For extension methods, refer \ :ref:`extendsuserdetailsservice`\ .
+    For extension methods, refer to \ :ref:`extendsuserdetailsservice`\ .
 
 How to use \ ``UserDetails``\  class
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
@@ -552,7 +554,7 @@ How to use \ ``UserDetails``\  class
 Using \ ``UserDetails``\  object in Java class
 """"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 
-| After successful authentication, \ ``UserDetails``\  class
+| After a successful authentication, \ ``UserDetails``\  class
 | is stored in \ ``org.springframework.security.core.context.SecurityContextHolder``\ .
 
 Example of fetching \ ``UserDetails``\  from \ ``SecurityContextHolder``\  is shown below.
@@ -590,7 +592,7 @@ Example of fetching \ ``UserDetails``\  from \ ``SecurityContextHolder``\  is sh
 While the method for fetching \ ``UserDetails``\  object from \ ``SecurityContextHolder``\  is convenient as it can be used from anywhere by static method,
 it ends up increasing module coupling. Testing is also difficult to execute.
 
-| \ ``UserDetails``\  object can be fetched by using \ ``@AuthenticationPrincipal``\ .
+| \ ``UserDetails``\  object can be fetched using \ ``@AuthenticationPrincipal``\ .
 | To use \ ``@AuthenticationPrincipal``\ , it is necessary to set \ ``org.springframework.security.web.bind.support.AuthenticationPrincipalArgumentResolver``\  in \ ``<mvc:argument-resolvers>``\ .
 
 - :file:`spring-mvc.xml`
@@ -608,7 +610,7 @@ it ends up increasing module coupling. Testing is also difficult to execute.
     </mvc:annotation-driven>
 
 
-As shown below, \ ``UserDetails``\  object can be fetched in Spring MVC Controller, without using \ ``SecurityContextHolder``\ .
+As shown below, \ ``UserDetails``\  object can be fetched in Spring MVC Controller without using \ ``SecurityContextHolder``\ .
 
 .. code-block:: java
 
@@ -629,16 +631,16 @@ As shown below, \ ``UserDetails``\  object can be fetched in Spring MVC Controll
    * - Sr. No.
      - Description
    * - | (1)
-     - | Fetch the information of logged-in user using \ ``@AuthenticationPrincipal``\ .
+     - | Fetch information of logged-in user using \ ``@AuthenticationPrincipal``\ .
    * - | (2)
      - | Fetch account information from \ ``SampleUserDetails``\ .
 
 .. note::
 
-    The type of argument attached with \ ``@AuthenticationPrincipal``\  annotation, needs to be the class that inherits \ ``UserDetails``\  type.
-    Usually, it is better to use the \ ``UserDetails``\  inheritance class that is created by using \ :ref:`extendsuserdetailsservice`\ .
+    The type of argument attached with \ ``@AuthenticationPrincipal``\  annotation, needs to be a class that inherits \ ``UserDetails``\  type.
+    Usually, it is better to use \ ``UserDetails``\  inheritance class that is created using \ :ref:`extendsuserdetailsservice`\ .
 
-    \ ``SampleUserDetails``\  class is the class created by using \ :doc:`Tutorial`\ . For details, refer \ :ref:`Tutorial_CreateAuthService`\ .
+    \ ``SampleUserDetails``\  class is a class created using \ :doc:`Tutorial`\ . For details, refer to \ :ref:`Tutorial_CreateAuthService`\ .
 
 \ **This method is recommended when accessing UserDetails object in Controller**\ .
 
@@ -659,7 +661,7 @@ Accessing \ ``UserDetails``\  in JSP
 
 .. note::
 
-  \ `It is already set in WEB-INF/views/common/include.jsp when using TERASOLUNA Server Framework for Java (5.x) sample <https://github.com/terasolunaorg/terasoluna-gfw-web-blank>`_\ .
+  It is already set in WEB-INF/views/common/include.jsp when using \ `TERASOLUNA Server Framework for Java (5.x) template <https://github.com/terasolunaorg/terasoluna-gfw-web-blank>`_\ .
 
 | An example of using JSP for displaying authentication is as follows:
 
@@ -707,7 +709,7 @@ Accessing \ ``UserDetails``\  in JSP
   \ ``UserDetails``\  created by \ ``JdbcDaoImpl``\  which is explained in :ref:`userDetailsService`\ , stores only the minimum required information such as "User ID" and "Authority".
 
   When other information related to the user such as "User name" etc. is required to be displayed as screen fields, it is necessary to extend \ ``UserDetails``\  and  \ ``UserDetailsService``\ .
-  For extension methods, please refer, \ :ref:`extendsuserdetailsservice`\ .
+  For extension methods, refer to \ :ref:`extendsuserdetailsservice`\ .
 
 
 .. _authentication(spring_security)_how_to_use_sessionmanagement:
@@ -715,7 +717,8 @@ Accessing \ ``UserDetails``\  in JSP
 Session management in Spring Security
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 | How to create session information at login and how to perform the settings when an exception occurs, is explained here.
-| By specifying \ ``<session-management>``\  tag, \ ``org.springframework.security.web.session.SessionManagementFilter``\  is enabled.
+| Session management method can be customized by specifying \ ``<session-management>``\  tag.
+
 | Following is the configuration example of spring-security.xml
 
 
@@ -726,8 +729,7 @@ Session management in Spring Security
     <sec:session-management
       invalid-session-url="/"
       session-authentication-error-url="/"
-      session-fixation-protection="migrateSession"
-      session-authentication-strategy-ref="sessionStrategy" /><!-- Perform steps (2) to (5) in the specified order of attribute -->
+      session-fixation-protection="migrateSession" /><!-- Steps (2) to (4) in the specified order of attribute -->
     <!-- omitted -->
   </sec:http>
 
@@ -739,73 +741,116 @@ Session management in Spring Security
    * - Sr. No.
      - Description
    * - | (1)
-     - | Specify the policy of creating session in \ ``create-session``\  attribute.
+     - | Specify the policy for creating session in \ ``create-session``\  attribute of \ ``<http>``\  tag.
        | Following values can be specified.
-       | \ ``always``\ : Spring Security creates a new session in case there is no existing session and it reuses a session that it already existing.
-       | \ ``ifRequired``\ : Spring Security creates a session if required. It is a default setting. If a session already exists, it reuses this session without creating a new one.
-       | \ ``never``\ : Spring Security does not create a session but reuses an existing session.
-       | \ ``stateless``\ : Spring Security neither creates a session nor uses an existing one. As a result, authentication is required each time.
+
+       * | \ ``always``\ :
+         | Spring Security creates a new session in case there is no existing session and it reuses a session if it already exists.
+
+       * | \ ``ifRequired``\  : (default)
+         | Spring Security creates a session if required. It reuses the session instead of creating a new one, if it already exists.
+
+
+       * | \ ``never``\ :
+         | Spring Security does not create a session but reuses an existing session if any.
+
+       * | \ ``stateless``\ :
+         | Spring Security neither creates a session nor uses an existing one if any. As a result, authentication is required each time.
    * - | (2)
-     - | Specify the transition path when an invalid session ID is requested in \ ``invalid-session-url``\  attribute.
-       | When the path is not set, transit to a path which is dependent on \ ``org.springframework.security.web.session.SimpleRedirectInvalidSessionStrategy``\
-       | setting.
+     - | Specify the transition path when an invalid session ID is requested (session time-out) in \ ``invalid-session-url``\  attribute.
+       | When not specified, a subsequent process is called without executing session existence check. 
+       | For details, refer to ":ref:`authentication_session-timeout`".
    * - | (3)
-     - | When an exception occurs in \ ``org.springframework.security.web.authentication.session.SessionAuthenticationStrategy``\ 
-       | specify the transition path in \ ``session-authentication-error-url``\  attribute.
-       | When not specified, it is dependent on \ ``org.springframework.security.web.authentication.SimpleUrlAuthenticationFailureHandler``\
-       | setting. 
-   * - | (4)
-     - | Specify the session management system in \ ``session-fixation-protection``\  attribute.
-       | Following values can be specified.
-       | \ ``migrateSession``\: It inherits the session information before login (Copy) and only creates a new ID. This is a default setting.
-       | \ ``newSession``\: It creates new session details and new ID without inheriting the session information before login.
+     - | When an exception occurs in \ ``org.springframework.security.web.authentication.session.SessionAuthenticationStrategy``\ , specify the transition path in \ ``session-authentication-error-url``\  attribute.
+       | When not specified, "401 Unauthorized" is set in response code and error response is sent.
        |
-       | The aim of this functionality is to prevent \ `Session fixation attack <http://docs.spring.io/spring-security/site/docs/3.2.5.RELEASE/reference/htmlsingle/#ns-session-fixation>`_\  by allocating new session ID for each login. Therefore, it is recommended to use this default setting, unless there are other clear reasons for not using it.
-   * - | (5)
-     - | Specify the Bean ID of \ ``org.springframework.security.core.Authentication.SessionAuthenticationStrategy``\  class that decides the session check behavior in \ ``session-authentication-strategy-ref``\  attribute.
+       | This setting is not used when authentication is performed using \ ``<form-login>``\  tag. An exception occurred in \ ``SessionAuthenticationStrategy``\  is handled according to the definition of \ ``authentication-failure-handler-ref``\  attribute or \ ``authentication-failure-url``\  attribute of \ ``<form-login>``\  tag.
+   * - | (4)
+     - | Specify the session management system of successful authentication in \ ``session-fixation-protection``\  attribute.
+       | Following values can be specified.
 
+       * | \ ``none``\ :
+         | It uses the session before login as it is.
 
-Setting \ ``SessionAuthenticationStrategy``\ 
+       * | \ ``migrateSession``\ : (default on container prior to Servlet 3.0)
+         | It discards the session before login and creates a new one. It inherits the session information before login.
+
+       * | \ ``changeSessionId``\ : (default on container on Servlet 3.1 and subsequent versions)
+         | It changes the session ID using \ ``javax.servlet.http.HttpServletRequest#changeSessionId()``\  method added from Servlet 3.1.
+
+       * | \ ``newSession``\ :
+         | It discards the session before login and creates a new one. It does not inherit the session information before login.
+
+       | The objective of this functionality is to prevent \ `Session fixation attack <http://docs.spring.io/spring-security/site/docs/3.2.5.RELEASE/reference/htmlsingle/#ns-session-fixation>`_\  by allocating a new session ID for each login. Therefore, it is recommended to use this default setting unless there are other clear reasons for not using it.
+
+|
+
+.. _authentication_session-timeout:
+
+Detecting session time-out
 """"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 
-Configuration example of \ ``SessionAuthenticationStrategy``\  is shown below.
+When session time-out is to be detected, 
+it is advisable to specify the transition path when session time-out occurs, in \ ``invalid-session-url``\  attribute .
 
-.. code-block:: xml
+When \ ``invalid-session-url``\  attribute is specified,
+the session existence check (existence check for requested session ID) is performed for all the requests that match with
+the path pattern specified in \ ``pattern``\  attribute of \ ``http``\  element.
 
-    <bean id="sessionStrategy"
-        class="org.springframework.security.web.authentication.session.CompositeSessionAuthenticationStrategy">  <!-- (1) -->
-        <constructor-arg index="0">
-            <list>
-                <bean
-                    class="org.springframework.security.web.authentication.session.SessionFixationProtectionStrategy" />
-                <bean class="org.springframework.security.web.csrf.CsrfAuthenticationStrategy">  <!-- (2) -->
-                    <constructor-arg index="0" ref="csrfTokenRepository" />
-                </bean>
-            </list>
-        </constructor-arg>
-    </bean>
-    <!-- omitted -->
 
-.. tabularcolumns:: |p{0.10\linewidth}|p{0.90\linewidth}|
-.. list-table::
-   :header-rows: 1
-   :widths: 10 90
+.. note::
 
-   * - Sr. No.
-     - Description
-   * - | (1)
-     - | Specify by listing in the constructor arguments of
-       | \ ``org.springframework.security.web.authentication.session.CompositeSessionAuthenticationStrategy``\ .
-   * - | (2)
-     - | In this example, \ ``org.springframework.security.web.csrf.CsrfAuthenticationStrategy``\
-       | that perform CSRF check is specified. Foe CSRF measures, refer \ :doc:`CSRF`\ .
+    When a path that detects session time-out and a path that does not detect session time-out are mixed, \ ``http``\  element needs to be defined multiple times.
+    When \ ``http``\  element is defined multiple times, care needs to be taken as the setting becomes redundant reducing maintainability.
 
-Controlling the number of concurrent sessions.
+    When setting to detect session time-out becomes redundant, create a custom filter that can specify an applicable path or an exception path.
+    To create a custom filter, it is advisable to refer to or to use the following classes provided by Spring Security.
+
+    * | ``org.springframework.security.web.session.SessionManagementFilter``
+      | Process to perform session existence check (existence check of requested session ID) is implemented.
+
+    * | ``org.springframework.security.web.session.SimpleRedirectInvalidSessionStrategy``
+      | Process after detecting session time-out (invalid session ID) is implemented.
+      | By default, it is redirected to the path specified after the session is created.
+
+    * | ``org.springframework.security.web.util.matcher.RequestMatcher``
+      | It is an interface to determine whether it matches with the request and it can be used in the processes of determining an applicable path or an exception path.
+      | Some useful implementation classes have been provided in the same package.
+
+.. note::
+
+    When \ :doc:`CSRF`\  is performed by specifying \ ``<csrf>``\  element, sometimes the session time-out can be detected using "CSRF measures" functionality.
+
+    Following are the conditions for detecting session time-out using "CSRF measures" functionality.
+
+    * Destination to store CSRF token is HTTP session (default).
+    * CSRF token cannot be fetched from HTTP session.
+    * It is \ :ref:`Request for CSRF token check <csrf_default-add-token-method>`\ .
+
+    When session time-out is detected using "CSRF measures" functionality, any of the following operations is performed.
+
+    * When \ ``invalid-session-url``\  attribute is specified, it is redirected to the path specified in \ ``invalid-session-url``\  after the session is created.
+    * When \ ``invalid-session-url``\  attribute is not specified, it is handled according to the definition of \ ``org.springframework.security.web.access.AccessDeniedHandler``\  specified in  \ ``<access-denied-handler>``\  element.
+
+    Refer to ":ref:`csrf_spring-security-setting`" for the method to define \ ``AccessDeniedHandler``\ .
+
+|
+
+.. _authentication_control-user-samatime-session:
+
+Settings of Concurrent Session Control
 """"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
-| Spring Security provides (\ `Concurrent Session Control <http://docs.spring.io/spring-security/site/docs/3.2.5.RELEASE/reference/htmlsingle/#concurrent-sessions>`_\ ) functionality that enables to arbitrarily change the number of maximum sessions that one user can store.
+| Spring Security provides (\ `Concurrent Session Control <http://docs.spring.io/spring-security/site/docs/3.2.5.RELEASE/reference/htmlsingle/#concurrent-sessions>`_\ ) a functionality that controls the number of concurrent sessions that a user can log in to.
 | The user mentioned here is the authentication user object fetched by \ ``Authentication.getPrincipal()``\ .
 
-|  For the control method, following patterns are available when it exceeds the maximum number of sessions. They should be suitably used as per business requirements.
+.. note::
+
+   This functionality is valid when single application server is configured, or, session replication is implemented using session server or cluster (i.e. all applications are using the same session area)
+   When multiple servers or multiple instances are configured leading to the existence of different session areas, a care should be taken as concurrent login cannot be controlled using this functionality.
+
+|
+
+|  For the control method when it exceeds the maximum number of sessions, following patterns are available. They should be suitably used as per business requirements.
 
 #. When a user exceeds the number of maximum sessions, the user having least usage is disabled. (after win)
 #. When a user exceeds the number of maximum sessions, new login request is not accepted.(first win)
@@ -830,118 +875,80 @@ In both cases, following settings need to be added to web.xml, to enable this fu
    * - | (1)
      - | When using Concurrent Session Control, it is necessary to define \ ``org.springframework.security.web.session.HttpSessionEventPublisher``\  in listener.
 
-1. When disabling the user with least usage
+.. _authentication_concurrency-control:
 
-  Add following settings to spring-security.xml.
+Setting \ ``<sec:concurrency-control>``\  
+""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 
-  .. code-block:: xml
+When using Concurrent Session Control,
+specify \ `<sec:concurrency-control> <http://docs.spring.io/spring-security/site/docs/3.2.5.RELEASE/reference/htmlsingle/#ns-concurrent-sessions>`_\  element as a child element of \ ``<sec:session-management>``\  element.
 
-      <sec:http auto-config="true" >
-        <!-- omitted -->
-        <sec:custom-filter position="CONCURRENT_SESSION_FILTER" ref="concurrencyFilter" />  <!-- (1) -->
+.. code-block:: xml
 
-        <sec:session-management
-          session-authentication-strategy-ref="sessionStrategy" />
-        <!-- omitted -->
-      </sec:http>
+  <sec:http auto-config="true" >
+    <sec:session-management>
+        <sec:concurrency-control
+            error-if-maximum-exceeded="true"
+            max-sessions="2"
+            expired-url="/expiredSessionError.jsp" /><!-- Steps (1) to (3) in the specified order of attribute -->
+        </sec:session-management>
+    </sec:session-management>
+  </sec:http>
 
-      <bean id="concurrencyFilter"
-         class="org.springframework.security.web.session.ConcurrentSessionFilter">  <!-- (2) -->
-         <constructor-arg index="0" ref="sessionRegistry" />  <!-- (3) -->
-         <constructor-arg index="1" value="/" />  <!-- (4) -->
-      </bean>
 
-      <bean id="sessionAuthenticationStrategy"
-          class="org.springframework.security.web.authentication.session.CompositeSessionAuthenticationStrategy">
-          <constructor-arg index="0">
-              <list>
-                  <!-- omitted -->
-                  <bean class=
-                      "org.springframework.security.web.authentication.session.ConcurrentSessionControlStrategy">  <!-- (5) -->
-                      <constructor-arg index="0" ref="sessionRegistry" />  <!-- (6) -->
-                      <property name="maximumSessions" value="1" />  <!-- (7) -->
-                  </bean>
-              </list>
-          </constructor-arg>
-      </bean>
+.. tabularcolumns:: |p{0.10\linewidth}|p{0.20\linewidth}|p{0.30\linewidth}|p{0.10\linewidth}|p{0.30\linewidth}|
+.. list-table::
+   :header-rows: 1
+   :widths: 10 20 30 10 30
 
-      <bean id="sessionRegistry" class="org.springframework.security.core.session.SessionRegistryImpl" />  <!-- (8) -->
-      <!-- omitted -->
+   * - Sr. No.
+     - Attribute name
+     - Description
+     - Default values
+     - Description of default values
+   * - | (1)
+     - | \ ``error-if-maximum-exceeded``\
+     - | Specify behavior if there is a login request in a state where it exceeds maximum number of sessions that a user can log in to.
+       | When set to \ ``true``\ , generate authentication error so that a new login is not accepted. (first win)
+     - | false
+     - | Login is possible, but a session which is not frequently used is invalidated (session with oldest last access time). When a request is sent by the client using invalidated session, it is transited to the URL specified in \ ``expired-url``\  attribute. (after win)
+   * - | (2)
+     - | \ ``max-sessions``\
+     - | Specify maximum number of sessions that a single user can log in to.
+       | When 2 is set, same user can login with 2 sessions.
+     - | 1
+     - | Default is 1 session only
+   * - | (3)
+     - | \ ``expired-url``\
+     - | URL to be transited to when a request is sent by the client using invalidated session.
+     - | None
+     - | A fixed message to notify that session is invalidated is sent as response.
 
-  .. tabularcolumns:: |p{0.10\linewidth}|p{0.90\linewidth}|
-  .. list-table::
-     :header-rows: 1
-     :widths: 10 90
+.. _authentication_session-authentication-strategy-ref:
 
-     * - Sr. No.
-       - Description
-     * - | (1)
-       - | Specify \ ``CONCURRENT_SESSION_FILTER``\  in \ ``position``\  attribute of \ ``<custom-filter>``\  element.
-     * - | (2)
-       - | Perform Bean definition for \ ``org.springframework.security.web.session.ConcurrentSessionFilter``\  class.
-     * - | (3)
-       - | Reference specify \ ``org.springframework.security.core.session.SessionRegistryImpl``\  in the first argument of constructor.
-     * - | (4)
-       - | Specify the path to which the expired session transits, in the second argument of constructor.
-     * - | (5)
-       - | Specify \ ``org.springframework.security.web.authentication.session.ConcurrentSessionControlStrategy``\  in
-         | the first argument of CompositeSessionAuthenticationStrategy.
-     * - | (6)
-       - | Reference specify \ ``org.springframework.security.core.session.SessionRegistryImpl``\  in the first argument of constructor.
-     * - | (7)
-       - | Maximum number of sessions allowed for one user can be defined in  \ ``maximumSessions``\  attribute.
-         | In the above example, since 1 is specified, the number of allowed sessions for one user is 1.
-         | When the user logs in with multiple browsers, the oldest used session is set as 'expired'.
-         | When not specified, 1 is set.
-     * - | (8)
-       - | Specify \ ``org.springframework.security.core.session.SessionRegistryImpl``\  class that implements
-         | \ ``org.springframework.security.core.session.SessionRegistry``\  interface.
+.. note::
 
-2. When not accepting new logins
+    When a filter (FORM_LOGIN_FILTER) for authentication is to be customized,
+    it is necessary to disable the following 2 \ ``SessionAuthenticationStrategy``\  classes, apart from specifying \ ``<sec:concurrency-control>``\  element.
 
-  Following settings are performed in spring-security.xml.
+    * | ``org.springframework.security.web.authentication.session.ConcurrentSessionControlAuthenticationStrategy``
+      | A class to check number of sessions for each logged in user after successful authentication.
 
-  .. code-block:: xml
-      :emphasize-lines: 16
+    * | ``org.springframework.security.web.authentication.session.RegisterSessionAuthenticationStrategy``
+      | A class to register a session with successful authentication, in session management area.
 
-      <bean id="concurrencyFilter"
-         class="org.springframework.security.web.session.ConcurrentSessionFilter">
-         <constructor-arg index="0" ref="sessionRegistry" />
-         <constructor-arg index="1" value="/" />
-      </bean>
+    In version 1.0.x.RELEASE dependent Spring Security 3.1, \ ``org.springframework.security.web.authentication.session.ConcurrentSessionControlStrategy``\  class is provided; however,
+    it is deprecated API from Spring Security 3.2.
+    When upgrading version from Spring Security 3.1 to Spring Security 3.2 or later versions, changes need to be made so that it can be used with combination of following classes.
 
-      <bean id="sessionAuthenticationStrategy"
-          class="org.springframework.security.web.authentication.session.CompositeSessionAuthenticationStrategy">
-          <constructor-arg index="0">
-              <list>
-                  <!-- omitted -->
-                  <bean class=
-                      "org.springframework.security.web.authentication.session.ConcurrentSessionControlStrategy">
-                      <constructor-arg index="0" ref="sessionRegistry" />
-                      <property name="maximumSessions" value="1" />
-                      <property name="exceptionIfMaximumExceeded" value="true"/> <!-- (1) -->
-                  </bean>
-              </list>
-          </constructor-arg>
-      </bean>
-      <!-- omitted -->
+    * ``ConcurrentSessionControlAuthenticationStrategy`` (added in Spring Security 3.2)
+    * ``RegisterSessionAuthenticationStrategy`` (added in Spring Security 3.2)
+    * ``org.springframework.security.web.authentication.session.SessionFixationProtectionStrategy``
 
-  .. tabularcolumns:: |p{0.10\linewidth}|p{0.90\linewidth}|
-  .. list-table::
-     :header-rows: 1
-     :widths: 10 90
+    For specific methods of definition,
+    refer to sample code of `Spring Security Reference -Web Application Security (Concurrency Control)- <http://docs.spring.io/spring-security/site/docs/3.2.5.RELEASE/reference/htmlsingle/#concurrent-sessions>`_.
 
-     * - Sr. No.
-       - Description
-     * - | (1)
-       - | When it exceeds maximum number of sessions by setting the \ ``exceptionIfMaximumExceeded``\  attribute to \ ``true``\ ,
-         | \ ``org.springframework.security.web.authentication.session.SessionAuthenticationException``\  exception is thrown.
-         | As a result, it does not transit to the path defined in the second argument of \ ``ConcurrentSessionFilter``\ . Please take note of same.
-         | When  the setting for \ ``exceptionIfMaximumExceeded``\  attribute is omitted, \ ``false``\  is set.
-
-  .. tip::
-
-    \ `<sec:concurrency-control> <http://docs.spring.io/spring-security/site/docs/3.2.5.RELEASE/reference/htmlsingle/#nsa-concurrency-control>`_\  can be used as a child element of \ ``<sec:session-management>``\  element, without specifying the \ ``session-authentication-strategy-ref``\  attribute of ``<sec:session-management>``\  element.
+|
 
 .. _authentication-failure-handler-ref:
 
@@ -1078,12 +1085,12 @@ spring-security.xml
      - | Specify the path for executing logout process in \ ``logout-url``\  attribute.
        | When not specified, "/j_spring_security_logout" will be default path.
 
-       | **In this guideline, it is recommended that you change it to unique system value instead of using the above default value "/j_spring_security_logout".** In this example, "/logout" is specified.
+       | **In this guideline, it is recommended to change it to system specific value instead of using the above default value "/j_spring_security_logout".** In this example, "/logout" is specified.
    * - | (2)
      - | Specify the destination path after logout in \ ``logout-success-url``\  attribute.
        | When not specified, "/" will be default path.
 
-       | If \ ``success-handler-ref``\  attribute is specified while this attribute is specified, error will occur during startup process.
+       | If \ ``success-handler-ref``\  attribute is to be specified while this attribute is specified, error will occur during startup process.
    * - | (3)
      - | In \ ``invalidate-session``\  attribute, set whether to discard the session when logging out.
        | By default, it is set to \ ``true``\ .
@@ -1094,7 +1101,7 @@ spring-security.xml
    * - | (5)
      - | Specify the handler class to be called after a successful logout, in \ ``success-handler-ref``\  attribute.
 
-       | If \ ``logout-success-url``\  attribute is specified while this attribute is specified, error will occur during startup process.
+       | If \ ``logout-success-url``\  attribute is to be specified while this attribute is specified, error will occur during startup process.
 
 .. warning:: **Why it is not recommended to use Spring Security default value, "/j_spring_security_logout"**
 
@@ -1104,8 +1111,8 @@ spring-security.xml
 
 .. note::
 
-    CSRF token check is performed when  \ ``<sec:csrf>``\  explained in \ :doc:`./CSRF`\  is used. Therefore, \ **it is necessary to send logout request using POST as well as send the CSRF token.**\ 
-    How to embed CSRF token is explained below.
+    CSRF token check is performed when  \ ``<sec:csrf>``\  explained in \ :doc:`./CSRF`\  is used. Therefore, \ **it is necessary to send logout request using POST as well as to send the CSRF token.**\ .
+    How to embed CSRF token is described below.
 
     * \ :ref:`csrf_formformtag-use`\
 
@@ -1148,16 +1155,15 @@ spring-security.xml
             </form>
 
 
-
 Setting \ ``<sec:remember-me>``\  element
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-| "\ `Remember Me <http://docs.spring.io/spring-security/site/docs/3.2.5.RELEASE/reference/htmlsingle/#remember-me>`_\ " functionality enhances convenience of the frequent users of the website and,
+| "\ `Remember Me <http://docs.spring.io/spring-security/site/docs/3.2.5.RELEASE/reference/htmlsingle/#remember-me>`_\  " functionality enhances convenience of the frequent users of the website and,
 | is the functionality that stores the login status.
 | This functionality stores login information in a cookie, if user has given permission, even after the browser is closed
 | and enables the user to login without re-entering the user name and password.
 
-| The attributes of \ ``<sec:remember-me>``\  element are shown below.
+| The attributes of \ ``<sec:remember-me>``\  elements are shown below.
 
 spring-security.xml
 
@@ -1184,7 +1190,7 @@ spring-security.xml
      - | Specify the validity of the cookie for Remember Me functionality in seconds, in \ ``token-validity-seconds``\  attribute. In this example it is set as 30 days.
        | When not specified, it is valid for 14 days by default.
 
-For attributes other than the above, refer \ `Spring Security manual <http://docs.spring.io/spring-security/site/docs/3.2.5.RELEASE/reference/htmlsingle/#nsa-remember-me>`_\ .
+For attributes other than the above, refer to \ `Spring Security manual <http://docs.spring.io/spring-security/site/docs/3.2.5.RELEASE/reference/htmlsingle/#nsa-remember-me>`_\ .
 
 Following flag that enables "Remember Me" functionality needs to be provided in login form.
 
@@ -1301,7 +1307,7 @@ Implementing an independent \ ``UserDetailsService``\
 
 How to use
 """"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
-How to use the created \ ``ReservationUserDetailsService``\  and \ ``ReservationUserDetails``\ , is explained here.
+How to use the created \ ``ReservationUserDetailsService``\  and \ ``ReservationUserDetails``\ , is described here.
 
 * spring-security.xml
 
@@ -1350,7 +1356,7 @@ How to use the created \ ``ReservationUserDetailsService``\  and \ ``Reservation
       - |  \ ``Customer``\  object contained in \ ``ReservationUserDetails``\  is stored in variable.
     * - | (2)
       - | Display the optional property of \ ``Customer``\  object stored in variable.
-        | For \ ``f:h()``\ , refer \ :doc:`XSS`\ .
+        | For \ ``f:h()``\ , refer to \ :doc:`XSS`\ .
 
 * Controller
 
@@ -1418,10 +1424,10 @@ To implement the above requirements, it is necessary to create a class given bel
 
 .. tip::
 	
-    As the example below considers addition of independent parameter as an authentication parameter, 
+    Here, as the example considers addition of independent parameter as an authentication parameter, 
     it is necessary to extend servlet filter class to generate \ ``Authentication``\  and implementation class of \ ``Authentication``\  interface.
 
-    To authenticate only by user name and password, the authentication process can be extended, 
+    To authenticate only by user name and password, the authentication process can be extended
     only by creating implementation class of \ ``AuthenticationProvider``\  interface.
 
 |
@@ -1536,6 +1542,7 @@ create a class that performs DB authentication using user name, password and com
         }
 
     }
+
 
 .. tabularcolumns:: |p{0.10\linewidth}|p{0.90\linewidth}|
 .. list-table::
@@ -1657,7 +1664,7 @@ Apply the DB authentication function using user name, password, company identifi
 
 ``spring-security.xml``
 
- .. code-block:: xml
+.. code-block:: xml
 
     <!-- omitted -->
 
@@ -1782,7 +1789,7 @@ Apply the DB authentication function using user name, password, company identifi
         Here, if there is a request in \ ``/authentication``\  path, authentication process is performed.
         This is similar to specifying \ ``"/authentication"``\  in \ ``login-processing-url``\  attribute of \ ``form-login``\  element.
     * - | (6)
-      - Specify the value which was set in \ ``alias``\  attribute of \ ``authentication-manager``\  element in \ ``authenticationManager``\  property.
+      - Specify the value which was set in \ ``alias``\  attribute of \ ``authentication-manager``\  element, in \ ``authenticationManager``\  property.
 
         If \ ``alias``\  attribute of \ ``authentication-manager``\ element is specified,
         it is possible to inject dependency (DI) of \ ``AuthenticationManager``\  bean generated by Spring Security, to other bean.
@@ -1813,7 +1820,7 @@ Apply the DB authentication function using user name, password, company identifi
 Creating login form
 """"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 
-Here, add company identifier for the screen (JSP), introduced in \ :ref:`form-login-JSP`\  .
+Here, add company identifier for the screen (JSP), introduced in \ :ref:`form-login-JSP`\ .
 
 .. code-block:: jsp
     :emphasize-lines: 5-6
@@ -1840,6 +1847,7 @@ Here, add company identifier for the screen (JSP), introduced in \ :ref:`form-lo
       - | Specify \ ``"companyid"``\  in the input field name of company identifier. 
 
 |
+
 Appendix
 --------------------------------------------------------------------------------
 
@@ -1847,7 +1855,7 @@ Authentication Success handler for which destination can be specified
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 In case of authentication using Spring Security, user is transited to the following two paths if authentication is successful.
 
-* Path described in bean definition file (\ ``spring-security.xml``\ ) (Path specified in \ ``default-target-url``\  attribute of \ ``<form-login>``\  element)
+* Path described in bean definition file (\ ``spring-security.xml``\ ) (path specified in \ ``default-target-url``\  attribute of \ ``<form-login>``\  element)
 * Path for displaying "Secure page for which authentication is necessary" which is accessed before the login.
 
 In common library, in addition to the functionality provided by Spring Security, 
@@ -1865,7 +1873,7 @@ a class (\ ``org.terasoluna.gfw.web.security.RedirectAuthenticationHandler``\ ) 
 
    **Picture - Screen_Flow**
 
-| Example of using \ ``RedirectAuthenticationHandler``\ is shown below.
+| Example of using \ ``RedirectAuthenticationHandler``\  is shown below.
 
 **Description example of source screen JSP**
 
@@ -1888,9 +1896,9 @@ a class (\ ``org.terasoluna.gfw.web.security.RedirectAuthenticationHandler``\ ) 
      - Description
    * - | (1)
      - | As hidden field, set the "URL of destination page after successful login".
-       | Specify "\ ``redirectTo``\ " as hidden field name (request parameter name).
+       | Specify "\ ``redirectTo``\  " as hidden field name (request parameter name).
        | 
-       | Field name (request parameter name) should match with \ ``targetUrlParameter``\  property value of \ ``RedirectAuthenticationHandler``\ .
+       | Field name (request parameter name) should match with \ ``targetUrlParameter``\   property value of \ ``RedirectAuthenticationHandler``\ .
 
 **Description example of login screen JSP**
 
@@ -1913,7 +1921,7 @@ a class (\ ``org.terasoluna.gfw.web.security.RedirectAuthenticationHandler``\ ) 
      - Description
    * - | (1)
      - | As hidden field, set the "URL of destination page after successful login", passed by request parameter from source screen.
-       | Specify "\ ``redirectTo``\ " as hidden field name (request parameter name).
+       | Specify "\ ``redirectTo``\  " as hidden field name (request parameter name).
        | 
        | Field name (request parameter name) should match with \ ``targetUrlParameter``\  property value of \ ``RedirectAuthenticationHandler``\ .
 
@@ -1958,21 +1966,21 @@ a class (\ ``org.terasoluna.gfw.web.security.RedirectAuthenticationHandler``\ ) 
    * - | (3)
      - | Define \ ``org.springframework.security.web.authentication.ExceptionMappingAuthenticationFailureHandler``\  as a bean referred from \ ``authentication-failure-handler-ref``\ .
    * - | (4)
-     - | Set destination path at the time of authentication failure.
+     - | Specify destination path at the time of authentication failure.
        | In above example, login screen path and the query (\ ``error=true``\ ) to indicate transition after authentication error, is set.
    * - | (5)
      - | **To use this functionality, useForward should be set to true.**
-       | By setting it to \ ``true``\ , Forward is used instead of Redirect, at the time of transiting to the screen (Login screen) which would be displayed in case of authentication failure.
+       | By setting it to \ ``true``\ , Forward is used instead of Redirect, at the time of transiting to the screen (login screen) which would be displayed in case of authentication failure.
 
-       | This is because "URL of destination page after successful login) needs to be included in the request parameter of authentication request.
+       | This is because "URL of destination page after successful login" needs to be included in the request parameter of authentication request.
        | By using Redirect, if authentication error screen is displayed, "URL of destination page after successful login" cannot be inherited from request parameter. Hence, it is not possible to transit to the specified screen even after login is successful.
        | To avoid this, it is necessary to ensure that "URL of destination page after successful login" is inherited from request parameter using Forward.
 
 .. tip::
 
-  Measures against Open Redirector vulnerability are provided in \ ``RedirectAuthenticationHandler``\ .
+  Measures against Open Redirector vulnerability are implemented in \ ``RedirectAuthenticationHandler``\ .
   Therefore, user cannot transit to external sites such as "http://google.com".
-  In order to move to an external site, it is necessary to create the class implementing \ ``org.springframework.security.web.RedirectStrategy``\ ,
+  In order to transit to an external site, it is necessary to create a class that implements \ ``org.springframework.security.web.RedirectStrategy``\ ,
   and it is to be injected to \ ``targetUrlParameterRedirectStrategy``\  property of \ ``RedirectAuthenticationHandler``\ .
   
   As a precaution while extending, it is necessary to have a structure that does not pose any problems even if \ ``redirectTo``\ value is tampered with.

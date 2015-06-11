@@ -144,28 +144,39 @@ Implementation of Custom View
 
 Definition of ViewResolver
 """"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
-| \ ``org.springframework.web.servlet.view.BeanNameViewResolver``\  is the class stored in Spring context. It selects the View to be executed on the basis of bean name.
-| Normally \ ``InternalResourceViewResolver``\  is used; however while using BeanNameViewResolver, it should be called before \ ``InternalResourceViewResolver``\  by setting \ ``order``\  property.
-\
-    .. note::
+\ ``org.springframework.web.servlet.view.BeanNameViewResolver``\  is a class,
+that selects \ ``View``\  to be executed using bean name stored in Spring context.
 
-        Spring provides various types of View Resolvers and it allows chaining of multiple Resolvers; hence some unintended View may get selected under certain conditions.
-        To avoid such a situation, priority can be set by specifying order property.
-        Lower the specified value of order property, earlier it is executed.
+When using \ ``BeanNameViewResolver``\ , it is recommended to define such that \ ``BeanNameViewResolver``\  is executed before
+
+* \ ``ViewResolver``\  for JSP (\ ``InternalResourceViewResolver``\ )
+* \ ``ViewResolver``\  for Tiles (\ ``TilesViewResolver``\ )
+
+which are generally used.
+
+.. note::
+
+    Spring Framework provides various types of \ ``ViewResolver``\  and it allows chaining of multiple \ ``ViewResolver``\ .
+    Therefore, some unintended \ ``View``\  may get selected under certain conditions.
+
+    It is possible to avoid such a situation by setting appropriate priority order in \ ``ViewResolver``\ .
+    Method to set priority order differs depending on definition method of \ ``ViewResolver``\ .
+
+    * When defining \ ``ViewResolver``\  using \ ``<mvc:view-resolvers>``\  element added from Spring Framework 4.1, definition order of  \ ``ViewResolver``\  specified in child element will be the priority order. (executed sequentially from top)
+
+    * When specifying \ ``ViewResolver``\ using \ ``<bean>``\ element in a conventional way, set priority order in \ ``order``\ property. (It is executed starting from smallest setting value).
+
+|
 
 **bean definition file**
 
 .. code-block:: xml
-   :emphasize-lines: 6-8
+   :emphasize-lines: 2
 
-    <bean class="org.springframework.web.servlet.view.InternalResourceViewResolver">
-        <property name="prefix" value="/WEB-INF/views/" />
-        <property name="suffix" value=".jsp" />
-    </bean>
-
-    <bean class="org.springframework.web.servlet.view.BeanNameViewResolver">  <!-- (1) -->
-        <property name="order" value="0"/>  <!-- (2) -->
-    </bean>
+    <mvc:view-resolvers>
+        <mvc:bean-name /> <!-- (1) (2) -->
+        <mvc:jsp prefix="/WEB-INF/views/" />
+    </mvc:view-resolvers>
 
 .. tabularcolumns:: |p{0.10\linewidth}|p{0.90\linewidth}|
 .. list-table::
@@ -175,9 +186,33 @@ Definition of ViewResolver
    * - Sr. No.
      - Description
    * - | (1)
-     - | Define BeanNameViewResolver.
+     - | Define \ ``BeanNameViewResolver``\  using \ ``<mvc:bean-name>``\  element added from Spring Framework 4.1.
    * - | (2)
-     - | Set 0 in order property. Priority should be higher than that of InternalResourceViewResolver.
+     - | Define \ ``<mvc:bean-name>``\ element right at the top so that it has a higher priority than the generally used \ ``ViewResolver``\ (\ ``ViewResolver``\ for JSP).
+
+
+.. tip::
+
+    \ ``<mvc:view-resolvers>``\  element is an XML element added from Spring Framework 4.1.
+    If \ ``<mvc:view-resolvers>``\  element is used, it is possible to define \ ``ViewResolver`` \  in a simple way.
+
+    Example of definition when \ ``<bean>``\  element used in a conventional way is given below.
+
+
+     .. code-block:: xml
+        :emphasize-lines: 1-3
+
+        <bean class="org.springframework.web.servlet.view.BeanNameViewResolver">
+            <property name="order" value="0"/>
+        </bean>
+
+        <bean class="org.springframework.web.servlet.view.InternalResourceViewResolver">
+            <property name="prefix" value="/WEB-INF/views/" />
+            <property name="suffix" value=".jsp" />
+            <property name="order" value="1" />
+        </bean>
+
+    In \ ``order``\ property, specify a value that is lesser than \ ``InternalResourceViewResolver``\  to ensure that it gets a high priority.
 
 |
 
@@ -391,7 +426,7 @@ Implementation of Custom View
 Definition of ViewResolver
 """"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 
-Setting is same as that of PDF file rendering. For details, refer to \ :ref:`viewresolver-label`\ .
+Settings are same as that of PDF file rendering. For details, refer to \ :ref:`viewresolver-label`\ .
 
 Specifying View in controller
 """"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""

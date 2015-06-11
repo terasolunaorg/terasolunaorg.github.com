@@ -3,7 +3,7 @@ Spring Security Overview
 
 .. only:: html
 
- .. contents:: Table of contents
+ .. contents:: Table of Contents
     :local:
 
 Overview
@@ -14,7 +14,7 @@ Overview
 | Authentication functionality identifies a user and thus prevents unauthorized access through spoofing.
 | Authorization functionality controls the access to system resources
 | according to the authority of the authenticated (logged-in) user.
-| Moreover, it has the functionality that assigns HTTP headers.
+| Moreover, it has functionality for assigning HTTP headers.
 
 | Spring Security overview is shown in diagram below.
 
@@ -45,7 +45,7 @@ Authorization
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 | Authorization is the functionality to verify whether the authenticated user is allowed to use the resource that he is trying to access,
 | using access control process.
-| For the details on how to use authorization in Spring Security, refer to \ :doc:`Authorization`\ .
+| For details on how to use authorization in Spring Security, refer to \ :doc:`Authorization`\ .
 
 .. _howtouse_springsecurity:
 
@@ -166,19 +166,21 @@ spring-security.xml settings
   \
 
       .. note::
-          For the Spring EL expressions enabled by use-expressions="true", please refer the following.
+          For the Spring EL expressions enabled by use-expressions="true", please refer to the following.
 
           \ `Expression-Based Access Control <http://docs.spring.io/spring-security/site/docs/3.2.5.RELEASE/reference/htmlsingle/#el-access>`_\
 
 Appendix
 --------------------------------------------------------------------------------
 
+.. _SpringSecurityAppendixSecHeaders:
+
 Settings to assign a secure HTTP header
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 As shown below, security related headers can be set automatically in HTTP response by setting \ ``<sec:headers>``\  element in \ ``<sec:http>``\  of spring-security.xml.
-By assigning these HTTP response headers, Web browser can detect an attack and cope with it.
-This setting is not mandatory however, is recommended to strengthen the security.
+By assigning these HTTP response headers, Web browser can detect an attack and deal with it.
+This setting is not mandatory; however, it is recommended for strengthening security.
 
 .. code-block:: xml
 
@@ -203,23 +205,23 @@ In this setting, HTTP response headers related to following fields are set.
 
    * - HTTP header name
      - Issues due to inappropriate settings (also includes cases where settings are not performed).
-     - Action in case of appropriate settings
+     - Behavior in case of appropriate settings
    * - | \ ``Cache-Control``\ 
-     - | In some cases, the contents that can be viewed by a logged-in user are cached and can also be viewed by another user, after the first user logs-out.
+     - | In some cases, the contents that can be viewed by a logged-in user are cached and can also be viewed by another user, after the first user logs out.
      - | Instruct such that the contents are not cached and ensure that the browser always fetches server information.
    * - | \ ``X-Content-Type-Options``\ 
-     - | Browser determines the contents for operation without using Content-Type, just by checking their details. This may result in execution of unexpected scripts.
-     - | Ensure that, the browser does not determine the contents to be operated without using Content-Type, just by checking their details. Restrict Script execution if the MIME type does not match.
+     - | In some cases, browser determines operation contents just by checking the content details without using Content-Type. This may result in execution of unexpected scripts.
+     - | Ensure that the browser does not determine the operation contents just by checking the content details without using Content-Type. Restrict script execution if the MIME type does not match.
    * - | \ ``Strict-Transport-Security``\ 
-     - | In spite of expecting access to a secure page by HTTPS, there is a possibility of HTTP-origin attack (Example: Man in the middle attack (MITM) intercepts a user's HTTP request and redirects it to a malicious site.), when the page is accessed using HTTP.
-     - | Once a legitimate web site is accessed using HTTPS, the browser is set such that it automatically uses only HTTPS, thereby preventing Man in the middle attack of being redirected to a malicious site.
+     - | In spite of expecting access to a secure page by HTTPS, there is a possibility of HTTP-origin attack when the page is accessed using HTTP (Example: Man-In-The-Middle-Attack (MITM) intercepts a user's HTTP request and redirects it to a malicious site.)
+     - | Once a legitimate web site is accessed using HTTPS, the browser automatically uses only HTTPS, thereby preventing the Man In The Middle Attack such as being redirected to a malicious site.
    * - | \ ``X-Frame-Options``\ 
-     - | If screen of the malicious Web site is made unavailable for viewing and instead, a legitimate site B is embedded using \ ``<iframe>``\  tag, the user who thinks that he has accessed site B, is made to access site A, by the attacker.
-       | In this condition, if the Send button of site A and link position of site B overlap, the attacker can make the user send a malicious request through site A, while the user thinks that the link of legitimate site B was clicked. (\ `Clickjacking <https://www.owasp.org/index.php/Clickjacking>`_\ )
-     - | By using \ ``<iframe>``\  tag, ensure that the self-created Website (=site B) cannot be read in other Web site (= site A).
+     - | If screen of malicious Web site A is made unavailable for viewing and instead a legitimate site B is embedded using \ ``<iframe>``\  tag, the user who thinks that he has accessed site B, is made to access site A, by the attacker.
+       | In this condition, if 'Send' button of site A and link position of site B overlap, the attacker can make the user send a malicious request through site A, while the user thinks that the link of legitimate site B was clicked. (\ `Clickjacking <https://www.owasp.org/index.php/Clickjacking>`_\ )
+     - | Ensure that the self-created Website (= site B) cannot be read in another Web site (= site A) using \ ``<iframe>``\  tag.
    * - | \ ``X-XSS-Protection``\ 
-     - | Decision given by XSS filter on the harmful script, is invalidated.
-     - | On realizing that the script is harmful, the XSS filter implemented in browser asks the user whether to execute it or the decision is invalidated (action differs according to each bowser).
+     - | Determination of harmful script by XSS filter implemented in browser, is invalidated.
+     - | On realizing that the script is harmful, the XSS filter implemented in browser asks the user whether to execute it, or it is invalidated (behavior differs depending on browser).
 
 
 
@@ -246,34 +248,34 @@ The settings mentioned above can be performed individually as shown below in ste
 
    * - Sr. No.
      - Description
-     - Default HTTP response header that is output.
-     - Presence or absence of attribute
+     - HTTP response header that is output by default.
+     - Attribute flag
    * - | (1)
-     - | Instructs the client not to cache data.
+     - | Instruct the client not to cache data.
      - | \ ``Cache-Control:no-cache, no-store, max-age=0, must-revalidate``\ 
        | \ ``Pragma: no-cache``\ 
        | \ ``Expires: 0``\ 
-     - | Not present
+     - | No
    * - | (2)
-     - | Instructs the client not to decide the processing method by disregarding the content type using just the content details.
+     - | Instruct the client not to decide the processing method automatically by ignoring the content type and using just the content details.
      - | \ ``X-Content-Type-Options:nosniff``\ 
-     - | Not present
+     - | No
    * - | (3)
-     - | Instructs to continue the HTTPS connection in the site accessed by HTTPS. (It is disregarded in case of HTTP site and is not assigned as header field.)
+     - | Instruct to continue the HTTPS connection in the site accessed with HTTPS. (Ignored in case of HTTP site and not assigned as header field.)
      - | \ ``Strict-Transport-Security:max-age=31536000 ; includeSubDomains``\ 
-     - | Present
+     - | Yes
    * - | (4)
-     - | Instructs regarding the displaying availability of contents in iframe.
+     - | Instruct whether the contents to be displayed in iframe.
      - | \ ``X-Frame-Options:DENY``\ 
-     - | Present
+     - | Yes
    * - | (5)
-     - | Instructs the browser implemented with a filter that can detect \ `XSS attack <https://www.owasp.org/index.php/Cross-site_Scripting_(XSS)>`_\ , to enable XSS filter functionality.
+     - | Instruct to enable XSS filter functionality for the browser where the filter that can detect \ `XSS attack <https://www.owasp.org/index.php/Cross-site_Scripting_(XSS)>`_\  is implemented.
      - | \ ``X-XSS-Protection:1; mode=block``\ 
-     - | Present
+     - | Yes
 
 |
 
-Attributes can be set when individual settings are performed. Some of the attributes that can be set are explained here.
+Attributes can be set when individual settings are performed. Some of the attributes that can be set are as follows:
 
 .. tabularcolumns:: |p{0.05\linewidth}|p{0.20\linewidth}|p{0.30\linewidth}|p{0.20\linewidth}|p{0.25\linewidth}|
 .. list-table:: Attributes that can be set
@@ -283,40 +285,40 @@ Attributes can be set when individual settings are performed. Some of the attrib
    * - Sr. No.
      - Option
      - Description
-     - Specified example
+     - Example
      - HTTP response header that is output
    * - | (3)
      - | \ ``max-age-seconds``\ 
-     - | Number of seconds for which the fact that corresponding site should be accessed only using HTTPS, is stored in memory. (Default 365 days)
+     - | Number of seconds stored in memory to access the relevant site using HTTPS only (365 days by default)
      - | \ ``<sec:hsts max-age-seconds="1000" />``\ 
      - | \ ``Strict-Transport-Security:max-age=1000 ; includeSubDomains``\ 
    * - | (3)
      - | \ ``include-subdomains``\ 
-     - | Application instructions for sub-domain. Default value is \ ``true``\ . Output is stopped if specified as \ ``false``\ .
+     - | Application instructions for sub-domain. Default value is \ ``true``\ . It is no longer output when set to \ ``false``\ .
      - | \ ``<sec:hsts include-subdomains="false" />``\ 
      - | \ ``Strict-Transport-Security:max-age=31536000``\ 
    * - | (4)
      - | \ ``policy``\ 
-     - | Instructs regarding the permission method to display contents in iframe. Default value is \ ``DENY``\  (Display in frame is completely prohibited). It can also be changed to \ ``SAMEORIGIN``\  (allows to read only the page in the same site).
+     - | Instruct regarding the permission method to display contents in iframe. Default value is \ ``DENY``\  (display in frame is completely prohibited). It can also be changed to \ ``SAMEORIGIN``\ (allows to read frame only for the page on same site).
      - | \ ``<sec:frame-options policy="SAMEORIGIN" />``\ 
      - | \ ``X-Frame-Options:SAMEORIGIN``\ 
    * - | (5)
      - | \ ``enabled,block``\ 
-     - | XSS filter can be disabled by specifying as \ ``false``\ . However, it is recommended to enable this filter.
+     - | XSS filter can be disabled by setting it to \ ``false``\ ; however, it is recommended to enable this filter.
      - | \ ``<sec:xss-protection enabled="false" block="false" />``\ 
      - | \ ``X-XSS-Protection:0``\ 
 
 
 .. note::
 
-    The processing for these headers is not supported in some browsers. Please refer the official site of the browser or the following pages.
+    The processing for these headers is not supported in some browsers. Refer to the official site of the browser or the following pages.
 
     * https://www.owasp.org/index.php/HTTP_Strict_Transport_Security (Strict-Transport-Security)
     * https://www.owasp.org/index.php/Clickjacking_Defense_Cheat_Sheet (X-Frame-Options)
     * https://www.owasp.org/index.php/List_of_useful_HTTP_headers (X-Content-Type-Options, X-XSS-Protection)
 
 
-For details, see \ `Official reference <http://docs.spring.io/spring-security/site/docs/3.2.5.RELEASE/reference/htmlsingle/#default-security-headers>`_\ .
+For details, refer to \ `Official reference <http://docs.spring.io/spring-security/site/docs/3.2.5.RELEASE/reference/htmlsingle/#default-security-headers>`_\ .
 
     
 .. raw:: latex

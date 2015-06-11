@@ -18,12 +18,20 @@ Overview
 
     In this chapter, File Upload functionality supported by Servlet3.0 is used; hence, Servlet version 3.0 or above is a prerequisite here.
 
+.. note::
+
+    If File Upload functionality of Servlet 3.0 is only used partially on application server such as Weblogic etc.,
+    it may likely result into garbling of multi byte characters of file names or request parameters.
+
+    In case of using an application server, wherein problems are likely to occur, using Commons FileUpload can help in avoiding such problems.
+    For settings to use Commons FileUpload, refer to ":ref:`file-upload_usage_commons_fileupload`". 
+
  .. warning::
  
-    In the application server to be used, if implementation of File Upload is dependent on the implementation of Apache Commons FileUpload, vulnerabilities of security mentioned in \ `CVE-2014-0050 <http://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2014-0050>`_\  may occur.
+    If implementation of file upload of an application server to be used depends on implementation of Apache Commons FileUpload, security vulnerabilities reported in \ `CVE-2014-0050 <http://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2014-0050>`_\  may occur.
     Hence ensure that there are no such vulnerabilities in the application server to be used.
     
-    It is necessary to use version 7.0.52 or above for Tomcat series 7, and version 8.0.3 or above for series 8.
+    In case of using Tomcat, it is necessary to use version 7.0.52 or above for series 7.0, and version 8.0.3 or above for series 8.0.
 
 Basic flow of upload process
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
@@ -110,17 +118,9 @@ Classes provided by Spring Web for uploading a file are as follows:
 
  .. tip::
 
-    In this guideline, it is a prerequisite to use File Upload functionality implemented through Servlet 3.0. However, Spring Web also provides an \ `implementation class for "Apache Commons FileUpload" <http://docs.spring.io/spring/docs/4.1.4.RELEASE/spring-framework-reference/html/mvc.html#mvc-multipart-resolver-commons>`_\ .
+    In this guideline, it is a prerequisite to use File Upload functionality implemented from Servlet 3.0. However, Spring Web also provides an \ `implementation class for "Apache Commons FileUpload" <http://docs.spring.io/spring/docs/4.1.4.RELEASE/spring-framework-reference/html/mvc.html#mvc-multipart-resolver-commons>`_\ .
     The difference in implementation of upload processes is absorbed by \ ``MultipartResolver``\  and \ ``MultipartFile``\  objects; hence it does not affect Controller implementation.
-    It should be used when a servlet container (Tomcat6 etc.) not supported by Servlet3.0 needs to be used.
 
- .. warning::
- 
-    When using Apache Commons FileUpload, vulnerabilities of security mentioned in \ `CVE-2014-0050 <http://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2014-0050>`_\  may occur.
-    Ensure that there are no such vulnerabilities in the Apache Commons FileUpload version to be used.
-     
-    When using Apache Commons FileUpload, version 1.3.1 or above should be used.
-    
 |
 
 How to use
@@ -300,7 +300,7 @@ Perform the following settings to fetch request parameters in Servlet Filter pro
    * - Sr. No.
      - Description
    * - | (1)
-     - | Define \ ``MultipartFilter``\  as the Servlet Fliter.
+     - | Define \ ``MultipartFilter``\  as the Servlet Filter.
    * - | (2)
      - | Specify the URL pattern for applying \ ``MultipartFilter``\ .
      
@@ -432,8 +432,8 @@ Add the exception handling definition of \ ``MultipartException``\  which occurs
         <!-- omitted -->
     </bean>
 
-  .. tabularcolumns:: |p{0.10\linewidth}|p{0.90\linewidth}|
-  .. list-table::
+ .. tabularcolumns:: |p{0.10\linewidth}|p{0.90\linewidth}|
+ .. list-table::
    :header-rows: 1
    :widths: 10 90
 
@@ -441,11 +441,11 @@ Add the exception handling definition of \ ``MultipartException``\  which occurs
      - Description
    * - | (4)
      - | In \ ``exceptionMappings``\  of \ ``SystemExceptionResolver``\ , add the definition for View (JSP) which is displayed when \ ``MultipartException``\  occurs.
-       |
+       | 
        | In the above example, \ ``"common/error/fileUploadError"``\  is specified.
    * - | (5)
      - | Add the definition of HTTP status code which is received as response when ``MultipartException`` occurs.
-       | 
+       |
        | In the above example, \ ``"400"``\  (Bad Request) is specified.
        | By specifying client error (HTTP response code = 4xx),
        | the level of log which is output by the class (``HandlerExceptionResolverLoggingInterceptor``) provided by the exception handling functionality of common library is  \ ``WARN``\  and not \ ``ERROR``\ .
@@ -647,7 +647,7 @@ Implementing Controller
         }
 
         @RequestMapping(value = "upload", method = RequestMethod.GET, params = "complete")
-        public String uploadComplate() {
+        public String uploadComplete() {
             return "article/uploadComplete";
         }
 
@@ -699,7 +699,7 @@ Implementing Controller
  .. note:: **About MultipartFile**
 
     Methods to operate the uploaded file are provided in MultipartFile.
-    For details about using each method, refer to \ `JavaDoc <http://docs.spring.io/spring/docs/4.1.4.RELEASE/javadoc-api/org/springframework/web/multipart/MultipartFile.html> of MultipartFile class `_\ .
+    For details on using each method, refer to \ `JavaDoc <http://docs.spring.io/spring/docs/4.1.4.RELEASE/javadoc-api/org/springframework/web/multipart/MultipartFile.html> of MultipartFile class `_\ .
 
 .. _fileupload_validator:
 
@@ -1630,7 +1630,7 @@ Carry out bean registration and task schedule settings for the POJO class that d
      * ``0 0 * * * *`` : Executed in 0 minute every hour.
      * ``0 0 9-17 * * MON-FRI`` : Executed in 0 minute every hour from 9:00~17:00 on weekdays.
 
-    For details regarding specified value of cron, refer to \ `CronSequenceGenerator - JavaDoc <http://docs.spring.io/spring/docs/4.1.4.RELEASE/javadoc-api/org/springframework/scheduling/support/CronSequenceGenerator.html>`_\ .
+    For details on specified value of cron, refer to \ `CronSequenceGenerator - JavaDoc <http://docs.spring.io/spring/docs/4.1.4.RELEASE/javadoc-api/org/springframework/scheduling/support/CronSequenceGenerator.html>`_\ .
 
     Execution time should be fetched from external properties as it may differ depending on the environment in which the application is to be deployed.
     For details on external properties, refer to \ :doc:`PropertyManagement`\ .
@@ -1645,18 +1645,20 @@ Carry out bean registration and task schedule settings for the POJO class that d
 
 Appendix
 --------------------------------------------------------------------------------
+Security issues related to file upload
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 | Following security issues need to be considered when providing File Upload functionality.
 
 #. :ref:`file-upload_security_related_warning_points_dos`
 #. :ref:`file-upload_security_related_warning_points_server_scripting`
 
-Security measures are explained below.
+Security measures are described below.
 
 
 .. _file-upload_security_related_warning_points_dos:
 
 Dos attack with respect to upload functionality
-^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 Dos attack with respect to upload functionality is when load on the server is increased by continuously uploading large files,
 thereby crashing the server or reducing its response speed.
 
@@ -1668,7 +1670,7 @@ thereby crashing the server or reducing its response speed.
 .. _file-upload_security_related_warning_points_server_scripting:
 
 Attack by executing uploaded files on Web Server
-^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 | In this attack, the files on Web Server can be viewed/altered/deleted by uploading and executing the script files (php, asp, aspx, jsp etc.) that are executable on Web Server (Application Server).
 | With Web Server as a platform, another server present in the same network as the Web server, is also vulnerable to such attack.
 
@@ -1678,6 +1680,147 @@ Measures to be taken against this attack are as follows:
 * To ensure that executable script file cannot be uploaded on Web server (Application Server) by restricting the extension of files that can be uploaded.
 
 The attacks can be prevented by implementing either of the above measures; however it is always recommended to implement both the measures.
+
+|
+
+.. _file-upload_usage_commons_fileupload:
+
+File upload using Commons FileUpload
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+If File Upload functionality of Servlet 3.0 is only used partially on Application Server, 
+it may likely result into garbling of multi byte characters of file names or request parameters.
+
+For example: If File Upload functionality of Servlet 3.0 is used on WebLogic (verification version 12.1.3),
+it has been confirmed that multi byte characters of fields to be sent along with file are garbled.
+Although it seems that there is a problem at the Application Server side,
+it is not possible to send the file and multi byte characters simultaneously unless the said problem is fixed.
+
+This problem can be avoided using Commons FileUpload.
+Therefore, this guideline describes about file upload using Commons FileUpload
+as a temporary measure till the application server gets modified.
+
+Perform the following settings when using Commons FileUpload.
+
+|
+
+:file:`xxx-web/pom.xml`
+
+.. code-block:: xml
+
+    <!-- (1) -->
+    <dependency>
+        <groupId>commons-fileupload</groupId>
+        <artifactId>commons-fileupload</artifactId>
+    </dependency>
+
+.. tabularcolumns:: |p{0.10\linewidth}|p{0.90\linewidth}|
+.. list-table::
+   :header-rows: 1
+   :widths: 10 90
+
+   * - | Sr. No.
+     - | Description
+   * - | (1)
+     - | Add dependency to \ ``commons-fileupload``\ .
+       | No need to specify the version in :file:`pom.xml`\  as it is defined depending on Spring IO Platform.
+
+.. warning::
+
+    In case of using Apache Commons FileUpload,
+    security vulnerabilities reported in \ `CVE-2014-0050 <http://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2014-0050>`_\  are likely to occur.
+    Confirm that there are no vulnerabilities in the version of Apache Commons FileUpload to be used.
+
+    When using Apache Commons FileUpload, version 1.3.1 or above should be used.
+
+    Further, if a version stored in Spring IO Platform is used, the vulnerabilities reported in CVE-2014-0050 do not occur.
+
+|
+
+:file:`xxx-web/src/main/resources/META-INF/spring/applicationContext.xml`
+
+.. code-block:: xml
+
+    <!-- (1) -->
+    <bean id="filterMultipartResolver"
+        class="org.springframework.web.multipart.commons.CommonsMultipartResolver">
+        <property name="maxUploadSize" value="10240000" /><!-- (2) -->
+    </bean>
+
+    <!-- ... -->
+
+.. tabularcolumns:: |p{0.10\linewidth}|p{0.90\linewidth}|
+.. list-table::
+   :header-rows: 1
+   :widths: 10 90
+
+   * - | Sr. No.
+     - | Description
+   * - | (1)
+     - | Perform bean definition of \ ``CommonsMultipartResolver``\  with \ ``MultipartResolver``\  implemented using Commons FileUpload.
+       | Specify \ ``"filterMultipartResolver"``\  in bean ID.
+   * - | (2)
+     - | Set maximum size allowed in file upload.
+       | In case of Commons FileUpload, it should be noted that the maximum value is the entire size of request including header.
+       | Moreover, **as the default value is -1 (unlimited), make sure to set a value.** For other properties, refer to \ `JavaDoc <http://docs.spring.io/spring-framework/docs/4.1.4.RELEASE/javadoc-api/org/springframework/web/multipart/commons/CommonsMultipartResolver.html>`_\ .
+
+.. warning::
+
+    In case of using Commons Fileupload, \ ``MultipartResolver``\  should be defined in \ :file:`applicationContext.xml`\  and not in \ :file:`spring-mvc.xml`\ .
+    It should be deleted if defined in \ :file:`spring-mvc.xml`\ .
+
+
+|
+
+:file:`xxx-web/src/main/webapp/WEB-INF/web.xml`
+
+.. code-block:: xml
+
+    <web-app xmlns="http://java.sun.com/xml/ns/javaee"
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:schemaLocation="http://java.sun.com/xml/ns/javaee http://java.sun.com/xml/ns/javaee/web-app_3_0.xsd"
+        version="3.0">
+
+        <servlet>
+            <servlet-class>org.springframework.web.servlet.DispatcherServlet</servlet-class>
+            <!-- omitted -->
+            <!-- (1) -->
+            <!-- <multipart-config>...</multipart-config> -->
+        </servlet>
+
+        <!-- (2) -->
+        <filter>
+            <filter-name>MultipartFilter</filter-name>
+            <filter-class>org.springframework.web.multipart.support.MultipartFilter</filter-class>
+        </filter>
+        <filter-mapping>
+            <filter-name>MultipartFilter</filter-name>
+            <url-pattern>/*</url-pattern>
+        </filter-mapping>
+
+        <!-- omitted -->
+
+    </web-app>
+
+.. tabularcolumns:: |p{0.10\linewidth}|p{0.90\linewidth}|
+.. list-table::
+   :header-rows: 1
+   :widths: 10 90
+
+   * - Sr.No.
+     - Description
+   * - | (1)
+     - | When using Commons FileUpload, an upload function of Servlet 3.0 should be disabled.
+       | If \ ``<multipart-config>``\  element is present in \ ``DispatcherServlet``\  definition, make sure to delete the same. 
+   * - | (2)
+     - | When using Commons Fileupload, \ ``MultipartFilter``\  should be defined to enable \ :ref:`CSRF measures <csrf_use-multipart-filter>`\ .
+       | \ ``MultipartFilter``\ mapping should be defined before defining springSecurityFilterChain (Servlet Filter of Spring Security).
+
+.. tip::
+
+    \ ``MultipartFilter``\ is a mechanism to perform the file upload process by fetching \ ``MultipartResolver``\ 
+    registered with bean ID \ ``"filterMultipartResolver"``\  from DI container (:file:`applicationContext.xml`).
+
+|
 
 .. raw:: latex
 

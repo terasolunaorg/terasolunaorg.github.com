@@ -104,10 +104,6 @@
             
   <div class="section" id="screen-layout-using-tiles">
 <h1>5.19. Screen Layout using Tiles<a class="headerlink" href="#screen-layout-using-tiles" title="Permalink to this headline">¶</a></h1>
-<div class="admonition caution">
-  <p class="first admonition-title">Caution</p>
-  <p><strong>This guide line is under construction</strong>. Stable guidelines are available <a href="http://terasolunaorg.github.io/guideline/">here</a>.</p>
-</div>
 <div class="contents local topic" id="table-of-contents">
 <p class="topic-title first">Table of contents</p>
 <ul class="simple">
@@ -251,7 +247,7 @@
 <div class="section" id="integration-of-spring-mvc-and-tiles">
 <h3><a class="toc-backref" href="#id9">5.19.2.2. Integration of Spring MVC and Tiles</a><a class="headerlink" href="#integration-of-spring-mvc-and-tiles" title="Permalink to this headline">¶</a></h3>
 <div class="line-block">
-<div class="line"><code class="docutils literal"><span class="pre">org.springframework.web.servlet.view.tiles3.TilesViewResolver</span></code> can be used to integrate Spring MVC and Tiles.</div>
+<div class="line">It is advisable to use <code class="docutils literal"><span class="pre">org.springframework.web.servlet.view.tiles3.TilesViewResolver</span></code> for integrating Spring MVC and Tiles.</div>
 <div class="line">Implementation of Spring MVC Controller (returning View name) need not be changed.</div>
 </div>
 <p>How to configure is shown below.</p>
@@ -260,26 +256,15 @@
 <li>spring-mvc.xml</li>
 </ul>
 <blockquote>
-<div><div class="highlight-guess"><div class="highlight"><pre><span class="nt">&lt;bean</span> <span class="na">id=</span><span class="s">&quot;viewResolver&quot;</span>
-    <span class="na">class=</span><span class="s">&quot;org.springframework.web.servlet.view.InternalResourceViewResolver&quot;</span><span class="nt">&gt;</span> <span class="c">&lt;!-- (1) --&gt;</span>
-    <span class="nt">&lt;property</span> <span class="na">name=</span><span class="s">&quot;prefix&quot;</span> <span class="na">value=</span><span class="s">&quot;/WEB-INF/views/&quot;</span> <span class="nt">/&gt;</span>
-    <span class="nt">&lt;property</span> <span class="na">name=</span><span class="s">&quot;suffix&quot;</span> <span class="na">value=</span><span class="s">&quot;.jsp&quot;</span> <span class="nt">/&gt;</span>
-    <span class="nt">&lt;property</span> <span class="na">name=</span><span class="s">&quot;order&quot;</span> <span class="na">value=</span><span class="s">&quot;2&quot;</span> <span class="nt">/&gt;</span>
-<span class="nt">&lt;/bean&gt;</span>
+<div><div class="highlight-xml"><div class="highlight"><pre><span class="nt">&lt;mvc:view-resolvers&gt;</span>
+    <span class="nt">&lt;mvc:tiles</span> <span class="nt">/&gt;</span> <span class="c">&lt;!-- (1) --&gt;</span>
+    <span class="nt">&lt;mvc:jsp</span> <span class="na">prefix=</span><span class="s">&quot;/WEB-INF/views/&quot;</span> <span class="nt">/&gt;</span> <span class="c">&lt;!-- (2) --&gt;</span>
+<span class="nt">&lt;/mvc:view-resolvers&gt;</span>
 
-<span class="nt">&lt;bean</span> <span class="na">id=</span><span class="s">&quot;tilesViewResolver&quot;</span>
-    <span class="na">class=</span><span class="s">&quot;org.springframework.web.servlet.view.tiles3.TilesViewResolver&quot;</span><span class="nt">&gt;</span> <span class="c">&lt;!-- (2) --&gt;</span>
-    <span class="nt">&lt;property</span> <span class="na">name=</span><span class="s">&quot;order&quot;</span> <span class="na">value=</span><span class="s">&quot;1&quot;</span> <span class="nt">/&gt;</span>
-<span class="nt">&lt;/bean&gt;</span>
-
-<span class="nt">&lt;bean</span> <span class="na">id=</span><span class="s">&quot;tilesConfigurer&quot;</span>
-    <span class="na">class=</span><span class="s">&quot;org.springframework.web.servlet.view.tiles3.TilesConfigurer&quot;</span><span class="nt">&gt;</span> <span class="c">&lt;!-- (3) --&gt;</span>
-    <span class="nt">&lt;property</span> <span class="na">name=</span><span class="s">&quot;definitions&quot;</span><span class="nt">&gt;</span>
-        <span class="nt">&lt;list&gt;</span>
-            <span class="nt">&lt;value&gt;</span>/WEB-INF/tiles/tiles-definitions.xml<span class="nt">&lt;/value&gt;</span>
-        <span class="nt">&lt;/list&gt;</span>
-    <span class="nt">&lt;/property&gt;</span>
-<span class="nt">&lt;/bean&gt;</span>
+<span class="c">&lt;!-- (3) --&gt;</span>
+<span class="nt">&lt;mvc:tiles-configurer&gt;</span>
+    <span class="nt">&lt;mvc:definitions</span> <span class="na">location=</span><span class="s">&quot;/WEB-INF/tiles/tiles-definitions.xml&quot;</span> <span class="nt">/&gt;</span>
+<span class="nt">&lt;/mvc:tiles-configurer&gt;</span>
 </pre></div>
 </div>
 <table border="1" class="docutils">
@@ -297,37 +282,61 @@
 <div class="line">(1)</div>
 </div>
 </td>
-<td><div class="first last line-block">
-<div class="line">Define InternalResourceViewResolver.</div>
-<div class="line">jsp file saved under /WEB-INF/views/ is considered as the target.</div>
-<div class="line">When it does not correspond to the configuration file tiles-definitions.xml that defines Tiles, by specifying &#8220;2&#8221; in &#8216;order&#8217; of property definition, define the priority order so as to use <code class="docutils literal"><span class="pre">org.springframework.web.servlet.view.InternalResourceViewResolver</span></code>.</div>
-<div class="line">When file name of the jsp which is read does not match with the name attribute pattern of definition tag in Tiles definition file, <code class="docutils literal"><span class="pre">org.springframework.web.servlet.view.InternalResourceViewResolver</span></code> is used.</div>
-</div>
+<td><p class="first">Define <code class="docutils literal"><span class="pre">TilesViewResolver</span></code> using <code class="docutils literal"><span class="pre">&lt;mvc:tiles&gt;</span></code> element added from Spring Framework 4.1.</p>
+<p class="last">By defining it above <code class="docutils literal"><span class="pre">&lt;mvc:jsp&gt;</span></code>  element, first resolve <code class="docutils literal"><span class="pre">View</span></code> by referring to Tiles definition file (<code class="file docutils literal"><span class="pre">tiles-definitions.xml</span></code>).
+If View name returned from Controller matches with <code class="docutils literal"><span class="pre">name</span></code> attribute pattern of <code class="docutils literal"><span class="pre">definition</span></code> element in Tiles definition file, <code class="docutils literal"><span class="pre">View</span></code> is resolved by <code class="docutils literal"><span class="pre">TilesViewResolver</span></code>.</p>
 </td>
 </tr>
 <tr class="row-odd"><td><div class="first last line-block">
 <div class="line">(2)</div>
 </div>
 </td>
-<td><div class="first last line-block">
-<div class="line">Define TilesViewResovler.</div>
-<div class="line">Specify &#8220;1&#8221; in &#8216;order&#8217; of property definition and define the priority so that configuration file tiles-definitions.xml is used first.</div>
-<div class="line">When file name of the jsp which is read matches with the name attribute pattern of definition tag in Tiles definition file, <code class="docutils literal"><span class="pre">org.springframework.web.servlet.view.tiles3.TilesViewResolver</span></code> is used.</div>
-</div>
+<td><p class="first">Define <code class="docutils literal"><span class="pre">InternalResourceViewResolver</span></code> for JSP using <code class="docutils literal"><span class="pre">&lt;mvc:jsp&gt;</span></code> element added from Spring Framework 4.1.</p>
+<p class="last">By defining it below  <code class="docutils literal"><span class="pre">&lt;mvc:tiles&gt;</span></code> element, resolve <code class="docutils literal"><span class="pre">View</span></code> using &#8220;<code class="docutils literal"><span class="pre">InternalResourceViewResolver</span></code> for JSP&#8221; only for the View names that could not be resolved using <code class="docutils literal"><span class="pre">TilesViewResolver</span></code>.
+If a JSP file corresponding to View name exists under <code class="docutils literal"><span class="pre">/WEB-INF/views/</span></code> , <code class="docutils literal"><span class="pre">View</span></code> is resolved by <code class="docutils literal"><span class="pre">InternalResourceViewResolver</span></code> for JSP.</p>
 </td>
 </tr>
 <tr class="row-even"><td><div class="first last line-block">
 <div class="line">(3)</div>
 </div>
 </td>
-<td><div class="first last line-block">
-<div class="line">Specify the location of Tiles definition file.</div>
-<div class="line">Read /WEB-INF/tiles/tiles-definitions.xml.</div>
-</div>
+<td><p class="first">Read Tiles definition file using <code class="docutils literal"><span class="pre">&lt;mvc:tiles-configurer&gt;</span></code> element added from Spring Framework 4.1.</p>
+<p class="last">Specify Tiles definition file in <code class="docutils literal"><span class="pre">location</span></code> attribute of <code class="docutils literal"><span class="pre">&lt;mvc:definitions&gt;</span></code> element.</p>
 </td>
 </tr>
 </tbody>
 </table>
+<div class="admonition tip">
+<p class="first admonition-title">Tip</p>
+<p><code class="docutils literal"><span class="pre">&lt;mvc:view-resolvers&gt;</span></code> element is an XML element added from Spring Framework 4.1.
+If <code class="docutils literal"><span class="pre">&lt;mvc:view-resolvers&gt;</span></code>  element is used, it is possible to define <code class="docutils literal"><span class="pre">ViewResolver</span></code>  in a simple way.</p>
+<p>Example of definition when <code class="docutils literal"><span class="pre">&lt;bean&gt;</span></code> element is used in a conventional way is given below.</p>
+<blockquote>
+<div><div class="highlight-xml"><div class="highlight"><pre><span class="hll"><span class="nt">&lt;bean</span> <span class="na">id=</span><span class="s">&quot;tilesViewResolver&quot;</span>
+</span><span class="hll">    <span class="na">class=</span><span class="s">&quot;org.springframework.web.servlet.view.tiles3.TilesViewResolver&quot;</span><span class="nt">&gt;</span>
+</span><span class="hll">    <span class="nt">&lt;property</span> <span class="na">name=</span><span class="s">&quot;order&quot;</span> <span class="na">value=</span><span class="s">&quot;1&quot;</span> <span class="nt">/&gt;</span>
+</span><span class="hll"><span class="nt">&lt;/bean&gt;</span>
+</span><span class="hll">
+</span><span class="hll"><span class="nt">&lt;bean</span> <span class="na">id=</span><span class="s">&quot;tilesConfigurer&quot;</span>
+</span><span class="hll">    <span class="na">class=</span><span class="s">&quot;org.springframework.web.servlet.view.tiles3.TilesConfigurer&quot;</span><span class="nt">&gt;</span>
+</span><span class="hll">    <span class="nt">&lt;property</span> <span class="na">name=</span><span class="s">&quot;definitions&quot;</span><span class="nt">&gt;</span>
+</span><span class="hll">        <span class="nt">&lt;list&gt;</span>
+</span><span class="hll">            <span class="nt">&lt;value&gt;</span>/WEB-INF/tiles/tiles-definitions.xml<span class="nt">&lt;/value&gt;</span>
+</span><span class="hll">        <span class="nt">&lt;/list&gt;</span>
+</span><span class="hll">    <span class="nt">&lt;/property&gt;</span>
+</span><span class="hll"><span class="nt">&lt;/bean&gt;</span>
+</span>
+<span class="nt">&lt;bean</span> <span class="na">id=</span><span class="s">&quot;viewResolver&quot;</span>
+    <span class="na">class=</span><span class="s">&quot;org.springframework.web.servlet.view.InternalResourceViewResolver&quot;</span><span class="nt">&gt;</span>
+    <span class="nt">&lt;property</span> <span class="na">name=</span><span class="s">&quot;prefix&quot;</span> <span class="na">value=</span><span class="s">&quot;/WEB-INF/views/&quot;</span> <span class="nt">/&gt;</span>
+    <span class="nt">&lt;property</span> <span class="na">name=</span><span class="s">&quot;suffix&quot;</span> <span class="na">value=</span><span class="s">&quot;.jsp&quot;</span> <span class="nt">/&gt;</span>
+    <span class="nt">&lt;property</span> <span class="na">name=</span><span class="s">&quot;order&quot;</span> <span class="na">value=</span><span class="s">&quot;2&quot;</span> <span class="nt">/&gt;</span>
+<span class="nt">&lt;/bean&gt;</span>
+</pre></div>
+</div>
+</div></blockquote>
+<p class="last">In <code class="docutils literal"><span class="pre">order</span></code>property, specify a value that is lesser than <code class="docutils literal"><span class="pre">InternalResourceViewResolver</span></code> to ensure that it gets a high priority.</p>
+</div>
 </div></blockquote>
 <p><strong>Tiles Definition</strong></p>
 <ul class="simple">
@@ -497,7 +506,7 @@ In Blank project, /WEB-INF/views/common/error/xxxError.jsp format is used so tha
 </div>
 </td>
 <td><div class="first last line-block">
-<div class="line">Add the custom tag (TLD) definition for Tiles.</div>
+<div class="line">Add a custom tag (TLD) definition for Tiles.</div>
 </div>
 </td>
 </tr>
@@ -506,19 +515,19 @@ In Blank project, /WEB-INF/views/common/error/xxxError.jsp format is used so tha
 </div>
 </td>
 <td><div class="first last line-block">
-<div class="line">Add the custom tag (TLD) definition for Tiles-extras.</div>
+<div class="line">Add a custom tag (TLD) definition for Tiles-extras.</div>
 </div>
 </td>
 </tr>
 </tbody>
 </table>
 </div></blockquote>
-<p>For custom tags details on View, refer to <a class="reference external" href="http://tiles.apache.org/framework/tiles-jsp/tagreference.html">Tiles Tag Reference</a>.</p>
+<p>For details about custom tags of Tiles, refer to <a class="reference external" href="http://tiles.apache.org/framework/tiles-jsp/tagreference.html">Here</a>.</p>
 <div class="admonition tip">
 <p class="first admonition-title">Tip</p>
 <div class="last line-block">
-<div class="line">Tiles version-2 had one taglib, but tiles-extras taglib is added in version-3.</div>
-<div class="line">&#8220;useAttribute&#8221; tag move from tiles taglib to tiles-extras taglib in version-3, hence should be careful while using.</div>
+<div class="line">Tiles version-2 had one taglib, but tiles-extras taglib is added from version-3.</div>
+<div class="line">useAttribute tag which was available in tiles taglib in version-2 is moved to tiles-extras taglib from version-3, hence should be careful while using.</div>
 <div class="line">e.g. ) <cite>&lt;tiles:useAttribute&gt;</cite> : version 2 -&gt; <cite>&lt;tilesx:useAttribute&gt;</cite> : version 3</div>
 </div>
 </div>
@@ -780,7 +789,7 @@ perform the settings such that &#8220;staff/createForm&#8221; is returned from t
 </div></blockquote>
 <p><strong>Creating screen</strong></p>
 <p>When <code class="docutils literal"><span class="pre">&lt;contextPath&gt;/staff/create?form</span></code> is called in request,
-Tiles constructs the layout and creates screen, as shown below.</p>
+Tiles construct the layout and create screen, as shown below.</p>
 <blockquote>
 <div><div class="highlight-xml"><div class="highlight"><pre><span class="nt">&lt;definition</span> <span class="na">name=</span><span class="s">&quot;layouts&quot;</span>
     <span class="na">template=</span><span class="s">&quot;/WEB-INF/views/layout/template.jsp&quot;</span><span class="nt">&gt;</span> <span class="c">&lt;!-- (1) --&gt;</span>

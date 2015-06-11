@@ -1,4 +1,4 @@
-Criterion-based mapping of guideline
+Criteria based mapping of guideline
 ================================================================================
 The chapter 4 of this guideline is structured functionality wise. 
 This section shows a mapping from a point of view other than functionality. It indicates which 
@@ -16,9 +16,9 @@ links to explanation of functionalities related to security have been given
    :header-rows: 1
    :widths: 10 40 50
 
-   * - No.
+   * - Sr. No.
      - Item Name
-     - Correcsponding Guideline
+     - Corresponding Guideline
    * - A1
      - `Injection <https://www.owasp.org/index.php/Top_10_2013-A1-Injection>`_ SQL Injection
      - * \ :doc:`../ArchitectureInDetail/DataAccessMyBatis3`\

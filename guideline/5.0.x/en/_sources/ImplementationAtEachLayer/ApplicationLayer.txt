@@ -36,18 +36,18 @@ Implementing Controller
 | The Controller performs the following roles.
 
 #. | **Provides a method to receive the request.**
-   | Receives requests by implementing methods to which \ ``@RequestMapping``\ annotation is assigned.
+   | Receives requests by implementing methods to which \ ``@RequestMapping``\  annotation is assigned.
 #. | **Performs input validation of request parameter.**
    | For request which requires input validation of request parameters, it can be  performed by specifying \ ``@Validated``\  annotation to form object argument of method which receives the request.
-   | Performs single item check using Bean Validation and correlation check by Spring Validator or Bean Validation.
+   | Perform single item check using Bean Validation and correlation check using Spring Validator or Bean Validation.
 #. | **Calls business logic.**
    | Controller does not implement business logic but delegates by calling Service method.
 #. | **Reflects the output of business logic to Model.**
-   | The output can be referred in View by reflecting domain object returned from Service method to \ ``Model``\.
+   | The output can be referred in View by reflecting domain object returned from Service method to \ ``Model``\ .
 #. | **Returns View name corresponding to business logic output.**
    | Controller does not implement the logic of rendering the view. Rendering is done in View technologies like JSP etc.
    | Controller only returns the name of the view in which the rendering logic is implemented.
-   | The View corresponding to view name is resolved by \ ``ViewResolver``\ provided by Spring Framework.
+   | The View corresponding to view name is resolved by \ ``ViewResolver``\  provided by Spring Framework.
 
 .. figure:: images_ApplicationLayer/application_logic-of-controller.png
    :alt: responsibility of logic
@@ -58,7 +58,7 @@ Implementing Controller
 
 .. note::
  
- **It is recommended that controller implements only the routing logic** such as calling business logic, reflecting output of the business logic to \ ``Model``\, deciding the View name is implemented in the Controller.
+ **It is recommended that controller implements only the routing logic** such as calling business logic, reflecting output of the business logic to \ ``Model``\ , deciding the View name is implemented in the Controller.
 
 |
 
@@ -92,8 +92,8 @@ Creating Controller class
 
 Mapping request and processing method
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-| \ ``@RequestMapping``\ annotation is assigned to the method that receives request.
-| In this document, the method to which \ ``@RequestMapping``\ is added, is called as "processing method".
+| \ ``@RequestMapping``\  annotation is assigned to the method that receives request.
+| In this document, the method to which \ ``@RequestMapping``\  is added, is called as "processing method".
 
  .. code-block:: java
 
@@ -104,14 +104,14 @@ Mapping request and processing method
 
 |
 
-The rules for mapping the incoming request with a processing method can be specifying as attributes of \ ``@RequestMapping``\ annotation. 
+The rules for mapping the incoming request with a processing method can be specifying as attributes of \ ``@RequestMapping``\  annotation. 
 
  .. tabularcolumns:: |p{0.10\linewidth}|p{0.10\linewidth}|p{0.80\linewidth}|
  .. list-table::
    :header-rows: 1
    :widths: 10 10 80
 
-   * - Sr.No.
+   * - Sr. No.
      - Attribute name
      - Description
    * - 1.
@@ -119,15 +119,15 @@ The rules for mapping the incoming request with a processing method can be speci
      - | Specify request path which needs to be mapped (multiple values allowed).
    * - 2.
      - method
-     - | Specify HTTP method (\ ``RequestMethod``\ type) which needs to be mapped (multiple methods allowed).
+     - | Specify HTTP method (\ ``RequestMethod``\  type) which needs to be mapped (multiple methods allowed).
        | GET/POST are mainly used for mapping requests from HTML form, while other HTTP methods (such as PUT/DELETE) are used for mapping requests from REST APIs as well. 
    * - 3.
      - params
-     - | Specify request parameters which needs to be mapped (multiple parameters allowed).
+     - | Specify request parameters which need to be mapped (multiple parameters allowed).
        | Request parameters are mainly used for mapping request from HTML form. If this mapping method is used, the case of mapping multiple buttons on HTML page can be implemented easily.
    * - 4.
      - headers
-     - | Specify request headers which needs to be mapped (multiple headers allowed).
+     - | Specify request headers which need to be mapped (multiple headers allowed).
        | Mainly used while mapping REST API and Ajax requests.
    * - 5.
      - consumes
@@ -170,12 +170,12 @@ The rules for mapping the incoming request with a processing method can be speci
    :header-rows: 1
    :widths: 10 90
 
-   * - Sr.No.
+   * - Sr. No.
      - Description
    * - | (1)
-     - With \ ``@Controller``\, it is recognized as Annotation-based controller class and becomes the target of component scan.
+     - With \ ``@Controller``\ , it is recognized as Annotation-based controller class and becomes the target of component scan.
    * - | (2)
-     - All the processing methods in this class are mapped to URLs with "sample" by adding ``@RequestMapping("sample")``\ annotation at class level. 
+     - All the processing methods in this class are mapped to URLs with "sample" by adding ``@RequestMapping("sample")``\  annotation at class level. 
 
 |
 
@@ -198,7 +198,7 @@ In case of the following definition, if the URL ``"sample/hello"`` is accessed, 
     @RequestMapping(value = {"hello", "bonjour"})
     public String hello() {
 
-Pattern can be specified instead of a specific value for request path. For details of specifying patterns, refer to reference documention of Spring Framework.
+Pattern can be specified instead of a specific value for request path. For details of specifying patterns, refer to reference documentation of Spring Framework.
 
 - `URI Template Patterns <http://docs.spring.io/spring/docs/4.1.4.RELEASE/spring-framework-reference/html/mvc.html#mvc-ann-requestmapping-uri-templates>`_\
 - `URI Template Patterns with Regular Expressions <http://docs.spring.io/spring/docs/4.1.4.RELEASE/spring-framework-reference/html/mvc.html#mvc-ann-requestmapping-uri-templates-regex>`_\
@@ -212,7 +212,7 @@ Pattern can be specified instead of a specific value for request path. For detai
 Mapping by HTTP method
 """"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 In case of the following definition, if the URL ``"sample/hello"`` is accessed with POST method, then  ``hello()`` method is executed.
-For the list of supported HTTP methods, refer to `Javadoc <http://docs.spring.io/spring/docs/4.1.4.RELEASE/javadoc-api/org/springframework/web/bind/annotation/RequestMethod.html>`_ of Spring framework.
+For the list of supported HTTP methods, refer to `Javadoc of Spring Framework <http://docs.spring.io/spring/docs/4.1.4.RELEASE/javadoc-api/org/springframework/web/bind/annotation/RequestMethod.html>`_.
 When not specified, all supported HTTP methods are mapped.
 
  .. code-block:: java
@@ -259,7 +259,7 @@ Supported formats are as follows.
    :header-rows: 1
    :widths: 8 25 67
 
-   * - Sr.No.
+   * - Sr. No.
      - Format
      - Explanation
    * - 1.
@@ -345,7 +345,7 @@ Functional overview of sample application is as follows.
     :header-rows: 1
     :widths: 10 20 70
 
-    * - Sr.No.
+    * - Sr. No.
       - Operation name
       - Overview
     * - 1.
@@ -392,7 +392,7 @@ Design the URL of the required requests.
     :header-rows: 1
     :widths: 10 30 60
 
-    * - Sr.No.
+    * - Sr. No.
       - Operation name
       - URL for each operation (pattern)
     * - 1.
@@ -413,7 +413,7 @@ Design the URL of the required requests.
 
  .. note::
  
-     ``"{id}"`` specified in URL of 'Fetching details of Entity', 'Entity update', 'Entity delete' operations is called as, `URI Template Pattern <http://docs.spring.io/spring/docs/4.1.4.RELEASE/spring-framework-reference/html/mvc.html#mvc-ann-requestmapping-uri-templates>`_\ and any value can be specified.
+     ``"{id}"`` specified in URL of 'Fetching details of Entity', 'Entity update', 'Entity delete' operations is called as, `URI Template Pattern <http://docs.spring.io/spring/docs/4.1.4.RELEASE/spring-framework-reference/html/mvc.html#mvc-ann-requestmapping-uri-templates>`_\  and any value can be specified.
      In this sample application, Entity ID is specified.
 
  Assigned URL of each operation of screen flow diagram is mapped as shown below:
@@ -439,7 +439,7 @@ Mapping request and processing method
    :header-rows: 1
    :widths: 5 20 15 22 10 13 15
 
-   * - | Sr.No.
+   * - | Sr. No.
      - | Operation name
      - | URL
      - | Request name
@@ -561,7 +561,7 @@ Mapping request and processing method
 |
 
 | Implementation of processing method for "Create New Entity" is shown below.
-| Here, the purpose is to understand mapping between request and processing method and therefore focus must on \ ``@RequestMapping``\.
+| Here, the purpose is to understand mapping between request and processing method and therefore focus must on \ ``@RequestMapping``\ .
 | The details of argument and return value (view name and view) of processing method are explained in the next chapter. 
 
 - :ref:`controller-mapping-policy-sampleapp-form-impl-label`
@@ -593,7 +593,7 @@ In order to display the form, ``form`` is specified as HTTP parameter.
    :header-rows: 1
    :widths: 10 90
 
-   * - Sr.No.
+   * - Sr. No.
      - Description
    * - | (1)
      - Specify ``"form"`` as value of ``params`` attribute.
@@ -664,10 +664,10 @@ Create view(JSP) of form screen.
    :header-rows: 1
    :widths: 10 90
 
-   * - Sr.No.
+   * - Sr. No.
      - Description
    * - | (1)
-     - Specify  \ ``name="confirm"``\ parameter for submit button to transit to confirmation screen.
+     - Specify  \ ``name="confirm"``\  parameter for submit button to transit to confirmation screen.
 
 |
 
@@ -697,7 +697,7 @@ To check user input in the form, data is sent by POST method and ``confirm`` is 
         if (result.hasErrors()) {
             return createRedo(form, model); // return "abc/createForm"; (2)
         }
-        // ommited
+        // omitted
         return "abc/createConfirm"; // (3)
     }
 
@@ -706,7 +706,7 @@ To check user input in the form, data is sent by POST method and ``confirm`` is 
    :header-rows: 1
    :widths: 10 90
 
-   * - Sr.No.
+   * - Sr. No.
      - Description
    * - | (1)
      - Specify "RequestMethod.POST" in ``method`` attribute and "confirm" in ``params`` attribute.
@@ -752,12 +752,12 @@ Create  the view (JSP) for user input confirmation screen.
    :header-rows: 1
    :widths: 10 90
 
-   * - Sr.No.
+   * - Sr. No.
      - Description
    * - | (1)
      - The values entered on form screen is set as the hidden fields of HTML form since they must be sent back to the server when Create or Back buttons are clicked.
    * - | (2)
-     - Specify \``name="redo"``\ parameter for submit button to return to form screen.
+     - Specify \``name="redo"``\  parameter for submit button to return to form screen.
    * - | (3)
      - Parameter name need not be specified for submit button. Submit button will do the actual create operation.
 
@@ -795,7 +795,7 @@ Implementing 'redisplay of form'
 
     @RequestMapping(value = "create", method = RequestMethod.POST, params = "redo") // (1)
     public String createRedo(AbcForm form, Model model) {
-        // ommited
+        // omitted
         return "abc/createForm"; // (2)
     }
 
@@ -804,7 +804,7 @@ Implementing 'redisplay of form'
    :header-rows: 1
    :widths: 10 90
 
-   * - Sr.No.
+   * - Sr. No.
      - Description
    * - | (1)
      - Specify "RequestMethod.POST" in ``method`` attribute and "redo" in ``params`` attribute.
@@ -862,7 +862,7 @@ Implementing 'create new user' business logic
         if (result.hasErrors()) {
             return createRedo(form, model); // return "abc/createForm";
         }
-        // ommited
+        // omitted
         return "redirect:/abc/create?complete"; // (2)
     }
 
@@ -871,7 +871,7 @@ Implementing 'create new user' business logic
    :header-rows: 1
    :widths: 10 90
 
-   * - Sr.No.
+   * - Sr. No.
      - Description
    * - | (1)
      - Specify ``RequestMethod.POST`` in ``method`` attribute. Do not specify ``params`` attribute.
@@ -913,7 +913,7 @@ In order to notify the completion of create process, ``complete`` must be presen
 
     @RequestMapping(value = "create", params = "complete") // (1)
     public String createComplete() {
-        // ommited
+        // omitted
         return "abc/createComplete"; // (2)
     }
 
@@ -922,7 +922,7 @@ In order to notify the completion of create process, ``complete`` must be presen
    :header-rows: 1
    :widths: 10 90
 
-   * - Sr.No.
+   * - Sr. No.
      - Description
    * - | (1)
      - Specify ``"complete"`` in ``params`` attribute.
@@ -955,7 +955,7 @@ Operation is described below.
 
 Placing multiple buttons on HTML form
 """"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
-To place multiple buttons on a single form, send HTTP parameter to identify the corresponding button and and so that the processing method of controller can be switched.
+To place multiple buttons on a single form, send HTTP parameter to identify the corresponding button and so that the processing method of controller can be switched.
 An example of Create button and Back button on input confirmation screen of sample application is explained here.
 
 'Create' button to perform 'user creation' and 'Back' button to redisplay 'create form' exists on the form of input confirmation screen as shown below.
@@ -981,10 +981,10 @@ the following code is required in HTML form.
    :header-rows: 1
    :widths: 10 90
 
-   * - Sr.No.
+   * - Sr. No.
      - Description
    * - | (1)
-     - In input confirmation screen ( ``"abc/createConfirm.jsp"`` ), specify \ ``name="redo"``\ parameter for Back button.
+     - In input confirmation screen ( ``"abc/createConfirm.jsp"`` ), specify \ ``name="redo"``\  parameter for Back button.
 
 For the operations when Back button is clicked, refer to :ref:`controller-mapping-policy-sampleapp-redo-impl-label`.
 
@@ -1011,7 +1011,7 @@ Source code of controller of sample application
         // Handling request of "/abc/create?form"
         @RequestMapping(value = "create", params = "form")
         public String createForm(AbcForm form, Model model) {
-            // ommited
+            // omitted
             return "abc/createForm";
         }
 
@@ -1022,14 +1022,14 @@ Source code of controller of sample application
             if (result.hasErrors()) {
                 return createRedo(form, model);
             }
-            // ommited
+            // omitted
             return "abc/createConfirm";
         }
 
         // Handling request of "POST /abc/create?redo"
         @RequestMapping(value = "create", method = RequestMethod.POST, params = "redo")
         public String createRedo(AbcForm form, Model model) {
-            // ommited
+            // omitted
             return "abc/createForm";
         }
 
@@ -1039,14 +1039,14 @@ Source code of controller of sample application
             if (result.hasErrors()) {
                 return createRedo(form, model);
             }
-            // ommited
+            // omitted
             return "redirect:/abc/create?complete";
         }
 
         // Handling request of "/abc/create?complete"
         @RequestMapping(value = "create", params = "complete")
         public String createComplete() {
-            // ommited
+            // omitted
             return "abc/createComplete";
         }
 
@@ -1060,8 +1060,8 @@ Source code of controller of sample application
 Regarding arguments of processing method
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-The arguments of processing method can be used to fetch various values `<http://docs.spring.io/spring/docs/4.1.4.RELEASE/spring-framework-reference/html/mvc.html#mvc-ann-arguments>`_
-However, as a principle rule, the following must be not be fetched using arguments of processing method of controller.
+The arguments of processing method can be used to fetch various values `<http://docs.spring.io/spring/docs/4.1.4.RELEASE/spring-framework-reference/html/mvc.html#mvc-ann-arguments>`_;
+however, as a principle rule, the following should not be fetched using arguments of processing method of controller.
 
 * ServletRequest
 * HttpServletRequest
@@ -1105,8 +1105,8 @@ Arguments depending on the purpose of usage are described below.
 
 Passing data to screen (View)
 """"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
-To pass data to be displayed on screen (View), fetch ``org.springframework.ui.Model``\ (Hereafter called as ``Model``) as argument of processing method and
-add the data (Object) to \ ``Model``\ object.
+To pass data to be displayed on screen (View), fetch ``org.springframework.ui.Model``\  (Hereafter called as ``Model``) as argument of processing method and
+add the data (Object) to \ ``Model``\  object.
 
 - SampleController.java
 
@@ -1142,27 +1142,27 @@ add the data (Object) to \ ``Model``\ object.
    :header-rows: 1
    :widths: 10 90
 
-   * - Sr.No.
+   * - Sr. No.
      - Description
    * - | (1)
-     -  \ Fetch ``Model``\ object as argument.
+     -  \ Fetch ``Model``\  object as argument.
    * - | (2)
-     - | Call \ ``addAttribute``\ method of \ ``Model``\ object received as argument, and add the data to \ ``Model``\ object.
+     - | Call \ ``addAttribute``\  method of \ ``Model``\  object received as argument, and add the data to \ ``Model``\  object.
        | For example, ``"HelloWorld!"`` string is added to the attribute name ``"hello"``.
    * - | (3)
-     - | If first argument of \ ``addAttribute``\ method is omitted, the class name beginning with lower case letter will become the attribute name.
+     - | If first argument of \ ``addAttribute``\  method is omitted, the class name beginning with lower case letter will become the attribute name.
        | For example, the result of ``model.addAttribute("helloBean", new HelloBean());`` is same as the result of ``model.addAttribute(new HelloBean());``
    * - | (4)
-     - | In View (JSP), it is possible to acquire the data added to \ ``Model``\ object by specifying "${Attribute name}".
+     - | In View (JSP), it is possible to acquire the data added to \ ``Model``\  object by specifying "${Attribute name}".
        | For example, HTML escaping is performed using  "${f:h(Attribute name)}" function of EL expression.
        | For details of functions of EL expression that perform HTML escaping, refer to :doc:`Cross Site Scripting <../Security/XSS>`.
    * - | (5)
-     - | The values of JavaBean stored in \ ``Model``\ can be acquired by specifying "${Attribute name.property name}".
+     - | The values of JavaBean stored in \ ``Model``\  can be acquired by specifying "${Attribute name.property name}".
    * - | (6)
      - | JSP is output in HTML format.
 
  .. note::
-   Even though the \ ``Model``\ is not used, it can be specified as an argument. Even if it is not required at the initial stage of implementation,
+   Even though the \ ``Model``\  is not used, it can be specified as an argument. Even if it is not required at the initial stage of implementation,
    it can be used later (so that the signature of methods need not be changed in future).
 
  .. note::
@@ -1175,8 +1175,8 @@ add the data (Object) to \ ``Model``\ object.
 
 Retrieving values from URL path
 """"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
-| To retrieve values from URL path, add \ ``@PathVariable``\ annotation to argument of processing method of controller.
-| In order to retrieve values from the path using \ ``@PathVariable``\ annotation, value of \ ``@RequestMapping``\ annotation must contain those values in the form of variables (for example, {id}).
+| To retrieve values from URL path, add \ ``@PathVariable``\  annotation to argument of processing method of controller.
+| In order to retrieve values from the path using \ ``@PathVariable``\  annotation, value of \ ``@RequestMapping``\  annotation must contain those values in the form of variables (for example, {id}).
 
  .. code-block:: java
     :emphasize-lines: 1,3,4
@@ -1195,33 +1195,31 @@ Retrieving values from URL path
    :header-rows: 1
    :widths: 10 90
 
-   * - Sr.No.
+   * - Sr. No.
      - Description
    * - | (1)
-     - | Specify the portion to be extracted as path variable in the value of \ ``@RequestMapping``\ annotation. Specify path variable in "{variable name}" format.
+     - | Specify the portion to be extracted as path variable in the value of \ ``@RequestMapping``\  annotation. Specify path variable in "{variable name}" format.
        | For example, 2 path variables such as  ``"id"`` and ``"version"`` are specified. 
    * - | (2)
-     - | Specify variable name of path variable in \ ``@PathVariable``\ annotation.
+     - | Specify variable name of path variable in \ ``@PathVariable``\  annotation.
        | For example, when the URL ``"sample/hello/aaaa/1"`` is accessed, the string ``"aaaa"`` is passed to argument "id".
    * - | (3)
-     - | Value attribute of ``@PathVariable``\ annotation can be omitted. When it is omitted, the argument name is considered as the request parameter name.
-       | For example, when the URL ``"sample/hello/aaaa/1"`` is accessed, value ``"1"`` is passed to argument "version".
-       | However, if value attribute is omitted,
+     - | Value attribute of ``@PathVariable``\  annotation can be omitted. When it is omitted, the argument name is considered as the request parameter name.
+       | In the above example, when the URL ``"sample/hello/aaaa/1"`` is accessed, value ``"1"`` is passed to argument "version".
+       | However, in this method compilation needs to be done by specifying either of:
 
-       * \ ``-g``\  option (mode for generate debug information)
-       * Java8's \ ``-parameters``\  option (mode for generate metadata of the reflection on the method parameters)
-
-       there is a need to compile with specifying either.
+       * \ ``-g``\  option (mode to output debug information)
+       * \ ``-parameters``\  option added from Java8 (mode to generate metadata for reflection in the method parameters)
 
 
  .. note::
-    Binding argument can be of any data type other than string. In case of different data type, \ ``org.springframework.beans.TypeMismatchException``\ is thrown and default response is 400 (Bad Request). 
+    Binding argument can be of any data type other than string. In case of different data type, \ ``org.springframework.beans.TypeMismatchException``\  is thrown and default response is 400 (Bad Request). 
     For example, when the URL ``"sample/hello/aaaa/v1"`` is accessed, an exception is thrown since ``"v1"`` cannot be converted into Integer type.
 
  .. warning::
-    When omitting the value attribute of ``@PathVariable``\ annotation, the application to be deployed must be compiled with \ ``-g``\  option or Java8's \ ``-parameters``\  option.
-    Compiling with those option has possibility of an impact on memory and performance, since information or processing required for debugging is inserted to the class after compiling.
-    Basically, explicitly specifying the value attribute is recommended.
+    When omitting the value attribute of ``@PathVariable``\  annotation, the application to be deployed needs to be compiled by specifying \ ``-g``\  option or \ ``-parameters``\  option which is added from Java8.
+    When these options are specified, there is a likely impact on memory and processing performance since information or processing required for debugging gets appended to the class after compilation.
+    Basically, it is recommended to explicitly specify the value attribute.
 
 |
 
@@ -1229,7 +1227,7 @@ Retrieving values from URL path
 
 Retrieving request parameters individually
 """"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
-To retrieve request parameters individually, add \ ``@RequestParam``\ annotation to argument.
+To retrieve request parameters individually, add \ ``@RequestParam``\  annotation to argument.
 
  .. code-block:: java
     :emphasize-lines: 3-6
@@ -1250,34 +1248,33 @@ To retrieve request parameters individually, add \ ``@RequestParam``\ annotation
    :header-rows: 1
    :widths: 10 90
 
-   * - Sr.No.
+   * - Sr. No.
      - Description
    * - | (1)
-     - | Specify request parameter name in the value attribute of \ ``@RequestParam``\ annotation.
+     - | Specify request parameter name in the value attribute of \ ``@RequestParam``\  annotation.
        | For example, when the URL ``"sample/hello?id=aaaa"`` is accessed, the string ``"aaaa"`` is passed to argument "id".
    * - | (2)
-     - | value attribute of ``@RequestParam``\ annotation can be omitted. When it is omitted, the argument name becomes the request parameter name. 
+     - | value attribute of ``@RequestParam``\  annotation can be omitted. When it is omitted, the argument name becomes the request parameter name. 
        | For example, when the URL ``"sample/hello?name=bbbb&...."`` is accessed, string ``"bbbb"`` is passed to argument "name".
-       | However, if value attribute is omitted,
+       | However, in this method compilation needs to be done by specifying either of:
 
-       * \ ``-g``\  option (mode for generate debug information)
-       * Java8's \ ``-parameters``\  option (mode for generate metadata of the reflection on the method parameters)
+       * \ ``-g``\  option (mode to output debug information)
+       * \ ``-parameters``\  option added from Java8 (mode to generate metadata for reflection in the method parameters)
 
-       there is a need to compile with specifying either.
    * - | (3)
      - | By default, an error occurs if the specified request parameter does not exist. When request parameter is not required, specify ``false`` in the ``required`` attribute.
-       | For example, when it is accessed where request parameter ``age`` does not exist, \ ``null``\ is passed to argument "age".
+       | For example, when it is accessed where request parameter ``age`` does not exist, \ ``null``\  is passed to argument "age".
    * - | (4)
      - | When default value is to be used if the specified request parameter does not exist, specify the default value in defaultValue attribute.
        | For example, when it is accessed where request parameter ``genderCode`` does not exist, ``"unknown"`` is passed to argument "genderCode".
 
 
  .. note::
-    When it is accessed without specifying mandatory parameters, \ ``org.springframework.web.bind.MissingServletRequestParameterException``\ is thrown and default operation is responded with 400 (Bad Request).
+    When it is accessed without specifying mandatory parameters, \ ``org.springframework.web.bind.MissingServletRequestParameterException``\  is thrown and default operation is responded with 400 (Bad Request).
     However, when defaultValue attribute is specified, the value specified in defaultValue attribute is passed without throwing exception.
 
  .. note::
-    Binding argument can be of any data type. In case the data type do not match, \ ``org.springframework.beans.TypeMismatchException``\ is thrown and default response is 400 (Bad Request).
+    Binding argument can be of any data type. In case the data type do not match, \ ``org.springframework.beans.TypeMismatchException``\  is thrown and default response is 400 (Bad Request).
     For example, when ``"sample/hello?age=aaaa&..."`` URL is accessed, exception is thrown since ``aaaa`` cannot be converted into Integer.
 
 |
@@ -1356,13 +1353,13 @@ Processing method that receives request parameter separately using ``@RequestPar
    :header-rows: 1
    :widths: 10 90
 
-   * - Sr.No.
+   * - Sr. No.
      - Description
    * - | (1)
-     - Receive \ ``SampleForm``\ object as argument.
+     - Receive \ ``SampleForm``\  object as argument.
 
  .. note::
-    When form object is used as argument, unlike \ ``@RequestParam``\,
+    When form object is used as argument, unlike \ ``@RequestParam``\ ,
     mandatory check is not performed. \ ** When using form object, ** :ref:`controller_method_argument-validation-label` ** should be performed as described below **\.
 
 .. warning::
@@ -1377,8 +1374,8 @@ Processing method that receives request parameter separately using ``@RequestPar
 
 Performing input validation
 """"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
-When performing input validation for the form object, add \ ``@Validated``\ annotation to form object argument, and specify \ ``org.springframework.validation.BindingResult``\ (Hereafter 
-called as \ ``BindingResult``\) to argument immediately after form object argument.
+When performing input validation for the form object, add \ ``@Validated``\  annotation to form object argument, and specify \ ``org.springframework.validation.BindingResult``\  (Hereafter 
+called as \ ``BindingResult``\ ) to argument immediately after form object argument.
 
 Refer to :doc:`../ArchitectureInDetail/Validation`  for the details of input validation.
 
@@ -1408,9 +1405,9 @@ Add annotations required in input validation to the fields of form object class.
     }
 
 
-| Add \ ``@Validated``\ annotation to form object argument.
+| Add \ ``@Validated``\  annotation to form object argument.
 | Input validation is performed for the argument with ``@Validated`` annotation before the processing method of controller is executed. The check result is stored in the argument \ ``BindingResult``\  which immediately follows form object argument.
-| The type conversion error that occurs when a data-type other than String is specified in form object, is also stored in \ ``BindingResult``\.
+| The type conversion error that occurs when a data-type other than String is specified in form object, is also stored in \ ``BindingResult``\ .
 
  .. code-block:: java
     :emphasize-lines: 2,3,5
@@ -1431,10 +1428,10 @@ Add annotations required in input validation to the fields of form object class.
    :header-rows: 1
    :widths: 10 90
 
-   * - Sr.No.
+   * - Sr. No.
      - Description
    * - | (1)
-     - Add \ ``@Validated``\ annotation to \ ``SampleForm``\ argument, and mark it as target for input validation. 
+     - Add \ ``@Validated``\  annotation to \ ``SampleForm``\  argument, and mark it as target for input validation. 
    * - | (2)
      - Specify \ ``BindingResult``\  in the argument where input validation result is stored.
    * - | (3)
@@ -1446,7 +1443,7 @@ Add annotations required in input validation to the fields of form object class.
 
 Passing data while redirecting request
 """"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
-To redirect after executing a processing method ofcontroller and to pass data along with it, fetch \ ``org.springframework.web.servlet.mvc.support.RedirectAttributes``\ (Henceforth called as \ ``RedirectAttributes``\) as an argument of processing method, 
+To redirect after executing a processing method ofcontroller and to pass data along with it, fetch \ ``org.springframework.web.servlet.mvc.support.RedirectAttributes``\  (Henceforth called as \ ``RedirectAttributes``\ ) as an argument of processing method, 
 and add the data to ``RedirectAttributes`` object.
 
 - SampleController.java
@@ -1487,26 +1484,26 @@ and add the data to ``RedirectAttributes`` object.
    :header-rows: 1
    :widths: 10 90
 
-   * - Sr.No.
+   * - Sr. No.
      - Description
    * - | (1)
-     - Fetch \ ``RedirectAttributes``\ object as argument of the processing method of controller.
+     - Fetch \ ``RedirectAttributes``\  object as argument of the processing method of controller.
    * - | (2)
-     - | Call \ ``addFlashAttribute``\ method of \ ``RedirectAttributes``\ and add the data to \ ``RedirectAttributes``\ object. 
+     - | Call \ ``addFlashAttribute``\  method of \ ``RedirectAttributes``\  and add the data to \ ``RedirectAttributes``\  object. 
        | For example, the string data ``"HelloWorld!"`` is added to attribute name ``"hello"``. 
    * - | (3)
-     - | If first argument of \ ``addFlashAttribute``\ method is omitted, the class name beginning with lower case letter becomes the attribute name.
+     - | If first argument of \ ``addFlashAttribute``\  method is omitted, the class name beginning with lower case letter becomes the attribute name.
        | For example, the result of ``model.addFlashAttribute("helloBean", new HelloBean());`` is same as ``model.addFlashAttribute(new HelloBean());``.
    * - | (4)
      - | Send a redirect request to another URL which will display the next screen instead of displaying screen (View) directly.
    * - | (5)
      - | In the processing method after redirection, return view name of the screen that displays the data added in (2) and (3).
    * - | (6)
-     - | In the View (JSP) side, the data added to \ ``RedirectAttributes``\ object can be obtained by specifying "${attribute name}".
+     - | In the View (JSP) side, the data added to \ ``RedirectAttributes``\  object can be obtained by specifying "${attribute name}".
        | For example, HTML escaping is performed using "${f:h(attribute name)}" function of EL expression.
        | For the details of functions of EL expression that performs HTML escaping, refer to :doc:`Cross Site Scripting <../Security/XSS>`.
    * - | (7)
-     - | The value stored in \ ``RedirectAttributes``\ can be obtained from JavaBean by using "${Attribute name.Property name}". 
+     - | The value stored in \ ``RedirectAttributes``\  can be obtained from JavaBean by using "${Attribute name.Property name}". 
    * - | (8)
      - | HTML output.
 
@@ -1515,8 +1512,8 @@ and add the data to ``RedirectAttributes`` object.
  
 .. note::
 
-    It is similar to the \ ``addAttribute``\ method of \ ``Model``\. However survival time of data differs. 
-    In \ ``addFlashAttribute``\ of \ ``RedirectAttributes``\, the data is stored in a scope called flash scope.
+    It is similar to the \ ``addAttribute``\  method of \ ``Model``\ . However survival time of data differs. 
+    In \ ``addFlashAttribute``\  of \ ``RedirectAttributes``\ , the data is stored in a scope called flash scope.
     Data of only 1 request (G in PRG pattern) can be referred after redirect. The data from the second request onwards is deleted.
 
 
@@ -1533,7 +1530,7 @@ and add the data to ``RedirectAttributes`` object.
 
 Passing request parameters to redirect destination
 """"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
-When request parameters are to be set dynamically to redirect destination, add the values to be passed to \ ``RedirectAttributes``\ object of argument. 
+When request parameters are to be set dynamically to redirect destination, add the values to be passed to \ ``RedirectAttributes``\  object of argument. 
 
  .. code-block:: java
     :emphasize-lines: 4
@@ -1551,15 +1548,15 @@ When request parameters are to be set dynamically to redirect destination, add t
    :header-rows: 1
    :widths: 10 90
 
-   * - Sr.No.
+   * - Sr. No.
      - Description
    * - | (1)
-     - | Specify request parameter name in argument ``name and request parameter value in argument ``value`` and call \ ``addAttribute``\ method of \ ``RedirectAttributes``\ object. 
+     - | Specify request parameter name in argument ``name and request parameter value in argument ``value`` and call \ ``addAttribute``\  method of \ ``RedirectAttributes``\  object. 
        | In the above example, it is redirected to ``"/sample/hello?complete&id=aaaa"``.
        
 .. warning::
-    In the above example, the result is the same as of ``return "redirect:/sample/hello?complete&id=" + id;``\ (as shown in the commented out line in the above example).
-    However, since URL encoding is also performed if \ ``addAttribute``\  method of ``RedirectAttributes``\ object is used,
+    In the above example, the result is the same as of ``return "redirect:/sample/hello?complete&id=" + id;``\  (as shown in the commented out line in the above example).
+    However, since URL encoding is also performed if \ ``addAttribute``\  method of ``RedirectAttributes``\  object is used,
     the request parameters that needs to be inserted dynamically **should be set to the request parameter using addAttribute method and should not be set to redirect URL specified as return value.**
     The request parameters which are not to be inserted dynamically ("complete" as in the above example), can be directly specified in the redirect URL specified as the return value.
 
@@ -1569,7 +1566,7 @@ When request parameters are to be set dynamically to redirect destination, add t
 
 Inserting values in redirect destination URL path
 """"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
-To insert values in redirect destination URL path dynamically, add the value to be inserted in \ ``RedirectAttributes``\ object of argument as shown in the example to set request parameters.
+To insert values in redirect destination URL path dynamically, add the value to be inserted in \ ``RedirectAttributes``\  object of argument as shown in the example to set request parameters.
 
  .. code-block:: java
     :emphasize-lines: 4,6
@@ -1587,17 +1584,17 @@ To insert values in redirect destination URL path dynamically, add the value to 
    :header-rows: 1
    :widths: 10 90
 
-   * - Sr.No.
+   * - Sr. No.
      - Description
    * - | (1)
-     - | Specify attribute name and the value using \ ``addAttribute``\ method of \ ``RedirectAttributes``\ object. 
+     - | Specify attribute name and the value using \ ``addAttribute``\  method of \ ``RedirectAttributes``\  object. 
    * - | (2)
      - | Specify the path of the variable "{Attribute name}"  to be inserted in the redirect URL. 
        | In the above example, it is redirected to ``"/sample/hello/aaaa?complete"``.
 
 .. warning::
-    In the above example, the result is same as of ``"redirect:/sample/hello/" + id + "?complete";``\ (as shown in the commented out line in the above example).
-    However, since URL encoding is also performed when using \ ``addAttribute``\  method of ``RedirectAttributes``\ object,
+    In the above example, the result is same as of ``"redirect:/sample/hello/" + id + "?complete";``\  (as shown in the commented out line in the above example).
+    However, since URL encoding is also performed when using \ ``addAttribute``\  method of ``RedirectAttributes``\  object,
     the path values to be inserted dynamically **should be inserted using addAttribute method and path variable and should not be set to redirect URL specified as return value.**
 
 |
@@ -1606,7 +1603,7 @@ To insert values in redirect destination URL path dynamically, add the value to 
 
 Acquiring values from Cookie
 """"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
-Add \ ``@CookieValue``\ annotation to the argument of processing method to acquire the values from a cookie. 
+Add \ ``@CookieValue``\  annotation to the argument of processing method to acquire the values from a cookie. 
 
  .. code-block:: java
     :emphasize-lines: 2
@@ -1622,10 +1619,10 @@ Add \ ``@CookieValue``\ annotation to the argument of processing method to acqui
    :header-rows: 1
    :widths: 10 90
 
-   * - Sr.No.
+   * - Sr. No.
      - Description
    * - | (1)
-     - | Specify name of the cookie in the ``value`` attribute of \ ``@CookieValue``\ annotation. 
+     - | Specify name of the cookie in the ``value`` attribute of \ ``@CookieValue``\  annotation. 
        | In the above example, "JSESSIONID" value is passed from cookie to sessionId argument.
 
 .. note::
@@ -1638,7 +1635,7 @@ Add \ ``@CookieValue``\ annotation to the argument of processing method to acqui
 
 Writing values in Cookie
 """"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
-| To write values in cookie, call \ ``addCookie``\ method of \ ``HttpServletResponse``\ object directly and add the value to cookie.
+| To write values in cookie, call \ ``addCookie``\  method of \ ``HttpServletResponse``\  object directly and add the value to cookie.
 | Since there is no way to write to cookie in Spring MVC  (3.2.3 version), ** Only in this case, HttpServletResponse can fetched as an argument of processing method of controller.** 
 
  .. code-block:: java
@@ -1658,17 +1655,17 @@ Writing values in Cookie
    :header-rows: 1
    :widths: 10 90
 
-   * -  Sr.No.
+   * -  Sr. No.
      - Description
    * - | (1)
-     - Specify \ ``HttpServletResponse``\ object as argument to write to cookie. 
+     - Specify \ ``HttpServletResponse``\  object as argument to write to cookie. 
    * - | (2)
-     - | Generate \ ``Cookie``\ object and add to \ ``HttpServletResponse``\ object. 
+     - | Generate \ ``Cookie``\  object and add to \ ``HttpServletResponse``\  object. 
        | For example, ``"hello world!"``  value is assigned to Cookie name ``"foo"``. 
 
 .. tip::
 
-    No difference compared to use of \ ``HttpServletResponse``\ which fetched as an argument of processing method, however,  \ ``org.springframework.web.util.CookieGenerator``\ class is provided by Spring
+    No difference compared to use of \ ``HttpServletResponse``\  which fetched as an argument of processing method, however,  \ ``org.springframework.web.util.CookieGenerator``\  class is provided by Spring
     as a class to write values in cookie. It should be used if required. 
 
 |
@@ -1678,7 +1675,7 @@ Writing values in Cookie
 Retrieving pagination information
 """"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 | Pagination related information is required for the requests performing list search. 
-| Fetching ``org.springframework.data.domain.Pageable``\ (henceforth called as \ ``Pageable``\ ) object as an argument of processing method enables to handle pagination related information (page count, fetch record count) easily.
+| Fetching ``org.springframework.data.domain.Pageable``\  (henceforth called as \ ``Pageable``\ ) object as an argument of processing method enables to handle pagination related information (page count, fetch record count) easily.
 
  Refer to :doc:`../ArchitectureInDetail/Pagination`  for details.
 
@@ -1701,7 +1698,7 @@ Refer to :doc:`../ArchitectureInDetail/FileUpload`  for details.
 
 Displaying result message on the screen
 """"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
-\ ``Model``\  object or \ ``RedirectAttributes``\ object can be obtained as an argument of processing method and 
+\ ``Model``\  object or \ ``RedirectAttributes``\  object can be obtained as an argument of processing method and 
 result message of business logic execution can be displayed by adding \ ``ResultMessages``\  object to Model or RedirectAttributes.
 
 
@@ -1714,8 +1711,8 @@ Refer to :doc:`../ArchitectureInDetail/MessageManagement`  for details.
 
 Regarding return value of processing method
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-Various return types supported by the processing method are given in <http://docs.spring.io/spring/docs/4.1.4.RELEASE/spring-framework-reference/html/mvc.html#mvc-ann-return-types>'_  however,
-only the following basic values should be used.
+For return values of processing methods, `various values can be fetched <http://docs.spring.io/spring/docs/4.1.4.RELEASE/spring-framework-reference/html/mvc.html#mvc-ann-return-types>`_ ; however,
+only the following values should be used.
 
 
 - String (for logical name of view)
@@ -1732,21 +1729,32 @@ Return types depending on the purpose of usage are described below:
 HTML response
 """"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 | To get HTML response to display the output of processing method, it has to return view name of JSP.
-| ViewResolver, at the time of generating HTML using JSP,  must be extended class of \ ``UrlBasedViewResolver``\  (\ ``InternalViewResolver``\  and \ ``TilesViewResolver``\ ). 
+| \ ``ViewResolver``\  when generating HTML using JSP will be an inherited class of \ ``UrlBasedViewResolver``\  (\ ``InternalViewResolver``\  and``TilesViewResolver``\ , etc).
 
-| An example using \ ``InternalViewResolver``\ is mentioned below, however, it is recommended to use \ ``TilesViewResolver``\  when the screen layout is in templated format.
-| Refer to :doc:`../ArchitectureInDetail/TilesLayout`  for the usage of \ ``TilesViewResolver``\.
+| An example using \ ``InternalViewResolver``\  for JSP is given below; however, it is recommended to use \ ``TilesViewResolver``\  when the screen layout is in a templated format.
+| Refer to :doc:`../ArchitectureInDetail/TilesLayout`  for the usage of \ ``TilesViewResolver``\ .
 
 - spring-mvc.xml
 
+Example of definition when \ ``<bean>``\  element is to be used
+ 
  .. code-block:: xml
-    :emphasize-lines: 2-4
 
+    <!-- (1) -->
     <bean class="org.springframework.web.servlet.view.InternalResourceViewResolver">
-        <property name="prefix" value="/WEB-INF/views/" /> <!-- (1) -->
-        <property name="suffix" value=".jsp" /> <!-- (2) -->
-        <property name="order" value="1" /> <!-- (3) -->
+        <property name="prefix" value="/WEB-INF/views/" /> <!-- (2) -->
+        <property name="suffix" value=".jsp" /> <!-- (3) -->
+        <property name="order" value="1" /> <!-- (4) -->
     </bean>
+
+ Example of definition when using \ ``<mvc:view-resolvers>``\  element added from Spring Framework 4.1
+
+ .. code-block:: xml
+
+    <mvc:view-resolvers>
+        <mvc:jsp prefix="/WEB-INF/views/" /> <!-- (5) -->
+    </mvc:view-resolvers>
+
 
 - SampleController.java
 
@@ -1755,8 +1763,8 @@ HTML response
 
     @RequestMapping("hello")
     public String hello() {
-        // ommited
-        return "sample/hello"; // (4)
+        // omitted
+        return "sample/hello"; // (6)
     }
 
  .. tabularcolumns:: |p{0.10\linewidth}|p{0.90\linewidth}|
@@ -1764,18 +1772,35 @@ HTML response
    :header-rows: 1
    :widths: 10 90
 
-   * - S.No.
+   * - Sr. No.
      - Description
    * - | (1)
-     - | Specify base directory (prefix of file path) where JSP files are stored.
-       | By specifying prefix of file path, there is no need to specify physical storage location of JSP files, at the time of returning view name in the processing method of controller. 
+     - Define \ ``InternalViewResolver``\  for JSP.
    * - | (2)
-     - | Specify extension (suffix of file path) of JSP file.
-       | By specifying suffix of file path, there is no need to specify extention of JSP files, at the time of returning view name in the processing method of controller. 
+     - Specify base directory (prefix of file path) where JSP files are stored.
+
+       By specifying prefix, there is no need to specify physical storage location of JSP files at the time of returning View name in Controller.
    * - | (3)
-     - | Specify execution order when multiple ViewResolvers are specified. It can be specified in the range of Integers and executed in increasing order.
+     - Specify extension (suffix of file path) of JSP file.
+
+       By specifying suffix, specifying extension of JSP files at the time of returning View name in Controller is no longer needed.
    * - | (4)
-     - | When View name ``"sample/hello"`` is the return value of processing method, ``"/WEB-INF/views/sample/hello.jsp"`` is displayed.
+     - Specify execution order when multiple \ ``ViewResolver``\  are specified.
+
+       It can be specified in the range of \ ``Integer``\  and executed sequentially from smallest value.
+   * - | (5)
+     - Define \ ``InternalViewResolver``\  for JSP using \ ``<mvc:jsp>``\  element added from Spring Framework 4.1.
+
+       * In \ ``prefix``\  attribute, specify base directory (prefix of file path) where JSP file is stored.
+       * It need  not be explicitly specified in \ ``prefix``\  attribute as \ ``".jsp"``\  is used as default value.
+
+       .. note::
+
+           When \ ``<mvc:view-resolvers>``\  element is used, it is possible to define \ ``ViewResolver``\  in simple way.
+           Hence this guideline recommends to use \ ``<mvc:view-resolvers>``\ .
+
+   * - | (6)
+     - When View name ``"sample/hello"`` is the return value of processing method, ``"/WEB-INF/views/sample/hello.jsp"`` is called and HTML is sent as response.
 
 .. note::
     HTML output is generated using JSP in the above example, however, even if HTML is generated using other template engine such as Velocity, FreeMarker, return value of processing method will be ``"sample/hello``. 
@@ -1791,17 +1816,36 @@ Responding to downloaded data
 | for generating response data (download process).The processing method adds the data to be downloaded to \ ``Model``\  and returns 
 | name of the view which performs the actual download process.
 
-| The solution to create a separate ViewResolver to resolve a view using its view name, however, \ ``BeanNameViewResolver``\ provided by Spring Framework is recommended.
+| The solution to create a separate ViewResolver to resolve a view using its view name, however, \ ``BeanNameViewResolver``\  provided by Spring Framework is recommended.
 | Refer to :doc:`../ArchitectureInDetail/FileDownload`  for the details of download processing.
 
 - spring-mvc.xml
 
+ Example of definition when \ ``<bean>``\  element is to be used
+
  .. code-block:: xml
-    :emphasize-lines: 1-2
-    
-    <bean class="org.springframework.web.servlet.view.BeanNameViewResolver"> <!-- (1) -->
-         <property name="order" value="0" /> <!-- (2) -->
+    :emphasize-lines: 1-4
+
+    <!-- (1) -->
+    <bean class="org.springframework.web.servlet.view.BeanNameViewResolver">
+        <property name="order" value="0"/> <!-- (2) -->
     </bean>
+
+    <bean class="org.springframework.web.servlet.view.InternalResourceViewResolver">
+        <property name="prefix" value="/WEB-INF/views/" />
+        <property name="suffix" value=".jsp" />
+        <property name="order" value="1" />
+    </bean>
+
+ Example of definition when using \ ``<mvc:view-resolvers>``\  element added from Spring Framework 4.1
+
+ .. code-block:: xml
+    :emphasize-lines: 2
+
+    <mvc:view-resolvers>
+        <mvc:bean-name /> <!-- (3) -->
+        <mvc:jsp prefix="/WEB-INF/views/" />
+    </mvc:view-resolvers>
 
 - SampleController.java
 
@@ -1810,8 +1854,8 @@ Responding to downloaded data
 
     @RequestMapping("report")
     public String report() {
-        // ommited
-        return "sample/report"; // (3)
+        // omitted
+        return "sample/report"; // (4)
     }
 
 
@@ -1820,8 +1864,8 @@ Responding to downloaded data
  .. code-block:: java
     :emphasize-lines: 1-2
 
-    @Component("sample/report") // (4)
-    public class XxxExcelView extends AbstractExcelView { // (5)
+    @Component("sample/report") // (5)
+    public class XxxExcelView extends AbstractExcelView { // (6)
         @Override
         protected void buildExcelDocument(Map<String, Object> model,
                 HSSFWorkbook workbook, HttpServletRequest request,
@@ -1846,20 +1890,35 @@ Responding to downloaded data
    :header-rows: 1
    :widths: 10 90
 
-   * - S.No.
+   * - Sr. No.
      - Description
    * - | (1)
-     - \ ``BeanNameViewResolver``\ is the class that resolves the view by searching for the bean which matches with the returned view name, from application context.
+     - Define \ ``BeanNameViewResolver``\ .
+
+       \ ``BeanNameViewResolver``\  is a class that resolves View by searching for the bean which matches with the returned View name, from application context.
    * - | (2)
-     - | When \ ``BeanNameViewResolver``\ is used along with \ ``InternalViewResolver``\ or \ ``TilesViewResolver``\ , it is recommended to give it a higher priority compared to these other ViewResolvers. 
-       | For example, If ``"0"`` is specified as the priority for \ ``BeanNameViewResolver``\, \ ``BeanNameViewResolver``\ is used prior to \ ``InternalViewResolver``\ to resolve a view.
+     - When \ ``InternalViewResolver``\  for JSP and \ ``TilesViewResolver``\  are to be used together, it is recommended to give it a higher priority compared to these \ ``ViewResolver``\ .
+       In the above example, by specifying ``"0"``, View is resolved by \ ``BeanNameViewResolver``\  prior to \ ``InternalViewResolver``\ .
    * - | (3)
-     - | When ``"sample/report"`` is returned by the process menthod, the data generated by the view instance registered as bean in step (4) is returned as download data.
+     - Define \ ``BeanNameViewResolver``\  using \ ``<mvc:bean-name>``\  element added from Spring Framework 4.1.
+
+       When defining \ ``ViewResolver``\  using \ ``<mvc:view-resolvers>``\  element, definition order of \ ``ViewResolver``\  specified in child element will be the priority order.
+       In the above example, by defining it above (\ ``<mvc:jsp>``\ ) element in order to define \ ``InternalViewResolver``\  for JSP, View is resolved by ``BeanNameViewResolver``\  prior to \ ``InternalViewResolver``\  for JSP.
+
+       .. note::
+
+           When \ ``<mvc:view-resolvers>``\  element is used, it is possible to define \ ``ViewResolver``\  in a simple way.
+           Hence, this guideline recommends to use \ ``<mvc:view-resolvers>``\ .
    * - | (4)
-     - | Specify view name as name of the component and register view object as a bean.
-       | For example, ``x.y.z.app.views.XxxExcelView`` instance is registered as a bean with bean name (view name) as ``"sample/report"`` .
+     - When View name ``"sample/report"`` is the return value of processing method, the data generated by View instance which is registered in step (5), is responded as download data.
    * - | (5)
-     - | Example of view implementation. View class that extends ``org.springframework.web.servlet.view.document.AbstractExcelView`` and generates Excel data.
+     - Register View object as Bean by specifying View name to the name of component.
+
+       In above example, ``x.y.z.app.views.XxxExcelView`` instance is registered as a bean with bean name (view name) as ``"sample/report"`` .
+   * - | (6)
+     - Example of View implementation.
+
+       Implementation of View class that inherits ``org.springframework.web.servlet.view.document.AbstractExcelView`` and generates Excel data.
 
 |
 |
@@ -1889,11 +1948,11 @@ Operations to be performed in controller are shown below:
 
 Correlation check of input value
 """"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
-| Correlation check of input values should be done using ``Validation`` class which implements \ ``org.springframework.validation.Validator``\ interface. 
+| Correlation check of input values should be done using ``Validation`` class which implements \ ``org.springframework.validation.Validator``\  interface. 
 | Bean Validation can also be used for correlation check of input values.
 | Refer to :doc:`../ArchitectureInDetail/Validation`  for the details of implementation of correlation check.
 
-| The implementation of correlation check itself should not be written in the processing method of controller. However, it is necessary to add the  \ ``Validator``\ to \ ``org.springframework.web.bind.WebDataBinder``\. 
+| The implementation of correlation check itself should not be written in the processing method of controller. However, it is necessary to add the  \ ``Validator``\  to \ ``org.springframework.web.bind.WebDataBinder``\ . 
 
  .. code-block:: java
     :emphasize-lines: 2,6
@@ -1911,13 +1970,13 @@ Correlation check of input value
    :header-rows: 1
    :widths: 10 90
 
-   * - Sr.No.
+   * - Sr. No.
      - Description
    * - | (1)
-     - Inject \ ``Validator``\ that performs correlation check.
+     - Inject \ ``Validator``\  that performs correlation check.
    * - | (2)
-     - | Add the injected \ ``Validator``\  to \ ``WebDataBinder``\.
-       | Adding the above to \ ``WebDataBinder``\  enables correlation check by executing \ ``Validator``\ before the processing method gets called.
+     - | Add the injected \ ``Validator``\  to \ ``WebDataBinder``\ .
+       | Adding the above to \ ``WebDataBinder``\  enables correlation check by executing \ ``Validator``\  before the processing method gets called.
 
 |
 
@@ -1945,7 +2004,7 @@ Execute business logic by injecting the Service in which business logic is imple
    :header-rows: 1
    :widths: 10 90
 
-   * - Sr.No.
+   * - Sr. No.
      - Description
    * - | (1)
      - | Inject the ``Service`` in which business logic is implemented.
@@ -1966,7 +2025,7 @@ Reflecting values to domain object
 
     @RequestMapping("hello")
     public void hello(@Validated SampleForm form, BindingResult result, Model model){
-        // ommited
+        // omitted
         Sample sample = new Sample(); // (1)
         sample.setField1(form.getField1());
         sample.setField2(form.getField2());
@@ -1984,7 +2043,7 @@ Reflecting values to domain object
    :header-rows: 1
    :widths: 10 90
 
-   * - Sr.No.
+   * - Sr. No.
      - Description
    * - | (1)
      - | Create domain object and reflect the values bound to form object in the domain object. 
@@ -1993,7 +2052,7 @@ Reflecting values to domain object
    * - | (3)
      - | Add the data returned from business logic to \ ``Model``\ .
 
-| The process of reflecting values to domain object should be implemented by the processing methodof controller. However considering the readability of processing 
+| The process of reflecting values to domain object should be implemented by the processing method of controller. However considering the readability of processing 
 | method in case of large amount of code, it is recommended to delegate the process to Helper class.
 | Example of delegating the process to Helper class is shown below:
 
@@ -2007,7 +2066,7 @@ Reflecting values to domain object
 
     @RequestMapping("hello")
     public void hello(@Validated SampleForm form, BindingResult result){
-        // ommited
+        // omitted
         String message = sampleHelper.hello(form); // (2)
         model.addAttribute("message", message);
         return "sample/hello";
@@ -2041,7 +2100,7 @@ Reflecting values to domain object
    :header-rows: 1
    :widths: 10 90
 
-   * - S.No.
+   * - Sr. No.
      - Description
    * - | (1)
      - Inject object of Helper class in controller.
@@ -2061,7 +2120,7 @@ Reflecting values to domain object
 
 Reflecting values to form object
 """"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
-| In this guideline, it is recommended that form object (and not domain object) must be used to for that data which is to be binded to HTML form.
+| In this guideline, it is recommended that form object (and not domain object) must be used to for that data which is to be bound to HTML form.
 | For this, it is necessary to reflect the values of domain object (returned by service layer) to form object. This conversion should be performed in controller class.
 
 
@@ -2070,7 +2129,7 @@ Reflecting values to form object
 
     @RequestMapping("hello")
     public void hello(SampleForm form, BindingResult result, Model model){
-        // ommited
+        // omitted
         Sample sample = sampleService.getSample(form.getId()); // (1)
         form.setField1(sample.getField1()); // (2)
         form.setField2(sample.getField2());
@@ -2087,14 +2146,14 @@ Reflecting values to form object
    :header-rows: 1
    :widths: 10 90
 
-   * - Sr.No.
+   * - Sr. No.
      - Description
    * - | (1)
      - | Call the method of service class in which business logic is implemented and fetch domain object.
    * - | (2)
      - | Reflect values of acquired domain object to form object.
    * - | (3)
-     - | When there are fields only for display, add domain object to \ ``Model``\ so that data can be referred.
+     - | When there are fields only for display, add domain object to \ ``Model``\  so that data can be referred.
 
  .. note::
     In JSP, it is recommended to refer the values from domain object instead of form object for the fields to be only displayed on the screen.
@@ -2109,7 +2168,7 @@ However considering the readability of processing method in case of large amount
 
     @RequestMapping("hello")
     public void hello(@Validated SampleForm form, BindingResult result){
-        // ommited
+        // omitted
         Sample sample = sampleService.getSample(form.getId());
         sampleHelper.applyToForm(sample, form); // (1)
         model.addAttribute(sample);
@@ -2135,7 +2194,7 @@ However considering the readability of processing method in case of large amount
    :header-rows: 1
    :widths: 10 90
 
-   * - Sr.No.
+   * - Sr. No.
      - Description
    * - | (1)
      - | Call the method to reflect the values of domain object to form object.
@@ -2179,7 +2238,7 @@ Creating form object
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 Create form object as a JavaBean.
 Spring Framework provides the functionality to convert and bind the request parameters (string) sent by HTML form to the format defined in form object.
-Hence, the fields to be defined in form object need not only be in \ ``java.lang.String``\ format.
+Hence, the fields to be defined in form object need not only be in \ ``java.lang.String``\  format.
 
  .. code-block:: java
 
@@ -2203,14 +2262,14 @@ Hence, the fields to be defined in form object need not only be in \ ``java.lang
  .. warning::
 
     In form object, it is recommended to maintain only the fields of HTML form and not the fields which are just displayed on the screen.
-    If display only fields are also maintained in form object, more memory will get consumed at the time of storing form objectin HTTP session object causing memory exhaustion.
-    In order to display the values of display only fields on the screen, it is recommended to add objects of domain layer (such as Entity) to request scope by using (\ ``Model.addAttribute``\).
+    If display only fields are also maintained in form object, more memory will get consumed at the time of storing form object in HTTP session object causing memory exhaustion.
+    In order to display the values of display only fields on the screen, it is recommended to add objects of domain layer (such as Entity) to request scope by using (\ ``Model.addAttribute``\ ).
 
 |
 
 Number format conversion of fields
 """"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
-Number format can be specified for each field using \ ``@NumberFormat``\ annotation.
+Number format can be specified for each field using \ ``@NumberFormat``\  annotation.
 
  .. code-block:: java
     :emphasize-lines: 2
@@ -2226,7 +2285,7 @@ Number format can be specified for each field using \ ``@NumberFormat``\ annotat
    :header-rows: 1
    :widths: 10 90
 
-   * - Sr.No.
+   * - Sr. No.
      - Description
    * - | (1)
      - | Specify the number format of request parameter sent by HTML form. For example, binding of value formatted by "," is possible since ""#, #"" format is specified as pattern.
@@ -2239,12 +2298,12 @@ Attributes of ``@NumberFormat`` annotation are given below.
    :header-rows: 1
    :widths: 10 10 80
 
-   * - Sr.No.
+   * - Sr. No.
      - Attribute name
      - Description
    * - 1.
      - style
-     - Specify number format style (NUMBER, CURRENCY, PERCENT). Refer to 'Javadoc <http://docs.spring.io/spring/docs/4.1.4.RELEASE/javadoc-api/org/springframework/format/annotation/NumberFormat.Style.html> of Spring Framework'_\  for details.
+     - Specify number format style (NUMBER, CURRENCY, PERCENT). For details refer to `Javadoc of Spring Framework <http://docs.spring.io/spring/docs/4.1.4.RELEASE/javadoc-api/org/springframework/format/annotation/NumberFormat.Style.html>`_\ .
    * - 2.
      - pattern
      - Specify number format of Java. Refer to 'Javadoc <http://docs.oracle.com/javase/7/docs/api/java/text/DecimalFormat.html> of JAVASE'_\ for details.
@@ -2255,7 +2314,7 @@ Attributes of ``@NumberFormat`` annotation are given below.
 
 Date and time format conversion of fields
 """"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
-Date and time format for each field can be specified using \ ``@DateTimeFormat``\ annotation.
+Date and time format for each field can be specified using \ ``@DateTimeFormat``\  annotation.
 
  .. code-block:: java
     :emphasize-lines: 2
@@ -2263,7 +2322,7 @@ Date and time format for each field can be specified using \ ``@DateTimeFormat``
     public class SampleForm implements Serializable {
         @DateTimeFormat(pattern = "yyyyMMdd") // (1)
         private Date birthDate;
-        // ommitted getter/setter
+        // omitted getter/setter
     }
 
  .. tabularcolumns:: |p{0.10\linewidth}|p{0.90\linewidth}|
@@ -2271,53 +2330,50 @@ Date and time format for each field can be specified using \ ``@DateTimeFormat``
    :header-rows: 1
    :widths: 10 90
 
-   * - Sr.No.
+   * - Sr. No.
      - Description
    * - | (1)
      - Specify the date and time format of request parameter sent by HTML form. For example, ``"yyyyMMdd"`` format is specified as pattern.
        When the value of request parameter is ``"20131001"``, Date object of 1st October, 2013 will bind to property ``birthDate`` of form object.
 
-Attributes of \ ``@DateTimeFormat``\ annotation are given below.
+Attributes of \ ``@DateTimeFormat``\  annotation are given below.
 
  .. tabularcolumns:: |p{0.10\linewidth}|p{0.10\linewidth}|p{0.80\linewidth}|
  .. list-table:: 
    :header-rows: 1
    :widths: 10 10 80
 
-   * - Sr.No.
+   * - Sr. No.
      - Attribute name
      - Description
    * - 1.
      - iso
-     - Specify ISO date and time format. Refer to 'Javadoc <http://docs.spring.io/spring/docs/4.1.4.RELEASE/javadoc-api/org/springframework/format/annotation/DateTimeFormat.ISO.html> of Spring Framework'_\ for details.
+     - Specify ISO date and time format. For details refer to `Javadoc of Spring Framework <http://docs.spring.io/spring/docs/4.1.4.RELEASE/javadoc-api/org/springframework/format/annotation/DateTimeFormat.ISO.html>`_\ .
    * - 2.
      - pattern
      - Specify Java date and time format. Refer to 'Javadoc <http://docs.oracle.com/javase/7/docs/api/java/text/SimpleDateFormat.html> of JAVASE'_\ for details.
    * - 3.
      - style
-     - | 日付と時刻のスタイルを2桁の文字列として指定する。
-       | 1桁目が日付のスタイル、2桁目が時刻のスタイルとなる。
-       | スタイルとして指定できる値は以下の値となる。
+     - | Specify style of date and time as two-digit string.
+       | First digit will be style of date and second digit will be style of time.
+       | Values that can be specified as style are given below.
        |
-       | S : \ ``java.text.DateFormat.SHORT``\ と同じ形式となる。
-       | M : \ ``java.text.DateFormat.MEDIUM``\ と同じ形式となる。
-       | L : \ ``java.text.DateFormat.LONG``\ と同じ形式となる。
-       | F : \ ``java.text.DateFormat.FULL``\ と同じ形式となる。
-       | - : 省略を意味するスタイル。
+       | S : Format same as \ ``java.text.DateFormat.SHORT``\ .
+       | M : Format same as \ ``java.text.DateFormat.MEDIUM``\ .
+       | L : Format same as \ ``java.text.DateFormat.LONG``\ .
+       | F : Format same as \ ``java.text.DateFormat.FULL``\ .
+       | - : A style meaning omissions.
        |
-       | 指定例及び変換例)
+       | Example of specification and conversion)
        | MM : Dec 9, 2013 3:37:47 AM
        | M- : Dec 9, 2013
        | -M : 3:41:45 AM
 
-.. todo::
-    Description of style is incomplete. 
-    
 |
 
 DataType conversion in controller
 """"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
-\ ``@InitBinder``\ annotation can be used to define datatype conversions at controller level.
+\ ``@InitBinder``\  annotation can be used to define datatype conversions at controller level.
 
  .. code-block:: java
     :emphasize-lines: 1,5
@@ -2342,21 +2398,21 @@ DataType conversion in controller
    :header-rows: 1
    :widths: 10 90
 
-   * - Sr.No.
+   * - Sr. No.
      - Description
    * - | (1)
-     - | If a method with \ ``@InitBinder``\ annotation is provided, it is called before executing the binding process and thereby default operations can be customized.
+     - | If a method with \ ``@InitBinder``\  annotation is provided, it is called before executing the binding process and thereby default operations can be customized.
    * - | (2)
      - | For example, ``"#. #"`` format is specified for a field of type Long. This enables binding of value formatted with ",".
    * - | (3)
-     - | Default operation for each form object can be customized by specifying it in the value attribute of \ ``@InitBinder``\ annotation. 
+     - | Default operation for each form object can be customized by specifying it in the value attribute of \ ``@InitBinder``\  annotation. 
        | In the above example, the method is called before binding form object ``"sampleForm"``. 
 
 |
 
 Specifying annotation for input validation
 """"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
-Since form object is validated using Bean Validation, it is necessary to specify annotation which indicates constraints of the field.
+Since form object is validated using Bean Validation, it is necessary to specify the annotation which indicates constraints of the field.
 Refer to :doc:`../ArchitectureInDetail/Validation`  for the details of input validation.
 
 |
@@ -2365,9 +2421,9 @@ Refer to :doc:`../ArchitectureInDetail/Validation`  for the details of input val
 
 Initializing form object
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-Form object can also be called as form-backing bean and binding can be performed using \ ``@ModelAttribute``\ annotation.
-Initialize form-backing bean by the method having \ ``@ModelAttribute``\ annotation.
-In this guideline, such methods are called as ModelAttribute methods and defined with method names like \ ``setUpXxxForm``\.
+Form object can also be called as form-backing bean and binding can be performed using \ ``@ModelAttribute``\  annotation.
+Initialize form-backing bean by the method having \ ``@ModelAttribute``\  annotation.
+In this guideline, such methods are called as ModelAttribute methods and defined with method names like \ ``setUpXxxForm``\ .
 
  .. code-block:: java
     :emphasize-lines: 1
@@ -2409,17 +2465,17 @@ In this guideline, such methods are called as ModelAttribute methods and defined
    :header-rows: 1
    :widths: 10 90
    
-   * - Sr.No.
+   * - Sr. No.
      - Description
    * - | (1)
-     - | Class name beginning with lower case letter will become the attribute name to add to \ ``Model``\. In the above example, ``"sampleForm"`` is the attribute name.
-       | The returned object is added to \ ``Model``\ and an appropriate process \ ``model.addAttribute(form)``\ is executed.
+     - | Class name beginning with lower case letter will become the attribute name to add to \ ``Model``\ . In the above example, ``"sampleForm"`` is the attribute name.
+       | The returned object is added to \ ``Model``\  and an appropriate process \ ``model.addAttribute(form)``\  is executed.
    * - | (2)
-     - | When attribute name is to be specified to add to \ ``Model``\ , specify it in the value attribute of \ ``@ModelAttribute``\ annotation. In the above example, ``"xxx"`` is the attribute name.
-       | For returned object, appropriate process "model.addAttribute("xxx", form)"\ is executed and it is returned to \ ``Model``\.
-       | When attribute name other than default value is specified, it is necessary to specify \ ``@ModelAttribute("xxx")``\ at the time of specifying form object as an argument of processing method.
+     - | When attribute name is to be specified to add to \ ``Model``\ , specify it in the value attribute of \ ``@ModelAttribute``\  annotation. In the above example, ``"xxx"`` is the attribute name.
+       | For returned object, appropriate process "model.addAttribute("xxx", form)"\ is executed and it is returned to \ ``Model``\ .
+       | When attribute name other than default value is specified, it is necessary to specify \ ``@ModelAttribute("xxx")``\  at the time of specifying form object as an argument of processing method.
    * - | (3)
-     - | ModelAttribute method can pass the parameters required for initialization as with the case of processing method. In the above example, value of cookie is specified using \ ``@CookieValue``\ annotation.
+     - | ModelAttribute method can pass the parameters required for initialization as with the case of processing method. In the above example, value of cookie is specified using \ ``@CookieValue``\  annotation.
 
 .. note::
     When form object is to be initialized with default values, it should be done using ModelAttribute method.
@@ -2440,8 +2496,8 @@ In this guideline, such methods are called as ModelAttribute methods and defined
 
 Binding to HTML form
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-| It is possible to bind form object added to the \ ``Model``\ to HTML form(JSP) using \ ``<form:xxx>``\ tag.
-| Refer to `Using Spring's form tag library <http://docs.spring.io/spring/docs/4.1.4.RELEASE/spring-framework-reference/html/view.html#view-jsp-formtaglib>`_\ for the details of \ ``<form:xxx>``\ tag.
+| It is possible to bind form object added to the \ ``Model``\  to HTML form(JSP) using \ ``<form:xxx>``\  tag.
+| For the details of \ ``<form:xxx>``\  tag, refer to `Using Spring's form tag library <http://docs.spring.io/spring/docs/4.1.4.RELEASE/spring-framework-reference/html/view.html#view-jsp-formtaglib>`_\ .
 
  .. code-block:: jsp
     :emphasize-lines: 1
@@ -2465,14 +2521,14 @@ Binding to HTML form
    :header-rows: 1
    :widths: 10 90
    
-   * - Sr.No.
+   * - Sr. No.
      - Description
    * - | (1)
-     - Define taglib to use \ ``<form:form>``\ tag.
+     - Define taglib to use \ ``<form:form>``\  tag.
    * - | (2)
-     - Specify form object stored in \ ``Model``\ in the ``modelAttribute`` attribute of \ ``<form:form>``\ tag.
+     - Specify form object stored in \ ``Model``\  in the ``modelAttribute`` attribute of \ ``<form:form>``\  tag.
    * - |(3)
-     - Specify property name of form object in path attribute of \ ``<form:input>``\ tag.
+     - Specify property name of form object in path attribute of \ ``<form:input>``\  tag.
 
 |
 
@@ -2520,16 +2576,16 @@ It is possible to bind the request parameters sent by HTML form to form object a
    :header-rows: 1
    :widths: 10 90
    
-   * - Sr.No.
+   * - Sr. No.
      - Description
    * - | (1)
      - | Form object is passed as an argument to the processing method of controller after reflecting request parameters to the form object.
    * - | (2)
-     - | When the attribute name is specified in ModelAttribute method, it is necessary to explicitly specify attribute name of form object as \ ``@ModelAttribute("xxx")``\.
+     - | When the attribute name is specified in ModelAttribute method, it is necessary to explicitly specify attribute name of form object as \ ``@ModelAttribute("xxx")``\ .
 
 .. warning::
 
-    When attribute name specified by ModelAttribute method and attribute name specified in the \ ``@ModelAttribute("xxx")``\ in the argument of processing method are different, 
+    When attribute name specified by ModelAttribute method and attribute name specified in the \ ``@ModelAttribute("xxx")``\  in the argument of processing method are different, 
     it should be noted that a new instance is created other than the instance created by ModelAttribute method.
     When attribute name is not specified with ``@ModelAttribute`` in the argument to processing method, the attribute name is deduced as the class name with first letter in lower case.
 
@@ -2537,7 +2593,7 @@ It is possible to bind the request parameters sent by HTML form to form object a
 
 Determining binding result
 """"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
-Error (including input validation error) that occurs while binding request parameter sent by HTML form to form object, is stored in \ ``org.springframework.validation.BindingResult``\.
+Error (including input validation error) that occurs while binding request parameter sent by HTML form to form object, is stored in \ ``org.springframework.validation.BindingResult``\ .
 
  .. code-block:: java
     :emphasize-lines: 4,6
@@ -2558,12 +2614,12 @@ Error (including input validation error) that occurs while binding request param
    :header-rows: 1
    :widths: 10 90
 
-   * - Sr.No.
+   * - Sr. No.
      - Description
    * - | (1)
-     - When \ ``BindingResult``\ is declared immediately after form object, it is possible to refer to the error inside the processing method of controller.
+     - When \ ``BindingResult``\  is declared immediately after form object, it is possible to refer to the error inside the processing method of controller.
    * - | (2)
-     - Calling \ ``BindingResult.hasErrors()``\ can determine whether any error occurred in the input values of form object.
+     - Calling \ ``BindingResult.hasErrors()``\  can determine whether any error occurred in the input values of form object.
 
 It is also possible to determine field errors, global errors (correlated check errors at class level) separately. These can be used separately if required.
 
@@ -2572,7 +2628,7 @@ It is also possible to determine field errors, global errors (correlated check e
    :header-rows: 1
    :widths: 10 40 50
 
-   * - Sr.No.
+   * - Sr. No.
      - Method
      - Description
    * - 1.
@@ -2626,7 +2682,7 @@ In this chapter, usage of main JSP tag libraries are described. However, refer t
    :header-rows: 1
    :widths: 10 30 60
 
-   * - Sr.No.
+   * - Sr. No.
      - JSP tag library name
      - Document
    * - 1.
@@ -2641,7 +2697,7 @@ In this chapter, usage of main JSP tag libraries are described. However, refer t
      - - `<http://download.oracle.com/otndocs/jcp/jstl-1.2-mrel2-eval-oth-JSpec/>`_\
    * - 4.
      - Common library's tags & el functions
-     - - [:doc:`../Appendix/TagLibAndELFunctions`] of this guidelin
+     - - [:doc:`../Appendix/TagLibAndELFunctions`] of this guideline
 
  .. warning::
 
@@ -2661,7 +2717,7 @@ In this chapter, usage of main JSP tag libraries are described. However, refer t
 Creating common JSP for include
 """"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 Create a JSP that contains directive declaration which are required by all the JSP files of the project.
-By specifying this JSP in ``<jsp-config>/<jsp-property-group>/<include-prelude>`` element of ``web.xml``, eliminates the need to declare these directives and each and every JSP file of thep project.
+By specifying this JSP in ``<jsp-config>/<jsp-property-group>/<include-prelude>`` element of ``web.xml``, eliminates the need to declare these directives and each and every JSP file of the project.
 Further, this file is provided in blank project also.
 
 - include.jsp
@@ -2700,7 +2756,7 @@ Further, this file is provided in blank project also.
    :header-rows: 1
    :widths: 10 90
 
-   * - Sr.No.
+   * - Sr. No.
      - Description
    * - | (1)
      - | JSP tag libraries of JSTL are declared. In this example, ``core`` and ``fmt`` are used.
@@ -2709,7 +2765,7 @@ Further, this file is provided in blank project also.
    * - | (3)
      - | JSP tag libraries provided by common library are declared.
    * - | (4)
-     - | The content of the include JSP (\ ``/WEB-INF/views/common/include.jsp``\ ) will be replaced at the top of each JSP(each file which is specified at \ ``<url-pattern>``\ ).
+     - | The contents specified in JSP to be included (\ ``/WEB-INF/views/common/include.jsp``\ ) are included at the beginning of each JSP (file specified in \ ``<url-pattern>``\ ).
 
  .. note::
  
@@ -2752,12 +2808,12 @@ Display using EL expressions.
    :header-rows: 1
    :widths: 10 90
 
-   * - Sr.No.
+   * - Sr. No.
      - Description
    * - |(1)
-     - | Add \ ``HelloBean``\ object to \ ``Model``\ object.
+     - | Add \ ``HelloBean``\  object to \ ``Model``\  object.
    * - | (2)
-     - | In View(JSP), data added to the \ ``Model``\ object can be retrieved by describing ``${Attribute name.Property name of JavaBean}``.
+     - | In View(JSP), data added to the \ ``Model``\  object can be retrieved by describing ``${Attribute name.Property name of JavaBean}``.
        | In this example, HTML escaping is performed using ``${f:h(Attribute name.Property name of JavaBean)}`` function of EL expression.
 
  .. note::
@@ -2776,7 +2832,7 @@ Display using ``<c:out>`` tag provided by JSP tag library of JSTL.
    :header-rows: 1
    :widths: 10 90
 
-   * - Sr.No.
+   * - Sr. No.
      - Description
    * - | (1)
      - | Specify the values fetched using EL expressions in ``value`` attribute of ``<c:out>`` tag. HTML escaping is also performed. 
@@ -2804,7 +2860,7 @@ Use JSP tag library provided by JSTL to output format number.
    :header-rows: 1
    :widths: 10 90
 
-   * - Sr.No.
+   * - Sr. No.
      - Description
    * - | (1)
      - | Specify the value acquired by EL expressions in  the value attribute of ``<fmt:formatNumber>`` tag. Specify the format to be displayed in pattern attribute. For example, "``0.00``" is specified .
@@ -2833,11 +2889,11 @@ Use JSP tag library provided by JSTL to output format date and time value.
    :header-rows: 1
    :widths: 10 90
 
-   * - Sr.No.
+   * - Sr. No.
      - Description
    * - | (1)
      - | Specify the value fetched using EL expression in ``value`` attribute of ``<fmt:formatDate>`` tag. Specify the format to be displayed in ``pattern`` attribute. In this example, "``yyyy-MM-dd``" is specified. 
-       | When value recieved for ``${helloBean.dateItem}`` is 2013-3-2, "``2013-03-02``" is displayed on the screen.
+       | When value received for ``${helloBean.dateItem}`` is 2013-3-2, "``2013-03-02``" is displayed on the screen.
 
 .. note::
     Refer to ``CHAPTER 9 Formatting Actions`` of `JavaServer Pages Standard Tag Library(Version 1.2) <http://download.oracle.com/otndocs/jcp/jstl-1.2-mrel2-eval-oth-JSpec/>`_\  for details of ``<fmt:formatDate>``.
@@ -2869,15 +2925,15 @@ Bind using ``<form:form>`` tag provided by Spring Framework.
    :header-rows: 1
    :widths: 10 90
    
-   * - Sr.No.
+   * - Sr. No.
      - Description
    * - | (1)
-     - Specify attribute name of form object stored in \ ``Model``\ in ``modelAttribute`` atttribute of \ ``<form:form>``\ tag. 
+     - Specify attribute name of form object stored in \ ``Model``\  in ``modelAttribute`` attribute of \ ``<form:form>``\  tag. 
    * - | (2)
      - Specify name of property to bind in the ``path`` attribute of \ ``<form:xxx>``\  tag. ``xxx`` part changes along with each input element.
 
 .. note::
-    Refer to `Using Spring's form tag library <http://docs.spring.io/spring/docs/4.1.4.RELEASE/spring-framework-reference/html/view.html#view-jsp-formtaglib>`_\ for the details of \ ``<form:form>``\, \ ``<form:xxx>``\.
+    For the details of \ ``<form:form>``\  , \ ``<form:xxx>``\  tag refer to `Using Spring's form tag library <http://docs.spring.io/spring/docs/4.1.4.RELEASE/spring-framework-reference/html/view.html#view-jsp-formtaglib>`_\ .
 
 |
 
@@ -2903,10 +2959,10 @@ To display the contents of input validation error, use JSP tag library provided 
    :header-rows: 1
    :widths: 10 90
    
-   * - Sr.No.
+   * - Sr. No.
      - Description
    * - | (1)
-     - | Specify name of the property to display the error in ``path`` attribute of \ ``<form:errors>``\ tag.
+     - | Specify name of the property to display the error in ``path`` attribute of \ ``<form:errors>``\  tag.
 
 |
 
@@ -2932,7 +2988,7 @@ To display the message notifying the output of processing the request, use JSP t
    :header-rows: 1
    :widths: 10 90
    
-   * - Sr.No.
+   * - Sr. No.
      - Description
    * - | (1)
      - | Messages stored with attribute name "``resultMessages``" are output.
@@ -2963,7 +3019,7 @@ Display codelist in select box.
    :header-rows: 1
    :widths: 10 90
    
-   * - Sr.No.
+   * - Sr. No.
      - Description
    * - | (1)
      - Codelist (``java.util.Map`` interface) is stored with name (``"CL_ORDERSTATUS"``) as attribute name.
@@ -2981,11 +3037,11 @@ Label part is displayed on the screen for the value selected in select box.
    :header-rows: 1
    :widths: 10 90
    
-   * - Sr.No.
+   * - Sr. No.
      - Description
    * - | (1)
      - In the same way as in case of creating select box, Codelist (``java.util.Map`` interface) is stored with name (``"CL_ORDERSTATUS"``) as attribute name.
-       If value selected in select box is specified as key of the fetched ``Map`` interface, its possible to display the code name. 
+       If value selected in select box is specified as key of the fetched ``Map`` interface, it is possible to display the code name. 
 
 |
 
@@ -3020,7 +3076,7 @@ Displaying fixed text content
    :header-rows: 1
    :widths: 10 90
    
-   * - Sr.No.
+   * - Sr. No.
      - Description
    * - | (1)
      - Define the string of label in properties file.
@@ -3054,7 +3110,7 @@ Switching display by using ``<c:if>``.
    :header-rows: 1
    :widths: 10 90
    
-   * - Sr.No.
+   * - Sr. No.
      - Description
    * - | (1)
      - Put the condition for entering the branch in ``test`` attribute of ``<c:if>``. In this example, when order status is not ``'complete'``, the contents of the branch will be displayed.
@@ -3081,7 +3137,7 @@ Switching display using ``<c:choose>``.
    :header-rows: 1
    :widths: 10 90
    
-   * - Sr.No.
+   * - Sr. No.
      - Description
    * - | (1)
      - Put the condition for entering the branch in ``test`` attribute of ``<c:when>``. In this example, when customer type is ``'premium'``, the contents of the branch will be displayed.
@@ -3124,7 +3180,7 @@ Repeated display can be done using ``<c:forEach>`` provided by JSP tag library o
    :header-rows: 1
    :widths: 10 90
    
-   * - Sr.No.
+   * - Sr. No.
      - Description
    * - | (1)
      - By specifying the collection object in ``items`` attribute of ``<c:forEach>`` tag, ``<c:forEach>`` tag is repeatedly executed to iterate over the collection.
@@ -3253,7 +3309,7 @@ Implementing Servlet Filter
    :header-rows: 1
    :widths: 10 90
    
-   * - Sr.No.
+   * - Sr. No.
      - Description
    * - | (1)
      - In sample, it is guaranteed that it is executed only once for similar requests by creating the Servlet Filter as subclass 
@@ -3292,7 +3348,7 @@ Servlet Filter can also be defined as Bean of Spring Framework.
    :header-rows: 1
    :widths: 10 90
    
-   * - Sr.No.
+   * - Sr. No.
      - Description
    * - | (1)
      - In sample, process is delegated to Servlet Filter defined in step (2) by specifying ``org.springframework.web.filter.DelegatingFilterProxy`` 
@@ -3362,7 +3418,7 @@ HandlerInterceptor can execute the process keeping in mind the following 3 point
    :header-rows: 1
    :widths: 10 90
    
-   * - Sr.No.
+   * - Sr. No.
      - Description
    * - | (1)
      - In sample, HandlerInterceptor is created as the subclass of ``org.springframework.web.servlet.handler.HandlerInterceptorAdapter`` provided by Spring Framework.
@@ -3465,7 +3521,7 @@ HandlerMethodArgumentResolver is to be implemented in order to enable controller
    :header-rows: 1
    :widths: 10 90
    
-   * - Sr.No.
+   * - Sr. No.
      - Description
    * - | (1)
      - JavaBean that retains common parameters.
@@ -3490,18 +3546,197 @@ HandlerMethodArgumentResolver is to be implemented in order to enable controller
 
 .. _application_layer_controller_advice:
 
-Implementing \"@ControllerAdvice"\
+Implementing \"@ControllerAdvice"\ 
 """"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
-Implement the processes which are to be executed in all controllers in \ ``@ControllerAdvice``\, .
+In a class with \ ``@ControllerAdvice``\  annotation,
+implement common processes which are to be executed in multiple Controllers.
 
-In \ ``@ControllerAdvice``\, the following processes are common.
+When a class with \ ``@ControllerAdvice``\  annotation is created, processes implemented using
 
-- Common ``@InitBinder`` method
-- Common ``@ExceptionHandler`` method
-- Common ``@ModelAttribute`` method
+- method with ``@InitBinder``
+- method with ``@ExceptionHandler``
+- method with ``@ModelAttribute`` 
+
+can be applied to multiple Controllers.
+
+.. tip::
+
+    \ ``@ControllerAdvice``\  annotation is a mechanism added from Spring Framework 3.2;
+    however, since the processing was applied to all Controllers, it could only implement common processes of entire application.
+
+    From Spring Framework 4.0, it has been improved in such a way that controller can be specified flexibly for applying common processes.
+    With this improvement, it is possible to implement a common process in various granularities.
+
+|
+
+.. _application_layer_controller_advice_attribute:
+
+Methods to specify Controller (methods to specify attributes) for applying common processes are described below.
+
+.. tabularcolumns:: |p{0.10\linewidth}|p{0.15\linewidth}|p{0.75\linewidth}|
+.. list-table::
+   :header-rows: 1
+   :widths: 10 15 75
+
+   * - Sr. No.
+     - Attribute
+     - Description and example of specification
+   * - | (1)
+     - ``annotations``
+     - Specify annotation.
+
+       Common processes are applied for the Controllers with specified annotations.
+       An example of specifications is given below.
+
+       .. code-block:: java
+
+           @ControllerAdvice(annotations = LoginFormModelAttributeSetter.LoginFormModelAttribute.class)
+           public class LoginFormModelAttributeSetter {
+               @Target(ElementType.TYPE)
+               @Retention(RetentionPolicy.RUNTIME)
+               public static @interface LoginFormModelAttribute {}
+               // ...
+           }
+
+       .. code-block:: java
+
+           @LoginFormModelAttribute
+           @Controller
+           public class WelcomeController {
+               // ...
+           }
+
+       .. code-block:: java
+
+           @LoginFormModelAttribute
+           @Controller
+           public class LoginController {
+               // ...
+           }
+
+       In the above example, \ ``@LoginFormModelAttribute``\  annotation is assigned to \ ``WelcomeController``\  and \ ``LoginController``\ ,
+       hence, common processes are applied to \ ``WelcomeController``\  and \ ``LoginController``\ .
+   * - | (2)
+     - ``assignableTypes``
+     - Specify a class or an instance.
+
+       Common processes are applied for the Controllers which can be assigned (can be casted) to the specified class or interface.
+       When using this attribute, it is recommended to adopt a style that specifies a marker interface to indicate that it is a Controller using common process, in attribute value.
+       When this style is adopted, only the marker interface for common processes to be used needs to be implemented at Controller side.
+       An example of specifications is given below.
+
+       .. code-block:: java
+
+           @ControllerAdvice(assignableTypes = ISODateInitBinder.ISODateApplicable.class)
+           public class ISODateInitBinder {
+               public static interface ISODateApplicable {}
+               // ...
+           }
+
+       .. code-block:: java
+
+           @Controller
+           public class SampleController implements ISODateApplicable {
+               // ...
+           }
+
+       In the above example, \ ``SampleController``\  implements \ ``@ISODateApplicable``\  interface (Marker interface),
+       hence, common processes are applied to \ ``SampleController``\ .
+   * - | (3)
+     - ``basePackageClasses``
+     - Specify a class or an interface.
+
+       Common processes are applied for the Controllers under the package of specified class or interface.
+
+       When using this attribute, it is recommended to adopt a style that specifies,
+
+       * a class with \ ``@ControllerAdvice``\ 
+       * a marker interface to identify the package
+
+       in attribute value.
+       An example to specify the same is given below.
+
+       .. code-block:: java
+
+           package com.example.app
+
+           @ControllerAdvice(basePackageClasses = AppGlobalExceptionHandler.class)
+           public class AppGlobalExceptionHandler {
+               // ...
+           }
+
+       .. code-block:: java
+
+           package com.example.app.sample
+
+           @Controller
+           public class SampleController {
+               // ...
+           }
+
+       In the above example, \ ``SampleController``\  is stored under the package (\ ``com.example.app``\ ) in which (\ ``AppGlobalExceptionHandler``\ ) class with \ ``@ControllerAdvice``\ is stored.
+       Hence, common processes are applied to \ ``SampleController``\ .
+
+       .. code-block:: java
+
+           package com.example.app.common
+
+           @ControllerAdvice(basePackageClasses = AppPackage.class)
+           public class AppGlobalExceptionHandler {
+               // ...
+           }
+
+       .. code-block:: java
+
+           package com.example.app
+
+           public interface AppPackage {
+           }
+
+       When package level of class with \ ``@ControllerAdvice``\  is different than the class where Controller is stored, or when common processes are to be applied to multiple base packages,
+       it is better to create a marker interface to identify the packages.
+   * - | (4)
+     - ``basePackages``
+     - Specify the package name.
+
+       Common processes are applied for the Controllers under the specified package.
+       An example of specifying the same is given below.
+
+       .. code-block:: java
+
+           @ControllerAdvice(basePackages = "com.example.app")
+           public class AppGlobalExceptionHandler {
+               // ...
+           }
+   * - | (5)
+     - ``value``
+     - Alias to \ ``basePackages``\ .
+
+       The operation is same as when \ ``basePackages``\  attribute is specified.
+       An example of specifying the same is given below.
+
+       .. code-block:: java
+
+           @ControllerAdvice("com.example.app")
+           public class AppGlobalExceptionHandler {
+               // ...
+           }
+
+.. tip::
+
+    \ ``basePackageClasses``\  attribute / \ ``basePackages``\  attribute / \ ``value``\  attribute are the attributes
+    to specify base package that stores the Controller for applying common processes. However,
+    when \ ``basePackageClasses``\  attribute is used, 
 
 
-|  Sample of \ ``@InitBinder``\ method is given below.
+    * It is possible to prevent specifying the package that does not exist.
+    * It is possible to get linked and change the package name on IDE.
+
+    Therefore, it is known as Type-safe specification method.
+
+|
+
+| Implementation sample of \ ``@InitBinder``\  method is given below.
 | In sample code, date that can be specified in request parameter is set to ``"yyyy/MM/dd"`` .
 
  .. code-block:: java
@@ -3528,19 +3763,20 @@ In \ ``@ControllerAdvice``\, the following processes are common.
    :header-rows: 1
    :widths: 10 90
    
-   * - Sr.No.
+   * - Sr. No.
      - Description
    * - | (1)
-     - It indicates that it is Bean of ControllerAdvice by assigning the \ ``@ControllerAdvice``\ annotation.
+     - It indicates that it is Bean of ControllerAdvice by assigning the \ ``@ControllerAdvice``\  annotation.
    * - | (2)
-     - It should be component-scan target by assigning the \ ``@Component``\ annotation.
+     - It should be component-scan target by assigning the \ ``@Component``\  annotation.
    * - | (3)
-     - Specify priority for common processes by assigning the \ ``@Order``\ annotation. It should be specified when multiple ControllerAdvice are to be created.
+     - Specify priority for common processes by assigning the \ ``@Order``\  annotation. It should be specified when multiple ControllerAdvice are to be created.
    * - | (4)
-     - Implement \ ``@InitBinder``\ method. \ ``@InitBinder``\ method is applied to all Controllers.
+     - Implement \ ``@InitBinder``\  method. \ ``@InitBinder``\  method is applied to all Controllers.
 
+|
 
-| Sample of \ ``@ExceptionHandler``\ method is given below.
+| Implementation sample of \ ``@ExceptionHandler``\  method is given below.
 | In sample code, View of lock error screen is returned by handling ``org.springframework.dao.PessimisticLockingFailureException``.
 
  .. code-block:: java
@@ -3558,12 +3794,14 @@ In \ ``@ControllerAdvice``\, the following processes are common.
    :header-rows: 1
    :widths: 10 90
    
-   * - Sr.No.
+   * - Sr. No.
      - Description
    * - | (1)
-     - Implement \ ``@ExceptionHandler``\ method. \ ``@ExceptionHandler``\ method is applied to all Controllers.
+     - Implement \ ``@ExceptionHandler``\  method. \ ``@ExceptionHandler``\  method is applied to all Controllers.
 
-| Sample of \ ``@ModelAttribute``\ method is given below.
+|
+
+| Implementation sample of \ ``@ModelAttribute``\  method is given below.
 | In sample code, common request parameters are converted to JavaBean and stored in ``Model``.
 
 - ControllerAdvice
@@ -3603,15 +3841,14 @@ In \ ``@ControllerAdvice``\, the following processes are common.
    :header-rows: 1
    :widths: 10 90
    
-   * - Sr.No.
+   * - Sr. No.
      - Description
    * - | (1)
-     - Implement \ ``@ModelAttribute``\ method. \ ``@ModelAttribute``\ method is applied to all Controllers.
+     - Implement \ ``@ModelAttribute``\  method. \ ``@ModelAttribute``\  method is applied to all Controllers.
    * - | (2)
      - Object created by \ ``@ModelAttribute`` \ method is passed.
 
 
-|
 |
 
 Prevention of double submission
@@ -3626,7 +3863,7 @@ For the problems occurring when countermeasures are not taken and details of imp
 Usage of session
 --------------------------------------------------------------------------------
 | In the default operations of Spring MVC, model (form object, domain object etc.) is not stored in session.
-| When it is to be stored in session, it is necessary to assign  \ ``@SessionAttributes``\ annotation to the controller class.
+| When it is to be stored in session, it is necessary to assign  \ ``@SessionAttributes``\  annotation to the controller class.
 | When input forms are split on multiple screens, usage of \ ``@SessionAttributes``\  annotation should be studied since model (form object, domain object etc.) 
 | can be shared between multiple requests for executing a series of screen transitions.
 | However, whether to use \ ``@SessionAttributes``\  annotation should be determined after confirming the warning signs of using the session.

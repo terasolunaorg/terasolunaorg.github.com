@@ -18,7 +18,7 @@ Implementation of domain layer is classified into the following.
    :header-rows: 1
    :widths: 10 30 60
 
-   * - S.No.
+   * - Sr. No.
      - Classification
      - Description
    * - | 1.
@@ -59,7 +59,7 @@ Flow of development of domain layer
    :header-rows: 1
    :widths: 10 20 80
 
-   * - S.No.
+   * - Sr. No.
      - Team in-charge
      - Description
    * - | (1)
@@ -86,7 +86,8 @@ Flow of development of domain layer
     A system having a large development scope is often developed by assigning the application to multiple teams.
     In that case, it is strongly recommended to provide a common team to design Entity classes and Repository.
 
-    When there is no common team, O/R Mapper(Mybatis) should be called from Service directly without creating Entity classes and Repository.
+    When there is no common team, O/R Mapper(MyBatis, etc.) should be called directly from Service and a method to
+    access business data should be adopted without creating Entity classes and Repository .
 
 .. _domainlayer_entity:
 
@@ -96,24 +97,24 @@ Implementation of Entity
 Policy of creating Entity class
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 | Create an Entity using the following method.
-| Specific creation method is shown in \ :ref:`domainlayer_entity_example`\.
+| Specific creation method is shown in \ :ref:`domainlayer_entity_example`\ .
 
  .. tabularcolumns:: |p{0.10\linewidth}|p{0.35\linewidth}|p{0.55\linewidth}|
  .. list-table::
    :header-rows: 1
    :widths: 10 35 55
 
-   * - S.No.
+   * - Sr. No.
      - Method
      - Supplementary
    * - | 1.
      - | Create Entity class for each table.
-     - | However, Entity class is not required for mapping tables which represent the the relationship between the tables.
-       | Further, when the tables are not normalized, Entity class for each table rule may not be applible. Refer to the \ :ref:`Warning as well as Note outside this table <domainlayer_entity_policy_warning_note>`\  
+     - | However, Entity class is not required for mapping tables which represent the relationship between the tables.
+       | Further, when the tables are not normalized, Entity class for each table rule may not be applicable. Refer to the \ :ref:`Warning as well as Note outside this table <domainlayer_entity_policy_warning_note>`\  
        | for the approach related to not-normalized tables.
    * - | 2.
      - | When there is a FK (Foreign Key) in the table, the Entity class of FK destination table must be defined as one of the properties of this Entity.
-     - | When there is 1:N relationship with FK destination table, use either \ ``java.util.List<E>``\  or \ ``java.util.Set<E>``\.
+     - | When there is 1:N relationship with FK destination table, use either \ ``java.util.List<E>``\  or \ ``java.util.Set<E>``\ .
        | The Entity corresponding to the FK destination table is called as the related Entity in this guideline.
    * - | 3.
      - | Treat the code related tables as \ ``java.lang.String``\  rather than as an Entity.
@@ -140,11 +141,11 @@ Policy of creating Entity class
 
  .. note::
 
-    If you want to operate on business data with normalized Entity classes - even if the tables are not normalized - it is recommended to use Mybatis as an 
-    implementation of RepositoryImpl of the infrastructure layer.
+    If you want to operate business data as application, and as normalized Entity even if the tables are not normalized,
+    it is recommended to use MyBatis as an implementation of RepositoryImpl of the infrastructure layer.
 
-    Mybatis is the O/R Mapper developed to map the SQL with object and not to map the database table record with object. So depending on the implementation 
-    of SQL, mapping to the object independent of table structure is possible.
+    MyBatis is the O/R Mapper developed to map the SQL with object and not to map the database table record with object. 
+    Therefore, mapping to the object independent of table structure is possible depending on the implementation of SQL, .
 
 
 .. _domainlayer_entity_example:
@@ -168,7 +169,7 @@ The table structure is as given below:
     :header-rows: 1
     :widths: 10 20 15 55
 
-    * - S.No.
+    * - Sr. No.
       - Classification
       - Table name
       - Description
@@ -220,13 +221,13 @@ If Entity classes are created with the help of policy defined by the above table
     :header-rows: 1
     :widths: 10 15 65
 
-    * - S.No.
+    * - Sr. No.
       - Class name
       - Description
     * - | (1)
       - | Order
       - | Entity class indicating 1 record of t_order table.
-        | Multiple \ ``OrderItem``\ and \ ``OrderCoupon``\ are stored as the related Entity.
+        | Multiple \ ``OrderItem``\  and \ ``OrderCoupon``\  are stored as the related Entity.
     * - | (2)
       - | OrderItem
       - | Entity class indicating 1 record of t_order_item table.
@@ -238,7 +239,7 @@ If Entity classes are created with the help of policy defined by the above table
     * - | (4)
       - | Item
       - | Entity class indicating 1 record of m_item table.
-        | Multiple \ ``Category``\ are stored as the related Entity. The association between \ ``Item``\  and \ ``Category``\ is done using m_item_category table.
+        | Multiple \ ``Category``\  are stored as the related Entity. The association between \ ``Item``\  and \ ``Category``\  is done using m_item_category table.
     * - | (5)
       - | Category
       - | Entity class indicating 1 record of m_category table.
@@ -272,7 +273,7 @@ The following 4 Entities are treated as the main Entity for creating shopping si
    :header-rows: 1
    :widths: 10 30 60
 
-   * - S.No.
+   * - Sr. No.
      - Entity class
      - Reasons for treating as the main Entity.
    * - | (1)
@@ -300,7 +301,7 @@ The following are not main Entities for creating shopping site application.
    :header-rows: 1
    :widths: 10 30 60
 
-   * - S.No.
+   * - Sr. No.
      - Entity class
      - Reason of not treating Entity as main Entity
    * - | (5)
@@ -335,7 +336,7 @@ Repository has following 2 roles.
    | Entity object should persist irrespective of the lifecycle (start and stop of server) of application.
    | Mostly relational database is the permanent destination of Entity. However, NoSQL database, cache server, external system and file (shared disk) can also be the permanent destination.
    | The actual persistence processing is done using O/R Mapper API.
-   | This role is implemented in the RepositoryImpl of the infrastructure layer. Refer to \ :doc:`InfrastructureLayer`\ for the details.
+   | This role is implemented in the RepositoryImpl of the infrastructure layer. Refer to \ :doc:`InfrastructureLayer`\  for details.
 
  .. figure:: images/repository_responsibility_2.png
     :alt: persist entity
@@ -357,7 +358,7 @@ Repository consists of Repository interface and RepositoryImpl and performs the 
    :header-rows: 1
    :widths: 10 20 30 40
 
-   * - S.No.
+   * - Sr. No.
      - Class(Interface)
      - Role
      - Description
@@ -373,7 +374,7 @@ Repository consists of Repository interface and RepositoryImpl and performs the 
      - | Implements the methods defined in Repository interface.
      - | Implements CRUD operations of the Entity and is dependent on persistence layer. Performs actual CRUD processes using API that performs persistence provided by Spring Framework, O/R Mapper and middleware.
        | RepositoryImpl belongs to infrastructure layer since it plays the role of implementing the operations defined in Repository interface.
-       | Refer to \ :doc:`InfrastructureLayer`\ for the implementation of RepositoryImpl.
+       | Refer to \ :doc:`InfrastructureLayer`\  for the implementation of RepositoryImpl.
 
 
 | In case of multiple destinations in persistence layer, the resulting configuration as follows.
@@ -418,7 +419,7 @@ Repository must be created using the following policy only.
    :header-rows: 1
    :widths: 10 35 55
 
-   * - S.No.
+   * - Sr. No.
      - Method
      - Supplementary
    * - | 1.
@@ -438,12 +439,12 @@ Repository must be created using the following policy only.
 Example of creating Repository
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 | An example of creating Repository is explained here.
-| An example of creating Repository of Entity class used in the explanation of \ :ref:`domainlayer_entity_example`\ is as follows.
+| An example of creating Repository of Entity class used in the explanation of \ :ref:`domainlayer_entity_example`\  is as follows.
 
 
 Structure of Repository 
 """"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
-Entity class used in the explanation of \ :ref:`domainlayer_entity_example`\ is used as an example, the resulting configuration is as follows:
+Entity class used in the explanation of \ :ref:`domainlayer_entity_example`\  is used as an example, the resulting configuration is as follows:
 
  .. figure:: images/domainlayer_repository_layout.png
    :alt: Example of repository layout
@@ -468,7 +469,7 @@ An example of creating Repository interface is introduced below.
 - :file:`SimpleCrudRepository.java`
 
  | This interface provides only simple CRUD operations.
- | Method signature is created by referring to \ ``CrudRepository``\ interface and \ ``PagingAndSortingRepository``\ provided by Spring Data.
+ | Method signature is created by referring to \ ``CrudRepository``\  interface and \ ``PagingAndSortingRepository``\  provided by Spring Data.
 
  .. code-block:: java
 
@@ -494,17 +495,17 @@ An example of creating Repository interface is introduced below.
     :header-rows: 1
     :widths: 10 90
 
-    * - S.No.
+    * - Sr. No.
       - Description
     * - | (1)
       - | Method to fetch the Entity object of specified ID.
     * - | (2)
       - | Method to determine if the Entity of specified ID exists or not.
     * - | (3)
-      - | Method to retrieve the list of all Entities. In Spring Data, it was \ ``java.util.Iterable``\. Here as a sample, it is set to \ ``java.util.List``\ .
+      - | Method to retrieve the list of all Entities. In Spring Data, it was \ ``java.util.Iterable``\ . Here as a sample, it is set to \ ``java.util.List``\ .
     * - | (4)
       - | Method to fetch collection of Entity objects corresponding to the specified pagination information (start position, record count, sort information).
-        | ``Pageable`` and \ ``Page``\ are the interfaces provided by Spring Data.
+        | ``Pageable`` and \ ``Page``\  are the interfaces provided by Spring Data.
     * - | (5)
       - | Method to fetch total number of Entity objects.
     * - | (6)
@@ -530,22 +531,22 @@ An example of creating Repository interface is introduced below.
     :header-rows: 1
     :widths: 10 90
 
-    * - S.No.
+    * - Sr. No.
       - Description
 
     * - | (1)
       - | TodoRepository interface is created by specifying Todo entity in the generic type parameter "T" and
         | String class in the generic type parameter "ID".
     * - | (2)
-      - | Methods not provided by \ ``SimpleCrudRepository``\ interface are added in this interface.
+      - | Methods not provided by \ ``SimpleCrudRepository``\  interface are added in this interface.
         | In this case, "Method for acquiring count of Todo entity objects for which specified tasks have been finished" is added.
 
 
 Method definition of Repository interface
 """"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 
-| It is recommended to have the same signature as \ ``CrudRepository``\ and \ ``PagingAndSortingRepository``\ provided by Spring Data for the methods performing general CRUD operations.
-| However, in case of returning collection, (\ ``java.util.Collection``\ or \ ``java.util.List``\ ) interfaces which can be handled in a better way in logic are better than \ ``java.lang.Iterable``\.
+| It is recommended to have the same signature as \ ``CrudRepository``\  and \ ``PagingAndSortingRepository``\  provided by Spring Data for the methods performing general CRUD operations.
+| However, in case of returning collection, (\ ``java.util.Collection``\  or \ ``java.util.List``\ ) interfaces which can be handled in a better way in logic are better than \ ``java.lang.Iterable``\ .
 | In real development environment, it is difficult to develop an application using only general CRUD operations. Hence additional methods are required.
 | It is recommended to add the methods as per the following rules.
 
@@ -554,7 +555,7 @@ Method definition of Repository interface
     :header-rows: 1
     :widths: 10 20 70
 
-    * - S.No.
+    * - Sr. No.
       - Types of methods
       - Rules
     * - 1.
@@ -630,7 +631,7 @@ Method definition of Repository interface
     :header-rows: 1
     :widths: 10 90
 
-    * - S.No.
+    * - Sr. No.
       - Description
     * - | (1)
       - | Example of method that fetches TODO objects whose title matches with specified value (TODO in which todoTitle=[argument value]).
@@ -651,7 +652,7 @@ Method definition of Repository interface
 
 Creation of RepositoryImpl
 """"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
-Refer to \ :doc:`InfrastructureLayer`\ for the implementation of RepositoryImpl.
+Refer to \ :doc:`InfrastructureLayer`\  for the implementation of RepositoryImpl.
 
 
 .. _service-label:
@@ -697,7 +698,7 @@ Service plays the following 2 roles.
     :width: 90%
     :align: center
 
- Refer to \ :ref:`service_transaction_management`\ for details.
+ Refer to \ :ref:`service_transaction_management`\  for details.
 
 
 .. _service-constitution-role-label:
@@ -706,7 +707,7 @@ Structure of Service class
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 | Service consists of Service classes and SharedService classes and plays the following role.
-| In this guideline, POJO (Plain Old Java Object) having \ ``@Service``\ annotation is defined as Service or SharedService class. 
+| In this guideline, POJO (Plain Old Java Object) having \ ``@Service``\  annotation is defined as Service or SharedService class. 
 | We are not preventing the creation of interface and base classes that limit the signature of methods.
 
  .. tabularcolumns:: |p{0.10\linewidth}|p{0.15\linewidth}|p{0.30\linewidth}|p{0.45\linewidth}|
@@ -714,7 +715,7 @@ Structure of Service class
    :header-rows: 1
    :widths: 10 15 30 45
 
-   * - S.No.
+   * - Sr. No.
      - Class
      - Role
      - Notes related to dependency relationship
@@ -742,7 +743,7 @@ Structure of Service class
    :align: center
 
 
-Reason for separating Service and SharedServic
+Reason for separating Service and SharedService
 """"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 | Logic that cannot be (should not be) reused and logic that can be (should be) reused exist in the business logic.
 | To implement these 2 logics in the same class, it is difficult to decide whether a method can be re-used or not.
@@ -760,7 +761,7 @@ Reason for prohibiting the calling of other Service classes from Service class
    :header-rows: 1
    :widths: 10 90
 
-   * - S.No.
+   * - Sr. No.
      - Situations that can occur
    * - 1.
      - | The logic that must be implemented in the calling service class, gets implemented in the called service class for reasons like "having the logic at a single location" etc.
@@ -772,11 +773,11 @@ Reason for prohibiting the calling of other Service classes from Service class
 Regarding interface and base classes to limit signature of method
 """""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 | In order to bring consistency in development of business logic, interfaces and base classes are created which limit the signature of the methods.
-| The purpose is also to prevent the injection of diferences due to development style of each developer by limiting the signature through interfaces and base classes.
+| The purpose is also to prevent the injection of differences due to development style of each developer by limiting the signature through interfaces and base classes.
 
  .. note::
 
-    In large scale development, there are situations where not every single developer is highly skilled or situations like having consistency in developemnt of business logic considering maintainability after servicing.
+    In large scale development, there are situations where not every single developer is highly skilled or situations like having consistency in development of business logic considering maintainability after servicing.
     In such situations, limiting the signature through interfaces can be an appropriate decision.
     
     In this guideline, we do not specifically recommended to create interface to limit signature; however, type of architecture must be selected on the basis of characteristics of the project.
@@ -784,7 +785,7 @@ Regarding interface and base classes to limit signature of method
 \
 
 | Appendix has a sample of creating interface and base classes to limit the signature.
-| Refer to \ :ref:`domainlayer_appendix_blogic`\ for the details.
+| Refer to \ :ref:`domainlayer_appendix_blogic`\  for details.
 
 
 .. _service-creation-unit-label:
@@ -799,7 +800,7 @@ There are mainly 3 patterns for creating Service.
    :header-rows: 1
    :widths: 10 15 25 50
 
-   * - S.No.
+   * - Sr. No.
      - Unit
      - Creation method
      - Description
@@ -825,11 +826,11 @@ There are mainly 3 patterns for creating Service.
        | however, shared logic which spans across multiple use-case might not get extracted to a single location.
        | When it is very important to have extract shared logic out to a single location, it becomes necessary devise measures like having 
        | a separate team to look after designing shared components of business logic that span across multiple use cases. 
-   * - 3
+   * - 3.
      - | For each event
      - | Create Service paired with the events generated from screen.
      - | **If the application is to be designed and implemented with focus on events on the screen and BLogic class is auto-generated using TERASOLUNA ViSC, Service should be created in this way.** 
-       | In this guideline, the Service class created using this pattern is called \ ``BLogic``\.
+       | In this guideline, the Service class created using this pattern is called \ ``BLogic``\ .
        |
        | The characteristics of the application if creating Service using this pattern are basically same as those when creating Service for each use case.
        | 
@@ -858,9 +859,9 @@ There are mainly 3 patterns for creating Service.
 
 |
 
-Image of Application development - Creating Service for each Entity - 
+Image of Application development - Creating Service for each Entity
 """"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
-Following is the iamge of application development when creating a Service for each Entity.
+Following is the image of application development when creating a Service for each Entity.
 
  .. note::
 
@@ -882,21 +883,21 @@ Following is the iamge of application development when creating a Service for ea
    :header-rows: 1
    :widths: 10 90
 
-   * - S.No.
+   * - Sr. No.
      - Description
    * - | (1)
      - | Implement Service by assigning a person for each Entity.
        | If there is no specific reason, it is desirable that Controller must also be created for each Entity and must be developed by the same developer who created the Service class.
    * - | (2)
      - | Implement SharedService if there is shared logic between multiple business logics.
-       | In the above figure, different person is assigned as the incharge. However, he may be the same person as (1) depending per the project structure.
+       | In the above figure, different person is assigned as the in-charge. However, he may be the same person as (1) depending per the project structure.
 
 |
 
 
 Image of Application development - Creating Service for each use case
 """"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
-| Following is the iamge of application development when creating a Service for each use-case.
+| Following is the image of application development when creating a Service for each use-case.
 | In case of use-case which performs CRUD operations on the Entity, structure is same as in case of creating Service for each Entity.
 
 
@@ -910,14 +911,14 @@ Image of Application development - Creating Service for each use case
    :header-rows: 1
    :widths: 10 90
 
-   * - S.No.
+   * - Sr. No.
      - Description
    * - | (1)
      - | Implement Service by assigning a person for each use-case.
        | If there is no specific reason, it is desirable that Controller must also be created for each use-case and must be developed by the same developer who created the Service class.
    * - | (2)
      - | Implement SharedService if there is shared logic between multiple business logics.
-       | In the above figure, different person is assigned as the incharge. However, he may be the same person as (1) depending per the project structure.
+       | In the above figure, different person is assigned as the in-charge. However, he may be the same person as (1) depending per the project structure.
 
  .. note::
 
@@ -940,7 +941,7 @@ Image of Application development - Creating Service for each use case
    :header-rows: 1
    :widths: 10 90
 
-   * - S.No.
+   * - Sr. No.
      - Description
    * - | (1)
      - | Divide the use-case into finer processes which make-up the complete use-case. Assign each fine process to a developer. Each developer creates the Service for assigned process.
@@ -957,7 +958,7 @@ Image of Application development - Creating Service for each use case
 
 Image of Application development - Creating Service for each use event
 """"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
-Following is the iamge of application development when creating a Service(BLogic) for each event.
+Following is the image of application development when creating a Service(BLogic) for each event.
 
  .. figure:: images/service_unit_business-ligic.png
    :alt: constitution image of business logic unit
@@ -969,7 +970,7 @@ Following is the iamge of application development when creating a Service(BLogic
    :header-rows: 1
    :widths: 10 90
 
-   * - S.No.
+   * - Sr. No.
      - Description
    * - | (1)
      - | Implement Service(BLogic) by assigning a person for each event.
@@ -981,7 +982,7 @@ Following is the iamge of application development when creating a Service(BLogic
      - | Even if the separate Service(BLogic) is created for each event, it is recommended that same person is the in-charge of the complete use-case.
    * - | (4)
      - | Implement in SharedService to share the logic with multiple business logics.
-       | In the above figure, different person is assigned as the incharge. However, he may be the same person as (1) depending per the project structure.
+       | In the above figure, different person is assigned as the in-charge. However, he may be the same person as (1) depending per the project structure.
 
  .. note::
 
@@ -1004,7 +1005,7 @@ Following is the iamge of application development when creating a Service(BLogic
    :header-rows: 1
    :widths: 10 90
 
-   * - S.No.
+   * - Sr. No.
      - Description
    * - | (1)
      - | Divide the use-case into finer processes which make-up the complete use-case. Assign each fine process to a developer. Each developer creates the Service for assigned process.
@@ -1037,7 +1038,7 @@ Below are the points to be taken care of while creating Service class.
    :header-rows: 1
    :widths: 10 90
 
-   * - S.No.
+   * - Sr. No.
      - Description
    * - | (1)
      - | **It is recommended to create Service interface.**
@@ -1047,7 +1048,7 @@ Below are the points to be taken care of while creating Service class.
  .. note:: **Merits from architecture perspective**
 
     #. If interface is there, When using AOP, Dynamic proxies functionality of standard JDK is used.
-       In case of no interface, CGLIB included in Spring Framework is used. In case of CGLIB there are certain restrictions like "Advice can not be applied on final methods" etc.
+       In case of no interface, CGLIB included in Spring Framework is used. In case of CGLIB there are certain restrictions like "Advice cannot be applied on final methods" etc.
        Refer to \ `Spring Reference Document <http://docs.spring.io/spring/docs/4.1.4.RELEASE/spring-framework-reference/html/aop.html#aop-proxying>`_\ for details.
     #. It becomes easier to create a stub of business logic. When application layer and domain layer are developed in parallel using different development teams, stubs of Service
        are required. When there is a need to create stubs, it is recommended to have interface .
@@ -1071,7 +1072,7 @@ Below are the points to be taken care of while creating Service class.
    :header-rows: 1
    :widths: 10 90
 
-   * - S.No.
+   * - Sr. No.
      - Description
    * - | (1)
      - | **Add @Service annotation to class.**
@@ -1082,7 +1083,9 @@ Below are the points to be taken care of while creating Service class.
      - | **Add @Transactional annotation to class.**
        | By adding the above annotation, transaction boundary is set for to the all the methods of the Service class.
        | ``value`` attribute should be specified as required.
-       | Refer to \ :ref:`transaction-management-declare-transaction-info-label`\ for details.
+       | Refer to \ :ref:`transaction-management-declare-transaction-info-label`\  for details.
+
+       | Moreover, to understand the points to be noted when using \ ``@Transactional``\  annotation, it is advisable to confirm with ":ref:`DomainLayerAppendixTransactionManagement`".
    * - | (3)
      - | **Consider interface name as XxxService and class name as XxxServiceImpl.**
        | Any naming conventions can be used. However, it is recommended to use distinguishable naming conventions for Service class and SharedService class.
@@ -1095,7 +1098,7 @@ Below are the points to be taken care of while creating Service class.
  .. note:: **Reason for adding @Transactional annotation to class**
 
     Transaction boundary is required only for the business logic that updates the database. However, it is recommended to apply the annotation at class level to prevent bugs due to skipped annotation.
-    However, defining \ ``@Transactional``\ annotation only at required places (methods which update the database) is also fine.
+    However, defining \ ``@Transactional``\  annotation only at required places (methods which update the database) is also fine.
 
  .. note:: **Reason to prohibit non-singleton scopes**
 
@@ -1150,7 +1153,7 @@ Below are the points to be taken care of while writing methods of Service class.
    :header-rows: 1
    :widths: 10 90
 
-   * - S.No.
+   * - Sr. No.
      - Description
    * - | (1)
      - | **Create a method of Service class for each business logic.**
@@ -1160,18 +1163,26 @@ Below are the points to be taken care of while writing methods of Service class.
      - | **Add @Transactional annotation for changes to default transaction definition (class level annotation).**
        | Attributes should be specified as per the requirement.
        | Refer to \ :ref:`transaction-management-declare-transaction-info-label` for details.
+
+       | Moreover, to understand the points to be noted when using \ ``@Transactional``\  annotation, it is advisable to confirm with ":ref:`DomainLayerAppendixTransactionManagement`".
 \
 
- .. warning:: **Regarding transaction definition of business logic that just reads the database and does not update values**
+ .. tip:: **Transaction definition of business logic for reference**
 
-    Transaction management for reference queries can be applied by through \ ``@Transactional(readOnly = true)``\ .
-    However, for JPA, there is no need to specify "readOnly = true".
-    Refer to "Listing 7. Using read-only with REQUIRED propagation mode - JPA" of
-    \ `IBM DeveloperWorks article <http://www.ibm.com/developerworks/java/library/j-ts1/index.html>`_\ for details.
+    When business logic for reference is to be implemented, by specifying \ ``@Transactional(readOnly = true)``\ ,
+    instruction can be given to run the SQL under "Read-only transactions" for JDBC driver.
 
- .. note:: **Defining transaction when a new transaction is required to be started**
+    The way of handling read-only transactions depends on the implementation of JDBC driver; hence, confirm the specifications of JDBC driver to be used.
 
-    Set \ ``@Transactional(propagation = Propagation.REQUIRES_NEW)``\ to start a new transaction
+
+ .. note:: **Points to be noted when using "Read-only transactions"**
+
+    If it is set to "perform health check" when retrieving a connection from connection pool, "Read-only transactions" may not be enabled.
+    For details on this event and to avoid the same, refer to :ref:`About cases where "Read-only transactions" are not enabled <DomainLayerTransactionManagementWarningDisableCase>`.
+
+ .. note:: **Transaction definition when a new transaction is required to be started**
+
+    Set \ ``@Transactional(propagation = Propagation.REQUIRES_NEW)``\  to start a new transaction
     without participating in the transaction of the caller method.
 
 .. _service-class-method-args-return-label:
@@ -1180,17 +1191,17 @@ Regarding arguments and return values of methods of Service class
 """"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 The below points must be considered for arguments and return values of methods of Service class.
 
-| Serializable classes (class implementing \ ``java.io.Serializable``\) must be used for arguments and return values of Service class.
+| Serializable classes (class implementing \ ``java.io.Serializable``\ ) must be used for arguments and return values of Service class.
 | Since there is possibility of Service class getting deployed as distributed application, it is recommended to allow only Serializable class.
 
 **Typical arguments and return values of the methods are as follows.**
 
- * Primitive types (\ ``int``\ , \ ``long``\)
- * Primitive wrapper classes (\ ``java.lang.Integer``\ , \ ``java.lang.Long``\)
- * java standard classes (\ ``java.lang.String``\ , \ ``java.util.Date``\)
+ * Primitive types (\ ``int``\ , \ ``long``\ )
+ * Primitive wrapper classes (\ ``java.lang.Integer``\ , \ ``java.lang.Long``\ )
+ * java standard classes (\ ``java.lang.String``\ , \ ``java.util.Date``\ )
  * Domain objects (Entity, DTO)
  * Input/output objects (DTO)
- * Collection (implementation class of \ ``java.util.Collection``\) of above types
+ * Collection (implementation class of \ ``java.util.Collection``\ ) of above types
  * void
  * etc ...
 \
@@ -1211,7 +1222,7 @@ The below points must be considered for arguments and return values of methods o
  .. note:: **Reason for prohibition**
 
     #. If objects depending on implementation architecture of application layer are allowed, then application layer and domain layer get tightly coupled.
-    #. \ ``java.util.Map``\ is too generalized. Using it for method arguments and return values makes it difficult to understand what type of object is stored inside it. Further, since the values are managed using keys, the following problems may occur.
+    #. \ ``java.util.Map``\  is too generalized. Using it for method arguments and return values makes it difficult to understand what type of object is stored inside it. Further, since the values are managed using keys, the following problems may occur.
      * Values are mapped to a unique key and hence cannot be retrieved by specifying a key name which is different from the one specified at the time of inserting the value.
      * When key name has to be changed, it becomes difficult to determine the impacted area.
 
@@ -1238,7 +1249,7 @@ Creation of SharedService class
 | Only the points which are different from Service class are explained here.
 
 #. | **Add @Transactional annotation to class as and when required.**
-   | \ ``@Transactional``\ annotation is not required when data access is not involved.
+   | \ ``@Transactional``\  annotation is not required when data access is not involved.
 
 #. | **Interface name should be XxxSharedService and class name should be XxxSharedServiceImpl.**
    | Any other naming conventions can also be used. However, it is recommended to use distinguishable naming conventions for Service class and SharedService class.
@@ -1276,9 +1287,8 @@ Operate on business data
 """"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 Refer to the following for the examples of data (Entity) fetch and update.
 
-* When using MyBatis3, \ :doc:`../ArchitectureInDetail/DataAccessMyBatis3`\
-* When using JPA, \ :doc:`../ArchitectureInDetail/DataAccessJpa`\
-
+* When using MyBatis3, \ :doc:`../ArchitectureInDetail/DataAccessMyBatis3`\ 
+* When using JPA, \ :doc:`../ArchitectureInDetail/DataAccessJpa`\ 
 
 
 .. _service-return-message-label:
@@ -1287,7 +1297,7 @@ Returning messages
 """"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 | Warning message and business error message are the two type of messages which must be resolved in Service (refer to the figure in red broken line below).
 | Other messages should be resolved in application layer.
-| Refer to \ :doc:`../ArchitectureInDetail/MessageManagement`\ for message types and message pattern.
+| Refer to \ :doc:`../ArchitectureInDetail/MessageManagement`\  for message types and message pattern.
 
  .. figure:: images/service_target-resolving-message.png
    :alt: target of resolving message
@@ -1366,14 +1376,14 @@ Returning warning message
    :header-rows: 1
    :widths: 10 90
 
-   * - S.No.
+   * - Sr. No.
      - Description
    * - | (1)
-     - | When the order includes products which are not available right now, set  \ ``hasOrderProduct``\ to \ ``true``\.
+     - | When the order includes products which are not available right now, set  \ ``hasOrderProduct``\  to \ ``true``\ .
    * - | (2)
      - | In the above example, when the order includes products which are not available right now, a warning message occurs.
    * - | (3)
-     - | In the above example, the registered \ ``Order``\  object and warning message are returned by storing objects in a DTO called \ ``OrderResult``\.
+     - | In the above example, the registered \ ``Order``\  object and warning message are returned by storing objects in a DTO called \ ``OrderResult``\ .
 
 .. _service-return-businesserrormessage-label:
 
@@ -1395,7 +1405,7 @@ Notifying business error
 
    Since business exceptions need to be handled in controller class, they can be configured as checked exception.
    However in this guideline, it is recommended that business exception be subclass of unchecked exception (``java.lang.RuntimeException``). By default, 
-   if there is a RuntimeException, transaction will be rollbacked. Hence, doing this will prevent leaving a bug in the source-code due to inadequate settings of @Transactional annotation. 
+   if there is a RuntimeException, transaction will be rolled back. Hence, doing this will prevent leaving a bug in the source-code due to inadequate settings of @Transactional annotation. 
    Obviously, if settings are changed such that transaction rollbacks even in case checked exceptions, business exception can be configured as subclass of checked exceptions.
 
 | Example of throwing business exception.
@@ -1416,13 +1426,13 @@ Notifying business error
    :header-rows: 1
    :widths: 10 90
 
-   * - S.No.
+   * - Sr. No.
      - Description
 
    * - | (1)
      - Business exception is thrown since reservation date is past the deadline at the time of making reservation.
 
-Refer to \ :doc:`../ArchitectureInDetail/ExceptionHandling`\ for the details of entire exception handling.
+Refer to \ :doc:`../ArchitectureInDetail/ExceptionHandling`\  for details of entire exception handling.
 
 .. _service-return-systemerrormessage-label:
 
@@ -1432,13 +1442,13 @@ Notifying system error
 | The following can be the cases.
 
 -  When master data, directories and files that should already exist, do not exist
--  When a checked exception generated by a library method is caught and this exception indicates abnoraml system state.
+-  When a checked exception generated by a library method is caught and this exception indicates abnormal system state.
 -  etc ...
 
-| System exception (\ ``org.terasoluna.fw.common.exception.SystemException``\) is provided as common library.
+| System exception (\ ``org.terasoluna.fw.common.exception.SystemException``\ ) is provided as common library.
 | When system exception class provided in common library does not fulfill the requirements, system exception class should be created in the project.
 | **It is recommended to create system exception class as subclass of java.lang.RuntimeException**.
-| The reason is system exception should not be handled by application code and rollback target of \ ``@Transactinal``\ annotation is set to \ ``java.lang.RuntimeException``\ by default.
+| The reason is system exception should not be handled by application code and rollback target of \ ``@Transactinal``\  annotation is set to \ ``java.lang.RuntimeException``\  by default.
 
 | Example of throwing system exception.
 | Example notifying the non-existence of the specific product in product master as system error is shown below.
@@ -1456,7 +1466,7 @@ Notifying system error
    :header-rows: 1
    :widths: 10 90
 
-   * - S.No.
+   * - Sr. No.
      - Description
 
    * - | (1)
@@ -1480,21 +1490,21 @@ Example that throws system exception while catching IO exception while copying t
    :header-rows: 1
    :widths: 10 90
 
-   * - S.No.
+   * - Sr. No.
      - Description
    * - | (1)
      - | System exception that is classified into invalid system state is thrown by the library method.
        | **The exception generated by library must be passed to system exception class as cause exception.**
-       | If cause exception is lost, error occurrence location and basic error cause can not be traced from the stacktrace.
+       | If cause exception is lost, error occurrence location and basic error cause cannot be traced from the stack trace.
 \
 
  .. note:: **Regarding handling of data access error**
 
     When data access error occurs in Repository and O/R Mapper while executing business logic, it is converted to subclass of 
-    \ ``org.springframework.dao.DataAccessException``\ and thrown.
+    \ ``org.springframework.dao.DataAccessException``\  and thrown.
     Error can be handled in application layer instead of catching in business logic.
     However, some errors like unique constraints violation error should be handled in business logic as per business requirements.
-    Refer to \ :doc:`../ArchitectureInDetail/DataAccessCommon`\ for details.
+    Refer to \ :doc:`../ArchitectureInDetail/DataAccessCommon`\  for details.
 
 .. _service_transaction_management:
 
@@ -1513,8 +1523,8 @@ In "Declarative transaction management", the information required for transactio
 * Declaration in XML(bean definition file).
 * **Declaration using annotation (@Transactional) (Recommended).**
 
-Refer to \ `Spring Reference Document <http://docs.spring.io/spring/docs/4.1.4.RELEASE/spring-framework-reference/html/transaction.html#transaction-declarative>`_\ for
-the details of "Declarative type transaction management" provided by Spring Framework.
+Refer to \ `Spring Reference Document <http://docs.spring.io/spring/docs/4.1.4.RELEASE/spring-framework-reference/html/transaction.html#transaction-declarative>`_\  for
+the details on "Declarative type transaction management" provided by Spring Framework.
 \
 
  .. note:: **Reason for recommending annotation method**
@@ -1532,20 +1542,19 @@ Information required for "Declarative transaction management"
 
  .. note::
 
-    In this guideline it is assumed that the Spring Framework \ ``@org.springframework.transaction.annotation.Transactional`` \ annotation is used.
+    In this guideline, it is a prerequisite to use \ ``@org.springframework.transaction.annotation.Transactional`` \  annotation provided by Spring Framework.
 
  .. tip::
 
-    Since Spring 4, \ ``@javax.transaction.Transactional`` \ annotation added in JTA 1.2 can be used.
-    
+    From Spring 4, it is possible to use \ ``@javax.transaction.Transactional`` \  annotation added from JTA 1.2.
 
-    However in this guideline, it is recommended to use \ ``@Transactional``\  annotation of Spring Framework that can specify information required for "Declarative transaction management" more finely.
+    However, in this guideline, it is recommended to use an annotation of Spring Framework that can specify the information required for "Declarative transaction management" in a much more detailed way.
 
-    Following attributes can be specified if Spring Framework \ ``@Transactinal``\  annotation is used.
+    Following attributes can be specified if Spring Framework annotation is used.
 
-    * \ ``NESTED``\  (JDBC savepoint) as an attribute value of the propagation method of transaction (\ ``propagation``\  attribute).
+    * \ ``NESTED``\ (JDBC savepoint) as an attribute value of the propagation method of transaction (\ ``propagation``\  attribute).
     * Isolation level of transaction (\ ``isolation``\  attribute)
-    * Timeout of transaction (\ ``timeout``\  attribute)
+    * Timeout period of transaction (\ ``timeout``\  attribute)
     * Read-only flag of transaction (\ ``readOnly``\  attribute)
 
  .. tabularcolumns:: |p{0.10\linewidth}|p{0.10\linewidth}|p{0.80\linewidth}|
@@ -1553,7 +1562,7 @@ Information required for "Declarative transaction management"
     :header-rows: 1
     :widths: 10 10 80
 
-    * - S.No.
+    * - Sr. No.
       - Attribute name
       - Description
 
@@ -1604,7 +1613,7 @@ Information required for "Declarative transaction management"
     * - 5
       - rollbackFor
       - | Specify list of exception classes to rollback transactions.
-        | Blank by default（Not specified）
+        | Blank by default (Not specified)
     * - 6
       - rollbackForClassName
       - | Specify list of exception class names to rollback transactions.
@@ -1623,7 +1632,7 @@ Information required for "Declarative transaction management"
 
     **It is recommended to specify the annotation at the class level or method level of the class.**
     Must be noted that it should not interface or method of interface.
-    Refer to 2nd Tip on \ `Spring Reference Document <http://docs.spring.io/spring/docs/4.1.4.RELEASE/spring-framework-reference/html/transaction.html#transaction-declarative-annotations>`_\  for reason.
+    For the reason, refer to 2nd Tips of \ `Spring Reference Document <http://docs.spring.io/spring/docs/4.1.4.RELEASE/spring-framework-reference/html/transaction.html#transaction-declarative-annotations>`_\ .
 
  .. warning:: **Default operations of rollback and commit when exception occurs**
 
@@ -1634,9 +1643,9 @@ Information required for "Declarative transaction management"
 
  .. note:: **Regarding value attributes of @Transactional annotation**
 
-    There is a value attribute in \ ``@Transactional``\ annotation. However, this attribute specifies which Transaction Manager to be used when multiple Transaction Managers are declared.
+    There is a value attribute in \ ``@Transactional``\  annotation. However, this attribute specifies which Transaction Manager to be used when multiple Transaction Managers are declared.
     It is not required to specify when there is only one Transaction Manager.
-    When it is required to use multiple Transaction Managers, refer to \ `Spring Reference Document <http://docs.spring.io/spring/docs/4.1.4.RELEASE/spring-framework-reference/html/transaction.html#tx-multiple-tx-mgrs-with-attransactional>`_\.
+    When multiple Transaction Managers need to be used, refer to \ `Spring Reference Document <http://docs.spring.io/spring/docs/4.1.4.RELEASE/spring-framework-reference/html/transaction.html#tx-multiple-tx-mgrs-with-attransactional>`_\ .
 
  .. note:: **Default isolation levels of main DB are given below.**
 
@@ -1647,6 +1656,56 @@ Information required for "Declarative transaction management"
     * PostgreSQL : READ_COMMITTED
     * SQL Server : READ_COMMITTED
     * MySQL : REPEATABLE_READ
+
+.. _DomainLayerTransactionManagementWarningDisableCase:
+
+ .. note:: **Cases where "Read-only transactions" are not enabled**
+
+    A mechanism is provided to run SQL under "Read-only transactions" by specifying \ ``readOnly = true``\ ; however,
+    when all of the following conditions are satisfied, there will be a JDBC driver where "Read-only transactions" are not enabled.
+
+    **[Conditions to generate this event]**
+
+    * Perform health check when retrieving a connection from connection pool.
+    * Disable 'Auto commit' of connection retrieved from connection pool.
+    * Use \ ``DataSourceTransactionManager``\  or \ ``JpaTransactionManager``\  as \ ``PlatformTransactionManager``\ . (This event does not occur when using \ ``JtaTransactionManager``\ ).
+
+    **[JDBC driver where occurrence of this event is confirmed]**
+
+    * ``org.postgresql:postgresql:9.3-1102-jdbc41`` (JDBC 4.1 compatible JDBC driver for PostgreSQL 9.3)
+
+    **[Method to avoid this event]**
+
+    In a case where "Read-only transactions" are not enabled,
+    if \ ``readOnly = true``\  is specified, it ends up carrying out the unnecessary processes.
+    Therefore, it is recommended to execute the SQL under "Updatable transactions" even for the reference processes.
+
+    Other methods to avoid this event are as follows:
+
+    * Do not perform health check when retrieving a connection from connection pool.
+    * Enable 'Auto commit' of the connection retrieved from connection pool. (Disable 'Auto commit' only when transaction management is required)
+
+    However, However, do not change the design for 'health check' and 'auto commit' to avoid this event.
+
+    **[Remarks]**
+
+    * Reproduction of this event is confirmed on PostgreSQL 9.3 and Oracle 12c. It is not performed on any other database and versions.
+    * In PostgreSQL 9.3, \ ``SQLException``\  occurs when \ ``java.sql.Connection#setReadOnly(boolean)``\  method is called.
+    * When SQL or API call of JDBC is logged in using \ :ref:`log4jdbc <DataAccessCommonDataSourceDebug>`\ , \ ``SQLException``\  occurred from JDBC driver is output to log with ERROR level.
+    * **SQL Exception occurred from JDBC driver is ignored by exception handling of Spring Framework. Hence, even though it is not an error as application behavior, the "Read-only transactions" is not enabled.**
+    * Occurrence of this event is not confirmed in Oracle 12c.
+
+    **[Reference]**
+
+    When following log is output using \ :ref:`log4jdbc <DataAccessCommonDataSourceDebug>`\ , it will be treated as a case corresponding to this event.
+
+     .. code-block:: log
+
+        date:2015-02-20 16:11:56	thread:main	user:	X-Track:	level:ERROR	logger:jdbc.audit                                      	message:3. Connection.setReadOnly(true)
+        org.postgresql.util.PSQLException: Cannot change transaction read-only property in the middle of a transaction.
+            at org.postgresql.jdbc2.AbstractJdbc2Connection.setReadOnly(AbstractJdbc2Connection.java:741) ~[postgresql-9.3-1102-jdbc41.jar:na]
+            ...
+
 
 Propagation of transaction
 """"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
@@ -1664,22 +1723,22 @@ Propagation of transaction
     :align: center
 
 #. Controller calls a method of Service class.
-   At this time, since started transaction does not exist, transaction is started using \ ``TransactionInterceptor``\.
-#. \ ``TransactionInterceptor``\ calls the method of service class after starting the transaction.
-#. Service class calls a method of \ ``SharedService``\. This method is also under transaction control.
-   At this time, though started transaction exists, \ ``TransactionInterceptor``\ participates in the started transaction without starting a new transaction.
-#. \ ``TransactionInterceptor``\ calls the method under transaction control after participating in the started transaction.
-#. \ ``TransactionInterceptor``\ performs commit or rollback according to result of processing and ends the transaction.
+   At this time, since started transaction does not exist, transaction is started using \ ``TransactionInterceptor``\ .
+#. \ ``TransactionInterceptor``\  calls the method of service class after starting the transaction.
+#. Service class calls a method of \ ``SharedService``\ . This method is also under transaction control.
+   At this time, though started transaction exists, \ ``TransactionInterceptor``\  participates in the started transaction without starting a new transaction.
+#. \ ``TransactionInterceptor``\  calls the method under transaction control after participating in the started transaction.
+#. \ ``TransactionInterceptor``\  performs commit or rollback according to result of processing and ends the transaction.
 
 
 .. note:: **Reason for occurrence of org.springframework.transaction.UnexpectedRollbackException**
 
   When propagation method of transaction is set to "REQUIRED", though there is only one physical transaction, internally Spring Framework creates transaction boundaries.
   In case of above example, when a method of SharedService is called, a TransactionInterceptor is started which internally provides transaction control boundary at SharedService level.
-  Therefore, when an exception (which is set as target of rollback) occurs in \ ``SharedService``\ method, status of transaction is set to rollback (rollback-only) by \ ``TransactionInterceptor``\.
+  Therefore, when an exception (which is set as target of rollback) occurs in \ ``SharedService``\  method, status of transaction is set to rollback (rollback-only) by \ ``TransactionInterceptor``\ .
   This transaction now cannot be committed.
   Going further, if the Service method tries to commit this transaction due to conflicting settings of rollback target exception between Service method and SharedShared method,
-  \ ``UnexpectedRollbackException``\ is generated by Spring Framework notifying that there is inconsistency in transaction control settings. When UnexpectedRollbackException is generated, it should be checked that there is no inconsistency in rollbackFor and noRollbackFor settings.
+  \ ``UnexpectedRollbackException``\  is generated by Spring Framework notifying that there is inconsistency in transaction control settings. When UnexpectedRollbackException is generated, it should be checked that there is no inconsistency in rollbackFor and noRollbackFor settings.
 
 | **Transaction management flow when propagation method of transaction is set to "REQUIRES_NEW"**
 | When propagation method of transaction is set to "REQUIRES_NEW", a part of the sequence of processing (Processing done in SharedService) are processed in another transaction when called from Controller.
@@ -1692,10 +1751,10 @@ Propagation of transaction
 #. Controller calls a method of Service class. This method is under transaction control. At this time, since started transaction does not exist, transaction is started by ``TransactionInterceptor`` (Hereafter, the started transaction is referred as "Transaction A").
 #. ``TransactionInterceptor`` calls the method of service class after transaction (Transaction A) is started.
 #. Service class calls a method of ``SharedService`` class. At this time, though started transaction (Transaction A) exists, since propagation method of transaction is "REQUIRES_NEW", new transaction is started by \ ``TransactionInterceptor``\. (Hereafter, started transaction is referred as "Transaction B"). At this time, "Transaction A" is interrupted and the status changes to 'Awaiting to resume'.
-#. \ ``TransactionInterceptor``\ calls the method of SharedService class after Transaction B is started.
-#. \ ``TransactionInterceptor``\ performs commit or rollback according to the process result and ends the Transaction B.
+#. \ ``TransactionInterceptor``\  calls the method of SharedService class after Transaction B is started.
+#. \ ``TransactionInterceptor``\  performs commit or rollback according to the process result and ends the Transaction B.
    At this time, "Transaction A" is resumed and status is changed to Active.
-#. \ ``TransactionInterceptor``\ performs commit or rollback according to the process result and ends the Transaction A.
+#. \ ``TransactionInterceptor``\  performs commit or rollback according to the process result and ends the Transaction A.
 
 Way of calling the method which is under transaction control
 """"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
@@ -1719,7 +1778,7 @@ Way of calling the method which is under transaction control
 
  .. note:: **In order to bring internal method calls under transaction control**
 
-   It is possible to enable transaction control for internal method calls as well by setting the AOP mode to "aspectj".
+   It is possible to enable transaction control for internal method calls as well by setting the AOP mode to \ ``"aspectj"``\ .
    However, if internal method call of transaction management is enabled, the route of transaction management may become complicated;
    hence it is recommended to use the default "proxy" for AOP mode.
 
@@ -1733,7 +1792,7 @@ The settings required for using transaction management are explained.
 PlatformTransactionManager settings
 """"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 
-| In order to have transaction management done, it is necessary to define the bean of \ ``PlatformTransactionManager``\.
+| In order to have transaction management done, it is necessary to define the bean of \ ``PlatformTransactionManager``\ .
 | Spring Framework has provided  couple of classes based on the purpose; any class can be specified that meets the requirement of the application.
 
 - :file:`xxx-env.xml`
@@ -1753,7 +1812,7 @@ PlatformTransactionManager settings
     :header-rows: 1
     :widths: 10 90
 
-    * - S.No.
+    * - Sr. No.
       - Description
 
     * - | (1)
@@ -1763,7 +1822,7 @@ PlatformTransactionManager settings
 
  .. note:: **When transaction management (Global transaction management) is required for multiple DBs (Multiple resources)**
 
-     * It is necessary to use \ ``org.springframework.transaction.jta.JtaTransactionManager``\ and manage transactions by using JTA functionality provided by application server.
+     * It is necessary to use \ ``org.springframework.transaction.jta.JtaTransactionManager``\  and manage transactions by using JTA functionality provided by application server.
      * When JTA is to be used in WebSphere, Oracle WebLogic Server and Oracle OC4J, a \ ``JtaTransactionManager``\  which is extended for the application server is automatically set
        by specifying <tx:jta-transaction-manager/>.
 
@@ -1772,14 +1831,14 @@ PlatformTransactionManager settings
     :header-rows: 1
     :widths: 10 35 55
 
-    * - S.No.
+    * - Sr. No.
       - Class name
       - Description
     * - 1.
       - | org.springframework.jdbc.datasource.
         | DataSourceTransactionManager
       - | Implementation class for managing the transaction by calling API of JDBC(\ ``java.sql.Connection``\ ).
-        | Use this class when Mybatis or \ ``JdbcTemplate``\ is to be used.
+        | Use this class when MyBatis and \ ``JdbcTemplate``\  is to be used.
     * - 2.
       - | org.springframework.orm.jpa.
         | JpaTransactionManager
@@ -1795,8 +1854,8 @@ PlatformTransactionManager settings
 Settings for enabling @Transactional
 """"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 
-| In this guideline, it is recommended to manage transaction by using "Declarative transaction management" where \ ``@Transactional``\ annotation is used.
-| Here, the settings required for using \ ``@Transactional``\ annotation are explained.
+| In this guideline, it is recommended to manage transaction by using "Declarative transaction management" where \ ``@Transactional``\  annotation is used.
+| Here, the settings required for using \ ``@Transactional``\  annotation are explained.
 
 - :file:`xxx-domain.xml`
 
@@ -1809,11 +1868,11 @@ Settings for enabling @Transactional
     :header-rows: 1
     :widths: 10 90
 
-    * - S.No.
+    * - Sr. No.
       - Description
 
     * - | (1)
-      - With use of <tx:annotation-driven> element in XML (bean definition file), transaction control gets enabled at the locations where \ ``@Transactional``\ annotation is used.
+      - With use of <tx:annotation-driven> element in XML (bean definition file), transaction control gets enabled at the locations where \ ``@Transactional``\  annotation is used.
 
 Regarding attributes of <tx:annotation-driven> element
 """"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
@@ -1835,17 +1894,17 @@ Various attributes can be specified in <tx:annotation-driven> and default behavi
     :header-rows: 1
     :widths: 10 15 75
 
-    * - S.No.
+    * - Sr. No.
       - Attribute
       - Description
 
     * - 1
       - transaction-manager
-      - Specify \ ``PlatformTransactionManager``\ bean. When omitted, bean registered with the name "transactionManager" is used.
+      - Specify \ ``PlatformTransactionManager``\  bean. When omitted, bean registered with the name "transactionManager" is used.
 
     * - 2
       - mode
-      - Specify AOP mode. When omitted, \ ``"proxy"``\ is the default value. \ ``"aspectj"``\ can be also be specified. It is recommended to use \ ``"proxy"``\.
+      - Specify AOP mode. When omitted, \ ``"proxy"``\  is the default value. \ ``"aspectj"``\  can be also be specified. It is recommended to use \ ``"proxy"``\ .
 
     * - 3
       - proxy-target-class
@@ -1864,6 +1923,8 @@ Various attributes can be specified in <tx:annotation-driven> and default behavi
 Appendix
 --------------------------------------------------------------------------------
 
+.. _DomainLayerAppendixTransactionManagement:
+
 Regarding drawbacks of transaction management
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
@@ -1871,11 +1932,23 @@ Regarding drawbacks of transaction management
 | Read this article about pitfalls of transaction management and pitfalls while using @Transactional of Spring Framework.
   Refer to \ `Article on IBM DeveloperWorks <http://www.ibm.com/developerworks/java/library/j-ts1/index.html>`_\ for details.
 
+.. note::
+
+    Since the article of IBM DeveloperWorks is an old article (year 2009), some of the content is different than the behavior when using Spring Framework 4.1.
+
+    Specifically, the contents of "Listing 7. Using read-only with REQUIRED propagation mode - JPA".
+
+    From Spring Framework 4.1, when Hibernate ORM 4.2 or higher version is used as JPA provider,
+    it has been improved so that instruction can be given to run the SQL under "Read-only transactions" for JDBC driver (\ `SPR-8959 <https://jira.spring.io/browse/SPR-8959>`_\ ).
+
+    The way of handling read-only transactions depends on the implementation of JDBC driver; hence, confirm the specifications of JDBC driver to be used.
+
+
 Programmatic transaction management
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 In this guideline, "Declarative transaction management" is recommended. However, programmatic transaction management is also possible.
-Refer to \ `Spring Reference Document <http://docs.spring.io/spring/docs/4.1.4.RELEASE/spring-framework-reference/html/transaction.html#transaction-programmatic>`_\ for details.
+Refer to \ `Spring Reference Document <http://docs.spring.io/spring/docs/4.1.4.RELEASE/spring-framework-reference/html/transaction.html#transaction-programmatic>`_\  for details.
 
 .. _domainlayer_appendix_blogic:
 
@@ -1897,7 +1970,7 @@ Sample of implementation of interface and base classes to limit signature
     :header-rows: 1
     :widths: 10 90
 
-    * - S.No.
+    * - Sr. No.
       - Description
     * - | (1)
       - | Interface to limit signature of implementation method of business logic.
@@ -1931,7 +2004,7 @@ Sample of implementation of interface and base classes to limit signature
     :header-rows: 1
     :widths: 10 90
 
-    * - S.No.
+    * - Sr. No.
       - Description
     * - | (2)
       - | Controller injects calling BLogic interface.
@@ -1979,7 +2052,7 @@ To standardize process flow of business logic when a fixed common process is inc
     :header-rows: 1
     :widths: 10 90
 
-    * - S.No.
+    * - Sr. No.
       - Description
     * - | (4)
       - | Call the method to perform pre-processing before executing business logic from base classes.
@@ -2031,7 +2104,7 @@ Sample of extending base classes to limit signature is shown below.
     :header-rows: 1
     :widths: 10 90
 
-    * - S.No.
+    * - Sr. No.
       - Description
     * - | (6)
       - | Implement pre-process before executing business logic.
@@ -2052,7 +2125,7 @@ Method of dealing with violation of business rules as field error
 
 | When it is necessary to output the error of business rules for each field, the mechanism of (Bean Validation or Spring Validator) on the Controller side should be used.
 | In this case, It is recommended to implement check logic as Service class and then to call the method of Service class from Bean Validation or Spring Validator.
-| Refer to \ :doc:`../ArchitectureInDetail/Validation`\ business logic approach for details.
+| Refer to \ :doc:`../ArchitectureInDetail/Validation`\  business logic approach for details.
 
 
 .. raw:: latex

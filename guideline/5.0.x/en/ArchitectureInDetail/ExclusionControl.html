@@ -75,15 +75,21 @@
 </ul>
 </li>
 <li><a class="reference internal" href="#how-to-use">5.4.2. How to use</a><ul>
-<li><a class="reference internal" href="#how-to-implement-while-using-jpa-spring-data-jpa">5.4.2.1. How to implement while using JPA (Spring Data JPA)</a><ul>
+<li><a class="reference internal" href="#how-to-implement-while-using-mybatis3">5.4.2.1. How to implement while using MyBatis3</a><ul>
 <li><a class="reference internal" href="#row-lock-function-of-rdbms">5.4.2.1.1. Row lock function of RDBMS</a></li>
 <li><a class="reference internal" href="#optimistic-locking">5.4.2.1.2. Optimistic locking</a></li>
 <li><a class="reference internal" href="#pessimistic-locking">5.4.2.1.3. Pessimistic locking</a></li>
 </ul>
 </li>
-<li><a class="reference internal" href="#how-to-handle-an-exclusive-error">5.4.2.2. How to handle an exclusive error</a><ul>
-<li><a class="reference internal" href="#error-handling-in-case-of-optimistic-locking-failure">5.4.2.2.1. Error handling in case of optimistic locking failure</a></li>
-<li><a class="reference internal" href="#error-handling-in-case-of-pessimistic-locking-failure">5.4.2.2.2. Error handling in case of pessimistic locking failure</a></li>
+<li><a class="reference internal" href="#how-to-implement-while-using-jpa-spring-data-jpa">5.4.2.2. How to implement while using JPA (Spring Data JPA)</a><ul>
+<li><a class="reference internal" href="#id1">5.4.2.2.1. Row lock function of RDBMS</a></li>
+<li><a class="reference internal" href="#id2">5.4.2.2.2. Optimistic locking</a></li>
+<li><a class="reference internal" href="#id3">5.4.2.2.3. Pessimistic locking</a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#how-to-handle-an-exclusive-error">5.4.2.3. How to handle an exclusive error</a><ul>
+<li><a class="reference internal" href="#error-handling-in-case-of-optimistic-locking-failure">5.4.2.3.1. Error handling in case of optimistic locking failure</a></li>
+<li><a class="reference internal" href="#error-handling-in-case-of-pessimistic-locking-failure">5.4.2.3.2. Error handling in case of pessimistic locking failure</a></li>
 </ul>
 </li>
 </ul>
@@ -129,44 +135,46 @@
             
   <div class="section" id="exclusive-control">
 <h1>5.4. Exclusive Control<a class="headerlink" href="#exclusive-control" title="Permalink to this headline">¶</a></h1>
-<div class="admonition caution">
-  <p class="first admonition-title">Caution</p>
-  <p><strong>This guide line is under construction</strong>. Stable guidelines are available <a href="http://terasolunaorg.github.io/guideline/">here</a>.</p>
-</div>
 <div class="contents local topic" id="table-of-contents">
 <p class="topic-title first">Table of Contents</p>
 <ul class="simple">
-<li><a class="reference internal" href="#overview" id="id3">Overview</a><ul>
-<li><a class="reference internal" href="#necessity-of-exclusive-control" id="id4">Necessity of exclusive control</a><ul>
-<li><a class="reference internal" href="#problem-1" id="id5">Problem 1</a></li>
-<li><a class="reference internal" href="#problem-2" id="id6">Problem 2</a></li>
-<li><a class="reference internal" href="#problem-3" id="id7">Problem 3</a></li>
+<li><a class="reference internal" href="#overview" id="id6">Overview</a><ul>
+<li><a class="reference internal" href="#necessity-of-exclusive-control" id="id7">Necessity of exclusive control</a><ul>
+<li><a class="reference internal" href="#problem-1" id="id8">Problem 1</a></li>
+<li><a class="reference internal" href="#problem-2" id="id9">Problem 2</a></li>
+<li><a class="reference internal" href="#problem-3" id="id10">Problem 3</a></li>
 </ul>
 </li>
-<li><a class="reference internal" href="#exclusive-control-according-to-the-isolation-level-of-transaction" id="id8">Exclusive control according to the isolation level of transaction</a></li>
-<li><a class="reference internal" href="#exclusive-control-using-database-locking" id="id9">Exclusive control using database locking</a><ul>
-<li><a class="reference internal" href="#exclusive-control-using-row-lock-function-of-the-database" id="id10">Exclusive control using row lock function of the database</a></li>
-<li><a class="reference internal" href="#exclusive-control-using-optimistic-locking" id="id11">Exclusive control using optimistic locking</a></li>
-<li><a class="reference internal" href="#exclusive-control-using-pessimistic-locking" id="id12">Exclusive control using pessimistic locking</a></li>
+<li><a class="reference internal" href="#exclusive-control-according-to-the-isolation-level-of-transaction" id="id11">Exclusive control according to the isolation level of transaction</a></li>
+<li><a class="reference internal" href="#exclusive-control-using-database-locking" id="id12">Exclusive control using database locking</a><ul>
+<li><a class="reference internal" href="#exclusive-control-using-row-lock-function-of-the-database" id="id13">Exclusive control using row lock function of the database</a></li>
+<li><a class="reference internal" href="#exclusive-control-using-optimistic-locking" id="id14">Exclusive control using optimistic locking</a></li>
+<li><a class="reference internal" href="#exclusive-control-using-pessimistic-locking" id="id15">Exclusive control using pessimistic locking</a></li>
 </ul>
 </li>
-<li><a class="reference internal" href="#prevention-of-deadlock" id="id13">Prevention of deadlock</a><ul>
-<li><a class="reference internal" href="#deadlock-in-table" id="id14">Deadlock in table</a></li>
-<li><a class="reference internal" href="#deadlock-between-tables" id="id15">Deadlock between tables</a></li>
+<li><a class="reference internal" href="#prevention-of-deadlock" id="id16">Prevention of deadlock</a><ul>
+<li><a class="reference internal" href="#deadlock-in-table" id="id17">Deadlock in table</a></li>
+<li><a class="reference internal" href="#deadlock-between-tables" id="id18">Deadlock between tables</a></li>
 </ul>
 </li>
 </ul>
 </li>
-<li><a class="reference internal" href="#how-to-use" id="id16">How to use</a><ul>
-<li><a class="reference internal" href="#how-to-implement-while-using-jpa-spring-data-jpa" id="id17">How to implement while using JPA (Spring Data JPA)</a><ul>
-<li><a class="reference internal" href="#row-lock-function-of-rdbms" id="id18">Row lock function of RDBMS</a></li>
-<li><a class="reference internal" href="#optimistic-locking" id="id19">Optimistic locking</a></li>
-<li><a class="reference internal" href="#pessimistic-locking" id="id20">Pessimistic locking</a></li>
+<li><a class="reference internal" href="#how-to-use" id="id19">How to use</a><ul>
+<li><a class="reference internal" href="#how-to-implement-while-using-mybatis3" id="id20">How to implement while using MyBatis3</a><ul>
+<li><a class="reference internal" href="#row-lock-function-of-rdbms" id="id21">Row lock function of RDBMS</a></li>
+<li><a class="reference internal" href="#optimistic-locking" id="id22">Optimistic locking</a></li>
+<li><a class="reference internal" href="#pessimistic-locking" id="id23">Pessimistic locking</a></li>
 </ul>
 </li>
-<li><a class="reference internal" href="#how-to-handle-an-exclusive-error" id="id21">How to handle an exclusive error</a><ul>
-<li><a class="reference internal" href="#error-handling-in-case-of-optimistic-locking-failure" id="id22">Error handling in case of optimistic locking failure</a></li>
-<li><a class="reference internal" href="#error-handling-in-case-of-pessimistic-locking-failure" id="id23">Error handling in case of pessimistic locking failure</a></li>
+<li><a class="reference internal" href="#how-to-implement-while-using-jpa-spring-data-jpa" id="id24">How to implement while using JPA (Spring Data JPA)</a><ul>
+<li><a class="reference internal" href="#id1" id="id25">Row lock function of RDBMS</a></li>
+<li><a class="reference internal" href="#id2" id="id26">Optimistic locking</a></li>
+<li><a class="reference internal" href="#id3" id="id27">Pessimistic locking</a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#how-to-handle-an-exclusive-error" id="id28">How to handle an exclusive error</a><ul>
+<li><a class="reference internal" href="#error-handling-in-case-of-optimistic-locking-failure" id="id29">Error handling in case of optimistic locking failure</a></li>
+<li><a class="reference internal" href="#error-handling-in-case-of-pessimistic-locking-failure" id="id30">Error handling in case of pessimistic locking failure</a></li>
 </ul>
 </li>
 </ul>
@@ -177,7 +185,7 @@
 <div class="line"><br /></div>
 </div>
 <div class="section" id="overview">
-<h2><a class="toc-backref" href="#id3">5.4.1. Overview</a><a class="headerlink" href="#overview" title="Permalink to this headline">¶</a></h2>
+<h2><a class="toc-backref" href="#id6">5.4.1. Overview</a><a class="headerlink" href="#overview" title="Permalink to this headline">¶</a></h2>
 <p>Exclusive control is a process to maintain data consistency when same data is to be updated simultaneously by multiple transactions.</p>
 <p>Exclusive control should be performed when same data is likely to get updated simultaneously by multiple transactions.
 These transactions are not necessarily restricted to database transactions only; they also include long transactions.</p>
@@ -192,10 +200,10 @@ These transactions are not necessarily restricted to database transactions only;
 <div class="line">However, it should also be performed in a similar way for the data stored in data-store apart from database (such as memory, files etc.).</div>
 </div>
 <div class="section" id="necessity-of-exclusive-control">
-<span id="exclusioncontrol-necessity"></span><h3><a class="toc-backref" href="#id4">5.4.1.1. Necessity of exclusive control</a><a class="headerlink" href="#necessity-of-exclusive-control" title="Permalink to this headline">¶</a></h3>
+<span id="exclusioncontrol-necessity"></span><h3><a class="toc-backref" href="#id7">5.4.1.1. Necessity of exclusive control</a><a class="headerlink" href="#necessity-of-exclusive-control" title="Permalink to this headline">¶</a></h3>
 <p>To understand why exclusive control is necessary, let us first see the issues that occur in the absence of exclusive control using the examples given below.</p>
 <div class="section" id="problem-1">
-<h4><a class="toc-backref" href="#id5">5.4.1.1.1. Problem 1</a><a class="headerlink" href="#problem-1" title="Permalink to this headline">¶</a></h4>
+<h4><a class="toc-backref" href="#id8">5.4.1.1.1. Problem 1</a><a class="headerlink" href="#problem-1" title="Permalink to this headline">¶</a></h4>
 <p>See the example below of receiving an order for Tea from users on a shopping site.</p>
 <blockquote>
 <div><div class="figure align-center">
@@ -257,7 +265,7 @@ These transactions are not necessarily restricted to database transactions only;
 </div></blockquote>
 </div>
 <div class="section" id="problem-2">
-<h4><a class="toc-backref" href="#id6">5.4.1.1.2. Problem 2</a><a class="headerlink" href="#problem-2" title="Permalink to this headline">¶</a></h4>
+<h4><a class="toc-backref" href="#id9">5.4.1.1.2. Problem 2</a><a class="headerlink" href="#problem-2" title="Permalink to this headline">¶</a></h4>
 <p>See the example below wherein the staff that manages the stock quantity of Tea on shopping site, displays the stock quantity of Tea, calculates the added stock quantity at Client side and updates the stock quantity of Tea.</p>
 <blockquote>
 <div><div class="figure align-center">
@@ -316,7 +324,7 @@ These transactions are not necessarily restricted to database transactions only;
 </div></blockquote>
 </div>
 <div class="section" id="problem-3">
-<h4><a class="toc-backref" href="#id7">5.4.1.1.3. Problem 3</a><a class="headerlink" href="#problem-3" title="Permalink to this headline">¶</a></h4>
+<h4><a class="toc-backref" href="#id10">5.4.1.1.3. Problem 3</a><a class="headerlink" href="#problem-3" title="Permalink to this headline">¶</a></h4>
 <p>See the example below wherein the data locked by batch processing is updated by online processing.</p>
 <blockquote>
 <div><div class="figure align-center">
@@ -387,7 +395,7 @@ These transactions are not necessarily restricted to database transactions only;
 </div>
 </div>
 <div class="section" id="exclusive-control-according-to-the-isolation-level-of-transaction">
-<h3><a class="toc-backref" href="#id8">5.4.1.2. Exclusive control according to the isolation level of transaction</a><a class="headerlink" href="#exclusive-control-according-to-the-isolation-level-of-transaction" title="Permalink to this headline">¶</a></h3>
+<h3><a class="toc-backref" href="#id11">5.4.1.2. Exclusive control according to the isolation level of transaction</a><a class="headerlink" href="#exclusive-control-according-to-the-isolation-level-of-transaction" title="Permalink to this headline">¶</a></h3>
 <div class="line-block">
 <div class="line">The easiest way to resolve all the 3 problems given in <a class="reference internal" href="#exclusioncontrol-necessity"><span>Necessity of exclusive control</span></a> is to sequentially execute the database processes.</div>
 <div class="line">When the processes are sequentially executed, there is no effect on transactions.</div>
@@ -655,7 +663,7 @@ The multiple data readings may vary based on commit timing of other transaction.
 <p><strong>When a balance is to be maintained between isolation and concurrency while maintaining data consistency, it is necessary to perform exclusive control using Database Locking which is described below.</strong></p>
 </div>
 <div class="section" id="exclusive-control-using-database-locking">
-<h3><a class="toc-backref" href="#id9">5.4.1.3. Exclusive control using database locking</a><a class="headerlink" href="#exclusive-control-using-database-locking" title="Permalink to this headline">¶</a></h3>
+<h3><a class="toc-backref" href="#id12">5.4.1.3. Exclusive control using database locking</a><a class="headerlink" href="#exclusive-control-using-database-locking" title="Permalink to this headline">¶</a></h3>
 <div class="line-block">
 <div class="line">It is necessary to lock the data to be updated using an appropriate method due to the following reasons:</div>
 </div>
@@ -668,8 +676,8 @@ The multiple data readings may vary based on commit timing of other transaction.
 <div class="line">The Architect should adequately understand the characteristics of such locking and use the appropriate locking method in accordance with the characteristics of application.</div>
 </div>
 <blockquote>
-<div><table border="1" class="docutils" id="id1">
-<caption><span class="caption-text">Types of locking</span><a class="headerlink" href="#id1" title="Permalink to this table">¶</a></caption>
+<div><table border="1" class="docutils" id="id4">
+<caption><span class="caption-text">Types of locking</span><a class="headerlink" href="#id4" title="Permalink to this table">¶</a></caption>
 <colgroup>
 <col width="10%" />
 <col width="15%" />
@@ -758,7 +766,7 @@ In such a case, the status of table should be updated from &#8216;Temporarily Re
 <p class="last">Description of exclusive control for business transaction is skipped in this chapter since it should be analyzed and designed under business process design or functional design.</p>
 </div>
 <div class="section" id="exclusive-control-using-row-lock-function-of-the-database">
-<h4><a class="toc-backref" href="#id10">5.4.1.3.1. Exclusive control using row lock function of the database</a><a class="headerlink" href="#exclusive-control-using-row-lock-function-of-the-database" title="Permalink to this headline">¶</a></h4>
+<h4><a class="toc-backref" href="#id13">5.4.1.3.1. Exclusive control using row lock function of the database</a><a class="headerlink" href="#exclusive-control-using-row-lock-function-of-the-database" title="Permalink to this headline">¶</a></h4>
 <div class="line-block">
 <div class="line">In most databases, when a record is updated (UPDATE, DELETE), a row lock is obtained to prevent updates by other transactions till the primary transaction is committed or rolled back.</div>
 <div class="line">Thus, if the number of updated records is as anticipated, the data consistency can be ensured.</div>
@@ -956,7 +964,7 @@ A stock quantity fetched from Stock Table is also displayed at the same time.</l
 <p><strong>When this method is used for locking, the process can be continued depending on conditions even if there is a change in the referred information and data consistency can be ensured by using database function.</strong></p>
 </div>
 <div class="section" id="exclusive-control-using-optimistic-locking">
-<h4><a class="toc-backref" href="#id11">5.4.1.3.2. Exclusive control using optimistic locking</a><a class="headerlink" href="#exclusive-control-using-optimistic-locking" title="Permalink to this headline">¶</a></h4>
+<h4><a class="toc-backref" href="#id14">5.4.1.3.2. Exclusive control using optimistic locking</a><a class="headerlink" href="#exclusive-control-using-optimistic-locking" title="Permalink to this headline">¶</a></h4>
 <div class="line-block">
 <div class="line">Optimistic locking is a method for ensuring data consistency wherein the data is not locked for transaction and is updated only after checking whether it is same as fetched data.</div>
 <div class="line">When optimistic locking is to be used, a Version column for managing versions is created to determine if the data to be updated is same as fetched data.</div>
@@ -1082,14 +1090,14 @@ When the conditions for update are different, it is necessary to check whether p
 </div>
 </div>
 <div class="section" id="exclusive-control-using-pessimistic-locking">
-<h4><a class="toc-backref" href="#id12">5.4.1.3.3. Exclusive control using pessimistic locking</a><a class="headerlink" href="#exclusive-control-using-pessimistic-locking" title="Permalink to this headline">¶</a></h4>
+<h4><a class="toc-backref" href="#id15">5.4.1.3.3. Exclusive control using pessimistic locking</a><a class="headerlink" href="#exclusive-control-using-pessimistic-locking" title="Permalink to this headline">¶</a></h4>
 <div class="line-block">
 <div class="line">Pessimistic locking is a method to lock the data to be updated at the time of fetching so that it is not updated by other transaction.</div>
 <div class="line">When pessimistic locking is to be used, lock is obtained for the record to be updated immediately after starting a transaction.</div>
 <div class="line">Since the locked record is not updated by other transaction till the transaction is committed or rolled back, data consistency can be ensured.</div>
 </div>
-<table border="1" class="docutils" id="id2">
-<caption><span class="caption-text">RDBMS-wise pessimistic lock acquisition method</span><a class="headerlink" href="#id2" title="Permalink to this table">¶</a></caption>
+<table border="1" class="docutils" id="id5">
+<caption><span class="caption-text">RDBMS-wise pessimistic lock acquisition method</span><a class="headerlink" href="#id5" title="Permalink to this table">¶</a></caption>
 <colgroup>
 <col width="18%" />
 <col width="27%" />
@@ -1285,7 +1293,7 @@ Refer to <a class="reference external" href="http://docs.jboss.org/hibernate/orm
 </div>
 </div>
 <div class="section" id="prevention-of-deadlock">
-<h3><a class="toc-backref" href="#id13">5.4.1.4. Prevention of deadlock</a><a class="headerlink" href="#prevention-of-deadlock" title="Permalink to this headline">¶</a></h3>
+<h3><a class="toc-backref" href="#id16">5.4.1.4. Prevention of deadlock</a><a class="headerlink" href="#prevention-of-deadlock" title="Permalink to this headline">¶</a></h3>
 <div class="line-block">
 <div class="line">When using database locks, it should be noted that if multiple records are updated in same transaction, 2 deadlocks shown below are likely to occur.</div>
 </div>
@@ -1294,7 +1302,7 @@ Refer to <a class="reference external" href="http://docs.jboss.org/hibernate/orm
 <li><a class="reference internal" href="#dead-lock-table"><span>Deadlock between tables</span></a></li>
 </ul>
 <div class="section" id="deadlock-in-table">
-<span id="dead-lock-record"></span><h4><a class="toc-backref" href="#id14">5.4.1.4.1. Deadlock in table</a><a class="headerlink" href="#deadlock-in-table" title="Permalink to this headline">¶</a></h4>
+<span id="dead-lock-record"></span><h4><a class="toc-backref" href="#id17">5.4.1.4.1. Deadlock in table</a><a class="headerlink" href="#deadlock-in-table" title="Permalink to this headline">¶</a></h4>
 <p>This deadlock occurs when the records of the same table are locked by multiple transactions as shown in the flow of (1)-(5) below.</p>
 <blockquote>
 <div><div class="figure align-center">
@@ -1367,7 +1375,7 @@ When rows are to be updated one by one, the rules such as updating in ascending 
 </div></blockquote>
 </div>
 <div class="section" id="deadlock-between-tables">
-<span id="dead-lock-table"></span><h4><a class="toc-backref" href="#id15">5.4.1.4.2. Deadlock between tables</a><a class="headerlink" href="#deadlock-between-tables" title="Permalink to this headline">¶</a></h4>
+<span id="dead-lock-table"></span><h4><a class="toc-backref" href="#id18">5.4.1.4.2. Deadlock between tables</a><a class="headerlink" href="#deadlock-between-tables" title="Permalink to this headline">¶</a></h4>
 <div class="line-block">
 <div class="line">This deadlock occurs when records of different tables are locked by multiple transactions as shown in the flow of (1)-(5) below.</div>
 <div class="line">The basic concept is same as <a class="reference internal" href="#dead-lock-record"><span>Deadlock in table</span></a>.</div>
@@ -1453,11 +1461,593 @@ The rules should be defined for the lock sequence of tables and records.</p>
 </div>
 </div>
 <div class="section" id="how-to-use">
-<h2><a class="toc-backref" href="#id16">5.4.2. How to use</a><a class="headerlink" href="#how-to-use" title="Permalink to this headline">¶</a></h2>
-<div class="section" id="how-to-implement-while-using-jpa-spring-data-jpa">
-<h3><a class="toc-backref" href="#id17">5.4.2.1. How to implement while using JPA (Spring Data JPA)</a><a class="headerlink" href="#how-to-implement-while-using-jpa-spring-data-jpa" title="Permalink to this headline">¶</a></h3>
+<h2><a class="toc-backref" href="#id19">5.4.2. How to use</a><a class="headerlink" href="#how-to-use" title="Permalink to this headline">¶</a></h2>
+<p>From here, implementation method of exclusive control using O/R Mapper is described.</p>
+<p>First confirm the implementation method of O/R Mapper to be used.</p>
+<ul class="simple">
+<li><a class="reference internal" href="#exclusioncontrolhowtousemybatis3"><span>How to implement while using MyBatis3</span></a></li>
+<li><a class="reference internal" href="#exclusioncontrolhowtousejpa"><span>How to implement while using JPA (Spring Data JPA)</span></a></li>
+</ul>
+<p>For method of handling exclusive error, refer to:</p>
+<ul class="simple">
+<li><a class="reference internal" href="#exclusioncontrolhowtouseexceptionhandling"><span>How to handle an exclusive error</span></a></li>
+</ul>
+<div class="line-block">
+<div class="line"><br /></div>
+</div>
+<div class="section" id="how-to-implement-while-using-mybatis3">
+<span id="exclusioncontrolhowtousemybatis3"></span><h3><a class="toc-backref" href="#id20">5.4.2.1. How to implement while using MyBatis3</a><a class="headerlink" href="#how-to-implement-while-using-mybatis3" title="Permalink to this headline">¶</a></h3>
 <div class="section" id="row-lock-function-of-rdbms">
-<h4><a class="toc-backref" href="#id18">5.4.2.1.1. Row lock function of RDBMS</a><a class="headerlink" href="#row-lock-function-of-rdbms" title="Permalink to this headline">¶</a></h4>
+<h4><a class="toc-backref" href="#id21">5.4.2.1.1. Row lock function of RDBMS</a><a class="headerlink" href="#row-lock-function-of-rdbms" title="Permalink to this headline">¶</a></h4>
+<p>When exclusive control is to be performed using a row lock function of RDBMS, the following should be considered in SQL.</p>
+<ul class="simple">
+<li>Update contents to be specified in SET clause</li>
+<li>Update conditions to be specified in WHERE clause</li>
+</ul>
+<div class="line-block">
+<div class="line"><br /></div>
+</div>
+<ul class="simple">
+<li>Define a method in Repository interface.</li>
+</ul>
+<blockquote>
+<div><div class="highlight-java"><div class="highlight"><pre> <span class="kd">public</span> <span class="kd">interface</span> <span class="nc">StockRepository</span> <span class="o">{</span>
+    <span class="c1">// (1)</span>
+    <span class="kt">boolean</span> <span class="nf">decrementQuantity</span><span class="o">(</span><span class="nd">@Param</span><span class="o">(</span><span class="s">&quot;itemCode&quot;</span><span class="o">)</span> <span class="n">String</span> <span class="n">itemCode</span><span class="o">,</span>
+                              <span class="nd">@Param</span><span class="o">(</span><span class="s">&quot;quantity&quot;</span><span class="o">)</span> <span class="kt">int</span> <span class="n">quantity</span><span class="o">);</span>
+<span class="o">}</span>
+</pre></div>
+</div>
+<table border="1" class="docutils">
+<colgroup>
+<col width="10%" />
+<col width="90%" />
+</colgroup>
+<thead valign="bottom">
+<tr class="row-odd"><th class="head">Sr. No.</th>
+<th class="head">Description</th>
+</tr>
+</thead>
+<tbody valign="top">
+<tr class="row-even"><td><div class="first last line-block">
+<div class="line">(1)</div>
+</div>
+</td>
+<td><p class="first">In Repository interface,
+define a method to update data using row lock function of RDBMS.</p>
+<p class="last">In above example, a method to decrease stock quantity is defined.
+When stock quantity is decreased, <code class="docutils literal"><span class="pre">true</span></code> is returned.</p>
+</td>
+</tr>
+</tbody>
+</table>
+</div></blockquote>
+<div class="line-block">
+<div class="line"><br /></div>
+</div>
+<ul class="simple">
+<li>Define SQL wherein exclusive control using a row lock function of RDBMS becomes valid.</li>
+</ul>
+<blockquote>
+<div><div class="highlight-xml"><div class="highlight"><pre><span class="c">&lt;!-- (2) --&gt;</span>
+<span class="nt">&lt;update</span> <span class="na">id=</span><span class="s">&quot;decrementQuantity&quot;</span><span class="nt">&gt;</span>
+<span class="cp">&lt;![CDATA[</span>
+<span class="cp">    UPDATE</span>
+<span class="cp">        m_stock</span>
+<span class="cp">    SET</span>
+<span class="cp">        /* (3) */</span>
+<span class="cp">        quantity = quantity - #{quantity}</span>
+<span class="cp">    WHERE</span>
+<span class="cp">        item_code = #{itemCode}</span>
+<span class="cp">    AND</span>
+<span class="cp">        /* (4) */</span>
+<span class="cp">        quantity &gt;= #{quantity}</span>
+<span class="cp">]]&gt;</span>
+<span class="nt">&lt;/update&gt;</span>
+</pre></div>
+</div>
+<table border="1" class="docutils">
+<colgroup>
+<col width="10%" />
+<col width="90%" />
+</colgroup>
+<thead valign="bottom">
+<tr class="row-odd"><th class="head">Sr. No.</th>
+<th class="head">Description</th>
+</tr>
+</thead>
+<tbody valign="top">
+<tr class="row-even"><td><div class="first last line-block">
+<div class="line">(2)</div>
+</div>
+</td>
+<td><p class="first">Define statement (SQL) to update the data using row lock function of RDBMS.</p>
+<p>In above example, SQL to decrease stock quantity is defined.</p>
+<p>When a row lock function of RDBMS is to be used, the data can be safely updated because of the operations given below.</p>
+<ul class="last simple">
+<li>When other transaction has obtained lock for the same data,
+SQL is executed after releasing (commit or rollback) the lock.</li>
+<li>When stock quantity is decreased successfully,
+row lock of RDBMS is fetched, and update from other transactions gets locked.</li>
+</ul>
+</td>
+</tr>
+<tr class="row-odd"><td><div class="first last line-block">
+<div class="line">(3)</div>
+</div>
+</td>
+<td>Subtract the stock quantity (<code class="docutils literal"><span class="pre">quantity</span> <span class="pre">=</span> <span class="pre">quantity</span> <span class="pre">-</span> <span class="pre">#{quantity}</span></code>) in SQL.</td>
+</tr>
+<tr class="row-even"><td><div class="first last line-block">
+<div class="line">(4)</div>
+</div>
+</td>
+<td>As an update condition, add &#8220;stock quantity should be greater than or equal to the order quantity (<code class="docutils literal"><span class="pre">quantity</span> <span class="pre">&gt;=</span> <span class="pre">#{quantity}</span></code>).</td>
+</tr>
+</tbody>
+</table>
+</div></blockquote>
+<div class="line-block">
+<div class="line"><br /></div>
+</div>
+<ul class="simple">
+<li>Call the Repository method to safely update the data using row lock function of RDBMS.</li>
+</ul>
+<blockquote>
+<div><div class="highlight-java"><div class="highlight"><pre><span class="c1">// (5)</span>
+<span class="kt">boolean</span> <span class="n">updated</span> <span class="o">=</span> <span class="n">stockRepository</span><span class="o">.</span><span class="na">decrementQuantity</span><span class="o">(</span><span class="n">itemCode</span><span class="o">,</span> <span class="n">quantityOfOrder</span><span class="o">);</span>
+<span class="c1">// (6)</span>
+<span class="k">if</span> <span class="o">(!</span><span class="n">updated</span><span class="o">)</span> <span class="o">{</span>
+    <span class="c1">// (7)</span>
+    <span class="n">ResultMessages</span> <span class="n">messages</span> <span class="o">=</span> <span class="n">ResultMessages</span><span class="o">.</span><span class="na">error</span><span class="o">().</span><span class="na">add</span><span class="o">(</span><span class="n">ResultMessage</span>
+            <span class="o">.</span><span class="na">fromText</span><span class="o">(</span><span class="s">&quot;Not enough stock. Please, change quantity.&quot;</span><span class="o">));</span>
+    <span class="k">throw</span> <span class="k">new</span> <span class="n">BusinessException</span><span class="o">(</span><span class="n">messages</span><span class="o">);</span>
+<span class="o">}</span>
+</pre></div>
+</div>
+<table border="1" class="docutils">
+<colgroup>
+<col width="10%" />
+<col width="90%" />
+</colgroup>
+<thead valign="bottom">
+<tr class="row-odd"><th class="head">Sr. No.</th>
+<th class="head">Description</th>
+</tr>
+</thead>
+<tbody valign="top">
+<tr class="row-even"><td><div class="first last line-block">
+<div class="line">(5)</div>
+</div>
+</td>
+<td>Call the Repository method to perform update.</td>
+</tr>
+<tr class="row-odd"><td><div class="first last line-block">
+<div class="line">(6)</div>
+</div>
+</td>
+<td><p class="first">Call the Repository method to determine result.</p>
+<p class="last">In case of <code class="docutils literal"><span class="pre">false</span></code>, stock quantity will be insufficient as update conditions are not fulfilled.</p>
+</td>
+</tr>
+<tr class="row-even"><td><div class="first last line-block">
+<div class="line">(7)</div>
+</div>
+</td>
+<td><p class="first">Business error occurs.</p>
+<p>In above example, only business rules are checked (stock quantity check) while performing exclusive control.
+Therefore, when update conditions are not fulfilled, it is being treated as business error and not exclusive error.</p>
+<p class="last">Business errors should be appropriately handled in Controller.</p>
+</td>
+</tr>
+</tbody>
+</table>
+</div></blockquote>
+<div class="line-block">
+<div class="line"><br /></div>
+</div>
+</div>
+<div class="section" id="optimistic-locking">
+<h4><a class="toc-backref" href="#id22">5.4.2.1.2. Optimistic locking</a><a class="headerlink" href="#optimistic-locking" title="Permalink to this headline">¶</a></h4>
+<div class="line-block">
+<div class="line">In MyBatis3, a mechanism to perform optimistic locking as library is not provided.</div>
+<div class="line">Therefore, when performing optimistic locking, the version should be considered in SQL.</div>
+</div>
+<ul class="simple">
+<li>Define a property for version control in entity.</li>
+</ul>
+<blockquote>
+<div><div class="highlight-java"><div class="highlight"><pre><span class="kd">public</span> <span class="kd">class</span> <span class="nc">Stock</span> <span class="kd">implements</span> <span class="n">Serializable</span> <span class="o">{</span>
+    <span class="kd">private</span> <span class="kd">static</span> <span class="kd">final</span> <span class="kt">long</span> <span class="n">serialVersionUID</span> <span class="o">=</span> <span class="mi">1L</span><span class="o">;</span>
+
+    <span class="kd">private</span> <span class="n">String</span> <span class="n">itemCode</span><span class="o">;</span>
+    <span class="kd">private</span> <span class="kt">int</span> <span class="n">quantity</span><span class="o">;</span>
+    <span class="c1">// (1)</span>
+    <span class="kd">private</span> <span class="kt">long</span> <span class="n">version</span><span class="o">;</span>
+
+    <span class="c1">// ...</span>
+
+<span class="o">}</span>
+</pre></div>
+</div>
+<table border="1" class="docutils">
+<colgroup>
+<col width="10%" />
+<col width="90%" />
+</colgroup>
+<thead valign="bottom">
+<tr class="row-odd"><th class="head">Sr. No.</th>
+<th class="head">Description</th>
+</tr>
+</thead>
+<tbody valign="top">
+<tr class="row-even"><td><div class="first last line-block">
+<div class="line">(1)</div>
+</div>
+</td>
+<td>Create a property for version control in entity.</td>
+</tr>
+</tbody>
+</table>
+</div></blockquote>
+<div class="line-block">
+<div class="line"><br /></div>
+</div>
+<ul class="simple">
+<li>Define a method in Repository interface.</li>
+</ul>
+<blockquote>
+<div><div class="highlight-java"><div class="highlight"><pre><span class="kd">public</span> <span class="kd">interface</span> <span class="nc">StockRepository</span> <span class="o">{</span>
+    <span class="c1">// (2)</span>
+    <span class="n">Stock</span> <span class="nf">findOne</span><span class="o">(</span><span class="n">String</span> <span class="n">itemCode</span><span class="o">);</span>
+    <span class="c1">// (3)</span>
+    <span class="kt">boolean</span> <span class="nf">update</span><span class="o">(</span><span class="n">Stock</span> <span class="n">stock</span><span class="o">);</span>
+<span class="o">}</span>
+</pre></div>
+</div>
+<table border="1" class="docutils">
+<colgroup>
+<col width="10%" />
+<col width="90%" />
+</colgroup>
+<thead valign="bottom">
+<tr class="row-odd"><th class="head">Sr. No.</th>
+<th class="head">Description</th>
+</tr>
+</thead>
+<tbody valign="top">
+<tr class="row-even"><td><div class="first last line-block">
+<div class="line">(2)</div>
+</div>
+</td>
+<td>Define a method to fetch entity, in Repository interface.</td>
+</tr>
+<tr class="row-odd"><td><div class="first last line-block">
+<div class="line">(3)</div>
+</div>
+</td>
+<td><p class="first">Define a method to update data using optimistic lock function, in Repository interface.</p>
+<p class="last">In above example, a method to update records with specified entity details is defined.
+When update is successful, <code class="docutils literal"><span class="pre">true</span></code> is returned.</p>
+</td>
+</tr>
+</tbody>
+</table>
+</div></blockquote>
+<div class="line-block">
+<div class="line"><br /></div>
+</div>
+<ul class="simple">
+<li>Define SQL in mapping file.</li>
+</ul>
+<blockquote>
+<div><div class="highlight-xml"><div class="highlight"><pre><span class="c">&lt;!-- (4) --&gt;</span>
+<span class="nt">&lt;select</span> <span class="na">id=</span><span class="s">&quot;findOne&quot;</span> <span class="na">parameterType=</span><span class="s">&quot;string&quot;</span> <span class="na">resultType=</span><span class="s">&quot;Stock&quot;</span><span class="nt">&gt;</span>
+    SELECT
+        item_code,
+        quantity,
+        version
+    FROM
+        m_stock
+    WHERE
+        item_code = #{itemCode}
+<span class="nt">&lt;/select&gt;</span>
+
+<span class="c">&lt;!-- (5) --&gt;</span>
+<span class="nt">&lt;update</span> <span class="na">id=</span><span class="s">&quot;update&quot;</span> <span class="na">parameterType=</span><span class="s">&quot;Stock&quot;</span><span class="nt">&gt;</span>
+    UPDATE
+        m_stock
+    SET
+        quantity = #{quantity},
+        /* (6) */
+        version = version + 1
+    WHERE
+        item_code = #{itemCode}
+    AND
+        /* (7) */
+        version = #{version}
+<span class="nt">&lt;/update&gt;</span>
+</pre></div>
+</div>
+<table border="1" class="docutils">
+<colgroup>
+<col width="10%" />
+<col width="90%" />
+</colgroup>
+<thead valign="bottom">
+<tr class="row-odd"><th class="head">Sr. No.</th>
+<th class="head">Description</th>
+</tr>
+</thead>
+<tbody valign="top">
+<tr class="row-even"><td><div class="first last line-block">
+<div class="line">(4)</div>
+</div>
+</td>
+<td><p class="first">Define statement (SQL) to fetch entity.</p>
+<p class="last">When using optimistic lock, it is necessary to obtain version at the time of fetching entity.</p>
+</td>
+</tr>
+<tr class="row-odd"><td><div class="first last line-block">
+<div class="line">(5)</div>
+</div>
+</td>
+<td><p class="first">Define statement (SQL) to update data using optimistic lock function.</p>
+<p class="last">In above example, SQL to update records with specified entity details is defined.</p>
+</td>
+</tr>
+<tr class="row-even"><td><div class="first last line-block">
+<div class="line">(6)</div>
+</div>
+</td>
+<td>Update the version (<code class="docutils literal"><span class="pre">version</span> <span class="pre">=</span> <span class="pre">version</span> <span class="pre">+</span> <span class="pre">1</span></code>) in SQL.</td>
+</tr>
+<tr class="row-odd"><td><div class="first last line-block">
+<div class="line">(4)</div>
+</div>
+</td>
+<td>As an update condition, add &#8220;version should not be changed (<code class="docutils literal"><span class="pre">version</span> <span class="pre">=</span> <span class="pre">#{version}</span></code>).</td>
+</tr>
+</tbody>
+</table>
+</div></blockquote>
+<div class="line-block">
+<div class="line"><br /></div>
+</div>
+<ul class="simple">
+<li>Call the Repository method to safely update the data using optimistic lock function.</li>
+</ul>
+<blockquote>
+<div><div class="highlight-java"><div class="highlight"><pre><span class="c1">// (5)</span>
+<span class="n">Stock</span> <span class="n">stock</span> <span class="o">=</span> <span class="n">stockRepository</span><span class="o">.</span><span class="na">findOne</span><span class="o">(</span><span class="n">itemCode</span><span class="o">);</span>
+<span class="k">if</span> <span class="o">(</span><span class="n">stock</span> <span class="o">==</span> <span class="kc">null</span><span class="o">)</span> <span class="o">{</span>
+    <span class="n">ResultMessages</span> <span class="n">messages</span> <span class="o">=</span> <span class="n">ResultMessages</span><span class="o">.</span><span class="na">error</span><span class="o">().</span><span class="na">add</span><span class="o">(</span><span class="n">ResultMessage</span>
+            <span class="o">.</span><span class="na">fromText</span><span class="o">(</span><span class="s">&quot;Stock not found. itemCode : &quot;</span> <span class="o">+</span> <span class="n">itemCode</span><span class="o">));</span>
+    <span class="k">throw</span> <span class="k">new</span> <span class="n">ResourceNotFoundException</span><span class="o">(</span><span class="n">messages</span><span class="o">);</span>
+<span class="o">}</span>
+
+<span class="c1">// (6)</span>
+<span class="n">stock</span><span class="o">.</span><span class="na">setQuantity</span><span class="o">(</span><span class="n">stock</span><span class="o">.</span><span class="na">getQuantity</span><span class="o">()</span> <span class="o">+</span> <span class="n">addedQuantity</span><span class="o">);</span>
+
+<span class="c1">// (7)</span>
+<span class="kt">boolean</span> <span class="n">updated</span> <span class="o">=</span> <span class="n">stockRepository</span><span class="o">.</span><span class="na">update</span><span class="o">(</span><span class="n">stock</span><span class="o">);</span>
+<span class="k">if</span><span class="o">(!</span><span class="n">updated</span><span class="o">)</span> <span class="o">{</span>
+    <span class="c1">// (8)</span>
+    <span class="k">throw</span> <span class="k">new</span> <span class="n">ObjectOptimisticLockingFailureException</span><span class="o">(</span><span class="n">Stock</span><span class="o">.</span><span class="na">class</span><span class="o">,</span> <span class="n">itemCode</span><span class="o">);</span>
+<span class="o">}</span>
+</pre></div>
+</div>
+<table border="1" class="docutils">
+<colgroup>
+<col width="10%" />
+<col width="90%" />
+</colgroup>
+<thead valign="bottom">
+<tr class="row-odd"><th class="head">Sr. No.</th>
+<th class="head">Description</th>
+</tr>
+</thead>
+<tbody valign="top">
+<tr class="row-even"><td><div class="first last line-block">
+<div class="line">(5)</div>
+</div>
+</td>
+<td>Call findOne method of Repository interface to fetch the entity.</td>
+</tr>
+<tr class="row-odd"><td><div class="first last line-block">
+<div class="line">(6)</div>
+</div>
+</td>
+<td><p class="first">Specify the value to be updated for the entity fetched in step (5).</p>
+<p class="last">In above example, procured stock quantity is added.</p>
+</td>
+</tr>
+<tr class="row-even"><td><div class="first last line-block">
+<div class="line">(7)</div>
+</div>
+</td>
+<td>Call the update method of Repository interface
+to reflect the entity updated in step (5) in persistence layer (DB).</td>
+</tr>
+<tr class="row-odd"><td><div class="first last line-block">
+<div class="line">(8)</div>
+</div>
+</td>
+<td>Determine the update result. In case of <code class="docutils literal"><span class="pre">false</span></code>,
+entity gets updated by other transaction, thereby
+leading to optimistic lock error (<code class="docutils literal"><span class="pre">org.springframework.orm.ObjectOptimisticLockingFailureException</span></code>).</td>
+</tr>
+</tbody>
+</table>
+</div></blockquote>
+<div class="line-block">
+<div class="line"><br /></div>
+</div>
+<p>When performing optimistic lock for long transactions, points given below should be noted.</p>
+<blockquote>
+<div><div class="admonition warning">
+<p class="first admonition-title">Warning</p>
+<p class="last">When performing optimistic locking for long transactions, apart from checking version at the time of update,
+it should also be checked at the time of fetching data.</p>
+</div>
+</div></blockquote>
+<p>Example of implementation is given below.</p>
+<ul class="simple">
+<li>Check version even at the time of fetching data.</li>
+</ul>
+<blockquote>
+<div><div class="highlight-java"><div class="highlight"><pre><span class="n">Stock</span> <span class="n">stock</span> <span class="o">=</span> <span class="n">stockRepository</span><span class="o">.</span><span class="na">findOne</span><span class="o">(</span><span class="n">itemCode</span><span class="o">);</span>
+<span class="k">if</span> <span class="o">(</span><span class="n">stock</span> <span class="o">==</span> <span class="kc">null</span> <span class="o">||</span> <span class="n">stock</span><span class="o">.</span><span class="na">getVersion</span><span class="o">()</span> <span class="o">!=</span> <span class="n">version</span><span class="o">)</span> <span class="o">{</span>
+    <span class="c1">// (9)</span>
+    <span class="k">throw</span> <span class="k">new</span> <span class="n">ObjectOptimisticLockingFailureException</span><span class="o">(</span><span class="n">Stock</span><span class="o">.</span><span class="na">class</span><span class="o">,</span> <span class="n">itemCode</span><span class="o">);</span>
+<span class="o">}</span>
+
+<span class="n">stock</span><span class="o">.</span><span class="na">setQuantity</span><span class="o">(</span><span class="n">stock</span><span class="o">.</span><span class="na">getQuantity</span><span class="o">()</span> <span class="o">+</span> <span class="n">addedQuantity</span><span class="o">);</span>
+<span class="kt">boolean</span> <span class="n">updated</span> <span class="o">=</span> <span class="n">stockRepository</span><span class="o">.</span><span class="na">update</span><span class="o">(</span><span class="n">stock</span><span class="o">);</span>
+<span class="c1">// ...</span>
+</pre></div>
+</div>
+<table border="1" class="docutils">
+<colgroup>
+<col width="10%" />
+<col width="90%" />
+</colgroup>
+<thead valign="bottom">
+<tr class="row-odd"><th class="head">Sr. No.</th>
+<th class="head">Description</th>
+</tr>
+</thead>
+<tbody valign="top">
+<tr class="row-even"><td><div class="first last line-block">
+<div class="line">(9)</div>
+</div>
+</td>
+<td><p class="first">Compare the version of entity fetched in (5) with
+that of the entity fetched in other database transaction.</p>
+<p>If version differs, the data is updated by other transaction, thereby
+leading to optimistic lock error (<code class="docutils literal"><span class="pre">org.springframework.dao.ObjectOptimisticLockingFailureException</span></code>).</p>
+<p class="last">It is also necessary to consider a case wherein data does not exist (<code class="docutils literal"><span class="pre">stock</span> <span class="pre">==</span> <span class="pre">null</span></code> ),
+The implementation should be as per the application specifications.
+In above example, it is being treated as optimistic locking error.</p>
+</td>
+</tr>
+</tbody>
+</table>
+</div></blockquote>
+<div class="line-block">
+<div class="line"><br /></div>
+</div>
+<p>Following points should be noted when application uses optimistic lock function in combination with row lock function of RDBMS.</p>
+<blockquote>
+<div><div class="admonition warning">
+<p class="first admonition-title">Warning</p>
+<p>In case of application in which a process to perform exclusive control using row lock function of RDBMS and
+a process to perform exclusive control using optimistic lock function of RDBMS coexist,
+<strong>version should be updated (incremented)</strong> in SQL using row lock function of RDBMS.</p>
+<p class="last">If version is not updated in SQL that performs exclusive control using row lock function of RDBMS,
+the data may get overwritten by SQL that performs exclusive control using optimistic lock function.</p>
+</div>
+</div></blockquote>
+<p>Example of implementation is shown below.</p>
+<ul class="simple">
+<li>Update the version in SQL.</li>
+</ul>
+<blockquote>
+<div><div class="highlight-xml"><div class="highlight"><pre><span class="nt">&lt;update</span> <span class="na">id=</span><span class="s">&quot;decrementQuantity&quot;</span><span class="nt">&gt;</span>
+<span class="cp">&lt;![CDATA[</span>
+<span class="cp">    UPDATE</span>
+<span class="cp">        m_stock</span>
+<span class="cp">    SET</span>
+<span class="cp">        quantity = quantity - #{quantity},</span>
+<span class="cp">        /* (10) */</span>
+<span class="cp">        version = version + 1</span>
+<span class="cp">    WHERE</span>
+<span class="cp">        item_code = #{itemCode}</span>
+<span class="cp">    AND</span>
+<span class="cp">        quantity &gt;= #{quantity}</span>
+<span class="cp">]]&gt;</span>
+<span class="nt">&lt;/update&gt;</span>
+</pre></div>
+</div>
+<table border="1" class="docutils">
+<colgroup>
+<col width="10%" />
+<col width="90%" />
+</colgroup>
+<thead valign="bottom">
+<tr class="row-odd"><th class="head">Sr. No.</th>
+<th class="head">Description</th>
+</tr>
+</thead>
+<tbody valign="top">
+<tr class="row-even"><td><div class="first last line-block">
+<div class="line">(10)</div>
+</div>
+</td>
+<td>Update (increment) the version.</td>
+</tr>
+</tbody>
+</table>
+</div></blockquote>
+<div class="line-block">
+<div class="line"><br /></div>
+</div>
+</div>
+<div class="section" id="pessimistic-locking">
+<h4><a class="toc-backref" href="#id23">5.4.2.1.3. Pessimistic locking</a><a class="headerlink" href="#pessimistic-locking" title="Permalink to this headline">¶</a></h4>
+<div class="line-block">
+<div class="line">In MyBatis3, a mechanism to perform pessimistic locking as library is not provided.</div>
+<div class="line">Therefore, in case of pessimistic locking, a keyword should be specified to fetch lock in SQL.</div>
+</div>
+<ul class="simple">
+<li>Specify the keyword to fetch lock in SQL.</li>
+</ul>
+<blockquote>
+<div><div class="highlight-xml"><div class="highlight"><pre><span class="nt">&lt;select</span> <span class="na">id=</span><span class="s">&quot;findOneForUpdate&quot;</span> <span class="na">parameterType=</span><span class="s">&quot;string&quot;</span> <span class="na">resultType=</span><span class="s">&quot;Stock&quot;</span><span class="nt">&gt;</span>
+    SELECT
+        item_code,
+        quantity,
+        version
+    FROM
+        m_stock
+    WHERE
+        item_code = #{itemCode}
+    /* (1) */
+    FOR UPDATE
+<span class="nt">&lt;/select&gt;</span>
+</pre></div>
+</div>
+<table border="1" class="docutils">
+<colgroup>
+<col width="10%" />
+<col width="90%" />
+</colgroup>
+<thead valign="bottom">
+<tr class="row-odd"><th class="head">Sr. No.</th>
+<th class="head">Description</th>
+</tr>
+</thead>
+<tbody valign="top">
+<tr class="row-even"><td><div class="first last line-block">
+<div class="line">(1)</div>
+</div>
+</td>
+<td><p class="first">For SQL in which pessimistic lock needs to be fetched, specify the keyword to fetch the same.</p>
+<p class="last">Keyword and location to specify the keyword differ depending on database.</p>
+</td>
+</tr>
+</tbody>
+</table>
+</div></blockquote>
+<div class="line-block">
+<div class="line"><br /></div>
+</div>
+</div>
+</div>
+<div class="section" id="how-to-implement-while-using-jpa-spring-data-jpa">
+<span id="exclusioncontrolhowtousejpa"></span><h3><a class="toc-backref" href="#id24">5.4.2.2. How to implement while using JPA (Spring Data JPA)</a><a class="headerlink" href="#how-to-implement-while-using-jpa-spring-data-jpa" title="Permalink to this headline">¶</a></h3>
+<div class="section" id="id1">
+<h4><a class="toc-backref" href="#id25">5.4.2.2.1. Row lock function of RDBMS</a><a class="headerlink" href="#id1" title="Permalink to this headline">¶</a></h4>
 <div class="line-block">
 <div class="line">When exclusive control is to be performed using a row lock function of RDBMS, Query method is added to Repository interface for implementation.</div>
 <div class="line">For Query method, refer to <a class="reference internal" href="DataAccessJpa.html#data-access-jpa-how-to-use-querymethod"><span>Adding query method</span></a> and <a class="reference internal" href="DataAccessJpa.html#data-access-jpa-howtouse-querymethod-modifying"><span>Operating the entities of Persistence Layer directly</span></a>.</div>
@@ -1538,22 +2128,22 @@ The rules should be defined for the lock sequence of tables and records.</p>
 <div class="line">(2)</div>
 </div>
 </td>
-<td>Query method is called.</td>
+<td>Call the Query method.</td>
 </tr>
 <tr class="row-odd"><td><div class="first last line-block">
 <div class="line">(3)</div>
 </div>
 </td>
-<td>Call results of Query method are determined. Since update conditions are not satisfied in case of <code class="docutils literal"><span class="pre">0</span></code>, the stock quantity becomes inadequate.</td>
+<td>Determine the call results of Query method. In case of <code class="docutils literal"><span class="pre">0</span></code>, the stock quantity becomes inadequate, since update conditions are not satisfied.</td>
 </tr>
 <tr class="row-even"><td><div class="first last line-block">
 <div class="line">(4)</div>
 </div>
 </td>
 <td><div class="first last line-block">
-<div class="line">The message notifying &#8220;No stock&#8221; or &#8220;Not enough stock&#8221; is stored and a business error is generated.</div>
-<div class="line">The generated error must be handled appropriately in Controller as per the requirements.</div>
-<div class="line">In the above example, only business rules are checked along with exclusive control; hence when update conditions are not satisfied, it is treated as business error and not exclusive error.</div>
+<div class="line">Store the message notifying &#8220;No stock&#8221; or &#8220;Not enough stock&#8221; to generate a business error.</div>
+<div class="line">The generated error should be handled appropriately in Controller as per the requirements.</div>
+<div class="line">In the above example, only business rules are checked while performing exclusive control; hence when update conditions are not satisfied, it is treated as business error and not exclusive error.</div>
 <div class="line">For error handling methods, refer to <span class="xref std std-ref">exception-handling-how-to-use-codingpoint-contoller-label</span>.</div>
 </div>
 </td>
@@ -1568,8 +2158,8 @@ The rules should be defined for the lock sequence of tables and records.</p>
 </table>
 </div></blockquote>
 </div>
-<div class="section" id="optimistic-locking">
-<h4><a class="toc-backref" href="#id19">5.4.2.1.2. Optimistic locking</a><a class="headerlink" href="#optimistic-locking" title="Permalink to this headline">¶</a></h4>
+<div class="section" id="id2">
+<h4><a class="toc-backref" href="#id26">5.4.2.2.2. Optimistic locking</a><a class="headerlink" href="#id2" title="Permalink to this headline">¶</a></h4>
 <p>In JPA, optimistic locking can be performed by specifying <code class="docutils literal"><span class="pre">&#64;javax.persistence.Version</span></code>annotation in property for version control.</p>
 <ul class="simple">
 <li>Entity</li>
@@ -1608,7 +2198,7 @@ The rules should be defined for the lock sequence of tables and records.</p>
 <div class="line">(1)</div>
 </div>
 </td>
-<td><code class="docutils literal"><span class="pre">&#64;Version</span></code> annotation is specified in property for version control.</td>
+<td>Specify the <code class="docutils literal"><span class="pre">&#64;Version</span></code> annotation in property for version control.</td>
 </tr>
 </tbody>
 </table>
@@ -1651,20 +2241,20 @@ The rules should be defined for the lock sequence of tables and records.</p>
 <div class="line">(2)</div>
 </div>
 </td>
-<td>findOne method of Repository interface is called and entity is fetched.</td>
+<td>Call findOne method of Repository interface to fetch the entity.</td>
 </tr>
 <tr class="row-odd"><td><div class="first last line-block">
 <div class="line">(3)</div>
 </div>
 </td>
-<td>Value to be updated is specified for the entity fetched in step (2).</td>
+<td>Specify the value to be updated for the entity fetched in step (2).</td>
 </tr>
 <tr class="row-even"><td><div class="first last line-block">
 <div class="line">(4)</div>
 </div>
 </td>
 <td><div class="first last line-block">
-<div class="line">The modification details of (3) are reflected in the persistence layer (DB). This process is usually not required since it is performed for the description purpose.</div>
+<div class="line">Reflect the changes of (3) in the persistence layer (DB). This process is usually not required since it is performed for the description purpose.</div>
 <div class="line">Normally, it is reflected automatically when the transaction is committed.</div>
 <div class="line">In the above example, when the version held by the entity fetched in step (2) and the version stored in persistence layer (DB) do not match, optimistic locking error (<code class="docutils literal"><span class="pre">org.springframework.dao.OptimisticLockingFailureException</span></code>) occurs.</div>
 </div>
@@ -1719,14 +2309,14 @@ When optimistic locking is to be performed for long transactions, version check 
 <div class="line">(1)</div>
 </div>
 </td>
-<td>An entity is fetched from persistence layer (DB).</td>
+<td>Fetch an entity from persistence layer (DB).</td>
 </tr>
 <tr class="row-odd"><td><div class="first last line-block">
 <div class="line">(2)</div>
 </div>
 </td>
 <td><div class="first last line-block">
-<div class="line">Version of the entity fetched by a different database transaction in advance is compared with the latest version of persistence layer (DB) fetched in step (1).</div>
+<div class="line">Compare the version of the entity fetched by a different database transaction in advance with the latest version of persistence layer (DB) fetched in step (1).</div>
 <div class="line">If versions match, optimistic locking which uses <code class="docutils literal"><span class="pre">&#64;Version</span></code> annotation becomes valid in subsequent processes.</div>
 </div>
 </td>
@@ -1735,7 +2325,7 @@ When optimistic locking is to be performed for long transactions, version check 
 <div class="line">(3)</div>
 </div>
 </td>
-<td>If the versions are different, optimistic locking error (<code class="docutils literal"><span class="pre">org.springframework.dao.ObjectOptimisticLockingFailureException</span></code>) is generated.</td>
+<td>If the versions are different, generate the optimistic locking error (<code class="docutils literal"><span class="pre">org.springframework.dao.ObjectOptimisticLockingFailureException</span></code>).</td>
 </tr>
 </tbody>
 </table>
@@ -1824,8 +2414,8 @@ the contents updated by Query method may be overwritten by the process of a diff
 </table>
 </div></blockquote>
 </div>
-<div class="section" id="pessimistic-locking">
-<h4><a class="toc-backref" href="#id20">5.4.2.1.3. Pessimistic locking</a><a class="headerlink" href="#pessimistic-locking" title="Permalink to this headline">¶</a></h4>
+<div class="section" id="id3">
+<h4><a class="toc-backref" href="#id27">5.4.2.2.3. Pessimistic locking</a><a class="headerlink" href="#id3" title="Permalink to this headline">¶</a></h4>
 <p>In Spring Data JPA, the pessimistic lock can be performed by specifying <code class="docutils literal"><span class="pre">&#64;org.springframework.data.jpa.repository.Lock</span></code> annotation.</p>
 <ul class="simple">
 <li>Repository interface</li>
@@ -1867,7 +2457,7 @@ the contents updated by Query method may be overwritten by the process of a diff
 <div class="line">(1)</div>
 </div>
 </td>
-<td><code class="docutils literal"><span class="pre">&#64;Lock</span></code> annotation is specified in Query method.</td>
+<td>Specify <code class="docutils literal"><span class="pre">&#64;Lock</span></code> annotation in Query method.</td>
 </tr>
 <tr class="row-odd"><td><div class="first last line-block">
 <div class="line">(2)</div>
@@ -1984,7 +2574,7 @@ the contents updated by Query method may be overwritten by the process of a diff
 <div class="line">(1)</div>
 </div>
 </td>
-<td>The timeout is specified in milliseconds. If <code class="docutils literal"><span class="pre">1000</span></code> is specified, it equals 1 second.</td>
+<td>Specify the timeout in milliseconds. If <code class="docutils literal"><span class="pre">1000</span></code> is specified, it equals 1 second.</td>
 </tr>
 </tbody>
 </table>
@@ -2027,7 +2617,7 @@ Therefore, the measures such as separately providing timeout for Query etc. shou
 </div>
 </td>
 <td><div class="first last line-block">
-<div class="line">The timeout is specified in milliseconds. If <code class="docutils literal"><span class="pre">2000</span></code> is specified, it equals 2 seconds.</div>
+<div class="line">Specify the timeout in milliseconds. If <code class="docutils literal"><span class="pre">2000</span></code> is specified, it equals 2 seconds.</div>
 <div class="line">All the specified values are overwritten.</div>
 </div>
 </td>
@@ -2038,9 +2628,9 @@ Therefore, the measures such as separately providing timeout for Query etc. shou
 </div>
 </div>
 <div class="section" id="how-to-handle-an-exclusive-error">
-<h3><a class="toc-backref" href="#id21">5.4.2.2. How to handle an exclusive error</a><a class="headerlink" href="#how-to-handle-an-exclusive-error" title="Permalink to this headline">¶</a></h3>
+<span id="exclusioncontrolhowtouseexceptionhandling"></span><h3><a class="toc-backref" href="#id28">5.4.2.3. How to handle an exclusive error</a><a class="headerlink" href="#how-to-handle-an-exclusive-error" title="Permalink to this headline">¶</a></h3>
 <div class="section" id="error-handling-in-case-of-optimistic-locking-failure">
-<h4><a class="toc-backref" href="#id22">5.4.2.2.1. Error handling in case of optimistic locking failure</a><a class="headerlink" href="#error-handling-in-case-of-optimistic-locking-failure" title="Permalink to this headline">¶</a></h4>
+<h4><a class="toc-backref" href="#id29">5.4.2.3.1. Error handling in case of optimistic locking failure</a><a class="headerlink" href="#error-handling-in-case-of-optimistic-locking-failure" title="Permalink to this headline">¶</a></h4>
 <p>When optimistic locking fails, <code class="docutils literal"><span class="pre">org.springframework.dao.OptimisticLockingFailureException</span></code>occurs;
 hence it is necessary to handle it appropriately in Controller.</p>
 <div class="line-block">
@@ -2076,22 +2666,22 @@ hence it is necessary to handle it appropriately in Controller.</p>
 <div class="line">(1)</div>
 </div>
 </td>
-<td><code class="docutils literal"><span class="pre">OptimisticLockingFailureException.class</span></code> is specified in the value attribute of <code class="docutils literal"><span class="pre">&#64;ExceptionHandler</span></code> annotation.</td>
+<td>Specify <code class="docutils literal"><span class="pre">OptimisticLockingFailureException.class</span></code> in the value attribute of <code class="docutils literal"><span class="pre">&#64;ExceptionHandler</span></code> annotation.</td>
 </tr>
 <tr class="row-odd"><td><div class="first last line-block">
 <div class="line">(2)</div>
 </div>
 </td>
 <td><div class="first last line-block">
-<div class="line">Error handling is performed. The message to notify error and information required for screen display (form or other model) are generated and <code class="docutils literal"><span class="pre">ModelAndView</span></code> that specifies a destination is returned.</div>
-<div class="line">For details of error handling, refer to <span class="xref std std-ref">exception-handling-how-to-use-codingpoint-contoller-usecase-label</span>.</div>
+<div class="line">Carry out error handling. Generate the message to notify error and information required for screen display (form or other model) and return <code class="docutils literal"><span class="pre">ModelAndView</span></code> specifying the destination.</div>
+<div class="line">For details on error handling, refer to <span class="xref std std-ref">exception-handling-how-to-use-codingpoint-contoller-usecase-label</span>.</div>
 </div>
 </td>
 </tr>
 </tbody>
 </table>
 </div></blockquote>
-<p>If there is a need to change the operation at request level, it is handled by using <code class="docutils literal"><span class="pre">try</span> <span class="pre">-</span> <span class="pre">catch</span></code> in the processing method of Controller.</p>
+<p>If there is a need to change the operation at request level, it is to be handled using <code class="docutils literal"><span class="pre">try</span> <span class="pre">-</span> <span class="pre">catch</span></code> in the processing method of Controller.</p>
 <blockquote>
 <div><div class="highlight-java"><div class="highlight"><pre><span class="nd">@RequestMapping</span><span class="o">(</span><span class="n">value</span> <span class="o">=</span> <span class="s">&quot;{itemId}/update&quot;</span><span class="o">,</span> <span class="n">method</span> <span class="o">=</span> <span class="n">RequestMethod</span><span class="o">.</span><span class="na">POST</span><span class="o">)</span>
 <span class="kd">public</span> <span class="n">String</span> <span class="nf">update</span><span class="o">(</span><span class="n">StockForm</span> <span class="n">form</span><span class="o">,</span> <span class="n">Model</span> <span class="n">model</span><span class="o">,</span> <span class="n">RedirectAttributes</span> <span class="n">attributes</span><span class="o">){</span>
@@ -2128,15 +2718,15 @@ hence it is necessary to handle it appropriately in Controller.</p>
 <div class="line">(1)</div>
 </div>
 </td>
-<td><code class="docutils literal"><span class="pre">OptimisticLockingFailureException</span></code> is caught.</td>
+<td>Catch <code class="docutils literal"><span class="pre">OptimisticLockingFailureException</span></code>.</td>
 </tr>
 <tr class="row-odd"><td><div class="first last line-block">
 <div class="line">(2)</div>
 </div>
 </td>
 <td><div class="first last line-block">
-<div class="line">Error handling is performed. The message to notify error and information required for screen display (form or other model) are generated and a destination view name is returned.</div>
-<div class="line">For details of error handling, refer to <span class="xref std std-ref">exception-handling-how-to-use-codingpoint-contoller-usecase-label</span>.</div>
+<div class="line">Carry out error handling. Generate the message to notify error and information required for screen display (form or other model) and return the destination view name.</div>
+<div class="line">For details on error handling, refer to <span class="xref std std-ref">exception-handling-how-to-use-codingpoint-contoller-usecase-label</span>.</div>
 </div>
 </td>
 </tr>
@@ -2145,7 +2735,7 @@ hence it is necessary to handle it appropriately in Controller.</p>
 </div></blockquote>
 </div>
 <div class="section" id="error-handling-in-case-of-pessimistic-locking-failure">
-<h4><a class="toc-backref" href="#id23">5.4.2.2.2. Error handling in case of pessimistic locking failure</a><a class="headerlink" href="#error-handling-in-case-of-pessimistic-locking-failure" title="Permalink to this headline">¶</a></h4>
+<h4><a class="toc-backref" href="#id30">5.4.2.3.2. Error handling in case of pessimistic locking failure</a><a class="headerlink" href="#error-handling-in-case-of-pessimistic-locking-failure" title="Permalink to this headline">¶</a></h4>
 <p>When pessimistic locking fails, <code class="docutils literal"><span class="pre">org.springframework.dao.PessimisticLockingFailureException</span></code> occurs; hence it is necessary to handle it appropriately in Controller.</p>
 <p>The handling method varies with the operation specifications of the application when pessimistic locking error occurs.</p>
 <p>If there is no need to change the operation at request level, it is handled using <code class="docutils literal"><span class="pre">&#64;ExceptionHandler</span></code> annotation.</p>
@@ -2178,22 +2768,22 @@ hence it is necessary to handle it appropriately in Controller.</p>
 <div class="line">(1)</div>
 </div>
 </td>
-<td><code class="docutils literal"><span class="pre">PessimisticLockingFailureException</span> <span class="pre">.class</span></code> is specified in value attribute of <code class="docutils literal"><span class="pre">&#64;ExceptionHandler</span></code> annotation.</td>
+<td>Specify <code class="docutils literal"><span class="pre">PessimisticLockingFailureException</span> <span class="pre">.class</span></code> in value attribute of <code class="docutils literal"><span class="pre">&#64;ExceptionHandler</span></code> annotation.</td>
 </tr>
 <tr class="row-odd"><td><div class="first last line-block">
 <div class="line">(2)</div>
 </div>
 </td>
 <td><div class="first last line-block">
-<div class="line">Error handling is performed. The message to notify error and information required for screen display (form or other model) are generated and <code class="docutils literal"><span class="pre">ModelAndView</span></code> that specifies a destination is returned.</div>
-<div class="line">For details of error handling, refer to <span class="xref std std-ref">exception-handling-how-to-use-codingpoint-contoller-usecase-label</span>.</div>
+<div class="line">Carry out error handling. Generate the message to notify error and information required for screen display (form or other model) and return <code class="docutils literal"><span class="pre">ModelAndView</span></code> specifying the destination.</div>
+<div class="line">For details on error handling, refer to <span class="xref std std-ref">exception-handling-how-to-use-codingpoint-contoller-usecase-label</span>.</div>
 </div>
 </td>
 </tr>
 </tbody>
 </table>
 </div></blockquote>
-<p>If there is need to change the operation at request level, it is handled using <code class="docutils literal"><span class="pre">try</span> <span class="pre">-</span> <span class="pre">catch</span></code> in the processing method of Controller.</p>
+<p>If there is need to change the operation at request level, it is to be handled using <code class="docutils literal"><span class="pre">try</span> <span class="pre">-</span> <span class="pre">catch</span></code> in the processing method of Controller.</p>
 <blockquote>
 <div><div class="highlight-java"><div class="highlight"><pre><span class="nd">@RequestMapping</span><span class="o">(</span><span class="n">value</span> <span class="o">=</span> <span class="s">&quot;{itemId}/update&quot;</span><span class="o">,</span> <span class="n">method</span> <span class="o">=</span> <span class="n">RequestMethod</span><span class="o">.</span><span class="na">POST</span><span class="o">)</span>
 <span class="kd">public</span> <span class="n">String</span> <span class="nf">update</span><span class="o">(</span><span class="n">StockForm</span> <span class="n">form</span><span class="o">,</span> <span class="n">Model</span> <span class="n">model</span><span class="o">,</span> <span class="n">RedirectAttributes</span> <span class="n">attributes</span><span class="o">){</span>
@@ -2230,15 +2820,15 @@ hence it is necessary to handle it appropriately in Controller.</p>
 <div class="line">(1)</div>
 </div>
 </td>
-<td><code class="docutils literal"><span class="pre">PessimisticLockingFailureException</span></code> is caught.</td>
+<td>Catch <code class="docutils literal"><span class="pre">PessimisticLockingFailureException</span></code>.</td>
 </tr>
 <tr class="row-odd"><td><div class="first last line-block">
 <div class="line">(2)</div>
 </div>
 </td>
 <td><div class="first last line-block">
-<div class="line">Error handling is performed. The message to notify error and information required for screen display (form or other model) are generated and destination view name is returned.</div>
-<div class="line">For details of error handling, refer to <span class="xref std std-ref">exception-handling-how-to-use-codingpoint-contoller-usecase-label</span>.</div>
+<div class="line">Carry out error handling. Generate the message to notify error and information required for screen display (form or other model) and return destination view name.</div>
+<div class="line">For details on error handling, refer to <span class="xref std std-ref">exception-handling-how-to-use-codingpoint-contoller-usecase-label</span>.</div>
 </div>
 </td>
 </tr>

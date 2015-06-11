@@ -787,6 +787,430 @@ Deadlock between tables
 How to use
 --------------------------------------------------------------------------------
 
+From here, implementation method of exclusive control using O/R Mapper is described.
+
+First confirm the implementation method of O/R Mapper to be used.
+
+* :ref:`ExclusionControlHowToUseMyBatis3`
+* :ref:`ExclusionControlHowToUseJpa`
+
+For method of handling exclusive error, refer to:
+
+* :ref:`ExclusionControlHowToUseExceptionHandling`
+
+|
+
+.. _ExclusionControlHowToUseMyBatis3:
+
+How to implement while using MyBatis3
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+Row lock function of RDBMS
+""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
+
+When exclusive control is to be performed using a row lock function of RDBMS, the following should be considered in SQL.
+
+* Update contents to be specified in SET clause
+* Update conditions to be specified in WHERE clause
+
+|
+
+- Define a method in Repository interface.
+
+ .. code-block:: java
+
+     public interface StockRepository {
+        // (1)
+        boolean decrementQuantity(@Param("itemCode") String itemCode,
+                                  @Param("quantity") int quantity);
+    }
+
+ .. tabularcolumns:: |p{0.10\linewidth}|p{0.90\linewidth}|
+ .. list-table::
+    :header-rows: 1
+    :widths: 10 90
+
+    * - Sr. No.
+      - Description
+    * - | (1)
+      - In Repository interface,
+        define a method to update data using row lock function of RDBMS.
+
+        In above example, a method to decrease stock quantity is defined.
+        When stock quantity is decreased, \ ``true``\  is returned.
+
+|
+
+- Define SQL wherein exclusive control using a row lock function of RDBMS becomes valid.
+
+ .. code-block:: xml
+
+    <!-- (2) -->
+    <update id="decrementQuantity">
+    <![CDATA[
+        UPDATE
+            m_stock
+        SET
+            /* (3) */
+            quantity = quantity - #{quantity}
+        WHERE
+            item_code = #{itemCode}
+        AND
+            /* (4) */
+            quantity >= #{quantity}
+    ]]>
+    </update>
+
+ .. tabularcolumns:: |p{0.10\linewidth}|p{0.90\linewidth}|
+ .. list-table::
+    :header-rows: 1
+    :widths: 10 90
+
+    * - Sr. No.
+      - Description
+    * - | (2)
+      - Define statement (SQL) to update the data using row lock function of RDBMS.
+
+        In above example, SQL to decrease stock quantity is defined.
+
+        When a row lock function of RDBMS is to be used, the data can be safely updated because of the operations given below.
+
+        * When other transaction has obtained lock for the same data,
+          SQL is executed after releasing (commit or rollback) the lock.
+
+        * When stock quantity is decreased successfully,
+          row lock of RDBMS is fetched, and update from other transactions gets locked.
+
+    * - | (3)
+      - Subtract the stock quantity (\ ``quantity = quantity - #{quantity}``\ ) in SQL.
+    * - | (4)
+      - As an update condition, add "stock quantity should be greater than or equal to the order quantity (\ ``quantity >= #{quantity}``\ ).
+
+|
+
+- Call the Repository method to safely update the data using row lock function of RDBMS.
+
+ .. code-block:: java
+
+    // (5)
+    boolean updated = stockRepository.decrementQuantity(itemCode, quantityOfOrder);
+    // (6)
+    if (!updated) {
+        // (7)
+        ResultMessages messages = ResultMessages.error().add(ResultMessage
+                .fromText("Not enough stock. Please, change quantity."));
+        throw new BusinessException(messages);
+    }
+
+ .. tabularcolumns:: |p{0.10\linewidth}|p{0.90\linewidth}|
+ .. list-table::
+    :header-rows: 1
+    :widths: 10 90
+
+    * - Sr. No.
+      - Description
+    * - | (5)
+      - Call the Repository method to perform update.
+    * - | (6)
+      - Call the Repository method to determine result.
+
+        In case of \ ``false``\ , stock quantity will be insufficient as update conditions are not fulfilled.
+    * - | (7)
+      - Business error occurs.
+
+        In above example, only business rules are checked (stock quantity check) while performing exclusive control.
+        Therefore, when update conditions are not fulfilled, it is being treated as business error and not exclusive error.
+
+        Business errors should be appropriately handled in Controller.
+
+|
+
+Optimistic locking
+""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
+| In MyBatis3, a mechanism to perform optimistic locking as library is not provided.
+| Therefore, when performing optimistic locking, the version should be considered in SQL.
+
+- Define a property for version control in entity.
+
+ .. code-block:: java
+
+    public class Stock implements Serializable {
+        private static final long serialVersionUID = 1L;
+
+        private String itemCode;
+        private int quantity;
+        // (1)
+        private long version;
+
+        // ...
+
+    }
+
+ .. tabularcolumns:: |p{0.10\linewidth}|p{0.90\linewidth}|
+ .. list-table::
+    :header-rows: 1
+    :widths: 10 90
+
+    * - Sr. No.
+      - Description
+    * - | (1)
+      - Create a property for version control in entity.
+
+|
+
+- Define a method in Repository interface.
+
+ .. code-block:: java
+
+    public interface StockRepository {
+        // (2)
+        Stock findOne(String itemCode);
+        // (3)
+        boolean update(Stock stock);
+    }
+
+ .. tabularcolumns:: |p{0.10\linewidth}|p{0.90\linewidth}|
+ .. list-table::
+    :header-rows: 1
+    :widths: 10 90
+
+    * - Sr. No.
+      - Description
+    * - | (2)
+      - Define a method to fetch entity, in Repository interface.
+    * - | (3)
+      - Define a method to update data using optimistic lock function, in Repository interface.
+
+        In above example, a method to update records with specified entity details is defined.
+        When update is successful, \ ``true``\  is returned.
+
+|
+
+- Define SQL in mapping file.
+
+ .. code-block:: xml
+
+    <!-- (4) -->
+    <select id="findOne" parameterType="string" resultType="Stock">
+        SELECT
+            item_code,
+            quantity,
+            version
+        FROM
+            m_stock
+        WHERE
+            item_code = #{itemCode}
+    </select>
+
+    <!-- (5) -->
+    <update id="update" parameterType="Stock">
+        UPDATE
+            m_stock
+        SET
+            quantity = #{quantity},
+            /* (6) */
+            version = version + 1
+        WHERE
+            item_code = #{itemCode}
+        AND
+            /* (7) */
+            version = #{version}
+    </update>
+
+ .. tabularcolumns:: |p{0.10\linewidth}|p{0.90\linewidth}|
+ .. list-table::
+    :header-rows: 1
+    :widths: 10 90
+
+    * - Sr. No.
+      - Description
+    * - | (4)
+      - Define statement (SQL) to fetch entity.
+
+        When using optimistic lock, it is necessary to obtain version at the time of fetching entity.
+    * - | (5)
+      - Define statement (SQL) to update data using optimistic lock function.
+
+        In above example, SQL to update records with specified entity details is defined.
+    * - | (6)
+      - Update the version (\ ``version = version + 1``\ ) in SQL.
+    * - | (4)
+      - As an update condition, add "version should not be changed (\ ``version = #{version}``\ ).
+
+|
+
+- Call the Repository method to safely update the data using optimistic lock function.
+
+ .. code-block:: java
+
+    // (5)
+    Stock stock = stockRepository.findOne(itemCode);
+    if (stock == null) {
+        ResultMessages messages = ResultMessages.error().add(ResultMessage
+                .fromText("Stock not found. itemCode : " + itemCode));
+        throw new ResourceNotFoundException(messages);
+    }
+
+    // (6)
+    stock.setQuantity(stock.getQuantity() + addedQuantity);
+
+    // (7)
+    boolean updated = stockRepository.update(stock);
+    if(!updated) {
+        // (8)
+        throw new ObjectOptimisticLockingFailureException(Stock.class, itemCode);
+    }
+
+ .. tabularcolumns:: |p{0.10\linewidth}|p{0.90\linewidth}|
+ .. list-table::
+    :header-rows: 1
+    :widths: 10 90
+
+    * - Sr. No.
+      - Description
+    * - | (5)
+      - Call findOne method of Repository interface to fetch the entity.
+    * - | (6)
+      - Specify the value to be updated for the entity fetched in step (5).
+
+        In above example, procured stock quantity is added.
+    * - | (7)
+      - Call the update method of Repository interface
+        to reflect the entity updated in step (5) in persistence layer (DB).
+    * - | (8)
+      - Determine the update result. In case of \ ``false``\ ,
+        entity gets updated by other transaction, thereby
+        leading to optimistic lock error (\ ``org.springframework.orm.ObjectOptimisticLockingFailureException``\ ).
+
+|
+
+When performing optimistic lock for long transactions, points given below should be noted.
+
+ .. warning::
+
+    When performing optimistic locking for long transactions, apart from checking version at the time of update,
+    it should also be checked at the time of fetching data.
+
+
+Example of implementation is given below.
+
+- Check version even at the time of fetching data.
+
+ .. code-block:: java
+
+    Stock stock = stockRepository.findOne(itemCode);
+    if (stock == null || stock.getVersion() != version) {
+        // (9)
+        throw new ObjectOptimisticLockingFailureException(Stock.class, itemCode);
+    }
+
+    stock.setQuantity(stock.getQuantity() + addedQuantity);
+    boolean updated = stockRepository.update(stock);
+    // ...
+
+ .. tabularcolumns:: |p{0.10\linewidth}|p{0.90\linewidth}|
+ .. list-table::
+    :header-rows: 1
+    :widths: 10 90
+
+    * - Sr. No.
+      - Description
+    * - | (9)
+      - Compare the version of entity fetched in (5) with
+        that of the entity fetched in other database transaction.
+
+        If version differs, the data is updated by other transaction, thereby
+        leading to optimistic lock error (\ ``org.springframework.dao.ObjectOptimisticLockingFailureException``\ ). 
+
+        It is also necessary to consider a case wherein data does not exist (\ ``stock == null``\  ),
+        The implementation should be as per the application specifications.
+        In above example, it is being treated as optimistic locking error.
+
+
+|
+
+Following points should be noted when application uses optimistic lock function in combination with row lock function of RDBMS.
+
+ .. warning::
+
+    In case of application in which a process to perform exclusive control using row lock function of RDBMS and
+    a process to perform exclusive control using optimistic lock function of RDBMS coexist, 
+    **version should be updated (incremented)** in SQL using row lock function of RDBMS.
+
+    If version is not updated in SQL that performs exclusive control using row lock function of RDBMS,
+    the data may get overwritten by SQL that performs exclusive control using optimistic lock function.
+
+Example of implementation is shown below.
+
+- Update the version in SQL.
+
+ .. code-block:: xml
+
+    <update id="decrementQuantity">
+    <![CDATA[
+        UPDATE
+            m_stock
+        SET
+            quantity = quantity - #{quantity},
+            /* (10) */
+            version = version + 1
+        WHERE
+            item_code = #{itemCode}
+        AND
+            quantity >= #{quantity}
+    ]]>
+    </update>
+
+ .. tabularcolumns:: |p{0.10\linewidth}|p{0.90\linewidth}|
+ .. list-table::
+    :header-rows: 1
+    :widths: 10 90
+
+    * - Sr. No.
+      - Description
+    * - | (10)
+      - Update (increment) the version.
+
+|
+
+Pessimistic locking
+""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
+| In MyBatis3, a mechanism to perform pessimistic locking as library is not provided.
+| Therefore, in case of pessimistic locking, a keyword should be specified to fetch lock in SQL.
+
+- Specify the keyword to fetch lock in SQL.
+
+ .. code-block:: xml
+
+    <select id="findOneForUpdate" parameterType="string" resultType="Stock">
+        SELECT
+            item_code,
+            quantity,
+            version
+        FROM
+            m_stock
+        WHERE
+            item_code = #{itemCode}
+        /* (1) */
+        FOR UPDATE
+    </select>
+
+ .. tabularcolumns:: |p{0.10\linewidth}|p{0.90\linewidth}|
+ .. list-table::
+    :header-rows: 1
+    :widths: 10 90
+
+    * - Sr. No.
+      - Description
+    * - | (1)
+      - For SQL in which pessimistic lock needs to be fetched, specify the keyword to fetch the same.
+
+        Keyword and location to specify the keyword differ depending on database.
+
+|
+
+.. _ExclusionControlHowToUseJpa:
+
 How to implement while using JPA (Spring Data JPA)
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
@@ -853,13 +1277,13 @@ Row lock function of RDBMS
     * - Sr. No.
       - Description
     * - | (2)
-      - Query method is called.
+      - Call the Query method.
     * - | (3)
-      - Call results of Query method are determined. Since update conditions are not satisfied in case of \ ``0``\ , the stock quantity becomes inadequate.
+      - Determine the call results of Query method. In case of \ ``0``\ , the stock quantity becomes inadequate, since update conditions are not satisfied.
     * - | (4)
-      - | The message notifying "No stock" or "Not enough stock" is stored and a business error is generated.
-        | The generated error must be handled appropriately in Controller as per the requirements.
-        | In the above example, only business rules are checked along with exclusive control; hence when update conditions are not satisfied, it is treated as business error and not exclusive error.
+      - | Store the message notifying "No stock" or "Not enough stock" to generate a business error.
+        | The generated error should be handled appropriately in Controller as per the requirements.
+        | In the above example, only business rules are checked while performing exclusive control; hence when update conditions are not satisfied, it is treated as business error and not exclusive error.
         | For error handling methods, refer to \ :ref:`exception-handling-how-to-use-codingpoint-contoller-label`\ .
     * - | (5)
       - SQL that is executed while calling the Query method.
@@ -899,7 +1323,7 @@ In JPA, optimistic locking can be performed by specifying \ ``@javax.persistence
     * - Sr. No.
       - Description
     * - | (1)
-      - \ ``@Version``\  annotation is specified in property for version control.
+      - Specify the \ ``@Version``\  annotation in property for version control.
 
 - Service
 
@@ -932,11 +1356,11 @@ In JPA, optimistic locking can be performed by specifying \ ``@javax.persistence
     * - Sr. No.
       - Description
     * - | (2)
-      - findOne method of Repository interface is called and entity is fetched.
+      - Call findOne method of Repository interface to fetch the entity.
     * - | (3)
-      - Value to be updated is specified for the entity fetched in step (2).
+      - Specify the value to be updated for the entity fetched in step (2).
     * - | (4)
-      - | The modification details of (3) are reflected in the persistence layer (DB). This process is usually not required since it is performed for the description purpose.
+      - | Reflect the changes of (3) in the persistence layer (DB). This process is usually not required since it is performed for the description purpose.
         | Normally, it is reflected automatically when the transaction is committed.
         | In the above example, when the version held by the entity fetched in step (2) and the version stored in persistence layer (DB) do not match, optimistic locking error (\ ``org.springframework.dao.OptimisticLockingFailureException``\ ) occurs.
     * - | (5)
@@ -976,12 +1400,12 @@ An implementation example is given below.
     * - Sr. No.
       - Description
     * - | (1)
-      - An entity is fetched from persistence layer (DB).
+      - Fetch an entity from persistence layer (DB).
     * - | (2)
-      - | Version of the entity fetched by a different database transaction in advance is compared with the latest version of persistence layer (DB) fetched in step (1).
+      - | Compare the version of the entity fetched by a different database transaction in advance with the latest version of persistence layer (DB) fetched in step (1).
         | If versions match, optimistic locking which uses \ ``@Version``\  annotation becomes valid in subsequent processes.
     * - | (3)
-      - If the versions are different, optimistic locking error (\ ``org.springframework.dao.ObjectOptimisticLockingFailureException``\ ) is generated.
+      - If the versions are different, generate the optimistic locking error (\ ``org.springframework.dao.ObjectOptimisticLockingFailureException``\ ).
 
 .. warning:: **Setting a value in property for Version control**
 
@@ -1094,7 +1518,7 @@ In Spring Data JPA, the pessimistic lock can be performed by specifying \ ``@org
     * - Sr. No.
       - Description
     * - | (1)
-      - \ ``@Lock``\  annotation is specified in Query method.
+      - Specify \ ``@Lock``\  annotation in Query method.
     * - | (2)
       - Executed SQL. In the above example, the SQL executed while using PostgreSQL is given.
 
@@ -1159,7 +1583,7 @@ Method wherein it is specified for the entire process is as follows:
     * - Sr. No.
       - Description
     * - | (1)
-      - The timeout is specified in milliseconds. If \ ``1000``\  is specified, it equals 1 second.
+      - Specify the timeout in milliseconds. If \ ``1000``\  is specified, it equals 1 second.
 
  .. note:: **nowait support**
 
@@ -1190,9 +1614,10 @@ Method wherein it is specified for each Query is as follows:
     * - Sr. No.
       - Description
     * - | (1)
-      - | The timeout is specified in milliseconds. If \ ``2000``\  is specified, it equals 2 seconds.
+      - | Specify the timeout in milliseconds. If \ ``2000``\  is specified, it equals 2 seconds.
         | All the specified values are overwritten.
 
+.. _ExclusionControlHowToUseExceptionHandling:
 
 How to handle an exclusive error
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
@@ -1230,12 +1655,12 @@ When there is no need to change the operation at request level, it is handled by
     * - Sr. No.
       - Description
     * - | (1)
-      - \ ``OptimisticLockingFailureException.class``\  is specified in the value attribute of \ ``@ExceptionHandler``\  annotation.
+      - Specify \ ``OptimisticLockingFailureException.class``\  in the value attribute of \ ``@ExceptionHandler``\  annotation.
     * - | (2)
-      - | Error handling is performed. The message to notify error and information required for screen display (form or other model) are generated and \ ``ModelAndView``\  that specifies a destination is returned.
-        | For details of error handling, refer to \ :ref:`exception-handling-how-to-use-codingpoint-contoller-usecase-label`\ .
+      - | Carry out error handling. Generate the message to notify error and information required for screen display (form or other model) and return \ ``ModelAndView``\  specifying the destination.
+        | For details on error handling, refer to \ :ref:`exception-handling-how-to-use-codingpoint-contoller-usecase-label`\ .
 
-If there is a need to change the operation at request level, it is handled by using \ ``try - catch``\  in the processing method of Controller.
+If there is a need to change the operation at request level, it is to be handled using \ ``try - catch``\  in the processing method of Controller.
 
  .. code-block:: java
 
@@ -1266,10 +1691,10 @@ If there is a need to change the operation at request level, it is handled by us
     * - Sr. No.
       - Description
     * - | (1)
-      - ``OptimisticLockingFailureException`` is caught.
+      - Catch ``OptimisticLockingFailureException``.
     * - | (2)
-      - | Error handling is performed. The message to notify error and information required for screen display (form or other model) are generated and a destination view name is returned.
-        | For details of error handling, refer to \ :ref:`exception-handling-how-to-use-codingpoint-contoller-usecase-label`\ .
+      - | Carry out error handling. Generate the message to notify error and information required for screen display (form or other model) and return the destination view name.
+        | For details on error handling, refer to \ :ref:`exception-handling-how-to-use-codingpoint-contoller-usecase-label`\ .
 
 Error handling in case of pessimistic locking failure
 """"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
@@ -1302,12 +1727,12 @@ If there is no need to change the operation at request level, it is handled usin
     * - SR. No.
       - Description
     * - | (1)
-      - \ ``PessimisticLockingFailureException .class``\  is specified in value attribute of \ ``@ExceptionHandler``\  annotation.
+      - Specify \ ``PessimisticLockingFailureException .class``\  in value attribute of \ ``@ExceptionHandler``\  annotation.
     * - | (2)
-      - | Error handling is performed. The message to notify error and information required for screen display (form or other model) are generated and \ ``ModelAndView``\  that specifies a destination is returned.
-        | For details of error handling, refer to \ :ref:`exception-handling-how-to-use-codingpoint-contoller-usecase-label`\ .
+      - | Carry out error handling. Generate the message to notify error and information required for screen display (form or other model) and return \ ``ModelAndView``\  specifying the destination.
+        | For details on error handling, refer to \ :ref:`exception-handling-how-to-use-codingpoint-contoller-usecase-label`\ .
 
-If there is need to change the operation at request level, it is handled using \ ``try - catch``\  in the processing method of Controller.
+If there is need to change the operation at request level, it is to be handled using \ ``try - catch``\  in the processing method of Controller.
 
  .. code-block:: java
 
@@ -1338,10 +1763,10 @@ If there is need to change the operation at request level, it is handled using \
     * - Sr. No.
       - Description
     * - | (1)
-      - \ ``PessimisticLockingFailureException``\  is caught.
+      - Catch \ ``PessimisticLockingFailureException``\ .
     * - | (2)
-      - | Error handling is performed. The message to notify error and information required for screen display (form or other model) are generated and destination view name is returned.
-        | For details of error handling, refer to \ :ref:`exception-handling-how-to-use-codingpoint-contoller-usecase-label`\ .
+      - | Carry out error handling. Generate the message to notify error and information required for screen display (form or other model) and return destination view name.
+        | For details on error handling, refer to \ :ref:`exception-handling-how-to-use-codingpoint-contoller-usecase-label`\ .
 
 
 .. raw:: latex

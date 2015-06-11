@@ -68,6 +68,7 @@ Exception handling methods
 | The exceptions which occur when the application is running, are handled using following 4 methods.
 | For details on flow of each handling method, refer to \ :ref:`exception-handling-basic-flow-label`\ .
 
+.. tabularcolumns:: |p{0.10\linewidth}|p{0.30\linewidth}|p{0.35\linewidth}|p{0.25\linewidth}|
 .. list-table:: **Table - Exception Handling Methods**
    :header-rows: 1
    :widths: 10 30 35 25
@@ -118,12 +119,13 @@ Exception handling methods
 
 .. note:: **About automatically registered HandlerExceptionResolver**
 
-  When <mvc:annotation-driven> is specified, the roles of HandlerExceptionResolver implementation class which is registered automatically are as follows:
+  When <mvc:annotation-driven> is specified, the roles of HandlerExceptionResolver, which is registered automatically, are as follows:
 
   The priority order will be as given below.
 
   .. _ExceptionHandling-annotation-driven:
 
+    .. tabularcolumns:: |p{0.10\linewidth}|p{0.30\linewidth}|p{0.55\linewidth}|
     .. list-table::
        :header-rows: 1
        :widths: 10 30 55
@@ -154,13 +156,19 @@ Exception handling methods
   which is registered automatically when <mvc:annotation-driven> is specified.
   Therefore, the order of priority of this class should be set after DefaultHandlerExceptionResolver.
 
-
 .. note:: **About @ControllerAdvice annotation added from Spring Framework 3.2**
 
   \ ``@ControllerAdvice``\  made exception handling possible using \ ``@ExceptionHandler``\  at servlet level.
   If methods with \ ``@ExceptionHandler``\  annotation are defined in a class with \ ``@ControllerAdvice``\  annotation, then exception handling carried out in the methods with \ ``@ExceptionHandler``\  annotation can be applied to all the Controllers in Servlet.
   When implementing the above in earlier versions, it was necessary to define methods with \ ``@ExceptionHandler``\  annotation in Controller base class
   and inherit each Controller from the base class.
+
+ **About attribute of @ControllerAdvice annotation added from Spring Framework 4.0**
+
+  By specifying attribute of \ ``@ControllerAdvice``\  annotation,
+  it has been improved in such a way that Controller that applies a method implemented in class with \ ``@ControllerAdvice``\ , can be specified flexibly.
+  For details on attribute, refer to \ :ref:`attribute of @ControllerAdvice <application_layer_controller_advice_attribute>`\ .
+
 
 .. note:: **Where to use @ControllerAdvice annotation?**
 
@@ -187,6 +195,7 @@ Types of exceptions
 There are 6 types of exceptions that occur in a running application.
 
 
+.. tabularcolumns:: |p{0.10\linewidth}|p{0.20\linewidth}|p{0.30\linewidth}|
 .. list-table:: **Table - Types of Exceptions**
    :header-rows: 1
    :widths: 10 20 30
@@ -348,6 +357,7 @@ Exception Handling Patterns
 | There are 6 types of exception handling patterns based on the purpose of handling.
 | (1)-(2) should be handled at use case level and (3)-(6) should be handled at the entire system (application) level.
 
+.. tabularcolumns:: |p{0.10\linewidth}|p{0.40\linewidth}|p{0.25\linewidth}|p{0.10\linewidth}|p{0.15\linewidth}|
 .. list-table:: **Table - Exception Handling Patterns**
    :header-rows: 1
    :widths: 10 40 25 10 15
@@ -588,7 +598,7 @@ Basic flow when the framework handles the exception at servlet level
 ''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
 | In order to handle the exception using the framework (at servlet level), catch the exception using SystemExceptionResolver.
 | Refer to the figure below.
-| It illustrates the basic flow at the time of handling the system exception (\ ``org.terasoluna.gfw.common.exception.SystemException``\ ) provided by common library using \ ``org.terasoluna.gfw.web.exception.SystemExceptionResolver``\ .
+| It illustrates the basic flow at the time of handling the system exception (\ ``org.terasoluna.gfw.common.exception.SystemException``\ ) provided by common library using \ ``org.terasoluna.gfw.web.exception.SystemExceptionResolver``\  .
 | Log is output using interceptor (\ ``org.terasoluna.gfw.web.exception.HandlerExceptionResolverLoggingInterceptor``\ ) which records the exception specified in the argument of exception handling method.
 
 .. figure:: ./images/exception-handling-flow-resolver.png
@@ -638,7 +648,7 @@ Basic flow when the servlet container handles the exception at web application l
 
 How to use
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-The usage of exception handling funcationality is described below.
+The usage of exception handling functionality is described below.
 
 For exception handling classes provided by common library, refer to \ :ref:`exception-handling-about-classes-of-library-label`\ .
 
@@ -692,6 +702,7 @@ Common Settings
         <property name="exceptionCodeResolver" ref="exceptionCodeResolver" /> <!-- (5) -->
     </bean>
 
+ .. tabularcolumns:: |p{0.10\linewidth}|p{0.90\linewidth}|
  .. list-table::
     :header-rows: 1
     :widths: 10 90
@@ -725,7 +736,7 @@ Common Settings
     * - | (4)
       - | Add \ ``ExceptionLogger``\  to bean definition.
     * - | (5)
-      - | Inject \ ``ExceptionCodeResolver``\  into the bean definition of \ ``ExceptionLogger``\.
+      - | Inject \ ``ExceptionCodeResolver``\  into the bean definition of \ ``ExceptionLogger``\ .
 
 
 2. Add log definition.
@@ -754,6 +765,7 @@ Common Settings
         <appender-ref ref="MONITORING_LOG_FILE" /> <!-- (4) -->
     </logger>
 
+ .. tabularcolumns:: |p{0.10\linewidth}|p{0.90\linewidth}|
  .. list-table::
     :header-rows: 1
     :widths: 10 90
@@ -804,6 +816,7 @@ Common Settings
         <appender-ref ref="APPLICATION_LOG_FILE" /> <!-- (4) -->
     </root>
 
+ .. tabularcolumns:: |p{0.10\linewidth}|p{0.90\linewidth}|
  .. list-table::
     :header-rows: 1
     :widths: 10 90
@@ -855,6 +868,7 @@ When exceptions (BusinessException,ResourceNotFoundException) holding ResultMess
     </aop:config>
 
 
+ .. tabularcolumns:: |p{0.10\linewidth}|p{0.90\linewidth}|
  .. list-table::
     :header-rows: 1
     :widths: 10 90
@@ -862,7 +876,7 @@ When exceptions (BusinessException,ResourceNotFoundException) holding ResultMess
     * - Sr. No.
       - Description
     * - | (1)
-      - | Add beand definition of \ ``ResultMessagesLoggingInterceptor``\ .
+      - | Add bean definition of \ ``ResultMessagesLoggingInterceptor``\ .
     * - | (2)
       - | Inject the logger which outputs exception log. Specify "exceptionLogger" defined in \ ``applicationContext.xml``\ .
     * - | (3)
@@ -907,13 +921,12 @@ Add to bean definition, the class (\ ``SystemExceptionResolver``\ )  used for ha
     </bean>
 
     <!-- Settings View Resolver. -->
-    <bean id="viewResolver"
-        class="org.springframework.web.servlet.view.InternalResourceViewResolver"> <!-- (8) -->
-        <property name="prefix" value="/WEB-INF/views/" />
-        <property name="suffix" value=".jsp" />
-    </bean>
+    <mvc:view-resolvers>
+        <mvc:jsp prefix="/WEB-INF/views/" /> <!-- (8) -->
+    </mvc:view-resolvers>
 
 
+ .. tabularcolumns:: |p{0.10\linewidth}|p{0.90\linewidth}|
  .. list-table::
     :header-rows: 1
     :widths: 10 90
@@ -954,9 +967,30 @@ Add to bean definition, the class (\ ``SystemExceptionResolver``\ )  used for ha
             Please note that it will be handled as \ **"200"(OK)**\ .
 
     * - | (8)
-      - | The actual View depends on ViewResolver settings.
-        | In the above settings, "/WEB-INF/views/common/error/systemError.jsp", "/WEB-INF/views/common/error/resourceNotFoundError.jsp", "/WEB-INF/views/common/error/businessError.jsp", "/WEB-INF/views/common/error/transactionTokenError.jsp", "/WEB-INF/views/common/error/dataAccessError.jsp" become the destination pages.
+      - Actual \ ``View``\  depends on \ ``ViewResolver``\  settings.
 
+        In above settings, destination pages will be as given below.
+
+        * ``/WEB-INF/views/common/error/systemError.jsp``
+        * ``/WEB-INF/views/common/error/resourceNotFoundError.jsp``
+        * ``/WEB-INF/views/common/error/businessError.jsp``
+        * ``/WEB-INF/views/common/error/transactionTokenError.jsp``
+        * ``/WEB-INF/views/common/error/dataAccessError.jsp``
+
+        .. tip::
+
+            \ ``<mvc:view-resolvers>``\  is an XML element added from Spring Framework 4.1.
+            If \ ``<mvc:view-resolvers>``\  element is used, it is possible to define \ ``ViewResolver``\  in simple manner.
+
+            Example of definition when \ ``<bean>``\  element is used in a conventional manner is given below.
+
+             .. code-block:: xml
+
+                <bean id="viewResolver"
+                    class="org.springframework.web.servlet.view.InternalResourceViewResolver">
+                    <property name="prefix" value="/WEB-INF/views/" />
+                    <property name="suffix" value=".jsp" />
+                </bean>
 
 AOP settings and interceptor class (\ ``HandlerExceptionResolverLoggingInterceptor``\ ) in order to output the log of exceptions handled by \ ``HandlerExceptionResolver``\  should be added to bean definition.
 
@@ -975,6 +1009,7 @@ AOP settings and interceptor class (\ ``HandlerExceptionResolverLoggingIntercept
             pointcut="execution(* org.springframework.web.servlet.HandlerExceptionResolver.resolveException(..))" /> <!-- (3) -->
     </aop:config>
 
+ .. tabularcolumns:: |p{0.10\linewidth}|p{0.90\linewidth}|
  .. list-table::
     :header-rows: 1
     :widths: 10 90
@@ -1005,6 +1040,7 @@ AOP settings and interceptor class (\ ``HandlerExceptionResolverLoggingIntercept
         <property name="exceptionLogger" ref="exceptionLogger" /> <!-- (2) -->
     </bean>
 
+ .. tabularcolumns:: |p{0.10\linewidth}|p{0.90\linewidth}|
  .. list-table::
     :header-rows: 1
     :widths: 10 90
@@ -1031,6 +1067,7 @@ AOP settings and interceptor class (\ ``HandlerExceptionResolverLoggingIntercept
         <url-pattern>/*</url-pattern> <!-- (4) -->
     </filter-mapping>
 
+ .. tabularcolumns:: |p{0.10\linewidth}|p{0.90\linewidth}|
  .. list-table::
     :header-rows: 1
     :widths: 10 90
@@ -1073,6 +1110,7 @@ Add error-page definition for Servlet Container in order to handle error respons
    </error-page>
 
 
+ .. tabularcolumns:: |p{0.10\linewidth}|p{0.90\linewidth}|
  .. list-table::
    :header-rows: 1
    :widths: 10 90
@@ -1098,6 +1136,7 @@ Add error-page definition for Servlet Container in order to handle error respons
     </error-page>
 
 
+ .. tabularcolumns:: |p{0.10\linewidth}|p{0.90\linewidth}|
  .. list-table::
    :header-rows: 1
    :widths: 10 90
@@ -1115,7 +1154,7 @@ Add error-page definition for Servlet Container in order to handle error respons
 
 .. note:: **If untraceable error occurs during development**
 
-  If an unexpected error response (HttpServletResponse#sendError) occurs after carrying out the above settings, there may be cases wherein it cannot be determined what kind of error response occured.
+  If an unexpected error response (HttpServletResponse#sendError) occurs after carrying out the above settings, there may be cases wherein it cannot be determined what kind of error response occurred.
   
   Error screen specified in location tag is displayed; however if the cause of error cannot be identified from logs,
   it is possible to verify the error response (HTTP response code) on screen by commenting out the above settings.
@@ -1132,6 +1171,7 @@ Add error-page definition for Servlet Container in order to handle error respons
           <location>/WEB-INF/views/common/error/systemError.jsp</location>
       </error-page>
 
+    .. tabularcolumns:: |p{0.10\linewidth}|p{0.90\linewidth}|
     .. list-table::
       :header-rows: 1
       :widths: 10 90
@@ -1184,7 +1224,7 @@ The method of generating Business Exception is given below.
     @Service
     public class ExampleExceptionServiceImpl implements ExampleExceptionService {
         @Override
-        public String throwBisinessException(String test) {
+        public String throwBusinessException(String test) {
             ...
             // int stockQuantity = 5;
             // int orderQuantity = 6;
@@ -1196,6 +1236,7 @@ The method of generating Business Exception is given below.
             }
             ...
 
+ .. tabularcolumns:: |p{0.10\linewidth}|p{0.90\linewidth}|
  .. list-table::
     :header-rows: 1
     :widths: 10 90
@@ -1269,6 +1310,7 @@ Catch an exception to generate a business exception
                 "e.ad.od.5001", e.getStockQuantity()), e); // (2)
     }
 
+ .. tabularcolumns:: |p{0.10\linewidth}|p{0.90\linewidth}
  .. list-table::
     :header-rows: 1
     :widths: 10 90
@@ -1297,6 +1339,7 @@ Generate a system exception by detecting a system error in logic.
             "not found item entity. item code [" + itemId + "]."); // (2)
     }
 
+ .. tabularcolumns:: |p{0.10\linewidth}|p{0.90\linewidth}|
  .. list-table::
     :header-rows: 1
     :widths: 10 90
@@ -1333,10 +1376,10 @@ Displayed screen
 
  .. note::
 
-    It is desirable to have a common system error screen rather than creating multiple screens for system errors.
+    It is recommended to have a common system error screen rather than creating multiple screens for system errors.
 
     The screen mentioned in this guideline displays a (business-wise) message ID for system errors and has a fixed message.
-    This is because there is no need to inform the details of error to the operator and it is sufficient to only convey that the system error has occured.
+    This is because there is no need to inform the details of error to the operator and it is sufficient to only convey that the system error has occurred.
     Therefore, in order to enhance the response for inquiry against system errors, the Message ID which acts as a key for the message text is displayed on the screen,
     in order to make the analysis easier for the development side.
     Displayed error screens should be designed in accordance with the UI standards of each project.
@@ -1354,6 +1397,7 @@ Catch an exception to generate system exception.
             e); // (2)
     }
 
+ .. tabularcolumns:: |p{0.10\linewidth}|p{0.90\linewidth}|
  .. list-table::
     :header-rows: 1
     :widths: 10 90
@@ -1396,6 +1440,7 @@ Catch the exception to continue the execution
 
     // ...
 
+ .. tabularcolumns:: |p{0.10\linewidth}|p{0.90\linewidth}|
  .. list-table::
     :header-rows: 1
     :widths: 10 90
@@ -1426,7 +1471,7 @@ An application log as shown below is output.
 
    When log() is used in \ ``exceptionLogger``\ , since it will be output at error level; by default, it will be output in monitoring log also.
 
- .. code-block:: guess
+ .. code-block:: console
 
       date:2013-09-19 21:31:47	X-Track:df5271ece2304b12a2c59ff494806397	level:ERROR	message:[e.xx.fw.9001] Test example exception
 
@@ -1486,6 +1531,7 @@ Method to handle exceptions at request level
 
     }
 
+ .. tabularcolumns:: |p{0.10\linewidth}|p{0.90\linewidth}|
  .. list-table::
     :header-rows: 1
     :widths: 10 90
@@ -1520,6 +1566,7 @@ Method to handle exception at use case level
         return new ModelAndView(viewName, modelMap);                        // (6)
     }
 
+ .. tabularcolumns:: |p{0.10\linewidth}|p{0.90\linewidth}|
  .. list-table::
     :header-rows: 1
     :widths: 10 90
@@ -1573,6 +1620,7 @@ The example below illustrates implementation at the time of outputting ResultMes
 
     <t:messagesPanel /> <!-- (1) -->
 
+ .. tabularcolumns:: |p{0.10\linewidth}|p{0.90\linewidth}|
  .. list-table::
     :header-rows: 1
     :widths: 10 90
@@ -1598,6 +1646,7 @@ The example below illustrates implementation at the time of displaying exception
         <spring:message code="e.cm.fw.9999" /> <!-- (3) -->
     </p>
 
+ .. tabularcolumns:: |p{0.10\linewidth}|p{0.90\linewidth}|
  .. list-table::
     :header-rows: 1
     :widths: 10 90
@@ -1659,6 +1708,7 @@ Exception handling classes provided by the common library
 | In addition to the classes provided by Spring MVC, the classes for carrying out exception handling are being provided by the common library.
 | The roles of classes are as follows:
 
+.. tabularcolumns:: |p{0.10\linewidth}|p{0.20\linewidth}|p{0.65\linewidth}|
 .. list-table:: **Table - Classes under org.terasoluna.gfw.common.exception package**
    :header-rows: 1
    :widths: 10 20 65
@@ -1745,6 +1795,7 @@ Exception handling classes provided by the common library
        | If an exception class that implements this interface is created, it can be used with the exception handling mechanism of ExceptionCodeResolver, to use the exception code of this exception class as it is.
 
 
+.. tabularcolumns:: |p{0.10\linewidth}|p{0.20\linewidth}|p{0.65\linewidth}|
 .. list-table:: **Table - Classes under org.terasoluna.gfw.web.exception package**
    :header-rows: 1
    :widths: 10 20 65
@@ -1785,6 +1836,7 @@ About SystemExceptionResolver settings
 This section describes the settings which are not explained above.
 The settings should be performed depending on the requirements.
 
+.. tabularcolumns:: |p{0.05\linewidth}|p{0.15\linewidth}|p{0.15\linewidth}|p{0.45\linewidth}|p{0.20\linewidth}|
 .. list-table:: **List of settings not explained above**
    :header-rows: 1
    :widths: 5 15 15 45 20
@@ -1873,6 +1925,7 @@ Attribute name of result message
 
     <t:messagesPanel messagesAttributeName="resultMessagesForExceptionResolver"/> <!-- (2) -->
 
+ .. tabularcolumns:: |p{0.10\linewidth}|p{0.90\linewidth}|
  .. list-table::
     :header-rows: 1
     :widths: 10 90
@@ -1914,6 +1967,7 @@ Attribute name of exception code (message ID)
         <spring:message code="e.cm.fw.9999" />
     </p>
 
+ .. tabularcolumns:: |p{0.10\linewidth}|p{0.90\linewidth}|
  .. list-table::
     :header-rows: 1
     :widths: 10 90
@@ -1946,6 +2000,7 @@ Header name of exception code (message ID)
         <!-- omitted -->
     </bean>
 
+ .. tabularcolumns:: |p{0.10\linewidth}|p{0.90\linewidth}|
  .. list-table::
     :header-rows: 1
     :widths: 10 90
@@ -1981,6 +2036,7 @@ Attribute name of exception object
     <p>[Exception Message]</p>
     <p>${f:h(exceptionForExceptionResolver.message)}</p> <!-- (2) -->
 
+ .. tabularcolumns:: |p{0.10\linewidth}|p{0.90\linewidth}|
  .. list-table::
     :header-rows: 1
     :widths: 10 90
@@ -2011,6 +2067,7 @@ Cache control flag of HTTP response
     </bean>
 
 
+ .. tabularcolumns:: |p{0.10\linewidth}|p{0.90\linewidth}|
  .. list-table::
     :header-rows: 1
     :widths: 10 90
@@ -2037,6 +2094,7 @@ About HandlerExceptionResolverLoggingInterceptor settings
 This section describes the settings which are not explained above.
 The settings should be performed depending on the requirements.
 
+.. tabularcolumns:: |p{0.05\linewidth}|p{0.15\linewidth}|p{0.15\linewidth}|p{0.45\linewidth}|p{0.20\linewidth}|
 .. list-table:: **List of settings not described above**
    :header-rows: 1
    :widths: 5 15 15 45 20
@@ -2077,6 +2135,7 @@ The settings when exception classes provided in the project are to be excluded f
         </property>
     </bean>
 
+ .. tabularcolumns:: |p{0.10\linewidth}|p{0.90\linewidth}|
  .. list-table::
     :header-rows: 1
     :widths: 10 90
@@ -2103,6 +2162,7 @@ The settings when all the exception classes are to be logged are as follows:
         <property name="ignoreExceptions"><null /></property>
     </bean>
 
+ .. tabularcolumns:: |p{0.10\linewidth}|p{0.90\linewidth}|
  .. list-table::
     :header-rows: 1
     :widths: 10 90
@@ -2119,6 +2179,7 @@ HTTP response code set by DefaultHandlerExceptionResolver
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 The mapping between framework exceptions handled using DefaultHandlerExceptionResolver and HTTP status code is shown below.
 
+.. tabularcolumns:: |p{0.10\linewidth}|p{0.60\linewidth}|p{0.20\linewidth}|
 .. list-table::
    :header-rows: 1
    :widths: 10 60 20
@@ -2165,4 +2226,8 @@ The mapping between framework exceptions handled using DefaultHandlerExceptionRe
    * - | (13)
      - | org.springframework.validation.BindException
      - | 400
+
+.. raw:: latex
+
+   \newpage
 

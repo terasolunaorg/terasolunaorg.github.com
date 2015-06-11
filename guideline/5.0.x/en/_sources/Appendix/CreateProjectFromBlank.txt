@@ -1,181 +1,312 @@
-Create New Project From Blank
+Create a New Project from Blank Project
 ================================================================================
 
-Method to create a new project from blank is explained below.
+.. only:: html
 
-* Prerequisites
+ .. contents:: Table of contents
+    :depth: 3
+    :local:
 
-  * Operational Spring Tool Suite.
-  * Maven should be executable in command line.
-  * Internet connectivity.
+This chapter describes a method to create a new project from a blank project.
 
-The contents in this chapter have been validated on the following versions.
+.. _CreateProjectFromBlankPrerequisite:
 
-.. tabularcolumns:: |p{0.75\linewidth}|p{0.25\linewidth}|
-.. list-table::
-   :header-rows: 1
-   :widths: 75 25
+Prerequisites
+--------------------------------------------------------------------------------
 
-   * - Product
-     - Version
-   * - JDK
-     - 1.7.0\_40
-   * - Spring Tool Suite (STS)
-     - 3.4.0
-   * - Maven
-     - 3.0.4
+This chapter presumes that the following conditions are in place.
+If these prerequisites are not fulfilled, first set up the same.
+
+* Spring Tool Suite should be operational.
+* Maven should be executable in command line.
+* Internet connectivity.
 
 .. _CreateProjectFromBlank_create-new-project:
 
-
 .. note::
 
-  If proxy server is required to connect to the internet,
-  STS proxy settings and `Maven proxy settings <http://maven.apache.org/guides/mini/guide-proxies.html>`_\  are required.
+    If it is required to connect to the internet through proxy server,
+    STS proxy settings and `Maven proxy settings <http://maven.apache.org/guides/mini/guide-proxies.html>`_\  are required.
 
-Creating a new project
+|
+
+.. _CreateProjectFromBlankVerificationEnvironment:
+
+Verification Environment
 --------------------------------------------------------------------------------
 
-#. Move to the target folder using command prompt.
+In this chapter, operations are validated in versions given below.
 
-    .. code-block:: text
-    
-        cd C:\work
+.. tabularcolumns:: |p{0.30\linewidth}|p{0.70\linewidth}|
+.. list-table::
+    :header-rows: 1
+    :widths: 30 70
 
-#. Create a project template using Maven archetype.
-    
-    .. code-block:: console
-    
-      mvn archetype:generate -B^
-       -DarchetypeCatalog=http://repo.terasoluna.org/nexus/content/repositories/terasoluna-gfw-releases^
-       -DarchetypeGroupId=org.terasoluna.gfw.blank^
-       -DarchetypeArtifactId=terasoluna-gfw-web-blank-archetype^
-       -DarchetypeVersion=1.0.1.RELEASE^
-       -DgroupId=example.first.application^
-       -DartifactId=example-first-application^
-       -Dversion=1.0.0-SNAPSHOT
+    * - Type
+      - Name
+    * - OS
+      - Windows 7
+    * - JVM
+      - `Java <http://www.oracle.com/technetwork/java/javase/downloads/index.html>`_ 1.7
+    * - IDE
+      - `Spring Tool Suite <http://spring.io/tools/sts/all>`_ 3.6.3.RELEASE (hereafter called as "STS")
+    * - Build Tool
+      - `Apache Maven <http://maven.apache.org/download.cgi>`_ 3.2.5 (hereafter called as "Maven")
+    * - Application Server
+      - `Pivotal tc Server <https://network.pivotal.io/products/pivotal-tcserver>`_ Developer Edition v3.0 (enclosed in STS)
 
+|
 
-    .. tabularcolumns:: |p{0.10\linewidth}|p{0.90\linewidth}|
-    .. list-table::
-       :header-rows: 1
-       :widths: 20 80
-    
-       * - Parameter
-         - Description
-       * - | \-B
-         - | batch mode (skips interaction)
-       * - | \-DarchetypeCatalog
-         - | Creates project using Maven archetype. Specifies TERASOLUNA Server Framework for Java (5.x) repository.
-       * - | \-DarchetypeGroupId
-         - | terasoluna.gfw blank project GroupID is fixed to org.terasoluna.gfw.blank
-       * - | \-DarchetypeArtifactId
-         - | terasoluna-gfw-web-blank-archetype = when creating project without using JPA
-           | terasoluna-gfw-web-blank-jpa-archetype = when creating project using JPA
-       * - | \-DarchetypeVersion
-         - | Specifies terasoluna.gfw version.
-       * - | \-DgroupId
-         - | Specifies the groupId of the created project.
-       * - | \-DartifactId
-         - | Specifies the artifactId of the created project.
-       * - | \-Dversion
-         - | Specifies the version of the created project.
-    
+.. _CreateProjectFromBlankTypes:
 
-.. _CreateProjectFromBlank_STS-import-project:
-
-3. Import the project in Spring Tool Suite.
-
-    Specify the project created using Maven archetype in [STS] -> [File] -> [Import] -> [Maven] -> [Existing Maven Projects] ->[ Browse...]. -> Confirm that the check box of one pom.xml is checked and click [Finish]
-  
-    The status will be as given below.
-  
-    .. figure:: ./images_CreateProjectFromBlank/CreateProjectFromBlank_import_blank_project.png
-       :alt: import blank project
-       :width: 100%
-
-
-#. Add the created project to the Application Server.
-
-    Here, VMware vFabric tc Server Developer Edition v2.9 which is provided with STS is used by default.
-  
-    Right click on [VMware vFabric tc Server Developer Edition v2.9] -> [Add and Remove] -> select created project and [Add] -> [Finish]
-  
-    The status will be as given below.
-  
-    .. figure:: ./images_CreateProjectFromBlank/CreateProjectFromBlank_add_server_blank_project.png
-       :alt: add server blank project
-       :width: 100%
-
-
-#. Launch the Application Server.
-
-    Launch by clicking Start button of server. If the following is displayed on Console, it can be considered that server is launched successfully.
-    
-    .. code-block:: console
-    
-      FrameworkServlet 'appServlet': initialization completed
-  
-    As for the following example, log is output on Console; however "\ ``FrameworkServlet 'appServlet': initialization completed``\ " is displayed on the line above the line of red characters (It is not displayed on screen capture).
-  
-    .. figure:: ./images_CreateProjectFromBlank/CreateProjectFromBlank_server_start_blank_project.png
-       :alt: server start blank project
-       :width: 100%
-
-
-#. Access the launched application.
-
-    Access http://localhost:8080/example-first-application/ on browser.
-  
-    The screen given below is displayed.
-  
-    .. figure:: ./images_CreateProjectFromBlank/CreateProjectFromBlank_access_blank_project.png
-       :alt: access blank project
-       :width: 50%
-  
-    If "Hello world!" is displayed, it can be considered that a new project is created successfully.
-    Necessary functions should be added as per the guidelines.
-
-
-Creating simple Echo project
+Types of Blank Project
 --------------------------------------------------------------------------------
 
-The steps are basically same as \ :ref:`first-application-create-an-echo-application`\  explained in \ :doc:`../Overview/FirstApplication`\, so source is skipped.
+Following two types of blank projects are provided depending on usage.
 
-In \ :doc:`../Overview/FirstApplication`\, \ ``<context:component-scan base-package="com.example.helloworld" />``\  is set in spring-mvc.xml; however,
-when created from Blank Project, it is set as \ ``<context:component-scan base-package="example.first.application.app" />``\ .
+.. tabularcolumns:: |p{0.20\linewidth}|p{0.80\linewidth}|
+.. list-table::
+    :header-rows: 1
+    :widths: 20 70
 
-\ ``EchoController``\  should be created in \ ``example.first.application.app.echo``\  package.
+    * - Type
+      - Usage
+    * - | `Blank project of multi-project structure <https://github.com/terasolunaorg/terasoluna-gfw-web-multi-blank>`_
+      - This should be used when developing a real application that is to be released in commercial environment.
 
-.. figure:: ./images_CreateProjectFromBlank/CreateProjectFromBlank_echo_input_blank_project.png
-   :alt: echo input blank project
-   :width: 50%
+        Following types of project templates are provided as Archetype of Maven.
 
-.. figure:: ./images_CreateProjectFromBlank/CreateProjectFromBlank_echo_output_blank_project.png
-   :alt: echo output blank project
-   :width: 50%
+        * Template that includes settings for MyBatis3
+        * Template that includes settings for JPA (Spring Data JPA)
 
-.. todo::
+        **This guideline recommends using a project having multi-project structure.**
+    * - | `Blank project of single-project structure <https://github.com/terasolunaorg/terasoluna-gfw-web-blank>`_
+      - This should be used when creating simple applications such as POC (Proof Of Concept), prototype, sample, etc.
 
-  **TBD**
+        Following types of project templates are provided as Archetype of Maven.
+        (Projects for Eclipse WTP are also provided; however, their description is omitted in this chapter)
 
-   Currently, way of creating a single project structure is explained; however it is assumed to be mainly used for verification purpose. 
-   Actually, it is necessary to build the project using \ :ref:`multi-project structure <application-layering_project-structure>`\ .
-   How to create a multi-project structure will be explained later.
+        * Template that includes settings for MyBatis3
+        * Template that includes settings for JPA (Spring Data JPA)
+        * Template that does not depend on O/R Mapper
+
+        This guideline follows a procedure wherein various tutorials are performed using a single project.
+
+|
+
+.. _CreateProjectFromBlankGenerateMultipleProject:
+
+Create a project of multi-project structure
+--------------------------------------------------------------------------------
+
+For method of creating a project of multi-project structure, refer to:
+":doc:`../ImplementationAtEachLayer/CreateWebApplicationProject`".
+
+The above document includes
+
+* Method to create a project of multi-project structure
+* Description of customized locations from blank project
+* Description of project structure
+
+
+|
+
+.. _CreateProjectFromBlankGenerateSingleProject:
+
+Create a project of single-project structure
+--------------------------------------------------------------------------------
+
+This section describes about how to create a project of single-project structure.
+
+First, go to the folder wherein a project is to be created.
+  
+.. code-block:: console
+    
+    cd C:\work
+
+|
+
+Create a project using `archetype:generate <http://maven.apache.org/archetype/maven-archetype-plugin/generate-mojo.html>`_  of  `Maven Archetype Plugin <http://maven.apache.org/archetype/maven-archetype-plugin/>`_.
+
+.. code-block:: console
+
+    mvn archetype:generate -B^
+     -DarchetypeCatalog=http://repo.terasoluna.org/nexus/content/repositories/terasoluna-gfw-releases^
+     -DarchetypeGroupId=org.terasoluna.gfw.blank^
+     -DarchetypeArtifactId=terasoluna-gfw-web-blank-mybatis3-archetype^
+     -DarchetypeVersion=5.0.0.RELEASE^
+     -DgroupId=todo^
+     -DartifactId=todo^
+     -Dversion=1.0.0-SNAPSHOT
+
+.. tabularcolumns:: |p{0.25\linewidth}|p{0.75\linewidth}|
+.. list-table::
+    :header-rows: 1
+    :widths: 25 75
+    
+    * - Parameter
+      - Description
+    * - \-B
+      - | batch mode (interaction omitted)
+    * - | \-DarchetypeCatalog
+      - Specify repository of TERASOLUNA Server Framework for Java (5.x). (fixed)
+    * - | \-DarchetypeGroupId
+      - Specify groupId of blank project. (fixed)
+    * - | \-DarchetypeArtifactId
+      - Specify archetypeId (ID to identify template) of blank project. **(customization is necessary)**
+
+        Specify any of archetypeId given below.
+
+        * | ``terasoluna-gfw-web-blank-mybatis3-archetype``
+          | Template that includes settings for MyBatis3
+        * | ``terasoluna-gfw-web-blank-jpa-archetype``
+          | Template that includes settings for JPA (Spring Data JPA)
+        * | ``terasoluna-gfw-web-blank-archetype``
+          | Template that does not depend on O/R Mapper
+
+        In above example, \ ``terasoluna-gfw-web-blank-mybatis3-archetype``\  is specified.
+    * - | \-DarchetypeVersion
+      - Specify the version of blank project. (fixed)
+    * - | \-DgroupId
+      - Specify the groupId of project to be created. **(customization is necessary)**
+
+        In above example, \ ``"todo"``\  is specified.
+    * - | \-DartifactId
+      - Specify the artifactId of project to be created. **(customization is necessary)**
+
+        In above example, \ ``"todo"``\  is specified.
+    * - | \-Dversion
+      - Specify the version of project to be created. **(customization is necessary)**
+
+        In above example, \ ``"1.0.0-SNAPSHOT"``\  is specified.
 
 .. warning::
 
-  The following settings defined in pom.xml of Blank project are simply for testing the sample application. Use of these settings in actual development is not assumed.
-  In the actual project, these settings should be deleted.
-  
-    .. code-block:: xml
-    
-      <dependency>
-          <groupId>com.h2database</groupId>
-          <artifactId>h2</artifactId>
-          <version>1.3.172</version>
-          <scope>compile</scope>
-      </dependency>
+    In \ ``pom.xml``\  of blank project, dependency on in-memory database (H2 database) is specified.
+    This setting is used to perform minor validations (prototype creation or POC (Proof Of Concept)). It is not assumed to be used in actual development.
+
+     .. code-block:: xml
+
+        <dependency>
+            <groupId>com.h2database</groupId>
+            <artifactId>h2</artifactId>
+            <scope>runtime</scope>
+        </dependency>
+
+    **When H2 Database is not to be used, this setting should be deleted.**
+
+|
+
+.. _CreateProjectFromBlank_STS-import-project:
+
+Import a project in IDE (STS)
+--------------------------------------------------------------------------------
+
+This section describes about how to import a created project in STS.
+
+.. note::
+
+    Here, an example to import a single project is given; however, multi projects can also be imported using the same procedure.
+
+|
+
+From STS menu, select [File] -> [Import] -> [Maven] -> [Existing Maven Projects] -> [Next] to open a dialog for selecting the project created using archetype.
+
+.. figure:: ./images_CreateProjectFromBlank/CreateProjectFromBlankImportSelect.png
+    :alt: Open the dialog to import project
+    :width: 80%
+
+|
+
+Set \ ``C:\work\todo``\  in Root Directory, and click [Finish] while pom.xml of todo is selected in Projects.
+
+.. figure:: ./images_CreateProjectFromBlank/CreateProjectFromBlankImportProject.png
+    :alt: Import project
+    :width: 80%
+
+|
+
+When import is successful, a project shown below is displayed in Package Explorer.
+
+.. figure:: ./images_CreateProjectFromBlank/CreateProjectFromBlankPackageExplorerAfterImport.png
+    :alt: workspace
+
+.. _CreateProjectFromBlank_STS-import-project-update-project:
+
+.. note::
+
+    If build error occurs after import, right click the project name and click "Maven" -> "Update Project...".
+    Then by clicking "OK", the error may get resolved.
+
+     .. figure:: ./images_CreateProjectFromBlank/CreateProjectFromBlankUpdateProject.png
+        :width: 70%
+
+.. tip::
+
+    Display format of package is "Flat" by default; however, view is better if set to "Hierarchical".
+
+    Click "View Menu" of Package Explorer (down arrow on the extreme right), and select "Package Presentation" -> "Hierarchical".
+
+     .. figure:: ./images_CreateProjectFromBlank/CreateProjectFromBlankPresentationHierarchical.png
+        :width: 80%
+
+    When Package Presentation is set to Hierarchical, the display would be as follows:
+
+     .. figure:: ./images_CreateProjectFromBlank/CreateProjectFromBlankPresentationHierarchicalView.png
+
+|
+
+.. _CreateProjectFromBlankDeployAndStartup:
+
+Deploy and start application server (ts Server)
+--------------------------------------------------------------------------------
+
+The section describes about how to deploy and launch a project on application server on STS.
+
+.. note::
+
+    In case of multi projects, projects (archetypeId-web) storing the components of application layer (Web layer) will be deployment targets.
+
+|
+
+Right click the imported project and select "Run As" -> "Run on Server".
+
+.. figure:: ./images_CreateProjectFromBlank/CreateProjectFromBlankRunOnServer.jpg
+    :width: 80%
+
+|
+
+Select AP server (Pivotal tc Server Developer Edition v3.0), and click "Next".
+
+.. figure:: ./images_CreateProjectFromBlank/CreateProjectFromBlankTcServerNext.jpg
+    :width: 80%
+
+|
+
+Check whether the selected project is included in "Configured" and click "Finish" to start the server.
+
+.. figure:: ./images_CreateProjectFromBlank/CreateProjectFromBlankTcServerFinish.jpg
+    :width: 80%
+
+.. note::
+
+    The error that occurs at the time of starting the application server may get resolved if clean operations given below are performed.
+
+    * | Clean project
+      | From STS menu, select [Project] -> [Clean...], select the target on Clean dialog and click "OK".
+    * | \ :ref:`Update Project <CreateProjectFromBlank_STS-import-project-update-project>`\  of Maven
+    * | Clean deployed resource
+      | Right click "tc Server" of "Servers" view -> [Clean...]
+    * | Clean work directory of application server (tc Server)
+      | Right click the "tc Server" of "Servers" view -> [Clean tc Server Work Directory...]
+
+|
+
+If  http://localhost:8080/todo is accessed in browser, screen shown below is displayed.
+
+.. figure:: ./images_CreateProjectFromBlank/CreateProjectFromBlankTopPage.png
+    :width: 80%
+
 
 .. raw:: latex
 

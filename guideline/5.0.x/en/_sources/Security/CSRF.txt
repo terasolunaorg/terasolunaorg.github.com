@@ -123,12 +123,12 @@ The locations where additional settings are required, are highlighted.
      - Description
    * - | (1)
      - | Spring Security's CSRF token check functionality can be used by defining \ ``<sec:csrf>``\  element in \ ``<sec:http>``\  element.
-       | For HTTP methods that are checked by default, refer \ :ref:`Here <csrf_default-add-token-method>`\ .
-       | For details, refer \ `Spring Security Reference Document <http://docs.spring.io/spring-security/site/docs/3.2.5.RELEASE/reference/htmlsingle/#csrf-configure>`_\ .
+       | For HTTP methods that are checked by default, refer to \ :ref:`Here <csrf_default-add-token-method>`\ .
+       | For details, refer to \ `Spring Security Reference Document <http://docs.spring.io/spring-security/site/docs/3.2.5.RELEASE/reference/htmlsingle/#csrf-configure>`_\ .
    * - | (2)
-     - | Define the Handler that changes the view to be displayed according to each type of exception when the exception inheriting \ ``AccessDeniedException``\  occurs.
+     - | Define Handler that changes the view to be displayed according to each type of exception when the exception inheriting \ ``AccessDeniedException``\  occurs.
        | It is possible to display all the exceptions on the same screen by specifying the destination jsp in ``error-page`` attribute.
-       | Refer \ :ref:`Here <csrf_403-webxml-setting>`\  when the exceptions are not handled by Spring Security functionality.
+       | Refer to \ :ref:`Here <csrf_403-webxml-setting>`\  when the exceptions are not handled by Spring Security functionality.
    * - | (3)
      - | To change error page, specify \ ``org.springframework.security.web.access.DelegatingAccessDeniedHandler``\  in class of the Handler provided by Spring Security.
    * - | (4)
@@ -140,7 +140,7 @@ The locations where additional settings are required, are highlighted.
    * - | (6)
      - | Define the change in display if the exception type differs from (5).
    * - | (7)
-     - | Specify the default view in case of (exception that inherits \ ``AccessDeniedException``\ and which is not specified by the first argument of constructor and \ ``AccessDeniedException``\ ) using second argument of constructor.
+     - | Specify the default view (exception that inherits \ ``AccessDeniedException``\  and which is not specified by the first argument of constructor and \ ``AccessDeniedException``\ ) using second argument of constructor.
    * - | (8)
      - | Specify \ ``org.springframework.security.web.access.AccessDeniedHandlerImpl`` provided by Spring Security, as the implementation class.
        | Specify the view to be displayed in value, by specifying errorPage in property name.
@@ -154,12 +154,30 @@ The locations where additional settings are required, are highlighted.
 
    * - Exception
      - Reason 
-   * - | \ ``org.springframework.security.web.csrf.InvalidCsrfTokenException``\ 
-     - | It occurs when the CSRF token requested from client does not match with the CSRF token maintained at server side.
-   * - | \ ``org.springframework.security.web.csrf.MissingCsrfTokenException``\ 
-     - | It occurs when the CSRF token does not exist.
-       | As per default setting, since the token is stored in HTTP session, having no CSRF token implies that the HTTP session is discarded. As a result, session time-out is performed before this exception occurs.
-       | It occurs when storage location of token is changed to cache or DB using \ ``token-repository-ref``\  attribute of \ ``<sec:csrf>``\  element and when delete operation is performed after the specified time period is over.
+   * - | org.springframework.security.web.csrf.
+       | InvalidCsrfTokenException
+     - | It occurs when the CSRF token requested from client does not match with the CSRF token stored at server side.
+   * - | org.springframework.security.web.csrf.
+       | MissingCsrfTokenException
+     - | It occurs when the CSRF token does not exist at server side.
+       | As per default setting, since the token is stored in HTTP session, having no CSRF token implies that the HTTP session is discarded (session timed out).
+       |
+       | \ ``MissingCsrfTokenException``\  occurs when storage location of CSRF token is changed to cache server or DB using \ ``token-repository-ref``\  attribute of \ ``<sec:csrf>``\  element, and when CSRF token is deleted from the storage location.
+       | It implies that when token is not stored in HTTP session, session timeout cannot be detected using this functionality.
+
+.. note::
+
+    When HTTP session is to be used as storage location of CSRF token,
+    the session timeout can be detected for the request of CSRF token check.
+
+    The operation after detecting session timeout differs depending on the specifications of \ ``invalid-session-url``\  attribute of \ ``<session-management>``\  element.
+
+    * When \ ``invalid-session-url``\  attribute is specified, it is redirected to the path specified in \ ``invalid-session-url``\  once the session is created.
+    * When \ ``invalid-session-url``\  attribute is not specified, it is handled according to the definition of \ ``org.springframework.security.web.access.AccessDeniedHandler``\  specified in \ ``<access-denied-handler>``\  element.
+
+    When session timeout needs to be detected for the request which does not fall under CSRF token check,
+    it is advisable to detect it by specifying \ ``invalid-session-url``\  attribute of \ ``<session-management>``\  element.
+    For details, refer to ":ref:`authentication_session-timeout`".
 
 |
 
@@ -169,7 +187,7 @@ The locations where additional settings are required, are highlighted.
 
   **Error handling when <sec:access-denied-handler> settings are omitted**
 
-  It is possible to move to any page by performing the following settings in web.xml.
+  It is possible to transit to any page by performing the following settings in web.xml.
 
   **web.xml**
 
@@ -230,8 +248,8 @@ By using the ``RequestDataValueProcessor`` implementation class for CSRF token, 
    * - Sr. No.
      - Description
    * - | (1)
-     - | Perform bean definition for \ ``org.terasoluna.gfw.web.mvc.support.CompositeRequestDataValueProcessor``\  that can define multiple
-       | \ ``org.terasoluna.gfw.web.mvc.support.RequestDataValueProcessor``\ .
+     - | Perform bean definition for \ ``org.terasoluna.gfw.web.mvc.support.CompositeRequestDataValueProcessor``\  for which multiple
+       | \ ``org.terasoluna.gfw.web.mvc.support.RequestDataValueProcessor``\ can be defined.
    * - | (2)
      - | Set the bean definition \ ``org.springframework.security.web.servlet.support.csrf.CsrfRequestDataValueProcessor``\  as the first argument of constructor.
 
@@ -241,14 +259,13 @@ By using the ``RequestDataValueProcessor`` implementation class for CSRF token, 
 
 .. _csrf_form-tag-token-send:
 
-
 Sending CSRF token using form
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-To send CSRF token using form in JSP, any one of the following processes is performed.
+To send CSRF token using form in JSP, any one of the following processes need to be performed.
 
 * Automatically adding \ ``<input type="hidden">``\  tag with inserted CSRF token, using \ ``<form:form>``\  tag.
-* Explicitly inserting CSRF token by creating \ ``<input type="hidden">``\  tag.
+* Explicitly adding \ ``<input type="hidden">``\  tag with inserted CSRF token, using \ ``<sec:csrfInput/>``\  tag.
 
 
 .. _csrf_formformtag-use:
@@ -257,7 +274,7 @@ How to insert CSRF token automatically
 """"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 
 When \ ``CsrfRequestDataValueProcessor``\  is defined as per \ :ref:`spring-mvc.xml settings <csrf_spring-mvc-setting>`\ ,
-by using \ ``<form:form>``\  tag, \ ``<input type="hidden">``\  tag with CSRF token is added automatically.
+\ ``<input type="hidden">``\  tag with CSRF token is automatically added using \ ``<form:form>``\  tag.
 
 CSRF token need not be considered in JSP implementation.
 
@@ -274,17 +291,26 @@ Following HTML is output.
 
     <form action="/terasoluna/csrfTokenCheckExample" method="POST">
       <input type="submit" name="second" value="second" />
-      <input type="hidden" name="_csrf" value="dea86ae8-58ea-4310-bde1-59805352dec7" />
+      <input type="hidden" name="_csrf" value="dea86ae8-58ea-4310-bde1-59805352dec7" /> <!-- (1) -->
     </form>
 
-\ ``<input type="hidden">``\  tag with \ ``_csrf``\  as the \ ``_name``\ attribute is added automatically, showing that the CSRF token has been inserted.
+.. tabularcolumns:: |p{0.10\linewidth}|p{0.90\linewidth}|
+.. list-table::
+   :header-rows: 1
+   :widths: 10 90
+
+   * - Sr. No.
+     - Description
+   * - | (1)
+     - | In Spring Security default implementation, CSRF token is inserted by adding \ ``<input type="hidden">``\  tag where \ ``_csrf``\  is set in \ ``name``\  attribute.
+
 
 CSRF token is created at login.
 
 .. tip::
 
-    If \ ``CsrfRequestDataValueProcessor``\ is used in Spring 4,
-    CSRF token inserted \ ``<input type="hidden">``\ tag is output,
+    If \ ``CsrfRequestDataValueProcessor``\  is used in Spring 4,
+    CSRF token inserted \ ``<input type="hidden">``\  tag is output,
     only if the value specified in \ ``method``\  attribute of \ ``<form:form>``\  tag matches with HTTP methods (HTTP methods other than GET, HEAD, TRACE, OPTIONS in Spring Security default implementation) of CSRF token check.
 
     For example, when GET method is specified in \ ``method``\  attribute as shown below,
@@ -296,22 +322,20 @@ CSRF token is created at login.
                 <%-- ... --%>
             </form:form>
 
-    This is as per the following explanation
+    This is as per the following description
 
         The unique token can also be included in the URL itself, or a URL parameter. However, such placement runs a greater risk that the URL will be exposed to an attacker, thus compromising the secret token.
 
     in \ `OWASP Top 10 <https://code.google.com/p/owasptop10/>`_\  and it helps in building a secure Web application.
-
 
 .. _csrf_formtag-use:
 
 How to explicitly insert CSRF token
 """"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 
-When not using \ ``<form:form>``\  tag, \ ``<sec:csrfInput/>``\  tag needs to be added explicitly.
+When \ ``<form:form>``\  tag is not to be used, \ ``<sec:csrfInput/>``\  tag needs to be added explicitly.
 
-\ ``org.springframework.security.web.csrf.CsrfToken``\  object is set in the \ ``_csrf``\  attribute of response scope,
-by \ ``CsrfFilter``\  which is enabled by setting \ ``<sec:csrf />``\ . Therefore, it is advisable to perform following settings in jsp.
+When using \ ``<sec:csrfInput/>``\  tag, CSRF token inserted \ ``<input type="hidden">``\  tag is output.
 
 .. code-block:: jsp
 
@@ -319,6 +343,15 @@ by \ ``CsrfFilter``\  which is enabled by setting \ ``<sec:csrf />``\ . Therefor
       action="${pageContext.request.contextPath}/csrfTokenCheckExample">
         <input type="submit" name="second" value="second" />
         <sec:csrfInput/>  <!-- (1) -->
+    </form>
+
+Following HTML is output.
+
+.. code-block:: html
+
+    <form action="/terasoluna/csrfTokenCheckExample" method="POST">
+      <input type="submit" name="second" value="second" />
+      <input type="hidden" name="_csrf" value="dea86ae8-58ea-4310-bde1-59805352dec7"/>  <!-- (2) -->
     </form>
 
 .. tabularcolumns:: |p{0.10\linewidth}|p{0.90\linewidth}|
@@ -329,24 +362,16 @@ by \ ``CsrfFilter``\  which is enabled by setting \ ``<sec:csrf />``\ . Therefor
    * - Sr. No.
      - Description
    * - | (1)
-     - | Name of the request parameter and CSRF token are set in \ ``<sec:csrfInput/>``\ .
-
-Following HTML is output.
-
-
-.. code-block:: html
-
-    <form action="/terasoluna/csrfTokenCheckExample" method="POST">
-      <input type="submit" name="second" value="second" />
-      <input type="hidden" name="_csrf" value="dea86ae8-58ea-4310-bde1-59805352dec7"/>  <!-- (2) -->
-    </form>
+     - | Specify \ ``<sec:csrfInput/>``\  tag to output CSRF token inserted \ ``<input type="hidden">``\  tag.
+   * - | (2)
+     - | In spring Security default implementation, CSRF token is inserted by adding \ ``<input type="hidden">``\  tag where \ ``_csrf``\  is set in \ ``name``\  attribute.
 
 .. _csrf_default-add-token-method:
 
 .. note::
 
-  When there is no CSRF token in the CSRF token check request (when the HTTP default method is other than GET, HEAD, TRACE and OPTIONS) or
-  when the token value saved on server is different than the token value which is sent, access denial process is performed using \ ``AccessDeniedHandler``\  and HttpStatus 403 is returned.
+  When there is no CSRF token in the CSRF token check request (when HTTP default method is other than GET, HEAD, TRACE and OPTIONS) or
+  when the token value stored on server is different than the token value sent, access denial process is performed using \ ``AccessDeniedHandler``\  and HttpStatus 403 is returned.
   The specified error page is displayed when \ :ref:`spring-security.xml settings <csrf_spring-security-setting>`\  are described.
 
 
@@ -354,9 +379,9 @@ Following HTML is output.
 
 Sending CSRF token using Ajax
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-| \ ``CsrfFilter``\  which is enabled by setting \ ``<sec:csrf />``\ , acquires CSRF token not only from request parameter but also from
+| \ ``CsrfFilter``\  which is enabled by setting \ ``<sec:csrf />``\ , fetches CSRF token not only from request parameter but also from
 | the HTTP request header.
-| When using Ajax, it is recommended to set CSRF token in HTTP header so as to enable sending request in JSON format as well.
+| When Ajax is used, it is recommended to set CSRF token in HTTP header. Even if request is sent in JSON format, it supports CSRF token check.
 
 .. note::
     
@@ -372,6 +397,7 @@ Sending CSRF token using Ajax
     <!-- omitted -->
     <head>
       <sec:csrfMetaTags />  <!-- (1) -->
+
       <!-- omitted -->
     </head>
     <!-- omitted -->
@@ -416,16 +442,20 @@ Sending CSRF token using Ajax
    * - Sr. No.
      - Description
    * - | (1)
-     - | By setting \ ``<sec:csrfMetaTags />``\  tag, \ ``<meta name="_csrf_parameter" content="_csrf" /><meta name="_csrf_header" content="X-CSRF-TOKEN" /><meta name="_csrf" content="**CSRF Token**" />``\  is set by default.
+     - | By setting \ ``<sec:csrfMetaTags />``\  tag, the following \ ``meta``\  tags are output by default.
+
+       * \ ``<meta name="_csrf_parameter" content="_csrf" />``\
+       * \ ``<meta name="_csrf_header" content="X-CSRF-TOKEN" />``\
+       * \ ``<meta name="_csrf" content="dea86ae8-58ea-4310-bde1-59805352dec7" />``\ (random UUID is set as a value of \ ``content``\  attribute)
    * - | (2)
-     - | Fetch the CSRF token set in \ ``<meta name="_csrf ...>``\  tag.
+     - | Fetch CSRF token set in \ ``<meta name="_csrf ...>``\  tag.
    * - | (3)
-     - | Fetch the CSRF header name set in \ ``<meta name="_csrf_header" ...>``\  tag.
+     - | Fetch CSRF header name set in \ ``<meta name="_csrf_header" ...>``\  tag.
    * - | (4)
      - | Set the header name (default:X-CSRF-TOKEN) fetched from \ ``<meta>``\  tag and CSRF token value, in request header.
    * - | (5)
      - | As this code may cause XSS attack, care should be taken while actually writing the JavaScript code.
-       | In this example, there is no issue as all the fields namely \ ``data.addResult``\  , \ ``data.subtractResult``\ , \ ``data.multipyResult``\  and \ ``data.divideResult``\  are numerical.
+       | In this example, there is no issue as all the fields namely \ ``data.addResult``\ , \ ``data.subtractResult``\ , \ ``data.multipyResult``\  and \ ``data.divideResult``\  are numerical.
 
 When sending a request in JSON format, it is advisable to set HTTP header in the same way.
 
@@ -446,10 +476,12 @@ Hence, countermeasures need to be implemented using any one of the following met
 
 .. note::
 
-    Since there are merits and demerits respectively, determine the countermeasure method to be used by considering system requirements.
+    Since there are merits and demerits respectively, determine the countermeasure method to be used considering system requirements.
 
 For file upload details, refer to \ :doc:`FileUpload <../ArchitectureInDetail/FileUpload>`\ .
 
+
+.. _csrf_use-multipart-filter:
 
 How to use MultipartFilter
 """"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
@@ -459,8 +491,8 @@ How to use MultipartFilter
 
 .. warning::
 
-    When \ ``MultipartFilter``\  is used, the upload process is carried out before authentication/authorization is performed using \ ``springSecurityFilterChain``\ ,
-    thereby allowing unauthenticated/unauthorized user to carry out uploading (temporary file creation).
+    When \ ``MultipartFilter``\  is used, the upload process is carried out before performing authentication/authorization using \ ``springSecurityFilterChain``\ ,
+    thereby allowing unauthenticated/unauthorized user to carry out the uploading (temporary file creation).
 
 
 To use \ ``MultipartFilter``\ , following settings are recommended.
@@ -534,22 +566,22 @@ How to send CSRF token using query parameter
 """"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 
 To avoid uploading (temporary file creation) by unauthorized/unauthenticated user,
-it is necessary to send CSRF token in query parameter without using \ ``MultipartFilter``\ .
+CSRF token should be sent using query parameter instead of using \ ``MultipartFilter``\ .
 
 .. warning::
 
-    When CSRF token is sent by this method,
+    When CSRF token is sent using this method,
 
     * CSRF token is displayed in browser address bar
     * When bookmarked, CSRF token is registered in bookmark
     * CSRF token is registered in access log of Web server 
 
-    Therefore, risk of misusing CSRF token by attacker is higher as compared to the method of using \ ``MultipartFilter``\ .
+    Therefore, risk of misusing CSRF token by attacker is higher as compared to the method using \ ``MultipartFilter``\ .
 
     As per default implementation of Spring Security, random UUID is generated as CSRF token value,
-    therefore, session would not be hijacked even though CSRF token is leaked temporarily.
+    therefore, session would not be hijacked even though CSRF token is leaked.
 
-Following is an example of implementation wherein CSRF token is sent as query parameter.
+Example of implementation where CSRF token is sent as query parameter is given below.
 
 **JSP implementation**
 
