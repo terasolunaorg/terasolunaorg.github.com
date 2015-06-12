@@ -1,0 +1,3299 @@
+<!DOCTYPE html>
+
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>5.11. Pagination &mdash; TERASOLUNA Server Framework for Java (5.x) Development Guideline 5.0.0.RELEASE documentation</title>
+    
+    <link rel="stylesheet" href="../_static/solar.css" type="text/css" />
+    <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+    
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    '../',
+        VERSION:     '5.0.0.RELEASE',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true
+      };
+    </script>
+    <script type="text/javascript" src="../_static/jquery.js"></script>
+    <script type="text/javascript" src="../_static/underscore.js"></script>
+    <script type="text/javascript" src="../_static/doctools.js"></script>
+    <link rel="top" title="TERASOLUNA Server Framework for Java (5.x) Development Guideline 5.0.0.RELEASE documentation" href="../index.html" />
+    <link rel="up" title="5. Architecture in Detail - TERASOLUNA Server Framework for Java (5.x)" href="index.html" />
+    <link rel="next" title="5.12. Double Submit Protection" href="DoubleSubmitProtection.html" />
+    <link rel="prev" title="5.10. Properties Management" href="PropertyManagement.html" /><script src="../_static/jquery.treeview.js" type="text/javascript"></script>
+<!-- <link href='http://fonts.googleapis.com/css?family=Source+Code+Pro|Open+Sans:300italic,400italic,700italic,400,300,700' rel='stylesheet' type='text/css'> -->
+<link href="../_static/solarized-dark.css" rel="stylesheet">
+<link href="../_static/jquery.treeview.css" rel="stylesheet">
+  </head>
+  <body role="document">
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="DoubleSubmitProtection.html" title="5.12. Double Submit Protection"
+             accesskey="N">next</a> |</li>
+        <li class="right" >
+          <a href="PropertyManagement.html" title="5.10. Properties Management"
+             accesskey="P">previous</a> |</li>
+        <li class="nav-item nav-item-0"><a href="../index.html">TERASOLUNA Server Framework for Java (5.x) Development Guideline 5.0.0.RELEASE documentation</a> &raquo;</li>
+          <li class="nav-item nav-item-1"><a href="index.html" accesskey="U">5. Architecture in Detail - TERASOLUNA Server Framework for Java (5.x)</a> &raquo;</li> 
+      </ul>
+    </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper"><label><input id="scroll" type="checkbox" checked> scroll sidebar</label>
+
+  <h3><a href="../index.html">Table Of Contents</a></h3>
+  <ul>
+<li><a class="reference internal" href="#">5.11. Pagination</a><ul>
+<li><a class="reference internal" href="#overview">5.11.1. Overview</a><ul>
+<li><a class="reference internal" href="#display-of-list-screen-at-the-time-of-dividing-into-pages">5.11.1.1. Display of list screen at the time of dividing into pages</a></li>
+<li><a class="reference internal" href="#page-search">5.11.1.2. Page search</a><ul>
+<li><a class="reference internal" href="#page-search-functionality-of-spring-data">5.11.1.2.1. Page search functionality of Spring Data</a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#display-of-pagination-link">5.11.1.3. Display of pagination link</a><ul>
+<li><a class="reference internal" href="#structure-of-pagination-link">5.11.1.3.1. Structure of pagination link</a></li>
+<li><a class="reference internal" href="#html-of-pagination-link">5.11.1.3.2. HTML of pagination link</a></li>
+<li><a class="reference internal" href="#parameters-of-jsp-tag-library">5.11.1.3.3. Parameters of JSP tag library</a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#process-flow-when-pagination-is-used">5.11.1.4. Process flow when pagination is used</a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#how-to-use">5.11.2. How to use</a><ul>
+<li><a class="reference internal" href="#application-settings">5.11.2.1. Application settings</a><ul>
+<li><a class="reference internal" href="#settings-for-enabling-pagination-functionality-of-spring-data">5.11.2.1.1. Settings for enabling pagination functionality of Spring Data</a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#id1">5.11.2.2. Page search</a><ul>
+<li><a class="reference internal" href="#implementation-of-application-layer">5.11.2.2.1. Implementation of application layer</a></li>
+<li><a class="reference internal" href="#implementation-of-domain-layer-mybatis3">5.11.2.2.2. Implementation of domain layer (MyBatis3)</a></li>
+<li><a class="reference internal" href="#implementation-of-domain-layer-jpa">5.11.2.2.3. Implementation of domain layer (JPA)</a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#implementation-of-jsp-base-version">5.11.2.3. Implementation of JSP (Base version)</a><ul>
+<li><a class="reference internal" href="#display-of-fetched-data">5.11.2.3.1. Display of fetched data</a></li>
+<li><a class="reference internal" href="#pagination-how-to-use-make-jsp-basic-paginationlink">5.11.2.3.2. Display of Pagination link</a></li>
+<li><a class="reference internal" href="#display-of-pagination-information">5.11.2.3.3. Display of pagination information</a></li>
+<li><a class="reference internal" href="#carrying-forward-search-conditions-using-page-link">5.11.2.3.4. Carrying forward search conditions using page link</a></li>
+<li><a class="reference internal" href="#carrying-forward-the-sort-condition-using-page-link">5.11.2.3.5. Carrying forward the sort condition using page link</a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#implementation-of-jsp-layout-change">5.11.2.4. Implementation of JSP (layout change)</a><ul>
+<li><a class="reference internal" href="#removal-of-link-to-navigate-to-the-first-page-and-the-last-page">5.11.2.4.1. Removal of link to navigate to the first page and the last page</a></li>
+<li><a class="reference internal" href="#removal-of-link-to-navigate-to-previous-page-and-next-page">5.11.2.4.2. Removal of link to navigate to previous page and next page</a></li>
+<li><a class="reference internal" href="#removal-of-disabled-link">5.11.2.4.3. Removal of disabled link</a></li>
+<li><a class="reference internal" href="#change-in-maximum-number-of-display-links-to-navigate-to-the-specified-page">5.11.2.4.4. Change in maximum number of display links to navigate to the specified page</a></li>
+<li><a class="reference internal" href="#removal-of-link-to-navigate-to-the-specified-page">5.11.2.4.5. Removal of link to navigate to the specified page</a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#implementation-of-jsp-operation">5.11.2.5. Implementation of JSP (Operation)</a><ul>
+<li><a class="reference internal" href="#specifying-sort-condition">5.11.2.5.1. Specifying sort condition</a></li>
+<li><a class="reference internal" href="#to-disable-page-link-using-javascript">5.11.2.5.2. To disable page link using JavaScript</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li><a class="reference internal" href="#appendix">5.11.3. Appendix</a><ul>
+<li><a class="reference internal" href="#about-property-values-of-pageablehandlermethodargumentresolver">5.11.3.1. About property values of <code class="docutils literal"><span class="pre">PageableHandlerMethodArgumentResolver</span></code></a></li>
+<li><a class="reference internal" href="#property-value-of-sorthandlermethodargumentresolver">5.11.3.2. Property value of <code class="docutils literal"><span class="pre">SortHandlerMethodArgumentResolver</span></code></a></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+
+
+  <h4>Previous topic</h4>
+  <p class="topless"><a href="PropertyManagement.html"
+                        title="previous chapter">5.10. Properties Management</a></p>
+  <h4>Next topic</h4>
+  <p class="topless"><a href="DoubleSubmitProtection.html"
+                        title="next chapter">5.12. Double Submit Protection</a></p>
+  <div role="note" aria-label="source link">
+    <h3>This Page</h3>
+    <ul class="this-page-menu">
+      <li><a href="../_sources/ArchitectureInDetail/Pagination.txt"
+            rel="nofollow">Show Source</a></li>
+    </ul>
+   </div>
+<div id="searchbox" style="display: none" role="search">
+  <h3>Quick search</h3>
+    <form class="search" action="../search.html" method="get">
+      <input type="text" name="q" />
+      <input type="submit" value="Go" />
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+    <p class="searchtip" style="font-size: 90%">
+    Enter search terms or a module, class or function name.
+    </p>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <div class="section" id="pagination">
+<h1>5.11. Pagination<a class="headerlink" href="#pagination" title="Permalink to this headline">¶</a></h1>
+<div class="contents local topic" id="table-of-contents">
+<p class="topic-title first">Table of Contents</p>
+<ul class="simple">
+<li><a class="reference internal" href="#overview" id="id3">Overview</a><ul>
+<li><a class="reference internal" href="#display-of-list-screen-at-the-time-of-dividing-into-pages" id="id4">Display of list screen at the time of dividing into pages</a></li>
+<li><a class="reference internal" href="#page-search" id="id5">Page search</a><ul>
+<li><a class="reference internal" href="#page-search-functionality-of-spring-data" id="id6">Page search functionality of Spring Data</a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#display-of-pagination-link" id="id7">Display of pagination link</a><ul>
+<li><a class="reference internal" href="#structure-of-pagination-link" id="id8">Structure of pagination link</a></li>
+<li><a class="reference internal" href="#html-of-pagination-link" id="id9">HTML of pagination link</a></li>
+<li><a class="reference internal" href="#parameters-of-jsp-tag-library" id="id10">Parameters of JSP tag library</a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#process-flow-when-pagination-is-used" id="id11">Process flow when pagination is used</a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#how-to-use" id="id12">How to use</a><ul>
+<li><a class="reference internal" href="#application-settings" id="id13">Application settings</a><ul>
+<li><a class="reference internal" href="#settings-for-enabling-pagination-functionality-of-spring-data" id="id14">Settings for enabling pagination functionality of Spring Data</a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#id1" id="id15">Page search</a><ul>
+<li><a class="reference internal" href="#implementation-of-application-layer" id="id16">Implementation of application layer</a></li>
+<li><a class="reference internal" href="#implementation-of-domain-layer-mybatis3" id="id17">Implementation of domain layer (MyBatis3)</a></li>
+<li><a class="reference internal" href="#implementation-of-domain-layer-jpa" id="id18">Implementation of domain layer (JPA)</a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#implementation-of-jsp-base-version" id="id19">Implementation of JSP (Base version)</a><ul>
+<li><a class="reference internal" href="#display-of-fetched-data" id="id20">Display of fetched data</a></li>
+<li><a class="reference internal" href="#pagination-how-to-use-make-jsp-basic-paginationlink" id="id21">Display of Pagination link</a></li>
+<li><a class="reference internal" href="#display-of-pagination-information" id="id22">Display of pagination information</a></li>
+<li><a class="reference internal" href="#carrying-forward-search-conditions-using-page-link" id="id23">Carrying forward search conditions using page link</a></li>
+<li><a class="reference internal" href="#carrying-forward-the-sort-condition-using-page-link" id="id24">Carrying forward the sort condition using page link</a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#implementation-of-jsp-layout-change" id="id25">Implementation of JSP (layout change)</a><ul>
+<li><a class="reference internal" href="#removal-of-link-to-navigate-to-the-first-page-and-the-last-page" id="id26">Removal of link to navigate to the first page and the last page</a></li>
+<li><a class="reference internal" href="#removal-of-link-to-navigate-to-previous-page-and-next-page" id="id27">Removal of link to navigate to previous page and next page</a></li>
+<li><a class="reference internal" href="#removal-of-disabled-link" id="id28">Removal of disabled link</a></li>
+<li><a class="reference internal" href="#change-in-maximum-number-of-display-links-to-navigate-to-the-specified-page" id="id29">Change in maximum number of display links to navigate to the specified page</a></li>
+<li><a class="reference internal" href="#removal-of-link-to-navigate-to-the-specified-page" id="id30">Removal of link to navigate to the specified page</a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#implementation-of-jsp-operation" id="id31">Implementation of JSP (Operation)</a><ul>
+<li><a class="reference internal" href="#specifying-sort-condition" id="id32">Specifying sort condition</a></li>
+<li><a class="reference internal" href="#to-disable-page-link-using-javascript" id="id33">To disable page link using JavaScript</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li><a class="reference internal" href="#appendix" id="id34">Appendix</a><ul>
+<li><a class="reference internal" href="#about-property-values-of-pageablehandlermethodargumentresolver" id="id35">About property values of <code class="docutils literal"><span class="pre">PageableHandlerMethodArgumentResolver</span></code></a></li>
+<li><a class="reference internal" href="#property-value-of-sorthandlermethodargumentresolver" id="id36">Property value of <code class="docutils literal"><span class="pre">SortHandlerMethodArgumentResolver</span></code></a></li>
+</ul>
+</li>
+</ul>
+</div>
+<div class="section" id="overview">
+<h2><a class="toc-backref" href="#id3">5.11.1. Overview</a><a class="headerlink" href="#overview" title="Permalink to this headline">¶</a></h2>
+<p>This chapter describes the Pagination functionality wherein the data matching the search criteria is divided into pages and displayed.</p>
+<div class="line-block">
+<div class="line"><strong>It is recommended to use pagination functionality when a large amount of data matches the search criteria.</strong></div>
+<div class="line">Retrieving and displaying a large amount of data at a time on screen may lead to following problems.</div>
+</div>
+<ul>
+<li><div class="first line-block">
+<div class="line">Memory exhaustion at server side</div>
+<div class="line"><code class="docutils literal"><span class="pre">java.lang.OutOfMemoryError</span></code>  occurs when multiple requests are executed simultaneously.</div>
+</div>
+</li>
+<li><div class="first line-block">
+<div class="line">Network load</div>
+<div class="line">Transferring unnecessary data over the network results in increased network load and thereby may affect the response time of the entire system.</div>
+</div>
+</li>
+<li><div class="first line-block">
+<div class="line">Delay in response on screen</div>
+<div class="line">Server process, network traffic process and client rendering process take time to handle a large amount of data; hence the response on screen may get delayed.</div>
+</div>
+</li>
+</ul>
+<div class="line-block">
+<div class="line"><br /></div>
+</div>
+<div class="section" id="display-of-list-screen-at-the-time-of-dividing-into-pages">
+<h3><a class="toc-backref" href="#id4">5.11.1.1. Display of list screen at the time of dividing into pages</a><a class="headerlink" href="#display-of-list-screen-at-the-time-of-dividing-into-pages" title="Permalink to this headline">¶</a></h3>
+<p>When a page is divided using pagination, the screen looks as follows:</p>
+<blockquote>
+<div><div class="figure">
+<a class="reference internal image-reference" href="../_images/pagination-overview_screen.png"><img alt="Screen image of Pagination." src="../_images/pagination-overview_screen.png" style="width: 100%;" /></a>
+</div>
+<table border="1" class="docutils">
+<colgroup>
+<col width="10%" />
+<col width="90%" />
+</colgroup>
+<thead valign="bottom">
+<tr class="row-odd"><th class="head">Sr. No.</th>
+<th class="head">Description</th>
+</tr>
+</thead>
+<tbody valign="top">
+<tr class="row-even"><td><div class="first last line-block">
+<div class="line">(1)</div>
+</div>
+</td>
+<td><div class="first last line-block">
+<div class="line">Display the link to navigate to various pages.</div>
+<div class="line">On clicking link, send a request to display the corresponding page. JSP tag library to display this area is provided as common library.</div>
+</div>
+</td>
+</tr>
+<tr class="row-odd"><td><div class="first last line-block">
+<div class="line">(2)</div>
+</div>
+</td>
+<td><div class="first last line-block">
+<div class="line">Display the information related to pagination (total records, total pages and number of displayed pages etc.).</div>
+<div class="line">Tag library to display this area does not exist; hence it should be implemented separately as JSP processing.</div>
+</div>
+</td>
+</tr>
+</tbody>
+</table>
+</div></blockquote>
+<div class="line-block">
+<div class="line"><br /></div>
+</div>
+</div>
+<div class="section" id="page-search">
+<h3><a class="toc-backref" href="#id5">5.11.1.2. Page search</a><a class="headerlink" href="#page-search" title="Permalink to this headline">¶</a></h3>
+<div class="line-block">
+<div class="line">For implementing pagination, it is essential to first implement the server-side search processing to make page searching possible.</div>
+<div class="line">It is assumed in this guideline that the mechanism provided by Spring Data is used for page search at server side.</div>
+</div>
+<div class="line-block">
+<div class="line"><br /></div>
+</div>
+<div class="section" id="page-search-functionality-of-spring-data">
+<span id="pagination-overview-page-springdata"></span><h4><a class="toc-backref" href="#id6">5.11.1.2.1. Page search functionality of Spring Data</a><a class="headerlink" href="#page-search-functionality-of-spring-data" title="Permalink to this headline">¶</a></h4>
+<p>Page search functionality provided by Spring Data is as follows:</p>
+<blockquote>
+<div><table border="1" class="docutils">
+<colgroup>
+<col width="10%" />
+<col width="90%" />
+</colgroup>
+<thead valign="bottom">
+<tr class="row-odd"><th class="head">Sr. No.</th>
+<th class="head">Description</th>
+</tr>
+</thead>
+<tbody valign="top">
+<tr class="row-even"><td>1</td>
+<td><div class="first last line-block">
+<div class="line">Extract the information required for page search (location of page to be searched, number of records to be fetched and sort condition) from request parameter and pass the extracted information as objects of <code class="docutils literal"><span class="pre">org.springframework.data.domain.Pageable</span></code>  to the argument of Controller.</div>
+<div class="line">This functionality is provided as <code class="docutils literal"><span class="pre">org.springframework.data.web.PageableHandlerMethodArgumentResolver</span></code>  class and is enabled by adding to <code class="docutils literal"><span class="pre">&lt;mvc:argument-resolvers&gt;</span></code>  element of <code class="file docutils literal"><span class="pre">spring-mvc.xml</span></code> .</div>
+<div class="line">For request parameters, refer to &#8220;<a class="reference internal" href="#pagination-overview-pagesearch-requestparameter"><span>Note column</span></a>&#8221;.</div>
+</div>
+</td>
+</tr>
+<tr class="row-odd"><td>2</td>
+<td><div class="first last line-block">
+<div class="line">Save the page information (total records, data of corresponding page, location of page to be searched, number of records to be fetched and sort condition).</div>
+<div class="line">This functionality is provided as <code class="docutils literal"><span class="pre">org.springframework.data.domain.Page</span></code>  interface and <code class="docutils literal"><span class="pre">org.springframework.data.domain.PageImpl</span></code>  is provided as default implementation class.</div>
+<div class="line"><strong>As per specifications, it fetches the required data from Page object in JSP tag library to output pagination link provided by common library.</strong></div>
+</div>
+</td>
+</tr>
+<tr class="row-even"><td>3</td>
+<td><div class="first last line-block">
+<div class="line">When Spring Data JPA is used for database access, the information of corresponding page is returned as <code class="docutils literal"><span class="pre">Page</span></code>  object by specifying <code class="docutils literal"><span class="pre">Pageable</span></code>  object as an argument of Repository Query method.</div>
+<div class="line">All the processes such as executing SQL to fetch total records, adding sort condition and extracting data matching the corresponding page are carried out automatically.</div>
+<div class="line">When MyBatis is used for database access, the process that is automatically carried out in Spring Data JPA needs to be implemented in Java (Service) and SQL mapping file.</div>
+</div>
+</td>
+</tr>
+</tbody>
+</table>
+</div></blockquote>
+<blockquote id="pagination-overview-pagesearch-requestparameter">
+<div><div class="admonition note">
+<p class="first admonition-title">Note</p>
+<p><strong>Request parameters for page search</strong></p>
+<p>Request parameters for page search provided by Spring Data are as follows:</p>
+<blockquote class="last">
+<div><table border="1" class="docutils">
+<colgroup>
+<col width="10%" />
+<col width="15%" />
+<col width="75%" />
+</colgroup>
+<thead valign="bottom">
+<tr class="row-odd"><th class="head">Sr. No.</th>
+<th class="head">Parameter name</th>
+<th class="head">Description</th>
+</tr>
+</thead>
+<tbody valign="top">
+<tr class="row-even"><td><ol class="first last arabic simple">
+<li></li>
+</ol>
+</td>
+<td>page</td>
+<td><div class="first last line-block">
+<div class="line">Request parameter to specify the location of page to be searched</div>
+<div class="line">Specify value greater than or equal to 0.</div>
+<div class="line">As per default setting, page location starts from <code class="docutils literal"><span class="pre">0</span></code> (zero). Hence, specify <code class="docutils literal"><span class="pre">0</span></code> (zero) to fetch the data of the first page and <code class="docutils literal"><span class="pre">1</span></code>  (one) to fetch the data of the second page.</div>
+</div>
+</td>
+</tr>
+<tr class="row-odd"><td><ol class="first last arabic simple" start="2">
+<li></li>
+</ol>
+</td>
+<td>size</td>
+<td><div class="first last line-block">
+<div class="line">Request parameter to specify the count of fetched records.</div>
+<div class="line">Specify value greater than or equal to 1.</div>
+<div class="line">When value specified is greater than the value in <code class="docutils literal"><span class="pre">maxPageSize</span></code>  of <code class="docutils literal"><span class="pre">PageableHandlerMethodArgumentResolver</span></code>, <code class="docutils literal"><span class="pre">maxPageSize</span></code>  value becomes <code class="docutils literal"><span class="pre">size</span></code>  value.</div>
+</div>
+</td>
+</tr>
+<tr class="row-even"><td><ol class="first last arabic simple" start="3">
+<li></li>
+</ol>
+</td>
+<td>sort</td>
+<td><div class="first last line-block">
+<div class="line">Parameter to specify sort condition (multiple parameters can be specified).</div>
+<div class="line">Specify the value in <code class="docutils literal"><span class="pre">&quot;{sort</span> <span class="pre">item</span> <span class="pre">name(,sort</span> <span class="pre">order)}&quot;</span></code>  format.</div>
+<div class="line">Specify either <code class="docutils literal"><span class="pre">&quot;ASC&quot;</span></code>  or <code class="docutils literal"><span class="pre">&quot;DESC&quot;</span></code>  as sort order. When nothing is specified, <code class="docutils literal"><span class="pre">&quot;ASC&quot;</span></code>  is used.</div>
+<div class="line">Multiple item names can be specified using <code class="docutils literal"><span class="pre">&quot;,&quot;</span></code>  separator.</div>
+<div class="line">For example, when <code class="docutils literal"><span class="pre">&quot;sort=lastModifiedDate,id,DESC&amp;sort=subId&quot;</span></code>  is specified as query string, Order By clause <code class="docutils literal"><span class="pre">&quot;ORDER</span> <span class="pre">BY</span> <span class="pre">lastModifiedDate</span> <span class="pre">DESC,</span> <span class="pre">id</span> <span class="pre">DESC,</span> <span class="pre">subId</span> <span class="pre">ASC&quot;</span></code>  is added to the query.</div>
+</div>
+</td>
+</tr>
+</tbody>
+</table>
+</div></blockquote>
+</div>
+<div class="admonition warning">
+<p class="first admonition-title">Warning</p>
+<p><strong>Operations at the time of specifying &#8220;size=0&#8221; in spring-data-commons 1.6.1.RELEASE</strong></p>
+<p>spring-data-commons 1.6.1.RELEASE having terasoluna-gfw-common 1.0.0.RELEASE has a bug wherein if <code class="docutils literal"><span class="pre">&quot;size=0&quot;</span></code>  is specified, all the records matching the specified condition are fetched.
+As a result, <code class="docutils literal"><span class="pre">java.lang.OutOfMemoryError</span></code> may occur when a large amount of records are fetched.</p>
+<p>This problem is handled using JIRA <a class="reference external" href="https://jira.springsource.org/browse/DATACMNS-377">DATACMNS-377</a> of Spring Data Commons and is being resolved in spring-data-commons 1.6.3.RELEASE.
+Post modification, if <code class="docutils literal"><span class="pre">&quot;size&lt;=0&quot;</span></code>  is specified, the default value when size parameter is omitted will be applied.</p>
+<p class="last">In cases where terasoluna-gfw-common 1.0.0.RELEASE is used, the version should be upgraded to terasoluna-gfw-common 1.0.1.RELEASE or higher version.</p>
+</div>
+<div class="admonition warning">
+<p class="first admonition-title">Warning</p>
+<p><strong>About operations when invalid values are specified in request parameters of spring-data-commons 1.6.1.RELEASE</strong></p>
+<p>spring-data-commons 1.6.1.RELEASE having terasoluna-gfw-common 1.0.0.RELEASE has a bug wherein if an invalid value is specified in request parameters for page search (page, size, sort etc.),
+<code class="docutils literal"><span class="pre">java.lang.IllegalArgumentException</span></code>  or <code class="docutils literal"><span class="pre">java.lang.ArrayIndexOutOfBoundsException</span></code>  occurs and SpringMVC settings when set to default values leads to system error (HTTP status code=500).</p>
+<p>This problem is handled using JIRA <a class="reference external" href="https://jira.springsource.org/browse/DATACMNS-379">DATACMNS-379</a> and <a class="reference external" href="https://jira.springsource.org/browse/DATACMNS-408">DATACMNS-408</a> and is being resolved in spring-data-commons 1.6.3.RELEASE.
+Post modification, if invalid values are specified, the default value when parameters are omitted will be applied.</p>
+<p class="last">In cases where terasoluna-gfw-common 1.0.0.RELEASE is used, the version should be upgraded to terasoluna-gfw-common 1.0.1.RELEASE or higher version.</p>
+</div>
+<div class="admonition note">
+<p class="first admonition-title">Note</p>
+<p><strong>Points to be noted due to the changes in API specifications of Spring Data Commons</strong></p>
+<p>In case of &#8220;terasoluna-gfw-common 5.0.0.RELEASE or later version&#8221; dependent spring-data-commons (1.9.1 RELEASE or later),
+there is a change in API specifications of interface for page search functionality (<code class="docutils literal"><span class="pre">org.springframework.data.domain.Page</span></code>) and class (<code class="docutils literal"><span class="pre">org.springframework.data.domain.PageImpl</span></code> and <code class="docutils literal"><span class="pre">org.springframework.data.domain.Sort.Order</span></code>).</p>
+<p>Specifically,</p>
+<ul class="simple">
+<li>In <code class="docutils literal"><span class="pre">Page</span></code> interface and <code class="docutils literal"><span class="pre">PageImpl</span></code> class, <code class="docutils literal"><span class="pre">isFirst()</span></code> and <code class="docutils literal"><span class="pre">isLast()</span></code> methods are added in spring-data-commons 1.8.0.RELEASE, and <code class="docutils literal"><span class="pre">isFirstPage()</span></code> and <code class="docutils literal"><span class="pre">isLastPage()</span></code> methods are deleted from spring-data-commons 1.9.0.RELEASE.</li>
+<li>In <code class="docutils literal"><span class="pre">Sort.Order</span></code> class, <code class="docutils literal"><span class="pre">nullHandling</span></code> property is added in spring-data-commons 1.8.0.RELEASE.</li>
+</ul>
+<p class="last">If deleted API is used, there will be a compilation error and application will have to be modified.
+In addition, when using <code class="docutils literal"><span class="pre">Page</span></code> interface (<code class="docutils literal"><span class="pre">PageImpl</span></code> class) as resource object of REST API,
+that application may also need to be modified, as JSON and XML format get changed.</p>
+</div>
+</div></blockquote>
+<div class="line-block">
+<div class="line"><br /></div>
+</div>
+</div>
+</div>
+<div class="section" id="display-of-pagination-link">
+<span id="pagination-overview-paginationlink"></span><h3><a class="toc-backref" href="#id7">5.11.1.3. Display of pagination link</a><a class="headerlink" href="#display-of-pagination-link" title="Permalink to this headline">¶</a></h3>
+<div class="line-block">
+<div class="line">This section describes the pagination link which is output using JSP tag library of common library.</div>
+</div>
+<div class="line-block">
+<div class="line">Style sheet to display pagination link is not provided from common library, hence it should be created in each project.</div>
+<div class="line">Bootstrap v3.0.0 style sheet is applied for the screens used in the explanation below.</div>
+</div>
+<div class="line-block">
+<div class="line"><br /></div>
+</div>
+<div class="section" id="structure-of-pagination-link">
+<h4><a class="toc-backref" href="#id8">5.11.1.3.1. Structure of pagination link</a><a class="headerlink" href="#structure-of-pagination-link" title="Permalink to this headline">¶</a></h4>
+<p>Pagination link consists of the following elements.</p>
+<blockquote>
+<div><div class="figure align-center">
+<a class="reference internal image-reference" href="../_images/pagination-how_to_use_jsp_pagelink_description.png"><img alt="Structure of the pagination link." src="../_images/pagination-how_to_use_jsp_pagelink_description.png" style="width: 90%;" /></a>
+</div>
+<table border="1" class="docutils">
+<colgroup>
+<col width="10%" />
+<col width="90%" />
+</colgroup>
+<thead valign="bottom">
+<tr class="row-odd"><th class="head">Sr. No.</th>
+<th class="head">Description</th>
+</tr>
+</thead>
+<tbody valign="top">
+<tr class="row-even"><td><div class="first last line-block">
+<div class="line">(1)</div>
+</div>
+</td>
+<td><div class="first last line-block">
+<div class="line">Link to navigate to the first page.</div>
+</div>
+</td>
+</tr>
+<tr class="row-odd"><td><div class="first last line-block">
+<div class="line">(2)</div>
+</div>
+</td>
+<td><div class="first last line-block">
+<div class="line">Link to navigate to the previous page.</div>
+</div>
+</td>
+</tr>
+<tr class="row-even"><td><div class="first last line-block">
+<div class="line">(3)</div>
+</div>
+</td>
+<td><div class="first last line-block">
+<div class="line">Link to navigate to the specified page.</div>
+</div>
+</td>
+</tr>
+<tr class="row-odd"><td><div class="first last line-block">
+<div class="line">(4)</div>
+</div>
+</td>
+<td><div class="first last line-block">
+<div class="line">Link to navigate to the next page.</div>
+</div>
+</td>
+</tr>
+<tr class="row-even"><td><div class="first last line-block">
+<div class="line">(5)</div>
+</div>
+</td>
+<td><div class="first last line-block">
+<div class="line">Link to navigate to the last page.</div>
+</div>
+</td>
+</tr>
+</tbody>
+</table>
+</div></blockquote>
+<div class="line-block">
+<div class="line"><br /></div>
+</div>
+<p>Pagination link has the following status.</p>
+<blockquote>
+<div><div class="figure align-center">
+<a class="reference internal image-reference" href="../_images/pagination-how_to_use_jsp_pagelink_description_status.png"><img alt="Status of the pagination link." src="../_images/pagination-how_to_use_jsp_pagelink_description_status.png" style="width: 90%;" /></a>
+</div>
+<table border="1" class="docutils">
+<colgroup>
+<col width="10%" />
+<col width="90%" />
+</colgroup>
+<thead valign="bottom">
+<tr class="row-odd"><th class="head">Sr. No.</th>
+<th class="head">Description</th>
+</tr>
+</thead>
+<tbody valign="top">
+<tr class="row-even"><td><div class="first last line-block">
+<div class="line">(6)</div>
+</div>
+</td>
+<td><div class="first last line-block">
+<div class="line">Status indicating link where operations cannot be performed on the currently displayed page.</div>
+<div class="line">The status is specifically &#8220;Link to navigate to the first page&#8221; and &#8220;Link to navigate to the previous page&#8221; when the first page is displayed and &#8220;Link to navigate to the next page&#8221; &#8220;Link to navigate to the last page&#8221; when the last page is displayed.</div>
+<div class="line">This status is defined as <code class="docutils literal"><span class="pre">&quot;disabled&quot;</span></code>  in the JSP tag library of common library.</div>
+</div>
+</td>
+</tr>
+<tr class="row-odd"><td><div class="first last line-block">
+<div class="line">(7)</div>
+</div>
+</td>
+<td><div class="first last line-block">
+<div class="line">Status indicating currently displayed page.</div>
+<div class="line">This status is defined as <code class="docutils literal"><span class="pre">&quot;active&quot;</span></code>  in the JSP tag library of common library.</div>
+</div>
+</td>
+</tr>
+</tbody>
+</table>
+</div></blockquote>
+<div class="line-block">
+<div class="line"><br /></div>
+</div>
+<div class="line-block">
+<div class="line">HTML to be output using common library is as follows:</div>
+<div class="line">The numbers in figure correspond to serial numbers of &#8220;Structure of pagination link&#8221; and &#8220;Status of pagination link&#8221; mentioned above.</div>
+</div>
+<ul class="simple">
+<li>JSP</li>
+</ul>
+<blockquote>
+<div><div class="highlight-jsp"><div class="highlight"><pre><span class="nt">&lt;t:pagination</span> <span class="na">page=</span><span class="s">&quot;${page}&quot;</span> <span class="nt">/&gt;</span>
+</pre></div>
+</div>
+</div></blockquote>
+<ul class="simple">
+<li>HTML to be output</li>
+</ul>
+<blockquote>
+<div><div class="figure align-center">
+<a class="reference internal image-reference" href="../_images/pagination-overview_html.png"><img alt="html of the pagination link." src="../_images/pagination-overview_html.png" style="width: 90%;" /></a>
+</div>
+</div></blockquote>
+<div class="line-block">
+<div class="line"><br /></div>
+</div>
+</div>
+<div class="section" id="html-of-pagination-link">
+<h4><a class="toc-backref" href="#id9">5.11.1.3.2. HTML of pagination link</a><a class="headerlink" href="#html-of-pagination-link" title="Permalink to this headline">¶</a></h4>
+<p>HTML of pagination link to be output using common library is as follows:</p>
+<ul class="simple">
+<li>HTML</li>
+</ul>
+<blockquote>
+<div><div class="figure align-center">
+<a class="reference internal image-reference" href="../_images/pagination-overview_html_basic.png"><img alt="html structure of the pagination link." src="../_images/pagination-overview_html_basic.png" style="width: 100%;" /></a>
+</div>
+</div></blockquote>
+<ul class="simple">
+<li>Screen image</li>
+</ul>
+<blockquote>
+<div><div class="figure align-center">
+<a class="reference internal image-reference" href="../_images/pagination-overview_html_basic_screen.png"><img alt="screen structure of the pagination link." src="../_images/pagination-overview_html_basic_screen.png" style="width: 80%;" /></a>
+</div>
+<table border="1" class="docutils">
+<colgroup>
+<col width="10%" />
+<col width="70%" />
+<col width="20%" />
+</colgroup>
+<thead valign="bottom">
+<tr class="row-odd"><th class="head">Sr. No.</th>
+<th class="head">Description</th>
+<th class="head">Default values</th>
+</tr>
+</thead>
+<tbody valign="top">
+<tr class="row-even"><td><div class="first last line-block">
+<div class="line">(1)</div>
+</div>
+</td>
+<td><div class="first last line-block">
+<div class="line">Elements to combine the components of pagination link.</div>
+<div class="line">In common library, this part is called &#8220;Outer Element&#8221; which stores multiple &#8220;Inner Elements&#8221;.</div>
+<div class="line">The elements to be used can be changed using the parameters of JSP tag library.</div>
+</div>
+</td>
+<td><div class="first last line-block">
+<div class="line"><code class="docutils literal"><span class="pre">&lt;ul&gt;</span></code>  element</div>
+</div>
+</td>
+</tr>
+<tr class="row-odd"><td><div class="first last line-block">
+<div class="line">(2)</div>
+</div>
+</td>
+<td><div class="first last line-block">
+<div class="line">Attribute to specify style class of &#8220;Outer Element&#8221;.</div>
+<div class="line">In common library, this part is called &#8220;Outer Element Class&#8221;. The attribute values are specified using the parameters of JSP tag library.</div>
+</div>
+</td>
+<td><div class="first last line-block">
+<div class="line">No specification</div>
+</div>
+</td>
+</tr>
+<tr class="row-even"><td><div class="first last line-block">
+<div class="line">(3)</div>
+</div>
+</td>
+<td><div class="first last line-block">
+<div class="line">Elements to configure pagination link.</div>
+<div class="line">Call this portion as &#8220;Inner Element&#8221; and maintain <code class="docutils literal"><span class="pre">&lt;a&gt;</span></code>  element to send request for navigating the page in common library.</div>
+<div class="line">The elements can be changed using parameter of JSP tag library.</div>
+</div>
+</td>
+<td><div class="first last line-block">
+<div class="line"><code class="docutils literal"><span class="pre">&lt;li&gt;</span></code>  elements</div>
+</div>
+</td>
+</tr>
+<tr class="row-odd"><td><div class="first last line-block">
+<div class="line">(4)</div>
+</div>
+</td>
+<td><div class="first last line-block">
+<div class="line">Attribute to specify style class of &#8220;Inner Elements&#8221;.</div>
+<div class="line">In common library, this part is called &#8220;Inner Element Class&#8221;. The attribute values are switched during JSP tag library processing according to the location of the displayed page.</div>
+</div>
+</td>
+<td><div class="first last line-block">
+<div class="line">Refer to &#8220;<a class="reference internal" href="#pagination-overview-paginationlink-innerelementclass"><span>Note column</span></a>&#8221;.</div>
+</div>
+</td>
+</tr>
+<tr class="row-even"><td><div class="first last line-block">
+<div class="line">(5)</div>
+</div>
+</td>
+<td><div class="first last line-block">
+<div class="line">Element to send page navigation request.</div>
+<div class="line">In common library, this part is called &#8220;Page Link&#8221;.</div>
+</div>
+</td>
+<td><div class="first last line-block">
+<div class="line">Fixed as <cite>&lt;a&gt;</cite></div>
+</div>
+</td>
+</tr>
+<tr class="row-odd"><td><div class="first last line-block">
+<div class="line">(6)</div>
+</div>
+</td>
+<td><div class="first last line-block">
+<div class="line">Attribute to specify URL for page navigation.</div>
+<div class="line">In common library, this part is called &#8220;Page Link URL&#8221;.</div>
+</div>
+</td>
+<td><div class="first last line-block">
+<div class="line">Refer to the following &#8220;<a class="reference internal" href="#pagination-overview-paginationlink-pagelinkurl"><span>Note column</span></a>&#8221;.</div>
+</div>
+</td>
+</tr>
+<tr class="row-even"><td><div class="first last line-block">
+<div class="line">(7)</div>
+</div>
+</td>
+<td><div class="first last line-block">
+<div class="line">Specify the text to be displayed for page navigation link</div>
+<div class="line">In common library, this part is called &#8220;Page Link Text&#8221;.</div>
+</div>
+</td>
+<td><div class="first last line-block">
+<div class="line">Refer to the following &#8221; <a class="reference internal" href="#pagination-overview-paginationlink-pagelinktext"><span>Note column</span></a> &#8221;.</div>
+</div>
+</td>
+</tr>
+</tbody>
+</table>
+<div class="admonition note">
+<p class="first admonition-title">Note</p>
+<p><strong>About number of &#8220;Inner Elements&#8221;</strong></p>
+<p>As per default setting, there are maximum 14 &#8220;Inner Elements&#8221;. Their division is as follows:</p>
+<ul class="simple">
+<li>Link to navigate to the first page : 1</li>
+<li>Link to navigate to the previous page : 1</li>
+<li>Link to navigate to the specified page : Maximum 10</li>
+<li>Link to navigate to the next page : 1</li>
+<li>Link to navigate to the last page : 1</li>
+</ul>
+<p class="last">The number of &#8220;Inner Elements&#8221; can be changed by specifying parameters of JSP tag library.</p>
+</div>
+</div></blockquote>
+<blockquote id="pagination-overview-paginationlink-innerelementclass">
+<div><div class="admonition note">
+<p class="first admonition-title">Note</p>
+<p><strong>About setting values of &#8220;Inner Element Class&#8221;</strong></p>
+<p>As per default setting, following are the three values depending on location of the page.</p>
+<ul class="simple">
+<li><code class="docutils literal"><span class="pre">&quot;disabled&quot;</span></code> : Style class indicating the link which cannot be operated on the currently displayed page.</li>
+<li><code class="docutils literal"><span class="pre">&quot;active&quot;</span></code> : Style class indicating the link of currently displayed page.</li>
+<li>No specification : Indicating the link other than those mentioned above.</li>
+</ul>
+<p class="last"><code class="docutils literal"><span class="pre">&quot;disabled&quot;</span></code>  and  <code class="docutils literal"><span class="pre">&quot;active&quot;</span></code>  values can be changed by specifying the parameters of JSP tag library.</p>
+</div>
+</div></blockquote>
+<blockquote id="pagination-overview-paginationlink-pagelinkurl">
+<div><div class="admonition note">
+<p class="first admonition-title">Note</p>
+<p><strong>About default values of &#8220;Page Link URL&#8221;</strong></p>
+<p>When link status is <code class="docutils literal"><span class="pre">&quot;disabled&quot;</span></code> and <code class="docutils literal"><span class="pre">&quot;active&quot;</span></code>, the default value is <code class="docutils literal"><span class="pre">&quot;javascript:void(0)&quot;</span></code>  and in other cases, the default value is <code class="docutils literal"><span class="pre">&quot;?page={page}&amp;size={size}&quot;</span></code>.</p>
+<p>&#8220;Page Link URL&#8221; can be changed to another value by specifying parameters of JSP tag library.</p>
+<p class="last">From terasoluna-gfw-web 5.0.0.RELEASE, default value of link in <code class="docutils literal"><span class="pre">&quot;active&quot;</span></code>status is changed from <code class="docutils literal"><span class="pre">&quot;?page={page}&amp;size={size}&quot;</span></code> to <code class="docutils literal"><span class="pre">&quot;javascript:void(0)&quot;</span></code>.
+This is to match with the implementation of pagination links of major Web sites and the implementation of major CSS libraries (Bootstrap, etc.)</p>
+</div>
+</div></blockquote>
+<blockquote id="pagination-overview-paginationlink-pagelinktext">
+<div><div class="admonition note">
+<p class="first admonition-title">Note</p>
+<p><strong>About default values of &#8220;Page Link Text&#8221;</strong></p>
+<blockquote>
+<div><table border="1" class="docutils">
+<colgroup>
+<col width="11%" />
+<col width="56%" />
+<col width="33%" />
+</colgroup>
+<thead valign="bottom">
+<tr class="row-odd"><th class="head">Sr. No.</th>
+<th class="head">Link name</th>
+<th class="head">Default values</th>
+</tr>
+</thead>
+<tbody valign="top">
+<tr class="row-even"><td><ol class="first last arabic simple">
+<li></li>
+</ol>
+</td>
+<td>Link to navigate to the first page</td>
+<td><code class="docutils literal"><span class="pre">&quot;&lt;&lt;&quot;</span></code></td>
+</tr>
+<tr class="row-odd"><td><ol class="first last arabic simple" start="2">
+<li></li>
+</ol>
+</td>
+<td>Link to navigate to the previous page</td>
+<td><code class="docutils literal"><span class="pre">&quot;&lt;&quot;</span></code></td>
+</tr>
+<tr class="row-even"><td><ol class="first last arabic simple" start="3">
+<li></li>
+</ol>
+</td>
+<td>Link to navigate to the specified page</td>
+<td><div class="first last line-block">
+<div class="line">Page number of the corresponding page</div>
+<div class="line">(cannot be changed)</div>
+</div>
+</td>
+</tr>
+<tr class="row-odd"><td><ol class="first last arabic simple" start="4">
+<li></li>
+</ol>
+</td>
+<td>Link to navigate to the next page</td>
+<td><code class="docutils literal"><span class="pre">&quot;&gt;&quot;</span></code></td>
+</tr>
+<tr class="row-even"><td><ol class="first last arabic simple" start="5">
+<li></li>
+</ol>
+</td>
+<td>Link to navigate to the last page</td>
+<td><code class="docutils literal"><span class="pre">&quot;&gt;&gt;&quot;</span></code></td>
+</tr>
+</tbody>
+</table>
+</div></blockquote>
+<p class="last">Links other than &#8220;Link to navigate to the specified page&#8221; can be changed as per the specification of parameters of JSP tag library.</p>
+</div>
+</div></blockquote>
+<div class="line-block">
+<div class="line"><br /></div>
+</div>
+</div>
+<div class="section" id="parameters-of-jsp-tag-library">
+<span id="pagination-overview-paginationlink-taglibparameters"></span><h4><a class="toc-backref" href="#id10">5.11.1.3.3. Parameters of JSP tag library</a><a class="headerlink" href="#parameters-of-jsp-tag-library" title="Permalink to this headline">¶</a></h4>
+<p>Default operations can be changed by specifying values in parameters of JSP tag library.</p>
+<p>List of parameters is shown below.</p>
+<p><strong>Parameters to control layout</strong></p>
+<blockquote>
+<div><table border="1" class="docutils">
+<colgroup>
+<col width="10%" />
+<col width="25%" />
+<col width="65%" />
+</colgroup>
+<thead valign="bottom">
+<tr class="row-odd"><th class="head">Sr. No.</th>
+<th class="head">Parameter name</th>
+<th class="head">Description</th>
+</tr>
+</thead>
+<tbody valign="top">
+<tr class="row-even"><td><ol class="first last arabic simple">
+<li></li>
+</ol>
+</td>
+<td>outerElement</td>
+<td><div class="first last line-block">
+<div class="line">Specify HTML element name to be used as &#8220;Outer Element&#8221;.</div>
+<div class="line">Example: div</div>
+</div>
+</td>
+</tr>
+<tr class="row-odd"><td><ol class="first last arabic simple" start="2">
+<li></li>
+</ol>
+</td>
+<td>outerElementClass</td>
+<td><div class="first last line-block">
+<div class="line">Specify class name of style sheet to be set in &#8220;Outer Element Class&#8221;.</div>
+<div class="line">Example: pagination</div>
+</div>
+</td>
+</tr>
+<tr class="row-even"><td><ol class="first last arabic simple" start="3">
+<li></li>
+</ol>
+</td>
+<td>innerElement</td>
+<td><div class="first last line-block">
+<div class="line">Specify HTML element name to be used as &#8220;Inner Element&#8221;.</div>
+<div class="line">Example: span</div>
+</div>
+</td>
+</tr>
+<tr class="row-odd"><td><ol class="first last arabic simple" start="4">
+<li></li>
+</ol>
+</td>
+<td>disabledClass</td>
+<td><div class="first last line-block">
+<div class="line">Specify the value to be set in the class attribute of &#8220;Inner Element&#8221; with <code class="docutils literal"><span class="pre">&quot;disabled&quot;</span></code>  status.</div>
+<div class="line">Example: hiddenPageLink</div>
+</div>
+</td>
+</tr>
+<tr class="row-even"><td><ol class="first last arabic simple" start="5">
+<li></li>
+</ol>
+</td>
+<td>activeClass</td>
+<td><div class="first last line-block">
+<div class="line">Specify the value to be set in the class attribute of &#8220;Inner Element&#8221; with <code class="docutils literal"><span class="pre">&quot;active&quot;</span></code>  status.</div>
+<div class="line">Example: currentPageLink</div>
+</div>
+</td>
+</tr>
+<tr class="row-odd"><td><ol class="first last arabic simple" start="6">
+<li></li>
+</ol>
+</td>
+<td>firstLinkText</td>
+<td><div class="first last line-block">
+<div class="line">Specify the value to be set in &#8220;Page Link Text&#8221; of &#8220;Link to navigate to the first page&#8221;.</div>
+<div class="line">If <code class="docutils literal"><span class="pre">&quot;&quot;</span></code>  is specified, &#8220;Link to navigate to the first page&#8221; itself is not output.</div>
+<div class="line">Example: First</div>
+</div>
+</td>
+</tr>
+<tr class="row-even"><td><ol class="first last arabic simple" start="7">
+<li></li>
+</ol>
+</td>
+<td>previousLinkText</td>
+<td><div class="first last line-block">
+<div class="line">Specify the value to be set in &#8220;Page Link Text&#8221; of &#8220;Link to navigate to the previous page&#8221;.</div>
+<div class="line">If <code class="docutils literal"><span class="pre">&quot;&quot;</span></code>  is specified, &#8220;Link to navigate to the previous page&#8221; itself is not output.</div>
+<div class="line">Example: Prev</div>
+</div>
+</td>
+</tr>
+<tr class="row-odd"><td><ol class="first last arabic simple" start="8">
+<li></li>
+</ol>
+</td>
+<td>nextLinkText</td>
+<td><div class="first last line-block">
+<div class="line">Specify the value to be set in &#8220;Page Link Text&#8221; of &#8220;Link to navigate to the next page&#8221;.</div>
+<div class="line">If <code class="docutils literal"><span class="pre">&quot;&quot;</span></code>  is specified, &#8220;Link to navigate to the next page&#8221; itself is not output.</div>
+<div class="line">Example: Next</div>
+</div>
+</td>
+</tr>
+<tr class="row-even"><td><ol class="first last arabic simple" start="9">
+<li></li>
+</ol>
+</td>
+<td>lastLinkText</td>
+<td><div class="first last line-block">
+<div class="line">Specify the value to be set in &#8220;Page Link Text&#8221; of &#8220;Link to navigate to the last page&#8221;.</div>
+<div class="line">If <code class="docutils literal"><span class="pre">&quot;&quot;</span></code>  is specified, &#8220;Link to navigate to the next page&#8221; itself is not output.</div>
+<div class="line">Example: Last</div>
+</div>
+</td>
+</tr>
+<tr class="row-odd"><td><ol class="first last arabic simple" start="10">
+<li></li>
+</ol>
+</td>
+<td>maxDisplayCount</td>
+<td><div class="first last line-block">
+<div class="line">Specify maximum display count for &#8220;Link to navigate to the specified page&#8221;.</div>
+<div class="line">If <code class="docutils literal"><span class="pre">0</span></code>  is specified, &#8220;Link to navigate to the specified page&#8221; itself is not output.</div>
+<div class="line">Example: 5</div>
+</div>
+</td>
+</tr>
+</tbody>
+</table>
+</div></blockquote>
+<div class="line-block">
+<div class="line"><br /></div>
+</div>
+<blockquote>
+<div><p>When default values of all parameters to control the layout are changed, the following HTML is output.
+The numbers in figure correspond to serial numbers in the parameter list mentioned above.</p>
+<ul class="simple">
+<li>JSP</li>
+</ul>
+<blockquote>
+<div><div class="highlight-jsp"><div class="highlight"><pre><span class="nt">&lt;t:pagination</span> <span class="na">page=</span><span class="s">&quot;${page}&quot;</span>
+    <span class="na">outerElement=</span><span class="s">&quot;div&quot;</span>
+    <span class="na">outerElementClass=</span><span class="s">&quot;pagination&quot;</span>
+    <span class="na">innerElement=</span><span class="s">&quot;span&quot;</span>
+    <span class="na">disabledClass=</span><span class="s">&quot;hiddenPageLink&quot;</span>
+    <span class="na">activeClass=</span><span class="s">&quot;currentPageLink&quot;</span>
+    <span class="na">firstLinkText=</span><span class="s">&quot;First&quot;</span>
+    <span class="na">previousLinkText=</span><span class="s">&quot;Prev&quot;</span>
+    <span class="na">nextLinkText=</span><span class="s">&quot;Next&quot;</span>
+    <span class="na">lastLinkText=</span><span class="s">&quot;Last&quot;</span>
+    <span class="na">maxDisplayCount=</span><span class="s">&quot;5&quot;</span>
+    <span class="nt">/&gt;</span>
+</pre></div>
+</div>
+</div></blockquote>
+<ul class="simple">
+<li>Output HTML</li>
+</ul>
+<blockquote>
+<div><div class="figure align-center">
+<a class="reference internal image-reference" href="../_images/pagination-overview_html_changed.png"><img alt="html of the pagination link(changed layout)." src="../_images/pagination-overview_html_changed.png" style="width: 100%;" /></a>
+</div>
+</div></blockquote>
+</div></blockquote>
+<div class="line-block">
+<div class="line"><br /></div>
+</div>
+<p><strong>Parameters to control operations</strong></p>
+<blockquote>
+<div><table border="1" class="docutils">
+<colgroup>
+<col width="10%" />
+<col width="25%" />
+<col width="65%" />
+</colgroup>
+<thead valign="bottom">
+<tr class="row-odd"><th class="head">Sr. No.</th>
+<th class="head">Parameter name</th>
+<th class="head">Description</th>
+</tr>
+</thead>
+<tbody valign="top">
+<tr class="row-even"><td><ol class="first last arabic simple">
+<li></li>
+</ol>
+</td>
+<td>disabledHref</td>
+<td><div class="first last line-block">
+<div class="line">Specify the value to be set in &#8220;Page Link URL&#8221; having <code class="docutils literal"><span class="pre">&quot;disabled&quot;</span></code> state.</div>
+</div>
+</td>
+</tr>
+<tr class="row-odd"><td><ol class="first last arabic simple" start="2">
+<li></li>
+</ol>
+</td>
+<td>pathTmpl</td>
+<td><div class="first last line-block">
+<div class="line">Specify the template of request path to be set in &#8220;Page Link URL&#8221;.</div>
+<div class="line">When request path at the time of page display and the request path for page navigation are different, request path for page navigation needs to be specified in this parameter.</div>
+<div class="line">In the template of request path to be specified, location of page (page) and number of records to be fetched (size) can be specified as path variables (placeholders).</div>
+<div class="line">The specified value of URL is encoded in UTF-8.</div>
+</div>
+</td>
+</tr>
+<tr class="row-even"><td><ol class="first last arabic simple" start="3">
+<li></li>
+</ol>
+</td>
+<td>queryTmpl</td>
+<td><div class="first last line-block">
+<div class="line">Specify the template of query string of &#8220;Page Link URL&#8221;.</div>
+<div class="line">Specify the template for generating pagination related query string (page, size, sort parameters) required at the time of page navigation.</div>
+<div class="line">When setting request parameter name for location of page or the number of records to be fetched to values other than default values, the query string needs to be specified in this parameter.</div>
+<div class="line">In the template of query string to be specified, location of page (page) and number of records to be fetched (size) can be specified as path variables (placeholders).</div>
+<div class="line">The specified value of URL is encoded in UTF-8.</div>
+<div class="line"><br /></div>
+<div class="line">This attribute is used to generate pagination related query string (page, size, sort parameters); hence query string for adding search conditions should be specified in criteriaQuery attribute.</div>
+</div>
+</td>
+</tr>
+<tr class="row-odd"><td><ol class="first last arabic simple" start="4">
+<li></li>
+</ol>
+</td>
+<td>criteriaQuery</td>
+<td><div class="first last line-block">
+<div class="line">Specify the query string for search conditions to be added to &#8220;Page Link URL&#8221;.</div>
+<div class="line"><strong>Specify the query string for search conditions in this parameter when adding search conditions to &#8220;Page Link URL&#8221;.</strong></div>
+<div class="line"><strong>The specified value of URL is not encoded; hence encoded URL query string needs to be specified.</strong></div>
+<div class="line"><br /></div>
+<div class="line">If EL function (<code class="docutils literal"><span class="pre">f:query(Object)</span></code>) of common library is used when converting the search conditions stored in form object into encoded URL query string, the search conditions can be added easily.</div>
+<div class="line"><br /></div>
+<div class="line">This parameter can be used in terasoluna-gfw-web 1.0.1.RELEASE or higher version.</div>
+</div>
+</td>
+</tr>
+<tr class="row-even"><td><ol class="first last arabic simple" start="5">
+<li></li>
+</ol>
+</td>
+<td>disableHtmlEscapeOfCriteriaQuery</td>
+<td><div class="first last line-block">
+<div class="line">Flag to disable HTML escaping for the values specified in <code class="docutils literal"><span class="pre">criteriaQuery</span></code> parameter.</div>
+<div class="line">When the flag is set to <code class="docutils literal"><span class="pre">true</span></code>, HTML escaping is no longer possible for the values specified in <code class="docutils literal"><span class="pre">criteriaQuery</span></code> parameter. (Default value is <code class="docutils literal"><span class="pre">false</span></code>).</div>
+<div class="line"><strong>When specifying true, it should be ensured that the characters vulnerable to XSS are not included in the query string.</strong></div>
+<div class="line"><br /></div>
+<div class="line">This parameter can be used in terasoluna-gfw-web 1.0.1.RELEASE or higher version.</div>
+</div>
+</td>
+</tr>
+<tr class="row-odd"><td><ol class="first last arabic simple" start="6">
+<li></li>
+</ol>
+</td>
+<td>enableLinkOfCurrentPage</td>
+<td><div class="first last line-block">
+<div class="line">Flag to send request for redisplaying the corresponding page on clicking page link in <code class="docutils literal"><span class="pre">&quot;active&quot;</span></code> status.</div>
+<div class="line">When it is set to <code class="docutils literal"><span class="pre">true</span></code>, URL (default value is <code class="docutils literal"><span class="pre">&quot;?page={page}&amp;size={size}&quot;</span></code>) to redisplay the corresponding page is set to &#8220;Page Link URL&#8221;. (If default value is <code class="docutils literal"><span class="pre">false</span></code>, the value of <code class="docutils literal"><span class="pre">disabledHref</span></code> attribute is set to &#8220;Page Link URL&#8221;)</div>
+<div class="line"><br /></div>
+<div class="line">This parameter can be used in terasoluna-gfw-web 5.0.0.RELEASE or higher version.</div>
+</div>
+</td>
+</tr>
+</tbody>
+</table>
+<div class="admonition note">
+<p class="first admonition-title">Note</p>
+<p><strong>About setting values of disabledHref</strong></p>
+<p><code class="docutils literal"><span class="pre">&quot;javascript:void(0)&quot;</span></code>is set in <code class="docutils literal"><span class="pre">disabledHref</span></code> attribute by default.
+It may remain as default in order to disable only the operation of page link click.</p>
+<p>However, if the focus is moved or on mouseover to page link in default state,
+<code class="docutils literal"><span class="pre">&quot;javascript:void(0)&quot;</span></code> may be displayed on browser status bar.
+To change this behavior, it is necessary to disable the operation of page link click by using JavaScript.
+Refer to &#8220;<a class="reference internal" href="#paginationhowtousedisablepagelinkusingjavascript"><span>To disable page link using JavaScript</span></a>&#8221; for implementation example.</p>
+<p class="last">From terasoluna-gfw-web 5.0.0.RELEASE, default value of <code class="docutils literal"><span class="pre">disabledHref</span></code> attribute is changed from <code class="docutils literal"><span class="pre">&quot;#&quot;</span></code> to <code class="docutils literal"><span class="pre">&quot;javascript:void(0)&quot;</span></code>.
+By doing so, the focus does not move to top of the page on clicking page link in <code class="docutils literal"><span class="pre">&quot;disabled&quot;</span></code> state.</p>
+</div>
+<div class="admonition note">
+<p class="first admonition-title">Note</p>
+<p><strong>Path variables (placeholders)</strong></p>
+<p>Path variables that can be specified in  <code class="docutils literal"><span class="pre">pathTmpl</span></code>  and <code class="docutils literal"><span class="pre">queryTmpl</span></code> are as follows:</p>
+<blockquote class="last">
+<div><blockquote>
+<div><table border="1" class="docutils">
+<colgroup>
+<col width="9%" />
+<col width="23%" />
+<col width="68%" />
+</colgroup>
+<thead valign="bottom">
+<tr class="row-odd"><th class="head">Sr. No.</th>
+<th class="head">Path variable name</th>
+<th class="head">Description</th>
+</tr>
+</thead>
+<tbody valign="top">
+<tr class="row-even"><td><ol class="first last arabic simple">
+<li></li>
+</ol>
+</td>
+<td>page</td>
+<td>Path variable for inserting page location.</td>
+</tr>
+<tr class="row-odd"><td><ol class="first last arabic simple" start="2">
+<li></li>
+</ol>
+</td>
+<td>size</td>
+<td>Path variable for inserting number of records to be fetched.</td>
+</tr>
+<tr class="row-even"><td><ol class="first last arabic simple" start="3">
+<li></li>
+</ol>
+</td>
+<td>sortOrderProperty</td>
+<td>Path variable for inserting sort field of sort condition.</td>
+</tr>
+<tr class="row-odd"><td><ol class="first last arabic simple" start="4">
+<li></li>
+</ol>
+</td>
+<td>sortOrderDirection</td>
+<td>Path variable for inserting sort order of sort condition.</td>
+</tr>
+</tbody>
+</table>
+</div></blockquote>
+<p>Specify path variables in <code class="docutils literal"><span class="pre">&quot;{Path</span> <span class="pre">variable</span> <span class="pre">name}&quot;</span></code>  format.</p>
+</div></blockquote>
+</div>
+<div class="admonition warning">
+<p class="first admonition-title">Warning</p>
+<p><strong>Constraints related to sort condition</strong></p>
+<p class="last">Only one sort condition can be set as a sort condition path variable.
+Therefore, when the search result obtained by specifying multiple sort condition needs to be displayed using pagination,
+it is necessary to extend the JSP tag library of common library.</p>
+</div>
+</div></blockquote>
+<div class="line-block">
+<div class="line"><br /></div>
+</div>
+<blockquote>
+<div><p>When parameters to control the operations are changed, the following HTML is output.
+The numbers in figure correspond to serial numbers of parameter list mentioned above.</p>
+<ul class="simple">
+<li>JSP</li>
+</ul>
+<blockquote>
+<div><div class="highlight-jsp"><div class="highlight"><pre><span class="nt">&lt;t:pagination</span> <span class="na">page=</span><span class="s">&quot;${page}&quot;</span>
+    <span class="na">disabledHref=</span><span class="s">&quot;#&quot;</span>
+    <span class="na">pathTmpl=</span><span class="s">&quot;${pageContext.request.contextPath}/article/list/{page}/{size}&quot;</span>
+    <span class="na">queryTmpl=</span><span class="s">&quot;sort={sortOrderProperty},{sortOrderDirection}&quot;</span>
+    <span class="na">criteriaQuery=</span><span class="s">&quot;${f:query(articleSearchCriteriaForm)}&quot;</span>
+    <span class="na">enableLinkOfCurrentPage=</span><span class="s">&quot;true&quot;</span> <span class="nt">/&gt;</span>
+</pre></div>
+</div>
+</div></blockquote>
+<ul class="simple">
+<li>HTML to be output</li>
+</ul>
+<blockquote>
+<div><div class="figure align-center">
+<a class="reference internal image-reference" href="../_images/pagination-overview_html_changed2.png"><img alt="html of the pagination link(changed behavior)." src="../_images/pagination-overview_html_changed2.png" style="width: 100%;" /></a>
+</div>
+</div></blockquote>
+</div></blockquote>
+<div class="line-block">
+<div class="line"><br /></div>
+</div>
+</div>
+</div>
+<div class="section" id="process-flow-when-pagination-is-used">
+<h3><a class="toc-backref" href="#id11">5.11.1.4. Process flow when pagination is used</a><a class="headerlink" href="#process-flow-when-pagination-is-used" title="Permalink to this headline">¶</a></h3>
+<p>Process flow when using pagination functionality of Spring Data and JSP tag library of common library is as follows:</p>
+<blockquote>
+<div><div class="figure">
+<a class="reference internal image-reference" href="../_images/pagination-overview_flow.png"><img alt="processing flow of pagination" src="../_images/pagination-overview_flow.png" style="width: 100%;" /></a>
+</div>
+<table border="1" class="docutils">
+<colgroup>
+<col width="10%" />
+<col width="90%" />
+</colgroup>
+<thead valign="bottom">
+<tr class="row-odd"><th class="head">Sr. No.</th>
+<th class="head">Description</th>
+</tr>
+</thead>
+<tbody valign="top">
+<tr class="row-even"><td><div class="first last line-block">
+<div class="line">(1)</div>
+</div>
+</td>
+<td><div class="first last line-block">
+<div class="line">Apart from search conditions, specify the location of page to be searched (page) and number of records to be fetched (size) as request parameters and send the request.</div>
+</div>
+</td>
+</tr>
+<tr class="row-odd"><td><div class="first last line-block">
+<div class="line">(2)</div>
+</div>
+</td>
+<td><div class="first last line-block">
+<div class="line"><code class="docutils literal"><span class="pre">PageableHandlerMethodArgumentResolver</span></code>  fetches location of page to be searched (page) and number of records to be fetched (size) specified in request parameter and creates <code class="docutils literal"><span class="pre">Pageable</span></code>  object.</div>
+<div class="line">The created <code class="docutils literal"><span class="pre">Pageable</span></code>  object is set as an argument of Controller processing method.</div>
+</div>
+</td>
+</tr>
+<tr class="row-even"><td><div class="first last line-block">
+<div class="line">(3)</div>
+</div>
+</td>
+<td><div class="first last line-block">
+<div class="line">Controller passes the <code class="docutils literal"><span class="pre">Pageable</span></code>  object received as an argument to Service method.</div>
+</div>
+</td>
+</tr>
+<tr class="row-odd"><td><div class="first last line-block">
+<div class="line">(4)</div>
+</div>
+</td>
+<td><div class="first last line-block">
+<div class="line">Service passes the <code class="docutils literal"><span class="pre">Pageable</span></code>  object received as an argument to Query method of Repository.</div>
+</div>
+</td>
+</tr>
+<tr class="row-even"><td><div class="first last line-block">
+<div class="line">(5)</div>
+</div>
+</td>
+<td><div class="first last line-block">
+<div class="line">Repository fetches total records (totalElements) of data matching the search conditions. It also fetches the data falling in the range of page location (page) and number of records to be fetched (size) specified in <code class="docutils literal"><span class="pre">Pageable</span></code>  object received as an argument, from the database.</div>
+</div>
+</td>
+</tr>
+<tr class="row-odd"><td><div class="first last line-block">
+<div class="line">(6)</div>
+</div>
+</td>
+<td><div class="first last line-block">
+<div class="line">Repository creates <code class="docutils literal"><span class="pre">Page</span></code>  object based on total records fetched (totalElements), fetched data (content) and <code class="docutils literal"><span class="pre">Pageable</span></code>  object received as an argument, and returns it to Service and Controller.</div>
+</div>
+</td>
+</tr>
+<tr class="row-even"><td><div class="first last line-block">
+<div class="line">(7)</div>
+</div>
+</td>
+<td><div class="first last line-block">
+<div class="line">Controller stores the returned <code class="docutils literal"><span class="pre">Page</span></code>  object in <code class="docutils literal"><span class="pre">Model</span></code>  object and displays JSP.</div>
+</div>
+</td>
+</tr>
+<tr class="row-odd"><td><div class="first last line-block">
+<div class="line">(8)</div>
+</div>
+</td>
+<td><div class="first last line-block">
+<div class="line">JSP fetches the <code class="docutils literal"><span class="pre">Page</span></code> object stored in <code class="docutils literal"><span class="pre">Model</span></code>  object and calls JSP tag library (<code class="docutils literal"><span class="pre">&lt;t:pagination&gt;</span></code>) for pagination provided by common library.</div>
+<div class="line">JSP tag library for pagination refers to <code class="docutils literal"><span class="pre">Page</span></code>  object and creates pagination link.</div>
+</div>
+</td>
+</tr>
+<tr class="row-even"><td><div class="first last line-block">
+<div class="line">(9)</div>
+</div>
+</td>
+<td><div class="first last line-block">
+<div class="line">The HTML created in JSP is returned to client (browser).</div>
+</div>
+</td>
+</tr>
+<tr class="row-odd"><td><div class="first last line-block">
+<div class="line">(10)</div>
+</div>
+</td>
+<td><div class="first last line-block">
+<div class="line">On clicking pagination link, the request to display the corresponding page is sent.</div>
+</div>
+</td>
+</tr>
+</tbody>
+</table>
+<div class="admonition note">
+<p class="first admonition-title">Note</p>
+<p><strong>Implementation of Repository</strong></p>
+<p>The implementation method of (5) &amp; (6) are different depending on the O/R Mapper to be used.</p>
+<ul class="simple">
+<li>When using MyBatis3, implementation of Java (Service) and SQL mapping file is necessary.</li>
+<li>When using Spring Data JPA, implementation is not necessary because it is carried out automatically through the use of Spring Data JPA functionality.</li>
+</ul>
+<p>For implementation example refer to:</p>
+<ul class="last simple">
+<li><a class="reference internal" href="DataAccessMyBatis3.html"><em>Database Access (MyBatis3)</em></a></li>
+<li><a class="reference internal" href="DataAccessJpa.html"><em>Database Access (JPA)</em></a></li>
+</ul>
+</div>
+</div></blockquote>
+<div class="line-block">
+<div class="line"><br /></div>
+</div>
+</div>
+</div>
+<div class="section" id="how-to-use">
+<h2><a class="toc-backref" href="#id12">5.11.2. How to use</a><a class="headerlink" href="#how-to-use" title="Permalink to this headline">¶</a></h2>
+<p>The method of using pagination functionality is as follows:</p>
+<div class="section" id="application-settings">
+<h3><a class="toc-backref" href="#id13">5.11.2.1. Application settings</a><a class="headerlink" href="#application-settings" title="Permalink to this headline">¶</a></h3>
+<div class="section" id="settings-for-enabling-pagination-functionality-of-spring-data">
+<h4><a class="toc-backref" href="#id14">5.11.2.1.1. Settings for enabling pagination functionality of Spring Data</a><a class="headerlink" href="#settings-for-enabling-pagination-functionality-of-spring-data" title="Permalink to this headline">¶</a></h4>
+<div class="line-block">
+<div class="line">Location of page to be searched (page), number of records to be fetched (size) and sort condition (sort) are specified in the request parameter. The functionality to set these properties in the argument of Controller as <code class="docutils literal"><span class="pre">Pageable</span></code> object should be enabled.</div>
+<div class="line">The settings mentioned below are preset in a blank project.</div>
+</div>
+<p><code class="file docutils literal"><span class="pre">spring-mvc.xml</span></code></p>
+<blockquote>
+<div><div class="highlight-xml"><div class="highlight"><pre><span class="nt">&lt;mvc:annotation-driven&gt;</span>
+    <span class="nt">&lt;mvc:argument-resolvers&gt;</span>
+        <span class="c">&lt;!-- (1) --&gt;</span>
+        <span class="nt">&lt;bean</span>
+            <span class="na">class=</span><span class="s">&quot;org.springframework.data.web.PageableHandlerMethodArgumentResolver&quot;</span> <span class="nt">/&gt;</span>
+    <span class="nt">&lt;/mvc:argument-resolvers&gt;</span>
+<span class="nt">&lt;/mvc:annotation-driven&gt;</span>
+</pre></div>
+</div>
+<table border="1" class="docutils">
+<colgroup>
+<col width="10%" />
+<col width="90%" />
+</colgroup>
+<thead valign="bottom">
+<tr class="row-odd"><th class="head">Sr. No.</th>
+<th class="head">Description</th>
+</tr>
+</thead>
+<tbody valign="top">
+<tr class="row-even"><td><div class="first last line-block">
+<div class="line">(1)</div>
+</div>
+</td>
+<td><div class="first last line-block">
+<div class="line">Specify <code class="docutils literal"><span class="pre">org.springframework.data.web.PageableHandlerMethodArgumentResolver</span></code>  in <code class="docutils literal"><span class="pre">&lt;mvc:argument-resolvers&gt;</span></code>.</div>
+<div class="line">For the properties that can be specified in <code class="docutils literal"><span class="pre">PageableHandlerMethodArgumentResolver</span></code>, refer to &#8220;<a class="reference internal" href="#paginatin-appendix-pageablehandlermethodargumentresolver"><span>About property values of PageableHandlerMethodArgumentResolver</span></a>&#8221;.</div>
+</div>
+</td>
+</tr>
+</tbody>
+</table>
+</div></blockquote>
+<div class="line-block">
+<div class="line"><br /></div>
+</div>
+</div>
+</div>
+<div class="section" id="id1">
+<h3><a class="toc-backref" href="#id15">5.11.2.2. Page search</a><a class="headerlink" href="#id1" title="Permalink to this headline">¶</a></h3>
+<p>The method of implementing page search is as follows:</p>
+<div class="section" id="implementation-of-application-layer">
+<h4><a class="toc-backref" href="#id16">5.11.2.2.1. Implementation of application layer</a><a class="headerlink" href="#implementation-of-application-layer" title="Permalink to this headline">¶</a></h4>
+<p>The information required for page search (such as location of page to be searched, number of records to be fetched and sort condition) is received as an argument and passed to Service method.</p>
+<ul class="simple">
+<li>Controller</li>
+</ul>
+<blockquote>
+<div><div class="highlight-java"><div class="highlight"><pre><span class="nd">@RequestMapping</span><span class="o">(</span><span class="s">&quot;list&quot;</span><span class="o">)</span>
+<span class="kd">public</span> <span class="n">String</span> <span class="nf">list</span><span class="o">(</span><span class="nd">@Validated</span> <span class="n">ArticleSearchCriteriaForm</span> <span class="n">form</span><span class="o">,</span>
+        <span class="n">BindingResult</span> <span class="n">result</span><span class="o">,</span>
+        <span class="n">Pageable</span> <span class="n">pageable</span><span class="o">,</span> <span class="c1">// (1)</span>
+        <span class="n">Model</span> <span class="n">model</span><span class="o">)</span> <span class="o">{</span>
+
+    <span class="n">ArticleSearchCriteria</span> <span class="n">criteria</span> <span class="o">=</span> <span class="n">beanMapper</span><span class="o">.</span><span class="na">map</span><span class="o">(</span><span class="n">form</span><span class="o">,</span>
+            <span class="n">ArticleSearchCriteria</span><span class="o">.</span><span class="na">class</span><span class="o">);</span>
+
+    <span class="n">Page</span><span class="o">&lt;</span><span class="n">Article</span><span class="o">&gt;</span> <span class="n">page</span> <span class="o">=</span> <span class="n">articleService</span><span class="o">.</span><span class="na">searchArticle</span><span class="o">(</span><span class="n">criteria</span><span class="o">,</span> <span class="n">pageable</span><span class="o">);</span> <span class="c1">// (2)</span>
+
+    <span class="n">model</span><span class="o">.</span><span class="na">addAttribute</span><span class="o">(</span><span class="s">&quot;page&quot;</span><span class="o">,</span> <span class="n">page</span><span class="o">);</span> <span class="c1">// (3)</span>
+
+    <span class="k">return</span> <span class="s">&quot;article/list&quot;</span><span class="o">;</span>
+<span class="o">}</span>
+</pre></div>
+</div>
+<table border="1" class="docutils">
+<colgroup>
+<col width="10%" />
+<col width="90%" />
+</colgroup>
+<thead valign="bottom">
+<tr class="row-odd"><th class="head">Sr. No.</th>
+<th class="head">Description</th>
+</tr>
+</thead>
+<tbody valign="top">
+<tr class="row-even"><td><div class="first last line-block">
+<div class="line">(1)</div>
+</div>
+</td>
+<td><div class="first last line-block">
+<div class="line">Specify <code class="docutils literal"><span class="pre">Pageable</span></code>  as an argument of processing method.</div>
+<div class="line"><code class="docutils literal"><span class="pre">Pageable</span></code>  object stores the information required for page search (such as location of page to be searched, number of records to be fetched and sort condition).</div>
+</div>
+</td>
+</tr>
+<tr class="row-odd"><td><div class="first last line-block">
+<div class="line">(2)</div>
+</div>
+</td>
+<td><div class="first last line-block">
+<div class="line">Specify the <code class="docutils literal"><span class="pre">Pageable</span></code>  object as an argument of Service method and then call the same.</div>
+</div>
+</td>
+</tr>
+<tr class="row-even"><td><div class="first last line-block">
+<div class="line">(3)</div>
+</div>
+</td>
+<td><div class="first last line-block">
+<div class="line">Add the search result (<code class="docutils literal"><span class="pre">Page</span></code> object) returned by Service to <code class="docutils literal"><span class="pre">Model</span></code>. It can be referred from View (JSP) after it is added to <code class="docutils literal"><span class="pre">Model</span></code>.</div>
+</div>
+</td>
+</tr>
+</tbody>
+</table>
+<div class="admonition note">
+<p class="first admonition-title">Note</p>
+<p><strong>Operations when the information required for page search is not specified in request parameter</strong></p>
+<p>Default values are applied when the information required for page search (such as location of page to be searched, number of records to be fetched and sort condition) is not specified in request parameter.
+Default values are as follows:</p>
+<ul class="simple">
+<li>Location of page to be searched: <cite>0</cite> (first page)</li>
+<li>number of records to be fetched: <cite>20</cite></li>
+<li>Sort condition: <cite>null</cite> (no sort condition)</li>
+</ul>
+<p>Default values can be changed using the following two methods.</p>
+<ul class="last simple">
+<li>Define the default values by specifying <code class="docutils literal"><span class="pre">&#64;org.springframework.data.web.PageableDefault</span></code>  annotation as an argument of <code class="docutils literal"><span class="pre">Pageable</span></code>  of processing method.</li>
+<li>Specify <code class="docutils literal"><span class="pre">Pageable</span></code>  object wherein default values are defined in <code class="docutils literal"><span class="pre">fallbackPageable</span></code>  property of <code class="docutils literal"><span class="pre">PageableHandlerMethodArgumentResolver</span></code>.</li>
+</ul>
+</div>
+</div></blockquote>
+<div class="line-block">
+<div class="line"><br /></div>
+</div>
+<div class="line-block">
+<div class="line">See the method below for specifying default values using <code class="docutils literal"><span class="pre">&#64;PageableDefault</span></code>  annotation.</div>
+<div class="line">Use <code class="docutils literal"><span class="pre">&#64;PageableDefault</span></code>  annotation to change the default values for each page search.</div>
+</div>
+<blockquote>
+<div><div class="highlight-java"><div class="highlight"><pre><span class="nd">@RequestMapping</span><span class="o">(</span><span class="s">&quot;list&quot;</span><span class="o">)</span>
+<span class="kd">public</span> <span class="n">String</span> <span class="nf">list</span><span class="o">(</span><span class="nd">@Validated</span> <span class="n">ArticleSearchCriteriaForm</span> <span class="n">form</span><span class="o">,</span>
+        <span class="n">BindingResult</span> <span class="n">result</span><span class="o">,</span>
+        <span class="nd">@PageableDefault</span><span class="o">(</span> <span class="c1">// (1)</span>
+                <span class="n">page</span> <span class="o">=</span> <span class="mi">0</span><span class="o">,</span>    <span class="c1">// (2)</span>
+                <span class="n">size</span> <span class="o">=</span> <span class="mi">50</span><span class="o">,</span>   <span class="c1">// (3)</span>
+                <span class="n">direction</span> <span class="o">=</span> <span class="n">Direction</span><span class="o">.</span><span class="na">DESC</span><span class="o">,</span>  <span class="c1">// (4)</span>
+                <span class="n">sort</span> <span class="o">=</span> <span class="o">{</span>     <span class="c1">// (5)</span>
+                    <span class="s">&quot;publishedDate&quot;</span><span class="o">,</span>
+                    <span class="s">&quot;articleId&quot;</span>
+                    <span class="o">}</span>
+                <span class="o">)</span> <span class="n">Pageable</span> <span class="n">pageable</span><span class="o">,</span>
+        <span class="n">Model</span> <span class="n">model</span><span class="o">)</span> <span class="o">{</span>
+    <span class="c1">// ...</span>
+    <span class="k">return</span> <span class="s">&quot;article/list&quot;</span><span class="o">;</span>
+<span class="o">}</span>
+</pre></div>
+</div>
+<table border="1" class="docutils">
+<colgroup>
+<col width="10%" />
+<col width="70%" />
+<col width="20%" />
+</colgroup>
+<thead valign="bottom">
+<tr class="row-odd"><th class="head">Sr. No.</th>
+<th class="head">Description</th>
+<th class="head">Default values</th>
+</tr>
+</thead>
+<tbody valign="top">
+<tr class="row-even"><td><div class="first last line-block">
+<div class="line">(1)</div>
+</div>
+</td>
+<td><div class="first last line-block">
+<div class="line">Specify <code class="docutils literal"><span class="pre">&#64;PageableDefault</span></code>  annotation as an argument of <code class="docutils literal"><span class="pre">Pageable</span></code>.</div>
+</div>
+</td>
+<td><div class="first last line-block">
+<div class="line">-</div>
+</div>
+</td>
+</tr>
+<tr class="row-odd"><td><div class="first last line-block">
+<div class="line">(2)</div>
+</div>
+</td>
+<td><div class="first last line-block">
+<div class="line">To change the default value of location of page, specify the value in page attribute of <code class="docutils literal"><span class="pre">&#64;PageableDefault</span></code>  annotation.</div>
+<div class="line">Normally it need not be changed.</div>
+</div>
+</td>
+<td><div class="first last line-block">
+<div class="line"><code class="docutils literal"><span class="pre">0</span></code></div>
+<div class="line">(first page)</div>
+</div>
+</td>
+</tr>
+<tr class="row-even"><td><div class="first last line-block">
+<div class="line">(3)</div>
+</div>
+</td>
+<td><div class="first last line-block">
+<div class="line">To change the default value of number of records to be fetched, specify the value in size or value attribute of <code class="docutils literal"><span class="pre">&#64;PageableDefault</span></code>  annotation.</div>
+</div>
+</td>
+<td><div class="first last line-block">
+<div class="line"><code class="docutils literal"><span class="pre">10</span></code></div>
+</div>
+</td>
+</tr>
+<tr class="row-odd"><td><div class="first last line-block">
+<div class="line">(4)</div>
+</div>
+</td>
+<td><div class="first last line-block">
+<div class="line">To change the default value of sort condition, specify the value in direction attribute of <code class="docutils literal"><span class="pre">&#64;PageableDefault</span></code>  annotation.</div>
+</div>
+</td>
+<td><div class="first last line-block">
+<div class="line"><code class="docutils literal"><span class="pre">Direction.ASC</span></code></div>
+<div class="line">(Ascending order)</div>
+</div>
+</td>
+</tr>
+<tr class="row-even"><td><div class="first last line-block">
+<div class="line">(5)</div>
+</div>
+</td>
+<td><div class="first last line-block">
+<div class="line">Specify the sort fields of sort condition in sort attribute of <code class="docutils literal"><span class="pre">&#64;PageableDefault</span></code>  annotation.</div>
+<div class="line">When sorting the records using multiple sort fields, specify the property name to be sorted in array.</div>
+<div class="line">In the above example, sort condition <code class="docutils literal"><span class="pre">&quot;ORDER</span> <span class="pre">BY</span> <span class="pre">publishedDate</span> <span class="pre">DESC,</span> <span class="pre">articleId</span> <span class="pre">DESC&quot;</span></code>  is added to Query.</div>
+</div>
+</td>
+<td><div class="first last line-block">
+<div class="line">Empty array</div>
+<div class="line">(No sort field)</div>
+</div>
+</td>
+</tr>
+</tbody>
+</table>
+<div class="admonition note">
+<p class="first admonition-title">Note</p>
+<p><strong>About sort order that can be specified using &#64;PageableDefault annotation</strong></p>
+<p class="last">Sort order that can be specified using <code class="docutils literal"><span class="pre">&#64;PageableDefault</span></code>  annotation is either ascending or descending; hence when you want to specify different sort order for each field, it is necessary to use <code class="docutils literal"><span class="pre">&#64;org.springframework.data.web.SortDefaults</span></code>  annotation.
+For example, when sorting the fields using <code class="docutils literal"><span class="pre">&quot;ORDER</span> <span class="pre">BY</span> <span class="pre">publishedDate</span> <span class="pre">DESC,</span> <span class="pre">articleId</span> <span class="pre">ASC&quot;</span></code>  sort order.</p>
+</div>
+<div class="admonition tip">
+<p class="first admonition-title">Tip</p>
+<p><strong>Specifying annotation when only the default value of number of records to be fetched is to be changed</strong></p>
+<p class="last">In order to change only the default value of number of records to be fetched, the annotation can also be specified as <code class="docutils literal"><span class="pre">&#64;PageableDefault(50)</span></code>. This operation is same as <code class="docutils literal"><span class="pre">&#64;PageableDefault(size</span> <span class="pre">=</span> <span class="pre">50)</span></code>.</p>
+</div>
+</div></blockquote>
+<div class="line-block">
+<div class="line"><br /></div>
+</div>
+<div class="line-block">
+<div class="line">See the method below to specify default values using <code class="docutils literal"><span class="pre">&#64;SortDefaults</span></code>  annotation.</div>
+<div class="line"><code class="docutils literal"><span class="pre">&#64;SortDefaults</span></code>  annotation is used when sorting needs to be done on multiple fields and in order to have different sort order for each field.</div>
+</div>
+<blockquote>
+<div><div class="highlight-java"><div class="highlight"><pre><span class="nd">@RequestMapping</span><span class="o">(</span><span class="s">&quot;list&quot;</span><span class="o">)</span>
+<span class="kd">public</span> <span class="n">String</span> <span class="nf">list</span><span class="o">(</span>
+        <span class="nd">@Validated</span> <span class="n">ArticleSearchCriteriaForm</span> <span class="n">form</span><span class="o">,</span>
+        <span class="n">BindingResult</span> <span class="n">result</span><span class="o">,</span>
+        <span class="nd">@PageableDefault</span><span class="o">(</span><span class="n">size</span> <span class="o">=</span> <span class="mi">50</span><span class="o">)</span>
+        <span class="nd">@SortDefaults</span><span class="o">(</span>  <span class="c1">// (1)</span>
+                <span class="o">{</span>
+                    <span class="nd">@SortDefault</span><span class="o">(</span>  <span class="c1">// (2)</span>
+                                 <span class="n">sort</span> <span class="o">=</span> <span class="s">&quot;publishedDate&quot;</span><span class="o">,</span>    <span class="c1">// (3)</span>
+                                 <span class="n">direction</span> <span class="o">=</span> <span class="n">Direction</span><span class="o">.</span><span class="na">DESC</span> <span class="c1">// (4)</span>
+                                <span class="o">),</span>
+                    <span class="nd">@SortDefault</span><span class="o">(</span>
+                                 <span class="n">sort</span> <span class="o">=</span> <span class="s">&quot;articleId&quot;</span>
+                                <span class="o">)</span>
+                <span class="o">})</span> <span class="n">Pageable</span> <span class="n">pageable</span><span class="o">,</span>
+        <span class="n">Model</span> <span class="n">model</span><span class="o">)</span> <span class="o">{</span>
+    <span class="c1">// ...</span>
+    <span class="k">return</span> <span class="s">&quot;article/list&quot;</span><span class="o">;</span>
+<span class="o">}</span>
+</pre></div>
+</div>
+<table border="1" class="docutils">
+<colgroup>
+<col width="10%" />
+<col width="70%" />
+<col width="20%" />
+</colgroup>
+<thead valign="bottom">
+<tr class="row-odd"><th class="head">Sr. No.</th>
+<th class="head">Description</th>
+<th class="head">Default values</th>
+</tr>
+</thead>
+<tbody valign="top">
+<tr class="row-even"><td><div class="first last line-block">
+<div class="line">(1)</div>
+</div>
+</td>
+<td><div class="first last line-block">
+<div class="line">Specify <code class="docutils literal"><span class="pre">&#64;SortDefaults</span></code>  annotation as an argument of <code class="docutils literal"><span class="pre">Pageable</span></code>.</div>
+<div class="line">Multiple <code class="docutils literal"><span class="pre">&#64;org.springframework.data.web.SortDefault</span></code>  annotations can be specified as arrays in <code class="docutils literal"><span class="pre">&#64;SortDefaults</span></code>  annotation.</div>
+</div>
+</td>
+<td><div class="first last line-block">
+<div class="line">-</div>
+</div>
+</td>
+</tr>
+<tr class="row-odd"><td><div class="first last line-block">
+<div class="line">(2)</div>
+</div>
+</td>
+<td><div class="first last line-block">
+<div class="line">Specify <code class="docutils literal"><span class="pre">&#64;SortDefault</span></code>  annotation as value attribute of <code class="docutils literal"><span class="pre">&#64;SortDefaults</span></code>  annotation.</div>
+<div class="line">Specify as array when specifying multiple annotations.</div>
+</div>
+</td>
+<td><div class="first last line-block">
+<div class="line">-</div>
+</div>
+</td>
+</tr>
+<tr class="row-even"><td><div class="first last line-block">
+<div class="line">(3)</div>
+</div>
+</td>
+<td><div class="first last line-block">
+<div class="line">Specify sort fields in  sort or value attribute of <code class="docutils literal"><span class="pre">&#64;PageableDefault</span></code>.</div>
+<div class="line">Specify as array when specifying multiple fields.</div>
+</div>
+</td>
+<td><div class="first last line-block">
+<div class="line">Empty array</div>
+<div class="line">(No sort field)</div>
+</div>
+</td>
+</tr>
+<tr class="row-odd"><td><div class="first last line-block">
+<div class="line">(4)</div>
+</div>
+</td>
+<td><div class="first last line-block">
+<div class="line">Specify value in direction attribute of <code class="docutils literal"><span class="pre">&#64;PageableDefault</span></code>  to change default sort condition.</div>
+</div>
+</td>
+<td><div class="first last line-block">
+<div class="line"><code class="docutils literal"><span class="pre">Direction.ASC</span></code></div>
+<div class="line">(Ascending)</div>
+</div>
+</td>
+</tr>
+</tbody>
+</table>
+<p>In the above example, sort condition called <code class="docutils literal"><span class="pre">&quot;ORDER</span> <span class="pre">BY</span> <span class="pre">publishedDate</span> <span class="pre">DESC,</span> <span class="pre">articleId</span> <span class="pre">ASC&quot;</span></code>  is added to query.</p>
+<div class="admonition tip">
+<p class="first admonition-title">Tip</p>
+<p><strong>Specifying annotation when only the default value of sort fields is to be specified</strong></p>
+<p class="last">In order to specify only the records to be fetched, the annotation can also be specified as <code class="docutils literal"><span class="pre">&#64;PageableDefault(&quot;articleId&quot;)</span></code>.
+This operation is same as <code class="docutils literal"><span class="pre">&#64;PageableDefault(sort</span> <span class="pre">=</span> <span class="pre">&quot;articleId&quot;)</span></code>  and <code class="docutils literal"><span class="pre">&#64;PageableDefault(sort</span> <span class="pre">=</span> <span class="pre">&quot;articleId&quot;,</span> <span class="pre">direction</span> <span class="pre">=</span> <span class="pre">Direction.ASC)</span></code>.</p>
+</div>
+</div></blockquote>
+<div class="line-block">
+<div class="line"><br /></div>
+</div>
+<p>When it is necessary to change the default values of entire application, specify <code class="docutils literal"><span class="pre">Pageable</span></code>  object wherein default values are defined in <code class="docutils literal"><span class="pre">fallbackPageable</span></code>  property
+of <code class="docutils literal"><span class="pre">PageableHandlerMethodArgumentResolver</span></code>  that is defined in <code class="file docutils literal"><span class="pre">spring-mvc.xml</span></code>.</p>
+<p>For description of <code class="docutils literal"><span class="pre">fallbackPageable</span></code>  and example of settings, refer to &#8220;<a class="reference internal" href="#paginatin-appendix-pageablehandlermethodargumentresolver"><span>About property values of PageableHandlerMethodArgumentResolver</span></a>&#8221;.</p>
+<div class="line-block">
+<div class="line"><br /></div>
+</div>
+</div>
+<div class="section" id="implementation-of-domain-layer-mybatis3">
+<h4><a class="toc-backref" href="#id17">5.11.2.2.2. Implementation of domain layer (MyBatis3)</a><a class="headerlink" href="#implementation-of-domain-layer-mybatis3" title="Permalink to this headline">¶</a></h4>
+<div class="line-block">
+<div class="line">When accessing the database using MyBatis3, extract the necessary information from <code class="docutils literal"><span class="pre">Pageable</span></code> object received from Controller and pass it to the Repository.</div>
+<div class="line">Sort conditions and SQL for extracting the corresponding data need to be implemented in SQL mapping.</div>
+</div>
+<p>For details on page search process to be implemented at domain layer, refer to:</p>
+<ul class="simple">
+<li><a class="reference internal" href="DataAccessMyBatis3.html#dataaccessmybatis3howtousefindpageusingmybatisfunction"><span>Pagination search of Entity (MyBatis3 standard method)</span></a></li>
+<li><a class="reference internal" href="DataAccessMyBatis3.html#dataaccessmybatis3howtousefindpageusingsqlfilter"><span>Pagination search for Entity (SQL refinement method)</span></a></li>
+</ul>
+<div class="line-block">
+<div class="line"><br /></div>
+</div>
+</div>
+<div class="section" id="implementation-of-domain-layer-jpa">
+<h4><a class="toc-backref" href="#id18">5.11.2.2.3. Implementation of domain layer (JPA)</a><a class="headerlink" href="#implementation-of-domain-layer-jpa" title="Permalink to this headline">¶</a></h4>
+<p>When accessing the database using JPA (Spring Data JPA), pass the <code class="docutils literal"><span class="pre">Pageable</span></code>  object received from Controller to Repository.</p>
+<p>For details on page search process to be implemented at domain layer, refer to:</p>
+<ul class="simple">
+<li><a class="reference internal" href="DataAccessJpa.html#dataaccessjpahowtousefindpage"><span>Searching page of entities matching the conditions</span></a></li>
+</ul>
+<div class="line-block">
+<div class="line"><br /></div>
+</div>
+</div>
+</div>
+<div class="section" id="implementation-of-jsp-base-version">
+<h3><a class="toc-backref" href="#id19">5.11.2.3. Implementation of JSP (Base version)</a><a class="headerlink" href="#implementation-of-jsp-base-version" title="Permalink to this headline">¶</a></h3>
+<p>The method to display pagination link and pagination information (total records, total pages, number of displayed pages etc.) by displaying the <code class="docutils literal"><span class="pre">Page</span></code>  object fetched during page search on list screen, is described below.</p>
+<div class="section" id="display-of-fetched-data">
+<h4><a class="toc-backref" href="#id20">5.11.2.3.1. Display of fetched data</a><a class="headerlink" href="#display-of-fetched-data" title="Permalink to this headline">¶</a></h4>
+<p>An example to display the data fetched during page search is shown below.</p>
+<ul class="simple">
+<li>Controller</li>
+</ul>
+<blockquote>
+<div><div class="highlight-java"><div class="highlight"><pre><span class="nd">@RequestMapping</span><span class="o">(</span><span class="s">&quot;list&quot;</span><span class="o">)</span>
+<span class="kd">public</span> <span class="n">String</span> <span class="nf">list</span><span class="o">(</span><span class="nd">@Validated</span> <span class="n">ArticleSearchCriteriaForm</span> <span class="n">form</span><span class="o">,</span> <span class="n">BindingResult</span> <span class="n">result</span><span class="o">,</span>
+        <span class="n">Pageable</span> <span class="n">pageable</span><span class="o">,</span> <span class="n">Model</span> <span class="n">model</span><span class="o">)</span> <span class="o">{</span>
+
+    <span class="k">if</span> <span class="o">(!</span><span class="n">StringUtils</span><span class="o">.</span><span class="na">hasLength</span><span class="o">(</span><span class="n">form</span><span class="o">.</span><span class="na">getWord</span><span class="o">()))</span> <span class="o">{</span>
+        <span class="k">return</span> <span class="s">&quot;article/list&quot;</span><span class="o">;</span>
+    <span class="o">}</span>
+
+    <span class="n">ArticleSearchCriteria</span> <span class="n">criteria</span> <span class="o">=</span> <span class="n">beanMapper</span><span class="o">.</span><span class="na">map</span><span class="o">(</span><span class="n">form</span><span class="o">,</span>
+            <span class="n">ArticleSearchCriteria</span><span class="o">.</span><span class="na">class</span><span class="o">);</span>
+
+    <span class="n">Page</span><span class="o">&lt;</span><span class="n">Article</span><span class="o">&gt;</span> <span class="n">page</span> <span class="o">=</span> <span class="n">articleService</span><span class="o">.</span><span class="na">searchArticle</span><span class="o">(</span><span class="n">criteria</span><span class="o">,</span> <span class="n">pageable</span><span class="o">);</span>
+
+    <span class="n">model</span><span class="o">.</span><span class="na">addAttribute</span><span class="o">(</span><span class="s">&quot;page&quot;</span><span class="o">,</span> <span class="n">page</span><span class="o">);</span> <span class="c1">// (1)</span>
+
+    <span class="k">return</span> <span class="s">&quot;article/list&quot;</span><span class="o">;</span>
+<span class="o">}</span>
+</pre></div>
+</div>
+<table border="1" class="docutils">
+<colgroup>
+<col width="10%" />
+<col width="90%" />
+</colgroup>
+<thead valign="bottom">
+<tr class="row-odd"><th class="head">Sr. No.</th>
+<th class="head">Description</th>
+</tr>
+</thead>
+<tbody valign="top">
+<tr class="row-even"><td><div class="first last line-block">
+<div class="line">(1)</div>
+</div>
+</td>
+<td><div class="first last line-block">
+<div class="line">Store <code class="docutils literal"><span class="pre">Page</span></code>  object with the attribute name <code class="docutils literal"><span class="pre">&quot;page&quot;</span></code> in <code class="docutils literal"><span class="pre">Model</span></code>.</div>
+<div class="line">In JSP,  <code class="docutils literal"><span class="pre">Page</span></code>  object can be accessed by specifying attribute name <code class="docutils literal"><span class="pre">&quot;page&quot;</span></code>.</div>
+</div>
+</td>
+</tr>
+</tbody>
+</table>
+</div></blockquote>
+<ul class="simple">
+<li>JSP</li>
+</ul>
+<blockquote>
+<div><div class="highlight-jsp"><div class="highlight"><pre><span class="k">&lt;%-</span><span class="o">-</span> <span class="o">...</span> <span class="o">--</span><span class="k">%&gt;</span>
+
+<span class="k">&lt;%-</span><span class="o">-</span> <span class="o">(</span><span class="mi">2</span><span class="o">)</span> <span class="o">--</span><span class="k">%&gt;</span>
+<span class="nt">&lt;c:when</span> <span class="na">test=</span><span class="s">&quot;${page != null &amp;&amp; page.totalPages != 0}&quot;</span><span class="nt">&gt;</span>
+
+  <span class="nt">&lt;table</span> <span class="na">class=</span><span class="s">&quot;maintable&quot;</span><span class="nt">&gt;</span>
+    <span class="nt">&lt;thead&gt;</span>
+      <span class="nt">&lt;tr&gt;</span>
+        <span class="nt">&lt;th</span> <span class="na">class=</span><span class="s">&quot;no&quot;</span><span class="nt">&gt;</span>No<span class="nt">&lt;/th&gt;</span>
+        <span class="nt">&lt;th</span> <span class="na">class=</span><span class="s">&quot;articleClass&quot;</span><span class="nt">&gt;</span>Class<span class="nt">&lt;/th&gt;</span>
+        <span class="nt">&lt;th</span> <span class="na">class=</span><span class="s">&quot;title&quot;</span><span class="nt">&gt;</span>Title<span class="nt">&lt;/th&gt;</span>
+        <span class="nt">&lt;th</span> <span class="na">class=</span><span class="s">&quot;overview&quot;</span><span class="nt">&gt;</span>Overview<span class="nt">&lt;/th&gt;</span>
+        <span class="nt">&lt;th</span> <span class="na">class=</span><span class="s">&quot;date&quot;</span><span class="nt">&gt;</span>Published Date<span class="nt">&lt;/th&gt;</span>
+      <span class="nt">&lt;/tr&gt;</span>
+    <span class="nt">&lt;/thead&gt;</span>
+
+    <span class="k">&lt;%-</span><span class="o">-</span> <span class="o">(</span><span class="mi">3</span><span class="o">)</span> <span class="o">--</span><span class="k">%&gt;</span>
+    <span class="nt">&lt;c:forEach</span> <span class="na">var=</span><span class="s">&quot;article&quot;</span> <span class="na">items=</span><span class="s">&quot;${page.content}&quot;</span> <span class="na">varStatus=</span><span class="s">&quot;rowStatus&quot;</span><span class="nt">&gt;</span>
+      <span class="nt">&lt;tr&gt;</span>
+        <span class="nt">&lt;td</span> <span class="na">class=</span><span class="s">&quot;no&quot;</span><span class="nt">&gt;</span>
+          ${(page.number * page.size) + rowStatus.count}
+        <span class="nt">&lt;/td&gt;</span>
+        <span class="nt">&lt;td</span> <span class="na">class=</span><span class="s">&quot;articleClass&quot;</span><span class="nt">&gt;</span>
+          ${f:h(article.articleClass.name)}
+        <span class="nt">&lt;/td&gt;</span>
+        <span class="nt">&lt;td</span> <span class="na">class=</span><span class="s">&quot;title&quot;</span><span class="nt">&gt;</span>
+          ${f:h(article.title)}
+        <span class="nt">&lt;/td&gt;</span>
+        <span class="nt">&lt;td</span> <span class="na">class=</span><span class="s">&quot;overview&quot;</span><span class="nt">&gt;</span>
+          ${f:h(article.overview)}
+        <span class="nt">&lt;/td&gt;</span>
+        <span class="nt">&lt;td</span> <span class="na">class=</span><span class="s">&quot;date&quot;</span><span class="nt">&gt;</span>
+          ${f:h(article.publishedDate)}
+        <span class="nt">&lt;/td&gt;</span>
+      <span class="nt">&lt;/tr&gt;</span>
+    <span class="nt">&lt;/c:forEach&gt;</span>
+
+  <span class="nt">&lt;/table&gt;</span>
+
+  <span class="nt">&lt;div</span> <span class="na">class=</span><span class="s">&quot;paginationPart&quot;</span><span class="nt">&gt;</span>
+
+    <span class="k">&lt;%-</span><span class="o">-</span> <span class="o">...</span> <span class="o">--</span><span class="k">%&gt;</span>
+
+  <span class="nt">&lt;/div&gt;</span>
+<span class="nt">&lt;/c:when&gt;</span>
+
+<span class="k">&lt;%-</span><span class="o">-</span> <span class="o">...</span> <span class="o">--</span><span class="k">%&gt;</span>
+</pre></div>
+</div>
+<table border="1" class="docutils">
+<colgroup>
+<col width="10%" />
+<col width="90%" />
+</colgroup>
+<thead valign="bottom">
+<tr class="row-odd"><th class="head">Sr. No.</th>
+<th class="head">Description</th>
+</tr>
+</thead>
+<tbody valign="top">
+<tr class="row-even"><td><div class="first last line-block">
+<div class="line">(2)</div>
+</div>
+</td>
+<td><div class="first last line-block">
+<div class="line">In the above example, it is checked whether data matching the specified conditions exists. If there is no such data, the header row is also not displayed.</div>
+<div class="line">When it is necessary to display the header row even if there is no matching data, this branching is no longer required.</div>
+</div>
+</td>
+</tr>
+<tr class="row-odd"><td><div class="first last line-block">
+<div class="line">(3)</div>
+</div>
+</td>
+<td><div class="first last line-block">
+<div class="line">Display the list of data fetched using <code class="docutils literal"><span class="pre">&lt;c:forEach&gt;</span></code>  tag of JSTL.</div>
+<div class="line">The fetched data is stored in a list in <code class="docutils literal"><span class="pre">content</span></code>  property of <code class="docutils literal"><span class="pre">Page</span></code>  object.</div>
+</div>
+</td>
+</tr>
+</tbody>
+</table>
+</div></blockquote>
+<ul class="simple">
+<li>Example of screen output in JSP</li>
+</ul>
+<blockquote>
+<div><div class="figure align-center">
+<a class="reference internal image-reference" href="../_images/pagination-how_to_use_view_list_screen.png"><img alt="Screen image of content table" src="../_images/pagination-how_to_use_view_list_screen.png" style="width: 100%;" /></a>
+</div>
+</div></blockquote>
+<div class="line-block">
+<div class="line"><br /></div>
+</div>
+</div>
+<div class="section" id="pagination-how-to-use-make-jsp-basic-paginationlink">
+<span id="id2"></span><h4><a class="toc-backref" href="#id21">5.11.2.3.2. Display of Pagination link</a><a class="headerlink" href="#pagination-how-to-use-make-jsp-basic-paginationlink" title="Permalink to this headline">¶</a></h4>
+<p>See the example below to display the link for page navigation (pagination link).</p>
+<p>Pagination link is output using JSP tag library of common library.</p>
+<ul class="simple">
+<li><code class="file docutils literal"><span class="pre">include.jsp</span></code></li>
+</ul>
+<blockquote>
+<div><p>Declare the JSP tag library of common library. The settings below are carried out in a blank project.</p>
+<div class="highlight-jsp"><div class="highlight"><pre><span class="k">&lt;%@</span> <span class="n">taglib</span> <span class="n">uri</span><span class="o">=</span><span class="s">&quot;http://terasoluna.org/tags&quot;</span> <span class="n">prefix</span><span class="o">=</span><span class="s">&quot;t&quot;</span><span class="k">%&gt;</span>       <span class="k">&lt;%-</span><span class="o">-</span> <span class="o">(</span><span class="mi">1</span><span class="o">)</span> <span class="o">--</span><span class="k">%&gt;</span>
+<span class="k">&lt;%@</span> <span class="n">taglib</span> <span class="n">uri</span><span class="o">=</span><span class="s">&quot;http://terasoluna.org/functions&quot;</span> <span class="n">prefix</span><span class="o">=</span><span class="s">&quot;f&quot;</span><span class="k">%&gt;</span>  <span class="k">&lt;%-</span><span class="o">-</span> <span class="o">(</span><span class="mi">2</span><span class="o">)</span> <span class="o">--</span><span class="k">%&gt;</span>
+</pre></div>
+</div>
+<table border="1" class="docutils">
+<colgroup>
+<col width="10%" />
+<col width="90%" />
+</colgroup>
+<thead valign="bottom">
+<tr class="row-odd"><th class="head">Sr. No.</th>
+<th class="head">Description</th>
+</tr>
+</thead>
+<tbody valign="top">
+<tr class="row-even"><td><div class="first last line-block">
+<div class="line">(1)</div>
+</div>
+</td>
+<td><div class="first last line-block">
+<div class="line">JSP tag to display pagination link is stored.</div>
+</div>
+</td>
+</tr>
+<tr class="row-odd"><td><div class="first last line-block">
+<div class="line">(2)</div>
+</div>
+</td>
+<td><div class="first last line-block">
+<div class="line">EL function of JSP used at the time of using pagination link, is stored.</div>
+</div>
+</td>
+</tr>
+</tbody>
+</table>
+</div></blockquote>
+<ul class="simple">
+<li>JSP</li>
+</ul>
+<blockquote>
+<div><div class="highlight-jsp"><div class="highlight"><pre><span class="nt">&lt;t:pagination</span> <span class="na">page=</span><span class="s">&quot;${page}&quot;</span> <span class="nt">/&gt;</span> <span class="k">&lt;%-</span><span class="o">-</span> <span class="o">(</span><span class="mi">3</span><span class="o">)</span> <span class="o">--</span><span class="k">%&gt;</span>
+</pre></div>
+</div>
+<table border="1" class="docutils">
+<colgroup>
+<col width="10%" />
+<col width="90%" />
+</colgroup>
+<thead valign="bottom">
+<tr class="row-odd"><th class="head">Sr. No.</th>
+<th class="head">Description</th>
+</tr>
+</thead>
+<tbody valign="top">
+<tr class="row-even"><td><div class="first last line-block">
+<div class="line">(3)</div>
+</div>
+</td>
+<td><div class="first last line-block">
+<div class="line">Use <code class="docutils literal"><span class="pre">&lt;t:pagination&gt;</span></code>  tag. In page attribute, specify <code class="docutils literal"><span class="pre">Page</span></code>  object stored in <code class="docutils literal"><span class="pre">Model</span></code>  of Controller.</div>
+</div>
+</td>
+</tr>
+</tbody>
+</table>
+</div></blockquote>
+<div class="line-block">
+<div class="line"><br /></div>
+</div>
+<ul class="simple">
+<li>Output HTML</li>
+</ul>
+<blockquote>
+<div><p>The example below shows the search results obtained upon specifying <code class="docutils literal"><span class="pre">&quot;?page=0&amp;size=6&quot;</span></code>.</p>
+<div class="highlight-html"><div class="highlight"><pre> <span class="nt">&lt;ul&gt;</span>
+    <span class="nt">&lt;li</span> <span class="na">class=</span><span class="s">&quot;disabled&quot;</span><span class="nt">&gt;&lt;a</span> <span class="na">href=</span><span class="s">&quot;javascript:void(0)&quot;</span><span class="nt">&gt;</span><span class="ni">&amp;lt;&amp;lt;</span><span class="nt">&lt;/a&gt;&lt;/li&gt;</span>
+    <span class="nt">&lt;li</span> <span class="na">class=</span><span class="s">&quot;disabled&quot;</span><span class="nt">&gt;&lt;a</span> <span class="na">href=</span><span class="s">&quot;javascript:void(0)&quot;</span><span class="nt">&gt;</span><span class="ni">&amp;lt;</span><span class="nt">&lt;/a&gt;&lt;/li&gt;</span>
+    <span class="nt">&lt;li</span> <span class="na">class=</span><span class="s">&quot;active&quot;</span><span class="nt">&gt;&lt;a</span> <span class="na">href=</span><span class="s">&quot;javascript:void(0)&quot;</span><span class="nt">&gt;</span>1<span class="nt">&lt;/a&gt;&lt;/li&gt;</span>
+    <span class="nt">&lt;li&gt;&lt;a</span> <span class="na">href=</span><span class="s">&quot;?page=1&amp;size=6&quot;</span><span class="nt">&gt;</span>2<span class="nt">&lt;/a&gt;&lt;/li&gt;</span>
+    <span class="nt">&lt;li&gt;&lt;a</span> <span class="na">href=</span><span class="s">&quot;?page=2&amp;size=6&quot;</span><span class="nt">&gt;</span>3<span class="nt">&lt;/a&gt;&lt;/li&gt;</span>
+    <span class="nt">&lt;li&gt;&lt;a</span> <span class="na">href=</span><span class="s">&quot;?page=3&amp;size=6&quot;</span><span class="nt">&gt;</span>4<span class="nt">&lt;/a&gt;&lt;/li&gt;</span>
+    <span class="nt">&lt;li&gt;&lt;a</span> <span class="na">href=</span><span class="s">&quot;?page=4&amp;size=6&quot;</span><span class="nt">&gt;</span>5<span class="nt">&lt;/a&gt;&lt;/li&gt;</span>
+    <span class="nt">&lt;li&gt;&lt;a</span> <span class="na">href=</span><span class="s">&quot;?page=5&amp;size=6&quot;</span><span class="nt">&gt;</span>6<span class="nt">&lt;/a&gt;&lt;/li&gt;</span>
+    <span class="nt">&lt;li&gt;&lt;a</span> <span class="na">href=</span><span class="s">&quot;?page=6&amp;size=6&quot;</span><span class="nt">&gt;</span>7<span class="nt">&lt;/a&gt;&lt;/li&gt;</span>
+    <span class="nt">&lt;li&gt;&lt;a</span> <span class="na">href=</span><span class="s">&quot;?page=7&amp;size=6&quot;</span><span class="nt">&gt;</span>8<span class="nt">&lt;/a&gt;&lt;/li&gt;</span>
+    <span class="nt">&lt;li&gt;&lt;a</span> <span class="na">href=</span><span class="s">&quot;?page=8&amp;size=6&quot;</span><span class="nt">&gt;</span>9<span class="nt">&lt;/a&gt;&lt;/li&gt;</span>
+    <span class="nt">&lt;li&gt;&lt;a</span> <span class="na">href=</span><span class="s">&quot;?page=9&amp;size=6&quot;</span><span class="nt">&gt;</span>10<span class="nt">&lt;/a&gt;&lt;/li&gt;</span>
+    <span class="nt">&lt;li&gt;&lt;a</span> <span class="na">href=</span><span class="s">&quot;?page=1&amp;size=6&quot;</span><span class="nt">&gt;</span><span class="ni">&amp;gt;</span><span class="nt">&lt;/a&gt;&lt;/li&gt;</span>
+    <span class="nt">&lt;li&gt;&lt;a</span> <span class="na">href=</span><span class="s">&quot;?page=9&amp;size=6&quot;</span><span class="nt">&gt;</span><span class="ni">&amp;gt;&amp;gt;</span><span class="nt">&lt;/a&gt;&lt;/li&gt;</span>
+<span class="nt">&lt;/ul&gt;</span>
+</pre></div>
+</div>
+</div></blockquote>
+<div class="line-block">
+<div class="line"><br /></div>
+</div>
+<div class="line-block">
+<div class="line">If style sheet for pagination link is not created, the display will be as follows:</div>
+<div class="line">As it is visible below, the pagination link is not established.</div>
+</div>
+<blockquote>
+<div><div class="figure">
+<a class="reference internal image-reference" href="../_images/pagination-how_to_use_jsp_not_applied_css.png"><img alt="Screen image that style sheet is not applied." src="../_images/pagination-how_to_use_jsp_not_applied_css.png" style="width: 120px; height: 290px;" /></a>
+</div>
+</div></blockquote>
+<div class="line-block">
+<div class="line"><br /></div>
+</div>
+<div class="line-block">
+<div class="line">The display will be as follows if minimal changes are carried out like adding a definition of style sheet for pagination link and changing the JSP.</div>
+</div>
+<ul class="simple">
+<li>Screen image</li>
+</ul>
+<blockquote>
+<div><div class="figure">
+<a class="reference internal image-reference" href="../_images/pagination-how_to_use_jsp_applied_simple_css.png"><img alt="Screen image that simple style sheet applied." src="../_images/pagination-how_to_use_jsp_applied_simple_css.png" style="width: 290px; height: 40px;" /></a>
+</div>
+</div></blockquote>
+<ul class="simple">
+<li>JSP</li>
+</ul>
+<blockquote>
+<div><div class="highlight-jsp"><div class="highlight"><pre><span class="k">&lt;%-</span><span class="o">-</span> <span class="o">...</span> <span class="o">--</span><span class="k">%&gt;</span>
+
+<span class="nt">&lt;t:pagination</span> <span class="na">page=</span><span class="s">&quot;${page}&quot;</span>
+    <span class="na">outerElementClass=</span><span class="s">&quot;pagination&quot;</span> <span class="nt">/&gt;</span> <span class="k">&lt;%-</span><span class="o">-</span> <span class="o">(</span><span class="mi">4</span><span class="o">)</span> <span class="o">--</span><span class="k">%&gt;</span>
+
+<span class="k">&lt;%-</span><span class="o">-</span> <span class="o">...</span> <span class="o">--</span><span class="k">%&gt;</span>
+</pre></div>
+</div>
+<table border="1" class="docutils">
+<colgroup>
+<col width="10%" />
+<col width="90%" />
+</colgroup>
+<thead valign="bottom">
+<tr class="row-odd"><th class="head">Sr. No.</th>
+<th class="head">Description</th>
+</tr>
+</thead>
+<tbody valign="top">
+<tr class="row-even"><td><div class="first last line-block">
+<div class="line">(4)</div>
+</div>
+</td>
+<td><div class="first last line-block">
+<div class="line">Specify the class name indicating that it is a pagination link.</div>
+<div class="line">By specifying the class name, the applicable range of styles to be specified in style sheet can be restricted to pagination link.</div>
+</div>
+</td>
+</tr>
+</tbody>
+</table>
+</div></blockquote>
+<ul class="simple">
+<li>Style sheet</li>
+</ul>
+<blockquote>
+<div><div class="highlight-css"><div class="highlight"><pre><span class="nc">.pagination</span> <span class="nt">li</span> <span class="p">{</span>
+    <span class="k">display</span><span class="o">:</span> <span class="k">inline</span><span class="p">;</span>
+<span class="p">}</span>
+
+<span class="nc">.pagination</span> <span class="nt">li</span><span class="o">&gt;</span><span class="nt">a</span> <span class="p">{</span>
+    <span class="k">margin-left</span><span class="o">:</span> <span class="m">10px</span><span class="p">;</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+</div></blockquote>
+<div class="line-block">
+<div class="line"><br /></div>
+</div>
+<p>Even after the pagination link is established, the following two problems still persist.</p>
+<ul class="simple">
+<li>clickable and non-clickable links cannot be distinguished.</li>
+<li>The location of currently displayed page cannot be identified.</li>
+</ul>
+<div class="line-block">
+<div class="line"><br /></div>
+</div>
+<p>When Bootstrap v3.0.0 style sheet is applied to resolve the above problems, the display is as follows:</p>
+<ul class="simple">
+<li>Screen image</li>
+</ul>
+<blockquote>
+<div><div class="figure">
+<a class="reference internal image-reference" href="../_images/pagination-how_to_use_jsp_applied_bootstrap_v3_0_0_css.png"><img alt="Screen image that v3.0.0 of bootstrap is applied." src="../_images/pagination-how_to_use_jsp_applied_bootstrap_v3_0_0_css.png" style="width: 520px; height: 70px;" /></a>
+</div>
+</div></blockquote>
+<ul class="simple">
+<li>Style sheet</li>
+</ul>
+<blockquote>
+<div><div class="line-block">
+<div class="line">Place the css file of bootstrap v3.0.0 under <code class="docutils literal"><span class="pre">$WEB_APP_ROOT/resources/vendor/bootstrap-3.0.0/css/bootstrap.css</span></code>.</div>
+<div class="line">Abstract of pagination related style definition.</div>
+</div>
+<div class="highlight-css"><div class="highlight"><pre><span class="nc">.pagination</span> <span class="p">{</span>
+  <span class="k">display</span><span class="o">:</span> <span class="k">inline</span><span class="o">-</span><span class="k">block</span><span class="p">;</span>
+  <span class="k">padding-left</span><span class="o">:</span> <span class="m">0</span><span class="p">;</span>
+  <span class="k">margin</span><span class="o">:</span> <span class="m">20px</span> <span class="m">0</span><span class="p">;</span>
+  <span class="k">border</span><span class="o">-</span><span class="n">radius</span><span class="o">:</span> <span class="m">4px</span><span class="p">;</span>
+<span class="p">}</span>
+
+<span class="nc">.pagination</span> <span class="o">&gt;</span> <span class="nt">li</span> <span class="p">{</span>
+  <span class="k">display</span><span class="o">:</span> <span class="k">inline</span><span class="p">;</span>
+<span class="p">}</span>
+
+<span class="nc">.pagination</span> <span class="o">&gt;</span> <span class="nt">li</span> <span class="o">&gt;</span> <span class="nt">a</span><span class="o">,</span>
+<span class="nc">.pagination</span> <span class="o">&gt;</span> <span class="nt">li</span> <span class="o">&gt;</span> <span class="nt">span</span> <span class="p">{</span>
+  <span class="k">position</span><span class="o">:</span> <span class="k">relative</span><span class="p">;</span>
+  <span class="k">float</span><span class="o">:</span> <span class="k">left</span><span class="p">;</span>
+  <span class="k">padding</span><span class="o">:</span> <span class="m">6px</span> <span class="m">12px</span><span class="p">;</span>
+  <span class="k">margin-left</span><span class="o">:</span> <span class="m">-1px</span><span class="p">;</span>
+  <span class="k">line-height</span><span class="o">:</span> <span class="m">1</span><span class="o">.</span><span class="m">428571429</span><span class="p">;</span>
+  <span class="k">text-decoration</span><span class="o">:</span> <span class="k">none</span><span class="p">;</span>
+  <span class="k">background-color</span><span class="o">:</span> <span class="m">#ffffff</span><span class="p">;</span>
+  <span class="k">border</span><span class="o">:</span> <span class="m">1px</span> <span class="k">solid</span> <span class="m">#dddddd</span><span class="p">;</span>
+<span class="p">}</span>
+
+<span class="nc">.pagination</span> <span class="o">&gt;</span> <span class="nt">li</span><span class="nd">:first-child</span> <span class="o">&gt;</span> <span class="nt">a</span><span class="o">,</span>
+<span class="nc">.pagination</span> <span class="o">&gt;</span> <span class="nt">li</span><span class="nd">:first-child</span> <span class="o">&gt;</span> <span class="nt">span</span> <span class="p">{</span>
+  <span class="k">margin-left</span><span class="o">:</span> <span class="m">0</span><span class="p">;</span>
+  <span class="k">border-bottom</span><span class="o">-</span><span class="k">left</span><span class="o">-</span><span class="n">radius</span><span class="o">:</span> <span class="m">4px</span><span class="p">;</span>
+  <span class="k">border-top</span><span class="o">-</span><span class="k">left</span><span class="o">-</span><span class="n">radius</span><span class="o">:</span> <span class="m">4px</span><span class="p">;</span>
+<span class="p">}</span>
+
+<span class="nc">.pagination</span> <span class="o">&gt;</span> <span class="nt">li</span><span class="nd">:last-child</span> <span class="o">&gt;</span> <span class="nt">a</span><span class="o">,</span>
+<span class="nc">.pagination</span> <span class="o">&gt;</span> <span class="nt">li</span><span class="nd">:last-child</span> <span class="o">&gt;</span> <span class="nt">span</span> <span class="p">{</span>
+  <span class="k">border-top</span><span class="o">-</span><span class="k">right</span><span class="o">-</span><span class="n">radius</span><span class="o">:</span> <span class="m">4px</span><span class="p">;</span>
+  <span class="k">border-bottom</span><span class="o">-</span><span class="k">right</span><span class="o">-</span><span class="n">radius</span><span class="o">:</span> <span class="m">4px</span><span class="p">;</span>
+<span class="p">}</span>
+
+<span class="nc">.pagination</span> <span class="o">&gt;</span> <span class="nt">li</span> <span class="o">&gt;</span> <span class="nt">a</span><span class="nd">:hover</span><span class="o">,</span>
+<span class="nc">.pagination</span> <span class="o">&gt;</span> <span class="nt">li</span> <span class="o">&gt;</span> <span class="nt">span</span><span class="nd">:hover</span><span class="o">,</span>
+<span class="nc">.pagination</span> <span class="o">&gt;</span> <span class="nt">li</span> <span class="o">&gt;</span> <span class="nt">a</span><span class="nd">:focus</span><span class="o">,</span>
+<span class="nc">.pagination</span> <span class="o">&gt;</span> <span class="nt">li</span> <span class="o">&gt;</span> <span class="nt">span</span><span class="nd">:focus</span> <span class="p">{</span>
+  <span class="k">background-color</span><span class="o">:</span> <span class="m">#eeeeee</span><span class="p">;</span>
+<span class="p">}</span>
+
+<span class="nc">.pagination</span> <span class="o">&gt;</span> <span class="nc">.active</span> <span class="o">&gt;</span> <span class="nt">a</span><span class="o">,</span>
+<span class="nc">.pagination</span> <span class="o">&gt;</span> <span class="nc">.active</span> <span class="o">&gt;</span> <span class="nt">span</span><span class="o">,</span>
+<span class="nc">.pagination</span> <span class="o">&gt;</span> <span class="nc">.active</span> <span class="o">&gt;</span> <span class="nt">a</span><span class="nd">:hover</span><span class="o">,</span>
+<span class="nc">.pagination</span> <span class="o">&gt;</span> <span class="nc">.active</span> <span class="o">&gt;</span> <span class="nt">span</span><span class="nd">:hover</span><span class="o">,</span>
+<span class="nc">.pagination</span> <span class="o">&gt;</span> <span class="nc">.active</span> <span class="o">&gt;</span> <span class="nt">a</span><span class="nd">:focus</span><span class="o">,</span>
+<span class="nc">.pagination</span> <span class="o">&gt;</span> <span class="nc">.active</span> <span class="o">&gt;</span> <span class="nt">span</span><span class="nd">:focus</span> <span class="p">{</span>
+  <span class="k">z-index</span><span class="o">:</span> <span class="m">2</span><span class="p">;</span>
+  <span class="k">color</span><span class="o">:</span> <span class="m">#ffffff</span><span class="p">;</span>
+  <span class="k">cursor</span><span class="o">:</span> <span class="k">default</span><span class="p">;</span>
+  <span class="k">background-color</span><span class="o">:</span> <span class="m">#428bca</span><span class="p">;</span>
+  <span class="k">border-color</span><span class="o">:</span> <span class="m">#428bca</span><span class="p">;</span>
+<span class="p">}</span>
+
+<span class="nc">.pagination</span> <span class="o">&gt;</span> <span class="nc">.disabled</span> <span class="o">&gt;</span> <span class="nt">span</span><span class="o">,</span>
+<span class="nc">.pagination</span> <span class="o">&gt;</span> <span class="nc">.disabled</span> <span class="o">&gt;</span> <span class="nt">a</span><span class="o">,</span>
+<span class="nc">.pagination</span> <span class="o">&gt;</span> <span class="nc">.disabled</span> <span class="o">&gt;</span> <span class="nt">a</span><span class="nd">:hover</span><span class="o">,</span>
+<span class="nc">.pagination</span> <span class="o">&gt;</span> <span class="nc">.disabled</span> <span class="o">&gt;</span> <span class="nt">a</span><span class="nd">:focus</span> <span class="p">{</span>
+  <span class="k">color</span><span class="o">:</span> <span class="m">#999999</span><span class="p">;</span>
+  <span class="k">cursor</span><span class="o">:</span> <span class="n">not</span><span class="o">-</span><span class="n">allowed</span><span class="p">;</span>
+  <span class="k">background-color</span><span class="o">:</span> <span class="m">#ffffff</span><span class="p">;</span>
+  <span class="k">border-color</span><span class="o">:</span> <span class="m">#dddddd</span><span class="p">;</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+</div></blockquote>
+<ul class="simple">
+<li>JSP</li>
+</ul>
+<blockquote>
+<div><p>Add a definition to read the css file placed under JSP.</p>
+<div class="highlight-jsp"><div class="highlight"><pre><span class="nt">&lt;link</span> <span class="na">rel=</span><span class="s">&quot;stylesheet&quot;</span>
+    <span class="na">href=</span><span class="s">&quot;${pageContext.request.contextPath}/resources/vendor/bootstrap-3.0.0/css/bootstrap.css&quot;</span>
+    <span class="na">type=</span><span class="s">&quot;text/css&quot;</span> <span class="na">media=</span><span class="s">&quot;screen, projection&quot;</span><span class="nt">&gt;</span>
+</pre></div>
+</div>
+</div></blockquote>
+<div class="line-block">
+<div class="line"><br /></div>
+</div>
+</div>
+<div class="section" id="display-of-pagination-information">
+<h4><a class="toc-backref" href="#id22">5.11.2.3.3. Display of pagination information</a><a class="headerlink" href="#display-of-pagination-information" title="Permalink to this headline">¶</a></h4>
+<p>An example to display the information related to pagination (such as total records, total pages and total displayed pages) is as follows:</p>
+<ul class="simple">
+<li>Screen example</li>
+</ul>
+<blockquote>
+<div><div class="figure">
+<a class="reference internal image-reference" href="../_images/pagination-how_to_use_view_pagination_info1.png"><img alt="Screen image of pagination information(total results, current pages, total pages)" src="../_images/pagination-how_to_use_view_pagination_info1.png" style="width: 400px; height: 250px;" /></a>
+</div>
+</div></blockquote>
+<ul class="simple">
+<li>JSP</li>
+</ul>
+<blockquote>
+<div><div class="highlight-jsp"><div class="highlight"><pre><span class="nt">&lt;div&gt;</span>
+    <span class="nt">&lt;fmt:formatNumber</span> <span class="na">value=</span><span class="s">&quot;${page.totalElements}&quot;</span> <span class="nt">/&gt;</span> results <span class="k">&lt;%-</span><span class="o">-</span> <span class="o">(</span><span class="mi">1</span><span class="o">)</span> <span class="o">--</span><span class="k">%&gt;</span>
+<span class="nt">&lt;/div&gt;</span>
+<span class="nt">&lt;div&gt;</span>
+    ${f:h(page.number + 1) } /       <span class="k">&lt;%-</span><span class="o">-</span> <span class="o">(</span><span class="mi">2</span><span class="o">)</span> <span class="o">--</span><span class="k">%&gt;</span>
+    ${f:h(page.totalPages)} Pages    <span class="k">&lt;%-</span><span class="o">-</span> <span class="o">(</span><span class="mi">3</span><span class="o">)</span> <span class="o">--</span><span class="k">%&gt;</span>
+<span class="nt">&lt;/div&gt;</span>
+</pre></div>
+</div>
+<table border="1" class="docutils">
+<colgroup>
+<col width="10%" />
+<col width="90%" />
+</colgroup>
+<thead valign="bottom">
+<tr class="row-odd"><th class="head">Sr. No.</th>
+<th class="head">Description</th>
+</tr>
+</thead>
+<tbody valign="top">
+<tr class="row-even"><td><div class="first last line-block">
+<div class="line">(1)</div>
+</div>
+</td>
+<td><div class="first last line-block">
+<div class="line">To display total number of data records matching the search conditions, fetch value from <code class="docutils literal"><span class="pre">totalElements</span></code>  property of <code class="docutils literal"><span class="pre">Page</span></code>  object.</div>
+</div>
+</td>
+</tr>
+<tr class="row-odd"><td><div class="first last line-block">
+<div class="line">(2)</div>
+</div>
+</td>
+<td><div class="first last line-block">
+<div class="line">To display number of displayed pages, fetch value from <code class="docutils literal"><span class="pre">number</span></code> property of <code class="docutils literal"><span class="pre">Page</span></code> object and increment the value by 1.</div>
+<div class="line"><code class="docutils literal"><span class="pre">number</span></code> property of <code class="docutils literal"><span class="pre">Page</span></code> object starts with <code class="docutils literal"><span class="pre">0</span></code>; hence value should be incremented by 1 at the time of displaying the page number.</div>
+</div>
+</td>
+</tr>
+<tr class="row-even"><td><div class="first last line-block">
+<div class="line">(3)</div>
+</div>
+</td>
+<td><div class="first last line-block">
+<div class="line">To display total pages of data matching the search conditions, fetch the value from <code class="docutils literal"><span class="pre">totalPages</span></code>  property of <code class="docutils literal"><span class="pre">Page</span></code>  object.</div>
+</div>
+</td>
+</tr>
+</tbody>
+</table>
+</div></blockquote>
+<div class="line-block">
+<div class="line"><br /></div>
+</div>
+<p>Example to display the display data range of the corresponding page is shown below.</p>
+<ul class="simple">
+<li>Example of screen</li>
+</ul>
+<blockquote>
+<div><div class="figure">
+<a class="reference internal image-reference" href="../_images/pagination-how_to_use_view_pagination_info2.png"><img alt="Screen image of pagination information(begin position, end position)" src="../_images/pagination-how_to_use_view_pagination_info2.png" style="width: 400px; height: 250px;" /></a>
+</div>
+</div></blockquote>
+<ul class="simple">
+<li>JSP</li>
+</ul>
+<blockquote>
+<div><div class="highlight-jsp"><div class="highlight"><pre><span class="nt">&lt;div&gt;</span>
+    <span class="k">&lt;%-</span><span class="o">-</span> <span class="o">(</span><span class="mi">4</span><span class="o">)</span> <span class="o">--</span><span class="k">%&gt;</span>
+    <span class="nt">&lt;fmt:formatNumber</span> <span class="na">value=</span><span class="s">&quot;${(page.number * page.size) + 1}&quot;</span> <span class="nt">/&gt;</span> -
+    <span class="k">&lt;%-</span><span class="o">-</span> <span class="o">(</span><span class="mi">5</span><span class="o">)</span> <span class="o">--</span><span class="k">%&gt;</span>
+    <span class="nt">&lt;fmt:formatNumber</span> <span class="na">value=</span><span class="s">&quot;${(page.number * page.size) + page.numberOfElements}&quot;</span> <span class="nt">/&gt;</span>
+<span class="nt">&lt;/div&gt;</span>
+</pre></div>
+</div>
+<table border="1" class="docutils">
+<colgroup>
+<col width="10%" />
+<col width="90%" />
+</colgroup>
+<thead valign="bottom">
+<tr class="row-odd"><th class="head">Sr. No.</th>
+<th class="head">Description</th>
+</tr>
+</thead>
+<tbody valign="top">
+<tr class="row-even"><td><div class="first last line-block">
+<div class="line">(4)</div>
+</div>
+</td>
+<td><div class="first last line-block">
+<div class="line">To display start location, calculate the value using <code class="docutils literal"><span class="pre">number</span></code>  property and <code class="docutils literal"><span class="pre">size</span></code>  property of <code class="docutils literal"><span class="pre">Page</span></code> object.</div>
+<div class="line"><code class="docutils literal"><span class="pre">number</span></code>  property of <code class="docutils literal"><span class="pre">Page</span></code>  object starts with <code class="docutils literal"><span class="pre">0</span></code>; hence the value needs to be incremented by 1 at the time of displaying data start location.</div>
+</div>
+</td>
+</tr>
+<tr class="row-odd"><td><div class="first last line-block">
+<div class="line">(5)</div>
+</div>
+</td>
+<td><div class="first last line-block">
+<div class="line">To display end location, calculate the value using <code class="docutils literal"><span class="pre">number</span></code> property, <code class="docutils literal"><span class="pre">size</span></code>  property and <code class="docutils literal"><span class="pre">numberOfElements</span></code> property of <code class="docutils literal"><span class="pre">Page</span></code> object.</div>
+<div class="line"><code class="docutils literal"><span class="pre">numberOfElements</span></code> needs to be calculated since the last page is likely to be a fraction.</div>
+</div>
+</td>
+</tr>
+</tbody>
+</table>
+<div class="admonition tip">
+<p class="first admonition-title">Tip</p>
+<p><strong>About format of numeric value</strong></p>
+<p class="last">When the numeric value to be displayed needs to be formatted, use tag library ( <code class="docutils literal"><span class="pre">&lt;fmt:formatNumber&gt;</span></code> ) provided by JSTL.</p>
+</div>
+</div></blockquote>
+<div class="line-block">
+<div class="line"><br /></div>
+</div>
+</div>
+<div class="section" id="carrying-forward-search-conditions-using-page-link">
+<span id="pagination-how-to-use-make-jsp-basic-search-criteria"></span><h4><a class="toc-backref" href="#id23">5.11.2.3.4. Carrying forward search conditions using page link</a><a class="headerlink" href="#carrying-forward-search-conditions-using-page-link" title="Permalink to this headline">¶</a></h4>
+<p>The method of carrying forward the search conditions to the page navigation request is shown below.</p>
+<blockquote>
+<div><div class="figure align-center">
+<a class="reference internal image-reference" href="../_images/pagination-how_to_use_view_take_over_search_criteria.png"><img alt="Processing image of take over search criteria" src="../_images/pagination-how_to_use_view_take_over_search_criteria.png" style="width: 100%;" /></a>
+</div>
+</div></blockquote>
+<ul class="simple">
+<li>JSP</li>
+</ul>
+<blockquote>
+<div><div class="highlight-jsp"><div class="highlight"><pre><span class="k">&lt;%-</span><span class="o">-</span> <span class="o">(</span><span class="mi">1</span><span class="o">)</span> <span class="o">--</span><span class="k">%&gt;</span>
+<span class="nt">&lt;div</span> <span class="na">id=</span><span class="s">&quot;criteriaPart&quot;</span><span class="nt">&gt;</span>
+  <span class="nt">&lt;form:form</span> <span class="na">action=</span><span class="s">&quot;${pageContext.request.contextPath}/article/list&quot;</span> <span class="na">method=</span><span class="s">&quot;get&quot;</span>
+             <span class="na">modelAttribute=</span><span class="s">&quot;articleSearchCriteriaForm&quot;</span><span class="nt">&gt;</span>
+    <span class="nt">&lt;form:input</span> <span class="na">path=</span><span class="s">&quot;word&quot;</span> <span class="nt">/&gt;</span>
+    <span class="nt">&lt;form:button&gt;</span>Search<span class="nt">&lt;/form:button&gt;</span>
+    <span class="nt">&lt;br&gt;</span>
+  <span class="nt">&lt;/form:form&gt;</span>
+<span class="nt">&lt;/div&gt;</span>
+
+<span class="k">&lt;%-</span><span class="o">-</span> <span class="o">...</span> <span class="o">--</span><span class="k">%&gt;</span>
+
+<span class="nt">&lt;t:pagination</span> <span class="na">page=</span><span class="s">&quot;${page}&quot;</span>
+    <span class="na">outerElementClass=</span><span class="s">&quot;pagination&quot;</span>
+    <span class="na">criteriaQuery=</span><span class="s">&quot;${f:query(articleSearchCriteriaForm)}&quot;</span> <span class="nt">/&gt;</span> <span class="k">&lt;%-</span><span class="o">-</span> <span class="o">(</span><span class="mi">2</span><span class="o">)</span> <span class="o">--</span><span class="k">%&gt;</span>
+</pre></div>
+</div>
+<table border="1" class="docutils">
+<colgroup>
+<col width="10%" />
+<col width="90%" />
+</colgroup>
+<thead valign="bottom">
+<tr class="row-odd"><th class="head">Sr. No.</th>
+<th class="head">Description</th>
+</tr>
+</thead>
+<tbody valign="top">
+<tr class="row-even"><td><div class="first last line-block">
+<div class="line">(1)</div>
+</div>
+</td>
+<td><div class="first last line-block">
+<div class="line">Form to specify search conditions.</div>
+<div class="line"><code class="docutils literal"><span class="pre">word</span></code>  is specified as a search condition.</div>
+</div>
+</td>
+</tr>
+<tr class="row-odd"><td><div class="first last line-block">
+<div class="line">(2)</div>
+</div>
+</td>
+<td><div class="first last line-block">
+<div class="line">When carrying forward the search conditions to page navigation request, specify the <strong>encoded URL query string</strong> in <code class="docutils literal"><span class="pre">criteriaQuery</span></code> attribute.</div>
+<div class="line">When storing the search conditions in form object, conditions can be carried forward easily if EL function ( <code class="docutils literal"><span class="pre">f:query(Object)</span></code> ) provided by common library is used.</div>
+<div class="line">In the above example, query string of <code class="docutils literal"><span class="pre">&quot;?page=page</span> <span class="pre">location&amp;size=number</span> <span class="pre">of</span> <span class="pre">records</span> <span class="pre">to</span> <span class="pre">be</span> <span class="pre">fetched&amp;word=input</span> <span class="pre">value&quot;</span></code> format is generated.</div>
+<div class="line"><br /></div>
+<div class="line"><code class="docutils literal"><span class="pre">criteriaQuery</span></code>attribute can be used in terasoluna-gfw-web 1.0.1.RELEASE or higher version.</div>
+</div>
+</td>
+</tr>
+</tbody>
+</table>
+<div class="admonition note">
+<p class="first admonition-title">Note</p>
+<p><strong>Specifications of f:query(Object)</strong></p>
+<p>JavaBean of form object and <code class="docutils literal"><span class="pre">Map</span></code> object can be specified as an argument of <code class="docutils literal"><span class="pre">f:query</span></code>.
+In case of JavaBean, property name is treated as request parameter name and in case of <code class="docutils literal"><span class="pre">Map</span></code> object, map key name is treated as request parameter.
+URL of the generated query string is encoded in UTF-8.</p>
+<p class="last">Refer to <a class="reference internal" href="../Appendix/TagLibAndELFunctions.html#taglibandelfunctionshowtouseelfunctionquery"><span>f:query()</span></a> for detail specification of the <code class="docutils literal"><span class="pre">f:query</span></code> (URL encoding specification etc).</p>
+</div>
+<div class="admonition warning">
+<p class="first admonition-title">Warning</p>
+<p><strong>Operations when Query string created using f:query is specified in queryTmpl attribute</strong></p>
+<p>It has been found that specifying the query string generated using <code class="docutils literal"><span class="pre">f:query</span></code>, in queryTmpl attribute leads to duplication of URL encoding. Thus, special characters are not carried forward correctly.</p>
+<p class="last">This URL encoding duplication can be avoided by using <code class="docutils literal"><span class="pre">criteriaQuery</span></code> attribute which can be used in terasoluna-gfw-web 1.0.1.RELEASE or higher version.</p>
+</div>
+</div></blockquote>
+<div class="line-block">
+<div class="line"><br /></div>
+</div>
+</div>
+<div class="section" id="carrying-forward-the-sort-condition-using-page-link">
+<h4><a class="toc-backref" href="#id24">5.11.2.3.5. Carrying forward the sort condition using page link</a><a class="headerlink" href="#carrying-forward-the-sort-condition-using-page-link" title="Permalink to this headline">¶</a></h4>
+<p>The method to carry forward the sort condition to page navigation request is as follows:</p>
+<ul class="simple">
+<li>JSP</li>
+</ul>
+<blockquote>
+<div><div class="highlight-jsp"><div class="highlight"><pre><span class="nt">&lt;t:pagination</span> <span class="na">page=</span><span class="s">&quot;${page}&quot;</span>
+    <span class="na">outerElementClass=</span><span class="s">&quot;pagination&quot;</span>
+    <span class="na">queryTmpl=</span><span class="s">&quot;page={page}&amp;size={size}&amp;sort={sortOrderProperty},{sortOrderDirection}&quot;</span> <span class="nt">/&gt;</span>  <span class="k">&lt;%-</span><span class="o">-</span> <span class="o">(</span><span class="mi">1</span><span class="o">)</span> <span class="o">--</span><span class="k">%&gt;</span>
+</pre></div>
+</div>
+<table border="1" class="docutils">
+<colgroup>
+<col width="10%" />
+<col width="90%" />
+</colgroup>
+<thead valign="bottom">
+<tr class="row-odd"><th class="head">Sr. No.</th>
+<th class="head">Description</th>
+</tr>
+</thead>
+<tbody valign="top">
+<tr class="row-even"><td><div class="first last line-block">
+<div class="line">(1)</div>
+</div>
+</td>
+<td><div class="first last line-block">
+<div class="line">To carry forward the sort condition to page navigation request, specify <code class="docutils literal"><span class="pre">queryTmpl</span></code> and add sort condition to query string.</div>
+<div class="line">For parameter specifications to specify sort condition, refer to &#8220;<a class="reference internal" href="#pagination-overview-pagesearch-requestparameter"><span>Request parameters for page search</span></a> &#8220;</div>
+<div class="line">In the above example, <code class="docutils literal"><span class="pre">&quot;?page=0&amp;size=20&amp;sort=sort</span> <span class="pre">item,</span> <span class="pre">sort</span> <span class="pre">order(ASC</span> <span class="pre">or</span> <span class="pre">DESC)&quot;</span></code> is a query string.</div>
+</div>
+</td>
+</tr>
+</tbody>
+</table>
+</div></blockquote>
+<div class="line-block">
+<div class="line"><br /></div>
+</div>
+</div>
+</div>
+<div class="section" id="implementation-of-jsp-layout-change">
+<span id="pagination-how-to-use-make-jsp-layout"></span><h3><a class="toc-backref" href="#id25">5.11.2.4. Implementation of JSP (layout change)</a><a class="headerlink" href="#implementation-of-jsp-layout-change" title="Permalink to this headline">¶</a></h3>
+<div class="section" id="removal-of-link-to-navigate-to-the-first-page-and-the-last-page">
+<h4><a class="toc-backref" href="#id26">5.11.2.4.1. Removal of link to navigate to the first page and the last page</a><a class="headerlink" href="#removal-of-link-to-navigate-to-the-first-page-and-the-last-page" title="Permalink to this headline">¶</a></h4>
+<p>Example to remove &#8220;Link to navigate to the first page&#8221; and &#8220;Link to navigate to the last page&#8221; is shown below.</p>
+<ul class="simple">
+<li>Screen example</li>
+</ul>
+<blockquote>
+<div><div class="figure">
+<a class="reference internal image-reference" href="../_images/pagination-how_to_use_view_remove_link1.png"><img alt="Remove page link that move to first &amp; last page" src="../_images/pagination-how_to_use_view_remove_link1.png" style="width: 510px; height: 140px;" /></a>
+</div>
+</div></blockquote>
+<ul class="simple">
+<li>JSP</li>
+</ul>
+<blockquote>
+<div><div class="highlight-jsp"><div class="highlight"><pre><span class="nt">&lt;t:pagination</span> <span class="na">page=</span><span class="s">&quot;${page}&quot;</span>
+    <span class="na">outerElementClass=</span><span class="s">&quot;pagination&quot;</span>
+    <span class="na">firstLinkText=</span><span class="s">&quot;&quot;</span>
+    <span class="na">lastLinkText=</span><span class="s">&quot;&quot;</span> <span class="nt">/&gt;</span> <span class="k">&lt;%-</span><span class="o">-</span> <span class="o">(</span><span class="mi">1</span><span class="o">)</span> <span class="o">(</span><span class="mi">2</span><span class="o">)</span> <span class="o">--</span><span class="k">%&gt;</span>
+</pre></div>
+</div>
+<table border="1" class="docutils">
+<colgroup>
+<col width="10%" />
+<col width="90%" />
+</colgroup>
+<thead valign="bottom">
+<tr class="row-odd"><th class="head">Sr. No.</th>
+<th class="head">Description</th>
+</tr>
+</thead>
+<tbody valign="top">
+<tr class="row-even"><td><div class="first last line-block">
+<div class="line">(1)</div>
+</div>
+</td>
+<td><div class="first last line-block">
+<div class="line">Specify <code class="docutils literal"><span class="pre">&quot;&quot;</span></code> as firstLinkText attribute of <code class="docutils literal"><span class="pre">&lt;t:pagination&gt;</span></code> tag to hide &#8220;Link to navigate to the first page&#8221;.</div>
+</div>
+</td>
+</tr>
+<tr class="row-odd"><td><div class="first last line-block">
+<div class="line">(2)</div>
+</div>
+</td>
+<td><div class="first last line-block">
+<div class="line">Specify <code class="docutils literal"><span class="pre">&quot;&quot;</span></code> as lastLinkText attribute of <code class="docutils literal"><span class="pre">&lt;t:pagination&gt;</span></code> tag  to hide &#8220;Link to navigate to the last page&#8221;.</div>
+</div>
+</td>
+</tr>
+</tbody>
+</table>
+</div></blockquote>
+<div class="line-block">
+<div class="line"><br /></div>
+</div>
+</div>
+<div class="section" id="removal-of-link-to-navigate-to-previous-page-and-next-page">
+<h4><a class="toc-backref" href="#id27">5.11.2.4.2. Removal of link to navigate to previous page and next page</a><a class="headerlink" href="#removal-of-link-to-navigate-to-previous-page-and-next-page" title="Permalink to this headline">¶</a></h4>
+<p>Example to remove &#8220;Link to navigate to the first page&#8221; and &#8220;Link to navigate to the last page&#8221; is shown below.</p>
+<ul class="simple">
+<li>Screen example</li>
+</ul>
+<blockquote>
+<div><div class="figure">
+<a class="reference internal image-reference" href="../_images/pagination-how_to_use_view_remove_link2.png"><img alt="Remove page link that move to previous &amp; next page" src="../_images/pagination-how_to_use_view_remove_link2.png" style="width: 470px; height: 220px;" /></a>
+</div>
+</div></blockquote>
+<ul class="simple">
+<li>JSP</li>
+</ul>
+<blockquote>
+<div><div class="highlight-jsp"><div class="highlight"><pre><span class="nt">&lt;t:pagination</span> <span class="na">page=</span><span class="s">&quot;${page}&quot;</span>
+    <span class="na">outerElementClass=</span><span class="s">&quot;pagination&quot;</span>
+    <span class="na">previousLinkText=</span><span class="s">&quot;&quot;</span>
+    <span class="na">nextLinkText=</span><span class="s">&quot;&quot;</span> <span class="nt">/&gt;</span> <span class="k">&lt;%-</span><span class="o">-</span> <span class="o">(</span><span class="mi">1</span><span class="o">)</span> <span class="o">(</span><span class="mi">2</span><span class="o">)</span> <span class="o">--</span><span class="k">%&gt;</span>
+</pre></div>
+</div>
+<table border="1" class="docutils">
+<colgroup>
+<col width="10%" />
+<col width="90%" />
+</colgroup>
+<thead valign="bottom">
+<tr class="row-odd"><th class="head">Sr. No.</th>
+<th class="head">Description</th>
+</tr>
+</thead>
+<tbody valign="top">
+<tr class="row-even"><td><div class="first last line-block">
+<div class="line">(1)</div>
+</div>
+</td>
+<td><div class="first last line-block">
+<div class="line">Specify <code class="docutils literal"><span class="pre">&quot;&quot;</span></code> as previousLinkText attribute of <code class="docutils literal"><span class="pre">&lt;t:pagination&gt;</span></code> tag to hide &#8220;Link to navigate to the previous page&#8221;.</div>
+</div>
+</td>
+</tr>
+<tr class="row-odd"><td><div class="first last line-block">
+<div class="line">(2)</div>
+</div>
+</td>
+<td><div class="first last line-block">
+<div class="line">Specify <code class="docutils literal"><span class="pre">&quot;&quot;</span></code> as nextLinkText attribute of <code class="docutils literal"><span class="pre">&lt;t:pagination&gt;</span></code> tag to hide &#8220;Link to navigate to the next page&#8221;.</div>
+</div>
+</td>
+</tr>
+</tbody>
+</table>
+</div></blockquote>
+<div class="line-block">
+<div class="line"><br /></div>
+</div>
+</div>
+<div class="section" id="removal-of-disabled-link">
+<h4><a class="toc-backref" href="#id28">5.11.2.4.3. Removal of disabled link</a><a class="headerlink" href="#removal-of-disabled-link" title="Permalink to this headline">¶</a></h4>
+<div class="line-block">
+<div class="line">Example to remove the link in <code class="docutils literal"><span class="pre">&quot;disabled&quot;</span></code> state is shown below.</div>
+<div class="line">Add the following definition to style sheet when the status is <code class="docutils literal"><span class="pre">&quot;disabled&quot;</span></code>.</div>
+</div>
+<ul class="simple">
+<li>Screen example</li>
+</ul>
+<blockquote>
+<div><div class="figure">
+<a class="reference internal image-reference" href="../_images/pagination-how_to_use_view_remove_link3.png"><img alt="Remove page link that move to previous &amp; next page" src="../_images/pagination-how_to_use_view_remove_link3.png" style="width: 530px; height: 200px;" /></a>
+</div>
+</div></blockquote>
+<ul class="simple">
+<li>Style sheet</li>
+</ul>
+<blockquote>
+<div><div class="highlight-css"><div class="highlight"><pre><span class="nc">.pagination</span> <span class="nc">.disabled</span> <span class="p">{</span>
+    <span class="k">display</span><span class="o">:</span> <span class="k">none</span><span class="p">;</span>  <span class="c">/* (1) */</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+<table border="1" class="docutils">
+<colgroup>
+<col width="10%" />
+<col width="90%" />
+</colgroup>
+<thead valign="bottom">
+<tr class="row-odd"><th class="head">Sr. No.</th>
+<th class="head">Description</th>
+</tr>
+</thead>
+<tbody valign="top">
+<tr class="row-even"><td><div class="first last line-block">
+<div class="line">(1)</div>
+</div>
+</td>
+<td><div class="first last line-block">
+<div class="line">Specify <code class="docutils literal"><span class="pre">&quot;display:</span> <span class="pre">none;&quot;</span></code> as an attribute value of <code class="docutils literal"><span class="pre">&quot;disabled&quot;</span></code> class.</div>
+</div>
+</td>
+</tr>
+</tbody>
+</table>
+</div></blockquote>
+<div class="line-block">
+<div class="line"><br /></div>
+</div>
+</div>
+<div class="section" id="change-in-maximum-number-of-display-links-to-navigate-to-the-specified-page">
+<h4><a class="toc-backref" href="#id29">5.11.2.4.4. Change in maximum number of display links to navigate to the specified page</a><a class="headerlink" href="#change-in-maximum-number-of-display-links-to-navigate-to-the-specified-page" title="Permalink to this headline">¶</a></h4>
+<p>Example to change maximum number of display links to navigate to the specified page is shown below.</p>
+<ul class="simple">
+<li>Screen example</li>
+</ul>
+<blockquote>
+<div><div class="figure">
+<a class="reference internal image-reference" href="../_images/pagination-how_to_use_view_change_maxsize.png"><img alt="change max display count of page link that move to specified page" src="../_images/pagination-how_to_use_view_change_maxsize.png" style="width: 450px; height: 220px;" /></a>
+</div>
+</div></blockquote>
+<ul class="simple">
+<li>JSP</li>
+</ul>
+<blockquote>
+<div><div class="highlight-jsp"><div class="highlight"><pre><span class="nt">&lt;t:pagination</span> <span class="na">page=</span><span class="s">&quot;${page}&quot;</span>
+    <span class="na">outerElementClass=</span><span class="s">&quot;pagination&quot;</span>
+    <span class="na">maxDisplayCount=</span><span class="s">&quot;5&quot;</span> <span class="nt">/&gt;</span> <span class="k">&lt;%-</span><span class="o">-</span> <span class="o">(</span><span class="mi">1</span><span class="o">)</span> <span class="o">--</span><span class="k">%&gt;</span>
+</pre></div>
+</div>
+<table border="1" class="docutils">
+<colgroup>
+<col width="10%" />
+<col width="90%" />
+</colgroup>
+<thead valign="bottom">
+<tr class="row-odd"><th class="head">Sr. No.</th>
+<th class="head">Description</th>
+</tr>
+</thead>
+<tbody valign="top">
+<tr class="row-even"><td><div class="first last line-block">
+<div class="line">(1)</div>
+</div>
+</td>
+<td><div class="first last line-block">
+<div class="line">In order to change maximum number of display links to navigate to the specified page, specify value in maxDisplayCount attribute of <code class="docutils literal"><span class="pre">&lt;t:pagination&gt;</span></code> tag.</div>
+</div>
+</td>
+</tr>
+</tbody>
+</table>
+</div></blockquote>
+<div class="line-block">
+<div class="line"><br /></div>
+</div>
+</div>
+<div class="section" id="removal-of-link-to-navigate-to-the-specified-page">
+<h4><a class="toc-backref" href="#id30">5.11.2.4.5. Removal of link to navigate to the specified page</a><a class="headerlink" href="#removal-of-link-to-navigate-to-the-specified-page" title="Permalink to this headline">¶</a></h4>
+<div class="line-block">
+<div class="line">Example to remove link to navigate to the specified page is shown below.</div>
+</div>
+<ul class="simple">
+<li>Screen example</li>
+</ul>
+<blockquote>
+<div><div class="figure">
+<a class="reference internal image-reference" href="../_images/pagination-how_to_use_view_remove_link4.png"><img alt="Remove page link that move to specified page" src="../_images/pagination-how_to_use_view_remove_link4.png" style="width: 410px; height: 220px;" /></a>
+</div>
+</div></blockquote>
+<ul class="simple">
+<li>JSP</li>
+</ul>
+<blockquote>
+<div><div class="highlight-jsp"><div class="highlight"><pre><span class="nt">&lt;t:pagination</span> <span class="na">page=</span><span class="s">&quot;${page}&quot;</span>
+    <span class="na">outerElementClass=</span><span class="s">&quot;pagination&quot;</span>
+    <span class="na">maxDisplayCount=</span><span class="s">&quot;0&quot;</span> <span class="nt">/&gt;</span> <span class="k">&lt;%-</span><span class="o">-</span> <span class="o">(</span><span class="mi">1</span><span class="o">)</span> <span class="o">--</span><span class="k">%&gt;</span>
+</pre></div>
+</div>
+<table border="1" class="docutils">
+<colgroup>
+<col width="10%" />
+<col width="90%" />
+</colgroup>
+<thead valign="bottom">
+<tr class="row-odd"><th class="head">Sr. No.</th>
+<th class="head">Description</th>
+</tr>
+</thead>
+<tbody valign="top">
+<tr class="row-even"><td><div class="first last line-block">
+<div class="line">(1)</div>
+</div>
+</td>
+<td><div class="first last line-block">
+<div class="line">In order to hide the link to navigate to the specified page, specify <code class="docutils literal"><span class="pre">&quot;0&quot;</span></code> as maxDisplayCount attribute of <code class="docutils literal"><span class="pre">&lt;t:pagination&gt;</span></code> tag.</div>
+</div>
+</td>
+</tr>
+</tbody>
+</table>
+</div></blockquote>
+<div class="line-block">
+<div class="line"><br /></div>
+</div>
+</div>
+</div>
+<div class="section" id="implementation-of-jsp-operation">
+<h3><a class="toc-backref" href="#id31">5.11.2.5. Implementation of JSP (Operation)</a><a class="headerlink" href="#implementation-of-jsp-operation" title="Permalink to this headline">¶</a></h3>
+<div class="section" id="specifying-sort-condition">
+<h4><a class="toc-backref" href="#id32">5.11.2.5.1. Specifying sort condition</a><a class="headerlink" href="#specifying-sort-condition" title="Permalink to this headline">¶</a></h4>
+<p>Example to specify sort condition from client is shown below.</p>
+<ul class="simple">
+<li>Screen example</li>
+</ul>
+<blockquote>
+<div><div class="figure">
+<a class="reference internal image-reference" href="../_images/pagination-how_to_use_view_sort.png"><img alt="specify the sort condition" src="../_images/pagination-how_to_use_view_sort.png" style="width: 100%;" /></a>
+</div>
+</div></blockquote>
+<ul class="simple">
+<li>JSP</li>
+</ul>
+<blockquote>
+<div><div class="highlight-jsp"><div class="highlight"><pre><span class="nt">&lt;div</span> <span class="na">id=</span><span class="s">&quot;criteriaPart&quot;</span><span class="nt">&gt;</span>
+  <span class="nt">&lt;form:form</span>
+    <span class="na">action=</span><span class="s">&quot;${pageContext.request.contextPath}/article/search&quot;</span>
+    <span class="na">method=</span><span class="s">&quot;get&quot;</span> <span class="na">modelAttribute=</span><span class="s">&quot;articleSearchCriteriaForm&quot;</span><span class="nt">&gt;</span>
+    <span class="nt">&lt;form:input</span> <span class="na">path=</span><span class="s">&quot;word&quot;</span> <span class="nt">/&gt;</span>
+    <span class="k">&lt;%-</span><span class="o">-</span> <span class="o">(</span><span class="mi">1</span><span class="o">)</span> <span class="o">--</span><span class="k">%&gt;</span>
+    <span class="nt">&lt;form:select</span> <span class="na">path=</span><span class="s">&quot;sort&quot;</span><span class="nt">&gt;</span>
+        <span class="nt">&lt;form:option</span> <span class="na">value=</span><span class="s">&quot;publishedDate,DESC&quot;</span><span class="nt">&gt;</span>Newest<span class="nt">&lt;/form:option&gt;</span>
+        <span class="nt">&lt;form:option</span> <span class="na">value=</span><span class="s">&quot;publishedDate,ASC&quot;</span><span class="nt">&gt;</span>Oldest<span class="nt">&lt;/form:option&gt;</span>
+    <span class="nt">&lt;/form:select&gt;</span>
+    <span class="nt">&lt;form:button&gt;</span>Search<span class="nt">&lt;/form:button&gt;</span>
+    <span class="nt">&lt;br&gt;</span>
+  <span class="nt">&lt;/form:form&gt;</span>
+<span class="nt">&lt;/div&gt;</span>
+</pre></div>
+</div>
+<table border="1" class="docutils">
+<colgroup>
+<col width="10%" />
+<col width="90%" />
+</colgroup>
+<thead valign="bottom">
+<tr class="row-odd"><th class="head">Sr. No.</th>
+<th class="head">Description</th>
+</tr>
+</thead>
+<tbody valign="top">
+<tr class="row-even"><td><div class="first last line-block">
+<div class="line">(1)</div>
+</div>
+</td>
+<td><div class="first last line-block">
+<div class="line">For specifying the sort condition from client, add the corresponding parameters for specifying the sort condition.</div>
+<div class="line">For parameter specifications to specify sort condition, refer to &#8220;<a class="reference internal" href="#pagination-overview-pagesearch-requestparameter"><span>Request parameters for page search</span></a> &#8221; .</div>
+<div class="line">In the above example, publishedDate can be selected in ascending order or descending order from pull-down.</div>
+</div>
+</td>
+</tr>
+</tbody>
+</table>
+</div></blockquote>
+<div class="line-block">
+<div class="line"><br /></div>
+</div>
+</div>
+<div class="section" id="to-disable-page-link-using-javascript">
+<span id="paginationhowtousedisablepagelinkusingjavascript"></span><h4><a class="toc-backref" href="#id33">5.11.2.5.2. To disable page link using JavaScript</a><a class="headerlink" href="#to-disable-page-link-using-javascript" title="Permalink to this headline">¶</a></h4>
+<p>By default <code class="docutils literal"><span class="pre">&quot;javascript:void(0)&quot;</span></code> is set in <code class="docutils literal"><span class="pre">disabledHref</span></code> attribute of <code class="docutils literal"><span class="pre">&lt;t:pagination&gt;</span></code> tag to disable the operation on clicking page link in <code class="docutils literal"><span class="pre">&quot;disabled&quot;</span></code> state and <code class="docutils literal"><span class="pre">&quot;active&quot;</span></code> state.
+In such a state, if focus is moved or on mouseover to page link, <code class="docutils literal"><span class="pre">&quot;javascript:void(0)&quot;</span></code> is displayed on browser status bar.
+To change this behavior, it is necessary to disable the operation of page link click by using JavaScript.</p>
+<p>Implementation example is shown below.</p>
+<p><strong>JSP</strong></p>
+<div class="highlight-jsp"><div class="highlight"><pre><span class="k">&lt;%-</span><span class="o">-</span> <span class="o">(</span><span class="mi">1</span><span class="o">)</span> <span class="o">--</span><span class="k">%&gt;</span>
+<span class="nt">&lt;script</span> <span class="na">type=</span><span class="s">&quot;text/javascript&quot;</span>
+        <span class="na">src=</span><span class="s">&quot;${pageContext.request.contextPath}/resources/vendor/js/jquery.js&quot;</span><span class="nt">&gt;&lt;/script&gt;</span>
+
+<span class="k">&lt;%-</span><span class="o">-</span> <span class="o">(</span><span class="mi">2</span><span class="o">)</span> <span class="o">--</span><span class="k">%&gt;</span>
+<span class="nt">&lt;script</span> <span class="na">type=</span><span class="s">&quot;text/javascript&quot;</span><span class="nt">&gt;</span>
+    $(function(){
+        $(document).on(&quot;click&quot;, &quot;.disabled a, .active a&quot;, function(){
+            return false;
+        });
+    });
+<span class="nt">&lt;/script&gt;</span>
+
+<span class="k">&lt;%-</span><span class="o">-</span> <span class="o">...</span> <span class="o">--</span><span class="k">%&gt;</span>
+
+<span class="k">&lt;%-</span><span class="o">-</span> <span class="o">(</span><span class="mi">3</span><span class="o">)</span> <span class="o">--</span><span class="k">%&gt;</span>
+<span class="nt">&lt;t:pagination</span> <span class="na">page=</span><span class="s">&quot;${page}&quot;</span> <span class="na">disabledHref=</span><span class="s">&quot;#&quot;</span> <span class="nt">/&gt;</span>
+</pre></div>
+</div>
+<table border="1" class="docutils">
+<colgroup>
+<col width="10%" />
+<col width="90%" />
+</colgroup>
+<thead valign="bottom">
+<tr class="row-odd"><th class="head">Sr. No.</th>
+<th class="head">Description</th>
+</tr>
+</thead>
+<tbody valign="top">
+<tr class="row-even"><td><div class="first last line-block">
+<div class="line">(1)</div>
+</div>
+</td>
+<td><p class="first">Read js file of jQuery.</p>
+<p class="last">In the above example, jQuery API is used to disable the operation of page link click using JavaScript.</p>
+</td>
+</tr>
+<tr class="row-odd"><td><div class="first last line-block">
+<div class="line">(2)</div>
+</div>
+</td>
+<td><p class="first">Disable click event of page link of <code class="docutils literal"><span class="pre">&quot;disabled&quot;</span></code> and <code class="docutils literal"><span class="pre">&quot;active&quot;</span></code> states by using API of jQuery.</p>
+<p class="last">However, when <code class="docutils literal"><span class="pre">enableLinkOfCurrentPage</span></code> attribute of <code class="docutils literal"><span class="pre">&lt;t:pagination&gt;</span></code> tag is set to <code class="docutils literal"><span class="pre">&quot;true&quot;</span></code>, the click event of page link in <code class="docutils literal"><span class="pre">&quot;active&quot;</span></code> state should not be disabled.</p>
+</td>
+</tr>
+<tr class="row-even"><td><div class="first last line-block">
+<div class="line">(3)</div>
+</div>
+</td>
+<td>Set <code class="docutils literal"><span class="pre">&quot;#&quot;</span></code> in <code class="docutils literal"><span class="pre">disabledHref</span></code> attribute.</td>
+</tr>
+</tbody>
+</table>
+<div class="line-block">
+<div class="line"><br /></div>
+</div>
+</div>
+</div>
+</div>
+<div class="section" id="appendix">
+<span id="paginatin-appendix"></span><h2><a class="toc-backref" href="#id34">5.11.3. Appendix</a><a class="headerlink" href="#appendix" title="Permalink to this headline">¶</a></h2>
+<div class="section" id="about-property-values-of-pageablehandlermethodargumentresolver">
+<span id="paginatin-appendix-pageablehandlermethodargumentresolver"></span><h3><a class="toc-backref" href="#id35">5.11.3.1. About property values of <code class="docutils literal"><span class="pre">PageableHandlerMethodArgumentResolver</span></code></a><a class="headerlink" href="#about-property-values-of-pageablehandlermethodargumentresolver" title="Permalink to this headline">¶</a></h3>
+<div class="line-block">
+<div class="line">Properties that can be specified in <code class="docutils literal"><span class="pre">PageableHandlerMethodArgumentResolver</span></code> are as follows:</div>
+<div class="line">Values should be changed as required in the application.</div>
+</div>
+<blockquote>
+<div><table border="1" class="docutils">
+<colgroup>
+<col width="10%" />
+<col width="20%" />
+<col width="55%" />
+<col width="15%" />
+</colgroup>
+<thead valign="bottom">
+<tr class="row-odd"><th class="head">Sr. No.</th>
+<th class="head">Property name</th>
+<th class="head">Description</th>
+<th class="head">Default value</th>
+</tr>
+</thead>
+<tbody valign="top">
+<tr class="row-even"><td><ol class="first last arabic simple">
+<li></li>
+</ol>
+</td>
+<td>maxPageSize</td>
+<td><div class="first last line-block">
+<div class="line">Specify maximum permissible value for the number of records to be fetched.</div>
+<div class="line">When the specified number of records to be fetched exceeds <code class="docutils literal"><span class="pre">maxPageSize</span></code>, only the number of records specified as <code class="docutils literal"><span class="pre">maxPageSize</span></code> will be fetched.</div>
+</div>
+</td>
+<td><div class="first last line-block">
+<div class="line"><cite>2000</cite></div>
+</div>
+</td>
+</tr>
+<tr class="row-odd"><td><ol class="first last arabic simple" start="2">
+<li></li>
+</ol>
+</td>
+<td>fallbackPageable</td>
+<td><div class="first last line-block">
+<div class="line">Specify default values for page location, number of records to be fetched and sort condition of the entire application.</div>
+<div class="line">When page location, number of records to be fetched and sort condition are not specified, the values set in fallbackPageable are used.</div>
+</div>
+</td>
+<td><div class="first last line-block">
+<div class="line">Page location : <cite>0</cite></div>
+<div class="line">Number of records to be fetched : <cite>20</cite></div>
+<div class="line">Sort condition : <cite>null</cite></div>
+</div>
+</td>
+</tr>
+<tr class="row-even"><td><ol class="first last arabic simple" start="3">
+<li></li>
+</ol>
+</td>
+<td>oneIndexedParameters</td>
+<td><div class="first last line-block">
+<div class="line">Specify start value of page location.</div>
+<div class="line">When <cite>false</cite>  is specified, start value of page location becomes <cite>0</cite>  and when <cite>true</cite> is specified, it becomes <cite>1</cite>.</div>
+</div>
+</td>
+<td><div class="first last line-block">
+<div class="line"><cite>false</cite></div>
+</div>
+</td>
+</tr>
+<tr class="row-odd"><td><ol class="first last arabic simple" start="4">
+<li></li>
+</ol>
+</td>
+<td>pageParameterName</td>
+<td><div class="first last line-block">
+<div class="line">Specify request parameter name to specify page location.</div>
+</div>
+</td>
+<td><div class="first last line-block">
+<div class="line"><code class="docutils literal"><span class="pre">&quot;page&quot;</span></code></div>
+</div>
+</td>
+</tr>
+<tr class="row-even"><td><ol class="first last arabic simple" start="5">
+<li></li>
+</ol>
+</td>
+<td>sizeParameterName</td>
+<td><div class="first last line-block">
+<div class="line">Specify request parameter name to specify number of records to be fetched.</div>
+</div>
+</td>
+<td><div class="first last line-block">
+<div class="line"><code class="docutils literal"><span class="pre">&quot;size&quot;</span></code></div>
+</div>
+</td>
+</tr>
+<tr class="row-odd"><td><ol class="first last arabic simple" start="6">
+<li></li>
+</ol>
+</td>
+<td>prefix</td>
+<td><div class="first last line-block">
+<div class="line">Specify prefix (namespace) of request parameter to specify page location and number of records to be fetched.</div>
+<div class="line">When there is a conflict between default parameter name and the parameter to be used in the application, it is recommended to specify namespace to avoid this issue.</div>
+<div class="line">If prefix is specified, request parameter name to specify page location will be <code class="docutils literal"><span class="pre">prefix</span> <span class="pre">+</span> <span class="pre">pageParameterName</span></code> and request parameter name to specify number of records to be fetched will be <code class="docutils literal"><span class="pre">prefix</span> <span class="pre">+</span> <span class="pre">sizeParameterName</span></code>.</div>
+</div>
+</td>
+<td><div class="first last line-block">
+<div class="line"><code class="docutils literal"><span class="pre">&quot;&quot;</span></code></div>
+<div class="line">(No namespace)</div>
+</div>
+</td>
+</tr>
+<tr class="row-even"><td><ol class="first last arabic simple" start="7">
+<li></li>
+</ol>
+</td>
+<td>qualifierDelimiter</td>
+<td><div class="first last line-block">
+<div class="line">To search multiple pages in the same request, specify request parameter name in <code class="docutils literal"><span class="pre">qualifier</span> <span class="pre">+</span> <span class="pre">delimiter</span> <span class="pre">+</span> <span class="pre">standard</span> <span class="pre">parameter</span> <span class="pre">name</span></code> format to distinguish the information required for page search (such as location of page to be searched, number of records to be fetched).</div>
+<div class="line">For this property, set <code class="docutils literal"><span class="pre">delimiter</span></code> value of the above format.</div>
+<div class="line">To change this setting, it is necessary to change the setting of <code class="docutils literal"><span class="pre">qualifierDelimiter</span></code> of <code class="docutils literal"><span class="pre">SortHandlerMethodArgumentResolver</span></code>.</div>
+</div>
+</td>
+<td><div class="first last line-block">
+<div class="line"><code class="docutils literal"><span class="pre">&quot;_&quot;</span></code></div>
+</div>
+</td>
+</tr>
+</tbody>
+</table>
+<div class="admonition note">
+<p class="first admonition-title">Note</p>
+<p><strong>Setting value of maxPageSize</strong></p>
+<p class="last">Default value is <code class="docutils literal"><span class="pre">2000</span></code>; however it is recommended to change the setting to maximum permissible value for the application.
+If maximum permissible value for the application is <cite>100</cite>, maxPageSize should also be set to <cite>100</cite>.</p>
+</div>
+<div class="admonition note">
+<p class="first admonition-title">Note</p>
+<p><strong>Setting fallbackPageable</strong></p>
+<p class="last">To change default values used in the entire application, set <code class="docutils literal"><span class="pre">Pageable</span></code> ( <code class="docutils literal"><span class="pre">org.springframework.data.domain.PageRequest</span></code> ) object wherein default value is defined in <code class="docutils literal"><span class="pre">fallbackPageable</span></code> property .
+To change the default sort condition, <code class="docutils literal"><span class="pre">org.springframework.data.domain.Sort</span></code> object where default value is defined in <code class="docutils literal"><span class="pre">fallbackSort</span></code> property  of <code class="docutils literal"><span class="pre">SortHandlerMethodArgumentResolver</span></code>.</p>
+</div>
+</div></blockquote>
+<div class="line-block">
+<div class="line"><br /></div>
+</div>
+<p>It is assumed that the fields given below will normally be changed in each application to be developed. The example to change the default values of such fields is given below.</p>
+<ul class="simple">
+<li>Maximum permissible value for number of records to be fetched ( <code class="docutils literal"><span class="pre">maxPageSize</span></code> )</li>
+<li>Default values ( <code class="docutils literal"><span class="pre">fallbackPageable</span></code> ) of page location and number of records to be fetched in the entire application</li>
+<li>Default sort condition ( <code class="docutils literal"><span class="pre">fallbackSort</span></code> )</li>
+</ul>
+<blockquote>
+<div><div class="highlight-xml"><div class="highlight"><pre><span class="nt">&lt;mvc:annotation-driven&gt;</span>
+    <span class="nt">&lt;mvc:argument-resolvers&gt;</span>
+        <span class="nt">&lt;bean</span>
+            <span class="na">class=</span><span class="s">&quot;org.springframework.data.web.PageableHandlerMethodArgumentResolver&quot;</span><span class="nt">&gt;</span>
+            <span class="c">&lt;!-- (1) --&gt;</span>
+            <span class="nt">&lt;property</span> <span class="na">name=</span><span class="s">&quot;maxPageSize&quot;</span> <span class="na">value=</span><span class="s">&quot;100&quot;</span> <span class="nt">/&gt;</span>
+            <span class="c">&lt;!-- (2) --&gt;</span>
+            <span class="nt">&lt;property</span> <span class="na">name=</span><span class="s">&quot;fallbackPageable&quot;</span><span class="nt">&gt;</span>
+                <span class="nt">&lt;bean</span> <span class="na">class=</span><span class="s">&quot;org.springframework.data.domain.PageRequest&quot;</span><span class="nt">&gt;</span>
+                    <span class="c">&lt;!-- (3) --&gt;</span>
+                    <span class="nt">&lt;constructor-arg</span> <span class="na">index=</span><span class="s">&quot;0&quot;</span> <span class="na">value=</span><span class="s">&quot;0&quot;</span> <span class="nt">/&gt;</span>
+                    <span class="c">&lt;!-- (4) --&gt;</span>
+                    <span class="nt">&lt;constructor-arg</span> <span class="na">index=</span><span class="s">&quot;1&quot;</span> <span class="na">value=</span><span class="s">&quot;50&quot;</span> <span class="nt">/&gt;</span>
+                <span class="nt">&lt;/bean&gt;</span>
+            <span class="nt">&lt;/property&gt;</span>
+            <span class="c">&lt;!-- (5) --&gt;</span>
+            <span class="nt">&lt;constructor-arg</span> <span class="na">index=</span><span class="s">&quot;0&quot;</span><span class="nt">&gt;</span>
+                <span class="nt">&lt;bean</span> <span class="na">class=</span><span class="s">&quot;org.springframework.data.web.SortHandlerMethodArgumentResolver&quot;</span><span class="nt">&gt;</span>
+                    <span class="c">&lt;!-- (6) --&gt;</span>
+                    <span class="nt">&lt;property</span> <span class="na">name=</span><span class="s">&quot;fallbackSort&quot;</span><span class="nt">&gt;</span>
+                        <span class="nt">&lt;bean</span> <span class="na">class=</span><span class="s">&quot;org.springframework.data.domain.Sort&quot;</span><span class="nt">&gt;</span>
+                            <span class="c">&lt;!-- (7) --&gt;</span>
+                            <span class="nt">&lt;constructor-arg</span> <span class="na">index=</span><span class="s">&quot;0&quot;</span><span class="nt">&gt;</span>
+                                <span class="nt">&lt;list&gt;</span>
+                                    <span class="c">&lt;!-- (8) --&gt;</span>
+                                    <span class="nt">&lt;bean</span> <span class="na">class=</span><span class="s">&quot;org.springframework.data.domain.Sort.Order&quot;</span><span class="nt">&gt;</span>
+                                        <span class="c">&lt;!-- (9) --&gt;</span>
+                                        <span class="nt">&lt;constructor-arg</span> <span class="na">index=</span><span class="s">&quot;0&quot;</span> <span class="na">value=</span><span class="s">&quot;DESC&quot;</span> <span class="nt">/&gt;</span>
+                                        <span class="c">&lt;!-- (10) --&gt;</span>
+                                        <span class="nt">&lt;constructor-arg</span> <span class="na">index=</span><span class="s">&quot;1&quot;</span> <span class="na">value=</span><span class="s">&quot;lastModifiedDate&quot;</span> <span class="nt">/&gt;</span>
+                                    <span class="nt">&lt;/bean&gt;</span>
+                                    <span class="c">&lt;!-- (8) --&gt;</span>
+                                    <span class="nt">&lt;bean</span> <span class="na">class=</span><span class="s">&quot;org.springframework.data.domain.Sort.Order&quot;</span><span class="nt">&gt;</span>
+                                        <span class="nt">&lt;constructor-arg</span> <span class="na">index=</span><span class="s">&quot;0&quot;</span> <span class="na">value=</span><span class="s">&quot;ASC&quot;</span> <span class="nt">/&gt;</span>
+                                        <span class="nt">&lt;constructor-arg</span> <span class="na">index=</span><span class="s">&quot;1&quot;</span> <span class="na">value=</span><span class="s">&quot;id&quot;</span> <span class="nt">/&gt;</span>
+                                    <span class="nt">&lt;/bean&gt;</span>
+                                <span class="nt">&lt;/list&gt;</span>
+                            <span class="nt">&lt;/constructor-arg&gt;</span>
+                        <span class="nt">&lt;/bean&gt;</span>
+                    <span class="nt">&lt;/property&gt;</span>
+                <span class="nt">&lt;/bean&gt;</span>
+            <span class="nt">&lt;/constructor-arg&gt;</span>
+        <span class="nt">&lt;/bean&gt;</span>
+    <span class="nt">&lt;/mvc:argument-resolvers&gt;</span>
+<span class="nt">&lt;/mvc:annotation-driven&gt;</span>
+</pre></div>
+</div>
+<table border="1" class="docutils">
+<colgroup>
+<col width="10%" />
+<col width="90%" />
+</colgroup>
+<thead valign="bottom">
+<tr class="row-odd"><th class="head">Sr. No.</th>
+<th class="head">Description</th>
+</tr>
+</thead>
+<tbody valign="top">
+<tr class="row-even"><td><div class="first last line-block">
+<div class="line">(1)</div>
+</div>
+</td>
+<td><div class="first last line-block">
+<div class="line">In the above example, maximum value of number of records to be fetched is set to <cite>100</cite>. When value specified in number of records to be fetched (size) is <cite>101</cite> or more, search is performed for <cite>100</cite> records only.</div>
+</div>
+</td>
+</tr>
+<tr class="row-odd"><td><div class="first last line-block">
+<div class="line">(2)</div>
+</div>
+</td>
+<td><div class="first last line-block">
+<div class="line">Create an instance of <code class="docutils literal"><span class="pre">org.springframework.data.domain.PageRequest</span></code> and set to <code class="docutils literal"><span class="pre">fallbackPageable</span></code>.</div>
+</div>
+</td>
+</tr>
+<tr class="row-even"><td><div class="first last line-block">
+<div class="line">(3)</div>
+</div>
+</td>
+<td><div class="first last line-block">
+<div class="line">Specify default value of page location as the first argument of constructor of  <code class="docutils literal"><span class="pre">PageRequest</span></code>.</div>
+<div class="line">In the above example, <cite>0</cite>  is specified, hence the default value is not changed.</div>
+</div>
+</td>
+</tr>
+<tr class="row-odd"><td><div class="first last line-block">
+<div class="line">(4)</div>
+</div>
+</td>
+<td><div class="first last line-block">
+<div class="line">Specify default value of number of records to be fetched as the second argument of constructor of <code class="docutils literal"><span class="pre">PageRequest</span></code>.</div>
+<div class="line">In the above example, the value will be considered <cite>50</cite> when number of records to be fetched is not specified in request parameter.</div>
+</div>
+</td>
+</tr>
+<tr class="row-even"><td><div class="first last line-block">
+<div class="line">(5)</div>
+</div>
+</td>
+<td><div class="first last line-block">
+<div class="line">Set an instance of <code class="docutils literal"><span class="pre">SortHandlerMethodArgumentResolver</span></code> as constructor of <code class="docutils literal"><span class="pre">PageableHandlerMethodArgumentResolver</span></code> .</div>
+</div>
+</td>
+</tr>
+<tr class="row-odd"><td><div class="first last line-block">
+<div class="line">(6)</div>
+</div>
+</td>
+<td><div class="first last line-block">
+<div class="line">Create an instance of <code class="docutils literal"><span class="pre">Sort</span></code> and set to <code class="docutils literal"><span class="pre">fallbackSort</span></code>.</div>
+</div>
+</td>
+</tr>
+<tr class="row-even"><td><div class="first last line-block">
+<div class="line">(7)</div>
+</div>
+</td>
+<td><div class="first last line-block">
+<div class="line">Set the list of <code class="docutils literal"><span class="pre">Order</span></code> objects to be used as default value as the first argument of <code class="docutils literal"><span class="pre">Sort</span></code> constructor.</div>
+</div>
+</td>
+</tr>
+<tr class="row-odd"><td><div class="first last line-block">
+<div class="line">(8)</div>
+</div>
+</td>
+<td><div class="first last line-block">
+<div class="line">Create an instance of <code class="docutils literal"><span class="pre">Order</span></code> and add to the list of <code class="docutils literal"><span class="pre">Order</span></code> objects to be used as default value.</div>
+<div class="line">In the above example, sort condition of <code class="docutils literal"><span class="pre">&quot;ORDER</span> <span class="pre">BY</span> <span class="pre">x.lastModifiedDate</span> <span class="pre">DESC,</span> <span class="pre">x.id</span> <span class="pre">ASC&quot;</span></code> is added to query when sort condition is not specified in request parameter.</div>
+</div>
+</td>
+</tr>
+<tr class="row-even"><td><div class="first last line-block">
+<div class="line">(9)</div>
+</div>
+</td>
+<td><div class="first last line-block">
+<div class="line">Specify sort order (ASC/DESC) as the first argument of <code class="docutils literal"><span class="pre">Order</span></code>  constructor.</div>
+</div>
+</td>
+</tr>
+<tr class="row-odd"><td><div class="first last line-block">
+<div class="line">(10)</div>
+</div>
+</td>
+<td><div class="first last line-block">
+<div class="line">Specify sort item as the second argument of <code class="docutils literal"><span class="pre">Order</span></code> constructor.</div>
+</div>
+</td>
+</tr>
+</tbody>
+</table>
+</div></blockquote>
+<div class="line-block">
+<div class="line"><br /></div>
+</div>
+</div>
+<div class="section" id="property-value-of-sorthandlermethodargumentresolver">
+<span id="paginatin-appendix-sorthandlermethodargumentresolver"></span><h3><a class="toc-backref" href="#id36">5.11.3.2. Property value of <code class="docutils literal"><span class="pre">SortHandlerMethodArgumentResolver</span></code></a><a class="headerlink" href="#property-value-of-sorthandlermethodargumentresolver" title="Permalink to this headline">¶</a></h3>
+<div class="line-block">
+<div class="line">Properties that can be specified in <code class="docutils literal"><span class="pre">SortHandlerMethodArgumentResolver</span></code> are as follows:</div>
+<div class="line">Values should be changed as required in the application.</div>
+</div>
+<blockquote>
+<div><table border="1" class="docutils">
+<colgroup>
+<col width="10%" />
+<col width="20%" />
+<col width="55%" />
+<col width="15%" />
+</colgroup>
+<thead valign="bottom">
+<tr class="row-odd"><th class="head">Sr. No.</th>
+<th class="head">Property name</th>
+<th class="head">Description</th>
+<th class="head">Default value</th>
+</tr>
+</thead>
+<tbody valign="top">
+<tr class="row-even"><td><ol class="first last arabic simple">
+<li></li>
+</ol>
+</td>
+<td>fallbackSort</td>
+<td><div class="first last line-block">
+<div class="line">Specify default sort condition for the entire application.</div>
+<div class="line">When sort condition is not specified, the value set in fallbackSort is used.</div>
+</div>
+</td>
+<td><div class="first last line-block">
+<div class="line"><cite>null</cite></div>
+<div class="line">(No sort condition)</div>
+</div>
+</td>
+</tr>
+<tr class="row-odd"><td><ol class="first last arabic simple" start="2">
+<li></li>
+</ol>
+</td>
+<td>sortParameter</td>
+<td><div class="first last line-block">
+<div class="line">Specify request parameter name to specify the sort condition.</div>
+<div class="line">When there is a conflict between default parameter name and the parameter to be used in the application, it is recommended to change the request parameter name to avoid this issue.</div>
+</div>
+</td>
+<td><div class="first last line-block">
+<div class="line"><code class="docutils literal"><span class="pre">&quot;sort&quot;</span></code></div>
+</div>
+</td>
+</tr>
+<tr class="row-even"><td><ol class="first last arabic simple" start="3">
+<li></li>
+</ol>
+</td>
+<td>propertyDelimiter</td>
+<td><div class="first last line-block">
+<div class="line">Specify delimiter of sort items and sort order (ASC,DESC).</div>
+</div>
+</td>
+<td><div class="first last line-block">
+<div class="line"><code class="docutils literal"><span class="pre">&quot;,&quot;</span></code></div>
+</div>
+</td>
+</tr>
+<tr class="row-odd"><td><ol class="first last arabic simple" start="4">
+<li></li>
+</ol>
+</td>
+<td>qualifierDelimiter</td>
+<td><div class="first last line-block">
+<div class="line">To search multiple pages in the same request, specify request parameter name in `` qualifier + delimiter + sortParameter `` format to distinguish the information required for page search (such as sort condition).</div>
+<div class="line">For this property, set <code class="docutils literal"><span class="pre">delimiter</span></code> value of the above format.</div>
+</div>
+</td>
+<td><div class="first last line-block">
+<div class="line"><code class="docutils literal"><span class="pre">&quot;_&quot;</span></code></div>
+</div>
+</td>
+</tr>
+</tbody>
+</table>
+</div></blockquote>
+</div>
+</div>
+</div>
+
+
+          </div>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="DoubleSubmitProtection.html" title="5.12. Double Submit Protection"
+             >next</a> |</li>
+        <li class="right" >
+          <a href="PropertyManagement.html" title="5.10. Properties Management"
+             >previous</a> |</li>
+        <li class="nav-item nav-item-0"><a href="../index.html">TERASOLUNA Server Framework for Java (5.x) Development Guideline 5.0.0.RELEASE documentation</a> &raquo;</li>
+          <li class="nav-item nav-item-1"><a href="index.html" >5. Architecture in Detail - TERASOLUNA Server Framework for Java (5.x)</a> &raquo;</li> 
+      </ul>
+    </div>
+    <div class="footer">
+        &copy; Copyright 2013-2015, NTT DATA.
+    Created using <a href="http://sphinx.pocoo.org/">Sphinx</a> 1.3.1.Theme by <a href="http://github.com/vkvn">vkvn</a>
+    </div>
+    
+    <script>
+    
+    $(function() {
+    	var $sidebar	= $('.sphinxsidebar'),
+    		$window		= $(window),
+    		offset		= $sidebar.offset(),
+    		topPadding	= 3,
+    		$scroll		= $('#scroll');
+    	
+    	$window.scroll(function() {
+    		if ($scroll.is(':checked')) {
+				if ($window.scrollTop() > offset.top) {
+					$sidebar.stop().animate({
+						marginTop:$window.scrollTop() - offset.top + topPadding
+					});
+				} else {
+					$sidebar.stop().animate({
+						marginTop:0
+					});
+				}
+			}
+		});
+    	
+    	var $navList = $('ul:first', $sidebar);
+    	$('li:first', $navList).addClass('open');
+    	
+    	$navList.treeview({
+    		persist: "location",
+    		collapsed: true,
+    		unique: false
+    	});
+    	
+	});
+    (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+        (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+            m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+    })(window,document,'script','//www.google-analytics.com/analytics.js','ga');
+
+    ga('create', 'UA-46550814-1', 'terasolunaorg.github.io');
+    ga('send', 'pageview');
+    </script>
+  </body>
+</html>
