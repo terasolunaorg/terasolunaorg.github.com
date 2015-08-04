@@ -1,0 +1,2952 @@
+<!DOCTYPE html>
+
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>5.17. File Upload &mdash; TERASOLUNA Server Framework for Java (5.x) Development Guideline 5.0.1.RELEASE documentation</title>
+    
+    <link rel="stylesheet" href="../_static/solar.css" type="text/css" />
+    <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+    
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    '../',
+        VERSION:     '5.0.1.RELEASE',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true
+      };
+    </script>
+    <script type="text/javascript" src="../_static/jquery.js"></script>
+    <script type="text/javascript" src="../_static/underscore.js"></script>
+    <script type="text/javascript" src="../_static/doctools.js"></script>
+    <link rel="top" title="TERASOLUNA Server Framework for Java (5.x) Development Guideline 5.0.1.RELEASE documentation" href="../index.html" />
+    <link rel="up" title="5. Architecture in Detail - TERASOLUNA Server Framework for Java (5.x)" href="index.html" />
+    <link rel="next" title="5.18. File Download" href="FileDownload.html" />
+    <link rel="prev" title="5.16. RESTful Web Service" href="REST.html" /><script src="../_static/jquery.treeview.js" type="text/javascript"></script>
+<!-- <link href='http://fonts.googleapis.com/css?family=Source+Code+Pro|Open+Sans:300italic,400italic,700italic,400,300,700' rel='stylesheet' type='text/css'> -->
+<link href="../_static/solarized-dark.css" rel="stylesheet">
+<link href="../_static/jquery.treeview.css" rel="stylesheet">
+  </head>
+  <body role="document">
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="FileDownload.html" title="5.18. File Download"
+             accesskey="N">next</a> |</li>
+        <li class="right" >
+          <a href="REST.html" title="5.16. RESTful Web Service"
+             accesskey="P">previous</a> |</li>
+        <li class="nav-item nav-item-0"><a href="../index.html">TERASOLUNA Server Framework for Java (5.x) Development Guideline 5.0.1.RELEASE documentation</a> &raquo;</li>
+          <li class="nav-item nav-item-1"><a href="index.html" accesskey="U">5. Architecture in Detail - TERASOLUNA Server Framework for Java (5.x)</a> &raquo;</li> 
+      </ul>
+    </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper"><label><input id="scroll" type="checkbox" checked> scroll sidebar</label>
+
+  <h3><a href="../index.html">Table Of Contents</a></h3>
+  <ul>
+<li><a class="reference internal" href="#">5.17. File Upload</a><ul>
+<li><a class="reference internal" href="#overview">5.17.1. Overview</a><ul>
+<li><a class="reference internal" href="#basic-flow-of-upload-process">5.17.1.1. Basic flow of upload process</a></li>
+<li><a class="reference internal" href="#about-classes-provided-by-spring-web">5.17.1.2. About classes provided by Spring Web</a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#how-to-use">5.17.2. How to use</a><ul>
+<li><a class="reference internal" href="#application-settings">5.17.2.1. Application settings</a><ul>
+<li><a class="reference internal" href="#settings-to-enable-servlet3-0-upload-functionality">5.17.2.1.1. Settings to enable Servlet3.0 upload functionality</a></li>
+<li><a class="reference internal" href="#settings-to-enable-fetching-of-request-parameters-in-servlet-filter-processing">5.17.2.1.2. Settings to enable fetching of request parameters in Servlet Filter processing</a></li>
+<li><a class="reference internal" href="#settings-to-link-spring-mvc-with-upload-functionality-of-servlet3-0">5.17.2.1.3. Settings to link Spring MVC with upload functionality of Servlet3.0</a></li>
+<li><a class="reference internal" href="#settings-for-exception-handling">5.17.2.1.4. Settings for exception handling</a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#uploading-a-single-file">5.17.2.2. Uploading a single file</a><ul>
+<li><a class="reference internal" href="#implementing-form">5.17.2.2.1. Implementing form</a></li>
+<li><a class="reference internal" href="#implementing-jsp">5.17.2.2.2. Implementing JSP</a></li>
+<li><a class="reference internal" href="#implementing-controller">5.17.2.2.3. Implementing Controller</a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#bean-validation-of-file-upload">5.17.2.3. Bean Validation of file upload</a><ul>
+<li><a class="reference internal" href="#implementing-validation-to-verify-that-the-file-is-selected">5.17.2.3.1. Implementing validation to verify that the file is selected</a></li>
+<li><a class="reference internal" href="#implementing-validation-to-verify-that-the-file-is-not-empty">5.17.2.3.2. Implementing validation to verify that the file is not empty</a></li>
+<li><a class="reference internal" href="#implementing-validation-to-verify-that-file-size-is-within-allowable-range">5.17.2.3.3. Implementing validation to verify that file size is within allowable range</a></li>
+<li><a class="reference internal" href="#id5">5.17.2.3.4. Implementing form</a></li>
+<li><a class="reference internal" href="#id6">5.17.2.3.5. Implementing Controller</a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#uploading-multiple-files">5.17.2.4. Uploading multiple files</a><ul>
+<li><a class="reference internal" href="#id7">5.17.2.4.1. Implementing form</a></li>
+<li><a class="reference internal" href="#id8">5.17.2.4.2. Implementing JSP</a></li>
+<li><a class="reference internal" href="#id9">5.17.2.4.3. Implementing Controller</a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#uploading-multiple-files-using-the-multiple-attribute-of-html5">5.17.2.5. Uploading multiple files using the &#8220;multiple&#8221; attribute of HTML5</a><ul>
+<li><a class="reference internal" href="#id10">5.17.2.5.1. Implementing form</a></li>
+<li><a class="reference internal" href="#implementing-validator">5.17.2.5.2. Implementing Validator</a></li>
+<li><a class="reference internal" href="#id11">5.17.2.5.3. Implementing JSP</a></li>
+<li><a class="reference internal" href="#id12">5.17.2.5.4. Implementing Controller</a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#temporary-upload">5.17.2.6. Temporary upload</a><ul>
+<li><a class="reference internal" href="#id13">5.17.2.6.1. Implementing Controller</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li><a class="reference internal" href="#how-to-extend">5.17.3. How to extend</a><ul>
+<li><a class="reference internal" href="#housekeeping-of-unnecessary-files-at-the-time-of-temporary-upload">5.17.3.1. Housekeeping of unnecessary files at the time of temporary upload</a><ul>
+<li><a class="reference internal" href="#implementing-component-class-to-delete-unnecessary-files">5.17.3.1.1. Implementing component class to delete unnecessary files</a></li>
+<li><a class="reference internal" href="#scheduling-settings-of-the-process-for-deleting-unnecessary-files">5.17.3.1.2. Scheduling settings of the process for deleting unnecessary files</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li><a class="reference internal" href="#appendix">5.17.4. Appendix</a><ul>
+<li><a class="reference internal" href="#security-issues-related-to-file-upload">5.17.4.1. Security issues related to file upload</a><ul>
+<li><a class="reference internal" href="#dos-attack-with-respect-to-upload-functionality">5.17.4.1.1. Dos attack with respect to upload functionality</a></li>
+<li><a class="reference internal" href="#attack-by-executing-uploaded-files-on-web-server">5.17.4.1.2. Attack by executing uploaded files on Web Server</a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#file-upload-using-commons-fileupload">5.17.4.2. File upload using Commons FileUpload</a></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+
+
+  <h4>Previous topic</h4>
+  <p class="topless"><a href="REST.html"
+                        title="previous chapter">5.16. RESTful Web Service</a></p>
+  <h4>Next topic</h4>
+  <p class="topless"><a href="FileDownload.html"
+                        title="next chapter">5.18. File Download</a></p>
+  <div role="note" aria-label="source link">
+    <h3>This Page</h3>
+    <ul class="this-page-menu">
+      <li><a href="../_sources/ArchitectureInDetail/FileUpload.txt"
+            rel="nofollow">Show Source</a></li>
+    </ul>
+   </div>
+<div id="searchbox" style="display: none" role="search">
+  <h3>Quick search</h3>
+    <form class="search" action="../search.html" method="get">
+      <input type="text" name="q" />
+      <input type="submit" value="Go" />
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+    <p class="searchtip" style="font-size: 90%">
+    Enter search terms or a module, class or function name.
+    </p>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <div class="section" id="file-upload">
+<h1>5.17. File Upload<a class="headerlink" href="#file-upload" title="Permalink to this headline">¶</a></h1>
+<div class="contents local topic" id="table-of-contents">
+<p class="topic-title first">Table of contents</p>
+<ul class="simple">
+<li><a class="reference internal" href="#overview" id="id16">Overview</a><ul>
+<li><a class="reference internal" href="#basic-flow-of-upload-process" id="id17">Basic flow of upload process</a></li>
+<li><a class="reference internal" href="#about-classes-provided-by-spring-web" id="id18">About classes provided by Spring Web</a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#how-to-use" id="id19">How to use</a><ul>
+<li><a class="reference internal" href="#application-settings" id="id20">Application settings</a><ul>
+<li><a class="reference internal" href="#settings-to-enable-servlet3-0-upload-functionality" id="id21">Settings to enable Servlet3.0 upload functionality</a></li>
+<li><a class="reference internal" href="#settings-to-enable-fetching-of-request-parameters-in-servlet-filter-processing" id="id22">Settings to enable fetching of request parameters in Servlet Filter processing</a></li>
+<li><a class="reference internal" href="#settings-to-link-spring-mvc-with-upload-functionality-of-servlet3-0" id="id23">Settings to link Spring MVC with upload functionality of Servlet3.0</a></li>
+<li><a class="reference internal" href="#settings-for-exception-handling" id="id24">Settings for exception handling</a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#uploading-a-single-file" id="id25">Uploading a single file</a><ul>
+<li><a class="reference internal" href="#implementing-form" id="id26">Implementing form</a></li>
+<li><a class="reference internal" href="#implementing-jsp" id="id27">Implementing JSP</a></li>
+<li><a class="reference internal" href="#implementing-controller" id="id28">Implementing Controller</a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#bean-validation-of-file-upload" id="id29">Bean Validation of file upload</a><ul>
+<li><a class="reference internal" href="#implementing-validation-to-verify-that-the-file-is-selected" id="id30">Implementing validation to verify that the file is selected</a></li>
+<li><a class="reference internal" href="#implementing-validation-to-verify-that-the-file-is-not-empty" id="id31">Implementing validation to verify that the file is not empty</a></li>
+<li><a class="reference internal" href="#implementing-validation-to-verify-that-file-size-is-within-allowable-range" id="id32">Implementing validation to verify that file size is within allowable range</a></li>
+<li><a class="reference internal" href="#id5" id="id33">Implementing form</a></li>
+<li><a class="reference internal" href="#id6" id="id34">Implementing Controller</a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#uploading-multiple-files" id="id35">Uploading multiple files</a><ul>
+<li><a class="reference internal" href="#id7" id="id36">Implementing form</a></li>
+<li><a class="reference internal" href="#id8" id="id37">Implementing JSP</a></li>
+<li><a class="reference internal" href="#id9" id="id38">Implementing Controller</a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#uploading-multiple-files-using-the-multiple-attribute-of-html5" id="id39">Uploading multiple files using the &#8220;multiple&#8221; attribute of HTML5</a><ul>
+<li><a class="reference internal" href="#id10" id="id40">Implementing form</a></li>
+<li><a class="reference internal" href="#implementing-validator" id="id41">Implementing Validator</a></li>
+<li><a class="reference internal" href="#id11" id="id42">Implementing JSP</a></li>
+<li><a class="reference internal" href="#id12" id="id43">Implementing Controller</a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#temporary-upload" id="id44">Temporary upload</a><ul>
+<li><a class="reference internal" href="#id13" id="id45">Implementing Controller</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li><a class="reference internal" href="#how-to-extend" id="id46">How to extend</a><ul>
+<li><a class="reference internal" href="#housekeeping-of-unnecessary-files-at-the-time-of-temporary-upload" id="id47">Housekeeping of unnecessary files at the time of temporary upload</a><ul>
+<li><a class="reference internal" href="#implementing-component-class-to-delete-unnecessary-files" id="id48">Implementing component class to delete unnecessary files</a></li>
+<li><a class="reference internal" href="#scheduling-settings-of-the-process-for-deleting-unnecessary-files" id="id49">Scheduling settings of the process for deleting unnecessary files</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li><a class="reference internal" href="#appendix" id="id50">Appendix</a><ul>
+<li><a class="reference internal" href="#security-issues-related-to-file-upload" id="id51">Security issues related to file upload</a><ul>
+<li><a class="reference internal" href="#dos-attack-with-respect-to-upload-functionality" id="id52">Dos attack with respect to upload functionality</a></li>
+<li><a class="reference internal" href="#attack-by-executing-uploaded-files-on-web-server" id="id53">Attack by executing uploaded files on Web Server</a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#file-upload-using-commons-fileupload" id="id54">File upload using Commons FileUpload</a></li>
+</ul>
+</li>
+</ul>
+</div>
+<div class="section" id="overview">
+<h2><a class="toc-backref" href="#id16">5.17.1. Overview</a><a class="headerlink" href="#overview" title="Permalink to this headline">¶</a></h2>
+<div class="line-block">
+<div class="line">This chapter explains how to upload files.</div>
+</div>
+<div class="line-block">
+<div class="line">Files are uploaded using the File Upload functionality supported by Servlet3.0 and classes provided by Spring Web.</div>
+</div>
+<blockquote>
+<div><div class="admonition note">
+<p class="first admonition-title">Note</p>
+<p class="last">In this chapter, File Upload functionality supported by Servlet3.0 is used; hence, Servlet version 3.0 or above is a prerequisite here.</p>
+</div>
+<div class="admonition note">
+<p class="first admonition-title">Note</p>
+<p>File Upload functionality of Servlet 3.0 may likely result into garbling of multi byte characters of file names or request parameters on some application servesr.</p>
+<p>In case of using an application server, wherein problems are likely to occur, using Commons FileUpload can help in avoiding such problems.
+For settings to use Commons FileUpload, refer to &#8220;<a class="reference internal" href="#file-upload-usage-commons-fileupload"><span>File upload using Commons FileUpload</span></a>&#8221;.</p>
+<p>At the time of version 5.0.1.RELEASE, application servers where this problem is confirmed are as follows:</p>
+<ul class="last simple">
+<li>WebLogic 12c</li>
+<li>JBoss EAP 6</li>
+</ul>
+</div>
+<div class="admonition warning">
+<p class="first admonition-title">Warning</p>
+<p>If implementation of file upload of an application server to be used depends on implementation of Apache Commons FileUpload, security vulnerabilities reported in <a class="reference external" href="http://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2014-0050">CVE-2014-0050</a> may occur.
+Hence ensure that there are no such vulnerabilities in the application server to be used.</p>
+<p class="last">In case of using Tomcat, it is necessary to use version 7.0.52 or above for series 7.0, and version 8.0.3 or above for series 8.0.</p>
+</div>
+</div></blockquote>
+<div class="section" id="basic-flow-of-upload-process">
+<h3><a class="toc-backref" href="#id17">5.17.1.1. Basic flow of upload process</a><a class="headerlink" href="#basic-flow-of-upload-process" title="Permalink to this headline">¶</a></h3>
+<p>Basic flow of uploading files using File Upload functionality supported by Servlet3.0, and classes of Spring Web, is as shown below.</p>
+<blockquote>
+<div><div class="figure">
+<a class="reference internal image-reference" href="../_images/file-upload-overview_basicflow.png"><img alt="Screen image of single file upload." src="../_images/file-upload-overview_basicflow.png" style="width: 100%;" /></a>
+</div>
+<table border="1" class="docutils">
+<colgroup>
+<col width="10%" />
+<col width="90%" />
+</colgroup>
+<thead valign="bottom">
+<tr class="row-odd"><th class="head">Sr. No.</th>
+<th class="head">Description</th>
+</tr>
+</thead>
+<tbody valign="top">
+<tr class="row-even"><td><div class="first last line-block">
+<div class="line">(1)</div>
+</div>
+</td>
+<td><div class="first last line-block">
+<div class="line">Select and upload the target files.</div>
+</div>
+</td>
+</tr>
+<tr class="row-odd"><td><div class="first last line-block">
+<div class="line">(2)</div>
+</div>
+</td>
+<td><div class="first last line-block">
+<div class="line">Servlet container receives <code class="docutils literal"><span class="pre">multipart/form-data</span></code> request and calls <code class="docutils literal"><span class="pre">org.springframework.web.servlet.DispatcherServlet</span></code>.</div>
+</div>
+</td>
+</tr>
+<tr class="row-even"><td><div class="first last line-block">
+<div class="line">(3)</div>
+</div>
+</td>
+<td><div class="first last line-block">
+<div class="line"><code class="docutils literal"><span class="pre">DispatcherServlet</span></code> calls the method of <code class="docutils literal"><span class="pre">org.springframework.web.multipart.support.StandardServletMultipartResolver</span></code> to enable File Upload functionality of Servlet3.0 in Spring MVC.</div>
+<div class="line"><code class="docutils literal"><span class="pre">StandardServletMultipartResolver</span></code> generates <code class="docutils literal"><span class="pre">org.springframework.web.multipart.MultipartFile</span></code> object that wraps the API (<code class="docutils literal"><span class="pre">javax.servlet.http.Part</span></code>) introduced through Servlet 3.0.</div>
+</div>
+</td>
+</tr>
+<tr class="row-odd"><td><div class="first last line-block">
+<div class="line">(4)</div>
+</div>
+</td>
+<td><div class="first last line-block">
+<div class="line"><code class="docutils literal"><span class="pre">DispatcherServlet</span></code> calls the processing method of Controller.</div>
+<div class="line"><code class="docutils literal"><span class="pre">DispatcherServlet</span></code> object created in step (3) binds to the Controller argument or form object.</div>
+</div>
+</td>
+</tr>
+<tr class="row-even"><td><div class="first last line-block">
+<div class="line">(5)</div>
+</div>
+</td>
+<td><div class="first last line-block">
+<div class="line">Controller calls the method of <code class="docutils literal"><span class="pre">MultipartFile</span></code> object and fetches the contents and meta information (file name etc.) of uploaded file.</div>
+</div>
+</td>
+</tr>
+<tr class="row-odd"><td><div class="first last line-block">
+<div class="line">(6)</div>
+</div>
+</td>
+<td><div class="first last line-block">
+<div class="line"><code class="docutils literal"><span class="pre">MultipartFile</span></code> calls the method of <code class="docutils literal"><span class="pre">Part</span></code> object introduced through Servlet3.0, fetches the contents and meta information (file name etc.) of the uploaded file and returns the same to the Controller.</div>
+</div>
+</td>
+</tr>
+<tr class="row-even"><td><div class="first last line-block">
+<div class="line">(7)</div>
+</div>
+</td>
+<td><div class="first last line-block">
+<div class="line">Controller calls the Service method and executes upload process.</div>
+<div class="line">It passes the contents and meta information (file name etc.) of the file retrieved from <code class="docutils literal"><span class="pre">MultipartFile</span></code> object as an argument of Service method.</div>
+</div>
+</td>
+</tr>
+<tr class="row-odd"><td><div class="first last line-block">
+<div class="line">(8)</div>
+</div>
+</td>
+<td><div class="first last line-block">
+<div class="line">Service stores the contents and meta information (file name etc.) of the uploaded file in the file or database.</div>
+</div>
+</td>
+</tr>
+<tr class="row-even"><td><div class="first last line-block">
+<div class="line">(9)</div>
+</div>
+</td>
+<td><div class="first last line-block">
+<div class="line"><code class="docutils literal"><span class="pre">DispatcherServlet</span></code> calls <code class="docutils literal"><span class="pre">StandardServletMultipartResolver</span></code> and deletes the temporary file used by File Upload functionality of Servlet3.0.</div>
+</div>
+</td>
+</tr>
+<tr class="row-odd"><td><div class="first last line-block">
+<div class="line">(10)</div>
+</div>
+</td>
+<td><div class="first last line-block">
+<div class="line"><code class="docutils literal"><span class="pre">StandardServletMultipartResolver</span></code> calls the method of <code class="docutils literal"><span class="pre">Part</span></code> object introduced through Servlet3.0 and deletes the temporary file saved on disk.</div>
+</div>
+</td>
+</tr>
+</tbody>
+</table>
+<div class="admonition note">
+<p class="first admonition-title">Note</p>
+<p class="last">Controller performs the process for <code class="docutils literal"><span class="pre">MultipartFile</span></code> object of Spring Web; hence implementation which is dependent on the File Upload API provided by Servlet3.0 can be excluded.</p>
+</div>
+</div></blockquote>
+</div>
+<div class="section" id="about-classes-provided-by-spring-web">
+<h3><a class="toc-backref" href="#id18">5.17.1.2. About classes provided by Spring Web</a><a class="headerlink" href="#about-classes-provided-by-spring-web" title="Permalink to this headline">¶</a></h3>
+<p>Classes provided by Spring Web for uploading a file are as follows:</p>
+<blockquote>
+<div><table border="1" class="docutils">
+<colgroup>
+<col width="10%" />
+<col width="40%" />
+<col width="50%" />
+</colgroup>
+<thead valign="bottom">
+<tr class="row-odd"><th class="head"><div class="first last line-block">
+<div class="line">Sr. No.</div>
+</div>
+</th>
+<th class="head"><div class="first last line-block">
+<div class="line">Class name</div>
+</div>
+</th>
+<th class="head"><div class="first last line-block">
+<div class="line">Description</div>
+</div>
+</th>
+</tr>
+</thead>
+<tbody valign="top">
+<tr class="row-even"><td><ol class="first last arabic simple">
+<li></li>
+</ol>
+</td>
+<td><div class="first last line-block">
+<div class="line">org.springframework.web.multipart.</div>
+<div class="line">MultipartFile</div>
+</div>
+</td>
+<td><div class="first last line-block">
+<div class="line">Interface indicating uploaded file.</div>
+<div class="line">It plays a role in abstraction of file objects handled by the File Upload functionality to be used.</div>
+</div>
+</td>
+</tr>
+<tr class="row-odd"><td><ol class="first last arabic simple" start="2">
+<li></li>
+</ol>
+</td>
+<td><div class="first last line-block">
+<div class="line">org.springframework.web.multipart.support.</div>
+<div class="line">StandardMultipartHttpServletRequest$</div>
+<div class="line">StandardMultipartFile</div>
+</div>
+</td>
+<td><div class="first last line-block">
+<div class="line"><code class="docutils literal"><span class="pre">MultipartFile</span></code> class of File Upload functionality introduced through Servlet3.0.</div>
+<div class="line">Process is delegated to the <code class="docutils literal"><span class="pre">Part</span></code> object introduced through Servlet3.0.</div>
+</div>
+</td>
+</tr>
+<tr class="row-even"><td><ol class="first last arabic simple" start="3">
+<li></li>
+</ol>
+</td>
+<td><div class="first last line-block">
+<div class="line">org.springframework.web.multipart.</div>
+<div class="line">MultipartResolver</div>
+</div>
+</td>
+<td><div class="first last line-block">
+<div class="line">Interface that resolves the analysis method of <code class="docutils literal"><span class="pre">multipart/form-data</span></code> request.</div>
+<div class="line">It plays a role in generating <code class="docutils literal"><span class="pre">MultipartFile</span></code> object corresponding to implementation of File Upload functionality.</div>
+</div>
+</td>
+</tr>
+<tr class="row-odd"><td><ol class="first last arabic simple" start="4">
+<li></li>
+</ol>
+</td>
+<td><div class="first last line-block">
+<div class="line">org.springframework.web.multipart.support.</div>
+<div class="line">StandardServletMultipartResolver</div>
+</div>
+</td>
+<td><div class="first last line-block">
+<div class="line"><code class="docutils literal"><span class="pre">MultipartResolver</span></code> class for File Upload functionality introduced through Servlet3.0.</div>
+</div>
+</td>
+</tr>
+<tr class="row-even"><td><ol class="first last arabic simple" start="5">
+<li></li>
+</ol>
+</td>
+<td><div class="first last line-block">
+<div class="line">org.springframework.web.multipart.support.</div>
+<div class="line">MultipartFilter</div>
+</div>
+</td>
+<td><div class="first last line-block">
+<div class="line">Class that enables fetching of request parameters in Servlet Filter process, at the time of multipart/form-data request.</div>
+<div class="line">If this class is not used, request parameters cannot be fetched in Servlet Filter; hence CSRF Token Check functionality provided by Spring Security does not work correctly.</div>
+<div class="line">To be more precise, as CSRF token cannot be fetched, it always throws CSRF token error leading to file upload failure.</div>
+</div>
+</td>
+</tr>
+</tbody>
+</table>
+<div class="admonition tip">
+<p class="first admonition-title">Tip</p>
+<p class="last">In this guideline, it is a prerequisite to use File Upload functionality implemented from Servlet 3.0. However, Spring Web also provides an <a class="reference external" href="http://docs.spring.io/spring/docs/4.1.7.RELEASE/spring-framework-reference/html/mvc.html#mvc-multipart-resolver-commons">implementation class for &#8220;Apache Commons FileUpload&#8221;</a>.
+The difference in implementation of upload processes is absorbed by <code class="docutils literal"><span class="pre">MultipartResolver</span></code> and <code class="docutils literal"><span class="pre">MultipartFile</span></code> objects; hence it does not affect Controller implementation.</p>
+</div>
+</div></blockquote>
+<div class="line-block">
+<div class="line"><br /></div>
+</div>
+</div>
+</div>
+<div class="section" id="how-to-use">
+<h2><a class="toc-backref" href="#id19">5.17.2. How to use</a><a class="headerlink" href="#how-to-use" title="Permalink to this headline">¶</a></h2>
+<div class="section" id="application-settings">
+<span id="file-upload-how-to-usr-application-settings"></span><h3><a class="toc-backref" href="#id20">5.17.2.1. Application settings</a><a class="headerlink" href="#application-settings" title="Permalink to this headline">¶</a></h3>
+<div class="section" id="settings-to-enable-servlet3-0-upload-functionality">
+<h4><a class="toc-backref" href="#id21">5.17.2.1.1. Settings to enable Servlet3.0 upload functionality</a><a class="headerlink" href="#settings-to-enable-servlet3-0-upload-functionality" title="Permalink to this headline">¶</a></h4>
+<p>Perform the following settings to enable upload functionality of Servlet3.0.</p>
+<ul class="simple">
+<li><code class="file docutils literal"><span class="pre">web.xml</span></code></li>
+</ul>
+<blockquote>
+<div><div class="highlight-xml"><div class="highlight"><pre> <span class="nt">&lt;web-app</span> <span class="na">xmlns=</span><span class="s">&quot;http://java.sun.com/xml/ns/javaee&quot;</span>
+     <span class="na">xmlns:xsi=</span><span class="s">&quot;http://www.w3.org/2001/XMLSchema-instance&quot;</span>
+     <span class="na">xsi:schemaLocation=</span><span class="s">&quot;http://java.sun.com/xml/ns/javaee http://java.sun.com/xml/ns/javaee/web-app_3_0.xsd&quot;</span>
+     <span class="na">version=</span><span class="s">&quot;3.0&quot;</span><span class="nt">&gt;</span> <span class="c">&lt;!-- (1) (2) --&gt;</span>
+
+     <span class="nt">&lt;servlet&gt;</span>
+         <span class="nt">&lt;servlet-class&gt;</span>
+             org.springframework.web.servlet.DispatcherServlet
+         <span class="nt">&lt;/servlet-class&gt;</span>
+         <span class="c">&lt;!-- omitted --&gt;</span>
+<span class="hll">         <span class="nt">&lt;multipart-config&gt;</span> <span class="c">&lt;!-- (3) --&gt;</span>
+</span><span class="hll">             <span class="nt">&lt;max-file-size&gt;</span>5242880<span class="nt">&lt;/max-file-size&gt;</span> <span class="c">&lt;!-- (4) --&gt;</span>
+</span><span class="hll">             <span class="nt">&lt;max-request-size&gt;</span>27262976<span class="nt">&lt;/max-request-size&gt;</span> <span class="c">&lt;!-- (5) --&gt;</span>
+</span><span class="hll">              <span class="nt">&lt;file-size-threshold&gt;</span>0<span class="nt">&lt;/file-size-threshold&gt;</span> <span class="c">&lt;!-- (6) --&gt;</span>
+</span><span class="hll">         <span class="nt">&lt;/multipart-config&gt;</span>
+</span>     <span class="nt">&lt;/servlet&gt;</span>
+
+     <span class="c">&lt;!-- omitted --&gt;</span>
+
+ <span class="nt">&lt;/web-app&gt;</span>
+</pre></div>
+</div>
+<table border="1" class="docutils">
+<colgroup>
+<col width="10%" />
+<col width="90%" />
+</colgroup>
+<thead valign="bottom">
+<tr class="row-odd"><th class="head">Sr. No.</th>
+<th class="head">Description</th>
+</tr>
+</thead>
+<tbody valign="top">
+<tr class="row-even"><td><div class="first last line-block">
+<div class="line">(1)</div>
+</div>
+</td>
+<td><div class="first last line-block">
+<div class="line">Specify the XSD file of Servlet3.0 or above in <code class="docutils literal"><span class="pre">xsi:schemaLocation</span></code> attribute of <code class="docutils literal"><span class="pre">&lt;web-app&gt;</span></code> element.</div>
+</div>
+</td>
+</tr>
+<tr class="row-odd"><td><div class="first last line-block">
+<div class="line">(2)</div>
+</div>
+</td>
+<td><div class="first last line-block">
+<div class="line">Specify version  <code class="docutils literal"><span class="pre">3.0</span></code> or above in the <code class="docutils literal"><span class="pre">version</span></code> attribute of <code class="docutils literal"><span class="pre">&lt;web-app&gt;</span></code> element.</div>
+</div>
+</td>
+</tr>
+<tr class="row-even"><td><div class="first last line-block">
+<div class="line">(3)</div>
+</div>
+</td>
+<td><div class="first last line-block">
+<div class="line">Add <code class="docutils literal"><span class="pre">&lt;multipart-config&gt;</span></code> element to <code class="docutils literal"><span class="pre">&lt;servlet&gt;</span></code> element of the Servlet using the File Upload functionality.</div>
+</div>
+</td>
+</tr>
+<tr class="row-odd"><td><div class="first last line-block">
+<div class="line">(4)</div>
+</div>
+</td>
+<td><div class="first last line-block">
+<div class="line">Specify the maximum file size of 1 upload-permissible file in bytes.</div>
+<div class="line">If not specified, -1 (no limit) is set by default.</div>
+<div class="line">If it exceeds the specified value, exception, <code class="docutils literal"><span class="pre">org.springframework.web.multipart.MultipartException</span></code> occurs.</div>
+<div class="line"><br /></div>
+<div class="line">In the above example, a file size of 5MB is specified.</div>
+</div>
+</td>
+</tr>
+<tr class="row-even"><td><div class="first last line-block">
+<div class="line">(5)</div>
+</div>
+</td>
+<td><div class="first last line-block">
+<div class="line">Specify the maximum Content-Length value of <code class="docutils literal"><span class="pre">multipart/form-data</span></code> request.</div>
+<div class="line">If not specified, -1 (no limit) is set by default.</div>
+<div class="line">If it exceeds the specified value, exception <code class="docutils literal"><span class="pre">org.springframework.web.multipart.MultipartException</span></code> occurs.</div>
+<div class="line"><br /></div>
+<div class="line">Value to be set in this parameter should be calculated by the following formula.</div>
+<div class="line"><br /></div>
+<div class="line"><strong>(&#8220;maximum file size of 1 file to be uploaded&#8221;  * &#8220;Number of files allowed to be uploaded simultaneously&#8221; ) + &#8220;Data size of other form fields&#8221; +  &#8220;Meta information size of multipart/form-data request&#8221;</strong></div>
+<div class="line"><br /></div>
+<div class="line">In the above example, parameter value of 26MB is specified.</div>
+<div class="line">Its breakup is, 25MB (5MB * 5 files) and 1MB (number of bytes of meta information + number of bytes of form fields).</div>
+</div>
+</td>
+</tr>
+<tr class="row-odd"><td><div class="first last line-block">
+<div class="line">(6)</div>
+</div>
+</td>
+<td><div class="first last line-block">
+<div class="line">Specify the threshold value (number of bytes for 1 file) if the contents of uploaded file are to be saved as a temporary file.</div>
+<div class="line">If this parameter is not specified explicitly, there are application servers wherein values specified for elements <code class="docutils literal"><span class="pre">&lt;max-file-size&gt;</span></code> and <code class="docutils literal"><span class="pre">&lt;max-request-size&gt;</span></code> are considered invalid; hence default value (0) is being specified explicitly.</div>
+</div>
+</td>
+</tr>
+</tbody>
+</table>
+<div class="admonition warning">
+<p class="first admonition-title">Warning</p>
+<p>In order to increase the resistance against Dos attack, <code class="docutils literal"><span class="pre">max-file-size</span></code> and <code class="docutils literal"><span class="pre">max-request-size</span></code> should be specified without fail.</p>
+<p class="last">For Dos attack, refer to <a class="reference internal" href="#file-upload-security-related-warning-points-dos"><span>Dos attack with respect to upload functionality</span></a>.</p>
+</div>
+<div class="admonition note">
+<p class="first admonition-title">Note</p>
+<blockquote>
+<div><p>Uploaded file is by default output as temporary file. However, its output can be controlled using the configuration value of <code class="docutils literal"><span class="pre">&lt;file-size-threshold&gt;</span></code>  element, which is the child element of <code class="docutils literal"><span class="pre">&lt;multipart-config&gt;</span></code>.</p>
+<blockquote>
+<div><div class="highlight-xml"><div class="highlight"><pre><span class="c">&lt;!-- omitted --&gt;</span>
+
+<span class="nt">&lt;multipart-config&gt;</span>
+    <span class="c">&lt;!-- omitted --&gt;</span>
+    <span class="nt">&lt;file-size-threshold&gt;</span>32768<span class="nt">&lt;/file-size-threshold&gt;</span> <span class="c">&lt;!-- (7) --&gt;</span>
+<span class="nt">&lt;/multipart-config&gt;</span>
+
+<span class="c">&lt;!-- omitted --&gt;</span>
+</pre></div>
+</div>
+<table border="1" class="docutils">
+<colgroup>
+<col width="10%" />
+<col width="90%" />
+</colgroup>
+<thead valign="bottom">
+<tr class="row-odd"><th class="head">Sr. No.</th>
+<th class="head">Description</th>
+</tr>
+</thead>
+<tbody valign="top">
+<tr class="row-even"><td><div class="first last line-block">
+<div class="line">(7)</div>
+</div>
+</td>
+<td><div class="first last line-block">
+<div class="line">Specify the threshold file size (number of bytes of 1 file) if contents of uploaded file are to be saved as a temporary file.</div>
+<div class="line">If not specified, 0 is set.</div>
+<div class="line">If uploaded file size exceeds the specified value,</div>
+<div class="line">it is output as a temporary file to the disk and deleted when the request is completed.</div>
+<div class="line"><br /></div>
+<div class="line">In the above example, 32KB is specified.</div>
+</div>
+</td>
+</tr>
+</tbody>
+</table>
+<div class="admonition warning">
+<p class="first admonition-title">Warning</p>
+<p>This parameter shows a trade-off relationship as indicated by the following points. Hence,  <strong>configuration value corresponding to system characteristics should be specified.</strong>.</p>
+<ul class="last simple">
+<li>Increasing the configuration value improves processing performance as, processing gets completed within available memory. However, there is a high possibility that <code class="docutils literal"><span class="pre">OutOfMemoryError</span></code> may occur due to Dos attack.</li>
+<li>If configuration value is reduced, memory utilization can be controlled to the minimum, thereby avoiding the possibility of <code class="docutils literal"><span class="pre">OutOfMemoryError</span></code> due to Dos attack etc.
+However, there is a high possibility of performance degradation since the frequency of disk IO generation is high.</li>
+</ul>
+</div>
+</div></blockquote>
+</div></blockquote>
+<p>To change output directory of temporary files, specify directory path in <code class="docutils literal"><span class="pre">&lt;location&gt;</span></code> element, which is the child element of <code class="docutils literal"><span class="pre">&lt;multipart-config&gt;</span></code>.</p>
+<blockquote class="last">
+<div><div class="highlight-xml"><div class="highlight"><pre><span class="c">&lt;!-- omitted --&gt;</span>
+
+<span class="nt">&lt;multipart-config&gt;</span>
+    <span class="nt">&lt;location&gt;</span>/tmp<span class="nt">&lt;/location&gt;</span> <span class="c">&lt;!-- (8) --&gt;</span>
+    <span class="c">&lt;!-- omitted --&gt;</span>
+<span class="nt">&lt;/multipart-config&gt;</span>
+
+<span class="c">&lt;!-- omitted --&gt;</span>
+</pre></div>
+</div>
+<table border="1" class="docutils">
+<colgroup>
+<col width="10%" />
+<col width="90%" />
+</colgroup>
+<thead valign="bottom">
+<tr class="row-odd"><th class="head">Sr. No.</th>
+<th class="head">Description</th>
+</tr>
+</thead>
+<tbody valign="top">
+<tr class="row-even"><td><div class="first last line-block">
+<div class="line">(8)</div>
+</div>
+</td>
+<td><div class="first last line-block">
+<div class="line">Specify the directory path for outputting temporary files.</div>
+<div class="line">When omitted, they are output to the directory that stores temporary files of application server.</div>
+<div class="line"><br /></div>
+<div class="line">In the above example, <code class="docutils literal"><span class="pre">/tmp</span></code> is specified.</div>
+</div>
+</td>
+</tr>
+</tbody>
+</table>
+<div class="admonition warning">
+<p class="first admonition-title">Warning</p>
+<p>The directory specified in <code class="docutils literal"><span class="pre">&lt;location&gt;</span></code> element is the one used by the application server (servlet container) and <strong>cannot be accessed from application.</strong></p>
+<p class="last">When the files uploaded as application are to be saved as temporary files, they should be output to a directory other than the directory specified in <code class="docutils literal"><span class="pre">&lt;location&gt;</span></code> element.</p>
+</div>
+</div></blockquote>
+</div>
+</div></blockquote>
+</div>
+<div class="section" id="settings-to-enable-fetching-of-request-parameters-in-servlet-filter-processing">
+<h4><a class="toc-backref" href="#id22">5.17.2.1.2. Settings to enable fetching of request parameters in Servlet Filter processing</a><a class="headerlink" href="#settings-to-enable-fetching-of-request-parameters-in-servlet-filter-processing" title="Permalink to this headline">¶</a></h4>
+<p>Perform the following settings to fetch request parameters in Servlet Filter processing at the time of multipart/form-data request.</p>
+<ul class="simple">
+<li><code class="file docutils literal"><span class="pre">web.xml</span></code></li>
+</ul>
+<blockquote>
+<div><div class="highlight-xml"><div class="highlight"><pre><span class="c">&lt;!-- (1) --&gt;</span>
+<span class="nt">&lt;filter&gt;</span>
+    <span class="nt">&lt;filter-name&gt;</span>MultipartFilter<span class="nt">&lt;/filter-name&gt;</span>
+    <span class="nt">&lt;filter-class&gt;</span>org.springframework.web.multipart.support.MultipartFilter<span class="nt">&lt;/filter-class&gt;</span>
+<span class="nt">&lt;/filter&gt;</span>
+<span class="c">&lt;!-- (2) --&gt;</span>
+<span class="nt">&lt;filter-mapping&gt;</span>
+    <span class="nt">&lt;filter-name&gt;</span>MultipartFilter<span class="nt">&lt;/filter-name&gt;</span>
+    <span class="nt">&lt;url-pattern&gt;</span>/*<span class="nt">&lt;/url-pattern&gt;</span>
+<span class="nt">&lt;/filter-mapping&gt;</span>
+</pre></div>
+</div>
+<table border="1" class="docutils">
+<colgroup>
+<col width="10%" />
+<col width="90%" />
+</colgroup>
+<thead valign="bottom">
+<tr class="row-odd"><th class="head">Sr. No.</th>
+<th class="head">Description</th>
+</tr>
+</thead>
+<tbody valign="top">
+<tr class="row-even"><td><div class="first last line-block">
+<div class="line">(1)</div>
+</div>
+</td>
+<td><div class="first last line-block">
+<div class="line">Define <code class="docutils literal"><span class="pre">MultipartFilter</span></code> as the Servlet Filter.</div>
+</div>
+</td>
+</tr>
+<tr class="row-odd"><td><div class="first last line-block">
+<div class="line">(2)</div>
+</div>
+</td>
+<td><div class="first last line-block">
+<div class="line">Specify the URL pattern for applying <code class="docutils literal"><span class="pre">MultipartFilter</span></code>.</div>
+</div>
+</td>
+</tr>
+</tbody>
+</table>
+<div class="admonition warning">
+<p class="first admonition-title">Warning</p>
+<p><strong>MultipartFilter needs to be defined before the Servlet Filter that accesses request parameters.</strong></p>
+<p class="last">When security measures are to be carried out using Spring Security, it should be defined before <code class="docutils literal"><span class="pre">springSecurityFilterChain</span></code>.
+Further, when request parameters are accessed by a project-specific Servlet Filter, MultipartFilter should be defined before that Servlet Filter.</p>
+</div>
+</div></blockquote>
+</div>
+<div class="section" id="settings-to-link-spring-mvc-with-upload-functionality-of-servlet3-0">
+<h4><a class="toc-backref" href="#id23">5.17.2.1.3. Settings to link Spring MVC with upload functionality of Servlet3.0</a><a class="headerlink" href="#settings-to-link-spring-mvc-with-upload-functionality-of-servlet3-0" title="Permalink to this headline">¶</a></h4>
+<p>Perform the following settings to link Spring MVC with Servlet3.0 upload functionality.</p>
+<ul class="simple">
+<li><code class="file docutils literal"><span class="pre">spring-mvc.xml</span></code></li>
+</ul>
+<blockquote>
+<div><div class="highlight-xml"><div class="highlight"><pre><span class="nt">&lt;bean</span> <span class="na">id=</span><span class="s">&quot;multipartResolver&quot;</span>
+    <span class="na">class=</span><span class="s">&quot;org.springframework.web.multipart.support.StandardServletMultipartResolver&quot;</span><span class="nt">&gt;</span> <span class="c">&lt;!-- (1) --&gt;</span>
+<span class="nt">&lt;/bean&gt;</span>
+</pre></div>
+</div>
+<table border="1" class="docutils">
+<colgroup>
+<col width="10%" />
+<col width="90%" />
+</colgroup>
+<thead valign="bottom">
+<tr class="row-odd"><th class="head">Sr. No.</th>
+<th class="head">Description</th>
+</tr>
+</thead>
+<tbody valign="top">
+<tr class="row-even"><td><div class="first last line-block">
+<div class="line">(1)</div>
+</div>
+</td>
+<td><div class="first last line-block">
+<div class="line">Define a bean for <code class="docutils literal"><span class="pre">StandardServletMultipartResolver</span></code> which is a MultipartResolver for Servlet3.0.</div>
+<div class="line">BeanID should be <code class="docutils literal"><span class="pre">&quot;multipartResolver&quot;</span></code>.</div>
+<div class="line"><br /></div>
+<div class="line">By performing these settings, the uploaded file can be treated as <code class="docutils literal"><span class="pre">org.springframework.web.multipart.MultipartFile</span></code> and received as a Controller argument and form object property.</div>
+</div>
+</td>
+</tr>
+</tbody>
+</table>
+</div></blockquote>
+</div>
+<div class="section" id="settings-for-exception-handling">
+<h4><a class="toc-backref" href="#id24">5.17.2.1.4. Settings for exception handling</a><a class="headerlink" href="#settings-for-exception-handling" title="Permalink to this headline">¶</a></h4>
+<p>Add the exception handling definition of <code class="docutils literal"><span class="pre">MultipartException</span></code> which occurs when a request for file or multipart with non-permissible size is sent.</p>
+<div class="line-block">
+<div class="line"><code class="docutils literal"><span class="pre">MultipartException</span></code> is an exception caused due to file size specified by the client; hence it is recommended to handle it as a client error (HTTP response code=4xx).</div>
+<div class="line"><strong>If exception handling is not added for individual exception, it is eventually treated as system error; hence make sure that it is defined without fail.</strong></div>
+</div>
+<div class="line-block">
+<div class="line">Settings for handling <code class="docutils literal"><span class="pre">MultipartException</span></code> differ depending upon whether  <code class="docutils literal"><span class="pre">MultipartFilter</span></code> is used or not.</div>
+<div class="line">In case of using <code class="docutils literal"><span class="pre">MultipartFilter</span></code>,  exception handling is carried out by using the <code class="docutils literal"><span class="pre">&lt;error-page&gt;</span></code> functionality of servlet container.</div>
+<div class="line">Example of settings is shown below.</div>
+</div>
+<ul class="simple">
+<li><code class="file docutils literal"><span class="pre">web.xml</span></code></li>
+</ul>
+<blockquote>
+<div><div class="highlight-xml"><div class="highlight"><pre><span class="nt">&lt;error-page&gt;</span>
+    <span class="c">&lt;!-- (1) --&gt;</span>
+    <span class="nt">&lt;exception-type&gt;</span>org.springframework.web.multipart.MultipartException<span class="nt">&lt;/exception-type&gt;</span>
+    <span class="c">&lt;!-- (2) --&gt;</span>
+    <span class="nt">&lt;location&gt;</span>/WEB-INF/views/common/error/fileUploadError.jsp<span class="nt">&lt;/location&gt;</span>
+<span class="nt">&lt;/error-page&gt;</span>
+</pre></div>
+</div>
+<table border="1" class="docutils">
+<colgroup>
+<col width="10%" />
+<col width="90%" />
+</colgroup>
+<thead valign="bottom">
+<tr class="row-odd"><th class="head">Sr. No.</th>
+<th class="head">Description</th>
+</tr>
+</thead>
+<tbody valign="top">
+<tr class="row-even"><td><div class="first last line-block">
+<div class="line">(1)</div>
+</div>
+</td>
+<td><div class="first last line-block">
+<div class="line">Specify <code class="docutils literal"><span class="pre">MultipartException</span></code> as the exception class for handling.</div>
+</div>
+</td>
+</tr>
+<tr class="row-odd"><td><div class="first last line-block">
+<div class="line">(2)</div>
+</div>
+</td>
+<td><div class="first last line-block">
+<div class="line">Specify the file displayed when <code class="docutils literal"><span class="pre">MultipartException</span></code> occurs.</div>
+<div class="line"><br /></div>
+<div class="line">In the above example, <code class="docutils literal"><span class="pre">&quot;/WEB-INF/views/common/error/fileUploadError.jsp&quot;</span></code> is specified.</div>
+</div>
+</td>
+</tr>
+</tbody>
+</table>
+</div></blockquote>
+<ul class="simple">
+<li><code class="file docutils literal"><span class="pre">fileUploadError.jsp</span></code></li>
+</ul>
+<blockquote>
+<div><div class="highlight-jsp"><div class="highlight"><pre><span class="k">&lt;%-</span><span class="o">-</span> <span class="o">(</span><span class="mi">3</span><span class="o">)</span> <span class="o">--</span><span class="k">%&gt;</span>
+<span class="k">&lt;%</span> <span class="n">response</span><span class="o">.</span><span class="na">setStatus</span><span class="o">(</span><span class="n">HttpServletResponse</span><span class="o">.</span><span class="na">SC_BAD_REQUEST</span><span class="o">);</span> <span class="k">%&gt;</span>
+<span class="cp">&lt;!DOCTYPE html&gt;</span>
+<span class="nt">&lt;html&gt;</span>
+
+    <span class="c">&lt;!-- omitted --&gt;</span>
+
+<span class="nt">&lt;/html&gt;</span>
+</pre></div>
+</div>
+<table border="1" class="docutils">
+<colgroup>
+<col width="10%" />
+<col width="90%" />
+</colgroup>
+<thead valign="bottom">
+<tr class="row-odd"><th class="head">Sr. No.</th>
+<th class="head">Description</th>
+</tr>
+</thead>
+<tbody valign="top">
+<tr class="row-even"><td><div class="first last line-block">
+<div class="line">(3)</div>
+</div>
+</td>
+<td><div class="first last line-block">
+<div class="line">Set HTTP status code by calling the API of <code class="docutils literal"><span class="pre">HttpServletResponse</span></code>.</div>
+<div class="line"><br /></div>
+<div class="line">In the above request, <code class="docutils literal"><span class="pre">&quot;400&quot;</span></code> (Bad Request) is set.</div>
+<div class="line">When not set explicitly, the HTTP status code is considered as <code class="docutils literal"><span class="pre">&quot;500&quot;</span></code> (Internal Server Error).</div>
+</div>
+</td>
+</tr>
+</tbody>
+</table>
+</div></blockquote>
+<div class="line-block">
+<div class="line"><br /></div>
+</div>
+<div class="line-block">
+<div class="line">When not using <code class="docutils literal"><span class="pre">MultipartFilter</span></code>, carry out exception handling by using <code class="docutils literal"><span class="pre">SystemExceptionResolver</span></code>.</div>
+<div class="line">Example of settings is shown below.</div>
+</div>
+<ul class="simple">
+<li><code class="file docutils literal"><span class="pre">spring-mvc.xml</span></code></li>
+</ul>
+<blockquote>
+<div><div class="highlight-xml"><div class="highlight"><pre><span class="nt">&lt;bean</span> <span class="na">class=</span><span class="s">&quot;org.terasoluna.gfw.web.exception.SystemExceptionResolver&quot;</span><span class="nt">&gt;</span>
+    <span class="c">&lt;!-- omitted --&gt;</span>
+    <span class="nt">&lt;property</span> <span class="na">name=</span><span class="s">&quot;exceptionMappings&quot;</span><span class="nt">&gt;</span>
+        <span class="nt">&lt;map&gt;</span>
+            <span class="c">&lt;!-- omitted --&gt;</span>
+            <span class="c">&lt;!-- (4) --&gt;</span>
+            <span class="nt">&lt;entry</span> <span class="na">key=</span><span class="s">&quot;MultipartException&quot;</span>
+                   <span class="na">value=</span><span class="s">&quot;common/error/fileUploadError&quot;</span> <span class="nt">/&gt;</span>
+
+        <span class="nt">&lt;/map&gt;</span>
+    <span class="nt">&lt;/property&gt;</span>
+    <span class="nt">&lt;property</span> <span class="na">name=</span><span class="s">&quot;statusCodes&quot;</span><span class="nt">&gt;</span>
+        <span class="nt">&lt;map&gt;</span>
+            <span class="c">&lt;!-- omitted --&gt;</span>
+            <span class="c">&lt;!-- (5) --&gt;</span>
+            <span class="nt">&lt;entry</span> <span class="na">key=</span><span class="s">&quot;common/error/fileUploadError&quot;</span> <span class="na">value=</span><span class="s">&quot;400&quot;</span> <span class="nt">/&gt;</span>
+        <span class="nt">&lt;/map&gt;</span>
+    <span class="nt">&lt;/property&gt;</span>
+    <span class="c">&lt;!-- omitted --&gt;</span>
+<span class="nt">&lt;/bean&gt;</span>
+</pre></div>
+</div>
+<table border="1" class="docutils">
+<colgroup>
+<col width="10%" />
+<col width="90%" />
+</colgroup>
+<thead valign="bottom">
+<tr class="row-odd"><th class="head">Sr. No.</th>
+<th class="head">Description</th>
+</tr>
+</thead>
+<tbody valign="top">
+<tr class="row-even"><td><div class="first last line-block">
+<div class="line">(4)</div>
+</div>
+</td>
+<td><div class="first last line-block">
+<div class="line">In <code class="docutils literal"><span class="pre">exceptionMappings</span></code> of <code class="docutils literal"><span class="pre">SystemExceptionResolver</span></code>, add the definition for View (JSP) which is displayed when <code class="docutils literal"><span class="pre">MultipartException</span></code> occurs.</div>
+<div class="line"><br /></div>
+<div class="line">In the above example, <code class="docutils literal"><span class="pre">&quot;common/error/fileUploadError&quot;</span></code> is specified.</div>
+</div>
+</td>
+</tr>
+<tr class="row-odd"><td><div class="first last line-block">
+<div class="line">(5)</div>
+</div>
+</td>
+<td><div class="first last line-block">
+<div class="line">Add the definition of HTTP status code which is received as response when <code class="docutils literal"><span class="pre">MultipartException</span></code> occurs.</div>
+<div class="line"><br /></div>
+<div class="line">In the above example, <code class="docutils literal"><span class="pre">&quot;400&quot;</span></code> (Bad Request) is specified.</div>
+<div class="line">By specifying client error (HTTP response code = 4xx),</div>
+<div class="line">the level of log which is output by the class (<code class="docutils literal"><span class="pre">HandlerExceptionResolverLoggingInterceptor</span></code>) provided by the exception handling functionality of common library is  <code class="docutils literal"><span class="pre">WARN</span></code> and not <code class="docutils literal"><span class="pre">ERROR</span></code>.</div>
+</div>
+</td>
+</tr>
+</tbody>
+</table>
+</div></blockquote>
+<div class="line-block">
+<div class="line"><br /></div>
+</div>
+<div class="line-block">
+<div class="line">Add exception code settings when setting an exception code for <code class="docutils literal"><span class="pre">MultipartException</span></code>.</div>
+<div class="line">Exception code is output to the log which is output using log output functionality of common library.</div>
+<div class="line">Exception code can also be referred from View (JSP).</div>
+<div class="line">For referring to exception code from View (JSP), refer to <a class="reference internal" href="ExceptionHandling.html#exception-handling-how-to-use-codingpoint-jsp-exceptioncode-label"><span>Method to display system exception code on screen</span></a>.</div>
+</div>
+<ul class="simple">
+<li><code class="file docutils literal"><span class="pre">applicationContext.xml</span></code></li>
+</ul>
+<blockquote>
+<div><div class="highlight-xml"><div class="highlight"><pre><span class="nt">&lt;bean</span> <span class="na">id=</span><span class="s">&quot;exceptionCodeResolver&quot;</span>
+    <span class="na">class=</span><span class="s">&quot;org.terasoluna.gfw.common.exception.SimpleMappingExceptionCodeResolver&quot;</span><span class="nt">&gt;</span>
+    <span class="nt">&lt;property</span> <span class="na">name=</span><span class="s">&quot;exceptionMappings&quot;</span><span class="nt">&gt;</span>
+        <span class="nt">&lt;map&gt;</span>
+            <span class="c">&lt;!-- (6) --&gt;</span>
+            <span class="nt">&lt;entry</span> <span class="na">key=</span><span class="s">&quot;MultipartException&quot;</span> <span class="na">value=</span><span class="s">&quot;e.xx.fw.6001&quot;</span> <span class="nt">/&gt;</span>
+            <span class="c">&lt;!-- omitted --&gt;</span>
+        <span class="nt">&lt;/map&gt;</span>
+    <span class="nt">&lt;/property&gt;</span>
+    <span class="nt">&lt;property</span> <span class="na">name=</span><span class="s">&quot;defaultExceptionCode&quot;</span> <span class="na">value=</span><span class="s">&quot;e.xx.fw.9001&quot;</span> <span class="nt">/&gt;</span>
+    <span class="c">&lt;!-- omitted --&gt;</span>
+<span class="nt">&lt;/bean&gt;</span>
+</pre></div>
+</div>
+<table border="1" class="docutils">
+<colgroup>
+<col width="10%" />
+<col width="90%" />
+</colgroup>
+<thead valign="bottom">
+<tr class="row-odd"><th class="head">Sr. No.</th>
+<th class="head">Description</th>
+</tr>
+</thead>
+<tbody valign="top">
+<tr class="row-even"><td><div class="first last line-block">
+<div class="line">(6)</div>
+</div>
+</td>
+<td><div class="first last line-block">
+<div class="line">In <code class="docutils literal"><span class="pre">exceptionMappings</span></code> of <code class="docutils literal"><span class="pre">SimpleMappingExceptionCodeResolver</span></code>, add the exception code to be applied when <code class="docutils literal"><span class="pre">MultipartException</span></code> occurs.</div>
+<div class="line"><br /></div>
+<div class="line">In the above example, <code class="docutils literal"><span class="pre">&quot;e.xx.fw.6001&quot;</span></code> is specified.</div>
+<div class="line">When it is not defined individually, exception code specified in <code class="docutils literal"><span class="pre">defaultExceptionCode</span></code> is applied.</div>
+</div>
+</td>
+</tr>
+</tbody>
+</table>
+</div></blockquote>
+</div>
+</div>
+<div class="section" id="uploading-a-single-file">
+<h3><a class="toc-backref" href="#id25">5.17.2.2. Uploading a single file</a><a class="headerlink" href="#uploading-a-single-file" title="Permalink to this headline">¶</a></h3>
+<p>The explanation about uploading a single file is given below.</p>
+<blockquote>
+<div><div class="figure">
+<a class="reference internal image-reference" href="../_images/file-upload-how_to_use_single.png"><img alt="Screen image of single file upload." src="../_images/file-upload-how_to_use_single.png" style="width: 100%;" /></a>
+</div>
+</div></blockquote>
+<div class="line-block">
+<div class="line">There are 2 methods to upload a single file. One is by binding <code class="docutils literal"><span class="pre">org.springframework.web.multipart.MultipartFile</span></code> object to the form object and the other is by receiving it directly as Controller argument. However, this guideline recommends the first method wherein it is received after it is bound with the form object.</div>
+<div class="line">The reason for this being, single field check of the uploaded file can be performed using Bean Validation.</div>
+</div>
+<p>How to receive a single file by binding it to form object is explained below.</p>
+<div class="section" id="implementing-form">
+<h4><a class="toc-backref" href="#id26">5.17.2.2.1. Implementing form</a><a class="headerlink" href="#implementing-form" title="Permalink to this headline">¶</a></h4>
+<blockquote>
+<div><div class="highlight-java"><div class="highlight"><pre><span class="kd">public</span> <span class="kd">class</span> <span class="nc">FileUploadForm</span> <span class="kd">implements</span> <span class="n">Serializable</span> <span class="o">{</span>
+
+    <span class="c1">// omitted</span>
+
+    <span class="kd">private</span> <span class="n">MultipartFile</span> <span class="n">file</span><span class="o">;</span> <span class="c1">// (1)</span>
+
+    <span class="nd">@NotNull</span>
+    <span class="nd">@Size</span><span class="o">(</span><span class="n">min</span> <span class="o">=</span> <span class="mi">0</span><span class="o">,</span> <span class="n">max</span> <span class="o">=</span> <span class="mi">100</span><span class="o">)</span>
+    <span class="kd">private</span> <span class="n">String</span> <span class="n">description</span><span class="o">;</span>
+
+    <span class="c1">// omitted getter/setter methods.</span>
+
+<span class="o">}</span>
+</pre></div>
+</div>
+<table border="1" class="docutils">
+<colgroup>
+<col width="10%" />
+<col width="90%" />
+</colgroup>
+<thead valign="bottom">
+<tr class="row-odd"><th class="head">Sr. No.</th>
+<th class="head">Description</th>
+</tr>
+</thead>
+<tbody valign="top">
+<tr class="row-even"><td><div class="first last line-block">
+<div class="line">(1)</div>
+</div>
+</td>
+<td><div class="first last line-block">
+<div class="line">Define properties of <code class="docutils literal"><span class="pre">org.springframework.web.multipart.MultipartFile</span></code> in form object.</div>
+</div>
+</td>
+</tr>
+</tbody>
+</table>
+</div></blockquote>
+</div>
+<div class="section" id="implementing-jsp">
+<h4><a class="toc-backref" href="#id27">5.17.2.2.2. Implementing JSP</a><a class="headerlink" href="#implementing-jsp" title="Permalink to this headline">¶</a></h4>
+<blockquote>
+<div><div class="highlight-jsp"><div class="highlight"><pre><span class="nt">&lt;form:form</span>
+  <span class="na">action=</span><span class="s">&quot;${pageContext.request.contextPath}/article/upload&quot;</span> <span class="na">method=</span><span class="s">&quot;post&quot;</span>
+  <span class="na">modelAttribute=</span><span class="s">&quot;fileUploadForm&quot;</span> <span class="na">enctype=</span><span class="s">&quot;multipart/form-data&quot;</span><span class="nt">&gt;</span> <span class="c">&lt;!-- (1) (2) --&gt;</span>
+  <span class="nt">&lt;table&gt;</span>
+    <span class="nt">&lt;tr&gt;</span>
+      <span class="nt">&lt;th</span> <span class="na">width=</span><span class="s">&quot;35%&quot;</span><span class="nt">&gt;</span>File to upload<span class="nt">&lt;/th&gt;</span>
+      <span class="nt">&lt;td</span> <span class="na">width=</span><span class="s">&quot;65%&quot;</span><span class="nt">&gt;</span>
+        <span class="nt">&lt;form:input</span> <span class="na">type=</span><span class="s">&quot;file&quot;</span> <span class="na">path=</span><span class="s">&quot;file&quot;</span> <span class="nt">/&gt;</span> <span class="c">&lt;!-- (3) --&gt;</span>
+        <span class="nt">&lt;form:errors</span> <span class="na">path=</span><span class="s">&quot;file&quot;</span> <span class="nt">/&gt;</span>
+      <span class="nt">&lt;/td&gt;</span>
+    <span class="nt">&lt;/tr&gt;</span>
+    <span class="nt">&lt;tr&gt;</span>
+      <span class="nt">&lt;th</span> <span class="na">width=</span><span class="s">&quot;35%&quot;</span><span class="nt">&gt;</span>Description<span class="nt">&lt;/th&gt;</span>
+      <span class="nt">&lt;td</span> <span class="na">width=</span><span class="s">&quot;65%&quot;</span><span class="nt">&gt;</span>
+        <span class="nt">&lt;form:input</span> <span class="na">path=</span><span class="s">&quot;description&quot;</span> <span class="nt">/&gt;</span>
+        <span class="nt">&lt;form:errors</span>  <span class="na">path=</span><span class="s">&quot;description&quot;</span> <span class="nt">/&gt;</span>
+      <span class="nt">&lt;/td&gt;</span>
+    <span class="nt">&lt;/tr&gt;</span>
+    <span class="nt">&lt;tr&gt;</span>
+      <span class="nt">&lt;td&gt;</span><span class="ni">&amp;nbsp;</span><span class="nt">&lt;/td&gt;</span>
+      <span class="nt">&lt;td&gt;&lt;form:button&gt;</span>Upload<span class="nt">&lt;/form:button&gt;&lt;/td&gt;</span>
+    <span class="nt">&lt;/tr&gt;</span>
+  <span class="nt">&lt;/table&gt;</span>
+<span class="nt">&lt;/form:form&gt;</span>
+</pre></div>
+</div>
+<table border="1" class="docutils">
+<colgroup>
+<col width="10%" />
+<col width="90%" />
+</colgroup>
+<thead valign="bottom">
+<tr class="row-odd"><th class="head">Sr. No.</th>
+<th class="head">Description</th>
+</tr>
+</thead>
+<tbody valign="top">
+<tr class="row-even"><td><div class="first last line-block">
+<div class="line">(1)</div>
+</div>
+</td>
+<td><div class="first last line-block">
+<div class="line">Specify <code class="docutils literal"><span class="pre">&quot;multipart/form-data&quot;</span></code> in the enctype attribute of <code class="docutils literal"><span class="pre">&lt;form:form&gt;</span></code> element.</div>
+</div>
+</td>
+</tr>
+<tr class="row-odd"><td><div class="first last line-block">
+<div class="line">(2)</div>
+</div>
+</td>
+<td><div class="first last line-block">
+<div class="line">Specify attribute name of form object in the modelAttribute of <code class="docutils literal"><span class="pre">&lt;form:form&gt;</span></code> element.</div>
+<div class="line">In the above example, <code class="docutils literal"><span class="pre">&quot;fileUploadForm&quot;</span></code> is specified.</div>
+</div>
+</td>
+</tr>
+<tr class="row-even"><td><div class="first last line-block">
+<div class="line">(3)</div>
+</div>
+</td>
+<td><div class="first last line-block">
+<div class="line">Specify <code class="docutils literal"><span class="pre">&quot;file&quot;</span></code> in type attribute of <code class="docutils literal"><span class="pre">&lt;form:input&gt;</span></code> element and specify <code class="docutils literal"><span class="pre">MultipartFile</span></code> property name in path attribute.</div>
+<div class="line">In the above example, the uploaded file is stored in <code class="docutils literal"><span class="pre">&quot;file&quot;</span></code> property of <code class="docutils literal"><span class="pre">FileUploadForm</span></code> object.</div>
+</div>
+</td>
+</tr>
+</tbody>
+</table>
+</div></blockquote>
+</div>
+<div class="section" id="implementing-controller">
+<h4><a class="toc-backref" href="#id28">5.17.2.2.3. Implementing Controller</a><a class="headerlink" href="#implementing-controller" title="Permalink to this headline">¶</a></h4>
+<blockquote>
+<div><div class="highlight-java"><div class="highlight"><pre><span class="nd">@RequestMapping</span><span class="o">(</span><span class="s">&quot;article&quot;</span><span class="o">)</span>
+<span class="nd">@Controller</span>
+<span class="kd">public</span> <span class="kd">class</span> <span class="nc">ArticleController</span> <span class="o">{</span>
+
+    <span class="nd">@Value</span><span class="o">(</span><span class="s">&quot;${upload.allowableFileSize}&quot;</span><span class="o">)</span>
+    <span class="kd">private</span> <span class="kt">int</span> <span class="n">uploadAllowableFileSize</span><span class="o">;</span>
+
+    <span class="c1">// omitted</span>
+
+    <span class="c1">// (1)</span>
+    <span class="nd">@ModelAttribute</span>
+    <span class="kd">public</span> <span class="n">FileUploadForm</span> <span class="nf">setFileUploadForm</span><span class="o">()</span> <span class="o">{</span>
+        <span class="k">return</span> <span class="k">new</span> <span class="n">FileUploadForm</span><span class="o">();</span>
+    <span class="o">}</span>
+
+    <span class="c1">// (2)</span>
+    <span class="nd">@RequestMapping</span><span class="o">(</span><span class="n">value</span> <span class="o">=</span> <span class="s">&quot;upload&quot;</span><span class="o">,</span> <span class="n">method</span> <span class="o">=</span> <span class="n">RequestMethod</span><span class="o">.</span><span class="na">GET</span><span class="o">,</span> <span class="n">params</span> <span class="o">=</span> <span class="s">&quot;form&quot;</span><span class="o">)</span>
+    <span class="kd">public</span> <span class="n">String</span> <span class="nf">uploadForm</span><span class="o">()</span> <span class="o">{</span>
+        <span class="k">return</span> <span class="s">&quot;article/uploadForm&quot;</span><span class="o">;</span>
+    <span class="o">}</span>
+
+    <span class="c1">// (3)</span>
+    <span class="nd">@RequestMapping</span><span class="o">(</span><span class="n">value</span> <span class="o">=</span> <span class="s">&quot;upload&quot;</span><span class="o">,</span> <span class="n">method</span> <span class="o">=</span> <span class="n">RequestMethod</span><span class="o">.</span><span class="na">POST</span><span class="o">)</span>
+    <span class="kd">public</span> <span class="n">String</span> <span class="nf">upload</span><span class="o">(</span><span class="nd">@Validated</span> <span class="n">FileUploadForm</span> <span class="n">form</span><span class="o">,</span>
+            <span class="n">BindingResult</span> <span class="n">result</span><span class="o">,</span> <span class="n">RedirectAttributes</span> <span class="n">redirectAttributes</span><span class="o">)</span> <span class="o">{</span>
+
+        <span class="k">if</span> <span class="o">(</span><span class="n">result</span><span class="o">.</span><span class="na">hasErrors</span><span class="o">())</span> <span class="o">{</span>
+            <span class="k">return</span> <span class="s">&quot;article/uploadForm&quot;</span><span class="o">;</span>
+        <span class="o">}</span>
+
+        <span class="n">MultipartFile</span> <span class="n">uploadFile</span> <span class="o">=</span> <span class="n">form</span><span class="o">.</span><span class="na">getFile</span><span class="o">();</span>
+
+        <span class="c1">// (4)</span>
+        <span class="k">if</span> <span class="o">(!</span><span class="n">StringUtils</span><span class="o">.</span><span class="na">hasLength</span><span class="o">(</span><span class="n">uploadFile</span><span class="o">.</span><span class="na">getOriginalFilename</span><span class="o">()))</span> <span class="o">{</span>
+            <span class="n">result</span><span class="o">.</span><span class="na">rejectValue</span><span class="o">(</span><span class="n">uploadFile</span><span class="o">.</span><span class="na">getName</span><span class="o">(),</span> <span class="s">&quot;e.xx.at.6002&quot;</span><span class="o">);</span>
+            <span class="k">return</span> <span class="s">&quot;article/uploadForm&quot;</span><span class="o">;</span>
+        <span class="o">}</span>
+
+        <span class="c1">// (5)</span>
+        <span class="k">if</span> <span class="o">(</span><span class="n">uploadFile</span><span class="o">.</span><span class="na">isEmpty</span><span class="o">())</span> <span class="o">{</span>
+            <span class="n">result</span><span class="o">.</span><span class="na">rejectValue</span><span class="o">(</span><span class="n">uploadFile</span><span class="o">.</span><span class="na">getName</span><span class="o">(),</span> <span class="s">&quot;e.xx.at.6003&quot;</span><span class="o">);</span>
+            <span class="k">return</span> <span class="s">&quot;article/uploadForm&quot;</span><span class="o">;</span>
+        <span class="o">}</span>
+
+        <span class="c1">// (6)</span>
+        <span class="k">if</span> <span class="o">(</span><span class="n">uploadAllowableFileSize</span> <span class="o">&lt;</span> <span class="n">uploadFile</span><span class="o">.</span><span class="na">getSize</span><span class="o">())</span> <span class="o">{</span>
+            <span class="n">result</span><span class="o">.</span><span class="na">rejectValue</span><span class="o">(</span><span class="n">uploadFile</span><span class="o">.</span><span class="na">getName</span><span class="o">(),</span> <span class="s">&quot;e.xx.at.6004&quot;</span><span class="o">,</span>
+                    <span class="k">new</span> <span class="n">Object</span><span class="o">[]</span> <span class="o">{</span> <span class="n">uploadAllowableFileSize</span> <span class="o">},</span> <span class="kc">null</span><span class="o">);</span>
+            <span class="k">return</span> <span class="s">&quot;article/uploadForm&quot;</span><span class="o">;</span>
+        <span class="o">}</span>
+
+        <span class="c1">// (7)</span>
+        <span class="c1">// omit processing of upload.</span>
+
+        <span class="c1">// (8)</span>
+        <span class="n">redirectAttributes</span><span class="o">.</span><span class="na">addFlashAttribute</span><span class="o">(</span><span class="n">ResultMessages</span><span class="o">.</span><span class="na">success</span><span class="o">().</span><span class="na">add</span><span class="o">(</span>
+                <span class="s">&quot;i.xx.at.0001&quot;</span><span class="o">));</span>
+
+        <span class="c1">// (9)</span>
+        <span class="k">return</span> <span class="s">&quot;redirect:/article/upload?complete&quot;</span><span class="o">;</span>
+    <span class="o">}</span>
+
+    <span class="nd">@RequestMapping</span><span class="o">(</span><span class="n">value</span> <span class="o">=</span> <span class="s">&quot;upload&quot;</span><span class="o">,</span> <span class="n">method</span> <span class="o">=</span> <span class="n">RequestMethod</span><span class="o">.</span><span class="na">GET</span><span class="o">,</span> <span class="n">params</span> <span class="o">=</span> <span class="s">&quot;complete&quot;</span><span class="o">)</span>
+    <span class="kd">public</span> <span class="n">String</span> <span class="nf">uploadComplete</span><span class="o">()</span> <span class="o">{</span>
+        <span class="k">return</span> <span class="s">&quot;article/uploadComplete&quot;</span><span class="o">;</span>
+    <span class="o">}</span>
+
+        <span class="c1">// omitted</span>
+
+<span class="o">}</span>
+</pre></div>
+</div>
+<table border="1" class="docutils">
+<colgroup>
+<col width="10%" />
+<col width="90%" />
+</colgroup>
+<thead valign="bottom">
+<tr class="row-odd"><th class="head">Sr. No.</th>
+<th class="head">Description</th>
+</tr>
+</thead>
+<tbody valign="top">
+<tr class="row-even"><td><div class="first last line-block">
+<div class="line">(1)</div>
+</div>
+</td>
+<td><div class="first last line-block">
+<div class="line">Method of storing the form object for file upload in <code class="docutils literal"><span class="pre">Model</span></code>.</div>
+<div class="line">In the above example, the attribute name for storing form object in <code class="docutils literal"><span class="pre">Model</span></code> is <code class="docutils literal"><span class="pre">&quot;fileUploadForm&quot;</span></code>.</div>
+</div>
+</td>
+</tr>
+<tr class="row-odd"><td><div class="first last line-block">
+<div class="line">(2)</div>
+</div>
+</td>
+<td><div class="first last line-block">
+<div class="line">Processing method for displaying upload screen.</div>
+</div>
+</td>
+</tr>
+<tr class="row-even"><td><div class="first last line-block">
+<div class="line">(3)</div>
+</div>
+</td>
+<td><div class="first last line-block">
+<div class="line">Processing method for uploading files.</div>
+</div>
+</td>
+</tr>
+<tr class="row-odd"><td><div class="first last line-block">
+<div class="line">(4)</div>
+</div>
+</td>
+<td><div class="first last line-block">
+<div class="line">It is checked whether the files for upload are selected.</div>
+<div class="line">To check if the files are selected, call <code class="docutils literal"><span class="pre">MultipartFile#getOriginalFilename</span></code>  method and decide on the basis of whether file name is specified or not.</div>
+<div class="line">In the above example, input validation error is thrown if the files are not selected.</div>
+</div>
+</td>
+</tr>
+<tr class="row-even"><td><div class="first last line-block">
+<div class="line">(5)</div>
+</div>
+</td>
+<td><div class="first last line-block">
+<div class="line">It is checked whether an empty file is selected.</div>
+<div class="line">To check if the selected file is not empty, call <code class="docutils literal"><span class="pre">MultipartFile#isEmpty</span></code> method to check for presence of contents.</div>
+<div class="line">In the above example, input validation error is thrown if an empty file is selected.</div>
+</div>
+</td>
+</tr>
+<tr class="row-odd"><td><div class="first last line-block">
+<div class="line">(6)</div>
+</div>
+</td>
+<td><div class="first last line-block">
+<div class="line">It is checked whether the file size is within allowable range.</div>
+<div class="line">To check the size of selected file, call <code class="docutils literal"><span class="pre">MultipartFile#getSize</span></code> method and check whether the size is within the allowable range.</div>
+<div class="line">In the above example, input validation error is thrown if the file size exceeds the allowable range.</div>
+</div>
+</td>
+</tr>
+<tr class="row-even"><td><div class="first last line-block">
+<div class="line">(7)</div>
+</div>
+</td>
+<td><div class="first last line-block">
+<div class="line">Implement upload process.</div>
+<div class="line">The above example does not cover any specific implementation; however process to store the file on a shared disk or database is performed.</div>
+</div>
+</td>
+</tr>
+<tr class="row-odd"><td><div class="first last line-block">
+<div class="line">(8)</div>
+</div>
+</td>
+<td><div class="first last line-block">
+<div class="line">As per the requirement, the processing result message notifying about successful upload is stored.</div>
+</div>
+</td>
+</tr>
+<tr class="row-even"><td><div class="first last line-block">
+<div class="line">(9)</div>
+</div>
+</td>
+<td><div class="first last line-block">
+<div class="line">Once upload is complete, redirect to upload completion screen.</div>
+</div>
+</td>
+</tr>
+</tbody>
+</table>
+<div class="admonition note">
+<p class="first admonition-title">Note</p>
+<p><strong>Preventing duplicate upload</strong></p>
+<p>When uploading files, it is recommended to perform transaction token check and screen transition based on PRG pattern.
+With this, upload of same files caused due to double submission can be prevented.</p>
+<p class="last">For more details on how to prevent double submission, refer to <a class="reference internal" href="DoubleSubmitProtection.html"><em>Double Submit Protection</em></a>.</p>
+</div>
+<div class="admonition note">
+<p class="first admonition-title">Note</p>
+<p><strong>About MultipartFile</strong></p>
+<p class="last">Methods to operate the uploaded file are provided in MultipartFile.
+For details on using each method, refer to <a href="#id1"><span class="problematic" id="id2">`</span></a>JavaDoc &lt;<a class="reference external" href="http://docs.spring.io/spring/docs/4.1.7.RELEASE/javadoc-api/org/springframework/web/multipart/MultipartFile.html">http://docs.spring.io/spring/docs/4.1.7.RELEASE/javadoc-api/org/springframework/web/multipart/MultipartFile.html</a>&gt; of MultipartFile class <a href="#id3"><span class="problematic" id="id4">`</span></a>_.</p>
+</div>
+</div></blockquote>
+</div>
+</div>
+<div class="section" id="bean-validation-of-file-upload">
+<span id="fileupload-validator"></span><h3><a class="toc-backref" href="#id29">5.17.2.3. Bean Validation of file upload</a><a class="headerlink" href="#bean-validation-of-file-upload" title="Permalink to this headline">¶</a></h3>
+<div class="line-block">
+<div class="line">In the above implementation example, uploaded file is validated as a Controller process. However, here the uploaded file is validated using Bean Validation.</div>
+<div class="line">For validation details, refer to <a class="reference internal" href="Validation.html"><em>Input Validation</em></a>.</div>
+</div>
+<blockquote>
+<div><div class="admonition note">
+<p class="first admonition-title">Note</p>
+<p class="last">It is recommended to use Bean Validation since this makes maintenance of Controller processes easier.</p>
+</div>
+</div></blockquote>
+<div class="section" id="implementing-validation-to-verify-that-the-file-is-selected">
+<h4><a class="toc-backref" href="#id30">5.17.2.3.1. Implementing validation to verify that the file is selected</a><a class="headerlink" href="#implementing-validation-to-verify-that-the-file-is-selected" title="Permalink to this headline">¶</a></h4>
+<blockquote>
+<div><div class="highlight-java"><div class="highlight"><pre><span class="c1">// (1)</span>
+<span class="nd">@Target</span><span class="o">({</span> <span class="n">ElementType</span><span class="o">.</span><span class="na">METHOD</span><span class="o">,</span> <span class="n">ElementType</span><span class="o">.</span><span class="na">FIELD</span><span class="o">,</span> <span class="n">ElementType</span><span class="o">.</span><span class="na">ANNOTATION_TYPE</span> <span class="o">})</span>
+<span class="nd">@Retention</span><span class="o">(</span><span class="n">RetentionPolicy</span><span class="o">.</span><span class="na">RUNTIME</span><span class="o">)</span>
+<span class="nd">@Constraint</span><span class="o">(</span><span class="n">validatedBy</span> <span class="o">=</span> <span class="n">UploadFileRequiredValidator</span><span class="o">.</span><span class="na">class</span><span class="o">)</span>
+<span class="kd">public</span> <span class="nd">@interface</span> <span class="n">UploadFileRequired</span> <span class="o">{</span>
+            <span class="n">String</span> <span class="nf">message</span><span class="o">()</span> <span class="k">default</span> <span class="s">&quot;{com.examples.upload.UploadFileRequired.message}&quot;</span><span class="o">;</span>
+    <span class="n">Class</span><span class="o">&lt;?&gt;[]</span> <span class="n">groups</span><span class="o">()</span> <span class="k">default</span> <span class="o">{};</span>
+    <span class="n">Class</span><span class="o">&lt;?</span> <span class="kd">extends</span> <span class="n">Payload</span><span class="o">&gt;[]</span> <span class="nf">payload</span><span class="o">()</span> <span class="k">default</span> <span class="o">{};</span>
+
+    <span class="nd">@Target</span><span class="o">({</span> <span class="n">ElementType</span><span class="o">.</span><span class="na">METHOD</span><span class="o">,</span> <span class="n">ElementType</span><span class="o">.</span><span class="na">FIELD</span><span class="o">,</span> <span class="n">ElementType</span><span class="o">.</span><span class="na">ANNOTATION_TYPE</span> <span class="o">})</span>
+    <span class="nd">@Retention</span><span class="o">(</span><span class="n">RetentionPolicy</span><span class="o">.</span><span class="na">RUNTIME</span><span class="o">)</span>
+    <span class="nd">@Documented</span>
+    <span class="nd">@interface</span> <span class="n">List</span> <span class="o">{</span>
+        <span class="n">UploadFileRequired</span><span class="o">[]</span> <span class="nf">value</span><span class="o">();</span>
+    <span class="o">}</span>
+
+<span class="o">}</span>
+</pre></div>
+</div>
+<div class="highlight-java"><div class="highlight"><pre><span class="c1">// (2)</span>
+<span class="kd">public</span> <span class="kd">class</span> <span class="nc">UploadFileRequiredValidator</span> <span class="kd">implements</span>
+    <span class="n">ConstraintValidator</span><span class="o">&lt;</span><span class="n">UploadFileRequired</span><span class="o">,</span> <span class="n">MultipartFile</span><span class="o">&gt;</span> <span class="o">{</span>
+
+    <span class="nd">@Override</span>
+    <span class="kd">public</span> <span class="kt">void</span> <span class="nf">initialize</span><span class="o">(</span><span class="n">UploadFileRequired</span> <span class="n">constraint</span><span class="o">)</span> <span class="o">{</span>
+    <span class="o">}</span>
+
+    <span class="nd">@Override</span>
+    <span class="kd">public</span> <span class="kt">boolean</span> <span class="nf">isValid</span><span class="o">(</span><span class="n">MultipartFile</span> <span class="n">multipartFile</span><span class="o">,</span>
+        <span class="n">ConstraintValidatorContext</span> <span class="n">context</span><span class="o">)</span> <span class="o">{</span>
+        <span class="k">return</span> <span class="n">multipartFile</span> <span class="o">!=</span> <span class="kc">null</span> <span class="o">&amp;&amp;</span>
+            <span class="n">StringUtils</span><span class="o">.</span><span class="na">hasLength</span><span class="o">(</span><span class="n">multipartFile</span><span class="o">.</span><span class="na">getOriginalFilename</span><span class="o">());</span>
+    <span class="o">}</span>
+
+<span class="o">}</span>
+</pre></div>
+</div>
+<table border="1" class="docutils">
+<colgroup>
+<col width="10%" />
+<col width="90%" />
+</colgroup>
+<thead valign="bottom">
+<tr class="row-odd"><th class="head">Sr. No.</th>
+<th class="head">Description</th>
+</tr>
+</thead>
+<tbody valign="top">
+<tr class="row-even"><td><div class="first last line-block">
+<div class="line">(1)</div>
+</div>
+</td>
+<td><div class="first last line-block">
+<div class="line">Create annotation to verify that the file is selected.</div>
+</div>
+</td>
+</tr>
+<tr class="row-odd"><td><div class="first last line-block">
+<div class="line">(2)</div>
+</div>
+</td>
+<td><div class="first last line-block">
+<div class="line">Create implementation class to verify that the file is selected.</div>
+</div>
+</td>
+</tr>
+</tbody>
+</table>
+</div></blockquote>
+</div>
+<div class="section" id="implementing-validation-to-verify-that-the-file-is-not-empty">
+<h4><a class="toc-backref" href="#id31">5.17.2.3.2. Implementing validation to verify that the file is not empty</a><a class="headerlink" href="#implementing-validation-to-verify-that-the-file-is-not-empty" title="Permalink to this headline">¶</a></h4>
+<blockquote>
+<div><div class="highlight-java"><div class="highlight"><pre><span class="c1">// (3)</span>
+<span class="nd">@Target</span><span class="o">({</span> <span class="n">ElementType</span><span class="o">.</span><span class="na">METHOD</span><span class="o">,</span> <span class="n">ElementType</span><span class="o">.</span><span class="na">FIELD</span><span class="o">,</span> <span class="n">ElementType</span><span class="o">.</span><span class="na">ANNOTATION_TYPE</span> <span class="o">})</span>
+<span class="nd">@Retention</span><span class="o">(</span><span class="n">RetentionPolicy</span><span class="o">.</span><span class="na">RUNTIME</span><span class="o">)</span>
+<span class="nd">@Constraint</span><span class="o">(</span><span class="n">validatedBy</span> <span class="o">=</span> <span class="n">UploadFileNotEmptyValidator</span><span class="o">.</span><span class="na">class</span><span class="o">)</span>
+<span class="kd">public</span> <span class="nd">@interface</span> <span class="n">UploadFileNotEmpty</span> <span class="o">{</span>
+    <span class="n">String</span> <span class="nf">message</span><span class="o">()</span> <span class="k">default</span> <span class="s">&quot;{com.examples.upload.UploadFileNotEmpty.message}&quot;</span><span class="o">;</span>
+    <span class="n">Class</span><span class="o">&lt;?&gt;[]</span> <span class="n">groups</span><span class="o">()</span> <span class="k">default</span> <span class="o">{};</span>
+    <span class="n">Class</span><span class="o">&lt;?</span> <span class="kd">extends</span> <span class="n">Payload</span><span class="o">&gt;[]</span> <span class="nf">payload</span><span class="o">()</span> <span class="k">default</span> <span class="o">{};</span>
+
+    <span class="nd">@Target</span><span class="o">({</span> <span class="n">ElementType</span><span class="o">.</span><span class="na">METHOD</span><span class="o">,</span> <span class="n">ElementType</span><span class="o">.</span><span class="na">FIELD</span><span class="o">,</span> <span class="n">ElementType</span><span class="o">.</span><span class="na">ANNOTATION_TYPE</span> <span class="o">})</span>
+    <span class="nd">@Retention</span><span class="o">(</span><span class="n">RetentionPolicy</span><span class="o">.</span><span class="na">RUNTIME</span><span class="o">)</span>
+    <span class="nd">@Documented</span>
+    <span class="nd">@interface</span> <span class="n">List</span> <span class="o">{</span>
+        <span class="n">UploadFileNotEmpty</span><span class="o">[]</span> <span class="nf">value</span><span class="o">();</span>
+    <span class="o">}</span>
+
+<span class="o">}</span>
+</pre></div>
+</div>
+<div class="highlight-java"><div class="highlight"><pre><span class="c1">// (4)</span>
+<span class="kd">public</span> <span class="kd">class</span> <span class="nc">UploadFileNotEmptyValidator</span> <span class="kd">implements</span>
+    <span class="n">ConstraintValidator</span><span class="o">&lt;</span><span class="n">UploadFileNotEmpty</span><span class="o">,</span> <span class="n">MultipartFile</span><span class="o">&gt;</span> <span class="o">{</span>
+
+    <span class="nd">@Override</span>
+    <span class="kd">public</span> <span class="kt">void</span> <span class="nf">initialize</span><span class="o">(</span><span class="n">UploadFileNotEmpty</span> <span class="n">constraint</span><span class="o">)</span> <span class="o">{</span>
+    <span class="o">}</span>
+
+    <span class="nd">@Override</span>
+    <span class="kd">public</span> <span class="kt">boolean</span> <span class="nf">isValid</span><span class="o">(</span><span class="n">MultipartFile</span> <span class="n">multipartFile</span><span class="o">,</span>
+        <span class="n">ConstraintValidatorContext</span> <span class="n">context</span><span class="o">)</span> <span class="o">{</span>
+        <span class="k">if</span> <span class="o">(</span><span class="n">multipartFile</span> <span class="o">==</span> <span class="kc">null</span> <span class="o">||</span>
+            <span class="o">!</span><span class="n">StringUtils</span><span class="o">.</span><span class="na">hasLength</span><span class="o">(</span><span class="n">multipartFile</span><span class="o">.</span><span class="na">getOriginalFilename</span><span class="o">()))</span> <span class="o">{</span>
+            <span class="k">return</span> <span class="kc">true</span><span class="o">;</span>
+        <span class="o">}</span>
+        <span class="k">return</span> <span class="o">!</span><span class="n">multipartFile</span><span class="o">.</span><span class="na">isEmpty</span><span class="o">();</span>
+    <span class="o">}</span>
+
+<span class="o">}</span>
+</pre></div>
+</div>
+<table border="1" class="docutils">
+<colgroup>
+<col width="10%" />
+<col width="90%" />
+</colgroup>
+<thead valign="bottom">
+<tr class="row-odd"><th class="head">Sr. No.</th>
+<th class="head">Description</th>
+</tr>
+</thead>
+<tbody valign="top">
+<tr class="row-even"><td><div class="first last line-block">
+<div class="line">(3)</div>
+</div>
+</td>
+<td><div class="first last line-block">
+<div class="line">Create annotation to verify that the file is not empty.</div>
+</div>
+</td>
+</tr>
+<tr class="row-odd"><td><div class="first last line-block">
+<div class="line">(4)</div>
+</div>
+</td>
+<td><div class="first last line-block">
+<div class="line">Create implementation class to verify that the file is not empty.</div>
+</div>
+</td>
+</tr>
+</tbody>
+</table>
+</div></blockquote>
+</div>
+<div class="section" id="implementing-validation-to-verify-that-file-size-is-within-allowable-range">
+<h4><a class="toc-backref" href="#id32">5.17.2.3.3. Implementing validation to verify that file size is within allowable range</a><a class="headerlink" href="#implementing-validation-to-verify-that-file-size-is-within-allowable-range" title="Permalink to this headline">¶</a></h4>
+<blockquote>
+<div><div class="highlight-java"><div class="highlight"><pre><span class="c1">// (5)</span>
+<span class="nd">@Target</span><span class="o">({</span> <span class="n">ElementType</span><span class="o">.</span><span class="na">METHOD</span><span class="o">,</span> <span class="n">ElementType</span><span class="o">.</span><span class="na">FIELD</span><span class="o">,</span> <span class="n">ElementType</span><span class="o">.</span><span class="na">ANNOTATION_TYPE</span> <span class="o">})</span>
+<span class="nd">@Retention</span><span class="o">(</span><span class="n">RetentionPolicy</span><span class="o">.</span><span class="na">RUNTIME</span><span class="o">)</span>
+<span class="nd">@Constraint</span><span class="o">(</span><span class="n">validatedBy</span> <span class="o">=</span> <span class="n">UploadFileMaxSizeValidator</span><span class="o">.</span><span class="na">class</span><span class="o">)</span>
+<span class="kd">public</span> <span class="nd">@interface</span> <span class="n">UploadFileMaxSize</span> <span class="o">{</span>
+    <span class="n">String</span> <span class="nf">message</span><span class="o">()</span> <span class="k">default</span> <span class="s">&quot;{com.examples.upload.UploadFileMaxSize.message}&quot;</span><span class="o">;</span>
+    <span class="kt">long</span> <span class="nf">value</span><span class="o">()</span> <span class="k">default</span> <span class="o">(</span><span class="mi">1024</span> <span class="o">*</span> <span class="mi">1024</span><span class="o">);</span>
+    <span class="n">Class</span><span class="o">&lt;?&gt;[]</span> <span class="n">groups</span><span class="o">()</span> <span class="k">default</span> <span class="o">{};</span>
+    <span class="n">Class</span><span class="o">&lt;?</span> <span class="kd">extends</span> <span class="n">Payload</span><span class="o">&gt;[]</span> <span class="nf">payload</span><span class="o">()</span> <span class="k">default</span> <span class="o">{};</span>
+
+    <span class="nd">@Target</span><span class="o">({</span> <span class="n">ElementType</span><span class="o">.</span><span class="na">METHOD</span><span class="o">,</span> <span class="n">ElementType</span><span class="o">.</span><span class="na">FIELD</span><span class="o">,</span> <span class="n">ElementType</span><span class="o">.</span><span class="na">ANNOTATION_TYPE</span> <span class="o">})</span>
+    <span class="nd">@Retention</span><span class="o">(</span><span class="n">RetentionPolicy</span><span class="o">.</span><span class="na">RUNTIME</span><span class="o">)</span>
+    <span class="nd">@Documented</span>
+    <span class="nd">@interface</span> <span class="n">List</span> <span class="o">{</span>
+        <span class="n">UploadFileMaxSize</span><span class="o">[]</span> <span class="nf">value</span><span class="o">();</span>
+    <span class="o">}</span>
+
+<span class="o">}</span>
+</pre></div>
+</div>
+<div class="highlight-java"><div class="highlight"><pre><span class="c1">// (6)</span>
+<span class="kd">public</span> <span class="kd">class</span> <span class="nc">UploadFileMaxSizeValidator</span> <span class="kd">implements</span>
+    <span class="n">ConstraintValidator</span><span class="o">&lt;</span><span class="n">UploadFileMaxSize</span><span class="o">,</span> <span class="n">MultipartFile</span><span class="o">&gt;</span> <span class="o">{</span>
+
+    <span class="kd">private</span> <span class="n">UploadFileMaxSize</span> <span class="n">constraint</span><span class="o">;</span>
+
+    <span class="nd">@Override</span>
+    <span class="kd">public</span> <span class="kt">void</span> <span class="nf">initialize</span><span class="o">(</span><span class="n">UploadFileMaxSize</span> <span class="n">constraint</span><span class="o">)</span> <span class="o">{</span>
+        <span class="k">this</span><span class="o">.</span><span class="na">constraint</span> <span class="o">=</span> <span class="n">constraint</span><span class="o">;</span>
+    <span class="o">}</span>
+
+    <span class="nd">@Override</span>
+    <span class="kd">public</span> <span class="kt">boolean</span> <span class="nf">isValid</span><span class="o">(</span><span class="n">MultipartFile</span> <span class="n">multipartFile</span><span class="o">,</span>
+        <span class="n">ConstraintValidatorContext</span> <span class="n">context</span><span class="o">)</span> <span class="o">{</span>
+        <span class="k">if</span> <span class="o">(</span><span class="n">constraint</span><span class="o">.</span><span class="na">value</span><span class="o">()</span> <span class="o">&lt;</span> <span class="mi">0</span> <span class="o">||</span> <span class="n">multipartFile</span> <span class="o">==</span> <span class="kc">null</span><span class="o">)</span> <span class="o">{</span>
+            <span class="k">return</span> <span class="kc">true</span><span class="o">;</span>
+        <span class="o">}</span>
+        <span class="k">return</span> <span class="n">multipartFile</span><span class="o">.</span><span class="na">getSize</span><span class="o">()</span> <span class="o">&lt;=</span> <span class="n">constraint</span><span class="o">.</span><span class="na">value</span><span class="o">();</span>
+    <span class="o">}</span>
+
+<span class="o">}</span>
+</pre></div>
+</div>
+<table border="1" class="docutils">
+<colgroup>
+<col width="10%" />
+<col width="90%" />
+</colgroup>
+<thead valign="bottom">
+<tr class="row-odd"><th class="head">Sr. No.</th>
+<th class="head">Description</th>
+</tr>
+</thead>
+<tbody valign="top">
+<tr class="row-even"><td><div class="first last line-block">
+<div class="line">(5)</div>
+</div>
+</td>
+<td><div class="first last line-block">
+<div class="line">Create annotation to verify that the file size is within allowable range.</div>
+</div>
+</td>
+</tr>
+<tr class="row-odd"><td><div class="first last line-block">
+<div class="line">(6)</div>
+</div>
+</td>
+<td><div class="first last line-block">
+<div class="line">Create implementation class to verify that the file size is within allowable range.</div>
+</div>
+</td>
+</tr>
+</tbody>
+</table>
+</div></blockquote>
+</div>
+<div class="section" id="id5">
+<h4><a class="toc-backref" href="#id33">5.17.2.3.4. Implementing form</a><a class="headerlink" href="#id5" title="Permalink to this headline">¶</a></h4>
+<blockquote>
+<div><div class="highlight-java"><div class="highlight"><pre><span class="kd">public</span> <span class="kd">class</span> <span class="nc">FileUploadForm</span> <span class="kd">implements</span> <span class="n">Serializable</span> <span class="o">{</span>
+
+    <span class="c1">// omitted</span>
+
+    <span class="c1">// (7)</span>
+    <span class="nd">@UploadFileRequired</span>
+    <span class="nd">@UploadFileNotEmpty</span>
+    <span class="nd">@UploadFileMaxSize</span>
+    <span class="kd">private</span> <span class="n">MultipartFile</span> <span class="n">file</span><span class="o">;</span>
+
+    <span class="nd">@NotNull</span>
+    <span class="nd">@Size</span><span class="o">(</span><span class="n">min</span> <span class="o">=</span> <span class="mi">0</span><span class="o">,</span> <span class="n">max</span> <span class="o">=</span> <span class="mi">100</span><span class="o">)</span>
+    <span class="kd">private</span> <span class="n">String</span> <span class="n">description</span><span class="o">;</span>
+
+    <span class="c1">// omitted getter/setter methods.</span>
+
+<span class="o">}</span>
+</pre></div>
+</div>
+<table border="1" class="docutils">
+<colgroup>
+<col width="10%" />
+<col width="90%" />
+</colgroup>
+<thead valign="bottom">
+<tr class="row-odd"><th class="head">Sr. No.</th>
+<th class="head">Description</th>
+</tr>
+</thead>
+<tbody valign="top">
+<tr class="row-even"><td><div class="first last line-block">
+<div class="line">(7)</div>
+</div>
+</td>
+<td><div class="first last line-block">
+<div class="line">Assign annotation to <code class="docutils literal"><span class="pre">MultipartFile</span></code> field for validating uploaded file.</div>
+</div>
+</td>
+</tr>
+</tbody>
+</table>
+</div></blockquote>
+</div>
+<div class="section" id="id6">
+<h4><a class="toc-backref" href="#id34">5.17.2.3.5. Implementing Controller</a><a class="headerlink" href="#id6" title="Permalink to this headline">¶</a></h4>
+<blockquote>
+<div><div class="highlight-java"><div class="highlight"><pre><span class="nd">@RequestMapping</span><span class="o">(</span><span class="n">value</span> <span class="o">=</span> <span class="s">&quot;upload&quot;</span><span class="o">,</span> <span class="n">method</span> <span class="o">=</span> <span class="n">RequestMethod</span><span class="o">.</span><span class="na">POST</span><span class="o">)</span>
+<span class="kd">public</span> <span class="n">String</span> <span class="nf">uploadFile</span><span class="o">(</span><span class="nd">@Validated</span> <span class="n">FileUploadForm</span> <span class="n">form</span><span class="o">,</span>
+        <span class="n">BindingResult</span> <span class="n">result</span><span class="o">,</span> <span class="n">RedirectAttributes</span> <span class="n">redirectAttributes</span><span class="o">)</span> <span class="o">{</span>
+
+    <span class="c1">// (8)</span>
+    <span class="k">if</span> <span class="o">(</span><span class="n">result</span><span class="o">.</span><span class="na">hasErrors</span><span class="o">())</span> <span class="o">{</span>
+        <span class="k">return</span> <span class="s">&quot;article/uploadForm&quot;</span><span class="o">;</span>
+    <span class="o">}</span>
+
+    <span class="n">MultipartFile</span> <span class="n">uploadFile</span> <span class="o">=</span> <span class="n">form</span><span class="o">.</span><span class="na">getFile</span><span class="o">();</span>
+
+    <span class="c1">// omit processing of upload.</span>
+
+    <span class="n">redirectAttributes</span><span class="o">.</span><span class="na">addFlashAttribute</span><span class="o">(</span><span class="n">ResultMessages</span><span class="o">.</span><span class="na">success</span><span class="o">().</span><span class="na">add</span><span class="o">(</span>
+            <span class="s">&quot;i.xx.at.0001&quot;</span><span class="o">));</span>
+
+    <span class="k">return</span> <span class="s">&quot;redirect:/article/upload&quot;</span><span class="o">;</span>
+<span class="o">}</span>
+</pre></div>
+</div>
+<table border="1" class="docutils">
+<colgroup>
+<col width="10%" />
+<col width="90%" />
+</colgroup>
+<thead valign="bottom">
+<tr class="row-odd"><th class="head">Sr. No.</th>
+<th class="head">Description</th>
+</tr>
+</thead>
+<tbody valign="top">
+<tr class="row-even"><td><div class="first last line-block">
+<div class="line">(8)</div>
+</div>
+</td>
+<td><div class="first last line-block">
+<div class="line">Validation result of uploaded file is stored in <code class="docutils literal"><span class="pre">BindingResult</span></code>.</div>
+</div>
+</td>
+</tr>
+</tbody>
+</table>
+</div></blockquote>
+</div>
+</div>
+<div class="section" id="uploading-multiple-files">
+<h3><a class="toc-backref" href="#id35">5.17.2.4. Uploading multiple files</a><a class="headerlink" href="#uploading-multiple-files" title="Permalink to this headline">¶</a></h3>
+<p>This section explains about simultaneously uploading multiple files.</p>
+<blockquote>
+<div><div class="figure">
+<a class="reference internal image-reference" href="../_images/file-upload-how_to_use_multi.png"><img alt="Screen image of multiple file upload." src="../_images/file-upload-how_to_use_multi.png" style="width: 100%;" /></a>
+</div>
+</div></blockquote>
+<p>In order to upload multiple files simultaneously, it is necessary to receive <code class="docutils literal"><span class="pre">org.springframework.web.multipart.MultipartFile</span></code> object by binding it to the form object.</p>
+<p>The explanation that has already been covered under single file upload has been omitted to avoid duplication.</p>
+<div class="section" id="id7">
+<h4><a class="toc-backref" href="#id36">5.17.2.4.1. Implementing form</a><a class="headerlink" href="#id7" title="Permalink to this headline">¶</a></h4>
+<blockquote>
+<div><div class="highlight-java"><div class="highlight"><pre><span class="c1">// (1)</span>
+<span class="kd">public</span> <span class="kd">class</span> <span class="nc">FileUploadForm</span> <span class="kd">implements</span> <span class="n">Serializable</span> <span class="o">{</span>
+
+    <span class="c1">// omitted</span>
+
+    <span class="nd">@UploadFileRequired</span>
+    <span class="nd">@UploadFileNotEmpty</span>
+    <span class="nd">@UploadFileMaxSize</span>
+    <span class="kd">private</span> <span class="n">MultipartFile</span> <span class="n">file</span><span class="o">;</span>
+
+    <span class="nd">@NotNull</span>
+    <span class="nd">@Size</span><span class="o">(</span><span class="n">min</span> <span class="o">=</span> <span class="mi">0</span><span class="o">,</span> <span class="n">max</span> <span class="o">=</span> <span class="mi">100</span><span class="o">)</span>
+    <span class="kd">private</span> <span class="n">String</span> <span class="n">description</span><span class="o">;</span>
+
+    <span class="c1">// omitted getter/setter methods.</span>
+
+<span class="o">}</span>
+</pre></div>
+</div>
+<div class="highlight-java"><div class="highlight"><pre><span class="kd">public</span> <span class="kd">class</span> <span class="nc">FilesUploadForm</span> <span class="kd">implements</span> <span class="n">Serializable</span> <span class="o">{</span>
+
+    <span class="c1">// omitted</span>
+
+    <span class="nd">@Valid</span> <span class="c1">// (2)</span>
+    <span class="kd">private</span> <span class="n">List</span><span class="o">&lt;</span><span class="n">FileUploadForm</span><span class="o">&gt;</span> <span class="n">fileUploadForms</span><span class="o">;</span> <span class="c1">// (3)</span>
+
+    <span class="c1">// omitted getter/setter methods.</span>
+
+<span class="o">}</span>
+</pre></div>
+</div>
+<table border="1" class="docutils">
+<colgroup>
+<col width="10%" />
+<col width="90%" />
+</colgroup>
+<thead valign="bottom">
+<tr class="row-odd"><th class="head">Sr. No.</th>
+<th class="head">Description</th>
+</tr>
+</thead>
+<tbody valign="top">
+<tr class="row-even"><td><div class="first last line-block">
+<div class="line">(1)</div>
+</div>
+</td>
+<td><div class="first last line-block">
+<div class="line">Class that maintains the information of each file (uploaded file itself and related form fields).</div>
+<div class="line">In the above example, form object that was originally created to explain about single file upload, is re-used.</div>
+</div>
+</td>
+</tr>
+<tr class="row-odd"><td><div class="first last line-block">
+<div class="line">(2)</div>
+</div>
+</td>
+<td><div class="first last line-block">
+<div class="line">To carry out input validation through Bean Validation for the object maintained in list, assign <code class="docutils literal"><span class="pre">&#64;Valid</span></code> annotation.</div>
+</div>
+</td>
+</tr>
+<tr class="row-even"><td><div class="first last line-block">
+<div class="line">(3)</div>
+</div>
+</td>
+<td><div class="first last line-block">
+<div class="line">Define the object that maintains information of each file (uploaded file itself and related form fields) as List property.</div>
+</div>
+</td>
+</tr>
+</tbody>
+</table>
+<div class="admonition note">
+<p class="first admonition-title">Note</p>
+<p class="last">When only files are to be uploaded, <code class="docutils literal"><span class="pre">MultipartFile</span></code> object can also be defined as List property;
+however, for input validation of uploaded files using Bean Validation, there is better compatibility if the object that maintains information of each file, is defined as List property.</p>
+</div>
+</div></blockquote>
+</div>
+<div class="section" id="id8">
+<h4><a class="toc-backref" href="#id37">5.17.2.4.2. Implementing JSP</a><a class="headerlink" href="#id8" title="Permalink to this headline">¶</a></h4>
+<blockquote>
+<div><div class="highlight-jsp"><div class="highlight"><pre><span class="nt">&lt;form:form</span>
+  <span class="na">action=</span><span class="s">&quot;${pageContext.request.contextPath}/article/uploadFiles&quot;</span> <span class="na">method=</span><span class="s">&quot;post&quot;</span>
+  <span class="na">modelAttribute=</span><span class="s">&quot;filesUploadForm&quot;</span> <span class="na">enctype=</span><span class="s">&quot;multipart/form-data&quot;</span><span class="nt">&gt;</span>
+  <span class="nt">&lt;table&gt;</span>
+    <span class="nt">&lt;tr&gt;</span>
+      <span class="nt">&lt;th</span> <span class="na">width=</span><span class="s">&quot;35%&quot;</span><span class="nt">&gt;</span>File to upload<span class="nt">&lt;/th&gt;</span>
+      <span class="nt">&lt;td</span> <span class="na">width=</span><span class="s">&quot;65%&quot;</span><span class="nt">&gt;</span>
+        <span class="nt">&lt;form:input</span> <span class="na">type=</span><span class="s">&quot;file&quot;</span> <span class="na">path=</span><span class="s">&quot;fileUploadForms[0].file&quot;</span> <span class="nt">/&gt;</span> <span class="c">&lt;!-- (1) --&gt;</span>
+        <span class="nt">&lt;form:errors</span> <span class="na">path=</span><span class="s">&quot;fileUploadForms[0].file&quot;</span> <span class="nt">/&gt;</span>
+      <span class="nt">&lt;/td&gt;</span>
+    <span class="nt">&lt;/tr&gt;</span>
+    <span class="nt">&lt;tr&gt;</span>
+      <span class="nt">&lt;th</span> <span class="na">width=</span><span class="s">&quot;35%&quot;</span><span class="nt">&gt;</span>Description<span class="nt">&lt;/th&gt;</span>
+      <span class="nt">&lt;td</span> <span class="na">width=</span><span class="s">&quot;65%&quot;</span><span class="nt">&gt;</span>
+        <span class="nt">&lt;form:input</span> <span class="na">path=</span><span class="s">&quot;fileUploadForms[0].description&quot;</span> <span class="nt">/&gt;</span>
+        <span class="nt">&lt;form:errors</span>  <span class="na">path=</span><span class="s">&quot;fileUploadForms[0].description&quot;</span> <span class="nt">/&gt;</span>
+      <span class="nt">&lt;/td&gt;</span>
+    <span class="nt">&lt;/tr&gt;</span>
+  <span class="nt">&lt;/table&gt;</span>
+  <span class="nt">&lt;table&gt;</span>
+    <span class="nt">&lt;tr&gt;</span>
+      <span class="nt">&lt;th</span> <span class="na">width=</span><span class="s">&quot;35%&quot;</span><span class="nt">&gt;</span>File to upload<span class="nt">&lt;/th&gt;</span>
+      <span class="nt">&lt;td</span> <span class="na">width=</span><span class="s">&quot;65%&quot;</span><span class="nt">&gt;</span>
+        <span class="nt">&lt;form:input</span> <span class="na">type=</span><span class="s">&quot;file&quot;</span> <span class="na">path=</span><span class="s">&quot;fileUploadForms[1].file&quot;</span> <span class="nt">/&gt;</span> <span class="c">&lt;!-- (1) --&gt;</span>
+        <span class="nt">&lt;form:errors</span> <span class="na">path=</span><span class="s">&quot;fileUploadForms[1].file&quot;</span> <span class="nt">/&gt;</span>
+      <span class="nt">&lt;/td&gt;</span>
+    <span class="nt">&lt;/tr&gt;</span>
+    <span class="nt">&lt;tr&gt;</span>
+      <span class="nt">&lt;th</span> <span class="na">width=</span><span class="s">&quot;35%&quot;</span><span class="nt">&gt;</span>Description<span class="nt">&lt;/th&gt;</span>
+      <span class="nt">&lt;td</span> <span class="na">width=</span><span class="s">&quot;65%&quot;</span><span class="nt">&gt;</span>
+        <span class="nt">&lt;form:input</span> <span class="na">path=</span><span class="s">&quot;fileUploadForms[1].description&quot;</span> <span class="nt">/&gt;</span>
+        <span class="nt">&lt;form:errors</span> <span class="na">path=</span><span class="s">&quot;fileUploadForms[1].description&quot;</span> <span class="nt">/&gt;</span>
+      <span class="nt">&lt;/td&gt;</span>
+    <span class="nt">&lt;/tr&gt;</span>
+  <span class="nt">&lt;/table&gt;</span>
+  <span class="nt">&lt;div&gt;</span>
+    <span class="nt">&lt;form:button&gt;</span>Upload<span class="nt">&lt;/form:button&gt;</span>
+  <span class="nt">&lt;/div&gt;</span>
+<span class="nt">&lt;/form:form&gt;</span>
+</pre></div>
+</div>
+<table border="1" class="docutils">
+<colgroup>
+<col width="10%" />
+<col width="90%" />
+</colgroup>
+<thead valign="bottom">
+<tr class="row-odd"><th class="head">Sr. No.</th>
+<th class="head">Description</th>
+</tr>
+</thead>
+<tbody valign="top">
+<tr class="row-even"><td><div class="first last line-block">
+<div class="line">(1)</div>
+</div>
+</td>
+<td><div class="first last line-block">
+<div class="line">Specify the binding position of the uploaded file in List.</div>
+<div class="line">Specify the binding position within List in <code class="docutils literal"><span class="pre">[]</span></code>. Start position begins with <code class="docutils literal"><span class="pre">0</span></code>.</div>
+</div>
+</td>
+</tr>
+</tbody>
+</table>
+</div></blockquote>
+</div>
+<div class="section" id="id9">
+<h4><a class="toc-backref" href="#id38">5.17.2.4.3. Implementing Controller</a><a class="headerlink" href="#id9" title="Permalink to this headline">¶</a></h4>
+<blockquote>
+<div><div class="highlight-java"><div class="highlight"><pre><span class="nd">@RequestMapping</span><span class="o">(</span><span class="n">value</span> <span class="o">=</span> <span class="s">&quot;uploadFiles&quot;</span><span class="o">,</span> <span class="n">method</span> <span class="o">=</span> <span class="n">RequestMethod</span><span class="o">.</span><span class="na">POST</span><span class="o">)</span>
+<span class="kd">public</span> <span class="n">String</span> <span class="nf">uploadFiles</span><span class="o">(</span><span class="nd">@Validated</span> <span class="n">FilesUploadForm</span> <span class="n">form</span><span class="o">,</span>
+        <span class="n">BindingResult</span> <span class="n">result</span><span class="o">,</span> <span class="n">RedirectAttributes</span> <span class="n">redirectAttributes</span><span class="o">)</span> <span class="o">{</span>
+
+    <span class="k">if</span> <span class="o">(</span><span class="n">result</span><span class="o">.</span><span class="na">hasErrors</span><span class="o">())</span> <span class="o">{</span>
+        <span class="k">return</span> <span class="s">&quot;article/uploadForm&quot;</span><span class="o">;</span>
+    <span class="o">}</span>
+
+    <span class="c1">// (1)</span>
+    <span class="k">for</span> <span class="o">(</span><span class="n">FileUploadForm</span> <span class="n">fileUploadForm</span> <span class="o">:</span> <span class="n">form</span><span class="o">.</span><span class="na">getFileUploadForms</span><span class="o">())</span> <span class="o">{</span>
+
+        <span class="n">MultipartFile</span> <span class="n">uploadFile</span> <span class="o">=</span> <span class="n">fileUploadForm</span><span class="o">.</span><span class="na">getFile</span><span class="o">();</span>
+
+        <span class="c1">// omit processing of upload.</span>
+
+    <span class="o">}</span>
+
+    <span class="n">redirectAttributes</span><span class="o">.</span><span class="na">addFlashAttribute</span><span class="o">(</span><span class="n">ResultMessages</span><span class="o">.</span><span class="na">success</span><span class="o">().</span><span class="na">add</span><span class="o">(</span>
+            <span class="s">&quot;i.xx.at.0001&quot;</span><span class="o">));</span>
+
+    <span class="k">return</span> <span class="s">&quot;redirect:/article/upload?complete&quot;</span><span class="o">;</span>
+<span class="o">}</span>
+</pre></div>
+</div>
+<table border="1" class="docutils" id="id15">
+<caption><span class="caption-text">:header-rows: 1
+ :widths: 10 90</span><a class="headerlink" href="#id15" title="Permalink to this table">¶</a></caption>
+<colgroup>
+<col width="50%" />
+<col width="50%" />
+</colgroup>
+<tbody valign="top">
+<tr class="row-odd"><td>Sr. No.</td>
+<td>Description</td>
+</tr>
+<tr class="row-even"><td><div class="first last line-block">
+<div class="line">(1)</div>
+</div>
+</td>
+<td><div class="first last line-block">
+<div class="line">Fetch <code class="docutils literal"><span class="pre">MultipartFile</span></code> from the object that maintains information of each file (uploaded file itself and related form fields) and implement upload process.</div>
+<div class="line">The above example does not cover any specific implementation; however process to store the file on a shared disk or database is performed.</div>
+</div>
+</td>
+</tr>
+</tbody>
+</table>
+</div></blockquote>
+</div>
+</div>
+<div class="section" id="uploading-multiple-files-using-the-multiple-attribute-of-html5">
+<h3><a class="toc-backref" href="#id39">5.17.2.5. Uploading multiple files using the &#8220;multiple&#8221; attribute of HTML5</a><a class="headerlink" href="#uploading-multiple-files-using-the-multiple-attribute-of-html5" title="Permalink to this headline">¶</a></h3>
+<p>The method to simultaneously upload multiple files using &#8220;multiple&#8221; attribute of input tag supported by HTML5, is explained below.</p>
+<blockquote>
+<div><div class="figure">
+<a class="reference internal image-reference" href="../_images/file-upload-how_to_use_multi_html5.png"><img alt="Screen image of multiple file upload(html5)." src="../_images/file-upload-how_to_use_multi_html5.png" style="width: 100%;" /></a>
+</div>
+</div></blockquote>
+<p>The explanation that has already been covered under single file upload and multiple file upload has been omitted.</p>
+<div class="section" id="id10">
+<h4><a class="toc-backref" href="#id40">5.17.2.5.1. Implementing form</a><a class="headerlink" href="#id10" title="Permalink to this headline">¶</a></h4>
+<p>When uploading multiple files simultaneously using &#8220;multiple&#8221; attribute of HTML5 input tag, it is necessary to receive collection of <code class="docutils literal"><span class="pre">org.springframework.web.multipart.MultipartFile</span></code> object by binding it to form object.</p>
+<blockquote>
+<div><div class="highlight-java"><div class="highlight"><pre><span class="c1">// (1)</span>
+<span class="kd">public</span> <span class="kd">class</span> <span class="nc">FilesUploadForm</span> <span class="kd">implements</span> <span class="n">Serializable</span> <span class="o">{</span>
+
+    <span class="c1">// omitted</span>
+
+    <span class="c1">// (2)</span>
+    <span class="nd">@UploadFileNotEmpty</span>
+    <span class="kd">private</span> <span class="n">List</span><span class="o">&lt;</span><span class="n">MultipartFile</span><span class="o">&gt;</span> <span class="n">files</span><span class="o">;</span>
+
+    <span class="c1">// omitted getter/setter methods.</span>
+
+<span class="o">}</span>
+</pre></div>
+</div>
+<table border="1" class="docutils">
+<colgroup>
+<col width="10%" />
+<col width="90%" />
+</colgroup>
+<thead valign="bottom">
+<tr class="row-odd"><th class="head">Sr. No.</th>
+<th class="head">Description</th>
+</tr>
+</thead>
+<tbody valign="top">
+<tr class="row-even"><td><div class="first last line-block">
+<div class="line">(1)</div>
+</div>
+</td>
+<td><div class="first last line-block">
+<div class="line">Form object that maintains the multiple uploaded files.</div>
+</div>
+</td>
+</tr>
+<tr class="row-odd"><td><div class="first last line-block">
+<div class="line">(2)</div>
+</div>
+</td>
+<td><div class="first last line-block">
+<div class="line">Declare <code class="docutils literal"><span class="pre">MultipartFile</span></code> class as list.</div>
+<div class="line">In the above example, the annotation to verify that the file is not empty, is specified as input validation.</div>
+<div class="line">Principally, a file size check or other mandatory checks are also required; however, they have been omitted in the above example.</div>
+</div>
+</td>
+</tr>
+</tbody>
+</table>
+</div></blockquote>
+</div>
+<div class="section" id="implementing-validator">
+<h4><a class="toc-backref" href="#id41">5.17.2.5.2. Implementing Validator</a><a class="headerlink" href="#implementing-validator" title="Permalink to this headline">¶</a></h4>
+<p>When carrying out input validation for multiple  <code class="docutils literal"><span class="pre">MultipartFile</span></code> objects stored in collection, it is necessary to implement Validator for Collection.</p>
+<p>The section explains about creating Validator for Collection using the Validator created for single file.</p>
+<blockquote>
+<div><div class="highlight-java"><div class="highlight"><pre><span class="c1">// (1)</span>
+<span class="kd">public</span> <span class="kd">class</span> <span class="nc">UploadFileNotEmptyForCollectionValidator</span> <span class="kd">implements</span>
+    <span class="n">ConstraintValidator</span><span class="o">&lt;</span><span class="n">UploadFileNotEmpty</span><span class="o">,</span> <span class="n">Collection</span><span class="o">&lt;</span><span class="n">MultipartFile</span><span class="o">&gt;&gt;</span> <span class="o">{</span>
+
+    <span class="c1">// (2)</span>
+    <span class="kd">private</span> <span class="kd">final</span> <span class="n">UploadFileNotEmptyValidator</span> <span class="n">validator</span> <span class="o">=</span>
+        <span class="k">new</span> <span class="n">UploadFileNotEmptyValidator</span><span class="o">();</span>
+
+    <span class="c1">// (3)</span>
+    <span class="nd">@Override</span>
+    <span class="kd">public</span> <span class="kt">void</span> <span class="nf">initialize</span><span class="o">(</span><span class="n">UploadFileNotEmpty</span> <span class="n">constraintAnnotation</span><span class="o">)</span> <span class="o">{</span>
+        <span class="n">validator</span><span class="o">.</span><span class="na">initialize</span><span class="o">(</span><span class="n">constraintAnnotation</span><span class="o">);</span>
+    <span class="o">}</span>
+
+    <span class="c1">// (4)</span>
+    <span class="nd">@Override</span>
+    <span class="kd">public</span> <span class="kt">boolean</span> <span class="nf">isValid</span><span class="o">(</span><span class="n">Collection</span><span class="o">&lt;</span><span class="n">MultipartFile</span><span class="o">&gt;</span> <span class="n">values</span><span class="o">,</span>
+            <span class="n">ConstraintValidatorContext</span> <span class="n">context</span><span class="o">)</span> <span class="o">{</span>
+        <span class="k">for</span> <span class="o">(</span><span class="n">MultipartFile</span> <span class="n">file</span> <span class="o">:</span> <span class="n">values</span><span class="o">)</span> <span class="o">{</span>
+            <span class="k">if</span> <span class="o">(!</span><span class="n">validator</span><span class="o">.</span><span class="na">isValid</span><span class="o">(</span><span class="n">file</span><span class="o">,</span> <span class="n">context</span><span class="o">))</span> <span class="o">{</span>
+                <span class="k">return</span> <span class="kc">false</span><span class="o">;</span>
+            <span class="o">}</span>
+        <span class="o">}</span>
+        <span class="k">return</span> <span class="kc">true</span><span class="o">;</span>
+    <span class="o">}</span>
+
+<span class="o">}</span>
+</pre></div>
+</div>
+<table border="1" class="docutils">
+<colgroup>
+<col width="10%" />
+<col width="90%" />
+</colgroup>
+<thead valign="bottom">
+<tr class="row-odd"><th class="head">Sr. No.</th>
+<th class="head">Description</th>
+</tr>
+</thead>
+<tbody valign="top">
+<tr class="row-even"><td><div class="first last line-block">
+<div class="line">(1)</div>
+</div>
+</td>
+<td><div class="first last line-block">
+<div class="line">Class for performing implementation to verify that none of the files is empty.</div>
+<div class="line">Specify <code class="docutils literal"><span class="pre">Collection&lt;MultipartFile&gt;</span></code> as the type of value to be verified.</div>
+</div>
+</td>
+</tr>
+<tr class="row-odd"><td><div class="first last line-block">
+<div class="line">(2)</div>
+</div>
+</td>
+<td><div class="first last line-block">
+<div class="line">In order to delegate the actual process to a Validator for single file, create an instance for that Validator.</div>
+</div>
+</td>
+</tr>
+<tr class="row-even"><td><div class="first last line-block">
+<div class="line">(3)</div>
+</div>
+</td>
+<td><div class="first last line-block">
+<div class="line">Initialize the Validator.</div>
+<div class="line">In the above example, Validator for single file that implements the actual process is initialized.</div>
+</div>
+</td>
+</tr>
+<tr class="row-odd"><td><div class="first last line-block">
+<div class="line">(4)</div>
+</div>
+</td>
+<td><div class="first last line-block">
+<div class="line">Verify that none of the file is empty.</div>
+<div class="line">In the above example, each file is verified by calling the method of Validator for single file.</div>
+</div>
+</td>
+</tr>
+</tbody>
+</table>
+<div class="highlight-java"><div class="highlight"><pre><span class="nd">@Target</span><span class="o">({</span> <span class="n">ElementType</span><span class="o">.</span><span class="na">METHOD</span><span class="o">,</span> <span class="n">ElementType</span><span class="o">.</span><span class="na">FIELD</span><span class="o">,</span> <span class="n">ElementType</span><span class="o">.</span><span class="na">ANNOTATION_TYPE</span> <span class="o">})</span>
+<span class="nd">@Retention</span><span class="o">(</span><span class="n">RetentionPolicy</span><span class="o">.</span><span class="na">RUNTIME</span><span class="o">)</span>
+<span class="nd">@Constraint</span><span class="o">(</span><span class="n">validatedBy</span> <span class="o">=</span>
+    <span class="o">{</span><span class="n">UploadFileNotEmptyValidator</span><span class="o">.</span><span class="na">class</span><span class="o">,</span>
+     <span class="n">UploadFileNotEmptyForCollectionValidator</span><span class="o">.</span><span class="na">class</span><span class="o">})</span> <span class="c1">// (5)</span>
+<span class="kd">public</span> <span class="nd">@interface</span> <span class="n">UploadFileNotEmpty</span> <span class="o">{</span>
+
+    <span class="c1">// omitted</span>
+
+<span class="o">}</span>
+</pre></div>
+</div>
+<table border="1" class="docutils">
+<colgroup>
+<col width="10%" />
+<col width="90%" />
+</colgroup>
+<thead valign="bottom">
+<tr class="row-odd"><th class="head">Sr. No.</th>
+<th class="head">Description</th>
+</tr>
+</thead>
+<tbody valign="top">
+<tr class="row-even"><td><div class="first last line-block">
+<div class="line">(5)</div>
+</div>
+</td>
+<td><div class="first last line-block">
+<div class="line">Add the Validator class that carries out checks with respect to multiple files, to the annotation used for verification.</div>
+<div class="line">Specify the class created in step (1) in the &#8220;validatedBy&#8221; attribute of  <code class="docutils literal"><span class="pre">&#64;Constraint</span></code> annotation.</div>
+<div class="line">With this, the class created in step (1) is executed when validating the property with <code class="docutils literal"><span class="pre">&#64;UploadFileNotEmpty</span></code> annotation.</div>
+</div>
+</td>
+</tr>
+</tbody>
+</table>
+</div></blockquote>
+</div>
+<div class="section" id="id11">
+<h4><a class="toc-backref" href="#id42">5.17.2.5.3. Implementing JSP</a><a class="headerlink" href="#id11" title="Permalink to this headline">¶</a></h4>
+<blockquote>
+<div><div class="highlight-jsp"><div class="highlight"><pre><span class="nt">&lt;form:form</span>
+  <span class="na">action=</span><span class="s">&quot;${pageContext.request.contextPath}/article/uploadFiles&quot;</span> <span class="na">method=</span><span class="s">&quot;post&quot;</span>
+  <span class="na">modelAttribute=</span><span class="s">&quot;filesUploadForm2&quot;</span> <span class="na">enctype=</span><span class="s">&quot;multipart/form-data&quot;</span><span class="nt">&gt;</span>
+  <span class="nt">&lt;table&gt;</span>
+    <span class="nt">&lt;tr&gt;</span>
+      <span class="nt">&lt;th</span> <span class="na">width=</span><span class="s">&quot;35%&quot;</span><span class="nt">&gt;</span>File to upload<span class="nt">&lt;/th&gt;</span>
+      <span class="nt">&lt;td</span> <span class="na">width=</span><span class="s">&quot;65%&quot;</span><span class="nt">&gt;</span>
+        <span class="nt">&lt;form:input</span> <span class="na">type=</span><span class="s">&quot;file&quot;</span> <span class="na">path=</span><span class="s">&quot;files&quot;</span> <span class="na">multiple=</span><span class="s">&quot;multiple&quot;</span> <span class="nt">/&gt;</span> <span class="c">&lt;!-- (1) --&gt;</span>
+        <span class="nt">&lt;form:errors</span> <span class="na">path=</span><span class="s">&quot;files&quot;</span> <span class="nt">/&gt;</span>
+      <span class="nt">&lt;/td&gt;</span>
+    <span class="nt">&lt;/tr&gt;</span>
+  <span class="nt">&lt;/table&gt;</span>
+  <span class="nt">&lt;div&gt;</span>
+    <span class="nt">&lt;form:button&gt;</span>Upload<span class="nt">&lt;/form:button&gt;</span>
+  <span class="nt">&lt;/div&gt;</span>
+<span class="nt">&lt;/form:form&gt;</span>
+</pre></div>
+</div>
+<table border="1" class="docutils">
+<colgroup>
+<col width="10%" />
+<col width="90%" />
+</colgroup>
+<thead valign="bottom">
+<tr class="row-odd"><th class="head">Sr. No.</th>
+<th class="head">Description</th>
+</tr>
+</thead>
+<tbody valign="top">
+<tr class="row-even"><td><div class="first last line-block">
+<div class="line">(1)</div>
+</div>
+</td>
+<td><div class="first last line-block">
+<div class="line">In &#8220;path&#8221; attribute, specify &#8220;multiple&#8221; attribute by indicating property name of form object.</div>
+<div class="line">By specifying &#8220;multiple&#8221; attribute, multiple files can be selected and uploaded using browser supporting HTML5.</div>
+</div>
+</td>
+</tr>
+</tbody>
+</table>
+</div></blockquote>
+</div>
+<div class="section" id="id12">
+<h4><a class="toc-backref" href="#id43">5.17.2.5.4. Implementing Controller</a><a class="headerlink" href="#id12" title="Permalink to this headline">¶</a></h4>
+<blockquote>
+<div><div class="highlight-java"><div class="highlight"><pre><span class="nd">@RequestMapping</span><span class="o">(</span><span class="n">value</span> <span class="o">=</span> <span class="s">&quot;uploadFiles&quot;</span><span class="o">,</span> <span class="n">method</span> <span class="o">=</span> <span class="n">RequestMethod</span><span class="o">.</span><span class="na">POST</span><span class="o">)</span>
+<span class="kd">public</span> <span class="n">String</span> <span class="nf">uploadFiles</span><span class="o">(</span><span class="nd">@Validated</span> <span class="n">FilesUploadForm</span> <span class="n">form</span><span class="o">,</span>
+        <span class="n">BindingResult</span> <span class="n">result</span><span class="o">,</span> <span class="n">RedirectAttributes</span> <span class="n">redirectAttributes</span><span class="o">)</span> <span class="o">{</span>
+    <span class="k">if</span> <span class="o">(</span><span class="n">result</span><span class="o">.</span><span class="na">hasErrors</span><span class="o">())</span> <span class="o">{</span>
+        <span class="k">return</span> <span class="s">&quot;article/uploadForm&quot;</span><span class="o">;</span>
+    <span class="o">}</span>
+
+    <span class="c1">// (1)</span>
+    <span class="k">for</span> <span class="o">(</span><span class="n">MultipartFile</span> <span class="n">file</span> <span class="o">:</span> <span class="n">form</span><span class="o">.</span><span class="na">getFiles</span><span class="o">())</span> <span class="o">{</span>
+
+        <span class="c1">// omit processing of upload.</span>
+
+    <span class="o">}</span>
+
+    <span class="n">redirectAttributes</span><span class="o">.</span><span class="na">addFlashAttribute</span><span class="o">(</span><span class="n">ResultMessages</span><span class="o">.</span><span class="na">success</span><span class="o">().</span><span class="na">add</span><span class="o">(</span>
+            <span class="s">&quot;i.xx.at.0001&quot;</span><span class="o">));</span>
+
+    <span class="k">return</span> <span class="s">&quot;redirect:/article/upload?complete&quot;</span><span class="o">;</span>
+<span class="o">}</span>
+</pre></div>
+</div>
+<table border="1" class="docutils">
+<colgroup>
+<col width="10%" />
+<col width="90%" />
+</colgroup>
+<thead valign="bottom">
+<tr class="row-odd"><th class="head">Sr. No.</th>
+<th class="head">Description</th>
+</tr>
+</thead>
+<tbody valign="top">
+<tr class="row-even"><td><div class="first last line-block">
+<div class="line">(1)</div>
+</div>
+</td>
+<td><div class="first last line-block">
+<div class="line">Implement upload process by fetching the list which stores <code class="docutils literal"><span class="pre">MultipartFile</span></code> objects from form object.</div>
+<div class="line">The above example does not cover any specific implementation; however process to store the file on a shared disk or database is performed.</div>
+</div>
+</td>
+</tr>
+</tbody>
+</table>
+</div></blockquote>
+</div>
+</div>
+<div class="section" id="temporary-upload">
+<h3><a class="toc-backref" href="#id44">5.17.2.6. Temporary upload</a><a class="headerlink" href="#temporary-upload" title="Permalink to this headline">¶</a></h3>
+<p>Temporary upload is required when a file is to be uploaded midway through screen transitions like upload result confirmation screen etc.</p>
+<blockquote>
+<div><div class="admonition note">
+<p class="first admonition-title">Note</p>
+<p>Contents of file stored  in <code class="docutils literal"><span class="pre">MultipartFile</span></code> object may be deleted once the upload request is completed.
+Therefore, when the file contents are to be handled across requests, these contents and meta information (file name etc.) maintained  in <code class="docutils literal"><span class="pre">MultipartFile</span></code> object need to be saved in a file or form.</p>
+<p class="last">The contents of file stored in <code class="docutils literal"><span class="pre">MultipartFile</span></code> object are deleted when step (3) of the following processing flow is completed.</p>
+</div>
+<div class="figure">
+<a class="reference internal image-reference" href="../_images/file-upload-how_to_use_temporary_upload.png"><img alt="Processing flow of temporary upload." src="../_images/file-upload-how_to_use_temporary_upload.png" style="width: 100%;" /></a>
+</div>
+<table border="1" class="docutils">
+<colgroup>
+<col width="10%" />
+<col width="90%" />
+</colgroup>
+<thead valign="bottom">
+<tr class="row-odd"><th class="head">Sr. No.</th>
+<th class="head">Description</th>
+</tr>
+</thead>
+<tbody valign="top">
+<tr class="row-even"><td><div class="first last line-block">
+<div class="line">(1)</div>
+</div>
+</td>
+<td><div class="first last line-block">
+<div class="line">On Input Screen, select the file to be uploaded and send a request for displaying Confirm Screen.</div>
+</div>
+</td>
+</tr>
+<tr class="row-odd"><td><div class="first last line-block">
+<div class="line">(2)</div>
+</div>
+</td>
+<td><div class="first last line-block">
+<div class="line">Controller temporarily saves contents of uploaded file in the temporary directory for application.</div>
+</div>
+</td>
+</tr>
+<tr class="row-even"><td><div class="first last line-block">
+<div class="line">(3)</div>
+</div>
+</td>
+<td><div class="first last line-block">
+<div class="line">Controller returns View name of Confirm Screen and then displays the Confirm Screen.</div>
+</div>
+</td>
+</tr>
+<tr class="row-odd"><td><div class="first last line-block">
+<div class="line">(4)</div>
+</div>
+</td>
+<td><div class="first last line-block">
+<div class="line">On Confirm screen, send a request for executing the process.</div>
+</div>
+</td>
+</tr>
+<tr class="row-even"><td><div class="first last line-block">
+<div class="line">(5)</div>
+</div>
+</td>
+<td><div class="first last line-block">
+<div class="line">Controller calls Service method and executes process.</div>
+</div>
+</td>
+</tr>
+<tr class="row-odd"><td><div class="first last line-block">
+<div class="line">(6)</div>
+</div>
+</td>
+<td><div class="first last line-block">
+<div class="line">Service moves the temporary file saved in temporary directory to this directory or database.</div>
+</div>
+</td>
+</tr>
+<tr class="row-even"><td><div class="first last line-block">
+<div class="line">(7)</div>
+</div>
+</td>
+<td><div class="first last line-block">
+<div class="line">Controller returns the View name which is required to display Complete Screen and then displays the Complete Screen.</div>
+</div>
+</td>
+</tr>
+</tbody>
+</table>
+<div class="admonition note">
+<p class="first admonition-title">Note</p>
+<p class="last">Temporary upload process is the responsibility of application layer; hence it is executed by Controller or Helper class.</p>
+</div>
+</div></blockquote>
+<div class="section" id="id13">
+<h4><a class="toc-backref" href="#id45">5.17.2.6.1. Implementing Controller</a><a class="headerlink" href="#id13" title="Permalink to this headline">¶</a></h4>
+<p>Example for temporarily saving the uploaded file in a temporary directory, is shown below.</p>
+<blockquote>
+<div><div class="highlight-java"><div class="highlight"><pre><span class="nd">@Component</span>
+<span class="kd">public</span> <span class="kd">class</span> <span class="nc">UploadHelper</span> <span class="o">{</span>
+
+    <span class="c1">// (2)</span>
+    <span class="nd">@Value</span><span class="o">(</span><span class="s">&quot;${app.upload.temporaryDirectory}&quot;</span><span class="o">)</span>
+    <span class="kd">private</span> <span class="n">File</span> <span class="n">uploadTemporaryDirectory</span><span class="o">;</span>
+
+    <span class="c1">// (1)</span>
+    <span class="kd">public</span> <span class="n">String</span> <span class="nf">saveTemporaryFile</span><span class="o">(</span><span class="n">MultipartFile</span> <span class="n">multipartFile</span><span class="o">)</span>
+        <span class="kd">throws</span> <span class="n">IOException</span> <span class="o">{</span>
+
+        <span class="n">String</span> <span class="n">uploadTemporaryFileId</span> <span class="o">=</span> <span class="n">UUID</span><span class="o">.</span><span class="na">randomUUID</span><span class="o">().</span><span class="na">toString</span><span class="o">();</span>
+        <span class="n">File</span> <span class="n">uploadTemporaryFile</span> <span class="o">=</span>
+            <span class="k">new</span> <span class="n">File</span><span class="o">(</span><span class="n">uploadTemporaryDirectory</span><span class="o">,</span> <span class="n">uploadTemporaryFileId</span><span class="o">);</span>
+
+        <span class="c1">// (2)</span>
+        <span class="n">FileUtils</span><span class="o">.</span><span class="na">copyInputStreamToFile</span><span class="o">(</span><span class="n">multipartFile</span><span class="o">.</span><span class="na">getInputStream</span><span class="o">(),</span>
+                <span class="n">uploadTemporaryFile</span><span class="o">);</span>
+
+        <span class="k">return</span> <span class="n">uploadTemporaryFileId</span><span class="o">;</span>
+    <span class="o">}</span>
+
+<span class="o">}</span>
+</pre></div>
+</div>
+<table border="1" class="docutils">
+<colgroup>
+<col width="10%" />
+<col width="90%" />
+</colgroup>
+<thead valign="bottom">
+<tr class="row-odd"><th class="head">Sr. No.</th>
+<th class="head">Description</th>
+</tr>
+</thead>
+<tbody valign="top">
+<tr class="row-even"><td><div class="first last line-block">
+<div class="line">(1)</div>
+</div>
+</td>
+<td><div class="first last line-block">
+<div class="line">Create a method for executing temporary upload in Helper class.</div>
+<div class="line">When there are multiple processes that perform file upload, it is recommended to have a common temporary upload process by creating a common Helper method.</div>
+</div>
+</td>
+</tr>
+<tr class="row-odd"><td><div class="first last line-block">
+<div class="line">(2)</div>
+</div>
+</td>
+<td><div class="first last line-block">
+<div class="line">Save the uploaded file as a temporary file.</div>
+<div class="line">In the above example, contents of uploaded file are saved to a file by calling copyInputStreamToFile method of <code class="docutils literal"><span class="pre">org.apache.commons.io.FileUtils</span></code> class.</div>
+</div>
+</td>
+</tr>
+</tbody>
+</table>
+<div class="highlight-java"><div class="highlight"><pre>  // omitted
+
+  @Inject
+  UploadHelper uploadHelper;
+
+  @RequestMapping(value = &quot;upload&quot;, method = RequestMethod.POST, params = &quot;confirm&quot;)
+  public String uploadConfirm(@Validated FileUploadForm form,
+          BindingResult result) throws IOException {
+
+      if (result.hasErrors()) {
+          return &quot;article/uploadForm&quot;;
+      }
+
+      // (3)
+      String uploadTemporaryFileId = uploadHelper.saveTemporaryFile(form
+              .getFile());
+
+      // (4)
+      form.setUploadTemporaryFileId(uploadTemporaryFileId);
+      form.setFileName(form.getFile().getOriginalFilename());
+
+      return &quot;article/uploadConfirm&quot;;
+  }
+
+.. tabularcolumns:: |p{0.10\linewidth}|p{0.90\linewidth}|
+.. list-table::
+ :header-rows: 1
+ :widths: 10 90
+
+ * - Sr. No.
+   - Description
+ * - | (3)
+   - | Call the Helper method to temporarily save the uploaded file.
+     | In the above example, ID by which the temporarily saved file is identified, is returned as the return value of Helper method.
+ * - | (4)
+   - | Save the meta information of uploaded file (ID by which the file is identified, file name etc.) in form object.
+     | In the above example, name of the uploaded file and ID by which the temporarily saved file is identified, are stored in form object.
+</pre></div>
+</div>
+<div class="admonition note">
+<p class="first admonition-title">Note</p>
+<p class="last">Directory of temporary directories should be fetched from external properties as it may differ with the environment in which the application is deployed.
+For details on external properties, refer to <a class="reference internal" href="PropertyManagement.html"><em>Properties Management</em></a>.</p>
+</div>
+<div class="admonition warning">
+<p class="first admonition-title">Warning</p>
+<p>In the above example, it is a file saved temporarily on the local disk of application server. However, when the application server is clustered,
+it needs to be saved in the database or on a shared disk. As a result, it is necessary to design a storage destination by considering even the non-functional requirements.</p>
+<p class="last">Transaction management is necessary in case of saving the file to the database. As a result, the process to save it to the database will be delegated to Service method.</p>
+</div>
+</div></blockquote>
+<div class="line-block">
+<div class="line"><br /></div>
+</div>
+</div>
+</div>
+</div>
+<div class="section" id="how-to-extend">
+<h2><a class="toc-backref" href="#id46">5.17.3. How to extend</a><a class="headerlink" href="#how-to-extend" title="Permalink to this headline">¶</a></h2>
+<div class="section" id="housekeeping-of-unnecessary-files-at-the-time-of-temporary-upload">
+<span id="file-upload-how-to-use-housekeeping"></span><h3><a class="toc-backref" href="#id47">5.17.3.1. Housekeeping of unnecessary files at the time of temporary upload</a><a class="headerlink" href="#housekeeping-of-unnecessary-files-at-the-time-of-temporary-upload" title="Permalink to this headline">¶</a></h3>
+<div class="line-block">
+<div class="line">When uploading files using the temporary upload method, there is a possibility of unnecessary files piling up in temporary directory.</div>
+<div class="line">The cases are as follows:</div>
+</div>
+<ul class="simple">
+<li>When there is interruption in screen operations after temporary upload</li>
+<li>When system error occurs during the screen operations after temporary upload</li>
+<li>When server stops during the screen operations after temporary upload
+etc ...</li>
+</ul>
+<blockquote>
+<div><div class="admonition warning">
+<p class="first admonition-title">Warning</p>
+<p class="last">A mechanism should be provided to delete unnecessary files as the disk may run out of space if such files are left to pile up.</p>
+</div>
+</div></blockquote>
+<p>This guideline explains about deleting unnecessary files using the &#8220;Task Scheduler&#8221; functionality provided by Spring Framework.
+For details on &#8220;Task Scheduler&#8221;, refer to the <a class="reference external" href="http://docs.spring.io/spring/docs/4.1.7.RELEASE/spring-framework-reference/html/scheduling.html">official website &#8220;Task Execution and Scheduling&#8221;</a>.</p>
+<blockquote>
+<div><div class="admonition note">
+<p class="first admonition-title">Note</p>
+<p class="last">Although this guideline explains about how to use &#8220;Task Scheduler&#8221; functionality provided by Spring Framework; its usage is not mandatory.
+In an actual project, the infrastructure team may provide batch application (Shell application) to delete unnecessary files.
+In such cases, it is recommended to delete unnecessary files using the batch application created by infrastructure team.</p>
+</div>
+</div></blockquote>
+<div class="section" id="implementing-component-class-to-delete-unnecessary-files">
+<h4><a class="toc-backref" href="#id48">5.17.3.1.1. Implementing component class to delete unnecessary files</a><a class="headerlink" href="#implementing-component-class-to-delete-unnecessary-files" title="Permalink to this headline">¶</a></h4>
+<p>Implement a component class to delete unnecessary files.</p>
+<blockquote>
+<div><div class="highlight-java"><div class="highlight"><pre><span class="kn">package</span> <span class="nn">com.examples.common.upload</span><span class="o">;</span>
+
+<span class="kn">import</span> <span class="nn">java.io.File</span><span class="o">;</span>
+<span class="kn">import</span> <span class="nn">java.util.Collection</span><span class="o">;</span>
+<span class="kn">import</span> <span class="nn">java.util.Date</span><span class="o">;</span>
+
+<span class="kn">import</span> <span class="nn">javax.inject.Inject</span><span class="o">;</span>
+
+<span class="kn">import</span> <span class="nn">org.apache.commons.io.FileUtils</span><span class="o">;</span>
+<span class="kn">import</span> <span class="nn">org.apache.commons.io.filefilter.FileFilterUtils</span><span class="o">;</span>
+<span class="kn">import</span> <span class="nn">org.apache.commons.io.filefilter.IOFileFilter</span><span class="o">;</span>
+<span class="kn">import</span> <span class="nn">org.springframework.beans.factory.annotation.Value</span><span class="o">;</span>
+<span class="kn">import</span> <span class="nn">org.terasoluna.gfw.common.date.jodatime.JodaTimeDateFactory</span><span class="o">;</span>
+
+    <span class="c1">// (1)</span>
+    <span class="kd">public</span> <span class="kd">class</span> <span class="nc">UnnecessaryFilesCleaner</span> <span class="o">{</span>
+
+    <span class="nd">@Inject</span>
+    <span class="n">JodaTimeDateFactory</span> <span class="n">dateFactory</span><span class="o">;</span>
+
+    <span class="nd">@Value</span><span class="o">(</span><span class="s">&quot;${app.upload.temporaryFileSavedPeriodMinutes}&quot;</span><span class="o">)</span>
+    <span class="kd">private</span> <span class="kt">int</span> <span class="n">savedPeriodMinutes</span><span class="o">;</span>
+
+    <span class="nd">@Value</span><span class="o">(</span><span class="s">&quot;${app.upload.temporaryDirectory}&quot;</span><span class="o">)</span>
+    <span class="kd">private</span> <span class="n">File</span> <span class="n">targetDirectory</span><span class="o">;</span>
+
+    <span class="c1">// (2)</span>
+    <span class="kd">public</span> <span class="kt">void</span> <span class="nf">cleanup</span><span class="o">()</span> <span class="o">{</span>
+
+        <span class="c1">// calculate cutoff date.</span>
+        <span class="n">Date</span> <span class="n">cutoffDate</span> <span class="o">=</span> <span class="n">dateFactory</span><span class="o">.</span><span class="na">newDateTime</span><span class="o">().</span><span class="na">minusMinutes</span><span class="o">(</span>
+                <span class="n">savedPeriodMinutes</span><span class="o">).</span><span class="na">toDate</span><span class="o">();</span>
+
+        <span class="c1">// collect target files.</span>
+        <span class="n">IOFileFilter</span> <span class="n">fileFilter</span> <span class="o">=</span> <span class="n">FileFilterUtils</span><span class="o">.</span><span class="na">ageFileFilter</span><span class="o">(</span><span class="n">cutoffDate</span><span class="o">);</span>
+        <span class="n">Collection</span><span class="o">&lt;</span><span class="n">File</span><span class="o">&gt;</span> <span class="n">targetFiles</span> <span class="o">=</span> <span class="n">FileUtils</span><span class="o">.</span><span class="na">listFiles</span><span class="o">(</span><span class="n">targetDirectory</span><span class="o">,</span>
+                <span class="n">fileFilter</span><span class="o">,</span> <span class="kc">null</span><span class="o">);</span>
+
+        <span class="k">if</span> <span class="o">(</span><span class="n">targetFiles</span><span class="o">.</span><span class="na">isEmpty</span><span class="o">())</span> <span class="o">{</span>
+            <span class="k">return</span><span class="o">;</span>
+        <span class="o">}</span>
+
+        <span class="c1">// delete files.</span>
+        <span class="k">for</span> <span class="o">(</span><span class="n">File</span> <span class="n">targetFile</span> <span class="o">:</span> <span class="n">targetFiles</span><span class="o">)</span> <span class="o">{</span>
+            <span class="n">FileUtils</span><span class="o">.</span><span class="na">deleteQuietly</span><span class="o">(</span><span class="n">targetFile</span><span class="o">);</span>
+        <span class="o">}</span>
+
+    <span class="o">}</span>
+
+<span class="o">}</span>
+</pre></div>
+</div>
+<table border="1" class="docutils">
+<colgroup>
+<col width="10%" />
+<col width="90%" />
+</colgroup>
+<thead valign="bottom">
+<tr class="row-odd"><th class="head">Sr. No.</th>
+<th class="head">Description</th>
+</tr>
+</thead>
+<tbody valign="top">
+<tr class="row-even"><td><div class="first last line-block">
+<div class="line">(1)</div>
+</div>
+</td>
+<td><div class="first last line-block">
+<div class="line">Create component class to delete unnecessary files.</div>
+</div>
+</td>
+</tr>
+<tr class="row-odd"><td><div class="first last line-block">
+<div class="line">(2)</div>
+</div>
+</td>
+<td><div class="first last line-block">
+<div class="line">Implement the method to delete unnecessary files.</div>
+<div class="line">In the above example, the files that have not been updated for a certain period of time from the last update, are treated as unnecessary files and are deleted.</div>
+</div>
+</td>
+</tr>
+</tbody>
+</table>
+<div class="admonition note">
+<p class="first admonition-title">Note</p>
+<p class="last">Directory path in which files to be deleted are stored or the time criteria for deletion etc. may differ depending upon the environment in which application is to be deployed. Hence they should be fetched from external properties.
+For details on external properties, refer to <a class="reference internal" href="PropertyManagement.html"><em>Properties Management</em></a>.</p>
+</div>
+</div></blockquote>
+</div>
+<div class="section" id="scheduling-settings-of-the-process-for-deleting-unnecessary-files">
+<h4><a class="toc-backref" href="#id49">5.17.3.1.2. Scheduling settings of the process for deleting unnecessary files</a><a class="headerlink" href="#scheduling-settings-of-the-process-for-deleting-unnecessary-files" title="Permalink to this headline">¶</a></h4>
+<p>Carry out bean registration and task schedule settings for the POJO class that deletes unnecessary files.</p>
+<ul class="simple">
+<li><code class="file docutils literal"><span class="pre">applicationContext.xml</span></code></li>
+</ul>
+<blockquote>
+<div><div class="highlight-xml"><div class="highlight"><pre><span class="c">&lt;!-- omitted --&gt;</span>
+
+<span class="c">&lt;!-- (3) --&gt;</span>
+<span class="nt">&lt;bean</span> <span class="na">id=</span><span class="s">&quot;uploadTemporaryFileCleaner&quot;</span>
+    <span class="na">class=</span><span class="s">&quot;com.examples.common.upload.UnnecessaryFilesCleaner&quot;</span> <span class="nt">/&gt;</span>
+
+<span class="c">&lt;!-- (4) --&gt;</span>
+<span class="nt">&lt;task:scheduler</span> <span class="na">id=</span><span class="s">&quot;fileCleanupTaskScheduler&quot;</span> <span class="nt">/&gt;</span>
+
+<span class="c">&lt;!-- (5) --&gt;</span>
+<span class="nt">&lt;task:scheduled-tasks</span> <span class="na">scheduler=</span><span class="s">&quot;fileCleanupTaskScheduler&quot;</span><span class="nt">&gt;</span>
+    <span class="c">&lt;!-- (6)(7)(8) --&gt;</span>
+    <span class="nt">&lt;task:scheduled</span> <span class="na">ref=</span><span class="s">&quot;uploadTemporaryFileCleaner&quot;</span>
+                    <span class="na">method=</span><span class="s">&quot;cleanup&quot;</span>
+                    <span class="na">cron=</span><span class="s">&quot;${app.upload.temporaryFilesCleaner.cron}&quot;</span><span class="nt">/&gt;</span>
+<span class="nt">&lt;/task:scheduled-tasks&gt;</span>
+
+<span class="c">&lt;!-- omitted --&gt;</span>
+</pre></div>
+</div>
+<table border="1" class="docutils">
+<colgroup>
+<col width="10%" />
+<col width="90%" />
+</colgroup>
+<thead valign="bottom">
+<tr class="row-odd"><th class="head">Sr. No.</th>
+<th class="head">Description</th>
+</tr>
+</thead>
+<tbody valign="top">
+<tr class="row-even"><td><div class="first last line-block">
+<div class="line">(3)</div>
+</div>
+</td>
+<td><div class="first last line-block">
+<div class="line">POJO class that deletes unnecessary files should be registered in bean.</div>
+<div class="line">In the above example, it is registered with <code class="docutils literal"><span class="pre">&quot;uploadTemporaryFileCleaner&quot;</span></code> ID.</div>
+</div>
+</td>
+</tr>
+<tr class="row-odd"><td><div class="first last line-block">
+<div class="line">(4)</div>
+</div>
+</td>
+<td><div class="first last line-block">
+<div class="line">Register the bean for task scheduler that executes the process to delete unnecessary files.</div>
+<div class="line">In the above example, as pool-size attribute is omitted, this task scheduler executes the task in a single thread .</div>
+<div class="line">When multiple tasks need to be executed simultaneously, some number should be specified in <code class="docutils literal"><span class="pre">pool-size</span></code> attribute.</div>
+</div>
+</td>
+</tr>
+<tr class="row-even"><td><div class="first last line-block">
+<div class="line">(5)</div>
+</div>
+</td>
+<td><div class="first last line-block">
+<div class="line">Add the task to the task scheduler that deletes unnecessary files.</div>
+<div class="line">In the above example, task is added to the task scheduler for which bean is registered in step (4).</div>
+</div>
+</td>
+</tr>
+<tr class="row-odd"><td><div class="first last line-block">
+<div class="line">(6)</div>
+</div>
+</td>
+<td><div class="first last line-block">
+<div class="line">In <code class="docutils literal"><span class="pre">ref</span></code> attribute, specify the bean that executes the process of deleting unnecessary files.</div>
+<div class="line">In the above example, the bean registered in step (3) is specified.</div>
+</div>
+</td>
+</tr>
+<tr class="row-even"><td><div class="first last line-block">
+<div class="line">(7)</div>
+</div>
+</td>
+<td><div class="first last line-block">
+<div class="line">In <code class="docutils literal"><span class="pre">method</span></code> attribute, specify the name of method executing the process of deleting unnecessary files.</div>
+<div class="line">In the above example, cleanup method of bean registered in step (3) is specified.</div>
+</div>
+</td>
+</tr>
+<tr class="row-odd"><td><div class="first last line-block">
+<div class="line">(8)</div>
+</div>
+</td>
+<td><div class="first last line-block">
+<div class="line">In <code class="docutils literal"><span class="pre">cron</span></code> attribute, specify execution time of the process to delete unnecessary files.</div>
+<div class="line">In the above example, cron definition is fetched from external properties.</div>
+</div>
+</td>
+</tr>
+</tbody>
+</table>
+<div class="admonition note">
+<p class="first admonition-title">Note</p>
+<p>Specify the configuration value of <code class="docutils literal"><span class="pre">cron</span></code> attribute in &#8220;seconds minutes hour month year day&#8221; format.</p>
+<p>Example:</p>
+<blockquote>
+<div><ul class="simple">
+<li><code class="docutils literal"><span class="pre">0</span> <span class="pre">*/15</span> <span class="pre">*</span> <span class="pre">*</span> <span class="pre">*</span> <span class="pre">*</span></code> : Executed in 0 minute, 15 minutes, 30 minutes and 45 minutes every hour.</li>
+<li><code class="docutils literal"><span class="pre">0</span> <span class="pre">0</span> <span class="pre">*</span> <span class="pre">*</span> <span class="pre">*</span> <span class="pre">*</span></code> : Executed in 0 minute every hour.</li>
+<li><code class="docutils literal"><span class="pre">0</span> <span class="pre">0</span> <span class="pre">9-17</span> <span class="pre">*</span> <span class="pre">*</span> <span class="pre">MON-FRI</span></code> : Executed in 0 minute every hour from 9:00~17:00 on weekdays.</li>
+</ul>
+</div></blockquote>
+<p>For details on specified value of cron, refer to <a class="reference external" href="http://docs.spring.io/spring/docs/4.1.7.RELEASE/javadoc-api/org/springframework/scheduling/support/CronSequenceGenerator.html">CronSequenceGenerator - JavaDoc</a>.</p>
+<p class="last">Execution time should be fetched from external properties as it may differ depending on the environment in which the application is to be deployed.
+For details on external properties, refer to <a class="reference internal" href="PropertyManagement.html"><em>Properties Management</em></a>.</p>
+</div>
+<div class="admonition tip">
+<p class="first admonition-title">Tip</p>
+<p>In the above example, cron is used as a trigger for executing tasks. However, other triggers namely fixed-delay and fixed-rate are also set by default and should be selectively used as per requirement.</p>
+<p class="last">When the default triggers do not satisfy the requirements, an independent trigger can be set by specifying the bean implementing <code class="docutils literal"><span class="pre">org.springframework.scheduling.Trigger</span></code> in trigger attribute.</p>
+</div>
+</div></blockquote>
+<div class="line-block">
+<div class="line"><br /></div>
+</div>
+</div>
+</div>
+</div>
+<div class="section" id="appendix">
+<h2><a class="toc-backref" href="#id50">5.17.4. Appendix</a><a class="headerlink" href="#appendix" title="Permalink to this headline">¶</a></h2>
+<div class="section" id="security-issues-related-to-file-upload">
+<h3><a class="toc-backref" href="#id51">5.17.4.1. Security issues related to file upload</a><a class="headerlink" href="#security-issues-related-to-file-upload" title="Permalink to this headline">¶</a></h3>
+<div class="line-block">
+<div class="line">Following security issues need to be considered when providing File Upload functionality.</div>
+</div>
+<ol class="arabic simple">
+<li><a class="reference internal" href="#file-upload-security-related-warning-points-dos"><span>Dos attack with respect to upload functionality</span></a></li>
+<li><a class="reference internal" href="#file-upload-security-related-warning-points-server-scripting"><span>Attack by executing uploaded files on Web Server</span></a></li>
+</ol>
+<p>Security measures are described below.</p>
+<div class="section" id="dos-attack-with-respect-to-upload-functionality">
+<span id="file-upload-security-related-warning-points-dos"></span><h4><a class="toc-backref" href="#id52">5.17.4.1.1. Dos attack with respect to upload functionality</a><a class="headerlink" href="#dos-attack-with-respect-to-upload-functionality" title="Permalink to this headline">¶</a></h4>
+<p>Dos attack with respect to upload functionality is when load on the server is increased by continuously uploading large files,
+thereby crashing the server or reducing its response speed.</p>
+<div class="line-block">
+<div class="line">When there is no limit on the size of files to be uploaded and multipart request, the resistance to Dos attack becomes weak.</div>
+<div class="line">In order to enhance the resistance towards Dos attack, size limit needs to be set for a request, by using <code class="docutils literal"><span class="pre">&lt;multipart-config&gt;</span></code> element explained in <a class="reference internal" href="#file-upload-how-to-usr-application-settings"><span>Application settings</span></a>.</div>
+</div>
+<div class="line-block">
+<div class="line"><br /></div>
+</div>
+</div>
+<div class="section" id="attack-by-executing-uploaded-files-on-web-server">
+<span id="file-upload-security-related-warning-points-server-scripting"></span><h4><a class="toc-backref" href="#id53">5.17.4.1.2. Attack by executing uploaded files on Web Server</a><a class="headerlink" href="#attack-by-executing-uploaded-files-on-web-server" title="Permalink to this headline">¶</a></h4>
+<div class="line-block">
+<div class="line">In this attack, the files on Web Server can be viewed/altered/deleted by uploading and executing the script files (php, asp, aspx, jsp etc.) that are executable on Web Server (Application Server).</div>
+<div class="line">With Web Server as a platform, another server present in the same network as the Web server, is also vulnerable to such attack.</div>
+</div>
+<p>Measures to be taken against this attack are as follows:</p>
+<ul class="simple">
+<li>To view the file contents through a process that displays the contents, without placing uploaded files in the public directory of Web Server (Application Server).</li>
+<li>To ensure that executable script file cannot be uploaded on Web server (Application Server) by restricting the extension of files that can be uploaded.</li>
+</ul>
+<p>The attacks can be prevented by implementing either of the above measures; however it is always recommended to implement both the measures.</p>
+<div class="line-block">
+<div class="line"><br /></div>
+</div>
+</div>
+</div>
+<div class="section" id="file-upload-using-commons-fileupload">
+<span id="file-upload-usage-commons-fileupload"></span><h3><a class="toc-backref" href="#id54">5.17.4.2. File upload using Commons FileUpload</a><a class="headerlink" href="#file-upload-using-commons-fileupload" title="Permalink to this headline">¶</a></h3>
+<p>If File Upload functionality of Servlet 3.0 is only used partially on Application Server,
+it may likely result into garbling of multi byte characters of file names or request parameters.</p>
+<p>For example: If File Upload functionality of Servlet 3.0 is used on WebLogic (verification version 12.1.3),
+it has been confirmed that multi byte characters of fields to be sent along with file are garbled.
+Although it seems that there is a problem at the Application Server side,
+it is not possible to send the file and multi byte characters simultaneously unless the said problem is fixed.</p>
+<p>This problem can be avoided using Commons FileUpload.
+Therefore, this guideline describes about file upload using Commons FileUpload
+as a temporary measure till the application server gets modified.</p>
+<p>Perform the following settings when using Commons FileUpload.</p>
+<div class="line-block">
+<div class="line"><br /></div>
+</div>
+<p><code class="file docutils literal"><span class="pre">xxx-web/pom.xml</span></code></p>
+<div class="highlight-xml"><div class="highlight"><pre><span class="c">&lt;!-- (1) --&gt;</span>
+<span class="nt">&lt;dependency&gt;</span>
+    <span class="nt">&lt;groupId&gt;</span>commons-fileupload<span class="nt">&lt;/groupId&gt;</span>
+    <span class="nt">&lt;artifactId&gt;</span>commons-fileupload<span class="nt">&lt;/artifactId&gt;</span>
+<span class="nt">&lt;/dependency&gt;</span>
+</pre></div>
+</div>
+<table border="1" class="docutils">
+<colgroup>
+<col width="10%" />
+<col width="90%" />
+</colgroup>
+<thead valign="bottom">
+<tr class="row-odd"><th class="head"><div class="first last line-block">
+<div class="line">Sr. No.</div>
+</div>
+</th>
+<th class="head"><div class="first last line-block">
+<div class="line">Description</div>
+</div>
+</th>
+</tr>
+</thead>
+<tbody valign="top">
+<tr class="row-even"><td><div class="first last line-block">
+<div class="line">(1)</div>
+</div>
+</td>
+<td><div class="first last line-block">
+<div class="line">Add dependency to <code class="docutils literal"><span class="pre">commons-fileupload</span></code>.</div>
+<div class="line">No need to specify the version in <code class="file docutils literal"><span class="pre">pom.xml</span></code> as it is defined depending on Spring IO Platform.</div>
+</div>
+</td>
+</tr>
+</tbody>
+</table>
+<div class="admonition warning">
+<p class="first admonition-title">Warning</p>
+<p>In case of using Apache Commons FileUpload,
+security vulnerabilities reported in <a class="reference external" href="http://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2014-0050">CVE-2014-0050</a> are likely to occur.
+Confirm that there are no vulnerabilities in the version of Apache Commons FileUpload to be used.</p>
+<p>When using Apache Commons FileUpload, version 1.3.1 or above should be used.</p>
+<p class="last">Further, if a version stored in Spring IO Platform is used, the vulnerabilities reported in CVE-2014-0050 do not occur.</p>
+</div>
+<div class="line-block">
+<div class="line"><br /></div>
+</div>
+<p><code class="file docutils literal"><span class="pre">xxx-web/src/main/resources/META-INF/spring/applicationContext.xml</span></code></p>
+<div class="highlight-xml"><div class="highlight"><pre><span class="c">&lt;!-- (1) --&gt;</span>
+<span class="nt">&lt;bean</span> <span class="na">id=</span><span class="s">&quot;filterMultipartResolver&quot;</span>
+    <span class="na">class=</span><span class="s">&quot;org.springframework.web.multipart.commons.CommonsMultipartResolver&quot;</span><span class="nt">&gt;</span>
+    <span class="nt">&lt;property</span> <span class="na">name=</span><span class="s">&quot;maxUploadSize&quot;</span> <span class="na">value=</span><span class="s">&quot;10240000&quot;</span> <span class="nt">/&gt;</span><span class="c">&lt;!-- (2) --&gt;</span>
+<span class="nt">&lt;/bean&gt;</span>
+
+<span class="c">&lt;!-- ... --&gt;</span>
+</pre></div>
+</div>
+<table border="1" class="docutils">
+<colgroup>
+<col width="10%" />
+<col width="90%" />
+</colgroup>
+<thead valign="bottom">
+<tr class="row-odd"><th class="head"><div class="first last line-block">
+<div class="line">Sr. No.</div>
+</div>
+</th>
+<th class="head"><div class="first last line-block">
+<div class="line">Description</div>
+</div>
+</th>
+</tr>
+</thead>
+<tbody valign="top">
+<tr class="row-even"><td><div class="first last line-block">
+<div class="line">(1)</div>
+</div>
+</td>
+<td><div class="first last line-block">
+<div class="line">Perform bean definition of <code class="docutils literal"><span class="pre">CommonsMultipartResolver</span></code> with <code class="docutils literal"><span class="pre">MultipartResolver</span></code> implemented using Commons FileUpload.</div>
+<div class="line">Specify <code class="docutils literal"><span class="pre">&quot;filterMultipartResolver&quot;</span></code> in bean ID.</div>
+</div>
+</td>
+</tr>
+<tr class="row-odd"><td><div class="first last line-block">
+<div class="line">(2)</div>
+</div>
+</td>
+<td><div class="first last line-block">
+<div class="line">Set maximum size allowed in file upload.</div>
+<div class="line">In case of Commons FileUpload, it should be noted that the maximum value is the entire size of request including header.</div>
+<div class="line">Moreover, <strong>as the default value is -1 (unlimited), make sure to set a value.</strong> For other properties, refer to <a class="reference external" href="http://docs.spring.io/spring-framework/docs/4.1.7.RELEASE/javadoc-api/org/springframework/web/multipart/commons/CommonsMultipartResolver.html">JavaDoc</a>.</div>
+</div>
+</td>
+</tr>
+</tbody>
+</table>
+<div class="admonition warning">
+<p class="first admonition-title">Warning</p>
+<p class="last">In case of using Commons Fileupload, <code class="docutils literal"><span class="pre">MultipartResolver</span></code> should be defined in <code class="file docutils literal"><span class="pre">applicationContext.xml</span></code> and not in <code class="file docutils literal"><span class="pre">spring-mvc.xml</span></code>.
+It should be deleted if defined in <code class="file docutils literal"><span class="pre">spring-mvc.xml</span></code>.</p>
+</div>
+<div class="line-block">
+<div class="line"><br /></div>
+</div>
+<p><code class="file docutils literal"><span class="pre">xxx-web/src/main/webapp/WEB-INF/web.xml</span></code></p>
+<div class="highlight-xml"><div class="highlight"><pre><span class="nt">&lt;web-app</span> <span class="na">xmlns=</span><span class="s">&quot;http://java.sun.com/xml/ns/javaee&quot;</span>
+    <span class="na">xmlns:xsi=</span><span class="s">&quot;http://www.w3.org/2001/XMLSchema-instance&quot;</span>
+    <span class="na">xsi:schemaLocation=</span><span class="s">&quot;http://java.sun.com/xml/ns/javaee http://java.sun.com/xml/ns/javaee/web-app_3_0.xsd&quot;</span>
+    <span class="na">version=</span><span class="s">&quot;3.0&quot;</span><span class="nt">&gt;</span>
+
+    <span class="nt">&lt;servlet&gt;</span>
+        <span class="nt">&lt;servlet-class&gt;</span>org.springframework.web.servlet.DispatcherServlet<span class="nt">&lt;/servlet-class&gt;</span>
+        <span class="c">&lt;!-- omitted --&gt;</span>
+        <span class="c">&lt;!-- (1) --&gt;</span>
+        <span class="c">&lt;!-- &lt;multipart-config&gt;...&lt;/multipart-config&gt; --&gt;</span>
+    <span class="nt">&lt;/servlet&gt;</span>
+
+    <span class="c">&lt;!-- (2) --&gt;</span>
+    <span class="nt">&lt;filter&gt;</span>
+        <span class="nt">&lt;filter-name&gt;</span>MultipartFilter<span class="nt">&lt;/filter-name&gt;</span>
+        <span class="nt">&lt;filter-class&gt;</span>org.springframework.web.multipart.support.MultipartFilter<span class="nt">&lt;/filter-class&gt;</span>
+    <span class="nt">&lt;/filter&gt;</span>
+    <span class="nt">&lt;filter-mapping&gt;</span>
+        <span class="nt">&lt;filter-name&gt;</span>MultipartFilter<span class="nt">&lt;/filter-name&gt;</span>
+        <span class="nt">&lt;url-pattern&gt;</span>/*<span class="nt">&lt;/url-pattern&gt;</span>
+    <span class="nt">&lt;/filter-mapping&gt;</span>
+
+    <span class="c">&lt;!-- omitted --&gt;</span>
+
+<span class="nt">&lt;/web-app&gt;</span>
+</pre></div>
+</div>
+<table border="1" class="docutils">
+<colgroup>
+<col width="10%" />
+<col width="90%" />
+</colgroup>
+<thead valign="bottom">
+<tr class="row-odd"><th class="head">Sr.No.</th>
+<th class="head">Description</th>
+</tr>
+</thead>
+<tbody valign="top">
+<tr class="row-even"><td><div class="first last line-block">
+<div class="line">(1)</div>
+</div>
+</td>
+<td><div class="first last line-block">
+<div class="line">When using Commons FileUpload, an upload function of Servlet 3.0 should be disabled.</div>
+<div class="line">If <code class="docutils literal"><span class="pre">&lt;multipart-config&gt;</span></code> element is present in <code class="docutils literal"><span class="pre">DispatcherServlet</span></code> definition, make sure to delete the same.</div>
+</div>
+</td>
+</tr>
+<tr class="row-odd"><td><div class="first last line-block">
+<div class="line">(2)</div>
+</div>
+</td>
+<td><div class="first last line-block">
+<div class="line">When using Commons Fileupload, <code class="docutils literal"><span class="pre">MultipartFilter</span></code> should be defined to enable <a class="reference internal" href="../Security/CSRF.html#csrf-use-multipart-filter"><span>CSRF measures</span></a>.</div>
+<div class="line"><code class="docutils literal"><span class="pre">MultipartFilter</span></code>mapping should be defined before defining springSecurityFilterChain (Servlet Filter of Spring Security).</div>
+</div>
+</td>
+</tr>
+</tbody>
+</table>
+<div class="admonition tip">
+<p class="first admonition-title">Tip</p>
+<p class="last"><code class="docutils literal"><span class="pre">MultipartFilter</span></code>is a mechanism to perform the file upload process by fetching <code class="docutils literal"><span class="pre">MultipartResolver</span></code>registered with bean ID <code class="docutils literal"><span class="pre">&quot;filterMultipartResolver&quot;</span></code> from DI container (<code class="file docutils literal"><span class="pre">applicationContext.xml</span></code>).</p>
+</div>
+<div class="line-block">
+<div class="line"><br /></div>
+</div>
+</div>
+</div>
+</div>
+
+
+          </div>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="FileDownload.html" title="5.18. File Download"
+             >next</a> |</li>
+        <li class="right" >
+          <a href="REST.html" title="5.16. RESTful Web Service"
+             >previous</a> |</li>
+        <li class="nav-item nav-item-0"><a href="../index.html">TERASOLUNA Server Framework for Java (5.x) Development Guideline 5.0.1.RELEASE documentation</a> &raquo;</li>
+          <li class="nav-item nav-item-1"><a href="index.html" >5. Architecture in Detail - TERASOLUNA Server Framework for Java (5.x)</a> &raquo;</li> 
+      </ul>
+    </div>
+    <div class="footer">
+        &copy; Copyright 2013-2015, NTT DATA.
+    Created using <a href="http://sphinx.pocoo.org/">Sphinx</a> 1.3.1.Theme by <a href="http://github.com/vkvn">vkvn</a>
+    </div>
+    
+    <script>
+    
+    $(function() {
+    	var $sidebar	= $('.sphinxsidebar'),
+    		$window		= $(window),
+    		offset		= $sidebar.offset(),
+    		topPadding	= 3,
+    		$scroll		= $('#scroll');
+    	
+    	$window.scroll(function() {
+    		if ($scroll.is(':checked')) {
+				if ($window.scrollTop() > offset.top) {
+					$sidebar.stop().animate({
+						marginTop:$window.scrollTop() - offset.top + topPadding
+					});
+				} else {
+					$sidebar.stop().animate({
+						marginTop:0
+					});
+				}
+			}
+		});
+    	
+    	var $navList = $('ul:first', $sidebar);
+    	$('li:first', $navList).addClass('open');
+    	
+    	$navList.treeview({
+    		persist: "location",
+    		collapsed: true,
+    		unique: false
+    	});
+    	
+	});
+    (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+        (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+            m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+    })(window,document,'script','//www.google-analytics.com/analytics.js','ga');
+
+    ga('create', 'UA-46550814-1', 'terasolunaorg.github.io');
+    ga('send', 'pageview');
+    </script>
+  </body>
+</html>
