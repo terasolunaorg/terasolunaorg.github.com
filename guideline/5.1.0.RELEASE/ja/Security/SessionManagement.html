@@ -1,0 +1,1098 @@
+<!DOCTYPE html>
+
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>6.5. セッション管理 &mdash; TERASOLUNA Server Framework for Java (5.x) Development Guideline 5.1.0.RELEASE documentation</title>
+    
+    <link rel="stylesheet" href="../_static/solar.css" type="text/css" />
+    <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+    
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    '../',
+        VERSION:     '5.1.0.RELEASE',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true
+      };
+    </script>
+    <script type="text/javascript" src="../_static/jquery.js"></script>
+    <script type="text/javascript" src="../_static/underscore.js"></script>
+    <script type="text/javascript" src="../_static/doctools.js"></script>
+    <link rel="top" title="TERASOLUNA Server Framework for Java (5.x) Development Guideline 5.1.0.RELEASE documentation" href="../index.html" />
+    <link rel="up" title="6. TERASOLUNA Server Framework for Java (5.x)によるセキュリティ対策" href="index.html" />
+    <link rel="next" title="6.6. CSRF対策" href="CSRF.html" />
+    <link rel="prev" title="6.4. 認可" href="Authorization.html" /><script src="../_static/jquery.treeview.js" type="text/javascript"></script>
+<!-- <link href='http://fonts.googleapis.com/css?family=Source+Code+Pro|Open+Sans:300italic,400italic,700italic,400,300,700' rel='stylesheet' type='text/css'> -->
+<link href="../_static/solarized-dark.css" rel="stylesheet">
+<link href="../_static/jquery.treeview.css" rel="stylesheet">
+  </head>
+  <body role="document">
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="CSRF.html" title="6.6. CSRF対策"
+             accesskey="N">next</a> |</li>
+        <li class="right" >
+          <a href="Authorization.html" title="6.4. 認可"
+             accesskey="P">previous</a> |</li>
+        <li class="nav-item nav-item-0"><a href="../index.html">TERASOLUNA Server Framework for Java (5.x) Development Guideline 5.1.0.RELEASE documentation</a> &raquo;</li>
+          <li class="nav-item nav-item-1"><a href="index.html" accesskey="U">6. TERASOLUNA Server Framework for Java (5.x)によるセキュリティ対策</a> &raquo;</li> 
+      </ul>
+    </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper"><label><input id="scroll" type="checkbox" checked> scroll sidebar</label>
+
+  <h3><a href="../index.html">Table Of Contents</a></h3>
+  <ul>
+<li><a class="reference internal" href="#">6.5. セッション管理</a><ul>
+<li><a class="reference internal" href="#overview">6.5.1. Overview</a><ul>
+<li><a class="reference internal" href="#springsecuritysessionmanagementsecuritymeasure">6.5.1.1. セッション利用時のセキュリティ対策</a><ul>
+<li><a class="reference internal" href="#id4">6.5.1.1.1. セッションハイジャック攻撃への対策</a></li>
+<li><a class="reference internal" href="#id5">6.5.1.1.2. セッション固定攻撃への対策</a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#spring-security">6.5.1.2. Spring Securityが提供するセッション管理機能</a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#how-to-use">6.5.2. How to use</a><ul>
+<li><a class="reference internal" href="#id6">6.5.2.1. セッションハイジャック攻撃への対策</a><ul>
+<li><a class="reference internal" href="#spring-securityurl-rewriting">6.5.2.1.1. Spring SecurityによるURL Rewriting機能の無効化</a></li>
+<li><a class="reference internal" href="#url-rewriting">6.5.2.1.2. サーブレットコンテナによるURL Rewriting機能の無効化</a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#springsecuritysessionmanagementsetup">6.5.2.2. セッション管理機能の適用</a></li>
+<li><a class="reference internal" href="#id8">6.5.2.3. セッション固定攻撃への対策</a></li>
+<li><a class="reference internal" href="#springsecuritysessionmanagementlifecycle">6.5.2.4. セッションのライフサイクル制御</a><ul>
+<li><a class="reference internal" href="#id10">6.5.2.4.1. セッションの作成</a></li>
+<li><a class="reference internal" href="#id11">6.5.2.4.2. セッションの破棄</a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#springsecuritysessionmanagementtimeout">6.5.2.5. セッションタイムアウトの制御</a><ul>
+<li><a class="reference internal" href="#id13">6.5.2.5.1. セッションタイムアウトの指定</a></li>
+<li><a class="reference internal" href="#springsecuritysessiondetectinvalidsession">6.5.2.5.2. 無効なセッションを使ったリクエストの検知</a></li>
+<li><a class="reference internal" href="#id15">6.5.2.5.3. 除外パスの指定</a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#springsecuritysessionmanagementconcurrency">6.5.2.6. 多重ログインの制御</a><ul>
+<li><a class="reference internal" href="#springsecurityhowtousesessionmanagementconcurrency">6.5.2.6.1. セッションのライフサイクル検知の有効化</a></li>
+<li><a class="reference internal" href="#id18">6.5.2.6.2. 多重ログインの禁止(先勝ち)</a></li>
+<li><a class="reference internal" href="#id19">6.5.2.6.3. 多重ログインの禁止(後勝ち)</a></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+
+
+  <h4>Previous topic</h4>
+  <p class="topless"><a href="Authorization.html"
+                        title="previous chapter">6.4. 認可</a></p>
+  <h4>Next topic</h4>
+  <p class="topless"><a href="CSRF.html"
+                        title="next chapter">6.6. CSRF対策</a></p>
+  <div role="note" aria-label="source link">
+    <h3>This Page</h3>
+    <ul class="this-page-menu">
+      <li><a href="../_sources/Security/SessionManagement.txt"
+            rel="nofollow">Show Source</a></li>
+    </ul>
+   </div>
+<div id="searchbox" style="display: none" role="search">
+  <h3>Quick search</h3>
+    <form class="search" action="../search.html" method="get">
+      <input type="text" name="q" />
+      <input type="submit" value="Go" />
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+    <p class="searchtip" style="font-size: 90%">
+    Enter search terms or a module, class or function name.
+    </p>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <div class="section" id="springsecuritysessionmanagement">
+<span id="id1"></span><h1>6.5. セッション管理<a class="headerlink" href="#springsecuritysessionmanagement" title="Permalink to this headline">¶</a></h1>
+<div class="contents local topic" id="id2">
+<p class="topic-title first">目次</p>
+<ul class="simple">
+<li><a class="reference internal" href="#overview" id="id25">Overview</a><ul>
+<li><a class="reference internal" href="#springsecuritysessionmanagementsecuritymeasure" id="id26">セッション利用時のセキュリティ対策</a><ul>
+<li><a class="reference internal" href="#id4" id="id27">セッションハイジャック攻撃への対策</a></li>
+<li><a class="reference internal" href="#id5" id="id28">セッション固定攻撃への対策</a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#spring-security" id="id29">Spring Securityが提供するセッション管理機能</a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#how-to-use" id="id30">How to use</a><ul>
+<li><a class="reference internal" href="#id6" id="id31">セッションハイジャック攻撃への対策</a><ul>
+<li><a class="reference internal" href="#spring-securityurl-rewriting" id="id32">Spring SecurityによるURL Rewriting機能の無効化</a></li>
+<li><a class="reference internal" href="#url-rewriting" id="id33">サーブレットコンテナによるURL Rewriting機能の無効化</a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#springsecuritysessionmanagementsetup" id="id34">セッション管理機能の適用</a></li>
+<li><a class="reference internal" href="#id8" id="id35">セッション固定攻撃への対策</a></li>
+<li><a class="reference internal" href="#springsecuritysessionmanagementlifecycle" id="id36">セッションのライフサイクル制御</a><ul>
+<li><a class="reference internal" href="#id10" id="id37">セッションの作成</a></li>
+<li><a class="reference internal" href="#id11" id="id38">セッションの破棄</a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#springsecuritysessionmanagementtimeout" id="id39">セッションタイムアウトの制御</a><ul>
+<li><a class="reference internal" href="#id13" id="id40">セッションタイムアウトの指定</a></li>
+<li><a class="reference internal" href="#springsecuritysessiondetectinvalidsession" id="id41">無効なセッションを使ったリクエストの検知</a></li>
+<li><a class="reference internal" href="#id15" id="id42">除外パスの指定</a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#springsecuritysessionmanagementconcurrency" id="id43">多重ログインの制御</a><ul>
+<li><a class="reference internal" href="#springsecurityhowtousesessionmanagementconcurrency" id="id44">セッションのライフサイクル検知の有効化</a></li>
+<li><a class="reference internal" href="#id18" id="id45">多重ログインの禁止(先勝ち)</a></li>
+<li><a class="reference internal" href="#id19" id="id46">多重ログインの禁止(後勝ち)</a></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+</div>
+<div class="section" id="overview">
+<h2><a class="toc-backref" href="#id25">6.5.1. Overview</a><a class="headerlink" href="#overview" title="Permalink to this headline">¶</a></h2>
+<p>本節では、「Webアプリケーションでセッションを扱う際に必要となるセキュリティ対策」及び「Spring Securityが提供しているセッション関連の機能」について説明する。</p>
+<div class="section" id="springsecuritysessionmanagementsecuritymeasure">
+<span id="id3"></span><h3><a class="toc-backref" href="#id26">6.5.1.1. セッション利用時のセキュリティ対策</a><a class="headerlink" href="#springsecuritysessionmanagementsecuritymeasure" title="Permalink to this headline">¶</a></h3>
+<p>Webアプリケーションでセッションを扱う場合、一般的には以下の攻撃に対して対策が必要となる。</p>
+<table border="1" class="docutils">
+<colgroup>
+<col width="30%" />
+<col width="70%" />
+</colgroup>
+<thead valign="bottom">
+<tr class="row-odd"><th class="head">対策</th>
+<th class="head">説明</th>
+</tr>
+</thead>
+<tbody valign="top">
+<tr class="row-even"><td><div class="first last line-block">
+<div class="line">セッションハイジャック攻撃</div>
+</div>
+</td>
+<td><div class="first last line-block">
+<div class="line">通信の盗聴、規則性からの類推、クロスサイトスクリプティングなどを駆使してセッションIDを盗みとり、盗みとったセッションIDをつかっているユーザーになりすましてシステムを利用する攻撃。</div>
+</div>
+</td>
+</tr>
+<tr class="row-odd"><td><div class="first last line-block">
+<div class="line">セッション固定攻撃</div>
+</div>
+</td>
+<td><div class="first last line-block">
+<div class="line">攻撃者が事前に払い出したセッションIDを他人に使わせてシステムにログインさせ、攻撃者がログインしたユーザーになりすましてシステムを利用する攻撃。</div>
+</div>
+</td>
+</tr>
+</tbody>
+</table>
+<div class="section" id="id4">
+<h4><a class="toc-backref" href="#id27">6.5.1.1.1. セッションハイジャック攻撃への対策</a><a class="headerlink" href="#id4" title="Permalink to this headline">¶</a></h4>
+<p>セッションハイジャック攻撃への対策は、セッションIDが盗み取られないようにするしかない。
+いったん盗み取られてしまうと、アプリケーションサーバは正規のユーザーからのリクエストなのか、
+攻撃者からのリクエストなのかを判断することができない。</p>
+<p>このようなセッションハイジャック攻撃からアプリケーションを守るためには、以下のような対策が必要である。</p>
+<table border="1" class="docutils" id="id20">
+<caption><span class="caption-text"><strong>セッションハイジャック攻撃への対策</strong></span><a class="headerlink" href="#id20" title="Permalink to this table">¶</a></caption>
+<colgroup>
+<col width="30%" />
+<col width="70%" />
+</colgroup>
+<thead valign="bottom">
+<tr class="row-odd"><th class="head">対策</th>
+<th class="head">説明</th>
+</tr>
+</thead>
+<tbody valign="top">
+<tr class="row-even"><td><div class="first last line-block">
+<div class="line">推測困難なセッションIDの生成する</div>
+</div>
+</td>
+<td><div class="first last line-block">
+<div class="line">連番など推測できる値をセッションIDに使用せず、推測が困難な(セキュアな)ランダム値を使用する。</div>
+<div class="line">基本的にはアプリケーションサーバが提供するセッションIDの生成機構を利用すればよい。</div>
+</div>
+</td>
+</tr>
+<tr class="row-odd"><td><div class="first last line-block">
+<div class="line">HTTPSを使って通信を暗号化する</div>
+</div>
+</td>
+<td><div class="first last line-block">
+<div class="line">盗まれると困る情報をやりとりする通信は、HTTPSプロトコルを使って暗号化する。</div>
+<div class="line">通信の盗聴はフリーのソフトなどを使って簡単に行うことができため、盗聴されても解読されないように暗号化しておくことが重要である。</div>
+</div>
+</td>
+</tr>
+<tr class="row-even"><td><div class="first last line-block">
+<div class="line">セッションIDはCookieを使って連携する</div>
+</div>
+</td>
+<td><div class="first last line-block">
+<div class="line">クライアントとサーバーとの間でセッションIDを連携する際は、Cookieを使って連携するように設定し、URL Rewriting機能を無効化する。</div>
+</div>
+</td>
+</tr>
+<tr class="row-odd"><td><div class="first last line-block">
+<div class="line">Cookieの<code class="docutils literal"><span class="pre">HttpOnly</span></code>属性を指定する</div>
+</div>
+</td>
+<td><div class="first last line-block">
+<div class="line">Cookieの<code class="docutils literal"><span class="pre">HttpOnly</span></code>属性を指定すると、JavaScriptからCookieにアクセスすることができなくため、クロスサイトスクリプティングを使ってセッションIDを盗むことができなくなる。</div>
+</div>
+</td>
+</tr>
+<tr class="row-even"><td><div class="first last line-block">
+<div class="line">Cookieに<code class="docutils literal"><span class="pre">Secure</span></code>属性を指定する</div>
+</div>
+</td>
+<td><div class="first last line-block">
+<div class="line">Cookieに<code class="docutils literal"><span class="pre">Secure</span></code>属性を指定すると、HTTPS通信の時だけCookieをサーバーに送信するため、誤ってHTTP通信を使ってしまった時にセッションIDが盗み取られるリスクを減らすことができる。</div>
+</div>
+</td>
+</tr>
+</tbody>
+</table>
+<div class="admonition note">
+<p class="first admonition-title">Note</p>
+<p><strong>URL Rewriting</strong></p>
+<p>URL Rewritingは、Cookieを使用できないクライアントとセッションを維持するための仕組みである。
+具体的には、URLのリクエストパラメータの中にセッションIDを含めることでクライアントとサーバーの間でセッションIDを連携する。</p>
+<ul>
+<li><p class="first">URL Rewritingが行われたURL例</p>
+<blockquote>
+<div><div class="highlight-guess"><div class="highlight"><pre><span class="nt">http</span><span class="o">://</span><span class="nt">localhost</span><span class="nd">:8080</span><span class="o">/;</span><span class="nt">jsessionid</span><span class="o">=</span><span class="nt">7E6EDE4D3317FC5F14FD912BEAC96646</span>
+</pre></div>
+</div>
+</div></blockquote>
+</li>
+</ul>
+<p><code class="docutils literal"><span class="pre">jsessionid=7E6EDE4D3317FC5F14FD912BEAC96646</span></code>の部分がURL RewritingされたセッションIDになる。
+ServletのAPI仕様では、以下のメソッドを呼び出すとURL Rewritingが行われる可能性があり、JSTLやSpringが提供しているJSPタグライブラリの中でもこれらのメソッドを呼び出している。</p>
+<ul class="last simple">
+<li><code class="docutils literal"><span class="pre">HttpServletResponse#encodeURL(String)</span></code></li>
+<li><code class="docutils literal"><span class="pre">HttpServletResponse#encodeRedirectURL(String)</span></code></li>
+</ul>
+</div>
+<p>URL Rewritingが行われるとURL内にセッションIDが露出してしまうため、セッションIDを盗まれるリスクが高くなる。
+そのため、Cookieを使うことができるクライアントのみをサポートする場合は、サーブレットコンテナのURL Rewriting機能を無効化することを推奨する。</p>
+<div class="line-block">
+<div class="line"><br /></div>
+</div>
+</div>
+<div class="section" id="id5">
+<h4><a class="toc-backref" href="#id28">6.5.1.1.2. セッション固定攻撃への対策</a><a class="headerlink" href="#id5" title="Permalink to this headline">¶</a></h4>
+<p>セッション固定攻撃からアプリケーションを守るためには、以下のような対策が必要になる。</p>
+<table border="1" class="docutils" id="id21">
+<caption><span class="caption-text"><strong>セッション固定攻撃への対策</strong></span><a class="headerlink" href="#id21" title="Permalink to this table">¶</a></caption>
+<colgroup>
+<col width="30%" />
+<col width="70%" />
+</colgroup>
+<thead valign="bottom">
+<tr class="row-odd"><th class="head">対策</th>
+<th class="head">説明</th>
+</tr>
+</thead>
+<tbody valign="top">
+<tr class="row-even"><td><div class="first last line-block">
+<div class="line">URL Rewriting機能を無効化する</div>
+</div>
+</td>
+<td><div class="first last line-block">
+<div class="line">URL Rewriting機能を無効化すると、攻撃者が事前に払い出したセッションIDが使われず、新たにセッションが開始される。</div>
+</div>
+</td>
+</tr>
+<tr class="row-odd"><td><div class="first last line-block">
+<div class="line">ログイン後にセッションIDを変更する</div>
+</div>
+</td>
+<td><div class="first last line-block">
+<div class="line">ログイン後にセッションIDを変更することで、攻撃者が事前に払い出したセッションIDが使用できなくなる。</div>
+</div>
+</td>
+</tr>
+</tbody>
+</table>
+<div class="line-block">
+<div class="line"><br /></div>
+</div>
+</div>
+</div>
+<div class="section" id="spring-security">
+<h3><a class="toc-backref" href="#id29">6.5.1.2. Spring Securityが提供するセッション管理機能</a><a class="headerlink" href="#spring-security" title="Permalink to this headline">¶</a></h3>
+<p>Spring Securityでは、セッションについて、主に以下の機能が提供されている。</p>
+<table border="1" class="docutils" id="id22">
+<caption><span class="caption-text"><strong>セッションに関する提供機能</strong></span><a class="headerlink" href="#id22" title="Permalink to this table">¶</a></caption>
+<colgroup>
+<col width="25%" />
+<col width="75%" />
+</colgroup>
+<thead valign="bottom">
+<tr class="row-odd"><th class="head">機能</th>
+<th class="head">説明</th>
+</tr>
+</thead>
+<tbody valign="top">
+<tr class="row-even"><td><div class="first last line-block">
+<div class="line">セキュリティ対策</div>
+</div>
+</td>
+<td><div class="first last line-block">
+<div class="line">セッションハイジャック攻撃等のセッションIDを使用した攻撃への対策機能。</div>
+</div>
+</td>
+</tr>
+<tr class="row-odd"><td><div class="first last line-block">
+<div class="line">ライフサイクル制御</div>
+</div>
+</td>
+<td><div class="first last line-block">
+<div class="line">セッションの生成～破棄までのライフサイクルを制御する機能。</div>
+</div>
+</td>
+</tr>
+<tr class="row-even"><td><div class="first last line-block">
+<div class="line">タイムアウト制御</div>
+</div>
+</td>
+<td><div class="first last line-block">
+<div class="line">タイムアウトにより、セッションを破棄する機能。</div>
+</div>
+</td>
+</tr>
+<tr class="row-odd"><td><div class="first last line-block">
+<div class="line">多重ログイン制御</div>
+</div>
+</td>
+<td><div class="first last line-block">
+<div class="line">同一ユーザーによる多重ログイン時のセッションを制御する機能。</div>
+</div>
+</td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
+<div class="section" id="how-to-use">
+<span id="authentication-spring-security-how-to-use-sessionmanagement"></span><h2><a class="toc-backref" href="#id30">6.5.2. How to use</a><a class="headerlink" href="#how-to-use" title="Permalink to this headline">¶</a></h2>
+<div class="section" id="id6">
+<h3><a class="toc-backref" href="#id31">6.5.2.1. セッションハイジャック攻撃への対策</a><a class="headerlink" href="#id6" title="Permalink to this headline">¶</a></h3>
+<p>ここではURL Rewriting機能を無効化し、Cookieを使用してセッションIDを連携する方法を説明する。、</p>
+<div class="section" id="spring-securityurl-rewriting">
+<h4><a class="toc-backref" href="#id32">6.5.2.1.1. Spring SecurityによるURL Rewriting機能の無効化</a><a class="headerlink" href="#spring-securityurl-rewriting" title="Permalink to this headline">¶</a></h4>
+<p>Spring SecurityはURL Rewritingを無効化するための仕組みを提供しており、この機能はデフォルトで適用されている。
+Cookieを使えないクライアントをサポートする必要がある場合は、URL Rewritingを許可するようにBean定義する。</p>
+<ul class="simple">
+<li>spring-security.xmlの定義例</li>
+</ul>
+<div class="highlight-xml"><div class="highlight"><pre><span class="nt">&lt;sec:http</span> <span class="na">disable-url-rewriting=</span><span class="s">&quot;false&quot;</span><span class="nt">&gt;</span> <span class="c">&lt;!-- falseを指定してURL Rewritingを有効化 --&gt;</span>
+</pre></div>
+</div>
+<table border="1" class="docutils">
+<colgroup>
+<col width="10%" />
+<col width="90%" />
+</colgroup>
+<thead valign="bottom">
+<tr class="row-odd"><th class="head">項番</th>
+<th class="head">説明</th>
+</tr>
+</thead>
+<tbody valign="top">
+<tr class="row-even"><td><div class="first last line-block">
+<div class="line">(1)</div>
+</div>
+</td>
+<td><div class="first last line-block">
+<div class="line">Spring Securityのデフォルトでは、<code class="docutils literal"><span class="pre">disable-url-rewriting</span></code>の値は <code class="docutils literal"><span class="pre">true</span></code>であるため、URL Rewritingは行われない。</div>
+<div class="line">URL Rewritingを有効にする際は、<code class="docutils literal"><span class="pre">&lt;sec:http&gt;</span></code>要素の <code class="docutils literal"><span class="pre">disable-url-rewriting</span></code>属性に<code class="docutils literal"><span class="pre">false</span></code>を設定する。</div>
+</div>
+</td>
+</tr>
+</tbody>
+</table>
+</div>
+<div class="section" id="url-rewriting">
+<h4><a class="toc-backref" href="#id33">6.5.2.1.2. サーブレットコンテナによるURL Rewriting機能の無効化</a><a class="headerlink" href="#url-rewriting" title="Permalink to this headline">¶</a></h4>
+<p>Servletの標準仕様の仕組みを使ってセッションをセキュアに扱うことが可能である。</p>
+<ul class="simple">
+<li>web.xmlの定義例</li>
+</ul>
+<div class="highlight-xml"><div class="highlight"><pre><span class="nt">&lt;session-config&gt;</span>
+    <span class="nt">&lt;cookie-config&gt;</span>
+        <span class="nt">&lt;http-only&gt;</span>true<span class="nt">&lt;/http-only&gt;</span> <span class="c">&lt;!-- (1)  --&gt;</span>
+    <span class="nt">&lt;/cookie-config&gt;</span>
+    <span class="nt">&lt;tracking-mode&gt;</span>COOKIE<span class="nt">&lt;/tracking-mode&gt;</span> <span class="c">&lt;!-- (2) --&gt;</span>
+<span class="nt">&lt;/session-config&gt;</span>
+</pre></div>
+</div>
+<table border="1" class="docutils">
+<colgroup>
+<col width="10%" />
+<col width="90%" />
+</colgroup>
+<thead valign="bottom">
+<tr class="row-odd"><th class="head">項番</th>
+<th class="head">説明</th>
+</tr>
+</thead>
+<tbody valign="top">
+<tr class="row-even"><td><div class="first last line-block">
+<div class="line">(1)</div>
+</div>
+</td>
+<td><div class="first last line-block">
+<div class="line">Cookieに<code class="docutils literal"><span class="pre">HttpOnly</span></code>属性を付与する場合は、<code class="docutils literal"><span class="pre">&lt;http-only&gt;</span></code>要素に<code class="docutils literal"><span class="pre">true</span></code>を指定する。</div>
+<div class="line">使用するアプリケーションサーバによっては、デフォルト値が<code class="docutils literal"><span class="pre">true</span></code>になっている。</div>
+</div>
+</td>
+</tr>
+<tr class="row-odd"><td><div class="first last line-block">
+<div class="line">(3)</div>
+</div>
+</td>
+<td><div class="first last line-block">
+<div class="line">URL Rewriting機能を無効化する場合は、<code class="docutils literal"><span class="pre">&lt;tracking-mode&gt;</span></code>要素に<code class="docutils literal"><span class="pre">COOKIE</span></code>を指定する。</div>
+</div>
+</td>
+</tr>
+</tbody>
+</table>
+<p>上記の定義例からは省略しているが、<code class="docutils literal"><span class="pre">&lt;cookie-config&gt;</span></code>に <code class="docutils literal"><span class="pre">&lt;secure&gt;true&lt;/secure&gt;</span></code>を追加することで、 Cookieに<code class="docutils literal"><span class="pre">Secure</span></code>属性を付与することができる。
+ただし、cookieのsecure化は、<code class="docutils literal"><span class="pre">web.xml</span></code>で指定するのではなく、クライアントとHTTPS通信を行うミドルウェア(SSLアクセラレータやWebサーバーなど)で付与する方法を検討されたい。</p>
+<p>実際のシステム開発の現場において、ローカルの開発環境でHTTPSを使うケースはほとんどない。
+また、本番環境においても、HTTPSを使うのはSSLアクセラレータやWebサーバーとの通信までで、アプリケーションサーバへの通信はHTTPで行うケースも少なくない。
+このような環境下で<code class="docutils literal"><span class="pre">Secure</span></code>属性の指定を<code class="docutils literal"><span class="pre">web.xml</span></code>で行ってしまうと、実行環境毎に<code class="docutils literal"><span class="pre">web.xml</span></code>や<code class="docutils literal"><span class="pre">web-fragment.xml</span></code>を用意することになり、ファイルの管理が煩雑になるため推奨されない。</p>
+</div>
+</div>
+<div class="section" id="springsecuritysessionmanagementsetup">
+<span id="id7"></span><h3><a class="toc-backref" href="#id34">6.5.2.2. セッション管理機能の適用</a><a class="headerlink" href="#springsecuritysessionmanagementsetup" title="Permalink to this headline">¶</a></h3>
+<p>Spring Securityのセッション管理機能を適用する方法を説明する。
+Spring Securityのセッション管理機能の処理を使用する場合は、以下のようなbean定義を行う。</p>
+<ul class="simple">
+<li>spring-security.xmlの定義例</li>
+</ul>
+<div class="highlight-xml"><div class="highlight"><pre><span class="nt">&lt;sec:http&gt;</span>
+    <span class="c">&lt;!-- ommited --&gt;</span>
+    <span class="nt">&lt;sec:session-management</span> <span class="nt">/&gt;</span> <span class="c">&lt;!-- (1) --&gt;</span>
+    <span class="c">&lt;!-- ommited --&gt;</span>
+<span class="nt">&lt;/sec:http&gt;</span>
+</pre></div>
+</div>
+<table border="1" class="docutils">
+<colgroup>
+<col width="10%" />
+<col width="90%" />
+</colgroup>
+<thead valign="bottom">
+<tr class="row-odd"><th class="head">項番</th>
+<th class="head">説明</th>
+</tr>
+</thead>
+<tbody valign="top">
+<tr class="row-even"><td><div class="first last line-block">
+<div class="line">(1)</div>
+</div>
+</td>
+<td><div class="first last line-block">
+<div class="line"><code class="docutils literal"><span class="pre">&lt;sec:http&gt;</span></code>要素の子要素として<code class="docutils literal"><span class="pre">&lt;sec:session-management&gt;</span></code>要素を指定する。</div>
+<div class="line"><code class="docutils literal"><span class="pre">&lt;sec:session-management&gt;</span></code>要素を指定すると、セッション管理機能が適用される。</div>
+</div>
+</td>
+</tr>
+</tbody>
+</table>
+<div class="line-block">
+<div class="line"><br /></div>
+</div>
+</div>
+<div class="section" id="id8">
+<h3><a class="toc-backref" href="#id35">6.5.2.3. セッション固定攻撃への対策</a><a class="headerlink" href="#id8" title="Permalink to this headline">¶</a></h3>
+<p>Spring Securityは、セッション固定攻撃対策として、ログイン成功時にセッションIDを変更するためのオプションを4つ用意している。</p>
+<table border="1" class="docutils" id="id23">
+<caption><span class="caption-text"><strong>セッション固定攻撃への対策のオプション</strong></span><a class="headerlink" href="#id23" title="Permalink to this table">¶</a></caption>
+<colgroup>
+<col width="30%" />
+<col width="70%" />
+</colgroup>
+<thead valign="bottom">
+<tr class="row-odd"><th class="head">オプション</th>
+<th class="head">説明</th>
+</tr>
+</thead>
+<tbody valign="top">
+<tr class="row-even"><td><div class="first last line-block">
+<div class="line"><code class="docutils literal"><span class="pre">changeSessionId</span></code></div>
+</div>
+</td>
+<td><div class="first last line-block">
+<div class="line">Servlet 3.1で追加された<code class="docutils literal"><span class="pre">HttpServletRequest#changeSessionId()</span></code>を使用してセッションIDを変更する。</div>
+<div class="line">(これはServlet 3.1以上のコンテナ上でのデフォルトの動作である)</div>
+</div>
+</td>
+</tr>
+<tr class="row-odd"><td><div class="first last line-block">
+<div class="line"><code class="docutils literal"><span class="pre">migrateSession</span></code></div>
+</div>
+</td>
+<td><div class="first last line-block">
+<div class="line">ログイン前に使用していたセッションを破棄し、新たにセッションを作成する。</div>
+<div class="line">このオプションを使用すると、ログイン前にセッションに格納されていたオブジェクトは新しいセッションに引き継がれる。</div>
+<div class="line">(Servlet 3.0以下のコンテナ上でのデフォルトの動作の動作である)</div>
+</div>
+</td>
+</tr>
+<tr class="row-even"><td><div class="first last line-block">
+<div class="line"><code class="docutils literal"><span class="pre">newSession</span></code></div>
+</div>
+</td>
+<td><div class="first last line-block">
+<div class="line">このオプションは<code class="docutils literal"><span class="pre">migrateSession</span></code>と同じ方法でセッションIDを変更するが、ログイン前に格納されていたオブジェクトは新しいセッションに引き継がれない。</div>
+</div>
+</td>
+</tr>
+<tr class="row-odd"><td><div class="first last line-block">
+<div class="line"><code class="docutils literal"><span class="pre">none</span></code></div>
+</div>
+</td>
+<td><div class="first last line-block">
+<div class="line">Spring Securityは、セッションIDを変更しない。</div>
+</div>
+</td>
+</tr>
+</tbody>
+</table>
+<p>デフォルトの動作を変更したい場合は、以下のようなbean定義を行う。</p>
+<ul class="simple">
+<li>spring-security.xmlの定義例</li>
+</ul>
+<div class="highlight-xml"><div class="highlight"><pre><span class="nt">&lt;sec:session-management</span>
+        <span class="na">session-fixation-protection=</span><span class="s">&quot;newSession&quot;</span><span class="nt">/&gt;</span> <span class="c">&lt;!-- (1) --&gt;</span>
+</pre></div>
+</div>
+<table border="1" class="docutils">
+<colgroup>
+<col width="10%" />
+<col width="90%" />
+</colgroup>
+<thead valign="bottom">
+<tr class="row-odd"><th class="head">項番</th>
+<th class="head">説明</th>
+</tr>
+</thead>
+<tbody valign="top">
+<tr class="row-even"><td><div class="first last line-block">
+<div class="line">(1)</div>
+</div>
+</td>
+<td><div class="first last line-block">
+<div class="line"><code class="docutils literal"><span class="pre">&lt;sec:session-management&gt;</span></code>要素の<code class="docutils literal"><span class="pre">session-fixation-protection</span></code>属性にセッション固定攻撃の対策方法を指定する。</div>
+</div>
+</td>
+</tr>
+</tbody>
+</table>
+</div>
+<div class="section" id="springsecuritysessionmanagementlifecycle">
+<span id="id9"></span><h3><a class="toc-backref" href="#id36">6.5.2.4. セッションのライフサイクル制御</a><a class="headerlink" href="#springsecuritysessionmanagementlifecycle" title="Permalink to this headline">¶</a></h3>
+<p>Spring Securityは、リクエストを跨いで認証情報などのオブジェクトを共有するための手段としてHTTPセッションを使用しており、Spring Securityの処理の中でセッションのライフサイクル(セッションの作成と破棄)を制御している。</p>
+<div class="admonition note">
+<p class="first admonition-title">Note</p>
+<p><strong>セッション情報の格納先</strong></p>
+<p class="last">Spring Securityが用意しているデフォルト実装ではHTTPセッションを使用するが、HTTPセッション以外(データベースやキーバリューストアなど)にオブジェクトを格納することも可能なアーキテクチャになっている。</p>
+</div>
+<div class="section" id="id10">
+<h4><a class="toc-backref" href="#id37">6.5.2.4.1. セッションの作成</a><a class="headerlink" href="#id10" title="Permalink to this headline">¶</a></h4>
+<p>Spring Securityの処理の中でどのような方針でセッションを作成して利用するかは、以下のオプションから選択することができる。</p>
+<table border="1" class="docutils" id="id24">
+<caption><span class="caption-text"><strong>セッションの作成方針</strong></span><a class="headerlink" href="#id24" title="Permalink to this table">¶</a></caption>
+<colgroup>
+<col width="25%" />
+<col width="75%" />
+</colgroup>
+<thead valign="bottom">
+<tr class="row-odd"><th class="head">オプション</th>
+<th class="head">説明</th>
+</tr>
+</thead>
+<tbody valign="top">
+<tr class="row-even"><td><div class="first last line-block">
+<div class="line"><code class="docutils literal"><span class="pre">always</span></code></div>
+</div>
+</td>
+<td><div class="first last line-block">
+<div class="line">セッションが存在しない場合は、無条件に新たなセッションを生成する。</div>
+<div class="line">このオプションを指定すると、Spring Securityの処理でセッションを使わないケースでもセッションが作成される。</div>
+</div>
+</td>
+</tr>
+<tr class="row-odd"><td><div class="first last line-block">
+<div class="line"><code class="docutils literal"><span class="pre">ifRequired</span></code></div>
+</div>
+</td>
+<td><div class="first last line-block">
+<div class="line">セッションが存在しない場合は、セッションにオブジェクトを格納するタイミングで新たなセッションを作成して利用する。(デフォルトの動作)</div>
+</div>
+</td>
+</tr>
+<tr class="row-even"><td><div class="first last line-block">
+<div class="line"><code class="docutils literal"><span class="pre">never</span></code></div>
+</div>
+</td>
+<td><div class="first last line-block">
+<div class="line">セッションが存在しない場合は、セッションの生成及び利用は行わない。</div>
+<div class="line">ただし、既にセッションが存在している場合はセッションを利用する。</div>
+</div>
+</td>
+</tr>
+<tr class="row-odd"><td><div class="first last line-block">
+<div class="line"><code class="docutils literal"><span class="pre">stateless</span></code></div>
+</div>
+</td>
+<td><div class="first last line-block">
+<div class="line">セッションの有無に関係なく、セッションの生成及び利用は行わない。</div>
+</div>
+</td>
+</tr>
+</tbody>
+</table>
+<p>デフォルトの振る舞いを変更したい場合は、以下のようなbean定義を行う。</p>
+<ul class="simple">
+<li>spring-security.xmlの定義例</li>
+</ul>
+<div class="highlight-xml"><div class="highlight"><pre><span class="nt">&lt;sec:http</span> <span class="na">create-session=</span><span class="s">&quot;stateless&quot;</span><span class="nt">&gt;</span> <span class="c">&lt;!-- (1) --&gt;</span>
+    <span class="c">&lt;!-- ommited --&gt;</span>
+<span class="nt">&lt;/sec:http&gt;</span>
+</pre></div>
+</div>
+<table border="1" class="docutils">
+<colgroup>
+<col width="10%" />
+<col width="90%" />
+</colgroup>
+<thead valign="bottom">
+<tr class="row-odd"><th class="head">項番</th>
+<th class="head">説明</th>
+</tr>
+</thead>
+<tbody valign="top">
+<tr class="row-even"><td><div class="first last line-block">
+<div class="line">(1)</div>
+</div>
+</td>
+<td><div class="first last line-block">
+<div class="line"><code class="docutils literal"><span class="pre">&lt;sec:http&gt;</span></code>要素の<code class="docutils literal"><span class="pre">create-session</span></code>属性に、変更したいセッションの作成方針を指定する。</div>
+</div>
+</td>
+</tr>
+</tbody>
+</table>
+</div>
+<div class="section" id="id11">
+<h4><a class="toc-backref" href="#id38">6.5.2.4.2. セッションの破棄</a><a class="headerlink" href="#id11" title="Permalink to this headline">¶</a></h4>
+<p>Spring Securityは、以下のタイミングでセッションを破棄する。</p>
+<ul class="simple">
+<li>ログアウト処理が実行されたタイミング</li>
+<li>認証処理が成功したタイミング (セッション固定攻撃対策として<code class="docutils literal"><span class="pre">migrateSession</span></code>又は<code class="docutils literal"><span class="pre">newSession</span></code>が適用されるとセッションが破棄される)</li>
+</ul>
+</div>
+</div>
+<div class="section" id="springsecuritysessionmanagementtimeout">
+<span id="id12"></span><h3><a class="toc-backref" href="#id39">6.5.2.5. セッションタイムアウトの制御</a><a class="headerlink" href="#springsecuritysessionmanagementtimeout" title="Permalink to this headline">¶</a></h3>
+<p>セッションにオブジェクトを格納する場合、適切なセッションタイムアウト値を指定して、一定時間操作がないユーザーとのセッションを自動で破棄するようにするのが一般的である。</p>
+<div class="section" id="id13">
+<h4><a class="toc-backref" href="#id40">6.5.2.5.1. セッションタイムアウトの指定</a><a class="headerlink" href="#id13" title="Permalink to this headline">¶</a></h4>
+<p>セッションタイムアウトは、サーブレットコンテナに対して指定する。
+アプリケーションサーバーによっては、サーバー独自の指定方法を用意しているケースもあるが、ここでは、Servlet標準仕様で定められた指定方法を説明する。</p>
+<ul class="simple">
+<li>web.xmlの定義例</li>
+</ul>
+<div class="highlight-xml"><div class="highlight"><pre><span class="nt">&lt;session-config&gt;</span>
+    <span class="nt">&lt;session-timeout&gt;</span>60<span class="nt">&lt;/session-timeout&gt;</span> <span class="c">&lt;!-- (1) --&gt;</span>
+    <span class="c">&lt;!-- ommited --&gt;</span>
+<span class="nt">&lt;/session-config&gt;</span>
+</pre></div>
+</div>
+<table border="1" class="docutils">
+<colgroup>
+<col width="10%" />
+<col width="90%" />
+</colgroup>
+<thead valign="bottom">
+<tr class="row-odd"><th class="head">項番</th>
+<th class="head">説明</th>
+</tr>
+</thead>
+<tbody valign="top">
+<tr class="row-even"><td><div class="first last line-block">
+<div class="line">(1)</div>
+</div>
+</td>
+<td><div class="first last line-block">
+<div class="line"><code class="docutils literal"><span class="pre">&lt;session-timeout&gt;</span></code>要素に適切なタイムアウト値(分単位)を指定する。</div>
+<div class="line-block">
+<div class="line">タイムアウト値を指定しない場合は、サーブレットコンテナが用意しているデフォルト値が適用される。</div>
+</div>
+<div class="line">また、0以下の値を指定するとサーブレットコンテナのセッションタイム機能が無効化される。</div>
+</div>
+</td>
+</tr>
+</tbody>
+</table>
+</div>
+<div class="section" id="springsecuritysessiondetectinvalidsession">
+<span id="id14"></span><h4><a class="toc-backref" href="#id41">6.5.2.5.2. 無効なセッションを使ったリクエストの検知</a><a class="headerlink" href="#springsecuritysessiondetectinvalidsession" title="Permalink to this headline">¶</a></h4>
+<p>Spring Securityは、無効なセッションを使ったリクエストを検知する機能を提供している。
+無効なセッションとして扱われるリクエストの大部分は、セッションタイムアウト後のリクエストである。
+デフォルトではこの機能は無効になっているが、以下のようなbean定義を行うことで有効化することができる。</p>
+<ul class="simple">
+<li>spring-security.xmlの定義例</li>
+</ul>
+<div class="highlight-xml"><div class="highlight"><pre><span class="nt">&lt;sec:session-management</span>
+        <span class="na">invalid-session-url=</span><span class="s">&quot;/error/invalidSession&quot;</span><span class="nt">/&gt;</span>
+</pre></div>
+</div>
+<table border="1" class="docutils">
+<colgroup>
+<col width="10%" />
+<col width="90%" />
+</colgroup>
+<thead valign="bottom">
+<tr class="row-odd"><th class="head">項番</th>
+<th class="head">説明</th>
+</tr>
+</thead>
+<tbody valign="top">
+<tr class="row-even"><td><div class="first last line-block">
+<div class="line">(1)</div>
+</div>
+</td>
+<td><div class="first last line-block">
+<div class="line"><code class="docutils literal"><span class="pre">&lt;sec:session-management&gt;</span></code>要素の<code class="docutils literal"><span class="pre">invalid-session-url</span></code>属性に、無効なセッションを使ったリクエストを検知した際のリダイレクト先のパスを指定する。</div>
+</div>
+</td>
+</tr>
+</tbody>
+</table>
+</div>
+<div class="section" id="id15">
+<h4><a class="toc-backref" href="#id42">6.5.2.5.3. 除外パスの指定</a><a class="headerlink" href="#id15" title="Permalink to this headline">¶</a></h4>
+<p>無効なセッションを使ったリクエストを検知する機能を有効にすると、Spring Securityのサーブレットフィルタを通過するすべてのリクエストに対してチェックが行われる。
+そのため、セッションが無効な状態でアクセスしても問題がないページにアクセスした場合もチェックが行われる。</p>
+<p>この動作を変更したい場合は、チェック対象から除外したいパスに対して個別にbean定義を行うことで実現することが可能である。
+例として、トップページを開くためのパス(<code class="docutils literal"><span class="pre">&quot;/&quot;</span></code>)を除外パスに指定したい場合は、以下のようなbean定義を行う。</p>
+<ul class="simple">
+<li>spring-security.xmlの定義例</li>
+</ul>
+<div class="highlight-xml"><div class="highlight"><pre><span class="c">&lt;!-- (1) --&gt;</span>
+<span class="nt">&lt;sec:http</span> <span class="na">pattern=</span><span class="s">&quot;/&quot;</span><span class="nt">&gt;</span> <span class="c">&lt;!-- (2) --&gt;</span>
+    <span class="nt">&lt;sec:session-management</span> <span class="nt">/&gt;</span>
+<span class="nt">&lt;/sec:http&gt;</span>
+
+<span class="c">&lt;!-- (3) --&gt;</span>
+<span class="nt">&lt;sec:http&gt;</span>
+    <span class="c">&lt;!-- ommited --&gt;</span>
+    <span class="nt">&lt;sec:session-management</span>
+            <span class="na">invalid-session-url=</span><span class="s">&quot;/error/invalidSession&quot;</span><span class="nt">/&gt;</span>
+    <span class="c">&lt;!-- ommited --&gt;</span>
+<span class="nt">&lt;/sec:http&gt;</span>
+</pre></div>
+</div>
+<table border="1" class="docutils">
+<colgroup>
+<col width="10%" />
+<col width="90%" />
+</colgroup>
+<thead valign="bottom">
+<tr class="row-odd"><th class="head">項番</th>
+<th class="head">説明</th>
+</tr>
+</thead>
+<tbody valign="top">
+<tr class="row-even"><td><div class="first last line-block">
+<div class="line">(1)</div>
+</div>
+</td>
+<td><div class="first last line-block">
+<div class="line">トップページを開くためのパス(<code class="docutils literal"><span class="pre">&quot;/&quot;</span></code>)に適用する<code class="docutils literal"><span class="pre">SecurityFilterChain</span></code>を作成するための<code class="docutils literal"><span class="pre">&lt;sec:http&gt;</span></code>要素を新たに追加する。</div>
+</div>
+</td>
+</tr>
+<tr class="row-odd"><td><div class="first last line-block">
+<div class="line">(2)</div>
+</div>
+</td>
+<td><div class="first last line-block">
+<div class="line">(1)の<code class="docutils literal"><span class="pre">&lt;sec:http&gt;</span></code>要素を使って生成した<code class="docutils literal"><span class="pre">SecurityFilterChain</span></code>を適用するパスパターンを指定する。</div>
+<div class="line">指定可能なパスパターンはAnt形式のパス表記と正規表現の２つの形式であり、デフォルトではAnt形式のパスとして扱われる。</div>
+<div class="line">また、パスパターンではなく<code class="docutils literal"><span class="pre">RequestMatcher</span></code>オブジェクトを直接指定することも可能である。</div>
+</div>
+</td>
+</tr>
+<tr class="row-even"><td><div class="first last line-block">
+<div class="line">(3)</div>
+</div>
+</td>
+<td><div class="first last line-block">
+<div class="line">個別定義していないパスに適用する<code class="docutils literal"><span class="pre">SecurityFilterChain</span></code>を作成するための<code class="docutils literal"><span class="pre">&lt;sec:http&gt;</span></code>要素を定義する。</div>
+<div class="line">この定義は、個別定義用の<code class="docutils literal"><span class="pre">&lt;sec:http&gt;</span></code>要素より下に定義すること。</div>
+<div class="line">これは<code class="docutils literal"><span class="pre">&lt;sec:http&gt;</span></code>要素の定義順番が<code class="docutils literal"><span class="pre">SecurityFilterChain</span></code>の優先順位となるためである。</div>
+</div>
+</td>
+</tr>
+</tbody>
+</table>
+<div class="line-block">
+<div class="line"><br /></div>
+</div>
+</div>
+</div>
+<div class="section" id="springsecuritysessionmanagementconcurrency">
+<span id="id16"></span><h3><a class="toc-backref" href="#id43">6.5.2.6. 多重ログインの制御</a><a class="headerlink" href="#springsecuritysessionmanagementconcurrency" title="Permalink to this headline">¶</a></h3>
+<p>Spring Securityは、同じユーザー名(ログインID)を使った多重ログインを制御する機能を提供している。
+デフォルトではこの機能は無効になってるが、<a class="reference internal" href="#springsecurityhowtousesessionmanagementconcurrency"><span>セッションのライフサイクル検知の有効化</span></a> を行うことで有効化することができる。</p>
+<div class="admonition warning">
+<p class="first admonition-title">Warning</p>
+<p><strong>多重ログイン制御における制約</strong></p>
+<p>Spring Securityが提供しているデフォルト実装では、ユーザー毎のセッション情報をアプリケーションサーバーのメモリ内で管理しているため、以下の2つの制約がある。</p>
+<p>ひとつめの制約として、複数のアプリケーションサーバーを同時に起動するシステムでは、デフォルト実装を利用することができないことが挙げられる。
+複数のアプリケーションサーバーを同時に使用する場合は、ユーザー毎のセッション情報をデータベースやキーバリューストア(キャッシュサーバー)などの共有領域で管理する実装クラスの作成が必要になる。</p>
+<p>ふたつめの制約は、アプリケーションサーバーを停止または再起動時した際に、セッション情報が復元されると、正常動作しない可能性があるという点である。
+使用するアプリケーションサーバーによっては、停止または再起動時のセッション状態を復元する機能をもっているため、実際のセッション状態とSpring Securityが管理しているセッション情報に不整合が生じることになる。
+このような不整合が生まれる可能性がある場合は、以下のいずれかの対応が必要になる。</p>
+<ul class="last simple">
+<li>アプリケーションサーバ側のセッション状態が復元されないようにする。</li>
+<li>Spring Security側のセッション情報を復元する仕組みを実装する。</li>
+<li>HTTPセッション以外(データベースやキーバリューストアなど)にオブジェクトを格納する。</li>
+</ul>
+</div>
+<p>本節では、Spring Securityのデフォルト実装を使用する方法を紹介する。
+Spring Securityが用意しているデフォルト実装ではHTTPセッションを使用するが、HTTPセッション以外(データベースやキーバリューストアなど)にオブジェクトを格納することも可能なアーキテクチャになっている。
+ただし、ここで紹介する方法は <strong>上記Warningの制約が残っている実装方法であるため</strong> 、適用する際は注意されたい。</p>
+<div class="admonition-todo admonition" id="index-0">
+<p class="first admonition-title">Todo</p>
+<p class="last">インメモリを使用しない実装方法に関しては、今後追加予定である。</p>
+</div>
+<div class="section" id="springsecurityhowtousesessionmanagementconcurrency">
+<span id="id17"></span><h4><a class="toc-backref" href="#id44">6.5.2.6.1. セッションのライフサイクル検知の有効化</a><a class="headerlink" href="#springsecurityhowtousesessionmanagementconcurrency" title="Permalink to this headline">¶</a></h4>
+<p>多重ログインを制御する機能は、<a class="reference internal" href="#springsecuritysessionmanagementlifecycle"><span>セッションのライフサイクル(セッションの生成と破棄)を検知する仕組み</span></a> を利用してユーザー毎のセッション状態を管理している。
+このため、多重ログインの制御機能を使用する際は、Spring Securityから提供されている<code class="docutils literal"><span class="pre">HttpSessionEventPublisher</span></code>クラスをサーブレットコンテナに登録する必要がある。</p>
+<ul class="simple">
+<li>web.xmlの定義例</li>
+</ul>
+<div class="highlight-xml"><div class="highlight"><pre><span class="nt">&lt;listener&gt;</span>
+    <span class="c">&lt;!-- (1) --&gt;</span>
+    <span class="nt">&lt;listener-class&gt;</span>
+        org.springframework.security.web.session.HttpSessionEventPublisher
+    <span class="nt">&lt;/listener-class&gt;</span>
+<span class="nt">&lt;/listener&gt;</span>
+</pre></div>
+</div>
+<table border="1" class="docutils">
+<colgroup>
+<col width="10%" />
+<col width="90%" />
+</colgroup>
+<thead valign="bottom">
+<tr class="row-odd"><th class="head">項番</th>
+<th class="head">説明</th>
+</tr>
+</thead>
+<tbody valign="top">
+<tr class="row-even"><td><div class="first last line-block">
+<div class="line">(1)</div>
+</div>
+</td>
+<td><div class="first last line-block">
+<div class="line">サーブレットリスナとして<code class="docutils literal"><span class="pre">HttpSessionEventPublisher</span></code>を登録する。</div>
+</div>
+</td>
+</tr>
+</tbody>
+</table>
+</div>
+<div class="section" id="id18">
+<h4><a class="toc-backref" href="#id45">6.5.2.6.2. 多重ログインの禁止(先勝ち)</a><a class="headerlink" href="#id18" title="Permalink to this headline">¶</a></h4>
+<p>同じユーザー名(ログインID)を使って既にログインしているユーザーがいる場合に、認証エラーを発生させて多重ログインを防ぐ場合は、以下のようなbean定義を行う。</p>
+<ul class="simple">
+<li>bean定義ファイルの定義例</li>
+</ul>
+<div class="highlight-xml"><div class="highlight"><pre><span class="nt">&lt;sec:session-management&gt;</span>
+    <span class="nt">&lt;sec:concurrency-control</span>
+            <span class="na">max-sessions=</span><span class="s">&quot;1&quot;</span>
+            <span class="na">error-if-maximum-exceeded=</span><span class="s">&quot;true&quot;</span><span class="nt">/&gt;</span> <span class="c">&lt;!-- (1) (2) --&gt;</span>
+<span class="nt">&lt;/sec:session-management&gt;</span>
+</pre></div>
+</div>
+<table border="1" class="docutils">
+<colgroup>
+<col width="10%" />
+<col width="90%" />
+</colgroup>
+<thead valign="bottom">
+<tr class="row-odd"><th class="head">項番</th>
+<th class="head">説明</th>
+</tr>
+</thead>
+<tbody valign="top">
+<tr class="row-even"><td>(1)</td>
+<td><code class="docutils literal"><span class="pre">&lt;sec:concurrency-control&gt;</span></code>要素の<code class="docutils literal"><span class="pre">max-sessions</span></code>属性に、同時にログイン
+を許可するセッション数を指定する。
+多重ログインを防ぎたい場合は、通常<code class="docutils literal"><span class="pre">1</span></code>を指定する。</td>
+</tr>
+<tr class="row-odd"><td>(2)</td>
+<td><code class="docutils literal"><span class="pre">&lt;sec:concurrency-control&gt;</span></code>要素の<code class="docutils literal"><span class="pre">error-if-maximum-exceeded</span></code>属性に、
+同時にログインできるセッション数を超えた時の動作を指定する。
+既にログインしているユーザーを有効なユーザーとして扱う場合は、<code class="docutils literal"><span class="pre">true</span></code>を指定する。</td>
+</tr>
+</tbody>
+</table>
+</div>
+<div class="section" id="id19">
+<h4><a class="toc-backref" href="#id46">6.5.2.6.3. 多重ログインの禁止(後勝ち)</a><a class="headerlink" href="#id19" title="Permalink to this headline">¶</a></h4>
+<p>同じユーザー名(ログインID)を使って既にログインしているユーザーがいる場合に、
+既にログインしているユーザーを無効化することで多重ログインを防ぐ場合は、
+以下のようなbean定義を行う。</p>
+<ul class="simple">
+<li>spring-security.xmlの定義例</li>
+</ul>
+<div class="highlight-xml"><div class="highlight"><pre><span class="nt">&lt;sec:session-management&gt;</span>
+    <span class="nt">&lt;sec:concurrency-control</span>
+            <span class="na">max-sessions=</span><span class="s">&quot;1&quot;</span>
+            <span class="na">error-if-maximum-exceeded=</span><span class="s">&quot;false&quot;</span>
+            <span class="na">expired-url=</span><span class="s">&quot;/error/expire&quot;</span><span class="nt">/&gt;</span> <span class="c">&lt;!-- (1) (2) --&gt;</span>
+<span class="nt">&lt;/sec:session-management&gt;</span>
+</pre></div>
+</div>
+<table border="1" class="docutils">
+<colgroup>
+<col width="10%" />
+<col width="90%" />
+</colgroup>
+<thead valign="bottom">
+<tr class="row-odd"><th class="head">項番</th>
+<th class="head">説明</th>
+</tr>
+</thead>
+<tbody valign="top">
+<tr class="row-even"><td><div class="first last line-block">
+<div class="line">(1)</div>
+</div>
+</td>
+<td><div class="first last line-block">
+<div class="line"><code class="docutils literal"><span class="pre">&lt;sec:concurrency-control&gt;</span></code>要素の<code class="docutils literal"><span class="pre">error-if-maximum-exceeded</span></code>属性に、同時にログインできるセッション数を超えた時の動作を指定する。</div>
+<div class="line">新たにログインしたユーザーを有効なユーザーとして扱う場合は、<code class="docutils literal"><span class="pre">false</span></code>を指定する。</div>
+</div>
+</td>
+</tr>
+<tr class="row-odd"><td><div class="first last line-block">
+<div class="line">(2)</div>
+</div>
+</td>
+<td><div class="first last line-block">
+<div class="line"><code class="docutils literal"><span class="pre">&lt;sec:concurrency-control&gt;</span></code>要素の<code class="docutils literal"><span class="pre">expired-url</span></code>属性に、無効化されたユーザーからのリクエストを検知した際のリダイレクト先のパスを指定する。</div>
+<div class="line">これは<code class="docutils literal"><span class="pre">&lt;sec:http&gt;</span></code>要素の定義順番が<code class="docutils literal"><span class="pre">SecurityFilterChain</span></code>の優先順位となるためである。</div>
+</div>
+</td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
+</div>
+</div>
+
+
+          </div>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="CSRF.html" title="6.6. CSRF対策"
+             >next</a> |</li>
+        <li class="right" >
+          <a href="Authorization.html" title="6.4. 認可"
+             >previous</a> |</li>
+        <li class="nav-item nav-item-0"><a href="../index.html">TERASOLUNA Server Framework for Java (5.x) Development Guideline 5.1.0.RELEASE documentation</a> &raquo;</li>
+          <li class="nav-item nav-item-1"><a href="index.html" >6. TERASOLUNA Server Framework for Java (5.x)によるセキュリティ対策</a> &raquo;</li> 
+      </ul>
+    </div>
+    <div class="footer">
+        &copy; Copyright 2013-2016, NTT DATA.
+    Created using <a href="http://sphinx.pocoo.org/">Sphinx</a> 1.3.4.Theme by <a href="http://github.com/vkvn">vkvn</a>
+    </div>
+    
+    <script>
+    
+    $(function() {
+    	var $sidebar	= $('.sphinxsidebar'),
+    		$window		= $(window),
+    		offset		= $sidebar.offset(),
+    		topPadding	= 3,
+    		$scroll		= $('#scroll');
+    	
+    	$window.scroll(function() {
+    		if ($scroll.is(':checked')) {
+				if ($window.scrollTop() > offset.top) {
+					$sidebar.stop().animate({
+						marginTop:$window.scrollTop() - offset.top + topPadding
+					});
+				} else {
+					$sidebar.stop().animate({
+						marginTop:0
+					});
+				}
+			}
+		});
+    	
+    	var $navList = $('ul:first', $sidebar);
+    	$('li:first', $navList).addClass('open');
+    	
+    	$navList.treeview({
+    		persist: "location",
+    		collapsed: true,
+    		unique: false
+    	});
+    	
+	});
+    (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+        (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+            m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+    })(window,document,'script','//www.google-analytics.com/analytics.js','ga');
+
+    ga('create', 'UA-46550814-1', 'terasolunaorg.github.io');
+    ga('send', 'pageview');
+    </script>
+  </body>
+</html>
