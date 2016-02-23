@@ -38,7 +38,7 @@
 
         Spring IO Platformのバージョン更新に伴い利用するOSSのバージョンを更新
 
-        * 使用するOSSのバージョンを更新。更新内容は、\ `version 5.1.0の移行ガイド <https://github.com/terasolunaorg/terasoluna-gfw/wiki/Migration-Guide-5.1.0#step-1-update-dependency-libraries>`_\ を参照されたい。
+        * 使用するOSSのバージョンを更新。更新内容は、\ `version 5.1.0の移行ガイド <https://github.com/terasolunaorg/terasoluna-gfw/wiki/Migration-Guide-5.1.0_ja#step-1-update-dependency-libraries>`_\ を参照されたい。
 
         新規プロジェクト追加
 
@@ -108,7 +108,7 @@
         *  JPQLにおける真偽値の不適切な実装を修正(\ `guideline#1525 <https://github.com/terasolunaorg/guideline/issues/1525>`_\ )
         *  ページネーションの不適切な実装を修正(\ `guideline#1463 <https://github.com/terasolunaorg/guideline/issues/1463>`_\ )
         *  \ ``DateTimeProvider``\を実装したサンプルコードの不適切な実装を修正(\ `guideline#1327 <https://github.com/terasolunaorg/guideline/issues/1327>`_\ )
-        *  \ ``共通Repositoryインタフェースの実装クラスのインスタンスを生成するためのFactoryクラス``\において不適切な実装を修正(\ `guideline#1327 <https://github.com/terasolunaorg/guideline/issues/1327>`_\ )
+        *  共通Repositoryインタフェースの実装クラスのインスタンスを生成するためのFactoryクラスにおいて不適切な実装を修正(\ `guideline#1327 <https://github.com/terasolunaorg/guideline/issues/1327>`_\ )
 
         記載内容の改善
 
@@ -152,7 +152,7 @@
       - :doc:`../ArchitectureInDetail/REST`
       - 記述内容の改善
 
-        *  \ ``Jackson2ObjectMapperFactoryBean``\を利用したOnjectMappper作成を追加(\ `guideline#1022 <https://github.com/terasolunaorg/guideline/issues/1022>`_\ )
+        *  \ ``Jackson2ObjectMapperFactoryBean``\を利用したObjectMapper作成を追加(\ `guideline#1022 <https://github.com/terasolunaorg/guideline/issues/1022>`_\ )
         *  REST APIアプリケーションのドメイン層の実装にMyBatis3を前提とした形に修正 (\ `guideline#1323 <https://github.com/terasolunaorg/guideline/issues/1323>`_\ )
 
     * -
@@ -328,7 +328,7 @@
 
         Spring IO Platformのバージョン更新に伴い利用するOSSのバージョンを更新
 
-        * 使用するOSSのバージョンを更新。更新内容は、\ `version 5.0.1の移行ガイド <https://github.com/terasolunaorg/terasoluna-gfw/wiki/Migration-Guide-5.0.1#step-1-update-dependency-libraries>`_\ を参照されたい。
+        * 使用するOSSのバージョンを更新。更新内容は、\ `version 5.0.1の移行ガイド <https://github.com/terasolunaorg/terasoluna-gfw/wiki/Migration-Guide-5.0.1_ja#step-1-update-dependency-libraries>`_\ を参照されたい。
 
         記載内容の改善 (\ `guideline#1148 <https://github.com/terasolunaorg/guideline/issues/1148>`_\ )
 
@@ -446,7 +446,7 @@
 
         OSSバージョンの更新
 
-        * 使用するOSSのバージョンを更新。更新内容は、\ `version 5.0.0の移行ガイド <https://github.com/terasolunaorg/terasoluna-gfw/wiki/Migration-Guide-5.0.0#step-1-update-dependency-libraries>`_\ を参照されたい。
+        * 使用するOSSのバージョンを更新。更新内容は、\ `version 5.0.0の移行ガイド <https://github.com/terasolunaorg/terasoluna-gfw/wiki/Migration-Guide-5.0.0_ja#step-1-update-dependency-libraries>`_\ を参照されたい。
     * -
       - :doc:`../Overview/FirstApplication`
       - version 5.0.0対応に伴う更新
