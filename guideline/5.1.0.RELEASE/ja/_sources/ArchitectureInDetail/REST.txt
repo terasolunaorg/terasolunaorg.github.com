@@ -4957,7 +4957,7 @@ How to extend
 
   * :file:`org.springframework.web.servlet.mvc.method.annotation.RequestBodyAdvice`
 
-   .. tabularcolumns:: |p{0.10\linewidth}|p{0.90\linewidth}|
+   .. tabularcolumns:: |p{0.10\linewidth}|p{0.20\linewidth}|p{0.70\linewidth}|
    .. list-table::
       :header-rows: 1
       :widths: 10 20 70
@@ -4987,7 +4987,7 @@ How to extend
 
   * :file:`org.springframework.web.servlet.mvc.method.annotation.ResponseBodyAdvice`
 
-   .. tabularcolumns:: |p{0.10\linewidth}|p{0.90\linewidth}|
+   .. tabularcolumns:: |p{0.10\linewidth}|p{0.20\linewidth}|p{0.70\linewidth}|
    .. list-table::
       :header-rows: 1
       :widths: 10 20 70
