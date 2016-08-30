@@ -1,0 +1,948 @@
+<!DOCTYPE html>
+
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>7.8. ボイラープレートコードの排除(Lombok) &mdash; TERASOLUNA Server Framework for Java (5.x) Development Guideline 5.1.1.RELEASE documentation</title>
+    
+    <link rel="stylesheet" href="../_static/solar.css" type="text/css" />
+    <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+    
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    '../',
+        VERSION:     '5.1.1.RELEASE',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true
+      };
+    </script>
+    <script type="text/javascript" src="../_static/jquery.js"></script>
+    <script type="text/javascript" src="../_static/underscore.js"></script>
+    <script type="text/javascript" src="../_static/doctools.js"></script>
+    <link rel="top" title="TERASOLUNA Server Framework for Java (5.x) Development Guideline 5.1.1.RELEASE documentation" href="../index.html" />
+    <link rel="up" title="7. Appendix" href="index.html" />
+    <link rel="next" title="7.9. 参考書籍" href="ReferenceBooks.html" />
+    <link rel="prev" title="7.7. Project Structure Standard" href="ProjectStructureStandard.html" /><script src="../_static/jquery.treeview.js" type="text/javascript"></script>
+<!-- <link href='http://fonts.googleapis.com/css?family=Source+Code+Pro|Open+Sans:300italic,400italic,700italic,400,300,700' rel='stylesheet' type='text/css'> -->
+<link href="../_static/solarized-dark.css" rel="stylesheet">
+<link href="../_static/jquery.treeview.css" rel="stylesheet">
+  </head>
+  <body role="document">
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="ReferenceBooks.html" title="7.9. 参考書籍"
+             accesskey="N">next</a> |</li>
+        <li class="right" >
+          <a href="ProjectStructureStandard.html" title="7.7. Project Structure Standard"
+             accesskey="P">previous</a> |</li>
+        <li class="nav-item nav-item-0"><a href="../index.html">TERASOLUNA Server Framework for Java (5.x) Development Guideline 5.1.1.RELEASE documentation</a> &raquo;</li>
+          <li class="nav-item nav-item-1"><a href="index.html" accesskey="U">7. Appendix</a> &raquo;</li> 
+      </ul>
+    </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper"><label><input id="scroll" type="checkbox" checked> scroll sidebar</label>
+
+  <h3><a href="../index.html">Table Of Contents</a></h3>
+  <ul>
+<li><a class="reference internal" href="#">7.8. ボイラープレートコードの排除(Lombok)</a><ul>
+<li><a class="reference internal" href="#lombokabout">7.8.1. Lombokとは</a></li>
+<li><a class="reference internal" href="#lombokeffect">7.8.2. Lombokの効果</a></li>
+<li><a class="reference internal" href="#lomboksetup">7.8.3. Lombokのセットアップ</a><ul>
+<li><a class="reference internal" href="#lomboksetupadddependency">7.8.3.1. 依存ライブラリの追加</a></li>
+<li><a class="reference internal" href="#lomboksetupide">7.8.3.2. IDE連携</a><ul>
+<li><a class="reference internal" href="#lomboksetupidedownload">7.8.3.2.1. Lombokのダウンロード</a></li>
+<li><a class="reference internal" href="#lomboksetupideinstall">7.8.3.2.2. Lombokのインストール</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li><a class="reference internal" href="#lombokhowtouse">7.8.4. Lombokの使用方法</a><ul>
+<li><a class="reference internal" href="#lombokhowtouseannotation">7.8.4.1. Lombokが提供しているアノテーション</a></li>
+<li><a class="reference internal" href="#javabean">7.8.4.2. JavaBeanの作成</a><ul>
+<li><a class="reference internal" href="#tostring">7.8.4.2.1. toStringの対象から特定のフィールドを除外する方法</a></li>
+<li><a class="reference internal" href="#equalshashcode">7.8.4.2.2. equalsとhashCodeの対象から特定のフィールドを除外する方法</a></li>
+<li><a class="reference internal" href="#lombokhowtousejavabeanconstructor">7.8.4.2.3. フィールド初期化用のコンストラクタを生成する方法</a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#lombokhowtouselogger">7.8.4.3. ロガーインスタンスの作成</a></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+
+
+  <h4>Previous topic</h4>
+  <p class="topless"><a href="ProjectStructureStandard.html"
+                        title="previous chapter">7.7. Project Structure Standard</a></p>
+  <h4>Next topic</h4>
+  <p class="topless"><a href="ReferenceBooks.html"
+                        title="next chapter">7.9. 参考書籍</a></p>
+  <div role="note" aria-label="source link">
+    <h3>This Page</h3>
+    <ul class="this-page-menu">
+      <li><a href="../_sources/Appendix/Lombok.txt"
+            rel="nofollow">Show Source</a></li>
+    </ul>
+   </div>
+<div id="searchbox" style="display: none" role="search">
+  <h3>Quick search</h3>
+    <form class="search" action="../search.html" method="get">
+      <input type="text" name="q" />
+      <input type="submit" value="Go" />
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+    <p class="searchtip" style="font-size: 90%">
+    Enter search terms or a module, class or function name.
+    </p>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <div class="section" id="lombok">
+<h1>7.8. ボイラープレートコードの排除(Lombok)<a class="headerlink" href="#lombok" title="Permalink to this headline">¶</a></h1>
+<div class="contents local topic" id="id1">
+<p class="topic-title first">目次</p>
+<ul class="simple">
+<li><a class="reference internal" href="#lombokabout" id="id19">Lombokとは</a></li>
+<li><a class="reference internal" href="#lombokeffect" id="id20">Lombokの効果</a></li>
+<li><a class="reference internal" href="#lomboksetup" id="id21">Lombokのセットアップ</a><ul>
+<li><a class="reference internal" href="#lomboksetupadddependency" id="id22">依存ライブラリの追加</a></li>
+<li><a class="reference internal" href="#lomboksetupide" id="id23">IDE連携</a><ul>
+<li><a class="reference internal" href="#lomboksetupidedownload" id="id24">Lombokのダウンロード</a></li>
+<li><a class="reference internal" href="#lomboksetupideinstall" id="id25">Lombokのインストール</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li><a class="reference internal" href="#lombokhowtouse" id="id26">Lombokの使用方法</a><ul>
+<li><a class="reference internal" href="#lombokhowtouseannotation" id="id27">Lombokが提供しているアノテーション</a></li>
+<li><a class="reference internal" href="#javabean" id="id28">JavaBeanの作成</a><ul>
+<li><a class="reference internal" href="#tostring" id="id29">toStringの対象から特定のフィールドを除外する方法</a></li>
+<li><a class="reference internal" href="#equalshashcode" id="id30">equalsとhashCodeの対象から特定のフィールドを除外する方法</a></li>
+<li><a class="reference internal" href="#lombokhowtousejavabeanconstructor" id="id31">フィールド初期化用のコンストラクタを生成する方法</a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#lombokhowtouselogger" id="id32">ロガーインスタンスの作成</a></li>
+</ul>
+</li>
+</ul>
+</div>
+<div class="section" id="lombokabout">
+<span id="id2"></span><h2><a class="toc-backref" href="#id19">7.8.1. Lombokとは</a><a class="headerlink" href="#lombokabout" title="Permalink to this headline">¶</a></h2>
+<p><a class="reference external" href="http://projectlombok.org/">Lombok</a> は、
+Java言語におけるボイラープレートコードをソースコードから排除するために使用するライブラリである。</p>
+<p>ボイラープレートコードとは、言語仕様上省く事ができない定型的なコードの事である。
+ボイラープレートコードは本質的なロジックでないため、アプリケーションを実装する上で冗長なコードとなる。</p>
+<p>Java言語における代表的なボイラープレートコードには、</p>
+<ul class="simple">
+<li>メンバー変数にアクセスするための getter / setter メソッド</li>
+<li><code class="docutils literal"><span class="pre">equals</span></code>/<code class="docutils literal"><span class="pre">hashCode</span></code>メソッド</li>
+<li><code class="docutils literal"><span class="pre">toString</span></code>メソッド</li>
+<li>コンストラクタ</li>
+<li>リソース(入出力ストリーム等)のクローズ処理</li>
+<li>ロガーインスタンスの生成</li>
+</ul>
+<p>等がある。</p>
+<p>Lombokは、これらのボイラープレートコードをコンパイル時に生成することで、
+開発者が実装するソースコード上から冗長なコードを取り除く仕組みを提供している。</p>
+<div class="admonition tip">
+<p class="first admonition-title">Tip</p>
+<p>リソース(入出力ストリーム等)のクローズ処理については、Java SE7から追加されたtry-with-resources文を使う事で、
+ボイラープレートコードにならないように言語仕様が改善されている。</p>
+<p class="last">Java言語自体もバージョンアップする毎に、冗長なコードを記載しなくて済むように改善されている。
+Java SE8からサポートされたラムダ式は、代表的な言語仕様の改善と言える。</p>
+</div>
+<div class="line-block">
+<div class="line"><br /></div>
+</div>
+</div>
+<div class="section" id="lombokeffect">
+<span id="id4"></span><h2><a class="toc-backref" href="#id20">7.8.2. Lombokの効果</a><a class="headerlink" href="#lombokeffect" title="Permalink to this headline">¶</a></h2>
+<p>以下に、Lombokを使用して作成したJavaBeanのソースコードを示す。</p>
+<div class="highlight-java"><div class="highlight"><pre><span class="kn">package</span> <span class="nn">com.example.domain.model</span><span class="o">;</span>
+
+<span class="nd">@lombok.Data</span>
+<span class="kd">public</span> <span class="kd">class</span> <span class="nc">User</span> <span class="o">{</span>
+
+    <span class="kd">private</span> <span class="n">String</span> <span class="n">userId</span><span class="o">;</span>
+    <span class="kd">private</span> <span class="n">String</span> <span class="n">password</span><span class="o">;</span>
+
+<span class="o">}</span>
+</pre></div>
+</div>
+<p>クラスレベルに<code class="docutils literal"><span class="pre">&#64;lombok.Data</span></code>アノテーションを付与するだけで、
+JavaBeanとして必要なメソッドがLombokによって生成される。</p>
+<div class="figure align-center" id="id16">
+<img alt="Generated Class Structure by Lombok" src="../_images/LombokGeneratedClassStructure.png" />
+<p class="caption"><span class="caption-text"><strong>Lombokによって生成されたクラス構造</strong></span></p>
+</div>
+<p>これは、Lombokの<code class="docutils literal"><span class="pre">&#64;Data</span></code>アノテーションを付与しただけで、約10行のソースコードから、
+約60行ある下記のソースコード(Eclipseの自動生成機能を使用して出力したソースコード)によって生成されるクラスと同じ効果を得る事ができる事を意味している。</p>
+<div class="highlight-java"><div class="highlight"><pre><span class="kn">package</span> <span class="nn">com.example.domain.model</span><span class="o">;</span>
+
+<span class="kd">public</span> <span class="kd">class</span> <span class="nc">User</span> <span class="o">{</span>
+
+    <span class="kd">private</span> <span class="n">String</span> <span class="n">userId</span><span class="o">;</span>
+    <span class="kd">private</span> <span class="n">String</span> <span class="n">password</span><span class="o">;</span>
+
+    <span class="kd">public</span> <span class="nf">User</span><span class="o">()</span> <span class="o">{</span>
+    <span class="o">}</span>
+
+    <span class="kd">public</span> <span class="n">String</span> <span class="nf">getUserId</span><span class="o">()</span> <span class="o">{</span>
+        <span class="k">return</span> <span class="n">userId</span><span class="o">;</span>
+    <span class="o">}</span>
+
+    <span class="kd">public</span> <span class="kt">void</span> <span class="nf">setUserId</span><span class="o">(</span><span class="n">String</span> <span class="n">userId</span><span class="o">)</span> <span class="o">{</span>
+        <span class="k">this</span><span class="o">.</span><span class="na">userId</span> <span class="o">=</span> <span class="n">userId</span><span class="o">;</span>
+    <span class="o">}</span>
+
+    <span class="kd">public</span> <span class="n">String</span> <span class="nf">getPassword</span><span class="o">()</span> <span class="o">{</span>
+        <span class="k">return</span> <span class="n">password</span><span class="o">;</span>
+    <span class="o">}</span>
+
+    <span class="kd">public</span> <span class="kt">void</span> <span class="nf">setPassword</span><span class="o">(</span><span class="n">String</span> <span class="n">password</span><span class="o">)</span> <span class="o">{</span>
+        <span class="k">this</span><span class="o">.</span><span class="na">password</span> <span class="o">=</span> <span class="n">password</span><span class="o">;</span>
+    <span class="o">}</span>
+
+    <span class="nd">@Override</span>
+    <span class="kd">public</span> <span class="kt">int</span> <span class="nf">hashCode</span><span class="o">()</span> <span class="o">{</span>
+        <span class="kd">final</span> <span class="kt">int</span> <span class="n">prime</span> <span class="o">=</span> <span class="mi">31</span><span class="o">;</span>
+        <span class="kt">int</span> <span class="n">result</span> <span class="o">=</span> <span class="mi">1</span><span class="o">;</span>
+        <span class="n">result</span> <span class="o">=</span> <span class="n">prime</span> <span class="o">*</span> <span class="n">result</span>
+                <span class="o">+</span> <span class="o">((</span><span class="n">password</span> <span class="o">==</span> <span class="kc">null</span><span class="o">)</span> <span class="o">?</span> <span class="mi">0</span> <span class="o">:</span> <span class="n">password</span><span class="o">.</span><span class="na">hashCode</span><span class="o">());</span>
+        <span class="n">result</span> <span class="o">=</span> <span class="n">prime</span> <span class="o">*</span> <span class="n">result</span> <span class="o">+</span> <span class="o">((</span><span class="n">userId</span> <span class="o">==</span> <span class="kc">null</span><span class="o">)</span> <span class="o">?</span> <span class="mi">0</span> <span class="o">:</span> <span class="n">userId</span><span class="o">.</span><span class="na">hashCode</span><span class="o">());</span>
+        <span class="k">return</span> <span class="n">result</span><span class="o">;</span>
+    <span class="o">}</span>
+
+    <span class="nd">@Override</span>
+    <span class="kd">public</span> <span class="kt">boolean</span> <span class="nf">equals</span><span class="o">(</span><span class="n">Object</span> <span class="n">obj</span><span class="o">)</span> <span class="o">{</span>
+        <span class="k">if</span> <span class="o">(</span><span class="k">this</span> <span class="o">==</span> <span class="n">obj</span><span class="o">)</span>
+            <span class="k">return</span> <span class="kc">true</span><span class="o">;</span>
+        <span class="k">if</span> <span class="o">(</span><span class="n">obj</span> <span class="o">==</span> <span class="kc">null</span><span class="o">)</span>
+            <span class="k">return</span> <span class="kc">false</span><span class="o">;</span>
+        <span class="k">if</span> <span class="o">(</span><span class="n">getClass</span><span class="o">()</span> <span class="o">!=</span> <span class="n">obj</span><span class="o">.</span><span class="na">getClass</span><span class="o">())</span>
+            <span class="k">return</span> <span class="kc">false</span><span class="o">;</span>
+        <span class="n">User</span> <span class="n">other</span> <span class="o">=</span> <span class="o">(</span><span class="n">User</span><span class="o">)</span> <span class="n">obj</span><span class="o">;</span>
+        <span class="k">if</span> <span class="o">(</span><span class="n">password</span> <span class="o">==</span> <span class="kc">null</span><span class="o">)</span> <span class="o">{</span>
+            <span class="k">if</span> <span class="o">(</span><span class="n">other</span><span class="o">.</span><span class="na">password</span> <span class="o">!=</span> <span class="kc">null</span><span class="o">)</span>
+                <span class="k">return</span> <span class="kc">false</span><span class="o">;</span>
+        <span class="o">}</span> <span class="k">else</span> <span class="k">if</span> <span class="o">(!</span><span class="n">password</span><span class="o">.</span><span class="na">equals</span><span class="o">(</span><span class="n">other</span><span class="o">.</span><span class="na">password</span><span class="o">))</span>
+            <span class="k">return</span> <span class="kc">false</span><span class="o">;</span>
+        <span class="k">if</span> <span class="o">(</span><span class="n">userId</span> <span class="o">==</span> <span class="kc">null</span><span class="o">)</span> <span class="o">{</span>
+            <span class="k">if</span> <span class="o">(</span><span class="n">other</span><span class="o">.</span><span class="na">userId</span> <span class="o">!=</span> <span class="kc">null</span><span class="o">)</span>
+                <span class="k">return</span> <span class="kc">false</span><span class="o">;</span>
+        <span class="o">}</span> <span class="k">else</span> <span class="k">if</span> <span class="o">(!</span><span class="n">userId</span><span class="o">.</span><span class="na">equals</span><span class="o">(</span><span class="n">other</span><span class="o">.</span><span class="na">userId</span><span class="o">))</span>
+            <span class="k">return</span> <span class="kc">false</span><span class="o">;</span>
+        <span class="k">return</span> <span class="kc">true</span><span class="o">;</span>
+    <span class="o">}</span>
+
+    <span class="nd">@Override</span>
+    <span class="kd">public</span> <span class="n">String</span> <span class="nf">toString</span><span class="o">()</span> <span class="o">{</span>
+        <span class="k">return</span> <span class="s">&quot;User [userId=&quot;</span> <span class="o">+</span> <span class="n">userId</span> <span class="o">+</span> <span class="s">&quot;, password=&quot;</span> <span class="o">+</span> <span class="n">password</span> <span class="o">+</span> <span class="s">&quot;]&quot;</span><span class="o">;</span>
+    <span class="o">}</span>
+
+<span class="o">}</span>
+</pre></div>
+</div>
+<div class="line-block">
+<div class="line"><br /></div>
+</div>
+</div>
+<div class="section" id="lomboksetup">
+<span id="id5"></span><h2><a class="toc-backref" href="#id21">7.8.3. Lombokのセットアップ</a><a class="headerlink" href="#lomboksetup" title="Permalink to this headline">¶</a></h2>
+<div class="section" id="lomboksetupadddependency">
+<span id="id6"></span><h3><a class="toc-backref" href="#id22">7.8.3.1. 依存ライブラリの追加</a><a class="headerlink" href="#lomboksetupadddependency" title="Permalink to this headline">¶</a></h3>
+<p>Lombokが提供しているクラスを使用するために、Lombokを依存ライブラリとして追加する。</p>
+<div class="highlight-xml"><div class="highlight"><pre><span class="c">&lt;!-- (1) --&gt;</span>
+<span class="nt">&lt;dependency&gt;</span>
+    <span class="nt">&lt;groupId&gt;</span>org.projectlombok<span class="nt">&lt;/groupId&gt;</span>
+    <span class="nt">&lt;artifactId&gt;</span>lombok<span class="nt">&lt;/artifactId&gt;</span>
+    <span class="nt">&lt;scope&gt;</span>provided<span class="nt">&lt;/scope&gt;</span> <span class="c">&lt;!-- (2) --&gt;</span>
+<span class="nt">&lt;/dependency&gt;</span>
+</pre></div>
+</div>
+<table border="1" class="docutils">
+<colgroup>
+<col width="10%" />
+<col width="90%" />
+</colgroup>
+<thead valign="bottom">
+<tr class="row-odd"><th class="head">項番</th>
+<th class="head">説明</th>
+</tr>
+</thead>
+<tbody valign="top">
+<tr class="row-even"><td><div class="first last line-block">
+<div class="line">(1)</div>
+</div>
+</td>
+<td>Lombokを使用するプロジェクトの <code class="file docutils literal"><span class="pre">pom.xml</span></code> に、Lombokを依存ライブラリとして追加する。</td>
+</tr>
+<tr class="row-odd"><td><div class="first last line-block">
+<div class="line">(2)</div>
+</div>
+</td>
+<td>Lombokはアプリケーション実行時には必要ないライブラリなので、スコープは<code class="docutils literal"><span class="pre">provided</span></code>が適切である。</td>
+</tr>
+</tbody>
+</table>
+<div class="admonition note">
+<p class="first admonition-title">Note</p>
+<p class="last">上記設定例では、依存ライブラリのバージョンは親プロジェクトで管理する前提である。
+そのため、<code class="docutils literal"><span class="pre">&lt;version&gt;</span></code>要素は指定していない。</p>
+</div>
+<div class="line-block">
+<div class="line"><br /></div>
+</div>
+</div>
+<div class="section" id="lomboksetupide">
+<span id="ide"></span><h3><a class="toc-backref" href="#id23">7.8.3.2. IDE連携</a><a class="headerlink" href="#lomboksetupide" title="Permalink to this headline">¶</a></h3>
+<p>LombokをIDE上で使用する場合は、IDEが提供するコンパイル(ビルド)機能と連携するために、
+LombokをIDEにインストールする必要がある。</p>
+<p>本ガイドラインでは、Spring Tool Suite(以降、「STS」と呼ぶ)にインストールする方法を紹介する。
+使用するIDEによってインストール方法は異なるため、
+STS以外のIDEを使用する場合は、 <a class="reference external" href="http://projectlombok.org/download.html">こちらのページ</a> を参考にされたい。</p>
+<div class="line-block">
+<div class="line"><br /></div>
+</div>
+<div class="section" id="lomboksetupidedownload">
+<span id="id8"></span><h4><a class="toc-backref" href="#id24">7.8.3.2.1. Lombokのダウンロード</a><a class="headerlink" href="#lomboksetupidedownload" title="Permalink to this headline">¶</a></h4>
+<p>Lombokのjarファイルをダウンロードする。</p>
+<p>Lombokのjarファイルは、</p>
+<ul class="simple">
+<li><a class="reference external" href="http://projectlombok.org/download.html">Lombokのダウンロードページ</a></li>
+<li>Mavenのローカルリポジトリ(通常は、<code class="file docutils literal"><span class="pre">$</span><em><span class="pre">HOME</span></em><span class="pre">/.m2/repository/org/projectlombok/lombok/&lt;version&gt;/lombok-&lt;version&gt;.jar</span></code>)</li>
+</ul>
+<p>から取得する。</p>
+<div class="line-block">
+<div class="line"><br /></div>
+</div>
+</div>
+<div class="section" id="lomboksetupideinstall">
+<span id="id10"></span><h4><a class="toc-backref" href="#id25">7.8.3.2.2. Lombokのインストール</a><a class="headerlink" href="#lomboksetupideinstall" title="Permalink to this headline">¶</a></h4>
+<p>ダウンロードしたLombokのjarファイルを実行(ダブルクリック)し、インストーラーを立ち上げる。</p>
+<div class="figure align-center" id="id17">
+<img alt="Lombok Installer" src="../_images/LombokInstaller.png" />
+<p class="caption"><span class="caption-text"><strong>Lombokのインストーラー</strong></span></p>
+</div>
+<p>インストール対象のSTSを選択後、&#8221;Install / Update&#8221; ボタンを押下してインストールを実行する。
+インストール候補のSTSは、インストーラーによって自動検出される仕組みになっているが、
+自動で検出されない場合は、&#8221;Specify location ...&#8221;を押下してIDEを指定する必要がある。</p>
+<div class="figure align-center" id="id18">
+<img alt="Lombok Install Successful" src="../_images/LombokInstallSuccessful.png" />
+<p class="caption"><span class="caption-text"><strong>インストール成功時のダイアログ</strong></span></p>
+</div>
+<p>Lombokをインストールした後にSTSを起動(又は再起動)すると、STS上でLombokを使用して開発する事ができる。</p>
+<div class="line-block">
+<div class="line"><br /></div>
+</div>
+</div>
+</div>
+</div>
+<div class="section" id="lombokhowtouse">
+<span id="id11"></span><h2><a class="toc-backref" href="#id26">7.8.4. Lombokの使用方法</a><a class="headerlink" href="#lombokhowtouse" title="Permalink to this headline">¶</a></h2>
+<p>ここからは、Lombokの具体的な使い方について説明していく。</p>
+<p>Lombokを初めて使用する場合は、まず、
+Lombokの「 <a class="reference external" href="http://projectlombok.org/">Demo Video</a> 」を参照するとよい。
+Demo Videoは4分弱で構成されており、最も基本的な使い方が説明されている。</p>
+<div class="line-block">
+<div class="line"><br /></div>
+</div>
+<div class="section" id="lombokhowtouseannotation">
+<span id="id12"></span><h3><a class="toc-backref" href="#id27">7.8.4.1. Lombokが提供しているアノテーション</a><a class="headerlink" href="#lombokhowtouseannotation" title="Permalink to this headline">¶</a></h3>
+<p>まず、Lombokが提供する代表的なアノテーションを紹介する。</p>
+<p>各アノテーションの詳細な使用方法や、本ガイドラインで紹介していないアノテーションの使い方については、</p>
+<ul class="simple">
+<li><a class="reference external" href="http://projectlombok.org/features/index.html">Lombok features</a></li>
+</ul>
+<p>を参照されたい。</p>
+<div class="line-block">
+<div class="line"><br /></div>
+</div>
+<table border="1" class="docutils">
+<colgroup>
+<col width="10%" />
+<col width="30%" />
+<col width="60%" />
+</colgroup>
+<thead valign="bottom">
+<tr class="row-odd"><th class="head">項番</th>
+<th class="head">アノテーション</th>
+<th class="head">説明</th>
+</tr>
+</thead>
+<tbody valign="top">
+<tr class="row-even"><td><ol class="first last arabic simple">
+<li></li>
+</ol>
+</td>
+<td><a class="reference external" href="http://projectlombok.org/features/GetterSetter.html">&#64;lombok.Getter</a></td>
+<td><p class="first">getterメソッドを生成するためのアノテーション。</p>
+<p class="last">クラスレベルにアノテーションを指定すると、全てのフィールドにgetterメソッドを生成する事ができる。</p>
+</td>
+</tr>
+<tr class="row-odd"><td><ol class="first last arabic simple" start="2">
+<li></li>
+</ol>
+</td>
+<td><a class="reference external" href="http://projectlombok.org/features/GetterSetter.html">&#64;lombok.Setter</a></td>
+<td><p class="first">setterメソッドを生成するためのアノテーション。</p>
+<p class="last">クラスレベルにアノテーションを指定すると、全ての非finalフィールドにsetterメソッドを生成する事ができる。</p>
+</td>
+</tr>
+<tr class="row-even"><td><ol class="first last arabic simple" start="3">
+<li></li>
+</ol>
+</td>
+<td><a class="reference external" href="http://projectlombok.org/features/ToString.html">&#64;lombok.ToString</a></td>
+<td><code class="docutils literal"><span class="pre">toString</span></code>メソッドを生成するためのアノテーション。</td>
+</tr>
+<tr class="row-odd"><td><ol class="first last arabic simple" start="4">
+<li></li>
+</ol>
+</td>
+<td><a class="reference external" href="http://projectlombok.org/features/EqualsAndHashCode.html">&#64;lombok.EqualsAndHashCode</a></td>
+<td><code class="docutils literal"><span class="pre">equals</span></code>と<code class="docutils literal"><span class="pre">hashCode</span></code>メソッドを生成するためのアノテーション。</td>
+</tr>
+<tr class="row-even"><td><ol class="first last arabic simple" start="5">
+<li></li>
+</ol>
+</td>
+<td><a class="reference external" href="http://projectlombok.org/features/Constructor.html">&#64;lombok.RequiredArgsConstructor</a></td>
+<td><p class="first">初期化が必要なフィールド(finalフィールドなど)の初期化パラメータを引数に持つコンストラクタを生成するためのアノテーション。</p>
+<p class="last">全てのフィールドが任意のフィールドの場合は、デフォルトコンストラクタ(引数なしのコンストラクタ)が生成される。</p>
+</td>
+</tr>
+<tr class="row-odd"><td><ol class="first last arabic simple" start="6">
+<li></li>
+</ol>
+</td>
+<td><a class="reference external" href="http://projectlombok.org/features/Constructor.html">&#64;lombok.AllArgsConstructor</a></td>
+<td>全てのフィールドの初期化パラメータを引数に持つコンストラクタを生成するためのアノテーション。</td>
+</tr>
+<tr class="row-even"><td><ol class="first last arabic simple" start="7">
+<li></li>
+</ol>
+</td>
+<td><a class="reference external" href="http://projectlombok.org/features/Constructor.html">&#64;lombok.NoArgsConstructor</a></td>
+<td>デフォルトコンストラクタを生成するためのアノテーション。</td>
+</tr>
+<tr class="row-odd"><td><ol class="first last arabic simple" start="8">
+<li></li>
+</ol>
+</td>
+<td><a class="reference external" href="http://projectlombok.org/features/Data.html">&#64;lombok.Data</a></td>
+<td><p class="first"><code class="docutils literal"><span class="pre">&#64;Getter</span></code>、 <code class="docutils literal"><span class="pre">&#64;Setter</span></code>、 <code class="docutils literal"><span class="pre">&#64;ToString</span></code>、 <code class="docutils literal"><span class="pre">&#64;EqualsAndHashCode</span></code>、 <code class="docutils literal"><span class="pre">&#64;RequiredArgsConstructor</span></code>へのショートカットアノテーション。</p>
+<p class="last"><code class="docutils literal"><span class="pre">&#64;Data</span></code>アノテーションを指定すると、上記5つのアノテーションを指定したのと同じ意味となる。</p>
+</td>
+</tr>
+<tr class="row-even"><td><ol class="first last arabic simple" start="9">
+<li></li>
+</ol>
+</td>
+<td><a class="reference external" href="http://projectlombok.org/features/Log.html">&#64;lombok.extern.slf4j.Slf4j</a></td>
+<td>SLF4Jのロガーインスタンスを生成するためのアノテーション。</td>
+</tr>
+</tbody>
+</table>
+<div class="line-block">
+<div class="line"><br /></div>
+</div>
+</div>
+<div class="section" id="javabean">
+<span id="lombokhowtousejavabean"></span><h3><a class="toc-backref" href="#id28">7.8.4.2. JavaBeanの作成</a><a class="headerlink" href="#javabean" title="Permalink to this headline">¶</a></h3>
+<p>本ガイドラインが推奨する方法でアプリケーションを構築した場合、</p>
+<ul class="simple">
+<li>Formクラス</li>
+<li>Resourceクラス(REST API構築時)</li>
+<li>Entityクラス</li>
+<li>DTOクラス</li>
+</ul>
+<p>などのJavaBeanを作成する必要がある。</p>
+<p>以下に、JavaBeanの作成例を示す。</p>
+<div class="highlight-java"><div class="highlight"><pre><span class="kn">package</span> <span class="nn">com.example.domain.model</span><span class="o">;</span>
+
+<span class="kn">import</span> <span class="nn">lombok.Data</span><span class="o">;</span>
+
+<span class="nd">@Data</span> <span class="c1">// (1)</span>
+<span class="kd">public</span> <span class="kd">class</span> <span class="nc">User</span> <span class="o">{</span>
+
+    <span class="kd">private</span> <span class="n">String</span> <span class="n">userId</span><span class="o">;</span>
+    <span class="kd">private</span> <span class="n">String</span> <span class="n">password</span><span class="o">;</span>
+
+<span class="o">}</span>
+</pre></div>
+</div>
+<table border="1" class="docutils">
+<colgroup>
+<col width="10%" />
+<col width="90%" />
+</colgroup>
+<thead valign="bottom">
+<tr class="row-odd"><th class="head">項番</th>
+<th class="head">説明</th>
+</tr>
+</thead>
+<tbody valign="top">
+<tr class="row-even"><td><div class="first last line-block">
+<div class="line">(1)</div>
+</div>
+</td>
+<td><p class="first">クラスレベルに、<code class="docutils literal"><span class="pre">&#64;Data</span></code>アノテーションを指定し、</p>
+<ul class="simple">
+<li>getter/setterメソッド</li>
+<li><code class="docutils literal"><span class="pre">equals</span></code>/ <code class="docutils literal"><span class="pre">hashCode</span></code>メソッド</li>
+<li><code class="docutils literal"><span class="pre">toString</span></code>メソッド</li>
+<li>デフォルトコンストラクタ</li>
+</ul>
+<p class="last">を生成する。</p>
+</td>
+</tr>
+</tbody>
+</table>
+<div class="line-block">
+<div class="line"><br /></div>
+</div>
+<div class="section" id="tostring">
+<span id="lombokhowtousejavabeanexcludetostring"></span><h4><a class="toc-backref" href="#id29">7.8.4.2.1. toStringの対象から特定のフィールドを除外する方法</a><a class="headerlink" href="#tostring" title="Permalink to this headline">¶</a></h4>
+<p>オブジェクトの状態を文字列に変換する際は、</p>
+<ul class="simple">
+<li>相互参照関係をもつオブジェクトを保持するフィールド</li>
+<li>個人情報やパスワードなどの機密情報を保持するフィールド</li>
+</ul>
+<p>などを文字列変換の対象から除外する事が必要になるケースがある。
+これらのフィールドを変換対象から除外しない場合、</p>
+<ul class="simple">
+<li>前者は、循環参照となり<code class="docutils literal"><span class="pre">StackOverflowError</span></code>や <code class="docutils literal"><span class="pre">OutOfMemoryError</span></code>などが発生する</li>
+<li>後者は、変換後の文字列の使用方法によっては、個人情報の漏洩に繋がる</li>
+</ul>
+<p>可能性があるので、注意が必要である。</p>
+<div class="admonition warning">
+<p class="first admonition-title">Warning</p>
+<p class="last">JPAのEntityクラスに<code class="docutils literal"><span class="pre">&#64;Data</span></code>や<code class="docutils literal"><span class="pre">&#64;ToString</span></code>アノテーションを使用する場合は、
+循環参照になりやすいので特に注意が必要である。</p>
+</div>
+<div class="line-block">
+<div class="line"><br /></div>
+</div>
+<p>以下に、特定のフィールドを文字列変換の対象から除外する方法を示す。</p>
+<div class="highlight-java"><div class="highlight"><pre><span class="kn">package</span> <span class="nn">com.example.domain.model</span><span class="o">;</span>
+
+<span class="kn">import</span> <span class="nn">lombok.Data</span><span class="o">;</span>
+<span class="kn">import</span> <span class="nn">lombok.ToString</span><span class="o">;</span>
+
+<span class="nd">@Data</span>
+<span class="nd">@ToString</span><span class="o">(</span><span class="n">exclude</span> <span class="o">=</span> <span class="s">&quot;password&quot;</span><span class="o">)</span> <span class="c1">// (1)</span>
+<span class="kd">public</span> <span class="kd">class</span> <span class="nc">User</span> <span class="o">{</span>
+
+    <span class="kd">private</span> <span class="n">String</span> <span class="n">userId</span><span class="o">;</span>
+    <span class="kd">private</span> <span class="n">String</span> <span class="n">password</span><span class="o">;</span>
+
+<span class="o">}</span>
+</pre></div>
+</div>
+<table border="1" class="docutils">
+<colgroup>
+<col width="10%" />
+<col width="90%" />
+</colgroup>
+<thead valign="bottom">
+<tr class="row-odd"><th class="head">項番</th>
+<th class="head">説明</th>
+</tr>
+</thead>
+<tbody valign="top">
+<tr class="row-even"><td><div class="first last line-block">
+<div class="line">(1)</div>
+</div>
+</td>
+<td><p class="first">クラスレベルに<code class="docutils literal"><span class="pre">&#64;ToString</span></code>アノテーションを指定し、<code class="docutils literal"><span class="pre">exclude</span></code>属性に除外したいフィールド名を列挙する。</p>
+<p>上記例のソースコードから生成されたクラスの<code class="docutils literal"><span class="pre">toString</span></code>メソッドを呼び出すと、</p>
+<ul class="simple">
+<li><code class="docutils literal"><span class="pre">User(userId=U00001)</span></code></li>
+</ul>
+<p class="last">という文字列に変換される。</p>
+</td>
+</tr>
+</tbody>
+</table>
+<div class="line-block">
+<div class="line"><br /></div>
+</div>
+</div>
+<div class="section" id="equalshashcode">
+<span id="lombokhowtousejavabeanexcludeequalsandhashcode"></span><h4><a class="toc-backref" href="#id30">7.8.4.2.2. equalsとhashCodeの対象から特定のフィールドを除外する方法</a><a class="headerlink" href="#equalshashcode" title="Permalink to this headline">¶</a></h4>
+<p>Lombokのアノテーションを使用して<code class="docutils literal"><span class="pre">equals</span></code>メソッドと<code class="docutils literal"><span class="pre">hashCode</span></code>メソッドを作成する場合は、
+相互参照関係をもつオブジェクトを保持するフィールドを除外して生成する必要がある。</p>
+<p>これらのフィールドを除外せずに生成した場合、
+循環参照となり<code class="docutils literal"><span class="pre">StackOverflowError</span></code>や <code class="docutils literal"><span class="pre">OutOfMemoryError</span></code>などが発生するので、注意が必要である。</p>
+<div class="admonition warning">
+<p class="first admonition-title">Warning</p>
+<p class="last">JPAのEntityクラスに<code class="docutils literal"><span class="pre">Data</span></code>アノテーション、<code class="docutils literal"><span class="pre">Value</span></code>アノテーション、<code class="docutils literal"><span class="pre">&#64;EqualsAndHash</span></code>を使用する場合は、
+循環参照になりやすいので特に注意が必要である。</p>
+</div>
+<div class="line-block">
+<div class="line"><br /></div>
+</div>
+<p>以下に、特定のフィールドを除外する方法を示す。</p>
+<div class="highlight-java"><div class="highlight"><pre><span class="kn">package</span> <span class="nn">com.example.domain.model</span><span class="o">;</span>
+
+<span class="kn">import</span> <span class="nn">java.util.List</span><span class="o">;</span>
+
+<span class="kn">import</span> <span class="nn">lombok.Data</span><span class="o">;</span>
+
+<span class="nd">@Data</span>
+<span class="kd">public</span> <span class="kd">class</span> <span class="nc">Order</span> <span class="o">{</span>
+
+    <span class="kd">private</span> <span class="n">String</span> <span class="n">orderId</span><span class="o">;</span>
+    <span class="kd">private</span> <span class="n">List</span><span class="o">&lt;</span><span class="n">OrderLine</span><span class="o">&gt;</span> <span class="n">orderLines</span><span class="o">;</span>
+
+<span class="o">}</span>
+</pre></div>
+</div>
+<div class="highlight-java"><div class="highlight"><pre><span class="kn">package</span> <span class="nn">com.example.domain.model</span><span class="o">;</span>
+
+<span class="kn">import</span> <span class="nn">lombok.Data</span><span class="o">;</span>
+<span class="kn">import</span> <span class="nn">lombok.EqualsAndHashCode</span><span class="o">;</span>
+<span class="kn">import</span> <span class="nn">lombok.ToString</span><span class="o">;</span>
+
+<span class="nd">@Data</span>
+<span class="nd">@ToString</span><span class="o">(</span><span class="n">exclude</span> <span class="o">=</span> <span class="s">&quot;order&quot;</span><span class="o">)</span>
+<span class="nd">@EqualsAndHashCode</span><span class="o">(</span><span class="n">exclude</span> <span class="o">=</span> <span class="s">&quot;order&quot;</span><span class="o">)</span> <span class="c1">// (1)</span>
+<span class="kd">public</span> <span class="kd">class</span> <span class="nc">OrderLine</span> <span class="o">{</span>
+
+    <span class="kd">private</span> <span class="n">Order</span> <span class="n">order</span><span class="o">;</span>
+    <span class="kd">private</span> <span class="n">String</span> <span class="n">itemCode</span><span class="o">;</span>
+    <span class="kd">private</span> <span class="kt">int</span> <span class="n">quantity</span><span class="o">;</span>
+
+<span class="o">}</span>
+</pre></div>
+</div>
+<table border="1" class="docutils">
+<colgroup>
+<col width="10%" />
+<col width="90%" />
+</colgroup>
+<thead valign="bottom">
+<tr class="row-odd"><th class="head">項番</th>
+<th class="head">説明</th>
+</tr>
+</thead>
+<tbody valign="top">
+<tr class="row-even"><td><div class="first last line-block">
+<div class="line">(1)</div>
+</div>
+</td>
+<td>クラスレベルに<code class="docutils literal"><span class="pre">&#64;EqualsAndHashCode</span></code>アノテーションを指定し、<code class="docutils literal"><span class="pre">exclude</span></code>属性に除外したいフィールド名を列挙する。</td>
+</tr>
+</tbody>
+</table>
+<div class="admonition tip">
+<p class="first admonition-title">Tip</p>
+<p>除外するフィールドを指定するのではなく、特定のフィールドのみを使用するように指定することもできる。</p>
+<blockquote class="last">
+<div><div class="highlight-java"><div class="highlight"><pre><span class="nd">@Data</span>
+<span class="nd">@ToString</span><span class="o">(</span><span class="n">exclude</span> <span class="o">=</span> <span class="s">&quot;order&quot;</span><span class="o">)</span>
+<span class="nd">@EqualsAndHashCode</span><span class="o">(</span><span class="n">of</span> <span class="o">=</span> <span class="s">&quot;itemCode&quot;</span><span class="o">)</span> <span class="c1">// (2)</span>
+<span class="kd">public</span> <span class="kd">class</span> <span class="nc">OrderLine</span> <span class="o">{</span>
+
+    <span class="kd">private</span> <span class="kd">final</span> <span class="n">Order</span> <span class="n">order</span><span class="o">;</span>
+    <span class="kd">private</span> <span class="kd">final</span> <span class="n">String</span> <span class="n">itemCode</span><span class="o">;</span>
+    <span class="kd">private</span> <span class="kd">final</span> <span class="kt">int</span> <span class="n">quantity</span><span class="o">;</span>
+
+<span class="o">}</span>
+</pre></div>
+</div>
+<table border="1" class="docutils">
+<colgroup>
+<col width="10%" />
+<col width="90%" />
+</colgroup>
+<thead valign="bottom">
+<tr class="row-odd"><th class="head">項番</th>
+<th class="head">説明</th>
+</tr>
+</thead>
+<tbody valign="top">
+<tr class="row-even"><td><div class="first last line-block">
+<div class="line">(2)</div>
+</div>
+</td>
+<td><p class="first">特定のフィールドのみを使用する場合は、<code class="docutils literal"><span class="pre">&#64;EqualsAndHashCode</span></code>アノテーションの<code class="docutils literal"><span class="pre">of</span></code>属性に対象のフィールド名を列挙する。</p>
+<p class="last">上記例では、<code class="docutils literal"><span class="pre">itemCode</span></code>フィールドのみを参照して処理を行う<code class="docutils literal"><span class="pre">equals</span></code>メソッドと<code class="docutils literal"><span class="pre">hashCode</span></code>メソッドが生成される。</p>
+</td>
+</tr>
+</tbody>
+</table>
+</div></blockquote>
+</div>
+<div class="line-block">
+<div class="line"><br /></div>
+</div>
+</div>
+<div class="section" id="lombokhowtousejavabeanconstructor">
+<span id="id13"></span><h4><a class="toc-backref" href="#id31">7.8.4.2.3. フィールド初期化用のコンストラクタを生成する方法</a><a class="headerlink" href="#lombokhowtousejavabeanconstructor" title="Permalink to this headline">¶</a></h4>
+<p>アプリケーションの実装コードからJavaBeanのインスタンスを生成する場合は、
+フィールドの初期値を引数に渡す事ができるコンストラクタがあった方が便利であり、
+冗長なコードを排除することもできる。</p>
+<p>デフォルトコンストラクタを使用してインスタンスを生成した場合は、以下のようなコードとなる。</p>
+<div class="highlight-java"><div class="highlight"><pre><span class="kd">public</span> <span class="kt">void</span> <span class="nf">login</span><span class="o">(</span><span class="n">String</span> <span class="n">userId</span><span class="o">,</span> <span class="n">String</span> <span class="n">password</span><span class="o">)</span> <span class="o">{</span>
+    <span class="n">User</span> <span class="n">user</span> <span class="o">=</span> <span class="k">new</span> <span class="n">User</span><span class="o">();</span>
+    <span class="n">user</span><span class="o">.</span><span class="na">setUserId</span><span class="o">(</span><span class="n">userId</span><span class="o">);</span>
+    <span class="n">user</span><span class="o">.</span><span class="na">setPassword</span><span class="o">(</span><span class="n">password</span><span class="o">);</span>
+    <span class="c1">// ...</span>
+<span class="o">}</span>
+</pre></div>
+</div>
+<div class="line-block">
+<div class="line"><br /></div>
+</div>
+<p>以下に、フィールドの初期値を指定するコンストラクタを生成する方法を示す。</p>
+<div class="highlight-java"><div class="highlight"><pre><span class="kn">package</span> <span class="nn">com.example.domain.model</span><span class="o">;</span>
+
+<span class="kn">import</span> <span class="nn">lombok.AllArgsConstructor</span><span class="o">;</span>
+<span class="kn">import</span> <span class="nn">lombok.Data</span><span class="o">;</span>
+<span class="kn">import</span> <span class="nn">lombok.NoArgsConstructor</span><span class="o">;</span>
+<span class="kn">import</span> <span class="nn">lombok.ToString</span><span class="o">;</span>
+
+<span class="nd">@Data</span>
+<span class="nd">@AllArgsConstructor</span> <span class="c1">// (1)</span>
+<span class="nd">@NoArgsConstructor</span>  <span class="c1">// (2)</span>
+<span class="nd">@ToString</span><span class="o">(</span><span class="n">exclude</span> <span class="o">=</span> <span class="s">&quot;password&quot;</span><span class="o">)</span>
+<span class="kd">public</span> <span class="kd">class</span> <span class="nc">User</span> <span class="o">{</span>
+
+    <span class="kd">private</span> <span class="n">String</span> <span class="n">userId</span><span class="o">;</span>
+    <span class="kd">private</span> <span class="n">String</span> <span class="n">password</span><span class="o">;</span>
+
+<span class="o">}</span>
+</pre></div>
+</div>
+<div class="highlight-java"><div class="highlight"><pre><span class="kd">public</span> <span class="kt">void</span> <span class="nf">login</span><span class="o">(</span><span class="n">String</span> <span class="n">userId</span><span class="o">,</span> <span class="n">String</span> <span class="n">password</span><span class="o">)</span> <span class="o">{</span>
+    <span class="n">User</span> <span class="n">user</span> <span class="o">=</span> <span class="k">new</span> <span class="n">User</span><span class="o">(</span><span class="n">userId</span><span class="o">,</span> <span class="n">password</span><span class="o">);</span> <span class="c1">// (3)</span>
+    <span class="c1">// ...</span>
+<span class="o">}</span>
+</pre></div>
+</div>
+<table border="1" class="docutils">
+<colgroup>
+<col width="10%" />
+<col width="90%" />
+</colgroup>
+<thead valign="bottom">
+<tr class="row-odd"><th class="head">項番</th>
+<th class="head">説明</th>
+</tr>
+</thead>
+<tbody valign="top">
+<tr class="row-even"><td><div class="first last line-block">
+<div class="line">(1)</div>
+</div>
+</td>
+<td>クラスレベルに<code class="docutils literal"><span class="pre">&#64;AllArgsConstructor</span></code>アノテーションを指定し、全てのフィールドの初期値を引数にとるコンストラクタを生成する。</td>
+</tr>
+<tr class="row-odd"><td><div class="first last line-block">
+<div class="line">(2)</div>
+</div>
+</td>
+<td><p class="first">クラスレベルに<code class="docutils literal"><span class="pre">&#64;NoArgsConstructor</span></code>アノテーションを指定し、デフォルトコンストラクタを生成する。</p>
+<p class="last">JavaBeanとして使用する場合は、デフォルトコンストラクタも生成しておく必要がある。</p>
+</td>
+</tr>
+<tr class="row-even"><td><div class="first last line-block">
+<div class="line">(3)</div>
+</div>
+</td>
+<td><p class="first">フィールドの初期値を指定するコンストラクタを呼び出し、JavaBeanのインスタンスを生成する。</p>
+<p class="last">デフォルトコンストラクタを使用した場合は3ステップ必要だったものが、
+1ステップでインスタンスの生成が出来るようになった。</p>
+</td>
+</tr>
+</tbody>
+</table>
+<div class="admonition tip">
+<p class="first admonition-title">Tip</p>
+<p class="last">上記例で扱っている<code class="docutils literal"><span class="pre">User</span></code>クラスを、JavaBeanではなく、Immutableなクラスにしたい場合は、
+<code class="docutils literal"><span class="pre">&#64;lombok.Value</span></code>アノテーションを使用するとよい。
+<code class="docutils literal"><span class="pre">&#64;Value</span></code>アノテーションについては、<a class="reference external" href="http://projectlombok.org/features/Value.html">Lombokのリファレンス</a> を参照されたい。</p>
+</div>
+<div class="line-block">
+<div class="line"><br /></div>
+</div>
+</div>
+</div>
+<div class="section" id="lombokhowtouselogger">
+<span id="id15"></span><h3><a class="toc-backref" href="#id32">7.8.4.3. ロガーインスタンスの作成</a><a class="headerlink" href="#lombokhowtouselogger" title="Permalink to this headline">¶</a></h3>
+<p>デバッグログやアプリケーションログを出力するために、ロガーインスタンスを生成する必要がある場合は、
+ロガーインスタンスを生成するためのアノテーションを使用するとよい。</p>
+<p>Lombokのアノテーションを使用しないでロガーインスタンスを作成する場合は、以下のようなコードになる。</p>
+<div class="highlight-java"><div class="highlight"><pre><span class="kn">package</span> <span class="nn">com.example.domain.service</span><span class="o">;</span>
+
+<span class="kn">import</span> <span class="nn">org.slf4j.Logger</span><span class="o">;</span>
+<span class="kn">import</span> <span class="nn">org.slf4j.LoggerFactory</span><span class="o">;</span>
+<span class="kn">import</span> <span class="nn">org.springframework.stereotype.Service</span><span class="o">;</span>
+
+<span class="nd">@Service</span>
+<span class="kd">public</span> <span class="kd">class</span> <span class="nc">AuthenticationService</span> <span class="o">{</span>
+
+    <span class="kd">private</span> <span class="kd">static</span> <span class="kd">final</span> <span class="n">Logger</span> <span class="n">log</span> <span class="o">=</span> <span class="n">LoggerFactory</span><span class="o">.</span><span class="na">getLogger</span><span class="o">(</span><span class="n">AuthenticationService</span><span class="o">.</span><span class="na">class</span><span class="o">);</span>
+
+    <span class="kd">public</span> <span class="kt">void</span> <span class="nf">login</span><span class="o">(</span><span class="n">String</span> <span class="n">userId</span><span class="o">,</span> <span class="n">String</span> <span class="n">password</span><span class="o">)</span> <span class="o">{</span>
+        <span class="n">log</span><span class="o">.</span><span class="na">info</span><span class="o">(</span><span class="s">&quot;{} had tried login.&quot;</span><span class="o">,</span> <span class="n">userId</span><span class="o">);</span>
+        <span class="c1">// ...</span>
+    <span class="o">}</span>
+
+<span class="o">}</span>
+</pre></div>
+</div>
+<div class="line-block">
+<div class="line"><br /></div>
+</div>
+<p>以下に、Lombokのアノテーションを使用してロガーインスタンスを作成する方法を示す。</p>
+<div class="highlight-java"><div class="highlight"><pre><span class="kn">package</span> <span class="nn">com.example.domain.service</span><span class="o">;</span>
+
+<span class="kn">import</span> <span class="nn">org.springframework.stereotype.Service</span><span class="o">;</span>
+
+<span class="kn">import</span> <span class="nn">lombok.extern.slf4j.Slf4j</span><span class="o">;</span>
+
+<span class="nd">@Slf4j</span> <span class="c1">// (1)</span>
+<span class="nd">@Service</span>
+<span class="kd">public</span> <span class="kd">class</span> <span class="nc">AuthenticationService</span> <span class="o">{</span>
+
+    <span class="kd">public</span> <span class="kt">void</span> <span class="nf">login</span><span class="o">(</span><span class="n">String</span> <span class="n">userId</span><span class="o">,</span> <span class="n">String</span> <span class="n">password</span><span class="o">)</span> <span class="o">{</span>
+        <span class="n">log</span><span class="o">.</span><span class="na">info</span><span class="o">(</span><span class="s">&quot;{} had tried login.&quot;</span><span class="o">,</span> <span class="n">userId</span><span class="o">);</span> <span class="c1">// (2)</span>
+        <span class="c1">// ...</span>
+    <span class="o">}</span>
+
+<span class="o">}</span>
+</pre></div>
+</div>
+<table border="1" class="docutils">
+<colgroup>
+<col width="10%" />
+<col width="90%" />
+</colgroup>
+<thead valign="bottom">
+<tr class="row-odd"><th class="head">項番</th>
+<th class="head">説明</th>
+</tr>
+</thead>
+<tbody valign="top">
+<tr class="row-even"><td><div class="first last line-block">
+<div class="line">(1)</div>
+</div>
+</td>
+<td><p class="first">クラスレベルに<code class="docutils literal"><span class="pre">&#64;Slf4j</span></code>アノテーションを指定し、SLF4Jのロガーインスタンスを生成する。</p>
+<p>本ガイドラインでは、SLF4Jの<code class="docutils literal"><span class="pre">org.slf4j.Logger</span></code>を使用してログを出力する前提である。</p>
+<p class="last">デフォルトでは、アノテーションを付与したクラスのFQCN(上記例だと<code class="docutils literal"><span class="pre">com.example.domain.service.LoginService</span></code>)がロガー名として使用され、
+ロガー名に対応するロガーインスタンスが<code class="docutils literal"><span class="pre">log</span></code>という名前のフィールドに設定される。</p>
+</td>
+</tr>
+<tr class="row-odd"><td><div class="first last line-block">
+<div class="line">(2)</div>
+</div>
+</td>
+<td><p class="first">Lombokによって生成されたSLF4Jのロガーインスタンスのメソッドを呼び出し、ログを出力する。</p>
+<p>上記例では、</p>
+<ul class="simple">
+<li><code class="docutils literal"><span class="pre">11:29:45.838</span> <span class="pre">[main]</span> <span class="pre">INFO</span>&nbsp; <span class="pre">c.e.d.service.AuthenticationService</span> <span class="pre">-</span> <span class="pre">U00001</span> <span class="pre">had</span> <span class="pre">tried</span> <span class="pre">login.</span></code></li>
+</ul>
+<p class="last">というログが出力される。</p>
+</td>
+</tr>
+</tbody>
+</table>
+<div class="admonition tip">
+<p class="first admonition-title">Tip</p>
+<p class="last">デフォルトで使用されるロガー名を変更したい場合は、
+<code class="docutils literal"><span class="pre">&#64;Slf4j</span></code>アノテーションの<code class="docutils literal"><span class="pre">topic</span></code>属性に、任意のロガー名を指定すればよい。</p>
+</div>
+</div>
+</div>
+</div>
+
+
+          </div>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="ReferenceBooks.html" title="7.9. 参考書籍"
+             >next</a> |</li>
+        <li class="right" >
+          <a href="ProjectStructureStandard.html" title="7.7. Project Structure Standard"
+             >previous</a> |</li>
+        <li class="nav-item nav-item-0"><a href="../index.html">TERASOLUNA Server Framework for Java (5.x) Development Guideline 5.1.1.RELEASE documentation</a> &raquo;</li>
+          <li class="nav-item nav-item-1"><a href="index.html" >7. Appendix</a> &raquo;</li> 
+      </ul>
+    </div>
+    <div class="footer">
+        &copy; Copyright 2013-2016, NTT DATA.
+    Created using <a href="http://sphinx.pocoo.org/">Sphinx</a> 1.3.4.Theme by <a href="http://github.com/vkvn">vkvn</a>
+    </div>
+    
+    <script>
+    
+    $(function() {
+    	var $sidebar	= $('.sphinxsidebar'),
+    		$window		= $(window),
+    		offset		= $sidebar.offset(),
+    		topPadding	= 3,
+    		$scroll		= $('#scroll');
+    	
+    	$window.scroll(function() {
+    		if ($scroll.is(':checked')) {
+				if ($window.scrollTop() > offset.top) {
+					$sidebar.stop().animate({
+						marginTop:$window.scrollTop() - offset.top + topPadding
+					});
+				} else {
+					$sidebar.stop().animate({
+						marginTop:0
+					});
+				}
+			}
+		});
+    	
+    	var $navList = $('ul:first', $sidebar);
+    	$('li:first', $navList).addClass('open');
+    	
+    	$navList.treeview({
+    		persist: "location",
+    		collapsed: true,
+    		unique: false
+    	});
+    	
+	});
+    (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+        (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+            m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+    })(window,document,'script','//www.google-analytics.com/analytics.js','ga');
+
+    ga('create', 'UA-46550814-1', 'terasolunaorg.github.io');
+    ga('send', 'pageview');
+    </script>
+  </body>
+</html>
