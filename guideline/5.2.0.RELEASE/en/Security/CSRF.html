@@ -1,0 +1,843 @@
+<!DOCTYPE html>
+
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>9.5. CSRF Countermeasures &mdash; TERASOLUNA Server Framework for Java (5.x) Development Guideline 5.2.0.RELEASE documentation</title>
+    
+    <link rel="stylesheet" href="../_static/solar.css" type="text/css" />
+    <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+    
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    '../',
+        VERSION:     '5.2.0.RELEASE',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true
+      };
+    </script>
+    <script type="text/javascript" src="../_static/jquery.js"></script>
+    <script type="text/javascript" src="../_static/underscore.js"></script>
+    <script type="text/javascript" src="../_static/doctools.js"></script>
+    <link rel="top" title="TERASOLUNA Server Framework for Java (5.x) Development Guideline 5.2.0.RELEASE documentation" href="../index.html" />
+    <link rel="up" title="9. Security countermeasures" href="index.html" />
+    <link rel="next" title="9.6. Coordinating with browser security countermeasure function" href="LinkageWithBrowser.html" />
+    <link rel="prev" title="9.4. Session Management" href="SessionManagement.html" /><script src="../_static/jquery.treeview.js" type="text/javascript"></script>
+<!-- <link href='http://fonts.googleapis.com/css?family=Source+Code+Pro|Open+Sans:300italic,400italic,700italic,400,300,700' rel='stylesheet' type='text/css'> -->
+<link href="../_static/solarized-dark.css" rel="stylesheet">
+<link href="../_static/jquery.treeview.css" rel="stylesheet">
+  </head>
+  <body role="document">
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="LinkageWithBrowser.html" title="9.6. Coordinating with browser security countermeasure function"
+             accesskey="N">next</a> |</li>
+        <li class="right" >
+          <a href="SessionManagement.html" title="9.4. Session Management"
+             accesskey="P">previous</a> |</li>
+        <li class="nav-item nav-item-0"><a href="../index.html">TERASOLUNA Server Framework for Java (5.x) Development Guideline 5.2.0.RELEASE documentation</a> &raquo;</li>
+          <li class="nav-item nav-item-1"><a href="index.html" accesskey="U">9. Security countermeasures</a> &raquo;</li> 
+      </ul>
+    </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper"><label><input id="scroll" type="checkbox" checked> scroll sidebar</label>
+
+  <h3><a href="../index.html">Table Of Contents</a></h3>
+  <ul>
+<li><a class="reference internal" href="#">9.5. CSRF Countermeasures</a><ul>
+<li><a class="reference internal" href="#overview">9.5.1. Overview</a><ul>
+<li><a class="reference internal" href="#csrf-countermeasures-of-spring-security">9.5.1.1. CSRF countermeasures of Spring Security</a><ul>
+<li><a class="reference internal" href="#target-request-of-token-check">9.5.1.1.1. Target request of token check</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li><a class="reference internal" href="#how-to-use">9.5.2. How to use</a><ul>
+<li><a class="reference internal" href="#applying-csrf-countermeasures">9.5.2.1. Applying CSRF countermeasures</a></li>
+<li><a class="reference internal" href="#linking-csrf-token-value">9.5.2.2. Linking CSRF token value</a><ul>
+<li><a class="reference internal" href="#coordination-by-using-spring-mvc">9.5.2.2.1. Coordination by using Spring MVC</a><ul>
+<li><a class="reference internal" href="#auto-output-of-hidden-fields">9.5.2.2.1.1. Auto output of hidden fields</a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#coordination-while-using-html-form">9.5.2.2.2. Coordination while using HTML form</a></li>
+<li><a class="reference internal" href="#coordination-while-using-ajax">9.5.2.2.3. Coordination while using Ajax</a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#controlling-transition-destination-in-case-of-token-check-error">9.5.2.3. Controlling transition destination in case of token check error</a></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+
+
+  <h4>Previous topic</h4>
+  <p class="topless"><a href="SessionManagement.html"
+                        title="previous chapter">9.4. Session Management</a></p>
+  <h4>Next topic</h4>
+  <p class="topless"><a href="LinkageWithBrowser.html"
+                        title="next chapter">9.6. Coordinating with browser security countermeasure function</a></p>
+  <div role="note" aria-label="source link">
+    <h3>This Page</h3>
+    <ul class="this-page-menu">
+      <li><a href="../_sources/Security/CSRF.txt"
+            rel="nofollow">Show Source</a></li>
+    </ul>
+   </div>
+<div id="searchbox" style="display: none" role="search">
+  <h3>Quick search</h3>
+    <form class="search" action="../search.html" method="get">
+      <input type="text" name="q" />
+      <input type="submit" value="Go" />
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+    <p class="searchtip" style="font-size: 90%">
+    Enter search terms or a module, class or function name.
+    </p>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <div class="section" id="csrf-countermeasures">
+<span id="springsecuritycsrf"></span><h1>9.5. CSRF Countermeasures<a class="headerlink" href="#csrf-countermeasures" title="Permalink to this headline">¶</a></h1>
+<div class="contents local topic" id="table-of-contents">
+<p class="topic-title first">Table of contents</p>
+<ul class="simple">
+<li><a class="reference internal" href="#overview" id="id4">Overview</a><ul>
+<li><a class="reference internal" href="#csrf-countermeasures-of-spring-security" id="id5">CSRF countermeasures of Spring Security</a><ul>
+<li><a class="reference internal" href="#target-request-of-token-check" id="id6">Target request of token check</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li><a class="reference internal" href="#how-to-use" id="id7">How to use</a><ul>
+<li><a class="reference internal" href="#applying-csrf-countermeasures" id="id8">Applying CSRF countermeasures</a></li>
+<li><a class="reference internal" href="#linking-csrf-token-value" id="id9">Linking CSRF token value</a><ul>
+<li><a class="reference internal" href="#coordination-by-using-spring-mvc" id="id10">Coordination by using Spring MVC</a><ul>
+<li><a class="reference internal" href="#auto-output-of-hidden-fields" id="id11">Auto output of hidden fields</a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#coordination-while-using-html-form" id="id12">Coordination while using HTML form</a></li>
+<li><a class="reference internal" href="#coordination-while-using-ajax" id="id13">Coordination while using Ajax</a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#controlling-transition-destination-in-case-of-token-check-error" id="id14">Controlling transition destination in case of token check error</a></li>
+</ul>
+</li>
+</ul>
+</div>
+<div class="section" id="overview">
+<h2><a class="toc-backref" href="#id4">9.5.1. Overview</a><a class="headerlink" href="#overview" title="Permalink to this headline">¶</a></h2>
+<p>This chapter explains Cross site request forgeries (hereafter referred to as CSRF) countermeasures function offered by Spring Security.</p>
+<p>CSRF is an attack that forces a user to perform unwanted actions on a different website in which the user is logged in.
+by implementing a script in the Website or by automatic transfer (HTTP redirect).</p>
+<p>Following are the methods to prevent server side CSRF attack.</p>
+<ul class="simple">
+<li>Embedding confidential information (token)</li>
+<li>Re-entering password</li>
+<li>&#8216;Referer&#8217; check</li>
+</ul>
+<p>CSRF countermeasures function handles the malicious request sent from the Web page provided by the attacker as an invalid request.
+Following methods can be used to attack if CSRF countermeasures are not implemented in a Web application.</p>
+<ul class="simple">
+<li>User logs in to the Web application for which CSRF countermeasures are not implemented.</li>
+<li>User opens the Web page provided by the attacker under the skilful guidance of the attacker.</li>
+<li>The Web page prepared by the attacker sends a forged request to the Web application for which CSRF countermeasures have not been implemented, using techniques such as automatic submission of form.</li>
+<li>Web applications for which CSRF countermeasures are not implemented handle forged request by the attacker as a legitimate request.</li>
+</ul>
+<div class="admonition tip">
+<p class="first admonition-title">Tip</p>
+<p>In OWASP<a class="footnote-reference" href="#fspringsecuritycsrf1" id="id1">[1]</a>, <a class="reference external" href="https://www.owasp.org/index.php/Cross-Site_Request_Forgery_(CSRF)_Prevention_Cheat_Sheet#General_Recommendation:_Synchronizer_Token_Pattern">the method to use token pattern is recommended.</a></p>
+<blockquote class="last">
+<div><table class="docutils footnote" frame="void" id="fspringsecuritycsrf1" rules="none">
+<colgroup><col class="label" /><col /></colgroup>
+<tbody valign="top">
+<tr><td class="label"><a class="fn-backref" href="#id1">[1]</a></td><td>OWASP is an abbreviation of Open Web Application Security Project. It is a not-for-profit international organization dedicated to enable organizations to develop and maintain applications that can be trusted. It advocates measures such as effective approach etc. with respect to security.
+<a class="reference external" href="https://www.owasp.org/index.php/Main_Page">https://www.owasp.org/index.php/Main_Page</a></td></tr>
+</tbody>
+</table>
+</div></blockquote>
+</div>
+<div class="admonition note">
+<p class="first admonition-title">Note</p>
+<p><strong>CSRF countermeasures at the time of login</strong></p>
+<p class="last">CSRF countermeasures should be implemented not only for the login request but also for the login process.
+If CSRF countermeasures are not implemented for login process, user is forced to login using the account created by the attacker even before the user realizes it and there is a possibility of the operation history of login being stolen.</p>
+</div>
+<div class="admonition warning">
+<p class="first admonition-title">Warning</p>
+<p><strong>CSRF measures at the time of the multi-part request (file upload)</strong></p>
+<p class="last">About CSRF measures during file upload, <a class="reference internal" href="../ArchitectureInDetail/WebApplicationDetail/FileUpload.html#file-upload-setting-servlet-filter"><span>file upload Servlet Filter setting</span></a>should be followed.</p>
+</div>
+<div class="section" id="csrf-countermeasures-of-spring-security">
+<h3><a class="toc-backref" href="#id5">9.5.1.1. CSRF countermeasures of Spring Security</a><a class="headerlink" href="#csrf-countermeasures-of-spring-security" title="Permalink to this headline">¶</a></h3>
+<p>Spring Security issues a fixed token value (CSRF token) generated randomly for each session and sends the issued CSRF token as a request parameter (hidden field in the HTML form).
+Accordingly, a system to determine whether the request is from a normal Web page or from the Web page created by the attacker, is adopted.</p>
+<div class="figure" id="id2">
+<a class="reference internal image-reference" href="../_images/Csrf.png"><img alt="../_images/Csrf.png" src="../_images/Csrf.png" style="width: 100%;" /></a>
+<p class="caption"><span class="caption-text"><strong>CSRF countermeasures system of Spring Security</strong></span></p>
+</div>
+<table border="1" class="docutils">
+<colgroup>
+<col width="10%" />
+<col width="90%" />
+</colgroup>
+<thead valign="bottom">
+<tr class="row-odd"><th class="head">Sr. No.</th>
+<th class="head">Description</th>
+</tr>
+</thead>
+<tbody valign="top">
+<tr class="row-even"><td><div class="first last line-block">
+<div class="line">(1)</div>
+</div>
+</td>
+<td><div class="first last line-block">
+<div class="line">Client accesses the application server using the HTTP GET method.</div>
+</div>
+</td>
+</tr>
+<tr class="row-odd"><td><div class="first last line-block">
+<div class="line">(2)</div>
+</div>
+</td>
+<td><div class="first last line-block">
+<div class="line">Spring Security generates a CSRF token and stores it in HTTP session.</div>
+<div class="line">The generated CSRF token links with the client using the hidden tag of HTML form.</div>
+</div>
+</td>
+</tr>
+<tr class="row-even"><td><div class="first last line-block">
+<div class="line">(3)</div>
+</div>
+</td>
+<td><div class="first last line-block">
+<div class="line">The client sends a request to the application server by clicking a button on the HTML form.</div>
+<div class="line">Since the CSRF token is embedded in a hidden field in the HTML form, CSRF token value is sent as a request parameter.</div>
+</div>
+</td>
+</tr>
+<tr class="row-odd"><td><div class="first last line-block">
+<div class="line">(4)</div>
+</div>
+</td>
+<td><div class="first last line-block">
+<div class="line">Spring Security checks if the CSRF token value specified in the request parameter and the CSRF token value retained in the HTTP session are same when it is accessed using HTTP POST method.</div>
+<div class="line">If the token value does not match, an error is thrown as an invalid request (request from the attacker).</div>
+</div>
+</td>
+</tr>
+<tr class="row-even"><td><div class="first last line-block">
+<div class="line">(5)</div>
+</div>
+</td>
+<td><div class="first last line-block">
+<div class="line">Client accesses the application server using the HTTP GET method.</div>
+</div>
+</td>
+</tr>
+<tr class="row-odd"><td><div class="first last line-block">
+<div class="line">(6)</div>
+</div>
+</td>
+<td><div class="first last line-block">
+<div class="line">Spring Security does not check the CSRF token value when it is accessed using GET method.</div>
+</div>
+</td>
+</tr>
+</tbody>
+</table>
+<div class="admonition note">
+<p class="first admonition-title">Note</p>
+<p><strong>CSRF token using Ajax</strong></p>
+<p class="last">Since Spring Security can set the CSRF token value in request header, it is possible to implement CSRF countermeasures for the requests for Ajax etc.</p>
+</div>
+<div class="section" id="target-request-of-token-check">
+<span id="csrf-ckeck-target"></span><h4><a class="toc-backref" href="#id6">9.5.1.1.1. Target request of token check</a><a class="headerlink" href="#target-request-of-token-check" title="Permalink to this headline">¶</a></h4>
+<p>In the default implementation of Spring Security, check CSRF token for the request that uses the following HTTP methods.</p>
+<ul class="simple">
+<li>POST</li>
+<li>PUT</li>
+<li>DELETE</li>
+<li>PATCH</li>
+</ul>
+<div class="admonition note">
+<p class="first admonition-title">Note</p>
+<p><strong>Reason for not checking CSRF token</strong></p>
+<p class="last">GET, HEAD, OPTIONS, TRACE methods are not checked as these methods are not used to implement the request to change the application status.</p>
+</div>
+</div>
+</div>
+</div>
+<div class="section" id="how-to-use">
+<span id="csrf-spring-security-setting"></span><h2><a class="toc-backref" href="#id7">9.5.2. How to use</a><a class="headerlink" href="#how-to-use" title="Permalink to this headline">¶</a></h2>
+<div class="section" id="applying-csrf-countermeasures">
+<h3><a class="toc-backref" href="#id8">9.5.2.1. Applying CSRF countermeasures</a><a class="headerlink" href="#applying-csrf-countermeasures" title="Permalink to this headline">¶</a></h3>
+<p>By using the <code class="docutils literal"><span class="pre">RequestDataValueProcessor</span></code>implementation class for CSRF token, the token can be automatically inserted as &#8216;hidden&#8217; field using <code class="docutils literal"><span class="pre">&lt;form:form&gt;</span></code>tag of Spring tag library.</p>
+<ul class="simple">
+<li>Setting example of spring-mvc.xml</li>
+</ul>
+<div class="highlight-xml"><div class="highlight"><pre><span class="nt">&lt;bean</span> <span class="na">id=</span><span class="s">&quot;requestDataValueProcessor&quot;</span>
+    <span class="na">class=</span><span class="s">&quot;org.terasoluna.gfw.web.mvc.support.CompositeRequestDataValueProcessor&quot;</span><span class="nt">&gt;</span> <span class="c">&lt;!-- (1)  --&gt;</span>
+    <span class="nt">&lt;constructor-arg&gt;</span>
+        <span class="nt">&lt;util:list&gt;</span>
+            <span class="nt">&lt;bean</span>
+                <span class="na">class=</span><span class="s">&quot;org.springframework.security.web.servlet.support.csrf.CsrfRequestDataValueProcessor&quot;</span> <span class="nt">/&gt;</span> <span class="c">&lt;!-- (2)  --&gt;</span>
+            <span class="nt">&lt;bean</span>
+                <span class="na">class=</span><span class="s">&quot;org.terasoluna.gfw.web.token.transaction.TransactionTokenRequestDataValueProcessor&quot;</span> <span class="nt">/&gt;</span>
+        <span class="nt">&lt;/util:list&gt;</span>
+    <span class="nt">&lt;/constructor-arg&gt;</span>
+<span class="nt">&lt;/bean&gt;</span>
+</pre></div>
+</div>
+<table border="1" class="docutils">
+<colgroup>
+<col width="10%" />
+<col width="90%" />
+</colgroup>
+<thead valign="bottom">
+<tr class="row-odd"><th class="head">Sr. No.</th>
+<th class="head">Description</th>
+</tr>
+</thead>
+<tbody valign="top">
+<tr class="row-even"><td><div class="first last line-block">
+<div class="line">(1)</div>
+</div>
+</td>
+<td><div class="first last line-block">
+<div class="line">Define a bean for <code class="docutils literal"><span class="pre">org.terasoluna.gfw.web.mvc.support.CompositeRequestDataValueProcessor</span></code> for which multiple</div>
+<div class="line"><code class="docutils literal"><span class="pre">org.springframework.web.servlet.support.RequestDataValueProcessor</span></code> provided by common library can be defined.</div>
+</div>
+</td>
+</tr>
+<tr class="row-odd"><td><div class="first last line-block">
+<div class="line">(2)</div>
+</div>
+</td>
+<td><div class="first last line-block">
+<div class="line">Set the bean definition <code class="docutils literal"><span class="pre">org.springframework.security.web.servlet.support.csrf.CsrfRequestDataValueProcessor</span></code> as the first argument of constructor.</div>
+</div>
+</td>
+</tr>
+</tbody>
+</table>
+<p>CSRF countermeasures function is enabled as a default by the settings described above from Spring Security 4.0 and subsequent versions. Therefore, CSRF countermeasures function should be disabled explicitly if you do not want to use it.</p>
+<p>Define a bean as given below if CSRF countermeasures function is not to be used.</p>
+<ul class="simple">
+<li>Definition example of spring-security.xml</li>
+</ul>
+<div class="highlight-xml"><div class="highlight"><pre><span class="nt">&lt;sec:http&gt;</span>
+    <span class="c">&lt;!-- omitted --&gt;</span>
+    <span class="nt">&lt;sec:csrf</span> <span class="na">disabled=</span><span class="s">&quot;true&quot;</span><span class="nt">/&gt;</span> <span class="c">&lt;!-- Disabled by setting true in the &#39;disabled&#39; attribute --&gt;</span>
+    <span class="c">&lt;!-- omitted --&gt;</span>
+<span class="nt">&lt;/sec:http&gt;</span>
+</pre></div>
+</div>
+</div>
+<div class="section" id="linking-csrf-token-value">
+<h3><a class="toc-backref" href="#id9">9.5.2.2. Linking CSRF token value</a><a class="headerlink" href="#linking-csrf-token-value" title="Permalink to this headline">¶</a></h3>
+<p>Spring Security provides the following two methods to link the CSRF token value between the client and server.</p>
+<ul class="simple">
+<li>Output the CSRF token value as a hidden field in the HTML form and link as a request parameter</li>
+<li>Output CSRF token information as HTML meta tag and link by setting the token value in the request header at the time of Ajax communication</li>
+</ul>
+<div class="section" id="coordination-by-using-spring-mvc">
+<span id="csrf-formtag-use"></span><h4><a class="toc-backref" href="#id10">9.5.2.2.1. Coordination by using Spring MVC</a><a class="headerlink" href="#coordination-by-using-spring-mvc" title="Permalink to this headline">¶</a></h4>
+<p>Spring Security has provided several components to coordinate with Spring MVC.
+How to use the component to coordinate with CSRF countermeasures function is described below.</p>
+<div class="section" id="auto-output-of-hidden-fields">
+<h5><a class="toc-backref" href="#id11">9.5.2.2.1.1. Auto output of hidden fields</a><a class="headerlink" href="#auto-output-of-hidden-fields" title="Permalink to this headline">¶</a></h5>
+<p>Implement the following JSP while creating a HTML form.</p>
+<ul class="simple">
+<li>Implementation example of JSP</li>
+</ul>
+<div class="highlight-jsp"><div class="highlight"><pre><span class="k">&lt;%@</span> <span class="n">taglib</span> <span class="n">prefix</span><span class="o">=</span><span class="s">&quot;form&quot;</span> <span class="n">uri</span><span class="o">=</span><span class="s">&quot;http://www.springframework.org/tags/form&quot;</span> <span class="k">%&gt;</span>
+
+<span class="nt">&lt;c:url</span> <span class="na">var=</span><span class="s">&quot;loginUrl&quot;</span> <span class="na">value=</span><span class="s">&quot;/login&quot;</span><span class="nt">/&gt;</span>
+<span class="nt">&lt;form:form</span> <span class="na">action=</span><span class="s">&quot;${loginUrl}&quot;</span><span class="nt">&gt;</span> <span class="c">&lt;!-- (1) --&gt;</span>
+    <span class="c">&lt;!-- omitted --&gt;</span>
+<span class="nt">&lt;/form:form&gt;</span>
+</pre></div>
+</div>
+<table border="1" class="docutils">
+<colgroup>
+<col width="10%" />
+<col width="90%" />
+</colgroup>
+<thead valign="bottom">
+<tr class="row-odd"><th class="head">Sr. No.</th>
+<th class="head">Description</th>
+</tr>
+</thead>
+<tbody valign="top">
+<tr class="row-even"><td><div class="first last line-block">
+<div class="line">(1)</div>
+</div>
+</td>
+<td><div class="first last line-block">
+<div class="line">Use <code class="docutils literal"><span class="pre">&lt;form:form&gt;</span></code> element provided by Spring MVC while creating an HTML form.</div>
+</div>
+</td>
+</tr>
+</tbody>
+</table>
+<p>HTML form shown below is created when <code class="docutils literal"><span class="pre">&lt;form:form&gt;</span></code> element provided by Spring MVC is used.</p>
+<ul class="simple">
+<li>Output example of HTML</li>
+</ul>
+<div class="highlight-html"><div class="highlight"><pre><span class="nt">&lt;form</span> <span class="na">id=</span><span class="s">&quot;command&quot;</span> <span class="na">action=</span><span class="s">&quot;/login&quot;</span> <span class="na">method=</span><span class="s">&quot;post&quot;</span><span class="nt">&gt;</span>
+    <span class="c">&lt;!-- omitted --&gt;</span>
+    <span class="c">&lt;!-- CSRF token value hidden field output by coordinating with Spring MVC function --&gt;</span>
+    <span class="nt">&lt;div&gt;</span>
+        <span class="nt">&lt;input</span> <span class="na">type=</span><span class="s">&quot;hidden&quot;</span>
+               <span class="na">name=</span><span class="s">&quot;_csrf&quot;</span> <span class="na">value=</span><span class="s">&quot;63845086-6b57-4261-8440-97a3c6fa6b99&quot;</span> <span class="nt">/&gt;</span>
+    <span class="nt">&lt;/div&gt;</span>
+<span class="nt">&lt;/form&gt;</span>
+</pre></div>
+</div>
+<div class="admonition tip">
+<p class="first admonition-title">Tip</p>
+<p><strong>CSRF token check value that is output</strong></p>
+<p>If <code class="docutils literal"><span class="pre">CsrfRequestDataValueProcessor</span></code> is used in Spring 4, CSRF token inserted <code class="docutils literal"><span class="pre">&lt;input</span> <span class="pre">type=&quot;hidden&quot;&gt;</span></code> tag is output
+only if the value specified in <code class="docutils literal"><span class="pre">method</span></code> attribute of <code class="docutils literal"><span class="pre">&lt;form:form&gt;</span></code> tag matches with HTTP methods (HTTP methods other than GET, HEAD, TRACE, OPTIONS in Spring Security default implementation) of CSRF token check.</p>
+<p>For example, when GET method is specified in <code class="docutils literal"><span class="pre">method</span></code> attribute as shown below, CSRF token inserted <code class="docutils literal"><span class="pre">&lt;input</span> <span class="pre">type=&quot;hidden&quot;&gt;</span></code> tag is not output.</p>
+<blockquote>
+<div><div class="highlight-jsp"><div class="highlight"><pre><span class="nt">&lt;form:form</span> <span class="na">method=</span><span class="s">&quot;GET&quot;</span> <span class="na">modelAttribute=</span><span class="s">&quot;xxxForm&quot;</span> <span class="na">action=</span><span class="s">&quot;...&quot;</span><span class="nt">&gt;</span>
+    <span class="k">&lt;%-</span><span class="o">-</span> <span class="o">...</span> <span class="o">--</span><span class="k">%&gt;</span>
+<span class="nt">&lt;/form:form&gt;</span>
+</pre></div>
+</div>
+</div></blockquote>
+<p>This is as per the following description</p>
+<blockquote>
+<div>The unique token can also be included in the URL itself, or a URL parameter. However, such placement runs a greater risk that the URL will be exposed to an attacker, thus compromising the secret token.</div></blockquote>
+<p class="last">in <a class="reference external" href="https://code.google.com/p/owasptop10/">OWASP Top 10</a> and it helps in building a secure Web application.</p>
+</div>
+</div>
+</div>
+<div class="section" id="coordination-while-using-html-form">
+<span id="csrf-htmlformtag-use"></span><h4><a class="toc-backref" href="#id12">9.5.2.2.2. Coordination while using HTML form</a><a class="headerlink" href="#coordination-while-using-html-form" title="Permalink to this headline">¶</a></h4>
+<p>CSRF token value can also be linked using HTML form without using <a class="reference internal" href="#csrf-formtag-use"><span>Linkage with Spring MVC</span></a>.
+If you want to send a request using HTML form, output the CSRF token value as a hidden field in the HTML form and coordinate as a request parameter.</p>
+<ul class="simple">
+<li>Implementation example of JSP</li>
+</ul>
+<div class="highlight-text"><div class="highlight"><pre>&lt;%@ taglib prefix=&quot;sec&quot; uri=&quot;http://www.springframework.org/security/tags&quot; %&gt;
+
+&lt;form action=&quot;&lt;c:url value=&quot;/login&quot; /&gt;&quot; method=&quot;post&quot;&gt;
+    &lt;!-- omitted --&gt;
+    &lt;sec:csrfInput /&gt; &lt;!-- (1) --&gt;
+    &lt;!-- omitted --&gt;
+&lt;/form&gt;
+</pre></div>
+</div>
+<table border="1" class="docutils">
+<colgroup>
+<col width="10%" />
+<col width="90%" />
+</colgroup>
+<thead valign="bottom">
+<tr class="row-odd"><th class="head">Sr. No.</th>
+<th class="head">Description</th>
+</tr>
+</thead>
+<tbody valign="top">
+<tr class="row-even"><td><div class="first last line-block">
+<div class="line">(1)</div>
+</div>
+</td>
+<td><div class="first last line-block">
+<div class="line">Specify <code class="docutils literal"><span class="pre">&lt;sec:csrfInput&gt;</span></code> element in <code class="docutils literal"><span class="pre">&lt;form&gt;</span></code> element of HTML.</div>
+</div>
+</td>
+</tr>
+</tbody>
+</table>
+<p>The hidden fields are output as shown below if <code class="docutils literal"><span class="pre">&lt;sec:csrfInput&gt;</span></code> element provided by Spring Security is specified.
+CSRF token value is linked as a request parameter by displaying the hidden fields in the HTML form.
+By default, the name of the request parameter to link CSRF token value is <code class="docutils literal"><span class="pre">_csrf</span></code> .</p>
+<ul class="simple">
+<li>Output example of HTML</li>
+</ul>
+<div class="highlight-html"><div class="highlight"><pre><span class="nt">&lt;form</span> <span class="na">action=</span><span class="s">&quot;/login&quot;</span> <span class="na">method=</span><span class="s">&quot;post&quot;</span><span class="nt">&gt;</span>
+    <span class="c">&lt;!-- omitted --&gt;</span>
+    <span class="c">&lt;!-- CSRF token value hidden field --&gt;</span>
+    <span class="nt">&lt;input</span> <span class="na">type=</span><span class="s">&quot;hidden&quot;</span>
+           <span class="na">name=</span><span class="s">&quot;_csrf&quot;</span>
+           <span class="na">value=</span><span class="s">&quot;63845086-6b57-4261-8440-97a3c6fa6b99&quot;</span> <span class="nt">/&gt;</span>
+    <span class="c">&lt;!-- omitted --&gt;</span>
+<span class="nt">&lt;/form&gt;</span>
+</pre></div>
+</div>
+<div class="admonition warning">
+<p class="first admonition-title">Warning</p>
+<p><strong>Points to be noted while using GET method</strong></p>
+<p class="last">When GET is used as the HTTP method, <code class="docutils literal"><span class="pre">&lt;sec:</span> <span class="pre">csrfInput&gt;</span></code>element should not be specified.
+If <code class="docutils literal"><span class="pre">&lt;sec:csrfInput&gt;</span></code> element is specified, there is a high risk of CSRF token value being stolen since CSRF token value is included in the URL.</p>
+</div>
+</div>
+<div class="section" id="coordination-while-using-ajax">
+<span id="csrf-ajax-token-setting"></span><h4><a class="toc-backref" href="#id13">9.5.2.2.3. Coordination while using Ajax</a><a class="headerlink" href="#coordination-while-using-ajax" title="Permalink to this headline">¶</a></h4>
+<p>If you want to send a request using Ajax, output the CSRF token information as HTML meta tag, and link by setting the token value fetched from meta tag in the request header at the time of Ajax communication.</p>
+<p>First, output the CSRF token information in HTML meta tag by using the JSP tag library provided by Spring Security.</p>
+<ul class="simple">
+<li>Implementation example of JSP</li>
+</ul>
+<div class="highlight-jsp"><div class="highlight"><pre><span class="k">&lt;%@</span> <span class="n">taglib</span> <span class="n">prefix</span><span class="o">=</span><span class="s">&quot;sec&quot;</span> <span class="n">uri</span><span class="o">=</span><span class="s">&quot;http://www.springframework.org/security/tags&quot;</span> <span class="k">%&gt;</span>
+
+<span class="nt">&lt;head&gt;</span>
+    <span class="c">&lt;!-- omitted --&gt;</span>
+    <span class="nt">&lt;sec:csrfMetaTags</span> <span class="nt">/&gt;</span> <span class="c">&lt;!-- (1) --&gt;</span>
+    <span class="c">&lt;!-- omitted --&gt;</span>
+<span class="nt">&lt;/head&gt;</span>
+</pre></div>
+</div>
+<table border="1" class="docutils">
+<colgroup>
+<col width="10%" />
+<col width="90%" />
+</colgroup>
+<thead valign="bottom">
+<tr class="row-odd"><th class="head">Sr. No.</th>
+<th class="head">Description</th>
+</tr>
+</thead>
+<tbody valign="top">
+<tr class="row-even"><td><div class="first last line-block">
+<div class="line">(1)</div>
+</div>
+</td>
+<td><div class="first last line-block">
+<div class="line">Specify <code class="docutils literal"><span class="pre">&lt;sec:csrfMetaTags&gt;</span></code> element in <code class="docutils literal"><span class="pre">&lt;head&gt;</span></code> element of HTML.</div>
+</div>
+</td>
+</tr>
+</tbody>
+</table>
+<p>If <code class="docutils literal"><span class="pre">&lt;sec:csrfMetaTags&gt;</span></code> element is specified, the meta tags are output as shown below.
+By default, the name of the request header to link CSRF token value is <code class="docutils literal"><span class="pre">X-CSRF-TOKEN</span></code>.</p>
+<ul class="simple">
+<li>Output example of HTML</li>
+</ul>
+<div class="highlight-html"><div class="highlight"><pre><span class="nt">&lt;head&gt;</span>
+    <span class="c">&lt;!-- omitted --&gt;</span>
+    <span class="nt">&lt;meta</span> <span class="na">name=</span><span class="s">&quot;_csrf_parameter&quot;</span> <span class="na">content=</span><span class="s">&quot;_csrf&quot;</span> <span class="nt">/&gt;</span>
+    <span class="nt">&lt;meta</span> <span class="na">name=</span><span class="s">&quot;_csrf_header&quot;</span> <span class="na">content=</span><span class="s">&quot;X-CSRF-TOKEN&quot;</span> <span class="nt">/&gt;</span> <span class="c">&lt;!-- Header name --&gt;</span>
+    <span class="nt">&lt;meta</span> <span class="na">name=</span><span class="s">&quot;_csrf&quot;</span>
+          <span class="na">content=</span><span class="s">&quot;63845086-6b57-4261-8440-97a3c6fa6b99&quot;</span> <span class="nt">/&gt;</span> <span class="c">&lt;!-- Token value --&gt;</span>
+    <span class="c">&lt;!-- omitted --&gt;</span>
+<span class="nt">&lt;/head&gt;</span>
+</pre></div>
+</div>
+<p>Then, fetch the CSRF token information from meta tag using JavaScript and set the CSRF token value
+in the request header at the time of Ajax communication. (Implementation example using jQuery is described here)</p>
+<ul class="simple">
+<li>Implementation example of JavaScript</li>
+</ul>
+<div class="highlight-javascript"><div class="highlight"><pre><span class="nx">$</span><span class="p">(</span><span class="kd">function</span> <span class="p">()</span> <span class="p">{</span>
+    <span class="kd">var</span> <span class="nx">headerName</span> <span class="o">=</span> <span class="nx">$</span><span class="p">(</span><span class="s2">&quot;meta[name=&#39;_csrf_header&#39;]&quot;</span><span class="p">).</span><span class="nx">attr</span><span class="p">(</span><span class="s2">&quot;content&quot;</span><span class="p">);</span> <span class="c1">// (1)</span>
+    <span class="kd">var</span> <span class="nx">tokenValue</span> <span class="o">=</span> <span class="nx">$</span><span class="p">(</span><span class="s2">&quot;meta[name=&#39;_csrf&#39;]&quot;</span><span class="p">).</span><span class="nx">attr</span><span class="p">(</span><span class="s2">&quot;content&quot;</span><span class="p">);</span> <span class="c1">// (2)</span>
+    <span class="nx">$</span><span class="p">(</span><span class="nb">document</span><span class="p">).</span><span class="nx">ajaxSend</span><span class="p">(</span><span class="kd">function</span><span class="p">(</span><span class="nx">e</span><span class="p">,</span> <span class="nx">xhr</span><span class="p">,</span> <span class="nx">options</span><span class="p">)</span> <span class="p">{</span>
+        <span class="nx">xhr</span><span class="p">.</span><span class="nx">setRequestHeader</span><span class="p">(</span><span class="nx">headerName</span><span class="p">,</span> <span class="nx">tokenValue</span><span class="p">);</span> <span class="c1">// (3)</span>
+    <span class="p">});</span>
+<span class="p">});</span>
+</pre></div>
+</div>
+<table border="1" class="docutils">
+<colgroup>
+<col width="10%" />
+<col width="90%" />
+</colgroup>
+<thead valign="bottom">
+<tr class="row-odd"><th class="head">Sr. No.</th>
+<th class="head">Description</th>
+</tr>
+</thead>
+<tbody valign="top">
+<tr class="row-even"><td><div class="first last line-block">
+<div class="line">(1)</div>
+</div>
+</td>
+<td><div class="first last line-block">
+<div class="line">Fetch the request header name for coordinating with the CSRF token value.</div>
+</div>
+</td>
+</tr>
+<tr class="row-odd"><td><div class="first last line-block">
+<div class="line">(2)</div>
+</div>
+</td>
+<td><div class="first last line-block">
+<div class="line">Fetch CSRF token value.</div>
+</div>
+</td>
+</tr>
+<tr class="row-even"><td><div class="first last line-block">
+<div class="line">(3)</div>
+</div>
+</td>
+<td><div class="first last line-block">
+<div class="line">Set CSRF token value in request header.</div>
+</div>
+</td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
+<div class="section" id="controlling-transition-destination-in-case-of-token-check-error">
+<span id="csrf-token-error-response"></span><h3><a class="toc-backref" href="#id14">9.5.2.3. Controlling transition destination in case of token check error</a><a class="headerlink" href="#controlling-transition-destination-in-case-of-token-check-error" title="Permalink to this headline">¶</a></h3>
+<p>In order to control the transition destination in case of token check error, handle <code class="docutils literal"><span class="pre">AccessDeniedException</span></code>  which is an exception that occurs in CSRF token check error and specify the transition destination corresponding to that exception.</p>
+<p>Exception that occurs at the time of CSRF token check error is as follows.</p>
+<table border="1" class="docutils" id="id3">
+<caption><span class="caption-text"><strong>Exception class used by CSRF token check</strong></span><a class="headerlink" href="#id3" title="Permalink to this table">¶</a></caption>
+<colgroup>
+<col width="35%" />
+<col width="65%" />
+</colgroup>
+<thead valign="bottom">
+<tr class="row-odd"><th class="head">Class name</th>
+<th class="head">Description</th>
+</tr>
+</thead>
+<tbody valign="top">
+<tr class="row-even"><td><div class="first last line-block">
+<div class="line"><code class="docutils literal"><span class="pre">InvalidCsrfTokenException</span></code></div>
+</div>
+</td>
+<td><div class="first last line-block">
+<div class="line">Exception class to be used when the token value sent by the client does not match with the token value stored at server side (Mainly invalid request).</div>
+</div>
+</td>
+</tr>
+<tr class="row-odd"><td><div class="first last line-block">
+<div class="line"><code class="docutils literal"><span class="pre">MissingCsrfTokenException</span></code></div>
+</div>
+</td>
+<td><div class="first last line-block">
+<div class="line">Exception class to be used when the token value is not stored at server side (Mainly session timeout).</div>
+</div>
+</td>
+</tr>
+</tbody>
+</table>
+<p>It is possible to set the transition destination for each exception by handling the exception mentioned above using <code class="docutils literal"><span class="pre">DelegatingAccessDeniedHandler</span></code> class and assigning implementation class of  <code class="docutils literal"><span class="pre">AccessDeniedHandler</span></code> interface respectively.</p>
+<p>Define a Bean as shown below if you want to transit to an exclusive error page (JSP) at the time of CSRF token check error. (The following definition example is an excerpt from a <a class="reference external" href="https://github.com/terasolunaorg/terasoluna-gfw-web-multi-blank">blank project</a>)</p>
+<ul class="simple">
+<li>Definition example of spring-security.xml</li>
+</ul>
+<div class="highlight-xml"><div class="highlight"><pre><span class="nt">&lt;sec:http&gt;</span>
+    <span class="c">&lt;!-- omitted --&gt;</span>
+    <span class="nt">&lt;sec:access-denied-handler</span> <span class="na">ref=</span><span class="s">&quot;accessDeniedHandler&quot;</span><span class="nt">/&gt;</span>  <span class="c">&lt;!-- (1) --&gt;</span>
+    <span class="c">&lt;!-- omitted --&gt;</span>
+<span class="nt">&lt;/sec:http&gt;</span>
+
+<span class="nt">&lt;bean</span> <span class="na">id=</span><span class="s">&quot;accessDeniedHandler&quot;</span>
+    <span class="na">class=</span><span class="s">&quot;org.springframework.security.web.access.DelegatingAccessDeniedHandler&quot;</span><span class="nt">&gt;</span>  <span class="c">&lt;!-- (2) --&gt;</span>
+    <span class="nt">&lt;constructor-arg</span> <span class="na">index=</span><span class="s">&quot;0&quot;</span><span class="nt">&gt;</span>  <span class="c">&lt;!-- (3) --&gt;</span>
+        <span class="nt">&lt;map&gt;</span>
+            <span class="c">&lt;!-- (4) --&gt;</span>
+            <span class="nt">&lt;entry</span>
+                <span class="na">key=</span><span class="s">&quot;org.springframework.security.web.csrf.InvalidCsrfTokenException&quot;</span><span class="nt">&gt;</span>
+                <span class="nt">&lt;bean</span>
+                    <span class="na">class=</span><span class="s">&quot;org.springframework.security.web.access.AccessDeniedHandlerImpl&quot;</span><span class="nt">&gt;</span>
+                    <span class="nt">&lt;property</span> <span class="na">name=</span><span class="s">&quot;errorPage&quot;</span>
+                        <span class="na">value=</span><span class="s">&quot;/WEB-INF/views/common/error/invalidCsrfTokenError.jsp&quot;</span> <span class="nt">/&gt;</span>
+                <span class="nt">&lt;/bean&gt;</span>
+            <span class="nt">&lt;/entry&gt;</span>
+            <span class="c">&lt;!-- (5) --&gt;</span>
+            <span class="nt">&lt;entry</span>
+                <span class="na">key=</span><span class="s">&quot;org.springframework.security.web.csrf.MissingCsrfTokenException&quot;</span><span class="nt">&gt;</span>
+                <span class="nt">&lt;bean</span>
+                    <span class="na">class=</span><span class="s">&quot;org.springframework.security.web.access.AccessDeniedHandlerImpl&quot;</span><span class="nt">&gt;</span>
+                    <span class="nt">&lt;property</span> <span class="na">name=</span><span class="s">&quot;errorPage&quot;</span>
+                        <span class="na">value=</span><span class="s">&quot;/WEB-INF/views/common/error/missingCsrfTokenError.jsp&quot;</span> <span class="nt">/&gt;</span>
+                <span class="nt">&lt;/bean&gt;</span>
+            <span class="nt">&lt;/entry&gt;</span>
+        <span class="nt">&lt;/map&gt;</span>
+    <span class="nt">&lt;/constructor-arg&gt;</span>
+    <span class="c">&lt;!-- (6) --&gt;</span>
+    <span class="nt">&lt;constructor-arg</span> <span class="na">index=</span><span class="s">&quot;1&quot;</span><span class="nt">&gt;</span>
+        <span class="nt">&lt;bean</span>
+            <span class="na">class=</span><span class="s">&quot;org.springframework.security.web.access.AccessDeniedHandlerImpl&quot;</span><span class="nt">&gt;</span>
+            <span class="nt">&lt;property</span> <span class="na">name=</span><span class="s">&quot;errorPage&quot;</span>
+                <span class="na">value=</span><span class="s">&quot;/WEB-INF/views/common/error/accessDeniedError.jsp&quot;</span> <span class="nt">/&gt;</span>
+        <span class="nt">&lt;/bean&gt;</span>
+    <span class="nt">&lt;/constructor-arg&gt;</span>
+<span class="nt">&lt;/bean&gt;</span>
+</pre></div>
+</div>
+<table border="1" class="docutils">
+<colgroup>
+<col width="10%" />
+<col width="90%" />
+</colgroup>
+<thead valign="bottom">
+<tr class="row-odd"><th class="head">Sr. No.</th>
+<th class="head">Description</th>
+</tr>
+</thead>
+<tbody valign="top">
+<tr class="row-even"><td><div class="first last line-block">
+<div class="line">(1)</div>
+</div>
+</td>
+<td><div class="first last line-block">
+<div class="line">Specify the Bean name for <code class="docutils literal"><span class="pre">AccessDeniedHandler</span></code>  to control each Exception in ref attribute of <code class="docutils literal"><span class="pre">&lt;sec:access-denied-handler&gt;</span></code> tag.</div>
+<div class="line">If all the transition destinations in case of an error are on the same screen, the transition destination should be specified in <code class="docutils literal"><span class="pre">error-page</span></code> attribute.</div>
+<div class="line">Refer to <a class="reference internal" href="Authorization.html#springsecurityauthorizationonerror"><span>Transition destination at the time of authorization error</span></a> when the exceptions are not handled by <code class="docutils literal"><span class="pre">&lt;sec:access-denied-handler&gt;</span></code>.</div>
+</div>
+</td>
+</tr>
+<tr class="row-odd"><td><div class="first last line-block">
+<div class="line">(2)</div>
+</div>
+</td>
+<td><div class="first last line-block">
+<div class="line">Using <code class="docutils literal"><span class="pre">DelegatingAccessDeniedHandler</span></code> , define the exception that occurred (<code class="docutils literal"><span class="pre">AccessDeniedException</span></code>  subclass) and the exception handler (<code class="docutils literal"><span class="pre">AccessDeniedHandler</span></code>  Implementation class).</div>
+</div>
+</td>
+</tr>
+<tr class="row-even"><td><div class="first last line-block">
+<div class="line">(3)</div>
+</div>
+</td>
+<td><div class="first last line-block">
+<div class="line">Using the first argument of constructor, define the exception for which transition destination is to be specified separately (<code class="docutils literal"><span class="pre">AccessDeniedException</span></code> subclass) and the corresponding exception handler (<code class="docutils literal"><span class="pre">AccessDeniedHandler</span></code> implementation class) in Map format.</div>
+</div>
+</td>
+</tr>
+<tr class="row-odd"><td><div class="first last line-block">
+<div class="line">(4)</div>
+</div>
+</td>
+<td><div class="first last line-block">
+<div class="line">Specify sub class of <code class="docutils literal"><span class="pre">AccessDeniedException</span></code> in <code class="docutils literal"><span class="pre">key</span></code>.</div>
+<div class="line">Specify <code class="docutils literal"><span class="pre">org.springframework.security.web.access.AccessDeniedHandlerImpl</span></code> which is an implementation class of <code class="docutils literal"><span class="pre">AccessDeniedHandler</span></code> , as the <code class="docutils literal"><span class="pre">value</span></code>.</div>
+<div class="line">Specify the view to be displayed in <code class="docutils literal"><span class="pre">value</span></code> by specifying <code class="docutils literal"><span class="pre">errorPage</span></code> in <code class="docutils literal"><span class="pre">name</span></code> of <code class="docutils literal"><span class="pre">property</span></code>.</div>
+<div class="line">Refer to <a class="reference internal" href="#csrf-token-error-response"><span>Controlling transition destination in case of token check error</span></a> for the Exception to be mapped.</div>
+</div>
+</td>
+</tr>
+<tr class="row-even"><td><div class="first last line-block">
+<div class="line">(5)</div>
+</div>
+</td>
+<td><div class="first last line-block">
+<div class="line">Define if an Exception different from Exception of (4) is to be controlled.</div>
+<div class="line">In this example, a different transition destination has been set in <code class="docutils literal"><span class="pre">InvalidCsrfTokenException</span></code>, <code class="docutils literal"><span class="pre">MissingCsrfTokenException</span></code> respectively.</div>
+</div>
+</td>
+</tr>
+<tr class="row-odd"><td><div class="first last line-block">
+<div class="line">(6)</div>
+</div>
+</td>
+<td><div class="first last line-block">
+<div class="line">Specify the exception handler (<code class="docutils literal"><span class="pre">AccessDeniedHandler</span></code> implementation class) at the time of default exception (subclass of <code class="docutils literal"><span class="pre">AccessDeniedException</span></code> not specified in (4)(5)) and the transition destination using second argument of constructor.</div>
+</div>
+</td>
+</tr>
+</tbody>
+</table>
+<div class="admonition note">
+<p class="first admonition-title">Note</p>
+<p><strong>Detection of request with an invalid session</strong></p>
+<p>When &#8220;<a class="reference internal" href="SessionManagement.html#springsecuritysessiondetectinvalidsession"><span>Detection of request with invalid session</span></a>&#8221; process of session management function is enabled, implementation class of <code class="docutils literal"><span class="pre">AccessDeniedHandler</span></code> interface to be linked with &#8220;<a class="reference internal" href="SessionManagement.html#springsecuritysessiondetectinvalidsession"><span>Detection of request with invalid session</span></a>&#8221; process is used for <code class="docutils literal"><span class="pre">MissingCsrfTokenException</span></code>.</p>
+<p class="last">Therefore, if <code class="docutils literal"><span class="pre">MissingCsrfTokenException</span></code>  is thrown, redirect to path (<code class="docutils literal"><span class="pre">invalid-session-url</span></code>) specified while enabling &#8220;<a class="reference internal" href="SessionManagement.html#springsecuritysessiondetectinvalidsession"><span>Detection of request with invalid session</span></a>&#8221; process.</p>
+</div>
+<div class="admonition note">
+<p class="first admonition-title">Note</p>
+<p><strong>When status code other than 403 is to be returned</strong></p>
+<p class="last">If status code other than 403 is to be returned when the CSRF token in request does not match, it is necessary to create an independent AccessDeniedHandler which implements <code class="docutils literal"><span class="pre">org.springframework.security.web.access.AccessDeniedHandler</span></code> interface.</p>
+</div>
+</div>
+</div>
+</div>
+
+
+          </div>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="LinkageWithBrowser.html" title="9.6. Coordinating with browser security countermeasure function"
+             >next</a> |</li>
+        <li class="right" >
+          <a href="SessionManagement.html" title="9.4. Session Management"
+             >previous</a> |</li>
+        <li class="nav-item nav-item-0"><a href="../index.html">TERASOLUNA Server Framework for Java (5.x) Development Guideline 5.2.0.RELEASE documentation</a> &raquo;</li>
+          <li class="nav-item nav-item-1"><a href="index.html" >9. Security countermeasures</a> &raquo;</li> 
+      </ul>
+    </div>
+    <div class="footer">
+        &copy; Copyright 2013-2016, NTT DATA.
+    Created using <a href="http://sphinx.pocoo.org/">Sphinx</a> 1.3.4.Theme by <a href="http://github.com/vkvn">vkvn</a>
+    </div>
+    
+    <script>
+    
+    $(function() {
+    	var $sidebar	= $('.sphinxsidebar'),
+    		$window		= $(window),
+    		offset		= $sidebar.offset(),
+    		topPadding	= 3,
+    		$scroll		= $('#scroll');
+    	
+    	$window.scroll(function() {
+    		if ($scroll.is(':checked')) {
+				if ($window.scrollTop() > offset.top) {
+					$sidebar.stop().animate({
+						marginTop:$window.scrollTop() - offset.top + topPadding
+					});
+				} else {
+					$sidebar.stop().animate({
+						marginTop:0
+					});
+				}
+			}
+		});
+    	
+    	var $navList = $('ul:first', $sidebar);
+    	$('li:first', $navList).addClass('open');
+    	
+    	$navList.treeview({
+    		persist: "location",
+    		collapsed: true,
+    		unique: false
+    	});
+    	
+	});
+    (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+        (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+            m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+    })(window,document,'script','//www.google-analytics.com/analytics.js','ga');
+
+    ga('create', 'UA-46550814-1', 'terasolunaorg.github.io');
+    ga('send', 'pageview');
+    </script>
+  </body>
+</html>
