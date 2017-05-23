@@ -48,7 +48,7 @@ Spring MVCを用いたWebアプリケーションの開発に対するイメー�
      -DarchetypeCatalog=http://repo.terasoluna.org/nexus/content/repositories/terasoluna-gfw-releases^
      -DarchetypeGroupId=org.terasoluna.gfw.blank^
      -DarchetypeArtifactId=terasoluna-gfw-web-blank-archetype^
-     -DarchetypeVersion=1.0.5.RELEASE^
+     -DarchetypeVersion=1.0.6.RELEASE^
      -DgroupId=com.example.helloworld^
      -DartifactId=helloworld^
      -Dversion=1.0.0-SNAPSHOT
@@ -61,7 +61,7 @@ Spring MVCを用いたWebアプリケーションの開発に対するイメー�
     More?  -DarchetypeCatalog=http://repo.terasoluna.org/nexus/content/repositories/terasoluna-gfw-releases^
     More?  -DarchetypeGroupId=org.terasoluna.gfw.blank^
     More?  -DarchetypeArtifactId=terasoluna-gfw-web-blank-archetype^
-    More?  -DarchetypeVersion=1.0.5.RELEASE^
+    More?  -DarchetypeVersion=1.0.6.RELEASE^
     More?  -DgroupId=com.example.helloworld^
     More?  -DartifactId=helloworld^
     More?  -Dversion=1.0.0-SNAPSHOT
@@ -79,7 +79,7 @@ Spring MVCを用いたWebアプリケーションの開発に対するイメー�
     [INFO] Generating project in Batch mode
     [INFO] Archetype repository not defined. Using the one from [org.terasoluna.gfw.blank:terasoluna-gfw-web-blank-archetype:1.0.0.RELEASE -> http://repo.terasoluna.org/nexus/content/repositories/terasoluna-gfw-releases] found in catalog http://repo.terasoluna.org/nexus/content/repositories/terasoluna-gfw-releases
     [INFO] ----------------------------------------------------------------------------
-    [INFO] Using following parameters for creating project from Archetype: terasoluna-gfw-web-blank-archetype:1.0.5.RELEASE
+    [INFO] Using following parameters for creating project from Archetype: terasoluna-gfw-web-blank-archetype:1.0.6.RELEASE
     [INFO] ----------------------------------------------------------------------------
     [INFO] Parameter: groupId, Value: com.example.helloworld
     [INFO] Parameter: artifactId, Value: helloworld

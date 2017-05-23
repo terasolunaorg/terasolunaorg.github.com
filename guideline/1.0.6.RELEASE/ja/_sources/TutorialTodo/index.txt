@@ -207,7 +207,7 @@ Delete TODO
      -DarchetypeCatalog=http://repo.terasoluna.org/nexus/content/repositories/terasoluna-gfw-releases^
      -DarchetypeGroupId=org.terasoluna.gfw.blank^
      -DarchetypeArtifactId=terasoluna-gfw-web-blank-archetype^
-     -DarchetypeVersion=1.0.5.RELEASE^
+     -DarchetypeVersion=1.0.6.RELEASE^
      -DgroupId=todo^
      -DartifactId=todo^
      -Dversion=1.0.0-SNAPSHOT
@@ -220,7 +220,7 @@ Delete TODO
      -DarchetypeCatalog=http://repo.terasoluna.org/nexus/content/repositories/terasoluna-gfw-releases^
      -DarchetypeGroupId=org.terasoluna.gfw.blank^
      -DarchetypeArtifactId=terasoluna-gfw-web-blank-jpa-archetype^
-     -DarchetypeVersion=1.0.5.RELEASE^
+     -DarchetypeVersion=1.0.6.RELEASE^
      -DgroupId=todo^
      -DartifactId=todo^
      -Dversion=1.0.0-SNAPSHOT
@@ -233,7 +233,7 @@ Delete TODO
      -DarchetypeCatalog=http://repo.terasoluna.org/nexus/content/repositories/terasoluna-gfw-releases^
      -DarchetypeGroupId=org.terasoluna.gfw.blank^
      -DarchetypeArtifactId=terasoluna-gfw-web-blank-mybatis2-archetype^
-     -DarchetypeVersion=1.0.5.RELEASE^
+     -DarchetypeVersion=1.0.6.RELEASE^
      -DgroupId=todo^
      -DartifactId=todo^
      -Dversion=1.0.0-SNAPSHOT
@@ -246,7 +246,7 @@ Delete TODO
     More?  -DarchetypeCatalog=http://repo.terasoluna.org/nexus/content/repositories/terasoluna-gfw-releases^
     More?  -DarchetypeGroupId=org.terasoluna.gfw.blank^
     More?  -DarchetypeArtifactId=terasoluna-gfw-web-blank-archetype^
-    More?  -DarchetypeVersion=1.0.5.RELEASE^
+    More?  -DarchetypeVersion=1.0.6.RELEASE^
     More?  -DgroupId=todo^
     More?  -DartifactId=todo^
     More?  -Dversion=1.0.0-SNAPSHOT
@@ -264,7 +264,7 @@ Delete TODO
     [INFO] Generating project in Batch mode
     [INFO] Archetype repository not defined. Using the one from [org.terasoluna.gfw.blank:terasoluna-gfw-web-blank-archetype:1.0.0.RELEASE -> http://repo.terasoluna.org/nexus/content/repositories/terasoluna-gfw-releases] found in catalog http://repo.terasoluna.org/nexus/content/repositories/terasoluna-gfw-releases
     [INFO] ----------------------------------------------------------------------------
-    [INFO] Using following parameters for creating project from Archetype: terasoluna-gfw-web-blank-archetype:1.0.5.RELEASE
+    [INFO] Using following parameters for creating project from Archetype: terasoluna-gfw-web-blank-archetype:1.0.6.RELEASE
     [INFO] ----------------------------------------------------------------------------
     [INFO] Parameter: groupId, Value: todo
     [INFO] Parameter: artifactId, Value: todo
@@ -322,7 +322,7 @@ Package Explorerに、次のようなプロジェクトが生成される( **要
          -DarchetypeCatalog=http://repo.terasoluna.org/nexus/content/repositories/terasoluna-gfw-releases\
          -DarchetypeGroupId=org.terasoluna.gfw.blank\
          -DarchetypeArtifactId=terasoluna-gfw-web-blank-archetype\
-         -DarchetypeVersion=1.0.5.RELEASE\
+         -DarchetypeVersion=1.0.6.RELEASE\
          -DgroupId=todo\
          -DartifactId=todo\
          -Dversion=1.0.0-SNAPSHOT
