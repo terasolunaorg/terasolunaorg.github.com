@@ -109,7 +109,7 @@ Viewのレイアウトを共通化する場合は、
 利用するOSSのバージョン
 --------------------------------------------------------------------------------
 
-version 1.0.5.RELEASEで利用するOSSの一覧を以下に示す。
+version 1.0.6.RELEASEで利用するOSSの一覧を以下に示す。
 
 .. tabularcolumns:: |p{0.20\linewidth}|p{0.25\linewidth}|p{0.25\linewidth}|p{0.25\linewidth}|p{0.5\linewidth}|
 .. list-table::
