@@ -56,7 +56,7 @@ Blankプロジェクトからの新規プロジェクトを作成する方法を
        -DarchetypeCatalog=http://repo.terasoluna.org/nexus/content/repositories/terasoluna-gfw-releases^
        -DarchetypeGroupId=org.terasoluna.gfw.blank^
        -DarchetypeArtifactId=terasoluna-gfw-web-blank-archetype^
-       -DarchetypeVersion=1.0.5.RELEASE^
+       -DarchetypeVersion=1.0.6.RELEASE^
        -DgroupId=example.first.application^
        -DartifactId=example-first-application^
        -Dversion=1.0.0-SNAPSHOT
