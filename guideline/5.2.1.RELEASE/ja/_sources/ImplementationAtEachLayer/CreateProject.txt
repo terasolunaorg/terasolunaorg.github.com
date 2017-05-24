@@ -222,7 +222,7 @@ WebアプリケーションをTomcat上にリリースする場合は次のよ�
 4. Tomcat 7を使用する場合は、TomcatのVirtualWebappLoader機能を使用して /etc/foo/bar/\*.jar をクラスパスに追加する。
 
  * [CATALINA_HOME]/conf/[contextPath].xml ファイルに下記の定義を追加する。
- * 詳しくは、 http://tomcat.apache.org/tomcat-7.0-doc/api/org/apache/catalina/loader/VirtualWebappLoader.html と `terasoluna-tourreservation-envのconfigsフォルダ <https://github.com/terasolunaorg/terasoluna-tourreservation/tree/5.2.0.RELEASE/terasoluna-tourreservation-env/configs>`_\ を参考されたい。
+ * 詳しくは、 http://tomcat.apache.org/tomcat-7.0-doc/api/org/apache/catalina/loader/VirtualWebappLoader.html と `terasoluna-tourreservation-envのconfigsフォルダ <https://github.com/terasolunaorg/terasoluna-tourreservation/tree/5.2.1.RELEASE/terasoluna-tourreservation-env/configs>`_\ を参考されたい。
  * VirtualWebappLoaderの設定例：
    
   .. code-block:: xml
@@ -235,7 +235,7 @@ WebアプリケーションをTomcat上にリリースする場合は次のよ�
 5. Tomcat 8を使用する場合は、Tomcatのリソース機能を使用して /etc/foo/bar/\*.jar をクラスパスに追加する。
 
  * [CATALINA_HOME]/conf/[contextPath].xml ファイルに下記の定義を追加する。
- * 詳しくは、 https://tomcat.apache.org/migration-8.html#Web_application_resources と `terasoluna-tourreservation-envのconfigsフォルダ <https://github.com/terasolunaorg/terasoluna-tourreservation/tree/5.2.0.RELEASE/terasoluna-tourreservation-env/configs>`_\ を参考されたい。
+ * 詳しくは、 https://tomcat.apache.org/migration-8.html#Web_application_resources と `terasoluna-tourreservation-envのconfigsフォルダ <https://github.com/terasolunaorg/terasoluna-tourreservation/tree/5.2.1.RELEASE/terasoluna-tourreservation-env/configs>`_\ を参考されたい。
  * リソースの設定例：
    
   .. code-block:: xml

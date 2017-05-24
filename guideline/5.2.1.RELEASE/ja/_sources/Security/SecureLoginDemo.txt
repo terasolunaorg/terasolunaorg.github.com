@@ -497,8 +497,8 @@ ER図
 ================================================================================
 
 | セキュリティ要件の分類ごとに、本アプリケーションにおける実装の方法とコードの説明を行う。
-| ここでは各分類ごとに要件の実現のために必要最小限のコード片のみを掲載している。コード全体を確認したい場合は `GitHub <https://github.com/terasolunaorg/tutorial-apps/tree/release/5.2.0.RELEASE/secure-login-demo>`_ を参照すること。
-| 本アプリケーションを動作させるための初期データ登録用SQLは `ここ <https://github.com/terasolunaorg/tutorial-apps/tree/release/5.2.0.RELEASE/secure-login-demo/secure-login-demo/secure-login-env/src/main/resources/database>`_ に配置されている。
+| ここでは各分類ごとに要件の実現のために必要最小限のコード片のみを掲載している。コード全体を確認したい場合は `GitHub <https://github.com/terasolunaorg/tutorial-apps/tree/release/5.2.1.RELEASE/secure-login-demo>`_ を参照すること。
+| 本アプリケーションを動作させるための初期データ登録用SQLは `ここ <https://github.com/terasolunaorg/tutorial-apps/tree/release/5.2.1.RELEASE/secure-login-demo/secure-login-demo/secure-login-env/src/main/resources/database>`_ に配置されている。
 
 .. note::
 

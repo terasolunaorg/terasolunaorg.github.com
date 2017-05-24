@@ -1780,7 +1780,7 @@ Commons FileUploadを使用する場合は以下の設定を行う。
 
     Apache Commons FileUploadを使用する場合、1.3.2以上を使用する必要がある。
 
-    なお、TERASOLUNA Server Framework for Java version 5.2.0.RELEASEが準拠しているSpring IO Platform 2.0.6.RELEASEで管理されているバージョンを使用すれば、CVE-2014-0050およびCVE-2016-3092で報告されている脆弱性は発生しない。
+    なお、TERASOLUNA Server Framework for Java version 5.2.1.RELEASEが準拠しているSpring IO Platform 2.0.6.RELEASEで管理されているバージョンを使用すれば、CVE-2014-0050およびCVE-2016-3092で報告されている脆弱性は発生しない。
     意図的にApache Commons FileUploadのバージョンを変更する場合は、当該脆弱性が対処されているバージョンを指定すること。
 
 |

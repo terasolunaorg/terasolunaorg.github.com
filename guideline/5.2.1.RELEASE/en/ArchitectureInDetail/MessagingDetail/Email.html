@@ -1,0 +1,2345 @@
+<!DOCTYPE html>
+
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>8.1. Sending E-mail (SMTP) &#8212; TERASOLUNA Server Framework for Java (5.x) Development Guideline 5.2.1.RELEASE documentation</title>
+    
+    <link rel="stylesheet" href="../../_static/solar.css" type="text/css" />
+    <link rel="stylesheet" href="../../_static/pygments.css" type="text/css" />
+    
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    '../../',
+        VERSION:     '5.2.1.RELEASE',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true
+      };
+    </script>
+    <script type="text/javascript" src="../../_static/jquery.js"></script>
+    <script type="text/javascript" src="../../_static/underscore.js"></script>
+    <script type="text/javascript" src="../../_static/doctools.js"></script>
+    <link rel="index" title="Index" href="../../genindex.html" />
+    <link rel="search" title="Search" href="../../search.html" />
+    <link rel="top" title="TERASOLUNA Server Framework for Java (5.x) Development Guideline 5.2.1.RELEASE documentation" href="../../index.html" />
+    <link rel="up" title="8. Messaging" href="index.html" />
+    <link rel="next" title="8.2. JMS(Java Message Service)" href="JMS.html" />
+    <link rel="prev" title="8. Messaging" href="index.html" /><script src="../../_static/jquery.treeview.js" type="text/javascript"></script>
+<!-- <link href='http://fonts.googleapis.com/css?family=Source+Code+Pro|Open+Sans:300italic,400italic,700italic,400,300,700' rel='stylesheet' type='text/css'> -->
+<link href="../../_static/solarized-dark.css" rel="stylesheet">
+<link href="../../_static/jquery.treeview.css" rel="stylesheet">
+  </head>
+  <body role="document">
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../../genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="JMS.html" title="8.2. JMS(Java Message Service)"
+             accesskey="N">next</a> |</li>
+        <li class="right" >
+          <a href="index.html" title="8. Messaging"
+             accesskey="P">previous</a> |</li>
+        <li class="nav-item nav-item-0"><a href="../../index.html">TERASOLUNA Server Framework for Java (5.x) Development Guideline 5.2.1.RELEASE documentation</a> &#187;</li>
+          <li class="nav-item nav-item-1"><a href="index.html" accesskey="U">8. Messaging</a> &#187;</li> 
+      </ul>
+    </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper"><label><input id="scroll" type="checkbox" checked> scroll sidebar</label>
+
+  <h3><a href="../../index.html">Table Of Contents</a></h3>
+  <ul>
+<li><a class="reference internal" href="#">8.1. Sending E-mail (SMTP)</a><ul>
+<li><a class="reference internal" href="#overview">8.1.1. Overview</a><ul>
+<li><a class="reference internal" href="#regarding-javamail">8.1.1.1. Regarding JavaMail</a></li>
+<li><a class="reference internal" href="#regarding-component-of-spring-framework-for-email-coordination">8.1.1.2. Regarding component of Spring Framework for email coordination</a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#how-to-use">8.1.2. How to use</a><ul>
+<li><a class="reference internal" href="#regarding-dependent-library">8.1.2.1. Regarding dependent library</a></li>
+<li><a class="reference internal" href="#how-to-configure-javamailsender">8.1.2.2. How to configure JavaMailSender</a><ul>
+<li><a class="reference internal" href="#when-a-mail-session-offered-by-application-server-is-used">8.1.2.2.1. When a mail session offered by application server is used</a></li>
+<li><a class="reference internal" href="#when-a-mail-session-offered-by-application-server-is-not-used-no-authentication">8.1.2.2.2. When a mail session offered by application server is not used (no authentication)</a></li>
+<li><a class="reference internal" href="#when-a-mail-session-offered-by-application-server-is-not-used-authenticated">8.1.2.2.3. When a mail session offered by application server is not used (authenticated)</a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#how-to-send-an-email-using-simplemailmessage">8.1.2.3. How to send an email using SimpleMailMessage</a></li>
+<li><a class="reference internal" href="#how-to-send-an-email-using-mimemessage">8.1.2.4. How to send an email using MimeMessage</a><ul>
+<li><a class="reference internal" href="#sending-a-text-email">8.1.2.4.1. Sending a text email</a></li>
+<li><a class="reference internal" href="#sending-a-html-email">8.1.2.4.2. Sending a HTML email</a></li>
+<li><a class="reference internal" href="#sending-an-email-with-attachment">8.1.2.4.3. Sending an email with attachment</a></li>
+<li><a class="reference internal" href="#sending-an-email-with-inline-resource">8.1.2.4.4. Sending an email with inline resource</a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#regarding-exceptions-while-sending-an-email">8.1.2.5. Regarding exceptions while sending an email</a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#how-to-extend">8.1.3. How to extend</a><ul>
+<li><a class="reference internal" href="#how-to-create-an-email-text-using-a-template">8.1.3.1. How to create an email text using a template</a><ul>
+<li><a class="reference internal" href="#creating-the-email-text-using-freemarker">8.1.3.1.1. Creating the email text using FreeMarker</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li><a class="reference internal" href="#appendix">8.1.4. Appendix</a><ul>
+<li><a class="reference internal" href="#considerations-for-iso-2022-jp-encoding">8.1.4.1. Considerations for ISO-2022-JP encoding</a></li>
+<li><a class="reference internal" href="#precautions-while-using-multibyte-characters-in-javamail">8.1.4.2. Precautions while using multibyte characters in JavaMail</a></li>
+<li><a class="reference internal" href="#email-header-injection-countermeasures">8.1.4.3. Email header injection countermeasures</a></li>
+<li><a class="reference internal" href="#processing-method">8.1.4.4. Processing method</a><ul>
+<li><a class="reference internal" href="#send-an-email-based-on-the-email-information-stored-in-database-or-message-queue">8.1.4.4.1. Send an email based on the email information stored in database or message queue</a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#test-using-greenmail">8.1.4.5. Test using GreenMail</a></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+
+
+  <h4>Previous topic</h4>
+  <p class="topless"><a href="index.html"
+                        title="previous chapter">8. Messaging</a></p>
+  <h4>Next topic</h4>
+  <p class="topless"><a href="JMS.html"
+                        title="next chapter">8.2. JMS(Java Message Service)</a></p>
+  <div role="note" aria-label="source link">
+    <h3>This Page</h3>
+    <ul class="this-page-menu">
+      <li><a href="../../_sources/ArchitectureInDetail/MessagingDetail/Email.txt"
+            rel="nofollow">Show Source</a></li>
+    </ul>
+   </div>
+<div id="searchbox" style="display: none" role="search">
+  <h3>Quick search</h3>
+    <form class="search" action="../../search.html" method="get">
+      <div><input type="text" name="q" /></div>
+      <div><input type="submit" value="Go" /></div>
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <div class="section" id="sending-e-mail-smtp">
+<h1>8.1. Sending E-mail (SMTP)<a class="headerlink" href="#sending-e-mail-smtp" title="Permalink to this headline">¶</a></h1>
+<div class="contents local topic" id="index">
+<p class="topic-title first">Index</p>
+<ul class="simple">
+<li><a class="reference internal" href="#overview" id="id7">Overview</a><ul>
+<li><a class="reference internal" href="#regarding-javamail" id="id8">Regarding JavaMail</a></li>
+<li><a class="reference internal" href="#regarding-component-of-spring-framework-for-email-coordination" id="id9">Regarding component of Spring Framework for email coordination</a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#how-to-use" id="id10">How to use</a><ul>
+<li><a class="reference internal" href="#regarding-dependent-library" id="id11">Regarding dependent library</a></li>
+<li><a class="reference internal" href="#how-to-configure-javamailsender" id="id12">How to configure JavaMailSender</a><ul>
+<li><a class="reference internal" href="#when-a-mail-session-offered-by-application-server-is-used" id="id13">When a mail session offered by application server is used</a></li>
+<li><a class="reference internal" href="#when-a-mail-session-offered-by-application-server-is-not-used-no-authentication" id="id14">When a mail session offered by application server is not used (no authentication)</a></li>
+<li><a class="reference internal" href="#when-a-mail-session-offered-by-application-server-is-not-used-authenticated" id="id15">When a mail session offered by application server is not used (authenticated)</a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#how-to-send-an-email-using-simplemailmessage" id="id16">How to send an email using SimpleMailMessage</a></li>
+<li><a class="reference internal" href="#how-to-send-an-email-using-mimemessage" id="id17">How to send an email using MimeMessage</a><ul>
+<li><a class="reference internal" href="#sending-a-text-email" id="id18">Sending a text email</a></li>
+<li><a class="reference internal" href="#sending-a-html-email" id="id19">Sending a HTML email</a></li>
+<li><a class="reference internal" href="#sending-an-email-with-attachment" id="id20">Sending an email with attachment</a></li>
+<li><a class="reference internal" href="#sending-an-email-with-inline-resource" id="id21">Sending an email with inline resource</a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#regarding-exceptions-while-sending-an-email" id="id22">Regarding exceptions while sending an email</a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#how-to-extend" id="id23">How to extend</a><ul>
+<li><a class="reference internal" href="#how-to-create-an-email-text-using-a-template" id="id24">How to create an email text using a template</a><ul>
+<li><a class="reference internal" href="#creating-the-email-text-using-freemarker" id="id25">Creating the email text using FreeMarker</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li><a class="reference internal" href="#appendix" id="id26">Appendix</a><ul>
+<li><a class="reference internal" href="#considerations-for-iso-2022-jp-encoding" id="id27">Considerations for ISO-2022-JP encoding</a></li>
+<li><a class="reference internal" href="#precautions-while-using-multibyte-characters-in-javamail" id="id28">Precautions while using multibyte characters in JavaMail</a></li>
+<li><a class="reference internal" href="#email-header-injection-countermeasures" id="id29">Email header injection countermeasures</a></li>
+<li><a class="reference internal" href="#processing-method" id="id30">Processing method</a><ul>
+<li><a class="reference internal" href="#send-an-email-based-on-the-email-information-stored-in-database-or-message-queue" id="id31">Send an email based on the email information stored in database or message queue</a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#test-using-greenmail" id="id32">Test using GreenMail</a></li>
+</ul>
+</li>
+</ul>
+</div>
+<div class="section" id="overview">
+<h2><a class="toc-backref" href="#id7">8.1.1. Overview</a><a class="headerlink" href="#overview" title="Permalink to this headline">¶</a></h2>
+<p>This chapter explains how to send an E-mail using SMTP.</p>
+<p>In this guideline, it is assumed that a component for email coordination offered by API and Spring Framework of JavaMail is used.</p>
+<div class="admonition note">
+<p class="first admonition-title">Note</p>
+<p class="last">The description covers only the part related to sending an email.
+The processing method related to sending an email is not mentioned.
+(An example is introduced for <a class="reference internal" href="#email-processing-method"><span class="std std-ref">Processing method</span></a>.)</p>
+</div>
+<div class="line-block">
+<div class="line"><br /></div>
+</div>
+<div class="section" id="regarding-javamail">
+<h3><a class="toc-backref" href="#id8">8.1.1.1. Regarding JavaMail</a><a class="headerlink" href="#regarding-javamail" title="Permalink to this headline">¶</a></h3>
+<p><a class="reference external" href="https://java.net/projects/javamail/pages/Home">JavaMail</a> offers an API to send and receive emails in Java.
+Although it is included in Java EE, it can also be used in Java SE as an add-on package.
+By using JavaMail, the email function can be easily incorporated in Java application.</p>
+<p>Also, since it is assumed that an email coordination component of Spring Framework is used in this guideline, the details related to JavaMail API are not covered.
+Refer <a class="reference external" href="http://download.oracle.com/otn-pub/jcp/java_mail-1_5-mrel2-eval-spec/JavaMail-1.5.pdf">JavaMail API Design Specification</a> for JavaMail API specifications.</p>
+<div class="admonition note">
+<p class="first admonition-title">Note</p>
+<p><strong>Mail Session</strong></p>
+<p>A mail session (<a class="reference external" href="http://docs.oracle.com/javaee/7/api/javax/mail/Session.html">Session</a>) manages the information required for connecting to a mail server.</p>
+<p>Following methods are used to fetch a mail session.</p>
+<ul class="simple">
+<li>Fetch the mail session managed by Java EE container through JNDI for a typical enterprise application.</li>
+<li>Fetch the mail session defined by resource factory through JNDI in case of Tomcat.</li>
+<li>Fetch the mail session for which a Bean is defined, from DI container using a static factory method.</li>
+<li>Fetch directly from Java source using static factory method of <code class="docutils literal"><span class="pre">Session</span></code>.</li>
+</ul>
+<p>Note that, if <code class="docutils literal"><span class="pre">JavaMailSenderImpl</span></code> of Spring described later is used, it is possible to connect to a mail server without  handling a mail session directly.</p>
+<p>Implementation examples using two methods given below are introduced in this guideline.</p>
+<ul class="last simple">
+<li>A method wherein a mail session is fetched through JNDI</li>
+<li>A method wherein connection information is specified in <code class="docutils literal"><span class="pre">JavaMailSenderImpl</span></code> property without handling a session directly</li>
+</ul>
+</div>
+<div class="line-block">
+<div class="line"><br /></div>
+</div>
+</div>
+<div class="section" id="regarding-component-of-spring-framework-for-email-coordination">
+<h3><a class="toc-backref" href="#id9">8.1.1.2. Regarding component of Spring Framework for email coordination</a><a class="headerlink" href="#regarding-component-of-spring-framework-for-email-coordination" title="Permalink to this headline">¶</a></h3>
+<p>Spring Framework offers a component (<code class="docutils literal"><span class="pre">org.springframework.mail</span></code> package) for sending an email.
+The component included in the package conceals the detail logic related to sending an email and carry out low level API handling (API calling of JavaMail).</p>
+<p>The method by which the component offered by Spring Framework for email transmission sends an email is explained before the explanation of basic implementation methods.</p>
+<div class="figure">
+<a class="reference internal image-reference" href="../../_images/EmailOverview.png"><img alt="Constitution of Spring Mail" src="../../_images/EmailOverview.png" style="width: 100%;" /></a>
+</div>
+<table border="1" class="colwidths-given longtable docutils">
+<colgroup>
+<col width="11%" />
+<col width="22%" />
+<col width="67%" />
+</colgroup>
+<thead valign="bottom">
+<tr class="row-odd"><th class="head">Sr. No.</th>
+<th class="head">Component</th>
+<th class="head">Description</th>
+</tr>
+</thead>
+<tbody valign="top">
+<tr class="row-even"><td><div class="first last line-block">
+<div class="line">(1)</div>
+</div>
+</td>
+<td><div class="first last line-block">
+<div class="line">Application</div>
+</div>
+</td>
+<td><div class="first last line-block">
+<div class="line">Call <code class="docutils literal"><span class="pre">JavaMailSender</span></code> method and request to send an email.</div>
+<div class="line"><br /></div>
+<div class="line">* While sending a simple message, an email can also be sent by generating <code class="docutils literal"><span class="pre">SimpleMailMessage</span></code> and specifying address and body text.</div>
+</div>
+</td>
+</tr>
+<tr class="row-odd"><td><div class="first last line-block">
+<div class="line">(2)</div>
+</div>
+</td>
+<td><div class="first last line-block">
+<div class="line"><code class="docutils literal"><span class="pre">JavaMailSender</span></code></div>
+</div>
+</td>
+<td><div class="first last line-block">
+<div class="line">Call <code class="docutils literal"><span class="pre">MimeMessagePreparator</span></code> (callback interface to create <code class="docutils literal"><span class="pre">MimeMessage</span></code> of JavaMail) specified by the application and request to create a message for sending an email (<code class="docutils literal"><span class="pre">MimeMessage</span></code>).</div>
+<div class="line"><br /></div>
+<div class="line">This process is not called while sending the message using * <code class="docutils literal"><span class="pre">SimpleMailMessage</span></code>.</div>
+</div>
+</td>
+</tr>
+<tr class="row-even"><td><div class="first last line-block">
+<div class="line">(3)</div>
+</div>
+</td>
+<td><div class="first last line-block">
+<div class="line">Application</div>
+<div class="line">(<code class="docutils literal"><span class="pre">MimeMessagePreparator</span></code>)</div>
+</div>
+</td>
+<td><div class="first last line-block">
+<div class="line">Create a message (<code class="docutils literal"><span class="pre">MimeMessage</span></code>) for sending the email using <code class="docutils literal"><span class="pre">MimeMessageHelper</span></code> method.</div>
+<div class="line"><br /></div>
+<div class="line">This process is not called while sending the message using * <code class="docutils literal"><span class="pre">SimpleMailMessage</span></code>.</div>
+</div>
+</td>
+</tr>
+<tr class="row-odd"><td><div class="first last line-block">
+<div class="line">(4)</div>
+</div>
+</td>
+<td><div class="first last line-block">
+<div class="line"><code class="docutils literal"><span class="pre">JavaMailSender</span></code></div>
+</div>
+</td>
+<td><div class="first last line-block">
+<div class="line">Request to send the email using API of JavaMail.</div>
+</div>
+</td>
+</tr>
+<tr class="row-even"><td><div class="first last line-block">
+<div class="line">(5)</div>
+</div>
+</td>
+<td><div class="first last line-block">
+<div class="line">JavaMail</div>
+</div>
+</td>
+<td><div class="first last line-block">
+<div class="line">Send a message to the email server.</div>
+</div>
+</td>
+</tr>
+</tbody>
+</table>
+<p></p>
+<p>The method to implement a process for sending an email using interface and class below is explained in this guideline.</p>
+<ul>
+<li><dl class="first docutils">
+<dt><code class="docutils literal"><span class="pre">JavaMailSender</span></code></dt>
+<dd><div class="first last line-block">
+<div class="line">An interface for JavaMail to send an email.</div>
+<div class="line">It supports both <a class="reference external" href="http://docs.oracle.com/javaee/7/api/javax/mail/internet/MimeMessage.html">MimeMessage</a> of JavaMail and <code class="docutils literal"><span class="pre">SimpleMailMessage</span></code> of Spring.</div>
+<div class="line">Further, since <code class="docutils literal"><span class="pre">Session</span></code> of JavaMail is managed by implementation class of <code class="docutils literal"><span class="pre">JavaMailSender</span></code> , it is not necessary to handle <code class="docutils literal"><span class="pre">Session</span></code> directly while writing the code for the process to send an email.</div>
+</div>
+</dd>
+</dl>
+</li>
+<li><dl class="first docutils">
+<dt><code class="docutils literal"><span class="pre">JavaMailSenderImpl</span></code></dt>
+<dd><div class="first last line-block">
+<div class="line">An implementation class of <code class="docutils literal"><span class="pre">JavaMailSender</span></code> interface.</div>
+<div class="line">This class supports a method wherein DI is applied to configured <code class="docutils literal"><span class="pre">Session</span></code> and a method wherein <code class="docutils literal"><span class="pre">Session</span></code> is created from connection information specified in property.</div>
+</div>
+</dd>
+</dl>
+</li>
+<li><dl class="first docutils">
+<dt><code class="docutils literal"><span class="pre">MimeMessagePreparator</span></code></dt>
+<dd><div class="first last line-block">
+<div class="line">A callback interface for creating <code class="docutils literal"><span class="pre">MimeMessage</span></code> of JavaMail.</div>
+<div class="line">It is called from <code class="docutils literal"><span class="pre">send</span></code> method of <code class="docutils literal"><span class="pre">JavaMailSender</span></code>.</div>
+<div class="line">The exception generated in <code class="docutils literal"><span class="pre">prepare</span></code> method of <code class="docutils literal"><span class="pre">MimeMessagePreparator</span></code> is wrapped in <code class="docutils literal"><span class="pre">MailPreparationException</span></code> (runtime exception) and thrown again.</div>
+</div>
+</dd>
+</dl>
+</li>
+<li><dl class="first docutils">
+<dt><code class="docutils literal"><span class="pre">MimeMessageHelper</span></code></dt>
+<dd><div class="first last line-block">
+<div class="line">A helper class to facilitate creation of <code class="docutils literal"><span class="pre">MimeMessage</span></code> of JavaMail.</div>
+<div class="line"><code class="docutils literal"><span class="pre">MimeMessageHelper</span></code> provides a number of convenient methods to specify a value in <code class="docutils literal"><span class="pre">MimeMessage</span></code>.</div>
+</div>
+</dd>
+</dl>
+</li>
+<li><dl class="first docutils">
+<dt><code class="docutils literal"><span class="pre">SimpleMailMessage</span></code></dt>
+<dd><div class="first last line-block">
+<div class="line">A class to create a simple email message.</div>
+<div class="line">It can be used to create a plain text email in English.</div>
+<div class="line">A <code class="docutils literal"><span class="pre">MimeMessage</span></code> of JavaMail must be used for creating rich messages such as specifying specific encoding like UTF-8, sending HTML emails and emails with attachments or associating personal names with email addresses.</div>
+</div>
+</dd>
+</dl>
+</li>
+</ul>
+</div>
+</div>
+<div class="section" id="how-to-use">
+<h2><a class="toc-backref" href="#id10">8.1.2. How to use</a><a class="headerlink" href="#how-to-use" title="Permalink to this headline">¶</a></h2>
+<div class="section" id="regarding-dependent-library">
+<h3><a class="toc-backref" href="#id11">8.1.2.1. Regarding dependent library</a><a class="headerlink" href="#regarding-dependent-library" title="Permalink to this headline">¶</a></h3>
+<p>When a component of Spring Framework for email coordination is used, following libraries must be added.</p>
+<ul class="simple">
+<li><a class="reference external" href="https://java.net/projects/javamail/pages/Home">JavaMail</a></li>
+</ul>
+<div class="line-block">
+<div class="line">Add a dependency relation for library above to <code class="file docutils literal"><span class="pre">pom.xml</span></code>.</div>
+<div class="line">In case of a multi-project configuration, it is added to <code class="file docutils literal"><span class="pre">pom.xml</span></code> (<code class="file docutils literal"><span class="pre">projectName-domain/pom.xml</span></code>) of domain project.</div>
+</div>
+<div class="highlight-xml"><div class="highlight"><pre><span></span><span class="nt">&lt;dependencies&gt;</span>
+
+    <span class="c">&lt;!-- (1) --&gt;</span>
+    <span class="nt">&lt;dependency&gt;</span>
+        <span class="nt">&lt;groupId&gt;</span>com.sun.mail<span class="nt">&lt;/groupId&gt;</span>
+        <span class="nt">&lt;artifactId&gt;</span>javax.mail<span class="nt">&lt;/artifactId&gt;</span>
+    <span class="nt">&lt;/dependency&gt;</span>
+
+<span class="nt">&lt;/dependencies&gt;</span>
+</pre></div>
+</div>
+<table border="1" class="colwidths-given docutils">
+<colgroup>
+<col width="10%" />
+<col width="90%" />
+</colgroup>
+<thead valign="bottom">
+<tr class="row-odd"><th class="head">Sr. No.</th>
+<th class="head">Description</th>
+</tr>
+</thead>
+<tbody valign="top">
+<tr class="row-even"><td><div class="first last line-block">
+<div class="line">(1)</div>
+</div>
+</td>
+<td><div class="first last line-block">
+<div class="line">Add JavaMail libraries to dependencies.</div>
+<div class="line">Set <code class="docutils literal"><span class="pre">&lt;scope&gt;</span></code> to <code class="docutils literal"><span class="pre">provided</span></code> while using a mail session offered by application server.</div>
+</div>
+</td>
+</tr>
+</tbody>
+</table>
+<div class="admonition note">
+<p class="first admonition-title">Note</p>
+<p class="last">In the above setting example, since it is assumed that the dependent library version is managed by the parent project  terasoluna-gfw-parent, specifying the version in pom.xml is not necessary.
+The above dependent library used by terasoluna-gfw-parent is defined by <a class="reference external" href="http://platform.spring.io/platform/">Spring IO Platform</a>.</p>
+</div>
+<div class="line-block">
+<div class="line"><br /></div>
+</div>
+</div>
+<div class="section" id="how-to-configure-javamailsender">
+<h3><a class="toc-backref" href="#id12">8.1.2.2. How to configure JavaMailSender</a><a class="headerlink" href="#how-to-configure-javamailsender" title="Permalink to this headline">¶</a></h3>
+<p>Define a Bean for applying DI to <code class="docutils literal"><span class="pre">JavaMailSender</span></code>.</p>
+<div class="admonition note">
+<p class="first admonition-title">Note</p>
+<p class="last">In case of a multi-project configuration, it is recommended to set in <code class="file docutils literal"><span class="pre">projectName-env.xml</span></code> of env project.
+Note that, in this guideline, it is recommended to adopt a multi-project configuration.</p>
+</div>
+<div class="section" id="when-a-mail-session-offered-by-application-server-is-used">
+<h4><a class="toc-backref" href="#id13">8.1.2.2.1. When a mail session offered by application server is used</a><a class="headerlink" href="#when-a-mail-session-offered-by-application-server-is-used" title="Permalink to this headline">¶</a></h4>
+<p>A configuration example while using a mail session offered by application server is given below.</p>
+<blockquote>
+<div><table border="1" class="colwidths-given docutils" id="id3">
+<caption><span class="caption-text"><strong>Mail session offered by Application Server</strong></span><a class="headerlink" href="#id3" title="Permalink to this table">¶</a></caption>
+<colgroup>
+<col width="10%" />
+<col width="35%" />
+<col width="55%" />
+</colgroup>
+<thead valign="bottom">
+<tr class="row-odd"><th class="head">Sr. No.</th>
+<th class="head">Application server</th>
+<th class="head">Refer page</th>
+</tr>
+</thead>
+<tbody valign="top">
+<tr class="row-even"><td><ol class="first last arabic simple">
+<li></li>
+</ol>
+</td>
+<td>Apache Tomcat 8</td>
+<td><div class="first last line-block">
+<div class="line">Refer <a class="reference external" href="http://tomcat.apache.org/tomcat-8.0-doc/jndi-resources-howto.html#JavaMail_Sessions">Apache Tomcat 8 User Guide(JNDI Resources HOW-TO)</a> (JavaMail Sessions).</div>
+</div>
+</td>
+</tr>
+<tr class="row-odd"><td><ol class="first last arabic simple" start="2">
+<li></li>
+</ol>
+</td>
+<td>Oracle WebLogic Server 12c</td>
+<td>Refer <a class="reference external" href="http://docs.oracle.com/middleware/1221/wls/WLACH/taskhelp/mail/CreateMailSessions.html">Oracle WebLogic Server 12.2.1.0 Documentation</a>.</td>
+</tr>
+<tr class="row-even"><td><ol class="first last arabic simple" start="3">
+<li></li>
+</ol>
+</td>
+<td>IBM WebSphere Application Server Version 8.5</td>
+<td>Refer <a class="reference external" href="https://www.ibm.com/support/knowledgecenter/en/SSD28V_8.5.5/com.ibm.websphere.wlp.core.doc/ae/twlp_admin_javamail.html">WebSphere Application Server Version 8.5.5 documentation</a>.</td>
+</tr>
+<tr class="row-odd"><td><ol class="first last arabic simple" start="4">
+<li></li>
+</ol>
+</td>
+<td>Red Hat JBoss Enterprise Application Platform Version 6.4</td>
+<td>Refer <a class="reference external" href="https://access.redhat.com/documentation/en-US/JBoss_Enterprise_Application_Platform/6.4/html/Administration_and_Configuration_Guide/chap-Mail_subsystem.html">Product Documentation</a>.</td>
+</tr>
+</tbody>
+</table>
+</div></blockquote>
+<p>Carry out setup for registering a mail session fetched through JNDI, as a Bean.</p>
+<div class="highlight-xml"><div class="highlight"><pre><span></span><span class="nt">&lt;jee:jndi-lookup</span> <span class="na">id=</span><span class="s">&quot;mailSession&quot;</span> <span class="na">jndi-name=</span><span class="s">&quot;mail/Session&quot;</span> <span class="nt">/&gt;</span> <span class="c">&lt;!-- (1) --&gt;</span>
+</pre></div>
+</div>
+<table border="1" class="colwidths-given docutils">
+<colgroup>
+<col width="10%" />
+<col width="90%" />
+</colgroup>
+<thead valign="bottom">
+<tr class="row-odd"><th class="head">Sr. No.</th>
+<th class="head">Description</th>
+</tr>
+</thead>
+<tbody valign="top">
+<tr class="row-even"><td><div class="first last line-block">
+<div class="line">(1)</div>
+</div>
+</td>
+<td><div class="first last line-block">
+<div class="line">Specify JNDI name of mail session offered by application server in <code class="docutils literal"><span class="pre">jndi-name</span></code> attribute of <code class="docutils literal"><span class="pre">&lt;jee:jndi-lookup&gt;</span></code> element.</div>
+</div>
+</td>
+</tr>
+</tbody>
+</table>
+<p>Next, define a Bean for <code class="docutils literal"><span class="pre">JavaMailSender</span></code>.</p>
+<div class="highlight-xml"><div class="highlight"><pre><span></span><span class="c">&lt;!-- (1) --&gt;</span>
+<span class="nt">&lt;bean</span> <span class="na">id=</span><span class="s">&quot;mailSender&quot;</span> <span class="na">class=</span><span class="s">&quot;org.springframework.mail.javamail.JavaMailSenderImpl&quot;</span><span class="nt">&gt;</span>
+    <span class="nt">&lt;property</span> <span class="na">name=</span><span class="s">&quot;session&quot;</span> <span class="na">ref=</span><span class="s">&quot;mailSession&quot;</span> <span class="nt">/&gt;</span> <span class="c">&lt;!-- (2) --&gt;</span>
+<span class="nt">&lt;/bean&gt;</span>
+</pre></div>
+</div>
+<table border="1" class="colwidths-given docutils">
+<colgroup>
+<col width="10%" />
+<col width="90%" />
+</colgroup>
+<thead valign="bottom">
+<tr class="row-odd"><th class="head">Sr. No.</th>
+<th class="head">Description</th>
+</tr>
+</thead>
+<tbody valign="top">
+<tr class="row-even"><td><div class="first last line-block">
+<div class="line">(1)</div>
+</div>
+</td>
+<td><div class="first last line-block">
+<div class="line">Define a Bean for <code class="docutils literal"><span class="pre">JavaMailSenderImpl</span></code>.</div>
+</div>
+</td>
+</tr>
+<tr class="row-odd"><td><div class="first last line-block">
+<div class="line">(2)</div>
+</div>
+</td>
+<td><div class="first last line-block">
+<div class="line">Specify a Bean of configured mail session in <code class="docutils literal"><span class="pre">session</span></code> property.</div>
+</div>
+</td>
+</tr>
+</tbody>
+</table>
+</div>
+<div class="section" id="when-a-mail-session-offered-by-application-server-is-not-used-no-authentication">
+<h4><a class="toc-backref" href="#id14">8.1.2.2.2. When a mail session offered by application server is not used (no authentication)</a><a class="headerlink" href="#when-a-mail-session-offered-by-application-server-is-not-used-no-authentication" title="Permalink to this headline">¶</a></h4>
+<p>A configuration example wherein authentication is not required is given below.</p>
+<p>Define a Bean for <code class="docutils literal"><span class="pre">JavaMailSender</span></code>.</p>
+<div class="highlight-xml"><div class="highlight"><pre><span></span><span class="c">&lt;!-- (1) --&gt;</span>
+<span class="nt">&lt;bean</span> <span class="na">id=</span><span class="s">&quot;mailSender&quot;</span> <span class="na">class=</span><span class="s">&quot;org.springframework.mail.javamail.JavaMailSenderImpl&quot;</span><span class="nt">&gt;</span>
+    <span class="nt">&lt;property</span> <span class="na">name=</span><span class="s">&quot;host&quot;</span> <span class="na">value=</span><span class="s">&quot;${mail.smtp.host}&quot;</span><span class="nt">/&gt;</span> <span class="c">&lt;!-- (2) --&gt;</span>
+    <span class="nt">&lt;property</span> <span class="na">name=</span><span class="s">&quot;port&quot;</span> <span class="na">value=</span><span class="s">&quot;${mail.smtp.port}&quot;</span><span class="nt">/&gt;</span> <span class="c">&lt;!-- (3) --&gt;</span>
+<span class="nt">&lt;/bean&gt;</span>
+</pre></div>
+</div>
+<table border="1" class="colwidths-given docutils">
+<colgroup>
+<col width="10%" />
+<col width="90%" />
+</colgroup>
+<thead valign="bottom">
+<tr class="row-odd"><th class="head">Sr. No.</th>
+<th class="head">Description</th>
+</tr>
+</thead>
+<tbody valign="top">
+<tr class="row-even"><td><div class="first last line-block">
+<div class="line">(1)</div>
+</div>
+</td>
+<td><div class="first last line-block">
+<div class="line">Define a Bean for <code class="docutils literal"><span class="pre">JavaMailSenderImpl</span></code>.</div>
+</div>
+</td>
+</tr>
+<tr class="row-odd"><td><div class="first last line-block">
+<div class="line">(2)</div>
+</div>
+</td>
+<td><div class="first last line-block">
+<div class="line">Specify a host name of SMTP server in <code class="docutils literal"><span class="pre">host</span></code> property.</div>
+<div class="line">In this example, a value defined in the property file (value corresponding to key &#8220;<code class="docutils literal"><span class="pre">mail.smtp.host</span></code>&#8221;) is specified.</div>
+</div>
+</td>
+</tr>
+<tr class="row-even"><td><div class="first last line-block">
+<div class="line">(3)</div>
+</div>
+</td>
+<td><div class="first last line-block">
+<div class="line">Specify a port number of SMTP server in <code class="docutils literal"><span class="pre">port</span></code> property.</div>
+<div class="line">In this example, a value defined in the property file (value corresponding to key &#8220;<code class="docutils literal"><span class="pre">mail.smtp.port</span></code>&#8221;) is specified.</div>
+</div>
+</td>
+</tr>
+</tbody>
+</table>
+<div class="admonition note">
+<p class="first admonition-title">Note</p>
+<p class="last">Refer <a class="reference internal" href="../GeneralFuncDetail/PropertyManagement.html"><span class="doc">Properties Management</span></a> for details of property file.</p>
+</div>
+</div>
+<div class="section" id="when-a-mail-session-offered-by-application-server-is-not-used-authenticated">
+<h4><a class="toc-backref" href="#id15">8.1.2.2.3. When a mail session offered by application server is not used (authenticated)</a><a class="headerlink" href="#when-a-mail-session-offered-by-application-server-is-not-used-authenticated" title="Permalink to this headline">¶</a></h4>
+<p>A configuration example wherein authentication is required is given below.</p>
+<p>Define a Bean for <code class="docutils literal"><span class="pre">JavaMailSender</span></code>.</p>
+<div class="highlight-xml"><div class="highlight"><pre><span></span><span class="nt">&lt;bean</span> <span class="na">id=</span><span class="s">&quot;mailSender&quot;</span> <span class="na">class=</span><span class="s">&quot;org.springframework.mail.javamail.JavaMailSenderImpl&quot;</span><span class="nt">&gt;</span>
+    <span class="nt">&lt;property</span> <span class="na">name=</span><span class="s">&quot;host&quot;</span> <span class="na">value=</span><span class="s">&quot;${mail.smtp.host}&quot;</span><span class="nt">/&gt;</span>
+    <span class="nt">&lt;property</span> <span class="na">name=</span><span class="s">&quot;port&quot;</span> <span class="na">value=</span><span class="s">&quot;${mail.smtp.port}&quot;</span><span class="nt">/&gt;</span>
+    <span class="nt">&lt;property</span> <span class="na">name=</span><span class="s">&quot;username&quot;</span> <span class="na">value=</span><span class="s">&quot;${mail.smtp.user}&quot;</span><span class="nt">/&gt;</span> <span class="c">&lt;!-- (1) --&gt;</span>
+    <span class="nt">&lt;property</span> <span class="na">name=</span><span class="s">&quot;password&quot;</span> <span class="na">value=</span><span class="s">&quot;${mail.smtp.password}&quot;</span><span class="nt">/&gt;</span> <span class="c">&lt;!-- (2) --&gt;</span>
+    <span class="nt">&lt;property</span> <span class="na">name=</span><span class="s">&quot;javaMailProperties&quot;</span><span class="nt">&gt;</span>
+        <span class="nt">&lt;props&gt;</span>
+            <span class="nt">&lt;prop</span> <span class="na">key=</span><span class="s">&quot;mail.smtp.auth&quot;</span><span class="nt">&gt;</span>true<span class="nt">&lt;/prop&gt;</span> <span class="c">&lt;!-- (3) --&gt;</span>
+        <span class="nt">&lt;/props&gt;</span>
+    <span class="nt">&lt;/property&gt;</span>
+<span class="nt">&lt;/bean&gt;</span>
+</pre></div>
+</div>
+<table border="1" class="colwidths-given docutils">
+<colgroup>
+<col width="10%" />
+<col width="90%" />
+</colgroup>
+<thead valign="bottom">
+<tr class="row-odd"><th class="head">Sr. No.</th>
+<th class="head">Description</th>
+</tr>
+</thead>
+<tbody valign="top">
+<tr class="row-even"><td><div class="first last line-block">
+<div class="line">(1)</div>
+</div>
+</td>
+<td><div class="first last line-block">
+<div class="line">Specify a user name of SMTP server in <code class="docutils literal"><span class="pre">username</span></code> property.</div>
+<div class="line">In this example, a value defined in property file (value corresponding to key &#8220;<code class="docutils literal"><span class="pre">mail.smtp.user</span></code>&#8221;) is specified.</div>
+</div>
+</td>
+</tr>
+<tr class="row-odd"><td><div class="first last line-block">
+<div class="line">(2)</div>
+</div>
+</td>
+<td><div class="first last line-block">
+<div class="line">Specify a password of SMTP server in <code class="docutils literal"><span class="pre">password</span></code> property.</div>
+<div class="line">In this example, a value defined in the property file (value corresponding to key &#8220;<code class="docutils literal"><span class="pre">mail.smtp.password</span></code>&#8221;) is specified.</div>
+</div>
+</td>
+</tr>
+<tr class="row-even"><td><div class="first last line-block">
+<div class="line">(3)</div>
+</div>
+</td>
+<td><div class="first last line-block">
+<div class="line">Set <code class="docutils literal"><span class="pre">true</span></code> in <code class="docutils literal"><span class="pre">javaMailProperties</span></code> property as a key &#8220;<code class="docutils literal"><span class="pre">mail.smtp.auth</span></code>&#8221;.</div>
+</div>
+</td>
+</tr>
+</tbody>
+</table>
+<div class="admonition note">
+<p class="first admonition-title">Note</p>
+<p class="last">Refer <a class="reference internal" href="../GeneralFuncDetail/PropertyManagement.html"><span class="doc">Properties Management</span></a> for details of property file.</p>
+</div>
+<div class="admonition tip">
+<p class="first admonition-title">Tip</p>
+<p class="last">When the connection using TLS is necessary, set <code class="docutils literal"><span class="pre">true</span></code> in <code class="docutils literal"><span class="pre">javaMailProperties</span></code> property as a key &#8220;<code class="docutils literal"><span class="pre">mail.smtp.starttls.enable</span></code>&#8221;.
+Note that, when SMTP server does not support STARTTLS even when specified as below, plain text is used for communication.
+When <code class="docutils literal"><span class="pre">true</span></code> is set in <code class="docutils literal"><span class="pre">javaMailProperties</span></code> property as a key &#8220;<code class="docutils literal"><span class="pre">mail.smtp.starttls.required</span></code>&#8221; whenever required, an error can occur if it is not possible to use STARTTLS.</p>
+</div>
+<div class="line-block">
+<div class="line"><br /></div>
+</div>
+</div>
+</div>
+<div class="section" id="how-to-send-an-email-using-simplemailmessage">
+<h3><a class="toc-backref" href="#id16">8.1.2.3. How to send an email using SimpleMailMessage</a><a class="headerlink" href="#how-to-send-an-email-using-simplemailmessage" title="Permalink to this headline">¶</a></h3>
+<p>When a plain text email (an email which does not require encode specification or attachments) is to be sent in English, <code class="docutils literal"><span class="pre">SimpleMailMessage</span></code> class offered by Spring is used.</p>
+<p>A method to send an email using <code class="docutils literal"><span class="pre">SimpleMailMessage</span></code> class is explained below.</p>
+<p><strong>Example of Bean definition</strong></p>
+<div class="highlight-xml"><div class="highlight"><pre><span></span><span class="c">&lt;!-- (1) --&gt;</span>
+<span class="nt">&lt;bean</span> <span class="na">id=</span><span class="s">&quot;templateMessage&quot;</span> <span class="na">class=</span><span class="s">&quot;org.springframework.mail.SimpleMailMessage&quot;</span><span class="nt">&gt;</span>
+    <span class="nt">&lt;property</span> <span class="na">name=</span><span class="s">&quot;from&quot;</span> <span class="na">value=</span><span class="s">&quot;info@example.com&quot;</span> <span class="nt">/&gt;</span> <span class="c">&lt;!-- (2) --&gt;</span>
+    <span class="nt">&lt;property</span> <span class="na">name=</span><span class="s">&quot;subject&quot;</span> <span class="na">value=</span><span class="s">&quot;Registration confirmation.&quot;</span> <span class="nt">/&gt;</span> <span class="c">&lt;!-- (3) --&gt;</span>
+<span class="nt">&lt;/bean&gt;</span>
+</pre></div>
+</div>
+<table border="1" class="colwidths-given docutils">
+<colgroup>
+<col width="10%" />
+<col width="90%" />
+</colgroup>
+<thead valign="bottom">
+<tr class="row-odd"><th class="head">Sr. No.</th>
+<th class="head">Description</th>
+</tr>
+</thead>
+<tbody valign="top">
+<tr class="row-even"><td><div class="first last line-block">
+<div class="line">(1)</div>
+</div>
+</td>
+<td><div class="first last line-block">
+<div class="line">Define a Bean for <code class="docutils literal"><span class="pre">SimpleMailMessage</span></code> as a template.</div>
+<div class="line">Although it is not mandatory to use <code class="docutils literal"><span class="pre">SimpleMailMessage</span></code> of template, if a fixed location is specified (for e.g. sender email address etc) in the email message as a template, it is not necessary to individually specify it later in the email message.</div>
+</div>
+</td>
+</tr>
+<tr class="row-odd"><td><div class="first last line-block">
+<div class="line">(2)</div>
+</div>
+</td>
+<td><div class="first last line-block">
+<div class="line">Specify details of From header in <code class="docutils literal"><span class="pre">from</span></code> property.</div>
+</div>
+</td>
+</tr>
+<tr class="row-even"><td><div class="first last line-block">
+<div class="line">(3)</div>
+</div>
+</td>
+<td><div class="first last line-block">
+<div class="line">Specify details of Subject header in <code class="docutils literal"><span class="pre">subject</span></code> property.</div>
+</div>
+</td>
+</tr>
+</tbody>
+</table>
+<p><strong>Implementation example of Java class</strong></p>
+<div class="highlight-java"><div class="highlight"><pre><span></span><span class="nd">@Inject</span>
+<span class="n">JavaMailSender</span> <span class="n">mailSender</span><span class="o">;</span> <span class="c1">// (1)</span>
+
+<span class="nd">@Inject</span>
+<span class="n">SimpleMailMessage</span> <span class="n">templateMessage</span><span class="o">;</span> <span class="c1">// (2)</span>
+
+<span class="kd">public</span> <span class="kt">void</span> <span class="nf">register</span><span class="o">(</span><span class="n">User</span> <span class="n">user</span><span class="o">)</span> <span class="o">{</span>
+    <span class="c1">// omitted</span>
+
+    <span class="c1">// (3)</span>
+    <span class="n">SimpleMailMessage</span> <span class="n">message</span> <span class="o">=</span> <span class="k">new</span> <span class="n">SimpleMailMessage</span><span class="o">(</span><span class="n">templateMessage</span><span class="o">);</span>
+    <span class="n">message</span><span class="o">.</span><span class="na">setTo</span><span class="o">(</span><span class="n">user</span><span class="o">.</span><span class="na">getEmailAddress</span><span class="o">());</span>
+    <span class="n">String</span> <span class="n">text</span> <span class="o">=</span> <span class="s">&quot;Hi &quot;</span>
+            <span class="o">+</span> <span class="n">user</span><span class="o">.</span><span class="na">getUserName</span><span class="o">()</span>
+            <span class="o">+</span> <span class="s">&quot;, welcome to EXAMPLE.COM!\r\n&quot;</span>
+            <span class="o">+</span> <span class="s">&quot;If you were not an intended recipient, Please notify the sender.&quot;</span><span class="o">;</span>
+    <span class="n">message</span><span class="o">.</span><span class="na">setText</span><span class="o">(</span><span class="n">text</span><span class="o">);</span>
+    <span class="n">mailSender</span><span class="o">.</span><span class="na">send</span><span class="o">(</span><span class="n">message</span><span class="o">);</span>
+
+    <span class="c1">// omitted</span>
+<span class="o">}</span>
+</pre></div>
+</div>
+<table border="1" class="colwidths-given docutils">
+<colgroup>
+<col width="10%" />
+<col width="90%" />
+</colgroup>
+<thead valign="bottom">
+<tr class="row-odd"><th class="head">Sr. No.</th>
+<th class="head">Description</th>
+</tr>
+</thead>
+<tbody valign="top">
+<tr class="row-even"><td><div class="first last line-block">
+<div class="line">(1)</div>
+</div>
+</td>
+<td><div class="first last line-block">
+<div class="line">Inject <code class="docutils literal"><span class="pre">JavaMailSender</span></code>.</div>
+</div>
+</td>
+</tr>
+<tr class="row-odd"><td><div class="first last line-block">
+<div class="line">(2)</div>
+</div>
+</td>
+<td><div class="first last line-block">
+<div class="line">Inject <code class="docutils literal"><span class="pre">SimpleMailMessage</span></code> as a template for which a Bean is defined.</div>
+</div>
+</td>
+</tr>
+<tr class="row-even"><td><div class="first last line-block">
+<div class="line">(3)</div>
+</div>
+</td>
+<td><div class="first last line-block">
+<div class="line">Generate a <code class="docutils literal"><span class="pre">SimpleMailMessage</span></code> instance by using Bean of template, specify To header and body text, and send the message.</div>
+</div>
+</td>
+</tr>
+</tbody>
+</table>
+<div class="admonition note">
+<p class="first admonition-title">Note</p>
+<blockquote>
+<div><table border="1" class="colwidths-given docutils" id="id4">
+<caption><span class="caption-text"><strong>Properties that can be set in SimpleMailMessage</strong></span><a class="headerlink" href="#id4" title="Permalink to this table">¶</a></caption>
+<colgroup>
+<col width="10%" />
+<col width="30%" />
+<col width="60%" />
+</colgroup>
+<thead valign="bottom">
+<tr class="row-odd"><th class="head">Sr. No.</th>
+<th class="head">Property</th>
+<th class="head">Description</th>
+</tr>
+</thead>
+<tbody valign="top">
+<tr class="row-even"><td><div class="first last line-block">
+<div class="line">1.</div>
+</div>
+</td>
+<td><div class="first last line-block">
+<div class="line"><code class="docutils literal"><span class="pre">from</span></code></div>
+</div>
+</td>
+<td><div class="first last line-block">
+<div class="line">Specify From header.</div>
+</div>
+</td>
+</tr>
+<tr class="row-odd"><td><div class="first last line-block">
+<div class="line">2.</div>
+</div>
+</td>
+<td><div class="first last line-block">
+<div class="line"><code class="docutils literal"><span class="pre">to</span></code></div>
+</div>
+</td>
+<td><div class="first last line-block">
+<div class="line">Specify To header.</div>
+</div>
+</td>
+</tr>
+<tr class="row-even"><td><div class="first last line-block">
+<div class="line">3.</div>
+</div>
+</td>
+<td><div class="first last line-block">
+<div class="line"><code class="docutils literal"><span class="pre">cc</span></code></div>
+</div>
+</td>
+<td><div class="first last line-block">
+<div class="line">Specify Cc header.</div>
+</div>
+</td>
+</tr>
+<tr class="row-odd"><td><div class="first last line-block">
+<div class="line">4.</div>
+</div>
+</td>
+<td><div class="first last line-block">
+<div class="line"><code class="docutils literal"><span class="pre">bcc</span></code></div>
+</div>
+</td>
+<td><div class="first last line-block">
+<div class="line">Specify Bcc header.</div>
+</div>
+</td>
+</tr>
+<tr class="row-even"><td><div class="first last line-block">
+<div class="line">5.</div>
+</div>
+</td>
+<td><div class="first last line-block">
+<div class="line"><code class="docutils literal"><span class="pre">subject</span></code></div>
+</div>
+</td>
+<td><div class="first last line-block">
+<div class="line">Specify Subject header.</div>
+</div>
+</td>
+</tr>
+<tr class="row-odd"><td><div class="first last line-block">
+<div class="line">6.</div>
+</div>
+</td>
+<td><div class="first last line-block">
+<div class="line"><code class="docutils literal"><span class="pre">replyTo</span></code></div>
+</div>
+</td>
+<td><div class="first last line-block">
+<div class="line">Specify Reply-To header.</div>
+</div>
+</td>
+</tr>
+<tr class="row-even"><td><div class="first last line-block">
+<div class="line">7.</div>
+</div>
+</td>
+<td><div class="first last line-block">
+<div class="line"><code class="docutils literal"><span class="pre">sentDate</span></code></div>
+</div>
+</td>
+<td><div class="first last line-block">
+<div class="line">Specify Date header.</div>
+<div class="line">Note that, if it is not explicitly set, system time （<code class="docutils literal"><span class="pre">new</span> <span class="pre">Date()</span></code>）is set automatically at the time of sending an email.</div>
+</div>
+</td>
+</tr>
+<tr class="row-odd"><td><div class="first last line-block">
+<div class="line">8.</div>
+</div>
+</td>
+<td><div class="first last line-block">
+<div class="line"><code class="docutils literal"><span class="pre">text</span></code></div>
+</div>
+</td>
+<td><div class="first last line-block">
+<div class="line">Specify body text.</div>
+</div>
+</td>
+</tr>
+</tbody>
+</table>
+</div></blockquote>
+<p class="last">When multiple addresses are to be specified in To, Cc and Bcc, specify addresses in an array.</p>
+</div>
+<div class="admonition warning">
+<p class="first admonition-title">Warning</p>
+<p class="last">While setting an email header, an email header injection must be considered.
+Refer <a class="reference internal" href="#email-header-injection"><span class="std std-ref">Email header injection countermeasures</span></a> for details.</p>
+</div>
+<div class="line-block">
+<div class="line"><br /></div>
+</div>
+</div>
+<div class="section" id="how-to-send-an-email-using-mimemessage">
+<h3><a class="toc-backref" href="#id17">8.1.2.4. How to send an email using MimeMessage</a><a class="headerlink" href="#how-to-send-an-email-using-mimemessage" title="Permalink to this headline">¶</a></h3>
+<p>When a non-English text email, HTML email and attachments are to be sent,
+<code class="docutils literal"><span class="pre">javax.mail.internet.MimeMessage</span></code> class is used.
+In this guideline, a method to create <code class="docutils literal"><span class="pre">MimeMessage</span></code> by using <code class="docutils literal"><span class="pre">MimeMessageHelper</span></code> class is recommended.</p>
+<p>In this section, the methods to send an email using <code class="docutils literal"><span class="pre">MimeMessageHelper</span></code> class are explained below.</p>
+<ul class="simple">
+<li><a class="reference internal" href="#email-text"><span class="std std-ref">Sending a text email</span></a></li>
+<li><a class="reference internal" href="#email-html"><span class="std std-ref">Sending a HTML email</span></a></li>
+<li><a class="reference internal" href="#email-attachment"><span class="std std-ref">Sending an email with attachment</span></a></li>
+<li><a class="reference internal" href="#email-inline-resource"><span class="std std-ref">Sending an email with inline resource</span></a></li>
+</ul>
+<div class="section" id="sending-a-text-email">
+<span id="email-text"></span><h4><a class="toc-backref" href="#id18">8.1.2.4.1. Sending a text email</a><a class="headerlink" href="#sending-a-text-email" title="Permalink to this headline">¶</a></h4>
+<p>An implementation example wherein a text email is sent using <code class="docutils literal"><span class="pre">MimeMessageHelper</span></code> class is given below.</p>
+<p><strong>Implementation example of Java class</strong></p>
+<div class="highlight-java"><div class="highlight"><pre><span></span><span class="nd">@Inject</span>
+<span class="n">JavaMailSender</span> <span class="n">mailSender</span><span class="o">;</span> <span class="c1">// (1)</span>
+
+<span class="kd">public</span> <span class="kt">void</span> <span class="nf">register</span><span class="o">(</span><span class="n">User</span> <span class="n">user</span><span class="o">)</span> <span class="o">{</span>
+    <span class="c1">// omitted</span>
+
+    <span class="c1">// (2)</span>
+    <span class="n">mailSender</span><span class="o">.</span><span class="na">send</span><span class="o">(</span><span class="k">new</span> <span class="n">MimeMessagePreparator</span><span class="o">()</span> <span class="o">{</span>
+
+        <span class="nd">@Override</span>
+        <span class="kd">public</span> <span class="kt">void</span> <span class="nf">prepare</span><span class="o">(</span><span class="n">MimeMessage</span> <span class="n">mimeMessage</span><span class="o">)</span> <span class="kd">throws</span> <span class="n">Exception</span> <span class="o">{</span>
+            <span class="n">MimeMessageHelper</span> <span class="n">helper</span> <span class="o">=</span> <span class="k">new</span> <span class="n">MimeMessageHelper</span><span class="o">(</span><span class="n">mimeMessage</span><span class="o">,</span>
+                    <span class="n">StandardCharsets</span><span class="o">.</span><span class="na">UTF_8</span><span class="o">.</span><span class="na">name</span><span class="o">());</span> <span class="c1">// (3)</span>
+            <span class="n">helper</span><span class="o">.</span><span class="na">setFrom</span><span class="o">(</span><span class="s">&quot;EXAMPLE.COM &lt;info@example.com&gt;&quot;</span><span class="o">);</span> <span class="c1">// (4)</span>
+            <span class="n">helper</span><span class="o">.</span><span class="na">setTo</span><span class="o">(</span><span class="n">user</span><span class="o">.</span><span class="na">getEmailAddress</span><span class="o">());</span> <span class="c1">// (5)</span>
+            <span class="n">helper</span><span class="o">.</span><span class="na">setSubject</span><span class="o">(</span><span class="s">&quot;Registration confirmation.&quot;</span><span class="o">);</span> <span class="c1">// (6)</span>
+            <span class="n">String</span> <span class="n">text</span> <span class="o">=</span> <span class="s">&quot;Hi &quot;</span>
+                    <span class="o">+</span> <span class="n">user</span><span class="o">.</span><span class="na">getUserName</span><span class="o">()</span>
+                    <span class="o">+</span> <span class="s">&quot;, welcome to EXAMPLE.COM!\r\n&quot;</span>
+                    <span class="o">+</span> <span class="s">&quot;If you were not an intended recipient, Please notify the sender.&quot;</span><span class="o">;</span>
+            <span class="n">helper</span><span class="o">.</span><span class="na">setText</span><span class="o">(</span><span class="n">text</span><span class="o">);</span> <span class="c1">// (7)</span>
+        <span class="o">}</span>
+    <span class="o">});</span>
+
+    <span class="c1">// omitted</span>
+<span class="o">}</span>
+</pre></div>
+</div>
+<table border="1" class="colwidths-given docutils">
+<colgroup>
+<col width="10%" />
+<col width="90%" />
+</colgroup>
+<thead valign="bottom">
+<tr class="row-odd"><th class="head">Sr. No.</th>
+<th class="head">Description</th>
+</tr>
+</thead>
+<tbody valign="top">
+<tr class="row-even"><td><div class="first last line-block">
+<div class="line">(1)</div>
+</div>
+</td>
+<td><div class="first last line-block">
+<div class="line">Inject <code class="docutils literal"><span class="pre">JavaMailSender</span></code>.</div>
+</div>
+</td>
+</tr>
+<tr class="row-odd"><td><div class="first last line-block">
+<div class="line">(2)</div>
+</div>
+</td>
+<td><div class="first last line-block">
+<div class="line">Send an email using <code class="docutils literal"><span class="pre">send</span></code> method of <code class="docutils literal"><span class="pre">JavaMailSender</span></code>.</div>
+<div class="line">Define an anonymous inner class that implements <code class="docutils literal"><span class="pre">MimeMessagePreparator</span></code>, in the argument.</div>
+</div>
+</td>
+</tr>
+<tr class="row-even"><td><div class="first last line-block">
+<div class="line">(3)</div>
+</div>
+</td>
+<td><div class="first last line-block">
+<div class="line">Specify character code and generate <code class="docutils literal"><span class="pre">MimeMessageHelper</span></code> instance.</div>
+<div class="line">In this example, UTF-8 is specified in the character code.</div>
+</div>
+</td>
+</tr>
+<tr class="row-odd"><td><div class="first last line-block">
+<div class="line">(4)</div>
+</div>
+</td>
+<td><div class="first last line-block">
+<div class="line">Specify details of From header.</div>
+<div class="line">In this example, it is set in &#8220;Name &lt;Address&gt;&#8221; format.</div>
+</div>
+</td>
+</tr>
+<tr class="row-even"><td><div class="first last line-block">
+<div class="line">(5)</div>
+</div>
+</td>
+<td><div class="first last line-block">
+<div class="line">Specify details of To header.</div>
+</div>
+</td>
+</tr>
+<tr class="row-odd"><td><div class="first last line-block">
+<div class="line">(6)</div>
+</div>
+</td>
+<td><div class="first last line-block">
+<div class="line">Specify details of Subject header.</div>
+</div>
+</td>
+</tr>
+<tr class="row-even"><td><div class="first last line-block">
+<div class="line">(7)</div>
+</div>
+</td>
+<td><div class="first last line-block">
+<div class="line">Specify details of body text.</div>
+</div>
+</td>
+</tr>
+</tbody>
+</table>
+<div class="admonition warning">
+<p class="first admonition-title">Warning</p>
+<p class="last">While setting an email header, an email header injection must be considered.
+Refer <a class="reference internal" href="#email-header-injection"><span class="std std-ref">Email header injection countermeasures</span></a> for details.</p>
+</div>
+<div class="admonition note">
+<p class="first admonition-title">Note</p>
+<p class="last">While sending an email in Japanese, ISO-2022-JP can also be used in encoding if it is also necessary to support a mail client which does not support UTF-8.
+Refer <a class="reference internal" href="#email-iso-2022-jp"><span class="std std-ref">Considerations for ISO-2022-JP encoding</span></a> for the points that should be considered while using ISO-2022-JP in encoding.</p>
+</div>
+</div>
+<div class="section" id="sending-a-html-email">
+<span id="email-html"></span><h4><a class="toc-backref" href="#id19">8.1.2.4.2. Sending a HTML email</a><a class="headerlink" href="#sending-a-html-email" title="Permalink to this headline">¶</a></h4>
+<p>An implementation example wherein a HTML email is sent using <code class="docutils literal"><span class="pre">MimeMessageHelper</span></code> class is shown below.</p>
+<p><strong>Implementation example of Java class</strong></p>
+<div class="highlight-java"><div class="highlight"><pre><span></span><span class="nd">@Inject</span>
+<span class="n">JavaMailSender</span> <span class="n">mailSender</span><span class="o">;</span> <span class="c1">// (1)</span>
+
+<span class="kd">public</span> <span class="kt">void</span> <span class="nf">register</span><span class="o">(</span><span class="n">User</span> <span class="n">user</span><span class="o">)</span> <span class="o">{</span>
+    <span class="c1">// omitted</span>
+
+    <span class="c1">// (2)</span>
+    <span class="n">mailSender</span><span class="o">.</span><span class="na">send</span><span class="o">(</span><span class="k">new</span> <span class="n">MimeMessagePreparator</span><span class="o">()</span> <span class="o">{</span>
+
+        <span class="nd">@Override</span>
+        <span class="kd">public</span> <span class="kt">void</span> <span class="nf">prepare</span><span class="o">(</span><span class="n">MimeMessage</span> <span class="n">mimeMessage</span><span class="o">)</span> <span class="kd">throws</span> <span class="n">Exception</span> <span class="o">{</span>
+            <span class="n">MimeMessageHelper</span> <span class="n">helper</span> <span class="o">=</span> <span class="k">new</span> <span class="n">MimeMessageHelper</span><span class="o">(</span><span class="n">mimeMessage</span><span class="o">,</span>
+                    <span class="n">StandardCharsets</span><span class="o">.</span><span class="na">UTF_8</span><span class="o">.</span><span class="na">name</span><span class="o">());</span> <span class="c1">// (3)</span>
+            <span class="n">helper</span><span class="o">.</span><span class="na">setFrom</span><span class="o">(</span><span class="s">&quot;EXAMPLE.COM &lt;info@example.com&gt;&quot;</span><span class="o">);</span> <span class="c1">// (4)</span>
+            <span class="n">helper</span><span class="o">.</span><span class="na">setTo</span><span class="o">(</span><span class="n">user</span><span class="o">.</span><span class="na">getEmailAddress</span><span class="o">());</span> <span class="c1">// (5)</span>
+            <span class="n">helper</span><span class="o">.</span><span class="na">setSubject</span><span class="o">(</span><span class="s">&quot;Registration confirmation.&quot;</span><span class="o">);</span> <span class="c1">// (6)</span>
+            <span class="n">String</span> <span class="n">text</span> <span class="o">=</span> <span class="s">&quot;&lt;html&gt;&lt;body&gt;&lt;h3&gt;Hi &quot;</span>
+                    <span class="o">+</span> <span class="n">user</span><span class="o">.</span><span class="na">getUserName</span><span class="o">()</span>
+                    <span class="o">+</span> <span class="s">&quot;, welcome to EXAMPLE.COM!&lt;/h3&gt;&quot;</span>
+                    <span class="o">+</span> <span class="s">&quot;If you were not an intended recipient, Please notify the sender.&lt;/body&gt;&lt;/html&gt;&quot;</span><span class="o">;</span>
+            <span class="n">helper</span><span class="o">.</span><span class="na">setText</span><span class="o">(</span><span class="n">text</span><span class="o">,</span> <span class="kc">true</span><span class="o">);</span> <span class="c1">// (7)</span>
+        <span class="o">}</span>
+    <span class="o">});</span>
+
+    <span class="c1">// omitted</span>
+<span class="o">}</span>
+</pre></div>
+</div>
+<table border="1" class="colwidths-given docutils">
+<colgroup>
+<col width="10%" />
+<col width="90%" />
+</colgroup>
+<thead valign="bottom">
+<tr class="row-odd"><th class="head">Sr. No.</th>
+<th class="head">Description</th>
+</tr>
+</thead>
+<tbody valign="top">
+<tr class="row-even"><td><div class="first last line-block">
+<div class="line">(1)</div>
+</div>
+</td>
+<td><div class="first last line-block">
+<div class="line">Inject <code class="docutils literal"><span class="pre">JavaMailSender</span></code>.</div>
+</div>
+</td>
+</tr>
+<tr class="row-odd"><td><div class="first last line-block">
+<div class="line">(2)</div>
+</div>
+</td>
+<td><div class="first last line-block">
+<div class="line">Send an email using <code class="docutils literal"><span class="pre">send</span></code> method of <code class="docutils literal"><span class="pre">JavaMailSender</span></code>.</div>
+<div class="line">Define an anonymous inner class that implements <code class="docutils literal"><span class="pre">MimeMessagePreparator</span></code>, in the argument.</div>
+</div>
+</td>
+</tr>
+<tr class="row-even"><td><div class="first last line-block">
+<div class="line">(3)</div>
+</div>
+</td>
+<td><div class="first last line-block">
+<div class="line">Specify character code and generate <code class="docutils literal"><span class="pre">MimeMessageHelper</span></code> instance.</div>
+<div class="line">In this example, UTF-8 is specified in the character code.</div>
+</div>
+</td>
+</tr>
+<tr class="row-odd"><td><div class="first last line-block">
+<div class="line">(4)</div>
+</div>
+</td>
+<td><div class="first last line-block">
+<div class="line">Specify details of From header.</div>
+<div class="line">In this example, it is set in the &#8220;Name &lt;Address&gt;&#8221; format.</div>
+</div>
+</td>
+</tr>
+<tr class="row-even"><td><div class="first last line-block">
+<div class="line">(5)</div>
+</div>
+</td>
+<td><div class="first last line-block">
+<div class="line">Specify details of To header.</div>
+</div>
+</td>
+</tr>
+<tr class="row-odd"><td><div class="first last line-block">
+<div class="line">(6)</div>
+</div>
+</td>
+<td><div class="first last line-block">
+<div class="line">Specify details of Subject header.</div>
+</div>
+</td>
+</tr>
+<tr class="row-even"><td><div class="first last line-block">
+<div class="line">(7)</div>
+</div>
+</td>
+<td><div class="first last line-block">
+<div class="line">Specify details of body text. Content-Type changes to text/html by specifying <code class="docutils literal"><span class="pre">true</span></code> in the second argument of <code class="docutils literal"><span class="pre">setText</span></code> method.</div>
+</div>
+</td>
+</tr>
+</tbody>
+</table>
+<div class="admonition warning">
+<p class="first admonition-title">Warning</p>
+<p class="last">When a value entered externally is used while generating HTML for email text, countermeasures for XSS attack should be employed.</p>
+</div>
+</div>
+<div class="section" id="sending-an-email-with-attachment">
+<span id="email-attachment"></span><h4><a class="toc-backref" href="#id20">8.1.2.4.3. Sending an email with attachment</a><a class="headerlink" href="#sending-an-email-with-attachment" title="Permalink to this headline">¶</a></h4>
+<p>An implementation example wherein an email with the attachment is sent using <code class="docutils literal"><span class="pre">MimeMessageHelper</span></code> class is shown below.</p>
+<p><strong>Implementation example of Java class</strong></p>
+<div class="highlight-java"><div class="highlight"><pre><span></span><span class="nd">@Inject</span>
+<span class="n">JavaMailSender</span> <span class="n">mailSender</span><span class="o">;</span> <span class="c1">// (1)</span>
+
+<span class="kd">public</span> <span class="kt">void</span> <span class="nf">register</span><span class="o">(</span><span class="n">User</span> <span class="n">user</span><span class="o">)</span> <span class="o">{</span>
+    <span class="c1">// omitted</span>
+
+    <span class="c1">// (2)</span>
+    <span class="n">mailSender</span><span class="o">.</span><span class="na">send</span><span class="o">(</span><span class="k">new</span> <span class="n">MimeMessagePreparator</span><span class="o">()</span> <span class="o">{</span>
+
+        <span class="nd">@Override</span>
+        <span class="kd">public</span> <span class="kt">void</span> <span class="nf">prepare</span><span class="o">(</span><span class="n">MimeMessage</span> <span class="n">mimeMessage</span><span class="o">)</span> <span class="kd">throws</span> <span class="n">Exception</span> <span class="o">{</span>
+            <span class="n">MimeMessageHelper</span> <span class="n">helper</span> <span class="o">=</span> <span class="k">new</span> <span class="n">MimeMessageHelper</span><span class="o">(</span><span class="n">mimeMessage</span><span class="o">,</span>
+                    <span class="kc">true</span><span class="o">,</span> <span class="n">StandardCharsets</span><span class="o">.</span><span class="na">UTF_8</span><span class="o">.</span><span class="na">name</span><span class="o">());</span> <span class="c1">// (3)</span>
+            <span class="n">helper</span><span class="o">.</span><span class="na">setFrom</span><span class="o">(</span><span class="s">&quot;EXAMPLE.COM &lt;info@example.com&gt;&quot;</span><span class="o">);</span> <span class="c1">// (4)</span>
+            <span class="n">helper</span><span class="o">.</span><span class="na">setTo</span><span class="o">(</span><span class="n">user</span><span class="o">.</span><span class="na">getEmailAddress</span><span class="o">());</span> <span class="c1">// (5)</span>
+            <span class="n">helper</span><span class="o">.</span><span class="na">setSubject</span><span class="o">(</span><span class="s">&quot;Registration confirmation.&quot;</span><span class="o">);</span> <span class="c1">// (6)</span>
+            <span class="n">String</span> <span class="n">text</span> <span class="o">=</span> <span class="s">&quot;Hi &quot;</span>
+                    <span class="o">+</span> <span class="n">user</span><span class="o">.</span><span class="na">getUserName</span><span class="o">()</span>
+                    <span class="o">+</span> <span class="s">&quot;, welcome to EXAMPLE.COM!\r\n&quot;</span>
+                    <span class="o">+</span> <span class="s">&quot;Please find attached the file.\r\n\r\n&quot;</span>
+                    <span class="o">+</span> <span class="s">&quot;If you were not an intended recipient, Please notify the sender.&quot;</span><span class="o">;</span>
+            <span class="n">helper</span><span class="o">.</span><span class="na">setText</span><span class="o">(</span><span class="n">text</span><span class="o">);</span> <span class="c1">// (7)</span>
+            <span class="n">ClassPathResource</span> <span class="n">file</span> <span class="o">=</span> <span class="k">new</span> <span class="n">ClassPathResource</span><span class="o">(</span><span class="s">&quot;doc/quickstart.pdf&quot;</span><span class="o">);</span>
+            <span class="n">helper</span><span class="o">.</span><span class="na">addAttachment</span><span class="o">(</span><span class="s">&quot;QuickStart.pdf&quot;</span><span class="o">,</span> <span class="n">file</span><span class="o">);</span> <span class="c1">// (8)</span>
+        <span class="o">}</span>
+    <span class="o">});</span>
+
+    <span class="c1">// omitted</span>
+<span class="o">}</span>
+</pre></div>
+</div>
+<table border="1" class="colwidths-given docutils">
+<colgroup>
+<col width="10%" />
+<col width="90%" />
+</colgroup>
+<thead valign="bottom">
+<tr class="row-odd"><th class="head">Sr. No.</th>
+<th class="head">Description</th>
+</tr>
+</thead>
+<tbody valign="top">
+<tr class="row-even"><td><div class="first last line-block">
+<div class="line">(1)</div>
+</div>
+</td>
+<td><div class="first last line-block">
+<div class="line">Inject <code class="docutils literal"><span class="pre">JavaMailSender</span></code>.</div>
+</div>
+</td>
+</tr>
+<tr class="row-odd"><td><div class="first last line-block">
+<div class="line">(2)</div>
+</div>
+</td>
+<td><div class="first last line-block">
+<div class="line">Send an email using <code class="docutils literal"><span class="pre">send</span></code> method of <code class="docutils literal"><span class="pre">JavaMailSender</span></code>.</div>
+<div class="line">Define an anonymous inner class that implements <code class="docutils literal"><span class="pre">MimeMessagePreparator</span></code>, in the argument.</div>
+</div>
+</td>
+</tr>
+<tr class="row-even"><td><div class="first last line-block">
+<div class="line">(3)</div>
+</div>
+</td>
+<td><div class="first last line-block">
+<div class="line">Specify character code and generate <code class="docutils literal"><span class="pre">MimeMessageHelper</span></code> instance.</div>
+<div class="line">In this example, UTF-8 is specified in the character code.</div>
+<div class="line">It becomes multi-part mode (default <code class="docutils literal"><span class="pre">MULTIPART_MODE_MIXED_RELATED</span></code>) by specifying <code class="docutils literal"><span class="pre">true</span></code> in the second argument of the constructor of <code class="docutils literal"><span class="pre">MimeMessageHelper</span></code>.</div>
+</div>
+</td>
+</tr>
+<tr class="row-odd"><td><div class="first last line-block">
+<div class="line">(4)</div>
+</div>
+</td>
+<td><div class="first last line-block">
+<div class="line">Specify details of From header.</div>
+</div>
+</td>
+</tr>
+<tr class="row-even"><td><div class="first last line-block">
+<div class="line">(5)</div>
+</div>
+</td>
+<td><div class="first last line-block">
+<div class="line">Specify details of To header.</div>
+</div>
+</td>
+</tr>
+<tr class="row-odd"><td><div class="first last line-block">
+<div class="line">(6)</div>
+</div>
+</td>
+<td><div class="first last line-block">
+<div class="line">Specify details of Subject header.</div>
+</div>
+</td>
+</tr>
+<tr class="row-even"><td><div class="first last line-block">
+<div class="line">(7)</div>
+</div>
+</td>
+<td><div class="first last line-block">
+<div class="line">Specify details of body text.</div>
+</div>
+</td>
+</tr>
+<tr class="row-odd"><td><div class="first last line-block">
+<div class="line">(8)</div>
+</div>
+</td>
+<td><div class="first last line-block">
+<div class="line">Specify attachment name and identify file to be attached.</div>
+<div class="line">In this example, <code class="docutils literal"><span class="pre">&quot;QuickStart.pdf&quot;</span></code> denotes the file name and <code class="file docutils literal"><span class="pre">doc/quickstart.pdf</span></code> file on the class path is attached.</div>
+</div>
+</td>
+</tr>
+</tbody>
+</table>
+</div>
+<div class="section" id="sending-an-email-with-inline-resource">
+<span id="email-inline-resource"></span><h4><a class="toc-backref" href="#id21">8.1.2.4.4. Sending an email with inline resource</a><a class="headerlink" href="#sending-an-email-with-inline-resource" title="Permalink to this headline">¶</a></h4>
+<p>An implementation example wherein an email with inline resource is sent using <code class="docutils literal"><span class="pre">MimeMessageHelper</span></code> class is shown below.</p>
+<p><strong>Implementation example of Java class</strong></p>
+<div class="highlight-java"><div class="highlight"><pre><span></span><span class="nd">@Inject</span>
+<span class="n">JavaMailSender</span> <span class="n">mailSender</span><span class="o">;</span> <span class="c1">// (1)</span>
+
+<span class="kd">public</span> <span class="kt">void</span> <span class="nf">register</span><span class="o">(</span><span class="n">User</span> <span class="n">user</span><span class="o">)</span> <span class="o">{</span>
+    <span class="c1">// omitted</span>
+
+    <span class="c1">// (2)</span>
+    <span class="n">mailSender</span><span class="o">.</span><span class="na">send</span><span class="o">(</span><span class="k">new</span> <span class="n">MimeMessagePreparator</span><span class="o">()</span> <span class="o">{</span>
+
+        <span class="nd">@Override</span>
+        <span class="kd">public</span> <span class="kt">void</span> <span class="nf">prepare</span><span class="o">(</span><span class="n">MimeMessage</span> <span class="n">mimeMessage</span><span class="o">)</span> <span class="kd">throws</span> <span class="n">Exception</span> <span class="o">{</span>
+            <span class="n">MimeMessageHelper</span> <span class="n">helper</span> <span class="o">=</span> <span class="k">new</span> <span class="n">MimeMessageHelper</span><span class="o">(</span><span class="n">mimeMessage</span><span class="o">,</span>
+                    <span class="kc">true</span><span class="o">,</span> <span class="n">StandardCharsets</span><span class="o">.</span><span class="na">UTF_8</span><span class="o">.</span><span class="na">name</span><span class="o">());</span> <span class="c1">// (3)</span>
+            <span class="n">helper</span><span class="o">.</span><span class="na">setFrom</span><span class="o">(</span><span class="s">&quot;EXAMPLE.COM &lt;info@example.com&gt;&quot;</span><span class="o">);</span> <span class="c1">// (4)</span>
+            <span class="n">helper</span><span class="o">.</span><span class="na">setTo</span><span class="o">(</span><span class="n">user</span><span class="o">.</span><span class="na">getEmailAddress</span><span class="o">());</span> <span class="c1">// (5)</span>
+            <span class="n">helper</span><span class="o">.</span><span class="na">setSubject</span><span class="o">(</span><span class="s">&quot;Registration confirmation.&quot;</span><span class="o">);</span> <span class="c1">// (6)</span>
+            <span class="n">String</span> <span class="n">cid</span> <span class="o">=</span> <span class="s">&quot;identifier1234&quot;</span><span class="o">;</span>
+            <span class="n">String</span> <span class="n">text</span> <span class="o">=</span> <span class="s">&quot;&lt;html&gt;&lt;body&gt;&lt;img src=&#39;cid:&quot;</span>
+                    <span class="o">+</span> <span class="n">cid</span>
+                    <span class="o">+</span> <span class="s">&quot;&#39; /&gt;&lt;h3&gt;Hi &quot;</span>
+                    <span class="o">+</span> <span class="n">user</span><span class="o">.</span><span class="na">getUserName</span><span class="o">()</span>
+                    <span class="o">+</span> <span class="s">&quot;, welcome to EXAMPLE.COM!\r\n&lt;/h3&gt;&quot;</span>
+                    <span class="o">+</span> <span class="s">&quot;If you were not an intended recipient, Please notify the sender.&lt;/body&gt;&lt;/html&gt;&quot;</span><span class="o">;</span>
+            <span class="n">helper</span><span class="o">.</span><span class="na">setText</span><span class="o">(</span><span class="n">text</span><span class="o">,</span> <span class="kc">true</span><span class="o">);</span> <span class="c1">// (7)</span>
+            <span class="n">ClassPathResource</span> <span class="n">res</span> <span class="o">=</span> <span class="k">new</span> <span class="n">ClassPathResource</span><span class="o">(</span><span class="s">&quot;image/logo.jpg&quot;</span><span class="o">);</span>
+            <span class="n">helper</span><span class="o">.</span><span class="na">addInline</span><span class="o">(</span><span class="n">cid</span><span class="o">,</span> <span class="n">res</span><span class="o">);</span> <span class="c1">// (8)</span>
+        <span class="o">}</span>
+    <span class="o">});</span>
+
+    <span class="c1">// omitted</span>
+<span class="o">}</span>
+</pre></div>
+</div>
+<table border="1" class="colwidths-given docutils">
+<colgroup>
+<col width="10%" />
+<col width="90%" />
+</colgroup>
+<thead valign="bottom">
+<tr class="row-odd"><th class="head">Sr. No.</th>
+<th class="head">Description</th>
+</tr>
+</thead>
+<tbody valign="top">
+<tr class="row-even"><td><div class="first last line-block">
+<div class="line">(1)</div>
+</div>
+</td>
+<td><div class="first last line-block">
+<div class="line">Inject <code class="docutils literal"><span class="pre">JavaMailSender</span></code>.</div>
+</div>
+</td>
+</tr>
+<tr class="row-odd"><td><div class="first last line-block">
+<div class="line">(2)</div>
+</div>
+</td>
+<td><div class="first last line-block">
+<div class="line">Send an email using <code class="docutils literal"><span class="pre">send</span></code> method of <code class="docutils literal"><span class="pre">JavaMailSender</span></code>.</div>
+<div class="line">Define an anonymous inner class that implements <code class="docutils literal"><span class="pre">MimeMessagePreparator</span></code> , in the argument.</div>
+</div>
+</td>
+</tr>
+<tr class="row-even"><td><div class="first last line-block">
+<div class="line">(3)</div>
+</div>
+</td>
+<td><div class="first last line-block">
+<div class="line">Specify character code and generate <code class="docutils literal"><span class="pre">MimeMessageHelper</span></code> instance.</div>
+<div class="line">In this example, UTF-8 is specified in the character code.</div>
+<div class="line">It becomes a multi-part mode by specifying <code class="docutils literal"><span class="pre">true</span></code> in the second argument of constructor of <code class="docutils literal"><span class="pre">MimeMessageHelper</span></code>.</div>
+</div>
+</td>
+</tr>
+<tr class="row-odd"><td><div class="first last line-block">
+<div class="line">(4)</div>
+</div>
+</td>
+<td><div class="first last line-block">
+<div class="line">Specify details of From header.</div>
+</div>
+</td>
+</tr>
+<tr class="row-even"><td><div class="first last line-block">
+<div class="line">(5)</div>
+</div>
+</td>
+<td><div class="first last line-block">
+<div class="line">Specify details of To header.</div>
+</div>
+</td>
+</tr>
+<tr class="row-odd"><td><div class="first last line-block">
+<div class="line">(6)</div>
+</div>
+</td>
+<td><div class="first last line-block">
+<div class="line">Specify details of Subject header.</div>
+</div>
+</td>
+</tr>
+<tr class="row-even"><td><div class="first last line-block">
+<div class="line">(7)</div>
+</div>
+</td>
+<td><div class="first last line-block">
+<div class="line">Specify details of body text. Content-Type changes to text/html by specifying <code class="docutils literal"><span class="pre">true</span></code> in the second argument of <code class="docutils literal"><span class="pre">setText</span></code> method.</div>
+</div>
+</td>
+</tr>
+<tr class="row-odd"><td><div class="first last line-block">
+<div class="line">(8)</div>
+</div>
+</td>
+<td><div class="first last line-block">
+<div class="line">Specify inline resource contents ID and set inline resource.</div>
+<div class="line">In this example, <code class="docutils literal"><span class="pre">&quot;identifier1234&quot;</span></code> denotes a content ID and <code class="file docutils literal"><span class="pre">image/logo.jpg</span></code> file on the class path is set.</div>
+</div>
+</td>
+</tr>
+</tbody>
+</table>
+<div class="admonition note">
+<p class="first admonition-title">Note</p>
+<p class="last"><code class="docutils literal"><span class="pre">addInline</span></code> method should be called after <code class="docutils literal"><span class="pre">setText</span></code> method.
+If done otherwise, a mail client cannot view the inline resource correctly.</p>
+</div>
+<div class="line-block">
+<div class="line"><br /></div>
+</div>
+</div>
+</div>
+<div class="section" id="regarding-exceptions-while-sending-an-email">
+<h3><a class="toc-backref" href="#id22">8.1.2.5. Regarding exceptions while sending an email</a><a class="headerlink" href="#regarding-exceptions-while-sending-an-email" title="Permalink to this headline">¶</a></h3>
+<p>The exception that occurs while sending an email using <code class="docutils literal"><span class="pre">send</span></code> method of <code class="docutils literal"><span class="pre">JavaMailSender</span></code> is an exception which inherits <code class="docutils literal"><span class="pre">org.springframework.mail.MailException</span></code>.
+The exception class that inherits <code class="docutils literal"><span class="pre">MailException</span></code> and occurrence conditions of respective exceptions are shown in the table below.</p>
+<blockquote>
+<div><table border="1" class="colwidths-given docutils" id="id5">
+<caption><span class="caption-text"><strong>Exceptions at the time of sending an email</strong></span><a class="headerlink" href="#id5" title="Permalink to this table">¶</a></caption>
+<colgroup>
+<col width="10%" />
+<col width="35%" />
+<col width="55%" />
+</colgroup>
+<thead valign="bottom">
+<tr class="row-odd"><th class="head">Sr. No.</th>
+<th class="head">Exception class</th>
+<th class="head">Occurrence conditions</th>
+</tr>
+</thead>
+<tbody valign="top">
+<tr class="row-even"><td><ol class="first last arabic simple">
+<li></li>
+</ol>
+</td>
+<td><a class="reference external" href="http://docs.spring.io/spring/docs/4.2.7.RELEASE/javadoc-api/org/springframework/mail/MailAuthenticationException.html">MailAuthenticationException</a></td>
+<td><div class="first last line-block">
+<div class="line">Occurs during authentication failure.</div>
+</div>
+</td>
+</tr>
+<tr class="row-odd"><td><ol class="first last arabic simple" start="2">
+<li></li>
+</ol>
+</td>
+<td><a class="reference external" href="http://docs.spring.io/spring/docs/4.2.7.RELEASE/javadoc-api/org/springframework/mail/MailParseException.html">MailParseException</a></td>
+<td><div class="first last line-block">
+<div class="line">Occurs when an invalid value is set in the properties of email message.</div>
+</div>
+</td>
+</tr>
+<tr class="row-even"><td><ol class="first last arabic simple" start="3">
+<li></li>
+</ol>
+</td>
+<td><a class="reference external" href="http://docs.spring.io/spring/docs/4.2.7.RELEASE/javadoc-api/org/springframework/mail/MailPreparationException.html">MailPreparationException</a></td>
+<td><div class="first last line-block">
+<div class="line">Occurs if an unexpected error occurs while creating an email message.
+Unexpected errors, for example, are the errors that occur in the template library.</div>
+<div class="line">Exceptions occurring in <code class="docutils literal"><span class="pre">MimeMessagePreparator</span></code> are wrapped in <code class="docutils literal"><span class="pre">MailPreparationException</span></code> and thrown.</div>
+</div>
+</td>
+</tr>
+<tr class="row-odd"><td><ol class="first last arabic simple" start="4">
+<li></li>
+</ol>
+</td>
+<td><a class="reference external" href="http://docs.spring.io/spring/docs/4.2.7.RELEASE/javadoc-api/org/springframework/mail/MailSendException.html">MailSendException</a></td>
+<td><div class="first last line-block">
+<div class="line">Occurs when an error occurs while sending an email.</div>
+</div>
+</td>
+</tr>
+</tbody>
+</table>
+</div></blockquote>
+<div class="admonition note">
+<p class="first admonition-title">Note</p>
+<p class="last">Refer <a class="reference internal" href="../WebApplicationDetail/ExceptionHandling.html"><span class="doc">Exception Handling</span></a> for transition to error screen corresponding to specific exceptions.</p>
+</div>
+<div class="line-block">
+<div class="line"><br /></div>
+</div>
+</div>
+</div>
+<div class="section" id="how-to-extend">
+<h2><a class="toc-backref" href="#id23">8.1.3. How to extend</a><a class="headerlink" href="#how-to-extend" title="Permalink to this headline">¶</a></h2>
+<div class="section" id="how-to-create-an-email-text-using-a-template">
+<h3><a class="toc-backref" href="#id24">8.1.3.1. How to create an email text using a template</a><a class="headerlink" href="#how-to-create-an-email-text-using-a-template" title="Permalink to this headline">¶</a></h3>
+<p>It is not recommended to  build an email text directly in Java source as shown in the implementation examples above for the reasons given below.</p>
+<ul class="simple">
+<li>Building the email text in Java source causes poor readability and it may cause an error.</li>
+<li>Boundary between display logic and business logic become ambiguous.</li>
+<li>It becomes necessary to modify, compile and deploy Java source in order to change the email text design.</li>
+</ul>
+<p>Hence, it is recommended to use a template library to define an email text design.
+A template library must especially be used when the email text is particularly complex.</p>
+<div class="section" id="creating-the-email-text-using-freemarker">
+<h4><a class="toc-backref" href="#id25">8.1.3.1.1. Creating the email text using FreeMarker</a><a class="headerlink" href="#creating-the-email-text-using-freemarker" title="Permalink to this headline">¶</a></h4>
+<p>In this guideline, a method that uses <a class="reference external" href="http://freemarker.org/">FreeMarker</a> as a template library is described.</p>
+<ul>
+<li><p class="first">Set a dependent library for using FreeMarker.</p>
+<blockquote>
+<div><p><strong>Configuration example of pom.xml</strong></p>
+<div class="highlight-xml"><div class="highlight"><pre><span></span><span class="nt">&lt;dependencies&gt;</span>
+
+    <span class="c">&lt;!-- (1) --&gt;</span>
+    <span class="nt">&lt;dependency&gt;</span>
+        <span class="nt">&lt;groupId&gt;</span>org.freemarker<span class="nt">&lt;/groupId&gt;</span>
+        <span class="nt">&lt;artifactId&gt;</span>freemarker<span class="nt">&lt;/artifactId&gt;</span>
+    <span class="nt">&lt;/dependency&gt;</span>
+
+<span class="nt">&lt;/dependencies&gt;</span>
+</pre></div>
+</div>
+<table border="1" class="colwidths-given docutils">
+<colgroup>
+<col width="10%" />
+<col width="90%" />
+</colgroup>
+<thead valign="bottom">
+<tr class="row-odd"><th class="head">Sr. No.</th>
+<th class="head">Description</th>
+</tr>
+</thead>
+<tbody valign="top">
+<tr class="row-even"><td><div class="first last line-block">
+<div class="line">(1)</div>
+</div>
+</td>
+<td><div class="first last line-block">
+<div class="line">Add a FreeMarker library to dependencies.</div>
+</div>
+</td>
+</tr>
+</tbody>
+</table>
+</div></blockquote>
+</li>
+</ul>
+<div class="admonition note">
+<p class="first admonition-title">Note</p>
+<p class="last">In the above setting example, since it is assumed that the dependent library version is managed by the parent project terasoluna-gfw-parent , specifying the version in pom.xml is not necessary.
+The above dependent library used by terasoluna-gfw-parent is defined by <a class="reference external" href="http://platform.spring.io/platform/">Spring IO Platform</a>.</p>
+</div>
+<ul>
+<li><p class="first">Define a Bean for FactoryBean to generate <code class="docutils literal"><span class="pre">freemarker.template.Configuration</span></code>.</p>
+<blockquote>
+<div><p><strong>Configuration example of Bean definition file</strong></p>
+<div class="highlight-xml"><div class="highlight"><pre><span></span><span class="c">&lt;!-- (1) --&gt;</span>
+<span class="nt">&lt;bean</span> <span class="na">id=</span><span class="s">&quot;freemarkerConfiguration&quot;</span>
+    <span class="na">class=</span><span class="s">&quot;org.springframework.ui.freemarker.FreeMarkerConfigurationFactoryBean&quot;</span><span class="nt">&gt;</span>
+    <span class="nt">&lt;property</span> <span class="na">name=</span><span class="s">&quot;templateLoaderPath&quot;</span> <span class="na">value=</span><span class="s">&quot;classpath:/META-INF/freemarker/&quot;</span> <span class="nt">/&gt;</span> <span class="c">&lt;!-- (2) --&gt;</span>
+    <span class="nt">&lt;property</span> <span class="na">name=</span><span class="s">&quot;defaultEncoding&quot;</span> <span class="na">value=</span><span class="s">&quot;UTF-8&quot;</span> <span class="nt">/&gt;</span> <span class="c">&lt;!-- (3) --&gt;</span>
+<span class="nt">&lt;/bean&gt;</span>
+</pre></div>
+</div>
+<table border="1" class="colwidths-given docutils">
+<colgroup>
+<col width="10%" />
+<col width="90%" />
+</colgroup>
+<thead valign="bottom">
+<tr class="row-odd"><th class="head">Sr. No.</th>
+<th class="head">Description</th>
+</tr>
+</thead>
+<tbody valign="top">
+<tr class="row-even"><td><div class="first last line-block">
+<div class="line">(1)</div>
+</div>
+</td>
+<td><div class="first last line-block">
+<div class="line">Define a Bean for <code class="docutils literal"><span class="pre">FreeMarkerConfigurationFactoryBean</span></code>.</div>
+</div>
+</td>
+</tr>
+<tr class="row-odd"><td><div class="first last line-block">
+<div class="line">(2)</div>
+</div>
+</td>
+<td><div class="first last line-block">
+<div class="line">Specify the location of template file storage in <code class="docutils literal"><span class="pre">templateLoaderPath</span></code> property.</div>
+<div class="line">In this example, <code class="file docutils literal"><span class="pre">META-INF/freemarker/</span></code> directory on the class path is specified.</div>
+</div>
+</td>
+</tr>
+<tr class="row-even"><td><div class="first last line-block">
+<div class="line">(3)</div>
+</div>
+</td>
+<td><div class="first last line-block">
+<div class="line">Specify default encoding in <code class="docutils literal"><span class="pre">defaultEncoding</span></code> property.</div>
+<div class="line">In this example, UTF-8 is specified.</div>
+</div>
+</td>
+</tr>
+</tbody>
+</table>
+<div class="admonition note">
+<p class="first admonition-title">Note</p>
+<p class="last">Refer to <a class="reference external" href="http://docs.spring.io/spring/docs/4.2.7.RELEASE/javadoc-api/org/springframework/ui/freemarker/FreeMarkerConfigurationFactoryBean.html">JavaDoc of FreeMarkerConfigurationFactoryBean</a> for the setup other than mentioned above.
+Also, refer <a class="reference external" href="http://freemarker.org/docs/pgui_config.html">FreeMarker Manual (Programmer&#8217;s Guide / The Configuration)</a> for setup of FreeMarker itself.</p>
+</div>
+</div></blockquote>
+</li>
+<li><p class="first">Create a template file for email text.</p>
+<blockquote>
+<div><p><strong>Configuration example of template file</strong></p>
+<div class="highlight-text"><div class="highlight"><pre><span></span>&lt;#escape x as x?html&gt; &lt;#-- (1) --&gt;
+&lt;html&gt;
+    &lt;body&gt;
+        &lt;h3&gt;Hi ${userName}, welcome to TERASOLUNA.ORG!&lt;/h3&gt; &lt;#-- (2) --&gt;
+
+        &lt;div&gt;
+            If you were not an intended recipient, Please notify the sender.
+        &lt;/div&gt;
+    &lt;/body&gt;
+&lt;/html&gt;
+&lt;/#escape&gt;
+</pre></div>
+</div>
+<table border="1" class="colwidths-given docutils">
+<colgroup>
+<col width="10%" />
+<col width="90%" />
+</colgroup>
+<thead valign="bottom">
+<tr class="row-odd"><th class="head">Sr. No.</th>
+<th class="head">Description</th>
+</tr>
+</thead>
+<tbody valign="top">
+<tr class="row-even"><td><div class="first last line-block">
+<div class="line">(1)</div>
+</div>
+</td>
+<td><div class="first last line-block">
+<div class="line">Specify to apply HTML escape as a countermeasure for XSS attack.</div>
+</div>
+</td>
+</tr>
+<tr class="row-odd"><td><div class="first last line-block">
+<div class="line">(2)</div>
+</div>
+</td>
+<td><div class="first last line-block">
+<div class="line">Embed the value of <code class="docutils literal"><span class="pre">userName</span></code> specified in the data model.</div>
+</div>
+</td>
+</tr>
+</tbody>
+</table>
+<div class="admonition note">
+<p class="first admonition-title">Note</p>
+<p class="last">Refer <a class="reference external" href="http://freemarker.org/docs/ref.html">FreeMarker Manual (Template Language Reference)</a> for details of template language (FIL).</p>
+</div>
+</div></blockquote>
+</li>
+<li><p class="first">Generate an email text using a template and send email.</p>
+<blockquote>
+<div><p><strong>Implementation example of Java class</strong></p>
+<div class="highlight-java"><div class="highlight"><pre><span></span><span class="nd">@Inject</span>
+<span class="n">JavaMailSender</span> <span class="n">mailSender</span><span class="o">;</span>
+
+<span class="nd">@Inject</span>
+<span class="n">Configuration</span> <span class="n">freemarkerConfiguration</span><span class="o">;</span> <span class="c1">// (1)</span>
+
+<span class="kd">public</span> <span class="kt">void</span> <span class="nf">register</span><span class="o">(</span><span class="n">User</span> <span class="n">user</span><span class="o">)</span> <span class="o">{</span>
+    <span class="c1">// omitted</span>
+
+    <span class="n">mailSender</span><span class="o">.</span><span class="na">send</span><span class="o">(</span><span class="k">new</span> <span class="n">MimeMessagePreparator</span><span class="o">()</span> <span class="o">{</span>
+
+        <span class="nd">@Override</span>
+        <span class="kd">public</span> <span class="kt">void</span> <span class="nf">prepare</span><span class="o">(</span><span class="n">MimeMessage</span> <span class="n">mimeMessage</span><span class="o">)</span> <span class="kd">throws</span> <span class="n">Exception</span> <span class="o">{</span>
+            <span class="n">MimeMessageHelper</span> <span class="n">helper</span> <span class="o">=</span> <span class="k">new</span> <span class="n">MimeMessageHelper</span><span class="o">(</span><span class="n">mimeMessage</span><span class="o">,</span>
+                    <span class="n">StandardCharsets</span><span class="o">.</span><span class="na">UTF_8</span><span class="o">.</span><span class="na">name</span><span class="o">());</span>
+            <span class="n">helper</span><span class="o">.</span><span class="na">setFrom</span><span class="o">(</span><span class="s">&quot;EXAMPLE.COM &lt;info@example.com&gt;&quot;</span><span class="o">);</span>
+            <span class="n">helper</span><span class="o">.</span><span class="na">setTo</span><span class="o">(</span><span class="n">user</span><span class="o">.</span><span class="na">getEmailAddress</span><span class="o">());</span>
+            <span class="n">helper</span><span class="o">.</span><span class="na">setSubject</span><span class="o">(</span><span class="s">&quot;Registration confirmation.&quot;</span><span class="o">);</span>
+            <span class="n">Template</span> <span class="n">template</span> <span class="o">=</span> <span class="n">freemarkerConfiguration</span>
+                    <span class="o">.</span><span class="na">getTemplate</span><span class="o">(</span><span class="s">&quot;registration-confirmation.ftl&quot;</span><span class="o">);</span> <span class="c1">// (2)</span>
+            <span class="n">String</span> <span class="n">text</span> <span class="o">=</span> <span class="n">FreeMarkerTemplateUtils</span>
+                    <span class="o">.</span><span class="na">processTemplateIntoString</span><span class="o">(</span><span class="n">template</span><span class="o">,</span> <span class="n">user</span><span class="o">);</span> <span class="c1">// (3)</span>
+            <span class="n">helper</span><span class="o">.</span><span class="na">setText</span><span class="o">(</span><span class="n">text</span><span class="o">,</span> <span class="kc">true</span><span class="o">);</span>
+        <span class="o">}</span>
+    <span class="o">});</span>
+
+    <span class="c1">// omitted</span>
+<span class="o">}</span>
+</pre></div>
+</div>
+<table border="1" class="colwidths-given docutils">
+<colgroup>
+<col width="10%" />
+<col width="90%" />
+</colgroup>
+<thead valign="bottom">
+<tr class="row-odd"><th class="head">Sr. No.</th>
+<th class="head">Description</th>
+</tr>
+</thead>
+<tbody valign="top">
+<tr class="row-even"><td><div class="first last line-block">
+<div class="line">(1)</div>
+</div>
+</td>
+<td><div class="first last line-block">
+<div class="line">Inject <a class="reference external" href="http://freemarker.org/docs/api/freemarker/template/Configuration.html">Configuration</a>.</div>
+</div>
+</td>
+</tr>
+<tr class="row-odd"><td><div class="first last line-block">
+<div class="line">(2)</div>
+</div>
+</td>
+<td><div class="first last line-block">
+<div class="line">Fetch <a class="reference external" href="http://freemarker.org/docs/api/freemarker/template/Template.html">Template</a> using <code class="docutils literal"><span class="pre">getTemplate</span></code> method of <code class="docutils literal"><span class="pre">Configuration</span></code>.</div>
+<div class="line">In this example, &#8220;registration-confirmation.ftl&#8221; is specified as a template file.</div>
+</div>
+</td>
+</tr>
+<tr class="row-even"><td><div class="first last line-block">
+<div class="line">(3)</div>
+</div>
+</td>
+<td><div class="first last line-block">
+<div class="line">Based on fetched <code class="docutils literal"><span class="pre">Template</span></code>, generate a string from the template using <code class="docutils literal"><span class="pre">processTemplateIntoString</span></code> method of <code class="docutils literal"><span class="pre">org.springframework.ui.freemarker.FreeMarkerTemplateUtils</span></code>.</div>
+<div class="line">In this example, <code class="docutils literal"><span class="pre">User</span></code> object (JavaBeans) consisting of <code class="docutils literal"><span class="pre">userName</span></code> property is specified as a data model.
+Accordingly, value of <code class="docutils literal"><span class="pre">userName</span></code> property is embedded in the location of <code class="docutils literal"><span class="pre">${userName}</span></code> of template file.</div>
+</div>
+</td>
+</tr>
+</tbody>
+</table>
+</div></blockquote>
+</li>
+</ul>
+<div class="line-block">
+<div class="line"><br /></div>
+</div>
+</div>
+</div>
+</div>
+<div class="section" id="appendix">
+<h2><a class="toc-backref" href="#id26">8.1.4. Appendix</a><a class="headerlink" href="#appendix" title="Permalink to this headline">¶</a></h2>
+<div class="section" id="considerations-for-iso-2022-jp-encoding">
+<span id="email-iso-2022-jp"></span><h3><a class="toc-backref" href="#id27">8.1.4.1. Considerations for ISO-2022-JP encoding</a><a class="headerlink" href="#considerations-for-iso-2022-jp-encoding" title="Permalink to this headline">¶</a></h3>
+<p>When sending an email in Japanese, if the email client that receives the sent mail cannot be restricted, it is necessary to consider use of ISO-2022-JP in encoding.
+This is because the legacy email client does not support UTF-8.</p>
+<p>When encoding based on character set of JIS X 0208 including ISO-2022-JP is set for the string entered by MS932,
+garbling occurs for seven characters described in the table below.</p>
+<table border="1" class="colwidths-given docutils">
+<colgroup>
+<col width="20%" />
+<col width="15%" />
+<col width="15%" />
+<col width="15%" />
+<col width="15%" />
+<col width="20%" />
+</colgroup>
+<thead valign="bottom">
+<tr class="row-odd"><th class="head">Before conversion</th>
+<th class="head">&nbsp;</th>
+<th class="head">&nbsp;</th>
+<th class="head">After conversion</th>
+<th class="head">&nbsp;</th>
+<th class="head">&nbsp;</th>
+</tr>
+<tr class="row-even"><th class="head"><div class="first last line-block">
+<div class="line">MS932</div>
+<div class="line">Input character</div>
+</div>
+</th>
+<th class="head"><div class="first last line-block">
+<div class="line">Input value</div>
+<div class="line">（SJIS）</div>
+</div>
+</th>
+<th class="head"><div class="first last line-block">
+<div class="line">Unicode</div>
+<div class="line">（UTF-16）</div>
+</div>
+</th>
+<th class="head"><div class="first last line-block">
+<div class="line">Unicode</div>
+<div class="line">（UTF-16）</div>
+</div>
+</th>
+<th class="head"><div class="first last line-block">
+<div class="line">ISO-2022-JP</div>
+<div class="line">（JIS）</div>
+</div>
+</th>
+<th class="head"><div class="first last line-block">
+<div class="line">JIS X 0208</div>
+<div class="line">Alternative character</div>
+</div>
+</th>
+</tr>
+</thead>
+<tbody valign="top">
+<tr class="row-odd"><td><div class="first last line-block">
+<div class="line">―(Double byte hyphen)</div>
+</div>
+</td>
+<td><div class="first last line-block">
+<div class="line">815D</div>
+</div>
+</td>
+<td><div class="first last line-block">
+<div class="line">U+2015</div>
+</div>
+</td>
+<td><div class="first last line-block">
+<div class="line">U+2014</div>
+</div>
+</td>
+<td><div class="first last line-block">
+<div class="line">213E</div>
+</div>
+</td>
+<td><div class="first last line-block">
+<div class="line">—(EM dash)</div>
+</div>
+</td>
+</tr>
+<tr class="row-even"><td><div class="first last line-block">
+<div class="line">－(Hyphen-minus)</div>
+</div>
+</td>
+<td><div class="first last line-block">
+<div class="line">817C</div>
+</div>
+</td>
+<td><div class="first last line-block">
+<div class="line">U+FF0D</div>
+</div>
+</td>
+<td><div class="first last line-block">
+<div class="line">U+2212</div>
+</div>
+</td>
+<td><div class="first last line-block">
+<div class="line">215D</div>
+</div>
+</td>
+<td><div class="first last line-block">
+<div class="line">−(Double byte minus)</div>
+</div>
+</td>
+</tr>
+<tr class="row-odd"><td><div class="first last line-block">
+<div class="line">～(Double byte tilde)</div>
+</div>
+</td>
+<td><div class="first last line-block">
+<div class="line">8160</div>
+</div>
+</td>
+<td><div class="first last line-block">
+<div class="line">U+FF5E</div>
+</div>
+</td>
+<td><div class="first last line-block">
+<div class="line">U+301C</div>
+</div>
+</td>
+<td><div class="first last line-block">
+<div class="line">2141</div>
+</div>
+</td>
+<td><div class="first last line-block">
+<div class="line">〜(Tilde)</div>
+</div>
+</td>
+</tr>
+<tr class="row-even"><td><div class="first last line-block">
+<div class="line">∥(Parallel symbol)</div>
+</div>
+</td>
+<td><div class="first last line-block">
+<div class="line">8161</div>
+</div>
+</td>
+<td><div class="first last line-block">
+<div class="line">U+2225</div>
+</div>
+</td>
+<td><div class="first last line-block">
+<div class="line">U+2016</div>
+</div>
+</td>
+<td><div class="first last line-block">
+<div class="line">2142</div>
+</div>
+</td>
+<td><div class="first last line-block">
+<div class="line">‖(Pipe sumbol)</div>
+</div>
+</td>
+</tr>
+<tr class="row-odd"><td><div class="first last line-block">
+<div class="line">￠(Double byte cent symbol)</div>
+</div>
+</td>
+<td><div class="first last line-block">
+<div class="line">8191</div>
+</div>
+</td>
+<td><div class="first last line-block">
+<div class="line">U+FFE0</div>
+</div>
+</td>
+<td><div class="first last line-block">
+<div class="line">U+00A2</div>
+</div>
+</td>
+<td><div class="first last line-block">
+<div class="line">2171</div>
+</div>
+</td>
+<td><div class="first last line-block">
+<div class="line">￠(Cent symbol)</div>
+</div>
+</td>
+</tr>
+<tr class="row-even"><td><div class="first last line-block">
+<div class="line">￡(Double byte pound symbol)</div>
+</div>
+</td>
+<td><div class="first last line-block">
+<div class="line">8192</div>
+</div>
+</td>
+<td><div class="first last line-block">
+<div class="line">U+FFE1</div>
+</div>
+</td>
+<td><div class="first last line-block">
+<div class="line">U+00A3</div>
+</div>
+</td>
+<td><div class="first last line-block">
+<div class="line">2172</div>
+</div>
+</td>
+<td><div class="first last line-block">
+<div class="line">￡(Pound symbol)</div>
+</div>
+</td>
+</tr>
+<tr class="row-odd"><td><div class="first last line-block">
+<div class="line">￢(Double byte negation symbol)</div>
+</div>
+</td>
+<td><div class="first last line-block">
+<div class="line">81CA</div>
+</div>
+</td>
+<td><div class="first last line-block">
+<div class="line">U+FFE2</div>
+</div>
+</td>
+<td><div class="first last line-block">
+<div class="line">U+00AC</div>
+</div>
+</td>
+<td><div class="first last line-block">
+<div class="line">224C</div>
+</div>
+</td>
+<td><div class="first last line-block">
+<div class="line">￢(Negation symbol)</div>
+</div>
+</td>
+</tr>
+</tbody>
+</table>
+<p>This issue occurs during character code conversion through Unicode due to the presence of characters that exist in MS932 but do not exist in JIS X 0208.
+In order to avoid garbling, the measures such as replacing character codes for the garbled characters with alternate characters must be employed.
+Note that, conversion process is not necessary while using x-windows-iso2022jp described later.</p>
+<p>Implementation example of conversion process is shown below.</p>
+<div class="highlight-java"><div class="highlight"><pre><span></span><span class="kd">public</span> <span class="kd">static</span> <span class="n">String</span> <span class="nf">convertISO2022JPCharacters</span><span class="o">(</span><span class="n">String</span> <span class="n">targetStr</span><span class="o">)</span> <span class="o">{</span>
+
+    <span class="k">if</span> <span class="o">(</span><span class="n">targetStr</span> <span class="o">==</span> <span class="kc">null</span><span class="o">)</span> <span class="o">{</span>
+        <span class="k">return</span> <span class="kc">null</span><span class="o">;</span>
+    <span class="o">}</span>
+
+    <span class="kt">char</span><span class="o">[]</span> <span class="n">ch</span> <span class="o">=</span> <span class="n">targetStr</span><span class="o">.</span><span class="na">toCharArray</span><span class="o">();</span>
+
+    <span class="k">for</span> <span class="o">(</span><span class="kt">int</span> <span class="n">i</span> <span class="o">=</span> <span class="mi">0</span><span class="o">;</span> <span class="n">i</span> <span class="o">&lt;</span> <span class="n">ch</span><span class="o">.</span><span class="na">length</span><span class="o">;</span> <span class="n">i</span><span class="o">++)</span> <span class="o">{</span>
+        <span class="k">switch</span> <span class="o">(</span><span class="n">ch</span><span class="o">[</span><span class="n">i</span><span class="o">])</span> <span class="o">{</span>
+
+        <span class="c1">// &#39;-&#39;(Double byte hyphen)</span>
+        <span class="k">case</span> <span class="sc">&#39;\u2015&#39;</span><span class="o">:</span>
+            <span class="n">ch</span><span class="o">[</span><span class="n">i</span><span class="o">]</span> <span class="o">=</span> <span class="sc">&#39;\u2014&#39;</span><span class="o">;</span>
+            <span class="k">break</span><span class="o">;</span>
+        <span class="c1">// &#39;－&#39;(Double byte minus)</span>
+        <span class="k">case</span> <span class="sc">&#39;\uff0d&#39;</span><span class="o">:</span>
+            <span class="n">ch</span><span class="o">[</span><span class="n">i</span><span class="o">]</span> <span class="o">=</span> <span class="sc">&#39;\u2212&#39;</span><span class="o">;</span>
+            <span class="k">break</span><span class="o">;</span>
+        <span class="c1">// &#39;～&#39;(Tilde)</span>
+        <span class="k">case</span> <span class="sc">&#39;\uff5e&#39;</span><span class="o">:</span>
+            <span class="n">ch</span><span class="o">[</span><span class="n">i</span><span class="o">]</span> <span class="o">=</span> <span class="sc">&#39;\u301c&#39;</span><span class="o">;</span>
+            <span class="k">break</span><span class="o">;</span>
+        <span class="c1">// &#39;∥&#39;(Pipe)</span>
+        <span class="k">case</span> <span class="sc">&#39;\u2225&#39;</span><span class="o">:</span>
+            <span class="n">ch</span><span class="o">[</span><span class="n">i</span><span class="o">]</span> <span class="o">=</span> <span class="sc">&#39;\u2016&#39;</span><span class="o">;</span>
+            <span class="k">break</span><span class="o">;</span>
+        <span class="c1">// &#39;￠&#39;(Cent symbol)</span>
+        <span class="k">case</span> <span class="sc">&#39;\uffe0&#39;</span><span class="o">:</span>
+            <span class="n">ch</span><span class="o">[</span><span class="n">i</span><span class="o">]</span> <span class="o">=</span> <span class="sc">&#39;\u00A2&#39;</span><span class="o">;</span>
+            <span class="k">break</span><span class="o">;</span>
+        <span class="c1">// &#39;￡&#39;(Pound symbol)</span>
+        <span class="k">case</span> <span class="sc">&#39;\uffe1&#39;</span><span class="o">:</span>
+            <span class="n">ch</span><span class="o">[</span><span class="n">i</span><span class="o">]</span> <span class="o">=</span> <span class="sc">&#39;\u00A3&#39;</span><span class="o">;</span>
+            <span class="k">break</span><span class="o">;</span>
+        <span class="c1">// &#39;￢&#39; (Negation symbol)</span>
+        <span class="k">case</span> <span class="sc">&#39;\uffe2&#39;</span><span class="o">:</span>
+            <span class="n">ch</span><span class="o">[</span><span class="n">i</span><span class="o">]</span> <span class="o">=</span> <span class="sc">&#39;\u00AC&#39;</span><span class="o">;</span>
+            <span class="k">break</span><span class="o">;</span>
+        <span class="k">default</span><span class="o">:</span>
+            <span class="k">break</span><span class="o">;</span>
+        <span class="o">}</span>
+    <span class="o">}</span>
+
+    <span class="k">return</span> <span class="n">String</span><span class="o">.</span><span class="na">valueOf</span><span class="o">(</span><span class="n">ch</span><span class="o">);</span>
+<span class="o">}</span>
+</pre></div>
+</div>
+<div class="admonition note">
+<p class="first admonition-title">Note</p>
+<p class="last">Since it is an issue that occurs during mapping in Unicode, conversion is necessary regardless of the character code of input value.
+Header and body text which may contain strings with Japanese text are used for conversion.
+From, To, Cc, Bcc, Reply-To, Subject etc are examples of the header that may contain Japanese text and are frequently used in general.</p>
+</div>
+<p>Also, when ISO-2-22-JP is set as encoding, extended characters which are not in scope are garbled.</p>
+<div class="figure align-center" id="id6">
+<a class="reference internal image-reference" href="../../_images/EmailOutofEscapeCharacter.png"><img alt="Out of EscapeCharacter" src="../../_images/EmailOutofEscapeCharacter.png" style="width: 100%;" /></a>
+<p class="caption"><span class="caption-text"><strong>Fig.- Examples of extended characters that are not in scope</strong></span></p>
+</div>
+<p>These characters essentially should not be used.
+If it is necessary to use these characters, settings can be done as follows as JVM start-up options.
+Moreover, when ISO-2022-JP encoding is set, these characters can be replaced so that they can be mapped with x-windows-iso2022jp.</p>
+<div class="highlight-text"><div class="highlight"><pre><span></span>-Dsun.nio.cs.map=x-windows-iso2022jp/ISO-2022-JP
+</pre></div>
+</div>
+<div class="admonition warning">
+<p class="first admonition-title">Warning</p>
+<p class="last">x-windows-iso2022jp is a ISO-2022-JP implementation which includes mapping (MS932 base) that is different from ISO-2022-JP standards.
+When ISO-2022-JP encoding is specified in the email header, whether the out-of-scope extension characters are handled in the implementation will depend on the email client.
+Hence it cannot be guaranteed that there will not be any garbling in all email clients even though mapping is done using x-windows-iso2022jp.</p>
+</div>
+<p>When extension characters can also be converted to alternate characters, a method wherein conversion is done in the application independently should also be reviewed similar to seven characters described earlier.</p>
+<div class="line-block">
+<div class="line"><br /></div>
+</div>
+</div>
+<div class="section" id="precautions-while-using-multibyte-characters-in-javamail">
+<span id="email-note-of-when-sending"></span><h3><a class="toc-backref" href="#id28">8.1.4.2. Precautions while using multibyte characters in JavaMail</a><a class="headerlink" href="#precautions-while-using-multibyte-characters-in-javamail" title="Permalink to this headline">¶</a></h3>
+<p>In JavaMail, body text of mail to be sent ends with multibyte characters, additional characters  (&#8221;?&#8221;, &#8220;w&#8221; etc) are likely to be output.
+Following methods can be used to avoid these occurrences.</p>
+<ul class="simple">
+<li>Change end character of mail body text to single byte character.</li>
+<li>Change end of mail body text to linefeed code (CRLF)</li>
+</ul>
+<div class="line-block">
+<div class="line"><br /></div>
+</div>
+</div>
+<div class="section" id="email-header-injection-countermeasures">
+<span id="email-header-injection"></span><h3><a class="toc-backref" href="#id29">8.1.4.3. Email header injection countermeasures</a><a class="headerlink" href="#email-header-injection-countermeasures" title="Permalink to this headline">¶</a></h3>
+<p>If email header injection attack is successful, an email is sent to an unintended address
+and thus can end up as &#8220;junk mail&#8221;.
+When a string that has been entered externally is used in the email header (Subject etc) contents, it becomes necessary to take countermeasures against email header injection attack.</p>
+<p>For example, if the following string is set by <code class="docutils literal"><span class="pre">setSubject</span></code> method of <code class="docutils literal"><span class="pre">MimeMessageHelper</span></code>, the text can be manipulated by adding a Bcc header.</p>
+<div class="highlight-text"><div class="highlight"><pre><span></span>Notification\r\nBcc: attacker@exapmle.com\r\n\r\nManipulated body.
+</pre></div>
+</div>
+<p>Following methods can be considered as countermeasures for email header injection attack.</p>
+<ul class="simple">
+<li>Set contents to be specified in email header as a fixed value and output entire string that has been entered externally in the email body text.</li>
+<li>Check that no linefeed character is included in the contents specified in the email header.</li>
+</ul>
+<div class="line-block">
+<div class="line"><br /></div>
+</div>
+</div>
+<div class="section" id="processing-method">
+<span id="email-processing-method"></span><h3><a class="toc-backref" href="#id30">8.1.4.4. Processing method</a><a class="headerlink" href="#processing-method" title="Permalink to this headline">¶</a></h3>
+<p>Since sending an email is a time consuming process, response time can become longer if an email is sent during a web application request.
+Hence, an email is usually not sent during a web application request and a method is adopted wherein an email is sent asynchronously.
+Although a process to send the email is not described here in detail, the example is given below which can be used as a reference.</p>
+<div class="section" id="send-an-email-based-on-the-email-information-stored-in-database-or-message-queue">
+<h4><a class="toc-backref" href="#id31">8.1.4.4.1. Send an email based on the email information stored in database or message queue</a><a class="headerlink" href="#send-an-email-based-on-the-email-information-stored-in-database-or-message-queue" title="Permalink to this headline">¶</a></h4>
+<p>Incorporate the functions given below in the application when you want to send an email based on the email information stored in database or message queue.</p>
+<ul class="simple">
+<li>Register the information of the email to be sent (address, body text, attachment etc) in the database (or message queue).</li>
+<li>Fetch the email information that has not been sent from database (or message queue) periodically and send the email through SMTP.</li>
+<li>Register the transmission results in database (or message queue).</li>
+</ul>
+<p>Note that, following points must be taken into consideration during review.</p>
+<ul class="simple">
+<li>How to check registered email information and email sending results</li>
+<li>Handling in case of an error while sending an email</li>
+</ul>
+<div class="admonition tip">
+<p class="first admonition-title">Tip</p>
+<p class="last">When an email is sent continuously by a mailing service, it is determined as spam mail.
+A method can be considered as a countermeasure wherein the sending sequence is set as random so that emails are not sent continuously for the same domain.</p>
+</div>
+<div class="line-block">
+<div class="line"><br /></div>
+</div>
+</div>
+</div>
+<div class="section" id="test-using-greenmail">
+<span id="email-test-with-greenmail"></span><h3><a class="toc-backref" href="#id32">8.1.4.5. Test using GreenMail</a><a class="headerlink" href="#test-using-greenmail" title="Permalink to this headline">¶</a></h3>
+<p>A method wherein <a class="reference external" href="http://www.icegreen.com/greenmail/">GreenMail</a> is used as a fake server to test the email sending function is introduced.
+GreenMail can also be used by deploying war file besides using it as a library.</p>
+<p>Implementation example of test code using GreenMail is shown below.</p>
+<p><strong>Configuration example of pom.xml</strong></p>
+<div class="highlight-xml"><div class="highlight"><pre><span></span><span class="nt">&lt;dependencies&gt;</span>
+
+    <span class="c">&lt;!-- (1) --&gt;</span>
+    <span class="nt">&lt;dependency&gt;</span>
+        <span class="nt">&lt;groupId&gt;</span>com.icegreen<span class="nt">&lt;/groupId&gt;</span>
+        <span class="nt">&lt;artifactId&gt;</span>greenmail<span class="nt">&lt;/artifactId&gt;</span>
+        <span class="nt">&lt;version&gt;</span>1.4.1<span class="nt">&lt;/version&gt;</span>
+        <span class="nt">&lt;scope&gt;</span>test<span class="nt">&lt;/scope&gt;</span>
+    <span class="nt">&lt;/dependency&gt;</span>
+
+<span class="nt">&lt;/dependencies&gt;</span>
+</pre></div>
+</div>
+<table border="1" class="colwidths-given docutils">
+<colgroup>
+<col width="10%" />
+<col width="90%" />
+</colgroup>
+<thead valign="bottom">
+<tr class="row-odd"><th class="head">Sr.No.</th>
+<th class="head">Description</th>
+</tr>
+</thead>
+<tbody valign="top">
+<tr class="row-even"><td><div class="first last line-block">
+<div class="line">(1)</div>
+</div>
+</td>
+<td><div class="first last line-block">
+<div class="line">Add GreenMail library to dependencies.</div>
+</div>
+</td>
+</tr>
+</tbody>
+</table>
+<p><strong>Implementation example of JUnit source</strong></p>
+<div class="highlight-java"><div class="highlight"><pre><span></span><span class="nd">@Inject</span>
+<span class="n">EmailService</span> <span class="n">emailService</span><span class="o">;</span>
+
+<span class="nd">@Rule</span>
+<span class="kd">public</span> <span class="kd">final</span> <span class="n">GreenMailRule</span> <span class="n">greenMail</span> <span class="o">=</span> <span class="k">new</span> <span class="n">GreenMailRule</span><span class="o">(</span>
+        <span class="n">ServerSetupTest</span><span class="o">.</span><span class="na">SMTP</span><span class="o">);</span> <span class="c1">// (1)</span>
+
+<span class="nd">@Test</span>
+<span class="kd">public</span> <span class="kt">void</span> <span class="nf">testSend</span><span class="o">()</span> <span class="o">{</span>
+
+    <span class="n">String</span> <span class="n">from</span> <span class="o">=</span> <span class="s">&quot;info@example.com&quot;</span><span class="o">;</span>
+    <span class="n">String</span> <span class="n">to</span> <span class="o">=</span> <span class="s">&quot;foo@example.com&quot;</span><span class="o">;</span>
+    <span class="n">String</span> <span class="n">subject</span> <span class="o">=</span> <span class="s">&quot;Registration confirmation.&quot;</span><span class="o">;</span>
+    <span class="n">String</span> <span class="n">text</span> <span class="o">=</span> <span class="s">&quot;Hi &quot;</span>
+            <span class="o">+</span> <span class="n">to</span>
+            <span class="o">+</span> <span class="s">&quot;, welcome to EXAMPLE.COM!\r\n&quot;</span>
+            <span class="o">+</span> <span class="s">&quot;If you were not an intended recipient, Please notify the sender.&quot;</span><span class="o">;</span>
+    <span class="n">emailService</span><span class="o">.</span><span class="na">send</span><span class="o">(</span><span class="n">from</span><span class="o">,</span> <span class="n">to</span><span class="o">,</span> <span class="n">subject</span><span class="o">,</span> <span class="n">text</span><span class="o">);</span>
+
+    <span class="n">assertTrue</span><span class="o">(</span><span class="n">greenMail</span><span class="o">.</span><span class="na">waitForIncomingEmail</span><span class="o">(</span><span class="mi">3000</span><span class="o">,</span> <span class="mi">1</span><span class="o">));</span> <span class="c1">// (2)</span>
+
+    <span class="n">Message</span><span class="o">[]</span> <span class="n">messages</span> <span class="o">=</span> <span class="n">greenMail</span><span class="o">.</span><span class="na">getReceivedMessages</span><span class="o">();</span> <span class="c1">// (3)</span>
+
+    <span class="n">assertNotNull</span><span class="o">(</span><span class="n">messages</span><span class="o">);</span>
+    <span class="n">assertEquals</span><span class="o">(</span><span class="mi">1</span><span class="o">,</span> <span class="n">messages</span><span class="o">.</span><span class="na">length</span><span class="o">);</span>
+    <span class="c1">// omitted</span>
+<span class="o">}</span>
+</pre></div>
+</div>
+<table border="1" class="colwidths-given docutils">
+<colgroup>
+<col width="10%" />
+<col width="90%" />
+</colgroup>
+<thead valign="bottom">
+<tr class="row-odd"><th class="head">Sr. No.</th>
+<th class="head">Description</th>
+</tr>
+</thead>
+<tbody valign="top">
+<tr class="row-even"><td><div class="first last line-block">
+<div class="line">(1)</div>
+</div>
+</td>
+<td><div class="first last line-block">
+<div class="line">Set <code class="docutils literal"><span class="pre">GreenMailRule</span></code> as a rule which specifies <code class="docutils literal"><span class="pre">ServerSetupTest.SMTP</span></code>.</div>
+<div class="line">SMTP port number is set to <code class="docutils literal"><span class="pre">3025</span></code> as a default.</div>
+</div>
+</td>
+</tr>
+<tr class="row-odd"><td><div class="first last line-block">
+<div class="line">(2)</div>
+</div>
+</td>
+<td><div class="first last line-block">
+<div class="line">Wait for arrival of email by using <code class="docutils literal"><span class="pre">waitForIncomingEmail</span></code> method.</div>
+<div class="line">It is used when an email is sent asynchronously by another thread.</div>
+<div class="line">In this example, it is assumed that the email is sent asynchronously and waiting time for an email arrival is maximum 3 seconds.</div>
+</div>
+</td>
+</tr>
+<tr class="row-even"><td><div class="first last line-block">
+<div class="line">(3)</div>
+</div>
+</td>
+<td><div class="first last line-block">
+<div class="line">Fetch all received emails by using <code class="docutils literal"><span class="pre">getReceivedMessages</span></code> method.</div>
+<div class="line">Emails sent by GreenMail are all received by GreenMail regardless of the address.</div>
+</div>
+</td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
+</div>
+
+
+          </div>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../../genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="JMS.html" title="8.2. JMS(Java Message Service)"
+             >next</a> |</li>
+        <li class="right" >
+          <a href="index.html" title="8. Messaging"
+             >previous</a> |</li>
+        <li class="nav-item nav-item-0"><a href="../../index.html">TERASOLUNA Server Framework for Java (5.x) Development Guideline 5.2.1.RELEASE documentation</a> &#187;</li>
+          <li class="nav-item nav-item-1"><a href="index.html" >8. Messaging</a> &#187;</li> 
+      </ul>
+    </div>
+    <div class="footer">
+        &copy; Copyright 2013-2017, NTT DATA Corporation.
+    Created using <a href="http://sphinx.pocoo.org/">Sphinx</a> 1.4.8.Theme by <a href="http://github.com/vkvn">vkvn</a>
+    </div>
+    
+    <script>
+    
+    $(function() {
+    	var $sidebar	= $('.sphinxsidebar'),
+    		$window		= $(window),
+    		offset		= $sidebar.offset(),
+    		topPadding	= 3,
+    		$scroll		= $('#scroll');
+    	
+    	$window.scroll(function() {
+    		if ($scroll.is(':checked')) {
+				if ($window.scrollTop() > offset.top) {
+					$sidebar.stop().animate({
+						marginTop:$window.scrollTop() - offset.top + topPadding
+					});
+				} else {
+					$sidebar.stop().animate({
+						marginTop:0
+					});
+				}
+			}
+		});
+    	
+    	var $navList = $('ul:first', $sidebar);
+    	$('li:first', $navList).addClass('open');
+    	
+    	$navList.treeview({
+    		persist: "location",
+    		collapsed: true,
+    		unique: false
+    	});
+    	
+	});
+    (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+        (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+            m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+    })(window,document,'script','//www.google-analytics.com/analytics.js','ga');
+
+    ga('create', 'UA-46550814-1', 'terasolunaorg.github.io');
+    ga('send', 'pageview');
+    </script>
+  </body>
+</html>
