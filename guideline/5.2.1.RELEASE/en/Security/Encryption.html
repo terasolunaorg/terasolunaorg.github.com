@@ -1,0 +1,1847 @@
+<!DOCTYPE html>
+
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>9.8. Encryption &#8212; TERASOLUNA Server Framework for Java (5.x) Development Guideline 5.2.1.RELEASE documentation</title>
+    
+    <link rel="stylesheet" href="../_static/solar.css" type="text/css" />
+    <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+    
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    '../',
+        VERSION:     '5.2.1.RELEASE',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true
+      };
+    </script>
+    <script type="text/javascript" src="../_static/jquery.js"></script>
+    <script type="text/javascript" src="../_static/underscore.js"></script>
+    <script type="text/javascript" src="../_static/doctools.js"></script>
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="top" title="TERASOLUNA Server Framework for Java (5.x) Development Guideline 5.2.1.RELEASE documentation" href="../index.html" />
+    <link rel="up" title="9. Security countermeasures" href="index.html" />
+    <link rel="next" title="9.9. Implementation Example of Typical Security Requirements" href="SecureLoginDemo.html" />
+    <link rel="prev" title="9.7. XSS Countermeasures" href="XSS.html" /><script src="../_static/jquery.treeview.js" type="text/javascript"></script>
+<!-- <link href='http://fonts.googleapis.com/css?family=Source+Code+Pro|Open+Sans:300italic,400italic,700italic,400,300,700' rel='stylesheet' type='text/css'> -->
+<link href="../_static/solarized-dark.css" rel="stylesheet">
+<link href="../_static/jquery.treeview.css" rel="stylesheet">
+  </head>
+  <body role="document">
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="SecureLoginDemo.html" title="9.9. Implementation Example of Typical Security Requirements"
+             accesskey="N">next</a> |</li>
+        <li class="right" >
+          <a href="XSS.html" title="9.7. XSS Countermeasures"
+             accesskey="P">previous</a> |</li>
+        <li class="nav-item nav-item-0"><a href="../index.html">TERASOLUNA Server Framework for Java (5.x) Development Guideline 5.2.1.RELEASE documentation</a> &#187;</li>
+          <li class="nav-item nav-item-1"><a href="index.html" accesskey="U">9. Security countermeasures</a> &#187;</li> 
+      </ul>
+    </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper"><label><input id="scroll" type="checkbox" checked> scroll sidebar</label>
+
+  <h3><a href="../index.html">Table Of Contents</a></h3>
+  <ul>
+<li><a class="reference internal" href="#">9.8. Encryption</a><ul>
+<li><a class="reference internal" href="#overview">9.8.1. Overview</a><ul>
+<li><a class="reference internal" href="#encryption-method">9.8.1.1. Encryption method</a><ul>
+<li><a class="reference internal" href="#common-key-encryption-method">9.8.1.1.1. Common key encryption method</a></li>
+<li><a class="reference internal" href="#public-key-encryption-method">9.8.1.1.2. Public key encryption method</a></li>
+<li><a class="reference internal" href="#hybrid-encryption-method">9.8.1.1.3. Hybrid encryption method</a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#encryption-algorithm">9.8.1.2. Encryption algorithm</a><ul>
+<li><a class="reference internal" href="#des-3des">9.8.1.2.1. DES / 3DES</a></li>
+<li><a class="reference internal" href="#aes">9.8.1.2.2. AES</a></li>
+<li><a class="reference internal" href="#rsa">9.8.1.2.3. RSA</a></li>
+<li><a class="reference internal" href="#dsa-ecdsa">9.8.1.2.4. DSA / ECDSA</a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#pseudo-random-number-generator">9.8.1.3. Pseudo-random number (Generator)</a></li>
+<li><a class="reference internal" href="#javax-crypto-cipher-class">9.8.1.4. javax.crypto.Cipher class</a></li>
+<li><a class="reference internal" href="#encryption-function-in-spring-security">9.8.1.5. Encryption function in Spring Security</a><ul>
+<li><a class="reference internal" href="#components-for-encryption-and-decryption">9.8.1.5.1. Components for encryption and decryption</a></li>
+<li><a class="reference internal" href="#components-to-generate-random-numbers">9.8.1.5.2. Components to generate random numbers</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li><a class="reference internal" href="#how-to-use">9.8.2. How to use</a><ul>
+<li><a class="reference internal" href="#encryptionhowtousecommonkey">9.8.2.1. Common key encryption method</a><ul>
+<li><a class="reference internal" href="#encryption-of-character-string">9.8.2.1.1. Encryption of character string</a></li>
+<li><a class="reference internal" href="#decryption-of-string">9.8.2.1.2. Decryption of string</a></li>
+<li><a class="reference internal" href="#encryption-of-byte-array">9.8.2.1.3. Encryption of byte array</a></li>
+<li><a class="reference internal" href="#decryption-of-byte-array">9.8.2.1.4. Decryption of byte array</a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#encryptionhowtousepublickey">9.8.2.2. Public key encryption method</a><ul>
+<li><a class="reference internal" href="#preliminary-preparation-generation-of-key-pairs-using-jca">9.8.2.2.1. Preliminary preparation (Generation of key pairs using JCA)</a></li>
+<li><a class="reference internal" href="#id3">9.8.2.2.2. Encryption</a></li>
+<li><a class="reference internal" href="#decryption">9.8.2.2.3. Decryption</a></li>
+<li><a class="reference internal" href="#openssl">9.8.2.2.4. OpenSSL</a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#encryptionhowtousehybrid">9.8.2.3. Hybrid encryption method</a><ul>
+<li><a class="reference internal" href="#id5">9.8.2.3.1. Encryption</a></li>
+<li><a class="reference internal" href="#id6">9.8.2.3.2. Decryption</a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#random-number-generation">9.8.2.4. Random number generation</a><ul>
+<li><a class="reference internal" href="#generation-of-string-type-pseudo-random-number">9.8.2.4.1. Generation of string type pseudo-random number</a></li>
+<li><a class="reference internal" href="#generation-of-byte-array-type-pseudo-randon-number">9.8.2.4.2. Generation of byte array type pseudo-randon number</a></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+
+
+  <h4>Previous topic</h4>
+  <p class="topless"><a href="XSS.html"
+                        title="previous chapter">9.7. XSS Countermeasures</a></p>
+  <h4>Next topic</h4>
+  <p class="topless"><a href="SecureLoginDemo.html"
+                        title="next chapter">9.9. Implementation Example of Typical Security Requirements</a></p>
+  <div role="note" aria-label="source link">
+    <h3>This Page</h3>
+    <ul class="this-page-menu">
+      <li><a href="../_sources/Security/Encryption.txt"
+            rel="nofollow">Show Source</a></li>
+    </ul>
+   </div>
+<div id="searchbox" style="display: none" role="search">
+  <h3>Quick search</h3>
+    <form class="search" action="../search.html" method="get">
+      <div><input type="text" name="q" /></div>
+      <div><input type="submit" value="Go" /></div>
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <div class="section" id="encryption">
+<h1>9.8. Encryption<a class="headerlink" href="#encryption" title="Permalink to this headline">¶</a></h1>
+<div class="contents local topic" id="index">
+<p class="topic-title first">Index</p>
+<ul class="simple">
+<li><a class="reference internal" href="#overview" id="id7">Overview</a><ul>
+<li><a class="reference internal" href="#encryption-method" id="id8">Encryption method</a><ul>
+<li><a class="reference internal" href="#common-key-encryption-method" id="id9">Common key encryption method</a></li>
+<li><a class="reference internal" href="#public-key-encryption-method" id="id10">Public key encryption method</a></li>
+<li><a class="reference internal" href="#hybrid-encryption-method" id="id11">Hybrid encryption method</a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#encryption-algorithm" id="id12">Encryption algorithm</a><ul>
+<li><a class="reference internal" href="#des-3des" id="id13">DES / 3DES</a></li>
+<li><a class="reference internal" href="#aes" id="id14">AES</a></li>
+<li><a class="reference internal" href="#rsa" id="id15">RSA</a></li>
+<li><a class="reference internal" href="#dsa-ecdsa" id="id16">DSA / ECDSA</a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#pseudo-random-number-generator" id="id17">Pseudo-random number (Generator)</a></li>
+<li><a class="reference internal" href="#javax-crypto-cipher-class" id="id18">javax.crypto.Cipher class</a></li>
+<li><a class="reference internal" href="#encryption-function-in-spring-security" id="id19">Encryption function in Spring Security</a><ul>
+<li><a class="reference internal" href="#components-for-encryption-and-decryption" id="id20">Components for encryption and decryption</a></li>
+<li><a class="reference internal" href="#components-to-generate-random-numbers" id="id21">Components to generate random numbers</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li><a class="reference internal" href="#how-to-use" id="id22">How to use</a><ul>
+<li><a class="reference internal" href="#encryptionhowtousecommonkey" id="id23">Common key encryption method</a><ul>
+<li><a class="reference internal" href="#encryption-of-character-string" id="id24">Encryption of character string</a></li>
+<li><a class="reference internal" href="#decryption-of-string" id="id25">Decryption of string</a></li>
+<li><a class="reference internal" href="#encryption-of-byte-array" id="id26">Encryption of byte array</a></li>
+<li><a class="reference internal" href="#decryption-of-byte-array" id="id27">Decryption of byte array</a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#encryptionhowtousepublickey" id="id28">Public key encryption method</a><ul>
+<li><a class="reference internal" href="#preliminary-preparation-generation-of-key-pairs-using-jca" id="id29">Preliminary preparation (Generation of key pairs using JCA)</a></li>
+<li><a class="reference internal" href="#id3" id="id30">Encryption</a></li>
+<li><a class="reference internal" href="#decryption" id="id31">Decryption</a></li>
+<li><a class="reference internal" href="#openssl" id="id32">OpenSSL</a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#encryptionhowtousehybrid" id="id33">Hybrid encryption method</a><ul>
+<li><a class="reference internal" href="#id5" id="id34">Encryption</a></li>
+<li><a class="reference internal" href="#id6" id="id35">Decryption</a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#random-number-generation" id="id36">Random number generation</a><ul>
+<li><a class="reference internal" href="#generation-of-string-type-pseudo-random-number" id="id37">Generation of string type pseudo-random number</a></li>
+<li><a class="reference internal" href="#generation-of-byte-array-type-pseudo-randon-number" id="id38">Generation of byte array type pseudo-randon number</a></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+</div>
+<div class="section" id="overview">
+<span id="encryptionoverview"></span><h2><a class="toc-backref" href="#id7">9.8.1. Overview</a><a class="headerlink" href="#overview" title="Permalink to this headline">¶</a></h2>
+<p>Encryption is required for confidential information like personal data, passwords etc in the following cases.</p>
+<ul class="simple">
+<li>Sending/receiving confidential information through a network medium like Internet</li>
+<li>Storing confidential information in external resources like database, file etc</li>
+</ul>
+<div class="line-block">
+<div class="line">Spring Security also offers encryption related functions besides the major functions like &#8220;Authentication&#8221; and &#8220;Authorization&#8221;.</div>
+<div class="line">However, since functions offered by Spring Security are limited, the encryption methods which are not supported by Spring Security must be implemented independently.</div>
+</div>
+<p>The guideline explains following processes.</p>
+<ul class="simple">
+<li>Encryption and decryption by common key encryption methods which use class offered by Spring Security</li>
+<li>Generation of pseudo-random numbers which use class offered by Spring Security</li>
+<li>Encryption and decryption by public key encryption method which use JCA (Java Cryptography Architecture)</li>
+<li>Encryption and decryption by hybrid encryption method which use JCA</li>
+</ul>
+<p>For details of Encryption function of Spring Security, refer <a class="reference external" href="http://docs.spring.io/spring-security/site/docs/4.0.4.RELEASE/reference/htmlsingle/#crypto">Spring Security Reference -Spring Security Crypto Module-</a>.</p>
+<div class="section" id="encryption-method">
+<span id="encryptionoverviewencryptionscheme"></span><h3><a class="toc-backref" href="#id8">9.8.1.1. Encryption method</a><a class="headerlink" href="#encryption-method" title="Permalink to this headline">¶</a></h3>
+<p>Encryption method is explained below.</p>
+<div class="section" id="common-key-encryption-method">
+<h4><a class="toc-backref" href="#id9">9.8.1.1.1. Common key encryption method</a><a class="headerlink" href="#common-key-encryption-method" title="Permalink to this headline">¶</a></h4>
+<div class="line-block">
+<div class="line">It is a method which uses the same key during encryption and decryption.</div>
+<div class="line">Since the method shares a key used in decryption for the encryption, a different path to safely transfer the key to encryption side is required.</div>
+</div>
+</div>
+<div class="section" id="public-key-encryption-method">
+<h4><a class="toc-backref" href="#id10">9.8.1.1.2. Public key encryption method</a><a class="headerlink" href="#public-key-encryption-method" title="Permalink to this headline">¶</a></h4>
+<div class="line-block">
+<div class="line">It is a method wherein encryption is performed by using a public key offered by decryption side and decryption is performed by using a secret key which is paired with the public key.</div>
+<div class="line">Secret key used while decrypting encrypted text is not published resulting in high security strength, however cost of encryption and decryption is likely to be high.</div>
+</div>
+</div>
+<div class="section" id="hybrid-encryption-method">
+<h4><a class="toc-backref" href="#id11">9.8.1.1.3. Hybrid encryption method</a><a class="headerlink" href="#hybrid-encryption-method" title="Permalink to this headline">¶</a></h4>
+<div class="line-block">
+<div class="line">It is a method which combines merits of common key encryption method wherein processing cost is less and merits of public key encryption method wherein security strength is high due to easy management and distribution of key.</div>
+<div class="line">This method is used in SSL/TLS etc.</div>
+</div>
+<p>For example, in HTTPS communication, common key generated at the client side is sent after encrypting it with public key on the server side and common key is decrypted at the server by using secret key paired with public key.
+The subsequent communication is done by a common key encryption method which uses a shared common key.</p>
+<p>This method consists of</p>
+<ul class="simple">
+<li>Confidential information which is likely to be large in size is encrypted by a common key encryption method wherein the processing cost is less</li>
+<li>A common key with smaller size wherein safe distribution is required is encrypted by using a public key encryption method with high security strength</li>
+</ul>
+<p>Since common key used while decrypting confidential information is protected by secret key,
+security strength of public key encryption method is retained while achieving a high-speed encryption and decryption process than public key encryption method.</p>
+<p>Process flow of hybrid encryption method from encryption to decryption is shown in the following figure..</p>
+<div class="figure">
+<a class="reference internal image-reference" href="../_images/EncryptionHybrid.png"><img alt="Hybrid Encryption" src="../_images/EncryptionHybrid.png" style="width: 100%;" /></a>
+</div>
+<ol class="arabic simple">
+<li>Sender generates a common key for encryption of plain text.</li>
+<li>Plain text is encrypted by common key generated by sender.</li>
+<li>Sender uses public key of receiving side to encrypt common key.</li>
+<li>Sender sends encrypted text along with encrypted common key.</li>
+<li>Receiving side decrypts encrypted common key by using secret key on receiving side.</li>
+<li>Receiving side decrypts encrypted text by decrypted common key</li>
+</ol>
+<div class="line-block">
+<div class="line"><br /></div>
+</div>
+</div>
+</div>
+<div class="section" id="encryption-algorithm">
+<span id="encryptionoverviewencryptionalgorithm"></span><h3><a class="toc-backref" href="#id12">9.8.1.2. Encryption algorithm</a><a class="headerlink" href="#encryption-algorithm" title="Permalink to this headline">¶</a></h3>
+<p>Encryption algorithm is explained.</p>
+<div class="section" id="des-3des">
+<h4><a class="toc-backref" href="#id13">9.8.1.2.1. DES / 3DES</a><a class="headerlink" href="#des-3des" title="Permalink to this headline">¶</a></h4>
+<div class="line-block">
+<div class="line">DES (Data Encryption Standard) is an algorithm standardised in USA as an algorithm for common encryption method. Currently, it is not recommended since key length is short at 56 bits.</div>
+<div class="line">3DES (triple DES) is an encryption algorithm which repeats DES while changing the key.</div>
+</div>
+</div>
+<div class="section" id="aes">
+<span id="encryptionoverviewencryptionalgorithmaes"></span><h4><a class="toc-backref" href="#id14">9.8.1.2.2. AES</a><a class="headerlink" href="#aes" title="Permalink to this headline">¶</a></h4>
+<div class="line-block">
+<div class="line">AES (Advanced Encryption Standard) is an algorithm for common key encryption method.  It is an encryption standard established subsequent to DES and is used as a current default standard for encryption.</div>
+<div class="line">Also, ECB (Electronic Codebook), CBC (Cipher Block Chaining) and OFB (Output Feedback) are provided as encryption mode wherein a message longer than the block length is encrypted. Of these, CBC is widely used.</div>
+</div>
+<div class="admonition note">
+<p class="first admonition-title">Note</p>
+<p><strong>AES with GCM</strong></p>
+<p class="last">GCM (Galois/Counter Mode) is an encryption mode generally accepted for feasible parallel processing and excellent processing efficiency as compared to CEC and can be used in AES.</p>
+</div>
+</div>
+<div class="section" id="rsa">
+<h4><a class="toc-backref" href="#id15">9.8.1.2.3. RSA</a><a class="headerlink" href="#rsa" title="Permalink to this headline">¶</a></h4>
+<div class="line-block">
+<div class="line">RSA is an algorithm of public key encryption method. Ability of a computing machine impacts the algorithm since it is based on difficulty of prime numbers factoring. It requires adequate key length as indicated in &#8220;Issues of encryption algorithm in 2010&#8221;. At present, 2048 bits is used a standard length.</div>
+</div>
+</div>
+<div class="section" id="dsa-ecdsa">
+<h4><a class="toc-backref" href="#id16">9.8.1.2.4. DSA / ECDSA</a><a class="headerlink" href="#dsa-ecdsa" title="Permalink to this headline">¶</a></h4>
+<div class="line-block">
+<div class="line">DSA (Digital Signature Algorithm) is a standard specification for digital signature. It is based on the difficulty of discrete logarithmic problem.</div>
+<div class="line">ECDSA (Elliptic Curve Digital Signature Algorithm ) is a variant of DSA which uses Elliptic curve photography. Elliptic curve photography offers an advantage of reducing key length which is necessary for maintaining security level.</div>
+</div>
+</div>
+</div>
+<div class="section" id="pseudo-random-number-generator">
+<span id="encryptionoverviewpseudorandomnumber"></span><h3><a class="toc-backref" href="#id17">9.8.1.3. Pseudo-random number (Generator)</a><a class="headerlink" href="#pseudo-random-number-generator" title="Permalink to this headline">¶</a></h3>
+<div class="line-block">
+<div class="line">Random numbers are used in the generation of a key.</div>
+<div class="line">In this case, if the value of a number generated at random can be predicted, encryption security can no longer be maintained. Hence, a random number which cannot be predicted easily (pseudo-random number) must be used.</div>
+<div class="line">It is a pseudo-random number generator which is used to generate  a pseudo-random number.</div>
+</div>
+</div>
+<div class="section" id="javax-crypto-cipher-class">
+<span id="encryptionoverviewcipher"></span><h3><a class="toc-backref" href="#id18">9.8.1.4. javax.crypto.Cipher class</a><a class="headerlink" href="#javax-crypto-cipher-class" title="Permalink to this headline">¶</a></h3>
+<div class="line-block">
+<div class="line"><code class="docutils literal"><span class="pre">Cipher</span></code> class offers encryption and decryption functions, and specifies a combination of encryption algorithms like AES or RSA, encryption modes like ECB or CBC and padding methods like PKCS1.</div>
+<div class="line"><br /></div>
+<div class="line">Encryption mode is a mechanism to encrypt messages longer than block length, as explained in <a class="reference internal" href="#encryptionoverviewencryptionalgorithmaes"><span class="std std-ref">AES</span></a>.</div>
+<div class="line">Also, padding method is a method of storage when encryption target that does not meet the required block length is to be encrypted.</div>
+<div class="line"><br /></div>
+<div class="line">Java application specifies a combination in the <code class="docutils literal"><span class="pre">&quot;&lt;Encryption</span> <span class="pre">algorithm&gt;/&lt;Encryption</span> <span class="pre">mode&gt;/&lt;Padding</span> <span class="pre">method&gt;&quot;</span></code> or <code class="docutils literal"><span class="pre">&quot;&lt;Encryption</span> <span class="pre">algorithm&gt;&quot;</span></code> format. For example, <code class="docutils literal"><span class="pre">&quot;AES/CBC/PKCS5Padding&quot;</span></code> or <code class="docutils literal"><span class="pre">&quot;RSA&quot;</span></code> are used.
+For details, refer to <a class="reference external" href="https://docs.oracle.com/javase/8/docs/api/javax/crypto/Cipher.html">JavaDoc of Cipher class</a>.</div>
+</div>
+</div>
+<div class="section" id="encryption-function-in-spring-security">
+<span id="encryptionoverviewspringsecurity"></span><h3><a class="toc-backref" href="#id19">9.8.1.5. Encryption function in Spring Security</a><a class="headerlink" href="#encryption-function-in-spring-security" title="Permalink to this headline">¶</a></h3>
+<div class="line-block">
+<div class="line">Spring Security offers an encryption and decryption function which uses a common key encryption method.</div>
+<div class="line">Encryption algorithm is 256-bit AES using PKCS #5&#8217;s PBKDF2 (Password-Based Key Derivation Function #2).</div>
+<div class="line">Encryption mode is CBC and padding method is PKCS5Padding.</div>
+</div>
+<div class="section" id="components-for-encryption-and-decryption">
+<h4><a class="toc-backref" href="#id20">9.8.1.5.1. Components for encryption and decryption</a><a class="headerlink" href="#components-for-encryption-and-decryption" title="Permalink to this headline">¶</a></h4>
+<p>Spring Security offers following interfaces as a function for encryption and decryption using common key encryption method.</p>
+<ul class="simple">
+<li><code class="docutils literal"><span class="pre">org.springframework.security.crypto.encrypt.TextEncryptor</span></code> (For text)</li>
+<li><code class="docutils literal"><span class="pre">org.springframework.security.crypto.encrypt.BytesEncryptor</span></code> (For byte array)</li>
+</ul>
+<p>Also, following classes are offered as implementation classes for these interfaces and <code class="docutils literal"><span class="pre">Cipher</span></code> class is used internally.</p>
+<ul class="simple">
+<li><code class="docutils literal"><span class="pre">org.springframework.security.crypto.encrypt.HexEncodingTextEncryptor</span></code> (For text)</li>
+<li><code class="docutils literal"><span class="pre">org.springframework.security.crypto.encrypt.AesBytesEncryptor</span></code> (For byte array)</li>
+</ul>
+</div>
+<div class="section" id="components-to-generate-random-numbers">
+<h4><a class="toc-backref" href="#id21">9.8.1.5.2. Components to generate random numbers</a><a class="headerlink" href="#components-to-generate-random-numbers" title="Permalink to this headline">¶</a></h4>
+<p>Spring Security offers following interfaces as functions to generate random numbers (key).</p>
+<ul class="simple">
+<li><code class="docutils literal"><span class="pre">org.springframework.security.crypto.keygen.StringKeyGenerator</span></code> (for text)</li>
+<li><code class="docutils literal"><span class="pre">org.springframework.security.crypto.keygen.BytesKeyGenerator</span></code> (for byte array)</li>
+</ul>
+<p>Also, following classes are offered as implementation classes for these interfaces.</p>
+<ul class="simple">
+<li><code class="docutils literal"><span class="pre">org.springframework.security.crypto.keygen.HexEncodingStringKeyGenerator</span></code> (for text)</li>
+<li><code class="docutils literal"><span class="pre">org.springframework.security.crypto.keygen.SecureRandomBytesKeyGenerator</span></code> (for byte array. Generate a different key length by <code class="docutils literal"><span class="pre">generateKey</span></code> method and return)</li>
+<li><code class="docutils literal"><span class="pre">org.springframework.security.crypto.keygen.SharedKeyGenerator</span></code> (for byte array. Return same key length set by constructor, using <code class="docutils literal"><span class="pre">generateKey</span></code> method)</li>
+</ul>
+<div class="admonition note">
+<p class="first admonition-title">Note</p>
+<p><strong>Spring Security RSA</strong></p>
+<p><a class="reference external" href="https://github.com/dsyer/spring-security-rsa">spring-security-rsa</a> offers API for public key encryption method and hybrid encryption method which use RSA as an encryption algorithm.
+spring-security-rsa is currently not managed as official repository of Spring &lt;<a class="reference external" href="https://github.com/spring-projects">https://github.com/spring-projects</a>&gt;_. Later, how to use the repository will be explained in the guideline after moving it under official repository of Spring.</p>
+<p>spring-security-rsa offers 2 classes given below.</p>
+<ul class="last">
+<li><p class="first"><code class="docutils literal"><span class="pre">org.springframework.security.crypto.encrypt.RsaRawEncryptor</span></code></p>
+<p>A class that offers encryption and decryption functions which use public key encryption method.</p>
+</li>
+<li><p class="first"><code class="docutils literal"><span class="pre">org.springframework.security.crypto.encrypt.RsaSecretEncryptor</span></code></p>
+<p>A class that offers encryption and decryption functions which use hybrid encryption method.</p>
+</li>
+</ul>
+</div>
+<div class="line-block">
+<div class="line"><br /></div>
+</div>
+</div>
+</div>
+</div>
+<div class="section" id="how-to-use">
+<span id="encryptionhowtouse"></span><h2><a class="toc-backref" href="#id22">9.8.2. How to use</a><a class="headerlink" href="#how-to-use" title="Permalink to this headline">¶</a></h2>
+<p>An unlimited strength JCE jurisdiction policy file must be applied for handling key length 256 bits of AES in some Java products like Oracle.</p>
+<div class="admonition note">
+<p class="first admonition-title">Note</p>
+<p><strong>JCE jurisdiction policy file</strong></p>
+<p>Default encryption algorithm strength is restricted in some Java products due to relation with import regulations. If a more powerful algorithm is to be used, an unlimited strength JCE jurisdiction policy file must be obtained and installed in JDK/JRE. For details, refer <a class="reference external" href="https://docs.oracle.com/javase/8/docs/technotes/guides/security/SunProviders.html">Java Cryptography Architecture Oracle Providers Documentation</a>.</p>
+<p>Download destination for JCE jurisdiction policy file</p>
+<ul class="last simple">
+<li><a class="reference external" href="http://www.oracle.com/technetwork/java/javase/downloads/jce8-download-2133166.html">For Oracle Java 8</a></li>
+<li><a class="reference external" href="http://www.oracle.com/technetwork/java/embedded/embedded-se/downloads/jce-7-download-432124.html">For Oracle Java 7</a></li>
+</ul>
+</div>
+<div class="section" id="encryptionhowtousecommonkey">
+<span id="id1"></span><h3><a class="toc-backref" href="#id23">9.8.2.1. Common key encryption method</a><a class="headerlink" href="#encryptionhowtousecommonkey" title="Permalink to this headline">¶</a></h3>
+<div class="line-block">
+<div class="line">A method is explained wherein AES is used as an encryption algorithm.</div>
+</div>
+<div class="section" id="encryption-of-character-string">
+<h4><a class="toc-backref" href="#id24">9.8.2.1.1. Encryption of character string</a><a class="headerlink" href="#encryption-of-character-string" title="Permalink to this headline">¶</a></h4>
+<ul>
+<li><p class="first">Encrypt text (string).</p>
+<div class="highlight-java"><div class="highlight"><pre><span></span><span class="kd">public</span> <span class="kd">static</span> <span class="n">String</span> <span class="nf">encryptText</span><span class="o">(</span>
+    <span class="n">String</span> <span class="n">secret</span><span class="o">,</span> <span class="n">String</span> <span class="n">salt</span><span class="o">,</span> <span class="n">String</span> <span class="n">plainText</span><span class="o">)</span> <span class="o">{</span>
+    <span class="n">TextEncryptor</span> <span class="n">encryptor</span> <span class="o">=</span> <span class="n">Encryptors</span><span class="o">.</span><span class="na">text</span><span class="o">(</span><span class="n">secret</span><span class="o">,</span> <span class="n">salt</span><span class="o">);</span> <span class="c1">// (1)</span>
+
+    <span class="k">return</span> <span class="n">encryptor</span><span class="o">.</span><span class="na">encrypt</span><span class="o">(</span><span class="n">plainText</span><span class="o">);</span> <span class="c1">// (2)</span>
+<span class="o">}</span>
+</pre></div>
+</div>
+<table border="1" class="colwidths-given docutils">
+<colgroup>
+<col width="10%" />
+<col width="90%" />
+</colgroup>
+<thead valign="bottom">
+<tr class="row-odd"><th class="head">Sr. No.</th>
+<th class="head">Description</th>
+</tr>
+</thead>
+<tbody valign="top">
+<tr class="row-even"><td><div class="first last line-block">
+<div class="line">(1)</div>
+</div>
+</td>
+<td><div class="first last line-block">
+<div class="line">Call <code class="docutils literal"><span class="pre">Encryptors#text</span></code> method by specifying common key and salt, and generate instance of <code class="docutils literal"><span class="pre">TextEncryptor</span></code> class.</div>
+<div class="line">Since initialization vector of generated instance is random, a varied result is returned at the time of encryption. It should be noted that CEC is used as an encryption mode.</div>
+<div class="line">Common key and salt specified during encryption are also used at the time of decryption.</div>
+</div>
+</td>
+</tr>
+<tr class="row-odd"><td><div class="first last line-block">
+<div class="line">(2)</div>
+</div>
+</td>
+<td><div class="first last line-block">
+<div class="line">Encrypt plain text by using <code class="docutils literal"><span class="pre">encrypt</span></code> method.</div>
+</div>
+</td>
+</tr>
+</tbody>
+</table>
+<div class="admonition note">
+<p class="first admonition-title">Note</p>
+<p><strong>Regarding encryption results</strong></p>
+<p class="last">Return value of <code class="docutils literal"><span class="pre">encrypt</span></code> method (encryption results) return a different value for each execution, however,
+if key and salt are identical, decryption process results will be similar as well (can be correctly decrypted).</p>
+</div>
+</li>
+</ul>
+<div class="line-block">
+<div class="line"><br /></div>
+</div>
+<ul>
+<li><p class="first">Fetch identical encryption results.</p>
+<p>This method is used in the processes such as searching the database etc.using encrypted results.
+However, whether to use the method must be reviewed considering possible reduction in the security strength.</p>
+<div class="highlight-java"><div class="highlight"><pre><span></span><span class="kd">public</span> <span class="kd">static</span> <span class="kt">void</span> <span class="nf">encryptTextResult</span><span class="o">(</span>
+    <span class="n">String</span> <span class="n">secret</span><span class="o">,</span> <span class="n">String</span> <span class="n">salt</span><span class="o">,</span> <span class="n">String</span> <span class="n">plainText</span><span class="o">)</span> <span class="o">{</span>
+    <span class="n">TextEncryptor</span> <span class="n">encryptor</span> <span class="o">=</span> <span class="n">Encryptors</span><span class="o">.</span><span class="na">queryableText</span><span class="o">(</span><span class="n">secret</span><span class="o">,</span> <span class="n">salt</span><span class="o">);</span> <span class="c1">// (1)</span>
+    <span class="n">System</span><span class="o">.</span><span class="na">out</span><span class="o">.</span><span class="na">println</span><span class="o">(</span><span class="n">encryptor</span><span class="o">.</span><span class="na">encrypt</span><span class="o">(</span><span class="n">plainText</span><span class="o">));</span> <span class="c1">// (2)</span>
+    <span class="n">System</span><span class="o">.</span><span class="na">out</span><span class="o">.</span><span class="na">println</span><span class="o">(</span><span class="n">encryptor</span><span class="o">.</span><span class="na">encrypt</span><span class="o">(</span><span class="n">plainText</span><span class="o">));</span> <span class="c1">//</span>
+<span class="o">}</span>
+</pre></div>
+</div>
+<table border="1" class="colwidths-given docutils">
+<colgroup>
+<col width="10%" />
+<col width="90%" />
+</colgroup>
+<thead valign="bottom">
+<tr class="row-odd"><th class="head">Sr.No.</th>
+<th class="head">Description</th>
+</tr>
+</thead>
+<tbody valign="top">
+<tr class="row-even"><td><div class="first last line-block">
+<div class="line">(1)</div>
+</div>
+</td>
+<td><div class="first last line-block">
+<div class="line">When identical value must be fetched as encryption results, generate an instance of <code class="docutils literal"><span class="pre">TextEncryptor</span></code> class by using <code class="docutils literal"><span class="pre">Encryptors#queryableText</span></code> method.</div>
+</div>
+</td>
+</tr>
+<tr class="row-odd"><td><div class="first last line-block">
+<div class="line">(2)</div>
+</div>
+</td>
+<td><div class="first last line-block">
+<div class="line">The instance generated by <code class="docutils literal"><span class="pre">Encryptors#queryableText</span></code> method returns identical values as the encryption results for <code class="docutils literal"><span class="pre">encrypt</span></code> method.</div>
+</div>
+</td>
+</tr>
+</tbody>
+</table>
+</li>
+</ul>
+<div class="line-block">
+<div class="line"><br /></div>
+</div>
+<ul>
+<li><p class="first">Encrypt text (string) by using AES which uses GCM.</p>
+<p>AES using GCM can be used in Spring Security4.0.2 and subsequent versions. Processing efficiency is superior to CEC as explained in <a class="reference internal" href="#encryptionoverviewencryptionalgorithmaes"><span class="std std-ref">AES</span></a>.</p>
+<div class="highlight-java"><div class="highlight"><pre><span></span><span class="kd">public</span> <span class="kd">static</span> <span class="n">String</span> <span class="nf">encryptTextByAesWithGcm</span><span class="o">(</span><span class="n">String</span> <span class="n">secret</span><span class="o">,</span> <span class="n">String</span> <span class="n">salt</span><span class="o">,</span> <span class="n">String</span> <span class="n">plainText</span><span class="o">)</span> <span class="o">{</span>
+    <span class="n">TextEncryptor</span> <span class="n">aesTextEncryptor</span> <span class="o">=</span> <span class="n">Encryptors</span><span class="o">.</span><span class="na">delux</span><span class="o">(</span><span class="n">secret</span><span class="o">,</span> <span class="n">salt</span><span class="o">);</span> <span class="c1">// (1)</span>
+
+    <span class="k">return</span> <span class="n">aesTextEncryptor</span><span class="o">.</span><span class="na">encrypt</span><span class="o">(</span><span class="n">plainText</span><span class="o">);</span> <span class="c1">// (2)</span>
+<span class="o">}</span>
+</pre></div>
+</div>
+<table border="1" class="colwidths-given docutils">
+<colgroup>
+<col width="10%" />
+<col width="90%" />
+</colgroup>
+<thead valign="bottom">
+<tr class="row-odd"><th class="head">Sr. No.</th>
+<th class="head">Description</th>
+</tr>
+</thead>
+<tbody valign="top">
+<tr class="row-even"><td><div class="first last line-block">
+<div class="line">(1)</div>
+</div>
+</td>
+<td><div class="first last line-block">
+<div class="line">Call <code class="docutils literal"><span class="pre">Encryptors#delux</span></code> method by specifying common key and salt, and generate an instance of <code class="docutils literal"><span class="pre">TextEncryptor</span></code> class.</div>
+<div class="line">Common key and salt specified during encryption are also used at the time of decryption.</div>
+</div>
+</td>
+</tr>
+<tr class="row-odd"><td><div class="first last line-block">
+<div class="line">(2)</div>
+</div>
+</td>
+<td><div class="first last line-block">
+<div class="line">Encrypt plain text by using <code class="docutils literal"><span class="pre">encrypt</span></code> method.</div>
+</div>
+</td>
+</tr>
+</tbody>
+</table>
+<div class="admonition note">
+<p class="first admonition-title">Note</p>
+<p><strong>Java support for AES which uses GCM</strong></p>
+<p class="last">AES using GCM can be used in Java SE8 and subsequent versions. For details, refer <a class="reference external" href="http://docs.oracle.com/javase/jp/8/docs/technotes/guides/security/enhancements-8.html">JDK 8 security enhancement</a>.</p>
+</div>
+</li>
+</ul>
+<div class="line-block">
+<div class="line"><br /></div>
+</div>
+</div>
+<div class="section" id="decryption-of-string">
+<h4><a class="toc-backref" href="#id25">9.8.2.1.2. Decryption of string</a><a class="headerlink" href="#decryption-of-string" title="Permalink to this headline">¶</a></h4>
+<ul>
+<li><p class="first">Decrypt encryption text of text (string).</p>
+<div class="highlight-java"><div class="highlight"><pre><span></span><span class="kd">public</span> <span class="kd">static</span> <span class="n">String</span> <span class="nf">decryptText</span><span class="o">(</span><span class="n">String</span> <span class="n">secret</span><span class="o">,</span> <span class="n">String</span> <span class="n">salt</span><span class="o">,</span> <span class="n">String</span> <span class="n">cipherText</span><span class="o">)</span> <span class="o">{</span>
+    <span class="n">TextEncryptor</span> <span class="n">decryptor</span> <span class="o">=</span> <span class="n">Encryptors</span><span class="o">.</span><span class="na">text</span><span class="o">(</span><span class="n">secret</span><span class="o">,</span> <span class="n">salt</span><span class="o">);</span> <span class="c1">// (1)</span>
+
+    <span class="k">return</span> <span class="n">decryptor</span><span class="o">.</span><span class="na">decrypt</span><span class="o">(</span><span class="n">cipherText</span><span class="o">);</span> <span class="c1">// (2)</span>
+<span class="o">}</span>
+</pre></div>
+</div>
+<table border="1" class="colwidths-given docutils">
+<colgroup>
+<col width="10%" />
+<col width="90%" />
+</colgroup>
+<thead valign="bottom">
+<tr class="row-odd"><th class="head">Sr. No.</th>
+<th class="head">Description</th>
+</tr>
+</thead>
+<tbody valign="top">
+<tr class="row-even"><td><div class="first last line-block">
+<div class="line">(1)</div>
+</div>
+</td>
+<td><div class="first last line-block">
+<div class="line">Call <code class="docutils literal"><span class="pre">Encryptors#text</span></code> method by specifying common key and salt, and generate an instance of <code class="docutils literal"><span class="pre">TextEncryptor</span></code> class.</div>
+<div class="line">Specify values used at the time of encryption as common key and salt.</div>
+</div>
+</td>
+</tr>
+<tr class="row-odd"><td><div class="first last line-block">
+<div class="line">(2)</div>
+</div>
+</td>
+<td><div class="first last line-block">
+<div class="line">Decrypt encrypted text by using <code class="docutils literal"><span class="pre">decrypt</span></code> method.</div>
+</div>
+</td>
+</tr>
+</tbody>
+</table>
+</li>
+</ul>
+<div class="line-block">
+<div class="line"><br /></div>
+</div>
+<ul>
+<li><p class="first">Decrypt encrypted text of text (string) by using AES which uses GCM.</p>
+<div class="highlight-java"><div class="highlight"><pre><span></span><span class="kd">public</span> <span class="kd">static</span> <span class="n">String</span> <span class="nf">decryptTextByAesWithGcm</span><span class="o">(</span><span class="n">String</span> <span class="n">secret</span><span class="o">,</span> <span class="n">String</span> <span class="n">salt</span><span class="o">,</span> <span class="n">String</span> <span class="n">cipherText</span><span class="o">)</span> <span class="o">{</span>
+    <span class="n">TextEncryptor</span> <span class="n">aesTextEncryptor</span> <span class="o">=</span> <span class="n">Encryptors</span><span class="o">.</span><span class="na">delux</span><span class="o">(</span><span class="n">secret</span><span class="o">,</span> <span class="n">salt</span><span class="o">);</span> <span class="c1">// (1)</span>
+
+    <span class="k">return</span> <span class="n">aesTextEncryptor</span><span class="o">.</span><span class="na">decrypt</span><span class="o">(</span><span class="n">cipherText</span><span class="o">);</span> <span class="c1">// (2)</span>
+<span class="o">}</span>
+</pre></div>
+</div>
+<table border="1" class="colwidths-given docutils">
+<colgroup>
+<col width="10%" />
+<col width="90%" />
+</colgroup>
+<thead valign="bottom">
+<tr class="row-odd"><th class="head">Sr. No.</th>
+<th class="head">Description</th>
+</tr>
+</thead>
+<tbody valign="top">
+<tr class="row-even"><td><div class="first last line-block">
+<div class="line">(1)</div>
+</div>
+</td>
+<td><div class="first last line-block">
+<div class="line">Call <code class="docutils literal"><span class="pre">Encryptors#delux</span></code> method by specifying common key and salt, and generate an instance of <code class="docutils literal"><span class="pre">TextEncryptor</span></code> class.</div>
+<div class="line">Specify values at the time of encryption as common key and salt.</div>
+</div>
+</td>
+</tr>
+<tr class="row-odd"><td><div class="first last line-block">
+<div class="line">(2)</div>
+</div>
+</td>
+<td><div class="first last line-block">
+<div class="line">Decrypt encrypted text by using <code class="docutils literal"><span class="pre">decrypt</span></code> method.</div>
+</div>
+</td>
+</tr>
+</tbody>
+</table>
+</li>
+</ul>
+<div class="line-block">
+<div class="line"><br /></div>
+</div>
+</div>
+<div class="section" id="encryption-of-byte-array">
+<h4><a class="toc-backref" href="#id26">9.8.2.1.3. Encryption of byte array</a><a class="headerlink" href="#encryption-of-byte-array" title="Permalink to this headline">¶</a></h4>
+<ul>
+<li><p class="first">Encrypt byte array.</p>
+<div class="highlight-java"><div class="highlight"><pre><span></span><span class="kd">public</span> <span class="kd">static</span> <span class="kt">byte</span><span class="o">[]</span> <span class="nf">encryptBytes</span><span class="o">(</span><span class="n">String</span> <span class="n">secret</span><span class="o">,</span> <span class="n">String</span> <span class="n">salt</span><span class="o">,</span> <span class="kt">byte</span><span class="o">[]</span> <span class="n">plainBytes</span><span class="o">)</span> <span class="o">{</span>
+    <span class="n">BytesEncryptor</span> <span class="n">encryptor</span> <span class="o">=</span> <span class="n">Encryptors</span><span class="o">.</span><span class="na">standard</span><span class="o">(</span><span class="n">secret</span><span class="o">,</span> <span class="n">salt</span><span class="o">);</span> <span class="c1">// (1)</span>
+
+    <span class="k">return</span> <span class="n">encryptor</span><span class="o">.</span><span class="na">encrypt</span><span class="o">(</span><span class="n">plainBytes</span><span class="o">);</span> <span class="c1">// (2)</span>
+<span class="o">}</span>
+</pre></div>
+</div>
+<table border="1" class="colwidths-given docutils">
+<colgroup>
+<col width="10%" />
+<col width="90%" />
+</colgroup>
+<thead valign="bottom">
+<tr class="row-odd"><th class="head">Sr. No.</th>
+<th class="head">Description</th>
+</tr>
+</thead>
+<tbody valign="top">
+<tr class="row-even"><td><div class="first last line-block">
+<div class="line">(1)</div>
+</div>
+</td>
+<td><div class="first last line-block">
+<div class="line">Call <code class="docutils literal"><span class="pre">Encryptors#standard</span></code> method by specifying common key and salt, and generate an instance of <code class="docutils literal"><span class="pre">BytesEncryptor</span></code> class.</div>
+<div class="line">Common key and salt specified during encryption are also used at the time of decryption.</div>
+</div>
+</td>
+</tr>
+<tr class="row-odd"><td><div class="first last line-block">
+<div class="line">(2)</div>
+</div>
+</td>
+<td><div class="first last line-block">
+<div class="line">Encrypt plain text of byte array by using <code class="docutils literal"><span class="pre">encrypt</span></code> method.</div>
+</div>
+</td>
+</tr>
+</tbody>
+</table>
+</li>
+</ul>
+<div class="line-block">
+<div class="line"><br /></div>
+</div>
+<ul>
+<li><p class="first">Encrypt byte array by using AES which uses GCM.</p>
+<div class="highlight-java"><div class="highlight"><pre><span></span><span class="kd">public</span> <span class="kd">static</span> <span class="kt">byte</span><span class="o">[]</span> <span class="nf">encryptBytesByAesWithGcm</span><span class="o">(</span><span class="n">String</span> <span class="n">secret</span><span class="o">,</span> <span class="n">String</span> <span class="n">salt</span><span class="o">,</span> <span class="kt">byte</span><span class="o">[]</span> <span class="n">plainBytes</span><span class="o">)</span> <span class="o">{</span>
+    <span class="n">BytesEncryptor</span> <span class="n">aesBytesEncryptor</span> <span class="o">=</span> <span class="n">Encryptors</span><span class="o">.</span><span class="na">stronger</span><span class="o">(</span><span class="n">secret</span><span class="o">,</span> <span class="n">salt</span><span class="o">);</span> <span class="c1">// (1)</span>
+
+    <span class="k">return</span> <span class="n">aesBytesEncryptor</span><span class="o">.</span><span class="na">encrypt</span><span class="o">(</span><span class="n">plainBytes</span><span class="o">);</span> <span class="c1">// (2)</span>
+<span class="o">}</span>
+</pre></div>
+</div>
+<table border="1" class="colwidths-given docutils">
+<colgroup>
+<col width="10%" />
+<col width="90%" />
+</colgroup>
+<thead valign="bottom">
+<tr class="row-odd"><th class="head">Sr. No.</th>
+<th class="head">Description</th>
+</tr>
+</thead>
+<tbody valign="top">
+<tr class="row-even"><td><div class="first last line-block">
+<div class="line">(1)</div>
+</div>
+</td>
+<td><div class="first last line-block">
+<div class="line">Call <code class="docutils literal"><span class="pre">Encryptors#stronger</span></code> method by specifying common key and salt, and generate an instance of <code class="docutils literal"><span class="pre">BytesEncryptor</span></code> class.</div>
+<div class="line">Common key and salt specified during encryption are also used at the time of decryption.</div>
+</div>
+</td>
+</tr>
+<tr class="row-odd"><td><div class="first last line-block">
+<div class="line">(2)</div>
+</div>
+</td>
+<td><div class="first last line-block">
+<div class="line">Encrypt plain text of byte array by using <code class="docutils literal"><span class="pre">encrypt</span></code> method.</div>
+</div>
+</td>
+</tr>
+</tbody>
+</table>
+</li>
+</ul>
+<div class="line-block">
+<div class="line"><br /></div>
+</div>
+</div>
+<div class="section" id="decryption-of-byte-array">
+<h4><a class="toc-backref" href="#id27">9.8.2.1.4. Decryption of byte array</a><a class="headerlink" href="#decryption-of-byte-array" title="Permalink to this headline">¶</a></h4>
+<p>Decrypt encrypted text of byte array.</p>
+<blockquote>
+<div><div class="highlight-java"><div class="highlight"><pre><span></span><span class="kd">public</span> <span class="kd">static</span> <span class="kt">byte</span><span class="o">[]</span> <span class="nf">decryptBytes</span><span class="o">(</span><span class="n">String</span> <span class="n">secret</span><span class="o">,</span> <span class="n">String</span> <span class="n">salt</span><span class="o">,</span> <span class="kt">byte</span><span class="o">[]</span> <span class="n">cipherBytes</span><span class="o">)</span> <span class="o">{</span>
+    <span class="n">BytesEncryptor</span> <span class="n">decryptor</span> <span class="o">=</span> <span class="n">Encryptors</span><span class="o">.</span><span class="na">standard</span><span class="o">(</span><span class="n">secret</span><span class="o">,</span> <span class="n">salt</span><span class="o">);</span> <span class="c1">// (1)</span>
+
+    <span class="k">return</span> <span class="n">decryptor</span><span class="o">.</span><span class="na">decrypt</span><span class="o">(</span><span class="n">cipherBytes</span><span class="o">);</span> <span class="c1">// (2)</span>
+<span class="o">}</span>
+</pre></div>
+</div>
+<table border="1" class="colwidths-given docutils">
+<colgroup>
+<col width="10%" />
+<col width="90%" />
+</colgroup>
+<thead valign="bottom">
+<tr class="row-odd"><th class="head">Sr. No.</th>
+<th class="head">Description</th>
+</tr>
+</thead>
+<tbody valign="top">
+<tr class="row-even"><td><div class="first last line-block">
+<div class="line">(1)</div>
+</div>
+</td>
+<td><div class="first last line-block">
+<div class="line">Call <code class="docutils literal"><span class="pre">Encryptors#standard</span></code> method by specifying common key and salt, and generate an instance of <code class="docutils literal"><span class="pre">BytesEncryptor</span></code> class.</div>
+<div class="line">Specify values used at the time of encryption as common key and salt.</div>
+</div>
+</td>
+</tr>
+<tr class="row-odd"><td><div class="first last line-block">
+<div class="line">(2)</div>
+</div>
+</td>
+<td><div class="first last line-block">
+<div class="line">Decrypt encrypted text of byte array by using <code class="docutils literal"><span class="pre">decrypt</span></code> method.</div>
+</div>
+</td>
+</tr>
+</tbody>
+</table>
+</div></blockquote>
+<div class="line-block">
+<div class="line"><br /></div>
+</div>
+<ul>
+<li><p class="first">Decrypt byte array using AES which use GCM.</p>
+<div class="highlight-java"><div class="highlight"><pre><span></span><span class="kd">public</span> <span class="kd">static</span> <span class="kt">byte</span><span class="o">[]</span> <span class="nf">decryptBytesByAesWithGcm</span><span class="o">(</span><span class="n">String</span> <span class="n">secret</span><span class="o">,</span> <span class="n">String</span> <span class="n">salt</span><span class="o">,</span> <span class="kt">byte</span><span class="o">[]</span> <span class="n">cipherBytes</span><span class="o">)</span> <span class="o">{</span>
+    <span class="n">BytesEncryptor</span> <span class="n">aesBytesEncryptor</span> <span class="o">=</span> <span class="n">Encryptors</span><span class="o">.</span><span class="na">stronger</span><span class="o">(</span><span class="n">secret</span><span class="o">,</span> <span class="n">salt</span><span class="o">);</span> <span class="c1">// (1)</span>
+
+    <span class="k">return</span> <span class="n">aesBytesEncryptor</span><span class="o">.</span><span class="na">decrypt</span><span class="o">(</span><span class="n">cipherBytes</span><span class="o">);</span> <span class="c1">// (2)</span>
+<span class="o">}</span>
+</pre></div>
+</div>
+<table border="1" class="colwidths-given docutils">
+<colgroup>
+<col width="10%" />
+<col width="90%" />
+</colgroup>
+<thead valign="bottom">
+<tr class="row-odd"><th class="head">Sr. No.</th>
+<th class="head">Description</th>
+</tr>
+</thead>
+<tbody valign="top">
+<tr class="row-even"><td><div class="first last line-block">
+<div class="line">(1)</div>
+</div>
+</td>
+<td><div class="first last line-block">
+<div class="line">Call <code class="docutils literal"><span class="pre">Encryptors#stronger</span></code> method by specifying common key and salt, and generate an instance of <code class="docutils literal"><span class="pre">BytesEncryptor</span></code> class.</div>
+<div class="line">Specify values used at the time of encryption as common key and salt.</div>
+</div>
+</td>
+</tr>
+<tr class="row-odd"><td><div class="first last line-block">
+<div class="line">(2)</div>
+</div>
+</td>
+<td><div class="first last line-block">
+<div class="line">Decrypt encrypted text of byte array by using <code class="docutils literal"><span class="pre">decrypt</span></code> method.</div>
+</div>
+</td>
+</tr>
+</tbody>
+</table>
+</li>
+</ul>
+<div class="line-block">
+<div class="line"><br /></div>
+</div>
+</div>
+</div>
+<div class="section" id="encryptionhowtousepublickey">
+<span id="id2"></span><h3><a class="toc-backref" href="#id28">9.8.2.2. Public key encryption method</a><a class="headerlink" href="#encryptionhowtousepublickey" title="Permalink to this headline">¶</a></h3>
+<div class="line-block">
+<div class="line">Since functions related to public key encryption method are not offered by Spring Security, a method which uses JCA and OpenSSL is explained using a sample code.</div>
+</div>
+<div class="section" id="preliminary-preparation-generation-of-key-pairs-using-jca">
+<h4><a class="toc-backref" href="#id29">9.8.2.2.1. Preliminary preparation (Generation of key pairs using JCA)</a><a class="headerlink" href="#preliminary-preparation-generation-of-key-pairs-using-jca" title="Permalink to this headline">¶</a></h4>
+<ul>
+<li><p class="first">Generate key pairs (a combination of public key / secret key) using JCA, perform encryption and decryption process by using public key and secret key respectively.</p>
+<div class="highlight-java"><div class="highlight"><pre><span></span><span class="kd">public</span> <span class="kt">void</span> <span class="nf">generateKeysByJCA</span><span class="o">()</span> <span class="o">{</span>
+    <span class="k">try</span> <span class="o">{</span>
+        <span class="n">KeyPairGenerator</span> <span class="n">generator</span> <span class="o">=</span> <span class="n">KeyPairGenerator</span><span class="o">.</span><span class="na">getInstance</span><span class="o">(</span><span class="s">&quot;RSA&quot;</span><span class="o">);</span> <span class="c1">// (1)</span>
+        <span class="n">generator</span><span class="o">.</span><span class="na">initialize</span><span class="o">(</span><span class="mi">2048</span><span class="o">);</span> <span class="c1">// (2)</span>
+        <span class="n">KeyPair</span> <span class="n">keyPair</span> <span class="o">=</span> <span class="n">generator</span><span class="o">.</span><span class="na">generateKeyPair</span><span class="o">();</span> <span class="c1">// (3)</span>
+        <span class="n">PublicKey</span> <span class="n">publicKey</span> <span class="o">=</span> <span class="n">keyPair</span><span class="o">.</span><span class="na">getPublic</span><span class="o">();</span>
+        <span class="n">PrivateKey</span> <span class="n">privateKey</span> <span class="o">=</span> <span class="n">keyPair</span><span class="o">.</span><span class="na">getPrivate</span><span class="o">();</span>
+
+        <span class="kt">byte</span><span class="o">[]</span> <span class="n">cipherBytes</span> <span class="o">=</span> <span class="n">encryptByPublicKey</span><span class="o">(</span><span class="s">&quot;Hello World!&quot;</span><span class="o">,</span> <span class="n">publicKey</span><span class="o">);</span>  <span class="c1">// (4)</span>
+        <span class="n">String</span> <span class="n">plainText</span> <span class="o">=</span> <span class="n">decryptByPrivateKey</span><span class="o">(</span><span class="n">cipherBytes</span><span class="o">,</span> <span class="n">privateKey</span><span class="o">);</span> <span class="c1">// (5)</span>
+        <span class="n">System</span><span class="o">.</span><span class="na">out</span><span class="o">.</span><span class="na">println</span><span class="o">(</span><span class="n">plainText</span><span class="o">);</span>
+    <span class="o">}</span> <span class="k">catch</span> <span class="o">(</span><span class="n">NoSuchAlgorithmException</span> <span class="n">e</span><span class="o">)</span> <span class="o">{</span>
+        <span class="k">throw</span> <span class="k">new</span> <span class="n">SystemException</span><span class="o">(</span><span class="s">&quot;e.xx.xx.9002&quot;</span><span class="o">,</span> <span class="s">&quot;No Such setting error.&quot;</span><span class="o">,</span> <span class="n">e</span><span class="o">);</span>
+    <span class="o">}</span>
+<span class="o">}</span>
+</pre></div>
+</div>
+<table border="1" class="colwidths-given docutils">
+<colgroup>
+<col width="10%" />
+<col width="90%" />
+</colgroup>
+<thead valign="bottom">
+<tr class="row-odd"><th class="head">Sr. No.</th>
+<th class="head">Description</th>
+</tr>
+</thead>
+<tbody valign="top">
+<tr class="row-even"><td><div class="first last line-block">
+<div class="line">(1)</div>
+</div>
+</td>
+<td><div class="first last line-block">
+<div class="line">Specify RSA algorithm and generate an instance of <code class="docutils literal"><span class="pre">KeyPairGenerator</span></code> class.</div>
+</div>
+</td>
+</tr>
+<tr class="row-odd"><td><div class="first last line-block">
+<div class="line">(2)</div>
+</div>
+</td>
+<td><div class="first last line-block">
+<div class="line">Specify 2048 bits as a key length.</div>
+</div>
+</td>
+</tr>
+<tr class="row-even"><td><div class="first last line-block">
+<div class="line">(3)</div>
+</div>
+</td>
+<td><div class="first last line-block">
+<div class="line">Generate key pairs.</div>
+</div>
+</td>
+</tr>
+<tr class="row-odd"><td><div class="first last line-block">
+<div class="line">(4)</div>
+</div>
+</td>
+<td><div class="first last line-block">
+<div class="line">Use public key and perform encryption process. Processing details will be described later.</div>
+</div>
+</td>
+</tr>
+<tr class="row-even"><td><div class="first last line-block">
+<div class="line">(5)</div>
+</div>
+</td>
+<td><div class="first last line-block">
+<div class="line">Use secret key and perform decryption process. Processing details will be described later.</div>
+</div>
+</td>
+</tr>
+</tbody>
+</table>
+<div class="admonition note">
+<p class="first admonition-title">Note</p>
+<p><strong>When the encrypted data is to be handled as string</strong></p>
+<blockquote>
+<div><p>When encrypted data is to be handled as string like in external system linkage etc, Base64 encoding can be listed as one of the measures. <code class="docutils literal"><span class="pre">java.util.Base64</span></code> of Java standard is used in case of subsequent versions of Java SE8. In the earlier versions, <code class="docutils literal"><span class="pre">org.springframework.security.crypto.codec.Base64</span></code> of Spring Security is used.</p>
+<p>A method used for Base64 encoding and decoding is explained using <code class="docutils literal"><span class="pre">java.util.Base64</span></code> of Java standard.</p>
+</div></blockquote>
+<ul class="simple">
+<li>Base64 encoding</li>
+</ul>
+<blockquote>
+<div><div class="highlight-java"><div class="highlight"><pre><span></span><span class="c1">// omitted</span>
+<span class="kt">byte</span><span class="o">[]</span> <span class="n">cipherBytes</span> <span class="o">=</span> <span class="n">encryptByPublicKey</span><span class="o">(</span><span class="s">&quot;Hello World!&quot;</span><span class="o">,</span> <span class="n">publicKey</span><span class="o">);</span>  <span class="c1">// Encryption process</span>
+<span class="n">String</span> <span class="n">cipherString</span> <span class="o">=</span> <span class="n">Base64</span><span class="o">.</span><span class="na">getEncoder</span><span class="o">().</span><span class="na">encodeToString</span><span class="o">(</span><span class="n">cipherBytes</span><span class="o">);</span>  <span class="c1">// Convert encrypted text of byte array to string</span>
+<span class="c1">// omitted</span>
+</pre></div>
+</div>
+</div></blockquote>
+<ul class="simple">
+<li>Base64 decoding</li>
+</ul>
+<blockquote class="last">
+<div><div class="highlight-java"><div class="highlight"><pre><span></span><span class="c1">// omitted</span>
+<span class="kt">byte</span><span class="o">[]</span> <span class="n">cipherBytes</span> <span class="o">=</span> <span class="n">Base64</span><span class="o">.</span><span class="na">getDecoder</span><span class="o">().</span><span class="na">decode</span><span class="o">(</span><span class="n">cipherString</span><span class="o">);</span> <span class="c1">// Convert encrypted text of string to byte array</span>
+<span class="n">String</span> <span class="n">plainText</span> <span class="o">=</span> <span class="n">decryptByPrivateKey</span><span class="o">(</span><span class="n">cipherBytes</span><span class="o">,</span> <span class="n">privateKey</span><span class="o">);</span> <span class="c1">// Decryption process</span>
+<span class="c1">// omitted</span>
+</pre></div>
+</div>
+</div></blockquote>
+</div>
+</li>
+</ul>
+<div class="line-block">
+<div class="line"><br /></div>
+</div>
+</div>
+<div class="section" id="id3">
+<h4><a class="toc-backref" href="#id30">9.8.2.2.2. Encryption</a><a class="headerlink" href="#id3" title="Permalink to this headline">¶</a></h4>
+<ul>
+<li><p class="first">Use public key and encrypt character string.</p>
+<div class="highlight-java"><div class="highlight"><pre><span></span><span class="kd">public</span> <span class="kt">byte</span><span class="o">[]</span> <span class="nf">encryptByPublicKey</span><span class="o">(</span><span class="n">String</span> <span class="n">plainText</span><span class="o">,</span> <span class="n">PublicKey</span> <span class="n">publicKey</span><span class="o">)</span> <span class="o">{</span>
+    <span class="k">try</span> <span class="o">{</span>
+        <span class="n">Cipher</span> <span class="n">cipher</span> <span class="o">=</span> <span class="n">Cipher</span><span class="o">.</span><span class="na">getInstance</span><span class="o">(</span><span class="s">&quot;RSA/ECB/PKCS1Padding&quot;</span><span class="o">);</span> <span class="c1">// (1)</span>
+        <span class="n">cipher</span><span class="o">.</span><span class="na">init</span><span class="o">(</span><span class="n">Cipher</span><span class="o">.</span><span class="na">ENCRYPT_MODE</span><span class="o">,</span> <span class="n">publicKey</span><span class="o">);</span>                       <span class="c1">// (2)</span>
+        <span class="k">return</span> <span class="n">cipher</span><span class="o">.</span><span class="na">doFinal</span><span class="o">(</span><span class="n">plainText</span><span class="o">.</span><span class="na">getBytes</span><span class="o">(</span><span class="n">StandardCharsets</span><span class="o">.</span><span class="na">UTF_8</span><span class="o">));</span> <span class="c1">//</span>
+    <span class="o">}</span> <span class="k">catch</span> <span class="o">(</span><span class="n">NoSuchAlgorithmException</span> <span class="o">|</span> <span class="n">NoSuchPaddingException</span> <span class="n">e</span><span class="o">)</span> <span class="o">{</span>
+        <span class="k">throw</span> <span class="k">new</span> <span class="n">SystemException</span><span class="o">(</span><span class="s">&quot;e.xx.xx.9002&quot;</span><span class="o">,</span> <span class="s">&quot;No Such setting error.&quot;</span><span class="o">,</span> <span class="n">e</span><span class="o">);</span>
+    <span class="o">}</span> <span class="k">catch</span> <span class="o">(</span><span class="n">InvalidKeyException</span> <span class="o">|</span>
+             <span class="n">IllegalBlockSizeException</span> <span class="o">|</span>
+             <span class="n">BadPaddingException</span> <span class="n">e</span><span class="o">)</span> <span class="o">{</span>
+        <span class="k">throw</span> <span class="k">new</span> <span class="n">SystemException</span><span class="o">(</span><span class="s">&quot;e.xx.xx.9003&quot;</span><span class="o">,</span> <span class="s">&quot;Invalid setting error.&quot;</span><span class="o">,</span> <span class="n">e</span><span class="o">);</span>
+    <span class="o">}</span>
+<span class="o">}</span>
+</pre></div>
+</div>
+<table border="1" class="colwidths-given docutils">
+<colgroup>
+<col width="10%" />
+<col width="90%" />
+</colgroup>
+<thead valign="bottom">
+<tr class="row-odd"><th class="head">Sr.No.</th>
+<th class="head">Description</th>
+</tr>
+</thead>
+<tbody valign="top">
+<tr class="row-even"><td><div class="first last line-block">
+<div class="line">(1)</div>
+</div>
+</td>
+<td><div class="first last line-block">
+<div class="line">Specify encryption algorithm, encryption mode and padding method, and generate an instance of <code class="docutils literal"><span class="pre">Cipher</span></code> class.</div>
+</div>
+</td>
+</tr>
+<tr class="row-odd"><td><div class="first last line-block">
+<div class="line">(2)</div>
+</div>
+</td>
+<td><div class="first last line-block">
+<div class="line">Execute encryption process.</div>
+</div>
+</td>
+</tr>
+</tbody>
+</table>
+</li>
+</ul>
+<div class="line-block">
+<div class="line"><br /></div>
+</div>
+</div>
+<div class="section" id="decryption">
+<h4><a class="toc-backref" href="#id31">9.8.2.2.3. Decryption</a><a class="headerlink" href="#decryption" title="Permalink to this headline">¶</a></h4>
+<ul>
+<li><p class="first">Use secret key and decrypt byte array.</p>
+<div class="highlight-java"><div class="highlight"><pre><span></span><span class="kd">public</span> <span class="n">String</span> <span class="nf">decryptByPrivateKey</span><span class="o">(</span><span class="kt">byte</span><span class="o">[]</span> <span class="n">cipherBytes</span><span class="o">,</span> <span class="n">PrivateKey</span> <span class="n">privateKey</span><span class="o">)</span> <span class="o">{</span>
+    <span class="k">try</span> <span class="o">{</span>
+        <span class="n">Cipher</span> <span class="n">cipher</span> <span class="o">=</span> <span class="n">Cipher</span><span class="o">.</span><span class="na">getInstance</span><span class="o">(</span><span class="s">&quot;RSA/ECB/PKCS1Padding&quot;</span><span class="o">);</span> <span class="c1">// (1)</span>
+        <span class="n">cipher</span><span class="o">.</span><span class="na">init</span><span class="o">(</span><span class="n">Cipher</span><span class="o">.</span><span class="na">DECRYPT_MODE</span><span class="o">,</span> <span class="n">privateKey</span><span class="o">);</span>           <span class="c1">// (2)</span>
+        <span class="kt">byte</span><span class="o">[]</span> <span class="n">plainBytes</span> <span class="o">=</span> <span class="n">cipher</span><span class="o">.</span><span class="na">doFinal</span><span class="o">(</span><span class="n">cipherBytes</span><span class="o">);</span> <span class="c1">//</span>
+        <span class="k">return</span> <span class="k">new</span> <span class="n">String</span><span class="o">(</span><span class="n">plainBytes</span><span class="o">,</span> <span class="n">StandardCharsets</span><span class="o">.</span><span class="na">UTF_8</span><span class="o">);</span>
+    <span class="o">}</span> <span class="k">catch</span> <span class="o">(</span><span class="n">NoSuchAlgorithmException</span> <span class="o">|</span> <span class="n">NoSuchPaddingException</span> <span class="n">e</span><span class="o">)</span> <span class="o">{</span>
+        <span class="k">throw</span> <span class="k">new</span> <span class="n">SystemException</span><span class="o">(</span><span class="s">&quot;e.xx.xx.9002&quot;</span><span class="o">,</span> <span class="s">&quot;No Such setting error.&quot;</span><span class="o">,</span> <span class="n">e</span><span class="o">);</span>
+    <span class="o">}</span> <span class="k">catch</span> <span class="o">(</span><span class="n">InvalidKeyException</span> <span class="o">|</span>
+             <span class="n">IllegalBlockSizeException</span> <span class="o">|</span>
+             <span class="n">BadPaddingException</span> <span class="n">e</span><span class="o">)</span> <span class="o">{</span>
+        <span class="k">throw</span> <span class="k">new</span> <span class="n">SystemException</span><span class="o">(</span><span class="s">&quot;e.xx.xx.9003&quot;</span><span class="o">,</span> <span class="s">&quot;Invalid setting error.&quot;</span><span class="o">,</span> <span class="n">e</span><span class="o">);</span>
+    <span class="o">}</span>
+<span class="o">}</span>
+</pre></div>
+</div>
+<table border="1" class="colwidths-given docutils">
+<colgroup>
+<col width="10%" />
+<col width="90%" />
+</colgroup>
+<thead valign="bottom">
+<tr class="row-odd"><th class="head">Sr. No.</th>
+<th class="head">Description</th>
+</tr>
+</thead>
+<tbody valign="top">
+<tr class="row-even"><td><div class="first last line-block">
+<div class="line">(1)</div>
+</div>
+</td>
+<td><div class="first last line-block">
+<div class="line">Specify encryption algorithm, encryption mode and padding method, and generate an instance of <code class="docutils literal"><span class="pre">Cipher</span></code> class.</div>
+</div>
+</td>
+</tr>
+<tr class="row-odd"><td><div class="first last line-block">
+<div class="line">(2)</div>
+</div>
+</td>
+<td><div class="first last line-block">
+<div class="line">Execute decryption process.</div>
+</div>
+</td>
+</tr>
+</tbody>
+</table>
+</li>
+</ul>
+<div class="line-block">
+<div class="line"><br /></div>
+</div>
+</div>
+<div class="section" id="openssl">
+<h4><a class="toc-backref" href="#id32">9.8.2.2.4. OpenSSL</a><a class="headerlink" href="#openssl" title="Permalink to this headline">¶</a></h4>
+<div class="line-block">
+<div class="line">If Cipher is identical, a different method can be used for encryption and decryption for public key encryption method.</div>
+<div class="line">Here, key pairs are created in advance by using OpenSSL and encryption is performed by JCA, by using this public key.
+Hence, a method wherein decryption process is performed by OpenSSL, by using the secret key is explained.</div>
+</div>
+<div class="admonition note">
+<p class="first admonition-title">Note</p>
+<p><strong>OpenSSL</strong></p>
+<p>The software must be installed for creating key pairs by OpenSSL. It can be downloaded from the following site.</p>
+<p>Download destination for OpenSSL</p>
+<ul class="last simple">
+<li><a class="reference external" href="https://www.openssl.org/source/">For Linux</a></li>
+<li><a class="reference external" href="http://slproweb.com/products/Win32OpenSSL.html">For Windows</a></li>
+</ul>
+</div>
+<div class="line-block">
+<div class="line"><br /></div>
+</div>
+<ul>
+<li><p class="first">Create key pairs by OpenSSL as a preliminary preparation.</p>
+<div class="highlight-console"><div class="highlight"><pre><span></span><span class="gp">$</span> openssl genrsa -out private.pem <span class="m">2048</span>  <span class="c1"># (1)</span>
+
+<span class="gp">$</span> openssl pkcs8 -topk8 -nocrypt -in private.pem -out private.pk8 -outform DER  <span class="c1"># (2)</span>
+
+<span class="gp">$</span> openssl rsa -pubout -in private.pem -out public.der -outform DER  <span class="c1"># (3)</span>
+</pre></div>
+</div>
+<table border="1" class="colwidths-given docutils">
+<colgroup>
+<col width="10%" />
+<col width="90%" />
+</colgroup>
+<thead valign="bottom">
+<tr class="row-odd"><th class="head">Sr. No.</th>
+<th class="head">Description</th>
+</tr>
+</thead>
+<tbody valign="top">
+<tr class="row-even"><td><div class="first last line-block">
+<div class="line">(1)</div>
+</div>
+</td>
+<td><div class="first last line-block">
+<div class="line">Generate secret key of 2048 bits (DER format) by OpenSSL..</div>
+</div>
+</td>
+</tr>
+<tr class="row-odd"><td><div class="first last line-block">
+<div class="line">(2)</div>
+</div>
+</td>
+<td><div class="first last line-block">
+<div class="line">Convert secret key to PKCS#8 format for reading it from Java application.</div>
+</div>
+</td>
+</tr>
+<tr class="row-even"><td><div class="first last line-block">
+<div class="line">(3)</div>
+</div>
+</td>
+<td><div class="first last line-block">
+<div class="line">Generate public key (DER format) from secret key.</div>
+</div>
+</td>
+</tr>
+</tbody>
+</table>
+</li>
+</ul>
+<div class="line-block">
+<div class="line"><br /></div>
+</div>
+<ul>
+<li><p class="first">Read public key created by OpenSSL in the application and perform encryption process by using public key that has been read.</p>
+<div class="highlight-java"><div class="highlight"><pre><span></span><span class="kd">public</span> <span class="kt">void</span> <span class="nf">useOpenSSLDecryption</span><span class="o">()</span> <span class="o">{</span>
+    <span class="k">try</span> <span class="o">{</span>
+        <span class="n">KeySpec</span> <span class="n">publicKeySpec</span> <span class="o">=</span> <span class="k">new</span> <span class="n">X509EncodedKeySpec</span><span class="o">(</span>
+                <span class="n">Files</span><span class="o">.</span><span class="na">readAllBytes</span><span class="o">(</span><span class="n">Paths</span><span class="o">.</span><span class="na">get</span><span class="o">(</span><span class="s">&quot;public.der&quot;</span><span class="o">)));</span> <span class="c1">// (1)</span>
+        <span class="n">KeyFactory</span> <span class="n">keyFactory</span> <span class="o">=</span> <span class="n">KeyFactory</span><span class="o">.</span><span class="na">getInstance</span><span class="o">(</span><span class="s">&quot;RSA&quot;</span><span class="o">);</span>
+        <span class="n">PublicKey</span> <span class="n">publicKey</span> <span class="o">=</span> <span class="n">keyFactory</span><span class="o">.</span><span class="na">generatePublic</span><span class="o">(</span><span class="n">publicKeySpec</span><span class="o">);</span> <span class="c1">// (2)</span>
+
+        <span class="kt">byte</span><span class="o">[]</span> <span class="n">cipherBytes</span> <span class="o">=</span> <span class="n">encryptByPublicKey</span><span class="o">(</span><span class="s">&quot;Hello World!&quot;</span><span class="o">,</span> <span class="n">publicKey</span><span class="o">);</span> <span class="c1">// (3)</span>
+
+        <span class="n">Files</span><span class="o">.</span><span class="na">write</span><span class="o">(</span><span class="n">Paths</span><span class="o">.</span><span class="na">get</span><span class="o">(</span><span class="s">&quot;encryptedByJCA.txt&quot;</span><span class="o">),</span> <span class="n">cipherBytes</span><span class="o">);</span>
+        <span class="n">System</span><span class="o">.</span><span class="na">out</span><span class="o">.</span><span class="na">println</span><span class="o">(</span><span class="s">&quot;Please execute the following command:&quot;</span><span class="o">);</span>
+        <span class="n">System</span><span class="o">.</span><span class="na">out</span>
+                <span class="o">.</span><span class="na">println</span><span class="o">(</span><span class="s">&quot;openssl rsautl -decrypt -inkey hoge.pem -in encryptedByJCA.txt&quot;</span><span class="o">);</span>
+    <span class="o">}</span> <span class="k">catch</span> <span class="o">(</span><span class="n">IOException</span> <span class="n">e</span><span class="o">)</span> <span class="o">{</span>
+        <span class="k">throw</span> <span class="k">new</span> <span class="n">SystemException</span><span class="o">(</span><span class="s">&quot;e.xx.xx.9001&quot;</span><span class="o">,</span> <span class="s">&quot;input/output error.&quot;</span><span class="o">,</span> <span class="n">e</span><span class="o">);</span>
+    <span class="o">}</span> <span class="k">catch</span> <span class="o">(</span><span class="n">NoSuchAlgorithmException</span> <span class="n">e</span><span class="o">)</span> <span class="o">{</span>
+        <span class="k">throw</span> <span class="k">new</span> <span class="n">SystemException</span><span class="o">(</span><span class="s">&quot;e.xx.xx.9002&quot;</span><span class="o">,</span> <span class="s">&quot;No Such setting error.&quot;</span><span class="o">,</span> <span class="n">e</span><span class="o">);</span>
+    <span class="o">}</span> <span class="k">catch</span> <span class="o">(</span><span class="n">InvalidKeySpecException</span> <span class="n">e</span><span class="o">)</span> <span class="o">{</span>
+        <span class="k">throw</span> <span class="k">new</span> <span class="n">SystemException</span><span class="o">(</span><span class="s">&quot;e.xx.xx.9003&quot;</span><span class="o">,</span> <span class="s">&quot;Invalid setting error.&quot;</span><span class="o">,</span> <span class="n">e</span><span class="o">);</span>
+    <span class="o">}</span>
+<span class="o">}</span>
+</pre></div>
+</div>
+<table border="1" class="colwidths-given docutils">
+<colgroup>
+<col width="10%" />
+<col width="90%" />
+</colgroup>
+<thead valign="bottom">
+<tr class="row-odd"><th class="head">Sr.No.</th>
+<th class="head">Description</th>
+</tr>
+</thead>
+<tbody valign="top">
+<tr class="row-even"><td><div class="first last line-block">
+<div class="line">(1)</div>
+</div>
+</td>
+<td><div class="first last line-block">
+<div class="line">Read binary data from public key file.</div>
+</div>
+</td>
+</tr>
+<tr class="row-odd"><td><div class="first last line-block">
+<div class="line">(2)</div>
+</div>
+</td>
+<td><div class="first last line-block">
+<div class="line">Generate an instance of <code class="docutils literal"><span class="pre">PublicKey</span></code> class from binary data.</div>
+</div>
+</td>
+</tr>
+<tr class="row-even"><td><div class="first last line-block">
+<div class="line">(3)</div>
+</div>
+</td>
+<td><div class="first last line-block">
+<div class="line">Perform encryption process by using public key.</div>
+</div>
+</td>
+</tr>
+</tbody>
+</table>
+</li>
+</ul>
+<div class="line-block">
+<div class="line"><br /></div>
+</div>
+<ul>
+<li><p class="first">Check that details encrypted by JCA can be decrypted by OpenSSL.</p>
+<div class="highlight-console"><div class="highlight"><pre><span></span><span class="gp">$</span> openssl rsautl -decrypt -inkey private.pem -in encryptedByJCA.txt  <span class="c1"># (1)</span>
+</pre></div>
+</div>
+<table border="1" class="colwidths-given docutils">
+<colgroup>
+<col width="10%" />
+<col width="90%" />
+</colgroup>
+<thead valign="bottom">
+<tr class="row-odd"><th class="head">Sr. No.</th>
+<th class="head">Description</th>
+</tr>
+</thead>
+<tbody valign="top">
+<tr class="row-even"><td><div class="first last line-block">
+<div class="line">(1)</div>
+</div>
+</td>
+<td><div class="first last line-block">
+<div class="line">Decrypt by OpenSSL by using a secret key.</div>
+</div>
+</td>
+</tr>
+</tbody>
+</table>
+</li>
+</ul>
+<div class="line-block">
+<div class="line"><br /></div>
+</div>
+<div class="line-block">
+<div class="line">Further, a method wherein encryption and decryption are performed by OpenSSL and JCA respectively using key pairs created by OpenSSL is explained.</div>
+</div>
+<ul>
+<li><p class="first">Perform encryption process by using OpenSSL commands.</p>
+<div class="highlight-console"><div class="highlight"><pre><span></span><span class="gp">$</span> <span class="nb">echo</span> Hello <span class="p">|</span> openssl rsautl -encrypt -keyform DER -pubin -inkey public.der -out encryptedByOpenSSL.txt  <span class="c1"># (1)</span>
+</pre></div>
+</div>
+<table border="1" class="colwidths-given docutils">
+<colgroup>
+<col width="10%" />
+<col width="90%" />
+</colgroup>
+<thead valign="bottom">
+<tr class="row-odd"><th class="head">Sr. No.</th>
+<th class="head">Description</th>
+</tr>
+</thead>
+<tbody valign="top">
+<tr class="row-even"><td><div class="first last line-block">
+<div class="line">(1)</div>
+</div>
+</td>
+<td><div class="first last line-block">
+<div class="line">Encrypt by OpenSSL by using a public key.</div>
+</div>
+</td>
+</tr>
+</tbody>
+</table>
+</li>
+</ul>
+<div class="line-block">
+<div class="line"><br /></div>
+</div>
+<ul>
+<li><p class="first">Read secret key created by OpenSSL in the application and perform decryption process by using a secret key that has been read.</p>
+<div class="highlight-java"><div class="highlight"><pre><span></span><span class="kd">public</span> <span class="kt">void</span> <span class="nf">useOpenSSLEncryption</span><span class="o">()</span> <span class="o">{</span>
+    <span class="k">try</span> <span class="o">{</span>
+        <span class="n">KeySpec</span> <span class="n">privateKeySpec</span> <span class="o">=</span> <span class="k">new</span> <span class="n">PKCS8EncodedKeySpec</span><span class="o">(</span>
+                <span class="n">Files</span><span class="o">.</span><span class="na">readAllBytes</span><span class="o">(</span><span class="n">Paths</span><span class="o">.</span><span class="na">get</span><span class="o">(</span><span class="s">&quot;private.pk8&quot;</span><span class="o">)));</span> <span class="c1">// (1)</span>
+        <span class="n">KeyFactory</span> <span class="n">keyFactory</span> <span class="o">=</span> <span class="n">KeyFactory</span><span class="o">.</span><span class="na">getInstance</span><span class="o">(</span><span class="s">&quot;RSA&quot;</span><span class="o">);</span>
+        <span class="n">PrivateKey</span> <span class="n">privateKey</span> <span class="o">=</span> <span class="n">keyFactory</span><span class="o">.</span><span class="na">generatePrivate</span><span class="o">(</span><span class="n">privateKeySpec</span><span class="o">);</span> <span class="c1">// (2)</span>
+
+        <span class="n">String</span> <span class="n">plainText</span> <span class="o">=</span> <span class="n">decryptByPrivateKey</span><span class="o">(</span>
+               <span class="n">Files</span><span class="o">.</span><span class="na">readAllBytes</span><span class="o">(</span><span class="n">Paths</span><span class="o">.</span><span class="na">get</span><span class="o">(</span><span class="s">&quot;encryptedByOpenSSL.txt&quot;</span><span class="o">)),</span>
+               <span class="n">privateKey</span><span class="o">);</span> <span class="c1">// (3)</span>
+        <span class="n">System</span><span class="o">.</span><span class="na">out</span><span class="o">.</span><span class="na">println</span><span class="o">(</span><span class="n">plainText</span><span class="o">);</span>
+    <span class="o">}</span> <span class="k">catch</span> <span class="o">(</span><span class="n">IOException</span> <span class="n">e</span><span class="o">)</span> <span class="o">{</span>
+        <span class="k">throw</span> <span class="k">new</span> <span class="n">SystemException</span><span class="o">(</span><span class="s">&quot;e.xx.xx.9001&quot;</span><span class="o">,</span> <span class="s">&quot;input/output error.&quot;</span><span class="o">,</span> <span class="n">e</span><span class="o">);</span>
+    <span class="o">}</span> <span class="k">catch</span> <span class="o">(</span><span class="n">NoSuchAlgorithmException</span> <span class="n">e</span><span class="o">)</span> <span class="o">{</span>
+        <span class="k">throw</span> <span class="k">new</span> <span class="n">SystemException</span><span class="o">(</span><span class="s">&quot;e.xx.xx.9002&quot;</span><span class="o">,</span> <span class="s">&quot;No Such setting error.&quot;</span><span class="o">,</span> <span class="n">e</span><span class="o">);</span>
+    <span class="o">}</span> <span class="k">catch</span> <span class="o">(</span><span class="n">InvalidKeySpecException</span> <span class="n">e</span><span class="o">)</span> <span class="o">{</span>
+        <span class="k">throw</span> <span class="k">new</span> <span class="n">SystemException</span><span class="o">(</span><span class="s">&quot;e.xx.xx.9003&quot;</span><span class="o">,</span> <span class="s">&quot;Invalid setting error.&quot;</span><span class="o">,</span> <span class="n">e</span><span class="o">);</span>
+    <span class="o">}</span>
+<span class="o">}</span>
+</pre></div>
+</div>
+<table border="1" class="colwidths-given docutils">
+<colgroup>
+<col width="10%" />
+<col width="90%" />
+</colgroup>
+<thead valign="bottom">
+<tr class="row-odd"><th class="head">Sr. No.</th>
+<th class="head">Description</th>
+</tr>
+</thead>
+<tbody valign="top">
+<tr class="row-even"><td><div class="first last line-block">
+<div class="line">(1)</div>
+</div>
+</td>
+<td><div class="first last line-block">
+<div class="line">Read binary data from secret key file of PKCS #8 format and generate an instance of <code class="docutils literal"><span class="pre">PKCS8EncodedKeySpec</span></code> class.</div>
+</div>
+</td>
+</tr>
+<tr class="row-odd"><td><div class="first last line-block">
+<div class="line">(2)</div>
+</div>
+</td>
+<td><div class="first last line-block">
+<div class="line">Generate an instance of <code class="docutils literal"><span class="pre">PrivateKey</span></code> class from <code class="docutils literal"><span class="pre">KeyFactory</span></code> class.</div>
+</div>
+</td>
+</tr>
+<tr class="row-even"><td><div class="first last line-block">
+<div class="line">(3)</div>
+</div>
+</td>
+<td><div class="first last line-block">
+<div class="line">Perform decryption process by using a secret key.</div>
+</div>
+</td>
+</tr>
+</tbody>
+</table>
+</li>
+</ul>
+<div class="line-block">
+<div class="line"><br /></div>
+</div>
+</div>
+</div>
+<div class="section" id="encryptionhowtousehybrid">
+<span id="id4"></span><h3><a class="toc-backref" href="#id33">9.8.2.3. Hybrid encryption method</a><a class="headerlink" href="#encryptionhowtousehybrid" title="Permalink to this headline">¶</a></h3>
+<div class="line-block">
+<div class="line">Similar to public key encryption method, since functions related to hybrid encryption methods are not offered by Spring Security, it is explained using a sample code.</div>
+<div class="line">The sample code refers to <a class="reference external" href="https://github.com/dsyer/spring-security-rsa/blob/1.0.1.RELEASE/src/main/java/org/springframework/security/rsa/crypto/RsaSecretEncryptor.java">RsaSecretEncryptor class</a> of spring-security-rsa.</div>
+</div>
+<div class="section" id="id5">
+<h4><a class="toc-backref" href="#id34">9.8.2.3.1. Encryption</a><a class="headerlink" href="#id5" title="Permalink to this headline">¶</a></h4>
+<blockquote>
+<div><div class="highlight-java"><div class="highlight"><pre><span></span><span class="kd">public</span> <span class="kt">byte</span><span class="o">[]</span> <span class="nf">encrypt</span><span class="o">(</span><span class="kt">byte</span><span class="o">[]</span> <span class="n">plainBytes</span><span class="o">,</span> <span class="n">PublicKey</span> <span class="n">publicKey</span><span class="o">,</span> <span class="n">String</span> <span class="n">salt</span><span class="o">)</span> <span class="o">{</span>
+    <span class="kt">byte</span><span class="o">[]</span> <span class="n">random</span> <span class="o">=</span> <span class="n">KeyGenerators</span><span class="o">.</span><span class="na">secureRandom</span><span class="o">(</span><span class="mi">32</span><span class="o">).</span><span class="na">generateKey</span><span class="o">();</span> <span class="c1">// (1)</span>
+    <span class="n">BytesEncryptor</span> <span class="n">aes</span> <span class="o">=</span> <span class="n">Encryptors</span><span class="o">.</span><span class="na">standard</span><span class="o">(</span>
+            <span class="k">new</span> <span class="n">String</span><span class="o">(</span><span class="n">Hex</span><span class="o">.</span><span class="na">encode</span><span class="o">(</span><span class="n">random</span><span class="o">)),</span> <span class="n">salt</span><span class="o">);</span> <span class="c1">// (2)</span>
+
+    <span class="k">try</span> <span class="o">(</span><span class="n">ByteArrayOutputStream</span> <span class="n">result</span> <span class="o">=</span> <span class="k">new</span> <span class="n">ByteArrayOutputStream</span><span class="o">())</span> <span class="o">{</span>
+        <span class="kd">final</span> <span class="n">Cipher</span> <span class="n">cipher</span> <span class="o">=</span> <span class="n">Cipher</span><span class="o">.</span><span class="na">getInstance</span><span class="o">(</span><span class="s">&quot;RSA&quot;</span><span class="o">);</span> <span class="c1">// (3)</span>
+        <span class="n">cipher</span><span class="o">.</span><span class="na">init</span><span class="o">(</span><span class="n">Cipher</span><span class="o">.</span><span class="na">ENCRYPT_MODE</span><span class="o">,</span> <span class="n">publicKey</span><span class="o">);</span> <span class="c1">// (4)</span>
+        <span class="kt">byte</span><span class="o">[]</span> <span class="n">secret</span> <span class="o">=</span> <span class="n">cipher</span><span class="o">.</span><span class="na">doFinal</span><span class="o">(</span><span class="n">random</span><span class="o">);</span> <span class="c1">// (5)</span>
+
+        <span class="kt">byte</span><span class="o">[]</span> <span class="n">data</span> <span class="o">=</span> <span class="k">new</span> <span class="kt">byte</span><span class="o">[</span><span class="mi">2</span><span class="o">];</span> <span class="c1">// (6)</span>
+        <span class="n">data</span><span class="o">[</span><span class="mi">0</span><span class="o">]</span> <span class="o">=</span> <span class="o">(</span><span class="kt">byte</span><span class="o">)</span> <span class="o">((</span><span class="n">secret</span><span class="o">.</span><span class="na">length</span> <span class="o">&gt;&gt;</span> <span class="mi">8</span><span class="o">)</span> <span class="o">&amp;</span> <span class="mh">0xFF</span><span class="o">);</span> <span class="c1">//</span>
+        <span class="n">data</span><span class="o">[</span><span class="mi">1</span><span class="o">]</span> <span class="o">=</span> <span class="o">(</span><span class="kt">byte</span><span class="o">)</span> <span class="o">(</span><span class="n">secret</span><span class="o">.</span><span class="na">length</span> <span class="o">&amp;</span> <span class="mh">0xFF</span><span class="o">);</span> <span class="c1">//</span>
+        <span class="n">result</span><span class="o">.</span><span class="na">write</span><span class="o">(</span><span class="n">data</span><span class="o">);</span> <span class="c1">//</span>
+
+        <span class="n">result</span><span class="o">.</span><span class="na">write</span><span class="o">(</span><span class="n">secret</span><span class="o">);</span> <span class="c1">// (7)</span>
+        <span class="n">result</span><span class="o">.</span><span class="na">write</span><span class="o">(</span><span class="n">aes</span><span class="o">.</span><span class="na">encrypt</span><span class="o">(</span><span class="n">plainBytes</span><span class="o">));</span> <span class="c1">// (8)</span>
+
+        <span class="k">return</span> <span class="n">result</span><span class="o">.</span><span class="na">toByteArray</span><span class="o">();</span> <span class="c1">// (9)</span>
+    <span class="o">}</span> <span class="k">catch</span> <span class="o">(</span><span class="n">IOException</span> <span class="n">e</span><span class="o">)</span> <span class="o">{</span>
+        <span class="k">throw</span> <span class="k">new</span> <span class="n">SystemException</span><span class="o">(</span><span class="s">&quot;e.xx.xx.9001&quot;</span><span class="o">,</span> <span class="s">&quot;input/output error.&quot;</span><span class="o">,</span> <span class="n">e</span><span class="o">);</span>
+    <span class="o">}</span> <span class="k">catch</span> <span class="o">(</span><span class="n">NoSuchAlgorithmException</span> <span class="o">|</span> <span class="n">NoSuchPaddingException</span> <span class="n">e</span><span class="o">)</span> <span class="o">{</span>
+        <span class="k">throw</span> <span class="k">new</span> <span class="n">SystemException</span><span class="o">(</span><span class="s">&quot;e.xx.xx.9002&quot;</span><span class="o">,</span> <span class="s">&quot;No Such setting error.&quot;</span><span class="o">,</span> <span class="n">e</span><span class="o">);</span>
+    <span class="o">}</span> <span class="k">catch</span> <span class="o">(</span><span class="n">InvalidKeyException</span> <span class="o">|</span> <span class="n">IllegalBlockSizeException</span> <span class="o">|</span> <span class="n">BadPaddingException</span> <span class="n">e</span><span class="o">)</span> <span class="o">{</span>
+        <span class="k">throw</span> <span class="k">new</span> <span class="n">SystemException</span><span class="o">(</span><span class="s">&quot;e.xx.xx.9003&quot;</span><span class="o">,</span> <span class="s">&quot;Invalid setting error.&quot;</span><span class="o">,</span> <span class="n">e</span><span class="o">);</span>
+    <span class="o">}</span>
+<span class="o">}</span>
+</pre></div>
+</div>
+<table border="1" class="colwidths-given docutils">
+<colgroup>
+<col width="10%" />
+<col width="90%" />
+</colgroup>
+<thead valign="bottom">
+<tr class="row-odd"><th class="head">Sr. No.</th>
+<th class="head">Description</th>
+</tr>
+</thead>
+<tbody valign="top">
+<tr class="row-even"><td><div class="first last line-block">
+<div class="line">(1)</div>
+</div>
+</td>
+<td><div class="first last line-block">
+<div class="line">Call <code class="docutils literal"><span class="pre">KeyGenerators#secureRandom</span></code> method by specifyinh 32 bytes as a key length and generate an instance of <code class="docutils literal"><span class="pre">BytesKeyGenerator</span></code> class.</div>
+<div class="line">Call <code class="docutils literal"><span class="pre">BytesKeyGenerator#generateKey</span></code> method and generate a common key.</div>
+<div class="line">For details, refer to <a class="reference internal" href="#encryptionhowtousepseudorandomnumber"><span class="std std-ref">Random number generation</span></a>.</div>
+</div>
+</td>
+</tr>
+<tr class="row-odd"><td><div class="first last line-block">
+<div class="line">(2)</div>
+</div>
+</td>
+<td><div class="first last line-block">
+<div class="line">Specify generated common key and salt, and generate an instance of <code class="docutils literal"><span class="pre">BytesEncryptor</span></code> class.</div>
+</div>
+</td>
+</tr>
+<tr class="row-even"><td><div class="first last line-block">
+<div class="line">(3)</div>
+</div>
+</td>
+<td><div class="first last line-block">
+<div class="line">specify RSA as an encryption algorithm and generate an instance of <code class="docutils literal"><span class="pre">Cipher</span></code> class.</div>
+</div>
+</td>
+</tr>
+<tr class="row-odd"><td><div class="first last line-block">
+<div class="line">(4)</div>
+</div>
+</td>
+<td><div class="first last line-block">
+<div class="line">Specify encryption mode constant and public key, and initialise an instance of <code class="docutils literal"><span class="pre">Cipher</span></code> class.</div>
+</div>
+</td>
+</tr>
+<tr class="row-even"><td><div class="first last line-block">
+<div class="line">(5)</div>
+</div>
+</td>
+<td><div class="first last line-block">
+<div class="line">Execute encryption process of common key. The encryption is performed by using public key encryption process.</div>
+</div>
+</td>
+</tr>
+<tr class="row-odd"><td><div class="first last line-block">
+<div class="line">(6)</div>
+</div>
+</td>
+<td><div class="first last line-block">
+<div class="line">Store length of encrypted common key in encrypted text of byte array. Length of stored common key is used at the time of decryption.</div>
+</div>
+</td>
+</tr>
+<tr class="row-even"><td><div class="first last line-block">
+<div class="line">(7)</div>
+</div>
+</td>
+<td><div class="first last line-block">
+<div class="line">Store encrypted common key in encrypted text of byte array.</div>
+</div>
+</td>
+</tr>
+<tr class="row-odd"><td><div class="first last line-block">
+<div class="line">(8)</div>
+</div>
+</td>
+<td><div class="first last line-block">
+<div class="line">Encrypt plain text and store in encrypted text of byte array. The encryption is performed by using common key encryption process.</div>
+</div>
+</td>
+</tr>
+<tr class="row-even"><td><div class="first last line-block">
+<div class="line">(9)</div>
+</div>
+</td>
+<td><div class="first last line-block">
+<div class="line">Return encrypted text of byte array.</div>
+</div>
+</td>
+</tr>
+</tbody>
+</table>
+</div></blockquote>
+<div class="line-block">
+<div class="line"><br /></div>
+</div>
+</div>
+<div class="section" id="id6">
+<h4><a class="toc-backref" href="#id35">9.8.2.3.2. Decryption</a><a class="headerlink" href="#id6" title="Permalink to this headline">¶</a></h4>
+<blockquote>
+<div><div class="highlight-java"><div class="highlight"><pre><span></span><span class="kd">public</span> <span class="kt">byte</span><span class="o">[]</span> <span class="nf">decrypt</span><span class="o">(</span><span class="kt">byte</span><span class="o">[]</span> <span class="n">cipherBytes</span><span class="o">,</span> <span class="n">PrivateKey</span> <span class="n">privateKey</span><span class="o">,</span> <span class="n">String</span> <span class="n">salt</span><span class="o">)</span> <span class="o">{</span>
+
+    <span class="k">try</span> <span class="o">(</span><span class="n">ByteArrayInputStream</span> <span class="n">input</span> <span class="o">=</span> <span class="k">new</span> <span class="n">ByteArrayInputStream</span><span class="o">(</span><span class="n">cipherBytes</span><span class="o">);</span>
+            <span class="n">ByteArrayOutputStream</span> <span class="n">output</span> <span class="o">=</span> <span class="k">new</span> <span class="n">ByteArrayOutputStream</span><span class="o">())</span> <span class="o">{</span>
+        <span class="kt">byte</span><span class="o">[]</span> <span class="n">b</span> <span class="o">=</span> <span class="k">new</span> <span class="kt">byte</span><span class="o">[</span><span class="mi">2</span><span class="o">];</span> <span class="c1">// (1)</span>
+        <span class="n">input</span><span class="o">.</span><span class="na">read</span><span class="o">(</span><span class="n">b</span><span class="o">);</span> <span class="c1">//</span>
+        <span class="kt">int</span> <span class="n">length</span> <span class="o">=</span> <span class="o">((</span><span class="n">b</span><span class="o">[</span><span class="mi">0</span><span class="o">]</span> <span class="o">&amp;</span> <span class="mh">0xFF</span><span class="o">)</span> <span class="o">&lt;&lt;</span> <span class="mi">8</span><span class="o">)</span> <span class="o">|</span> <span class="o">(</span><span class="n">b</span><span class="o">[</span><span class="mi">1</span><span class="o">]</span> <span class="o">&amp;</span> <span class="mh">0xFF</span><span class="o">);</span> <span class="c1">//</span>
+
+        <span class="kt">byte</span><span class="o">[]</span> <span class="n">random</span> <span class="o">=</span> <span class="k">new</span> <span class="kt">byte</span><span class="o">[</span><span class="n">length</span><span class="o">];</span> <span class="c1">// (2)</span>
+        <span class="n">input</span><span class="o">.</span><span class="na">read</span><span class="o">(</span><span class="n">random</span><span class="o">);</span> <span class="c1">//</span>
+        <span class="kd">final</span> <span class="n">Cipher</span> <span class="n">cipher</span> <span class="o">=</span> <span class="n">Cipher</span><span class="o">.</span><span class="na">getInstance</span><span class="o">(</span><span class="s">&quot;RSA&quot;</span><span class="o">);</span> <span class="c1">// (3)</span>
+        <span class="n">cipher</span><span class="o">.</span><span class="na">init</span><span class="o">(</span><span class="n">Cipher</span><span class="o">.</span><span class="na">DECRYPT_MODE</span><span class="o">,</span> <span class="n">privateKey</span><span class="o">);</span> <span class="c1">// (4)</span>
+        <span class="n">String</span> <span class="n">secret</span> <span class="o">=</span> <span class="k">new</span> <span class="n">String</span><span class="o">(</span><span class="n">Hex</span><span class="o">.</span><span class="na">encode</span><span class="o">(</span><span class="n">cipher</span><span class="o">.</span><span class="na">doFinal</span><span class="o">(</span><span class="n">random</span><span class="o">)));</span> <span class="c1">// (5)</span>
+        <span class="kt">byte</span><span class="o">[]</span> <span class="n">buffer</span> <span class="o">=</span> <span class="k">new</span> <span class="kt">byte</span><span class="o">[</span><span class="n">cipherBytes</span><span class="o">.</span><span class="na">length</span> <span class="o">-</span> <span class="n">random</span><span class="o">.</span><span class="na">length</span> <span class="o">-</span> <span class="mi">2</span><span class="o">];</span> <span class="c1">// (6)</span>
+        <span class="n">input</span><span class="o">.</span><span class="na">read</span><span class="o">(</span><span class="n">buffer</span><span class="o">);</span> <span class="c1">//</span>
+        <span class="n">BytesEncryptor</span> <span class="n">aes</span> <span class="o">=</span> <span class="n">Encryptors</span><span class="o">.</span><span class="na">standard</span><span class="o">(</span><span class="n">secret</span><span class="o">,</span> <span class="n">salt</span><span class="o">);</span> <span class="c1">// (7)</span>
+        <span class="n">output</span><span class="o">.</span><span class="na">write</span><span class="o">(</span><span class="n">aes</span><span class="o">.</span><span class="na">decrypt</span><span class="o">(</span><span class="n">buffer</span><span class="o">));</span> <span class="c1">// (8)</span>
+
+        <span class="k">return</span> <span class="n">output</span><span class="o">.</span><span class="na">toByteArray</span><span class="o">();</span> <span class="c1">// (9)</span>
+    <span class="o">}</span> <span class="k">catch</span> <span class="o">(</span><span class="n">IOException</span> <span class="n">e</span><span class="o">)</span> <span class="o">{</span>
+        <span class="k">throw</span> <span class="k">new</span> <span class="n">SystemException</span><span class="o">(</span><span class="s">&quot;e.xx.xx.9001&quot;</span><span class="o">,</span> <span class="s">&quot;input/output error.&quot;</span><span class="o">,</span> <span class="n">e</span><span class="o">);</span>
+    <span class="o">}</span> <span class="k">catch</span> <span class="o">(</span><span class="n">NoSuchAlgorithmException</span> <span class="o">|</span> <span class="n">NoSuchPaddingException</span> <span class="n">e</span><span class="o">)</span> <span class="o">{</span>
+        <span class="k">throw</span> <span class="k">new</span> <span class="n">SystemException</span><span class="o">(</span><span class="s">&quot;e.xx.xx.9002&quot;</span><span class="o">,</span> <span class="s">&quot;No Such setting error.&quot;</span><span class="o">,</span> <span class="n">e</span><span class="o">);</span>
+    <span class="o">}</span> <span class="k">catch</span> <span class="o">(</span><span class="n">InvalidKeyException</span> <span class="o">|</span> <span class="n">IllegalBlockSizeException</span> <span class="o">|</span> <span class="n">BadPaddingException</span> <span class="n">e</span><span class="o">)</span> <span class="o">{</span>
+        <span class="k">throw</span> <span class="k">new</span> <span class="n">SystemException</span><span class="o">(</span><span class="s">&quot;e.xx.xx.9003&quot;</span><span class="o">,</span> <span class="s">&quot;Invalid setting error.&quot;</span><span class="o">,</span> <span class="n">e</span><span class="o">);</span>
+    <span class="o">}</span>
+<span class="o">}</span>
+</pre></div>
+</div>
+<table border="1" class="colwidths-given docutils">
+<colgroup>
+<col width="10%" />
+<col width="90%" />
+</colgroup>
+<thead valign="bottom">
+<tr class="row-odd"><th class="head">Sr. No.</th>
+<th class="head">Description</th>
+</tr>
+</thead>
+<tbody valign="top">
+<tr class="row-even"><td><div class="first last line-block">
+<div class="line">(1)</div>
+</div>
+</td>
+<td><div class="first last line-block">
+<div class="line">Fetch length of encrypted common key.</div>
+</div>
+</td>
+</tr>
+<tr class="row-odd"><td><div class="first last line-block">
+<div class="line">(2)</div>
+</div>
+</td>
+<td><div class="first last line-block">
+<div class="line">Fetch encrypted common key.</div>
+</div>
+</td>
+</tr>
+<tr class="row-even"><td><div class="first last line-block">
+<div class="line">(3)</div>
+</div>
+</td>
+<td><div class="first last line-block">
+<div class="line">Specify RSA as an encryption algorithm and generate an instance of <code class="docutils literal"><span class="pre">Cipher</span></code> class.</div>
+</div>
+</td>
+</tr>
+<tr class="row-odd"><td><div class="first last line-block">
+<div class="line">(4)</div>
+</div>
+</td>
+<td><div class="first last line-block">
+<div class="line">Specify decryption mode constant and secret key, and initialise an instance of <code class="docutils literal"><span class="pre">Cipher</span></code> class.</div>
+</div>
+</td>
+</tr>
+<tr class="row-even"><td><div class="first last line-block">
+<div class="line">(5)</div>
+</div>
+</td>
+<td><div class="first last line-block">
+<div class="line">Execute decryption process of common key. Decryption is performed by using public key encryption process.</div>
+</div>
+</td>
+</tr>
+<tr class="row-odd"><td><div class="first last line-block">
+<div class="line">(6)</div>
+</div>
+</td>
+<td><div class="first last line-block">
+<div class="line">Fetch decryption target.</div>
+</div>
+</td>
+</tr>
+<tr class="row-even"><td><div class="first last line-block">
+<div class="line">(7)</div>
+</div>
+</td>
+<td><div class="first last line-block">
+<div class="line">Specify decrypted common key and salt, and generate an instance of <code class="docutils literal"><span class="pre">BytesEncryptor</span></code> class.</div>
+</div>
+</td>
+</tr>
+<tr class="row-odd"><td><div class="first last line-block">
+<div class="line">(8)</div>
+</div>
+</td>
+<td><div class="first last line-block">
+<div class="line">Execute decryption process. Decryption is performed by using common key encryption process.</div>
+</div>
+</td>
+</tr>
+<tr class="row-even"><td><div class="first last line-block">
+<div class="line">(9)</div>
+</div>
+</td>
+<td><div class="first last line-block">
+<div class="line">Return plain text of decrypted byte array.</div>
+</div>
+</td>
+</tr>
+</tbody>
+</table>
+</div></blockquote>
+<div class="line-block">
+<div class="line"><br /></div>
+</div>
+</div>
+</div>
+<div class="section" id="random-number-generation">
+<span id="encryptionhowtousepseudorandomnumber"></span><h3><a class="toc-backref" href="#id36">9.8.2.4. Random number generation</a><a class="headerlink" href="#random-number-generation" title="Permalink to this headline">¶</a></h3>
+<div class="section" id="generation-of-string-type-pseudo-random-number">
+<h4><a class="toc-backref" href="#id37">9.8.2.4.1. Generation of string type pseudo-random number</a><a class="headerlink" href="#generation-of-string-type-pseudo-random-number" title="Permalink to this headline">¶</a></h4>
+<blockquote>
+<div><div class="highlight-java"><div class="highlight"><pre><span></span><span class="kd">public</span> <span class="kd">static</span> <span class="kt">void</span> <span class="nf">createStringKey</span><span class="o">()</span> <span class="o">{</span>
+    <span class="n">StringKeyGenerator</span> <span class="n">generator</span> <span class="o">=</span> <span class="n">KeyGenerators</span><span class="o">.</span><span class="na">string</span><span class="o">();</span> <span class="c1">// (1)</span>
+    <span class="n">System</span><span class="o">.</span><span class="na">out</span><span class="o">.</span><span class="na">println</span><span class="o">(</span><span class="n">generator</span><span class="o">.</span><span class="na">generateKey</span><span class="o">());</span> <span class="c1">// (2)</span>
+    <span class="n">System</span><span class="o">.</span><span class="na">out</span><span class="o">.</span><span class="na">println</span><span class="o">(</span><span class="n">generator</span><span class="o">.</span><span class="na">generateKey</span><span class="o">());</span> <span class="c1">//</span>
+<span class="o">}</span>
+</pre></div>
+</div>
+<table border="1" class="colwidths-given docutils">
+<colgroup>
+<col width="10%" />
+<col width="90%" />
+</colgroup>
+<thead valign="bottom">
+<tr class="row-odd"><th class="head">Sr. No.</th>
+<th class="head">Description</th>
+</tr>
+</thead>
+<tbody valign="top">
+<tr class="row-even"><td><div class="first last line-block">
+<div class="line">(1)</div>
+</div>
+</td>
+<td><div class="first last line-block">
+<div class="line">Generate an instance of key (pseudo-random number) generator <code class="docutils literal"><span class="pre">StringKeyGenerator</span></code> class.</div>
+<div class="line">If key is generated by this generator, a different value is obtained for each instance.</div>
+<div class="line"><br /></div>
+<div class="line">Key length cannot be specified, a key of length 8 byte is always generated.</div>
+</div>
+</td>
+</tr>
+<tr class="row-odd"><td><div class="first last line-block">
+<div class="line">(2)</div>
+</div>
+</td>
+<td><div class="first last line-block">
+<div class="line">Generate a key (pseudo-random number) by using <code class="docutils literal"><span class="pre">generateKey</span></code> method.</div>
+</div>
+</td>
+</tr>
+</tbody>
+</table>
+</div></blockquote>
+<div class="line-block">
+<div class="line"><br /></div>
+</div>
+</div>
+<div class="section" id="generation-of-byte-array-type-pseudo-randon-number">
+<h4><a class="toc-backref" href="#id38">9.8.2.4.2. Generation of byte array type pseudo-randon number</a><a class="headerlink" href="#generation-of-byte-array-type-pseudo-randon-number" title="Permalink to this headline">¶</a></h4>
+<ul>
+<li><p class="first">Generate a different key.</p>
+<div class="highlight-java"><div class="highlight"><pre><span></span><span class="kd">public</span> <span class="kd">static</span> <span class="kt">void</span> <span class="nf">createDifferentBytesKey</span><span class="o">()</span> <span class="o">{</span>
+    <span class="n">BytesKeyGenerator</span> <span class="n">generator</span> <span class="o">=</span> <span class="n">KeyGenerators</span><span class="o">.</span><span class="na">secureRandom</span><span class="o">();</span> <span class="c1">// (1)</span>
+    <span class="n">System</span><span class="o">.</span><span class="na">out</span><span class="o">.</span><span class="na">println</span><span class="o">(</span><span class="n">Arrays</span><span class="o">.</span><span class="na">toString</span><span class="o">(</span><span class="n">generator</span><span class="o">.</span><span class="na">generateKey</span><span class="o">()));</span> <span class="c1">// (2)</span>
+    <span class="n">System</span><span class="o">.</span><span class="na">out</span><span class="o">.</span><span class="na">println</span><span class="o">(</span><span class="n">Arrays</span><span class="o">.</span><span class="na">toString</span><span class="o">(</span><span class="n">generator</span><span class="o">.</span><span class="na">generateKey</span><span class="o">()));</span> <span class="c1">//</span>
+<span class="o">}</span>
+</pre></div>
+</div>
+<table border="1" class="colwidths-given docutils">
+<colgroup>
+<col width="10%" />
+<col width="90%" />
+</colgroup>
+<thead valign="bottom">
+<tr class="row-odd"><th class="head">Sr. No.</th>
+<th class="head">Description</th>
+</tr>
+</thead>
+<tbody valign="top">
+<tr class="row-even"><td><div class="first last line-block">
+<div class="line">(1)</div>
+</div>
+</td>
+<td><div class="first last line-block">
+<div class="line">Call <code class="docutils literal"><span class="pre">KeyGenerators#secureRandom</span></code> method and generate an instance of key (pseudo-random number) generator <code class="docutils literal"><span class="pre">BytesKeyGenerator</span></code> class.</div>
+<div class="line">If key is generated by this generator, a different value is obtained for each instance.</div>
+<div class="line"><br /></div>
+<div class="line">When key length is not specified, a key of length - 8 bytes is generated by default.</div>
+</div>
+</td>
+</tr>
+<tr class="row-odd"><td><div class="first last line-block">
+<div class="line">(2)</div>
+</div>
+</td>
+<td><div class="first last line-block">
+<div class="line">Generate a key by using <code class="docutils literal"><span class="pre">generateKey</span></code> method.</div>
+</div>
+</td>
+</tr>
+</tbody>
+</table>
+</li>
+</ul>
+<div class="line-block">
+<div class="line"><br /></div>
+</div>
+<ul>
+<li><p class="first">Generate identical key.</p>
+<div class="highlight-java"><div class="highlight"><pre><span></span><span class="kd">public</span> <span class="kd">static</span> <span class="kt">void</span> <span class="nf">createSameBytesKey</span><span class="o">()</span> <span class="o">{</span>
+    <span class="n">BytesKeyGenerator</span> <span class="n">generator</span> <span class="o">=</span> <span class="n">KeyGenerators</span><span class="o">.</span><span class="na">shared</span><span class="o">(</span><span class="mi">32</span><span class="o">);</span> <span class="c1">// (1)</span>
+    <span class="n">System</span><span class="o">.</span><span class="na">out</span><span class="o">.</span><span class="na">println</span><span class="o">(</span><span class="n">Arrays</span><span class="o">.</span><span class="na">toString</span><span class="o">(</span><span class="n">generator</span><span class="o">.</span><span class="na">generateKey</span><span class="o">()));</span> <span class="c1">// (2)</span>
+    <span class="n">System</span><span class="o">.</span><span class="na">out</span><span class="o">.</span><span class="na">println</span><span class="o">(</span><span class="n">Arrays</span><span class="o">.</span><span class="na">toString</span><span class="o">(</span><span class="n">generator</span><span class="o">.</span><span class="na">generateKey</span><span class="o">()));</span> <span class="c1">//</span>
+<span class="o">}</span>
+</pre></div>
+</div>
+<table border="1" class="colwidths-given docutils">
+<colgroup>
+<col width="10%" />
+<col width="90%" />
+</colgroup>
+<thead valign="bottom">
+<tr class="row-odd"><th class="head">Sr. No.</th>
+<th class="head">Description</th>
+</tr>
+</thead>
+<tbody valign="top">
+<tr class="row-even"><td><div class="first last line-block">
+<div class="line">(1)</div>
+</div>
+</td>
+<td><div class="first last line-block">
+<div class="line">Specify 32 bytes as key length, call <code class="docutils literal"><span class="pre">KeyGenerators#shared</span></code> method and generate an instance of key (pseudo-random number) generator <code class="docutils literal"><span class="pre">BytesKeyGenerator</span></code> class.</div>
+<div class="line">If key is generated by this generator, same value is obtained for each instance.</div>
+<div class="line"><br /></div>
+<div class="line">Specifying key length is mandatory.</div>
+</div>
+</td>
+</tr>
+<tr class="row-odd"><td><div class="first last line-block">
+<div class="line">(2)</div>
+</div>
+</td>
+<td><div class="first last line-block">
+<div class="line">Generate key by using <code class="docutils literal"><span class="pre">generateKey</span></code> method.</div>
+</div>
+</td>
+</tr>
+</tbody>
+</table>
+</li>
+</ul>
+<div class="line-block">
+<div class="line"><br /></div>
+</div>
+</div>
+</div>
+</div>
+</div>
+
+
+          </div>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="SecureLoginDemo.html" title="9.9. Implementation Example of Typical Security Requirements"
+             >next</a> |</li>
+        <li class="right" >
+          <a href="XSS.html" title="9.7. XSS Countermeasures"
+             >previous</a> |</li>
+        <li class="nav-item nav-item-0"><a href="../index.html">TERASOLUNA Server Framework for Java (5.x) Development Guideline 5.2.1.RELEASE documentation</a> &#187;</li>
+          <li class="nav-item nav-item-1"><a href="index.html" >9. Security countermeasures</a> &#187;</li> 
+      </ul>
+    </div>
+    <div class="footer">
+        &copy; Copyright 2013-2017, NTT DATA Corporation.
+    Created using <a href="http://sphinx.pocoo.org/">Sphinx</a> 1.4.8.Theme by <a href="http://github.com/vkvn">vkvn</a>
+    </div>
+    
+    <script>
+    
+    $(function() {
+    	var $sidebar	= $('.sphinxsidebar'),
+    		$window		= $(window),
+    		offset		= $sidebar.offset(),
+    		topPadding	= 3,
+    		$scroll		= $('#scroll');
+    	
+    	$window.scroll(function() {
+    		if ($scroll.is(':checked')) {
+				if ($window.scrollTop() > offset.top) {
+					$sidebar.stop().animate({
+						marginTop:$window.scrollTop() - offset.top + topPadding
+					});
+				} else {
+					$sidebar.stop().animate({
+						marginTop:0
+					});
+				}
+			}
+		});
+    	
+    	var $navList = $('ul:first', $sidebar);
+    	$('li:first', $navList).addClass('open');
+    	
+    	$navList.treeview({
+    		persist: "location",
+    		collapsed: true,
+    		unique: false
+    	});
+    	
+	});
+    (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+        (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+            m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+    })(window,document,'script','//www.google-analytics.com/analytics.js','ga');
+
+    ga('create', 'UA-46550814-1', 'terasolunaorg.github.io');
+    ga('send', 'pageview');
+    </script>
+  </body>
+</html>
