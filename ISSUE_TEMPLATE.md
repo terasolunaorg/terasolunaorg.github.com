@@ -8,5 +8,9 @@
 - 5.X.X.RELEASE
 - 1.X.X.RELEASE
 
+## Fix Version/s
+(To be written later by project member)
+- 5.X.X.RELEASE
+
 ## Issue Links
 - #XXX
