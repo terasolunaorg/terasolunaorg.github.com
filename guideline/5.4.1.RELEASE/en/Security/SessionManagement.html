@@ -1,0 +1,1093 @@
+<!DOCTYPE html>
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <title>9.4. Session Management &#8212; TERASOLUNA Server Framework for Java (5.x) Development Guideline 5.4.1.RELEASE documentation</title>
+    <link rel="stylesheet" href="../_static/solar.css" type="text/css" />
+    <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    '../',
+        VERSION:     '5.4.1.RELEASE',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true,
+        SOURCELINK_SUFFIX: '.txt'
+      };
+    </script>
+    <script type="text/javascript" src="../_static/jquery.js"></script>
+    <script type="text/javascript" src="../_static/underscore.js"></script>
+    <script type="text/javascript" src="../_static/doctools.js"></script>
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="next" title="9.5. CSRF Countermeasures" href="CSRF.html" />
+    <link rel="prev" title="9.3. Authorization" href="Authorization.html" /><script src="../_static/jquery.treeview.js" type="text/javascript"></script>
+<!-- <link href='http://fonts.googleapis.com/css?family=Source+Code+Pro|Open+Sans:300italic,400italic,700italic,400,300,700' rel='stylesheet' type='text/css'> -->
+<link href="../_static/solarized-dark.css" rel="stylesheet">
+<link href="../_static/jquery.treeview.css" rel="stylesheet">
+  </head>
+  <body>
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="CSRF.html" title="9.5. CSRF Countermeasures"
+             accesskey="N">next</a> |</li>
+        <li class="right" >
+          <a href="Authorization.html" title="9.3. Authorization"
+             accesskey="P">previous</a> |</li>
+        <li class="nav-item nav-item-0"><a href="../index.html">TERASOLUNA Server Framework for Java (5.x) Development Guideline 5.4.1.RELEASE documentation</a> &#187;</li>
+          <li class="nav-item nav-item-1"><a href="index.html" accesskey="U">9. Security countermeasures</a> &#187;</li> 
+      </ul>
+    </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper"><label><input id="scroll" type="checkbox" checked> scroll sidebar</label>
+
+  <h3><a href="../index.html">Table Of Contents</a></h3>
+  <ul>
+<li><a class="reference internal" href="#">9.4. Session Management</a><ul>
+<li><a class="reference internal" href="#overview">9.4.1. Overview</a><ul>
+<li><a class="reference internal" href="#security-measures-at-the-time-of-using-a-session">9.4.1.1. Security measures at the time of using a session</a><ul>
+<li><a class="reference internal" href="#countermeasures-for-session-hijacking-attacks">9.4.1.1.1. Countermeasures for session hijacking attacks</a></li>
+<li><a class="reference internal" href="#countermeasures-for-session-fixation-attack">9.4.1.1.2. Countermeasures for Session fixation attack</a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#session-management-function-provided-by-spring-security">9.4.1.2. Session management function provided by Spring Security</a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#how-to-use">9.4.2. How to use</a><ul>
+<li><a class="reference internal" href="#id1">9.4.2.1. Countermeasures for Session hijacking attacks</a><ul>
+<li><a class="reference internal" href="#disabling-url-rewriting-function-by-spring-security">9.4.2.1.1. Disabling URL Rewriting function by Spring Security</a></li>
+<li><a class="reference internal" href="#disabling-url-rewriting-function-by-servlet-container">9.4.2.1.2. Disabling URL Rewriting function by Servlet Container</a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#applying-session-management-function">9.4.2.2. Applying Session management function</a></li>
+<li><a class="reference internal" href="#id2">9.4.2.3. Countermeasures for Session fixation attack</a></li>
+<li><a class="reference internal" href="#controlling-session-lifecycle">9.4.2.4. Controlling session lifecycle</a><ul>
+<li><a class="reference internal" href="#generating-a-session">9.4.2.4.1. Generating a session</a></li>
+<li><a class="reference internal" href="#discarding-a-session">9.4.2.4.2. Discarding a session</a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#controlling-session-timeout">9.4.2.5. Controlling session timeout</a><ul>
+<li><a class="reference internal" href="#specifying-session-timeout">9.4.2.5.1. Specifying session timeout</a></li>
+<li><a class="reference internal" href="#detection-of-request-with-invalid-session">9.4.2.5.2. Detection of request with invalid session</a></li>
+<li><a class="reference internal" href="#specifying-exclusion-path">9.4.2.5.3. Specifying Exclusion path</a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#controlling-multiple-logins">9.4.2.6. Controlling multiple logins</a><ul>
+<li><a class="reference internal" href="#enabling-session-lifecycle-detection">9.4.2.6.1. Enabling session lifecycle detection</a></li>
+<li><a class="reference internal" href="#preventing-multiple-logins-pre-measure">9.4.2.6.2. Preventing multiple logins (Pre-measure)</a></li>
+<li><a class="reference internal" href="#preventing-multiple-logins-post-measure">9.4.2.6.3. Preventing multiple logins (Post-measure)</a></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+
+
+  <h4>Previous topic</h4>
+  <p class="topless"><a href="Authorization.html"
+                        title="previous chapter">9.3. Authorization</a></p>
+  <h4>Next topic</h4>
+  <p class="topless"><a href="CSRF.html"
+                        title="next chapter">9.5. CSRF Countermeasures</a></p>
+  <div role="note" aria-label="source link">
+    <h3>This Page</h3>
+    <ul class="this-page-menu">
+      <li><a href="../_sources/Security/SessionManagement.rst.txt"
+            rel="nofollow">Show Source</a></li>
+    </ul>
+   </div>
+<div id="searchbox" style="display: none" role="search">
+  <h3>Quick search</h3>
+    <form class="search" action="../search.html" method="get">
+      <div><input type="text" name="q" /></div>
+      <div><input type="submit" value="Go" /></div>
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <div class="section" id="session-management">
+<span id="springsecuritysessionmanagement"></span><h1>9.4. Session Management<a class="headerlink" href="#session-management" title="Permalink to this headline">¶</a></h1>
+<div class="contents local topic" id="table-of-contents">
+<p class="topic-title first">Table of contents</p>
+<ul class="simple">
+<li><a class="reference internal" href="#overview" id="id8">Overview</a><ul>
+<li><a class="reference internal" href="#security-measures-at-the-time-of-using-a-session" id="id9">Security measures at the time of using a session</a><ul>
+<li><a class="reference internal" href="#countermeasures-for-session-hijacking-attacks" id="id10">Countermeasures for session hijacking attacks</a></li>
+<li><a class="reference internal" href="#countermeasures-for-session-fixation-attack" id="id11">Countermeasures for Session fixation attack</a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#session-management-function-provided-by-spring-security" id="id12">Session management function provided by Spring Security</a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#how-to-use" id="id13">How to use</a><ul>
+<li><a class="reference internal" href="#id1" id="id14">Countermeasures for Session hijacking attacks</a><ul>
+<li><a class="reference internal" href="#disabling-url-rewriting-function-by-spring-security" id="id15">Disabling URL Rewriting function by Spring Security</a></li>
+<li><a class="reference internal" href="#disabling-url-rewriting-function-by-servlet-container" id="id16">Disabling URL Rewriting function by Servlet Container</a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#applying-session-management-function" id="id17">Applying Session management function</a></li>
+<li><a class="reference internal" href="#id2" id="id18">Countermeasures for Session fixation attack</a></li>
+<li><a class="reference internal" href="#controlling-session-lifecycle" id="id19">Controlling session lifecycle</a><ul>
+<li><a class="reference internal" href="#generating-a-session" id="id20">Generating a session</a></li>
+<li><a class="reference internal" href="#discarding-a-session" id="id21">Discarding a session</a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#controlling-session-timeout" id="id22">Controlling session timeout</a><ul>
+<li><a class="reference internal" href="#specifying-session-timeout" id="id23">Specifying session timeout</a></li>
+<li><a class="reference internal" href="#detection-of-request-with-invalid-session" id="id24">Detection of request with invalid session</a></li>
+<li><a class="reference internal" href="#specifying-exclusion-path" id="id25">Specifying Exclusion path</a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#controlling-multiple-logins" id="id26">Controlling multiple logins</a><ul>
+<li><a class="reference internal" href="#enabling-session-lifecycle-detection" id="id27">Enabling session lifecycle detection</a></li>
+<li><a class="reference internal" href="#preventing-multiple-logins-pre-measure" id="id28">Preventing multiple logins (Pre-measure)</a></li>
+<li><a class="reference internal" href="#preventing-multiple-logins-post-measure" id="id29">Preventing multiple logins (Post-measure)</a></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+</div>
+<div class="section" id="overview">
+<h2><a class="toc-backref" href="#id8">9.4.1. Overview</a><a class="headerlink" href="#overview" title="Permalink to this headline">¶</a></h2>
+<p>This chapter explains the “Security measures required for session management in Web applications” and “Session related functions provided by Spring Security”.</p>
+<div class="section" id="security-measures-at-the-time-of-using-a-session">
+<span id="springsecuritysessionmanagementsecuritymeasure"></span><h3><a class="toc-backref" href="#id9">9.4.1.1. Security measures at the time of using a session</a><a class="headerlink" href="#security-measures-at-the-time-of-using-a-session" title="Permalink to this headline">¶</a></h3>
+<p>Generally, countermeasures are required for the following attacks for session management in Web application.</p>
+<table border="1" class="colwidths-given docutils">
+<colgroup>
+<col width="30%" />
+<col width="70%" />
+</colgroup>
+<thead valign="bottom">
+<tr class="row-odd"><th class="head">Countermeasure</th>
+<th class="head">Description</th>
+</tr>
+</thead>
+<tbody valign="top">
+<tr class="row-even"><td><div class="first last line-block">
+<div class="line">Session hijacking attack</div>
+</div>
+</td>
+<td><div class="first last line-block">
+<div class="line">An attack wherein the session ID is stolen using communication eavesdropping, analogy from the regularity and cross-site scripting and using the system with stolen ID by pretending to be the user.</div>
+</div>
+</td>
+</tr>
+<tr class="row-odd"><td><div class="first last line-block">
+<div class="line">Session fixation attack</div>
+</div>
+</td>
+<td><div class="first last line-block">
+<div class="line">The attacker allows the other user to log in to the system by using the previously issued session ID. The attacker uses the system by pretending to be the logged in user.</div>
+</div>
+</td>
+</tr>
+</tbody>
+</table>
+<div class="section" id="countermeasures-for-session-hijacking-attacks">
+<h4><a class="toc-backref" href="#id10">9.4.1.1.1. Countermeasures for session hijacking attacks</a><a class="headerlink" href="#countermeasures-for-session-hijacking-attacks" title="Permalink to this headline">¶</a></h4>
+<p>Countermeasures for session hijacking attacks enable you to only prevent the session ID from being stolen.
+If it is stolen, application server cannot determine
+whether the request is from an authorized user or from the attacker.</p>
+<p>Following countermeasures are necessary to protect the application from such session hijacking attacks.</p>
+<table border="1" class="colwidths-given docutils" id="id3">
+<caption><span class="caption-text"><strong>Countermeasures for session hijacking attacks</strong></span><a class="headerlink" href="#id3" title="Permalink to this table">¶</a></caption>
+<colgroup>
+<col width="30%" />
+<col width="70%" />
+</colgroup>
+<thead valign="bottom">
+<tr class="row-odd"><th class="head">Countermeasures</th>
+<th class="head">Description</th>
+</tr>
+</thead>
+<tbody valign="top">
+<tr class="row-even"><td><div class="first last line-block">
+<div class="line">Create a session ID that is difficult to presume.</div>
+</div>
+</td>
+<td><div class="first last line-block">
+<div class="line">Use a random value for Session ID that is difficult to presume (Secure) instead of a value such as sequential number that can be easily cracked.</div>
+<div class="line">Basically, the mechanism provided by the application server to create session ID should be used.</div>
+</div>
+</td>
+</tr>
+<tr class="row-odd"><td><div class="first last line-block">
+<div class="line">Encrypt communication using HTTPS</div>
+</div>
+</td>
+<td><div class="first last line-block">
+<div class="line">Encrypt the communication with HTTPS protocol that includes exchange of information which can cause a lot of trouble when stolen.</div>
+<div class="line">Since communication eavesdropping can be done easily by using a free software etc., it is important to keep it encrypted to prevent it from being decrypted even if it is eavesdropped.</div>
+</div>
+</td>
+</tr>
+<tr class="row-even"><td><div class="first last line-block">
+<div class="line">Link Session ID using a Cookie</div>
+</div>
+</td>
+<td><div class="first last line-block">
+<div class="line">While linking the session ID between client and server, set it to be linked by using a Cookie and disable the URL Rewriting function.</div>
+</div>
+</td>
+</tr>
+<tr class="row-odd"><td><div class="first last line-block">
+<div class="line">Specify <code class="docutils literal"><span class="pre">HttpOnly</span></code> attribute of Cookie</div>
+</div>
+</td>
+<td><div class="first last line-block">
+<div class="line">If you specify `` HttpOnly`` attribute of Cookie, session ID  cannot be stolen using cross site scripting since Cookie cannot be accessed from JavaScript.</div>
+</div>
+</td>
+</tr>
+<tr class="row-even"><td><div class="first last line-block">
+<div class="line">Specify <code class="docutils literal"><span class="pre">Secure</span></code> attribute in Cookie</div>
+</div>
+</td>
+<td><div class="first last line-block">
+<div class="line">If you specify `` Secure`` attribute in Cookie, the risk of session ID getting stolen when you accidentally use HTTP communication is reduced since Cookie is sent to the server only during HTTPS communication.</div>
+</div>
+</td>
+</tr>
+</tbody>
+</table>
+<div class="admonition note">
+<p class="first admonition-title">Note</p>
+<p><strong>URL Rewriting</strong></p>
+<p>URL Rewriting is a mechanism to retain the session with the client that cannot use Cookie.
+Particularly, the Session ID between client and server is linked by including Session ID as a request parameter of the URL.</p>
+<ul>
+<li><p class="first">Example of URL Rewriting</p>
+<blockquote>
+<div><div class="highlight-text"><div class="highlight"><pre><span></span>http://localhost:8080/;jsessionid=7E6EDE4D3317FC5F14FD912BEAC96646
+</pre></div>
+</div>
+</div></blockquote>
+</li>
+</ul>
+<p><code class="docutils literal"><span class="pre">jsessionid=7E6EDE4D3317FC5F14FD912BEAC96646</span></code> is a part of Session ID for which URL Rewriting is done.
+In the Servlet API specifications, URL rewriting is likely to be done when the following methods are called. These methods are also called in the JSP tag library provided by JSTL and Spring.</p>
+<ul class="last simple">
+<li><code class="docutils literal"><span class="pre">HttpServletResponse#encodeURL(String)</span></code></li>
+<li><code class="docutils literal"><span class="pre">HttpServletResponse#encodeRedirectURL(String)</span></code></li>
+</ul>
+</div>
+<p>If URL Rewriting is done, session ID in the URL is exposed resulting in higher risk of session ID being stolen.
+Therefore, it is recommended to disable the URL Rewriting function of Servlet container while supporting only the clients that can use the Cookie.</p>
+<div class="line-block">
+<div class="line"><br /></div>
+</div>
+</div>
+<div class="section" id="countermeasures-for-session-fixation-attack">
+<h4><a class="toc-backref" href="#id11">9.4.1.1.2. Countermeasures for Session fixation attack</a><a class="headerlink" href="#countermeasures-for-session-fixation-attack" title="Permalink to this headline">¶</a></h4>
+<p>Following countermeasures are necessary to protect the application from Session fixation attack.</p>
+<table border="1" class="colwidths-given docutils" id="id4">
+<caption><span class="caption-text"><strong>Countermeasures for Session fixation attack</strong></span><a class="headerlink" href="#id4" title="Permalink to this table">¶</a></caption>
+<colgroup>
+<col width="30%" />
+<col width="70%" />
+</colgroup>
+<thead valign="bottom">
+<tr class="row-odd"><th class="head">Countermeasure</th>
+<th class="head">Description</th>
+</tr>
+</thead>
+<tbody valign="top">
+<tr class="row-even"><td><div class="first last line-block">
+<div class="line">Disable URL Rewriting function.</div>
+</div>
+</td>
+<td><div class="first last line-block">
+<div class="line">If URL Rewriting function is disabled, session ID issued previously cannot be used by the attacker and a new session is started.</div>
+</div>
+</td>
+</tr>
+<tr class="row-odd"><td><div class="first last line-block">
+<div class="line">Change session ID after login</div>
+</div>
+</td>
+<td><div class="first last line-block">
+<div class="line">By changing the session ID after login, the session ID issued previously cannot be used by the attacker.</div>
+</div>
+</td>
+</tr>
+</tbody>
+</table>
+<div class="line-block">
+<div class="line"><br /></div>
+</div>
+</div>
+</div>
+<div class="section" id="session-management-function-provided-by-spring-security">
+<h3><a class="toc-backref" href="#id12">9.4.1.2. Session management function provided by Spring Security</a><a class="headerlink" href="#session-management-function-provided-by-spring-security" title="Permalink to this headline">¶</a></h3>
+<p>Following functions related to session are mainly provided in Spring Security.</p>
+<table border="1" class="colwidths-given docutils" id="id5">
+<caption><span class="caption-text"><strong>Session related functions</strong></span><a class="headerlink" href="#id5" title="Permalink to this table">¶</a></caption>
+<colgroup>
+<col width="25%" />
+<col width="75%" />
+</colgroup>
+<thead valign="bottom">
+<tr class="row-odd"><th class="head">Function</th>
+<th class="head">Description</th>
+</tr>
+</thead>
+<tbody valign="top">
+<tr class="row-even"><td><div class="first last line-block">
+<div class="line">Security measures</div>
+</div>
+</td>
+<td><div class="first last line-block">
+<div class="line">Countermeasures for attacks using session ID of session hijacking attacks.</div>
+</div>
+</td>
+</tr>
+<tr class="row-odd"><td><div class="first last line-block">
+<div class="line">Lifecycle control</div>
+</div>
+</td>
+<td><div class="first last line-block">
+<div class="line">Function to control the lifecycle of the session from generation to discard of a session.</div>
+</div>
+</td>
+</tr>
+<tr class="row-even"><td><div class="first last line-block">
+<div class="line">Timeout control</div>
+</div>
+</td>
+<td><div class="first last line-block">
+<div class="line">Function to discard a session due to timeout.</div>
+</div>
+</td>
+</tr>
+<tr class="row-odd"><td><div class="first last line-block">
+<div class="line">Multiple login control</div>
+</div>
+</td>
+<td><div class="first last line-block">
+<div class="line">Function to control a session if the same user logs in for multiple times.</div>
+</div>
+</td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
+<div class="section" id="how-to-use">
+<span id="authentication-spring-security-how-to-use-sessionmanagement"></span><h2><a class="toc-backref" href="#id13">9.4.2. How to use</a><a class="headerlink" href="#how-to-use" title="Permalink to this headline">¶</a></h2>
+<div class="section" id="id1">
+<h3><a class="toc-backref" href="#id14">9.4.2.1. Countermeasures for Session hijacking attacks</a><a class="headerlink" href="#id1" title="Permalink to this headline">¶</a></h3>
+<p>The method to disable a URL rewriting function and link session ID using a Cookie is explained.</p>
+<div class="section" id="disabling-url-rewriting-function-by-spring-security">
+<h4><a class="toc-backref" href="#id15">9.4.2.1.1. Disabling URL Rewriting function by Spring Security</a><a class="headerlink" href="#disabling-url-rewriting-function-by-spring-security" title="Permalink to this headline">¶</a></h4>
+<p>Spring Security provides a mechanism to disable URL Rewriting and this function is applied by default.
+When it is necessary to support the clients who cannot use a Cookie, a Bean is defined so as to authorize URL rewriting.</p>
+<ul class="simple">
+<li>Definition example of spring-security.xml</li>
+</ul>
+<div class="highlight-xml"><div class="highlight"><pre><span></span><span class="nt">&lt;sec:http</span> <span class="na">disable-url-rewriting=</span><span class="s">&quot;false&quot;</span><span class="nt">&gt;</span> <span class="c">&lt;!-- Enable URL Rewriting by specifying &#39;false&#39; --&gt;</span>
+</pre></div>
+</div>
+<table border="1" class="colwidths-given docutils">
+<colgroup>
+<col width="10%" />
+<col width="90%" />
+</colgroup>
+<thead valign="bottom">
+<tr class="row-odd"><th class="head">Sr. No.</th>
+<th class="head">Description</th>
+</tr>
+</thead>
+<tbody valign="top">
+<tr class="row-even"><td><div class="first last line-block">
+<div class="line">(1)</div>
+</div>
+</td>
+<td><div class="first last line-block">
+<div class="line">In Spring Security, since the value of `` disable-url-rewriting``  is `` true``  by default, URL Rewriting is not performed.</div>
+<div class="line">Set <code class="docutils literal"><span class="pre">false</span></code> in <code class="docutils literal"><span class="pre">disable-url-rewriting</span></code> attribute of <code class="docutils literal"><span class="pre">&lt;sec:http&gt;</span></code> element to enable URL Rewriting.</div>
+</div>
+</td>
+</tr>
+</tbody>
+</table>
+</div>
+<div class="section" id="disabling-url-rewriting-function-by-servlet-container">
+<h4><a class="toc-backref" href="#id16">9.4.2.1.2. Disabling URL Rewriting function by Servlet Container</a><a class="headerlink" href="#disabling-url-rewriting-function-by-servlet-container" title="Permalink to this headline">¶</a></h4>
+<p>A session can be managed securely using the standard specifications of Servlet.</p>
+<ul class="simple">
+<li>Definition example of web.xml</li>
+</ul>
+<div class="highlight-xml"><div class="highlight"><pre><span></span><span class="nt">&lt;session-config&gt;</span>
+    <span class="nt">&lt;cookie-config&gt;</span>
+        <span class="nt">&lt;http-only&gt;</span>true<span class="nt">&lt;/http-only&gt;</span> <span class="c">&lt;!-- (1)  --&gt;</span>
+    <span class="nt">&lt;/cookie-config&gt;</span>
+    <span class="nt">&lt;tracking-mode&gt;</span>COOKIE<span class="nt">&lt;/tracking-mode&gt;</span> <span class="c">&lt;!-- (2) --&gt;</span>
+<span class="nt">&lt;/session-config&gt;</span>
+</pre></div>
+</div>
+<table border="1" class="colwidths-given docutils">
+<colgroup>
+<col width="10%" />
+<col width="90%" />
+</colgroup>
+<thead valign="bottom">
+<tr class="row-odd"><th class="head">Sr. No.</th>
+<th class="head">Description</th>
+</tr>
+</thead>
+<tbody valign="top">
+<tr class="row-even"><td><div class="first last line-block">
+<div class="line">(1)</div>
+</div>
+</td>
+<td><div class="first last line-block">
+<div class="line">Specify <code class="docutils literal"><span class="pre">true</span></code> in <code class="docutils literal"><span class="pre">&lt;http-only&gt;</span></code> element while assigning <code class="docutils literal"><span class="pre">HttpOnly</span></code> attribute in Cookie.</div>
+<div class="line">Default value is set to `` true``  based on the application server used.</div>
+</div>
+</td>
+</tr>
+<tr class="row-odd"><td><div class="first last line-block">
+<div class="line">(3)</div>
+</div>
+</td>
+<td><div class="first last line-block">
+<div class="line">Specify <code class="docutils literal"><span class="pre">COOKIE</span></code> in <code class="docutils literal"><span class="pre">&lt;tracking-mode&gt;</span></code> element to disable the URL Rewriting function.</div>
+</div>
+</td>
+</tr>
+</tbody>
+</table>
+<p>Although it is omitted from the definition example mentioned above, <code class="docutils literal"><span class="pre">Secure</span></code> attribute can be assigned for the Cookie by adding <code class="docutils literal"><span class="pre">&lt;secure&gt;true&lt;/secure&gt;</span></code> in <code class="docutils literal"><span class="pre">&lt;cookie-config&gt;</span></code>.
+However, to secure the cookie, the method wherein a middleware (SSL accelerators and Web server etc.) that performs HTTPS communication with the client is assigned, is used instead of specifying in `` web.xml`` .</p>
+<p>In actual system development, HTTPS is used very rarely in the local development environment.
+Also, even in the production environment, HTTPS is used for SSL accelerators and communication with Web server and there are many cases where communication with application server is carried out using HTTP.
+If `` Secure``  attribute is specified in `` web.xml``  under such environment, <code class="docutils literal"><span class="pre">web.xml</span></code> and <code class="docutils literal"><span class="pre">web-fragment.xml</span></code> will be provided for each execution environment. It is not recommended since file management becomes complicated.</p>
+</div>
+</div>
+<div class="section" id="applying-session-management-function">
+<span id="springsecuritysessionmanagementsetup"></span><h3><a class="toc-backref" href="#id17">9.4.2.2. Applying Session management function</a><a class="headerlink" href="#applying-session-management-function" title="Permalink to this headline">¶</a></h3>
+<p>A method to use session management function of Spring Security is explained.
+Define a bean as shown below to use the session management function process of Spring Security.</p>
+<ul class="simple">
+<li>Definition example of spring-security.xml</li>
+</ul>
+<div class="highlight-xml"><div class="highlight"><pre><span></span><span class="nt">&lt;sec:http&gt;</span>
+    <span class="c">&lt;!-- omitted --&gt;</span>
+    <span class="nt">&lt;sec:session-management</span> <span class="nt">/&gt;</span> <span class="c">&lt;!-- (1) --&gt;</span>
+    <span class="c">&lt;!-- omitted --&gt;</span>
+<span class="nt">&lt;/sec:http&gt;</span>
+</pre></div>
+</div>
+<table border="1" class="colwidths-given docutils">
+<colgroup>
+<col width="10%" />
+<col width="90%" />
+</colgroup>
+<thead valign="bottom">
+<tr class="row-odd"><th class="head">Sr. No.</th>
+<th class="head">Description</th>
+</tr>
+</thead>
+<tbody valign="top">
+<tr class="row-even"><td><div class="first last line-block">
+<div class="line">(1)</div>
+</div>
+</td>
+<td><div class="first last line-block">
+<div class="line">Specify <code class="docutils literal"><span class="pre">&lt;sec:session-management&gt;</span></code> element as the child element of <code class="docutils literal"><span class="pre">&lt;sec:http&gt;</span></code> element.</div>
+<div class="line">Session management function is applied when <code class="docutils literal"><span class="pre">&lt;sec:session-management&gt;</span></code> element is specified.</div>
+</div>
+</td>
+</tr>
+</tbody>
+</table>
+<div class="line-block">
+<div class="line"><br /></div>
+</div>
+</div>
+<div class="section" id="id2">
+<h3><a class="toc-backref" href="#id18">9.4.2.3. Countermeasures for Session fixation attack</a><a class="headerlink" href="#id2" title="Permalink to this headline">¶</a></h3>
+<p>Spring Security provides the following four options to change the session ID when login is successful, as the countermeasures against session fixation attack.</p>
+<table border="1" class="colwidths-given docutils" id="id6">
+<caption><span class="caption-text"><strong>Options for Session fixation attack countermeasures</strong></span><a class="headerlink" href="#id6" title="Permalink to this table">¶</a></caption>
+<colgroup>
+<col width="30%" />
+<col width="70%" />
+</colgroup>
+<thead valign="bottom">
+<tr class="row-odd"><th class="head">Options</th>
+<th class="head">Description</th>
+</tr>
+</thead>
+<tbody valign="top">
+<tr class="row-even"><td><div class="first last line-block">
+<div class="line"><code class="docutils literal"><span class="pre">changeSessionId</span></code></div>
+</div>
+</td>
+<td><div class="first last line-block">
+<div class="line">Change the session ID using <code class="docutils literal"><span class="pre">HttpServletRequest#changeSessionId()</span></code> added in Servlet 3.1.</div>
+<div class="line">(This is the default operation from Servlet 3.1 container onwards)</div>
+</div>
+</td>
+</tr>
+<tr class="row-odd"><td><div class="first last line-block">
+<div class="line"><code class="docutils literal"><span class="pre">migrateSession</span></code></div>
+</div>
+</td>
+<td><div class="first last line-block">
+<div class="line">Discard the session that was used before login and create a new session.</div>
+<div class="line">The objects stored in the session before login are transferred to the new session when this option is used.</div>
+<div class="line">(This is the default operation in Servlet 3.0 container and earlier versions)</div>
+</div>
+</td>
+</tr>
+<tr class="row-even"><td><div class="first last line-block">
+<div class="line"><code class="docutils literal"><span class="pre">newSession</span></code></div>
+</div>
+</td>
+<td><div class="first last line-block">
+<div class="line">This option changes the session ID in the same way as `` migrateSession`` , however, the objects stored before login are not transferred to the new session.</div>
+</div>
+</td>
+</tr>
+<tr class="row-odd"><td><div class="first last line-block">
+<div class="line"><code class="docutils literal"><span class="pre">none</span></code></div>
+</div>
+</td>
+<td><div class="first last line-block">
+<div class="line">Spring Security does not change the session ID.</div>
+</div>
+</td>
+</tr>
+</tbody>
+</table>
+<p>Define a bean as shown below to change the default operation.</p>
+<ul class="simple">
+<li>Definition example of spring-security.xml</li>
+</ul>
+<div class="highlight-xml"><div class="highlight"><pre><span></span><span class="nt">&lt;sec:session-management</span>
+        <span class="na">session-fixation-protection=</span><span class="s">&quot;newSession&quot;</span><span class="nt">/&gt;</span> <span class="c">&lt;!-- (1) --&gt;</span>
+</pre></div>
+</div>
+<table border="1" class="colwidths-given docutils">
+<colgroup>
+<col width="10%" />
+<col width="90%" />
+</colgroup>
+<thead valign="bottom">
+<tr class="row-odd"><th class="head">Sr. No.</th>
+<th class="head">Description</th>
+</tr>
+</thead>
+<tbody valign="top">
+<tr class="row-even"><td><div class="first last line-block">
+<div class="line">(1)</div>
+</div>
+</td>
+<td><div class="first last line-block">
+<div class="line">Specify the countermeasures for session fixation attack in <code class="docutils literal"><span class="pre">session-fixation-protection</span></code> attribute of <code class="docutils literal"><span class="pre">&lt;sec:session-management&gt;</span></code> element.</div>
+</div>
+</td>
+</tr>
+</tbody>
+</table>
+</div>
+<div class="section" id="controlling-session-lifecycle">
+<span id="springsecuritysessionmanagementlifecycle"></span><h3><a class="toc-backref" href="#id19">9.4.2.4. Controlling session lifecycle</a><a class="headerlink" href="#controlling-session-lifecycle" title="Permalink to this headline">¶</a></h3>
+<p>Spring Security uses HTTP session for sharing objects such as authentication information across requests. The lifecycle of the session (Generating and discarding a session) is controlled in the Spring Security process.</p>
+<div class="admonition note">
+<p class="first admonition-title">Note</p>
+<p><strong>Session information storage destination</strong></p>
+<p class="last">HTTP session is used in the default implementation provided by Spring Security, however, the architecture also enables storing the objects in other than HTTP session (Database and key-value store etc.).</p>
+</div>
+<div class="section" id="generating-a-session">
+<h4><a class="toc-backref" href="#id20">9.4.2.4.1. Generating a session</a><a class="headerlink" href="#generating-a-session" title="Permalink to this headline">¶</a></h4>
+<p>The guidelines by which a session can be generated and used in the Spring Security process can be selected from the following options.</p>
+<table border="1" class="colwidths-given docutils" id="id7">
+<caption><span class="caption-text"><strong>Guidelines to generate a session</strong></span><a class="headerlink" href="#id7" title="Permalink to this table">¶</a></caption>
+<colgroup>
+<col width="25%" />
+<col width="75%" />
+</colgroup>
+<thead valign="bottom">
+<tr class="row-odd"><th class="head">Option</th>
+<th class="head">Description</th>
+</tr>
+</thead>
+<tbody valign="top">
+<tr class="row-even"><td><div class="first last line-block">
+<div class="line"><code class="docutils literal"><span class="pre">always</span></code></div>
+</div>
+</td>
+<td><div class="first last line-block">
+<div class="line">Generate a new session when the session does not exist.</div>
+<div class="line">If this option is specified, the session is generated even though it is not used in the Spring Security process.</div>
+</div>
+</td>
+</tr>
+<tr class="row-odd"><td><div class="first last line-block">
+<div class="line"><code class="docutils literal"><span class="pre">ifRequired</span></code></div>
+</div>
+</td>
+<td><div class="first last line-block">
+<div class="line">Generate and use a new session at the time of storing object in the session when the session does not exist.(Default operation)</div>
+</div>
+</td>
+</tr>
+<tr class="row-even"><td><div class="first last line-block">
+<div class="line"><code class="docutils literal"><span class="pre">never</span></code></div>
+</div>
+</td>
+<td><div class="first last line-block">
+<div class="line">If the session does not exist, session is not generated and used.</div>
+<div class="line">However, use the session if it already exists.</div>
+</div>
+</td>
+</tr>
+<tr class="row-odd"><td><div class="first last line-block">
+<div class="line"><code class="docutils literal"><span class="pre">stateless</span></code></div>
+</div>
+</td>
+<td><div class="first last line-block">
+<div class="line">Session is not generated and used irrespective of whether it exists.</div>
+</div>
+</td>
+</tr>
+</tbody>
+</table>
+<p>Define a bean as shown below to change the default behaviour.</p>
+<ul class="simple">
+<li>Definition example of spring-security.xml</li>
+</ul>
+<div class="highlight-xml"><div class="highlight"><pre><span></span><span class="nt">&lt;sec:http</span> <span class="na">create-session=</span><span class="s">&quot;stateless&quot;</span><span class="nt">&gt;</span> <span class="c">&lt;!-- (1) --&gt;</span>
+    <span class="c">&lt;!-- omitted --&gt;</span>
+<span class="nt">&lt;/sec:http&gt;</span>
+</pre></div>
+</div>
+<table border="1" class="colwidths-given docutils">
+<colgroup>
+<col width="10%" />
+<col width="90%" />
+</colgroup>
+<thead valign="bottom">
+<tr class="row-odd"><th class="head">Sr. No.</th>
+<th class="head">Description</th>
+</tr>
+</thead>
+<tbody valign="top">
+<tr class="row-even"><td><div class="first last line-block">
+<div class="line">(1)</div>
+</div>
+</td>
+<td><div class="first last line-block">
+<div class="line">Specify creation guidelines for the session to be changed in <code class="docutils literal"><span class="pre">create-session</span></code> attribute of <code class="docutils literal"><span class="pre">&lt;sec:http&gt;</span></code> element.</div>
+</div>
+</td>
+</tr>
+</tbody>
+</table>
+</div>
+<div class="section" id="discarding-a-session">
+<h4><a class="toc-backref" href="#id21">9.4.2.4.2. Discarding a session</a><a class="headerlink" href="#discarding-a-session" title="Permalink to this headline">¶</a></h4>
+<p>Spring Security discards the session at the following timings.</p>
+<ul class="simple">
+<li>When logout process is executed</li>
+<li>When authentication process is successful (Session is discarded if <code class="docutils literal"><span class="pre">migrateSession</span></code> or <code class="docutils literal"><span class="pre">newSession</span></code> is used as the countermeasure for Session fixation attack)</li>
+</ul>
+</div>
+</div>
+<div class="section" id="controlling-session-timeout">
+<span id="springsecuritysessionmanagementtimeout"></span><h3><a class="toc-backref" href="#id22">9.4.2.5. Controlling session timeout</a><a class="headerlink" href="#controlling-session-timeout" title="Permalink to this headline">¶</a></h3>
+<p>When an object is to be stored in the session, it is a common practice to ensure that session of the user who is idle for a certain period of time is automatically discarded by specifying an appropriate session time-out value.</p>
+<div class="section" id="specifying-session-timeout">
+<h4><a class="toc-backref" href="#id23">9.4.2.5.1. Specifying session timeout</a><a class="headerlink" href="#specifying-session-timeout" title="Permalink to this headline">¶</a></h4>
+<p>Specify session timeout for Servlet container.
+In some cases, the specification method independent of server may be provided depending on the application server, however, the specification methods stated in Servlet standard specifications are described here.</p>
+<ul class="simple">
+<li>Definition example of web.xml</li>
+</ul>
+<div class="highlight-xml"><div class="highlight"><pre><span></span><span class="nt">&lt;session-config&gt;</span>
+    <span class="nt">&lt;session-timeout&gt;</span>60<span class="nt">&lt;/session-timeout&gt;</span> <span class="c">&lt;!-- (1) --&gt;</span>
+    <span class="c">&lt;!-- omitted --&gt;</span>
+<span class="nt">&lt;/session-config&gt;</span>
+</pre></div>
+</div>
+<table border="1" class="colwidths-given docutils">
+<colgroup>
+<col width="10%" />
+<col width="90%" />
+</colgroup>
+<thead valign="bottom">
+<tr class="row-odd"><th class="head">Sr. No.</th>
+<th class="head">Description</th>
+</tr>
+</thead>
+<tbody valign="top">
+<tr class="row-even"><td><div class="first last line-block">
+<div class="line">(1)</div>
+</div>
+</td>
+<td><div class="first last line-block">
+<div class="line">Specify an appropriate timeout value (in minutes) in <code class="docutils literal"><span class="pre">&lt;session-timeout&gt;</span></code> element.</div>
+<div class="line-block">
+<div class="line">If a timeout value is not specified, the default value provided by Servlet Container is used.</div>
+</div>
+<div class="line">Also, if a value of 0 or less than 0 is specified, the session timeout function of Servlet container is disabled.</div>
+</div>
+</td>
+</tr>
+</tbody>
+</table>
+</div>
+<div class="section" id="detection-of-request-with-invalid-session">
+<span id="springsecuritysessiondetectinvalidsession"></span><h4><a class="toc-backref" href="#id24">9.4.2.5.2. Detection of request with invalid session</a><a class="headerlink" href="#detection-of-request-with-invalid-session" title="Permalink to this headline">¶</a></h4>
+<p>Spring Security provides a function to detect a request with an invalid session.
+Most of the requests handled as invalid sessions are requests after session timeout.
+By default, this functionality is disabled, however, it can be enabled by defining a bean as shown below.</p>
+<ul class="simple">
+<li>Definition example of spring-security.xml</li>
+</ul>
+<div class="highlight-xml"><div class="highlight"><pre><span></span><span class="nt">&lt;sec:session-management</span>
+        <span class="na">invalid-session-url=</span><span class="s">&quot;/error/invalidSession&quot;</span><span class="nt">/&gt;</span>
+</pre></div>
+</div>
+<table border="1" class="colwidths-given docutils">
+<colgroup>
+<col width="10%" />
+<col width="90%" />
+</colgroup>
+<thead valign="bottom">
+<tr class="row-odd"><th class="head">Sr. No.</th>
+<th class="head">Description</th>
+</tr>
+</thead>
+<tbody valign="top">
+<tr class="row-even"><td><div class="first last line-block">
+<div class="line">(1)</div>
+</div>
+</td>
+<td><div class="first last line-block">
+<div class="line">Specify the path for redirect destination when a request with invalid session is detected in <code class="docutils literal"><span class="pre">invalid-session-url</span></code> attribute of <code class="docutils literal"><span class="pre">&lt;sec:session-management&gt;</span></code> element.</div>
+</div>
+</td>
+</tr>
+</tbody>
+</table>
+</div>
+<div class="section" id="specifying-exclusion-path">
+<h4><a class="toc-backref" href="#id25">9.4.2.5.3. Specifying Exclusion path</a><a class="headerlink" href="#specifying-exclusion-path" title="Permalink to this headline">¶</a></h4>
+<p>If the function to detect a request with invalid session is enabled, all the requests that pass through Servlet filter of Spring Security are checked.
+Therefore, check is performed even for pages that can be accessed when session is in invalid state.</p>
+<p>This operation can be changed by defining a separate bean for the path to be excluded from the check target.
+For example, a bean is defined as shown below to specify the path to open the top page (“<code class="docutils literal"><span class="pre">/</span></code>” ) in the exclusion path.</p>
+<ul class="simple">
+<li>Definition example of spring-security.xml</li>
+</ul>
+<div class="highlight-xml"><div class="highlight"><pre><span></span><span class="c">&lt;!-- (1) --&gt;</span>
+<span class="nt">&lt;sec:http</span> <span class="na">pattern=</span><span class="s">&quot;/&quot;</span><span class="nt">&gt;</span> <span class="c">&lt;!-- (2) --&gt;</span>
+    <span class="nt">&lt;sec:session-management</span> <span class="nt">/&gt;</span>
+<span class="nt">&lt;/sec:http&gt;</span>
+
+<span class="c">&lt;!-- (3) --&gt;</span>
+<span class="nt">&lt;sec:http&gt;</span>
+    <span class="c">&lt;!-- omitted --&gt;</span>
+    <span class="nt">&lt;sec:session-management</span>
+            <span class="na">invalid-session-url=</span><span class="s">&quot;/error/invalidSession&quot;</span><span class="nt">/&gt;</span>
+    <span class="c">&lt;!-- omitted --&gt;</span>
+<span class="nt">&lt;/sec:http&gt;</span>
+</pre></div>
+</div>
+<table border="1" class="colwidths-given docutils">
+<colgroup>
+<col width="10%" />
+<col width="90%" />
+</colgroup>
+<thead valign="bottom">
+<tr class="row-odd"><th class="head">Sr. No.</th>
+<th class="head">Description</th>
+</tr>
+</thead>
+<tbody valign="top">
+<tr class="row-even"><td><div class="first last line-block">
+<div class="line">(1)</div>
+</div>
+</td>
+<td><div class="first last line-block">
+<div class="line">Add new element <code class="docutils literal"><span class="pre">&lt;sec:http&gt;</span></code> element to create <code class="docutils literal"><span class="pre">SecurityFilterChain</span></code> which is to be applied to (“<code class="docutils literal"><span class="pre">/</span></code>” ) path to open the top page.</div>
+</div>
+</td>
+</tr>
+<tr class="row-odd"><td><div class="first last line-block">
+<div class="line">(2)</div>
+</div>
+</td>
+<td><div class="first last line-block">
+<div class="line">Specify the path pattern to apply <code class="docutils literal"><span class="pre">SecurityFilterChain</span></code> created using <code class="docutils literal"><span class="pre">&lt;sec:http&gt;</span></code> element of (1).</div>
+<div class="line">Ant-style path notation and regular expression are the two formats that can be specified for the path pattern. By default, it is handled as Ant-style path pattern.</div>
+<div class="line">Note that, it is also possible to directly specify `` RequestMatcher``  object without the path pattern.</div>
+</div>
+</td>
+</tr>
+<tr class="row-even"><td><div class="first last line-block">
+<div class="line">(3)</div>
+</div>
+</td>
+<td><div class="first last line-block">
+<div class="line">Define <code class="docutils literal"><span class="pre">&lt;sec:http&gt;</span></code> element to create <code class="docutils literal"><span class="pre">SecurityFilterChain</span></code> to be applied to a path that is not defined separately.</div>
+<div class="line">It should be defined below the <code class="docutils literal"><span class="pre">&lt;sec:http&gt;</span></code> element for separate definition.</div>
+<div class="line">This is because definition sequence of <code class="docutils literal"><span class="pre">&lt;sec:http&gt;</span></code> element is the priority sequence of <code class="docutils literal"><span class="pre">SecurityFilterChain</span></code>.</div>
+</div>
+</td>
+</tr>
+</tbody>
+</table>
+<div class="line-block">
+<div class="line"><br /></div>
+</div>
+</div>
+</div>
+<div class="section" id="controlling-multiple-logins">
+<span id="springsecuritysessionmanagementconcurrency"></span><h3><a class="toc-backref" href="#id26">9.4.2.6. Controlling multiple logins</a><a class="headerlink" href="#controlling-multiple-logins" title="Permalink to this headline">¶</a></h3>
+<p>Spring Security provides a function to control multiple logins using the same user name (login ID).
+By default this function is disabled. However, it can be enabled by using <a class="reference internal" href="#springsecurityhowtousesessionmanagementconcurrency"><span class="std std-ref">Enabling session lifecycle detection</span></a>.</p>
+<div class="admonition warning">
+<p class="first admonition-title">Warning</p>
+<p><strong>Constraints in multiple login control</strong></p>
+<p>In the default implementation provided by Spring Security, following constraints are observed since session information of each user is managed within the application server memory.</p>
+<p>First constraint is that the default implementation cannot be used in the system wherein multiple application servers are started concurrently.
+If multiple application servers are to be used concurrently, it is necessary to create the implementation class to manage session information of each user in the shared area such as database or key-value store (Cache server).</p>
+<p>The second constraint is that if session information is restored when application server is stopped or re-started, it may not operate normally.
+Since it has a function to restore the session state at the time of stop or restart depending on the application server to be used, an inconsistency may appear in the actual session state and the session information managed by Spring Security.
+One of the following actions should be taken in case of a likely inconsistency.</p>
+<ul class="last simple">
+<li>Do not restore session state of the application server.</li>
+<li>Implement a mechanism to restore the session information of Spring Security.</li>
+<li>Store the object in other than HTTP session (Database or key-value store etc.)</li>
+</ul>
+</div>
+<p>This section introduces a method to use default implementation of Spring Security.
+HTTP session is used in the default implementation provided by Spring Security, however, the architecture also enables storing objects in other than HTTP session (Database or key-value store etc.).
+However, please note that the method introduced here is the <strong>Implementation method with the constraints of the Warning mentioned above</strong>, during the application.</p>
+<div class="admonition-todo admonition" id="index-0">
+<p class="first admonition-title">Todo</p>
+<p class="last">The information about the implementation method that does not use in-memory will be added later.</p>
+</div>
+<div class="section" id="enabling-session-lifecycle-detection">
+<span id="springsecurityhowtousesessionmanagementconcurrency"></span><h4><a class="toc-backref" href="#id27">9.4.2.6.1. Enabling session lifecycle detection</a><a class="headerlink" href="#enabling-session-lifecycle-detection" title="Permalink to this headline">¶</a></h4>
+<p>The function to control multiple login manages the session state for each user by using <a class="reference internal" href="#springsecuritysessionmanagementlifecycle"><span class="std std-ref">session lifecycle (Generating and discarding session) detection mechanism</span></a>.
+Therefore, while using multiple login control function, <code class="docutils literal"><span class="pre">HttpSessionEventPublisher</span></code> class provided by Spring Security must be registered in Servlet Container.</p>
+<ul class="simple">
+<li>Definition example of web.xml</li>
+</ul>
+<div class="highlight-xml"><div class="highlight"><pre><span></span><span class="nt">&lt;listener&gt;</span>
+    <span class="c">&lt;!-- (1) --&gt;</span>
+    <span class="nt">&lt;listener-class&gt;</span>
+        org.springframework.security.web.session.HttpSessionEventPublisher
+    <span class="nt">&lt;/listener-class&gt;</span>
+<span class="nt">&lt;/listener&gt;</span>
+</pre></div>
+</div>
+<table border="1" class="colwidths-given docutils">
+<colgroup>
+<col width="10%" />
+<col width="90%" />
+</colgroup>
+<thead valign="bottom">
+<tr class="row-odd"><th class="head">Sr. No.</th>
+<th class="head">Description</th>
+</tr>
+</thead>
+<tbody valign="top">
+<tr class="row-even"><td><div class="first last line-block">
+<div class="line">(1)</div>
+</div>
+</td>
+<td><div class="first last line-block">
+<div class="line">Register <code class="docutils literal"><span class="pre">HttpSessionEventPublisher</span></code> as Servlet Listener.</div>
+</div>
+</td>
+</tr>
+</tbody>
+</table>
+</div>
+<div class="section" id="preventing-multiple-logins-pre-measure">
+<h4><a class="toc-backref" href="#id28">9.4.2.6.2. Preventing multiple logins (Pre-measure)</a><a class="headerlink" href="#preventing-multiple-logins-pre-measure" title="Permalink to this headline">¶</a></h4>
+<p>A bean is defined as shown below if multiple login is to be prevented by generating an authentication error in case of the users who have already logged in with the same user name (login ID).</p>
+<ul class="simple">
+<li>Definition example of bean definition file</li>
+</ul>
+<div class="highlight-xml"><div class="highlight"><pre><span></span><span class="nt">&lt;sec:session-management&gt;</span>
+    <span class="nt">&lt;sec:concurrency-control</span>
+            <span class="na">max-sessions=</span><span class="s">&quot;1&quot;</span>
+            <span class="na">error-if-maximum-exceeded=</span><span class="s">&quot;true&quot;</span><span class="nt">/&gt;</span> <span class="c">&lt;!-- (1) (2) --&gt;</span>
+<span class="nt">&lt;/sec:session-management&gt;</span>
+</pre></div>
+</div>
+<table border="1" class="colwidths-given docutils">
+<colgroup>
+<col width="10%" />
+<col width="90%" />
+</colgroup>
+<thead valign="bottom">
+<tr class="row-odd"><th class="head">Sr. No.</th>
+<th class="head">Description</th>
+</tr>
+</thead>
+<tbody valign="top">
+<tr class="row-even"><td>(1)</td>
+<td>Specify the number of sessions for which concurrent logins are allowed
+in <code class="docutils literal"><span class="pre">max-sessions</span></code> attribute of <code class="docutils literal"><span class="pre">&lt;sec:concurrency-control&gt;</span></code> element.
+Specify “`` 1`` ”  to prevent multiple logins.</td>
+</tr>
+<tr class="row-odd"><td>(2)</td>
+<td>Specify the operation to be performed when the number of sessions to which user can login concurrently is exceeded,
+in <code class="docutils literal"><span class="pre">error-if-maximum-exceeded</span></code> attribute of <code class="docutils literal"><span class="pre">&lt;sec:concurrency-control&gt;</span></code> element.
+Specify <code class="docutils literal"><span class="pre">true</span></code> if a user who has already logged in is handled
+as a valid user.</td>
+</tr>
+</tbody>
+</table>
+</div>
+<div class="section" id="preventing-multiple-logins-post-measure">
+<h4><a class="toc-backref" href="#id29">9.4.2.6.3. Preventing multiple logins (Post-measure)</a><a class="headerlink" href="#preventing-multiple-logins-post-measure" title="Permalink to this headline">¶</a></h4>
+<p>In case of the users who have already logged in with the same user name (login ID),
+a bean is defined as below if multiple login is to be prevented by invalidating the users
+who are already logged in.</p>
+<ul class="simple">
+<li>Definition example of spring-security.xml</li>
+</ul>
+<div class="highlight-xml"><div class="highlight"><pre><span></span><span class="nt">&lt;sec:session-management&gt;</span>
+    <span class="nt">&lt;sec:concurrency-control</span>
+            <span class="na">max-sessions=</span><span class="s">&quot;1&quot;</span>
+            <span class="na">error-if-maximum-exceeded=</span><span class="s">&quot;false&quot;</span>
+            <span class="na">expired-url=</span><span class="s">&quot;/error/expire&quot;</span><span class="nt">/&gt;</span> <span class="c">&lt;!-- (1) (2) --&gt;</span>
+<span class="nt">&lt;/sec:session-management&gt;</span>
+</pre></div>
+</div>
+<table border="1" class="colwidths-given docutils">
+<colgroup>
+<col width="10%" />
+<col width="90%" />
+</colgroup>
+<thead valign="bottom">
+<tr class="row-odd"><th class="head">Sr. No.</th>
+<th class="head">Description</th>
+</tr>
+</thead>
+<tbody valign="top">
+<tr class="row-even"><td><div class="first last line-block">
+<div class="line">(1)</div>
+</div>
+</td>
+<td><div class="first last line-block">
+<div class="line">Specify the operation to be performed when the number of sessions a user can login concurrently has exceeded, in <code class="docutils literal"><span class="pre">error-if-maximum-exceeded</span></code> attribute of <code class="docutils literal"><span class="pre">&lt;sec:concurrency-control&gt;</span></code> element.</div>
+<div class="line">Specify `` false``  if a new logged-in user is handled as a valid user.</div>
+</div>
+</td>
+</tr>
+<tr class="row-odd"><td><div class="first last line-block">
+<div class="line">(2)</div>
+</div>
+</td>
+<td><div class="first last line-block">
+<div class="line">Specify the path for redirect destination when a request from an invalidated user is detected in <code class="docutils literal"><span class="pre">expired-url</span></code> attribute of <code class="docutils literal"><span class="pre">&lt;sec:concurrency-control&gt;</span></code> element.</div>
+<div class="line">This is because definition sequence of <code class="docutils literal"><span class="pre">&lt;sec:http&gt;</span></code> element is the priority sequence of <code class="docutils literal"><span class="pre">SecurityFilterChain</span></code>.</div>
+</div>
+</td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
+</div>
+</div>
+
+
+          </div>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="CSRF.html" title="9.5. CSRF Countermeasures"
+             >next</a> |</li>
+        <li class="right" >
+          <a href="Authorization.html" title="9.3. Authorization"
+             >previous</a> |</li>
+        <li class="nav-item nav-item-0"><a href="../index.html">TERASOLUNA Server Framework for Java (5.x) Development Guideline 5.4.1.RELEASE documentation</a> &#187;</li>
+          <li class="nav-item nav-item-1"><a href="index.html" >9. Security countermeasures</a> &#187;</li> 
+      </ul>
+    </div>
+    <div class="footer">
+      © Copyright 2013-2018, NTT DATA Corporation. © Copyright 2013-2018, NTT Corporation.
+      Created using <a href="http://sphinx.pocoo.org/">Sphinx</a> 1.6.3.Theme is <a href="http://github.com/vimalkvn/solar-theme">Solar</a>
+    </div>
+    
+    <script>
+    
+    $(function() {
+    	var $sidebar	= $('.sphinxsidebar'),
+    		$window		= $(window),
+    		offset		= $sidebar.offset(),
+    		topPadding	= 3,
+    		$scroll		= $('#scroll');
+    	
+    	$window.scroll(function() {
+    		if ($scroll.is(':checked')) {
+				if ($window.scrollTop() > offset.top) {
+					$sidebar.stop().animate({
+						marginTop:$window.scrollTop() - offset.top + topPadding
+					});
+				} else {
+					$sidebar.stop().animate({
+						marginTop:0
+					});
+				}
+			}
+		});
+    	
+    	var $navList = $('ul:first', $sidebar);
+    	$('li:first', $navList).addClass('open');
+    	
+    	$navList.treeview({
+    		persist: "location",
+    		collapsed: true,
+    		unique: false
+    	});
+    	
+	});
+    (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+        (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+            m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+    })(window,document,'script','//www.google-analytics.com/analytics.js','ga');
+
+    ga('create', 'UA-46550814-1', 'terasolunaorg.github.io');
+    ga('send', 'pageview');
+    </script>
+  </body>
+</html>

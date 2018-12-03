@@ -1,0 +1,1233 @@
+
+.. _UsageOfLibraryForTest:
+
+How to use OSS library used in unit test
+--------------------------------------------------------------------------------
+
+.. only:: html
+
+ .. contents:: Index
+    :local:
+
+This chapter explains about Spring Test (MockMvc) and Mockito as a OSS library used in unit test.
+
+.. _UsageOfLibraryForTestSpringTestOverview:
+
+Spring Test
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+What is a Spring Test
+""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
+
+Spring Test is a module which supports the test for the application running on Spring Framework.
+The test includes a test which is conducted by substituting a class on which the target class is dependent, by mock
+or stub, and a test which is conducted by combining Spring DI container and actual dependency class.
+
+In this guideline, a method wherein a test is conducted by a class unit for testing by using mock, and a method
+wherein a test is conducted by combining setup file and actual dependency class are explained.
+
+Spring Test primarily provides following functions.
+
+* A function which can operate Spring DI container on testing framework (JUnit)
+* A function which sets up test data
+* A function which reproduces operations of Spring MVC without deploying it on application server
+* An optimum transaction management function for testing
+
+In addition, various Spring specific annotations and APIs used in unit testing are provided.
+
+Spring Test is a framework for testing which runs on testing framework and provides
+Spring TestContext Framework.
+
+Process flow of Spring TestContext Framework is shown below.
+
+.. figure:: ./images/UsageOfLibraryForTestSpringTestProcessFlow.png
+   :width: 95%
+
+.. tabularcolumns:: |p{0.10\linewidth}|p{0.90\linewidth}|
+.. list-table::
+    :header-rows: 1
+    :widths: 10 90
+    :class: longtable
+
+    * - Sr. No.
+      - Description
+    * - | (1)
+      - | \ ``org.springframework.test.context.junit4.SpringJUnit4ClassRunner``\  class is called by execution of test.
+    * - | (2)
+      - | \ ``SpringJUnit4ClassRunner``\  class generates \ ``org.springframework.test.context.TestContextManager``\
+           class.
+    * - | (3)
+      - | \ ``TestContextManager``\  class calls build interface of \ ``org.springframework.test.context.TestContext``\  
+          interface of \ ``org.springframework.test.context.TestContextBootstrapper``\  interface.
+    * - | (4)
+      - | \ ``TestContextBootstrapper``\  class merges the setup file specified by test class.
+          Call build process of \ ``org.springframework.test.context.MergedContextConfiguration``\  class.
+        | At that time, if a bootstrap is not explicitly specified in the test class,
+          \ ``org.springframework.test.context.web.WebTestContextBootstrapper``\  class is called in case of
+          \ ``@WebAppConfiguration``\  and \ ``org.springframework.test.context.support.DefaultTestContextBootstrapper``\  class is called if it not specified.
+    * - | (5)
+      - | Implementation class of \ ``org.springframework.test.context.SmartContextLoader``\  interface is called by
+          build process of \ ``MergedContextConfiguration``\  class.
+    * - | (6)
+      - | When \ ``WebTestContextBootstrapper``\  class is used for bootstrapping,
+          \ ``org.springframework.test.context.web.WebDelegatingSmartContextLoader``\  class and when
+          \ ``DefaultTestContextBootstrapper``\  class is used,
+          \ ``org.springframework.test.context.support.DelegatingSmartContextLoader``\  class are called as
+          implementation class of \ ``SmartContextLoader``\  interface.
+          Load ApplicationContext specified by \ ``@ContextConfiguration``\  of test class in implementation class of
+          \ ``SmartContextLoader``\  interface.
+    * - | (7)
+      - | Generate \ ``org.springframework.test.context.support.DefaultTestContext``\  class - an implementation class
+          of \ ``org.springframework.test.context.TestContext``\ interface, by using \ ``MergedContextConfiguration``\
+          class fetched by bootstrap.
+    * - | (8)
+      - | Register \ ``org.springframework.test.context.TestExecutionListener``\  interface specified by
+          \ ``@TestExecutionListeners``\  of test class in \ ``TestContextManager``\  class and call
+          \ ``TestExecutionListener``\ process in following endpoints
+
+          * Before executing all test methods of test case (\ ``@BeforeClass``\ )
+          * After generation of test instance
+          * Before execution of each test method (\ ``@Before``\ )
+          * After execution of each test method (\ ``@After``\ )
+          * After execution of all test methods of test cases (\ ``@AfterClass``\ )
+
+        | Transaction management and test data setup process are carried out by \ ``TestExecutionListener``\  process.
+        | For registration of \ ``TestExecutionListener``\, refer \ :ref:`UsageOfLibraryForTestRegistrationOfTestExecutionListener`\.
+
+|
+
+.. _UsageOfLibraryForTestDIOfSpringTest:
+
+Spring Test DI function
+''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
+
+When a setting file is specified in \ ``@ContextConfiguration``\  of test case, Spring DI function can be used at the
+time of test execution by \ ``DependencyInjectionTestExecutionListener``\  process configured in
+\ ``SpringJUnit4ClassRunner``\  by default.
+
+An example of reading a setting file by using \ ``@ContextConfiguration``\  is shown below.
+\ ``com.example.domain.repository.member.MemberRepository``\  for test is injected by using
+\ ``sample-infra.xml``\ which is used in the application.
+
+* ``sample-infra.xml``
+
+.. code-block:: xml
+
+    <?xml version="1.0" encoding="UTF-8"?>
+    <beans xmlns="http://www.springframework.org/schema/beans"
+        xmlns:mybatis="http://mybatis.org/schema/mybatis-spring"
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:schemaLocation="
+            http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd
+            http://mybatis.org/schema/mybatis-spring http://mybatis.org/schema/mybatis-spring.xsd
+        ">
+
+      <import resource="classpath:/META-INF/spring/sample-env.xml" />
+
+        <!-- define the SqlSessionFactory -->
+        <bean id="sqlSessionFactory" class="org.mybatis.spring.SqlSessionFactoryBean">
+            <property name="dataSource" ref="dataSource" />
+            <property name="configLocation" value="classpath:/META-INF/mybatis/mybatis-config.xml" />
+        </bean>
+
+        <!-- scan for Mappers -->
+        <mybatis:scan base-package="com.example.domain.repository" />
+
+    </beans>
+
+
+* ``MemberRepositoryTest.java``
+
+.. code-block:: java
+
+    @RunWith(SpringJUnit4ClassRunner.class)
+    @ContextConfiguration(locations = {
+            "classpath:META-INF/spring/sample-infra.xml" }) //(1)
+    @Transactional
+    public class MemberRepositoryTest {
+
+        @Inject
+        MemberRepository target; // (2)
+    }
+
+.. tabularcolumns:: |p{0.10\linewidth}|p{0.90\linewidth}|
+.. list-table::
+    :header-rows: 1
+    :widths: 10 90
+
+    * - Sr. No.
+      - Description
+    * - | (1)
+      - | Specify \ ``sample-infra.xml``\  in \ ``@ContextConfiguration``\.
+    * - | (2)
+      - | Inject \ ``MemberRepository``\  defined in \ ``sample-infra.xml``\  and for which a Bean is registered
+          in \ ``<mybatis:scan>``\.
+
+
+.. _UsageOfLibraryForTestRegistrationOfTestExecutionListener:
+
+Registration of TestExecutionListener
+''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
+
+When \ ``@TestExecutionListeners``\  annotation is not explicitly specified in the test case, implementation class
+of \ ``org.springframework.test.context.TestExecutionListener``\  interface provided by Spring Test is registered by default.
+
+Note that, when \ ``@TestExecutionListeners``\  annotation is not explicitly specified, following are registered by default.
+\ ``TestExecutionListener``\  consists of Order and calling sequence is fixed in the order of following table.
+When \ ``TestExecutionListener``\  is individually specified, it is called in the specified order.
+
+.. tabularcolumns:: |p{0.50\linewidth}|p{0.50\linewidth}|
+.. list-table::
+    :header-rows: 1
+    :widths: 50 50
+
+    * - Implementation class of TestExecutionListener
+      - Description
+    * - ServletTestExecutionListener
+      - It provides a function to set a mock servlet API which supports \ ``WebApplicationContext``\  test.
+    * - DirtiesContextBeforeModesTestExecutionListener
+      - It provides a lifecycle management function of DI container used in the test.
+        It is called before execution of test class or test method.
+    * - DependencyInjectionTestExecutionListener
+      - It provides a DI function for the instance used in the test.
+    * - DirtiesContextTestExecutionListener
+      - It provides a lifecycle management function of DI container used in the test.
+        It is called after execution of test class or test method.
+    * - TransactionalTestExecutionListener
+      - It provides transaction management function at the time of test execution.
+    * - SqlScriptsTestExecutionListener
+      - It provides a function to execute SQL specified by \ ``@Sql``\  annotation.
+
+
+For details of each \ ``TestExecutionListener``\, refer \ `TestExecutionListener configuration <https://docs.spring.io/spring/docs/4.3.11.RELEASE/spring-framework-reference/html/integration-testing.html#testcontext-tel-config>`_\.
+
+\ ``TestExecutionListener``\  usually does not need to be changed from the default setting, however, when
+\ ``TestExecutionListener``\  individually provided by test library is used, it must be registered in
+\ ``TestContextManager``\  by using \ ``@TestExecutionListeners``\  annotation.
+
+As an example, a method to register \ ``TransactionDbUnitTestExecutionListener``\  provided by Spring Test DBUnit is explained.
+
+* ``MemberRepositoryDbunitTest.java``
+
+.. code-block:: java
+
+    @TestExecutionListeners({                               // (1)
+            DirtiesContextBeforeModesTestExecutionListener.class,
+            DependencyInjectionTestExecutionListener.class,
+            DirtiesContextTestExecutionListener.class,
+            TransactionDbUnitTestExecutionListener.class})  // (2)
+    @Transactional
+    public class MemberRepositoryDbunitTest {
+
+.. tabularcolumns:: |p{0.10\linewidth}|p{0.90\linewidth}|
+.. list-table::
+    :header-rows: 1
+    :widths: 10 90
+
+    * - Sr. No.
+      - Description
+    * - | (1)
+      - | \ ``TestExecutionListener``\ process specified at the time of test execution can be called by specifying
+          implementation class of \ ``TestExecutionListener``\  and by assigning \ ``@TestExecutionListeners``\ annotation at class level.
+          For details, refer \ `Javadoc of @TestExecutionListeners <https://docs.spring.io/spring/docs/4.3.11.RELEASE/javadoc-api/org/springframework/test/context/TestExecutionListeners.html>`_\.
+          
+    * - | (2)
+      - | \ ``TransactionDbUnitTestExecutionListener``\  is an implementation class of \ ``TestExecutionListener``\
+          interface provided by Spring Test DBUnit. It provides functions like data setup, verification and
+          post-processing which use \ ``@DatabaseSetup``\, \ ``@ExpectedDatabase``\  and \ ``@DatabaseTearDown``\  annotations.
+        | \ ``TransactionDbUnitTestExecutionListener``\  internally chains \ ``TransactionalTestExecutionListener``\  and
+          \ ``com.github.springtestdbunit.DbUnitTestExecutionListener``\.
+
+
+.. warning:: **Points to note for DbUnitTestExecutionListener**
+
+    When \ ``DbUnitTestExecutionListener``\  provided by Spring Test DBUnit is used without specifying 
+    ``@Transactional``\  in the test case, it must be noted that normal operations like reflecting data setup etc.
+    might not occur since transactions of annotation like \ ``@DatabaseSetup``\  and transactions of class for testing are separate.
+    When \ ``@Transactional``\  is to be specified, \ ``TransactionDbUnitTestExecutionListener``\ which has been
+    provided should be used in place of \ ``DbUnitTestExecutionListener``\.
+
+|
+
+MockMvc
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+\ ``MockMvc``\  is originally included in Spring Test function, however, since it is used for unit test of application
+layer in this section, it is cut from Spring Test and explained in detail.
+
+
+.. _UsageOfLibraryForTestMockMvcOverview:
+
+MockMvc
+""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
+
+Spring Test provides \ ``org.springframework.test.web.servlet.MockMvc``\  class as a mechanism for testing combined
+with Spring MVC framework.
+When \ ``MockMvc``\  is used, it is possible to reproduce Spring MVC operation without deploying it in the application
+server, hence it is possible to save time and effort for providing server and database.
+Further, for Spring MVC details, refer \ :ref:`SpringMVCOverview`\.
+
+Processing flow of \ ``MockMvc``\  from receiving a request at the time of test execution to receiving a response
+is shown in the following figure.
+
+.. figure:: ./images/UsageOfLibraryForTestMockMvcProcessFlow.png
+   :width: 95%
+
+.. tabularcolumns:: |p{0.10\linewidth}|p{0.90\linewidth}|
+.. list-table::
+    :header-rows: 1
+    :widths: 10 90
+
+    * - Sr. No.
+      - Description
+    * - | (1)
+      - | Test method sets data to be requested in \ ``org.springframework.test.web.servlet.TestDispatcherServlet``\  provided by Spring Test.
+    * - | (2)
+      - | \ ``MockMvc``\  sends a pseudo request to \ ``TestDispatcherServlet``\.
+    * - | (3)
+      - | \ ``TestDispatcherServlet``\  calls a method of \ ``Controller``\  matching request details.
+    * - | (4)
+      - | Test method receives execution results from \ ``MockMvc``\  and verifies the validity of execution results.
+
+|
+
+Further, \ ``MockMvc``\ consists of 2 working options.
+While conducting a test, respective characteristics should be taken into consideration and appropriate option should be selected.
+
+Overview of 2 options is shown below.
+
+.. tabularcolumns:: |p{0.10\linewidth}|p{0.90\linewidth}|
+.. list-table::
+    :header-rows: 1
+    :widths: 10 90
+
+    * - Working options
+      - Overview
+    * - | webAppContextSetup
+      - | Test can be performed in the state same as at the time of deploy, by reading settings of Spring MVC defined
+          by \ ``spring-mvc.xml``\  and generating \ ``WebApplicationContext``\.
+    * - | standaloneSetup
+      - | By defining the components for which DI is applied to the \ ``Controller``\, in the setting file used in
+          the test, test can be performed by using DI container generated by Spring Test.
+          Therefore, while using framework function of Spring MVC, it is possible to test the \ ``Controller``\  from unit test viewpoint.
+
+Merits and demerits of both the options are shown below.
+
+.. tabularcolumns:: |p{0.10\linewidth}|p{0.45\linewidth}|p{0.45\linewidth}|
+.. list-table::
+    :header-rows: 1
+    :widths: 10 45 45
+
+    * - Working options
+      - Merits
+      - Demerits
+    * - | webAppContextSetup
+      - | By reading the setting file used for actual operation,
+          it can be verified without deploying that confirmation cannot be obtained without running the application.
+          Since it reads and tests actual setting file, it is also possible to check whether a setting file is created correctly.
+        | Also, if a mock class is specified in Bean definition, it is also possible to mock the \ ``Service``\  for which DI is applied to \ ``Controller``\.
+      - | It takes a great deal of time while testing a huge application or reading a huge bean definition.
+          Therefore, it is necessary to devise measures such as providing a setting file to extract only necessary description, from setting file at the time of deploy.
+    * - | standaloneSetup
+      - | Testing can be done by applying specific \ ``Interceptor``\  or \ ``Resolver``\  to generated DI container.
+          Therefore, when you want to view only controller unit without referring setting file of Spring, implementation cost is lower than \ ``webAppContextSetup``\.
+      - | Setting cost is high for the tests where multiple \ ``Interceptor``\  or \ ``Resolver``\  are applied.
+        | In addition, since it operates for unit test viewpoint of \ ``Contoroller``\,
+          when you want to perform \ ``Controller``\  test together with Spring MVC framework function,
+          it must be noted that testing with \ ``webAppContextSetup``\  must be considered.
+
+.. _UsageOfLibraryForTestSettingMockMvc:
+
+MockMvc setup
+""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
+
+Setup methods while using the same in the test are explained for two options of \ ``MockMvc``\.
+
+
+.. _UsageOfLibraryForTestSettingMockMvcWithWebAppContextSetup:
+
+Setup by using webAppContextSetup
+''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
+
+Setup method for conducting the test by using \ ``webAppContextSetup``\  is explained.
+
+Setup example of MockMvc is shown below.
+
+* Setup example of MockMvc
+
+.. code-block:: java
+
+    @RunWith(SpringJUnit4ClassRunner.class)
+    @ContextHierarchy({ @ContextConfiguration({ // (1)
+            "classpath:META-INF/spring/applicationContext.xml",
+            "classpath:META-INF/spring/spring-security.xml" }),
+            @ContextConfiguration("classpath:META-INF/spring/spring-mvc.xml") })
+    @WebAppConfiguration // (2)
+    public class MemberRegisterControllerWebAppContextTest {
+
+        @Inject
+        WebApplicationContext webApplicationContext; // (3)
+
+        MockMvc mockMvc;
+
+        @Before
+        public void setUp() {
+
+            mockMvc = MockMvcBuilders.webAppContextSetup(webApplicationContext) // (4)
+                    .alwaysDo(log()).build();
+        }
+
+        @Test
+        public void testRegisterConfirm01() throws Exception {
+
+            ResultActions results = mockMvc.perform(post("/member/register")
+                    // omitted
+                    .param("confirm", "");
+
+            results.andExpect(status().is(200));
+
+            // omitted
+        }
+    }
+
+.. tabularcolumns:: |p{0.10\linewidth}|p{0.90\linewidth}|
+.. list-table::
+    :header-rows: 1
+    :widths: 10 90
+
+    * - Sr. No.
+      - Description
+    * - | (1)
+      - | Specify setting file of DI container generated at the time of test execution.
+          Hierarchical relation of DI container can be reproduced by using
+          \ ``@org.springframework.test.context.ContextHierarchy``\.
+          For hierarchical relation of DI container, refer \ :ref:`CreateWebApplicationProjectAppendixApplicationContext`\.
+    * - | (2)
+      - | DI container for Web application (\ ``WebApplicationContext``\) should be created.
+          Also, if \ ``@WebAppConfiguration``\ is specified, \ ``src/main/webapp``\  in the development project will
+          be root directory of Web application, however, since it is same as standard configuration of Maven, it is not necessary to add any specific settings.
+    * - | (3)
+      - | Inject DI container to be used in test execution.
+    * - | (4)
+      - | Specify DI container to be used in test execution and generate MockMvc.
+
+
+Setup by using standaloneSetup
+''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
+
+Setting method for conducting a test by \ ``standaloneSetup``\  is explained.
+
+Setting example of MockMvc is shown below.
+
+* Setting example of MockMvc
+
+.. code-block:: java
+
+    @RunWith(SpringJUnit4ClassRunner.class)
+    @ContextConfiguration(locations = {
+            "classpath:META-INF/spring/applicationContext.xml",
+            "classpath:META-INF/spring/test-context.xml",
+            "classpath:META-INF/spring/spring-mvc-test.xml"})
+    public class MemberRegisterControllerStandaloneTest {
+
+        @Inject
+        MemberRegisterController target;
+
+        MockMvc mockMvc;
+
+        @Before
+        public void setUp() {
+            mockMvc = MockMvcBuilders.standaloneSetup(target).alwaysDo(log()).build(); // (1)
+        }
+
+        @Test
+        public void testRegisterConfirm01() throws Exception {
+
+            ResultActions results = mockMvc.perform(post("/member/register")
+                    // omitted
+                    .param("password", "testpassword")
+                    .param("reEnterPassword", "testpassword"));
+
+            results.andExpect(status().is(200));
+
+            // omitted
+        }
+    }
+
+.. tabularcolumns:: |p{0.10\linewidth}|p{0.90\linewidth}|
+.. list-table::
+    :header-rows: 1
+    :widths: 10 90
+
+    * - Sr. No.
+      - Description
+    * - | (1)
+      - | Specify \ ``Controller``\  for test, and generate MockMvc.
+          \ ``org.springframework.test.web.servlet.setup.StandaloneMockMvcBuilder``\  method is called when required and
+          DI container generated by Spring Test can be customized.
+          For details of methods for customizing, refer
+          \ `Javadoc of StandaloneMockMvcBuilder <https://docs.spring.io/spring/docs/4.3.11.RELEASE/javadoc-api/org/springframework/test/web/servlet/setup/StandaloneMockMvcBuilder.html>`_\.
+          
+
+Implementation of test using MockMvc
+""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
+
+Processes from setting of request data to implementation method of sending a request, verification of execution
+results and output are explained as a flow for test execution using MockMvc.
+
+.. _UsageOfLibraryForTestSettingOfRequestData:
+
+Setting request data
+''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
+
+Request data is set by using factory methods of \ ``org.springframework.test.web.servlet.request.MockHttpServletRequestBuilder``\  or
+\ ``org.springframework.test.web.servlet.request.MockMultipartHttpServletRequestBuilder``\.
+
+Main methods from factory methods of two classes are introduced.
+For details, refer \ `Javadoc of MockHttpServletRequestBuilder <https://docs.spring.io/spring/docs/4.3.11.RELEASE/javadoc-api/org/springframework/test/web/servlet/request/MockHttpServletRequestBuilder.html>`_\ 
+or \ `Javadoc of MockMultipartHttpServletRequestBuilder <https://docs.spring.io/spring/docs/4.3.11.RELEASE/javadoc-api/org/springframework/test/web/servlet/request/MockMultipartHttpServletRequestBuilder.html>`_\.
+
+\
+
+.. tabularcolumns:: |p{0.15\linewidth}|p{0.85\linewidth}|
+.. list-table:: **Main methods of MockHttpServletRequestBuilder**
+    :header-rows: 1
+    :widths: 15 85
+
+    * - Method name
+      - Description
+    * - \ ``param``\ / \ ``params``\
+      - A method to add request parameter to the request at the time of test execution.
+    * - \ ``content``\
+      - A method to add request body to the request at the time of test execution.
+    * - \ ``header``\ / \ ``headers``\
+      - A method to add request header to the request at the time of test execution.
+        Methods to specify specific headers like \ ``contentType``\  or \ ``accept``\  etc, are also provided.
+    * - \ ``requestAttr``\
+      - A method to set an object in request scope.
+    * - \ ``flashAttr``\
+      - A method to set object in flash scope.
+    * - \ ``sessionAttr``\
+      - A method to set object in session scope.
+    * - \ ``cookie``\
+      - A method to add specified cookie to the request at the time of test execution.
+
+\
+
+.. tabularcolumns:: |p{0.15\linewidth}|p{0.85\linewidth}|
+.. list-table:: **Main methods of MockMultipartHttpServletRequestBuilder**
+    :header-rows: 1
+    :widths: 15 85
+
+    * - Method name
+      - Description
+    * - \ ``file``\
+      - A method to set files to be uploaded in the request at the time of execution.
+
+An example of request data setting by using \ ``param``\  method and request execution by using
+\ ``post``\  method is shown.
+
+Implementation example of \ ``Controller``\  for testing is shown below.
+
+* \ ``Controller``\ class for testing
+
+.. code-block:: java
+
+    @Controller
+    @RequestMapping("member/register")
+    @TransactionTokenCheck("member/register")
+    public class MemberRegisterController {
+
+        @RequestMapping(method = RequestMethod.POST, params = "confirm")
+        public String registerConfirm(@Validated MemberRegisterForm memberRegisterForm,
+            BindingResult result, Model model) {
+
+            // omitted
+
+            return "C1/memberRegisterConfirm";
+        }
+    }
+
+Implementation example of sending a request is shown below.
+
+* Implementation example of sending a request
+
+.. code-block:: java
+
+    @Test
+    public void testRegisterConfirm01() throws Exception {
+        mockMvc.perform(
+             post("/member/register")
+            .param("confirm", "")); // (1)
+    }
+
+.. tabularcolumns:: |p{0.10\linewidth}|p{0.90\linewidth}|
+.. list-table::
+    :header-rows: 1
+    :widths: 10 90
+
+    * - Sr. No.
+      - Description
+    * - | (1)
+      - | Request data is set with \ ``form``\  as a request parameter.
+
+.. _UsageOfLibraryForTestExecutionOfRequest:
+
+Implementation of sending a request
+''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
+
+By passing set request data as an argument of \ ``perform``\  method of \ ``MockMvc``\, request data used in the test
+is set and a pseudo request is sent to \ ``DispatcherServlet``\.
+\ ``MockMvcRequestBuilders``\ method provides methods like \ ``get``\, \ ``post``\  and \ ``fileUpload``\  for each request type.
+For details, refer \ `Javadoc of MockMvcRequestBuilders <https://docs.spring.io/spring/docs/4.3.11.RELEASE/javadoc-api/org/springframework/test/web/servlet/request/MockMvcRequestBuilders.html>`_\.
+
+Implementation example of sending a request is shown below.
+
+* Implementation example of sending a request
+
+.. code-block:: java
+
+    @Test
+    public void testRegisterConfirm01() throws Exception {
+        mockMvc.perform( // (1)
+             post("/member/register") // (2)
+            .param("confirm", ""));
+    }
+
+.. tabularcolumns:: |p{0.10\linewidth}|p{0.90\linewidth}|
+.. list-table::
+    :header-rows: 1
+    :widths: 10 90
+
+    * - Sr. No.
+      - Description
+    * - | (1)
+      - | Issue a request, and return \ ``ResultActions``\  class for verification of execution results, as a return value.
+          For details, refer \ :ref:`UsageOfLibraryForTestImplementationOfExecutionResultVerification`\ described later.
+    * - | (2)
+      - | Set to execute POST request to \ ``/ticket/search``\.
+
+.. warning:: **Transaction token check, CSRF check at the time of test**
+
+    When transaction token check and CSRF check are used for the test, it must be noted that the check is also
+    applicable for \ ``mockMvc``\  request.
+    Note that, \ ``spring-security``\ setting is invalidated in this chapter, hence CSRF check is not done.
+
+.. _UsageOfLibraryForTestImplementationOfExecutionResultVerification:
+
+Implementation of execution results verification
+''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
+
+\ ``andExpect``\ method of \ ``org.springframework.test.web.servlet.ResultActions``\  is used for verification of execution results.
+\ ``org.springframework.test.web.servlet.ResultMatcher``\ is specified in the argument of \ ``andExpect``\  method.
+Spring Test provides various \ ``ResultMatcher``\  through factory methods of
+\ ``org.springframework.test.web.servlet.result.MockMvcResultMatchers``\.
+
+A main method of \ ``MockMvcResultMatchers``\ is introduced here as an argument of \ ``andExpect``\  method.
+For methods which are not introduced here, refer
+\ `Javadoc of MockMvcResultMatchers <https://docs.spring.io/spring/docs/4.3.11.RELEASE/javadoc-api/org/springframework/test/web/servlet/result/MockMvcResultMatchers.html>`_\.
+
+\
+
+.. tabularcolumns:: |p{0.15\linewidth}|p{0.85\linewidth}|
+.. list-table:: **Main methods of MockMvcResultMatchers**
+    :header-rows: 1
+    :widths: 15 85
+
+    * - Method name
+      - Description
+    * - \ ``status``\
+      - A method to verify HTTP status code.
+    * - \ ``view``\
+      - A method to verify View name returned from \ ``Controller``\.
+    * - \ ``model``\
+      - A method to verify \ ``Model``\  of Spring MVC.
+    * - \ ``request``\
+      - A method to verify status of request scope and session scope, and
+        processing status of asynchronous processing supported from Servlet 3.0.
+    * - \ ``flash``\
+      - A method to verify status of flash scope.
+    * - \ ``redirectedUrl``\
+      - A method to verify path for redirect.
+        Verification by using pattern which uses \ ``redirectedUrlPattern``\ method is also provided.
+    * - \ ``fowardedUrl``\
+      - A method to validate path for forwarding.
+        Verification by using pattern which uses \ ``forwardedUrlPattern``\  method is also provided.
+    * - \ ``content``\
+      - A method to verify contents of response body.
+        A method for specific contents like jsonPath or xPath etc is also provided.
+    * - \ ``header``\
+      - A method to verify status of response header.
+    * - \ ``cookie``\
+      - A method to verify status of cookie.
+
+Implementation example of test result verification is shown below.
+
+* Implementation example of test execution results
+
+.. code-block:: java
+
+    @Test
+    public void testRegisterConfirm01() throws Exception {
+        mockMvc.perform(post("/member/register")
+            .param("confirm", ""));
+            .andExpect(status().is(302)) // (1)
+    }
+
+.. tabularcolumns:: |p{0.10\linewidth}|p{0.90\linewidth}|
+.. list-table::
+    :header-rows: 1
+    :widths: 10 90
+
+    * - Sr. No.
+      - Description
+    * - | (1)
+      - | Request data at the time of test execution is set.
+          Since \ ``andExpect``\ method can be described in a chain format from \ ``ResultActions``\,
+          the load of coding can be reduced by complementary function of IDE.
+
+.. warning:: **Model validation and assertion library**
+
+    In Spring Test, \ ``attribute``\  method of \ ``org.springframework.test.web.servlet.result.ModelResultMatchers``\
+    can be used in chain format in \ ``model``\  method, as a verification for \ ``Model``\.
+    Contents of \ ``Model``\  can be verified by using this method, however, since \ ``org.hamcrest.Matcher``\  is used
+    as an argument of Hamcrest, care must be taken while using assertion library other than Hamcrest.
+
+    When assertion libraries other than Hamcrest are used, \ ``ModelAndView``\  object is fetched from \ ``MvcResult``\,
+    further, \ ``Model``\  can be verified by using assertion library in use, by fetching object stored in
+    \ ``Model``\, from \ ``ModelAndView``\  object.
+    
+    Verification example of \ ``Model``\  fetched from \ ``ModelAndView``\ object is shown below.
+
+     .. code-block:: java
+
+         @Test
+         public void testRegisterConfirm01() throws Exception {
+             MvcResult mvcResult = mockMvc.perform(post("/member/register").param("confirm", "")
+                         .param("kanjiFamilyName", "電電")
+                         .andExpect(status().is(200))
+                         .andReturn(); // (1)
+
+             ModelAndView mav = mvcResult.getModelAndView(); // (2)
+
+             MemberRegisterForm actForm = (MemberRegisterForm) mav.getModel().get("memberRegisterForm");
+
+             assertThat(actForm.getKanjiFamilyName(), is("電電"));
+             // omitted
+         }
+
+     .. tabularcolumns:: |p{0.10\linewidth}|p{0.90\linewidth}|
+     .. list-table::
+         :header-rows: 1
+         :widths: 10 90
+
+         * - Sr. No.
+           - Description
+         * - | (1)
+           - | Use \ ``andReturn``\  method of \ ``ResultActions``\, and fetch \ ``MvcResult``\  object.
+         * - | (2)
+           - | Fetch \ ``ModelAndView``\ from \ ``MvcResult``\, and fetch object stored in the \ ``Model``\  from
+               \ ``ModelAndView``\  object and verify \ ``Model``\.
+
+Implementation of execution results output
+''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
+
+When the log output is enabled at the time of test execution, \ ``alwaysDo``\  method and \ ``andDo``\  method of \ ``ResultActions``\  are used.
+Since log output etc is a type of common processing,
+it is recommended to use \ ``alwaysDo``\  method of \ ``StandaloneMockMvcBuilder``\  at the time of \ ``MockMvc``\ generation.
+
+\ ``org.springframework.test.web.servlet.ResultHandler``\  which performs any operation for execution results is specified in argument of \ ``alwaysDo``\  method.
+Spring Test provides various \ ``ResultHandler``\  through factory method of
+\ ``org.springframework.test.web.servlet.result.MockMvcResultHandlers``\.
+A method of \ ``MockMvcResultHandlers``\  which is the main argument of \ ``alwaysDo``\  method is introduced here.
+For details of each method, refer
+\ `Javadoc of MockMvcResultHandlers <https://docs.spring.io/spring/docs/4.3.11.RELEASE/javadoc-api/org/springframework/test/web/servlet/result/MockMvcResultHandlers.html>`_\.
+
+\
+
+.. tabularcolumns:: |p{0.15\linewidth}|p{0.85\linewidth}|
+.. list-table:: **Main methods of MockMvcResultHandlers**
+    :header-rows: 1
+    :widths: 15 85
+
+    * - Method name
+      - Description
+    * - \ ``log``\
+      - A method which outputs execution results in a log, at debug level.
+        Logger name used for log output is \ ``org.springframework.test.web.servlet.result``\.
+    * - \ ``print``\
+      - A method to output execution result to any output destination. When output destination is not specified, standard output becomes the output destination.
+
+Setting example of test execution result output is shown below.
+
+* Setting example of execution result output
+
+.. code-block:: java
+
+    @Before
+    public void setUp() {
+        mockMvc = MockMvcBuilders.standaloneSetup(target).alwaysDo(log()).build(); // (1)
+    }
+
+.. tabularcolumns:: |p{0.10\linewidth}|p{0.90\linewidth}|
+.. list-table::
+    :header-rows: 1
+    :widths: 10 90
+
+    * - Sr. No.
+      - Description
+    * - | (1)
+      - | Execution results of test by using \ ``mockMvc``\  are output in a log, by specifying \ ``log``\  method
+          as the argument of \ ``alwayDo``\  method.
+
+.. note :: **Output setting for each test case**
+
+    When log output at the time of test execution is to be enabled for each test case, \ ``andDo``\ method  of \ ``ResultActions``\  is used.
+    \ ``andDo``\  method also specifies \ ``ResultHandler``\  as an argument similar to \ ``alwaysDo``\  method.
+
+    Setting example when log output is enabled for each test case is shown.
+
+    * Example when log output is always enabled
+
+     .. code-block:: java
+
+         @Test
+         public void testSearchForm() throws Exception {
+             mockMvc.perform(get("/ticket/search").param("form", ""))
+                     .andDo(log()); // (1)
+         }
+
+     .. tabularcolumns:: |p{0.10\linewidth}|p{0.90\linewidth}|
+     .. list-table::
+         :header-rows: 1
+         :widths: 10 90
+
+         * - Sr. No.
+           - Description
+         * - | (1)
+           - | Output test execution results in a log.
+
+|
+
+Mockito
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+Overview of mock and how to use Mockito are explained here.
+
+Mockito
+""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
+
+Mockito is one of the libraries to be used for mocking dependent classes for testing during unit test.
+
+It is frequently used in implementation of unit test since mock can be easily generated by using a mock library.
+
+
+Mock is explained here.
+
+Overview of mock
+''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
+
+A mock is a pseudo class which acts as a substitute for dependent classes for testing.
+The process of substituting these dependent classes with mock is called mocking.
+Mock is used in unit tests to verify that the dependent classes are used correctly.
+When you want to perform a test only by focusing on class to be tested or when the dependent classes for test are not 
+completed, performing a test by mocking the dependent class should be considered.
+
+Flow of test using mock is shown below.
+
+.. figure:: ./images/UsageOfLibraryForTestMockCreationOfMockito.png
+   :width: 50%
+
+.. tabularcolumns:: |p{0.10\linewidth}|p{0.90\linewidth}|
+.. list-table::
+    :header-rows: 1
+    :widths: 10 90
+
+    * - Sr. No.
+      - Description
+    * - | (1)
+      - | When dependent classes are created and operation is ensured as well,
+          test can be performed by using dependent classes as it is.
+    * - | (2)
+      - | When dependent classes operation is not ensured or not created,
+          and dependent class cannot be used, test is performed by using mock class.
+
+When dependency class is to be mocked, the persons implementing the test must provide mock classes by themselves.
+However, if the class for verification is created from the scratch, a great deal of cost is likely to incur
+for test implementation.
+In such a case, a mock library is used for creating a mock.
+Since mock can be created easily by using a mock library,
+use of library is recommended while creating a mock.
+
+In this section, explanation is given by using Mockito as a typical mock library.
+
+Using Mockito
+""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
+
+Mockito provides functions like mocking of dependent classes, calling and verification of methods,
+verification of method arguments etc.which are necessary for performing a test.
+However, it must be noted that Mockito cannot be used in some cases depending on the code to be tested.
+
+Even within the cases where Mockito cannot be used, cases which require
+special attention are introduced here.
+
+Restriction on mocking
+''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
+
+Mockito cannot be used for mocking of class/method declared as \ ``final``\  and \ ``private``\  and
+method declared as \ ``static``\.
+Since it is difficult to think about a test which will put restrictions on mocking in case of an implementation in
+accordance with normal object orientation, if you come across such a case, it should be checked once whether the design for the test has any issues.
+
+For other restrictions on Mockito, refer
+\ `What are the limitations of Mockito <https://github.com/mockito/mockito/wiki/FAQ#what-are-the-limitations-of-mockito>`_\.
+
+Mockito function
+""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
+
+Creating a mock, defining and verifying a mocked method are introduced here
+ as typical functions of Mockito.
+
+.. _UsageOfLibraryForTestCreateMockObject:
+
+Generating a mock
+''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
+
+Mocking of Mockito consists of 2 methods.
+The first method involves mocking of all dependent classes by using \ ``mock``\ method, and
+second method involves mocking of only some dependency classes by using \ ``spy``\ method.
+
+A simple method of mocking all dependent classes is introduced here.
+For method of mocking some of the dependent classes only, refer
+\ `Javadoc of Mockito <http://static.javadoc.io/org.mockito/mockito-core/1.10.19/org/mockito/Mockito.html#13>`__\.
+
+When all classes are to be mocked, mocking is basically performed by using \ ``mock``\ method.
+
+An example of mocking by using \ ``mock``\  method is shown below.
+
+.. code-block:: java
+
+    public class TicketReserveServiceImpl implements TicketReserveService {
+
+        @Inject // (1)
+        ReservationRepository reservationRepository;
+
+        // omitted
+    }
+
+.. tabularcolumns:: |p{0.10\linewidth}|p{0.90\linewidth}|
+.. list-table::
+    :header-rows: 1
+    :widths: 10 90
+
+    * - Sr. No.
+      - Description
+    * - | (1)
+      - | Since \ ``TicketReserveServiceImpl``\ for testing injects
+          \ ``ReservationRepository``\, it acts as an implementation of
+          \ ``ReservationRepository``\.
+
+.. code-block:: java
+
+    public class TicketReserveServiceImplMockTest {
+
+        ReservationRepository mockReservationRepository = mock(ReservationRepository.class); // (1)
+
+        private TicketReserveServiceImpl target;
+
+        @Test
+        public void testRegisterReservation() {
+
+            target.reservationRepository = mockReservationRepository; // (2)
+
+            // omitted
+        }
+    }
+
+.. tabularcolumns:: |p{0.10\linewidth}|p{0.90\linewidth}|
+.. list-table::
+    :header-rows: 1
+    :widths: 10 90
+
+    * - Sr. No.
+      - Description
+    * - | (1)
+      - | \ ``ReservationRepository``\  on which \ ``TicketReserveServiceImpl``\  is dependent is mocked by using
+          \ ``mock``\ method.
+    * - | (2)
+      - | Apply a mock class object in the field to be tested.
+
+|
+
+When \ ``mock``\  was used, it was necessary for the person himself implementing the test to apply mock one by one.
+Therefore, when number of dependent classes is large, it amounts to increase in the description quantity and also high implementation cost.
+In such a case, a method is recommended wherein mock is automatically applied by using \ ``@Mock``\  annotation.
+Also, \ ``@Mock``\  annotation which can be described more concisely than \ ``mock``\  method is used for mocking in this section.
+
+An example of mocking by using \ ``@Mock``\ annotation is shown below.
+
+* ``TicketReserveServiceImplMockTest.java``
+
+.. code-block:: java
+
+    public class TicketReserveServiceImplMockTest {
+
+        @Mock // (1)
+        ReservationRepository mockReservationRepository;
+
+        @InjectMocks // (2)
+        private TicketReserveServiceImpl target;
+
+        @Rule // (3)
+        public MockitoRule mockito = MockitoJUnit.rule();
+
+        // omitted
+    }
+
+.. tabularcolumns:: |p{0.10\linewidth}|p{0.90\linewidth}|
+.. list-table::
+    :header-rows: 1
+    :widths: 10 90
+
+    * - Sr. No.
+      - Description
+    * - | (1)
+      - | Mock objects of target class are automatically assigned by Mockito, by assigning \ ``@Mock``\  annotation to
+          the class to be mocked. It is not necessary to define a mock class separately.
+    * - | (2)
+      - | Instance of the target class is automatically assigned by Mockito, by assigning \ ``@InjectMocks``\
+          annotation to the concrete class to be tested, further, when the class on which the target class is dependent
+          and the class assigned by \ ``@Mock``\  annotation match, mock objects are set automatically.
+    * - | (3)
+      - | A declaration for using Mockito by JUnit.
+          Due to \ ``@Rule``\, it is possible to use initialization function of annotation based mock object described later.
+
+.. _UsageOfLibraryForTestMockingMethods:
+
+Mocking of method
+''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
+
+All the methods consisting of mocked objects are defined as a method
+so as to return initial value of each type (e.g.0 for int type)
+otherwise return \ ``null``\.
+Therefore, return value of the method must be redefined in accordance with the test details to be implemented
+while conducting the test.
+
+Setting argument and return value
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+\ ``when``\  method of \ ``Mockito``\  class and method of \ ``org.mockito.stubbing.OngoingStubbing``\  instance returned
+by \ ``when``\  method are used for mocking of methods.
+The method to be mocked and its argument are specified in the argument of \ ``when``\  method and the return value to be returned at the time of execution is defined by \ ``OngoingStubbing``\  method.
+
+Main methods of \ ``OngoingStubbing``\  are shown below.
+For details of \ ``OngoingStubbing``\, refer
+\ `Javadoc of OngoingStubbing <http://static.javadoc.io/org.mockito/mockito-core/1.10.19/org/mockito/stubbing/OngoingStubbing.html>`_\.
+Also, for \ ``when``\ method,refer
+\ `Javadoc of Mockito <http://static.javadoc.io/org.mockito/mockito-core/1.10.19/org/mockito/Mockito.html>`__\.
+
+.. tabularcolumns:: |p{0.15\linewidth}|p{0.85\linewidth}|
+.. list-table:: **Main methods of OngoingStubbing**
+    :header-rows: 1
+    :widths: 15 85
+
+    * - Method name
+      - Description
+    * - \ ``thenReturn``\
+      - A method which sets return value while calling the method, in the argument.
+    * - \ ``thenThrow``\
+      - A method which sets \ ``Throwable``\  object thrown at the time of calling the method, in the argument.
+        \ ``java.lang.Class``\ object of exception class to be thrown in the argument can also be specified.
+
+A usage example of \ ``thenReturn``\  is shown below.
+
+.. code-block:: java
+
+    public class TicketReserveServiceImplMockTest {
+
+        @Test
+        public void testRegisterReservation() {
+
+            Reservation testReservation = new Reservation();
+            reservation.setReserveNo("0000000001");
+
+            when(reservationRepository.insert(testReservation)).thenReturn(1); // (2)
+        }
+    }
+
+.. tabularcolumns:: |p{0.10\linewidth}|p{0.90\linewidth}|
+.. list-table::
+    :header-rows: 1
+    :widths: 10 90
+
+    * - Sr. No.
+      - Description
+    * - | (1)
+      - | Specify the method and its argument for which behavior is to be defined, in the argument of \ ``when``\  method.
+    * - | (2)
+      - | By specifying \ ``testReservation``\ as an argument of \ ``insert``\  method,
+          when the test target executes the \ ``insert``\  method with the argument \ ``testReservation``\,
+          the return value becomes "\ ``1``\".
+
+Definition by arbitrary argument
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+It is also possible to define return values for arbitrary arguments by using \ ``org.mockito.Matchers``\  method
+in the argument of mocked method.
+
+Main methods of \ ``Matchers``\  are shown below.
+For details, refer \ `Javadoc of Matchers <http://static.javadoc.io/org.mockito/mockito-core/1.10.19/org/mockito/Matchers.html>`_\.
+
+.. tabularcolumns:: |p{0.15\linewidth}|p{0.85\linewidth}|
+.. list-table:: **Main methods of Matchers**
+    :header-rows: 1
+    :widths: 15 85
+
+    * - Method name
+      - Description
+    * - \ ``any``\
+      - A method to indicate that argument of mocked method is any \ ``Object``\.
+    * - \ ``anyString``\
+      - A method to indicate that argument of mocked method is any \ ``String``\  other than \ ``null``\.
+    * - \ ``anyInt``\
+      - A method to indicate that argument of mocked method is any int type or \ ``Integer``\  other than \ ``null``\.
+
+A usage example of \ ``any``\  is shown below.
+
+.. code-block:: java
+
+    public class TicketReserveServiceImplMockTest {
+
+        @Test
+        public void testRegisterReservation() {
+
+            // omitted
+
+            when(reservationRepository.insert((Reservation) any())).thenReturn(0); // (1)
+        }
+    }
+
+.. tabularcolumns:: |p{0.10\linewidth}|p{0.90\linewidth}|
+.. list-table::
+    :header-rows: 1
+    :widths: 10 90
+
+    * - Sr. No.
+      - Description
+    * - | (1)
+      - | By specifying \ ``any``\  method cast in \ ``Reservation``\  as an argument of \ ``insert``\  method,
+          when \ ``insert``\  method is executed, \ ``insert``\  method can be executed by \ ``Reservation``\
+          argument so that return value becomes "\ ``0``\".
+
+
+Mocking of method with return value as void
+''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
+
+A method whose mocked return value is \ ``void``\  is defined as a method which does not perform any operation by default.
+Therefore, if an exception is to be thrown, it should be defined again.
+
+Operation settings
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+For the methods with return value as \ ``void``\  that cannot be defined by \ ``when``\  method,
+it can be defined by using \ ``doThrow``\ method of \ ``Mockito``\  class.
+
+Main methods of \ ``Mockito``\  to redefine methods with return value as \ ``void``\  are shown below.
+For details, refer
+\ `Javadoc of Mockito <http://static.javadoc.io/org.mockito/mockito-core/1.10.19/org/mockito/Mockito.html>`__\.
+
+
+.. tabularcolumns:: |p{0.15\linewidth}|p{0.85\linewidth}|
+.. list-table:: **Main methods of Mockito to redefine methods with return value as void**
+    :header-rows: 1
+    :widths: 15 85
+
+    * - Method name
+      - Description
+    * - \ ``doThrow``\
+      - A method to use when an exception is set which is thrown in the method with return value as \ ``void``\  type.
+    * - \ ``doNothing``\
+      - A method to use when no action is to be taken for the method with return value as \ ``void``\  type.
+
+A usage example of \ ``doThrow``\  is shown below.
+
+.. code-block:: java
+
+    doThrow(new RuntimeException()).when(mock).someVoidMethod(); // (1)
+
+.. tabularcolumns:: |p{0.10\linewidth}|p{0.90\linewidth}|
+.. list-table::
+    :header-rows: 1
+    :widths: 10 90
+
+    * - Sr. No.
+      - Description 
+    * - | (1)
+      - | \ ``doThrow``\  method is written before \ ``when``\  method, and
+          \ ``when``\  method is described later in chain format.
+        | An exception will be thrown when the mocked method is executed by specifying the exception to be thrown
+          in the argument of \ ``doThrow``\  method.
+
+.. _UsageOfLibraryForTestValidationOfMockMethod:
+
+Validation of mocked method
+''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
+
+When the object created by Mockito is mocked, calling of mocked method can be validated by using \ ``verify``\
+method of\ ``Mockito``\  class.
+
+
+\ ``verify``\  method specifies mock as an argument and it can be verified whether the method is correctly called by
+continuing the mock method in chain format.
+Also, the calling of method can be verified in further detail by specifying mock as an argument of \ ``verify``\
+method and specifying \ ``org.mockito.verification.VerificationMode``\
+
+Main methods for \ ``VerificationMode``\  are shown below.
+For details, refer \ `Javadoc of VerificationMode <http://static.javadoc.io/org.mockito/mockito-core/1.10.19/org/mockito/verification/VerificationMode.html>`_\.
+
+.. tabularcolumns:: |p{0.15\linewidth}|p{0.85\linewidth}|
+.. list-table:: **Main methods of VerificationMode**
+    :header-rows: 1
+    :widths: 15 85
+
+    * - Method name
+      - Description
+    * - \ ``times``\
+      - A method that sets expected number of calling.
+        Expected number of calling can be set in the argument.
+        When \ ``VerificationMode``\  is not specified in the argument of \ ``verify``\  method,
+        \ ``times(1)``\  is set.
+    * - \ ``never``\
+      - A method to set if calling is not expected.
+
+A usage example of \ ``times``\  is shown below.
+
+.. code-block:: java
+
+    @Test
+    public void testRegisterReservation() {
+
+        // omitted
+
+        when(reservationRepository.insert(testReservation)).thenReturn(1);
+
+        TicketReserveDto ticketReserveDto = target.registerReservation(testReservation); // (1)
+
+        verify(reservationRepository, times(1)).insert(testReservation); // (2)
+    }
+
+.. tabularcolumns:: |p{0.10\linewidth}|p{0.90\linewidth}|
+.. list-table::
+    :header-rows: 1
+    :widths: 10 90
+
+    * - Sr. No.
+      - Description
+    * - | (1)
+      - | Implementation is done in such a way that \ ``insert``\  method of \ ``ReservationRepository``\  is executed
+          once, in \ ``insert``\  method of \ ``target``\.
+    * - | (2)
+      - | By specifying mock object in \ ``verify``\  method argument and by specifying
+          \ ``times``\ method, it can be verified whether the \ ``insert``\  method with argument
+          \ ``testReservation``\  is correctly called once.
+        | In this case, if the argument of \ ``times``\  method is "\ ``1``\", same verification will be done even if it is omitted.

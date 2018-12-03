@@ -1,0 +1,244 @@
+.. _RunUnitTest:
+
+Run unit test
+================================================================================
+
+.. only:: html
+
+ .. contents:: Index
+    :local:
+
+Implementation method for test
+--------------------------------------------------------------------------------
+
+Following 2 methods are explained here as implementation methods of JUnit.
+
+* A method to execute JUnit on IDE
+* A method to execute JUnit on Maven
+
+Method must be selected according to the application.
+
+.. tabularcolumns:: |p{0.20\linewidth}|p{0.20\linewidth}|p{0.60\linewidth}|
+.. list-table::
+    :header-rows: 1
+    :widths: 20 40
+
+    * - Test execution method
+      - Explanation
+    * - IDE
+      - JUnit is run from IDE.
+    * - Maven
+      - Run JUnit by using \ ``mvn test``\ command.
+
+When JUnit is run from IDE, it is possible to execute it on IDE from production to testing.
+Hence, the test object can be referenced easily.
+
+When JUnit is run by using \ ``mvn test``\  command, automation of test can be done on CI server
+since it runs on command basis.
+
+Test execution
+--------------------------------------------------------------------------------
+
+
+Run test on IDE
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+A method to run JUnit by using STS is introduced.
+
+Execution of test class
+""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
+
+Right-click test class and display menu.
+
+.. figure:: ./images/RunUnitTestIdeClickTestClass.png
+
+|
+
+Select [Run As] -> [JUnit Test] from menu and run target test class.
+
+.. figure:: ./images/RunUnitTestIdeRunClassJunit.png
+
+|
+
+If the test is run without any issues, following screen is displayed.
+
+.. figure:: ./images/RunUnitTestIdeSuccessJunit.png
+
+|
+
+In case of assertion error, 
+following error message is displayed.
+
+.. figure:: ./images/RunUnitTestIdeFailJunit.png
+
+|
+
+When an error occurs while executing a test,
+following error message is displayed.
+
+.. figure:: ./images/RunUnitTestIdeErrorJunit.png
+
+.. note:: **Regarding test failure**
+
+    Test failure can be broadly classified in 2 types.
+    First is failure (Failure) in case of assertion and the second is
+    test execution failure or test failure due to inadequate execution environment (Error).
+    Execution result screen while running JUnit on IDE also display a stack trace together with difference between
+    results of these 2 types, thus it helps in analysis of test failure cause.
+
+|
+
+Run for a project or a method
+""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
+
+JUnit can be run for a project or for a method.
+
+When it is to be run for a project, right click the project to be tested and display menu.
+
+.. figure:: ./images/RunUnitTestIdeClickTestProject.png
+
+|
+
+Select [Run As] -> [JUnit Test] from menu and run test for target project.
+
+.. figure:: ./images/RunUnitTestIdeRunProjectJunit.png
+
+|
+
+When it is run for a project, execution results of all test classes included in selected project are displayed.
+
+.. figure:: ./images/RunUnitTestIdeSuccessProjectJunit.png
+
+|
+
+When it is to be run for a method, right click the method to be tested and display menu.
+
+.. figure:: ./images/RunUnitTestIdeClickTestMethod.png
+
+|
+
+Select [Run As] -> [JUnit Test] from menu and run test for target method.
+
+.. figure:: ./images/RunUnitTestIdeRunMethodJunit.png
+
+|
+
+When it is run for a method, execution results of only selected method are displayed.
+
+.. figure:: ./images/RunUnitTestIdeSuccessMethodJunit.png
+
+Run test by Maven
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+A method to run JUnit by Maven is introduced.
+
+Run test phase
+""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
+
+When JUnit is to be run by Maven, go to target project and run following command.
+
+.. code-block:: console
+
+    mvn test
+
+When the command is run, a java compiled .class file is created under \ ``target/classes``\, then a .class file for
+test compiled under \ ``target/test-classes``\  is created and test results are created under
+\ ``target/surefire-reports``\.
+
+By default, files matching the following patterns are subjected to test.
+
+* \ ``**/Test*.java``\ 
+* \ ``**/*Test.java``\ 
+* \ ``**/*Tests.java``\ 
+* \ ``**/*TestCase.java``\ 
+
+When the test classes which do not match the above patterns are to be run,
+file for test can be changed by adding settings to \ ``pom.xml``\.
+Further, it is also possible to set exclusion of test files.
+
+* \ ``pom.xml``\
+
+.. code-block:: xml
+
+    <project>
+
+      // ommited
+
+      <build>
+        <plugins>
+          <plugin>
+            <groupId>org.apache.maven.plugins</groupId>
+            <artifactId>maven-surefire-plugin</artifactId>
+            <version>2.20.1</version>
+            <configuration>
+              <includes>
+                <include>*ServiceCheck.java</include> <!-- (1) -->
+              </includes>
+              <excludes>
+                <exclude>AccountServiceCheck.java</exclude> <!-- (2) -->
+              </excludes>
+            </configuration>
+          </plugin>
+        </plugins>
+      </build>
+
+      // ommited
+
+    </project>
+
+
+.. tabularcolumns:: |p{0.10\linewidth}|p{0.90\linewidth}|
+.. list-table::
+    :header-rows: 1
+    :widths: 10 90
+
+    * - Sr. No.
+      - Description
+    * - | (1)
+      - | Configure a file to be executed at the time of test execution.
+    * - | (2)
+      - | Configure a file to be excluded at the time of test execution.
+
+.. note::
+
+    While configuring, files can be specified by using regular expression.
+    For details, refer \ `maven-surefire-plugin (Regular Expression Support) <https://maven.apache.org/surefire/maven-surefire-plugin/examples/inclusion-exclusion.html>`_\.
+
+
+Configuring arbitrary class and method by using command options
+""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
+
+\ ``mvn test``\ command can also specify and run arbitrary class and method by using option.
+
+When a class is to be specified for testing, it can be done by using following command.
+
+.. code-block:: console
+
+    mvn test -Dtest=[Class name]
+
+Multiple classes can also be specified with "," delimiter.
+
+.. code-block:: console
+
+    mvn test -Dtest=[Class name],[class name],[class name]...
+
+When a method is to be specified for test, it can be done by using following command.
+
+.. code-block:: console
+
+    mvn test -Dtest=[class name]#[method name]
+
+Class name can be specified by either FQCN specification (\ ``com.example.domain.repository.MemberRepositoryTest``\ etc.) or
+by a simple class name (\ ``MemberRepositoryTest``\ etc.).
+Further, patterns can also be specified by using wild cards (\ ``Member*Test``\ etc.) for the class name.
+
+.. warning::
+
+    Specification of method unit requires \ ``maven-surefire-plugin``\  version 2.7.3 or above.
+    For details, refer \ `maven-surefire-plugin (Running a Set of Methods in a Single Test Class) <http://maven.apache.org/surefire/maven-surefire-plugin/examples/single-test.html>`_\.
+
+.. note::
+
+    Test compilation and execution can be skipped by specifying \ ``-Dmaven.test.skip=true``\  in the option.
+    When you want to skip only execution, only compilation can be executed by specifying \ ``-DskipTests=true``\.
+
