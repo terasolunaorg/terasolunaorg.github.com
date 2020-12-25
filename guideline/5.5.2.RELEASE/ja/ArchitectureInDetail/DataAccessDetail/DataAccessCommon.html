@@ -1,0 +1,2274 @@
+<!DOCTYPE html>
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <title>6.1. データベースアクセス（共通編） &#8212; TERASOLUNA Server Framework for Java (5.x) Development Guideline 5.5.2.RELEASE documentation</title>
+    <link rel="stylesheet" href="../../_static/solar.css" type="text/css" />
+    <link rel="stylesheet" href="../../_static/pygments.css" type="text/css" />
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    '../../',
+        VERSION:     '5.5.2.RELEASE',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true,
+        SOURCELINK_SUFFIX: '.txt'
+      };
+    </script>
+    <script type="text/javascript" src="../../_static/jquery.js"></script>
+    <script type="text/javascript" src="../../_static/underscore.js"></script>
+    <script type="text/javascript" src="../../_static/doctools.js"></script>
+    <link rel="index" title="Index" href="../../genindex.html" />
+    <link rel="search" title="Search" href="../../search.html" />
+    <link rel="next" title="6.2. データベースアクセス（MyBatis3編）" href="DataAccessMyBatis3.html" />
+    <link rel="prev" title="6. データアクセス" href="index.html" /><script src="../../_static/jquery.treeview.js" type="text/javascript"></script>
+<!-- <link href='http://fonts.googleapis.com/css?family=Source+Code+Pro|Open+Sans:300italic,400italic,700italic,400,300,700' rel='stylesheet' type='text/css'> -->
+<link href="../../_static/solarized-dark.css" rel="stylesheet">
+<link href="../../_static/jquery.treeview.css" rel="stylesheet">
+  </head>
+  <body>
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../../genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="DataAccessMyBatis3.html" title="6.2. データベースアクセス（MyBatis3編）"
+             accesskey="N">next</a> |</li>
+        <li class="right" >
+          <a href="index.html" title="6. データアクセス"
+             accesskey="P">previous</a> |</li>
+        <li class="nav-item nav-item-0"><a href="../../index.html">TERASOLUNA Server Framework for Java (5.x) Development Guideline 5.5.2.RELEASE documentation</a> &#187;</li>
+          <li class="nav-item nav-item-1"><a href="index.html" accesskey="U">6. データアクセス</a> &#187;</li> 
+      </ul>
+    </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper"><label><input id="scroll" type="checkbox" checked> scroll sidebar</label>
+
+  <h3><a href="../../index.html">Table Of Contents</a></h3>
+  <ul>
+<li><a class="reference internal" href="#">6.1. データベースアクセス（共通編）</a><ul>
+<li><a class="reference internal" href="#overview">6.1.1. Overview</a><ul>
+<li><a class="reference internal" href="#jdbc-datasource">6.1.1.1. JDBC DataSourceについて</a><ul>
+<li><a class="reference internal" href="#jdbc">6.1.1.1.1. アプリケーションサーバ提供のJDBCデータソース</a></li>
+<li><a class="reference internal" href="#oss-third-partyjdbc">6.1.1.1.2. OSS/Third-Partyライブラリ提供のJDBCデータソース</a></li>
+<li><a class="reference internal" href="#spring-frameworkjdbc">6.1.1.1.3. Spring Framework提供のJDBCデータソース</a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#id3">6.1.1.2. トランザクションの管理方法について</a></li>
+<li><a class="reference internal" href="#id4">6.1.1.3. トランザクション境界/属性の宣言について</a></li>
+<li><a class="reference internal" href="#id5">6.1.1.4. データの排他制御について</a></li>
+<li><a class="reference internal" href="#id6">6.1.1.5. 例外ハンドリングについて</a></li>
+<li><a class="reference internal" href="#id7">6.1.1.6. 複数データソースについて</a></li>
+<li><a class="reference internal" href="#data-access-common-todo-multiple-datasource-overview">6.1.1.7. 共通ライブラリから提供しているクラスについて</a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#how-to-use">6.1.2. How to use</a><ul>
+<li><a class="reference internal" href="#data-access-common-howtouse-datasource">6.1.2.1. データソースの設定</a><ul>
+<li><a class="reference internal" href="#datasource">6.1.2.1.1. アプリケーションサーバで定義したDataSourceを使用する場合の設定</a></li>
+<li><a class="reference internal" href="#beandatasource">6.1.2.1.2. Bean定義したDataSourceを使用する場合の設定</a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#id10">6.1.2.2. トランザクション管理を有効化するための設定</a></li>
+<li><a class="reference internal" href="#jdbcdebug">6.1.2.3. JDBCのDebug用ログの設定</a><ul>
+<li><a class="reference internal" href="#log4jdbc">6.1.2.3.1. log4jdbc提供のデータソースの設定</a></li>
+<li><a class="reference internal" href="#id11">6.1.2.3.2. log4jdbc用ロガーの設定</a></li>
+<li><a class="reference internal" href="#id12">6.1.2.3.3. log4jdbcのオプションの設定</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li><a class="reference internal" href="#how-to-extend">6.1.3. How to extend</a><ul>
+<li><a class="reference internal" href="#data-access-common-todo-multiple-datasource-howtoextends">6.1.3.1. 動的にデータソースを切り替えるための設定</a><ul>
+<li><a class="reference internal" href="#abstractroutingdatasource">6.1.3.1.1. AbstractRoutingDataSourceの実装</a></li>
+<li><a class="reference internal" href="#id14">6.1.3.1.2. データソースの定義</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li><a class="reference internal" href="#how-to-solve-the-problem">6.1.4. how to solve the problem</a><ul>
+<li><a class="reference internal" href="#n-1">6.1.4.1. N+1問題の対策方法</a><ul>
+<li><a class="reference internal" href="#join-join-fetch">6.1.4.1.1. JOIN(Join Fetch)を使用して解決する</a></li>
+<li><a class="reference internal" href="#id15">6.1.4.1.2. 関連レコードを一括で取得する事で解決する</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li><a class="reference internal" href="#appendix">6.1.5. Appendix</a><ul>
+<li><a class="reference internal" href="#like">6.1.5.1. LIKE検索時のエスケープについて</a><ul>
+<li><a class="reference internal" href="#id17">6.1.5.1.1. 共通ライブラリのエスケープ仕様について</a></li>
+<li><a class="reference internal" href="#id19">6.1.5.1.2. 共通ライブラリから提供しているエスケープ用のメソッドについて</a></li>
+<li><a class="reference internal" href="#id20">6.1.5.1.3. 共通ライブラリの使用方法</a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#sequencer">6.1.5.2. Sequencerについて</a><ul>
+<li><a class="reference internal" href="#id21">6.1.5.2.1. 共通ライブラリから提供しているクラスについて</a></li>
+<li><a class="reference internal" href="#data-access-common-howtouse-sequencer">6.1.5.2.2. 共通ライブラリの利用方法</a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#spring-framework">6.1.5.3. Spring Frameworkから提供されているデータアクセス例外へ変換するクラス</a></li>
+<li><a class="reference internal" href="#appendix-datasource-of-spring-label">6.1.5.4. Spring Frameworkから提供されているJDBCデータソースクラス</a></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+
+
+  <h4>Previous topic</h4>
+  <p class="topless"><a href="index.html"
+                        title="previous chapter">6. データアクセス</a></p>
+  <h4>Next topic</h4>
+  <p class="topless"><a href="DataAccessMyBatis3.html"
+                        title="next chapter">6.2. データベースアクセス（MyBatis3編）</a></p>
+  <div role="note" aria-label="source link">
+    <h3>This Page</h3>
+    <ul class="this-page-menu">
+      <li><a href="../../_sources/ArchitectureInDetail/DataAccessDetail/DataAccessCommon.rst.txt"
+            rel="nofollow">Show Source</a></li>
+    </ul>
+   </div>
+<div id="searchbox" style="display: none" role="search">
+  <h3>Quick search</h3>
+    <form class="search" action="../../search.html" method="get">
+      <div><input type="text" name="q" /></div>
+      <div><input type="submit" value="Go" /></div>
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <div class="section" id="id1">
+<h1>6.1. データベースアクセス（共通編）<a class="headerlink" href="#id1" title="Permalink to this headline">¶</a></h1>
+<div class="contents local topic" id="id2">
+<p class="topic-title">目次</p>
+<ul class="simple">
+<li><a class="reference internal" href="#overview" id="id32">Overview</a><ul>
+<li><a class="reference internal" href="#jdbc-datasource" id="id33">JDBC DataSourceについて</a><ul>
+<li><a class="reference internal" href="#jdbc" id="id34">アプリケーションサーバ提供のJDBCデータソース</a></li>
+<li><a class="reference internal" href="#oss-third-partyjdbc" id="id35">OSS/Third-Partyライブラリ提供のJDBCデータソース</a></li>
+<li><a class="reference internal" href="#spring-frameworkjdbc" id="id36">Spring Framework提供のJDBCデータソース</a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#id3" id="id37">トランザクションの管理方法について</a></li>
+<li><a class="reference internal" href="#id4" id="id38">トランザクション境界/属性の宣言について</a></li>
+<li><a class="reference internal" href="#id5" id="id39">データの排他制御について</a></li>
+<li><a class="reference internal" href="#id6" id="id40">例外ハンドリングについて</a></li>
+<li><a class="reference internal" href="#id7" id="id41">複数データソースについて</a></li>
+<li><a class="reference internal" href="#data-access-common-todo-multiple-datasource-overview" id="id42">共通ライブラリから提供しているクラスについて</a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#how-to-use" id="id43">How to use</a><ul>
+<li><a class="reference internal" href="#data-access-common-howtouse-datasource" id="id44">データソースの設定</a><ul>
+<li><a class="reference internal" href="#datasource" id="id45">アプリケーションサーバで定義したDataSourceを使用する場合の設定</a></li>
+<li><a class="reference internal" href="#beandatasource" id="id46">Bean定義したDataSourceを使用する場合の設定</a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#id10" id="id47">トランザクション管理を有効化するための設定</a></li>
+<li><a class="reference internal" href="#jdbcdebug" id="id48">JDBCのDebug用ログの設定</a><ul>
+<li><a class="reference internal" href="#log4jdbc" id="id49">log4jdbc提供のデータソースの設定</a></li>
+<li><a class="reference internal" href="#id11" id="id50">log4jdbc用ロガーの設定</a></li>
+<li><a class="reference internal" href="#id12" id="id51">log4jdbcのオプションの設定</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li><a class="reference internal" href="#how-to-extend" id="id52">How to extend</a><ul>
+<li><a class="reference internal" href="#data-access-common-todo-multiple-datasource-howtoextends" id="id53">動的にデータソースを切り替えるための設定</a><ul>
+<li><a class="reference internal" href="#abstractroutingdatasource" id="id54">AbstractRoutingDataSourceの実装</a></li>
+<li><a class="reference internal" href="#id14" id="id55">データソースの定義</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li><a class="reference internal" href="#how-to-solve-the-problem" id="id56">how to solve the problem</a><ul>
+<li><a class="reference internal" href="#n-1" id="id57">N+1問題の対策方法</a><ul>
+<li><a class="reference internal" href="#join-join-fetch" id="id58">JOIN(Join Fetch)を使用して解決する</a></li>
+<li><a class="reference internal" href="#id15" id="id59">関連レコードを一括で取得する事で解決する</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li><a class="reference internal" href="#appendix" id="id60">Appendix</a><ul>
+<li><a class="reference internal" href="#like" id="id61">LIKE検索時のエスケープについて</a><ul>
+<li><a class="reference internal" href="#id17" id="id62">共通ライブラリのエスケープ仕様について</a></li>
+<li><a class="reference internal" href="#id19" id="id63">共通ライブラリから提供しているエスケープ用のメソッドについて</a></li>
+<li><a class="reference internal" href="#id20" id="id64">共通ライブラリの使用方法</a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#sequencer" id="id65">Sequencerについて</a><ul>
+<li><a class="reference internal" href="#id21" id="id66">共通ライブラリから提供しているクラスについて</a></li>
+<li><a class="reference internal" href="#data-access-common-howtouse-sequencer" id="id67">共通ライブラリの利用方法</a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#spring-framework" id="id68">Spring Frameworkから提供されているデータアクセス例外へ変換するクラス</a></li>
+<li><a class="reference internal" href="#appendix-datasource-of-spring-label" id="id69">Spring Frameworkから提供されているJDBCデータソースクラス</a></li>
+</ul>
+</li>
+</ul>
+</div>
+<div class="section" id="overview">
+<span id="data-access-overview-label"></span><h2><a class="toc-backref" href="#id32">6.1.1. Overview</a><a class="headerlink" href="#overview" title="Permalink to this headline">¶</a></h2>
+<p>本節では、RDBMSで管理されているデータにアクセスする方法について、説明する。</p>
+<p>O/R Mapperに依存する部分については、</p>
+<ul class="simple">
+<li><a class="reference internal" href="DataAccessMyBatis3.html"><span class="doc">データベースアクセス（MyBatis3編）</span></a></li>
+<li><a class="reference internal" href="DataAccessJpa.html"><span class="doc">データベースアクセス（JPA編）</span></a></li>
+</ul>
+<p>を参照されたい。</p>
+<div class="section" id="jdbc-datasource">
+<h3><a class="toc-backref" href="#id33">6.1.1.1. JDBC DataSourceについて</a><a class="headerlink" href="#jdbc-datasource" title="Permalink to this headline">¶</a></h3>
+<div class="line-block">
+<div class="line">RDBMSにアクセスする場合、アプリケーションからは、JDBCデータソースを参照してアクセスすることになる。</div>
+<div class="line">JDBCデータソースを使用することにより、JDBCドライバーのロード、接続情報（接続URL、接続ユーザ、パスワードなど）の設定を、アプリケーションから排除することができる。</div>
+<div class="line">そのため、アプリケーションからは、使用するRDBMSやデプロイする環境を、意識する必要がなくなる。</div>
+</div>
+<blockquote>
+<div><div class="figure align-center" id="id24">
+<a class="reference internal image-reference" href="../../_images/dataaccess_common-datasource.png"><img alt="about data source" src="../../_images/dataaccess_common-datasource.png" style="width: 90%;" /></a>
+<p class="caption"><span class="caption-text"><strong>Picture - About JDBC DataSource</strong></span></p>
+</div>
+</div></blockquote>
+<div class="line-block">
+<div class="line">JDBCデータソースの実装は、アプリケーションサーバ、OSSライブラリ、Third-Partyライブラリ、Spring Frameworkなどから提供されているので、プロジェクト要件や、デプロイ環境にあったデータソースの選定が必要になる。</div>
+<div class="line">以下に、代表的なデータソース3種類の紹介を行う。</div>
+</div>
+<blockquote>
+<div><ul class="simple">
+<li><a class="reference internal" href="#datasource-application-server-label"><span class="std std-ref">アプリケーションサーバ提供のJDBCデータソース</span></a></li>
+<li><a class="reference internal" href="#datasource-oss-thirdparty-label"><span class="std std-ref">OSS/Third-Partyライブラリ提供のJDBCデータソース</span></a></li>
+<li><a class="reference internal" href="#datasource-spring-framework-label"><span class="std std-ref">Spring Framework提供のJDBCデータソース</span></a></li>
+</ul>
+</div></blockquote>
+<div class="section" id="jdbc">
+<span id="datasource-application-server-label"></span><h4><a class="toc-backref" href="#id34">6.1.1.1.1. アプリケーションサーバ提供のJDBCデータソース</a><a class="headerlink" href="#jdbc" title="Permalink to this headline">¶</a></h4>
+<div class="line-block">
+<div class="line">Webアプリケーションでデータソースを使用する場合、アプリケーションサーバから提供されるJDBCデータソースを使うのが一般的である。</div>
+<div class="line">アプリケーションサーバから提供されるJDBCデータソースは、コネクションプーリング機能など、Webアプリケーションで使うために必要な機能が、標準で提供されている。</div>
+</div>
+<blockquote>
+<div><table border="1" class="colwidths-given docutils" id="id25">
+<caption><span class="caption-text"><strong>アプリケーションサーバから提供されているデータソース</strong></span><a class="headerlink" href="#id25" title="Permalink to this table">¶</a></caption>
+<colgroup>
+<col width="10%" />
+<col width="35%" />
+<col width="55%" />
+</colgroup>
+<thead valign="bottom">
+<tr class="row-odd"><th class="head">項番</th>
+<th class="head">アプリケーションサーバ</th>
+<th class="head">参照ページ</th>
+</tr>
+</thead>
+<tbody valign="top">
+<tr class="row-even"><td><ol class="first last arabic simple">
+<li></li>
+</ol>
+</td>
+<td>Apache Tomcat 9.0</td>
+<td><div class="first last line-block">
+<div class="line"><a class="reference external" href="http://tomcat.apache.org/tomcat-9.0-doc/jdbc-pool.html">Apache Tomcat 9.0 User Guide(The Tomcat JDBC Connection Pool)</a>を参照されたい。</div>
+<div class="line"><a class="reference external" href="http://tomcat.apache.org/tomcat-9.0-doc/jndi-datasource-examples-howto.html">Apache Tomcat 9.0 User Guide(JNDI Datasource HOW-TO)</a>(Apache Commons DBCP 2)を参照されたい。</div>
+</div>
+</td>
+</tr>
+<tr class="row-odd"><td><ol class="first last arabic simple" start="2">
+<li></li>
+</ol>
+</td>
+<td>Apache Tomcat 8.5</td>
+<td><div class="first last line-block">
+<div class="line"><a class="reference external" href="http://tomcat.apache.org/tomcat-8.5-doc/jdbc-pool.html">Apache Tomcat 8.5 User Guide(The Tomcat JDBC Connection Pool)</a>を参照されたい。</div>
+<div class="line"><a class="reference external" href="http://tomcat.apache.org/tomcat-8.5-doc/jndi-datasource-examples-howto.html">Apache Tomcat 8.5 User Guide(JNDI Datasource HOW-TO)</a>(Apache Commons DBCP 2)を参照されたい。</div>
+</div>
+</td>
+</tr>
+<tr class="row-even"><td><ol class="first last arabic simple" start="3">
+<li></li>
+</ol>
+</td>
+<td>Apache Tomcat 7</td>
+<td><div class="first last line-block">
+<div class="line"><a class="reference external" href="http://tomcat.apache.org/tomcat-7.0-doc/jdbc-pool.html">Apache Tomcat 7 User Guide(The Tomcat JDBC Connection Pool)</a>を参照されたい。</div>
+<div class="line"><a class="reference external" href="http://tomcat.apache.org/tomcat-7.0-doc/jndi-datasource-examples-howto.html">Apache Tomcat 7 User Guide(JNDI Datasource HOW-TO)</a>(Apache Commons DBCP)を参照されたい。</div>
+</div>
+</td>
+</tr>
+<tr class="row-odd"><td><ol class="first last arabic simple" start="4">
+<li></li>
+</ol>
+</td>
+<td>Oracle WebLogic Server 12c</td>
+<td><a class="reference external" href="https://docs.oracle.com/middleware/12213/wls/INTRO/jdbc.htm#INTRO215">Oracle WebLogic Server Product Documentation</a>を参照されたい。</td>
+</tr>
+<tr class="row-even"><td><ol class="first last arabic simple" start="5">
+<li></li>
+</ol>
+</td>
+<td>IBM WebSphere Application Server Version 9.0</td>
+<td><a class="reference external" href="http://www.ibm.com/support/knowledgecenter/ja/SSEQTP_9.0.0/com.ibm.websphere.wlp.doc/ae/twlp_dep_configuring_ds.html">WebSphere Application Server Online information center</a>を参照されたい。</td>
+</tr>
+<tr class="row-odd"><td><ol class="first last arabic simple" start="6">
+<li></li>
+</ol>
+</td>
+<td>JBoss Enterprise Application Platform 7.2</td>
+<td><a class="reference external" href="https://access.redhat.com/documentation/en-us/red_hat_jboss_enterprise_application_platform/7.2/html/configuration_guide/datasource_management">JBoss Enterprise Application Platform 7.2 Product Documentation</a>を参照されたい。</td>
+</tr>
+<tr class="row-even"><td><ol class="first last arabic simple" start="7">
+<li></li>
+</ol>
+</td>
+<td>JBoss Enterprise Application Platform 6.4</td>
+<td><a class="reference external" href="https://access.redhat.com/documentation/en-US/JBoss_Enterprise_Application_Platform/6.4/html/Administration_and_Configuration_Guide/chap-Datasource_Management.html">JBoss Enterprise Application Platform 6.4 Product Documentation</a>を参照されたい。</td>
+</tr>
+</tbody>
+</table>
+</div></blockquote>
+</div>
+<div class="section" id="oss-third-partyjdbc">
+<span id="datasource-oss-thirdparty-label"></span><h4><a class="toc-backref" href="#id35">6.1.1.1.2. OSS/Third-Partyライブラリ提供のJDBCデータソース</a><a class="headerlink" href="#oss-third-partyjdbc" title="Permalink to this headline">¶</a></h4>
+<div class="line-block">
+<div class="line">アプリケーションサーバから提供されるJDBCデータソースを使わない場合は、OSS/Third-Partyライブラリから提供されているJDBCデータソースを使用する。</div>
+<div class="line">本ガイドラインでは、「Apache Commons DBCP」のみ紹介するが、他のライブラリを使ってもよい。</div>
+</div>
+<blockquote>
+<div><table border="1" class="colwidths-given docutils" id="id26">
+<caption><span class="caption-text"><strong>OSS/Third-Partyライブラリから提供されているJDBCデータソース</strong></span><a class="headerlink" href="#id26" title="Permalink to this table">¶</a></caption>
+<colgroup>
+<col width="10%" />
+<col width="35%" />
+<col width="55%" />
+</colgroup>
+<thead valign="bottom">
+<tr class="row-odd"><th class="head">項番</th>
+<th class="head">ライブラリ名</th>
+<th class="head">説明</th>
+</tr>
+</thead>
+<tbody valign="top">
+<tr class="row-even"><td><ol class="first last arabic simple">
+<li></li>
+</ol>
+</td>
+<td>Apache Commons DBCP</td>
+<td><a class="reference external" href="http://commons.apache.org/proper/commons-dbcp/index.html">Apache Commons DBCP</a>を参照されたい。</td>
+</tr>
+</tbody>
+</table>
+</div></blockquote>
+</div>
+<div class="section" id="spring-frameworkjdbc">
+<span id="datasource-spring-framework-label"></span><h4><a class="toc-backref" href="#id36">6.1.1.1.3. Spring Framework提供のJDBCデータソース</a><a class="headerlink" href="#spring-frameworkjdbc" title="Permalink to this headline">¶</a></h4>
+<div class="line-block">
+<div class="line">Spring Frameworkから提供されているJDBCデータソースの実装クラスは、コネクションプーリング機能がないため、Webアプリケーションのデータソースとして使用する事はない。</div>
+<div class="line">Spring Frameworkでは、JDBCデータソースの実装クラスと、JDBCデータソースのアダプタクラスを提供しているが、利用するケースが限定的なので、Appendixの<a class="reference internal" href="#appendix-datasource-of-spring-label"><span class="std std-ref">Spring Frameworkから提供されているJDBCデータソースクラス</span></a>として紹介する。</div>
+</div>
+</div>
+</div>
+<div class="section" id="id3">
+<h3><a class="toc-backref" href="#id37">6.1.1.2. トランザクションの管理方法について</a><a class="headerlink" href="#id3" title="Permalink to this headline">¶</a></h3>
+<div class="line-block">
+<div class="line">Spring Frameworkの機能を使って、トランザクション管理を行う場合、プロジェクト要件や、デプロイ環境にあったPlatformTransactionManagerの選定が必要になる。</div>
+<div class="line">詳細は、<a class="reference internal" href="../../ImplementationAtEachLayer/DomainLayer.html"><span class="doc">ドメイン層の実装</span></a>の<a class="reference internal" href="../../ImplementationAtEachLayer/DomainLayer.html#service-enable-transaction-management"><span class="std std-ref">トランザクション管理を使うための設定について</span></a>を参照されたい。</div>
+</div>
+</div>
+<div class="section" id="id4">
+<h3><a class="toc-backref" href="#id38">6.1.1.3. トランザクション境界/属性の宣言について</a><a class="headerlink" href="#id4" title="Permalink to this headline">¶</a></h3>
+<div class="line-block">
+<div class="line">トランザクション境界及びトランザクション属性の宣言は、Serviceにて、<code class="docutils literal"><span class="pre">&#64;Transactional</span></code>アノテーションを指定することで実現する。</div>
+<div class="line">詳細は、<a class="reference internal" href="../../ImplementationAtEachLayer/DomainLayer.html"><span class="doc">ドメイン層の実装</span></a>の<a class="reference internal" href="../../ImplementationAtEachLayer/DomainLayer.html#service-transaction-management"><span class="std std-ref">トランザクション管理について</span></a>を参照されたい。</div>
+</div>
+</div>
+<div class="section" id="id5">
+<h3><a class="toc-backref" href="#id39">6.1.1.4. データの排他制御について</a><a class="headerlink" href="#id5" title="Permalink to this headline">¶</a></h3>
+<div class="line-block">
+<div class="line">データを更新する場合、データの一貫性および整合性を保障するために、排他制御を行う必要がある。</div>
+<div class="line">データの排他制御については、<a class="reference internal" href="ExclusionControl.html"><span class="doc">排他制御</span></a>を参照されたい。</div>
+</div>
+</div>
+<div class="section" id="id6">
+<h3><a class="toc-backref" href="#id40">6.1.1.5. 例外ハンドリングについて</a><a class="headerlink" href="#id6" title="Permalink to this headline">¶</a></h3>
+<div class="line-block">
+<div class="line">Spring Frameworkでは、JDBCの例外(<code class="docutils literal"><span class="pre">java.sql.SQLException</span></code>)や、O/R Mapper固有の例外を、Spring Frameworkから提供しているデータアクセス例外(<code class="docutils literal"><span class="pre">org.springframework.dao.DataAccessException</span></code>のサブクラス)に変換する機能がある。</div>
+<div class="line">Spring Frameworkのデータアクセス例外へ変換しているクラスについては、Appendixの<a class="reference internal" href="#appendix-dataaccessexception-converter-class-label"><span class="std std-ref">Spring Frameworkから提供されているデータアクセス例外へ変換するクラス</span></a>を参照されたい。</div>
+</div>
+<div class="line-block">
+<div class="line">変換されたデータアクセス例外は、基本的にはアプリケーションコードでハンドリングする必要はないが、一部のエラー（一意制約違反、排他エラーなど）については、要件によっては、ハンドリングする必要がある。</div>
+<div class="line">データアクセス例外をハンドリングする場合、<code class="docutils literal"><span class="pre">DataAccessException</span></code>をcatchするのではなく、エラー内容を通知するサブクラスの例外をcatchすること。</div>
+<div class="line">以下に、アプリケーションコードでハンドリングする可能性がある代表的なサブクラスを紹介する。</div>
+</div>
+<blockquote>
+<div><table border="1" class="colwidths-given docutils" id="id27">
+<caption><span class="caption-text"><strong>ハンドリングする可能性があるDBアクセス例外のサブクラス</strong></span><a class="headerlink" href="#id27" title="Permalink to this table">¶</a></caption>
+<colgroup>
+<col width="10%" />
+<col width="35%" />
+<col width="55%" />
+</colgroup>
+<thead valign="bottom">
+<tr class="row-odd"><th class="head">項番</th>
+<th class="head">クラス名</th>
+<th class="head">説明</th>
+</tr>
+</thead>
+<tbody valign="top">
+<tr class="row-even"><td><ol class="first last arabic simple">
+<li></li>
+</ol>
+</td>
+<td><div class="first last line-block">
+<div class="line">org.springframework.dao.</div>
+<div class="line">DuplicateKeyException</div>
+</div>
+</td>
+<td><div class="first last line-block">
+<div class="line">一意制約違反が発生した場合に発生する例外。</div>
+</div>
+</td>
+</tr>
+<tr class="row-odd"><td><ol class="first last arabic simple" start="2">
+<li></li>
+</ol>
+</td>
+<td><div class="first last line-block">
+<div class="line">org.springframework.dao.</div>
+<div class="line">OptimisticLockingFailureException</div>
+</div>
+</td>
+<td><div class="first last line-block">
+<div class="line">楽観ロックに成功しなかった場合に発生する例外。他の処理によって同一データが更新されていた場合に発生する。</div>
+<div class="line">本例外は、O/R MapperとしてJPAを使用する場合に発生する例外である。MyBatisには楽観ロックを行う機能がないため、O/R Mapper本体から本例外が発生することはない。</div>
+</div>
+</td>
+</tr>
+<tr class="row-even"><td><ol class="first last arabic simple" start="3">
+<li></li>
+</ol>
+</td>
+<td><div class="first last line-block">
+<div class="line">org.springframework.dao.</div>
+<div class="line">PessimisticLockingFailureException</div>
+</div>
+</td>
+<td><div class="first last line-block">
+<div class="line">悲観ロックに成功しなかった場合に発生する例外。他の処理で同一データがロックされており、ロック解放待ちのタイムアウト時間を超えてもロックが解放されない場合に発生する。</div>
+</div>
+</td>
+</tr>
+</tbody>
+</table>
+<div class="admonition note">
+<p class="first admonition-title">Note</p>
+<p>O/R MapperにMyBatisを使用して楽観ロックを実現する場合は、ServiceやRepositoryの処理として楽観ロック処理を実装する必要がある。</p>
+<p>本ガイドラインでは、楽観ロックに失敗したことを、Controllerに通知する方法として、<code class="docutils literal"><span class="pre">OptimisticLockingFailureException</span></code>およびその子クラスの例外を発生させることを推奨する。</p>
+<p class="last">理由は、アプリケーション層の実装(Controllerの実装)を、使用するO/R Mapperに依存させないためである。</p>
+</div>
+</div></blockquote>
+<blockquote id="data-access-common-todo-exception">
+<div><div class="admonition-todo admonition" id="index-0">
+<p class="first admonition-title">Todo</p>
+<p><strong>JPA(Hibernate)を使用すると、現状意図しないエラーとなることが発覚している。</strong></p>
+<ul class="last simple">
+<li>一意制約違反が発生した場合、<code class="docutils literal"><span class="pre">DuplicateKeyException</span></code>ではなく、<code class="docutils literal"><span class="pre">org.springframework.dao.DataIntegrityViolationException</span></code>が発生する。</li>
+</ul>
+</div>
+</div></blockquote>
+<p>下記は、一意制約違反を、ビジネス例外として扱う実装例である。</p>
+<blockquote>
+<div><div class="highlight-java"><div class="highlight"><pre><span></span><span class="k">try</span> <span class="p">{</span>
+    <span class="n">accountRepository</span><span class="p">.</span><span class="na">saveAndFlash</span><span class="p">(</span><span class="n">account</span><span class="p">);</span>
+<span class="p">}</span> <span class="k">catch</span><span class="p">(</span><span class="n">DuplicateKeyException</span> <span class="n">e</span><span class="p">)</span> <span class="p">{</span> <span class="c1">// (1)</span>
+    <span class="k">throw</span> <span class="k">new</span> <span class="n">BusinessException</span><span class="p">(</span><span class="n">ResultMessages</span><span class="p">.</span><span class="na">error</span><span class="p">().</span><span class="na">add</span><span class="p">(</span><span class="s">&quot;e.xx.xx.0002&quot;</span><span class="p">),</span> <span class="n">e</span><span class="p">);</span> <span class="c1">// (2)</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+<table border="1" class="colwidths-given docutils">
+<colgroup>
+<col width="10%" />
+<col width="90%" />
+</colgroup>
+<thead valign="bottom">
+<tr class="row-odd"><th class="head">項番</th>
+<th class="head">説明</th>
+</tr>
+</thead>
+<tbody valign="top">
+<tr class="row-even"><td><div class="first last line-block">
+<div class="line">(1)</div>
+</div>
+</td>
+<td><div class="first last line-block">
+<div class="line">一意制約違反が発生した場合に発生する例外（DuplicateKeyException）をcatchする。</div>
+</div>
+</td>
+</tr>
+<tr class="row-odd"><td><div class="first last line-block">
+<div class="line">(2)</div>
+</div>
+</td>
+<td><div class="first last line-block">
+<div class="line">データが重複している旨を伝えるビジネス例外を発生させている。</div>
+<div class="line">例外をcatchした場合は、必ず原因例外(“<code class="docutils literal"><span class="pre">e</span></code>” ) をビジネス例外に指定すること。</div>
+</div>
+</td>
+</tr>
+</tbody>
+</table>
+</div></blockquote>
+</div>
+<div class="section" id="id7">
+<h3><a class="toc-backref" href="#id41">6.1.1.6. 複数データソースについて</a><a class="headerlink" href="#id7" title="Permalink to this headline">¶</a></h3>
+<div class="line-block">
+<div class="line">アプリケーションによっては、複数のデータソースが必要になる場合がある。</div>
+<div class="line">以下に、複数のデータソースが必要になる代表的なケースを紹介する。</div>
+</div>
+<blockquote>
+<div><table border="1" class="colwidths-given docutils" id="id28">
+<caption><span class="caption-text"><strong>複数のデータソースが必要になる代表的なケース</strong></span><a class="headerlink" href="#id28" title="Permalink to this table">¶</a></caption>
+<colgroup>
+<col width="10%" />
+<col width="30%" />
+<col width="30%" />
+<col width="30%" />
+</colgroup>
+<thead valign="bottom">
+<tr class="row-odd"><th class="head">項番</th>
+<th class="head">ケース</th>
+<th class="head">例</th>
+<th class="head">特徴</th>
+</tr>
+</thead>
+<tbody valign="top">
+<tr class="row-even"><td><ol class="first last arabic simple">
+<li></li>
+</ol>
+</td>
+<td>データ(テーブル)の分類毎にデータベースやスキーマがわかれている場合。</td>
+<td>顧客情報を保持するテーブル群と請求情報を保持するテーブル群が別々のデータベースやスキーマに格納されている場合など。</td>
+<td>処理で扱うデータは決まっているので、静的に使用するデータソースを決定することができる。</td>
+</tr>
+<tr class="row-odd"><td><ol class="first last arabic simple" start="2">
+<li></li>
+</ol>
+</td>
+<td>利用者（ログインユーザ）によって使用するデータベースやスキーマが分かれている場合。</td>
+<td>利用者の分類毎にデータベースやスキーマがわかれている場合など（マルチテナント等）。</td>
+<td>利用者によって使用するデータソースが異なるため、動的に使用するデータソースを決定する必要がある。</td>
+</tr>
+</tbody>
+</table>
+</div></blockquote>
+</div>
+<div class="section" id="data-access-common-todo-multiple-datasource-overview">
+<span id="id8"></span><h3><a class="toc-backref" href="#id42">6.1.1.7. 共通ライブラリから提供しているクラスについて</a><a class="headerlink" href="#data-access-common-todo-multiple-datasource-overview" title="Permalink to this headline">¶</a></h3>
+<div class="line-block">
+<div class="line">共通ライブラリから、以下の処理を行うクラスを提供している。</div>
+<div class="line">共通ライブラリの詳細については、以下を参照されたい。</div>
+</div>
+<ul class="simple">
+<li><a class="reference internal" href="#data-access-common-appendix-like-escape"><span class="std std-ref">LIKE検索時のエスケープについて</span></a></li>
+<li><a class="reference internal" href="#data-access-common-appendix-sequencer"><span class="std std-ref">Sequencerについて</span></a></li>
+</ul>
+<div class="line-block">
+<div class="line"><br /></div>
+</div>
+</div>
+</div>
+<div class="section" id="how-to-use">
+<h2><a class="toc-backref" href="#id43">6.1.2. How to use</a><a class="headerlink" href="#how-to-use" title="Permalink to this headline">¶</a></h2>
+<div class="section" id="data-access-common-howtouse-datasource">
+<span id="id9"></span><h3><a class="toc-backref" href="#id44">6.1.2.1. データソースの設定</a><a class="headerlink" href="#data-access-common-howtouse-datasource" title="Permalink to this headline">¶</a></h3>
+<div class="section" id="datasource">
+<h4><a class="toc-backref" href="#id45">6.1.2.1.1. アプリケーションサーバで定義したDataSourceを使用する場合の設定</a><a class="headerlink" href="#datasource" title="Permalink to this headline">¶</a></h4>
+<div class="line-block">
+<div class="line">アプリケーションサーバで定義したデータソースを使用する場合は、Bean定義ファイルに、JNDI経由で取得したオブジェクトを、beanとして登録するための設定を行う必要がある。</div>
+<div class="line">以下に、データベースはPostgreSQL、アプリケーションサーバはTomcat9を使用する際の、設定例を示す。</div>
+</div>
+<ul>
+<li><p class="first"><code class="file docutils literal"><span class="pre">xxx-context.xml</span></code> (Tomcatの設定ファイル)</p>
+<div class="highlight-xml"><div class="highlight"><pre><span></span><span class="c">&lt;!-- (1) --&gt;</span>
+<span class="nt">&lt;Resource</span>
+   <span class="na">type=</span><span class="s">&quot;javax.sql.DataSource&quot;</span>
+   <span class="na">name=</span><span class="s">&quot;jdbc/SampleDataSource&quot;</span>
+   <span class="na">driverClassName=</span><span class="s">&quot;org.postgresql.Driver&quot;</span>
+   <span class="na">url=</span><span class="s">&quot;jdbc:postgresql://localhost:5432/terasoluna&quot;</span>
+   <span class="na">username=</span><span class="s">&quot;postgres&quot;</span>
+   <span class="na">password=</span><span class="s">&quot;postgres&quot;</span>
+   <span class="na">defaultAutoCommit=</span><span class="s">&quot;false&quot;</span>
+   <span class="nt">/&gt;</span> <span class="c">&lt;!-- (2) --&gt;</span>
+</pre></div>
+</div>
+</li>
+<li><p class="first"><code class="file docutils literal"><span class="pre">xxx-env.xml</span></code></p>
+</li>
+</ul>
+<blockquote>
+<div><div class="highlight-xml"><div class="highlight"><pre><span></span><span class="nt">&lt;jee:jndi-lookup</span> <span class="na">id=</span><span class="s">&quot;dataSource&quot;</span> <span class="na">jndi-name=</span><span class="s">&quot;jdbc/SampleDataSource&quot;</span> <span class="nt">/&gt;</span> <span class="c">&lt;!-- (3) --&gt;</span>
+</pre></div>
+</div>
+<table border="1" class="colwidths-given docutils">
+<colgroup>
+<col width="10%" />
+<col width="10%" />
+<col width="80%" />
+</colgroup>
+<thead valign="bottom">
+<tr class="row-odd"><th class="head">項番</th>
+<th class="head">属性名</th>
+<th class="head">説明</th>
+</tr>
+</thead>
+<tbody valign="top">
+<tr class="row-even"><td><div class="first last line-block">
+<div class="line">(1)</div>
+</div>
+</td>
+<td>-</td>
+<td>データソースを定義する。</td>
+</tr>
+<tr class="row-odd"><td><div class="first last line-block">
+<div class="line"><br /></div>
+</div>
+</td>
+<td>type</td>
+<td>リソースの種類を指定する。<code class="docutils literal"><span class="pre">javax.sql.DataSource</span></code>を指定する。</td>
+</tr>
+<tr class="row-even"><td><div class="first last line-block">
+<div class="line"><br /></div>
+</div>
+</td>
+<td>name</td>
+<td>リソース名を指定する。ここで指定した名前がJNDI名となる。</td>
+</tr>
+<tr class="row-odd"><td><div class="first last line-block">
+<div class="line"><br /></div>
+</div>
+</td>
+<td>driverClassName</td>
+<td>JDBCドライバクラスを指定する。例では、PostgreSQLから提供されているJDBCドライバクラスを指定する。</td>
+</tr>
+<tr class="row-even"><td><div class="first last line-block">
+<div class="line"><br /></div>
+</div>
+</td>
+<td>url</td>
+<td>接続URLを指定する。 【環境に合わせて変更が必要】</td>
+</tr>
+<tr class="row-odd"><td><div class="first last line-block">
+<div class="line"><br /></div>
+</div>
+</td>
+<td>username</td>
+<td>接続ユーザ名を指定する。【環境に合わせて変更が必要】</td>
+</tr>
+<tr class="row-even"><td><div class="first last line-block">
+<div class="line"><br /></div>
+</div>
+</td>
+<td>password</td>
+<td>接続ユーザのパスワードを指定する。【環境に合わせて変更が必要】</td>
+</tr>
+<tr class="row-odd"><td><div class="first last line-block">
+<div class="line"><br /></div>
+</div>
+</td>
+<td>defaultAutoCommit</td>
+<td>自動コミットフラグのデフォルト値を指定する。falseを指定する。トランザクション管理下であれば強制的にfalseになる。</td>
+</tr>
+<tr class="row-even"><td><div class="first last line-block">
+<div class="line">(2)</div>
+</div>
+</td>
+<td>-</td>
+<td><div class="first last line-block">
+<div class="line">Tomcat9の場合、factory属性を省略するとtomcat-jdbc-poolが使用される。</div>
+<div class="line">設定項目の詳細については、<a class="reference external" href="http://tomcat.apache.org/tomcat-9.0-doc/jdbc-pool.html#Attributes">Attributes of The Tomcat JDBC Connection Pool</a>を参照されたい。</div>
+</div>
+</td>
+</tr>
+<tr class="row-odd"><td><div class="first last line-block">
+<div class="line">(3)</div>
+</div>
+</td>
+<td>-</td>
+<td>データソースのJNDI名を指定する。Tomcatの場合は、データソース定義時のリソース名「(1)-name」に指定した値を指定する。</td>
+</tr>
+</tbody>
+</table>
+</div></blockquote>
+</div>
+<div class="section" id="beandatasource">
+<h4><a class="toc-backref" href="#id46">6.1.2.1.2. Bean定義したDataSourceを使用する場合の設定</a><a class="headerlink" href="#beandatasource" title="Permalink to this headline">¶</a></h4>
+<div class="line-block">
+<div class="line">アプリケーションサーバから提供されているデータソースを使わずに、</div>
+<div class="line">OSS/Third-Partyライブラリから提供されているデータソースや、Spring Frameworkから提供されているJDBCデータソースを使用する場合は、Bean定義ファイルにDataSourceクラスのbean定義が必要となる。</div>
+<div class="line">以下に、データベースはPostgreSQL、データソースはApache Commons DBCPを使用する際の、設定例を示す。</div>
+</div>
+<ul class="simple">
+<li><code class="file docutils literal"><span class="pre">xxx-env.xml</span></code></li>
+</ul>
+<blockquote>
+<div><div class="highlight-xml"><div class="highlight"><pre><span></span><span class="nt">&lt;bean</span> <span class="na">id=</span><span class="s">&quot;dataSource&quot;</span> <span class="na">class=</span><span class="s">&quot;org.apache.commons.dbcp2.BasicDataSource&quot;</span>
+    <span class="na">destroy-method=</span><span class="s">&quot;close&quot;</span><span class="nt">&gt;</span>                                           <span class="c">&lt;!-- (1) (8) --&gt;</span>
+    <span class="nt">&lt;property</span> <span class="na">name=</span><span class="s">&quot;driverClassName&quot;</span> <span class="na">value=</span><span class="s">&quot;org.postgresql.Driver&quot;</span> <span class="nt">/&gt;</span> <span class="c">&lt;!-- (2) --&gt;</span>
+    <span class="nt">&lt;property</span> <span class="na">name=</span><span class="s">&quot;url&quot;</span> <span class="na">value=</span><span class="s">&quot;jdbc:postgresql://localhost:5432/terasoluna&quot;</span> <span class="nt">/&gt;</span> <span class="c">&lt;!-- (3) --&gt;</span>
+    <span class="nt">&lt;property</span> <span class="na">name=</span><span class="s">&quot;username&quot;</span> <span class="na">value=</span><span class="s">&quot;postgres&quot;</span> <span class="nt">/&gt;</span>                     <span class="c">&lt;!-- (4) --&gt;</span>
+    <span class="nt">&lt;property</span> <span class="na">name=</span><span class="s">&quot;password&quot;</span> <span class="na">value=</span><span class="s">&quot;postgres&quot;</span> <span class="nt">/&gt;</span>                     <span class="c">&lt;!-- (5) --&gt;</span>
+    <span class="nt">&lt;property</span> <span class="na">name=</span><span class="s">&quot;defaultAutoCommit&quot;</span> <span class="na">value=</span><span class="s">&quot;false&quot;</span><span class="nt">/&gt;</span>               <span class="c">&lt;!-- (6) --&gt;</span>
+    <span class="c">&lt;!-- (7) --&gt;</span>
+<span class="nt">&lt;/bean&gt;</span>
+</pre></div>
+</div>
+<table border="1" class="colwidths-given docutils">
+<colgroup>
+<col width="10%" />
+<col width="90%" />
+</colgroup>
+<thead valign="bottom">
+<tr class="row-odd"><th class="head">項番</th>
+<th class="head">説明</th>
+</tr>
+</thead>
+<tbody valign="top">
+<tr class="row-even"><td><div class="first last line-block">
+<div class="line">(1)</div>
+</div>
+</td>
+<td>データソースの実装クラスを指定する。例では、Apache Commons DBCPから提供されているデータソースクラス(<code class="docutils literal"><span class="pre">org.apache.commons.dbcp2.BasicDataSource</span></code>)を指定する。</td>
+</tr>
+<tr class="row-odd"><td><div class="first last line-block">
+<div class="line">(2)</div>
+</div>
+</td>
+<td>JDBCドライバクラスを指定する。例では、PostgreSQLから提供されているJDBCドライバクラスを指定する。</td>
+</tr>
+<tr class="row-even"><td><div class="first last line-block">
+<div class="line">(3)</div>
+</div>
+</td>
+<td>接続URLを指定する。 【環境に合わせて変更が必要】</td>
+</tr>
+<tr class="row-odd"><td><div class="first last line-block">
+<div class="line">(4)</div>
+</div>
+</td>
+<td>接続ユーザ名を指定する。【環境に合わせて変更が必要】</td>
+</tr>
+<tr class="row-even"><td><div class="first last line-block">
+<div class="line">(5)</div>
+</div>
+</td>
+<td>接続ユーザのパスワードを指定する。【環境に合わせて変更が必要】</td>
+</tr>
+<tr class="row-odd"><td><div class="first last line-block">
+<div class="line">(6)</div>
+</div>
+</td>
+<td>自動コミットフラグのデフォルト値を指定する。falseを指定する。トランザクション管理下であれば、強制的にfalseになる。</td>
+</tr>
+<tr class="row-even"><td><div class="first last line-block">
+<div class="line">(7)</div>
+</div>
+</td>
+<td><div class="first last line-block">
+<div class="line">BasicDataSourceには上記以外に、JDBC共通の設定値の指定、JDBCドライバー固有のプロパティ値の指定、コネクションプーリング機能の設定値の指定を行うことができる。</div>
+<div class="line">設定項目の詳細については、<a class="reference external" href="http://commons.apache.org/proper/commons-dbcp/configuration.html">DBCP Configuration</a>を参照されたい。</div>
+</div>
+</td>
+</tr>
+<tr class="row-odd"><td><div class="first last line-block">
+<div class="line">(8)</div>
+</div>
+</td>
+<td><div class="first last line-block">
+<div class="line">設定例では値を直接指定しているが、環境によって設定値がかわる項目については、Placeholder(${…})を使用して、実際の設定値はプロパティファイルに指定すること。</div>
+<div class="line">Placeholderについては、<a class="reference external" href="https://docs.spring.io/spring/docs/5.1.4.RELEASE/spring-framework-reference/core.html#beans-factory-extension-factory-postprocessors">Spring Framework Documentation</a>の <code class="docutils literal"><span class="pre">Example:</span> <span class="pre">the</span> <span class="pre">Class</span> <span class="pre">name</span> <span class="pre">substitution</span> <span class="pre">PropertyPlaceholderConfigurer</span></code>を参照されたい。</div>
+</div>
+</td>
+</tr>
+</tbody>
+</table>
+</div></blockquote>
+</div>
+</div>
+<div class="section" id="id10">
+<h3><a class="toc-backref" href="#id47">6.1.2.2. トランザクション管理を有効化するための設定</a><a class="headerlink" href="#id10" title="Permalink to this headline">¶</a></h3>
+<p>トランザクション管理を有効化するための基本的な設定は、<a class="reference internal" href="../../ImplementationAtEachLayer/DomainLayer.html"><span class="doc">ドメイン層の実装</span></a>の<a class="reference internal" href="../../ImplementationAtEachLayer/DomainLayer.html#service-enable-transaction-management"><span class="std std-ref">トランザクション管理を使うための設定について</span></a>を参照されたい。</p>
+<p>PlatformTransactionManagerについては、使用するO/R Mapperによって使うクラスがかわるので、詳細設定は、</p>
+<ul class="simple">
+<li><a class="reference internal" href="DataAccessMyBatis3.html"><span class="doc">データベースアクセス（MyBatis3編）</span></a></li>
+<li><a class="reference internal" href="DataAccessJpa.html"><span class="doc">データベースアクセス（JPA編）</span></a></li>
+</ul>
+<p>を参照されたい。</p>
+</div>
+<div class="section" id="jdbcdebug">
+<span id="dataaccesscommondatasourcedebug"></span><h3><a class="toc-backref" href="#id48">6.1.2.3. JDBCのDebug用ログの設定</a><a class="headerlink" href="#jdbcdebug" title="Permalink to this headline">¶</a></h3>
+<div class="line-block">
+<div class="line">O/R Mapper(MyBatis, Hibernate)で出力されるログより、さらに細かい情報が必要な場合、log4jdbc(log4jdbc-remix)を使って出力される情報が有効である。</div>
+<div class="line">log4jdbcの詳細については、<a class="reference external" href="https://code.google.com/p/log4jdbc/">log4jdbc project page</a>を参照されたい。</div>
+<div class="line">log4jdbc-remixの詳細については、<a class="reference external" href="https://code.google.com/p/log4jdbc-remix/">log4jdbc-remix project page</a>を参照されたい。</div>
+</div>
+<p></p>
+<blockquote>
+<div><div class="admonition warning">
+<p class="first admonition-title">Warning</p>
+<p class="last"><strong>log4jdbc-remixが提供しているLog4jdbcProxyDataSourceを使用していると、ログレベルを”debug”以外に設定しても、オーバーヘッドが少なからず発生する。</strong>
+<strong>そのため、本設定はデバッグ用として使用し、性能試験及び商用環境にリリースする場合はLog4jdbcProxyDataSourceを経由せずにデータベースへ接続することを推奨する。</strong></p>
+</div>
+</div></blockquote>
+<div class="section" id="log4jdbc">
+<h4><a class="toc-backref" href="#id49">6.1.2.3.1. log4jdbc提供のデータソースの設定</a><a class="headerlink" href="#log4jdbc" title="Permalink to this headline">¶</a></h4>
+<ul class="simple">
+<li><code class="file docutils literal"><span class="pre">xxx-env.xml</span></code></li>
+</ul>
+<blockquote>
+<div><div class="highlight-xml"><div class="highlight"><pre><span></span><span class="nt">&lt;jee:jndi-lookup</span> <span class="na">id=</span><span class="s">&quot;realDataSource&quot;</span> <span class="na">jndi-name=</span><span class="s">&quot;jdbc/SampleDataSource&quot;</span> <span class="nt">/&gt;</span> <span class="c">&lt;!-- (1) --&gt;</span>
+
+<span class="nt">&lt;bean</span> <span class="na">id=</span><span class="s">&quot;dataSource&quot;</span> <span class="na">class=</span><span class="s">&quot;net.sf.log4jdbc.Log4jdbcProxyDataSource&quot;</span><span class="nt">&gt;</span> <span class="c">&lt;!-- (2) --&gt;</span>
+    <span class="nt">&lt;constructor-arg</span> <span class="na">ref=</span><span class="s">&quot;realDataSource&quot;</span> <span class="nt">/&gt;</span> <span class="c">&lt;!-- (3) --&gt;</span>
+<span class="nt">&lt;/bean&gt;</span>
+</pre></div>
+</div>
+<table border="1" class="colwidths-given docutils">
+<colgroup>
+<col width="10%" />
+<col width="90%" />
+</colgroup>
+<thead valign="bottom">
+<tr class="row-odd"><th class="head">項番</th>
+<th class="head">説明</th>
+</tr>
+</thead>
+<tbody valign="top">
+<tr class="row-even"><td><div class="first last line-block">
+<div class="line">(1)</div>
+</div>
+</td>
+<td>データソースの実体を定義する。例では、アプリケーションサーバからJNDI経由で取得したデータソースを使用している。</td>
+</tr>
+<tr class="row-odd"><td><div class="first last line-block">
+<div class="line">(2)</div>
+</div>
+</td>
+<td>log4jdbcより提供されている<code class="docutils literal"><span class="pre">net.sf.log4jdbc.Log4jdbcProxyDataSource</span></code>を指定する。</td>
+</tr>
+<tr class="row-even"><td><div class="first last line-block">
+<div class="line">(3)</div>
+</div>
+</td>
+<td>データソースの実体となるbeanを、コンストラクタに指定する。</td>
+</tr>
+</tbody>
+</table>
+<div class="admonition warning">
+<p class="first admonition-title">Warning</p>
+<p><strong>性能試験及び商用環境にリリースする場合、データソースとしてLog4jdbcProxyDataSourceは使用しないこと。</strong></p>
+<p class="last">具体的には、(2)と(3)の設定を外し、<code class="docutils literal"><span class="pre">realDataSource</span></code>のbean名を<code class="docutils literal"><span class="pre">dataSource</span></code>に変更する。</p>
+</div>
+</div></blockquote>
+</div>
+<div class="section" id="id11">
+<h4><a class="toc-backref" href="#id50">6.1.2.3.2. log4jdbc用ロガーの設定</a><a class="headerlink" href="#id11" title="Permalink to this headline">¶</a></h4>
+<ul class="simple">
+<li><code class="file docutils literal"><span class="pre">logback.xml</span></code></li>
+</ul>
+<blockquote>
+<div><div class="highlight-xml"><div class="highlight"><pre><span></span><span class="c">&lt;!-- (1) --&gt;</span>
+<span class="nt">&lt;logger</span> <span class="na">name=</span><span class="s">&quot;jdbc.sqltiming&quot;</span><span class="nt">&gt;</span>
+    <span class="nt">&lt;level</span> <span class="na">value=</span><span class="s">&quot;debug&quot;</span> <span class="nt">/&gt;</span>
+<span class="nt">&lt;/logger&gt;</span>
+
+<span class="c">&lt;!-- (2) --&gt;</span>
+<span class="nt">&lt;logger</span> <span class="na">name=</span><span class="s">&quot;jdbc.sqlonly&quot;</span><span class="nt">&gt;</span>
+    <span class="nt">&lt;level</span> <span class="na">value=</span><span class="s">&quot;warn&quot;</span> <span class="nt">/&gt;</span>
+<span class="nt">&lt;/logger&gt;</span>
+
+<span class="c">&lt;!-- (3) --&gt;</span>
+<span class="nt">&lt;logger</span> <span class="na">name=</span><span class="s">&quot;jdbc.audit&quot;</span><span class="nt">&gt;</span>
+    <span class="nt">&lt;level</span> <span class="na">value=</span><span class="s">&quot;warn&quot;</span> <span class="nt">/&gt;</span>
+<span class="nt">&lt;/logger&gt;</span>
+
+<span class="c">&lt;!-- (4) --&gt;</span>
+<span class="nt">&lt;logger</span> <span class="na">name=</span><span class="s">&quot;jdbc.connection&quot;</span><span class="nt">&gt;</span>
+    <span class="nt">&lt;level</span> <span class="na">value=</span><span class="s">&quot;warn&quot;</span> <span class="nt">/&gt;</span>
+<span class="nt">&lt;/logger&gt;</span>
+
+<span class="c">&lt;!-- (5) --&gt;</span>
+<span class="nt">&lt;logger</span> <span class="na">name=</span><span class="s">&quot;jdbc.resultset&quot;</span><span class="nt">&gt;</span>
+    <span class="nt">&lt;level</span> <span class="na">value=</span><span class="s">&quot;warn&quot;</span> <span class="nt">/&gt;</span>
+<span class="nt">&lt;/logger&gt;</span>
+
+<span class="c">&lt;!-- (6) --&gt;</span>
+<span class="nt">&lt;logger</span> <span class="na">name=</span><span class="s">&quot;jdbc.resultsettable&quot;</span><span class="nt">&gt;</span>
+    <span class="nt">&lt;level</span> <span class="na">value=</span><span class="s">&quot;debug&quot;</span> <span class="nt">/&gt;</span>
+<span class="nt">&lt;/logger&gt;</span>
+</pre></div>
+</div>
+<table border="1" class="colwidths-given docutils">
+<colgroup>
+<col width="10%" />
+<col width="90%" />
+</colgroup>
+<thead valign="bottom">
+<tr class="row-odd"><th class="head">項番</th>
+<th class="head">説明</th>
+</tr>
+</thead>
+<tbody valign="top">
+<tr class="row-even"><td><div class="first last line-block">
+<div class="line">(1)</div>
+</div>
+</td>
+<td><div class="first last line-block">
+<div class="line">バインド変数に値が設定された状態のSQL文と、SQLの実行時間を出力するためのロガー。値がバインドされた形式のSQLが出力されるので、DBアクセスツールに貼りつけて実行する事ができる。</div>
+</div>
+</td>
+</tr>
+<tr class="row-odd"><td><div class="first last line-block">
+<div class="line">(2)</div>
+</div>
+</td>
+<td><div class="first last line-block">
+<div class="line">バインド変数に値が設定された状態のSQL文を、出力するためのロガー。(1)との違いは、実行時間が出力されない。</div>
+</div>
+</td>
+</tr>
+<tr class="row-even"><td><div class="first last line-block">
+<div class="line">(3)</div>
+</div>
+</td>
+<td><div class="first last line-block">
+<div class="line">ResultSetインタフェースを除く、JDBCインタフェースのメソッド呼び出し（引数と、返り値）を出力するためのロガー。JDBC関連で問題が発生した時の解析に有効なログであるが、出力されるログの量が多い。</div>
+</div>
+</td>
+</tr>
+<tr class="row-odd"><td><div class="first last line-block">
+<div class="line">(4)</div>
+</div>
+</td>
+<td><div class="first last line-block">
+<div class="line">Connectionの接続/切断イベントと使用中の接続数を出力するためのロガー。接続リークが発生時の解析に有効なログであるが、接続リークの問題がなければ、出力する必要はない。</div>
+</div>
+</td>
+</tr>
+<tr class="row-even"><td><div class="first last line-block">
+<div class="line">(5)</div>
+</div>
+</td>
+<td><div class="first last line-block">
+<div class="line">ResultSetインタフェースに対するメソッド呼び出し（引数と、返り値）を出力するためのロガー。取得結果が、想定と異なった時の解析に有効なログであるが、出力されるログの量が多い。</div>
+</div>
+</td>
+</tr>
+<tr class="row-odd"><td><div class="first last line-block">
+<div class="line">(6)</div>
+</div>
+</td>
+<td><div class="first last line-block">
+<div class="line">ResultSetの中身を確認しやすい形式にフォーマットして出力するためのロガー。取得結果が、想定と異なった時の解析に有効なログであるが、出力されるログの量が多い。</div>
+</div>
+</td>
+</tr>
+</tbody>
+</table>
+<div class="admonition warning">
+<p class="first admonition-title">Warning</p>
+<p><strong>ロガーによっては大量にログが出力されるので、必要なロガーのみ定義、または出力対象にすること。</strong></p>
+<p>上記サンプルでは、開発中の非常に有効なログを出力するロガーについて、ログレベルを<code class="docutils literal"><span class="pre">debug</span></code>に設定している。
+その他のロガーについては、必要に応じて<code class="docutils literal"><span class="pre">debug</span></code>に設定する必要がある。</p>
+<p><strong>性能試験及び商用環境にリリースする場合、正常終了時にlog4jdbc用のロガーによってログが出力されないようにすること。</strong></p>
+<p class="last">具体的には、ログレベルを<code class="docutils literal"><span class="pre">warn</span></code>に設定する。</p>
+</div>
+</div></blockquote>
+</div>
+<div class="section" id="id12">
+<h4><a class="toc-backref" href="#id51">6.1.2.3.3. log4jdbcのオプションの設定</a><a class="headerlink" href="#id12" title="Permalink to this headline">¶</a></h4>
+<p>クラスパス直下に、<code class="file docutils literal"><span class="pre">log4jdbc.properties</span></code>というプロパティファイルを配置することで、log4jdbcのデフォルトの動作をカスタマイズすることができる。</p>
+<ul class="simple">
+<li><code class="file docutils literal"><span class="pre">log4jdbc.properties</span></code></li>
+</ul>
+<blockquote>
+<div><div class="highlight-properties"><div class="highlight"><pre><span></span><span class="c"># (1)</span>
+<span class="na">log4jdbc.dump.sql.maxlinelength</span><span class="o">=</span><span class="s">0</span>
+<span class="c"># (2)</span>
+</pre></div>
+</div>
+<table border="1" class="colwidths-given docutils">
+<colgroup>
+<col width="10%" />
+<col width="90%" />
+</colgroup>
+<thead valign="bottom">
+<tr class="row-odd"><th class="head">項番</th>
+<th class="head">説明</th>
+</tr>
+</thead>
+<tbody valign="top">
+<tr class="row-even"><td><div class="first last line-block">
+<div class="line">(1)</div>
+</div>
+</td>
+<td>SQL分の折り返し文字数を指定する。0を指定すると、折り返しはされない。</td>
+</tr>
+<tr class="row-odd"><td><div class="first last line-block">
+<div class="line">(2)</div>
+</div>
+</td>
+<td>オプションの詳細については、<a class="reference external" href="https://code.google.com/p/log4jdbc/#Options">log4jdbc project page -Options-</a>を参照されたい。</td>
+</tr>
+</tbody>
+</table>
+</div></blockquote>
+<div class="line-block">
+<div class="line"><br /></div>
+</div>
+</div>
+</div>
+</div>
+<div class="section" id="how-to-extend">
+<h2><a class="toc-backref" href="#id52">6.1.3. How to extend</a><a class="headerlink" href="#how-to-extend" title="Permalink to this headline">¶</a></h2>
+<div class="section" id="data-access-common-todo-multiple-datasource-howtoextends">
+<span id="id13"></span><h3><a class="toc-backref" href="#id53">6.1.3.1. 動的にデータソースを切り替えるための設定</a><a class="headerlink" href="#data-access-common-todo-multiple-datasource-howtoextends" title="Permalink to this headline">¶</a></h3>
+<div class="line-block">
+<div class="line">複数のデータソースを定義し、動的に切り替えを行うには、<code class="docutils literal"><span class="pre">org.springframework.jdbc.datasource.lookup.AbstractRoutingDataSource</span></code>を継承したクラスを作成し、どのような条件でデータソースを切り替えるかを実装する必要がある。</div>
+<div class="line">具体的には<code class="docutils literal"><span class="pre">determineCurrentLookupKey</span></code>メソッドの戻り値となるキーとデータソースをマッピングさせることによって、これを実現する。キーの選択には通常、認証ユーザー情報、時間、ロケール等のコンテキスト情報を使用する。</div>
+</div>
+<div class="section" id="abstractroutingdatasource">
+<h4><a class="toc-backref" href="#id54">6.1.3.1.1. AbstractRoutingDataSourceの実装</a><a class="headerlink" href="#abstractroutingdatasource" title="Permalink to this headline">¶</a></h4>
+<div class="line-block">
+<div class="line"><code class="docutils literal"><span class="pre">AbstractRoutingDataSource</span></code>を拡張して作成した<code class="docutils literal"><span class="pre">DataSource</span></code>を、通常のデータソースと同じように使用することでデータソースの動的な切り替えが実現できる。</div>
+<div class="line">以下に、時間によってデータソースを切り替える例を示す。</div>
+</div>
+<ul class="simple">
+<li><code class="docutils literal"><span class="pre">AbstractRoutingDataSource</span></code>を継承したクラスの実装例`</li>
+</ul>
+<blockquote>
+<div><div class="highlight-java"><div class="highlight"><pre><span></span><span class="kn">package</span> <span class="nn">com.examples.infra.datasource</span><span class="p">;</span>
+
+<span class="kn">import</span> <span class="nn">javax.inject.Inject</span><span class="p">;</span>
+
+<span class="kn">import</span> <span class="nn">org.joda.time.DateTime</span><span class="p">;</span>
+<span class="kn">import</span> <span class="nn">org.springframework.jdbc.datasource.lookup.AbstractRoutingDataSource</span><span class="p">;</span>
+<span class="kn">import</span> <span class="nn">org.terasoluna.gfw.common.date.jodatime.JodaTimeDateFactory</span><span class="p">;</span>
+
+<span class="kd">public</span> <span class="kd">class</span> <span class="nc">RoutingDataSource</span> <span class="kd">extends</span> <span class="n">AbstractRoutingDataSource</span> <span class="p">{</span> <span class="c1">// (1)</span>
+
+    <span class="nd">@Inject</span>
+    <span class="n">JodaTimeDateFactory</span> <span class="n">dateFactory</span><span class="p">;</span> <span class="c1">// (2)</span>
+
+    <span class="nd">@Override</span>
+    <span class="kd">protected</span> <span class="n">Object</span> <span class="nf">determineCurrentLookupKey</span><span class="p">()</span> <span class="p">{</span> <span class="c1">// (3)</span>
+
+        <span class="n">DateTime</span> <span class="n">dateTime</span> <span class="o">=</span> <span class="n">dateFactory</span><span class="p">.</span><span class="na">newDateTime</span><span class="p">();</span>
+        <span class="kt">int</span> <span class="n">hour</span> <span class="o">=</span> <span class="n">dateTime</span><span class="p">.</span><span class="na">getHourOfDay</span><span class="p">();</span>
+
+        <span class="k">if</span> <span class="p">(</span><span class="mi">7</span> <span class="o">&lt;=</span> <span class="n">hour</span> <span class="o">&amp;&amp;</span> <span class="n">hour</span> <span class="o">&lt;=</span> <span class="mi">23</span><span class="p">)</span> <span class="p">{</span> <span class="c1">// (4)</span>
+            <span class="k">return</span> <span class="s">&quot;OPEN&quot;</span><span class="p">;</span> <span class="c1">// (5)</span>
+        <span class="p">}</span> <span class="k">else</span> <span class="p">{</span>
+            <span class="k">return</span> <span class="s">&quot;CLOSE&quot;</span><span class="p">;</span>
+        <span class="p">}</span>
+    <span class="p">}</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+<table border="1" class="colwidths-given docutils">
+<colgroup>
+<col width="10%" />
+<col width="90%" />
+</colgroup>
+<thead valign="bottom">
+<tr class="row-odd"><th class="head">項番</th>
+<th class="head">説明</th>
+</tr>
+</thead>
+<tbody valign="top">
+<tr class="row-even"><td><div class="first last line-block">
+<div class="line">(1)</div>
+</div>
+</td>
+<td><code class="docutils literal"><span class="pre">AbstractRoutingDataSource</span></code>を継承する。</td>
+</tr>
+<tr class="row-odd"><td><div class="first last line-block">
+<div class="line">(2)</div>
+</div>
+</td>
+<td>時刻を取得するため、<code class="docutils literal"><span class="pre">JodaTimeDateFactory</span></code>を使用する。詳細は、<a class="reference internal" href="../GeneralFuncDetail/SystemDate.html"><span class="doc">システム時刻</span></a>を参照のこと。</td>
+</tr>
+<tr class="row-even"><td><div class="first last line-block">
+<div class="line">(3)</div>
+</div>
+</td>
+<td><code class="docutils literal"><span class="pre">determineCurrentLookupKey</span></code>メソッドを実装する。このメソッドの返り値と後述するbean定義ファイル内の<code class="docutils literal"><span class="pre">targetDataSources</span></code>に定義した<code class="docutils literal"><span class="pre">key</span></code>をマッピングすることにより使用するデータソースが決定される。</td>
+</tr>
+<tr class="row-odd"><td><div class="first last line-block">
+<div class="line">(4)</div>
+</div>
+</td>
+<td>メソッド内で、コンテキスト情報（ここでは時間）を参照し、キーの切り替えを行う。ここは業務用件に合わせて実装する必要がある。このサンプルは、時刻が「7:00から23:59まで」と「0:00から6:59まで」で違うキーを返すように実装されている。</td>
+</tr>
+<tr class="row-even"><td><div class="first last line-block">
+<div class="line">(5)</div>
+</div>
+</td>
+<td>後述するbean定義ファイル内の<code class="docutils literal"><span class="pre">targetDataSources</span></code>とマッピングさせる<code class="docutils literal"><span class="pre">key</span></code>を返す。</td>
+</tr>
+</tbody>
+</table>
+</div></blockquote>
+</div>
+<div class="section" id="id14">
+<h4><a class="toc-backref" href="#id55">6.1.3.1.2. データソースの定義</a><a class="headerlink" href="#id14" title="Permalink to this headline">¶</a></h4>
+<p>作成した<code class="docutils literal"><span class="pre">AbstractRoutingDataSource</span></code>拡張クラスをbean定義ファイルに定義する。</p>
+<ul class="simple">
+<li><code class="file docutils literal"><span class="pre">xxx-env.xml</span></code></li>
+</ul>
+<blockquote>
+<div><div class="highlight-xml"><div class="highlight"><pre><span></span><span class="nt">&lt;bean</span> <span class="na">id=</span><span class="s">&quot;dataSource&quot;</span>
+    <span class="na">class=</span><span class="s">&quot;com.examples.infra.datasource.RoutingDataSource&quot;</span><span class="nt">&gt;</span>  <span class="c">&lt;!-- (1) --&gt;</span>
+    <span class="nt">&lt;property</span> <span class="na">name=</span><span class="s">&quot;targetDataSources&quot;</span><span class="nt">&gt;</span>  <span class="c">&lt;!-- (2) --&gt;</span>
+        <span class="nt">&lt;map&gt;</span>
+            <span class="nt">&lt;entry</span> <span class="na">key=</span><span class="s">&quot;OPEN&quot;</span> <span class="na">value-ref=</span><span class="s">&quot;dataSourceOpen&quot;</span> <span class="nt">/&gt;</span>
+            <span class="nt">&lt;entry</span> <span class="na">key=</span><span class="s">&quot;CLOSE&quot;</span> <span class="na">value-ref=</span><span class="s">&quot;dataSourceClose&quot;</span> <span class="nt">/&gt;</span>
+        <span class="nt">&lt;/map&gt;</span>
+    <span class="nt">&lt;/property&gt;</span>
+    <span class="nt">&lt;property</span> <span class="na">name=</span><span class="s">&quot;defaultTargetDataSource&quot;</span> <span class="na">ref=</span><span class="s">&quot;dataSourceDefault&quot;</span> <span class="nt">/&gt;</span>  <span class="c">&lt;!-- (3) --&gt;</span>
+<span class="nt">&lt;/bean&gt;</span>
+</pre></div>
+</div>
+<table border="1" class="colwidths-given docutils">
+<colgroup>
+<col width="10%" />
+<col width="90%" />
+</colgroup>
+<thead valign="bottom">
+<tr class="row-odd"><th class="head">項番</th>
+<th class="head">説明</th>
+</tr>
+</thead>
+<tbody valign="top">
+<tr class="row-even"><td><div class="first last line-block">
+<div class="line">(1)</div>
+</div>
+</td>
+<td>先ほど作成した<code class="docutils literal"><span class="pre">AbstractRoutingDataSource</span></code>を継承したクラスを定義する。</td>
+</tr>
+<tr class="row-odd"><td><div class="first last line-block">
+<div class="line">(2)</div>
+</div>
+</td>
+<td>使用するデータソースを定義する。<code class="docutils literal"><span class="pre">key</span></code>は<code class="docutils literal"><span class="pre">determineCurrentLookupKey</span></code>メソッドで返却しうる値を定義する。<code class="docutils literal"><span class="pre">value-ref</span></code>には<code class="docutils literal"><span class="pre">key</span></code>ごとに使用するデータソースを指定する。<a class="reference internal" href="#data-access-common-howtouse-datasource"><span class="std std-ref">データソースの設定</span></a>をもとに切り替えるデータソースの個数分、定義を行う必要がある。</td>
+</tr>
+<tr class="row-even"><td><div class="first last line-block">
+<div class="line">(3)</div>
+</div>
+</td>
+<td><code class="docutils literal"><span class="pre">determineCurrentLookupKey</span></code>メソッドで指定した<code class="docutils literal"><span class="pre">key</span></code>が<code class="docutils literal"><span class="pre">targetDataSources</span></code>に存在しない場合は、このデータソースが使用される。実装例の場合、デフォルトが使用されることはないが、今回は説明のため、<code class="docutils literal"><span class="pre">defaultTargetDataSource</span></code>を定義している。</td>
+</tr>
+</tbody>
+</table>
+</div></blockquote>
+<div class="line-block">
+<div class="line"><br /></div>
+</div>
+</div>
+</div>
+</div>
+<div class="section" id="how-to-solve-the-problem">
+<h2><a class="toc-backref" href="#id56">6.1.4. how to solve the problem</a><a class="headerlink" href="#how-to-solve-the-problem" title="Permalink to this headline">¶</a></h2>
+<div class="line-block">
+<div class="line"><br /></div>
+</div>
+<div class="section" id="n-1">
+<span id="data-access-common-howtosolve-n-plus-1"></span><h3><a class="toc-backref" href="#id57">6.1.4.1. N+1問題の対策方法</a><a class="headerlink" href="#n-1" title="Permalink to this headline">¶</a></h3>
+<p>N+1問題とは、データベースから取得するレコード数に比例して実行されるSQLの数が増えることにより、データベースへの負荷およびレスポンスタイムの劣化を引き起こす問題のことである。</p>
+<p>以下に、具体的をあげる。</p>
+<blockquote>
+<div><div class="figure align-center">
+<a class="reference internal image-reference" href="../../_images/dataaccess_common-n_plus_1.png"><img alt="about N+1 Problem" src="../../_images/dataaccess_common-n_plus_1.png" style="width: 90%;" /></a>
+</div>
+<table border="1" class="colwidths-given docutils">
+<colgroup>
+<col width="10%" />
+<col width="90%" />
+</colgroup>
+<thead valign="bottom">
+<tr class="row-odd"><th class="head">項番</th>
+<th class="head">説明</th>
+</tr>
+</thead>
+<tbody valign="top">
+<tr class="row-even"><td><div class="first last line-block">
+<div class="line">(1)</div>
+</div>
+</td>
+<td><div class="first last line-block">
+<div class="line">検索条件に一致するレコードを、メインとなるテーブルから検索する。</div>
+<div class="line">上記例では、 MainTableテーブルのcol1カラムが、<code class="docutils literal"><span class="pre">'Foo'</span></code>のレコードを取得しており、20件のレコードが取得されている。</div>
+</div>
+</td>
+</tr>
+<tr class="row-odd"><td><div class="first last line-block">
+<div class="line">(2)</div>
+</div>
+</td>
+<td><div class="first last line-block">
+<div class="line">(1)で検索した各レコードに対して、関連レコードを関連テーブルから取得する。</div>
+<div class="line">上記例では、SubTableテーブルのidカラムが、(1)で取得したレコードのidカラムと同じレコードを取得している。</div>
+<div class="line"><strong>このSQLは、(1)で取得されたレコード件数分、実行される。</strong></div>
+</div>
+</td>
+</tr>
+</tbody>
+</table>
+<div class="line-block">
+<div class="line">上記例では、<strong>合計で21回のSQLが発行されることになる。</strong></div>
+<div class="line">仮に関連テーブルが3テーブルあると、<strong>合計で61回のSQLが発行されることになるため、対策が必要となる。</strong></div>
+</div>
+</div></blockquote>
+<p>N+1問題の解決方法の代表例を、以下に示す。</p>
+<div class="section" id="join-join-fetch">
+<h4><a class="toc-backref" href="#id58">6.1.4.1.1. JOIN(Join Fetch)を使用して解決する</a><a class="headerlink" href="#join-join-fetch" title="Permalink to this headline">¶</a></h4>
+<div class="line-block">
+<div class="line">関連テーブルをJOINすることで、1回のSQLでメインのテーブルと関連テーブルのレコードを取得する。</div>
+<div class="line">関連テーブルとの関係が、1:1の場合は、この方法によって解決することを検討すること。</div>
+</div>
+<blockquote>
+<div><div class="figure align-center">
+<a class="reference internal image-reference" href="../../_images/dataaccess_common-n_plus_1_solve_join.png"><img alt="about solve N+1 Problem using JOIN" src="../../_images/dataaccess_common-n_plus_1_solve_join.png" style="width: 90%;" /></a>
+</div>
+<table border="1" class="colwidths-given docutils">
+<colgroup>
+<col width="10%" />
+<col width="90%" />
+</colgroup>
+<thead valign="bottom">
+<tr class="row-odd"><th class="head">項番</th>
+<th class="head">説明</th>
+</tr>
+</thead>
+<tbody valign="top">
+<tr class="row-even"><td><div class="first last line-block">
+<div class="line">(1)</div>
+</div>
+</td>
+<td><div class="first last line-block">
+<div class="line">検索条件に一致するレコードを検索する際に、関連テーブルをJOINすることで、メインとなるテーブルと関連テーブルから、レコードを一括で取得する。</div>
+<div class="line">上記例では、 MainTableテーブルのcol1カラムが<code class="docutils literal"><span class="pre">'Foo'</span></code>のレコードと、検索条件に一致したレコードのidが一致するSubTableのレコードを一括で取得している。</div>
+<div class="line">カラム名が重複する場合は、別名を付与してどちらのテーブルのカラムなのか識別する必要がある。</div>
+</div>
+</td>
+</tr>
+</tbody>
+</table>
+<div class="line-block">
+<div class="line">JOIN(Join Fetch)を使用すると、<strong>1回のSQLの発行で必要なデータを全て取得することができる。</strong></div>
+</div>
+<div class="admonition note">
+<p class="first admonition-title">Note</p>
+<p><strong>JPQLでJOINする場合</strong></p>
+<p class="last">JPQLでJOINする場合の実装例については、<a class="reference internal" href="DataAccessJpa.html#data-access-jpa-howtouse-join-fetch"><span class="std std-ref">JOIN FETCHについて</span></a>を参照されたい。</p>
+</div>
+<div class="admonition warning">
+<p class="first admonition-title">Warning</p>
+<p>関連テーブルとの関連が、1:Nの場合は、JOIN(Join Fetch)による解決も可能だが、以下の点に注意すること。</p>
+<ul class="last simple">
+<li>1:Nの関連をもつレコードをJOINする場合、関連テーブルのレコード数に比例して、無駄なデータを取得することになる。
+詳細については、<a class="reference internal" href="DataAccessMyBatis3.html#dataaccessmybatis3appendixacquirerelatedobjectswarningsqlmapping"><span class="std std-ref">一括取得時の注意事項</span></a>を参照されたい。</li>
+<li>JPA(Hibernate)使用する際に、1:NのNの部分が、複数ある場合は、Nの部分を格納するコレクション型は、<code class="docutils literal"><span class="pre">java.util.List</span></code>ではなく、<code class="docutils literal"><span class="pre">java.util.Set</span></code>を使用する必要がある。</li>
+</ul>
+</div>
+</div></blockquote>
+</div>
+<div class="section" id="id15">
+<h4><a class="toc-backref" href="#id59">6.1.4.1.2. 関連レコードを一括で取得する事で解決する</a><a class="headerlink" href="#id15" title="Permalink to this headline">¶</a></h4>
+<div class="line-block">
+<div class="line">1:Nの関係が複数あるパターンなどは、関連レコードを一括で取得し、その後プログラミングによって振り分ける方法をとった方がよいケースがある。</div>
+<div class="line">関連テーブルとの関係が1:Nの場合は、この方法によって解決することを検討すること。</div>
+</div>
+<blockquote>
+<div><div class="figure align-center">
+<a class="reference internal image-reference" href="../../_images/dataaccess_common-n_plus_1_solve_programing.png"><img alt="about solve N+1 Problem using programing" src="../../_images/dataaccess_common-n_plus_1_solve_programing.png" style="width: 90%;" /></a>
+</div>
+<table border="1" class="colwidths-given docutils">
+<colgroup>
+<col width="10%" />
+<col width="90%" />
+</colgroup>
+<thead valign="bottom">
+<tr class="row-odd"><th class="head">項番</th>
+<th class="head">説明</th>
+</tr>
+</thead>
+<tbody valign="top">
+<tr class="row-even"><td><div class="first last line-block">
+<div class="line">(1)</div>
+</div>
+</td>
+<td><div class="first last line-block">
+<div class="line">検索条件に一致するレコードを、メインとなるテーブルから検索する。</div>
+<div class="line">上記例では、 MainTableテーブルのcol1カラムが、<code class="docutils literal"><span class="pre">'Foo'</span></code>のレコードを取得しており、20件のレコードが取得されている。</div>
+</div>
+</td>
+</tr>
+<tr class="row-odd"><td><div class="first last line-block">
+<div class="line">(2)</div>
+</div>
+</td>
+<td><div class="first last line-block">
+<div class="line">(1)で検索した各レコードに対して、関連レコードを関連テーブルから取得する。</div>
+<div class="line">1レコード毎に取得するのではなく、(1)で取得した各レコードの外部キーに一致するレコードを、一括で取得する。</div>
+<div class="line">上記例では、SubTableテーブルのidカラムが、(1)で取得したレコードのidカラムと同じレコードを、IN句を使用して一括取得している。</div>
+</div>
+</td>
+</tr>
+<tr class="row-even"><td><div class="first last line-block">
+<div class="line">(3)</div>
+</div>
+</td>
+<td><div class="first last line-block">
+<div class="line">(2)で取得したSubTableのレコードを、(1)で取得したレコードに振り分けマージする。</div>
+</div>
+</td>
+</tr>
+</tbody>
+</table>
+<div class="line-block">
+<div class="line">上記例では、<strong>合計で2回のSQLの発行で、必要なデータを取得することができる。</strong></div>
+<div class="line">仮に、関連テーブルが、3テーブルあっても、<strong>合計で4回のSQLの発行で済むことになる。</strong></div>
+</div>
+<div class="admonition note">
+<p class="first admonition-title">Note</p>
+<p class="last">この方法は、SQLの発行を最小限におさえつつ、必要なデータのみ取得することができるという特徴をもつ。
+関連テーブルのレコードをプログラミングによって振り分ける必要があるが、関連テーブルの数が多い場合や、1:NのNのレコード数が多い場合は、この方法で解決する方がよいケースがある。</p>
+</div>
+</div></blockquote>
+<div class="line-block">
+<div class="line"><br /></div>
+</div>
+</div>
+</div>
+</div>
+<div class="section" id="appendix">
+<h2><a class="toc-backref" href="#id60">6.1.5. Appendix</a><a class="headerlink" href="#appendix" title="Permalink to this headline">¶</a></h2>
+<div class="section" id="like">
+<span id="data-access-common-appendix-like-escape"></span><h3><a class="toc-backref" href="#id61">6.1.5.1. LIKE検索時のエスケープについて</a><a class="headerlink" href="#like" title="Permalink to this headline">¶</a></h3>
+<p>LIKE検索を行う場合は、検索条件として使用する値を、LIKE検索用にエスケープする必要がある。</p>
+<p>共通ライブラリでは、LIKE検索用のエスケープ処理を行うためのコンポーネントとして、以下のクラスを提供している。</p>
+<table border="1" class="colwidths-given docutils">
+<colgroup>
+<col width="10%" />
+<col width="40%" />
+<col width="50%" />
+</colgroup>
+<thead valign="bottom">
+<tr class="row-odd"><th class="head">項番</th>
+<th class="head">クラス</th>
+<th class="head">説明</th>
+</tr>
+</thead>
+<tbody valign="top">
+<tr class="row-even"><td><ol class="first last arabic simple">
+<li></li>
+</ol>
+</td>
+<td><div class="first last line-block">
+<div class="line">org.terasoluna.gfw.common.query.</div>
+<div class="line">QueryEscapeUtils</div>
+</div>
+</td>
+<td><p class="first">SQL及びJPQLのエスケープ処理を行うメソッドを提供するユーティリティクラス。</p>
+<p>本クラスでは、</p>
+<ul class="simple">
+<li>LIKE検索用のエスケープ処理を行うメソッド</li>
+</ul>
+<p class="last">を提供している。</p>
+</td>
+</tr>
+<tr class="row-odd"><td><ol class="first last arabic simple" start="2">
+<li></li>
+</ol>
+</td>
+<td><div class="first last line-block">
+<div class="line">org.terasoluna.gfw.common.query.</div>
+<div class="line">LikeConditionEscape</div>
+</div>
+</td>
+<td>LIKE検索用のエスケープ処理を行うクラス。</td>
+</tr>
+</tbody>
+</table>
+<div class="admonition note">
+<p class="first admonition-title">Note</p>
+<p><code class="docutils literal"><span class="pre">LikeConditionEscape</span></code>クラスは、「<a class="reference external" href="https://github.com/terasolunaorg/terasoluna-gfw/issues/78">LIKE検索用のワイルドカード文字の扱いに関するバグ</a>」を修正するために、
+terasoluna-gfw-common 1.0.2.RELEASEから追加したクラスである。</p>
+<p class="last"><code class="docutils literal"><span class="pre">LikeConditionEscape</span></code>クラスは、データベース及びデータベースのバージョンの違いによるワイルドカード文字の違いを吸収する役割を持つ。</p>
+</div>
+<div class="line-block">
+<div class="line"><br /></div>
+</div>
+<div class="section" id="id17">
+<h4><a class="toc-backref" href="#id62">6.1.5.1.1. 共通ライブラリのエスケープ仕様について</a><a class="headerlink" href="#id17" title="Permalink to this headline">¶</a></h4>
+<p>共通ライブラリから提供しているエスケープ処理の仕様は、以下の通りである。</p>
+<ul class="simple">
+<li>エスケープ文字は「 “<code class="docutils literal"><span class="pre">~</span></code>” 」。</li>
+<li>エスケープ対象文字は、デフォルトでは「 “<code class="docutils literal"><span class="pre">%</span></code>” , “<code class="docutils literal"><span class="pre">_</span></code>”」の2文字。</li>
+</ul>
+<div class="admonition note">
+<p class="first admonition-title">Note</p>
+<p>エスケープ対象文字は、terasoluna-gfw-common 1.0.1.RELEASEまでは「 “<code class="docutils literal"><span class="pre">%</span></code>” , “<code class="docutils literal"><span class="pre">_</span></code>” , “<code class="docutils literal"><span class="pre">％</span></code>” , “<code class="docutils literal"><span class="pre">＿</span></code>”」の4文字であったが、
+「<a class="reference external" href="https://github.com/terasolunaorg/terasoluna-gfw/issues/78">LIKE検索用のワイルドカード文字の扱いに関するバグ</a>」を修正するために、
+terasoluna-gfw-common 1.0.2.RELEASEより「 “<code class="docutils literal"><span class="pre">%</span></code>” , “<code class="docutils literal"><span class="pre">_</span></code>”」の2文字に変更している。</p>
+<p class="last">なお、エスケープ対象文字として全角文字「”<code class="docutils literal"><span class="pre">％</span></code>” , “<code class="docutils literal"><span class="pre">＿</span></code>”」を含めてエスケープする方法も提供している。</p>
+</div>
+<div class="line-block">
+<div class="line"><br /></div>
+</div>
+<p>具体的なエスケープ例を以下に示す。</p>
+<p><strong>[デフォルト仕様のエスケープ例]</strong></p>
+<p>エスケープ対象文字としてデフォルト値を使用する場合のエスケープ例を以下に示す。</p>
+<blockquote>
+<div><table border="1" class="colwidths-given docutils">
+<colgroup>
+<col width="10%" />
+<col width="15%" />
+<col width="20%" />
+<col width="10%" />
+<col width="45%" />
+</colgroup>
+<thead valign="bottom">
+<tr class="row-odd"><th class="head"><div class="first last line-block">
+<div class="line">項番</div>
+</div>
+</th>
+<th class="head"><div class="first last line-block">
+<div class="line">対象</div>
+<div class="line">文字列</div>
+</div>
+</th>
+<th class="head"><div class="first last line-block">
+<div class="line">エスケープ後</div>
+<div class="line">文字列</div>
+</div>
+</th>
+<th class="head"><div class="first last line-block">
+<div class="line">エスケープ</div>
+<div class="line">有無</div>
+</div>
+</th>
+<th class="head"><div class="first last line-block">
+<div class="line">解説</div>
+</div>
+</th>
+</tr>
+</thead>
+<tbody valign="top">
+<tr class="row-even"><td><ol class="first last arabic simple">
+<li></li>
+</ol>
+</td>
+<td>“<code class="docutils literal"><span class="pre">a</span></code>”</td>
+<td>“<code class="docutils literal"><span class="pre">a</span></code>”</td>
+<td>無</td>
+<td>エスケープ対象文字が含まれていないため、エスケープされない。</td>
+</tr>
+<tr class="row-odd"><td><ol class="first last arabic simple" start="2">
+<li></li>
+</ol>
+</td>
+<td><code class="docutils literal"><span class="pre">a~</span></code></td>
+<td><code class="docutils literal"><span class="pre">a~~</span></code></td>
+<td>有</td>
+<td>エスケープ文字が含まれているため、エスケープされる。</td>
+</tr>
+<tr class="row-even"><td><ol class="first last arabic simple" start="3">
+<li></li>
+</ol>
+</td>
+<td><code class="docutils literal"><span class="pre">a%</span></code></td>
+<td><code class="docutils literal"><span class="pre">a~%</span></code></td>
+<td>有</td>
+<td>エスケープ対象文字が含まれているため、エスケープされる。</td>
+</tr>
+<tr class="row-odd"><td><ol class="first last arabic simple" start="4">
+<li></li>
+</ol>
+</td>
+<td><code class="docutils literal"><span class="pre">a_</span></code></td>
+<td><code class="docutils literal"><span class="pre">a~_</span></code></td>
+<td>有</td>
+<td>No.3と同様。</td>
+</tr>
+<tr class="row-even"><td><ol class="first last arabic simple" start="5">
+<li></li>
+</ol>
+</td>
+<td><code class="docutils literal"><span class="pre">_a%</span></code></td>
+<td><code class="docutils literal"><span class="pre">~_a~%</span></code></td>
+<td>有</td>
+<td>エスケープ対象文字が含まれているため、エスケープされる。エスケープ対象文字が複数存在する場合はすべてエスケープされる。</td>
+</tr>
+<tr class="row-odd"><td><ol class="first last arabic simple" start="6">
+<li></li>
+</ol>
+</td>
+<td><code class="docutils literal"><span class="pre">a％</span></code></td>
+<td><code class="docutils literal"><span class="pre">a％</span></code></td>
+<td>無</td>
+<td><p class="first">No.1と同様。</p>
+<p class="last">terasoluna-gfw-common 1.0.2.RELEASEより、デフォルト仕様では「”<code class="docutils literal"><span class="pre">％</span></code>”」はエスケープ対象外の文字として扱う。</p>
+</td>
+</tr>
+<tr class="row-even"><td><ol class="first last arabic simple" start="7">
+<li></li>
+</ol>
+</td>
+<td><code class="docutils literal"><span class="pre">a＿</span></code></td>
+<td><code class="docutils literal"><span class="pre">a＿</span></code></td>
+<td>無</td>
+<td><p class="first">No.1と同様。</p>
+<p class="last">terasoluna-gfw-common 1.0.2.RELEASEより、デフォルト仕様では「”<code class="docutils literal"><span class="pre">＿</span></code>”」はエスケープ対象外の文字として扱う。</p>
+</td>
+</tr>
+<tr class="row-odd"><td><ol class="first last arabic simple" start="8">
+<li></li>
+</ol>
+</td>
+<td><code class="docutils literal"><span class="pre">&quot;</span> <span class="pre">&quot;</span></code></td>
+<td><code class="docutils literal"><span class="pre">&quot;</span> <span class="pre">&quot;</span></code></td>
+<td>無</td>
+<td>No.1と同様。</td>
+</tr>
+<tr class="row-even"><td><ol class="first last arabic simple" start="9">
+<li></li>
+</ol>
+</td>
+<td><code class="docutils literal"><span class="pre">&quot;&quot;</span></code></td>
+<td><code class="docutils literal"><span class="pre">&quot;&quot;</span></code></td>
+<td>無</td>
+<td>No.1と同様。</td>
+</tr>
+<tr class="row-odd"><td><ol class="first last arabic simple" start="10">
+<li></li>
+</ol>
+</td>
+<td><code class="docutils literal"><span class="pre">null</span></code></td>
+<td><code class="docutils literal"><span class="pre">null</span></code></td>
+<td>無</td>
+<td>No.1と同様。</td>
+</tr>
+</tbody>
+</table>
+</div></blockquote>
+<div class="line-block">
+<div class="line"><br /></div>
+</div>
+<p><strong>[全角文字を含める場合のエスケープ例]</strong></p>
+<p>エスケープ対象文字として全角文字を含める場合のエスケープ例を以下に示す。
+項番6と7以外は、デフォルト仕様のエスケープ例を参照されたい。</p>
+<blockquote>
+<div><table border="1" class="colwidths-given docutils">
+<colgroup>
+<col width="10%" />
+<col width="15%" />
+<col width="20%" />
+<col width="10%" />
+<col width="45%" />
+</colgroup>
+<thead valign="bottom">
+<tr class="row-odd"><th class="head"><div class="first last line-block">
+<div class="line">項番</div>
+</div>
+</th>
+<th class="head"><div class="first last line-block">
+<div class="line">対象</div>
+<div class="line">文字列</div>
+</div>
+</th>
+<th class="head"><div class="first last line-block">
+<div class="line">エスケープ後</div>
+<div class="line">文字列</div>
+</div>
+</th>
+<th class="head"><div class="first last line-block">
+<div class="line">エスケープ</div>
+<div class="line">有無</div>
+</div>
+</th>
+<th class="head"><div class="first last line-block">
+<div class="line">解説</div>
+</div>
+</th>
+</tr>
+</thead>
+<tbody valign="top">
+<tr class="row-even"><td><ol class="first last arabic simple" start="6">
+<li></li>
+</ol>
+</td>
+<td><code class="docutils literal"><span class="pre">a％</span></code></td>
+<td><code class="docutils literal"><span class="pre">a~％</span></code></td>
+<td>有</td>
+<td>エスケープ対象文字が含まれているため、エスケープされる。</td>
+</tr>
+<tr class="row-odd"><td><ol class="first last arabic simple" start="7">
+<li></li>
+</ol>
+</td>
+<td><code class="docutils literal"><span class="pre">a＿</span></code></td>
+<td><code class="docutils literal"><span class="pre">a~＿</span></code></td>
+<td>有</td>
+<td>No.6と同様。</td>
+</tr>
+</tbody>
+</table>
+</div></blockquote>
+<div class="line-block">
+<div class="line"><br /></div>
+</div>
+</div>
+<div class="section" id="id19">
+<h4><a class="toc-backref" href="#id63">6.1.5.1.2. 共通ライブラリから提供しているエスケープ用のメソッドについて</a><a class="headerlink" href="#id19" title="Permalink to this headline">¶</a></h4>
+<p>共通ライブラリから提供している<code class="docutils literal"><span class="pre">QueryEscapeUtils</span></code>クラスと<code class="docutils literal"><span class="pre">LikeConditionEscape</span></code>クラスのLIKE検索用のエスケープメソッドの一覧を、以下に示す。</p>
+<blockquote>
+<div><table border="1" class="colwidths-given docutils">
+<colgroup>
+<col width="10%" />
+<col width="35%" />
+<col width="55%" />
+</colgroup>
+<thead valign="bottom">
+<tr class="row-odd"><th class="head">項番</th>
+<th class="head">メソッド名</th>
+<th class="head">説明</th>
+</tr>
+</thead>
+<tbody valign="top">
+<tr class="row-even"><td><ol class="first last arabic simple">
+<li></li>
+</ol>
+</td>
+<td>toLikeCondition(String)</td>
+<td><div class="first last line-block">
+<div class="line">引数で渡された文字列をLIKE検索用にエスケープする。</div>
+<div class="line">SQLやJPQL側で一致方法(前方一致、後方一致、部分一致)を指定する場合は、本メソッドを使用してエスケープのみ行う。</div>
+</div>
+</td>
+</tr>
+<tr class="row-odd"><td><ol class="first last arabic simple" start="2">
+<li></li>
+</ol>
+</td>
+<td>toStartingWithCondition(String)</td>
+<td><div class="first last line-block">
+<div class="line">引数で渡された文字列をLIKE検索用にエスケープした上で、エスケープ後の文字列の最後尾に “<code class="docutils literal"><span class="pre">%</span></code>” を付与する。</div>
+<div class="line">前方一致検索用の値に変換する場合に使用するメソッドである。</div>
+</div>
+</td>
+</tr>
+<tr class="row-even"><td><ol class="first last arabic simple" start="3">
+<li></li>
+</ol>
+</td>
+<td>toEndingWithCondition(String)</td>
+<td><div class="first last line-block">
+<div class="line">引数で渡された文字列をLIKE検索用にエスケープした上で、エスケープ後の文字列の先頭に “<code class="docutils literal"><span class="pre">%</span></code>” を付与する。</div>
+<div class="line">後方一致検索用の値に変換する場合に使用するメソッドである。</div>
+</div>
+</td>
+</tr>
+<tr class="row-odd"><td><ol class="first last arabic simple" start="4">
+<li></li>
+</ol>
+</td>
+<td>toContainingCondition(String)</td>
+<td><div class="first last line-block">
+<div class="line">引数で渡された文字列をLIKE検索用にエスケープした上で、エスケープ後の文字列の先頭と最後尾に “<code class="docutils literal"><span class="pre">%</span></code>” を付与する。</div>
+<div class="line">部分一致検索用の値に変換する場合に使用するメソッドである。</div>
+</div>
+</td>
+</tr>
+</tbody>
+</table>
+<div class="admonition note">
+<p class="first admonition-title">Note</p>
+<p class="last">No.2, 3, 4 については、SQLやJPQL側で一致方法(前方一致、後方一致、部分一致)を指定するのではなく、プログラム側で指定する時に使用するメソッドである。</p>
+</div>
+</div></blockquote>
+<div class="line-block">
+<div class="line"><br /></div>
+</div>
+</div>
+<div class="section" id="id20">
+<h4><a class="toc-backref" href="#id64">6.1.5.1.3. 共通ライブラリの使用方法</a><a class="headerlink" href="#id20" title="Permalink to this headline">¶</a></h4>
+<p>LIKE検索時のエスケープ処理の実装例については、使用するO/R Mapper向けのドキュメントを参照されたい。</p>
+<ul class="simple">
+<li>MyBatis3を使用する場合は、<a class="reference internal" href="DataAccessMyBatis3.html"><span class="doc">データベースアクセス（MyBatis3編）</span></a>の<a class="reference internal" href="DataAccessMyBatis3.html#dataaccessmybatis3howtouselikeescape"><span class="std std-ref">LIKE検索時のエスケープ</span></a>を参照されたい。</li>
+<li>JPA(Spring Data JPA)を使用する場合は、<a class="reference internal" href="DataAccessJpa.html"><span class="doc">データベースアクセス（JPA編）</span></a>の<a class="reference internal" href="DataAccessJpa.html#data-access-jpa-howtouse-like-escape"><span class="std std-ref">LIKE検索時のエスケープについて</span></a>を参照されたい。</li>
+</ul>
+<div class="admonition note">
+<p class="first admonition-title">Note</p>
+<p>エスケープ処理を行うために使用するAPIは、使用するデータベースがサポートしているワイルドカード文字によって使い分ける必要がある。</p>
+<p><strong>[ワイルドカードとして「 “%” , “_”」(半角文字)のみをサポートしているデータベースの場合]</strong></p>
+<blockquote>
+<div><div class="highlight-java"><div class="highlight"><pre><span></span><span class="n">String</span> <span class="n">escapedWord</span> <span class="o">=</span> <span class="n">QueryEscapeUtils</span><span class="p">.</span><span class="na">toLikeCondition</span><span class="p">(</span><span class="n">word</span><span class="p">);</span>
+</pre></div>
+</div>
+<table border="1" class="colwidths-given docutils">
+<colgroup>
+<col width="10%" />
+<col width="90%" />
+</colgroup>
+<thead valign="bottom">
+<tr class="row-odd"><th class="head"><div class="first last line-block">
+<div class="line">項番</div>
+</div>
+</th>
+<th class="head"><div class="first last line-block">
+<div class="line">説明</div>
+</div>
+</th>
+</tr>
+</thead>
+<tbody valign="top">
+<tr class="row-even"><td><div class="first last line-block">
+<div class="line">(1)</div>
+</div>
+</td>
+<td><code class="docutils literal"><span class="pre">QueryEscapeUtils</span></code>クラスのメソッドを直接使用して、エスケープ処理を行う。</td>
+</tr>
+</tbody>
+</table>
+</div></blockquote>
+<p><strong>[ワイルドカードとして「”％” , “＿”」(全角文字)もサポートしているデータベースの場合]</strong></p>
+<blockquote class="last">
+<div><div class="highlight-java"><div class="highlight"><pre><span></span><span class="n">String</span> <span class="n">escapedWord</span> <span class="o">=</span> <span class="n">QueryEscapeUtils</span><span class="p">.</span><span class="na">withFullWidth</span><span class="p">()</span>  <span class="c1">// (2)</span>
+                        <span class="p">.</span><span class="na">toLikeCondition</span><span class="p">(</span><span class="n">word</span><span class="p">);</span>        <span class="c1">// (3)</span>
+</pre></div>
+</div>
+<table border="1" class="colwidths-given longtable docutils">
+<colgroup>
+<col width="10%" />
+<col width="90%" />
+</colgroup>
+<thead valign="bottom">
+<tr class="row-odd"><th class="head"><div class="first last line-block">
+<div class="line">項番</div>
+</div>
+</th>
+<th class="head"><div class="first last line-block">
+<div class="line">説明</div>
+</div>
+</th>
+</tr>
+</thead>
+<tbody valign="top">
+<tr class="row-even"><td><div class="first last line-block">
+<div class="line">(2)</div>
+</div>
+</td>
+<td><code class="docutils literal"><span class="pre">QueryEscapeUtils</span></code>メソッドの<code class="docutils literal"><span class="pre">withFullWidth()</span></code>メソッドを呼び出して、<code class="docutils literal"><span class="pre">LikeConditionEscape</span></code>クラスのインスタンスを取得する。</td>
+</tr>
+<tr class="row-odd"><td><div class="first last line-block">
+<div class="line">(3)</div>
+</div>
+</td>
+<td>(2)で取得した<code class="docutils literal"><span class="pre">LikeConditionEscape</span></code>クラスのインスタンスのメソッドを使用して、エスケープ処理を行う。</td>
+</tr>
+</tbody>
+</table>
+</div></blockquote>
+</div>
+<div class="line-block">
+<div class="line"><br /></div>
+</div>
+</div>
+</div>
+<div class="section" id="sequencer">
+<span id="data-access-common-appendix-sequencer"></span><h3><a class="toc-backref" href="#id65">6.1.5.2. Sequencerについて</a><a class="headerlink" href="#sequencer" title="Permalink to this headline">¶</a></h3>
+<div class="line-block">
+<div class="line">Sequencerは、シーケンス値を取得するための共通ライブラリである。</div>
+<div class="line">Sequencerから取得したシーケンス値は、データベースのプライマリキーカラムの設定値などとして使用する。</div>
+</div>
+<blockquote>
+<div><div class="admonition note">
+<p class="first admonition-title">Note</p>
+<p><strong>共通ライブラリとしてSequencerを用意した理由</strong></p>
+<p>Sequencerを用意した理由は、JPAの機能として提供されているID採番機能において、シーケンス値を文字列としてフォーマットする仕組みがないためである。
+実際のアプリケーション開発では、フォーマットされた文字列をプライマリキーに設定するケースもあるため、共通ライブラリとしてSequencerを提供している。</p>
+<p>プライマリキーに設定する値が数値の場合は、JPAの機能として提供されているID採番機能を使用することを推奨する。JPAのID採番機能については、<a class="reference internal" href="DataAccessJpa.html"><span class="doc">データベースアクセス（JPA編）</span></a>の<a class="reference internal" href="DataAccessJpa.html#data-access-jpa-how-to-use-way-to-add-entity"><span class="std std-ref">Entityの追加</span></a>を参照されたい。</p>
+<p class="last">Sequencerを用意した主な目的は、JPAでサポートされていない機能の補完であるが、JPAと関係ない処理で、シーケンス値が必要な場合に、使用することもできる。</p>
+</div>
+</div></blockquote>
+<div class="section" id="id21">
+<h4><a class="toc-backref" href="#id66">6.1.5.2.1. 共通ライブラリから提供しているクラスについて</a><a class="headerlink" href="#id21" title="Permalink to this headline">¶</a></h4>
+<div class="line-block">
+<div class="line">共通ライブラリから提供しているSequencer機能のクラス一覧を以下に示す。</div>
+<div class="line">具体的な使用例については、How to useの<a class="reference internal" href="#data-access-common-howtouse-sequencer"><span class="std std-ref">共通ライブラリの利用方法</span></a>を参照されたい。</div>
+</div>
+<blockquote>
+<div><table border="1" class="colwidths-given docutils">
+<colgroup>
+<col width="10%" />
+<col width="30%" />
+<col width="60%" />
+</colgroup>
+<thead valign="bottom">
+<tr class="row-odd"><th class="head">項番</th>
+<th class="head">クラス名</th>
+<th class="head">説明</th>
+</tr>
+</thead>
+<tbody valign="top">
+<tr class="row-even"><td><ol class="first last arabic simple">
+<li></li>
+</ol>
+</td>
+<td><div class="first last line-block">
+<div class="line">org.terasoluna.gfw.common.sequencer.</div>
+<div class="line">Sequencer</div>
+</div>
+</td>
+<td><div class="first last line-block">
+<div class="line">次のシーケンス値を取得するメソッド(getNext)とシーケンスの現在値を返却するメソッド(getCurrent)を定義しているインタフェース。</div>
+</div>
+</td>
+</tr>
+<tr class="row-odd"><td><ol class="first last arabic simple" start="2">
+<li></li>
+</ol>
+</td>
+<td><div class="first last line-block">
+<div class="line">org.terasoluna.gfw.common.sequencer.</div>
+<div class="line">JdbcSequencer</div>
+</div>
+</td>
+<td><div class="first last line-block">
+<div class="line"><code class="docutils literal"><span class="pre">Sequencer</span></code> インタフェースのJDBC用の実装クラス。</div>
+<div class="line">データベースにSQLを発行してシーケンス値を取得するためのクラスである。</div>
+<div class="line">データベースのシーケンスオブジェクトから値を取得することを想定したクラスではあるが、データベースに登録されているファンクションを呼び出すことで、シーケンスオブジェクト以外から値を取得することもできる。</div>
+</div>
+</td>
+</tr>
+</tbody>
+</table>
+</div></blockquote>
+</div>
+<div class="section" id="data-access-common-howtouse-sequencer">
+<span id="id22"></span><h4><a class="toc-backref" href="#id67">6.1.5.2.2. 共通ライブラリの利用方法</a><a class="headerlink" href="#data-access-common-howtouse-sequencer" title="Permalink to this headline">¶</a></h4>
+<p>Sequencerをbean定義する。</p>
+<ul class="simple">
+<li><code class="file docutils literal"><span class="pre">xxx-infra.xml</span></code></li>
+</ul>
+<blockquote>
+<div><div class="highlight-xml"><div class="highlight"><pre><span></span><span class="c">&lt;!-- (1) --&gt;</span>
+<span class="nt">&lt;bean</span> <span class="na">id=</span><span class="s">&quot;articleIdSequencer&quot;</span> <span class="na">class=</span><span class="s">&quot;org.terasoluna.gfw.common.sequencer.JdbcSequencer&quot;</span><span class="nt">&gt;</span>
+     <span class="c">&lt;!-- (2) --&gt;</span>
+    <span class="nt">&lt;property</span> <span class="na">name=</span><span class="s">&quot;dataSource&quot;</span> <span class="na">ref=</span><span class="s">&quot;dataSource&quot;</span> <span class="nt">/&gt;</span>
+     <span class="c">&lt;!-- (3) --&gt;</span>
+    <span class="nt">&lt;property</span> <span class="na">name=</span><span class="s">&quot;sequenceClass&quot;</span> <span class="na">value=</span><span class="s">&quot;java.lang.String&quot;</span> <span class="nt">/&gt;</span>
+    <span class="c">&lt;!-- (4) --&gt;</span>
+    <span class="nt">&lt;property</span> <span class="na">name=</span><span class="s">&quot;nextValueQuery&quot;</span>
+        <span class="na">value=</span><span class="s">&quot;SELECT TO_CHAR(NEXTVAL(&#39;seq_article&#39;),&#39;AFM0000000000&#39;)&quot;</span> <span class="nt">/&gt;</span>
+    <span class="c">&lt;!-- (5) --&gt;</span>
+    <span class="nt">&lt;property</span> <span class="na">name=</span><span class="s">&quot;currentValueQuery&quot;</span>
+        <span class="na">value=</span><span class="s">&quot;SELECT TO_CHAR(CURRVAL(&#39;seq_article&#39;),&#39;AFM0000000000&#39;)&quot;</span> <span class="nt">/&gt;</span>
+<span class="nt">&lt;/bean&gt;</span>
+</pre></div>
+</div>
+<table border="1" class="colwidths-given docutils">
+<colgroup>
+<col width="10%" />
+<col width="90%" />
+</colgroup>
+<thead valign="bottom">
+<tr class="row-odd"><th class="head">項番</th>
+<th class="head">説明</th>
+</tr>
+</thead>
+<tbody valign="top">
+<tr class="row-even"><td><div class="first last line-block">
+<div class="line">(1)</div>
+</div>
+</td>
+<td><div class="first last line-block">
+<div class="line"><code class="docutils literal"><span class="pre">org.terasoluna.gfw.common.sequencer.Sequencer</span></code>インタフェースを実装したクラスを、bean定義する。</div>
+<div class="line">上記例では、SQLを発行してシーケンス値を取得するためのクラス(<code class="docutils literal"><span class="pre">JdbcSequencer</span></code>)を指定している。</div>
+</div>
+</td>
+</tr>
+<tr class="row-odd"><td><div class="first last line-block">
+<div class="line">(2)</div>
+</div>
+</td>
+<td><div class="first last line-block">
+<div class="line">シーケンス値を取得するSQLを、実行するデータソースを指定する。</div>
+</div>
+</td>
+</tr>
+<tr class="row-even"><td><div class="first last line-block">
+<div class="line">(3)</div>
+</div>
+</td>
+<td><div class="first last line-block">
+<div class="line">取得するシーケンス値の型を指定する。</div>
+<div class="line">上記例では、SQLで文字列へ変換しているので、<code class="docutils literal"><span class="pre">java.lang.String</span></code>型を指定している。</div>
+</div>
+</td>
+</tr>
+<tr class="row-odd"><td><div class="first last line-block">
+<div class="line">(4)</div>
+</div>
+</td>
+<td><div class="first last line-block">
+<div class="line">次のシーケンス値を取得するためのSQLを指定する。</div>
+<div class="line">上記例では、データベース(PostgreSQL)のシーケンスオブジェクトから取得したシーケンス値を、文字列としてフォーマットしている。</div>
+<div class="line">データベースのから取得したシーケンス値が、”<code class="docutils literal"><span class="pre">1</span></code>” の場合、<code class="docutils literal"><span class="pre">A0000000001</span></code>が<code class="docutils literal"><span class="pre">Sequencer#getNext()</span></code>メソッドの返り値として返却される。</div>
+</div>
+</td>
+</tr>
+<tr class="row-even"><td><div class="first last line-block">
+<div class="line">(5)</div>
+</div>
+</td>
+<td><div class="first last line-block">
+<div class="line">現在のシーケンス値を取得するためのSQLを指定する。</div>
+<div class="line">データベースのから取得したシーケンス値が、”<code class="docutils literal"><span class="pre">2</span></code>” の場合、<code class="docutils literal"><span class="pre">A0000000002</span></code>が<code class="docutils literal"><span class="pre">Sequencer#getCurrent()</span></code>メソッドの返り値として返却される。</div>
+</div>
+</td>
+</tr>
+</tbody>
+</table>
+</div></blockquote>
+<p>bean定義したSequencerからシーケンス値を取得する。</p>
+<ul class="simple">
+<li>Service</li>
+</ul>
+<blockquote>
+<div><div class="highlight-java"><div class="highlight"><pre><span></span><span class="c1">// omitted</span>
+
+<span class="c1">// (1)</span>
+<span class="nd">@Inject</span>
+<span class="nd">@Named</span><span class="p">(</span><span class="s">&quot;articleIdSequencer&quot;</span><span class="p">)</span> <span class="c1">// (2)</span>
+<span class="n">Sequencer</span><span class="o">&lt;</span><span class="n">String</span><span class="o">&gt;</span> <span class="n">articleIdSequencer</span><span class="p">;</span>
+
+<span class="c1">// omitted</span>
+
+<span class="nd">@Transactional</span>
+<span class="kd">public</span> <span class="n">Article</span> <span class="nf">createArticle</span><span class="p">(</span><span class="n">Article</span> <span class="n">inputArticle</span><span class="p">)</span> <span class="p">{</span>
+
+    <span class="n">String</span> <span class="n">articleId</span> <span class="o">=</span> <span class="n">articleIdSequencer</span><span class="p">.</span><span class="na">getNext</span><span class="p">();</span> <span class="c1">// (3)</span>
+    <span class="n">inputArticle</span><span class="p">.</span><span class="na">setArticleId</span><span class="p">(</span><span class="n">articleId</span><span class="p">);</span>
+
+    <span class="n">Article</span> <span class="n">savedArticle</span> <span class="o">=</span> <span class="n">articleRepository</span><span class="p">.</span><span class="na">save</span><span class="p">(</span><span class="n">inputArticle</span><span class="p">);</span>
+
+    <span class="k">return</span> <span class="n">savedArticle</span><span class="p">;</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+<table border="1" class="colwidths-given docutils">
+<colgroup>
+<col width="10%" />
+<col width="90%" />
+</colgroup>
+<thead valign="bottom">
+<tr class="row-odd"><th class="head">項番</th>
+<th class="head">説明</th>
+</tr>
+</thead>
+<tbody valign="top">
+<tr class="row-even"><td><div class="first last line-block">
+<div class="line">(1)</div>
+</div>
+</td>
+<td><div class="first last line-block">
+<div class="line">bean定義した<code class="docutils literal"><span class="pre">Sequencer</span></code>オブジェクトをInjectする。</div>
+<div class="line">上記例では、シーケンス値は、フォーマットされた文字列として取得するため、<code class="docutils literal"><span class="pre">Sequencer</span></code>のジェネリクス型には、<code class="docutils literal"><span class="pre">java.lang.String</span></code>型を指定している。</div>
+</div>
+</td>
+</tr>
+<tr class="row-odd"><td><div class="first last line-block">
+<div class="line">(2)</div>
+</div>
+</td>
+<td><div class="first last line-block">
+<div class="line">Injectするbeanのbean名を<code class="docutils literal"><span class="pre">&#64;javax.inject.Named</span></code>アノテーションのvalue属性に指定する。</div>
+<div class="line">上記例では、<code class="file docutils literal"><span class="pre">xxx-infra.xml</span></code>に定義したbean名(<code class="docutils literal"><span class="pre">articleIdSequencer</span></code>)を指定している。</div>
+</div>
+</td>
+</tr>
+<tr class="row-even"><td><div class="first last line-block">
+<div class="line">(3)</div>
+</div>
+</td>
+<td><div class="first last line-block">
+<div class="line"><code class="docutils literal"><span class="pre">Sequencer#getNext()</span></code>メソッドを呼び出し、次のシーケンス値を取得する。</div>
+<div class="line">上記例では、取得したシーケンス値を、EntityのIDとして使用している。</div>
+<div class="line">現在のシーケンス値を取得する場合は、<code class="docutils literal"><span class="pre">Sequencer#getCurrent()</span></code>メソッドを呼び出す。</div>
+</div>
+</td>
+</tr>
+</tbody>
+</table>
+<div class="admonition tip">
+<p class="first admonition-title">Tip</p>
+<p class="last">bean定義する<code class="docutils literal"><span class="pre">Sequencer</span></code>が一つの場合は、<code class="docutils literal"><span class="pre">&#64;Named</span></code>アノテーションが省略できる。複数指定する場合は、<code class="docutils literal"><span class="pre">&#64;Named</span></code>アノテーションを使用して、bean名の指定が必要となる。</p>
+</div>
+</div></blockquote>
+</div>
+</div>
+<div class="section" id="spring-framework">
+<span id="appendix-dataaccessexception-converter-class-label"></span><h3><a class="toc-backref" href="#id68">6.1.5.3. Spring Frameworkから提供されているデータアクセス例外へ変換するクラス</a><a class="headerlink" href="#spring-framework" title="Permalink to this headline">¶</a></h3>
+<p>Spring Frameworkのデータアクセス例外へ変換する役割を持つクラスを、以下に示す。</p>
+<blockquote>
+<div><table border="1" class="colwidths-given docutils" id="id29">
+<caption><span class="caption-text"><strong>Spring Frameworkのデータアクセス例外への変換クラス</strong></span><a class="headerlink" href="#id29" title="Permalink to this table">¶</a></caption>
+<colgroup>
+<col width="10%" />
+<col width="30%" />
+<col width="60%" />
+</colgroup>
+<thead valign="bottom">
+<tr class="row-odd"><th class="head">項番</th>
+<th class="head">クラス名</th>
+<th class="head">説明</th>
+</tr>
+</thead>
+<tbody valign="top">
+<tr class="row-even"><td><ol class="first last arabic simple">
+<li></li>
+</ol>
+</td>
+<td><div class="first last line-block">
+<div class="line">org.springframework.jdbc.support.</div>
+<div class="line">SQLErrorCodeSQLExceptionTranslator</div>
+</div>
+</td>
+<td>MyBatisや、<code class="docutils literal"><span class="pre">JdbcTemplate</span></code>を使った場合、本クラスによって、JDBC例外が、Spring Frameworkのデータアクセス例外に変換される。変換ルールは、XMLファイルに記載されており、デフォルトで使用されるXMLファイルは、<code class="docutils literal"><span class="pre">spring-jdbc.jar</span></code>内の<code class="docutils literal"><span class="pre">org/springframework/jdbc/support/sql-error-codes.xml</span></code>となる。
+クラスパス直下に、XMLファイル（<code class="docutils literal"><span class="pre">sql-error-codes.xml</span></code>）を配置することで、デフォルトの動作を変更することもできる。</td>
+</tr>
+<tr class="row-odd"><td><ol class="first last arabic simple" start="2">
+<li></li>
+</ol>
+</td>
+<td><div class="first last line-block">
+<div class="line">org.springframework.orm.jpa.vendor.</div>
+<div class="line">HibernateJpaDialect</div>
+</div>
+</td>
+<td>JPA(Hibernateの実装)を使った場合、本クラスによって、O/R Mapper例外(Hibernateの例外)がSpring Frameworkのデータアクセス例外に変換される。</td>
+</tr>
+<tr class="row-even"><td><ol class="first last arabic simple" start="3">
+<li></li>
+</ol>
+</td>
+<td><div class="first last line-block">
+<div class="line">org.springframework.orm.jpa.</div>
+<div class="line">EntityManagerFactoryUtils</div>
+</div>
+</td>
+<td><code class="docutils literal"><span class="pre">HibernateJpaDialect</span></code>で変換できない例外が発生した場合は、本クラスによって、JPA例外がSpring Frameworkのデータアクセス例外に変換される。</td>
+</tr>
+<tr class="row-odd"><td><ol class="first last arabic simple" start="4">
+<li></li>
+</ol>
+</td>
+<td><div class="first last line-block">
+<div class="line">org.hibernate.dialect.Dialect</div>
+<div class="line">のサブクラス</div>
+</div>
+</td>
+<td>JPA(Hibernateの実装)を使った場合、本クラスによって、JDBC例外とO/R Mapper例外に変換される。</td>
+</tr>
+</tbody>
+</table>
+</div></blockquote>
+</div>
+<div class="section" id="appendix-datasource-of-spring-label">
+<span id="id23"></span><h3><a class="toc-backref" href="#id69">6.1.5.4. Spring Frameworkから提供されているJDBCデータソースクラス</a><a class="headerlink" href="#appendix-datasource-of-spring-label" title="Permalink to this headline">¶</a></h3>
+<div class="line-block">
+<div class="line">Spring Frameworkでは、JDBCデータソースの実装を提供しているが、非常にシンプルなクラスなので、商用環境で使われることは少ない。</div>
+<div class="line">主に単体試験時に使用されるクラスである。</div>
+</div>
+<blockquote>
+<div><table border="1" class="colwidths-given docutils" id="id30">
+<caption><span class="caption-text"><strong>Spring Frameworkから提供されているJDBCデータソース</strong></span><a class="headerlink" href="#id30" title="Permalink to this table">¶</a></caption>
+<colgroup>
+<col width="10%" />
+<col width="35%" />
+<col width="55%" />
+</colgroup>
+<thead valign="bottom">
+<tr class="row-odd"><th class="head">項番</th>
+<th class="head">クラス名</th>
+<th class="head">説明</th>
+</tr>
+</thead>
+<tbody valign="top">
+<tr class="row-even"><td><ol class="first last arabic simple">
+<li></li>
+</ol>
+</td>
+<td><div class="first last line-block">
+<div class="line">org.springframework.jdbc.datasource.</div>
+<div class="line">DriverManagerDataSource</div>
+</div>
+</td>
+<td>アプリケーションからコネクションの取得依頼があったタイミングで、<code class="docutils literal"><span class="pre">java.sql.DriverManager#getConnection</span></code>を呼び出し、新しいコネクションを生成するデータソースクラス。
+コネクションのプーリングが必要な場合は、アプリケーションサーバのデータソース、または、OSS/Third-Partyライブラリから提供されているデータソースを使用すること。</td>
+</tr>
+<tr class="row-odd"><td><ol class="first last arabic simple" start="2">
+<li></li>
+</ol>
+</td>
+<td><div class="first last line-block">
+<div class="line">org.springframework.jdbc.datasource.</div>
+<div class="line">SingleConnectionDataSource</div>
+</div>
+</td>
+<td><code class="docutils literal"><span class="pre">DriverManagerDataSource</span></code>の子クラスで、一つのコネクションを使いまわす実装になっており、シングルスレッドで動くユニットテスト向けのデータソースクラスである。
+ユニットテストでも、マルチスレッドでデータソースにアクセスする場合は、本クラスを使用すると、期待した動作にならないことがあるので、注意が必要である。</td>
+</tr>
+<tr class="row-even"><td><ol class="first last arabic simple" start="3">
+<li></li>
+</ol>
+</td>
+<td><div class="first last line-block">
+<div class="line">org.springframework.jdbc.datasource.</div>
+<div class="line">SimpleDriverDataSource</div>
+</div>
+</td>
+<td>アプリケーションからコネクションの取得依頼があったタイミングで、<code class="docutils literal"><span class="pre">java.sql.Driver#getConnection</span></code>を呼び出し、新しいコネクションを生成するデータソースクラス。
+コネクションのプーリングが必要な場合は、アプリケーションサーバのデータソース、または、OSS/Third-Partyライブラリから提供されているデータソースを使用すること。</td>
+</tr>
+</tbody>
+</table>
+</div></blockquote>
+<div class="line-block">
+<div class="line">Spring Frameworkでは、JDBCデータソースの動作を拡張したアダプタークラスを提供している。</div>
+<div class="line">以下に、代表的なアダプタークラスを紹介する。</div>
+</div>
+<blockquote>
+<div><table border="1" class="colwidths-given docutils" id="id31">
+<caption><span class="caption-text"><strong>Spring Frameworkから提供されているJDBCデータソースのアダプター</strong></span><a class="headerlink" href="#id31" title="Permalink to this table">¶</a></caption>
+<colgroup>
+<col width="10%" />
+<col width="35%" />
+<col width="55%" />
+</colgroup>
+<thead valign="bottom">
+<tr class="row-odd"><th class="head">項番</th>
+<th class="head">クラス名</th>
+<th class="head">説明</th>
+</tr>
+</thead>
+<tbody valign="top">
+<tr class="row-even"><td><ol class="first last arabic simple">
+<li></li>
+</ol>
+</td>
+<td><div class="first last line-block">
+<div class="line">org.springframework.jdbc.datasource.</div>
+<div class="line">TransactionAwareDataSourceProxy</div>
+</div>
+</td>
+<td>トランザクション管理されていないデータソースを、Spring Frameworkのトランザクション管理対象にするためのアダプタークラス。</td>
+</tr>
+<tr class="row-odd"><td><ol class="first last arabic simple" start="2">
+<li></li>
+</ol>
+</td>
+<td><div class="first last line-block">
+<div class="line">org.springframework.jdbc.datasource.lookup.</div>
+<div class="line">IsolationLevelDataSourceRoute</div>
+</div>
+</td>
+<td>実行中のトランザクションの独立性レベルによって、使用するデータソースを切り替えるためのアダプタークラス。</td>
+</tr>
+</tbody>
+</table>
+</div></blockquote>
+</div>
+</div>
+</div>
+
+
+          </div>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../../genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="DataAccessMyBatis3.html" title="6.2. データベースアクセス（MyBatis3編）"
+             >next</a> |</li>
+        <li class="right" >
+          <a href="index.html" title="6. データアクセス"
+             >previous</a> |</li>
+        <li class="nav-item nav-item-0"><a href="../../index.html">TERASOLUNA Server Framework for Java (5.x) Development Guideline 5.5.2.RELEASE documentation</a> &#187;</li>
+          <li class="nav-item nav-item-1"><a href="index.html" >6. データアクセス</a> &#187;</li> 
+      </ul>
+    </div>
+    <div class="footer">
+      © Copyright 2013, NTT DATA Corporation. © Copyright 2013, NTT Corporation.
+      Created using <a href="http://sphinx.pocoo.org/">Sphinx</a> 1.6.3.Theme is <a href="http://github.com/vimalkvn/solar-theme">Solar</a>
+    </div>
+    
+    <script>
+    
+    $(function() {
+    	var $sidebar	= $('.sphinxsidebar'),
+    		$window		= $(window),
+    		offset		= $sidebar.offset(),
+    		topPadding	= 3,
+    		$scroll		= $('#scroll');
+    	
+    	$window.scroll(function() {
+    		if ($scroll.is(':checked')) {
+				if ($window.scrollTop() > offset.top) {
+					$sidebar.stop().animate({
+						marginTop:$window.scrollTop() - offset.top + topPadding
+					});
+				} else {
+					$sidebar.stop().animate({
+						marginTop:0
+					});
+				}
+			}
+		});
+    	
+    	var $navList = $('ul:first', $sidebar);
+    	$('li:first', $navList).addClass('open');
+    	
+    	$navList.treeview({
+    		persist: "location",
+    		collapsed: true,
+    		unique: false
+    	});
+    	
+	});
+    (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+        (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+            m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+    })(window,document,'script','//www.google-analytics.com/analytics.js','ga');
+
+    ga('create', 'UA-46550814-1', 'terasolunaorg.github.io');
+    ga('send', 'pageview');
+    </script>
+  </body>
+</html>
