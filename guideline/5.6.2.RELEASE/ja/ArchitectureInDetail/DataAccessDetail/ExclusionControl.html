@@ -1,0 +1,2917 @@
+<!DOCTYPE html>
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <title>6.4. 排他制御 &#8212; TERASOLUNA Server Framework for Java (5.x) Development Guideline 5.6.2.RELEASE documentation</title>
+    <link rel="stylesheet" href="../../_static/solar.css" type="text/css" />
+    <link rel="stylesheet" href="../../_static/pygments.css" type="text/css" />
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    '../../',
+        VERSION:     '5.6.2.RELEASE',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true,
+        SOURCELINK_SUFFIX: '.txt'
+      };
+    </script>
+    <script type="text/javascript" src="../../_static/jquery.js"></script>
+    <script type="text/javascript" src="../../_static/underscore.js"></script>
+    <script type="text/javascript" src="../../_static/doctools.js"></script>
+    <link rel="index" title="Index" href="../../genindex.html" />
+    <link rel="search" title="Search" href="../../search.html" />
+    <link rel="next" title="7. アプリケーション形態に依存しない汎用機能" href="../GeneralFuncDetail/index.html" />
+    <link rel="prev" title="6.3. データベースアクセス（JPA編）" href="DataAccessJpa.html" /><script src="../../_static/jquery.treeview.js" type="text/javascript"></script>
+<!-- <link href='http://fonts.googleapis.com/css?family=Source+Code+Pro|Open+Sans:300italic,400italic,700italic,400,300,700' rel='stylesheet' type='text/css'> -->
+<link href="../../_static/solarized-dark.css" rel="stylesheet">
+<link href="../../_static/jquery.treeview.css" rel="stylesheet">
+  </head>
+  <body>
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../../genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="../GeneralFuncDetail/index.html" title="7. アプリケーション形態に依存しない汎用機能"
+             accesskey="N">next</a> |</li>
+        <li class="right" >
+          <a href="DataAccessJpa.html" title="6.3. データベースアクセス（JPA編）"
+             accesskey="P">previous</a> |</li>
+        <li class="nav-item nav-item-0"><a href="../../index.html">TERASOLUNA Server Framework for Java (5.x) Development Guideline 5.6.2.RELEASE documentation</a> &#187;</li>
+          <li class="nav-item nav-item-1"><a href="index.html" accesskey="U">6. データアクセス</a> &#187;</li> 
+      </ul>
+    </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper"><label><input id="scroll" type="checkbox" checked> scroll sidebar</label>
+
+  <h3><a href="../../index.html">Table Of Contents</a></h3>
+  <ul>
+<li><a class="reference internal" href="#">6.4. 排他制御</a><ul>
+<li><a class="reference internal" href="#overview">6.4.1. Overview</a><ul>
+<li><a class="reference internal" href="#exclusioncontrol-necessity">6.4.1.1. 排他制御の必要性</a><ul>
+<li><a class="reference internal" href="#problem1">6.4.1.1.1. Problem1</a></li>
+<li><a class="reference internal" href="#problem2">6.4.1.1.2. Problem2</a></li>
+<li><a class="reference internal" href="#problem3">6.4.1.1.3. Problem3</a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#id4">6.4.1.2. トランザクションの分離レベルによる排他制御</a></li>
+<li><a class="reference internal" href="#id5">6.4.1.3. データベースのロック機能による排他制御</a><ul>
+<li><a class="reference internal" href="#id6">6.4.1.3.1. データベースの行ロック機能による排他制御</a></li>
+<li><a class="reference internal" href="#id7">6.4.1.3.2. 楽観ロックによる排他制御</a></li>
+<li><a class="reference internal" href="#id8">6.4.1.3.3. 悲観ロックによる排他制御</a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#id9">6.4.1.4. デッドロックの予防</a><ul>
+<li><a class="reference internal" href="#dead-lock-record">6.4.1.4.1. テーブル内でのデッドロック</a></li>
+<li><a class="reference internal" href="#dead-lock-table">6.4.1.4.2. テーブル間でのデッドロック</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li><a class="reference internal" href="#how-to-use">6.4.2. How to use</a><ul>
+<li><a class="reference internal" href="#mybatis3">6.4.2.1. MyBatis3使用時の実装方法</a><ul>
+<li><a class="reference internal" href="#rdbms">6.4.2.1.1. RDBMSの行ロック機能</a></li>
+<li><a class="reference internal" href="#id12">6.4.2.1.2. 楽観ロック</a></li>
+<li><a class="reference internal" href="#id13">6.4.2.1.3. 悲観ロック</a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#jpa-spring-data-jpa">6.4.2.2. JPA(Spring Data JPA)使用時の実装方法</a><ul>
+<li><a class="reference internal" href="#id14">6.4.2.2.1. RDBMSの行ロック機能</a></li>
+<li><a class="reference internal" href="#id15">6.4.2.2.2. 楽観ロック</a></li>
+<li><a class="reference internal" href="#id16">6.4.2.2.3. 悲観ロック</a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#exclusioncontrolhowtouseexceptionhandling">6.4.2.3. 排他エラーのハンドリング方法</a><ul>
+<li><a class="reference internal" href="#id18">6.4.2.3.1. 楽観ロックの失敗時のエラーハンドリング</a></li>
+<li><a class="reference internal" href="#id19">6.4.2.3.2. 悲観ロックの失敗時のエラーハンドリング</a></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+
+
+  <h4>Previous topic</h4>
+  <p class="topless"><a href="DataAccessJpa.html"
+                        title="previous chapter">6.3. データベースアクセス（JPA編）</a></p>
+  <h4>Next topic</h4>
+  <p class="topless"><a href="../GeneralFuncDetail/index.html"
+                        title="next chapter">7. アプリケーション形態に依存しない汎用機能</a></p>
+  <div role="note" aria-label="source link">
+    <h3>This Page</h3>
+    <ul class="this-page-menu">
+      <li><a href="../../_sources/ArchitectureInDetail/DataAccessDetail/ExclusionControl.rst.txt"
+            rel="nofollow">Show Source</a></li>
+    </ul>
+   </div>
+<div id="searchbox" style="display: none" role="search">
+  <h3>Quick search</h3>
+    <form class="search" action="../../search.html" method="get">
+      <div><input type="text" name="q" /></div>
+      <div><input type="submit" value="Go" /></div>
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <div class="section" id="id1">
+<h1>6.4. 排他制御<a class="headerlink" href="#id1" title="Permalink to this headline">¶</a></h1>
+<div class="contents local topic" id="id2">
+<p class="topic-title">目次</p>
+<ul class="simple">
+<li><a class="reference internal" href="#overview" id="id22">Overview</a><ul>
+<li><a class="reference internal" href="#exclusioncontrol-necessity" id="id23">排他制御の必要性</a><ul>
+<li><a class="reference internal" href="#problem1" id="id24">Problem1</a></li>
+<li><a class="reference internal" href="#problem2" id="id25">Problem2</a></li>
+<li><a class="reference internal" href="#problem3" id="id26">Problem3</a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#id4" id="id27">トランザクションの分離レベルによる排他制御</a></li>
+<li><a class="reference internal" href="#id5" id="id28">データベースのロック機能による排他制御</a><ul>
+<li><a class="reference internal" href="#id6" id="id29">データベースの行ロック機能による排他制御</a></li>
+<li><a class="reference internal" href="#id7" id="id30">楽観ロックによる排他制御</a></li>
+<li><a class="reference internal" href="#id8" id="id31">悲観ロックによる排他制御</a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#id9" id="id32">デッドロックの予防</a><ul>
+<li><a class="reference internal" href="#dead-lock-record" id="id33">テーブル内でのデッドロック</a></li>
+<li><a class="reference internal" href="#dead-lock-table" id="id34">テーブル間でのデッドロック</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li><a class="reference internal" href="#how-to-use" id="id35">How to use</a><ul>
+<li><a class="reference internal" href="#mybatis3" id="id36">MyBatis3使用時の実装方法</a><ul>
+<li><a class="reference internal" href="#rdbms" id="id37">RDBMSの行ロック機能</a></li>
+<li><a class="reference internal" href="#id12" id="id38">楽観ロック</a></li>
+<li><a class="reference internal" href="#id13" id="id39">悲観ロック</a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#jpa-spring-data-jpa" id="id40">JPA(Spring Data JPA)使用時の実装方法</a><ul>
+<li><a class="reference internal" href="#id14" id="id41">RDBMSの行ロック機能</a></li>
+<li><a class="reference internal" href="#id15" id="id42">楽観ロック</a></li>
+<li><a class="reference internal" href="#id16" id="id43">悲観ロック</a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#exclusioncontrolhowtouseexceptionhandling" id="id44">排他エラーのハンドリング方法</a><ul>
+<li><a class="reference internal" href="#id18" id="id45">楽観ロックの失敗時のエラーハンドリング</a></li>
+<li><a class="reference internal" href="#id19" id="id46">悲観ロックの失敗時のエラーハンドリング</a></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+</div>
+<div class="line-block">
+<div class="line"><br /></div>
+</div>
+<div class="section" id="overview">
+<h2><a class="toc-backref" href="#id22">6.4.1. Overview</a><a class="headerlink" href="#overview" title="Permalink to this headline">¶</a></h2>
+<p>排他制御とは、複数のトランザクションから同じデータに対して、同時に更新処理が行われる際に、データの整合性を保つために行う処理のことである。</p>
+<p>複数のトランザクションから同じデータに対して、同時に更新処理が行われる可能性がある場合は、基本的に排他制御を行う必要がある。
+ここで言うトランザクションとは、かならずしもデータベースとのトランザクションとは限らず、ロングトランザクションも含まれる。</p>
+<div class="admonition note">
+<p class="first admonition-title">Note</p>
+<p><strong>ロングトランザクションとは</strong></p>
+<p>データの取得とデータの更新を、別々のデータベーストランザクションとして行う際に発生するトランザクションのことである。</p>
+<p class="last">具体例としては、取得したデータを編集画面に表示し、画面で編集した値をデータベースに更新するようなアプリケーションで発生する。</p>
+</div>
+<div class="line-block">
+<div class="line">本節では、データベース上で管理されているデータに対する排他制御について、説明する。</div>
+<div class="line">しかし、データベース以外で管理されているデータ(例えば、メモリ、ファイルなど)についても、同様に排他制御を行う必要があることに留意すること。</div>
+</div>
+<div class="section" id="exclusioncontrol-necessity">
+<span id="id3"></span><h3><a class="toc-backref" href="#id23">6.4.1.1. 排他制御の必要性</a><a class="headerlink" href="#exclusioncontrol-necessity" title="Permalink to this headline">¶</a></h3>
+<p>まず、排他制御の必要性を理解してもらうために、排他制御を行わなかった際に発生する問題について、具体例を3つ挙げて説明する。</p>
+<div class="section" id="problem1">
+<h4><a class="toc-backref" href="#id24">6.4.1.1.1. Problem1</a><a class="headerlink" href="#problem1" title="Permalink to this headline">¶</a></h4>
+<p>ここでは、ショッピングサイトにて、ユーザからTeaの注文を受け付ける場合の例を示す。</p>
+<blockquote>
+<div><div class="figure align-center">
+<a class="reference internal image-reference" href="../../_images/ExclusionControl-problem1.png"><img alt="Exclusive Control problem1" src="../../_images/ExclusionControl-problem1.png" style="width: 90%;" /></a>
+</div>
+<table border="1" class="colwidths-given docutils">
+<colgroup>
+<col width="10%" />
+<col width="5%" />
+<col width="5%" />
+<col width="80%" />
+</colgroup>
+<thead valign="bottom">
+<tr class="row-odd"><th class="head">項番</th>
+<th class="head">UserA</th>
+<th class="head">UserB</th>
+<th class="head">説明</th>
+</tr>
+</thead>
+<tbody valign="top">
+<tr class="row-even"><td><ol class="first last arabic simple">
+<li></li>
+</ol>
+</td>
+<td>〇</td>
+<td>-</td>
+<td>User Aが、商品画面にてTeaの在庫が5個あることを確認する。</td>
+</tr>
+<tr class="row-odd"><td><ol class="first last arabic simple" start="2">
+<li></li>
+</ol>
+</td>
+<td>-</td>
+<td>〇</td>
+<td>User Bが、商品画面にてTeaの在庫が5個あることを確認する。</td>
+</tr>
+<tr class="row-even"><td><ol class="first last arabic simple" start="3">
+<li></li>
+</ol>
+</td>
+<td>-</td>
+<td>〇</td>
+<td>User BがTeaを5個注文する。DB上のTeaの在庫を-5し、Teaの在庫は0になる。</td>
+</tr>
+<tr class="row-odd"><td><ol class="first last arabic simple" start="4">
+<li></li>
+</ol>
+</td>
+<td>〇</td>
+<td>-</td>
+<td>User AがTeaを5個注文する。DB上のTeaの在庫を-5し、Teaの在庫は-5となる。</td>
+</tr>
+</tbody>
+</table>
+<div class="line-block">
+<div class="line"><strong>User Aの注文は受け付けられたが、実際の在庫が無いため、謝りの連絡を入れることになる。</strong></div>
+<div class="line"><strong>テーブルで管理しているTeaの在庫数についても、実際のTeaの在庫数と異なる値(マイナス値)になってしまう。</strong></div>
+</div>
+</div></blockquote>
+</div>
+<div class="section" id="problem2">
+<h4><a class="toc-backref" href="#id25">6.4.1.1.2. Problem2</a><a class="headerlink" href="#problem2" title="Permalink to this headline">¶</a></h4>
+<p>ここでは、ショッピングサイトでTeaの在庫数を管理するスタッフが、Teaの在庫数を表示し、仕入れたTeaの数をクライアントで計算して、Teaの在庫数を更新する場合の例を示す。</p>
+<blockquote>
+<div><div class="figure align-center">
+<a class="reference internal image-reference" href="../../_images/ExclusionControl-problem2.png"><img alt="Exclusive Control problem2" src="../../_images/ExclusionControl-problem2.png" style="width: 90%;" /></a>
+</div>
+<table border="1" class="colwidths-given docutils">
+<colgroup>
+<col width="10%" />
+<col width="5%" />
+<col width="5%" />
+<col width="80%" />
+</colgroup>
+<thead valign="bottom">
+<tr class="row-odd"><th class="head">項番</th>
+<th class="head">UserA</th>
+<th class="head">UserB</th>
+<th class="head">説明</th>
+</tr>
+</thead>
+<tbody valign="top">
+<tr class="row-even"><td><ol class="first last arabic simple">
+<li></li>
+</ol>
+</td>
+<td>〇</td>
+<td>-</td>
+<td>Staff AがTeaの在庫が5個あることを確認する。</td>
+</tr>
+<tr class="row-odd"><td><ol class="first last arabic simple" start="2">
+<li></li>
+</ol>
+</td>
+<td>-</td>
+<td>〇</td>
+<td>Staff BがTeaの在庫が5個あることを確認する。</td>
+</tr>
+<tr class="row-even"><td><ol class="first last arabic simple" start="3">
+<li></li>
+</ol>
+</td>
+<td>-</td>
+<td>〇</td>
+<td>Staff BがTeaを10個仕入れ、在庫数をクライアントで5＋10=15個と計算して更新する。</td>
+</tr>
+<tr class="row-odd"><td><ol class="first last arabic simple" start="4">
+<li></li>
+</ol>
+</td>
+<td>〇</td>
+<td>-</td>
+<td>Staff AがTeaを20個仕入れ、在庫数をクライアントで5＋20=25個と計算して更新する。</td>
+</tr>
+</tbody>
+</table>
+<p><strong>3の処理で追加した10個の仕入れが無くなってしまい、実際の在庫数(35個)と合わなくなってしまう。</strong></p>
+</div></blockquote>
+</div>
+<div class="section" id="problem3">
+<h4><a class="toc-backref" href="#id26">6.4.1.1.3. Problem3</a><a class="headerlink" href="#problem3" title="Permalink to this headline">¶</a></h4>
+<p>ここでは、バッチ処理によってロックされているデータに対して、オンライン処理で更新する例を示す。</p>
+<blockquote>
+<div><div class="figure align-center">
+<a class="reference internal image-reference" href="../../_images/ExclusionControl-problem4.png"><img alt="Exclusive Control problem4" src="../../_images/ExclusionControl-problem4.png" style="width: 90%;" /></a>
+</div>
+<table border="1" class="colwidths-given docutils">
+<colgroup>
+<col width="10%" />
+<col width="5%" />
+<col width="5%" />
+<col width="80%" />
+</colgroup>
+<thead valign="bottom">
+<tr class="row-odd"><th class="head">項番</th>
+<th class="head">UserA</th>
+<th class="head">Batch</th>
+<th class="head">説明</th>
+</tr>
+</thead>
+<tbody valign="top">
+<tr class="row-even"><td><ol class="first last arabic simple">
+<li></li>
+</ol>
+</td>
+<td>-</td>
+<td>〇</td>
+<td>Batchがテーブルの更新対象の該当行（ここでは仮に全ての行とする。）をロックし、他の処理で更新できないようにする。</td>
+</tr>
+<tr class="row-odd"><td><ol class="first last arabic simple" start="2">
+<li></li>
+</ol>
+</td>
+<td>〇</td>
+<td>-</td>
+<td>User Aが更新情報を検索する。この時点でBatchはコミットされていないため、Batch更新前の情報が取得できる。</td>
+</tr>
+<tr class="row-even"><td><ol class="first last arabic simple" start="3">
+<li></li>
+</ol>
+</td>
+<td>〇</td>
+<td>-</td>
+<td>User Aが更新要求をするが、Batchにロックされているため、更新が待たされる。</td>
+</tr>
+<tr class="row-odd"><td><ol class="first last arabic simple" start="4">
+<li></li>
+</ol>
+</td>
+<td>-</td>
+<td>〇</td>
+<td>Batchが処理を終えてロックを解放する。</td>
+</tr>
+<tr class="row-even"><td><ol class="first last arabic simple" start="5">
+<li></li>
+</ol>
+</td>
+<td>〇</td>
+<td>-</td>
+<td>User Aの待たされていた更新処理が、実行可能となり更新処理を実行する。</td>
+</tr>
+</tbody>
+</table>
+<div class="line-block">
+<div class="line"><strong>User AはBatch終了を待たされた後に、更新処理を実行する。しかし、User Aの取得した元のデータは、Batchの更新前のデータであり、Batchで更新した情報を上書く可能性がある。</strong></div>
+<div class="line"><strong>また、Batch時間はオンライン処理と比べると長いものが多く、ユーザが待たされる時間が長くなる。</strong></div>
+</div>
+</div></blockquote>
+</div>
+</div>
+<div class="section" id="id4">
+<h3><a class="toc-backref" href="#id27">6.4.1.2. トランザクションの分離レベルによる排他制御</a><a class="headerlink" href="#id4" title="Permalink to this headline">¶</a></h3>
+<div class="line-block">
+<div class="line"><a class="reference internal" href="#exclusioncontrol-necessity"><span class="std std-ref">排他制御の必要性</span></a> で挙げた3つの問題をすべて解決するための最も簡単な方法は、データベースへの処理を一つひとつ順番に（シリアルに）実行されるようにすることである。</div>
+<div class="line">このようにシリアルに処理させることで、トランザクションが互いに影響を及ぼし合わなくなる。</div>
+<div class="line">しかしながら、シリアルに処理させる場合、単位時間内に実行可能なトランザクション数が減少するため、パフォーマンスが低下することになる。</div>
+</div>
+<p>ANSI/ISO SQL標準では、トランザクションの分離レベル（各トランザクションがそれぞれどの程度互いに影響を及ぼし合うか）を表す指標を定義している。
+以下に、トランザクションの分離レベルを4つ示す。併せて、各分離レベルで起こりうる現象について説明する。</p>
+<table border="1" class="colwidths-given docutils">
+<colgroup>
+<col width="11%" />
+<col width="22%" />
+<col width="22%" />
+<col width="22%" />
+<col width="22%" />
+</colgroup>
+<thead valign="bottom">
+<tr class="row-odd"><th class="head"><div class="first last line-block">
+<div class="line">項番</div>
+</div>
+</th>
+<th class="head"><div class="first last line-block">
+<div class="line">分離レベル</div>
+</div>
+</th>
+<th class="head"><div class="first last line-block">
+<div class="line">ダーティ・リード</div>
+<div class="line">DRITY READ</div>
+</div>
+</th>
+<th class="head"><div class="first last line-block">
+<div class="line">再読込不可能読取</div>
+<div class="line">NON-REPEATABLE READ</div>
+</div>
+</th>
+<th class="head"><div class="first last line-block">
+<div class="line">ファントム・リード</div>
+<div class="line">PHANTOM READ</div>
+</div>
+</th>
+</tr>
+</thead>
+<tbody valign="top">
+<tr class="row-even"><td><div class="first last line-block">
+<div class="line">1.</div>
+</div>
+</td>
+<td><div class="first last line-block">
+<div class="line">未コミット読込</div>
+<div class="line">READ UNCOMMITTED</div>
+</div>
+</td>
+<td>有</td>
+<td>有</td>
+<td>有</td>
+</tr>
+<tr class="row-odd"><td><div class="first last line-block">
+<div class="line">2.</div>
+</div>
+</td>
+<td><div class="first last line-block">
+<div class="line">コミット済読込</div>
+<div class="line">READ COMMITTED</div>
+</div>
+</td>
+<td>無</td>
+<td>有</td>
+<td>有</td>
+</tr>
+<tr class="row-even"><td><div class="first last line-block">
+<div class="line">3.</div>
+</div>
+</td>
+<td><div class="first last line-block">
+<div class="line">再読込可能読取</div>
+<div class="line">REPEATABLE READ</div>
+</div>
+</td>
+<td>無</td>
+<td>無</td>
+<td>有</td>
+</tr>
+<tr class="row-odd"><td><div class="first last line-block">
+<div class="line">4.</div>
+</div>
+</td>
+<td><div class="first last line-block">
+<div class="line">直列化</div>
+<div class="line">SERIALIZABLE</div>
+</div>
+</td>
+<td>無</td>
+<td>無</td>
+<td>無</td>
+</tr>
+</tbody>
+</table>
+<div class="admonition tip">
+<p class="first admonition-title">Tip</p>
+<p><strong>ダーティ・リード（DRITY READ）</strong></p>
+<p class="last">まだコミットされていないトランザクションが書き込んだデータを、別のトランザクションが読み込む現象のことである。</p>
+</div>
+<div class="admonition tip">
+<p class="first admonition-title">Tip</p>
+<p><strong>再読込不可能読取（NON-REPEATABLE READ）</strong></p>
+<p class="last">同一トランザクション内で同じレコードを2度読み込むような場合、1度目と2度目の読み込みの間に他トランザクションがコミットすると、1度目に読み込んだ内容と2度目に読み込んだ内容が異なる可能性がある。
+複数回の読み込みの結果が、他のトランザクションのコミットのタイミングによって変わることである。</p>
+</div>
+<div class="admonition tip">
+<p class="first admonition-title">Tip</p>
+<p><strong>ファントム・リード（PHANTOM READ）</strong></p>
+<p class="last">同一トランザクション内で、同じレコードを2回読み込む間に、他のトランザクションがレコードを追加、または削除することにより、2回目の読み込みで1回目と取得レコード数（内容）が異なることである。</p>
+</div>
+<div class="line-block">
+<div class="line">上記の表に定義されている分離レベルは、下にいくほどトランザクションの分離レベルが高くなる。</div>
+<div class="line">分離レベルが高ければ、データは安全に守られるが、ロック待ちが多くなり、パフォーマンスが低下する。</div>
+<div class="line">SERIALIZABLEは、アクセス頻度がかなり低い場合を除き、選択すべきでない。</div>
+<div class="line">その理由は、SELECTを含め、すべてのデータアクセスが、一つずつ順番に行われるためである。</div>
+</div>
+<div class="line-block">
+<div class="line">トランザクション間の分離性と同時実行性は、トレードオフの関係である。</div>
+<div class="line">すなわち、分離レベルを高くすれば同時実効性が下がり、分離レベルを下げると、同時実効性が上がる。</div>
+<div class="line">そのため、アプリケーションの要件に合わせて、トランザクションの分離性と同時実行性のバランスをとる必要がある。</div>
+</div>
+<div class="line-block">
+<div class="line">使用するデータベースにより、サポートされている分離レベルは違うため、使用するデータベースの特性を理解する必要がある。</div>
+<div class="line">以下に、データベース毎でサポートされている分離レベルと、デフォルト値を示す。</div>
+</div>
+<blockquote>
+<div><table border="1" class="colwidths-given docutils">
+<colgroup>
+<col width="11%" />
+<col width="22%" />
+<col width="17%" />
+<col width="17%" />
+<col width="17%" />
+<col width="17%" />
+</colgroup>
+<thead valign="bottom">
+<tr class="row-odd"><th class="head"><div class="first last line-block">
+<div class="line">項番</div>
+</div>
+</th>
+<th class="head"><div class="first last line-block">
+<div class="line">データベース</div>
+</div>
+</th>
+<th class="head"><div class="first last line-block">
+<div class="line">READ UNCOMMITTED</div>
+</div>
+</th>
+<th class="head"><div class="first last line-block">
+<div class="line">READ COMMITTED</div>
+</div>
+</th>
+<th class="head"><div class="first last line-block">
+<div class="line">REPEATABLE READ</div>
+</div>
+</th>
+<th class="head"><div class="first last line-block">
+<div class="line">SERIALIZABLE</div>
+</div>
+</th>
+</tr>
+</thead>
+<tbody valign="top">
+<tr class="row-even"><td><div class="first last line-block">
+<div class="line">1.</div>
+</div>
+</td>
+<td><div class="first last line-block">
+<div class="line">Oracle</div>
+</div>
+</td>
+<td><div class="first last line-block">
+<div class="line">×</div>
+</div>
+</td>
+<td><div class="first last line-block">
+<div class="line">〇(default)</div>
+</div>
+</td>
+<td><div class="first last line-block">
+<div class="line">×</div>
+</div>
+</td>
+<td><div class="first last line-block">
+<div class="line">〇</div>
+</div>
+</td>
+</tr>
+<tr class="row-odd"><td><div class="first last line-block">
+<div class="line">2.</div>
+</div>
+</td>
+<td><div class="first last line-block">
+<div class="line">PostgreSQL</div>
+</div>
+</td>
+<td><div class="first last line-block">
+<div class="line">×</div>
+</div>
+</td>
+<td><div class="first last line-block">
+<div class="line">〇(default)</div>
+</div>
+</td>
+<td><div class="first last line-block">
+<div class="line">×</div>
+</div>
+</td>
+<td><div class="first last line-block">
+<div class="line">〇</div>
+</div>
+</td>
+</tr>
+<tr class="row-even"><td><div class="first last line-block">
+<div class="line">3.</div>
+</div>
+</td>
+<td><div class="first last line-block">
+<div class="line">DB2</div>
+</div>
+</td>
+<td><div class="first last line-block">
+<div class="line">〇</div>
+</div>
+</td>
+<td><div class="first last line-block">
+<div class="line">〇(default)</div>
+</div>
+</td>
+<td><div class="first last line-block">
+<div class="line">〇</div>
+</div>
+</td>
+<td><div class="first last line-block">
+<div class="line">〇</div>
+</div>
+</td>
+</tr>
+<tr class="row-odd"><td><div class="first last line-block">
+<div class="line">4.</div>
+</div>
+</td>
+<td><div class="first last line-block">
+<div class="line">MySQL InnoDB</div>
+</div>
+</td>
+<td><div class="first last line-block">
+<div class="line">〇</div>
+</div>
+</td>
+<td><div class="first last line-block">
+<div class="line">〇</div>
+</div>
+</td>
+<td><div class="first last line-block">
+<div class="line">〇(default)</div>
+</div>
+</td>
+<td><div class="first last line-block">
+<div class="line">〇</div>
+</div>
+</td>
+</tr>
+</tbody>
+</table>
+</div></blockquote>
+<p><strong>データの整合性を保ちつつ、分離性と同時実行性のバランスをとる場合、データベースのロック機能を使用して排他制御を行う必要がある。以下に、データベースのロック機能について説明する。</strong></p>
+</div>
+<div class="section" id="id5">
+<h3><a class="toc-backref" href="#id28">6.4.1.3. データベースのロック機能による排他制御</a><a class="headerlink" href="#id5" title="Permalink to this headline">¶</a></h3>
+<div class="line-block">
+<div class="line">更新対象のデータを適切な方法でロックする必要がある。その理由は、下記2点の通りである。</div>
+</div>
+<ul class="simple">
+<li>データベース上で管理されているデータの整合性を保つため</li>
+<li>更新処理が競合しないようにするため</li>
+</ul>
+<div class="line-block">
+<div class="line">データベース上で管理されているデータをロックする方法は、下記の通り3種類ある。</div>
+<div class="line">アーキテクトは、これらのロックの特徴を十分に理解した上で、アプリケーションの特性にあったロックの方法を採用すること。</div>
+</div>
+<blockquote>
+<div><table border="1" class="colwidths-given docutils" id="id20">
+<caption><span class="caption-text">ロックの種類</span><a class="headerlink" href="#id20" title="Permalink to this table">¶</a></caption>
+<colgroup>
+<col width="10%" />
+<col width="15%" />
+<col width="40%" />
+<col width="35%" />
+</colgroup>
+<thead valign="bottom">
+<tr class="row-odd"><th class="head">項番</th>
+<th class="head">ロック種類</th>
+<th class="head">適用ケース</th>
+<th class="head">特徴</th>
+</tr>
+</thead>
+<tbody valign="top">
+<tr class="row-even"><td><ol class="first last arabic simple">
+<li></li>
+</ol>
+</td>
+<td>RDBMSによる自動的なロック</td>
+<td><ul class="first last simple">
+<li>データの更新条件として、データの整合性を保証するために必要な条件を指定できる場合。</li>
+<li>同一データに対する同時実行数が少なく、更新処理も短い時間でおわる場合。</li>
+</ul>
+</td>
+<td><ul class="first last simple">
+<li>チェックと更新処理を一つのSQLで実行するため、効率的である。</li>
+<li>楽観ロックに比べ、データの整合性を保証するための条件を個別に検討する必要がある。</li>
+</ul>
+</td>
+</tr>
+<tr class="row-odd"><td><ol class="first last arabic simple" start="2">
+<li></li>
+</ol>
+</td>
+<td>楽観ロック</td>
+<td><ul class="first last simple">
+<li>事前に取得したデータが他のトランザクションによって更新されていた場合に、更新内容を確認させる必要がある場合。</li>
+<li>同一データに対する同時実行数が少なく、更新処理も短い時間でおわる場合。</li>
+</ul>
+</td>
+<td><ul class="first last simple">
+<li>取得したデータに対して、他のトランザクションからの更新が行われていないことが保証される。</li>
+<li>テーブルにVersionを管理するためのカラムを定義する必要がある。</li>
+</ul>
+</td>
+</tr>
+<tr class="row-even"><td><ol class="first last arabic simple" start="3">
+<li></li>
+</ol>
+</td>
+<td>悲観ロック</td>
+<td><ul class="first last simple">
+<li>長い時間ロックされる可能性があるデータに対して更新する場合。</li>
+<li>楽観ロックが使用できない(Versionを管理するためのカラムが定義できない)ため、処理としてデータの整合性チェックを行う必要がある場合。</li>
+<li>同一データに対する同時実行数が多く、更新処理も長い時間実行される可能性がある場合。</li>
+</ul>
+</td>
+<td><ul class="first last simple">
+<li>他のトランザクションの処理結果によって処理が失敗する可能性がなくなる。</li>
+<li>悲観ロックを取得するためのselect文を発行する必要があるので、その分コストがかかる。</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+</div></blockquote>
+<div class="admonition note">
+<p class="first admonition-title">Note</p>
+<p><strong>ロックの種類の採用基準について</strong></p>
+<p>どの手法を採用するかについて、アーキテクトが、機能要件および性能要件を考慮して決定すること。</p>
+<ul class="last simple">
+<li>画面にデータを戻し、画面上でデータを変更するような、データベースとのトランザクションが切れて、次のトランザクションでデータが変わっていないことを保証するためには、楽観ロックが必要となる。</li>
+<li>1トランザクション内でロックをかける必要がある場合は、悲観ロックと楽観ロックの両方で実現できるが、悲観ロックを使用した場合、データベース内のロック制御処理が行われるため、データベース内の処理コストが高くなる可能性がある。特に問題がない場合は、楽観ロックの方がよい。</li>
+<li>更新頻度が高い処理で、1トランザクション内で多くのテーブルを更新する場合は、楽観ロックを使用すると、ロックを取得するための待ち時間は最小限に抑えることが出できるが、途中で排他エラーとなる可能性があるため、エラーが発生するポイントが増える。
+悲観ロックを使用すると、ロックを取得するまでの待ち時間が長くなる可能性はあるが、ロックを取得した後の処理で排他エラーが発生することはないため、エラーが発生するポイントが減る。</li>
+</ul>
+</div>
+<div class="admonition tip">
+<p class="first admonition-title">Tip</p>
+<p><strong>業務トランザクションについて</strong></p>
+<p>実際のアプリケーション開発では、業務フローレベルのトランザクションに対して、排他制御が必要になる場合もある。
+業務フローレベルのトランザクションとなる代表例としては、旅行代理店のカウンタで、お客様と話をしながら予約作業を進めていく際に使用するアプリケーションがあげられる。</p>
+<p>旅行予約を行う場合、鉄道、宿泊施設、さらに追加プランなどを話しながら決めていくことになる。
+その際に、予約することに決めた宿泊施設や追加プランが、他の利用者に予約されないようにする仕組みが必要になる。
+このような場合は、テーブルにステータスを持たせ、仮予約 -&gt; 予約 のように更新し、仮予約中の場合も、他の利用者から更新されないようにする必要がある。</p>
+<p class="last">業務トランザクションに対する排他制御については、業務設計や機能設計として検討・設計すべき箇所になるので、本節の説明範囲からは省いている。</p>
+</div>
+<div class="section" id="id6">
+<h4><a class="toc-backref" href="#id29">6.4.1.3.1. データベースの行ロック機能による排他制御</a><a class="headerlink" href="#id6" title="Permalink to this headline">¶</a></h4>
+<div class="line-block">
+<div class="line">ほとんどのデータベースでは、レコードを更新（UPDATE,DELETE）した場合、コミットまたはロールバックされるまで、他のトランザクションからの更新を待機させるための行ロックが取得される。</div>
+<div class="line">そのため、更新件数が想定通りであれば、データの整合性を保証することができる。</div>
+</div>
+<div class="line-block">
+<div class="line">この特性を活かし、更新時のWHERE句に対して、データの整合性を担保するための条件を指定することで、排他制御を行うことができる。</div>
+<div class="line">以下に、データベース毎の、更新時の行ロックのサポート状況を示す。</div>
+</div>
+<blockquote>
+<div><table border="1" class="colwidths-given docutils">
+<colgroup>
+<col width="11%" />
+<col width="22%" />
+<col width="11%" />
+<col width="17%" />
+<col width="39%" />
+</colgroup>
+<thead valign="bottom">
+<tr class="row-odd"><th class="head">項番</th>
+<th class="head">データベース</th>
+<th class="head">確認Version</th>
+<th class="head">デフォルト設定時のロック</th>
+<th class="head">備考</th>
+</tr>
+</thead>
+<tbody valign="top">
+<tr class="row-even"><td><ol class="first last arabic simple">
+<li></li>
+</ol>
+</td>
+<td>Oracle</td>
+<td>11</td>
+<td>行ロック</td>
+<td>ロック分メモリ使用量が増大する。</td>
+</tr>
+<tr class="row-odd"><td><ol class="first last arabic simple" start="2">
+<li></li>
+</ol>
+</td>
+<td>PostgreSQL</td>
+<td>9</td>
+<td>行ロック</td>
+<td>メモリ上に変更された行の情報を記憶しないので、同時にロックできる行数に、上限はない。ただし、テーブルに書き込むため、定期的にVACUUMしなければならない。</td>
+</tr>
+<tr class="row-even"><td><ol class="first last arabic simple" start="3">
+<li></li>
+</ol>
+</td>
+<td>DB2</td>
+<td>9</td>
+<td>行ロック</td>
+<td>ロック分メモリ使用量が増大する。</td>
+</tr>
+<tr class="row-odd"><td><ol class="first last arabic simple" start="4">
+<li></li>
+</ol>
+</td>
+<td>MySQL InnoDB</td>
+<td>5</td>
+<td>行ロック</td>
+<td>ロック分メモリ使用量が増大する。</td>
+</tr>
+</tbody>
+</table>
+</div></blockquote>
+<div class="line-block">
+<div class="line">データベースの行ロック機能による排他制御は、他のトランザクションによって更新した内容を確認する必要がない場合に使用することができる。</div>
+<div class="line">例えば、ショッピングサイトの購入処理にて、購入した商品の個数を、商品の在庫数を管理するレコードからマイナスするような処理が挙げられる。</div>
+<div class="line">ステータス管理を管理する処理などでは、前のステータスが重要になるので、この方法で排他制御を実現することを推奨しない。</div>
+</div>
+<p>以下に、具体例を示す。シナリオは、以下の通りである。</p>
+<ul class="simple">
+<li>ショッピングサイトでUser A,User Bともに同じ商品の購入画面を同時に表示する。
+その際に、Stock Tableから取得した在庫数も表示されている。</li>
+<li>買いたい商品を5個ずつ同時に購入したが、少しUserAの方が早く購入ボタンを押下したため、User Aが先に購入し、User Bが次に購入する。</li>
+</ul>
+<blockquote>
+<div><div class="figure align-center">
+<a class="reference internal image-reference" href="../../_images/update-for-db-line-lock.png"><img alt="update for db line lock" src="../../_images/update-for-db-line-lock.png" style="width: 90%;" /></a>
+</div>
+<table border="1" class="colwidths-given longtable docutils">
+<colgroup>
+<col width="10%" />
+<col width="5%" />
+<col width="5%" />
+<col width="80%" />
+</colgroup>
+<thead valign="bottom">
+<tr class="row-odd"><th class="head">項番</th>
+<th class="head">UserA</th>
+<th class="head">UserB</th>
+<th class="head">説明</th>
+</tr>
+</thead>
+<tbody valign="top">
+<tr class="row-even"><td><ol class="first last arabic simple">
+<li></li>
+</ol>
+</td>
+<td>〇</td>
+<td>-</td>
+<td><p class="first">User Aが、商品の購入画面を表示する。在庫数が100個で画面に表示されている。</p>
+<div class="last highlight-sql"><div class="highlight"><pre><span></span><span class="k">select</span> <span class="n">quantity</span> <span class="k">from</span> <span class="n">Stock</span> <span class="k">where</span> <span class="n">ItemId</span> <span class="o">=</span> <span class="s1">&#39;01&#39;</span>
+</pre></div>
+</div>
+</td>
+</tr>
+<tr class="row-odd"><td><ol class="first last arabic simple" start="2">
+<li></li>
+</ol>
+</td>
+<td>-</td>
+<td>〇</td>
+<td><p class="first">User Bが、商品の購入画面を表示する。在庫数が100個で画面に表示されている。</p>
+<div class="last highlight-sql"><div class="highlight"><pre><span></span><span class="k">select</span> <span class="n">quantity</span> <span class="k">from</span> <span class="n">Stock</span> <span class="k">where</span> <span class="n">ItemId</span> <span class="o">=</span> <span class="s1">&#39;01&#39;</span>
+</pre></div>
+</div>
+</td>
+</tr>
+<tr class="row-even"><td><ol class="first last arabic simple" start="3">
+<li></li>
+</ol>
+</td>
+<td>〇</td>
+<td>-</td>
+<td><p class="first">User Aが、ItemId=01の商品を5個購入する。Stock Tableから個数を-5する。</p>
+<div class="last highlight-sql"><div class="highlight"><pre><span></span><span class="k">Update</span> <span class="n">Stock</span> <span class="k">set</span> <span class="n">quantity</span> <span class="o">=</span> <span class="n">quantity</span> <span class="o">-</span> <span class="mi">5</span>
+                      <span class="k">where</span> <span class="n">ItemId</span><span class="o">=</span><span class="s1">&#39;01&#39;</span> <span class="k">and</span> <span class="n">quantity</span> <span class="o">&gt;=</span> <span class="mi">5</span>
+</pre></div>
+</div>
+</td>
+</tr>
+<tr class="row-odd"><td><ol class="first last arabic simple" start="4">
+<li></li>
+</ol>
+</td>
+<td>-</td>
+<td>〇</td>
+<td>User Bが、ItemId=01の商品を5個購入する。Stock Tableから個数を-5しようとするが、User Aのトランザクションが終了していないので、User Bの購入処理が待たされる。</td>
+</tr>
+<tr class="row-even"><td><ol class="first last arabic simple" start="5">
+<li></li>
+</ol>
+</td>
+<td>〇</td>
+<td>-</td>
+<td>User Aのトランザクションをコミットする。</td>
+</tr>
+<tr class="row-odd"><td><ol class="first last arabic simple" start="6">
+<li></li>
+</ol>
+</td>
+<td>-</td>
+<td>〇</td>
+<td><div class="first line-block">
+<div class="line">User Aのトランザクションがコミットされたため、4で待たされていたUserBの購入処理が再開する。</div>
+<div class="line">この時、在庫は画面で見ると、個数は100ではなく、95になっているが、購入数(上記例では、5個)以上の在庫が残っているため、Stock Tableから個数を-5する。</div>
+</div>
+<div class="last highlight-sql"><div class="highlight"><pre><span></span><span class="k">Update</span> <span class="n">Stock</span> <span class="k">set</span> <span class="n">quantity</span> <span class="o">=</span> <span class="n">quantity</span> <span class="o">-</span> <span class="mi">5</span>
+                      <span class="k">where</span> <span class="n">ItemId</span><span class="o">=</span><span class="s1">&#39;01&#39;</span> <span class="k">and</span> <span class="n">quantity</span> <span class="o">&gt;=</span> <span class="mi">5</span>
+</pre></div>
+</div>
+</td>
+</tr>
+<tr class="row-even"><td><ol class="first last arabic simple" start="7">
+<li></li>
+</ol>
+</td>
+<td>-</td>
+<td>〇</td>
+<td>User Bのトランザクションをコミットする。</td>
+</tr>
+</tbody>
+</table>
+<div class="admonition note">
+<p class="first admonition-title">Note</p>
+<p><strong>ポイント</strong></p>
+<p class="last">SQL内で減算( <code class="docutils literal"><span class="pre">quantity</span> <span class="pre">-</span> <span class="pre">5</span></code> )と、更新条件( <code class="docutils literal"><span class="pre">and</span> <span class="pre">quantity</span> <span class="pre">&gt;=</span> <span class="pre">5</span></code> )の指定を行うことが、ポイントとなる。</p>
+</div>
+</div></blockquote>
+<div class="line-block">
+<div class="line">上と同じシナリオで、商品の購入画面を表示した際の在庫数が、9個だった場合、User Bの更新処理が再開した時点の在庫数が、4個のため、<code class="docutils literal"><span class="pre">quantity</span> <span class="pre">&gt;=</span> <span class="pre">5</span></code>を満たさないので、更新件数が0件となる。</div>
+<div class="line">アプリケーションでは、更新件数が0件の場合、購入処理をロールバックし、User Bに再度実行を促す。</div>
+</div>
+<blockquote>
+<div><div class="figure align-center">
+<a class="reference internal image-reference" href="../../_images/update-for-db-line-lock-not-enough.png"><img alt="update for db line lock not enough" src="../../_images/update-for-db-line-lock-not-enough.png" style="width: 90%;" /></a>
+</div>
+<div class="admonition note">
+<p class="first admonition-title">Note</p>
+<p><strong>ポイント</strong></p>
+<p class="last">アプリケーションで更新件数をチェックし、想定件数と異なる場合にエラーを発生させ、トランザクションをロールバックすることが、ポイントとなる。</p>
+</div>
+</div></blockquote>
+<p><strong>この方法でロックする場合、参照した情報が変わっていても条件次第で処理を進めることができ、かつ、データベースの機能によってデータの整合性を保証することができる。</strong></p>
+</div>
+<div class="section" id="id7">
+<h4><a class="toc-backref" href="#id30">6.4.1.3.2. 楽観ロックによる排他制御</a><a class="headerlink" href="#id7" title="Permalink to this headline">¶</a></h4>
+<div class="line-block">
+<div class="line">楽観ロックとは、データそのものに対してロックは行わずに、更新対象のデータが、データ取得時と同じ状態であることを確認してから更新することで、データの整合性を保証する手法である。</div>
+<div class="line">楽観ロックを使用する場合は、更新対象のデータが、データ取得時と同じ状態であることを判断するために、Versionを管理するためのカラム(Versionカラム)を用意する。</div>
+<div class="line">更新時の条件として、データ取得時のVersionと、データ更新時のVersionを同じとすることで、データの整合性を保証することができる。</div>
+</div>
+<div class="admonition note">
+<p class="first admonition-title">Note</p>
+<p><strong>Versionカラムとは</strong></p>
+<p class="last">レコードの更新回数を管理するためのカラムで、レコード挿入時に0を設定し、更新成功時にインクリメントしていく楽観ロック用のカラムである。
+Versionカラムは、数値以外に最終更新タイムスタンプで代用することもできる。
+しかし、タイムスタンプを用いると、同時に処理が実行された際の、一意性が保証されない。
+そこで、確実な一意性を求める場合、Versionカラムは、数値を使用する必要がある。</p>
+</div>
+<div class="line-block">
+<div class="line">楽観ロックによる排他制御は、他のトランザクションによって更新されていた場合に、更新内容を確認させる必要がある場合に使用する。</div>
+<div class="line">例えば、ワークフローアプリケーションにおいて、申請者と承認者が同時に操作（引き戻しと承認）を行った場合を想像してほしい。</div>
+<div class="line">この時、楽観ロックによる排他制御を行うことで、操作の前後で状態が変わっているため、操作が完了しなかったことを、申請者と承認者に通知することができる。</div>
+</div>
+<div class="admonition warning">
+<p class="first admonition-title">Warning</p>
+<p class="last">楽観ロックを行う場合、IDとVersion以外の条件を加えて更新・削除するのは適切でない。
+なぜなら更新できなかった場合に、Versionが一致しないことが理由なのか、別の条件に一致しないのが理由なのか、判断できないためである。
+更新条件として別の条件がある場合は、事前の処理として条件を満たしているか、チェックを行う必要がある。</p>
+</div>
+<p>具体例を、以下に示す。シナリオは、以下の通りである。</p>
+<ul class="simple">
+<li>ショッピングサイトの在庫数を管理するスタッフ(Staff A, Staff B)が、それぞれ商品を仕入れる。Staff Aが5個、Staff Bが15個仕入れたものとする。</li>
+<li>仕入れた商品を、在庫管理システムに反映するために、在庫管理画面を表示する。その際、在庫管理システムで管理されている在庫数が表示される。</li>
+<li>それぞれ表示された在庫数に対して、仕入れた数を加算した値を更新フォームに入力し、更新を行う。</li>
+</ul>
+<blockquote>
+<div><div class="figure align-center">
+<a class="reference internal image-reference" href="../../_images/Optimistic-lock-flow.png"><img alt="Optimistic lock flow" src="../../_images/Optimistic-lock-flow.png" style="width: 90%;" /></a>
+</div>
+<table border="1" class="colwidths-given docutils">
+<colgroup>
+<col width="10%" />
+<col width="5%" />
+<col width="5%" />
+<col width="80%" />
+</colgroup>
+<thead valign="bottom">
+<tr class="row-odd"><th class="head">項番</th>
+<th class="head">Staff A</th>
+<th class="head">Staff B</th>
+<th class="head">説明</th>
+</tr>
+</thead>
+<tbody valign="top">
+<tr class="row-even"><td><ol class="first last arabic simple">
+<li></li>
+</ol>
+</td>
+<td>〇</td>
+<td>-</td>
+<td>Staff Aが、商品の在庫管理画面を表示する。在庫数は10個と画面に表示されている。参照したデータのVersionは “<code class="docutils literal"><span class="pre">1</span></code>” である。</td>
+</tr>
+<tr class="row-odd"><td><ol class="first last arabic simple" start="2">
+<li></li>
+</ol>
+</td>
+<td>-</td>
+<td>〇</td>
+<td>Staff Bが、商品の在庫管理画面を表示する。在庫数は10個と画面に表示されている。参照したデータのVersionは “<code class="docutils literal"><span class="pre">1</span></code>” である。</td>
+</tr>
+<tr class="row-even"><td><ol class="first last arabic simple" start="3">
+<li></li>
+</ol>
+</td>
+<td>〇</td>
+<td>-</td>
+<td><p class="first">Staff Aが、画面に表示されていた在庫数10に対して、仕入れた5個を加算し、変更後の在庫数を15個で更新する。更新条件として、参照したデータのVersionを含める。</p>
+<div class="last highlight-sql"><div class="highlight"><pre><span></span><span class="k">UPDATE</span> <span class="n">Stock</span> <span class="k">SET</span> <span class="n">quantity</span> <span class="o">=</span> <span class="mi">15</span><span class="p">,</span> <span class="k">version</span> <span class="o">=</span> <span class="k">version</span> <span class="o">+</span> <span class="mi">1</span>
+             <span class="k">WHERE</span> <span class="n">itemId</span> <span class="o">=</span> <span class="s1">&#39;01&#39;</span> <span class="k">and</span> <span class="k">version</span> <span class="o">=</span> <span class="mi">1</span>
+</pre></div>
+</div>
+</td>
+</tr>
+<tr class="row-odd"><td><ol class="first last arabic simple" start="4">
+<li></li>
+</ol>
+</td>
+<td>-</td>
+<td>〇</td>
+<td>Staff Bが、画面に表示されていた在庫数10に対して仕入れた15個を加算し、変更後の在庫数を25個で更新しようとするが、Staff Aのトランザクションが終了していないので待たされる。更新条件として、参照したデータのVersionを含める。</td>
+</tr>
+<tr class="row-even"><td><ol class="first last arabic simple" start="5">
+<li></li>
+</ol>
+</td>
+<td>〇</td>
+<td>-</td>
+<td>Staff Aのトランザクションをコミットする。 <strong>この時点で、Versionは  2 になる。</strong></td>
+</tr>
+<tr class="row-odd"><td><ol class="first last arabic simple" start="6">
+<li></li>
+</ol>
+</td>
+<td>〇</td>
+<td>-</td>
+<td><p class="first">Staff Aのトランザクションがコミットされたため、4で待たされていたStaff Bの更新処理が再開する。この時、Stock TableのデータのVersionが “<code class="docutils literal"><span class="pre">2</span></code>” になっているため、更新結果が0件となる。更新結果が0件の場合は排他エラーとする。</p>
+<div class="last highlight-sql"><div class="highlight"><pre><span></span><span class="k">UPDATE</span> <span class="n">Stock</span> <span class="k">SET</span> <span class="n">quantity</span> <span class="o">=</span> <span class="mi">25</span><span class="p">,</span> <span class="k">version</span> <span class="o">=</span> <span class="k">version</span> <span class="o">+</span> <span class="mi">1</span>
+             <span class="k">WHERE</span> <span class="n">itemId</span> <span class="o">=</span> <span class="s1">&#39;01&#39;</span> <span class="k">and</span> <span class="k">version</span> <span class="o">=</span> <span class="mi">1</span>
+</pre></div>
+</div>
+</td>
+</tr>
+<tr class="row-even"><td><ol class="first last arabic simple" start="7">
+<li></li>
+</ol>
+</td>
+<td>〇</td>
+<td>-</td>
+<td>Staff Bのトランザクションをロールバックする。</td>
+</tr>
+</tbody>
+</table>
+</div></blockquote>
+<div class="admonition note">
+<p class="first admonition-title">Note</p>
+<p><strong>ポイント</strong></p>
+<p class="last">SQL内でVersionのインクリメント( <code class="docutils literal"><span class="pre">version</span> <span class="pre">+</span> <span class="pre">1</span></code> )と、更新条件( <code class="docutils literal"><span class="pre">and</span> <span class="pre">version</span> <span class="pre">=</span> <span class="pre">1</span></code> )の指定を行うことが、ポイントとなる。</p>
+</div>
+</div>
+<div class="section" id="id8">
+<h4><a class="toc-backref" href="#id31">6.4.1.3.3. 悲観ロックによる排他制御</a><a class="headerlink" href="#id8" title="Permalink to this headline">¶</a></h4>
+<div class="line-block">
+<div class="line">悲観ロックとは、更新対象のデータを取得する際にロックをかけることで、他のトランザクションから更新されないようにする手法である。</div>
+<div class="line">悲観ロックを使用する場合は、トランザクション開始直後に更新対象となるレコードのロックを取得する。</div>
+<div class="line">ロックされたレコードは、トランザクションが、コミットまたはロールバックされるまで、他のトランザクションから更新されないため、データの整合性を保証することができる。</div>
+</div>
+<table border="1" class="colwidths-given docutils" id="id21">
+<caption><span class="caption-text">RDBMS別の悲観ロック取得方法</span><a class="headerlink" href="#id21" title="Permalink to this table">¶</a></caption>
+<colgroup>
+<col width="18%" />
+<col width="27%" />
+<col width="55%" />
+</colgroup>
+<thead valign="bottom">
+<tr class="row-odd"><th class="head">項番</th>
+<th class="head">データベース</th>
+<th class="head">悲観ロック方法</th>
+</tr>
+</thead>
+<tbody valign="top">
+<tr class="row-even"><td><ol class="first last arabic simple">
+<li></li>
+</ol>
+</td>
+<td>Oracle</td>
+<td>FOR UPDATE</td>
+</tr>
+<tr class="row-odd"><td><ol class="first last arabic simple" start="2">
+<li></li>
+</ol>
+</td>
+<td>PostgreSQL</td>
+<td>FOR UPDATE</td>
+</tr>
+<tr class="row-even"><td><ol class="first last arabic simple" start="3">
+<li></li>
+</ol>
+</td>
+<td>DB2</td>
+<td>FOR UPDATE WITH</td>
+</tr>
+<tr class="row-odd"><td><ol class="first last arabic simple" start="4">
+<li></li>
+</ol>
+</td>
+<td>MySQL</td>
+<td>FOR UPDATE</td>
+</tr>
+</tbody>
+</table>
+<div class="admonition note">
+<p class="first admonition-title">Note</p>
+<p><strong>悲観ロックのタイムアウトについて</strong></p>
+<p>悲観ロックには、悲観ロック取得時に他のトランザクションによってロックが取得されていた場合に、どのような動作にするかをオプションとして指定することがある。
+Oracleの場合は、</p>
+<ul class="simple">
+<li>デフォルトでは、<code class="docutils literal"><span class="pre">select</span> <span class="pre">for</span> <span class="pre">update</span> <span class="pre">[wait]</span></code>となり、ロックが解除されるまで待つ。</li>
+<li><code class="docutils literal"><span class="pre">select</span> <span class="pre">for</span> <span class="pre">update</span> <span class="pre">nowait</span></code>とすると、他にロックされている場合は、即時にリソースビジーのエラーとなる。</li>
+<li><code class="docutils literal"><span class="pre">select</span> <span class="pre">for</span> <span class="pre">update</span> <span class="pre">wait</span> <span class="pre">5</span></code>とすると5秒待ち、5秒間ロックが解除されない場合は、リソースビジーのエラーが返却される。</li>
+</ul>
+<p class="last">DBにより機能に差はあるが、悲観ロックを使用する際は、どの手法を採用するか検討が必要である。</p>
+</div>
+<div class="admonition note">
+<p class="first admonition-title">Note</p>
+<p><strong>JPA(Hibernate)を使用する場合</strong></p>
+<p class="last">悲観ロックの取得方法はデータベースによって異なるが、その差分はJPA(Hibernate)によって吸収される。
+HibernateのサポートしているRDBMSについては、 <a class="reference external" href="https://docs.jboss.org/hibernate/orm/5.4/userguide/html_single/Hibernate_User_Guide.html#database-dialect">Hibernate ORM User Guide</a> を参照されたい。</p>
+</div>
+<p>悲観ロックによる排他制御は、以下3ケースのいずれかに当てはまる場合に使用する。</p>
+<ol class="arabic">
+<li><div class="first line-block">
+<div class="line">更新対象のデータが複数のテーブルに分かれて管理されている。</div>
+<div class="line">更新対象のテーブルが複数のテーブルに分かれている場合、各テーブルに対して更新が終わるまでの間に、他のトランザクションから更新がされないことを保証するために、必要となる。</div>
+</div>
+</li>
+<li><div class="first line-block">
+<div class="line">更新処理を行う前に取得したデータの状態をチェックする必要がある。</div>
+<div class="line">チェック処理が終わった後に、他のトランザクションから更新がされていないことを保証するために、必要となる。</div>
+</div>
+</li>
+<li><div class="first line-block">
+<div class="line">バッチ実行中にオンラインの処理が実行されることがある。</div>
+<div class="line">バッチ処理では、実行途中に排他エラーが発生しないようにするために、更新対象となるデータのロックを一括で取得することがある。</div>
+<div class="line">一括で取得されたロックが取得された場合、オンラインの処理が待たされる時間が長くなる可能性がある。その場合、タイムアウト時間を指定して、悲観ロックを使用するのが妥当である。</div>
+</div>
+</li>
+</ol>
+<p>具体例を以下に示す。シナリオは、以下の通りである。</p>
+<ul class="simple">
+<li>バッチ処理が既に実行済みで、オンラインで更新するデータを悲観ロックしている。</li>
+<li>オンライン処理は10秒のタイムアウト時間を指定して、更新対象のデータのロックを取得する。</li>
+<li>バッチ処理は5秒後(タイムアウト前)に終了する。</li>
+</ul>
+<blockquote>
+<div><div class="figure align-center">
+<a class="reference internal image-reference" href="../../_images/Pessimistic-lock.png"><img alt="Pessimistic lock" src="../../_images/Pessimistic-lock.png" style="width: 90%;" /></a>
+</div>
+</div></blockquote>
+<div class="line-block">
+<div class="line"><br /></div>
+</div>
+<blockquote>
+<div><table border="1" class="colwidths-given docutils">
+<colgroup>
+<col width="10%" />
+<col width="5%" />
+<col width="5%" />
+<col width="80%" />
+</colgroup>
+<thead valign="bottom">
+<tr class="row-odd"><th class="head">項番</th>
+<th class="head">Online</th>
+<th class="head">Batch</th>
+<th class="head">説明</th>
+</tr>
+</thead>
+<tbody valign="top">
+<tr class="row-even"><td><ol class="first last arabic simple">
+<li></li>
+</ol>
+</td>
+<td>-</td>
+<td>〇</td>
+<td>バッチ処理が、オンライン処理で更新するデータの悲観ロックを取得する。</td>
+</tr>
+<tr class="row-odd"><td><ol class="first last arabic simple" start="2">
+<li></li>
+</ol>
+</td>
+<td>〇</td>
+<td>-</td>
+<td><p class="first">オンライン処理が、更新対象のデータの悲観ロックを行うが、バッチ処理のトランザクションによって悲観ロックされているので待たされる。</p>
+<div class="last highlight-sql"><div class="highlight"><pre><span></span><span class="k">SELECT</span> <span class="o">*</span> <span class="k">FROM</span> <span class="n">Stock</span> <span class="k">WHERE</span> <span class="n">quantity</span> <span class="o">&lt;</span> <span class="mi">5</span> <span class="k">FOR</span> <span class="k">UPDATE</span> <span class="n">WAIT</span> <span class="mi">10</span>
+</pre></div>
+</div>
+</td>
+</tr>
+<tr class="row-even"><td><ol class="first last arabic simple" start="3">
+<li></li>
+</ol>
+</td>
+<td>-</td>
+<td>〇</td>
+<td>バッチ処理が、データを更新する。</td>
+</tr>
+<tr class="row-odd"><td><ol class="first last arabic simple" start="4">
+<li></li>
+</ol>
+</td>
+<td>-</td>
+<td>〇</td>
+<td>バッチ処理のトランザクションをコミットする。</td>
+</tr>
+<tr class="row-even"><td><ol class="first last arabic simple" start="5">
+<li></li>
+</ol>
+</td>
+<td>〇</td>
+<td>-</td>
+<td>バッチ処理のトランザクションがコミットされたため、オンライン処理の処理が再開する。取得されるデータはバッチ処理の更新結果が反映されているので、データ不整合が発生することはない。</td>
+</tr>
+<tr class="row-odd"><td><ol class="first last arabic simple" start="6">
+<li></li>
+</ol>
+</td>
+<td>〇</td>
+<td>-</td>
+<td>オンライン処理が、データを更新する。</td>
+</tr>
+<tr class="row-even"><td><ol class="first last arabic simple" start="7">
+<li></li>
+</ol>
+</td>
+<td>〇</td>
+<td>-</td>
+<td>オンライン処理のトランザクションをコミットする。</td>
+</tr>
+</tbody>
+</table>
+</div></blockquote>
+<div class="line-block">
+<div class="line">以下は、タイムアウトとなった場合の流れとなる。</div>
+<div class="line">バッチ処理の終了まで待たずに排他エラーとなる。</div>
+</div>
+<blockquote>
+<div><div class="figure align-center">
+<a class="reference internal image-reference" href="../../_images/Pessimistic-lock-timeout.png"><img alt="Pessimistic lock" src="../../_images/Pessimistic-lock-timeout.png" style="width: 90%;" /></a>
+</div>
+</div></blockquote>
+<div class="line-block">
+<div class="line">以下は、悲観ロックの取得待ちを行わない設定のとき、他のトランザクションによって、悲観ロックが取得されていた場合の流れとなる。</div>
+<div class="line">悲観ロックの解放を待つことなく、すぐに排他エラーとなる。</div>
+</div>
+<blockquote>
+<div><div class="figure align-center">
+<a class="reference internal image-reference" href="../../_images/Pessimistic-lock-nowait.png"><img alt="Pessimistic lock" src="../../_images/Pessimistic-lock-nowait.png" style="width: 90%;" /></a>
+</div>
+</div></blockquote>
+<p><strong>バッチ処理とオンライン処理が競合する可能性があり、かつバッチ処理の処理時間が長くなる場合は、悲観排他のタイムアウト時間を指定することを推奨する。</strong>
+<strong>タイムアウト時間については、オンライン処理の処理要件に応じて決めること。</strong></p>
+</div>
+</div>
+<div class="section" id="id9">
+<h3><a class="toc-backref" href="#id32">6.4.1.4. デッドロックの予防</a><a class="headerlink" href="#id9" title="Permalink to this headline">¶</a></h3>
+<div class="line-block">
+<div class="line">データベースのロック機能を使用する場合、同一トランザクション内で複数のレコードを更新すると、以下2通りの、デッドロックが発生する可能性があるため、注意する必要がある。</div>
+</div>
+<ul class="simple">
+<li><a class="reference internal" href="#dead-lock-record"><span class="std std-ref">テーブル内でのデッドロック</span></a></li>
+<li><a class="reference internal" href="#dead-lock-table"><span class="std std-ref">テーブル間でのデッドロック</span></a></li>
+</ul>
+<div class="section" id="dead-lock-record">
+<span id="id10"></span><h4><a class="toc-backref" href="#id33">6.4.1.4.1. テーブル内でのデッドロック</a><a class="headerlink" href="#dead-lock-record" title="Permalink to this headline">¶</a></h4>
+<p>以下(1)～(5)の流れで、複数のトランザクションから、同一テーブルのレコードに対してロックを行うと、デッドロックとなる。</p>
+<blockquote>
+<div><div class="figure align-center">
+<a class="reference internal image-reference" href="../../_images/Dead-Lock-Record.png"><img alt="Dead Lock Record" src="../../_images/Dead-Lock-Record.png" style="width: 90%;" /></a>
+</div>
+<table border="1" class="colwidths-given docutils">
+<colgroup>
+<col width="10%" />
+<col width="5%" />
+<col width="5%" />
+<col width="80%" />
+</colgroup>
+<thead valign="bottom">
+<tr class="row-odd"><th class="head">項番</th>
+<th class="head">Program A</th>
+<th class="head">Program B</th>
+<th class="head">説明</th>
+</tr>
+</thead>
+<tbody valign="top">
+<tr class="row-even"><td><div class="first last line-block">
+<div class="line">(1)</div>
+</div>
+</td>
+<td>〇</td>
+<td>-</td>
+<td>Program Aは、Record X に対するロックを取得する。</td>
+</tr>
+<tr class="row-odd"><td><div class="first last line-block">
+<div class="line">(2)</div>
+</div>
+</td>
+<td>〇</td>
+<td>-</td>
+<td>Program Bは、Record Y に対するロックを取得する。</td>
+</tr>
+<tr class="row-even"><td><div class="first last line-block">
+<div class="line">(3)</div>
+</div>
+</td>
+<td>〇</td>
+<td>-</td>
+<td>Program Aは、Program BのトランザクションによってロックされているRecord Y に対してロックの取得を試みるが、(2)のロック状態が解放されていないので、解放待ちの状態となる。</td>
+</tr>
+<tr class="row-odd"><td><div class="first last line-block">
+<div class="line">(4)</div>
+</div>
+</td>
+<td>-</td>
+<td>〇</td>
+<td>Program Bは、Program AのトランザクションによってロックされているRecord X に対してロックの取得を試みるが、(1)のロック状態が解放されていないので、解放待ちの状態となる。</td>
+</tr>
+<tr class="row-even"><td><div class="first last line-block">
+<div class="line">(5)</div>
+</div>
+</td>
+<td>-</td>
+<td>-</td>
+<td>Program AとProgram Bが、お互いに保持しているロックに対して解放待ちの状態となるため、デッドロックとなる。デッドロックが発生した場合、データベースによって検知されエラーとなる。</td>
+</tr>
+</tbody>
+</table>
+<div class="admonition note">
+<p class="first admonition-title">Note</p>
+<p><strong>デッドロックの解決方法について</strong></p>
+<p>タイムアウトやリトライ実施での解消する方法もあるが、同一テーブル上でのレコードの更新順序にルールを決めることが重要である。
+1行ずつ更新する場合は、PK(PRIMARY KEY)順の若い順に更新するなどのルールを定めること。</p>
+<p class="last">仮にProgram AもProgram BもRecord Xから更新するというルールに準じていれば、上記<a class="reference internal" href="#dead-lock-record"><span class="std std-ref">テーブル内でのデッドロック</span></a>の図のようなデッドロックは発生しなくなる。</p>
+</div>
+</div></blockquote>
+</div>
+<div class="section" id="dead-lock-table">
+<span id="id11"></span><h4><a class="toc-backref" href="#id34">6.4.1.4.2. テーブル間でのデッドロック</a><a class="headerlink" href="#dead-lock-table" title="Permalink to this headline">¶</a></h4>
+<div class="line-block">
+<div class="line">以下(1)～(5)の流れで、複数のトランザクションから、別テーブルのレコードに対してロックを行うと、デッドロックとなる。</div>
+<div class="line">基本的な考え方は、 <a class="reference internal" href="#dead-lock-record"><span class="std std-ref">テーブル内でのデッドロック</span></a> と同じである。</div>
+</div>
+<blockquote>
+<div><div class="figure align-center">
+<a class="reference internal image-reference" href="../../_images/Dead-Lock-Table.png"><img alt="Dead Lock Table" src="../../_images/Dead-Lock-Table.png" style="width: 90%;" /></a>
+</div>
+<table border="1" class="colwidths-given docutils">
+<colgroup>
+<col width="10%" />
+<col width="5%" />
+<col width="5%" />
+<col width="80%" />
+</colgroup>
+<thead valign="bottom">
+<tr class="row-odd"><th class="head">項番</th>
+<th class="head">Program A</th>
+<th class="head">Program B</th>
+<th class="head">説明</th>
+</tr>
+</thead>
+<tbody valign="top">
+<tr class="row-even"><td><div class="first last line-block">
+<div class="line">(1)</div>
+</div>
+</td>
+<td>〇</td>
+<td>-</td>
+<td>Program Aは、Table A の Record X に対するロックを取得する。</td>
+</tr>
+<tr class="row-odd"><td><div class="first last line-block">
+<div class="line">(2)</div>
+</div>
+</td>
+<td>〇</td>
+<td>-</td>
+<td>Program Bは、Table B の Record Y に対するロックを取得する。</td>
+</tr>
+<tr class="row-even"><td><div class="first last line-block">
+<div class="line">(3)</div>
+</div>
+</td>
+<td>〇</td>
+<td>-</td>
+<td>Program Aは、Program BのトランザクションによってロックされているTable B の Record Y に対してロックの取得を試みるが、(2)のロック状態が解放されていないので、解放待ちの状態となる。</td>
+</tr>
+<tr class="row-odd"><td><div class="first last line-block">
+<div class="line">(4)</div>
+</div>
+</td>
+<td>-</td>
+<td>〇</td>
+<td>Program Bは、Program AのトランザクションによってロックされているTable A の Record X に対してロックの取得を試みるが、(1)のロック状態が解放されていないので、解放待ちの状態となる。</td>
+</tr>
+<tr class="row-even"><td><div class="first last line-block">
+<div class="line">(5)</div>
+</div>
+</td>
+<td>-</td>
+<td>-</td>
+<td>Program AとProgram Bが、お互いに保持しているロックに対して解放待ちの状態となるため、デッドロックとなる。デッドロックが発生した場合、データベースによって検知されエラーとなる。</td>
+</tr>
+</tbody>
+</table>
+</div></blockquote>
+<div class="admonition note">
+<p class="first admonition-title">Note</p>
+<p><strong>デッドロックの解決方法について</strong></p>
+<p>タイムアウトやリトライ実施での解消する方法もあるが、テーブルを跨った際も、更新順序をルール化しておくことが重要である。</p>
+<p class="last">仮にProgram AもProgram BもTable Aから更新するというルールに準じていれば、上記<a class="reference internal" href="#dead-lock-table"><span class="std std-ref">テーブル間でのデッドロック</span></a>の図のような、デッドロックは発生しなくなる。</p>
+</div>
+<div class="admonition warning">
+<p class="first admonition-title">Warning</p>
+<p class="last">注意としては、どの方法を採用したとしても、レコードをロックする順序により、デッドロックが発生する可能性がある。
+テーブル、レコードのロック順序については、ルールを決めること。</p>
+</div>
+<div class="line-block">
+<div class="line"><br /></div>
+</div>
+</div>
+</div>
+</div>
+<div class="section" id="how-to-use">
+<h2><a class="toc-backref" href="#id35">6.4.2. How to use</a><a class="headerlink" href="#how-to-use" title="Permalink to this headline">¶</a></h2>
+<p>ここからは、O/R Mapperを使用した排他制御の実現方法について説明を行う。</p>
+<p>使用するO/R Mapperの実装方法を確認されたい。</p>
+<ul class="simple">
+<li><a class="reference internal" href="#exclusioncontrolhowtousemybatis3"><span class="std std-ref">MyBatis3使用時の実装方法</span></a></li>
+<li><a class="reference internal" href="#exclusioncontrolhowtousejpa"><span class="std std-ref">JPA(Spring Data JPA)使用時の実装方法</span></a></li>
+</ul>
+<p>また、排他エラーのハンドリング方法については、</p>
+<ul class="simple">
+<li><a class="reference internal" href="#exclusioncontrolhowtouseexceptionhandling"><span class="std std-ref">排他エラーのハンドリング方法</span></a></li>
+</ul>
+<p>を参照されたい。</p>
+<div class="line-block">
+<div class="line"><br /></div>
+</div>
+<div class="section" id="mybatis3">
+<span id="exclusioncontrolhowtousemybatis3"></span><h3><a class="toc-backref" href="#id36">6.4.2.1. MyBatis3使用時の実装方法</a><a class="headerlink" href="#mybatis3" title="Permalink to this headline">¶</a></h3>
+<div class="section" id="rdbms">
+<h4><a class="toc-backref" href="#id37">6.4.2.1.1. RDBMSの行ロック機能</a><a class="headerlink" href="#rdbms" title="Permalink to this headline">¶</a></h4>
+<p>RDBMSの行ロック機能を使って排他制御を行う場合は、SQLの中で、</p>
+<ul class="simple">
+<li>SET句に指定する更新内容</li>
+<li>WHERE句に指定する更新条件</li>
+</ul>
+<p>を意識する必要がある。</p>
+<div class="line-block">
+<div class="line"><br /></div>
+</div>
+<ul class="simple">
+<li>Repositoryインタフェースにメソッドを定義する。</li>
+</ul>
+<blockquote>
+<div><div class="highlight-java"><div class="highlight"><pre><span></span> <span class="kd">public</span> <span class="kd">interface</span> <span class="nc">StockRepository</span> <span class="p">{</span>
+    <span class="c1">// (1)</span>
+    <span class="kt">boolean</span> <span class="nf">decrementQuantity</span><span class="p">(</span><span class="nd">@Param</span><span class="p">(</span><span class="s">&quot;itemCode&quot;</span><span class="p">)</span> <span class="n">String</span> <span class="n">itemCode</span><span class="p">,</span>
+                              <span class="nd">@Param</span><span class="p">(</span><span class="s">&quot;quantity&quot;</span><span class="p">)</span> <span class="kt">int</span> <span class="n">quantity</span><span class="p">);</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+<table border="1" class="colwidths-given docutils">
+<colgroup>
+<col width="10%" />
+<col width="90%" />
+</colgroup>
+<thead valign="bottom">
+<tr class="row-odd"><th class="head">項番</th>
+<th class="head">説明</th>
+</tr>
+</thead>
+<tbody valign="top">
+<tr class="row-even"><td><div class="first last line-block">
+<div class="line">(1)</div>
+</div>
+</td>
+<td><p class="first">Repositoryインタフェースに、
+RDBMSの行ロック機能を使ってデータを更新するメソッドを定義する。</p>
+<p class="last">上記例では、在庫数を減らすためのメソッドを定義している。
+在庫数の減らす事ができた場合は、<code class="docutils literal"><span class="pre">true</span></code>が返却される。</p>
+</td>
+</tr>
+</tbody>
+</table>
+</div></blockquote>
+<div class="line-block">
+<div class="line"><br /></div>
+</div>
+<ul class="simple">
+<li>RDBMSの行ロック機能を使った排他制御が有効となるSQLを定義する。</li>
+</ul>
+<blockquote>
+<div><div class="highlight-xml"><div class="highlight"><pre><span></span><span class="c">&lt;!-- (2) --&gt;</span>
+<span class="nt">&lt;update</span> <span class="na">id=</span><span class="s">&quot;decrementQuantity&quot;</span><span class="nt">&gt;</span>
+<span class="cp">&lt;![CDATA[</span>
+<span class="cp">    UPDATE</span>
+<span class="cp">        m_stock</span>
+<span class="cp">    SET</span>
+<span class="cp">        /* (3) */</span>
+<span class="cp">        quantity = quantity - #{quantity}</span>
+<span class="cp">    WHERE</span>
+<span class="cp">        item_code = #{itemCode}</span>
+<span class="cp">    AND</span>
+<span class="cp">        /* (4) */</span>
+<span class="cp">        quantity &gt;= #{quantity}</span>
+<span class="cp">]]&gt;</span>
+<span class="nt">&lt;/update&gt;</span>
+</pre></div>
+</div>
+<table border="1" class="colwidths-given docutils">
+<colgroup>
+<col width="10%" />
+<col width="90%" />
+</colgroup>
+<thead valign="bottom">
+<tr class="row-odd"><th class="head">項番</th>
+<th class="head">説明</th>
+</tr>
+</thead>
+<tbody valign="top">
+<tr class="row-even"><td><div class="first last line-block">
+<div class="line">(2)</div>
+</div>
+</td>
+<td><p class="first">RDBMSの行ロック機能を使ってデータを更新するためのステートメント(SQL)を定義する。</p>
+<p>上記例では、在庫数を減らすためのSQLを定義している。</p>
+<p>RDBMSの行ロック機能を使う場合は、</p>
+<ul class="simple">
+<li>他のトランザクションが同一データに対してロックを取得している場合は、
+ロックが解放(コミット or ロールバック)された後にSQLが実行される。</li>
+<li>在庫数を減らすことに成功した場合は、
+RDBMSの行ロックが取得され、他のトランザクションからの更新がロックされる。</li>
+</ul>
+<p class="last">という動作になるため、データを安全に更新する事ができる。</p>
+</td>
+</tr>
+<tr class="row-odd"><td><div class="first last line-block">
+<div class="line">(3)</div>
+</div>
+</td>
+<td>在庫数の減算処理(<code class="docutils literal"><span class="pre">quantity</span> <span class="pre">=</span> <span class="pre">quantity</span> <span class="pre">-</span> <span class="pre">#{quantity}</span></code>)は、SQLの中で行う。</td>
+</tr>
+<tr class="row-even"><td><div class="first last line-block">
+<div class="line">(4)</div>
+</div>
+</td>
+<td>更新条件として、「在庫数が注文数以上ある事(<code class="docutils literal"><span class="pre">quantity</span> <span class="pre">&gt;=</span> <span class="pre">#{quantity}</span></code>)」を加える。</td>
+</tr>
+</tbody>
+</table>
+</div></blockquote>
+<div class="line-block">
+<div class="line"><br /></div>
+</div>
+<ul class="simple">
+<li>Repositoryのメソッドを呼び出し、RDBMSの行ロック機能を使用してデータを安全に更新する。</li>
+</ul>
+<blockquote>
+<div><div class="highlight-java"><div class="highlight"><pre><span></span><span class="c1">// (5)</span>
+<span class="kt">boolean</span> <span class="n">updated</span> <span class="o">=</span> <span class="n">stockRepository</span><span class="p">.</span><span class="na">decrementQuantity</span><span class="p">(</span><span class="n">itemCode</span><span class="p">,</span> <span class="n">quantityOfOrder</span><span class="p">);</span>
+<span class="c1">// (6)</span>
+<span class="k">if</span> <span class="p">(</span><span class="o">!</span><span class="n">updated</span><span class="p">)</span> <span class="p">{</span>
+    <span class="c1">// (7)</span>
+    <span class="n">ResultMessages</span> <span class="n">messages</span> <span class="o">=</span> <span class="n">ResultMessages</span><span class="p">.</span><span class="na">error</span><span class="p">().</span><span class="na">add</span><span class="p">(</span><span class="n">ResultMessage</span>
+            <span class="p">.</span><span class="na">fromText</span><span class="p">(</span><span class="s">&quot;Not enough stock. Please, change quantity.&quot;</span><span class="p">));</span>
+    <span class="k">throw</span> <span class="k">new</span> <span class="n">BusinessException</span><span class="p">(</span><span class="n">messages</span><span class="p">);</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+<table border="1" class="colwidths-given docutils">
+<colgroup>
+<col width="10%" />
+<col width="90%" />
+</colgroup>
+<thead valign="bottom">
+<tr class="row-odd"><th class="head">項番</th>
+<th class="head">説明</th>
+</tr>
+</thead>
+<tbody valign="top">
+<tr class="row-even"><td><div class="first last line-block">
+<div class="line">(5)</div>
+</div>
+</td>
+<td>Repositoryのメソッドを呼び出し、更新処理を行う。</td>
+</tr>
+<tr class="row-odd"><td><div class="first last line-block">
+<div class="line">(6)</div>
+</div>
+</td>
+<td><p class="first">Repositoryのメソッドの呼び出し結果を判定する。</p>
+<p class="last"><code class="docutils literal"><span class="pre">false</span></code>の場合、更新条件を充たしていないため、在庫数が不足していることになる。</p>
+</td>
+</tr>
+<tr class="row-even"><td><div class="first last line-block">
+<div class="line">(7)</div>
+</div>
+</td>
+<td><p class="first">業務エラーを発生させる。</p>
+<p>上記例では、ビジネスルールのチェック(在庫数チェック)を排他制御しながら行っているだけなので、
+更新条件を充たさない場合は、排他エラーではなく業務エラーとしている。</p>
+<p class="last">発生させた業務エラーは、Controllerで適切にハンドリングすること。</p>
+</td>
+</tr>
+</tbody>
+</table>
+</div></blockquote>
+<div class="line-block">
+<div class="line"><br /></div>
+</div>
+</div>
+<div class="section" id="id12">
+<h4><a class="toc-backref" href="#id38">6.4.2.1.2. 楽観ロック</a><a class="headerlink" href="#id12" title="Permalink to this headline">¶</a></h4>
+<div class="line-block">
+<div class="line">MyBatis3では、ライブラリとして楽観ロックを行う仕組みは提供していない。</div>
+<div class="line">そのため、楽観ロックを行う場合は、SQLの中でバージョンを意識する必要がある。</div>
+</div>
+<ul class="simple">
+<li>Entityにバージョン管理用のプロパティを定義する。</li>
+</ul>
+<blockquote>
+<div><div class="highlight-java"><div class="highlight"><pre><span></span><span class="kd">public</span> <span class="kd">class</span> <span class="nc">Stock</span> <span class="kd">implements</span> <span class="n">Serializable</span> <span class="p">{</span>
+    <span class="kd">private</span> <span class="kd">static</span> <span class="kd">final</span> <span class="kt">long</span> <span class="n">serialVersionUID</span> <span class="o">=</span> <span class="mi">1L</span><span class="p">;</span>
+
+    <span class="kd">private</span> <span class="n">String</span> <span class="n">itemCode</span><span class="p">;</span>
+    <span class="kd">private</span> <span class="kt">int</span> <span class="n">quantity</span><span class="p">;</span>
+    <span class="c1">// (1)</span>
+    <span class="kd">private</span> <span class="kt">long</span> <span class="n">version</span><span class="p">;</span>
+
+    <span class="c1">// ...</span>
+
+<span class="p">}</span>
+</pre></div>
+</div>
+<table border="1" class="colwidths-given docutils">
+<colgroup>
+<col width="10%" />
+<col width="90%" />
+</colgroup>
+<thead valign="bottom">
+<tr class="row-odd"><th class="head">項番</th>
+<th class="head">説明</th>
+</tr>
+</thead>
+<tbody valign="top">
+<tr class="row-even"><td><div class="first last line-block">
+<div class="line">(1)</div>
+</div>
+</td>
+<td>Entityにバージョン管理用のプロパティを用意する。</td>
+</tr>
+</tbody>
+</table>
+</div></blockquote>
+<div class="line-block">
+<div class="line"><br /></div>
+</div>
+<ul class="simple">
+<li>Repositoryインタフェースにメソッドを定義する。</li>
+</ul>
+<blockquote>
+<div><div class="highlight-java"><div class="highlight"><pre><span></span><span class="kd">public</span> <span class="kd">interface</span> <span class="nc">StockRepository</span> <span class="p">{</span>
+    <span class="c1">// (2)</span>
+    <span class="n">Stock</span> <span class="nf">findOne</span><span class="p">(</span><span class="n">String</span> <span class="n">itemCode</span><span class="p">);</span>
+    <span class="c1">// (3)</span>
+    <span class="kt">boolean</span> <span class="nf">update</span><span class="p">(</span><span class="n">Stock</span> <span class="n">stock</span><span class="p">);</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+<table border="1" class="colwidths-given docutils">
+<colgroup>
+<col width="10%" />
+<col width="90%" />
+</colgroup>
+<thead valign="bottom">
+<tr class="row-odd"><th class="head">項番</th>
+<th class="head">説明</th>
+</tr>
+</thead>
+<tbody valign="top">
+<tr class="row-even"><td><div class="first last line-block">
+<div class="line">(2)</div>
+</div>
+</td>
+<td>Repositoryインタフェースに、Entityを取得するためにメソッドを定義する。</td>
+</tr>
+<tr class="row-odd"><td><div class="first last line-block">
+<div class="line">(3)</div>
+</div>
+</td>
+<td><p class="first">Repositoryインタフェースに、楽観ロック機能を使ってデータを更新するメソッドを定義する。</p>
+<p class="last">上記例では、指定されたEntityの内容でレコードを更新するためのメソッドを定義している。
+更新できた場合は、<code class="docutils literal"><span class="pre">true</span></code>が返却される。</p>
+</td>
+</tr>
+</tbody>
+</table>
+</div></blockquote>
+<div class="line-block">
+<div class="line"><br /></div>
+</div>
+<ul class="simple">
+<li>マッピングファイルにSQLを定義する。</li>
+</ul>
+<blockquote>
+<div><div class="highlight-xml"><div class="highlight"><pre><span></span><span class="c">&lt;!-- (4) --&gt;</span>
+<span class="nt">&lt;select</span> <span class="na">id=</span><span class="s">&quot;findOne&quot;</span> <span class="na">parameterType=</span><span class="s">&quot;string&quot;</span> <span class="na">resultType=</span><span class="s">&quot;Stock&quot;</span><span class="nt">&gt;</span>
+    SELECT
+        item_code,
+        quantity,
+        version
+    FROM
+        m_stock
+    WHERE
+        item_code = #{itemCode}
+<span class="nt">&lt;/select&gt;</span>
+
+<span class="c">&lt;!-- (5) --&gt;</span>
+<span class="nt">&lt;update</span> <span class="na">id=</span><span class="s">&quot;update&quot;</span> <span class="na">parameterType=</span><span class="s">&quot;Stock&quot;</span><span class="nt">&gt;</span>
+    UPDATE
+        m_stock
+    SET
+        quantity = #{quantity},
+        /* (6) */
+        version = version + 1
+    WHERE
+        item_code = #{itemCode}
+    AND
+        /* (7) */
+        version = #{version}
+<span class="nt">&lt;/update&gt;</span>
+</pre></div>
+</div>
+<table border="1" class="colwidths-given docutils">
+<colgroup>
+<col width="10%" />
+<col width="90%" />
+</colgroup>
+<thead valign="bottom">
+<tr class="row-odd"><th class="head">項番</th>
+<th class="head">説明</th>
+</tr>
+</thead>
+<tbody valign="top">
+<tr class="row-even"><td><div class="first last line-block">
+<div class="line">(4)</div>
+</div>
+</td>
+<td><p class="first">Entityを取得するためのステートメント(SQL)を定義する。</p>
+<p class="last">楽観ロックを使用する場合は、Entity取得時にバージョンを取得しておく必要がある。</p>
+</td>
+</tr>
+<tr class="row-odd"><td><div class="first last line-block">
+<div class="line">(5)</div>
+</div>
+</td>
+<td><p class="first">楽観ロック機能を使ってデータを更新するためのステートメント(SQL)を定義する。</p>
+<p class="last">上記例では、指定されたEntityの内容でレコードを更新するSQLを定義している。</p>
+</td>
+</tr>
+<tr class="row-even"><td><div class="first last line-block">
+<div class="line">(6)</div>
+</div>
+</td>
+<td>バージョンの更新(<code class="docutils literal"><span class="pre">version</span> <span class="pre">=</span> <span class="pre">version</span> <span class="pre">+</span> <span class="pre">1</span></code>)は、SQLの中で行う。</td>
+</tr>
+<tr class="row-odd"><td><div class="first last line-block">
+<div class="line">(7)</div>
+</div>
+</td>
+<td>更新条件として、「バージョンが変わっていない事(<code class="docutils literal"><span class="pre">version</span> <span class="pre">=</span> <span class="pre">#{version}</span></code>)」を加える。</td>
+</tr>
+</tbody>
+</table>
+</div></blockquote>
+<div class="line-block">
+<div class="line"><br /></div>
+</div>
+<ul class="simple">
+<li>Repositoryのメソッドを呼び出し、楽観ロック機能を使用してデータを安全に更新する。</li>
+</ul>
+<blockquote>
+<div><div class="highlight-java"><div class="highlight"><pre><span></span><span class="c1">// (8)</span>
+<span class="n">Stock</span> <span class="n">stock</span> <span class="o">=</span> <span class="n">stockRepository</span><span class="p">.</span><span class="na">findOne</span><span class="p">(</span><span class="n">itemCode</span><span class="p">);</span>
+<span class="k">if</span> <span class="p">(</span><span class="n">stock</span> <span class="o">==</span> <span class="kc">null</span><span class="p">)</span> <span class="p">{</span>
+    <span class="n">ResultMessages</span> <span class="n">messages</span> <span class="o">=</span> <span class="n">ResultMessages</span><span class="p">.</span><span class="na">error</span><span class="p">().</span><span class="na">add</span><span class="p">(</span><span class="n">ResultMessage</span>
+            <span class="p">.</span><span class="na">fromText</span><span class="p">(</span><span class="s">&quot;Stock not found. itemCode : &quot;</span> <span class="o">+</span> <span class="n">itemCode</span><span class="p">));</span>
+    <span class="k">throw</span> <span class="k">new</span> <span class="n">ResourceNotFoundException</span><span class="p">(</span><span class="n">messages</span><span class="p">);</span>
+<span class="p">}</span>
+
+<span class="c1">// (9)</span>
+<span class="n">stock</span><span class="p">.</span><span class="na">setQuantity</span><span class="p">(</span><span class="n">stock</span><span class="p">.</span><span class="na">getQuantity</span><span class="p">()</span> <span class="o">+</span> <span class="n">addedQuantity</span><span class="p">);</span>
+
+<span class="c1">// (10)</span>
+<span class="kt">boolean</span> <span class="n">updated</span> <span class="o">=</span> <span class="n">stockRepository</span><span class="p">.</span><span class="na">update</span><span class="p">(</span><span class="n">stock</span><span class="p">);</span>
+<span class="k">if</span><span class="p">(</span><span class="o">!</span><span class="n">updated</span><span class="p">)</span> <span class="p">{</span>
+    <span class="c1">// (11)</span>
+    <span class="k">throw</span> <span class="k">new</span> <span class="n">ObjectOptimisticLockingFailureException</span><span class="p">(</span><span class="n">Stock</span><span class="p">.</span><span class="na">class</span><span class="p">,</span> <span class="n">itemCode</span><span class="p">);</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+<table border="1" class="colwidths-given docutils">
+<colgroup>
+<col width="10%" />
+<col width="90%" />
+</colgroup>
+<thead valign="bottom">
+<tr class="row-odd"><th class="head">項番</th>
+<th class="head">説明</th>
+</tr>
+</thead>
+<tbody valign="top">
+<tr class="row-even"><td><div class="first last line-block">
+<div class="line">(8)</div>
+</div>
+</td>
+<td>RepositoryインタフェースのfindOneメソッドを呼び出し、Entityを取得する。</td>
+</tr>
+<tr class="row-odd"><td><div class="first last line-block">
+<div class="line">(9)</div>
+</div>
+</td>
+<td><p class="first">(8)で取得したEntityに対して、更新する値を指定する。</p>
+<p class="last">上記例では、仕入れた在庫数を加算している。</p>
+</td>
+</tr>
+<tr class="row-even"><td><div class="first last line-block">
+<div class="line">(10)</div>
+</div>
+</td>
+<td>Repositoryインタフェースのupdateメソッドを呼び出し、
+(8)の処理で更新したEntityを永続層(DB)に反映する。</td>
+</tr>
+<tr class="row-odd"><td><div class="first last line-block">
+<div class="line">(11)</div>
+</div>
+</td>
+<td>更新結果を判定し、更新結果が<code class="docutils literal"><span class="pre">false</span></code>の場合は、
+他のトランザクションによってEntityが更新されたことになるので、
+楽観ロックエラー(<code class="docutils literal"><span class="pre">org.springframework.orm.ObjectOptimisticLockingFailureException</span></code>)を発生させる。</td>
+</tr>
+</tbody>
+</table>
+</div></blockquote>
+<div class="line-block">
+<div class="line"><br /></div>
+</div>
+<p>ロングトランザクションに対して楽観ロックを行う場合は、以下の点に注意すること。</p>
+<blockquote>
+<div><div class="admonition warning">
+<p class="first admonition-title">Warning</p>
+<p class="last">ロングトランザクションに対して楽観ロックを行う場合は、更新時のチェックとは別に、
+データ取得時にもバージョンのチェックを行うこと。</p>
+</div>
+</div></blockquote>
+<p>以下に、実装例を示す。</p>
+<ul class="simple">
+<li>データ取得時にもバージョンのチェックを行う。</li>
+</ul>
+<blockquote>
+<div><div class="highlight-java"><div class="highlight"><pre><span></span><span class="n">Stock</span> <span class="n">stock</span> <span class="o">=</span> <span class="n">stockRepository</span><span class="p">.</span><span class="na">findOne</span><span class="p">(</span><span class="n">itemCode</span><span class="p">);</span>
+<span class="k">if</span> <span class="p">(</span><span class="n">stock</span> <span class="o">==</span> <span class="kc">null</span> <span class="o">||</span> <span class="n">stock</span><span class="p">.</span><span class="na">getVersion</span><span class="p">()</span> <span class="o">!=</span> <span class="n">version</span><span class="p">)</span> <span class="p">{</span>
+    <span class="c1">// (12)</span>
+    <span class="k">throw</span> <span class="k">new</span> <span class="n">ObjectOptimisticLockingFailureException</span><span class="p">(</span><span class="n">Stock</span><span class="p">.</span><span class="na">class</span><span class="p">,</span> <span class="n">itemCode</span><span class="p">);</span>
+<span class="p">}</span>
+
+<span class="n">stock</span><span class="p">.</span><span class="na">setQuantity</span><span class="p">(</span><span class="n">stock</span><span class="p">.</span><span class="na">getQuantity</span><span class="p">()</span> <span class="o">+</span> <span class="n">addedQuantity</span><span class="p">);</span>
+<span class="kt">boolean</span> <span class="n">updated</span> <span class="o">=</span> <span class="n">stockRepository</span><span class="p">.</span><span class="na">update</span><span class="p">(</span><span class="n">stock</span><span class="p">);</span>
+<span class="c1">// ...</span>
+</pre></div>
+</div>
+<table border="1" class="colwidths-given docutils">
+<colgroup>
+<col width="10%" />
+<col width="90%" />
+</colgroup>
+<thead valign="bottom">
+<tr class="row-odd"><th class="head">項番</th>
+<th class="head">説明</th>
+</tr>
+</thead>
+<tbody valign="top">
+<tr class="row-even"><td><div class="first last line-block">
+<div class="line">(12)</div>
+</div>
+</td>
+<td><p class="first">別のデータベーストランザクションで取得したEntityのバージョンと、
+(8)で取得したEntityのバージョンを比較する。</p>
+<p>バージョンが異なる場合は、他のトランザクションによってデータが更新されているので、
+楽観ロックエラー(<code class="docutils literal"><span class="pre">org.springframework.orm.ObjectOptimisticLockingFailureException</span></code>)を発生させる。</p>
+<p class="last">データが存在しない(<code class="docutils literal"><span class="pre">stock</span> <span class="pre">==</span> <span class="pre">null</span></code>)時の考慮も必要であり、
+アプリケーションの仕様に対応した実装を行う必要がある。
+上記例では、楽観ロックエラーとしている。</p>
+</td>
+</tr>
+</tbody>
+</table>
+</div></blockquote>
+<div class="line-block">
+<div class="line"><br /></div>
+</div>
+<p>RDBMSの行ロック機能と楽観ロック機能を併用するアプリケーション場合は、以下の点に注意すること。</p>
+<blockquote>
+<div><div class="admonition warning">
+<p class="first admonition-title">Warning</p>
+<p>RDBMSの行ロック機能を利用して排他制御を行う処理と、
+楽観ロック機能を利用して排他制御を行う処理が共存するアプリケーションの場合は、
+RDBMSの行ロック機能を使うSQLの中で、<strong>バージョンの更新(インクリメント)が必要となる。</strong></p>
+<p class="last">仮にRDBMSの行ロック機能を使って排他制御を行うSQLの中でバージョンを更新しなかった場合、
+楽観ロック機能を利用して排他制御を行っているSQLでデータを上書きしてしまう可能性がある。</p>
+</div>
+</div></blockquote>
+<p>以下に、実装例を示す。</p>
+<ul class="simple">
+<li>SQL内でバージョンを更新する。</li>
+</ul>
+<blockquote>
+<div><div class="highlight-xml"><div class="highlight"><pre><span></span><span class="nt">&lt;update</span> <span class="na">id=</span><span class="s">&quot;decrementQuantity&quot;</span><span class="nt">&gt;</span>
+<span class="cp">&lt;![CDATA[</span>
+<span class="cp">    UPDATE</span>
+<span class="cp">        m_stock</span>
+<span class="cp">    SET</span>
+<span class="cp">        quantity = quantity - #{quantity},</span>
+<span class="cp">        /* (13) */</span>
+<span class="cp">        version = version + 1</span>
+<span class="cp">    WHERE</span>
+<span class="cp">        item_code = #{itemCode}</span>
+<span class="cp">    AND</span>
+<span class="cp">        quantity &gt;= #{quantity}</span>
+<span class="cp">]]&gt;</span>
+<span class="nt">&lt;/update&gt;</span>
+</pre></div>
+</div>
+<table border="1" class="colwidths-given docutils">
+<colgroup>
+<col width="10%" />
+<col width="90%" />
+</colgroup>
+<thead valign="bottom">
+<tr class="row-odd"><th class="head">項番</th>
+<th class="head">説明</th>
+</tr>
+</thead>
+<tbody valign="top">
+<tr class="row-even"><td><div class="first last line-block">
+<div class="line">(13)</div>
+</div>
+</td>
+<td>バージョンの更新(インクリメント)を行う。</td>
+</tr>
+</tbody>
+</table>
+</div></blockquote>
+<div class="line-block">
+<div class="line"><br /></div>
+</div>
+</div>
+<div class="section" id="id13">
+<h4><a class="toc-backref" href="#id39">6.4.2.1.3. 悲観ロック</a><a class="headerlink" href="#id13" title="Permalink to this headline">¶</a></h4>
+<div class="line-block">
+<div class="line">MyBatis3では、ライブラリとして悲観ロックを行う仕組みは提供していない。</div>
+<div class="line">そのため、悲観ロックを行う場合は、SQLの中でロックを取得するためのキーワードを指定する必要がある。</div>
+</div>
+<ul class="simple">
+<li>SQLの中でロックを取得するためのキーワードを指定する</li>
+</ul>
+<blockquote>
+<div><div class="highlight-xml"><div class="highlight"><pre><span></span><span class="nt">&lt;select</span> <span class="na">id=</span><span class="s">&quot;findOneForUpdate&quot;</span> <span class="na">parameterType=</span><span class="s">&quot;string&quot;</span> <span class="na">resultType=</span><span class="s">&quot;Stock&quot;</span><span class="nt">&gt;</span>
+    SELECT
+        item_code,
+        quantity,
+        version
+    FROM
+        m_stock
+    WHERE
+        item_code = #{itemCode}
+    /* (1) */
+    FOR UPDATE
+<span class="nt">&lt;/select&gt;</span>
+</pre></div>
+</div>
+<table border="1" class="colwidths-given docutils">
+<colgroup>
+<col width="10%" />
+<col width="90%" />
+</colgroup>
+<thead valign="bottom">
+<tr class="row-odd"><th class="head">項番</th>
+<th class="head">説明</th>
+</tr>
+</thead>
+<tbody valign="top">
+<tr class="row-even"><td><div class="first last line-block">
+<div class="line">(1)</div>
+</div>
+</td>
+<td><p class="first">悲観ロックの取得が必要なSQLに対して、悲観ロックを取得するためのキーワードを指定する。</p>
+<p class="last">キーワードやキーワードの指定位置は、データベースによって異なる。</p>
+</td>
+</tr>
+</tbody>
+</table>
+</div></blockquote>
+<div class="line-block">
+<div class="line"><br /></div>
+</div>
+</div>
+</div>
+<div class="section" id="jpa-spring-data-jpa">
+<span id="exclusioncontrolhowtousejpa"></span><h3><a class="toc-backref" href="#id40">6.4.2.2. JPA(Spring Data JPA)使用時の実装方法</a><a class="headerlink" href="#jpa-spring-data-jpa" title="Permalink to this headline">¶</a></h3>
+<div class="section" id="id14">
+<h4><a class="toc-backref" href="#id41">6.4.2.2.1. RDBMSの行ロック機能</a><a class="headerlink" href="#id14" title="Permalink to this headline">¶</a></h4>
+<div class="line-block">
+<div class="line">RDBMSの行ロック機能を使って排他制御を行う場合は、RepositoryインタフェースにQueryメソッドを追加して実現する。</div>
+<div class="line">Queryメソッドについては、<a class="reference internal" href="DataAccessJpa.html#data-access-jpa-how-to-use-querymethod"><span class="std std-ref">Queryメソッドの追加</span></a>と、<a class="reference internal" href="DataAccessJpa.html#data-access-jpa-howtouse-querymethod-modifying"><span class="std std-ref">永続層のEntityを直接操作する</span></a>を参照されたい。</div>
+</div>
+<ul class="simple">
+<li>Repositoryインタフェース</li>
+</ul>
+<blockquote>
+<div><div class="highlight-java"><div class="highlight"><pre><span></span>  <span class="kd">public</span> <span class="kd">interface</span> <span class="nc">StockRepository</span> <span class="kd">extends</span> <span class="n">JpaRepository</span><span class="o">&lt;</span><span class="n">Stock</span><span class="p">,</span> <span class="n">String</span><span class="o">&gt;</span> <span class="p">{</span>
+
+     <span class="nd">@Modifying</span>
+     <span class="nd">@Query</span><span class="p">(</span><span class="s">&quot;UPDATE Stock s&quot;</span>
+<span class="hll">             <span class="o">+</span> <span class="s">&quot; SET s.quantity = s.quantity - :quantity&quot;</span>
+</span>             <span class="o">+</span> <span class="s">&quot; WHERE s.itemCode = :itemCode&quot;</span>
+<span class="hll">             <span class="o">+</span> <span class="s">&quot; AND :quantity &lt;= s.quantity&quot;</span><span class="p">)</span>  <span class="c1">// (1)</span>
+</span>     <span class="kd">public</span> <span class="kt">int</span> <span class="nf">decrementQuantity</span><span class="p">(</span><span class="nd">@Param</span><span class="p">(</span><span class="s">&quot;itemCode&quot;</span><span class="p">)</span> <span class="n">String</span> <span class="n">itemCode</span><span class="p">,</span>
+             <span class="nd">@Param</span><span class="p">(</span><span class="s">&quot;quantity&quot;</span><span class="p">)</span> <span class="kt">int</span> <span class="n">quantity</span><span class="p">);</span>
+
+ <span class="p">}</span>
+</pre></div>
+</div>
+<table border="1" class="colwidths-given docutils">
+<colgroup>
+<col width="10%" />
+<col width="90%" />
+</colgroup>
+<thead valign="bottom">
+<tr class="row-odd"><th class="head">項番</th>
+<th class="head">説明</th>
+</tr>
+</thead>
+<tbody valign="top">
+<tr class="row-even"><td><div class="first last line-block">
+<div class="line">(1)</div>
+</div>
+</td>
+<td><div class="first last line-block">
+<div class="line">Queryメソッドに、在庫数が注文数以上ある場合に、在庫数を減らすJPQLを指定する。</div>
+<div class="line">更新件数をチェックする必要があるので、Queryメソッドの返り値は、<code class="docutils literal"><span class="pre">int</span></code>を指定する。</div>
+</div>
+</td>
+</tr>
+</tbody>
+</table>
+</div></blockquote>
+<ul class="simple">
+<li>Service</li>
+</ul>
+<blockquote>
+<div><div class="highlight-java"><div class="highlight"><pre><span></span><span class="n">String</span> <span class="n">itemCodeOfOrder</span> <span class="o">=</span> <span class="s">&quot;ITM0000001&quot;</span><span class="p">;</span>
+<span class="kt">int</span> <span class="n">quantityOfOrder</span> <span class="o">=</span> <span class="mi">31</span><span class="p">;</span>
+
+<span class="kt">int</span> <span class="n">updateCount</span> <span class="o">=</span> <span class="n">stockRepository</span><span class="p">.</span><span class="na">decrementQuantity</span><span class="p">(</span><span class="n">itemCodeOfOrder</span><span class="p">,</span> <span class="n">quantityOfOrder</span><span class="p">);</span> <span class="c1">// (2)</span>
+<span class="k">if</span> <span class="p">(</span><span class="n">updateCount</span> <span class="o">==</span> <span class="mi">0</span><span class="p">)</span> <span class="p">{</span> <span class="c1">// (3)</span>
+    <span class="n">ResultMessages</span> <span class="n">message</span> <span class="o">=</span> <span class="n">ResultMessages</span><span class="p">.</span><span class="na">error</span><span class="p">();</span>
+    <span class="n">message</span><span class="p">.</span><span class="na">add</span><span class="p">(</span><span class="n">ResultMessage</span>
+            <span class="p">.</span><span class="na">fromText</span><span class="p">(</span><span class="s">&quot;Not enough stock. Please, change quantity.&quot;</span><span class="p">));</span>
+    <span class="k">throw</span> <span class="k">new</span> <span class="n">BusinessException</span><span class="p">(</span><span class="n">message</span><span class="p">);</span> <span class="c1">// (4)</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+<div class="highlight-sql"><div class="highlight"><pre><span></span><span class="k">update</span> <span class="n">m_stock</span> <span class="k">set</span> <span class="n">quantity</span><span class="o">=</span><span class="n">quantity</span><span class="o">-</span><span class="mi">31</span>
+               <span class="k">where</span> <span class="n">item_code</span><span class="o">=</span><span class="s1">&#39;ITM0000001&#39;</span> <span class="k">and</span> <span class="mi">31</span><span class="o">&lt;=</span><span class="n">quantity</span> <span class="c1">-- (5)</span>
+</pre></div>
+</div>
+<table border="1" class="colwidths-given docutils">
+<colgroup>
+<col width="10%" />
+<col width="90%" />
+</colgroup>
+<thead valign="bottom">
+<tr class="row-odd"><th class="head">項番</th>
+<th class="head">説明</th>
+</tr>
+</thead>
+<tbody valign="top">
+<tr class="row-even"><td><div class="first last line-block">
+<div class="line">(2)</div>
+</div>
+</td>
+<td>Queryメソッドを呼び出す。</td>
+</tr>
+<tr class="row-odd"><td><div class="first last line-block">
+<div class="line">(3)</div>
+</div>
+</td>
+<td>Queryメソッドの呼び出し結果を判定する。”<code class="docutils literal"><span class="pre">0</span></code>” の場合、更新条件を満たしていないので、在庫数が不足していることになる。</td>
+</tr>
+<tr class="row-even"><td><div class="first last line-block">
+<div class="line">(4)</div>
+</div>
+</td>
+<td><div class="first last line-block">
+<div class="line">在庫がない、または不足している旨のメッセージを格納し、業務エラーを発生させる。</div>
+<div class="line">発生させたエラーは、Controllerで要件に応じて適切にハンドリングすること。</div>
+<div class="line">上記例では、ビジネスルールのチェックを排他制御しながら行っているだけなので、更新条件を満たさない場合は、排他エラーではなく業務エラーとしている。</div>
+<div class="line">エラーのハンドリング方法については、<a class="reference internal" href="../WebApplicationDetail/ExceptionHandling.html#exception-handling-how-to-use-codingpoint-controller-label"><span class="std std-ref">コーディングポイント（Controller編）</span></a>を参照されたい。</div>
+</div>
+</td>
+</tr>
+<tr class="row-odd"><td><div class="first last line-block">
+<div class="line">(5)</div>
+</div>
+</td>
+<td>Queryメソッド呼び出し時に実行されるSQL。</td>
+</tr>
+</tbody>
+</table>
+</div></blockquote>
+</div>
+<div class="section" id="id15">
+<h4><a class="toc-backref" href="#id42">6.4.2.2.2. 楽観ロック</a><a class="headerlink" href="#id15" title="Permalink to this headline">¶</a></h4>
+<p>JPAでは、バージョン管理用のプロパティに、<code class="docutils literal"><span class="pre">&#64;javax.persistence.Version</span></code>アノテーションを指定することで、楽観ロックを行うことができる。</p>
+<ul class="simple">
+<li>Entity</li>
+</ul>
+<blockquote>
+<div><div class="highlight-java"><div class="highlight"><pre><span></span> <span class="nd">@Entity</span>
+ <span class="nd">@Table</span><span class="p">(</span><span class="n">name</span> <span class="o">=</span> <span class="s">&quot;m_stock&quot;</span><span class="p">)</span>
+ <span class="kd">public</span> <span class="kd">class</span> <span class="nc">Stock</span> <span class="kd">implements</span> <span class="n">Serializable</span> <span class="p">{</span>
+
+     <span class="nd">@Id</span>
+     <span class="nd">@Column</span><span class="p">(</span><span class="n">name</span> <span class="o">=</span> <span class="s">&quot;item_code&quot;</span><span class="p">)</span>
+     <span class="kd">private</span> <span class="n">String</span> <span class="n">itemCode</span><span class="p">;</span>
+
+     <span class="kd">private</span> <span class="kt">int</span> <span class="n">quantity</span><span class="p">;</span>
+
+<span class="hll">     <span class="nd">@Version</span> <span class="c1">// (1)</span>
+</span>     <span class="kd">private</span> <span class="kt">long</span> <span class="n">version</span><span class="p">;</span>
+
+     <span class="c1">// ...</span>
+
+ <span class="p">}</span>
+</pre></div>
+</div>
+<table border="1" class="colwidths-given docutils">
+<colgroup>
+<col width="10%" />
+<col width="90%" />
+</colgroup>
+<thead valign="bottom">
+<tr class="row-odd"><th class="head">項番</th>
+<th class="head">説明</th>
+</tr>
+</thead>
+<tbody valign="top">
+<tr class="row-even"><td><div class="first last line-block">
+<div class="line">(1)</div>
+</div>
+</td>
+<td>バージョン管理用のプロパティに、<code class="docutils literal"><span class="pre">&#64;Version</span></code>アノテーションを指定する。</td>
+</tr>
+</tbody>
+</table>
+</div></blockquote>
+<ul class="simple">
+<li>Service</li>
+</ul>
+<blockquote>
+<div><div class="highlight-java"><div class="highlight"><pre><span></span><span class="n">String</span> <span class="n">itemCode</span> <span class="o">=</span> <span class="s">&quot;ITM0000001&quot;</span><span class="p">;</span>
+<span class="kt">int</span> <span class="n">newQuantity</span> <span class="o">=</span> <span class="mi">30</span><span class="p">;</span>
+
+<span class="n">Stock</span> <span class="n">stock</span> <span class="o">=</span> <span class="n">stockRepository</span><span class="p">.</span><span class="na">findById</span><span class="p">(</span><span class="n">itemCode</span><span class="p">).</span><span class="na">get</span><span class="p">();</span> <span class="c1">// (2)</span>
+<span class="k">if</span> <span class="p">(</span><span class="n">stock</span> <span class="o">==</span> <span class="kc">null</span><span class="p">)</span> <span class="p">{</span>
+    <span class="n">ResultMessages</span> <span class="n">messages</span> <span class="o">=</span> <span class="n">ResultMessages</span><span class="p">.</span><span class="na">error</span><span class="p">().</span><span class="na">add</span><span class="p">(</span><span class="n">ResultMessage</span>
+            <span class="p">.</span><span class="na">fromText</span><span class="p">(</span><span class="s">&quot;Stock not found. itemCode : &quot;</span> <span class="o">+</span> <span class="n">itemCode</span><span class="p">));</span>
+    <span class="k">throw</span> <span class="k">new</span> <span class="n">ResourceNotFoundException</span><span class="p">(</span><span class="n">messages</span><span class="p">);</span>
+<span class="p">}</span>
+
+<span class="n">stock</span><span class="p">.</span><span class="na">setQuantity</span><span class="p">(</span><span class="n">newQuantity</span><span class="p">);</span> <span class="c1">// (3)</span>
+
+<span class="n">stockRepository</span><span class="p">.</span><span class="na">flush</span><span class="p">();</span> <span class="c1">// (4)</span>
+</pre></div>
+</div>
+<div class="highlight-sql"><div class="highlight"><pre><span></span><span class="k">update</span> <span class="n">m_stock</span> <span class="k">set</span> <span class="n">quantity</span><span class="o">=</span><span class="mi">30</span><span class="p">,</span> <span class="k">version</span><span class="o">=</span><span class="mi">7</span>
+               <span class="k">where</span> <span class="n">item_code</span><span class="o">=</span><span class="s1">&#39;ITM0000001&#39;</span> <span class="k">and</span> <span class="k">version</span><span class="o">=</span><span class="mi">6</span> <span class="c1">-- ( 5)</span>
+</pre></div>
+</div>
+<table border="1" class="colwidths-given docutils">
+<colgroup>
+<col width="10%" />
+<col width="90%" />
+</colgroup>
+<thead valign="bottom">
+<tr class="row-odd"><th class="head">項番</th>
+<th class="head">説明</th>
+</tr>
+</thead>
+<tbody valign="top">
+<tr class="row-even"><td><div class="first last line-block">
+<div class="line">(2)</div>
+</div>
+</td>
+<td>RepositoryインタフェースのfindByIdメソッドを呼び出し、Entityを取得する。</td>
+</tr>
+<tr class="row-odd"><td><div class="first last line-block">
+<div class="line">(3)</div>
+</div>
+</td>
+<td>(2)で取得したEntityに対して、更新する値を指定する。</td>
+</tr>
+<tr class="row-even"><td><div class="first last line-block">
+<div class="line">(4)</div>
+</div>
+</td>
+<td><div class="first last line-block">
+<div class="line">(3)の変更内容を永続層(DB)に反映する。この処理は説明のために行っている処理のため、通常は不要である。</div>
+<div class="line">通常は、トランザクションコミット時に自動で反映される。</div>
+<div class="line">上記例だと、(2)で取得したEntityがもつバージョンと永続層(DB)で保持しているバージョンが一致しない場合に、楽観ロックエラー(<code class="docutils literal"><span class="pre">org.springframework.dao.OptimisticLockingFailureException</span></code>) が発生する。</div>
+</div>
+</td>
+</tr>
+<tr class="row-odd"><td><div class="first last line-block">
+<div class="line">(5)</div>
+</div>
+</td>
+<td>(4)の永続層(DB)に反映する際に実行されるSQL。</td>
+</tr>
+</tbody>
+</table>
+</div></blockquote>
+<p>ロングトランザクションに対する楽観ロックを行う場合は、以下の点に注意すること。</p>
+<div class="admonition warning">
+<p class="first admonition-title">Warning</p>
+<p class="last">ロングトランザクションに対する楽観ロックについては、<code class="docutils literal"><span class="pre">&#64;Version</span></code>アノテーションを付与するだけでは不十分である。
+ロングトランザクションに対して楽観ロックを行う場合は、JPAの機能で行われる更新時のチェックに加えて、更新対象のデータを取得する際にも、バージョンのチェックを行うこと。</p>
+</div>
+<p>以下に、実装例を示す。</p>
+<ul class="simple">
+<li>Service</li>
+</ul>
+<blockquote>
+<div><div class="highlight-java"><div class="highlight"><pre><span></span><span class="kt">long</span> <span class="n">version</span> <span class="o">=</span> <span class="mi">12</span><span class="p">;</span>
+<span class="n">String</span> <span class="n">itemCode</span> <span class="o">=</span> <span class="s">&quot;ITM0000001&quot;</span><span class="p">;</span>
+<span class="kt">int</span> <span class="n">newQuantity</span> <span class="o">=</span> <span class="mi">30</span><span class="p">;</span>
+
+<span class="n">Stock</span> <span class="n">stock</span> <span class="o">=</span> <span class="n">stockRepository</span><span class="p">.</span><span class="na">findById</span><span class="p">(</span><span class="n">itemCode</span><span class="p">).</span><span class="na">get</span><span class="p">();</span> <span class="c1">// (1)</span>
+<span class="k">if</span> <span class="p">(</span><span class="n">stock</span> <span class="o">==</span> <span class="kc">null</span> <span class="o">||</span> <span class="n">stock</span><span class="p">.</span><span class="na">getVersion</span><span class="p">()</span> <span class="o">!=</span> <span class="n">version</span><span class="p">)</span> <span class="p">{</span> <span class="c1">// (2)</span>
+    <span class="k">throw</span> <span class="k">new</span> <span class="n">ObjectOptimisticLockingFailureException</span><span class="p">(</span><span class="n">Stock</span><span class="p">.</span><span class="na">class</span><span class="p">,</span> <span class="n">itemCode</span><span class="p">);</span> <span class="c1">// (3)</span>
+<span class="p">}</span>
+
+<span class="n">stock</span><span class="p">.</span><span class="na">setQuantity</span><span class="p">(</span><span class="n">newQuantity</span><span class="p">);</span>
+
+<span class="n">stockRepository</span><span class="p">.</span><span class="na">flush</span><span class="p">();</span>
+</pre></div>
+</div>
+<table border="1" class="colwidths-given docutils">
+<colgroup>
+<col width="10%" />
+<col width="90%" />
+</colgroup>
+<thead valign="bottom">
+<tr class="row-odd"><th class="head">項番</th>
+<th class="head">説明</th>
+</tr>
+</thead>
+<tbody valign="top">
+<tr class="row-even"><td><div class="first last line-block">
+<div class="line">(1)</div>
+</div>
+</td>
+<td>永続層(DB)からEntityを取得する。</td>
+</tr>
+<tr class="row-odd"><td><div class="first last line-block">
+<div class="line">(2)</div>
+</div>
+</td>
+<td><div class="first last line-block">
+<div class="line">事前に別のデータベーストランザクションで取得されたEntityのバージョンと、(1)で取得した永続層(DB)の最新のバージョンを比較する。</div>
+<div class="line">バージョンが一致する場合は、以降の処理で<code class="docutils literal"><span class="pre">&#64;Version</span></code>アノテーションを使った楽観ロックの仕組みが有効となる。</div>
+</div>
+</td>
+</tr>
+<tr class="row-even"><td><div class="first last line-block">
+<div class="line">(3)</div>
+</div>
+</td>
+<td>バージョンが異なる場合は、楽観ロックエラー(<code class="docutils literal"><span class="pre">org.springframework.orm.ObjectOptimisticLockingFailureException</span></code>)を発生させる。</td>
+</tr>
+</tbody>
+</table>
+</div></blockquote>
+<div class="admonition warning">
+<p class="first admonition-title">Warning</p>
+<p><strong>Version管理用のプロパティに対する値の設定について</strong></p>
+<p>Repositoryインタフェースを使って取得したEntityは、「管理状態のEntity」と呼ばれる。</p>
+<blockquote>
+<div><strong>「管理状態のEntity」に対して、処理でVersion管理用のプロパティの値を設定することはできないので、注意すること。</strong></div></blockquote>
+<p>以下のような処理をしても、「管理状態のEntity」に設定したバージョンの値は反映されないため、楽観ロックを取得する際に使用されることはない。楽観ロックで使用されるのは、findByIdメソッドで取得した時点のバージョンとなる。</p>
+<blockquote>
+<div><div class="highlight-java"><div class="highlight"><pre><span></span><span class="kt">long</span> <span class="n">version</span> <span class="o">=</span> <span class="mi">12</span><span class="p">;</span>
+<span class="n">String</span> <span class="n">itemCode</span> <span class="o">=</span> <span class="s">&quot;ITM0000001&quot;</span><span class="p">;</span>
+<span class="kt">int</span> <span class="n">newQuantity</span> <span class="o">=</span> <span class="mi">30</span><span class="p">;</span>
+
+<span class="n">Stock</span> <span class="n">stock</span> <span class="o">=</span> <span class="n">stockRepository</span><span class="p">.</span><span class="na">findById</span><span class="p">(</span><span class="n">itemCode</span><span class="p">).</span><span class="na">get</span><span class="p">();</span>
+<span class="k">if</span> <span class="p">(</span><span class="n">stock</span> <span class="o">==</span> <span class="kc">null</span><span class="p">)</span> <span class="p">{</span>
+    <span class="n">ResultMessages</span> <span class="n">messages</span> <span class="o">=</span> <span class="n">ResultMessages</span><span class="p">.</span><span class="na">error</span><span class="p">().</span><span class="na">add</span><span class="p">(</span><span class="n">ResultMessage</span>
+            <span class="p">.</span><span class="na">fromText</span><span class="p">(</span><span class="s">&quot;Stock not found. itemCode : &quot;</span> <span class="o">+</span> <span class="n">itemCode</span><span class="p">));</span>
+    <span class="k">throw</span> <span class="k">new</span> <span class="n">ResourceNotFoundException</span><span class="p">(</span><span class="n">messages</span><span class="p">);</span>
+<span class="p">}</span>
+<span class="hll"><span class="n">stock</span><span class="p">.</span><span class="na">setVersion</span><span class="p">(</span><span class="n">version</span><span class="p">);</span> <span class="c1">// ★ Invalid Processing</span>
+</span><span class="n">stock</span><span class="p">.</span><span class="na">setQuantity</span><span class="p">(</span><span class="n">newQuantity</span><span class="p">);</span>
+
+<span class="n">stockRepository</span><span class="p">.</span><span class="na">flush</span><span class="p">();</span>
+</pre></div>
+</div>
+</div></blockquote>
+<p class="last">例えば、画面から送られてきたバージョンの値を上書きしても、Entityには反映されないため、排他制御が正しく行われなくなってしまう。</p>
+</div>
+<div class="admonition note">
+<p class="first admonition-title">Note</p>
+<p><strong>ロングトランザクションに対する楽観ロック処理の共通化について</strong></p>
+<p class="last">複数の処理でロングトランザクションに対して楽観ロックが必要になる場合は、上記の(1)～(3)の処理を共通的なメソッドにすることを検討した方がよい。
+共通化の方法については、<a class="reference internal" href="DataAccessJpa.html#data-access-jpa-how-to-extends-custommethod"><span class="std std-ref">カスタムメソッドの追加方法</span></a>を参照されたい。</p>
+</div>
+<p>RDBMSの行ロック機能と、楽観ロック機能を両方使用する場合は、以下の点に注意すること。</p>
+<div class="admonition warning">
+<p class="first admonition-title">Warning</p>
+<p>同じデータに対して、RDBMSの行ロック機能を利用して排他制御を行う処理と、
+楽観ロック機能を利用して排他制御を行う処理が共存するアプリケーションの場合は、
+RDBMSの行ロック機能を使うQueryメソッドにて、<strong>Versionの更新を必ず行う必要がある。</strong></p>
+<p class="last">RDBMSの行ロック機能を使って、排他制御を行うQueryメソッドでVersionを更新しない場合、
+Queryメソッドで更新した内容が、別のトランザクションの処理で上書きされる可能性があるため、正しく排他制御が行われない。</p>
+</div>
+<p>以下に、実装例を示す。</p>
+<ul class="simple">
+<li>Repositoryインタフェース</li>
+</ul>
+<blockquote>
+<div><div class="highlight-java"><div class="highlight"><pre><span></span> <span class="kd">public</span> <span class="kd">interface</span> <span class="nc">StockRepository</span> <span class="kd">extends</span> <span class="n">JpaRepository</span><span class="o">&lt;</span><span class="n">Stock</span><span class="p">,</span> <span class="n">String</span><span class="o">&gt;</span> <span class="p">{</span>
+
+     <span class="nd">@Modifying</span>
+     <span class="nd">@Query</span><span class="p">(</span><span class="s">&quot;UPDATE Stock s SET s.quantity = s.quantity - :quantity&quot;</span>
+<span class="hll">             <span class="o">+</span> <span class="s">&quot;, s.version = s.version + 1&quot;</span> <span class="c1">// (1)</span>
+</span>             <span class="o">+</span> <span class="s">&quot; WHERE s.itemCode = :itemCode&quot;</span>
+             <span class="o">+</span> <span class="s">&quot; AND :quantity &lt;= s.quantity&quot;</span><span class="p">)</span>
+     <span class="kd">public</span> <span class="kt">int</span> <span class="nf">decrementQuantity</span><span class="p">(</span><span class="nd">@Param</span><span class="p">(</span><span class="s">&quot;itemCode&quot;</span><span class="p">)</span> <span class="n">String</span> <span class="n">itemCode</span><span class="p">,</span>
+             <span class="nd">@Param</span><span class="p">(</span><span class="s">&quot;quantity&quot;</span><span class="p">)</span> <span class="kt">int</span> <span class="n">quantity</span><span class="p">);</span>
+
+ <span class="p">}</span>
+</pre></div>
+</div>
+<table border="1" class="colwidths-given docutils">
+<colgroup>
+<col width="10%" />
+<col width="90%" />
+</colgroup>
+<thead valign="bottom">
+<tr class="row-odd"><th class="head">項番</th>
+<th class="head">説明</th>
+</tr>
+</thead>
+<tbody valign="top">
+<tr class="row-even"><td><div class="first last line-block">
+<div class="line">(1)</div>
+</div>
+</td>
+<td><div class="first last line-block">
+<div class="line">Versionの更新(<code class="docutils literal"><span class="pre">s.version</span> <span class="pre">=</span> <span class="pre">s.version</span> <span class="pre">+</span> <span class="pre">1</span></code>)を行う必要がある。</div>
+</div>
+</td>
+</tr>
+</tbody>
+</table>
+</div></blockquote>
+</div>
+<div class="section" id="id16">
+<h4><a class="toc-backref" href="#id43">6.4.2.2.3. 悲観ロック</a><a class="headerlink" href="#id16" title="Permalink to this headline">¶</a></h4>
+<p>Spring Data JPAでは、<code class="docutils literal"><span class="pre">&#64;org.springframework.data.jpa.repository.Lock</span></code>アノテーションを指定することで、悲観ロックを行うことができる。</p>
+<ul class="simple">
+<li>Repositoryインタフェース</li>
+</ul>
+<blockquote>
+<div><div class="highlight-java"><div class="highlight"><pre><span></span><span class="kd">public</span> <span class="kd">interface</span> <span class="nc">StockRepository</span> <span class="kd">extends</span> <span class="n">JpaRepository</span><span class="o">&lt;</span><span class="n">Stock</span><span class="p">,</span> <span class="n">String</span><span class="o">&gt;</span> <span class="p">{</span>
+
+    <span class="nd">@Lock</span><span class="p">(</span><span class="n">LockModeType</span><span class="p">.</span><span class="na">PESSIMISTIC_WRITE</span><span class="p">)</span> <span class="c1">// (1)</span>
+    <span class="nd">@Query</span><span class="p">(</span><span class="s">&quot;SELECT s FROM Stock s WHERE s.itemCode = :itemCode&quot;</span><span class="p">)</span>
+    <span class="n">Optional</span><span class="o">&lt;</span><span class="n">Stock</span><span class="o">&gt;</span> <span class="nf">findByIdForUpdate</span><span class="p">(</span><span class="nd">@Param</span><span class="p">(</span><span class="s">&quot;itemCode&quot;</span><span class="p">)</span> <span class="n">String</span> <span class="n">itemCode</span><span class="p">);</span>
+
+<span class="p">}</span>
+</pre></div>
+</div>
+<div class="highlight-sql"><div class="highlight"><pre><span></span><span class="c1">-- (2)</span>
+<span class="k">SELECT</span>
+        <span class="n">stock0_</span><span class="p">.</span><span class="n">item_code</span> <span class="k">AS</span> <span class="n">item1_5_</span>
+        <span class="p">,</span><span class="n">stock0_</span><span class="p">.</span><span class="n">quantity</span> <span class="k">AS</span> <span class="n">quantity2_5_</span>
+        <span class="p">,</span><span class="n">stock0_</span><span class="p">.</span><span class="k">version</span> <span class="k">AS</span> <span class="n">version3_5_</span>
+    <span class="k">FROM</span>
+        <span class="n">m_stock</span> <span class="n">stock0_</span>
+    <span class="k">WHERE</span>
+        <span class="n">stock0_</span><span class="p">.</span><span class="n">item_code</span> <span class="o">=</span> <span class="s1">&#39;ITM0000001&#39;</span>
+    <span class="k">FOR</span> <span class="k">UPDATE</span><span class="p">;</span>
+</pre></div>
+</div>
+<table border="1" class="colwidths-given docutils">
+<colgroup>
+<col width="10%" />
+<col width="90%" />
+</colgroup>
+<thead valign="bottom">
+<tr class="row-odd"><th class="head">項番</th>
+<th class="head">説明</th>
+</tr>
+</thead>
+<tbody valign="top">
+<tr class="row-even"><td><div class="first last line-block">
+<div class="line">(1)</div>
+</div>
+</td>
+<td>Queryメソッドに、<code class="docutils literal"><span class="pre">&#64;Lock</span></code>アノテーションを指定する。</td>
+</tr>
+<tr class="row-odd"><td><div class="first last line-block">
+<div class="line">(2)</div>
+</div>
+</td>
+<td>実行されるSQL。上記例ではPostgreSQLを使用した場合に実行されるSQLとなる。</td>
+</tr>
+</tbody>
+</table>
+</div></blockquote>
+<p><code class="docutils literal"><span class="pre">&#64;Lock</span></code>アノテーションで指定することができる悲観ロックの種類は、以下の通りである。</p>
+<blockquote>
+<div><table border="1" class="colwidths-given docutils">
+<colgroup>
+<col width="10%" />
+<col width="25%" />
+<col width="45%" />
+<col width="20%" />
+</colgroup>
+<thead valign="bottom">
+<tr class="row-odd"><th class="head">項番</th>
+<th class="head">LockModeType</th>
+<th class="head">説明</th>
+<th class="head">発行されるSQL</th>
+</tr>
+</thead>
+<tbody valign="top">
+<tr class="row-even"><td><ol class="first last arabic simple">
+<li></li>
+</ol>
+</td>
+<td>PESSIMISTIC_READ</td>
+<td><div class="first last line-block">
+<div class="line">参照用の悲観ロックが取得される。データベースによっては、排他ロックではなく共有ロックとなる。</div>
+<div class="line">コミットまたはロールバック時に、ロック解放される</div>
+</div>
+</td>
+<td><div class="first last line-block">
+<div class="line">select … for update / select … for share</div>
+</div>
+</td>
+</tr>
+<tr class="row-odd"><td><ol class="first last arabic simple" start="2">
+<li></li>
+</ol>
+</td>
+<td>PESSIMISTIC_WRITE</td>
+<td><div class="first last line-block">
+<div class="line">更新用の悲観ロックが取得され、排他ロックがかかる。</div>
+<div class="line">排他ロックの場合、既にロックがかかっていた場合には、ロックが解放されるまで待機してからエンティティが取得される。</div>
+<div class="line">コミットまたはロールバック時に、ロック解放される</div>
+</div>
+</td>
+<td><div class="first last line-block">
+<div class="line">select … for update</div>
+</div>
+</td>
+</tr>
+<tr class="row-even"><td><ol class="first last arabic simple" start="3">
+<li></li>
+</ol>
+</td>
+<td>PESSIMISTIC_FORCE_INCREMENT</td>
+<td><div class="first last line-block">
+<div class="line">エンティティを取得した時点から、対象データに対して排他ロックがかかる。取得直後に強制的にバージョンの更新も行われる。</div>
+<div class="line">コミットまたはロールバック時に、ロック解放される</div>
+</div>
+</td>
+<td><div class="first last line-block">
+<div class="line">select … for update + update</div>
+</div>
+</td>
+</tr>
+</tbody>
+</table>
+<div class="admonition note">
+<p class="first admonition-title">Note</p>
+<p><strong>ロックタイムアウト時間について</strong></p>
+<p class="last">JPA(<code class="docutils literal"><span class="pre">EntityManager</span></code>)の設定またはQueryヒントとして、<code class="docutils literal"><span class="pre">javax.persistence.lock.timeout</span></code>を指定することで、タイムアウト時間を指定することができる。</p>
+</div>
+</div></blockquote>
+<p>ロックのタイムアウト時間の指定は、全体に適用する方法と、Query毎に適用する２つの方法が用意されている。</p>
+<p>全体に適用する方法は、以下の通りである。</p>
+<ul class="simple">
+<li><code class="file docutils literal"><span class="pre">xxx-infra.xml</span></code></li>
+</ul>
+<blockquote>
+<div><div class="highlight-xml"><div class="highlight"><pre><span></span><span class="nt">&lt;bean</span> <span class="na">id=</span><span class="s">&quot;entityManagerFactory&quot;</span>
+    <span class="na">class=</span><span class="s">&quot;org.springframework.orm.jpa.LocalContainerEntityManagerFactoryBean&quot;</span><span class="nt">&gt;</span>
+    <span class="nt">&lt;property</span> <span class="na">name=</span><span class="s">&quot;packagesToScan&quot;</span> <span class="na">value=</span><span class="s">&quot;xxxxxx.yyyyyy.zzzzzz.domain.model&quot;</span> <span class="nt">/&gt;</span>
+    <span class="nt">&lt;property</span> <span class="na">name=</span><span class="s">&quot;dataSource&quot;</span> <span class="na">ref=</span><span class="s">&quot;dataSource&quot;</span> <span class="nt">/&gt;</span>
+    <span class="nt">&lt;property</span> <span class="na">name=</span><span class="s">&quot;jpaVendorAdapter&quot;</span> <span class="na">ref=</span><span class="s">&quot;jpaVendorAdapter&quot;</span> <span class="nt">/&gt;</span>
+    <span class="nt">&lt;property</span> <span class="na">name=</span><span class="s">&quot;jpaPropertyMap&quot;</span><span class="nt">&gt;</span>
+        <span class="nt">&lt;util:map&gt;</span>
+            <span class="c">&lt;!-- ... --&gt;</span>
+            <span class="nt">&lt;entry</span> <span class="na">key=</span><span class="s">&quot;javax.persistence.lock.timeout&quot;</span> <span class="na">value=</span><span class="s">&quot;1000&quot;</span> <span class="nt">/&gt;</span> <span class="c">&lt;!-- (1) --&gt;</span>
+        <span class="nt">&lt;/util:map&gt;</span>
+    <span class="nt">&lt;/property&gt;</span>
+<span class="nt">&lt;/bean&gt;</span>
+</pre></div>
+</div>
+<table border="1" class="colwidths-given docutils">
+<colgroup>
+<col width="10%" />
+<col width="90%" />
+</colgroup>
+<thead valign="bottom">
+<tr class="row-odd"><th class="head">項番</th>
+<th class="head">説明</th>
+</tr>
+</thead>
+<tbody valign="top">
+<tr class="row-even"><td><div class="first last line-block">
+<div class="line">(1)</div>
+</div>
+</td>
+<td>タイムアウトをミリ秒で指定する。<code class="docutils literal"><span class="pre">1000</span></code>を指定すると、1秒となる。</td>
+</tr>
+</tbody>
+</table>
+<div class="admonition note">
+<p class="first admonition-title">Note</p>
+<p><strong>nowaitのサポート</strong></p>
+<p class="last">OracleとPostgreSQLについては、”<code class="docutils literal"><span class="pre">0</span></code>” を指定した場合、<code class="docutils literal"><span class="pre">nowait</span></code>が付加され、他のトランザクションによってロックされていた場合に、ロックの解放待ちを行わずに排他エラーとなる。</p>
+</div>
+<div class="admonition warning">
+<p class="first admonition-title">Warning</p>
+<p><strong>PostgreSQLの制約</strong></p>
+<p class="last">PostgreSQLではnowaitの指定はできるが、wait時間の指定ができない。
+そのため、Queryのタイムアウトを別途設けておくなどの対策を行う必要がある。</p>
+</div>
+</div></blockquote>
+<p>Query毎に適応する方法は、以下の通りである。</p>
+<ul class="simple">
+<li>Repositoryインタフェース</li>
+</ul>
+<blockquote>
+<div><div class="highlight-java"><div class="highlight"><pre><span></span><span class="nd">@Lock</span><span class="p">(</span><span class="n">LockModeType</span><span class="p">.</span><span class="na">PESSIMISTIC_WRITE</span><span class="p">)</span>
+<span class="nd">@QueryHints</span><span class="p">(</span><span class="nd">@QueryHint</span><span class="p">(</span><span class="n">name</span> <span class="o">=</span> <span class="s">&quot;javax.persistence.lock.timeout&quot;</span><span class="p">,</span> <span class="n">value</span> <span class="o">=</span> <span class="s">&quot;2000&quot;</span><span class="p">))</span> <span class="c1">// (1)</span>
+<span class="nd">@Query</span><span class="p">(</span><span class="s">&quot;SELECT s FROM Stock s WHERE s.itemCode = :itemCode&quot;</span><span class="p">)</span>
+<span class="n">Optional</span><span class="o">&lt;</span><span class="n">Stock</span><span class="o">&gt;</span> <span class="nf">findByIdForUpdate</span><span class="p">(</span><span class="nd">@Param</span><span class="p">(</span><span class="s">&quot;itemCode&quot;</span><span class="p">)</span> <span class="n">String</span> <span class="n">itemCode</span><span class="p">);</span>
+</pre></div>
+</div>
+<table border="1" class="colwidths-given docutils">
+<colgroup>
+<col width="10%" />
+<col width="90%" />
+</colgroup>
+<thead valign="bottom">
+<tr class="row-odd"><th class="head">項番</th>
+<th class="head">説明</th>
+</tr>
+</thead>
+<tbody valign="top">
+<tr class="row-even"><td><div class="first last line-block">
+<div class="line">(1)</div>
+</div>
+</td>
+<td><div class="first last line-block">
+<div class="line">タイムアウトをミリ秒で指定する。<code class="docutils literal"><span class="pre">2000</span></code>を指定すると、2秒となる。</div>
+<div class="line">全体に指定した値は、上書きされる。</div>
+</div>
+</td>
+</tr>
+</tbody>
+</table>
+</div></blockquote>
+<div class="line-block">
+<div class="line"><br /></div>
+</div>
+</div>
+</div>
+<div class="section" id="exclusioncontrolhowtouseexceptionhandling">
+<span id="id17"></span><h3><a class="toc-backref" href="#id44">6.4.2.3. 排他エラーのハンドリング方法</a><a class="headerlink" href="#exclusioncontrolhowtouseexceptionhandling" title="Permalink to this headline">¶</a></h3>
+<div class="section" id="id18">
+<h4><a class="toc-backref" href="#id45">6.4.2.3.1. 楽観ロックの失敗時のエラーハンドリング</a><a class="headerlink" href="#id18" title="Permalink to this headline">¶</a></h4>
+<p>楽観ロックの失敗時には、<code class="docutils literal"><span class="pre">org.springframework.dao.OptimisticLockingFailureException</span></code>が発生するため、
+Controllerで適切にハンドリングする必要がある。</p>
+<div class="line-block">
+<div class="line">ハンドリング方法は、楽観ロックエラーが発生した時のアプリケーションの動作仕様によって異なる。</div>
+</div>
+<p>リクエスト単位に動作を変える必要がない場合は、<code class="docutils literal"><span class="pre">&#64;ExceptionHandler</span></code>アノテーションを使用してハンドリングする。</p>
+<blockquote>
+<div><div class="highlight-java"><div class="highlight"><pre><span></span><span class="nd">@ExceptionHandler</span><span class="p">(</span><span class="n">OptimisticLockingFailureException</span><span class="p">.</span><span class="na">class</span><span class="p">)</span> <span class="c1">// (1)</span>
+<span class="kd">public</span> <span class="n">ModelAndView</span> <span class="nf">handleOptimisticLockingFailureException</span><span class="p">(</span>
+        <span class="n">OptimisticLockingFailureException</span> <span class="n">e</span><span class="p">)</span> <span class="p">{</span>
+    <span class="c1">// (2)</span>
+    <span class="n">ExtendedModelMap</span> <span class="n">modelMap</span> <span class="o">=</span> <span class="k">new</span> <span class="n">ExtendedModelMap</span><span class="p">();</span>
+    <span class="n">ResultMessages</span> <span class="n">resultMessages</span> <span class="o">=</span> <span class="n">ResultMessages</span><span class="p">.</span><span class="na">warning</span><span class="p">();</span>
+    <span class="n">resultMessages</span><span class="p">.</span><span class="na">add</span><span class="p">(</span><span class="n">ResultMessage</span><span class="p">.</span><span class="na">fromText</span><span class="p">(</span><span class="s">&quot;Other user updated!!&quot;</span><span class="p">));</span>
+    <span class="n">modelMap</span><span class="p">.</span><span class="na">addAttribute</span><span class="p">(</span><span class="n">setUpForm</span><span class="p">());</span>
+    <span class="n">modelMap</span><span class="p">.</span><span class="na">addAttribute</span><span class="p">(</span><span class="n">resultMessages</span><span class="p">);</span>
+    <span class="n">String</span> <span class="n">viewName</span> <span class="o">=</span> <span class="n">top</span><span class="p">(</span><span class="n">modelMap</span><span class="p">);</span>
+    <span class="k">return</span> <span class="k">new</span> <span class="n">ModelAndView</span><span class="p">(</span><span class="n">viewName</span><span class="p">,</span> <span class="n">modelMap</span><span class="p">);</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+<table border="1" class="colwidths-given docutils">
+<colgroup>
+<col width="10%" />
+<col width="90%" />
+</colgroup>
+<thead valign="bottom">
+<tr class="row-odd"><th class="head">項番</th>
+<th class="head">説明</th>
+</tr>
+</thead>
+<tbody valign="top">
+<tr class="row-even"><td><div class="first last line-block">
+<div class="line">(1)</div>
+</div>
+</td>
+<td><code class="docutils literal"><span class="pre">&#64;ExceptionHandler</span></code>アノテーションのvalue属性に、<code class="docutils literal"><span class="pre">OptimisticLockingFailureException.class</span></code>を指定する。</td>
+</tr>
+<tr class="row-odd"><td><div class="first last line-block">
+<div class="line">(2)</div>
+</div>
+</td>
+<td><div class="first last line-block">
+<div class="line">エラーハンドリングの処理を実装する。エラーを通知するためのメッセージ、画面表示に必要な情報（フォームやその他のモデル）を生成し、遷移先を指定した<code class="docutils literal"><span class="pre">ModelAndView</span></code>を返却する。</div>
+<div class="line">エラーハンドリングの詳細については、<a class="reference internal" href="../WebApplicationDetail/ExceptionHandling.html#exception-handling-how-to-use-codingpoint-controller-usecase-label"><span class="std std-ref">ユースケース単位で例外をハンドリングする方法</span></a>を参照されたい。</div>
+</div>
+</td>
+</tr>
+</tbody>
+</table>
+</div></blockquote>
+<p>リクエスト単位に動作を変える必要がある場合は、Controllerのハンドラメソッドの中で、<code class="docutils literal"><span class="pre">try</span> <span class="pre">-</span> <span class="pre">catch</span></code>を使用してハンドリングする。</p>
+<blockquote>
+<div><div class="highlight-java"><div class="highlight"><pre><span></span><span class="nd">@RequestMapping</span><span class="p">(</span><span class="n">value</span> <span class="o">=</span> <span class="s">&quot;{itemId}/update&quot;</span><span class="p">,</span> <span class="n">method</span> <span class="o">=</span> <span class="n">RequestMethod</span><span class="p">.</span><span class="na">POST</span><span class="p">)</span>
+<span class="kd">public</span> <span class="n">String</span> <span class="nf">update</span><span class="p">(</span><span class="n">StockForm</span> <span class="n">form</span><span class="p">,</span> <span class="n">Model</span> <span class="n">model</span><span class="p">,</span> <span class="n">RedirectAttributes</span> <span class="n">attributes</span><span class="p">){</span>
+
+    <span class="c1">// ...</span>
+
+    <span class="k">try</span> <span class="p">{</span>
+        <span class="n">stockService</span><span class="p">.</span><span class="na">update</span><span class="p">(...);</span>
+    <span class="p">}</span> <span class="k">catch</span> <span class="p">(</span><span class="n">OptimisticLockingFailureException</span> <span class="n">e</span><span class="p">)</span> <span class="p">{</span> <span class="c1">// (1)</span>
+        <span class="c1">// (2)</span>
+        <span class="n">ResultMessages</span> <span class="n">resultMessages</span> <span class="o">=</span> <span class="n">ResultMessages</span><span class="p">.</span><span class="na">warn</span><span class="p">();</span>
+        <span class="n">resultMessages</span><span class="p">.</span><span class="na">add</span><span class="p">(</span><span class="n">ResultMessage</span><span class="p">.</span><span class="na">fromText</span><span class="p">(</span><span class="s">&quot;Other user updated!!&quot;</span><span class="p">));</span>
+        <span class="n">model</span><span class="p">.</span><span class="na">addAttribute</span><span class="p">(</span><span class="n">resultMessages</span><span class="p">);</span>
+        <span class="k">return</span> <span class="n">updateRedo</span><span class="p">(</span><span class="n">modelMap</span><span class="p">);</span>
+    <span class="p">}</span>
+
+    <span class="c1">// ...</span>
+
+<span class="p">}</span>
+</pre></div>
+</div>
+<table border="1" class="colwidths-given docutils">
+<colgroup>
+<col width="10%" />
+<col width="90%" />
+</colgroup>
+<thead valign="bottom">
+<tr class="row-odd"><th class="head">項番</th>
+<th class="head">説明</th>
+</tr>
+</thead>
+<tbody valign="top">
+<tr class="row-even"><td><div class="first last line-block">
+<div class="line">(1)</div>
+</div>
+</td>
+<td><code class="docutils literal"><span class="pre">OptimisticLockingFailureException</span></code> をcatchする。</td>
+</tr>
+<tr class="row-odd"><td><div class="first last line-block">
+<div class="line">(2)</div>
+</div>
+</td>
+<td><div class="first last line-block">
+<div class="line">エラーハンドリングの処理を実装する。エラーを通知するためのメッセージ、画面表示に必要な情報（フォームやその他のモデル）を生成し、遷移先のview名を返却する。</div>
+<div class="line">エラーハンドリングの詳細については、<a class="reference internal" href="../WebApplicationDetail/ExceptionHandling.html#exception-handling-how-to-use-codingpoint-controller-request-label"><span class="std std-ref">リクエスト単位で例外をハンドリングする方法</span></a>を参照されたい。</div>
+</div>
+</td>
+</tr>
+</tbody>
+</table>
+</div></blockquote>
+</div>
+<div class="section" id="id19">
+<h4><a class="toc-backref" href="#id46">6.4.2.3.2. 悲観ロックの失敗時のエラーハンドリング</a><a class="headerlink" href="#id19" title="Permalink to this headline">¶</a></h4>
+<p>悲観ロックの失敗時には、<code class="docutils literal"><span class="pre">org.springframework.dao.PessimisticLockingFailureException</span></code>が発生するため、 Controllerで適切にハンドリングする必要がある。</p>
+<p>ハンドリング方法は、悲観ロックエラーが発生した時のアプリケーションの動作仕様によって異なる。</p>
+<p>リクエスト単位に動作を変える必要がない場合は、<code class="docutils literal"><span class="pre">&#64;ExceptionHandler</span></code>アノテーションを使用してハンドリングする。</p>
+<blockquote>
+<div><div class="highlight-java"><div class="highlight"><pre><span></span><span class="nd">@ExceptionHandler</span><span class="p">(</span><span class="n">PessimisticLockingFailureException</span><span class="p">.</span><span class="na">class</span><span class="p">)</span> <span class="c1">// (1)</span>
+<span class="kd">public</span> <span class="n">ModelAndView</span> <span class="nf">handlePessimisticLockingFailureException</span><span class="p">(</span>
+        <span class="n">PessimisticLockingFailureException</span> <span class="n">e</span><span class="p">)</span> <span class="p">{</span>
+    <span class="c1">// (2)</span>
+    <span class="n">ExtendedModelMap</span> <span class="n">modelMap</span> <span class="o">=</span> <span class="k">new</span> <span class="n">ExtendedModelMap</span><span class="p">();</span>
+    <span class="n">ResultMessages</span> <span class="n">resultMessages</span> <span class="o">=</span> <span class="n">ResultMessages</span><span class="p">.</span><span class="na">warning</span><span class="p">();</span>
+    <span class="n">resultMessages</span><span class="p">.</span><span class="na">add</span><span class="p">(</span><span class="n">ResultMessage</span><span class="p">.</span><span class="na">fromText</span><span class="p">(</span><span class="s">&quot;Other user updated!!&quot;</span><span class="p">));</span>
+    <span class="n">modelMap</span><span class="p">.</span><span class="na">addAttribute</span><span class="p">(</span><span class="n">setUpForm</span><span class="p">());</span>
+    <span class="n">modelMap</span><span class="p">.</span><span class="na">addAttribute</span><span class="p">(</span><span class="n">resultMessages</span><span class="p">);</span>
+    <span class="n">String</span> <span class="n">viewName</span> <span class="o">=</span> <span class="n">top</span><span class="p">(</span><span class="n">modelMap</span><span class="p">);</span>
+    <span class="k">return</span> <span class="k">new</span> <span class="n">ModelAndView</span><span class="p">(</span><span class="n">viewName</span><span class="p">,</span> <span class="n">modelMap</span><span class="p">);</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+<table border="1" class="colwidths-given docutils">
+<colgroup>
+<col width="10%" />
+<col width="90%" />
+</colgroup>
+<thead valign="bottom">
+<tr class="row-odd"><th class="head">項番</th>
+<th class="head">説明</th>
+</tr>
+</thead>
+<tbody valign="top">
+<tr class="row-even"><td><div class="first last line-block">
+<div class="line">(1)</div>
+</div>
+</td>
+<td><code class="docutils literal"><span class="pre">&#64;ExceptionHandler</span></code>アノテーションのvalue属性に、<code class="docutils literal"><span class="pre">PessimisticLockingFailureException.class</span></code>を指定する。</td>
+</tr>
+<tr class="row-odd"><td><div class="first last line-block">
+<div class="line">(2)</div>
+</div>
+</td>
+<td><div class="first last line-block">
+<div class="line">エラーハンドリングの処理を実装する。エラーを通知するためのメッセージ、画面表示に必要な情報（フォームやその他のモデル）を生成し、遷移先を指定した<code class="docutils literal"><span class="pre">ModelAndView</span></code>を返却する。</div>
+<div class="line">エラーハンドリングの詳細については、<a class="reference internal" href="../WebApplicationDetail/ExceptionHandling.html#exception-handling-how-to-use-codingpoint-controller-usecase-label"><span class="std std-ref">ユースケース単位で例外をハンドリングする方法</span></a>を参照されたい。</div>
+</div>
+</td>
+</tr>
+</tbody>
+</table>
+</div></blockquote>
+<p>リクエスト単位に動作を変える必要がある場合は、Controllerのハンドラメソッドの中で、<code class="docutils literal"><span class="pre">try</span> <span class="pre">-</span> <span class="pre">catch</span></code>を使用してハンドリングする。</p>
+<blockquote>
+<div><div class="highlight-java"><div class="highlight"><pre><span></span><span class="nd">@RequestMapping</span><span class="p">(</span><span class="n">value</span> <span class="o">=</span> <span class="s">&quot;{itemId}/update&quot;</span><span class="p">,</span> <span class="n">method</span> <span class="o">=</span> <span class="n">RequestMethod</span><span class="p">.</span><span class="na">POST</span><span class="p">)</span>
+<span class="kd">public</span> <span class="n">String</span> <span class="nf">update</span><span class="p">(</span><span class="n">StockForm</span> <span class="n">form</span><span class="p">,</span> <span class="n">Model</span> <span class="n">model</span><span class="p">,</span> <span class="n">RedirectAttributes</span> <span class="n">attributes</span><span class="p">){</span>
+
+    <span class="c1">// ...</span>
+
+    <span class="k">try</span> <span class="p">{</span>
+        <span class="n">stockService</span><span class="p">.</span><span class="na">update</span><span class="p">(...);</span>
+    <span class="p">}</span> <span class="k">catch</span> <span class="p">(</span><span class="n">PessimisticLockingFailureException</span> <span class="n">e</span><span class="p">)</span> <span class="p">{</span> <span class="c1">// (1)</span>
+        <span class="c1">// (2)</span>
+        <span class="n">ResultMessages</span> <span class="n">resultMessages</span> <span class="o">=</span> <span class="n">ResultMessages</span><span class="p">.</span><span class="na">warn</span><span class="p">();</span>
+        <span class="n">resultMessages</span><span class="p">.</span><span class="na">add</span><span class="p">(</span><span class="n">ResultMessage</span><span class="p">.</span><span class="na">fromText</span><span class="p">(</span><span class="s">&quot;Other user updated!!&quot;</span><span class="p">));</span>
+        <span class="n">model</span><span class="p">.</span><span class="na">addAttribute</span><span class="p">(</span><span class="n">resultMessages</span><span class="p">);</span>
+        <span class="k">return</span> <span class="n">updateRedo</span><span class="p">(</span><span class="n">modelMap</span><span class="p">);</span>
+    <span class="p">}</span>
+
+    <span class="c1">// ...</span>
+
+<span class="p">}</span>
+</pre></div>
+</div>
+<table border="1" class="colwidths-given docutils">
+<colgroup>
+<col width="10%" />
+<col width="90%" />
+</colgroup>
+<thead valign="bottom">
+<tr class="row-odd"><th class="head">項番</th>
+<th class="head">説明</th>
+</tr>
+</thead>
+<tbody valign="top">
+<tr class="row-even"><td><div class="first last line-block">
+<div class="line">(1)</div>
+</div>
+</td>
+<td><code class="docutils literal"><span class="pre">PessimisticLockingFailureException</span></code>をcatchする。</td>
+</tr>
+<tr class="row-odd"><td><div class="first last line-block">
+<div class="line">(2)</div>
+</div>
+</td>
+<td><div class="first last line-block">
+<div class="line">エラーハンドリングの処理を実装する。エラーを通知するためのメッセージ、画面表示に必要な情報（フォームやその他のモデル）を生成し、遷移先のview名を返却する。</div>
+<div class="line">エラーハンドリングの詳細については、<a class="reference internal" href="../WebApplicationDetail/ExceptionHandling.html#exception-handling-how-to-use-codingpoint-controller-request-label"><span class="std std-ref">リクエスト単位で例外をハンドリングする方法</span></a>を参照されたい。</div>
+</div>
+</td>
+</tr>
+</tbody>
+</table>
+</div></blockquote>
+</div>
+</div>
+</div>
+</div>
+
+
+          </div>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../../genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="../GeneralFuncDetail/index.html" title="7. アプリケーション形態に依存しない汎用機能"
+             >next</a> |</li>
+        <li class="right" >
+          <a href="DataAccessJpa.html" title="6.3. データベースアクセス（JPA編）"
+             >previous</a> |</li>
+        <li class="nav-item nav-item-0"><a href="../../index.html">TERASOLUNA Server Framework for Java (5.x) Development Guideline 5.6.2.RELEASE documentation</a> &#187;</li>
+          <li class="nav-item nav-item-1"><a href="index.html" >6. データアクセス</a> &#187;</li> 
+      </ul>
+    </div>
+    <div class="footer">
+      © Copyright 2013, NTT DATA Corporation. © Copyright 2013, NTT Corporation.
+      Created using <a href="http://sphinx.pocoo.org/">Sphinx</a> 1.6.3.Theme is <a href="http://github.com/vimalkvn/solar-theme">Solar</a>
+    </div>
+    
+    <script>
+    
+    $(function() {
+    	var $sidebar	= $('.sphinxsidebar'),
+    		$window		= $(window),
+    		offset		= $sidebar.offset(),
+    		topPadding	= 3,
+    		$scroll		= $('#scroll');
+    	
+    	$window.scroll(function() {
+    		if ($scroll.is(':checked')) {
+				if ($window.scrollTop() > offset.top) {
+					$sidebar.stop().animate({
+						marginTop:$window.scrollTop() - offset.top + topPadding
+					});
+				} else {
+					$sidebar.stop().animate({
+						marginTop:0
+					});
+				}
+			}
+		});
+    	
+    	var $navList = $('ul:first', $sidebar);
+    	$('li:first', $navList).addClass('open');
+    	
+    	$navList.treeview({
+    		persist: "location",
+    		collapsed: true,
+    		unique: false
+    	});
+    	
+	});
+    (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+        (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+            m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+    })(window,document,'script','//www.google-analytics.com/analytics.js','ga');
+
+    ga('create', 'UA-46550814-1', 'terasolunaorg.github.io');
+    ga('send', 'pageview');
+    </script>
+  </body>
+</html>
