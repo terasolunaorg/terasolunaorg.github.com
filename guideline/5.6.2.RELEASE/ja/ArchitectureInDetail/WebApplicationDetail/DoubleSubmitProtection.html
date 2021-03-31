@@ -1,0 +1,3625 @@
+<!DOCTYPE html>
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <title>4.5. 二重送信防止 &#8212; TERASOLUNA Server Framework for Java (5.x) Development Guideline 5.6.2.RELEASE documentation</title>
+    <link rel="stylesheet" href="../../_static/solar.css" type="text/css" />
+    <link rel="stylesheet" href="../../_static/pygments.css" type="text/css" />
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    '../../',
+        VERSION:     '5.6.2.RELEASE',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true,
+        SOURCELINK_SUFFIX: '.txt'
+      };
+    </script>
+    <script type="text/javascript" src="../../_static/jquery.js"></script>
+    <script type="text/javascript" src="../../_static/underscore.js"></script>
+    <script type="text/javascript" src="../../_static/doctools.js"></script>
+    <link rel="index" title="Index" href="../../genindex.html" />
+    <link rel="search" title="Search" href="../../search.html" />
+    <link rel="next" title="4.6. メッセージ管理" href="MessageManagement.html" />
+    <link rel="prev" title="4.4. ページネーション" href="Pagination.html" /><script src="../../_static/jquery.treeview.js" type="text/javascript"></script>
+<!-- <link href='http://fonts.googleapis.com/css?family=Source+Code+Pro|Open+Sans:300italic,400italic,700italic,400,300,700' rel='stylesheet' type='text/css'> -->
+<link href="../../_static/solarized-dark.css" rel="stylesheet">
+<link href="../../_static/jquery.treeview.css" rel="stylesheet">
+  </head>
+  <body>
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../../genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="MessageManagement.html" title="4.6. メッセージ管理"
+             accesskey="N">next</a> |</li>
+        <li class="right" >
+          <a href="Pagination.html" title="4.4. ページネーション"
+             accesskey="P">previous</a> |</li>
+        <li class="nav-item nav-item-0"><a href="../../index.html">TERASOLUNA Server Framework for Java (5.x) Development Guideline 5.6.2.RELEASE documentation</a> &#187;</li>
+          <li class="nav-item nav-item-1"><a href="index.html" accesskey="U">4. Webアプリ開発機能</a> &#187;</li> 
+      </ul>
+    </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper"><label><input id="scroll" type="checkbox" checked> scroll sidebar</label>
+
+  <h3><a href="../../index.html">Table Of Contents</a></h3>
+  <ul>
+<li><a class="reference internal" href="#">4.5. 二重送信防止</a><ul>
+<li><a class="reference internal" href="#overview">4.5.1. Overview</a><ul>
+<li><a class="reference internal" href="#problems">4.5.1.1. Problems</a><ul>
+<li><a class="reference internal" href="#id3">4.5.1.1.1. 更新系ボタンの二重クリック</a></li>
+<li><a class="reference internal" href="#id4">4.5.1.1.2. 更新処理完了後の画面の再読み込み</a></li>
+<li><a class="reference internal" href="#id5">4.5.1.1.3. ブラウザの戻るボタンを使用した不正な画面遷移</a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#solutions">4.5.1.2. Solutions</a><ul>
+<li><a class="reference internal" href="#javascript2">4.5.1.2.1. JavaScriptによるボタンの2度押し防止について</a></li>
+<li><a class="reference internal" href="#prg-post-redirect-get">4.5.1.2.2. PRG(Post-Redirect-Get)パターンについて</a></li>
+<li><a class="reference internal" href="#double-submit-transactiontokencheck">4.5.1.2.3. トランザクショントークンチェックについて</a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#id7">4.5.1.3. トランザクショントークンのネームスペースについて</a><ul>
+<li><a class="reference internal" href="#id8">4.5.1.3.1. ネームスペースがない場合の問題点について</a></li>
+<li><a class="reference internal" href="#id9">4.5.1.3.2. ネームスペース指定時の動作について</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li><a class="reference internal" href="#how-to-use">4.5.2. How to use</a><ul>
+<li><a class="reference internal" href="#id11">4.5.2.1. JavaScriptによるボタンの2度押し防止の適用</a></li>
+<li><a class="reference internal" href="#id12">4.5.2.2. PRG(Post-Redirect-Get)パターンの適用</a></li>
+<li><a class="reference internal" href="#doublesubmit-how-to-use-transaction-token-check">4.5.2.3. トランザクショントークンチェックの適用</a><ul>
+<li><a class="reference internal" href="#id14">4.5.2.3.1. 共通ライブラリから提供しているトランザクショントークンチェックについて</a></li>
+<li><a class="reference internal" href="#transactiontokencheck">4.5.2.3.2. <code class="docutils literal"><span class="pre">&#64;TransactionTokenCheck</span></code>アノテーションの属性について</a></li>
+<li><a class="reference internal" href="#id15">4.5.2.3.3. トランザクショントークンの形式について</a></li>
+<li><a class="reference internal" href="#lifecycle">4.5.2.3.4. トランザクショントークンのライフサイクルについて</a></li>
+<li><a class="reference internal" href="#setting">4.5.2.3.5. トランザクショントークンチェックを使用するための設定</a></li>
+<li><a class="reference internal" href="#id18">4.5.2.3.6. トランザクショントークンエラーをハンドリングするための設定</a></li>
+<li><a class="reference internal" href="#controller">4.5.2.3.7. トランザクショントークンチェックのControllerでの利用方法</a></li>
+<li><a class="reference internal" href="#view-jsp">4.5.2.3.8. トランザクショントークンチェックのView(JSP)での利用方法</a></li>
+<li><a class="reference internal" href="#id19">4.5.2.3.9. 1つのController内で複数のユースケースを実施する場合</a></li>
+<li><a class="reference internal" href="#usecase-of-transaction-token-type-check">4.5.2.3.10. ユースケース内にファイルダウンロード処理等の画面を更新しない処理が含まれる場合</a></li>
+<li><a class="reference internal" href="#id21">4.5.2.3.11. トランザクショントークンチェックの代表的な適用例</a></li>
+<li><a class="reference internal" href="#id22">4.5.2.3.12. セッション使用時の並行処理の排他制御について</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li><a class="reference internal" href="#how-to-extend">4.5.3. How to extend</a><ul>
+<li><a class="reference internal" href="#doublesubmit-how-to-extend-change-max-count">4.5.3.1. トランザクショントークンの上限数の変更方法について</a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#appendix">4.5.4. Appendix</a><ul>
+<li><a class="reference internal" href="#double-submit-disable-cache">4.5.4.1. ブラウザキャッシュ無効時のトランザクショントークンチェック</a></li>
+<li><a class="reference internal" href="#doublesubmit-appendix-global-token">4.5.4.2. グローバルトークン</a><ul>
+<li><a class="reference internal" href="#namespace">4.5.4.2.1. NameSpaceごとに保持できるトランザクショントークンの上限数の変更</a></li>
+<li><a class="reference internal" href="#id26">4.5.4.2.2. Controllerの実装</a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#quick-reference">4.5.4.3. Quick Reference</a></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+
+
+  <h4>Previous topic</h4>
+  <p class="topless"><a href="Pagination.html"
+                        title="previous chapter">4.4. ページネーション</a></p>
+  <h4>Next topic</h4>
+  <p class="topless"><a href="MessageManagement.html"
+                        title="next chapter">4.6. メッセージ管理</a></p>
+  <div role="note" aria-label="source link">
+    <h3>This Page</h3>
+    <ul class="this-page-menu">
+      <li><a href="../../_sources/ArchitectureInDetail/WebApplicationDetail/DoubleSubmitProtection.rst.txt"
+            rel="nofollow">Show Source</a></li>
+    </ul>
+   </div>
+<div id="searchbox" style="display: none" role="search">
+  <h3>Quick search</h3>
+    <form class="search" action="../../search.html" method="get">
+      <div><input type="text" name="q" /></div>
+      <div><input type="submit" value="Go" /></div>
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <div class="section" id="id1">
+<h1>4.5. 二重送信防止<a class="headerlink" href="#id1" title="Permalink to this headline">¶</a></h1>
+<div class="contents local topic" id="id2">
+<p class="topic-title">目次</p>
+<ul class="simple">
+<li><a class="reference internal" href="#overview" id="id28">Overview</a><ul>
+<li><a class="reference internal" href="#problems" id="id29">Problems</a><ul>
+<li><a class="reference internal" href="#id3" id="id30">更新系ボタンの二重クリック</a></li>
+<li><a class="reference internal" href="#id4" id="id31">更新処理完了後の画面の再読み込み</a></li>
+<li><a class="reference internal" href="#id5" id="id32">ブラウザの戻るボタンを使用した不正な画面遷移</a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#solutions" id="id33">Solutions</a><ul>
+<li><a class="reference internal" href="#javascript2" id="id34">JavaScriptによるボタンの2度押し防止について</a></li>
+<li><a class="reference internal" href="#prg-post-redirect-get" id="id35">PRG(Post-Redirect-Get)パターンについて</a></li>
+<li><a class="reference internal" href="#double-submit-transactiontokencheck" id="id36">トランザクショントークンチェックについて</a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#id7" id="id37">トランザクショントークンのネームスペースについて</a><ul>
+<li><a class="reference internal" href="#id8" id="id38">ネームスペースがない場合の問題点について</a></li>
+<li><a class="reference internal" href="#id9" id="id39">ネームスペース指定時の動作について</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li><a class="reference internal" href="#how-to-use" id="id40">How to use</a><ul>
+<li><a class="reference internal" href="#id11" id="id41">JavaScriptによるボタンの2度押し防止の適用</a></li>
+<li><a class="reference internal" href="#id12" id="id42">PRG(Post-Redirect-Get)パターンの適用</a></li>
+<li><a class="reference internal" href="#doublesubmit-how-to-use-transaction-token-check" id="id43">トランザクショントークンチェックの適用</a><ul>
+<li><a class="reference internal" href="#id14" id="id44">共通ライブラリから提供しているトランザクショントークンチェックについて</a></li>
+<li><a class="reference internal" href="#transactiontokencheck" id="id45"><code class="docutils literal"><span class="pre">&#64;TransactionTokenCheck</span></code>アノテーションの属性について</a></li>
+<li><a class="reference internal" href="#id15" id="id46">トランザクショントークンの形式について</a></li>
+<li><a class="reference internal" href="#lifecycle" id="id47">トランザクショントークンのライフサイクルについて</a></li>
+<li><a class="reference internal" href="#setting" id="id48">トランザクショントークンチェックを使用するための設定</a></li>
+<li><a class="reference internal" href="#id18" id="id49">トランザクショントークンエラーをハンドリングするための設定</a></li>
+<li><a class="reference internal" href="#controller" id="id50">トランザクショントークンチェックのControllerでの利用方法</a></li>
+<li><a class="reference internal" href="#view-jsp" id="id51">トランザクショントークンチェックのView(JSP)での利用方法</a></li>
+<li><a class="reference internal" href="#id19" id="id52">1つのController内で複数のユースケースを実施する場合</a></li>
+<li><a class="reference internal" href="#usecase-of-transaction-token-type-check" id="id53">ユースケース内にファイルダウンロード処理等の画面を更新しない処理が含まれる場合</a></li>
+<li><a class="reference internal" href="#id21" id="id54">トランザクショントークンチェックの代表的な適用例</a></li>
+<li><a class="reference internal" href="#id22" id="id55">セッション使用時の並行処理の排他制御について</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li><a class="reference internal" href="#how-to-extend" id="id56">How to extend</a><ul>
+<li><a class="reference internal" href="#doublesubmit-how-to-extend-change-max-count" id="id57">トランザクショントークンの上限数の変更方法について</a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#appendix" id="id58">Appendix</a><ul>
+<li><a class="reference internal" href="#double-submit-disable-cache" id="id59">ブラウザキャッシュ無効時のトランザクショントークンチェック</a></li>
+<li><a class="reference internal" href="#doublesubmit-appendix-global-token" id="id60">グローバルトークン</a><ul>
+<li><a class="reference internal" href="#namespace" id="id61">NameSpaceごとに保持できるトランザクショントークンの上限数の変更</a></li>
+<li><a class="reference internal" href="#id26" id="id62">Controllerの実装</a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#quick-reference" id="id63">Quick Reference</a></li>
+</ul>
+</li>
+</ul>
+</div>
+<div class="section" id="overview">
+<h2><a class="toc-backref" href="#id28">4.5.1. Overview</a><a class="headerlink" href="#overview" title="Permalink to this headline">¶</a></h2>
+<div class="section" id="problems">
+<h3><a class="toc-backref" href="#id29">4.5.1.1. Problems</a><a class="headerlink" href="#problems" title="Permalink to this headline">¶</a></h3>
+<p>画面を提供するWebアプリケーションでは、以下の操作が行われると、同じ処理が複数回実行されてしまうことがある。</p>
+<blockquote>
+<div><table border="1" class="colwidths-given docutils">
+<colgroup>
+<col width="10%" />
+<col width="30%" />
+<col width="60%" />
+</colgroup>
+<thead valign="bottom">
+<tr class="row-odd"><th class="head">項番</th>
+<th class="head">操作</th>
+<th class="head">操作概要</th>
+</tr>
+</thead>
+<tbody valign="top">
+<tr class="row-even"><td><div class="first last line-block">
+<div class="line">(1)</div>
+</div>
+</td>
+<td><div class="first last line-block">
+<div class="line">更新系ボタンの二重クリック</div>
+</div>
+</td>
+<td><div class="first last line-block">
+<div class="line">更新処理を行うボタンを連続してクリックする。</div>
+</div>
+</td>
+</tr>
+<tr class="row-odd"><td><div class="first last line-block">
+<div class="line">(2)</div>
+</div>
+</td>
+<td><div class="first last line-block">
+<div class="line">更新処理完了後の画面の再読み込み</div>
+</div>
+</td>
+<td><div class="first last line-block">
+<div class="line">ブラウザの更新ボタンを使用することで、更新処理完了後の画面の再読み込みを行う。</div>
+</div>
+</td>
+</tr>
+<tr class="row-even"><td><div class="first last line-block">
+<div class="line">(3)</div>
+</div>
+</td>
+<td><div class="first last line-block">
+<div class="line">ブラウザの戻るボタンを使用した不正な画面遷移</div>
+</div>
+</td>
+<td><div class="first last line-block">
+<div class="line">更新処理の完了画面からブラウザの戻るボタンを使用してページを戻し、更新処理を行うボタンを再度クリックする。</div>
+</div>
+</td>
+</tr>
+</tbody>
+</table>
+</div></blockquote>
+<p>それぞれ具体的な問題点を、以下に示す。</p>
+<div class="section" id="id3">
+<h4><a class="toc-backref" href="#id30">4.5.1.1.1. 更新系ボタンの二重クリック</a><a class="headerlink" href="#id3" title="Permalink to this headline">¶</a></h4>
+<div class="line-block">
+<div class="line">更新処理を行うボタンを連続してクリックすると、以下のような問題が発生する。</div>
+<div class="line">以下では、ショッピングサイトの商品購入を例として、対策を行わない場合にどのような問題が発生するのかを説明する。</div>
+</div>
+<blockquote>
+<div><div class="figure">
+<a class="reference internal image-reference" href="../../_images/duplicate-double-click.png"><img alt="duplicate double click" src="../../_images/duplicate-double-click.png" style="width: 100%;" /></a>
+</div>
+<table border="1" class="colwidths-given docutils">
+<colgroup>
+<col width="10%" />
+<col width="90%" />
+</colgroup>
+<thead valign="bottom">
+<tr class="row-odd"><th class="head">項番</th>
+<th class="head">説明</th>
+</tr>
+</thead>
+<tbody valign="top">
+<tr class="row-even"><td><div class="first last line-block">
+<div class="line">(1)</div>
+</div>
+</td>
+<td><div class="first last line-block">
+<div class="line">購買者が、商品購入画面で注文ボタンをクリックする。</div>
+</div>
+</td>
+</tr>
+<tr class="row-odd"><td><div class="first last line-block">
+<div class="line">(2)</div>
+</div>
+</td>
+<td><div class="first last line-block">
+<div class="line">(1)のレスポンスが返る前に、購買者が誤って注文ボタンをもう一度クリックする。</div>
+</div>
+</td>
+</tr>
+<tr class="row-even"><td><div class="first last line-block">
+<div class="line">(3)</div>
+</div>
+</td>
+<td><div class="first last line-block">
+<div class="line">サーバは、(1)のリクエストで受けた商品の購入処理をDBに対して反映する。</div>
+</div>
+</td>
+</tr>
+<tr class="row-odd"><td><div class="first last line-block">
+<div class="line">(4)</div>
+</div>
+</td>
+<td><div class="first last line-block">
+<div class="line">サーバは、(2)のリクエストで受けた商品の購入処理をDBに対して反映する。</div>
+</div>
+</td>
+</tr>
+<tr class="row-even"><td><div class="first last line-block">
+<div class="line">(5)</div>
+</div>
+</td>
+<td><div class="first last line-block">
+<div class="line">サーバは、(2)のリクエストで受けた商品の購入完了画面を応答する。</div>
+</div>
+</td>
+</tr>
+</tbody>
+</table>
+<div class="admonition warning">
+<p class="first admonition-title">Warning</p>
+<p class="last">上記のケースでは、購入者が誤って注文ボタンを押下することで、<strong>まったく同じ商品の購入が２回行われてしまうことになる。</strong>
+購入者の操作ミスが原因ではあるが、アプリケーションとして上記の問題が発生しないように制御する事が望ましい。</p>
+</div>
+</div></blockquote>
+</div>
+<div class="section" id="id4">
+<h4><a class="toc-backref" href="#id31">4.5.1.1.2. 更新処理完了後の画面の再読み込み</a><a class="headerlink" href="#id4" title="Permalink to this headline">¶</a></h4>
+<div class="line-block">
+<div class="line">更新処理完了後の画面の再読み込みを行うと、以下のような問題が発生する。</div>
+<div class="line">以下では、ショッピングサイトの商品購入を例として、対策を行わない場合にどのような問題が発生するのかを説明する。</div>
+</div>
+<blockquote>
+<div><div class="figure">
+<a class="reference internal image-reference" href="../../_images/duplicate-reload.png"><img alt="duplicate reload" src="../../_images/duplicate-reload.png" style="width: 100%;" /></a>
+</div>
+<table border="1" class="colwidths-given docutils">
+<colgroup>
+<col width="10%" />
+<col width="90%" />
+</colgroup>
+<thead valign="bottom">
+<tr class="row-odd"><th class="head">項番</th>
+<th class="head">説明</th>
+</tr>
+</thead>
+<tbody valign="top">
+<tr class="row-even"><td><div class="first last line-block">
+<div class="line">(1)</div>
+</div>
+</td>
+<td><div class="first last line-block">
+<div class="line">購買者が、商品購入画面で注文ボタンをクリックする。</div>
+</div>
+</td>
+</tr>
+<tr class="row-odd"><td><div class="first last line-block">
+<div class="line">(2)</div>
+</div>
+</td>
+<td><div class="first last line-block">
+<div class="line">サーバは、(1)のリクエストで受けた商品の購入処理をDBに対して反映する。</div>
+</div>
+</td>
+</tr>
+<tr class="row-even"><td><div class="first last line-block">
+<div class="line">(3)</div>
+</div>
+</td>
+<td><div class="first last line-block">
+<div class="line">サーバは、(1)のリクエストで受けた商品の購入完了画面を応答する。</div>
+</div>
+</td>
+</tr>
+<tr class="row-odd"><td><div class="first last line-block">
+<div class="line">(4)</div>
+</div>
+</td>
+<td><div class="first last line-block">
+<div class="line">購買者が、誤ってブラウザのリロード機能を実行する。</div>
+</div>
+</td>
+</tr>
+<tr class="row-even"><td><div class="first last line-block">
+<div class="line">(5)</div>
+</div>
+</td>
+<td><div class="first last line-block">
+<div class="line">サーバは、(4)のリクエストで受けた商品の購入処理をDBに対して反映する。</div>
+</div>
+</td>
+</tr>
+<tr class="row-odd"><td><div class="first last line-block">
+<div class="line">(6)</div>
+</div>
+</td>
+<td><div class="first last line-block">
+<div class="line">サーバは、(4)のリクエストで受けた商品の購入完了画面を応答する。</div>
+</div>
+</td>
+</tr>
+</tbody>
+</table>
+<div class="admonition warning">
+<p class="first admonition-title">Warning</p>
+<p class="last">上記のケースでは、購入者が誤ってブラウザのリロード機能を実行することで、<strong>まったく同じ商品の購入が２回行われてしまうことになる。</strong>
+購入者の操作ミスが原因ではあるが、アプリケーションとして上記の問題が発生しないように制御する事が望ましい。</p>
+</div>
+</div></blockquote>
+</div>
+<div class="section" id="id5">
+<h4><a class="toc-backref" href="#id32">4.5.1.1.3. ブラウザの戻るボタンを使用した不正な画面遷移</a><a class="headerlink" href="#id5" title="Permalink to this headline">¶</a></h4>
+<div class="line-block">
+<div class="line">ブラウザの戻るボタンを使用した不正な画面遷移を行うと、以下のような問題が発生する。</div>
+<div class="line">以下では、ショッピングサイトの商品購入を例として、対策を行わない場合にどのような問題が発生するのかを説明する。</div>
+</div>
+<blockquote>
+<div><div class="figure">
+<a class="reference internal image-reference" href="../../_images/duplicate-invalid-screenflow.png"><img alt="duplicate invalid screen flow" src="../../_images/duplicate-invalid-screenflow.png" style="width: 100%;" /></a>
+</div>
+<table border="1" class="colwidths-given longtable docutils">
+<colgroup>
+<col width="10%" />
+<col width="90%" />
+</colgroup>
+<thead valign="bottom">
+<tr class="row-odd"><th class="head">項番</th>
+<th class="head">説明</th>
+</tr>
+</thead>
+<tbody valign="top">
+<tr class="row-even"><td><div class="first last line-block">
+<div class="line">(1)</div>
+</div>
+</td>
+<td><div class="first last line-block">
+<div class="line">購買者が、商品購入画面で注文ボタンをクリックする。</div>
+</div>
+</td>
+</tr>
+<tr class="row-odd"><td><div class="first last line-block">
+<div class="line">(2)</div>
+</div>
+</td>
+<td><div class="first last line-block">
+<div class="line">サーバは、(1)のリクエストで受けた商品の購入処理をDBに対して反映する。</div>
+</div>
+</td>
+</tr>
+<tr class="row-even"><td><div class="first last line-block">
+<div class="line">(3)</div>
+</div>
+</td>
+<td><div class="first last line-block">
+<div class="line">サーバは、(1)のリクエストで受けた商品の購入完了画面を応答する。</div>
+</div>
+</td>
+</tr>
+<tr class="row-odd"><td><div class="first last line-block">
+<div class="line">(4)</div>
+</div>
+</td>
+<td><div class="first last line-block">
+<div class="line">購買者が、ブラウザの戻るボタンを使って購入画面を再度表示する。</div>
+</div>
+</td>
+</tr>
+<tr class="row-even"><td><div class="first last line-block">
+<div class="line">(5)</div>
+</div>
+</td>
+<td><div class="first last line-block">
+<div class="line">購買者が、ブラウザの戻るボタンを使って表示した購入画面で注文ボタンを再度クリックする。</div>
+</div>
+</td>
+</tr>
+<tr class="row-odd"><td><div class="first last line-block">
+<div class="line">(6)</div>
+</div>
+</td>
+<td><div class="first last line-block">
+<div class="line">サーバは、(5)のリクエストで受けた商品の購入処理をDBに対して反映する。</div>
+</div>
+</td>
+</tr>
+<tr class="row-even"><td><div class="first last line-block">
+<div class="line">(7)</div>
+</div>
+</td>
+<td><div class="first last line-block">
+<div class="line">サーバは、(5)のリクエストで受けた商品の購入完了画面を応答する。</div>
+</div>
+</td>
+</tr>
+</tbody>
+</table>
+<div class="admonition note">
+<p class="first admonition-title">Note</p>
+<p class="last">上記のケースでは、購入者の操作ミスではないため、購入者に対して問題が発生することはない。</p>
+</div>
+</div></blockquote>
+<div class="line-block">
+<div class="line"><br /></div>
+</div>
+<p>ただし、不正な画面操作を行った後でも更新処理が実行できてしまうと、以下のような問題が発生する。</p>
+<blockquote>
+<div><div class="figure">
+<a class="reference internal image-reference" href="../../_images/duplicate-allow-malicious-request.png"><img alt="duplicate allow a malicious request" src="../../_images/duplicate-allow-malicious-request.png" style="width: 100%;" /></a>
+</div>
+<div class="admonition warning">
+<p class="first admonition-title">Warning</p>
+<p>上記のケースのように、不正な画面操作を行った後でも更新処理が実行できてしまうと、悪意のある攻撃者によって、正規のルートを経由せずに直接更新処理が実行される危険度が高まる。</p>
+<blockquote>
+<div><table border="1" class="colwidths-given longtable docutils">
+<colgroup>
+<col width="10%" />
+<col width="90%" />
+</colgroup>
+<thead valign="bottom">
+<tr class="row-odd"><th class="head">項番</th>
+<th class="head">説明</th>
+</tr>
+</thead>
+<tbody valign="top">
+<tr class="row-even"><td><div class="first last line-block">
+<div class="line">(1)</div>
+</div>
+</td>
+<td><div class="first last line-block">
+<div class="line">攻撃者が、正規の画面遷移を行わずに、直接商品の購入を行う処理に対してリクエストを実行する。</div>
+</div>
+</td>
+</tr>
+<tr class="row-odd"><td><div class="first last line-block">
+<div class="line">(2)</div>
+</div>
+</td>
+<td><div class="first last line-block">
+<div class="line">サーバは、不正なルートでリクエストが行われていることを検知することができないため、リクエストで受けた商品の購入処理をDBに対して反映してしまう。</div>
+</div>
+</td>
+</tr>
+</tbody>
+</table>
+</div></blockquote>
+<p class="last">不正なリクエストによって購入処理を実行することで、各サーバの負荷が高くなったり、正規のルートで商品が購入できなくなるなどの問題が発生してしまう。
+結果的に、正規のルートで購入している利用者に対して問題が波及する事になるため、アプリケーションとして上記の問題が発生しないように制御する事が望ましい。</p>
+</div>
+</div></blockquote>
+</div>
+</div>
+<div class="section" id="solutions">
+<h3><a class="toc-backref" href="#id33">4.5.1.2. Solutions</a><a class="headerlink" href="#solutions" title="Permalink to this headline">¶</a></h3>
+<div class="line-block">
+<div class="line">上記の問題を解決する方法として、下記の対策が必要になる。</div>
+<div class="line">リクエストの改竄など悪意あるオペレーションを考慮すると、 <strong>(3)の「トランザクショントークンチェックの適用」は必須である。</strong></div>
+</div>
+<blockquote>
+<div><table border="1" class="colwidths-given docutils">
+<colgroup>
+<col width="10%" />
+<col width="20%" />
+<col width="70%" />
+</colgroup>
+<thead valign="bottom">
+<tr class="row-odd"><th class="head">項番</th>
+<th class="head">Solution</th>
+<th class="head">概要</th>
+</tr>
+</thead>
+<tbody valign="top">
+<tr class="row-even"><td><div class="first last line-block">
+<div class="line">(1)</div>
+</div>
+</td>
+<td><div class="first last line-block">
+<div class="line">JavaScriptによるボタンの2度押し防止</div>
+</div>
+</td>
+<td><div class="first last line-block">
+<div class="line">更新処理を行うボタンを押下した際に、JavaScriptによるボタン制御を行うことで、2度押しされた際にリクエストが送信されないようにする。</div>
+</div>
+</td>
+</tr>
+<tr class="row-odd"><td><div class="first last line-block">
+<div class="line">(2)</div>
+</div>
+</td>
+<td><div class="first last line-block">
+<div class="line">PRG(Post-Redirect-Get)パターンの適用</div>
+</div>
+</td>
+<td><div class="first last line-block">
+<div class="line">更新処理を行うリクエスト(POSTメソッドによるリクエスト)に対する応答としてリダイレクトを返却し、その後ブラウザから自動的にリクエストされるGETメソッドの応答として遷移先の画面を返却するようにする。</div>
+<div class="line">PRGパターンを適用することで、画面表示後にページの再読み込みを行った場合に発生するリクエストがGETメソッドになるため、更新処理の再実行を防ぐことが出来る。</div>
+</div>
+</td>
+</tr>
+<tr class="row-even"><td><div class="first last line-block">
+<div class="line">(3)</div>
+</div>
+</td>
+<td><div class="first last line-block">
+<div class="line">トランザクショントークンチェックの適用</div>
+</div>
+</td>
+<td><div class="first last line-block">
+<div class="line">画面遷移毎にトークン値を払い出し、ブラウザから送信されたトークン値とサーバ上で保持しているトークン値を比較することで、トランザクション内で不正な画面操作が行われないようにする。</div>
+<div class="line">トランザクショントークンチェックを適用することで、ブラウザの戻るボタンを使ってページを移動した後の更新処理の再実行を防ぐことが出来る。</div>
+<div class="line">また、トークン値のチェックを行った後にサーバで管理しているトークン値を破棄することで、サーバ側の処理として二重送信を防ぐことも出来る。</div>
+</div>
+</td>
+</tr>
+</tbody>
+</table>
+<div class="admonition note">
+<p class="first admonition-title">Note</p>
+<p>「トランザクショントークンチェックの適用」のみの対策だと、単純な操作ミスを行った場合でもトランザクショントークンエラーとなるため、利用者に対してユーザビリティの低いアプリケーションになってしまう。</p>
+<p>ユーザビリティを確保しつつ、二重送信で発生する問題を防止するためには、「JavaScriptによるボタンの2度押し防止」及び「PRG(Post-Redirect-Get)パターンの適用」が必要となる。</p>
+<p class="last"><strong>本ガイドラインでは、全ての対策を行うことを推奨するが、アプリケーションの要件によって対策の有無は判断すること。</strong></p>
+</div>
+<div class="admonition warning">
+<p class="first admonition-title">Warning</p>
+<p class="last">AjaxとWebサービスでは、リクエスト毎に変更されるトランザクショントークンの受け渡しを行いにくいため、トランザクショントークンチェックを使用しなくてよい。
+Ajaxの場合は、JavaScriptによるボタンの2度押し防止のみで二重送信防止を行う。</p>
+</div>
+</div></blockquote>
+<div class="section" id="javascript2">
+<h4><a class="toc-backref" href="#id34">4.5.1.2.1. JavaScriptによるボタンの2度押し防止について</a><a class="headerlink" href="#javascript2" title="Permalink to this headline">¶</a></h4>
+<div class="line-block">
+<div class="line">更新処理を行うボタンや、時間のかかる検索処理を行うボタンなどに対して、ボタンの二重クリックを防止する。</div>
+<div class="line">ボタンが押された際に、JavaScriptを使用してボタンやリンクの無効化の制御を行う。</div>
+<div class="line">無効化するための代表的な制御例としては、</div>
+</div>
+<ol class="arabic simple">
+<li>ボタンやリンクを非活性化することで、ボタンやリンクを押下できないように制御する。</li>
+<li>処理状態をフラグとして保持しておき、処理中にボタンやリンクが押された場合に処理中であることを通知するメッセージを表示する。</li>
+</ol>
+<div class="line-block">
+<div class="line">などがあげられる。</div>
+</div>
+<p>下記は、ボタンを非活性化した際のイメージとなる。</p>
+<blockquote>
+<div><div class="figure">
+<a class="reference internal image-reference" href="../../_images/prevent-double-click.png"><img alt="prevent double click" src="../../_images/prevent-double-click.png" style="width: 60%;" /></a>
+</div>
+<div class="admonition warning">
+<p class="first admonition-title">Warning</p>
+<p class="last">画面上に存在する全てのボタン及びリンクを無効化してしまうと、サーバからの応答がない場合に、画面操作が行えなくなってしまう。
+そのため、「前画面に戻る」や「トップ画面へ移動」などのイベントを実行するボタンやリンクは無効化しないようにすることを推奨する。</p>
+</div>
+</div></blockquote>
+</div>
+<div class="section" id="prg-post-redirect-get">
+<span id="doublesubmitprotectionaboutprg"></span><h4><a class="toc-backref" href="#id35">4.5.1.2.2. PRG(Post-Redirect-Get)パターンについて</a><a class="headerlink" href="#prg-post-redirect-get" title="Permalink to this headline">¶</a></h4>
+<div class="line-block">
+<div class="line">更新処理を行うリクエスト(POSTメソッドによるリクエスト)に対する応答としてリダイレクトを返却し、その後ブラウザから自動的にリクエストされるGETメソッドの応答として遷移先の画面を返却するようにする。</div>
+<div class="line">PRGパターンを適用することで、画面表示後にページの再読み込みを行った場合に発生するリクエストがGETメソッドになるため、更新処理の再実行を防ぐことが出来る。</div>
+</div>
+<blockquote>
+<div><div class="figure">
+<a class="reference internal image-reference" href="../../_images/prevent-double-submit-reload.png"><img alt="prevent double submit by reload" src="../../_images/prevent-double-submit-reload.png" style="width: 100%;" /></a>
+</div>
+<table border="1" class="colwidths-given docutils">
+<colgroup>
+<col width="10%" />
+<col width="90%" />
+</colgroup>
+<thead valign="bottom">
+<tr class="row-odd"><th class="head">項番</th>
+<th class="head">説明</th>
+</tr>
+</thead>
+<tbody valign="top">
+<tr class="row-even"><td><div class="first last line-block">
+<div class="line">(1)</div>
+</div>
+</td>
+<td><div class="first last line-block">
+<div class="line">購買者が、商品購入画面で注文ボタンをクリックする。</div>
+<div class="line"><strong>リクエストは、POSTメソッドを使って送信される。</strong></div>
+</div>
+</td>
+</tr>
+<tr class="row-odd"><td><div class="first last line-block">
+<div class="line">(2)</div>
+</div>
+</td>
+<td><div class="first last line-block">
+<div class="line">サーバは、(1)のリクエストで受けた商品の購入処理をDBに対して反映する。</div>
+</div>
+</td>
+</tr>
+<tr class="row-even"><td><div class="first last line-block">
+<div class="line">(3)</div>
+</div>
+</td>
+<td><div class="first last line-block">
+<div class="line"><strong>サーバは、商品の購入完了画面を表示するためのURLに対するリダイレクト応答を行う。</strong></div>
+</div>
+</td>
+</tr>
+<tr class="row-odd"><td><div class="first last line-block">
+<div class="line">(4)</div>
+</div>
+</td>
+<td><div class="first last line-block">
+<div class="line">ブラウザは、商品の購入完了画面を表示するためのURLにリクエストを送信する。</div>
+<div class="line"><strong>リクエストは、GETメソッドを使って送信される。</strong></div>
+</div>
+</td>
+</tr>
+<tr class="row-even"><td><div class="first last line-block">
+<div class="line">(5)</div>
+</div>
+</td>
+<td><div class="first last line-block">
+<div class="line">サーバは、商品の購入完了画面を応答する。</div>
+</div>
+</td>
+</tr>
+<tr class="row-odd"><td><div class="first last line-block">
+<div class="line">(6)</div>
+</div>
+</td>
+<td><div class="first last line-block">
+<div class="line">購買者が、誤ってブラウザのリロード機能を実行する。</div>
+<div class="line">リロード機能によって要求されるリクエストは、商品の購入完了画面を表示するためのリクエストとなるため、 <strong>更新処理が再実行されることはない。</strong></div>
+</div>
+</td>
+</tr>
+<tr class="row-even"><td><div class="first last line-block">
+<div class="line">(7)</div>
+</div>
+</td>
+<td><div class="first last line-block">
+<div class="line">サーバは、商品の購入完了画面を応答する。</div>
+</div>
+</td>
+</tr>
+</tbody>
+</table>
+<div class="admonition note">
+<p class="first admonition-title">Note</p>
+<p class="last">更新処理を伴う処理の場合は、<abbr title="Post-Redirect-Get">PRG</abbr>パターンを適用し、ブラウザの更新ボタンが押された際に、GETメソッドのリクエストが送信されるように制御することを推奨する。</p>
+</div>
+<div class="admonition warning">
+<p class="first admonition-title">Warning</p>
+<p class="last"><abbr title="Post-Redirect-Get">PRG</abbr>パターンでは、完了画面でブラウザの戻るボタンを押下することで、更新処理を再度実行されることを防ぐことはできない。
+ブラウザの戻るボタンを使用して不正な遷移をした画面から、更新処理の再実行を防ぐ場合は、トランザクショントークンチェックを行う必要がある。</p>
+</div>
+</div></blockquote>
+</div>
+<div class="section" id="double-submit-transactiontokencheck">
+<span id="id6"></span><h4><a class="toc-backref" href="#id36">4.5.1.2.3. トランザクショントークンチェックについて</a><a class="headerlink" href="#double-submit-transactiontokencheck" title="Permalink to this headline">¶</a></h4>
+<p>トランザクショントークンチェックは、</p>
+<ul class="simple">
+<li>サーバは、クライアントからリクエストが来た際に、サーバ上にトランザクションを一意に識別するための値（以下、トランザクショントークン）を保持する。</li>
+<li>サーバは、クライアントへトランザクショントークンを引き渡す。画面を提供するWebアプリケーションの場合は、formのhiddenタグを使用してクライアントにトランザクショントークンを引き渡す。</li>
+<li>クライアントは次のリクエストを送信する際に、サーバから引き渡されたトランザクショントークンを送る。サーバは、クライアントから受け取ったトランザクショントークンと、サーバ上で管理しているトランザクショントークンを比較する。</li>
+</ul>
+<p>という、３つの処理で構成され、リクエストで送信されてきたトランザクショントークン値と、サーバ上で保持しているトランザクショントークン値が一致していない場合は、不正なリクエストとみなしてエラーを返す。</p>
+<blockquote>
+<div><div class="admonition warning">
+<p class="first admonition-title">Warning</p>
+<p>トランザクショントークンチェックの濫用は、アプリケーションのユーザビリティ低下につながるため、以下の点を考慮して、適用範囲を決めること。</p>
+<ul class="last">
+<li><div class="first line-block">
+<div class="line">データの更新を伴わない参照系のリクエストや、単に画面遷移のみ行うリクエストについては、トランザクショントークンチェックの範囲に含める必要はない。</div>
+<div class="line">必要以上にトランザクションの範囲を広げてしまうと、トランザクショントークンエラーが発生しやすくなるため、アプリケーションのユーザビリティを低下させる事になる。</div>
+</div>
+</li>
+<li><div class="first line-block">
+<div class="line">ビジネス観点で何回更新されても問題ないような処理（ユーザー情報更新など）では、トランザクショントークンチェックは必須ではない。</div>
+</div>
+</li>
+<li><div class="first line-block">
+<div class="line">入金処理や商品の購入処理など、処理が二重で実行されると問題がある場合は、トランザクショントークンチェックが必須である。</div>
+</div>
+</li>
+</ul>
+</div>
+</div></blockquote>
+<div class="line-block">
+<div class="line"><br /></div>
+</div>
+<p>以下に、トランザクショントークンチェック使用時において、想定通りの操作を行った場合の処理フローと、想定外の操作を行った場合の処理フローについて説明する。</p>
+<blockquote>
+<div><div class="figure">
+<a class="reference internal image-reference" href="../../_images/transaction-token-check-overview.png"><img alt="transaction token overview" src="../../_images/transaction-token-check-overview.png" style="width: 100%;" /></a>
+</div>
+</div></blockquote>
+<div class="line-block">
+<div class="line">想定通りの操作を行った場合の処理フローについて説明する。</div>
+</div>
+<blockquote>
+<div><table border="1" class="colwidths-given longtable docutils">
+<colgroup>
+<col width="10%" />
+<col width="90%" />
+</colgroup>
+<thead valign="bottom">
+<tr class="row-odd"><th class="head">項番</th>
+<th class="head">説明</th>
+</tr>
+</thead>
+<tbody valign="top">
+<tr class="row-even"><td><div class="first last line-block">
+<div class="line">(1)</div>
+</div>
+</td>
+<td><div class="first last line-block">
+<div class="line">クライアントから、リクエストを送信する。</div>
+</div>
+</td>
+</tr>
+<tr class="row-odd"><td><div class="first last line-block">
+<div class="line">(2)</div>
+</div>
+</td>
+<td><div class="first last line-block">
+<div class="line">サーバは、トランザクショントークン(token001)を作成し、サーバ上で保持する。</div>
+</div>
+</td>
+</tr>
+<tr class="row-even"><td><div class="first last line-block">
+<div class="line">(3)</div>
+</div>
+</td>
+<td><div class="first last line-block">
+<div class="line">サーバは、作成したトランザクショントークン(token001)を、クライアントに引き渡す。</div>
+</div>
+</td>
+</tr>
+<tr class="row-odd"><td><div class="first last line-block">
+<div class="line">(4)</div>
+</div>
+</td>
+<td><div class="first last line-block">
+<div class="line">クライアントから、トランザクショントークン(token001)を含めたリクエストを送信する。</div>
+</div>
+</td>
+</tr>
+<tr class="row-even"><td><div class="first last line-block">
+<div class="line">(5)</div>
+</div>
+</td>
+<td><div class="first last line-block">
+<div class="line">サーバは、サーバ上で保持しているトランザクショントークン(token001)と、クライアントから送信されたトランザクショントークン(token001)が同一かチェックする。</div>
+<div class="line"><strong>値が同一なので、正規のリクエストと判断される。</strong></div>
+</div>
+</td>
+</tr>
+<tr class="row-odd"><td><div class="first last line-block">
+<div class="line">(6)</div>
+</div>
+</td>
+<td><div class="first last line-block">
+<div class="line">サーバは、次のリクエストで使用するトランザクショントークン(token002)を生成し、サーバ上で管理している値を更新する。</div>
+<div class="line">この時点で、トランザクショントークン(token001)は破棄される。</div>
+</div>
+</td>
+</tr>
+<tr class="row-even"><td><div class="first last line-block">
+<div class="line">(7)</div>
+</div>
+</td>
+<td><div class="first last line-block">
+<div class="line">サーバは、更新したトランザクショントークン(token002)を、クライアントに引き渡す。</div>
+</div>
+</td>
+</tr>
+</tbody>
+</table>
+</div></blockquote>
+<div class="line-block">
+<div class="line">想定外の操作を行った場合の処理フローについて説明する。</div>
+<div class="line">ここではブラウザの戻るボタンを例にしているが、ショートカットからの直接リクエストなどでも同様である。</div>
+</div>
+<blockquote>
+<div><table border="1" class="colwidths-given docutils">
+<colgroup>
+<col width="10%" />
+<col width="90%" />
+</colgroup>
+<thead valign="bottom">
+<tr class="row-odd"><th class="head">項番</th>
+<th class="head">説明</th>
+</tr>
+</thead>
+<tbody valign="top">
+<tr class="row-even"><td><div class="first last line-block">
+<div class="line">(8)</div>
+</div>
+</td>
+<td><div class="first last line-block">
+<div class="line">クライアントでブラウザの戻るボタンをクリックする。</div>
+</div>
+</td>
+</tr>
+<tr class="row-odd"><td><div class="first last line-block">
+<div class="line">(9)</div>
+</div>
+</td>
+<td><div class="first last line-block">
+<div class="line">クライアントから戻った画面にあるトランザクショントークン(token001)を含めたリクエストを送信する。</div>
+</div>
+</td>
+</tr>
+<tr class="row-even"><td><div class="first last line-block">
+<div class="line">(10)</div>
+</div>
+</td>
+<td><div class="first last line-block">
+<div class="line">サーバは、サーバ上に保持しているトランザクショントークン(token002)と、クライアントから送信されたトランザクショントークン(token001)が同一かチェックする。</div>
+<div class="line"><strong>値が同一ではないので、 不正なリクエストと判断し、トランザクショントークンエラーとする。</strong></div>
+</div>
+</td>
+</tr>
+<tr class="row-odd"><td><div class="first last line-block">
+<div class="line">(11)</div>
+</div>
+</td>
+<td><div class="first last line-block">
+<div class="line">サーバは、トランザクショントークンエラーが発生した事を通知するエラー画面を応答する。</div>
+</div>
+</td>
+</tr>
+</tbody>
+</table>
+</div></blockquote>
+<div class="line-block">
+<div class="line"><br /></div>
+</div>
+<p>トランザクショントークンチェックで防ぐことが出来るのは、以下の3つの事象である。</p>
+<ul class="simple">
+<li>決められた画面遷移を行うことが求められる業務において、不正な画面遷移が行われる。</li>
+<li>正規の画面遷移を伴わない不正なリクエストによって、データが更新される。</li>
+<li>二重送信によって、更新処理が重複して実行される。</li>
+</ul>
+<div class="line-block">
+<div class="line"><br /></div>
+</div>
+<p>以下のフローによって、決められた画面遷移を行うことが求められる業務において、不正な画面遷移が行われる事を防ぐ事ができる。</p>
+<blockquote>
+<div><div class="figure">
+<a class="reference internal image-reference" href="../../_images/transaction-token-check-prevent-invalid-screenflow.png"><img alt="prevent invalid screen flow by transaction token check" src="../../_images/transaction-token-check-prevent-invalid-screenflow.png" style="width: 100%;" /></a>
+</div>
+<table border="1" class="colwidths-given longtable docutils">
+<colgroup>
+<col width="10%" />
+<col width="90%" />
+</colgroup>
+<thead valign="bottom">
+<tr class="row-odd"><th class="head">項番</th>
+<th class="head">説明</th>
+</tr>
+</thead>
+<tbody valign="top">
+<tr class="row-even"><td><div class="first last line-block">
+<div class="line">(1)</div>
+</div>
+</td>
+<td><div class="first last line-block">
+<div class="line">購買者が、商品購入画面で注文ボタンをクリックする。</div>
+<div class="line">サーバ上で保持しているトランザクショントークンと、クライアントから送信されたトランザクショントークンが一致するため、商品を購入する処理を実行する。</div>
+<div class="line"><strong>このタイミングで、サーバ上で保持していたトランザクショントークの値が破棄され、新しいトークン値に更新される。</strong></div>
+</div>
+</td>
+</tr>
+<tr class="row-odd"><td><div class="first last line-block">
+<div class="line">(2)</div>
+</div>
+</td>
+<td><div class="first last line-block">
+<div class="line">サーバは、(1)のリクエストで受けた商品の購入処理をDBに対して反映する。</div>
+</div>
+</td>
+</tr>
+<tr class="row-even"><td><div class="first last line-block">
+<div class="line">(3)</div>
+</div>
+</td>
+<td><div class="first last line-block">
+<div class="line">サーバは、(1)のリクエストで受けた商品の購入完了画面を応答する。</div>
+</div>
+</td>
+</tr>
+<tr class="row-odd"><td><div class="first last line-block">
+<div class="line">(4)</div>
+</div>
+</td>
+<td><div class="first last line-block">
+<div class="line">購買者が、ブラウザの戻るボタンを使って購入画面を再度表示する。</div>
+</div>
+</td>
+</tr>
+<tr class="row-even"><td><div class="first last line-block">
+<div class="line">(5)</div>
+</div>
+</td>
+<td><div class="first last line-block">
+<div class="line">購買者が、ブラウザの戻るボタンを使って表示した購入画面で注文ボタンを再度クリックする。</div>
+<div class="line"><strong>クライアントから送信されたトランザクショントークンは既に破棄された値のため、トランザクショントークンエラーとなる。</strong></div>
+</div>
+</td>
+</tr>
+<tr class="row-odd"><td><div class="first last line-block">
+<div class="line">(6)</div>
+</div>
+</td>
+<td><div class="first last line-block">
+<div class="line">サーバは、トランザクショントークンエラーが発生した事を通知するエラー画面を応答する。</div>
+</div>
+</td>
+</tr>
+</tbody>
+</table>
+</div></blockquote>
+<div class="line-block">
+<div class="line"><br /></div>
+</div>
+<p>以下のフローによって、正規の画面遷移を伴わない不正なリクエストでデータが更新される事を防ぐことができる。</p>
+<blockquote>
+<div><div class="figure">
+<a class="reference internal image-reference" href="../../_images/transaction-token-check-prevent-malicious-request.png"><img alt="prevent malicious request by transaction token check" src="../../_images/transaction-token-check-prevent-malicious-request.png" style="width: 100%;" /></a>
+</div>
+<table border="1" class="colwidths-given docutils">
+<colgroup>
+<col width="10%" />
+<col width="90%" />
+</colgroup>
+<thead valign="bottom">
+<tr class="row-odd"><th class="head">項番</th>
+<th class="head">説明</th>
+</tr>
+</thead>
+<tbody valign="top">
+<tr class="row-even"><td><div class="first last line-block">
+<div class="line">(1)</div>
+</div>
+</td>
+<td><div class="first last line-block">
+<div class="line">攻撃者が、正規の画面遷移を行わずに、直接商品の購入を行う処理に対してリクエストを実行する。</div>
+<div class="line"><strong>トランザクショントークンを生成するためのリクエストを実行していないため、トランザクショントークンエラーとなる。</strong></div>
+</div>
+</td>
+</tr>
+<tr class="row-odd"><td><div class="first last line-block">
+<div class="line">(2)</div>
+</div>
+</td>
+<td><div class="first last line-block">
+<div class="line">サーバは、トランザクショントークンエラーが発生した事を通知するエラー画面を応答する。</div>
+</div>
+</td>
+</tr>
+</tbody>
+</table>
+</div></blockquote>
+<div class="line-block">
+<div class="line"><br /></div>
+</div>
+<p>以下のフローによって、二重送信発生時に更新処理が重複して実行される事を防ぐことができる。</p>
+<blockquote>
+<div><div class="figure">
+<a class="reference internal image-reference" href="../../_images/transaction-token-check-prevent-double-submit.png"><img alt="prevent double submit by transaction token check" src="../../_images/transaction-token-check-prevent-double-submit.png" style="width: 100%;" /></a>
+</div>
+<table border="1" class="colwidths-given docutils">
+<colgroup>
+<col width="10%" />
+<col width="90%" />
+</colgroup>
+<thead valign="bottom">
+<tr class="row-odd"><th class="head">項番</th>
+<th class="head">説明</th>
+</tr>
+</thead>
+<tbody valign="top">
+<tr class="row-even"><td><div class="first last line-block">
+<div class="line">(1)</div>
+</div>
+</td>
+<td><div class="first last line-block">
+<div class="line">購買者が、商品購入画面で注文ボタンをクリックする。</div>
+<div class="line">サーバ上で保持しているトランザクショントークンと、クライアントから送信されたトランザクショントークンが一致するため、商品を購入する処理を実行する。</div>
+<div class="line"><strong>このタイミングで、サーバ上で保持していたトランザクショントークの値が破棄され、新しいトークン値に更新される。</strong></div>
+</div>
+</td>
+</tr>
+<tr class="row-odd"><td><div class="first last line-block">
+<div class="line">(2)</div>
+</div>
+</td>
+<td><div class="first last line-block">
+<div class="line">(1)のレスポンスが返る前に、購買者が誤って注文ボタンをもう一度クリックする。</div>
+<div class="line">(1)の処理が実行されることによって、 <strong>クライアントから送信されたトランザクショントークンは既に破棄された値のため、トランザクショントークンエラーとなる。</strong></div>
+</div>
+</td>
+</tr>
+<tr class="row-even"><td><div class="first last line-block">
+<div class="line">(3)</div>
+</div>
+</td>
+<td><div class="first last line-block">
+<div class="line">サーバは、(2)のリクエストに対して、 <strong>トランザクショントークンエラーが発生した事を通知するエラー画面を応答する。</strong></div>
+</div>
+</td>
+</tr>
+<tr class="row-odd"><td><div class="first last line-block">
+<div class="line">(4)</div>
+</div>
+</td>
+<td><div class="first last line-block">
+<div class="line">サーバは、(1)のリクエストで受けた商品の購入処理をDBに対して反映する。</div>
+</div>
+</td>
+</tr>
+<tr class="row-even"><td><div class="first last line-block">
+<div class="line">(5)</div>
+</div>
+</td>
+<td><div class="first last line-block">
+<div class="line">サーバは、(1)のリクエストで受けた商品の購入完了画面を応答しようとするが、(2)のリクエストが送信された事により、(1)のリクエストに対する応答を行うためのストリームが閉じられているため、購入完了画面を応答することができない。</div>
+</div>
+</td>
+</tr>
+</tbody>
+</table>
+<div class="admonition warning">
+<p class="first admonition-title">Warning</p>
+<p class="last">二重送信発生時に更新処理が重複して実行される事は防ぐことが出来るが、処理が完了した事を通知する画面を応答することが出来ないという問題が残る。
+そのため、JavaScriptによるボタンの2度押し防止も合わせて対応することを推奨する。</p>
+</div>
+</div></blockquote>
+</div>
+</div>
+<div class="section" id="id7">
+<h3><a class="toc-backref" href="#id37">4.5.1.3. トランザクショントークンのネームスペースについて</a><a class="headerlink" href="#id7" title="Permalink to this headline">¶</a></h3>
+<p>共通ライブラリから提供しているトランザクショントークンチェック機能では、トランザクショントークンを管理するための器にネームスペースを設けることが出来る。
+これは、タブブラウザや複数ウィンドウを使用して、更新処理を並行して操作できるようにするための仕組みである。</p>
+<div class="section" id="id8">
+<h4><a class="toc-backref" href="#id38">4.5.1.3.1. ネームスペースがない場合の問題点について</a><a class="headerlink" href="#id8" title="Permalink to this headline">¶</a></h4>
+<div class="line-block">
+<div class="line">まず、ネームスペースがない場合の問題点について説明する。</div>
+<div class="line">以下の図では、clientが左右にわかれているが、実際は同一マシン上に２つのWindowを立ち上げた際の例となる。</div>
+</div>
+<blockquote>
+<div><div class="figure">
+<a class="reference internal image-reference" href="../../_images/token-only-one.png"><img alt="token only one" src="../../_images/token-only-one.png" style="width: 100%;" /></a>
+</div>
+<table border="1" class="colwidths-given docutils">
+<colgroup>
+<col width="10%" />
+<col width="90%" />
+</colgroup>
+<thead valign="bottom">
+<tr class="row-odd"><th class="head">項番</th>
+<th class="head">説明</th>
+</tr>
+</thead>
+<tbody valign="top">
+<tr class="row-even"><td><div class="first last line-block">
+<div class="line">(1)</div>
+</div>
+</td>
+<td><div class="first last line-block">
+<div class="line">Window1からリクエストを送信し、応答されたトランザクショントークン(token001)をブラウザに保持する。</div>
+<div class="line">サーバ上で保持しているトランザクショントークンはtoken001となる。</div>
+</div>
+</td>
+</tr>
+<tr class="row-odd"><td><div class="first last line-block">
+<div class="line">(2)</div>
+</div>
+</td>
+<td><div class="first last line-block">
+<div class="line">Window2からリクエストを送信し、応答されたトランザクショントークン(token002)をブラウザに保持する。</div>
+<div class="line"><strong>サーバ上で保持しているトランザクショントークンはtoken002となる。このタイミングで(1)の処理で生成されたトランザクショントークン(token001)は破棄される。</strong></div>
+</div>
+</td>
+</tr>
+<tr class="row-even"><td><div class="first last line-block">
+<div class="line">(3)</div>
+</div>
+</td>
+<td><div class="first last line-block">
+<div class="line">Window1からブラウザで保持しているトランザクショントークン(token001)を含めてリクエストを送信する。</div>
+<div class="line">サーバ上で保持しているトランザクショントークン(token002)と、リクエストで送信されたトランザクショントークン(token002)が一致しないため、不正なリクエストと判断され、トランザクショントークンエラーとなる。</div>
+</div>
+</td>
+</tr>
+</tbody>
+</table>
+<div class="admonition warning">
+<p class="first admonition-title">Warning</p>
+<p class="last"><strong>ネームスペースがない場合は、更新処理を並行して操作することができないため、ユーザビリティの低いアプリケーションとなってしまう。</strong></p>
+</div>
+</div></blockquote>
+<div class="line-block">
+<div class="line"><br /></div>
+</div>
+</div>
+<div class="section" id="id9">
+<h4><a class="toc-backref" href="#id39">4.5.1.3.2. ネームスペース指定時の動作について</a><a class="headerlink" href="#id9" title="Permalink to this headline">¶</a></h4>
+<div class="line-block">
+<div class="line">次に、ネームスペースを付与した際の動作について説明する。</div>
+<div class="line">ネームスペースがない場合は、更新処理を並行して操作することができないという問題があったが、ネームスペースも設けることで、この問題を解決することが出来る。</div>
+<div class="line">以下の図では、clientが左右にわかれているが、実際は同一マシン上に２つのWindowを立ち上げた際の例となる。</div>
+</div>
+<blockquote>
+<div><div class="figure">
+<a class="reference internal image-reference" href="../../_images/token-namespace.png"><img alt="token namespace" src="../../_images/token-namespace.png" style="width: 100%;" /></a>
+</div>
+</div></blockquote>
+<div class="line-block">
+<div class="line">上記の図の、111, 222の部分が、ネームスペースとなる。</div>
+<div class="line"><strong>ネームスペースを与えることで、トランザクションに割り振られたネームスペース内に存在するトランザクショントークンのみを操作するため、別のネームスペースのトランザクションに対して影響を与えない。</strong></div>
+<div class="line">ここでは、ブラウザを別のWindowで記述しているが、タブブラウザでも同じである。生成されるキーや使用方法については、<a class="reference internal" href="#doublesubmit-how-to-use-transaction-token-check"><span class="std std-ref">トランザクショントークンチェックの適用</span></a>で説明する。</div>
+</div>
+<div class="line-block">
+<div class="line"><br /></div>
+</div>
+</div>
+</div>
+</div>
+<div class="section" id="how-to-use">
+<span id="id10"></span><h2><a class="toc-backref" href="#id40">4.5.2. How to use</a><a class="headerlink" href="#how-to-use" title="Permalink to this headline">¶</a></h2>
+<div class="section" id="id11">
+<h3><a class="toc-backref" href="#id41">4.5.2.1. JavaScriptによるボタンの2度押し防止の適用</a><a class="headerlink" href="#id11" title="Permalink to this headline">¶</a></h3>
+<div class="line-block">
+<div class="line">クライアントでのボタンの二重クリック防止は、JavaScriptで実現することになる。</div>
+<div class="line">ボタンをクリックした後は、再描画するまでクリックできないようにする。</div>
+</div>
+</div>
+<div class="section" id="id12">
+<h3><a class="toc-backref" href="#id42">4.5.2.2. PRG(Post-Redirect-Get)パターンの適用</a><a class="headerlink" href="#id12" title="Permalink to this headline">¶</a></h3>
+<div class="line-block">
+<div class="line">PRG(Post-Redirect-Get)パターンを適用する場合の実装例について説明する。</div>
+<div class="line">以降では、入力画面 -&gt; 確認画面 -&gt; 完了画面 というシンプルな画面遷移を行うアプリケーションを例に説明する。</div>
+</div>
+<blockquote>
+<div><div class="figure">
+<a class="reference internal image-reference" href="../../_images/staff-redirect-flow.png"><img alt="STAFF REDIRECT FLOW" src="../../_images/staff-redirect-flow.png" style="width: 100%;" /></a>
+</div>
+</div></blockquote>
+<div class="line-block">
+<div class="line">画像の番号と、ソースのコメント番号を連動させている。</div>
+<div class="line">ただし、(1)～(4)については、PRGパターンと直接関係ないため、説明は省略する。</div>
+</div>
+<ul class="simple">
+<li>Controller</li>
+</ul>
+<blockquote>
+<div><div class="highlight-java"><div class="highlight"><pre><span></span><span class="nd">@Controller</span>
+<span class="nd">@RequestMapping</span><span class="p">(</span><span class="s">&quot;prgExample&quot;</span><span class="p">)</span>
+<span class="kd">public</span> <span class="kd">class</span> <span class="nc">PostRedirectGetExampleController</span> <span class="p">{</span>
+
+    <span class="nd">@Inject</span>
+    <span class="n">UserService</span> <span class="n">userService</span><span class="p">;</span>
+
+    <span class="nd">@ModelAttribute</span>
+    <span class="kd">public</span> <span class="n">PostRedirectGetForm</span> <span class="nf">setUpForm</span><span class="p">()</span> <span class="p">{</span>
+        <span class="n">PostRedirectGetForm</span> <span class="n">form</span> <span class="o">=</span> <span class="k">new</span> <span class="n">PostRedirectGetForm</span><span class="p">();</span>
+        <span class="k">return</span> <span class="n">form</span><span class="p">;</span>
+    <span class="p">}</span>
+
+    <span class="nd">@RequestMapping</span><span class="p">(</span><span class="n">value</span> <span class="o">=</span> <span class="s">&quot;create&quot;</span><span class="p">,</span>
+                    <span class="n">method</span> <span class="o">=</span> <span class="n">RequestMethod</span><span class="p">.</span><span class="na">GET</span><span class="p">,</span>
+                    <span class="n">params</span> <span class="o">=</span> <span class="s">&quot;form&quot;</span><span class="p">)</span> <span class="c1">// (1)</span>
+    <span class="kd">public</span> <span class="n">String</span> <span class="nf">createForm</span><span class="p">(</span>
+        <span class="n">PostRedirectGetForm</span> <span class="n">postRedirectGetForm</span><span class="p">,</span>
+        <span class="n">BindingResult</span> <span class="n">bindingResult</span><span class="p">)</span> <span class="p">{</span>
+        <span class="k">return</span> <span class="s">&quot;prg/createForm&quot;</span><span class="p">;</span> <span class="c1">// (2)</span>
+    <span class="p">}</span>
+
+    <span class="nd">@RequestMapping</span><span class="p">(</span><span class="n">value</span> <span class="o">=</span> <span class="s">&quot;create&quot;</span><span class="p">,</span>
+                    <span class="n">method</span> <span class="o">=</span> <span class="n">RequestMethod</span><span class="p">.</span><span class="na">POST</span><span class="p">,</span>
+                    <span class="n">params</span> <span class="o">=</span> <span class="s">&quot;confirm&quot;</span><span class="p">)</span> <span class="c1">// (3)</span>
+    <span class="kd">public</span> <span class="n">String</span> <span class="nf">createConfirm</span><span class="p">(</span>
+        <span class="nd">@Validated</span> <span class="n">PostRedirectGetForm</span> <span class="n">postRedirectGetForm</span><span class="p">,</span>
+        <span class="n">BindingResult</span> <span class="n">bindingResult</span><span class="p">)</span> <span class="p">{</span>
+        <span class="k">if</span> <span class="p">(</span><span class="n">bindingResult</span><span class="p">.</span><span class="na">hasErrors</span><span class="p">())</span> <span class="p">{</span>
+            <span class="k">return</span> <span class="s">&quot;prg/createForm&quot;</span><span class="p">;</span>
+        <span class="p">}</span>
+        <span class="k">return</span> <span class="s">&quot;prg/createConfirm&quot;</span><span class="p">;</span> <span class="c1">//  (4)</span>
+    <span class="p">}</span>
+
+<span class="hll">    <span class="nd">@RequestMapping</span><span class="p">(</span><span class="n">value</span> <span class="o">=</span> <span class="s">&quot;create&quot;</span><span class="p">,</span>
+</span><span class="hll">                    <span class="n">method</span> <span class="o">=</span> <span class="n">RequestMethod</span><span class="p">.</span><span class="na">POST</span><span class="p">)</span> <span class="c1">// (5)</span>
+</span>    <span class="kd">public</span> <span class="n">String</span> <span class="nf">create</span><span class="p">(</span>
+        <span class="nd">@Validated</span> <span class="n">PostRedirectGetForm</span> <span class="n">postRedirectGetForm</span><span class="p">,</span>
+        <span class="n">BindingResult</span> <span class="n">bindingResult</span><span class="p">,</span>
+        <span class="n">RedirectAttributes</span> <span class="n">redirectAttributes</span><span class="p">)</span> <span class="p">{</span>
+        <span class="k">if</span> <span class="p">(</span><span class="n">bindingResult</span><span class="p">.</span><span class="na">hasErrors</span><span class="p">())</span> <span class="p">{</span>
+            <span class="k">return</span> <span class="s">&quot;prg/createForm&quot;</span><span class="p">;</span>
+        <span class="p">}</span>
+
+        <span class="c1">// omitted</span>
+
+<span class="hll">        <span class="n">String</span> <span class="n">output</span> <span class="o">=</span> <span class="s">&quot;result register...&quot;</span><span class="p">;</span> <span class="c1">// (6)</span>
+</span><span class="hll">        <span class="n">redirectAttributes</span><span class="p">.</span><span class="na">addFlashAttribute</span><span class="p">(</span><span class="s">&quot;output&quot;</span><span class="p">,</span> <span class="n">output</span><span class="p">);</span> <span class="c1">// (6)</span>
+</span><span class="hll">        <span class="k">return</span> <span class="s">&quot;redirect:/prgExample/create?complete&quot;</span><span class="p">;</span> <span class="c1">// (6)</span>
+</span>    <span class="p">}</span>
+
+<span class="hll">    <span class="nd">@RequestMapping</span><span class="p">(</span><span class="n">value</span> <span class="o">=</span> <span class="s">&quot;create&quot;</span><span class="p">,</span>
+</span><span class="hll">                    <span class="n">method</span> <span class="o">=</span> <span class="n">RequestMethod</span><span class="p">.</span><span class="na">GET</span><span class="p">,</span>
+</span><span class="hll">                    <span class="n">params</span> <span class="o">=</span> <span class="s">&quot;complete&quot;</span><span class="p">)</span> <span class="c1">// (7)</span>
+</span>    <span class="kd">public</span> <span class="n">String</span> <span class="nf">createComplete</span><span class="p">()</span> <span class="p">{</span>
+<span class="hll">        <span class="k">return</span> <span class="s">&quot;prg/createComplete&quot;</span><span class="p">;</span> <span class="c1">// (8)</span>
+</span>    <span class="p">}</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+<table border="1" class="colwidths-given docutils">
+<colgroup>
+<col width="10%" />
+<col width="90%" />
+</colgroup>
+<thead valign="bottom">
+<tr class="row-odd"><th class="head">項番</th>
+<th class="head">説明</th>
+</tr>
+</thead>
+<tbody valign="top">
+<tr class="row-even"><td><div class="first last line-block">
+<div class="line">(5)</div>
+</div>
+</td>
+<td><div class="first last line-block">
+<div class="line">確認画面の登録ボタン(Create Userボタン)が押下時の処理を行うハンドラメソッド。</div>
+<div class="line"><strong>POSTメソッドでリクエストを受け取る。</strong></div>
+</div>
+</td>
+</tr>
+<tr class="row-odd"><td><div class="first last line-block">
+<div class="line">(6)</div>
+</div>
+</td>
+<td><div class="first last line-block">
+<div class="line"><strong>完了画面を表示するためのURLへリダイレクトする。</strong></div>
+<div class="line">上記例では、<code class="docutils literal"><span class="pre">prgExample/create?complete</span></code>というURLに対して<code class="docutils literal"><span class="pre">GET</span></code>メソッドで リクエストされる。</div>
+<div class="line">リダイレクト先にデータを引き渡す場合は、 <code class="docutils literal"><span class="pre">RedirectAttributes</span></code>のaddFlashAttributeメソッドを呼び出し、引き渡すデータを追加する。</div>
+<div class="line"><code class="docutils literal"><span class="pre">Model</span></code>のaddAttributeメソッドは、リダイレクト先にデータを引き渡すことはできない。</div>
+</div>
+</td>
+</tr>
+<tr class="row-even"><td><div class="first last line-block">
+<div class="line">(7)</div>
+</div>
+</td>
+<td><div class="first last line-block">
+<div class="line">完了画面を表示するためのハンドラメソッド。</div>
+<div class="line"><strong>GETメソッドでリクエストを受け取る。</strong></div>
+</div>
+</td>
+</tr>
+<tr class="row-odd"><td><div class="first last line-block">
+<div class="line">(8)</div>
+</div>
+</td>
+<td><div class="first last line-block">
+<div class="line">完了画面を表示するView(JSP)を呼び出し、完了画面を応答する。</div>
+<div class="line">JSPの拡張子は <code class="file docutils literal"><span class="pre">spring-mvc.xml</span></code> に定義されている <code class="docutils literal"><span class="pre">ViewResolver</span></code>によって付与されるため、ハンドラメソッドの返却値からは省略している。</div>
+</div>
+</td>
+</tr>
+</tbody>
+</table>
+<div class="admonition note">
+<p class="first admonition-title">Note</p>
+<ul class="last simple">
+<li>リダイレクトする際は、ハンドラメソッドの返り値として返却する遷移情報のプレフィックスとして「redirect:」を付与する。</li>
+<li>リダイレクト先の処理にデータを引き渡したい場合は、<code class="docutils literal"><span class="pre">RedirectAttributes</span></code>のaddFlashAttributeメソッドを呼び出し、引き渡すデータを追加する。</li>
+</ul>
+</div>
+</div></blockquote>
+<ul class="simple">
+<li><code class="file docutils literal"><span class="pre">createForm.jsp</span></code></li>
+</ul>
+<blockquote>
+<div><div class="highlight-jsp"><div class="highlight"><pre><span></span><span class="nt">&lt;h1&gt;</span>Create User<span class="nt">&lt;/h1&gt;</span>
+<span class="nt">&lt;div</span> <span class="na">id=</span><span class="s">&quot;prgForm&quot;</span><span class="nt">&gt;</span>
+  <span class="nt">&lt;form:form</span>
+    <span class="na">action=</span><span class="s">&quot;${pageContext.request.contextPath}/prgExample/create&quot;</span>
+    <span class="na">method=</span><span class="s">&quot;post&quot;</span> <span class="na">modelAttribute=</span><span class="s">&quot;postRedirectGetForm&quot;</span><span class="nt">&gt;</span>
+    <span class="nt">&lt;form:label</span> <span class="na">path=</span><span class="s">&quot;firstName&quot;</span><span class="nt">&gt;</span>FirstName<span class="nt">&lt;/form:label&gt;</span>
+    <span class="nt">&lt;form:input</span> <span class="na">path=</span><span class="s">&quot;firstName&quot;</span> <span class="nt">/&gt;&lt;br&gt;</span>
+    <span class="nt">&lt;form:label</span> <span class="na">path=</span><span class="s">&quot;lastName&quot;</span><span class="nt">&gt;</span>LastName:<span class="nt">&lt;/form:label&gt;</span>
+    <span class="nt">&lt;form:input</span> <span class="na">path=</span><span class="s">&quot;lastName&quot;</span> <span class="nt">/&gt;&lt;br&gt;</span>
+    <span class="nt">&lt;form:button</span> <span class="na">name=</span><span class="s">&quot;confirm&quot;</span><span class="nt">&gt;</span>Confirm Create User<span class="nt">&lt;/form:button&gt;</span>
+  <span class="nt">&lt;/form:form&gt;</span>
+<span class="nt">&lt;/div&gt;</span>
+</pre></div>
+</div>
+</div></blockquote>
+<ul class="simple">
+<li><code class="file docutils literal"><span class="pre">createConfirm.jsp</span></code></li>
+</ul>
+<blockquote>
+<div><div class="highlight-jsp"><div class="highlight"><pre><span></span><span class="nt">&lt;h1&gt;</span>Confirm Create User<span class="nt">&lt;/h1&gt;</span>
+<span class="nt">&lt;div</span> <span class="na">id=</span><span class="s">&quot;prgForm&quot;</span><span class="nt">&gt;</span>
+  <span class="nt">&lt;form:form</span>
+    <span class="na">action=</span><span class="s">&quot;${pageContext.request.contextPath}/prgExample/create&quot;</span>
+<span class="hll">    <span class="na">method=</span><span class="s">&quot;post&quot;</span>
+</span>    <span class="na">modelAttribute=</span><span class="s">&quot;postRedirectGetForm&quot;</span><span class="nt">&gt;</span>
+    FirstName:${f:h(postRedirectGetForm.firstName)}<span class="nt">&lt;br&gt;</span>
+    <span class="nt">&lt;form:hidden</span> <span class="na">path=</span><span class="s">&quot;firstName&quot;</span> <span class="nt">/&gt;</span>
+    LastName:${f:h(postRedirectGetForm.lastName)}<span class="nt">&lt;br&gt;</span>
+    <span class="nt">&lt;form:hidden</span> <span class="na">path=</span><span class="s">&quot;lastName&quot;</span> <span class="nt">/&gt;</span>
+<span class="hll">    <span class="nt">&lt;form:button&gt;</span>Create User<span class="nt">&lt;/form:button&gt;</span> <span class="k">&lt;%-</span><span class="o">-</span> <span class="p">(</span><span class="mi">6</span><span class="p">)</span> <span class="o">--</span><span class="k">%&gt;</span>
+</span>  <span class="nt">&lt;/form:form&gt;</span>
+<span class="nt">&lt;/div&gt;</span>
+</pre></div>
+</div>
+<table border="1" class="colwidths-given docutils">
+<colgroup>
+<col width="10%" />
+<col width="90%" />
+</colgroup>
+<thead valign="bottom">
+<tr class="row-odd"><th class="head">項番</th>
+<th class="head">説明</th>
+</tr>
+</thead>
+<tbody valign="top">
+<tr class="row-even"><td><div class="first last line-block">
+<div class="line">(6)</div>
+</div>
+</td>
+<td><div class="first last line-block">
+<div class="line">更新処理を行うためのボタンが押下された場合は、 <strong>POSTメソッドでリクエストを送る。</strong></div>
+</div>
+</td>
+</tr>
+</tbody>
+</table>
+</div></blockquote>
+<ul class="simple">
+<li><code class="file docutils literal"><span class="pre">createComplete.jsp</span></code></li>
+</ul>
+<blockquote>
+<div><div class="highlight-jsp"><div class="highlight"><pre><span></span><span class="nt">&lt;h1&gt;</span>Successful Create User Completion<span class="nt">&lt;/h1&gt;</span>
+<span class="nt">&lt;div</span> <span class="na">id=</span><span class="s">&quot;prgForm&quot;</span><span class="nt">&gt;</span>
+  <span class="nt">&lt;form:form</span>
+    <span class="na">action=</span><span class="s">&quot;${pageContext.request.contextPath}/prgExample/create&quot;</span>
+    <span class="na">method=</span><span class="s">&quot;get&quot;</span> <span class="na">modelAttribute=</span><span class="s">&quot;postRedirectGetForm&quot;</span><span class="nt">&gt;</span>
+<span class="hll">    output:${f:h(output)}<span class="nt">&lt;br&gt;</span> <span class="k">&lt;%-</span><span class="o">-</span> <span class="p">(</span><span class="mi">7</span><span class="p">)</span> <span class="o">--</span><span class="k">%&gt;</span>
+</span>    <span class="nt">&lt;form:button</span> <span class="na">name=</span><span class="s">&quot;backToTop&quot;</span><span class="nt">&gt;</span>Top<span class="nt">&lt;/form:button&gt;</span>
+  <span class="nt">&lt;/form:form&gt;</span>
+<span class="nt">&lt;/div&gt;</span>
+</pre></div>
+</div>
+<table border="1" class="colwidths-given docutils">
+<colgroup>
+<col width="10%" />
+<col width="90%" />
+</colgroup>
+<thead valign="bottom">
+<tr class="row-odd"><th class="head">項番</th>
+<th class="head">説明</th>
+</tr>
+</thead>
+<tbody valign="top">
+<tr class="row-even"><td><div class="first last line-block">
+<div class="line">(7)</div>
+</div>
+</td>
+<td><div class="first last line-block">
+<div class="line">リダイレクト先にて、更新処理から引き渡したデータを参照する場合は、<code class="docutils literal"><span class="pre">RedirectAttributes</span></code>の <strong>addFlashAttributeメソッドで追加したデータの属性名を指定する。</strong></div>
+<div class="line">上記例では、 <code class="docutils literal"><span class="pre">output</span></code>が引き渡したデータを参照するための属性名となる。</div>
+</div>
+</td>
+</tr>
+</tbody>
+</table>
+</div></blockquote>
+</div>
+<div class="section" id="doublesubmit-how-to-use-transaction-token-check">
+<span id="id13"></span><h3><a class="toc-backref" href="#id43">4.5.2.3. トランザクショントークンチェックの適用</a><a class="headerlink" href="#doublesubmit-how-to-use-transaction-token-check" title="Permalink to this headline">¶</a></h3>
+<div class="line-block">
+<div class="line">トランザクショントークンチェックを適用する場合の実装例について説明する。</div>
+<div class="line">トランザクショントークンチェックは、Spring MVCから提供されている機能ではなく、共通ライブラリから提供している機能となる。</div>
+</div>
+<div class="section" id="id14">
+<h4><a class="toc-backref" href="#id44">4.5.2.3.1. 共通ライブラリから提供しているトランザクショントークンチェックについて</a><a class="headerlink" href="#id14" title="Permalink to this headline">¶</a></h4>
+<p>共通ライブラリから提供しているトランザクショントークンチェック機能では、</p>
+<ul class="simple">
+<li>トランザクショントークンのネームスペース化</li>
+<li>トランザクションの開始</li>
+<li>トランザクション内のトークン値チェック</li>
+<li>トランザクションの終了</li>
+</ul>
+<p>を行うために、 <code class="docutils literal"><span class="pre">&#64;org.terasoluna.gfw.web.token.transaction.TransactionTokenCheck</span></code>アノテーションを提供している。</p>
+<p>トランザクショントークンチェックを行う場合は、Controllerクラス及びControllerクラスのハンドラメソッドに対して、 <code class="docutils literal"><span class="pre">&#64;TransactionTokenCheck</span></code>アノテーションを付与することで、
+宣言的にトランザクショントークンチェックを行うことが出来る。</p>
+<div class="line-block">
+<div class="line"><br /></div>
+</div>
+</div>
+<div class="section" id="transactiontokencheck">
+<span id="transaction-token-check-attribute"></span><h4><a class="toc-backref" href="#id45">4.5.2.3.2. <code class="docutils literal"><span class="pre">&#64;TransactionTokenCheck</span></code>アノテーションの属性について</a><a class="headerlink" href="#transactiontokencheck" title="Permalink to this headline">¶</a></h4>
+<p><code class="docutils literal"><span class="pre">&#64;TransactionTokenCheck</span></code>アノテーションに指定できる属性について説明する。</p>
+<blockquote>
+<div><table border="1" class="colwidths-given longtable docutils" id="id27">
+<caption><span class="caption-text"><code class="docutils literal"><span class="pre">&#64;TransactionTokenCheck</span></code>アノテーションパラメタ一覧</span><a class="headerlink" href="#id27" title="Permalink to this table">¶</a></caption>
+<colgroup>
+<col width="11%" />
+<col width="11%" />
+<col width="47%" />
+<col width="11%" />
+<col width="21%" />
+</colgroup>
+<thead valign="bottom">
+<tr class="row-odd"><th class="head">項番</th>
+<th class="head">属性名</th>
+<th class="head">内容</th>
+<th class="head">default</th>
+<th class="head">例</th>
+</tr>
+</thead>
+<tbody valign="top">
+<tr class="row-even"><td><ol class="first last arabic simple">
+<li></li>
+</ol>
+</td>
+<td>value</td>
+<td><div class="first last line-block">
+<div class="line">任意文字列。NameSpaceとして使用される。</div>
+</div>
+</td>
+<td>無</td>
+<td><div class="first last line-block">
+<div class="line"><code class="docutils literal"><span class="pre">value</span> <span class="pre">=</span> <span class="pre">&quot;create&quot;</span></code></div>
+<div class="line">引数が1つのみの場合は、<code class="docutils literal"><span class="pre">value</span> <span class="pre">=</span></code>部分は省略できる。</div>
+</div>
+</td>
+</tr>
+<tr class="row-odd"><td><ol class="first last arabic simple" start="2">
+<li></li>
+</ol>
+</td>
+<td>namespace</td>
+<td><div class="first last line-block">
+<div class="line">任意文字列。NameSpaceとして使用される。</div>
+<div class="line">value属性のエイリアスである。</div>
+</div>
+</td>
+<td>無</td>
+<td><div class="first last line-block">
+<div class="line"><code class="docutils literal"><span class="pre">namespace</span> <span class="pre">=</span> <span class="pre">&quot;create&quot;</span></code></div>
+<div class="line"><code class="docutils literal"><span class="pre">value</span> <span class="pre">=</span> <span class="pre">&quot;create&quot;</span></code>と同義である。<code class="docutils literal"><span class="pre">&#64;TransactionTokenCheck</span></code>をメタアノテーションとして利用する際には value属性が使用できないため、value属性の代わりとして利用する。</div>
+</div>
+</td>
+</tr>
+<tr class="row-even"><td><ol class="first last arabic simple" start="3">
+<li></li>
+</ol>
+</td>
+<td>type</td>
+<td><div class="first last line-block">
+<div class="line"><strong>BEGIN</strong></div>
+<div class="line">トランザクショントークンを作成し、新たなトランザクションを開始する。</div>
+<div class="line"><br /></div>
+<div class="line"><strong>IN</strong></div>
+<div class="line">トランザクショントークンの妥当性チェックを実施する。</div>
+<div class="line">リクエストされたトークン値とサーバ上で管理しているトークン値が一致している場合は、トランザクショントークンのトークン値を更新する。</div>
+<div class="line"><br /></div>
+<div class="line"><strong>CHECK</strong></div>
+<div class="line">トランザクショントークンの妥当性チェックを実施する。</div>
+<div class="line">リクエストされたトークン値とサーバ上で管理しているトークン値が一致している場合でも、トランザクショントークンのトークン値を更新しない。</div>
+<div class="line">利用ケースは「<a class="reference internal" href="#usecase-of-transaction-token-type-check"><span class="std std-ref">ユースケース内にファイルダウンロード処理等の画面を更新しない処理が含まれる場合</span></a>」を参照。</div>
+<div class="line"><br /></div>
+</div>
+</td>
+<td>IN</td>
+<td><div class="first last line-block">
+<div class="line"><code class="docutils literal"><span class="pre">type</span> <span class="pre">=</span> <span class="pre">TransactionTokenType.BEGIN</span></code></div>
+<div class="line"><br /></div>
+<div class="line"><code class="docutils literal"><span class="pre">type</span> <span class="pre">=</span> <span class="pre">TransactionTokenType.IN</span></code></div>
+<div class="line"><br /></div>
+<div class="line"><code class="docutils literal"><span class="pre">type</span> <span class="pre">=</span> <span class="pre">TransactionTokenType.CHECK</span></code></div>
+<div class="line"><br /></div>
+</div>
+</td>
+</tr>
+</tbody>
+</table>
+<div class="admonition note">
+<p class="first admonition-title">Note</p>
+<p class="last">value属性またはnamespace属性に設定する値は、<code class="docutils literal"><span class="pre">&#64;RequestMapping</span></code>アノテーションのvalue属性の設定値と、同じ値を設定することを推奨する。</p>
+</div>
+<div class="admonition note">
+<p class="first admonition-title">Note</p>
+<p class="last">type属性には、 <strong>NONE</strong> 及び <strong>END</strong> を指定することが出来るが、通常使用することはないため、説明は省略する。</p>
+</div>
+</div></blockquote>
+<div class="line-block">
+<div class="line"><br /></div>
+</div>
+</div>
+<div class="section" id="id15">
+<h4><a class="toc-backref" href="#id46">4.5.2.3.3. トランザクショントークンの形式について</a><a class="headerlink" href="#id15" title="Permalink to this headline">¶</a></h4>
+<p>共通ライブラリから提供しているトランザクショントークンチェックで使用するトランザクショントークンは、以下の形式となる。</p>
+<blockquote>
+<div><div class="figure">
+<a class="reference internal image-reference" href="../../_images/transaction-token-name-pattern.png"><img alt="format of transaction token" src="../../_images/transaction-token-name-pattern.png" style="width: 100%;" /></a>
+</div>
+<div class="figure">
+<a class="reference internal image-reference" href="../../_images/transaction-token-name-pattern-example.png"><img alt="example of transaction token" src="../../_images/transaction-token-name-pattern-example.png" style="width: 100%;" /></a>
+</div>
+</div></blockquote>
+<div class="line-block">
+<div class="line"><br /></div>
+</div>
+<blockquote>
+<div><table border="1" class="colwidths-given longtable docutils">
+<colgroup>
+<col width="10%" />
+<col width="15%" />
+<col width="75%" />
+</colgroup>
+<thead valign="bottom">
+<tr class="row-odd"><th class="head">項番</th>
+<th class="head">構成要素</th>
+<th class="head">説明</th>
+</tr>
+</thead>
+<tbody valign="top">
+<tr class="row-even"><td><div class="first last line-block">
+<div class="line">(1)</div>
+</div>
+</td>
+<td>NameSpace</td>
+<td><ul class="first last simple">
+<li>NameSpaceは、一連の画面遷移を識別するための論理的な名称を付与するための要素となる。</li>
+<li>NameSpaceを設けることで、異なるNameSpaceに属するリクエストが干渉しあう事を防ぐ事が出来るため、並行して操作を行うことができる画面遷移を増やすことが出来る。</li>
+<li>NameSpaceとして使用する値は、<code class="docutils literal"><span class="pre">&#64;TransactionTokenCheck</span></code>アノテーションのvalue属性で指定した値が使用される。</li>
+<li>クラスアノテーションのvalue属性とメソッドアノテーションのvalue属性の両方を指定した場合は、 両方の値を”<code class="docutils literal"><span class="pre">/</span></code>”で連結した値がNameSpaceとなる。複数のメソッドで同じ値を指定した場合は、同じNameSpaceに属するメソッドとなる。</li>
+<li>クラスアノテーションにのみvalue属性を指定した場合は、そのクラスで生成されるトランザクショントークンのNameSpaceは、全てクラスアノテーションで指定した値となる。</li>
+<li>メソッドアノテーションにのみvalue属性を指定した場合は、生成されるトランザクショントークンのNameSpaceはメソッドアノテーションで指定した値となる。複数のメソッドで同じ値を指定した場合は、同じNameSpaceに属するメソッドとなる。</li>
+<li>クラスアノテーションのvalue属性とメソッドアノテーションのvalue属性の両方を省略した場合は、グローバルトークンに属するメソッドとなる。グローバルトークンについては、<a class="reference internal" href="#doublesubmit-appendix-global-token"><span class="std std-ref">グローバルトークン</span></a>を参照されたい。</li>
+</ul>
+</td>
+</tr>
+<tr class="row-odd"><td><div class="first last line-block">
+<div class="line">(2)</div>
+</div>
+</td>
+<td>TokenKey</td>
+<td><ul class="first last">
+<li><p class="first">TokenKeyは、ネームスペース内で管理されているトランザクションを識別するための要素となる。</p>
+</li>
+<li><p class="first">TokenKeyは、<code class="docutils literal"><span class="pre">&#64;TransactionTokenCheck</span></code>アノテーションのtype属性に<code class="docutils literal"><span class="pre">TransactionTokenType.BEGIN</span></code>が宣言されているメソッドが実行されたタイミングで生成される。</p>
+</li>
+<li><div class="first line-block">
+<div class="line">複数のTokenKeyを同時に保持することが出来る数には上限数があり、デフォルト10である。TokenKeyの保持数はNameSpace毎に管理される。</div>
+</div>
+</li>
+<li><div class="first line-block">
+<div class="line"><code class="docutils literal"><span class="pre">TransactionTokenType.BEGIN</span></code>時にNameSpace毎に管理されている保持数が最大値に達している場合は、実行された日時が最も古いTokenKeyを破棄することで(Least Recently Used (LRU))、新しいトランザクションを有効なトランザクションとして管理する仕組みとなっている。</div>
+</div>
+</li>
+<li><div class="first line-block">
+<div class="line">破棄されたトランザクショントークンを使ってアクセスした場合は、トランザクショントークンエラーとなる。</div>
+</div>
+</li>
+</ul>
+</td>
+</tr>
+<tr class="row-even"><td><div class="first last line-block">
+<div class="line">(3)</div>
+</div>
+</td>
+<td>TokenValue</td>
+<td><ul class="first last simple">
+<li>TokenValueは、トランザクションのトークン値を保持するための要素となる。</li>
+<li>TokenValueは、<code class="docutils literal"><span class="pre">&#64;TransactionTokenCheck</span></code>アノテーションのtype属性に<code class="docutils literal"><span class="pre">TransactionTokenType.BEGIN</span></code>又は<code class="docutils literal"><span class="pre">TransactionTokenType.IN</span></code>が宣言されているメソッドが実行されたタイミングで生成される。</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+<div class="admonition warning">
+<p class="first admonition-title">Warning</p>
+<p>メソッドアノテーションにのみvalue属性を指定した場合、他のControllerで同じ値を指定している場合に、一連の画面遷移を行うためのリクエストとして扱われる点に注意する必要がある。
+この方法での指定は、Controllerを跨いだ画面遷移を同一トランザクションとして扱いたい場合にのみ、使用すること。</p>
+<p class="last">原則的には、メソッドアノテーションにのみvalue属性を指定する方法は使用しない事を推奨する。</p>
+</div>
+<div class="admonition note">
+<p class="first admonition-title">Note</p>
+<p>NameSpaceの指定方法として、</p>
+<ul class="simple">
+<li>クラスアノテーションのvalue属性とメソッドアノテーションのvalue属性の両方を指定する場合</li>
+<li>クラスアノテーションにのみvalue属性を指定する場合</li>
+</ul>
+<p>の使い分けについては、Controllerの作成粒度に応じて使い分ける。</p>
+<ol class="last arabic">
+<li><div class="first line-block">
+<div class="line">Controllerに、複数のユースケースに対応するハンドラメソッドを実装する場合は、クラスアノテーションのvalue属性とメソッドアノテーションのvalue属性の両方を指定する。</div>
+<div class="line">例えば、ユーザの登録、変更、削除を一つのControllerで実装する場合は、このパターンとなる。</div>
+</div>
+</li>
+<li><div class="first line-block">
+<div class="line">Controllerに、一つのユースケースに対応するハンドラメソッドを実装する場合は、クラスアノテーションにのみvalue属性を指定する。</div>
+<div class="line">例えば、ユーザの登録、変更、削除毎にControllerを実装する場合は、このパターンとなる。</div>
+</div>
+</li>
+</ol>
+</div>
+</div></blockquote>
+<div class="line-block">
+<div class="line"><br /></div>
+</div>
+</div>
+<div class="section" id="lifecycle">
+<span id="id16"></span><h4><a class="toc-backref" href="#id47">4.5.2.3.4. トランザクショントークンのライフサイクルについて</a><a class="headerlink" href="#lifecycle" title="Permalink to this headline">¶</a></h4>
+<p>トランザクショントークンのライフサイクル(生成、更新、破棄)制御は、以下のタイミングで行われる。</p>
+<blockquote>
+<div><table border="1" class="colwidths-given longtable docutils">
+<colgroup>
+<col width="10%" />
+<col width="20%" />
+<col width="70%" />
+</colgroup>
+<thead valign="bottom">
+<tr class="row-odd"><th class="head">項番</th>
+<th class="head">ライフサイクル制御</th>
+<th class="head">説明</th>
+</tr>
+</thead>
+<tbody valign="top">
+<tr class="row-even"><td><div class="first last line-block">
+<div class="line">(1)</div>
+</div>
+</td>
+<td><div class="first last line-block">
+<div class="line">トークンの生成</div>
+</div>
+</td>
+<td><div class="first last line-block">
+<div class="line"><code class="docutils literal"><span class="pre">&#64;TransactionTokenCheck</span></code>アノテーションのtype属性に<code class="docutils literal"><span class="pre">TransactionTokenType.BEGIN</span></code>が指定されたメソッドの処理が終了したタイミングで新たなトークンが生成され、トランザクションが開始される。</div>
+</div>
+</td>
+</tr>
+<tr class="row-odd"><td><div class="first last line-block">
+<div class="line">(2)</div>
+</div>
+</td>
+<td><div class="first last line-block">
+<div class="line">トークンの更新</div>
+</div>
+</td>
+<td><div class="first last line-block">
+<div class="line"><code class="docutils literal"><span class="pre">&#64;TransactionTokenCheck</span></code>アノテーションのtype属性に<code class="docutils literal"><span class="pre">TransactionTokenType.IN</span></code>が指定されたメソッドの処理が終了したタイミングでトークン(TokenValue)が更新され、トランザクションが継続される。</div>
+</div>
+</td>
+</tr>
+<tr class="row-even"><td><div class="first last line-block">
+<div class="line">(3)</div>
+</div>
+</td>
+<td><div class="first last line-block">
+<div class="line">トークンの破棄</div>
+</div>
+</td>
+<td><div class="first last line-block">
+<div class="line">以下の何れかのタイミングで破棄され、トランザクションが終了される。</div>
+<div class="line"><br /></div>
+<div class="line">[1]</div>
+<div class="line"><code class="docutils literal"><span class="pre">&#64;TransactionTokenCheck</span></code>アノテーションのtype属性に<code class="docutils literal"><span class="pre">TransactionTokenType.BEGIN</span></code>が指定されたメソッドを呼び出すタイミングで、リクエストパラメータに指定されているトランザクショントークンが破棄され、不要なトランザクションが終了される。</div>
+<div class="line"><br /></div>
+<div class="line">[2]</div>
+<div class="line">NameSpace内で保持することが出来るトランザクショントークン(TokenKey)の数が上限数に達している状態で、新たにトランザクションが開始される場合、実行された日時が最も古いトランザクショントークンが破棄され、トランザクションが強制終了される。</div>
+<div class="line"><br /></div>
+<div class="line">[3]</div>
+<div class="line">システムエラーなどの例外が発生した場合、リクエストパラメータに指定されているトランザクショントークンが破棄され、トランザクションを終了される。</div>
+</div>
+</td>
+</tr>
+<tr class="row-odd"><td><div class="first last line-block">
+<div class="line">(4)</div>
+</div>
+</td>
+<td><div class="first last line-block">
+<div class="line">トークンの引継</div>
+</div>
+</td>
+<td><div class="first last line-block">
+<div class="line"><code class="docutils literal"><span class="pre">&#64;TransactionTokenCheck</span></code>アノテーションのtype属性に<code class="docutils literal"><span class="pre">TransactionTokenType.CHECK</span></code>が指定されたメソッドの処理が終了したタイミングでサーバ上のトークンが引継がれ、トランザクションが継続される。</div>
+</div>
+</td>
+</tr>
+</tbody>
+</table>
+<div class="admonition note">
+<p class="first admonition-title">Note</p>
+<p>NameSpace内で保持することが出来るトランザクショントークン(TokenKey)の数には上限数が設けられており、新たにトランザクショントークンを生成する際に
+上限値に達していた場合は、実行された日時が最も古いTokenKeyをもつトランザクショントークンを破棄(Least Recently Used (LRU))することで、
+新しいトランザクションを有効なトランザクションとして管理する仕組みとなっている。</p>
+<p class="last">NameSpaceごとに保持できるトランザクショントークンの上限数はデフォルトで10となっている。
+上限値を変更する場合は、<a class="reference internal" href="#doublesubmit-how-to-extend-change-max-count"><span class="std std-ref">トランザクショントークンの上限数の変更方法について</span></a>を参照されたい。</p>
+</div>
+</div></blockquote>
+<div class="line-block">
+<div class="line"><br /></div>
+</div>
+<div class="line-block">
+<div class="line">以下に、新たにトランザクショントークンを生成する際に上限値に達していた場合の動作について説明する。</div>
+<div class="line">前提条件は以下の通りとする。</div>
+</div>
+<ul class="simple">
+<li>NameSpace内で保持することが出来るトランザクショントークンの数には上限数は、デフォルト値(10)が指定されている。</li>
+<li>Controllerのクラスアノテーションとして、 <code class="docutils literal"><span class="pre">&#64;TransactionTokenCheck(&quot;name&quot;)</span></code>が指定されている。</li>
+<li>同じNameSpaceのトランザクショントークンが上限値に達している状態である。</li>
+</ul>
+<blockquote>
+<div><div class="figure">
+<a class="reference internal image-reference" href="../../_images/transaction-token-count.png"><img alt="transaction token count" src="../../_images/transaction-token-count.png" style="width: 100%;" /></a>
+</div>
+<table border="1" class="colwidths-given longtable docutils">
+<colgroup>
+<col width="10%" />
+<col width="90%" />
+</colgroup>
+<thead valign="bottom">
+<tr class="row-odd"><th class="head">項番</th>
+<th class="head">説明</th>
+</tr>
+</thead>
+<tbody valign="top">
+<tr class="row-even"><td><div class="first last line-block">
+<div class="line">(1)</div>
+</div>
+</td>
+<td><div class="first last line-block">
+<div class="line">同じNameSpaceのトランザクショントークンが上限値に達している状態で、新たなトランザクションを開始するリクエストを受け付ける。</div>
+</div>
+</td>
+</tr>
+<tr class="row-odd"><td><div class="first last line-block">
+<div class="line">(2)</div>
+</div>
+</td>
+<td><div class="first last line-block">
+<div class="line">新たにトランザクショントークンを生成する。</div>
+</div>
+</td>
+</tr>
+<tr class="row-even"><td><div class="first last line-block">
+<div class="line">(3)</div>
+</div>
+</td>
+<td><div class="first last line-block">
+<div class="line">生成したトランザクショントークンをトークン格納先に追加する。</div>
+<div class="line"><strong>この時点で上限数を超えるトランザクショントークンがNameSpace内に存在する状態となる。</strong></div>
+</div>
+</td>
+</tr>
+<tr class="row-odd"><td><div class="first last line-block">
+<div class="line">(4)</div>
+</div>
+</td>
+<td><div class="first last line-block">
+<div class="line">NameSpace内で保持することが出来るトランザクショントークンの数には上限数を超える分のトランザクショントークンを削除する。</div>
+<div class="line"><strong>トランザクショントークンを削除する際は、実行された日時が最も古いものから順に削除する。</strong></div>
+</div>
+</td>
+</tr>
+</tbody>
+</table>
+</div></blockquote>
+<div class="line-block">
+<div class="line"><br /></div>
+</div>
+</div>
+<div class="section" id="setting">
+<span id="id17"></span><h4><a class="toc-backref" href="#id48">4.5.2.3.5. トランザクショントークンチェックを使用するための設定</a><a class="headerlink" href="#setting" title="Permalink to this headline">¶</a></h4>
+<p>共通ライブラリから提供しているトランザクショントークンチェックを使用するための設定を、以下に示す。</p>
+<ul class="simple">
+<li><code class="file docutils literal"><span class="pre">spring-mvc.xml</span></code></li>
+</ul>
+<blockquote>
+<div><div class="highlight-xml"><div class="highlight"><pre><span></span><span class="nt">&lt;mvc:interceptors&gt;</span>
+<span class="hll">    <span class="nt">&lt;mvc:interceptor&gt;</span> <span class="c">&lt;!-- (1) --&gt;</span>
+</span><span class="hll">        <span class="nt">&lt;mvc:mapping</span> <span class="na">path=</span><span class="s">&quot;/**&quot;</span> <span class="nt">/&gt;</span> <span class="c">&lt;!-- (2) --&gt;</span>
+</span><span class="hll">        <span class="nt">&lt;mvc:exclude-mapping</span> <span class="na">path=</span><span class="s">&quot;/resources/**&quot;</span> <span class="nt">/&gt;</span> <span class="c">&lt;!-- (2) --&gt;</span>
+</span><span class="hll">        <span class="c">&lt;!-- (3) --&gt;</span>
+</span><span class="hll">        <span class="nt">&lt;bean</span>
+</span><span class="hll">            <span class="na">class=</span><span class="s">&quot;org.terasoluna.gfw.web.token.transaction.TransactionTokenInterceptor&quot;</span> <span class="nt">/&gt;</span>
+</span><span class="hll">    <span class="nt">&lt;/mvc:interceptor&gt;</span>
+</span><span class="hll"><span class="nt">&lt;/mvc:interceptors&gt;</span>
+</span>
+<span class="nt">&lt;bean</span> <span class="na">id=</span><span class="s">&quot;requestDataValueProcessor&quot;</span>
+    <span class="na">class=</span><span class="s">&quot;org.terasoluna.gfw.web.mvc.support.CompositeRequestDataValueProcessor&quot;</span><span class="nt">&gt;</span>
+    <span class="nt">&lt;constructor-arg&gt;</span>
+        <span class="nt">&lt;util:list&gt;</span>
+            <span class="c">&lt;!-- (4) --&gt;</span>
+<span class="hll">            <span class="nt">&lt;bean</span> <span class="na">class=</span><span class="s">&quot;org.terasoluna.gfw.web.token.transaction.TransactionTokenRequestDataValueProcessor&quot;</span> <span class="nt">/&gt;</span>
+</span><span class="hll">            <span class="c">&lt;!-- omitted --&gt;</span>
+</span>        <span class="nt">&lt;/util:list&gt;</span>
+    <span class="nt">&lt;/constructor-arg&gt;</span>
+<span class="nt">&lt;/bean&gt;</span>
+</pre></div>
+</div>
+<table border="1" class="colwidths-given docutils">
+<colgroup>
+<col width="10%" />
+<col width="90%" />
+</colgroup>
+<thead valign="bottom">
+<tr class="row-odd"><th class="head">項番</th>
+<th class="head">説明</th>
+</tr>
+</thead>
+<tbody valign="top">
+<tr class="row-even"><td><div class="first last line-block">
+<div class="line">(1)</div>
+</div>
+</td>
+<td><div class="first last line-block">
+<div class="line">トランザクショントークンの生成及びチェックを行うための <code class="docutils literal"><span class="pre">HandlerInterceptor</span></code>を設定する。</div>
+</div>
+</td>
+</tr>
+<tr class="row-odd"><td><div class="first last line-block">
+<div class="line">(2)</div>
+</div>
+</td>
+<td><div class="first last line-block">
+<div class="line"><code class="docutils literal"><span class="pre">HandlerInterceptor</span></code>を適用するリクエストパスを指定する。</div>
+<div class="line">上記例では、 /resources配下へのリクエストを除く、全てのリクエストに対して適用している。</div>
+</div>
+</td>
+</tr>
+<tr class="row-even"><td><div class="first last line-block">
+<div class="line">(3)</div>
+</div>
+</td>
+<td><div class="first last line-block">
+<div class="line"><code class="docutils literal"><span class="pre">&#64;TransactionTokenCheck</span></code>アノテーションを使用して、トランザクショントークンの生成及びチェックを実施するためのクラス(<code class="docutils literal"><span class="pre">TransactionTokenInterceptor</span></code>)を指定する。</div>
+</div>
+</td>
+</tr>
+<tr class="row-odd"><td><div class="first last line-block">
+<div class="line">(4)</div>
+</div>
+</td>
+<td><div class="first last line-block">
+<div class="line">トランザクショントークンを、Spring MVCの<code class="docutils literal"><span class="pre">&lt;form:form&gt;</span></code>タグを使用してHidden領域に自動的に埋め込むためのクラス(<code class="docutils literal"><span class="pre">TransactionTokenRequestDataValueProcessor</span></code>)を設定する。</div>
+</div>
+</td>
+</tr>
+</tbody>
+</table>
+</div></blockquote>
+</div>
+<div class="section" id="id18">
+<h4><a class="toc-backref" href="#id49">4.5.2.3.6. トランザクショントークンエラーをハンドリングするための設定</a><a class="headerlink" href="#id18" title="Permalink to this headline">¶</a></h4>
+<div class="line-block">
+<div class="line">トランザクショントークンエラーが発生した場合は、 <code class="docutils literal"><span class="pre">org.terasoluna.gfw.web.token.transaction.InvalidTransactionTokenException</span></code> が発生する。</div>
+</div>
+<div class="line-block">
+<div class="line">そのため、トランザクショントークンエラーをハンドリングするためには、</div>
+</div>
+<ul class="simple">
+<li><code class="file docutils literal"><span class="pre">applicationContext.xml</span></code> に定義されている <code class="docutils literal"><span class="pre">ExceptionCodeResolver</span></code></li>
+<li><code class="file docutils literal"><span class="pre">spring-mvc.xml</span></code> に定義されている <code class="docutils literal"><span class="pre">SystemExceptionResolver</span></code></li>
+</ul>
+<p>の設定に対して、 <code class="docutils literal"><span class="pre">InvalidTransactionTokenException</span></code>のハンドリング定義を追加する必要がある。</p>
+<p>設定の追加方法については、</p>
+<ul class="simple">
+<li><a class="reference internal" href="ExceptionHandling.html#exception-handling-how-to-use-application-configuration-common-label"><span class="std std-ref">共通設定</span></a></li>
+<li><a class="reference internal" href="ExceptionHandling.html#exception-handling-how-to-use-application-configuration-app-label"><span class="std std-ref">アプリケーション層の設定</span></a></li>
+</ul>
+<p>を参照されたい。</p>
+</div>
+<div class="section" id="controller">
+<h4><a class="toc-backref" href="#id50">4.5.2.3.7. トランザクショントークンチェックのControllerでの利用方法</a><a class="headerlink" href="#controller" title="Permalink to this headline">¶</a></h4>
+<div class="line-block">
+<div class="line">トランザクショントークンチェックを行う場合、Controllerではトランザクションを開始するメソッドの定義、チェックを行うメソッドの定義が必要となる。</div>
+<div class="line">以下では、1つのcontrollerで、1つのユースケースで必要となるハンドラメソッドを実装する場合の説明となる。</div>
+</div>
+<ul class="simple">
+<li>Controller</li>
+</ul>
+<blockquote>
+<div><div class="highlight-java"><div class="highlight"><pre><span></span><span class="nd">@Controller</span>
+<span class="nd">@RequestMapping</span><span class="p">(</span><span class="s">&quot;transactionTokenCheckExample&quot;</span><span class="p">)</span>
+<span class="hll"><span class="nd">@TransactionTokenCheck</span><span class="p">(</span><span class="s">&quot;transactionTokenCheckExample&quot;</span><span class="p">)</span> <span class="c1">// (1)</span>
+</span><span class="kd">public</span> <span class="kd">class</span> <span class="nc">TransactionTokenCheckExampleController</span> <span class="p">{</span>
+
+    <span class="nd">@RequestMapping</span><span class="p">(</span><span class="n">params</span> <span class="o">=</span> <span class="s">&quot;first&quot;</span><span class="p">,</span> <span class="n">method</span> <span class="o">=</span> <span class="n">RequestMethod</span><span class="p">.</span><span class="na">GET</span><span class="p">)</span>
+    <span class="kd">public</span> <span class="n">String</span> <span class="nf">first</span><span class="p">()</span> <span class="p">{</span>
+        <span class="k">return</span> <span class="s">&quot;transactionTokenCheckExample/firstView&quot;</span><span class="p">;</span>
+    <span class="p">}</span>
+
+    <span class="nd">@RequestMapping</span><span class="p">(</span><span class="n">params</span> <span class="o">=</span> <span class="s">&quot;second&quot;</span><span class="p">,</span> <span class="n">method</span> <span class="o">=</span> <span class="n">RequestMethod</span><span class="p">.</span><span class="na">POST</span><span class="p">)</span>
+<span class="hll">    <span class="nd">@TransactionTokenCheck</span><span class="p">(</span><span class="n">type</span> <span class="o">=</span> <span class="n">TransactionTokenType</span><span class="p">.</span><span class="na">BEGIN</span><span class="p">)</span> <span class="c1">// (2)</span>
+</span>    <span class="kd">public</span> <span class="n">String</span> <span class="nf">second</span><span class="p">()</span> <span class="p">{</span>
+        <span class="k">return</span> <span class="s">&quot;transactionTokenCheckExample/secondView&quot;</span><span class="p">;</span>
+    <span class="p">}</span>
+
+    <span class="nd">@RequestMapping</span><span class="p">(</span><span class="n">params</span> <span class="o">=</span> <span class="s">&quot;third&quot;</span><span class="p">,</span> <span class="n">method</span> <span class="o">=</span> <span class="n">RequestMethod</span><span class="p">.</span><span class="na">POST</span><span class="p">)</span>
+<span class="hll">    <span class="nd">@TransactionTokenCheck</span> <span class="c1">// (3)</span>
+</span>    <span class="kd">public</span> <span class="n">String</span> <span class="nf">third</span><span class="p">()</span> <span class="p">{</span>
+        <span class="k">return</span> <span class="s">&quot;transactionTokenCheckExample/thirdView&quot;</span><span class="p">;</span>
+    <span class="p">}</span>
+
+    <span class="nd">@RequestMapping</span><span class="p">(</span><span class="n">params</span> <span class="o">=</span> <span class="s">&quot;fourth&quot;</span><span class="p">,</span> <span class="n">method</span> <span class="o">=</span> <span class="n">RequestMethod</span><span class="p">.</span><span class="na">POST</span><span class="p">)</span>
+<span class="hll">    <span class="nd">@TransactionTokenCheck</span> <span class="c1">// (3)</span>
+</span>    <span class="kd">public</span> <span class="n">String</span> <span class="nf">fourth</span><span class="p">()</span> <span class="p">{</span>
+        <span class="k">return</span> <span class="s">&quot;transactionTokenCheckExample/fourthView&quot;</span><span class="p">;</span>
+    <span class="p">}</span>
+
+    <span class="nd">@RequestMapping</span><span class="p">(</span><span class="n">params</span> <span class="o">=</span> <span class="s">&quot;fifth&quot;</span><span class="p">,</span> <span class="n">method</span> <span class="o">=</span> <span class="n">RequestMethod</span><span class="p">.</span><span class="na">POST</span><span class="p">)</span>
+<span class="hll">    <span class="nd">@TransactionTokenCheck</span> <span class="c1">// (3)</span>
+</span>    <span class="kd">public</span> <span class="n">String</span> <span class="nf">fifth</span><span class="p">()</span> <span class="p">{</span>
+<span class="hll">        <span class="k">return</span> <span class="s">&quot;redirect:/transactionTokenCheckExample?complete&quot;</span><span class="p">;</span>
+</span>    <span class="p">}</span>
+
+    <span class="nd">@RequestMapping</span><span class="p">(</span><span class="n">params</span> <span class="o">=</span> <span class="s">&quot;complete&quot;</span><span class="p">,</span> <span class="n">method</span> <span class="o">=</span> <span class="n">RequestMethod</span><span class="p">.</span><span class="na">GET</span><span class="p">)</span>
+<span class="hll">    <span class="kd">public</span> <span class="n">String</span> <span class="nf">complete</span><span class="p">()</span> <span class="p">{</span> <span class="c1">// (4)</span>
+</span>        <span class="k">return</span> <span class="s">&quot;transactionTokenCheckExample/fifthView&quot;</span><span class="p">;</span>
+    <span class="p">}</span>
+
+<span class="p">}</span>
+</pre></div>
+</div>
+<table border="1" class="colwidths-given docutils">
+<colgroup>
+<col width="10%" />
+<col width="90%" />
+</colgroup>
+<thead valign="bottom">
+<tr class="row-odd"><th class="head">項番</th>
+<th class="head">説明</th>
+</tr>
+</thead>
+<tbody valign="top">
+<tr class="row-even"><td><div class="first last line-block">
+<div class="line">(1)</div>
+</div>
+</td>
+<td><div class="first last line-block">
+<div class="line">クラスアノテーションのvalue属性でNameSpaceを指定する。</div>
+<div class="line">上記例では、本ガイドラインの推奨パターンである <code class="docutils literal"><span class="pre">&#64;RequestMapping</span></code>のvalue属性と同じ値を指定している。</div>
+</div>
+</td>
+</tr>
+<tr class="row-odd"><td><div class="first last line-block">
+<div class="line">(2)</div>
+</div>
+</td>
+<td><div class="first last line-block">
+<div class="line">トランザクションを開始し、新しいトランザクショントークンを払い出す。</div>
+<div class="line">ここでは、Controller単位でトランザクショントークンを管理するため、メソッドアノテーションのvalue属性を指定しない。</div>
+</div>
+</td>
+</tr>
+<tr class="row-even"><td><div class="first last line-block">
+<div class="line">(3)</div>
+</div>
+</td>
+<td><div class="first last line-block">
+<div class="line">トランザクショントークンをチェックし、トランザクショントークンのトークン値を更新する。</div>
+<div class="line">type属性を省略した場合は、<code class="docutils literal"><span class="pre">&#64;TransactionTokenCheck(type</span> <span class="pre">=</span> <span class="pre">TransactionTokenType.IN)</span></code>を指定した時と同じ動作となる。</div>
+</div>
+</td>
+</tr>
+<tr class="row-odd"><td><div class="first last line-block">
+<div class="line">(4)</div>
+</div>
+</td>
+<td><div class="first last line-block">
+<div class="line">ユースケースの完了を通知する画面を表示するためのリクエストでは、トランザクショントークンチェックを行う必要はないため<code class="docutils literal"><span class="pre">&#64;TransactionTokenCheck</span></code>アノテーションの指定は行っていない。</div>
+</div>
+</td>
+</tr>
+</tbody>
+</table>
+<div class="admonition note">
+<p class="first admonition-title">Note</p>
+<ul class="last simple">
+<li><code class="docutils literal"><span class="pre">&#64;TransactionTokenCheck</span></code>アノテーションのtype属性にBEGINを指定した場合は、新しくTokenKeyが生成されるため、トランザクショントークンのチェックは行われない。</li>
+<li><code class="docutils literal"><span class="pre">&#64;TransactionTokenCheck</span></code>アノテーションのtype属性にINが指定された場合は、リクエストで指定されたトークン値とサーバ上で保持しているトークン値が同一のものがあるかをチェックする。</li>
+</ul>
+</div>
+</div></blockquote>
+</div>
+<div class="section" id="view-jsp">
+<span id="doublesubmit-how-to-use-transaction-token-check-jsp"></span><h4><a class="toc-backref" href="#id51">4.5.2.3.8. トランザクショントークンチェックのView(JSP)での利用方法</a><a class="headerlink" href="#view-jsp" title="Permalink to this headline">¶</a></h4>
+<div class="line-block">
+<div class="line">トランザクショントークンチェックを行う場合、払い出されたトランザクショントークンが、リクエストパラメータとして送信されるようにView(JSP)を実装する必要がある。</div>
+<div class="line">リクエストパラメータとして送信されるようにする方法としては、<a class="reference internal" href="#setting"><span class="std std-ref">トランザクショントークンチェックを使用するための設定</span></a>を行った上で、<code class="docutils literal"><span class="pre">&lt;form:form&gt;</span></code>タグを使用して自動的にトランザクショントークンをhidden要素に埋め込む方法を推奨する。</div>
+</div>
+<ul class="simple">
+<li><code class="file docutils literal"><span class="pre">firstView.jsp</span></code></li>
+</ul>
+<blockquote>
+<div><div class="highlight-jsp"><div class="highlight"><pre><span></span><span class="nt">&lt;h1&gt;</span>First<span class="nt">&lt;/h1&gt;</span>
+<span class="nt">&lt;form:form</span> <span class="na">method=</span><span class="s">&quot;post&quot;</span> <span class="na">action=</span><span class="s">&quot;transactionTokenCheckExample&quot;</span><span class="nt">&gt;</span>
+  <span class="nt">&lt;input</span> <span class="na">type=</span><span class="s">&quot;submit&quot;</span> <span class="na">name=</span><span class="s">&quot;second&quot;</span> <span class="na">value=</span><span class="s">&quot;second&quot;</span> <span class="nt">/&gt;</span>
+<span class="nt">&lt;/form:form&gt;</span>
+</pre></div>
+</div>
+</div></blockquote>
+<ul class="simple">
+<li><code class="file docutils literal"><span class="pre">secondView.jsp</span></code></li>
+</ul>
+<blockquote>
+<div><div class="highlight-jsp"><div class="highlight"><pre><span></span><span class="nt">&lt;h1&gt;</span>Second<span class="nt">&lt;/h1&gt;</span>
+<span class="hll"><span class="nt">&lt;form:form</span> <span class="na">method=</span><span class="s">&quot;post&quot;</span> <span class="na">action=</span><span class="s">&quot;transactionTokenCheckExample&quot;</span><span class="nt">&gt;</span><span class="c">&lt;!-- (1) --&gt;</span>
+</span>  <span class="nt">&lt;input</span> <span class="na">type=</span><span class="s">&quot;submit&quot;</span> <span class="na">name=</span><span class="s">&quot;third&quot;</span> <span class="na">value=</span><span class="s">&quot;third&quot;</span> <span class="nt">/&gt;</span>
+<span class="nt">&lt;/form:form&gt;</span>
+</pre></div>
+</div>
+</div></blockquote>
+<ul class="simple">
+<li><code class="file docutils literal"><span class="pre">thirdView.jsp</span></code></li>
+</ul>
+<blockquote>
+<div><div class="highlight-jsp"><div class="highlight"><pre><span></span><span class="nt">&lt;h1&gt;</span>Third<span class="nt">&lt;/h1&gt;</span>
+<span class="hll"><span class="nt">&lt;form:form</span> <span class="na">method=</span><span class="s">&quot;post&quot;</span> <span class="na">action=</span><span class="s">&quot;transactionTokenCheckExample&quot;</span><span class="nt">&gt;</span><span class="c">&lt;!-- (1) --&gt;</span>
+</span>  <span class="nt">&lt;input</span> <span class="na">type=</span><span class="s">&quot;submit&quot;</span> <span class="na">name=</span><span class="s">&quot;fourth&quot;</span> <span class="na">value=</span><span class="s">&quot;fourth&quot;</span> <span class="nt">/&gt;</span>
+<span class="nt">&lt;/form:form&gt;</span>
+</pre></div>
+</div>
+</div></blockquote>
+<ul class="simple">
+<li><code class="file docutils literal"><span class="pre">fourthView.jsp</span></code></li>
+</ul>
+<blockquote>
+<div><p><code class="docutils literal"><span class="pre">&lt;form:form&gt;</span></code>タグを使用する場合</p>
+<div class="highlight-jsp"><div class="highlight"><pre><span></span><span class="nt">&lt;h1&gt;</span>Fourth<span class="nt">&lt;/h1&gt;</span>
+<span class="hll"><span class="nt">&lt;form:form</span> <span class="na">method=</span><span class="s">&quot;post&quot;</span> <span class="na">action=</span><span class="s">&quot;transactionTokenCheckExample&quot;</span><span class="nt">&gt;</span><span class="c">&lt;!-- (1) --&gt;</span>
+</span>  <span class="nt">&lt;input</span> <span class="na">type=</span><span class="s">&quot;submit&quot;</span> <span class="na">name=</span><span class="s">&quot;fifth&quot;</span> <span class="na">value=</span><span class="s">&quot;fifth&quot;</span> <span class="nt">/&gt;</span>
+<span class="nt">&lt;/form:form&gt;</span>
+</pre></div>
+</div>
+</div></blockquote>
+<blockquote id="fourthview">
+<div><p>HTMLの<code class="docutils literal"><span class="pre">&lt;form&gt;</span></code>タグを使用する場合</p>
+<div class="highlight-jsp"><div class="highlight"><pre><span></span><span class="nt">&lt;h1&gt;</span>Fourth<span class="nt">&lt;/h1&gt;</span>
+<span class="nt">&lt;form</span> <span class="na">method=</span><span class="s">&quot;post&quot;</span> <span class="na">action=</span><span class="s">&quot;transactionTokenCheckExample&quot;</span><span class="nt">&gt;</span>
+<span class="hll">  <span class="nt">&lt;t:transaction</span> <span class="nt">/&gt;</span><span class="c">&lt;!-- (2) --&gt;</span>
+</span><span class="hll">  <span class="c">&lt;!-- (3) --&gt;</span>
+</span><span class="hll">  <span class="nt">&lt;input</span> <span class="na">type=</span><span class="s">&quot;hidden&quot;</span> <span class="na">name=</span><span class="s">&quot;${f:h(_csrf.parameterName)}&quot;</span>
+</span><span class="hll">                       <span class="na">value=</span><span class="s">&quot;${f:h(_csrf.token)}&quot;</span><span class="nt">/&gt;</span>
+</span>  <span class="nt">&lt;input</span> <span class="na">type=</span><span class="s">&quot;submit&quot;</span> <span class="na">name=</span><span class="s">&quot;fifth&quot;</span> <span class="na">value=</span><span class="s">&quot;fifth&quot;</span> <span class="nt">/&gt;</span>
+<span class="nt">&lt;/form&gt;</span>
+</pre></div>
+</div>
+</div></blockquote>
+<ul class="simple">
+<li><code class="file docutils literal"><span class="pre">fifthView.jsp</span></code></li>
+</ul>
+<blockquote>
+<div><div class="highlight-jsp"><div class="highlight"><pre><span></span><span class="nt">&lt;h1&gt;</span>Fifth<span class="nt">&lt;/h1&gt;</span>
+<span class="nt">&lt;form:form</span> <span class="na">method=</span><span class="s">&quot;get&quot;</span> <span class="na">action=</span><span class="s">&quot;transactionTokenCheckExample&quot;</span><span class="nt">&gt;</span>
+  <span class="nt">&lt;input</span> <span class="na">type=</span><span class="s">&quot;submit&quot;</span> <span class="na">name=</span><span class="s">&quot;first&quot;</span> <span class="na">value=</span><span class="s">&quot;first&quot;</span> <span class="nt">/&gt;</span>
+<span class="nt">&lt;/form:form&gt;</span>
+</pre></div>
+</div>
+<table border="1" class="colwidths-given docutils">
+<colgroup>
+<col width="10%" />
+<col width="90%" />
+</colgroup>
+<thead valign="bottom">
+<tr class="row-odd"><th class="head">項番</th>
+<th class="head">説明</th>
+</tr>
+</thead>
+<tbody valign="top">
+<tr class="row-even"><td><div class="first last line-block">
+<div class="line">(1)</div>
+</div>
+</td>
+<td><div class="first last line-block">
+<div class="line">JSPで、<code class="docutils literal"><span class="pre">&lt;form:form&gt;</span></code>タグを使用した場合は、<code class="docutils literal"><span class="pre">&#64;TransactionTokenCheck</span></code>アノテーションのtype属性にBEGINかINを指定すると、<code class="docutils literal"><span class="pre">name=&quot;_TRANSACTION_TOKEN&quot;</span></code>に対するValueが、hiddenタグとして自動的に埋め込まれる。</div>
+</div>
+</td>
+</tr>
+<tr class="row-odd"><td><div class="first last line-block">
+<div class="line">(2)</div>
+</div>
+</td>
+<td><div class="first last line-block">
+<div class="line">HTMLの<code class="docutils literal"><span class="pre">&lt;form&gt;</span></code>タグを使用する場合は、<code class="docutils literal"><span class="pre">&lt;t:transaction</span> <span class="pre">/&gt;</span></code> を使用することで、(1)と同様のhiddenタグが埋め込まれる。</div>
+</div>
+</td>
+</tr>
+<tr class="row-even"><td><div class="first last line-block">
+<div class="line">(3)</div>
+</div>
+</td>
+<td><div class="first last line-block">
+<div class="line">HTMLの<code class="docutils literal"><span class="pre">&lt;form&gt;</span></code>タグを使用する場合は、Spring Securityから提供されているCSRFトークンチェックで必要となるCSRFトークンをhidden項目として埋め込む必要がある。</div>
+<div class="line">CSRFトークンチェックで必要となるCSRFトークンについては、<a class="reference internal" href="../../Security/CSRF.html#csrf-formtag-use"><span class="std std-ref">Spring MVCを使用した連携</span></a>を参照されたい。</div>
+</div>
+</td>
+</tr>
+</tbody>
+</table>
+<div class="admonition note">
+<p class="first admonition-title">Note</p>
+<p class="last"><code class="docutils literal"><span class="pre">&lt;form:form&gt;</span></code>タグを使用すると、CSRFトークンチェックで必要となるパラメータも自動的に埋め込まれる。 CSRFトークンチェックで必要となるパラメータについては、<a class="reference internal" href="../../Security/CSRF.html#csrf-htmlformtag-use"><span class="std std-ref">HTMLフォーム使用時の連携</span></a>を参照されたい。</p>
+</div>
+<div class="admonition note">
+<p class="first admonition-title">Note</p>
+<p class="last"><code class="docutils literal"><span class="pre">&lt;t:transaction</span> <span class="pre">/&gt;</span></code>は、共通ライブラリから提供しているJSPタグライブラリである。
+(2)で使用している「t:」については、<a class="reference internal" href="../../ImplementationAtEachLayer/ApplicationLayer.html#view-jsp-include-label"><span class="std std-ref">インクルード用の共通JSPの作成</span></a>を参照されたい。</p>
+</div>
+</div></blockquote>
+<ul class="simple">
+<li>HTMLの出力例</li>
+</ul>
+<blockquote>
+<div><div class="figure">
+<a class="reference internal image-reference" href="../../_images/transaction-token-html.png"><img alt="transaction token html" src="../../_images/transaction-token-html.png" style="width: 100%;" /></a>
+</div>
+</div></blockquote>
+<p>出力されたHTMLを確認すると、</p>
+<ul>
+<li><div class="first line-block">
+<div class="line">NameSpaceは、クラスアノテーションのvalue属性で指定した値が設定される。</div>
+<div class="line">上記例だと、 <code class="docutils literal"><span class="pre">transactionTokenCheckExample</span></code>(橙色の下線)がNameSpaceとなる。</div>
+</div>
+</li>
+<li><div class="first line-block">
+<div class="line">TokenKeyは、トランザクション開始時に払い出された値が引き回されて設定される。</div>
+<div class="line">上記例だと、 <code class="docutils literal"><span class="pre">c0123252d531d7baf730cd49fe0422ef</span></code>(青色の下線)がTokenKeyとなる。</div>
+</div>
+</li>
+<li><div class="first line-block">
+<div class="line">TokenValueは、リクエスト毎に値が変化している。</div>
+<div class="line">上記例だと、 <code class="docutils literal"><span class="pre">3f610684e1cb546a13b79b9df30a7523</span></code>、<code class="docutils literal"><span class="pre">da770ed81dbca9a694b232e84247a13b</span></code>、</div>
+<div class="line"><code class="docutils literal"><span class="pre">bd5a2d88ec446b27c06f6d4f486d4428</span></code>(緑色の下線)がTokenValueとなる。</div>
+</div>
+</li>
+</ul>
+<p>ことが、わかる。</p>
+</div>
+<div class="section" id="id19">
+<h4><a class="toc-backref" href="#id52">4.5.2.3.9. 1つのController内で複数のユースケースを実施する場合</a><a class="headerlink" href="#id19" title="Permalink to this headline">¶</a></h4>
+<div class="line-block">
+<div class="line">1つのController内で複数のユースケースの処理を実装する場合のトランザクショントークンチェックの実装例を以下に示す。</div>
+<div class="line">下記の例では、(2),(3),(4)を別々のユースケースの画面遷移として扱っている。</div>
+</div>
+<ul class="simple">
+<li>Controller</li>
+</ul>
+<blockquote>
+<div><div class="highlight-java"><div class="highlight"><pre><span></span><span class="nd">@Controller</span>
+<span class="nd">@RequestMapping</span><span class="p">(</span><span class="s">&quot;transactionTokenChecFlowkExample&quot;</span><span class="p">)</span>
+<span class="hll"><span class="nd">@TransactionTokenCheck</span><span class="p">(</span><span class="s">&quot;transactionTokenChecFlowkExample&quot;</span><span class="p">)</span> <span class="c1">// (1)</span>
+</span><span class="kd">public</span> <span class="kd">class</span> <span class="nc">TransactionTokenCheckFlowExampleController</span> <span class="p">{</span>
+
+    <span class="nd">@RequestMapping</span><span class="p">(</span><span class="n">value</span> <span class="o">=</span> <span class="s">&quot;flowOne&quot;</span><span class="p">,</span>
+                    <span class="n">params</span> <span class="o">=</span> <span class="s">&quot;first&quot;</span><span class="p">,</span>
+                    <span class="n">method</span> <span class="o">=</span> <span class="n">RequestMethod</span><span class="p">.</span><span class="na">GET</span><span class="p">)</span>
+    <span class="kd">public</span> <span class="n">String</span> <span class="nf">flowOneFirst</span><span class="p">()</span> <span class="p">{</span>
+        <span class="k">return</span> <span class="s">&quot;transactionTokenChecFlowkExample/flowOneFirstView&quot;</span><span class="p">;</span>
+    <span class="p">}</span>
+
+    <span class="nd">@RequestMapping</span><span class="p">(</span><span class="n">value</span> <span class="o">=</span> <span class="s">&quot;flowOne&quot;</span><span class="p">,</span>
+                    <span class="n">params</span> <span class="o">=</span> <span class="s">&quot;second&quot;</span><span class="p">,</span>
+                    <span class="n">method</span> <span class="o">=</span> <span class="n">RequestMethod</span><span class="p">.</span><span class="na">POST</span><span class="p">)</span>
+<span class="hll">    <span class="nd">@TransactionTokenCheck</span><span class="p">(</span><span class="n">value</span> <span class="o">=</span> <span class="s">&quot;flowOne&quot;</span><span class="p">,</span>
+</span><span class="hll">                           <span class="n">type</span> <span class="o">=</span> <span class="n">TransactionTokenType</span><span class="p">.</span><span class="na">BEGIN</span><span class="p">)</span> <span class="c1">// (2)</span>
+</span>    <span class="kd">public</span> <span class="n">String</span> <span class="nf">flowOneSecond</span><span class="p">()</span> <span class="p">{</span>
+        <span class="k">return</span> <span class="s">&quot;transactionTokenChecFlowkExample/flowOneSecondView&quot;</span><span class="p">;</span>
+    <span class="p">}</span>
+
+    <span class="nd">@RequestMapping</span><span class="p">(</span><span class="n">value</span> <span class="o">=</span> <span class="s">&quot;flowOne&quot;</span><span class="p">,</span>
+                    <span class="n">params</span> <span class="o">=</span> <span class="s">&quot;third&quot;</span><span class="p">,</span>
+                    <span class="n">method</span> <span class="o">=</span> <span class="n">RequestMethod</span><span class="p">.</span><span class="na">POST</span><span class="p">)</span>
+<span class="hll">    <span class="nd">@TransactionTokenCheck</span><span class="p">(</span><span class="n">value</span> <span class="o">=</span> <span class="s">&quot;flowOne&quot;</span><span class="p">,</span>
+</span><span class="hll">                           <span class="n">type</span> <span class="o">=</span> <span class="n">TransactionTokenType</span><span class="p">.</span><span class="na">IN</span><span class="p">)</span>   <span class="c1">// (2)</span>
+</span>    <span class="kd">public</span> <span class="n">String</span> <span class="nf">flowOneThird</span><span class="p">()</span> <span class="p">{</span>
+        <span class="k">return</span> <span class="s">&quot;transactionTokenChecFlowkExample/flowOneThirdView&quot;</span><span class="p">;</span>
+    <span class="p">}</span>
+
+    <span class="nd">@RequestMapping</span><span class="p">(</span><span class="n">value</span> <span class="o">=</span> <span class="s">&quot;flowTwo&quot;</span><span class="p">,</span>
+                   <span class="n">params</span> <span class="o">=</span> <span class="s">&quot;first&quot;</span><span class="p">,</span>
+                    <span class="n">method</span> <span class="o">=</span> <span class="n">RequestMethod</span><span class="p">.</span><span class="na">GET</span><span class="p">)</span>
+    <span class="kd">public</span> <span class="n">String</span> <span class="nf">flowTwoFirst</span><span class="p">()</span> <span class="p">{</span>
+        <span class="k">return</span> <span class="s">&quot;transactionTokenChecFlowkExample/flowTwoFirstView&quot;</span><span class="p">;</span>
+    <span class="p">}</span>
+
+    <span class="nd">@RequestMapping</span><span class="p">(</span><span class="n">value</span> <span class="o">=</span> <span class="s">&quot;flowTwo&quot;</span><span class="p">,</span>
+                    <span class="n">params</span> <span class="o">=</span> <span class="s">&quot;second&quot;</span><span class="p">,</span>
+                    <span class="n">method</span> <span class="o">=</span> <span class="n">RequestMethod</span><span class="p">.</span><span class="na">POST</span><span class="p">)</span>
+<span class="hll">    <span class="nd">@TransactionTokenCheck</span><span class="p">(</span><span class="n">value</span> <span class="o">=</span> <span class="s">&quot;flowTwo&quot;</span><span class="p">,</span>
+</span><span class="hll">                           <span class="n">type</span> <span class="o">=</span> <span class="n">TransactionTokenType</span><span class="p">.</span><span class="na">BEGIN</span><span class="p">)</span> <span class="c1">// (3)</span>
+</span>    <span class="kd">public</span> <span class="n">String</span> <span class="nf">flowTwoSecond</span><span class="p">()</span> <span class="p">{</span>
+        <span class="k">return</span> <span class="s">&quot;transactionTokenChecFlowkExample/flowTwoSecondView&quot;</span><span class="p">;</span>
+    <span class="p">}</span>
+
+    <span class="nd">@RequestMapping</span><span class="p">(</span><span class="n">value</span> <span class="o">=</span> <span class="s">&quot;flowTwo&quot;</span><span class="p">,</span>
+                    <span class="n">params</span> <span class="o">=</span> <span class="s">&quot;third&quot;</span><span class="p">,</span>
+                    <span class="n">method</span> <span class="o">=</span> <span class="n">RequestMethod</span><span class="p">.</span><span class="na">POST</span><span class="p">)</span>
+<span class="hll">    <span class="nd">@TransactionTokenCheck</span><span class="p">(</span><span class="n">value</span> <span class="o">=</span> <span class="s">&quot;flowTwo&quot;</span><span class="p">,</span>
+</span><span class="hll">                           <span class="n">type</span> <span class="o">=</span> <span class="n">TransactionTokenType</span><span class="p">.</span><span class="na">IN</span><span class="p">)</span> <span class="c1">// (3)</span>
+</span>    <span class="kd">public</span> <span class="n">String</span> <span class="nf">flowTwoThird</span><span class="p">()</span> <span class="p">{</span>
+        <span class="k">return</span> <span class="s">&quot;transactionTokenChecFlowkExample/flowTwoThirdView&quot;</span><span class="p">;</span>
+    <span class="p">}</span>
+
+    <span class="nd">@RequestMapping</span><span class="p">(</span><span class="n">value</span> <span class="o">=</span> <span class="s">&quot;flowThree&quot;</span><span class="p">,</span>
+                    <span class="n">params</span> <span class="o">=</span> <span class="s">&quot;first&quot;</span><span class="p">,</span>
+                    <span class="n">method</span> <span class="o">=</span> <span class="n">RequestMethod</span><span class="p">.</span><span class="na">GET</span><span class="p">)</span>
+    <span class="kd">public</span> <span class="n">String</span> <span class="nf">flowThreeFirst</span><span class="p">()</span> <span class="p">{</span>
+        <span class="k">return</span> <span class="s">&quot;transactionTokenChecFlowkExample/flowThreeFirstView&quot;</span><span class="p">;</span>
+    <span class="p">}</span>
+
+    <span class="nd">@RequestMapping</span><span class="p">(</span><span class="n">value</span> <span class="o">=</span> <span class="s">&quot;flowThree&quot;</span><span class="p">,</span>
+                    <span class="n">params</span> <span class="o">=</span> <span class="s">&quot;second&quot;</span><span class="p">,</span>
+                    <span class="n">method</span> <span class="o">=</span> <span class="n">RequestMethod</span><span class="p">.</span><span class="na">POST</span><span class="p">)</span>
+<span class="hll">    <span class="nd">@TransactionTokenCheck</span><span class="p">(</span><span class="n">value</span> <span class="o">=</span> <span class="s">&quot;flowThree&quot;</span><span class="p">,</span>
+</span><span class="hll">                           <span class="n">type</span> <span class="o">=</span> <span class="n">TransactionTokenType</span><span class="p">.</span><span class="na">BEGIN</span><span class="p">)</span> <span class="c1">// (4)</span>
+</span>    <span class="kd">public</span> <span class="n">String</span> <span class="nf">flowThreeSecond</span><span class="p">()</span> <span class="p">{</span>
+        <span class="k">return</span> <span class="s">&quot;transactionTokenChecFlowkExample/flowThreeSecondView&quot;</span><span class="p">;</span>
+    <span class="p">}</span>
+
+    <span class="nd">@RequestMapping</span><span class="p">(</span><span class="n">value</span> <span class="o">=</span> <span class="s">&quot;flowThree&quot;</span><span class="p">,</span>
+                    <span class="n">params</span> <span class="o">=</span> <span class="s">&quot;third&quot;</span><span class="p">,</span>
+                    <span class="n">method</span> <span class="o">=</span> <span class="n">RequestMethod</span><span class="p">.</span><span class="na">POST</span><span class="p">)</span>
+<span class="hll">    <span class="nd">@TransactionTokenCheck</span><span class="p">(</span><span class="n">value</span> <span class="o">=</span> <span class="s">&quot;flowThree&quot;</span><span class="p">,</span>
+</span><span class="hll">                           <span class="n">type</span> <span class="o">=</span> <span class="n">TransactionTokenType</span><span class="p">.</span><span class="na">IN</span><span class="p">)</span> <span class="c1">// (4)</span>
+</span>    <span class="kd">public</span> <span class="n">String</span> <span class="nf">flowThreeThird</span><span class="p">()</span> <span class="p">{</span>
+        <span class="k">return</span> <span class="s">&quot;transactionTokenChecFlowkExample/flowThreeThirdView&quot;</span><span class="p">;</span>
+    <span class="p">}</span>
+
+<span class="p">}</span>
+</pre></div>
+</div>
+<table border="1" class="colwidths-given docutils">
+<colgroup>
+<col width="10%" />
+<col width="90%" />
+</colgroup>
+<thead valign="bottom">
+<tr class="row-odd"><th class="head">項番</th>
+<th class="head">説明</th>
+</tr>
+</thead>
+<tbody valign="top">
+<tr class="row-even"><td><div class="first last line-block">
+<div class="line">(1)</div>
+</div>
+</td>
+<td><div class="first last line-block">
+<div class="line">クラスアノテーションのvalue属性でNameSpaceを指定する。</div>
+<div class="line">上記例では、本ガイドラインの推奨パターンである <code class="docutils literal"><span class="pre">&#64;RequestMapping</span></code>のvalue属性と同じ値を指定している。</div>
+</div>
+</td>
+</tr>
+<tr class="row-odd"><td><div class="first last line-block">
+<div class="line">(2)</div>
+</div>
+</td>
+<td><div class="first last line-block">
+<div class="line"><code class="docutils literal"><span class="pre">flowOne</span></code>という名前を持つユースケースの処理に対して、トランザクショントークンチェックを行う。</div>
+<div class="line">上記例では、本ガイドラインの推奨パターンである <code class="docutils literal"><span class="pre">&#64;RequestMapping</span></code>のvalue属性と同じ値を指定している。</div>
+</div>
+</td>
+</tr>
+<tr class="row-even"><td><div class="first last line-block">
+<div class="line">(3)</div>
+</div>
+</td>
+<td><div class="first last line-block">
+<div class="line"><code class="docutils literal"><span class="pre">flowTwo</span></code>という名前を持つユースケースの処理に対して、トランザクショントークンチェックを行う。</div>
+<div class="line">上記例では、本ガイドラインの推奨パターンである <code class="docutils literal"><span class="pre">&#64;RequestMapping</span></code>のvalue属性と同じ値を指定している。</div>
+</div>
+</td>
+</tr>
+<tr class="row-odd"><td><div class="first last line-block">
+<div class="line">(4)</div>
+</div>
+</td>
+<td><div class="first last line-block">
+<div class="line"><code class="docutils literal"><span class="pre">flowThree</span></code>という名前を持つユースケースの処理に対して、トランザクショントークンチェックを行う。</div>
+<div class="line">上記例では、本ガイドラインの推奨パターンである <code class="docutils literal"><span class="pre">&#64;RequestMapping</span></code>のvalue属性と同じ値を指定している。</div>
+</div>
+</td>
+</tr>
+</tbody>
+</table>
+<div class="admonition note">
+<p class="first admonition-title">Note</p>
+<p class="last">ユースケースごとにNameSpaceを割り振ることで、ユースケースごとのトランザクショントークンチェックを行うことが出来る。</p>
+</div>
+</div></blockquote>
+</div>
+<div class="section" id="usecase-of-transaction-token-type-check">
+<span id="id20"></span><h4><a class="toc-backref" href="#id53">4.5.2.3.10. ユースケース内にファイルダウンロード処理等の画面を更新しない処理が含まれる場合</a><a class="headerlink" href="#usecase-of-transaction-token-type-check" title="Permalink to this headline">¶</a></h4>
+<p>ファイルダウンロード処理等のクライアントへ画面を返却しない処理を含むユースケースにおいて
+TransactionTokenTypeを正しく設定しない場合、通常のオペレーションでもトランザクショントークンエラーが発生するので注意が必要である。</p>
+<p>不適切なTransactionTokenTypeの指定により通常のオペレーションでトランザクショントークンエラーが発生する例を以下に示す。</p>
+<blockquote>
+<div><div class="figure">
+<a class="reference internal image-reference" href="../../_images/transaction-token-file-donwload-ng.png"><img alt="transaction token file download ng" src="../../_images/transaction-token-file-donwload-ng.png" style="width: 100%;" /></a>
+</div>
+<table border="1" class="colwidths-given longtable docutils">
+<colgroup>
+<col width="10%" />
+<col width="90%" />
+</colgroup>
+<thead valign="bottom">
+<tr class="row-odd"><th class="head">項番</th>
+<th class="head">説明</th>
+</tr>
+</thead>
+<tbody valign="top">
+<tr class="row-even"><td><div class="first last line-block">
+<div class="line">(1)</div>
+</div>
+</td>
+<td><div class="first last line-block">
+<div class="line">クライアントから、リクエストを送信する。</div>
+</div>
+</td>
+</tr>
+<tr class="row-odd"><td><div class="first last line-block">
+<div class="line">(2)</div>
+</div>
+</td>
+<td><div class="first last line-block">
+<div class="line">サーバは、トークン(token001)を作成し、サーバ上で保持する。</div>
+</div>
+</td>
+</tr>
+<tr class="row-even"><td><div class="first last line-block">
+<div class="line">(3)</div>
+</div>
+</td>
+<td><div class="first last line-block">
+<div class="line">サーバは、作成したトークン(token001)を、クライアントに引き渡す。</div>
+</div>
+</td>
+</tr>
+<tr class="row-odd"><td><div class="first last line-block">
+<div class="line">(4)</div>
+</div>
+</td>
+<td><div class="first last line-block">
+<div class="line">クライアントから、トークン(token001)を含めたファイルダウンロードのリクエストを送信する。</div>
+</div>
+</td>
+</tr>
+<tr class="row-even"><td><div class="first last line-block">
+<div class="line">(5)</div>
+</div>
+</td>
+<td><div class="first last line-block">
+<div class="line">サーバは、サーバ上で保持しているトークン(token001)と、クライアントから送信されたトークン(token001)が同一かチェックする。</div>
+<div class="line"><strong>値が同一なので、正規のリクエストと判断される。</strong></div>
+</div>
+</td>
+</tr>
+<tr class="row-odd"><td><div class="first last line-block">
+<div class="line">(6)</div>
+</div>
+</td>
+<td><div class="first last line-block">
+<div class="line"><code class="docutils literal"><span class="pre">TransactionTokenType</span></code>に<code class="docutils literal"><span class="pre">IN</span></code>を設定しているため、サーバは、次のリクエストで使用するトークン(token002)を生成し、サーバ上で管理している値を更新する。</div>
+<div class="line">この時点で、トークン(token001)は破棄される。</div>
+</div>
+</td>
+</tr>
+<tr class="row-even"><td><div class="first last line-block">
+<div class="line">(7)</div>
+</div>
+</td>
+<td><div class="first last line-block">
+<div class="line">サーバは、要求のあったファイルを返却する。</div>
+<div class="line"><strong>更新されたトークンをクライアントに返却しないため、この時点で画面のトークン(token001)とサーバのトークン(token002)が不一致となる</strong></div>
+</div>
+</td>
+</tr>
+<tr class="row-odd"><td><div class="first last line-block">
+<div class="line">(8)</div>
+</div>
+</td>
+<td><div class="first last line-block">
+<div class="line">クライアントから、トークン(token001)を含めたリクエストを送信する。</div>
+</div>
+</td>
+</tr>
+<tr class="row-even"><td><div class="first last line-block">
+<div class="line">(9)</div>
+</div>
+</td>
+<td><div class="first last line-block">
+<div class="line">サーバは、サーバ上で保持しているトークン(token001)と、クライアントから送信されたトークン(token002)が同一かチェックする。</div>
+<div class="line"><strong>値が不一致なので、不正なリクエストと判断される。</strong></div>
+</div>
+</td>
+</tr>
+</tbody>
+</table>
+</div></blockquote>
+<p>上記のように、ファイルダウンロード処理を行うことができる画面（screen2）から次画面（screen3）への遷移の処理に対してトランザクショントークンを適用したい場合に
+ファイルダウンロード処理の<code class="docutils literal"><span class="pre">TransactionTokenType</span></code>に<code class="docutils literal"><span class="pre">IN</span></code>を使用すると通常オペレーションの範囲でトークンの不一致を引き起こす。
+このようなケースにおいては<code class="docutils literal"><span class="pre">TransactionTokenType</span></code>に<code class="docutils literal"><span class="pre">CHECK</span></code>を使用する。</p>
+<blockquote>
+<div><div class="figure">
+<a class="reference internal image-reference" href="../../_images/transaction-token-file-donwload-ok.png"><img alt="transaction token file download ok" src="../../_images/transaction-token-file-donwload-ok.png" style="width: 100%;" /></a>
+</div>
+<table border="1" class="colwidths-given longtable docutils">
+<colgroup>
+<col width="10%" />
+<col width="90%" />
+</colgroup>
+<thead valign="bottom">
+<tr class="row-odd"><th class="head">項番</th>
+<th class="head">説明</th>
+</tr>
+</thead>
+<tbody valign="top">
+<tr class="row-even"><td><div class="first last line-block">
+<div class="line">(1)</div>
+</div>
+</td>
+<td><div class="first last line-block">
+<div class="line">クライアントから、トークン(token001)を含めたファイルダウンロードのリクエストを送信する。</div>
+</div>
+</td>
+</tr>
+<tr class="row-odd"><td><div class="first last line-block">
+<div class="line">(2)</div>
+</div>
+</td>
+<td><div class="first last line-block">
+<div class="line">サーバは、サーバ上で保持しているトークン(token001)と、クライアントから送信されたトークン(token001)が同一かチェックする。</div>
+<div class="line"><strong>値が同一なので、正規のリクエストと判断される。</strong></div>
+</div>
+</td>
+</tr>
+<tr class="row-even"><td><div class="first last line-block">
+<div class="line">(3)</div>
+</div>
+</td>
+<td><div class="first last line-block">
+<div class="line"><code class="docutils literal"><span class="pre">TransactionTokenType</span></code>に<code class="docutils literal"><span class="pre">CHECK</span></code>を設定しているため、サーバ上で管理しているトークンを更新しない。</div>
+</div>
+</td>
+</tr>
+<tr class="row-odd"><td><div class="first last line-block">
+<div class="line">(4)</div>
+</div>
+</td>
+<td><div class="first last line-block">
+<div class="line">サーバは、要求のあったファイルを返却する。</div>
+</div>
+</td>
+</tr>
+<tr class="row-even"><td><div class="first last line-block">
+<div class="line">(5)</div>
+</div>
+</td>
+<td><div class="first last line-block">
+<div class="line">クライアントから、トークン(token001)を含めたリクエストを送信する。</div>
+</div>
+</td>
+</tr>
+<tr class="row-odd"><td><div class="first last line-block">
+<div class="line">(6)</div>
+</div>
+</td>
+<td><div class="first last line-block">
+<div class="line">サーバは、サーバ上で保持しているトークン(token001)と、クライアントから送信されたトークン(token001)が同一かチェックする。</div>
+<div class="line"><strong>値が同一なので、正規のリクエストと判断される。</strong></div>
+</div>
+</td>
+</tr>
+<tr class="row-even"><td><div class="first last line-block">
+<div class="line">(7)</div>
+</div>
+</td>
+<td><div class="first last line-block">
+<div class="line">サーバは、次のリクエストで使用するトークン(token002)を生成し、サーバ上で管理している値を更新する。</div>
+<div class="line">この時点で、トークン(token001)は破棄される。</div>
+</div>
+</td>
+</tr>
+<tr class="row-odd"><td><div class="first last line-block">
+<div class="line">(8)</div>
+</div>
+</td>
+<td><div class="first last line-block">
+<div class="line">サーバは、更新したトークン(token002)を、クライアントに引き渡す。</div>
+</div>
+</td>
+</tr>
+</tbody>
+</table>
+</div></blockquote>
+<div class="admonition warning">
+<p class="first admonition-title">Warning</p>
+<p>サーバ側のトークンを更新させない方法として、<code class="docutils literal"><span class="pre">&#64;TransactionTokenCheck</span></code>を<code class="docutils literal"><span class="pre">Controller</span></code>のファイルダウンロードメソッドに付与しないという方法もある。
+しかしながら、<code class="docutils literal"><span class="pre">&#64;TransactionTokenCheck</span></code>を付与しない場合、クライアントにトークンが
+返却されないことを十分考慮して選択すること。</p>
+<p class="last">例えば、ファイルダウンロード処理中に再実行可能なエラーが発生した場合にエラーメッセージを画面に表示するなど、
+処理結果によって画面とファイルのいずれかを返却する可能性がある場合において、<code class="docutils literal"><span class="pre">&#64;TransactionTokenCheck</span></code>を付与しない方法を選択してしまうと、
+エラーメッセージを画面に返却した際に画面のトークンが失われてしまう。結果として通常のオペレーションにおいて
+トランザクショントークンエラーを発生させてしまうことになる。</p>
+</div>
+</div>
+<div class="section" id="id21">
+<h4><a class="toc-backref" href="#id54">4.5.2.3.11. トランザクショントークンチェックの代表的な適用例</a><a class="headerlink" href="#id21" title="Permalink to this headline">¶</a></h4>
+<p>「入力画面 -&gt; 確認画面 -&gt; 完了画面」といったシンプルな画面遷移を行うユースケースに対して、トランザクショントークンチェックを適用する際の実装例を以下に示す。</p>
+<ul class="simple">
+<li>Controller</li>
+</ul>
+<blockquote>
+<div><div class="highlight-java"><div class="highlight"><pre><span></span><span class="nd">@Controller</span>
+<span class="nd">@RequestMapping</span><span class="p">(</span><span class="s">&quot;user&quot;</span><span class="p">)</span>
+<span class="hll"><span class="nd">@TransactionTokenCheck</span><span class="p">(</span><span class="s">&quot;user&quot;</span><span class="p">)</span> <span class="c1">// (1)</span>
+</span><span class="kd">public</span> <span class="kd">class</span> <span class="nc">UserController</span> <span class="p">{</span>
+
+    <span class="c1">// omitted</span>
+
+    <span class="nd">@RequestMapping</span><span class="p">(</span><span class="n">value</span> <span class="o">=</span> <span class="s">&quot;create&quot;</span><span class="p">,</span> <span class="n">params</span> <span class="o">=</span> <span class="s">&quot;form&quot;</span><span class="p">)</span>
+<span class="hll">    <span class="kd">public</span> <span class="n">String</span> <span class="nf">createForm</span><span class="p">(</span><span class="n">UserCreateForm</span> <span class="n">form</span><span class="p">)</span> <span class="p">{</span> <span class="c1">// (2)</span>
+</span>      <span class="k">return</span> <span class="s">&quot;user/createForm&quot;</span><span class="p">;</span>
+    <span class="p">}</span>
+
+    <span class="nd">@RequestMapping</span><span class="p">(</span><span class="n">value</span> <span class="o">=</span> <span class="s">&quot;create&quot;</span><span class="p">,</span>
+                  <span class="n">params</span> <span class="o">=</span> <span class="s">&quot;confirm&quot;</span><span class="p">,</span>
+                  <span class="n">method</span> <span class="o">=</span> <span class="n">RequestMethod</span><span class="p">.</span><span class="na">POST</span><span class="p">)</span>
+<span class="hll">    <span class="nd">@TransactionTokenCheck</span><span class="p">(</span><span class="n">value</span> <span class="o">=</span> <span class="s">&quot;create&quot;</span><span class="p">,</span>
+</span><span class="hll">                         <span class="n">type</span> <span class="o">=</span> <span class="n">TransactionTokenType</span><span class="p">.</span><span class="na">BEGIN</span><span class="p">)</span> <span class="c1">// (3)</span>
+</span>    <span class="kd">public</span> <span class="n">String</span> <span class="nf">createConfirm</span><span class="p">(</span><span class="nd">@Validated</span>
+    <span class="n">UserCreateForm</span> <span class="n">form</span><span class="p">,</span> <span class="n">BindingResult</span> <span class="n">result</span><span class="p">)</span> <span class="p">{</span>
+
+        <span class="c1">// omitted</span>
+
+        <span class="k">return</span> <span class="s">&quot;user/createConfirm&quot;</span><span class="p">;</span>
+    <span class="p">}</span>
+
+    <span class="nd">@RequestMapping</span><span class="p">(</span><span class="n">value</span> <span class="o">=</span> <span class="s">&quot;create&quot;</span><span class="p">,</span> <span class="n">method</span> <span class="o">=</span> <span class="n">RequestMethod</span><span class="p">.</span><span class="na">POST</span><span class="p">)</span>
+<span class="hll">    <span class="nd">@TransactionTokenCheck</span><span class="p">(</span><span class="n">value</span> <span class="o">=</span> <span class="s">&quot;create&quot;</span><span class="p">)</span> <span class="c1">// (4)</span>
+</span>    <span class="kd">public</span> <span class="n">String</span> <span class="nf">create</span><span class="p">(</span><span class="nd">@Validated</span>
+    <span class="n">UserCreateForm</span> <span class="n">form</span><span class="p">,</span> <span class="n">BindingResult</span> <span class="n">result</span><span class="p">)</span> <span class="p">{</span>
+
+        <span class="c1">// omitted</span>
+
+        <span class="k">return</span> <span class="s">&quot;redirect:/user/create?complete&quot;</span><span class="p">;</span>
+    <span class="p">}</span>
+
+    <span class="nd">@RequestMapping</span><span class="p">(</span><span class="n">value</span> <span class="o">=</span> <span class="s">&quot;create&quot;</span><span class="p">,</span> <span class="n">params</span> <span class="o">=</span> <span class="s">&quot;complete&quot;</span><span class="p">)</span>
+<span class="hll">    <span class="kd">public</span> <span class="n">String</span> <span class="nf">createComplete</span><span class="p">()</span> <span class="p">{</span> <span class="c1">// (5)</span>
+</span>        <span class="k">return</span> <span class="s">&quot;user/createComplete&quot;</span><span class="p">;</span>
+    <span class="p">}</span>
+
+    <span class="c1">// omitted</span>
+
+<span class="p">}</span>
+</pre></div>
+</div>
+<table border="1" class="colwidths-given docutils">
+<colgroup>
+<col width="10%" />
+<col width="90%" />
+</colgroup>
+<thead valign="bottom">
+<tr class="row-odd"><th class="head">項番</th>
+<th class="head">説明</th>
+</tr>
+</thead>
+<tbody valign="top">
+<tr class="row-even"><td><div class="first last line-block">
+<div class="line">(1)</div>
+</div>
+</td>
+<td><div class="first last line-block">
+<div class="line">クラスアノテーションとして、<code class="docutils literal"><span class="pre">user</span></code>というNameSpaceを設定している。</div>
+<div class="line">上記例では、推奨パターンの<code class="docutils literal"><span class="pre">&#64;RequestMapping</span></code>アノテーションのvalue属性と同じ値を指定している。</div>
+</div>
+</td>
+</tr>
+<tr class="row-odd"><td><div class="first last line-block">
+<div class="line">(2)</div>
+</div>
+</td>
+<td><div class="first last line-block">
+<div class="line">入力画面の表示するためのハンドラメソッド。</div>
+<div class="line"><strong>ユースケースを開始するための画面ではあるが、データの更新を伴わない表示のみの処理であるため、トランザクションを開始する必要はない。</strong></div>
+<div class="line">そのため、上記例では <code class="docutils literal"><span class="pre">&#64;TransactionTokenCheck</span></code>アノテーションを指定していない。</div>
+</div>
+</td>
+</tr>
+<tr class="row-even"><td><div class="first last line-block">
+<div class="line">(3)</div>
+</div>
+</td>
+<td><div class="first last line-block">
+<div class="line">入力チェックを行い、確認画面を表示するためのハンドラメソッド。</div>
+<div class="line">確認画面には更新処理を実行するためのボタンが配置されているため、このタイミングでトランザクションを開始する。</div>
+<div class="line">遷移先には、View（JSP）を指定する。</div>
+</div>
+</td>
+</tr>
+<tr class="row-odd"><td><div class="first last line-block">
+<div class="line">(4)</div>
+</div>
+</td>
+<td><div class="first last line-block">
+<div class="line">更新処理を実行するためのハンドラメソッド。</div>
+<div class="line"><strong>更新処理を行うメソッドなので、トランザクショントークンのチェックを行う。</strong></div>
+</div>
+</td>
+</tr>
+<tr class="row-even"><td><div class="first last line-block">
+<div class="line">(4)</div>
+</div>
+</td>
+<td><div class="first last line-block">
+<div class="line">完了画面を表示するためのハンドラメソッド。</div>
+<div class="line"><strong>完了画面を表示するだけなので、トランザクショントークンのチェックは不要である。</strong></div>
+<div class="line">そのため、上記例では <code class="docutils literal"><span class="pre">&#64;TransactionTokenCheck</span></code>アノテーションを指定していない。</div>
+</div>
+</td>
+</tr>
+</tbody>
+</table>
+<div class="admonition warning">
+<p class="first admonition-title">Warning</p>
+<p class="last"><code class="docutils literal"><span class="pre">&#64;TransactionTokenCheck</span></code>アノテーションを定義したハンドラメソッドの遷移先は、View(JSP)を指定する必要がある。
+リダイレクト先などのView（JSP）以外を遷移先に指定すると、次の処理でTransactionTokenの値が変わっており、必ずTransactionTokenエラーが発生する。</p>
+</div>
+</div></blockquote>
+</div>
+<div class="section" id="id22">
+<h4><a class="toc-backref" href="#id55">4.5.2.3.12. セッション使用時の並行処理の排他制御について</a><a class="headerlink" href="#id22" title="Permalink to this headline">¶</a></h4>
+<p><code class="docutils literal"><span class="pre">&#64;SessionAttributes</span></code>アノテーションを使用してフォームオブジェクトなどをセッションに格納した場合、
+同じ処理の画面遷移を複数並行して行うと、互いの画面操作が干渉しあい、画面に表示されている値とセッション上で保持している値が一致しなくなってしまう事がある。</p>
+<p>こうような不整合な状態になっている画面からのリクエストを不正なリクエストとして防ぐ方法として、トランザクショントークンチェック機能を使用することができる。</p>
+<p>NameSpaceごとに保持できるトランザクショントークンの上限数に1を設定する。</p>
+<ul class="simple">
+<li><code class="file docutils literal"><span class="pre">spring-mvc.xml</span></code></li>
+</ul>
+<blockquote>
+<div><div class="highlight-xml"><div class="highlight"><pre><span></span><span class="nt">&lt;mvc:interceptor&gt;</span>
+    <span class="nt">&lt;mvc:mapping</span> <span class="na">path=</span><span class="s">&quot;/**&quot;</span> <span class="nt">/&gt;</span>
+    <span class="c">&lt;!-- omitted --&gt;</span>
+    <span class="nt">&lt;bean</span>
+        <span class="na">class=</span><span class="s">&quot;org.terasoluna.gfw.web.token.transaction.TransactionTokenInterceptor&quot;</span><span class="nt">&gt;</span>
+<span class="hll">        <span class="nt">&lt;constructor-arg</span> <span class="na">value=</span><span class="s">&quot;1&quot;</span><span class="nt">/&gt;</span> <span class="c">&lt;!-- (1) --&gt;</span>
+</span>    <span class="nt">&lt;/bean&gt;</span>
+<span class="nt">&lt;/mvc:interceptor&gt;</span>
+</pre></div>
+</div>
+<table border="1" class="colwidths-given docutils">
+<colgroup>
+<col width="10%" />
+<col width="90%" />
+</colgroup>
+<thead valign="bottom">
+<tr class="row-odd"><th class="head">項番</th>
+<th class="head">説明</th>
+</tr>
+</thead>
+<tbody valign="top">
+<tr class="row-even"><td><div class="first last line-block">
+<div class="line">(1)</div>
+</div>
+</td>
+<td><div class="first last line-block">
+<div class="line">NameSpaceごとのトランザクショントークンの保持数を、”1”に設定する。</div>
+</div>
+</td>
+</tr>
+</tbody>
+</table>
+<div class="admonition note">
+<p class="first admonition-title">Note</p>
+<p class="last"><code class="docutils literal"><span class="pre">&#64;SessionAttributes</span></code>アノテーションを使用してフォームオブジェクトなどをセッションに格納した場合は、 NameSpaceごとのトランザクショントークンの保持数を”1”に設定するとこで、
+古いデータを表示している画面からのリクエストを不正なリクエストとして防ぐことが可能となる。</p>
+</div>
+</div></blockquote>
+<div class="line-block">
+<div class="line"><br /></div>
+</div>
+</div>
+</div>
+</div>
+<div class="section" id="how-to-extend">
+<h2><a class="toc-backref" href="#id56">4.5.3. How to extend</a><a class="headerlink" href="#how-to-extend" title="Permalink to this headline">¶</a></h2>
+<div class="section" id="doublesubmit-how-to-extend-change-max-count">
+<span id="id23"></span><h3><a class="toc-backref" href="#id57">4.5.3.1. トランザクショントークンの上限数の変更方法について</a><a class="headerlink" href="#doublesubmit-how-to-extend-change-max-count" title="Permalink to this headline">¶</a></h3>
+<p>以下の設定を行うことで、1つのNameSpace上で保持する事ができるトランザクショントークンの上限数を変更することができる。</p>
+<ul class="simple">
+<li><code class="file docutils literal"><span class="pre">spring-mvc.xml</span></code></li>
+</ul>
+<blockquote>
+<div><div class="highlight-xml"><div class="highlight"><pre><span></span><span class="nt">&lt;mvc:interceptors&gt;</span>
+    <span class="nt">&lt;mvc:interceptor&gt;</span>
+        <span class="nt">&lt;mvc:mapping</span> <span class="na">path=</span><span class="s">&quot;/**&quot;</span> <span class="nt">/&gt;</span>
+        <span class="nt">&lt;mvc:exclude-mapping</span> <span class="na">path=</span><span class="s">&quot;/resources/**&quot;</span> <span class="nt">/&gt;</span>
+        <span class="nt">&lt;bean</span>
+            <span class="na">class=</span><span class="s">&quot;org.terasoluna.gfw.web.token.transaction.TransactionTokenInterceptor&quot;</span> <span class="nt">/&gt;</span>
+        <span class="nt">&lt;constructor-arg</span> <span class="na">value=</span><span class="s">&quot;5&quot;</span><span class="nt">/&gt;</span> <span class="c">&lt;!-- (1) --&gt;</span>
+<span class="hll">    <span class="nt">&lt;/mvc:interceptor&gt;</span>
+</span><span class="nt">&lt;/mvc:interceptors&gt;</span>
+</pre></div>
+</div>
+<table border="1" class="colwidths-given docutils">
+<colgroup>
+<col width="10%" />
+<col width="90%" />
+</colgroup>
+<thead valign="bottom">
+<tr class="row-odd"><th class="head">項番</th>
+<th class="head">説明</th>
+</tr>
+</thead>
+<tbody valign="top">
+<tr class="row-even"><td><div class="first last line-block">
+<div class="line">(1)</div>
+</div>
+</td>
+<td><div class="first last line-block">
+<div class="line"><code class="docutils literal"><span class="pre">TransactionTokenInterceptor</span></code>のコンストラクタの値として、1つのNameSpace上で保持する事ができるトランザクショントークンの上限数を指定する。</div>
+<div class="line">デフォルト値(デフォルトコンストラクタ使用時に設定される値)は、10となっている。</div>
+<div class="line">上記例では、 デフォルト値(10)から5に変更している。</div>
+</div>
+</td>
+</tr>
+</tbody>
+</table>
+</div></blockquote>
+</div>
+</div>
+<div class="section" id="appendix">
+<h2><a class="toc-backref" href="#id58">4.5.4. Appendix</a><a class="headerlink" href="#appendix" title="Permalink to this headline">¶</a></h2>
+<div class="section" id="double-submit-disable-cache">
+<span id="id24"></span><h3><a class="toc-backref" href="#id59">4.5.4.1. ブラウザキャッシュ無効時のトランザクショントークンチェック</a><a class="headerlink" href="#double-submit-disable-cache" title="Permalink to this headline">¶</a></h3>
+<p>HTTPレスポンスヘッダの<code class="docutils literal"><span class="pre">Cache-Control</span></code>の設定により、ブラウザキャッシュが無効になっている場合は、
+「<a class="reference internal" href="#double-submit-transactiontokencheck"><span class="std std-ref">トランザクショントークンチェックについて</span></a>」の想定外の操作を行った際に、
+トランザクショントークンエラーが発生する前にWebブラウザの有効期限切れメッセージが表示される。</p>
+<p>具体的には(8)のブラウザの戻るボタンをクリックすると以下の画面が表示される。図はInternet Explorer 11を使用した場合である。</p>
+<blockquote>
+<div><div class="figure">
+<a class="reference internal image-reference" href="../../_images/page-expired.png"><img alt="../../_images/page-expired.png" src="../../_images/page-expired.png" style="width: 60%;" /></a>
+</div>
+</div></blockquote>
+<p>この場合でも二重送信自体は防止されているため、問題はない。
+バージョン5.0.0.RELEASE以降の<a class="reference internal" href="../../ImplementationAtEachLayer/CreateWebApplicationProject.html"><span class="doc">雛形プロジェクト</span></a>では、
+<a class="reference internal" href="../../Security/LinkageWithBrowser.html#springsecuritylinkagewithbrowser"><span class="std std-ref">Spring Securityの機能</span></a>でキャッシュが無効になる設定が行われている。</p>
+<p>もしこの画面の表示が出る代わりにトランザクショントークンエラー画面を表示したい場合は、
+<code class="docutils literal"><span class="pre">&lt;sec:cache-control</span> <span class="pre">/&gt;</span></code>の設定を除外する必要があるが、セキュリティ観点では<code class="docutils literal"><span class="pre">&lt;sec:cache-control</span> <span class="pre">/&gt;</span></code>を設定しておくことを推奨する。</p>
+</div>
+<div class="section" id="doublesubmit-appendix-global-token">
+<span id="id25"></span><h3><a class="toc-backref" href="#id60">4.5.4.2. グローバルトークン</a><a class="headerlink" href="#doublesubmit-appendix-global-token" title="Permalink to this headline">¶</a></h3>
+<div class="line-block">
+<div class="line"><code class="docutils literal"><span class="pre">&#64;TransactionTokenCheck</span></code>アノテーションのvalue属性の指定を省略すると、グローバルなトランザクショントークンとして扱われる。</div>
+<div class="line">グローバルなトランザクショントークンのNameSpaceには、<code class="docutils literal"><span class="pre">globalToken</span></code>(固定値)が使用される。</div>
+</div>
+<blockquote>
+<div><div class="admonition note">
+<p class="first admonition-title">Note</p>
+<p class="last">アプリケーション全体として、単一の画面遷移のみを許容する場合は、NameSpaceごとに保持できるトランザクショントークンの上限数を1に設定し、グルーバルトークンを使用することで実現することが出来る。</p>
+</div>
+</div></blockquote>
+<p>アプリケーション全体として、単一の画面遷移のみを許容する場合の設定及び実装例を以下に示す。</p>
+<div class="section" id="namespace">
+<h4><a class="toc-backref" href="#id61">4.5.4.2.1. NameSpaceごとに保持できるトランザクショントークンの上限数の変更</a><a class="headerlink" href="#namespace" title="Permalink to this headline">¶</a></h4>
+<p>NameSpaceごとに保持できるトランザクショントークンの上限数に1を設定する。</p>
+<ul class="simple">
+<li><code class="file docutils literal"><span class="pre">spring-mvc.xml</span></code></li>
+</ul>
+<blockquote>
+<div><div class="highlight-xml"><div class="highlight"><pre><span></span><span class="nt">&lt;mvc:interceptor&gt;</span>
+    <span class="nt">&lt;mvc:mapping</span> <span class="na">path=</span><span class="s">&quot;/**&quot;</span> <span class="nt">/&gt;</span>
+    <span class="c">&lt;!-- omitted --&gt;</span>
+    <span class="nt">&lt;bean</span>
+        <span class="na">class=</span><span class="s">&quot;org.terasoluna.gfw.web.token.transaction.TransactionTokenInterceptor&quot;</span><span class="nt">&gt;</span>
+<span class="hll">        <span class="nt">&lt;constructor-arg</span> <span class="na">value=</span><span class="s">&quot;1&quot;</span><span class="nt">/&gt;</span> <span class="c">&lt;!-- (1) --&gt;</span>
+</span>    <span class="nt">&lt;/bean&gt;</span>
+<span class="nt">&lt;/mvc:interceptor&gt;</span>
+</pre></div>
+</div>
+<table border="1" class="colwidths-given docutils">
+<colgroup>
+<col width="10%" />
+<col width="90%" />
+</colgroup>
+<thead valign="bottom">
+<tr class="row-odd"><th class="head">項番</th>
+<th class="head">説明</th>
+</tr>
+</thead>
+<tbody valign="top">
+<tr class="row-even"><td><div class="first last line-block">
+<div class="line">(1)</div>
+</div>
+</td>
+<td><div class="first last line-block">
+<div class="line">NameSpaceごとのトランザクショントークンの保持数を、”1”に設定する。</div>
+</div>
+</td>
+</tr>
+</tbody>
+</table>
+</div></blockquote>
+</div>
+<div class="section" id="id26">
+<h4><a class="toc-backref" href="#id62">4.5.4.2.2. Controllerの実装</a><a class="headerlink" href="#id26" title="Permalink to this headline">¶</a></h4>
+<p>グルーバルトークン用のNameSpaceとなるようにするために、<code class="docutils literal"><span class="pre">&#64;TransactionTokenCheck</span></code>アノテーションのvalue属性には、値を指定しない。</p>
+<ul class="simple">
+<li>Controller</li>
+</ul>
+<blockquote>
+<div><div class="highlight-java"><div class="highlight"><pre><span></span><span class="nd">@Controller</span>
+<span class="nd">@RequestMapping</span><span class="p">(</span><span class="s">&quot;globalTokenCheckExample&quot;</span><span class="p">)</span>
+<span class="hll"><span class="kd">public</span> <span class="kd">class</span> <span class="nc">GlobalTokenCheckExampleController</span> <span class="p">{</span> <span class="c1">// (1)</span>
+</span>
+    <span class="nd">@RequestMapping</span><span class="p">(</span><span class="n">params</span> <span class="o">=</span> <span class="s">&quot;first&quot;</span><span class="p">,</span> <span class="n">method</span> <span class="o">=</span> <span class="n">RequestMethod</span><span class="p">.</span><span class="na">GET</span><span class="p">)</span>
+    <span class="kd">public</span> <span class="n">String</span> <span class="nf">first</span><span class="p">()</span> <span class="p">{</span>
+        <span class="k">return</span> <span class="s">&quot;globalTokenCheckExample/firstView&quot;</span><span class="p">;</span>
+    <span class="p">}</span>
+
+    <span class="nd">@RequestMapping</span><span class="p">(</span><span class="n">params</span> <span class="o">=</span> <span class="s">&quot;second&quot;</span><span class="p">,</span> <span class="n">method</span> <span class="o">=</span> <span class="n">RequestMethod</span><span class="p">.</span><span class="na">POST</span><span class="p">)</span>
+<span class="hll">    <span class="nd">@TransactionTokenCheck</span><span class="p">(</span><span class="n">type</span> <span class="o">=</span> <span class="n">TransactionTokenType</span><span class="p">.</span><span class="na">BEGIN</span><span class="p">)</span> <span class="c1">// (2)</span>
+</span>    <span class="kd">public</span> <span class="n">String</span> <span class="nf">second</span><span class="p">()</span> <span class="p">{</span>
+        <span class="k">return</span> <span class="s">&quot;globalTokenCheckExample/secondView&quot;</span><span class="p">;</span>
+    <span class="p">}</span>
+
+    <span class="nd">@RequestMapping</span><span class="p">(</span><span class="n">params</span> <span class="o">=</span> <span class="s">&quot;third&quot;</span><span class="p">,</span> <span class="n">method</span> <span class="o">=</span> <span class="n">RequestMethod</span><span class="p">.</span><span class="na">POST</span><span class="p">)</span>
+<span class="hll">    <span class="nd">@TransactionTokenCheck</span> <span class="c1">// (2)</span>
+</span>    <span class="kd">public</span> <span class="n">String</span> <span class="nf">third</span><span class="p">()</span> <span class="p">{</span>
+        <span class="k">return</span> <span class="s">&quot;globalTokenCheckExample/thirdView&quot;</span><span class="p">;</span>
+    <span class="p">}</span>
+
+    <span class="nd">@RequestMapping</span><span class="p">(</span><span class="n">params</span> <span class="o">=</span> <span class="s">&quot;fourth&quot;</span><span class="p">,</span> <span class="n">method</span> <span class="o">=</span> <span class="n">RequestMethod</span><span class="p">.</span><span class="na">POST</span><span class="p">)</span>
+<span class="hll">    <span class="nd">@TransactionTokenCheck</span> <span class="c1">// (2)</span>
+</span>    <span class="kd">public</span> <span class="n">String</span> <span class="nf">fourth</span><span class="p">()</span> <span class="p">{</span>
+        <span class="k">return</span> <span class="s">&quot;globalTokenCheckExample/fourthView&quot;</span><span class="p">;</span>
+    <span class="p">}</span>
+
+    <span class="nd">@RequestMapping</span><span class="p">(</span><span class="n">params</span> <span class="o">=</span> <span class="s">&quot;fifth&quot;</span><span class="p">,</span> <span class="n">method</span> <span class="o">=</span> <span class="n">RequestMethod</span><span class="p">.</span><span class="na">POST</span><span class="p">)</span>
+    <span class="kd">public</span> <span class="n">String</span> <span class="nf">fifth</span><span class="p">()</span> <span class="p">{</span>
+        <span class="k">return</span> <span class="s">&quot;globalTokenCheckExample/fifthView&quot;</span><span class="p">;</span>
+    <span class="p">}</span>
+
+<span class="p">}</span>
+</pre></div>
+</div>
+<table border="1" class="colwidths-given docutils">
+<colgroup>
+<col width="10%" />
+<col width="90%" />
+</colgroup>
+<thead valign="bottom">
+<tr class="row-odd"><th class="head">項番</th>
+<th class="head">説明</th>
+</tr>
+</thead>
+<tbody valign="top">
+<tr class="row-even"><td><div class="first last line-block">
+<div class="line">(1)</div>
+</div>
+</td>
+<td><div class="first last line-block">
+<div class="line">クラスアノテーションとして、<code class="docutils literal"><span class="pre">&#64;TransactionTokenCheck</span></code>アノテーションを指定しない。</div>
+</div>
+</td>
+</tr>
+<tr class="row-odd"><td><div class="first last line-block">
+<div class="line">(2)</div>
+</div>
+</td>
+<td><div class="first last line-block">
+<div class="line">メソッドアノテーションとして指定する <code class="docutils literal"><span class="pre">&#64;TransactionTokenCheck</span></code>アノテーションのvalue属性を指定しない。</div>
+</div>
+</td>
+</tr>
+</tbody>
+</table>
+</div></blockquote>
+<ul class="simple">
+<li>HTMLの出力例</li>
+</ul>
+<blockquote>
+<div><div class="line-block">
+<div class="line">JSPは、<a class="reference internal" href="#doublesubmit-how-to-use-transaction-token-check-jsp"><span class="std std-ref">トランザクショントークンチェックのView(JSP)での利用方法</span></a>で用意したJSPと同等のものを用意する。</div>
+<div class="line">actionを、<code class="docutils literal"><span class="pre">transactionTokenCheckExample</span></code>から<code class="docutils literal"><span class="pre">globalTokenCheckExample</span></code>に変更したのみで、他は同じである。</div>
+</div>
+<div class="figure">
+<a class="reference internal image-reference" href="../../_images/transaction-token-global-html.png"><img alt="transaction token global html" src="../../_images/transaction-token-global-html.png" style="width: 100%;" /></a>
+</div>
+</div></blockquote>
+<p>出力されたHTMLを確認すると、</p>
+<ul>
+<li><div class="first line-block">
+<div class="line">NameSpaceは、<code class="docutils literal"><span class="pre">globalToken</span></code>という固定値が設定される。</div>
+</div>
+</li>
+<li><div class="first line-block">
+<div class="line">TokenKeyは、トランザクション開始時に払い出された値が引き回されて設定される。</div>
+<div class="line">上記例だと、 <code class="docutils literal"><span class="pre">9d937be4adc2f5dd2032292d153f1133</span></code>(青色の下線)がTokenKeyとなる。</div>
+</div>
+</li>
+<li><div class="first line-block">
+<div class="line">TokenValueは、リクエスト毎に値が変化している。</div>
+<div class="line">上記例だと、 <code class="docutils literal"><span class="pre">9204d7705ce7a17f16ca6cec24cfd88b</span></code>、<code class="docutils literal"><span class="pre">69c809fefcad541dbd00bd1983af2148</span></code>、</div>
+<div class="line"><code class="docutils literal"><span class="pre">6b83f33b365f1270ee1c1b263f046719</span></code>(緑色の下線)がTokenValueとなる。</div>
+</div>
+</li>
+</ul>
+<p>ことが、わかる。</p>
+<p>以下に、NameSpaceごとのトランザクショントークンの上限数を1に設定して、グローバルトークンを使用した場合の動作について説明する。</p>
+<blockquote>
+<div><div class="figure">
+<a class="reference internal image-reference" href="../../_images/transaction-token-globaltoken.png"><img alt="transaction token globaltoken" src="../../_images/transaction-token-globaltoken.png" style="width: 90%;" /></a>
+</div>
+<table border="1" class="colwidths-given longtable docutils">
+<colgroup>
+<col width="10%" />
+<col width="90%" />
+</colgroup>
+<thead valign="bottom">
+<tr class="row-odd"><th class="head">項番</th>
+<th class="head">説明</th>
+</tr>
+</thead>
+<tbody valign="top">
+<tr class="row-even"><td><div class="first last line-block">
+<div class="line">(1)</div>
+</div>
+</td>
+<td><div class="first last line-block">
+<div class="line">window1の処理にて、TransactionTokenType.BEGINを行い、グローバルトークンを生成する。</div>
+</div>
+</td>
+</tr>
+<tr class="row-odd"><td><div class="first last line-block">
+<div class="line">(2)</div>
+</div>
+</td>
+<td><div class="first last line-block">
+<div class="line">window2の処理にて、TransactionTokenType.BEGINでtokenを更新する。</div>
+<div class="line">内部的に更新ではなく入れ替えとなるが、サーバ上保持できるトランザクショントークンは1つなので、トークンが更新されるイメージとなる。</div>
+</div>
+</td>
+</tr>
+<tr class="row-even"><td><div class="first last line-block">
+<div class="line">(3)</div>
+</div>
+</td>
+<td><div class="first last line-block">
+<div class="line">window1の処理のTransactionTokenType.INにて、tokenの値をチェックする。</div>
+<div class="line"><strong>1の処理で生成したトランザクショントークンをリクエストパラメータとして送信するが、サーバ上に指定したトークンが存在しないため、トランザクショントークンエラーとなる。</strong></div>
+</div>
+</td>
+</tr>
+<tr class="row-odd"><td><div class="first last line-block">
+<div class="line">(4)</div>
+</div>
+</td>
+<td><div class="first last line-block">
+<div class="line">window2の処理のTransactionTokenType.INにて、tokenの値をチェックする。</div>
+<div class="line">2の処理で生成したトランザクショントークンをリクエストパラメータとして送信し、サーバ上で保持しているトークン値と一致することをチェックする。</div>
+<div class="line">一致している場合は、処理が継続される。</div>
+</div>
+</td>
+</tr>
+<tr class="row-even"><td><div class="first last line-block">
+<div class="line">(5)</div>
+</div>
+</td>
+<td><div class="first last line-block">
+<div class="line">(4)と同様。</div>
+</div>
+</td>
+</tr>
+<tr class="row-odd"><td><div class="first last line-block">
+<div class="line">(6)</div>
+</div>
+</td>
+<td><div class="first last line-block">
+<div class="line">(4)と同様。</div>
+</div>
+</td>
+</tr>
+<tr class="row-even"><td><div class="first last line-block">
+<div class="line">(7)</div>
+</div>
+</td>
+<td><div class="first last line-block">
+<div class="line">リダイレクトを使用して画面を表示する場合は、トランザクショントークン用のhiddenタグは存在しない。</div>
+</div>
+</td>
+</tr>
+</tbody>
+</table>
+<div class="admonition note">
+<p class="first admonition-title">Note</p>
+<p class="last">サーバ上に残っているトランザクショントークンは、グローバルトークンが新たに生成されたタイミングで自動的に削除される。</p>
+</div>
+</div></blockquote>
+</div>
+</div>
+<div class="section" id="quick-reference">
+<h3><a class="toc-backref" href="#id63">4.5.4.3. Quick Reference</a><a class="headerlink" href="#quick-reference" title="Permalink to this headline">¶</a></h3>
+<div class="line-block">
+<div class="line">以下の表では、AccountとCustomerを管理する業務アプリケーションを例として、トランザクショントークンに関する設定をどのようにすべきか、また、その際の業務的な制限を示す。</div>
+<div class="line">例で示す業務アプリケーションで想定するユースケースは、Account,Customerのcreate,update,deleteとする。</div>
+<div class="line">下記の表を参考に、システム要件にあったトークンの上限数と、Namespaceの設定を行うこと。</div>
+</div>
+<blockquote>
+<div><table border="1" class="colwidths-given longtable docutils">
+<colgroup>
+<col width="10%" />
+<col width="20%" />
+<col width="15%" />
+<col width="20%" />
+<col width="15%" />
+<col width="20%" />
+</colgroup>
+<thead valign="bottom">
+<tr class="row-odd"><th class="head">番号</th>
+<th class="head">Namespace毎に保持するトークン数</th>
+<th class="head">classで指定したnamespace値</th>
+<th class="head">メソッドで指定したnamespace値</th>
+<th class="head">生成されるトークンの例</th>
+<th class="head">業務制限</th>
+</tr>
+</thead>
+<tbody valign="top">
+<tr class="row-even"><td><div class="first last line-block">
+<div class="line">(1)</div>
+</div>
+</td>
+<td><div class="first last line-block">
+<div class="line">10 (Default)</div>
+</div>
+</td>
+<td><div class="first last line-block">
+<div class="line">account</div>
+</div>
+</td>
+<td><div class="first last line-block">
+<div class="line">指定無し</div>
+</div>
+</td>
+<td><div class="first last line-block">
+<div class="line">account~key~value</div>
+</div>
+</td>
+<td><div class="first last line-block">
+<div class="line">Accountユースケース全体(create/update/delete)の同時実行数は、10に制限される。</div>
+</div>
+</td>
+</tr>
+<tr class="row-odd"><td><div class="first last line-block">
+<div class="line">(2)</div>
+</div>
+</td>
+<td><div class="first last line-block">
+<div class="line">10 (Default)</div>
+</div>
+</td>
+<td><div class="first last line-block">
+<div class="line">account</div>
+</div>
+</td>
+<td><div class="first last line-block">
+<div class="line">create</div>
+</div>
+</td>
+<td><div class="first last line-block">
+<div class="line">account/create~key~value</div>
+</div>
+</td>
+<td><div class="first last line-block">
+<div class="line">Accountユースケースのcreate業務の同時実行数は、10に制限される。</div>
+</div>
+</td>
+</tr>
+<tr class="row-even"><td><div class="first last line-block">
+<div class="line">(3)</div>
+</div>
+</td>
+<td><div class="first last line-block">
+<div class="line">10 (Default)</div>
+</div>
+</td>
+<td><div class="first last line-block">
+<div class="line">account</div>
+</div>
+</td>
+<td><div class="first last line-block">
+<div class="line">update</div>
+</div>
+</td>
+<td><div class="first last line-block">
+<div class="line">account/update~key~value</div>
+</div>
+</td>
+<td><div class="first last line-block">
+<div class="line">Accountユースケースのupdate業務の同時実行数は、10に制限される。</div>
+</div>
+</td>
+</tr>
+<tr class="row-odd"><td><div class="first last line-block">
+<div class="line">(4)</div>
+</div>
+</td>
+<td><div class="first last line-block">
+<div class="line">10 (Default)</div>
+</div>
+</td>
+<td><div class="first last line-block">
+<div class="line">account</div>
+</div>
+</td>
+<td><div class="first last line-block">
+<div class="line">delete</div>
+</div>
+</td>
+<td><div class="first last line-block">
+<div class="line">account/delete~key~value</div>
+</div>
+</td>
+<td><div class="first last line-block">
+<div class="line">Accountユースケースのdelete業務の同時実行数は、10に制限される。 ((2),(3),(4)の指定で、accountユースケース全体の同時実行数は、30になること。ほとんどのアプリケーションに対して、この設定は広過ぎるため、デフォルトの10より少ない値でも十分である。)</div>
+</div>
+</td>
+</tr>
+<tr class="row-even"><td><div class="first last line-block">
+<div class="line">(5)</div>
+</div>
+</td>
+<td><div class="first last line-block">
+<div class="line">10 (Default)</div>
+</div>
+</td>
+<td><div class="first last line-block">
+<div class="line">指定無し</div>
+</div>
+</td>
+<td><div class="first last line-block">
+<div class="line">create</div>
+</div>
+</td>
+<td><div class="first last line-block">
+<div class="line">create~key~value</div>
+</div>
+</td>
+<td><div class="first last line-block">
+<div class="line">アプリケーション全体で、createという同一のNamespaceが作成され、その中の同時実行数は、10に制限される。Accountと、Customerという業務が、別にあり、その中でも、createメソッドでTransactionTokenのNameSpaceに”create”と指定した場合、Accountと、Customerのcreateの合計同時実行数は、10に制限される。</div>
+</div>
+</td>
+</tr>
+<tr class="row-odd"><td><div class="first last line-block">
+<div class="line">(6)</div>
+</div>
+</td>
+<td><div class="first last line-block">
+<div class="line">10 (Default)</div>
+</div>
+</td>
+<td><div class="first last line-block">
+<div class="line">指定無し</div>
+</div>
+</td>
+<td><div class="first last line-block">
+<div class="line">update</div>
+</div>
+</td>
+<td><div class="first last line-block">
+<div class="line">update~key~value</div>
+</div>
+</td>
+<td><div class="first last line-block">
+<div class="line">(5)と同じ</div>
+</div>
+</td>
+</tr>
+<tr class="row-even"><td><div class="first last line-block">
+<div class="line">(7)</div>
+</div>
+</td>
+<td><div class="first last line-block">
+<div class="line">10 (Default)</div>
+</div>
+</td>
+<td><div class="first last line-block">
+<div class="line">指定無し</div>
+</div>
+</td>
+<td><div class="first last line-block">
+<div class="line">delete</div>
+</div>
+</td>
+<td><div class="first last line-block">
+<div class="line">delete~key~value</div>
+</div>
+</td>
+<td><div class="first last line-block">
+<div class="line">(5)と同じ</div>
+</div>
+</td>
+</tr>
+<tr class="row-odd"><td><div class="first last line-block">
+<div class="line">(8)</div>
+</div>
+</td>
+<td><div class="first last line-block">
+<div class="line">10 (Default)</div>
+</div>
+</td>
+<td><div class="first last line-block">
+<div class="line">指定無し</div>
+</div>
+</td>
+<td><div class="first last line-block">
+<div class="line">指定無し</div>
+</div>
+</td>
+<td><div class="first last line-block">
+<div class="line">globalToken~key~value</div>
+</div>
+</td>
+<td><div class="first last line-block">
+<div class="line">AccountとCustomerユースケース全体の合計同時実行数は10に制限される。</div>
+</div>
+</td>
+</tr>
+<tr class="row-even"><td><div class="first last line-block">
+<div class="line">(9)</div>
+</div>
+</td>
+<td><div class="first last line-block">
+<div class="line">1 (Custom Setting in spring-mvc.xml)</div>
+</div>
+</td>
+<td><div class="first last line-block">
+<div class="line">account</div>
+</div>
+</td>
+<td><div class="first last line-block">
+<div class="line">指定無し</div>
+</div>
+</td>
+<td><div class="first last line-block">
+<div class="line">account~key~value</div>
+</div>
+</td>
+<td><div class="first last line-block">
+<div class="line">Accountユースケース全体の同時実行数は1に制限されること。Accountのcreate/update/deleteは同時には一つの業務しか出来ない。1画面のみを使用した画面遷移を想定した場合、有効。</div>
+</div>
+</td>
+</tr>
+<tr class="row-odd"><td><div class="first last line-block">
+<div class="line">(10)</div>
+</div>
+</td>
+<td><div class="first last line-block">
+<div class="line">1 (Custom Setting in spring-mvc.xml)</div>
+</div>
+</td>
+<td><div class="first last line-block">
+<div class="line">account</div>
+</div>
+</td>
+<td><div class="first last line-block">
+<div class="line">create</div>
+</div>
+</td>
+<td><div class="first last line-block">
+<div class="line">account/create~key~value</div>
+</div>
+</td>
+<td><div class="first last line-block">
+<div class="line">Accountユースケースのcreate業務の同時実行数は、1に制限されること。Accountのcreateは、2画面開いての実行が、同時にできない。</div>
+</div>
+</td>
+</tr>
+<tr class="row-even"><td><div class="first last line-block">
+<div class="line">(11)</div>
+</div>
+</td>
+<td><div class="first last line-block">
+<div class="line">1 (Custom Setting in spring-mvc.xml)</div>
+</div>
+</td>
+<td><div class="first last line-block">
+<div class="line">account</div>
+</div>
+</td>
+<td><div class="first last line-block">
+<div class="line">update</div>
+</div>
+</td>
+<td><div class="first last line-block">
+<div class="line">account/update~key~value</div>
+</div>
+</td>
+<td><div class="first last line-block">
+<div class="line">(10)と同じ</div>
+</div>
+</td>
+</tr>
+<tr class="row-odd"><td><div class="first last line-block">
+<div class="line">(12)</div>
+</div>
+</td>
+<td><div class="first last line-block">
+<div class="line">1 (Custom Setting in spring-mvc.xml)</div>
+</div>
+</td>
+<td><div class="first last line-block">
+<div class="line">account</div>
+</div>
+</td>
+<td><div class="first last line-block">
+<div class="line">delete</div>
+</div>
+</td>
+<td><div class="first last line-block">
+<div class="line">account/delete~key~value</div>
+</div>
+</td>
+<td><div class="first last line-block">
+<div class="line">(10)と同じ</div>
+</div>
+</td>
+</tr>
+<tr class="row-even"><td><div class="first last line-block">
+<div class="line">(13)</div>
+</div>
+</td>
+<td><div class="first last line-block">
+<div class="line">1 (Custom Setting in spring-mvc.xml)</div>
+</div>
+</td>
+<td><div class="first last line-block">
+<div class="line">指定無し</div>
+</div>
+</td>
+<td><div class="first last line-block">
+<div class="line">create</div>
+</div>
+</td>
+<td><div class="first last line-block">
+<div class="line">create~key~value</div>
+</div>
+</td>
+<td><div class="first last line-block">
+<div class="line">アプリケーション全体でcreateという同一のNamespaceが作成され、その中の同時実行数は、1に制限されること。AccountとCustomerという業務が別にあり、createメソッドでTransactionTokenのNameSpaceに”create”と指定した場合、AccountとCustomerのcreateは同時に行えない。</div>
+</div>
+</td>
+</tr>
+<tr class="row-odd"><td><div class="first last line-block">
+<div class="line">(14)</div>
+</div>
+</td>
+<td><div class="first last line-block">
+<div class="line">1 (Custom Setting in spring-mvc.xml)</div>
+</div>
+</td>
+<td><div class="first last line-block">
+<div class="line">指定無し</div>
+</div>
+</td>
+<td><div class="first last line-block">
+<div class="line">update</div>
+</div>
+</td>
+<td><div class="first last line-block">
+<div class="line">update~key~value</div>
+</div>
+</td>
+<td><div class="first last line-block">
+<div class="line">(13)と同じ</div>
+</div>
+</td>
+</tr>
+<tr class="row-even"><td><div class="first last line-block">
+<div class="line">(15)</div>
+</div>
+</td>
+<td><div class="first last line-block">
+<div class="line">1 (Custom Setting in spring-mvc.xml)</div>
+</div>
+</td>
+<td><div class="first last line-block">
+<div class="line">指定無し</div>
+</div>
+</td>
+<td><div class="first last line-block">
+<div class="line">delete</div>
+</div>
+</td>
+<td><div class="first last line-block">
+<div class="line">delete~key~value</div>
+</div>
+</td>
+<td><div class="first last line-block">
+<div class="line">(13)と同じ</div>
+</div>
+</td>
+</tr>
+<tr class="row-odd"><td><div class="first last line-block">
+<div class="line">(16)</div>
+</div>
+</td>
+<td><div class="first last line-block">
+<div class="line">1 (Custom Setting in spring-mvc.xml)</div>
+</div>
+</td>
+<td><div class="first last line-block">
+<div class="line">指定無し</div>
+</div>
+</td>
+<td><div class="first last line-block">
+<div class="line">指定無し</div>
+</div>
+</td>
+<td><div class="first last line-block">
+<div class="line">globalToken~key~value</div>
+</div>
+</td>
+<td><div class="first last line-block">
+<div class="line">アプリケーション全体で同時に実行できる業務は、1に制限される。1セッションでは1つの操作のみを許容するプロジェクトで使用すること。</div>
+</div>
+</td>
+</tr>
+</tbody>
+</table>
+</div></blockquote>
+</div>
+</div>
+</div>
+
+
+          </div>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../../genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="MessageManagement.html" title="4.6. メッセージ管理"
+             >next</a> |</li>
+        <li class="right" >
+          <a href="Pagination.html" title="4.4. ページネーション"
+             >previous</a> |</li>
+        <li class="nav-item nav-item-0"><a href="../../index.html">TERASOLUNA Server Framework for Java (5.x) Development Guideline 5.6.2.RELEASE documentation</a> &#187;</li>
+          <li class="nav-item nav-item-1"><a href="index.html" >4. Webアプリ開発機能</a> &#187;</li> 
+      </ul>
+    </div>
+    <div class="footer">
+      © Copyright 2013, NTT DATA Corporation. © Copyright 2013, NTT Corporation.
+      Created using <a href="http://sphinx.pocoo.org/">Sphinx</a> 1.6.3.Theme is <a href="http://github.com/vimalkvn/solar-theme">Solar</a>
+    </div>
+    
+    <script>
+    
+    $(function() {
+    	var $sidebar	= $('.sphinxsidebar'),
+    		$window		= $(window),
+    		offset		= $sidebar.offset(),
+    		topPadding	= 3,
+    		$scroll		= $('#scroll');
+    	
+    	$window.scroll(function() {
+    		if ($scroll.is(':checked')) {
+				if ($window.scrollTop() > offset.top) {
+					$sidebar.stop().animate({
+						marginTop:$window.scrollTop() - offset.top + topPadding
+					});
+				} else {
+					$sidebar.stop().animate({
+						marginTop:0
+					});
+				}
+			}
+		});
+    	
+    	var $navList = $('ul:first', $sidebar);
+    	$('li:first', $navList).addClass('open');
+    	
+    	$navList.treeview({
+    		persist: "location",
+    		collapsed: true,
+    		unique: false
+    	});
+    	
+	});
+    (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+        (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+            m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+    })(window,document,'script','//www.google-analytics.com/analytics.js','ga');
+
+    ga('create', 'UA-46550814-1', 'terasolunaorg.github.io');
+    ga('send', 'pageview');
+    </script>
+  </body>
+</html>
