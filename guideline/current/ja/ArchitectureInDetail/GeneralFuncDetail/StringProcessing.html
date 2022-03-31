@@ -1,0 +1,1480 @@
+<!DOCTYPE html>
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <title>7.6. 文字列処理 &#8212; TERASOLUNA Server Framework for Java (5.x) Development Guideline 5.7.1.RELEASE documentation</title>
+    <link rel="stylesheet" href="../../_static/solar.css" type="text/css" />
+    <link rel="stylesheet" href="../../_static/pygments.css" type="text/css" />
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    '../../',
+        VERSION:     '5.7.1.RELEASE',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true,
+        SOURCELINK_SUFFIX: '.txt'
+      };
+    </script>
+    <script type="text/javascript" src="../../_static/jquery.js"></script>
+    <script type="text/javascript" src="../../_static/underscore.js"></script>
+    <script type="text/javascript" src="../../_static/doctools.js"></script>
+    <link rel="index" title="Index" href="../../genindex.html" />
+    <link rel="search" title="Search" href="../../search.html" />
+    <link rel="next" title="7.7. Beanマッピング(Dozer)" href="Dozer.html" />
+    <link rel="prev" title="7.5. システム時刻" href="SystemDate.html" /><script src="../../_static/jquery.treeview.js" type="text/javascript"></script>
+<!-- <link href='http://fonts.googleapis.com/css?family=Source+Code+Pro|Open+Sans:300italic,400italic,700italic,400,300,700' rel='stylesheet' type='text/css'> -->
+<link href="../../_static/solarized-dark.css" rel="stylesheet">
+<link href="../../_static/jquery.treeview.css" rel="stylesheet">
+  </head>
+  <body>
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../../genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="Dozer.html" title="7.7. Beanマッピング(Dozer)"
+             accesskey="N">next</a> |</li>
+        <li class="right" >
+          <a href="SystemDate.html" title="7.5. システム時刻"
+             accesskey="P">previous</a> |</li>
+        <li class="nav-item nav-item-0"><a href="../../index.html">TERASOLUNA Server Framework for Java (5.x) Development Guideline 5.7.1.RELEASE documentation</a> &#187;</li>
+          <li class="nav-item nav-item-1"><a href="index.html" accesskey="U">7. アプリケーション形態に依存しない汎用機能</a> &#187;</li> 
+      </ul>
+    </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper"><label><input id="scroll" type="checkbox" checked> scroll sidebar</label>
+
+  <h3><a href="../../index.html">Table Of Contents</a></h3>
+  <ul>
+<li><a class="reference internal" href="#">7.6. 文字列処理</a><ul>
+<li><a class="reference internal" href="#overview">7.6.1. Overview</a></li>
+<li><a class="reference internal" href="#how-to-use">7.6.2. How to use</a><ul>
+<li><a class="reference internal" href="#id3">7.6.2.1. トリム</a></li>
+<li><a class="reference internal" href="#id4">7.6.2.2. パディング・サプレス</a></li>
+<li><a class="reference internal" href="#id5">7.6.2.3. サロゲートペアを考慮した文字列処理</a><ul>
+<li><a class="reference internal" href="#stringprocessinghowtogetsurrogatepairstringlength">7.6.2.3.1. 文字列長の取得</a></li>
+<li><a class="reference internal" href="#id7">7.6.2.3.2. 指定範囲の文字列取得</a></li>
+<li><a class="reference internal" href="#id8">7.6.2.3.3. 文字列分割</a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#stringprocessinghowtousefullhalfconverter">7.6.2.4. 全角・半角文字列変換</a><ul>
+<li><a class="reference internal" href="#id10">7.6.2.4.1. 共通ライブラリの適用方法</a></li>
+<li><a class="reference internal" href="#id11">7.6.2.4.2. 全角文字列に変換</a></li>
+<li><a class="reference internal" href="#id12">7.6.2.4.3. 半角文字列に変換</a></li>
+<li><a class="reference internal" href="#fullhalfconverter">7.6.2.4.4. 独自の全角文字と半角文字のペア定義を登録したFullHalfConverterクラスの作成</a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#stringprocessinghowtousecodepoints">7.6.2.5. コードポイント集合チェック(文字種チェック)</a><ul>
+<li><a class="reference internal" href="#id14">7.6.2.5.1. 共通ライブラリの適用方法</a></li>
+<li><a class="reference internal" href="#stringprocessinghowtousecodepointsconstruction">7.6.2.5.2. コードポイント集合の作成</a></li>
+<li><a class="reference internal" href="#stringprocessinghowtousecodepointsoperations">7.6.2.5.3. コードポイント集合同士の集合演算</a></li>
+<li><a class="reference internal" href="#stringprocessinghowtousecodepointscheck">7.6.2.5.4. コードポイント集合を使った文字列チェック</a></li>
+<li><a class="reference internal" href="#bean-validation">7.6.2.5.5. Bean Validationと連携した文字列チェック</a></li>
+<li><a class="reference internal" href="#stringprocessinghowtousecodepointsclasscreation">7.6.2.5.6. コードポイント集合クラスの新規作成</a></li>
+<li><a class="reference internal" href="#stringprocessinghowtousecodepointsclasses">7.6.2.5.7. 共通ライブラリから提供しているコードポイント集合クラス</a></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+
+
+  <h4>Previous topic</h4>
+  <p class="topless"><a href="SystemDate.html"
+                        title="previous chapter">7.5. システム時刻</a></p>
+  <h4>Next topic</h4>
+  <p class="topless"><a href="Dozer.html"
+                        title="next chapter">7.7. Beanマッピング(Dozer)</a></p>
+  <div role="note" aria-label="source link">
+    <h3>This Page</h3>
+    <ul class="this-page-menu">
+      <li><a href="../../_sources/ArchitectureInDetail/GeneralFuncDetail/StringProcessing.rst.txt"
+            rel="nofollow">Show Source</a></li>
+    </ul>
+   </div>
+<div id="searchbox" style="display: none" role="search">
+  <h3>Quick search</h3>
+    <form class="search" action="../../search.html" method="get">
+      <div><input type="text" name="q" /></div>
+      <div><input type="submit" value="Go" /></div>
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <div class="section" id="id1">
+<h1>7.6. 文字列処理<a class="headerlink" href="#id1" title="Permalink to this headline">¶</a></h1>
+<div class="contents local topic" id="id2">
+<p class="topic-title">目次</p>
+<ul class="simple">
+<li><a class="reference internal" href="#overview" id="id20">Overview</a></li>
+<li><a class="reference internal" href="#how-to-use" id="id21">How to use</a><ul>
+<li><a class="reference internal" href="#id3" id="id22">トリム</a></li>
+<li><a class="reference internal" href="#id4" id="id23">パディング・サプレス</a></li>
+<li><a class="reference internal" href="#id5" id="id24">サロゲートペアを考慮した文字列処理</a><ul>
+<li><a class="reference internal" href="#stringprocessinghowtogetsurrogatepairstringlength" id="id25">文字列長の取得</a></li>
+<li><a class="reference internal" href="#id7" id="id26">指定範囲の文字列取得</a></li>
+<li><a class="reference internal" href="#id8" id="id27">文字列分割</a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#stringprocessinghowtousefullhalfconverter" id="id28">全角・半角文字列変換</a><ul>
+<li><a class="reference internal" href="#id10" id="id29">共通ライブラリの適用方法</a></li>
+<li><a class="reference internal" href="#id11" id="id30">全角文字列に変換</a></li>
+<li><a class="reference internal" href="#id12" id="id31">半角文字列に変換</a></li>
+<li><a class="reference internal" href="#fullhalfconverter" id="id32">独自の全角文字と半角文字のペア定義を登録したFullHalfConverterクラスの作成</a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#stringprocessinghowtousecodepoints" id="id33">コードポイント集合チェック(文字種チェック)</a><ul>
+<li><a class="reference internal" href="#id14" id="id34">共通ライブラリの適用方法</a></li>
+<li><a class="reference internal" href="#stringprocessinghowtousecodepointsconstruction" id="id35">コードポイント集合の作成</a></li>
+<li><a class="reference internal" href="#stringprocessinghowtousecodepointsoperations" id="id36">コードポイント集合同士の集合演算</a></li>
+<li><a class="reference internal" href="#stringprocessinghowtousecodepointscheck" id="id37">コードポイント集合を使った文字列チェック</a></li>
+<li><a class="reference internal" href="#bean-validation" id="id38">Bean Validationと連携した文字列チェック</a></li>
+<li><a class="reference internal" href="#stringprocessinghowtousecodepointsclasscreation" id="id39">コードポイント集合クラスの新規作成</a></li>
+<li><a class="reference internal" href="#stringprocessinghowtousecodepointsclasses" id="id40">共通ライブラリから提供しているコードポイント集合クラス</a></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+</div>
+<div class="line-block">
+<div class="line"><br /></div>
+</div>
+<div class="section" id="overview">
+<h2><a class="toc-backref" href="#id20">7.6.1. Overview</a><a class="headerlink" href="#overview" title="Permalink to this headline">¶</a></h2>
+<div class="line-block">
+<div class="line">Javaの文字列標準APIでは、日本語に特化した操作が少ない。</div>
+<div class="line">全角カタカナ/半角カタカナの変換や、半角カタカナのみで構成される文字列の判定を行う場合などは、</div>
+<div class="line">独自に処理を作りこむ必要がある。</div>
+</div>
+<div class="line-block">
+<div class="line">また、Javaでは全ての文字列をUnicodeで表現するが、</div>
+<div class="line">Unicodeでは 𠮷 のような特殊文字は、サロゲートペアと呼ばれるchar型2つ（32ビット）で表される。</div>
+<div class="line">このような文字を扱う場合にも予期せぬ挙動が起きぬよう、様々な文字を扱うことを考慮した実装を行う必要がある。</div>
+</div>
+<div class="line-block">
+<div class="line">本ガイドラインでは、日本語を処理するケースを想定し、</div>
+<div class="line">一般的な文字列操作の例と、共通ライブラリによる日本語操作APIの提供を行う。</div>
+</div>
+</div>
+<div class="section" id="how-to-use">
+<h2><a class="toc-backref" href="#id21">7.6.2. How to use</a><a class="headerlink" href="#how-to-use" title="Permalink to this headline">¶</a></h2>
+<div class="section" id="id3">
+<h3><a class="toc-backref" href="#id22">7.6.2.1. トリム</a><a class="headerlink" href="#id3" title="Permalink to this headline">¶</a></h3>
+<div class="line-block">
+<div class="line">半角空白のトリム操作を行う場合、<code class="docutils literal"><span class="pre">String#trim</span></code> メソッドを利用することも出来るが、前・後ろのみのトリム操作や、任意の文字列のトリム操作などの複雑な操作を行う場合は、Springから提供されている <code class="docutils literal"><span class="pre">org.springframework.util.StringUtils</span></code> を利用するとよい。</div>
+<div class="line"><br /></div>
+<div class="line">以下に例を示す。</div>
+<div class="line"><br /></div>
+</div>
+<div class="highlight-java"><div class="highlight"><pre><span></span><span class="n">String</span> <span class="n">str</span> <span class="o">=</span> <span class="s">&quot;  Hello World!!&quot;</span><span class="p">;</span>
+
+<span class="n">StringUtils</span><span class="p">.</span><span class="na">trimWhitespace</span><span class="p">(</span><span class="n">str</span><span class="p">);</span> <span class="c1">// =&gt; &quot;Hello World!!&quot;</span>
+
+<span class="n">StringUtils</span><span class="p">.</span><span class="na">trimLeadingCharacter</span><span class="p">(</span><span class="n">str</span><span class="p">,</span> <span class="sc">&#39; &#39;</span><span class="p">);</span> <span class="c1">// =&gt; &quot;Hello World!!&quot;</span>
+
+<span class="n">StringUtils</span><span class="p">.</span><span class="na">trimTrailingCharacter</span><span class="p">(</span><span class="n">str</span><span class="p">,</span> <span class="sc">&#39;!&#39;</span><span class="p">);</span> <span class="c1">// =&gt; &quot;  Hello World&quot;</span>
+</pre></div>
+</div>
+<div class="admonition note">
+<p class="first admonition-title">Note</p>
+<div class="last line-block">
+<div class="line"><code class="docutils literal"><span class="pre">StringUtils#trimLeadingCharacter</span></code> , <code class="docutils literal"><span class="pre">StringUtils#trimTrailingCharacter</span></code> の第1引数にサロゲートペアの文字列は指定しても挙動に変化はない。なお、第2引数はchar型のため、サロゲートペアを指定することは出来ない。</div>
+</div>
+</div>
+</div>
+<div class="section" id="id4">
+<h3><a class="toc-backref" href="#id23">7.6.2.2. パディング・サプレス</a><a class="headerlink" href="#id4" title="Permalink to this headline">¶</a></h3>
+<div class="line-block">
+<div class="line">パディング（文字列埋め）操作・サプレス（文字列取り）操作を行う場合は、</div>
+<div class="line"><code class="docutils literal"><span class="pre">String</span></code> クラスから提供されているメソッドで行うことが出来る。</div>
+<div class="line"><br /></div>
+<div class="line">以下に例を示す。</div>
+</div>
+<div class="highlight-java"><div class="highlight"><pre><span></span><span class="kt">int</span> <span class="n">num</span> <span class="o">=</span> <span class="mi">1</span><span class="p">;</span>
+
+<span class="n">String</span> <span class="n">paddingStr</span> <span class="o">=</span> <span class="n">String</span><span class="p">.</span><span class="na">format</span><span class="p">(</span><span class="s">&quot;%03d&quot;</span><span class="p">,</span> <span class="n">num</span><span class="p">);</span> <span class="c1">// =&gt; &quot;001&quot;</span>
+<span class="n">String</span> <span class="n">suppressStr</span> <span class="o">=</span> <span class="n">paddingStr</span><span class="p">.</span><span class="na">replaceFirst</span><span class="p">(</span><span class="s">&quot;^0+(?!$)&quot;</span><span class="p">,</span> <span class="s">&quot;&quot;</span><span class="p">);</span> <span class="c1">// =&gt; &quot;1&quot;</span>
+</pre></div>
+</div>
+<div class="admonition warning">
+<p class="first admonition-title">Warning</p>
+<div class="last line-block">
+<div class="line"><code class="docutils literal"><span class="pre">String#format</span></code> はサロゲートペアを考慮できないため、見た目上の長さでパディングを行いたい場合、サロゲートペアが含まれると正しい結果が得られない。</div>
+<div class="line">サロゲートペアを考慮してパディングを実現するためには、後述するサロゲートペアを考慮した文字数のカウントを行い、パディングすべき正しい文字数を算出して文字列結合を行う必要がある。</div>
+</div>
+</div>
+</div>
+<div class="section" id="id5">
+<h3><a class="toc-backref" href="#id24">7.6.2.3. サロゲートペアを考慮した文字列処理</a><a class="headerlink" href="#id5" title="Permalink to this headline">¶</a></h3>
+<div class="section" id="stringprocessinghowtogetsurrogatepairstringlength">
+<span id="id6"></span><h4><a class="toc-backref" href="#id25">7.6.2.3.1. 文字列長の取得</a><a class="headerlink" href="#stringprocessinghowtogetsurrogatepairstringlength" title="Permalink to this headline">¶</a></h4>
+<div class="line-block">
+<div class="line">サロゲートペアを考慮した文字列の長さを取得する場合、</div>
+<div class="line">単に <code class="docutils literal"><span class="pre">String#length</span></code> メソッドを使用することは出来ない。</div>
+<div class="line">サロゲートペアは32ビット（char型2つ）で表現されるため、見た目上の文字数よりも多くカウントされてしまう。</div>
+<div class="line"><br /></div>
+<div class="line">下記例では、変数 <code class="docutils literal"><span class="pre">len</span></code> には5が代入される。</div>
+</div>
+<div class="highlight-java"><div class="highlight"><pre><span></span><span class="n">String</span> <span class="n">str</span> <span class="o">=</span> <span class="s">&quot;𠮷田太郎&quot;</span><span class="p">;</span>
+<span class="kt">int</span> <span class="n">len</span> <span class="o">=</span> <span class="n">str</span><span class="p">.</span><span class="na">length</span><span class="p">();</span> <span class="c1">// =&gt; 5</span>
+</pre></div>
+</div>
+<div class="line-block">
+<div class="line"><br /></div>
+<div class="line">そこで、Java SE 5よりサロゲートペアを考慮した文字列の長さを取得するためのメソッド <code class="docutils literal"><span class="pre">String#codePointCount</span></code> が定義された。</div>
+<div class="line"><code class="docutils literal"><span class="pre">String#codePointCount</span></code> の引数に、対象文字列の開始インデックスと終了インデックスを指定することで、文字列長を取得することが出来る。</div>
+<div class="line"><br /></div>
+<div class="line">以下に例を示す。</div>
+</div>
+<div class="highlight-java"><div class="highlight"><pre><span></span><span class="n">String</span> <span class="n">str</span> <span class="o">=</span> <span class="s">&quot;𠮷田太郎&quot;</span><span class="p">;</span>
+<span class="kt">int</span> <span class="n">lenOfChar</span> <span class="o">=</span> <span class="n">str</span><span class="p">.</span><span class="na">length</span><span class="p">();</span> <span class="c1">// =&gt; 5</span>
+<span class="kt">int</span> <span class="n">lenOfCodePoint</span> <span class="o">=</span> <span class="n">str</span><span class="p">.</span><span class="na">codePointCount</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="n">lenOfChar</span><span class="p">);</span> <span class="c1">// =&gt; 4</span>
+</pre></div>
+</div>
+<div class="line-block">
+<div class="line"><br /></div>
+<div class="line">また、Unicodeでは結合文字が存在する。</div>
+<div class="line">「が」を表す <code class="docutils literal"><span class="pre">\u304c</span></code> と、「か」と「濁点」を表す <code class="docutils literal"><span class="pre">\u304b\u3099</span></code> は、見た目上の違いは存在しないが、「か」＋「濁点」の例は2文字としてカウントされてしまう。</div>
+<div class="line">こうした結合文字が入力されることも考慮して文字数をカウントする場合、 <code class="docutils literal"><span class="pre">java.text.Normalizer</span></code> を使用してテキストの正規化を行ってからカウントする。</div>
+<div class="line"><br /></div>
+<div class="line">以下に、結合文字とサロゲートペアを考慮した上で、文字列の長さを返却するメソッドを示す。</div>
+</div>
+<div class="highlight-java"><div class="highlight"><pre><span></span><span class="kd">public</span> <span class="kt">int</span> <span class="nf">getStrLength</span><span class="p">(</span><span class="n">String</span> <span class="n">str</span><span class="p">)</span> <span class="p">{</span>
+  <span class="n">String</span> <span class="n">normalizedStr</span>  <span class="o">=</span> <span class="n">Normalizer</span><span class="p">.</span><span class="na">normalize</span><span class="p">(</span><span class="n">str</span><span class="p">,</span> <span class="n">Normalizer</span><span class="p">.</span><span class="na">Form</span><span class="p">.</span><span class="na">NFC</span><span class="p">);</span>
+  <span class="kt">int</span> <span class="n">length</span> <span class="o">=</span> <span class="n">normalizedStr</span><span class="p">.</span><span class="na">codePointCount</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="n">normalizedStr</span><span class="p">.</span><span class="na">length</span><span class="p">());</span>
+
+  <span class="k">return</span> <span class="n">length</span><span class="p">;</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+</div>
+<div class="section" id="id7">
+<h4><a class="toc-backref" href="#id26">7.6.2.3.2. 指定範囲の文字列取得</a><a class="headerlink" href="#id7" title="Permalink to this headline">¶</a></h4>
+<div class="line-block">
+<div class="line">指定範囲の文字列を取得する場合、単に <code class="docutils literal"><span class="pre">String#substring</span></code> を利用すると、想定していない結果になる可能性がある。</div>
+</div>
+<div class="highlight-java"><div class="highlight"><pre><span></span><span class="n">String</span> <span class="n">str</span> <span class="o">=</span> <span class="s">&quot;𠮷田 太郎&quot;</span><span class="p">;</span>
+<span class="kt">int</span> <span class="n">startIndex</span> <span class="o">=</span> <span class="mi">0</span><span class="p">;</span>
+<span class="kt">int</span> <span class="n">endIndex</span> <span class="o">=</span> <span class="mi">2</span><span class="p">;</span>
+
+<span class="n">String</span> <span class="n">subStr</span> <span class="o">=</span> <span class="n">str</span><span class="p">.</span><span class="na">substring</span><span class="p">(</span><span class="n">startIndex</span><span class="p">,</span> <span class="n">endIndex</span><span class="p">);</span>
+
+<span class="n">System</span><span class="p">.</span><span class="na">out</span><span class="p">.</span><span class="na">println</span><span class="p">(</span><span class="n">subStr</span><span class="p">);</span> <span class="c1">// =&gt; &quot;𠮷&quot;</span>
+</pre></div>
+</div>
+<div class="line-block">
+<div class="line">上記の例では、0文字目（先頭）から2文字を取り出し、 「𠮷田」 を取得しようと試みているが、サロゲートペアは32ビット（char型2つ）で表現されるため「𠮷」しか取得できない。</div>
+<div class="line">このような場合には、<code class="docutils literal"><span class="pre">String#offsetByCodePoints</span></code> を利用し、サロゲートペアを考慮した開始位置と終了位置を求めてから <code class="docutils literal"><span class="pre">String#substring</span></code> メソッドを使う必要がある。</div>
+<div class="line"><br /></div>
+<div class="line">以下に、先頭から2文字（苗字部分）を取り出す例を示す。</div>
+</div>
+<div class="highlight-java"><div class="highlight"><pre><span></span><span class="n">String</span> <span class="n">str</span> <span class="o">=</span> <span class="s">&quot;𠮷田 太郎&quot;</span><span class="p">;</span>
+<span class="kt">int</span> <span class="n">startIndex</span> <span class="o">=</span> <span class="mi">0</span><span class="p">;</span>
+<span class="kt">int</span> <span class="n">endIndex</span> <span class="o">=</span> <span class="mi">2</span><span class="p">;</span>
+
+<span class="kt">int</span> <span class="n">startIndexSurrogate</span> <span class="o">=</span> <span class="n">str</span><span class="p">.</span><span class="na">offsetByCodePoints</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="n">startIndex</span><span class="p">);</span> <span class="c1">// =&gt; 0</span>
+<span class="kt">int</span> <span class="n">endIndexSurrogate</span> <span class="o">=</span> <span class="n">str</span><span class="p">.</span><span class="na">offsetByCodePoints</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="n">endIndex</span><span class="p">);</span> <span class="c1">// =&gt; 3</span>
+
+<span class="n">String</span> <span class="n">subStrSurrogate</span> <span class="o">=</span> <span class="n">str</span><span class="p">.</span><span class="na">substring</span><span class="p">(</span><span class="n">startIndexSurrogate</span><span class="p">,</span> <span class="n">endIndexSurrogate</span><span class="p">);</span> <span class="c1">// =&gt; &quot;𠮷田&quot;</span>
+</pre></div>
+</div>
+<div class="line-block">
+<div class="line"><br /></div>
+</div>
+</div>
+<div class="section" id="id8">
+<h4><a class="toc-backref" href="#id27">7.6.2.3.3. 文字列分割</a><a class="headerlink" href="#id8" title="Permalink to this headline">¶</a></h4>
+<div class="line-block">
+<div class="line"><code class="docutils literal"><span class="pre">String#split</span></code> メソッドは、サロゲートペアにデフォルトで対応している。</div>
+<div class="line">以下に例を示す。</div>
+</div>
+<div class="highlight-java"><div class="highlight"><pre><span></span><span class="n">String</span> <span class="n">str</span> <span class="o">=</span> <span class="s">&quot;𠮷田 太郎&quot;</span><span class="p">;</span>
+
+<span class="n">str</span><span class="p">.</span><span class="na">split</span><span class="p">(</span><span class="s">&quot; &quot;</span><span class="p">);</span> <span class="c1">// =&gt; {&quot;𠮷田&quot;, &quot;太郎&quot;}</span>
+</pre></div>
+</div>
+<div class="line-block">
+<div class="line"><br /></div>
+</div>
+<blockquote>
+<div><div class="admonition note">
+<p class="first admonition-title">Note</p>
+<div class="last line-block">
+<div class="line">サロゲートペアを区切り文字として、 <code class="docutils literal"><span class="pre">String#split</span></code> の引数に指定することも出来る。</div>
+</div>
+</div>
+</div></blockquote>
+</div>
+</div>
+<div class="section" id="stringprocessinghowtousefullhalfconverter">
+<span id="id9"></span><h3><a class="toc-backref" href="#id28">7.6.2.4. 全角・半角文字列変換</a><a class="headerlink" href="#stringprocessinghowtousefullhalfconverter" title="Permalink to this headline">¶</a></h3>
+<p>全角文字と半角文字の変換は、共通ライブラリが提供する<code class="docutils literal"><span class="pre">org.terasoluna.gfw.common.fullhalf.FullHalfConverter</span></code>クラスのAPIを使用して行う。</p>
+<p><code class="docutils literal"><span class="pre">FullHalfConverter</span></code>クラスは、変換対象にしたい全角文字と半角文字のペア定義(<code class="docutils literal"><span class="pre">org.terasoluna.gfw.common.fullhalf.FullHalfPair</span></code>)を事前に登録しておくスタイルを採用している。
+共通ライブラリでは、デフォルトのペア定義が登録されている<code class="docutils literal"><span class="pre">FullHalfConverter</span></code>オブジェクトを、
+<code class="docutils literal"><span class="pre">org.terasoluna.gfw.common.fullhalf.DefaultFullHalf</span></code>クラスの<code class="docutils literal"><span class="pre">INSTANCE</span></code>定数として提供している。
+デフォルトのペア定義については、<a class="reference external" href="https://github.com/terasolunaorg/terasoluna-gfw/tree/5.7.1.RELEASE/terasoluna-gfw-common-libraries/terasoluna-gfw-string/src/main/java/org/terasoluna/gfw/common/fullhalf/DefaultFullHalf.java">DefaultFullHalfのソース</a> を参照されたい。</p>
+<div class="admonition note">
+<p class="first admonition-title">Note</p>
+<p class="last">共通ライブラリが提供しているデフォルトのペア定義で変換要件が満たせない場合は、独自のペア定義を登録した<code class="docutils literal"><span class="pre">FullHalfConverter</span></code>オブジェクトを作成すればよい。
+具体的な作成方法については、<a class="reference internal" href="#stringoperationshowtousecustomfullhalfconverter"><span class="std std-ref">独自の全角文字と半角文字のペア定義を登録したFullHalfConverterクラスの作成</span></a> を参照されたい。</p>
+</div>
+<div class="section" id="id10">
+<h4><a class="toc-backref" href="#id29">7.6.2.4.1. 共通ライブラリの適用方法</a><a class="headerlink" href="#id10" title="Permalink to this headline">¶</a></h4>
+<div class="line-block">
+<div class="line"><a class="reference internal" href="#stringprocessinghowtousefullhalfconverter"><span class="std std-ref">全角・半角文字列変換</span></a> を使う場合は、共通ライブラリを依存ライブラリとして以下の通り追加する必要がある。</div>
+</div>
+<div class="highlight-xml"><div class="highlight"><pre><span></span><span class="nt">&lt;dependencies&gt;</span>
+    <span class="nt">&lt;dependency&gt;</span>
+        <span class="nt">&lt;groupId&gt;</span>org.terasoluna.gfw<span class="nt">&lt;/groupId&gt;</span>
+        <span class="nt">&lt;artifactId&gt;</span>terasoluna-gfw-string<span class="nt">&lt;/artifactId&gt;</span>
+    <span class="nt">&lt;/dependency&gt;</span>
+<span class="nt">&lt;/dependencies&gt;</span>
+</pre></div>
+</div>
+<div class="admonition note">
+<p class="first admonition-title">Note</p>
+<p class="last">上記設定例では、依存ライブラリのバージョンは親プロジェクトで管理する前提である。
+そのため、<code class="docutils literal"><span class="pre">&lt;version&gt;</span></code>要素は指定していない。</p>
+</div>
+</div>
+<div class="section" id="id11">
+<h4><a class="toc-backref" href="#id30">7.6.2.4.2. 全角文字列に変換</a><a class="headerlink" href="#id11" title="Permalink to this headline">¶</a></h4>
+<p>半角文字を全角文字へ変換する場合は、<code class="docutils literal"><span class="pre">FullHalfConverter</span></code>の<code class="docutils literal"><span class="pre">toFullwidth</span></code>メソッドを使用する。</p>
+<div class="highlight-java"><div class="highlight"><pre><span></span><span class="n">String</span> <span class="n">fullwidth</span> <span class="o">=</span> <span class="n">DefaultFullHalf</span><span class="p">.</span><span class="na">INSTANCE</span><span class="p">.</span><span class="na">toFullwidth</span><span class="p">(</span><span class="s">&quot;ｱﾞ!A8ｶﾞザ&quot;</span><span class="p">);</span>    <span class="c1">// (1)</span>
+</pre></div>
+</div>
+<table border="1" class="colwidths-given docutils">
+<colgroup>
+<col width="10%" />
+<col width="90%" />
+</colgroup>
+<thead valign="bottom">
+<tr class="row-odd"><th class="head">項番</th>
+<th class="head">説明</th>
+</tr>
+</thead>
+<tbody valign="top">
+<tr class="row-even"><td><div class="first last line-block">
+<div class="line">(1)</div>
+</div>
+</td>
+<td><div class="first last line-block">
+<div class="line">半角文字が含まれる文字列を<code class="docutils literal"><span class="pre">toFullwidth</span></code>メソッドの引数に渡し、全角文字列へ変換する。</div>
+<div class="line">本例では、<code class="docutils literal"><span class="pre">ア゛！Ａ８ガザ</span></code>に変換される。なお、ペア定義されていない文字（本例の”<code class="docutils literal"><span class="pre">ザ</span></code>” ）はそのまま返却される。</div>
+</div>
+</td>
+</tr>
+</tbody>
+</table>
+</div>
+<div class="section" id="id12">
+<h4><a class="toc-backref" href="#id31">7.6.2.4.3. 半角文字列に変換</a><a class="headerlink" href="#id12" title="Permalink to this headline">¶</a></h4>
+<p>全角文字を半角文字へ変換する場合は、<code class="docutils literal"><span class="pre">FullHalfConverter</span></code>の<code class="docutils literal"><span class="pre">toHalfwidth</span></code>メソッドを使用する。</p>
+<div class="highlight-java"><div class="highlight"><pre><span></span><span class="n">String</span> <span class="n">halfwidth</span> <span class="o">=</span> <span class="n">DefaultFullHalf</span><span class="p">.</span><span class="na">INSTANCE</span><span class="p">.</span><span class="na">toHalfwidth</span><span class="p">(</span><span class="s">&quot;Ａ！アガｻ&quot;</span><span class="p">);</span>    <span class="c1">// (1)</span>
+</pre></div>
+</div>
+<table border="1" class="colwidths-given docutils">
+<colgroup>
+<col width="10%" />
+<col width="90%" />
+</colgroup>
+<thead valign="bottom">
+<tr class="row-odd"><th class="head">項番</th>
+<th class="head">説明</th>
+</tr>
+</thead>
+<tbody valign="top">
+<tr class="row-even"><td><div class="first last line-block">
+<div class="line">(1)</div>
+</div>
+</td>
+<td><div class="first last line-block">
+<div class="line">全角文字が含まれる文字列を<code class="docutils literal"><span class="pre">toHalfwidth</span></code>メソッドの引数に渡し、半角文字列へ変換する。</div>
+<div class="line">本例では、<code class="docutils literal"><span class="pre">A!ｱｶﾞｻ</span></code>に変換される。なお、ペア定義されていない文字（本例の”<code class="docutils literal"><span class="pre">ｻ</span></code>” ）はそのまま返却される。</div>
+</div>
+</td>
+</tr>
+</tbody>
+</table>
+<div class="admonition note">
+<p class="first admonition-title">Note</p>
+<p><code class="docutils literal"><span class="pre">FullHalfConverter</span></code>は、2文字以上で1文字を表現する結合文字（例：「”<code class="docutils literal"><span class="pre">シ</span></code>” (<code class="docutils literal"><span class="pre">\u30b7</span></code>) + 濁点(<code class="docutils literal"><span class="pre">\u3099</span></code>)」）を半角文字（例：”<code class="docutils literal"><span class="pre">ｼﾞ</span></code>” ）へ変換することが出来ない。
+結合文字を半角文字へ変換する場合は、テキスト正規化を行って合成文字（例：”<code class="docutils literal"><span class="pre">ジ</span></code>” (<code class="docutils literal"><span class="pre">\u30b8</span></code>)）に変換してから <code class="docutils literal"><span class="pre">FullHalfConverter</span></code>を使用する必要がある。</p>
+<p>テキスト正規化を行う場合は、<code class="docutils literal"><span class="pre">java.text.Normalizer</span></code>を使用する。
+なお、結合文字を合成文字に変換する場合は、正規化形式としてNFCまたはNFKCを利用する。</p>
+<p>正規化形式としてNFD（正準等価性によって分解する）を使用する場合の実装例</p>
+<blockquote>
+<div><div class="highlight-java"><div class="highlight"><pre><span></span><span class="n">String</span> <span class="n">str1</span> <span class="o">=</span> <span class="n">Normalizer</span><span class="p">.</span><span class="na">normalize</span><span class="p">(</span><span class="s">&quot;モジ&quot;</span><span class="p">,</span> <span class="n">Normalizer</span><span class="p">.</span><span class="na">Form</span><span class="p">.</span><span class="na">NFD</span><span class="p">);</span> <span class="c1">// str1 = &quot;モシ + Voiced sound mark(\u3099)&quot;</span>
+<span class="n">String</span> <span class="n">str2</span> <span class="o">=</span> <span class="n">Normalizer</span><span class="p">.</span><span class="na">normalize</span><span class="p">(</span><span class="s">&quot;ﾓｼﾞ&quot;</span><span class="p">,</span> <span class="n">Normalizer</span><span class="p">.</span><span class="na">Form</span><span class="p">.</span><span class="na">NFD</span><span class="p">);</span>  <span class="c1">// str2 = &quot;ﾓｼﾞ&quot;</span>
+</pre></div>
+</div>
+</div></blockquote>
+<p>正規化形式としてNFC（正準等価性によって分解し、再度合成する）を使用する場合の実装例</p>
+<blockquote>
+<div><div class="highlight-java"><div class="highlight"><pre><span></span><span class="n">String</span> <span class="n">mojiStr</span> <span class="o">=</span> <span class="s">&quot;モシ\u3099&quot;</span><span class="p">;</span>                                   <span class="c1">// &quot;モシ + Voiced sound mark(\u3099)&quot;</span>
+<span class="n">String</span> <span class="n">str1</span> <span class="o">=</span> <span class="n">Normalizer</span><span class="p">.</span><span class="na">normalize</span><span class="p">(</span><span class="n">mojiStr</span><span class="p">,</span> <span class="n">Normalizer</span><span class="p">.</span><span class="na">Form</span><span class="p">.</span><span class="na">NFC</span><span class="p">);</span> <span class="c1">// str1 = &quot;モジ（\u30b8）&quot;</span>
+<span class="n">String</span> <span class="n">str2</span> <span class="o">=</span> <span class="n">Normalizer</span><span class="p">.</span><span class="na">normalize</span><span class="p">(</span><span class="s">&quot;ﾓｼﾞ&quot;</span><span class="p">,</span> <span class="n">Normalizer</span><span class="p">.</span><span class="na">Form</span><span class="p">.</span><span class="na">NFC</span><span class="p">);</span>   <span class="c1">// str2 = &quot;ﾓｼﾞ&quot;</span>
+</pre></div>
+</div>
+</div></blockquote>
+<p>正規化形式としてNFKD（互換等価性によって分解する）を使用する場合の実装例</p>
+<blockquote>
+<div><div class="highlight-java"><div class="highlight"><pre><span></span><span class="n">String</span> <span class="n">str1</span> <span class="o">=</span> <span class="n">Normalizer</span><span class="p">.</span><span class="na">normalize</span><span class="p">(</span><span class="s">&quot;モジ&quot;</span><span class="p">,</span> <span class="n">Normalizer</span><span class="p">.</span><span class="na">Form</span><span class="p">.</span><span class="na">NFKD</span><span class="p">);</span> <span class="c1">// str1 = &quot;モシ + Voiced sound mark(\u3099)&quot;</span>
+<span class="n">String</span> <span class="n">str2</span> <span class="o">=</span> <span class="n">Normalizer</span><span class="p">.</span><span class="na">normalize</span><span class="p">(</span><span class="s">&quot;ﾓｼﾞ&quot;</span><span class="p">,</span> <span class="n">Normalizer</span><span class="p">.</span><span class="na">Form</span><span class="p">.</span><span class="na">NFKD</span><span class="p">);</span>  <span class="c1">// str2 = &quot;モシ + Voiced sound mark(\u3099)&quot;</span>
+</pre></div>
+</div>
+</div></blockquote>
+<p>正規化形式としてNFKC（互換等価性によって分解し、再度合成する）を使用する場合の実装例</p>
+<blockquote>
+<div><div class="highlight-java"><div class="highlight"><pre><span></span><span class="n">String</span> <span class="n">mojiStr</span> <span class="o">=</span> <span class="s">&quot;モシ\u3099&quot;</span><span class="p">;</span>                                    <span class="c1">// &quot;モシ + Voiced sound mark(\u3099)&quot;</span>
+<span class="n">String</span> <span class="n">str1</span> <span class="o">=</span> <span class="n">Normalizer</span><span class="p">.</span><span class="na">normalize</span><span class="p">(</span><span class="n">mojiStr</span><span class="p">,</span> <span class="n">Normalizer</span><span class="p">.</span><span class="na">Form</span><span class="p">.</span><span class="na">NFKC</span><span class="p">);</span> <span class="c1">// str1 = &quot;モジ（\u30b8）&quot;</span>
+<span class="n">String</span> <span class="n">str2</span> <span class="o">=</span> <span class="n">Normalizer</span><span class="p">.</span><span class="na">normalize</span><span class="p">(</span><span class="s">&quot;ﾓｼﾞ&quot;</span><span class="p">,</span> <span class="n">Normalizer</span><span class="p">.</span><span class="na">Form</span><span class="p">.</span><span class="na">NFKC</span><span class="p">)</span> <span class="p">;</span>  <span class="c1">// str2 = &quot;モジ&quot;</span>
+</pre></div>
+</div>
+</div></blockquote>
+<p class="last">詳細は <a class="reference external" href="https://docs.oracle.com/javase/8/docs/api/java/text/Normalizer.html">NormalizerのJavaDoc</a>を参照されたい。</p>
+</div>
+</div>
+<div class="section" id="fullhalfconverter">
+<span id="stringoperationshowtousecustomfullhalfconverter"></span><h4><a class="toc-backref" href="#id32">7.6.2.4.4. 独自の全角文字と半角文字のペア定義を登録したFullHalfConverterクラスの作成</a><a class="headerlink" href="#fullhalfconverter" title="Permalink to this headline">¶</a></h4>
+<div class="line-block">
+<div class="line"><code class="docutils literal"><span class="pre">DefaultFullHalf</span></code>を使用せず、独自の全角文字と半角文字のペア定義を登録した<code class="docutils literal"><span class="pre">FullHalfConverter</span></code>を使用することも出来る。</div>
+<div class="line">以下に、独自の全角文字と半角文字のペア定義を登録した <code class="docutils literal"><span class="pre">FullHalfConverter</span></code>を使用する方法を示す。</div>
+</div>
+<p><strong>独自のペア定義を登録したFullHalfConverterを提供するクラスの実装例</strong></p>
+<div class="highlight-java"><div class="highlight"><pre><span></span><span class="kd">public</span> <span class="kd">class</span> <span class="nc">CustomFullHalf</span> <span class="p">{</span>
+
+    <span class="kd">private</span> <span class="kd">static</span> <span class="kd">final</span> <span class="kt">int</span> <span class="n">FULL_HALF_CODE_DIFF</span> <span class="o">=</span> <span class="mh">0xFEE0</span><span class="p">;</span>
+
+    <span class="kd">public</span> <span class="kd">static</span> <span class="kd">final</span> <span class="n">FullHalfConverter</span> <span class="n">INSTANCE</span><span class="p">;</span>
+
+    <span class="kd">static</span> <span class="p">{</span>
+        <span class="c1">// (1)</span>
+        <span class="n">FullHalfPairsBuilder</span> <span class="n">builder</span> <span class="o">=</span> <span class="k">new</span> <span class="n">FullHalfPairsBuilder</span><span class="p">();</span>
+
+        <span class="c1">// (2)</span>
+        <span class="n">builder</span><span class="p">.</span><span class="na">pair</span><span class="p">(</span><span class="s">&quot;ー&quot;</span><span class="p">,</span> <span class="s">&quot;-&quot;</span><span class="p">);</span>
+
+        <span class="c1">// (3)</span>
+        <span class="k">for</span> <span class="p">(</span><span class="kt">char</span> <span class="n">c</span> <span class="o">=</span> <span class="sc">&#39;!&#39;</span><span class="p">;</span> <span class="n">c</span> <span class="o">&lt;=</span> <span class="sc">&#39;~&#39;</span><span class="p">;</span> <span class="n">c</span><span class="o">++</span><span class="p">)</span> <span class="p">{</span>
+            <span class="n">String</span> <span class="n">fullwidth</span> <span class="o">=</span> <span class="n">String</span><span class="p">.</span><span class="na">valueOf</span><span class="p">((</span><span class="kt">char</span><span class="p">)</span> <span class="p">(</span><span class="n">c</span> <span class="o">+</span> <span class="n">FULL_HALF_CODE_DIFF</span><span class="p">));</span>
+            <span class="n">builder</span><span class="p">.</span><span class="na">pair</span><span class="p">(</span><span class="n">fullwidth</span><span class="p">,</span> <span class="n">String</span><span class="p">.</span><span class="na">valueOf</span><span class="p">(</span><span class="n">c</span><span class="p">));</span>
+        <span class="p">}</span>
+
+        <span class="c1">// (4)</span>
+        <span class="n">builder</span><span class="p">.</span><span class="na">pair</span><span class="p">(</span><span class="s">&quot;。&quot;</span><span class="p">,</span> <span class="s">&quot;｡&quot;</span><span class="p">).</span><span class="na">pair</span><span class="p">(</span><span class="s">&quot;「&quot;</span><span class="p">,</span> <span class="s">&quot;｢&quot;</span><span class="p">).</span><span class="na">pair</span><span class="p">(</span><span class="s">&quot;」&quot;</span><span class="p">,</span> <span class="s">&quot;｣&quot;</span><span class="p">).</span><span class="na">pair</span><span class="p">(</span><span class="s">&quot;、&quot;</span><span class="p">,</span> <span class="s">&quot;､&quot;</span><span class="p">)</span>
+                <span class="p">.</span><span class="na">pair</span><span class="p">(</span><span class="s">&quot;・&quot;</span><span class="p">,</span> <span class="s">&quot;･&quot;</span><span class="p">).</span><span class="na">pair</span><span class="p">(</span><span class="s">&quot;ァ&quot;</span><span class="p">,</span> <span class="s">&quot;ｧ&quot;</span><span class="p">).</span><span class="na">pair</span><span class="p">(</span><span class="s">&quot;ィ&quot;</span><span class="p">,</span> <span class="s">&quot;ｨ&quot;</span><span class="p">).</span><span class="na">pair</span><span class="p">(</span><span class="s">&quot;ゥ&quot;</span><span class="p">,</span> <span class="s">&quot;ｩ&quot;</span><span class="p">)</span>
+                <span class="p">.</span><span class="na">pair</span><span class="p">(</span><span class="s">&quot;ェ&quot;</span><span class="p">,</span> <span class="s">&quot;ｪ&quot;</span><span class="p">).</span><span class="na">pair</span><span class="p">(</span><span class="s">&quot;ォ&quot;</span><span class="p">,</span> <span class="s">&quot;ｫ&quot;</span><span class="p">).</span><span class="na">pair</span><span class="p">(</span><span class="s">&quot;ャ&quot;</span><span class="p">,</span> <span class="s">&quot;ｬ&quot;</span><span class="p">).</span><span class="na">pair</span><span class="p">(</span><span class="s">&quot;ュ&quot;</span><span class="p">,</span> <span class="s">&quot;ｭ&quot;</span><span class="p">)</span>
+                <span class="p">.</span><span class="na">pair</span><span class="p">(</span><span class="s">&quot;ョ&quot;</span><span class="p">,</span> <span class="s">&quot;ｮ&quot;</span><span class="p">).</span><span class="na">pair</span><span class="p">(</span><span class="s">&quot;ッ&quot;</span><span class="p">,</span> <span class="s">&quot;ｯ&quot;</span><span class="p">).</span><span class="na">pair</span><span class="p">(</span><span class="s">&quot;ア&quot;</span><span class="p">,</span> <span class="s">&quot;ｱ&quot;</span><span class="p">).</span><span class="na">pair</span><span class="p">(</span><span class="s">&quot;イ&quot;</span><span class="p">,</span> <span class="s">&quot;ｲ&quot;</span><span class="p">)</span>
+                <span class="p">.</span><span class="na">pair</span><span class="p">(</span><span class="s">&quot;ウ&quot;</span><span class="p">,</span> <span class="s">&quot;ｳ&quot;</span><span class="p">).</span><span class="na">pair</span><span class="p">(</span><span class="s">&quot;エ&quot;</span><span class="p">,</span> <span class="s">&quot;ｴ&quot;</span><span class="p">).</span><span class="na">pair</span><span class="p">(</span><span class="s">&quot;オ&quot;</span><span class="p">,</span> <span class="s">&quot;ｵ&quot;</span><span class="p">).</span><span class="na">pair</span><span class="p">(</span><span class="s">&quot;カ&quot;</span><span class="p">,</span> <span class="s">&quot;ｶ&quot;</span><span class="p">)</span>
+                <span class="p">.</span><span class="na">pair</span><span class="p">(</span><span class="s">&quot;キ&quot;</span><span class="p">,</span> <span class="s">&quot;ｷ&quot;</span><span class="p">).</span><span class="na">pair</span><span class="p">(</span><span class="s">&quot;ク&quot;</span><span class="p">,</span> <span class="s">&quot;ｸ&quot;</span><span class="p">).</span><span class="na">pair</span><span class="p">(</span><span class="s">&quot;ケ&quot;</span><span class="p">,</span> <span class="s">&quot;ｹ&quot;</span><span class="p">).</span><span class="na">pair</span><span class="p">(</span><span class="s">&quot;コ&quot;</span><span class="p">,</span> <span class="s">&quot;ｺ&quot;</span><span class="p">)</span>
+                <span class="p">.</span><span class="na">pair</span><span class="p">(</span><span class="s">&quot;サ&quot;</span><span class="p">,</span> <span class="s">&quot;ｻ&quot;</span><span class="p">).</span><span class="na">pair</span><span class="p">(</span><span class="s">&quot;シ&quot;</span><span class="p">,</span> <span class="s">&quot;ｼ&quot;</span><span class="p">).</span><span class="na">pair</span><span class="p">(</span><span class="s">&quot;ス&quot;</span><span class="p">,</span> <span class="s">&quot;ｽ&quot;</span><span class="p">).</span><span class="na">pair</span><span class="p">(</span><span class="s">&quot;セ&quot;</span><span class="p">,</span> <span class="s">&quot;ｾ&quot;</span><span class="p">)</span>
+                <span class="p">.</span><span class="na">pair</span><span class="p">(</span><span class="s">&quot;ソ&quot;</span><span class="p">,</span> <span class="s">&quot;ｿ&quot;</span><span class="p">).</span><span class="na">pair</span><span class="p">(</span><span class="s">&quot;タ&quot;</span><span class="p">,</span> <span class="s">&quot;ﾀ&quot;</span><span class="p">).</span><span class="na">pair</span><span class="p">(</span><span class="s">&quot;チ&quot;</span><span class="p">,</span> <span class="s">&quot;ﾁ&quot;</span><span class="p">).</span><span class="na">pair</span><span class="p">(</span><span class="s">&quot;ツ&quot;</span><span class="p">,</span> <span class="s">&quot;ﾂ&quot;</span><span class="p">)</span>
+                <span class="p">.</span><span class="na">pair</span><span class="p">(</span><span class="s">&quot;テ&quot;</span><span class="p">,</span> <span class="s">&quot;ﾃ&quot;</span><span class="p">).</span><span class="na">pair</span><span class="p">(</span><span class="s">&quot;ト&quot;</span><span class="p">,</span> <span class="s">&quot;ﾄ&quot;</span><span class="p">).</span><span class="na">pair</span><span class="p">(</span><span class="s">&quot;ナ&quot;</span><span class="p">,</span> <span class="s">&quot;ﾅ&quot;</span><span class="p">).</span><span class="na">pair</span><span class="p">(</span><span class="s">&quot;ニ&quot;</span><span class="p">,</span> <span class="s">&quot;ﾆ&quot;</span><span class="p">)</span>
+                <span class="p">.</span><span class="na">pair</span><span class="p">(</span><span class="s">&quot;ヌ&quot;</span><span class="p">,</span> <span class="s">&quot;ﾇ&quot;</span><span class="p">).</span><span class="na">pair</span><span class="p">(</span><span class="s">&quot;ネ&quot;</span><span class="p">,</span> <span class="s">&quot;ﾈ&quot;</span><span class="p">).</span><span class="na">pair</span><span class="p">(</span><span class="s">&quot;ノ&quot;</span><span class="p">,</span> <span class="s">&quot;ﾉ&quot;</span><span class="p">).</span><span class="na">pair</span><span class="p">(</span><span class="s">&quot;ハ&quot;</span><span class="p">,</span> <span class="s">&quot;ﾊ&quot;</span><span class="p">)</span>
+                <span class="p">.</span><span class="na">pair</span><span class="p">(</span><span class="s">&quot;ヒ&quot;</span><span class="p">,</span> <span class="s">&quot;ﾋ&quot;</span><span class="p">).</span><span class="na">pair</span><span class="p">(</span><span class="s">&quot;フ&quot;</span><span class="p">,</span> <span class="s">&quot;ﾌ&quot;</span><span class="p">).</span><span class="na">pair</span><span class="p">(</span><span class="s">&quot;ヘ&quot;</span><span class="p">,</span> <span class="s">&quot;ﾍ&quot;</span><span class="p">).</span><span class="na">pair</span><span class="p">(</span><span class="s">&quot;ホ&quot;</span><span class="p">,</span> <span class="s">&quot;ﾎ&quot;</span><span class="p">)</span>
+                <span class="p">.</span><span class="na">pair</span><span class="p">(</span><span class="s">&quot;マ&quot;</span><span class="p">,</span> <span class="s">&quot;ﾏ&quot;</span><span class="p">).</span><span class="na">pair</span><span class="p">(</span><span class="s">&quot;ミ&quot;</span><span class="p">,</span> <span class="s">&quot;ﾐ&quot;</span><span class="p">).</span><span class="na">pair</span><span class="p">(</span><span class="s">&quot;ム&quot;</span><span class="p">,</span> <span class="s">&quot;ﾑ&quot;</span><span class="p">).</span><span class="na">pair</span><span class="p">(</span><span class="s">&quot;メ&quot;</span><span class="p">,</span> <span class="s">&quot;ﾒ&quot;</span><span class="p">)</span>
+                <span class="p">.</span><span class="na">pair</span><span class="p">(</span><span class="s">&quot;モ&quot;</span><span class="p">,</span> <span class="s">&quot;ﾓ&quot;</span><span class="p">).</span><span class="na">pair</span><span class="p">(</span><span class="s">&quot;ヤ&quot;</span><span class="p">,</span> <span class="s">&quot;ﾔ&quot;</span><span class="p">).</span><span class="na">pair</span><span class="p">(</span><span class="s">&quot;ユ&quot;</span><span class="p">,</span> <span class="s">&quot;ﾕ&quot;</span><span class="p">).</span><span class="na">pair</span><span class="p">(</span><span class="s">&quot;ヨ&quot;</span><span class="p">,</span> <span class="s">&quot;ﾖ&quot;</span><span class="p">)</span>
+                <span class="p">.</span><span class="na">pair</span><span class="p">(</span><span class="s">&quot;ラ&quot;</span><span class="p">,</span> <span class="s">&quot;ﾗ&quot;</span><span class="p">).</span><span class="na">pair</span><span class="p">(</span><span class="s">&quot;リ&quot;</span><span class="p">,</span> <span class="s">&quot;ﾘ&quot;</span><span class="p">).</span><span class="na">pair</span><span class="p">(</span><span class="s">&quot;ル&quot;</span><span class="p">,</span> <span class="s">&quot;ﾙ&quot;</span><span class="p">).</span><span class="na">pair</span><span class="p">(</span><span class="s">&quot;レ&quot;</span><span class="p">,</span> <span class="s">&quot;ﾚ&quot;</span><span class="p">)</span>
+                <span class="p">.</span><span class="na">pair</span><span class="p">(</span><span class="s">&quot;ロ&quot;</span><span class="p">,</span> <span class="s">&quot;ﾛ&quot;</span><span class="p">).</span><span class="na">pair</span><span class="p">(</span><span class="s">&quot;ワ&quot;</span><span class="p">,</span> <span class="s">&quot;ﾜ&quot;</span><span class="p">).</span><span class="na">pair</span><span class="p">(</span><span class="s">&quot;ヲ&quot;</span><span class="p">,</span> <span class="s">&quot;ｦ&quot;</span><span class="p">).</span><span class="na">pair</span><span class="p">(</span><span class="s">&quot;ン&quot;</span><span class="p">,</span> <span class="s">&quot;ﾝ&quot;</span><span class="p">)</span>
+                <span class="p">.</span><span class="na">pair</span><span class="p">(</span><span class="s">&quot;ガ&quot;</span><span class="p">,</span> <span class="s">&quot;ｶﾞ&quot;</span><span class="p">).</span><span class="na">pair</span><span class="p">(</span><span class="s">&quot;ギ&quot;</span><span class="p">,</span> <span class="s">&quot;ｷﾞ&quot;</span><span class="p">).</span><span class="na">pair</span><span class="p">(</span><span class="s">&quot;グ&quot;</span><span class="p">,</span> <span class="s">&quot;ｸﾞ&quot;</span><span class="p">)</span>
+                <span class="p">.</span><span class="na">pair</span><span class="p">(</span><span class="s">&quot;ゲ&quot;</span><span class="p">,</span> <span class="s">&quot;ｹﾞ&quot;</span><span class="p">).</span><span class="na">pair</span><span class="p">(</span><span class="s">&quot;ゴ&quot;</span><span class="p">,</span> <span class="s">&quot;ｺﾞ&quot;</span><span class="p">).</span><span class="na">pair</span><span class="p">(</span><span class="s">&quot;ザ&quot;</span><span class="p">,</span> <span class="s">&quot;ｻﾞ&quot;</span><span class="p">)</span>
+                <span class="p">.</span><span class="na">pair</span><span class="p">(</span><span class="s">&quot;ジ&quot;</span><span class="p">,</span> <span class="s">&quot;ｼﾞ&quot;</span><span class="p">).</span><span class="na">pair</span><span class="p">(</span><span class="s">&quot;ズ&quot;</span><span class="p">,</span> <span class="s">&quot;ｽﾞ&quot;</span><span class="p">).</span><span class="na">pair</span><span class="p">(</span><span class="s">&quot;ゼ&quot;</span><span class="p">,</span> <span class="s">&quot;ｾﾞ&quot;</span><span class="p">)</span>
+                <span class="p">.</span><span class="na">pair</span><span class="p">(</span><span class="s">&quot;ゾ&quot;</span><span class="p">,</span> <span class="s">&quot;ｿﾞ&quot;</span><span class="p">).</span><span class="na">pair</span><span class="p">(</span><span class="s">&quot;ダ&quot;</span><span class="p">,</span> <span class="s">&quot;ﾀﾞ&quot;</span><span class="p">).</span><span class="na">pair</span><span class="p">(</span><span class="s">&quot;ヂ&quot;</span><span class="p">,</span> <span class="s">&quot;ﾁﾞ&quot;</span><span class="p">)</span>
+                <span class="p">.</span><span class="na">pair</span><span class="p">(</span><span class="s">&quot;ヅ&quot;</span><span class="p">,</span> <span class="s">&quot;ﾂﾞ&quot;</span><span class="p">).</span><span class="na">pair</span><span class="p">(</span><span class="s">&quot;デ&quot;</span><span class="p">,</span> <span class="s">&quot;ﾃﾞ&quot;</span><span class="p">).</span><span class="na">pair</span><span class="p">(</span><span class="s">&quot;ド&quot;</span><span class="p">,</span> <span class="s">&quot;ﾄﾞ&quot;</span><span class="p">)</span>
+                <span class="p">.</span><span class="na">pair</span><span class="p">(</span><span class="s">&quot;バ&quot;</span><span class="p">,</span> <span class="s">&quot;ﾊﾞ&quot;</span><span class="p">).</span><span class="na">pair</span><span class="p">(</span><span class="s">&quot;ビ&quot;</span><span class="p">,</span> <span class="s">&quot;ﾋﾞ&quot;</span><span class="p">).</span><span class="na">pair</span><span class="p">(</span><span class="s">&quot;ブ&quot;</span><span class="p">,</span> <span class="s">&quot;ﾌﾞ&quot;</span><span class="p">)</span>
+                <span class="p">.</span><span class="na">pair</span><span class="p">(</span><span class="s">&quot;ベ&quot;</span><span class="p">,</span> <span class="s">&quot;ﾍﾞ&quot;</span><span class="p">).</span><span class="na">pair</span><span class="p">(</span><span class="s">&quot;ボ&quot;</span><span class="p">,</span> <span class="s">&quot;ﾎﾞ&quot;</span><span class="p">).</span><span class="na">pair</span><span class="p">(</span><span class="s">&quot;パ&quot;</span><span class="p">,</span> <span class="s">&quot;ﾊﾟ&quot;</span><span class="p">)</span>
+                <span class="p">.</span><span class="na">pair</span><span class="p">(</span><span class="s">&quot;ピ&quot;</span><span class="p">,</span> <span class="s">&quot;ﾋﾟ&quot;</span><span class="p">).</span><span class="na">pair</span><span class="p">(</span><span class="s">&quot;プ&quot;</span><span class="p">,</span> <span class="s">&quot;ﾌﾟ&quot;</span><span class="p">).</span><span class="na">pair</span><span class="p">(</span><span class="s">&quot;ペ&quot;</span><span class="p">,</span> <span class="s">&quot;ﾍﾟ&quot;</span><span class="p">)</span>
+                <span class="p">.</span><span class="na">pair</span><span class="p">(</span><span class="s">&quot;ポ&quot;</span><span class="p">,</span> <span class="s">&quot;ﾎﾟ&quot;</span><span class="p">).</span><span class="na">pair</span><span class="p">(</span><span class="s">&quot;ヴ&quot;</span><span class="p">,</span> <span class="s">&quot;ｳﾞ&quot;</span><span class="p">).</span><span class="na">pair</span><span class="p">(</span><span class="s">&quot;\u30f7&quot;</span><span class="p">,</span> <span class="s">&quot;ﾜﾞ&quot;</span><span class="p">)</span>
+                <span class="p">.</span><span class="na">pair</span><span class="p">(</span><span class="s">&quot;\u30fa&quot;</span><span class="p">,</span> <span class="s">&quot;ｦﾞ&quot;</span><span class="p">).</span><span class="na">pair</span><span class="p">(</span><span class="s">&quot;゛&quot;</span><span class="p">,</span> <span class="s">&quot;ﾞ&quot;</span><span class="p">).</span><span class="na">pair</span><span class="p">(</span><span class="s">&quot;゜&quot;</span><span class="p">,</span> <span class="s">&quot;ﾟ&quot;</span><span class="p">).</span><span class="na">pair</span><span class="p">(</span><span class="s">&quot;　&quot;</span><span class="p">,</span> <span class="s">&quot; &quot;</span><span class="p">);</span>
+
+        <span class="c1">// (5)</span>
+        <span class="n">INSTANCE</span> <span class="o">=</span> <span class="k">new</span> <span class="n">FullHalfConverter</span><span class="p">(</span><span class="n">builder</span><span class="p">.</span><span class="na">build</span><span class="p">());</span>
+    <span class="p">}</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+<table border="1" class="colwidths-given docutils">
+<colgroup>
+<col width="10%" />
+<col width="90%" />
+</colgroup>
+<thead valign="bottom">
+<tr class="row-odd"><th class="head">項番</th>
+<th class="head">説明</th>
+</tr>
+</thead>
+<tbody valign="top">
+<tr class="row-even"><td><div class="first last line-block">
+<div class="line">(1)</div>
+</div>
+</td>
+<td><div class="first last line-block">
+<div class="line"><code class="docutils literal"><span class="pre">org.terasoluna.gfw.common.fullhalf.FullHalfPairsBuilder</span></code>を使用して、全角文字と半角文字のペア定義のセットを表現する<code class="docutils literal"><span class="pre">org.terasoluna.gfw.common.fullhalf.FullHalfPairs</span></code>を作成する。</div>
+</div>
+</td>
+</tr>
+<tr class="row-odd"><td><div class="first last line-block">
+<div class="line">(2)</div>
+</div>
+</td>
+<td><div class="first last line-block">
+<div class="line"><code class="docutils literal"><span class="pre">DefaultFullHalf</span></code>では、全角文字の”<code class="docutils literal"><span class="pre">ー</span></code>” に対する半角文字を”<code class="docutils literal"><span class="pre">ｰ</span></code>” (<code class="docutils literal"><span class="pre">\uFF70</span></code>)に設定しているところを、本例では”<code class="docutils literal"><span class="pre">-</span></code>” (<code class="docutils literal"><span class="pre">\u002D</span></code>)に変更している。</div>
+<div class="line">なお、”<code class="docutils literal"><span class="pre">-</span></code>” (<code class="docutils literal"><span class="pre">\u002D</span></code>)は、下記(3)の処理対象にも含まれているが、先に定義したペア定義が優先される仕組みになっている。</div>
+</div>
+</td>
+</tr>
+<tr class="row-even"><td><div class="first last line-block">
+<div class="line">(3)</div>
+</div>
+</td>
+<td><div class="first last line-block">
+<div class="line">本例では、Unicodeの全角の”<code class="docutils literal"><span class="pre">！</span></code>” から”<code class="docutils literal"><span class="pre">～</span></code>” までと半角の”<code class="docutils literal"><span class="pre">!</span></code>” から”<code class="docutils literal"><span class="pre">~</span></code>” までのコード値を、コード値の並び順が同じであるという特徴を利用して、ループ処理を使ってペア定義を行っている。</div>
+</div>
+</td>
+</tr>
+<tr class="row-odd"><td><div class="first last line-block">
+<div class="line">(4)</div>
+</div>
+</td>
+<td><div class="first last line-block">
+<div class="line">上記(3)以外の文字はコード値の並び順が全角文字と半角文字で一致しないため、それぞれ個別にペア定義を行う。</div>
+</div>
+</td>
+</tr>
+<tr class="row-even"><td><div class="first last line-block">
+<div class="line">(5)</div>
+</div>
+</td>
+<td><div class="first last line-block">
+<div class="line"><code class="docutils literal"><span class="pre">FullHalfPairsBuilder</span></code>より作成した <code class="docutils literal"><span class="pre">FullHalfPairs</span></code>を使用して、 <code class="docutils literal"><span class="pre">FullHalfConverter</span></code>を作成する。</div>
+</div>
+</td>
+</tr>
+</tbody>
+</table>
+<div class="admonition note">
+<p class="first admonition-title">Note</p>
+<p class="last"><code class="docutils literal"><span class="pre">FullHalfPairsBuilder#pair</span></code>メソッドの引数に指定可能な値については、
+<a class="reference external" href="https://github.com/terasolunaorg/terasoluna-gfw/tree/5.7.1.RELEASE/terasoluna-gfw-common-libraries/terasoluna-gfw-string/src/main/java/org/terasoluna/gfw/common/fullhalf/FullHalfPair.java">FullHalfPairのコンストラクタのJavaDoc</a>
+を参照されたい。</p>
+</div>
+<div class="line-block">
+<div class="line"><br /></div>
+</div>
+<p><strong>独自のペア定義を登録したFullHalfConverterの使用例</strong></p>
+<div class="highlight-java"><div class="highlight"><pre><span></span><span class="n">String</span> <span class="n">halfwidth</span> <span class="o">=</span> <span class="n">CustomFullHalf</span><span class="p">.</span><span class="na">INSTANCE</span><span class="p">.</span><span class="na">toHalfwidth</span><span class="p">(</span><span class="s">&quot;ハローワールド！&quot;</span><span class="p">);</span> <span class="c1">// (1)</span>
+</pre></div>
+</div>
+<table border="1" class="colwidths-given docutils">
+<colgroup>
+<col width="10%" />
+<col width="90%" />
+</colgroup>
+<thead valign="bottom">
+<tr class="row-odd"><th class="head">項番</th>
+<th class="head">説明</th>
+</tr>
+</thead>
+<tbody valign="top">
+<tr class="row-even"><td><div class="first last line-block">
+<div class="line">(1)</div>
+</div>
+</td>
+<td><div class="first last line-block">
+<div class="line">独自のペア定義が登録された <code class="docutils literal"><span class="pre">FullHalfConverter</span></code>オブジェクトの<code class="docutils literal"><span class="pre">toHalfwidth</span></code>メソッドを使用して、全角文字が含まれる文字列を半角文字列へ変換する。</div>
+<div class="line">本例では、<code class="docutils literal"><span class="pre">ﾊﾛ-ﾜ-ﾙﾄﾞ!</span></code>に変換される。（”<code class="docutils literal"><span class="pre">-</span></code>” は <code class="docutils literal"><span class="pre">\u002D</span></code>）</div>
+</div>
+</td>
+</tr>
+</tbody>
+</table>
+<div class="line-block">
+<div class="line"><br /></div>
+</div>
+</div>
+</div>
+<div class="section" id="stringprocessinghowtousecodepoints">
+<span id="id13"></span><h3><a class="toc-backref" href="#id33">7.6.2.5. コードポイント集合チェック(文字種チェック)</a><a class="headerlink" href="#stringprocessinghowtousecodepoints" title="Permalink to this headline">¶</a></h3>
+<p>文字種チェックを行う場合は、共通ライブラリから提供しているコードポイント集合機能を使用してチェックするとよい。</p>
+<p>ここでは、コードポイント集合機能を使用した文字種チェックの実装方法を説明する。</p>
+<ul class="simple">
+<li><a class="reference internal" href="#stringprocessinghowtousecodepointsconstruction"><span class="std std-ref">コードポイント集合の作成</span></a></li>
+<li><a class="reference internal" href="#stringprocessinghowtousecodepointsoperations"><span class="std std-ref">コードポイント集合同士の集合演算</span></a></li>
+<li><a class="reference internal" href="#stringprocessinghowtousecodepointscheck"><span class="std std-ref">コードポイント集合を使った文字列チェック</span></a></li>
+<li><a class="reference internal" href="#stringprocessinghowtousecodepointsvalidator"><span class="std std-ref">Bean Validationと連携した文字列チェック</span></a></li>
+<li><a class="reference internal" href="#stringprocessinghowtousecodepointsclasscreation"><span class="std std-ref">コードポイント集合クラスの新規作成</span></a></li>
+</ul>
+<div class="section" id="id14">
+<h4><a class="toc-backref" href="#id34">7.6.2.5.1. 共通ライブラリの適用方法</a><a class="headerlink" href="#id14" title="Permalink to this headline">¶</a></h4>
+<div class="line-block">
+<div class="line"><a class="reference internal" href="#stringprocessinghowtousecodepoints"><span class="std std-ref">コードポイント集合チェック(文字種チェック)</span></a> を使う場合は、 <a class="reference internal" href="#stringprocessinghowtousecodepointsclasses"><span class="std std-ref">共通ライブラリから提供しているコードポイント集合クラス</span></a> 等を依存ライブラリとして追加する必要がある。</div>
+</div>
+</div>
+<div class="section" id="stringprocessinghowtousecodepointsconstruction">
+<span id="id15"></span><h4><a class="toc-backref" href="#id35">7.6.2.5.2. コードポイント集合の作成</a><a class="headerlink" href="#stringprocessinghowtousecodepointsconstruction" title="Permalink to this headline">¶</a></h4>
+<div class="line-block">
+<div class="line"><code class="docutils literal"><span class="pre">org.terasoluna.gfw.common.codepoints.CodePoints</span></code>は、コードポイント集合を表現するクラスである。</div>
+<div class="line"><code class="docutils literal"><span class="pre">CodePoints</span></code>のインスタンスの作成方法を以下に示す。</div>
+</div>
+<p><strong>ファクトリメソッドを呼び出してインスタンスを作成する場合（キャッシュあり）</strong></p>
+<div class="line-block">
+<div class="line">コードポイント集合クラス( <code class="docutils literal"><span class="pre">Class&lt;?</span> <span class="pre">extends</span> <span class="pre">CodePoints&gt;</span></code>)からインスタンスを作成し、作成したインスタンスをキャッシュする方法を以下に示す。</div>
+<div class="line">特定のコードポイント集合は、複数回作成する必要はないため、この方法を使用してキャッシュすることを推奨する。</div>
+</div>
+<div class="highlight-java"><div class="highlight"><pre><span></span><span class="n">CodePoints</span> <span class="n">codePoints</span> <span class="o">=</span> <span class="n">CodePoints</span><span class="p">.</span><span class="na">of</span><span class="p">(</span><span class="n">ASCIIPrintableChars</span><span class="p">.</span><span class="na">class</span><span class="p">);</span>  <span class="c1">// (1)</span>
+</pre></div>
+</div>
+<table border="1" class="colwidths-given docutils">
+<colgroup>
+<col width="10%" />
+<col width="90%" />
+</colgroup>
+<thead valign="bottom">
+<tr class="row-odd"><th class="head">項番</th>
+<th class="head">説明</th>
+</tr>
+</thead>
+<tbody valign="top">
+<tr class="row-even"><td><div class="first last line-block">
+<div class="line">(1)</div>
+</div>
+</td>
+<td><div class="first last line-block">
+<div class="line"><code class="docutils literal"><span class="pre">CodePoints#of</span></code>メソッド(ファクトリメソッド)にコードポイント集合クラスを渡してインスタンスを取得する。</div>
+<div class="line">本例では、 Ascii印字可能文字のコードポイント集合クラス(<code class="docutils literal"><span class="pre">org.terasoluna.gfw.common.codepoints.catalog.ASCIIPrintableChars</span></code>)のインスタンスを取得している。</div>
+</div>
+</td>
+</tr>
+</tbody>
+</table>
+<div class="admonition note">
+<p class="first admonition-title">Note</p>
+<p>コードポイント集合クラスは、<code class="docutils literal"><span class="pre">CodePoints</span></code>クラスと同じモジュール内に複数存在する。
+その他にもコードポイント集合を提供するモジュールが存在するが、それらのモジュールは必要に応じて自プロジェクトに追加する必要がある。
+詳細は、<a class="reference internal" href="#stringprocessinghowtousecodepointsclasses"><span class="std std-ref">共通ライブラリから提供しているコードポイント集合クラス</span></a> を参照されたい。</p>
+<p class="last">また、 新規にコードポイント集合クラスを作成することも出来る。
+詳細は、 <a class="reference internal" href="#stringprocessinghowtousecodepointsclasscreation"><span class="std std-ref">コードポイント集合クラスの新規作成</span></a> を参照されたい。</p>
+</div>
+<div class="line-block">
+<div class="line"><br /></div>
+</div>
+<p><strong>コードポイント集合クラスのコンストラクタを呼び出してインスタンスを作成する場合</strong></p>
+<div class="line-block">
+<div class="line">コードポイント集合クラスからインスタンスを作成する方法を以下に示す。</div>
+<div class="line">この方法を使用した場合、作成したインスタンスはキャッシュされないため、キャッシュすべきでない処理（集合演算の引数等）で使用することを推奨する。</div>
+</div>
+<div class="highlight-java"><div class="highlight"><pre><span></span><span class="n">CodePoints</span> <span class="n">codePoints</span> <span class="o">=</span> <span class="k">new</span> <span class="n">ASCIIPrintableChars</span><span class="p">();</span>  <span class="c1">// (1)</span>
+</pre></div>
+</div>
+<table border="1" class="colwidths-given docutils">
+<colgroup>
+<col width="10%" />
+<col width="90%" />
+</colgroup>
+<thead valign="bottom">
+<tr class="row-odd"><th class="head">項番</th>
+<th class="head">説明</th>
+</tr>
+</thead>
+<tbody valign="top">
+<tr class="row-even"><td><div class="first last line-block">
+<div class="line">(1)</div>
+</div>
+</td>
+<td><div class="first last line-block">
+<div class="line"><code class="docutils literal"><span class="pre">new</span></code>演算子を使用してコンストラクタを呼び出し、コードポイント集合クラスのインスタンスを生成する。</div>
+<div class="line">本例では、 Ascii印字可能文字のコードポイント集合クラス( <code class="docutils literal"><span class="pre">ASCIIPrintableChars</span></code>)のインスタンスを生成している。</div>
+</div>
+</td>
+</tr>
+</tbody>
+</table>
+<div class="line-block">
+<div class="line"><br /></div>
+</div>
+<p><strong>CodePointsのコンストラクタを呼び出してインスタンスを作成する場合</strong></p>
+<div class="line-block">
+<div class="line"><code class="docutils literal"><span class="pre">CodePoints</span></code>からインスタンスを作成する方法を以下に示す。</div>
+<div class="line">この方法を使用した場合、作成したインスタンスはキャッシュされないため、キャッシュすべきでない処理（集合演算の引数等）で使用することを推奨する。</div>
+</div>
+<ul>
+<li><p class="first">コードポイント( <code class="docutils literal"><span class="pre">int</span></code>)を可変長引数で渡す場合</p>
+<div class="highlight-java"><div class="highlight"><pre><span></span><span class="n">CodePoints</span> <span class="n">codePoints</span> <span class="o">=</span> <span class="k">new</span> <span class="n">CodePoints</span><span class="p">(</span><span class="mh">0x0061</span> <span class="cm">/* a */</span><span class="p">,</span> <span class="mh">0x0062</span> <span class="cm">/* b */</span><span class="p">);</span>  <span class="c1">// (1)</span>
+</pre></div>
+</div>
+<table border="1" class="colwidths-given docutils">
+<colgroup>
+<col width="10%" />
+<col width="90%" />
+</colgroup>
+<thead valign="bottom">
+<tr class="row-odd"><th class="head">項番</th>
+<th class="head">説明</th>
+</tr>
+</thead>
+<tbody valign="top">
+<tr class="row-even"><td><div class="first last line-block">
+<div class="line">(1)</div>
+</div>
+</td>
+<td><div class="first last line-block">
+<div class="line"><code class="docutils literal"><span class="pre">int</span></code>のコードポイントを、<code class="docutils literal"><span class="pre">CodePoints</span></code>のコンストラクタに渡してインスタンスを生成する。</div>
+<div class="line">本例では、 文字”<code class="docutils literal"><span class="pre">a</span></code>” と”<code class="docutils literal"><span class="pre">b</span></code>” のコードポイント集合のインスタンスを生成している。</div>
+</div>
+</td>
+</tr>
+</tbody>
+</table>
+</li>
+</ul>
+<div class="line-block">
+<div class="line"><br /></div>
+</div>
+<ul>
+<li><p class="first">コードポイント( <code class="docutils literal"><span class="pre">int</span></code>)の <code class="docutils literal"><span class="pre">Set</span></code>を渡す場合</p>
+<div class="highlight-java"><div class="highlight"><pre><span></span><span class="n">Set</span><span class="o">&lt;</span><span class="n">Integet</span><span class="o">&gt;</span> <span class="n">set</span> <span class="o">=</span> <span class="k">new</span> <span class="n">HashSet</span><span class="o">&lt;&gt;</span><span class="p">();</span>
+<span class="n">set</span><span class="p">.</span><span class="na">add</span><span class="p">(</span><span class="mh">0x0061</span> <span class="cm">/* a */</span><span class="p">);</span>
+<span class="n">set</span><span class="p">.</span><span class="na">add</span><span class="p">(</span><span class="mh">0x0062</span> <span class="cm">/* b */</span><span class="p">);</span>
+<span class="n">CodePoints</span> <span class="n">codePoints</span> <span class="o">=</span> <span class="k">new</span> <span class="n">CodePoints</span><span class="p">(</span><span class="n">set</span><span class="p">);</span>  <span class="c1">// (1)</span>
+</pre></div>
+</div>
+</li>
+</ul>
+<blockquote>
+<div><table border="1" class="colwidths-given docutils">
+<colgroup>
+<col width="10%" />
+<col width="90%" />
+</colgroup>
+<thead valign="bottom">
+<tr class="row-odd"><th class="head">項番</th>
+<th class="head">説明</th>
+</tr>
+</thead>
+<tbody valign="top">
+<tr class="row-even"><td><div class="first last line-block">
+<div class="line">(1)</div>
+</div>
+</td>
+<td><div class="first last line-block">
+<div class="line"><code class="docutils literal"><span class="pre">int</span></code>のコードポイントを <code class="docutils literal"><span class="pre">Set</span></code>に追加し、<code class="docutils literal"><span class="pre">Set</span></code>を <code class="docutils literal"><span class="pre">CodePoints</span></code>のコンストラクタに渡してインスタンスを生成する。</div>
+<div class="line">本例では、 文字”<code class="docutils literal"><span class="pre">a</span></code>” と”<code class="docutils literal"><span class="pre">b</span></code>” のコードポイント集合のインスタンスを生成している。</div>
+</div>
+</td>
+</tr>
+</tbody>
+</table>
+</div></blockquote>
+<div class="line-block">
+<div class="line"><br /></div>
+</div>
+<ul>
+<li><p class="first">コードポイント集合文字列を可変長引数で渡す場合</p>
+<div class="highlight-java"><div class="highlight"><pre><span></span><span class="n">CodePoints</span> <span class="n">codePoints</span> <span class="o">=</span> <span class="k">new</span> <span class="n">CodePoints</span><span class="p">(</span><span class="s">&quot;ab&quot;</span><span class="p">);</span>         <span class="c1">// (1)</span>
+</pre></div>
+</div>
+<div class="highlight-java"><div class="highlight"><pre><span></span><span class="n">CodePoints</span> <span class="n">codePoints</span> <span class="o">=</span> <span class="k">new</span> <span class="n">CodePoints</span><span class="p">(</span><span class="s">&quot;a&quot;</span><span class="p">,</span> <span class="s">&quot;b&quot;</span><span class="p">);</span>  <span class="c1">// (2)</span>
+</pre></div>
+</div>
+<table border="1" class="colwidths-given docutils">
+<colgroup>
+<col width="10%" />
+<col width="90%" />
+</colgroup>
+<thead valign="bottom">
+<tr class="row-odd"><th class="head">項番</th>
+<th class="head">説明</th>
+</tr>
+</thead>
+<tbody valign="top">
+<tr class="row-even"><td><div class="first last line-block">
+<div class="line">(1)</div>
+</div>
+</td>
+<td><div class="first last line-block">
+<div class="line">コードポイント集合文字列を <code class="docutils literal"><span class="pre">CodePoints</span></code>のコンストラクタに渡してインスタンスを生成する。</div>
+<div class="line">本例では、 文字”<code class="docutils literal"><span class="pre">a</span></code>” と”<code class="docutils literal"><span class="pre">b</span></code>” のコードポイント集合のインスタンスを生成している。</div>
+</div>
+</td>
+</tr>
+<tr class="row-odd"><td><div class="first last line-block">
+<div class="line">(2)</div>
+</div>
+</td>
+<td><div class="first last line-block">
+<div class="line">コードポイント集合文字列を複数に分けて渡すことも出来る。(1)と同じ結果となる。</div>
+</div>
+</td>
+</tr>
+</tbody>
+</table>
+</li>
+</ul>
+<div class="line-block">
+<div class="line"><br /></div>
+</div>
+</div>
+<div class="section" id="stringprocessinghowtousecodepointsoperations">
+<span id="id16"></span><h4><a class="toc-backref" href="#id36">7.6.2.5.3. コードポイント集合同士の集合演算</a><a class="headerlink" href="#stringprocessinghowtousecodepointsoperations" title="Permalink to this headline">¶</a></h4>
+<div class="line-block">
+<div class="line">コードポイント集合に対して集合演算を行い、新規のコードポイント集合のインスタンスを作成することが出来る。</div>
+<div class="line">なお、集合演算によって元のコードポイント集合の状態が変更されることは無い。</div>
+<div class="line">集合演算を使用してコードポイント集合のインスタンスを作成する方法を以下に示す。</div>
+</div>
+<p><strong>和集合メソッドを使用してコードポイント集合のインスタンスを作成する場合</strong></p>
+<div class="highlight-java"><div class="highlight"><pre><span></span><span class="n">CodePoints</span> <span class="n">abCp</span> <span class="o">=</span> <span class="k">new</span> <span class="n">CodePoints</span><span class="p">(</span><span class="mh">0x0061</span> <span class="cm">/* a */</span><span class="p">,</span> <span class="mh">0x0062</span> <span class="cm">/* b */</span><span class="p">);</span>
+<span class="n">CodePoints</span> <span class="n">cdCp</span> <span class="o">=</span> <span class="k">new</span> <span class="n">CodePoints</span><span class="p">(</span><span class="mh">0x0063</span> <span class="cm">/* c */</span><span class="p">,</span> <span class="mh">0x0064</span> <span class="cm">/* d */</span><span class="p">);</span>
+
+<span class="n">CodePoints</span> <span class="n">abcdCp</span> <span class="o">=</span> <span class="n">abCp</span><span class="p">.</span><span class="na">union</span><span class="p">(</span><span class="n">cdCp</span><span class="p">);</span>    <span class="c1">// (1)</span>
+</pre></div>
+</div>
+<table border="1" class="colwidths-given docutils">
+<colgroup>
+<col width="10%" />
+<col width="90%" />
+</colgroup>
+<thead valign="bottom">
+<tr class="row-odd"><th class="head">項番</th>
+<th class="head">説明</th>
+</tr>
+</thead>
+<tbody valign="top">
+<tr class="row-even"><td><div class="first last line-block">
+<div class="line">(1)</div>
+</div>
+</td>
+<td><div class="first last line-block">
+<div class="line"><code class="docutils literal"><span class="pre">CodePoints#union</span></code>メソッドを使用して２つのコードポイント集合の和集合を計算し、新規のコードポイント集合のインスタンスを作成する。</div>
+<div class="line">本例では、「文字列<code class="docutils literal"><span class="pre">ab</span></code>に含まれるコードポイント集合」と「文字列<code class="docutils literal"><span class="pre">cd</span></code>に含まれるコードポイント集合」の和集合を計算し、新規のコードポイント集合（文字列<code class="docutils literal"><span class="pre">abcd</span></code>に含まれるコードポイント集合）のインスタンスを作成している。</div>
+</div>
+</td>
+</tr>
+</tbody>
+</table>
+<div class="line-block">
+<div class="line"><br /></div>
+</div>
+<p><strong>差集合メソッドを使用してコードポイント集合のインスタンスを作成する場合</strong></p>
+<div class="highlight-java"><div class="highlight"><pre><span></span><span class="n">CodePoints</span> <span class="n">abcdCp</span> <span class="o">=</span> <span class="k">new</span> <span class="n">CodePoints</span><span class="p">(</span><span class="mh">0x0061</span> <span class="cm">/* a */</span><span class="p">,</span> <span class="mh">0x0062</span> <span class="cm">/* b */</span><span class="p">,</span>
+        <span class="mh">0x0063</span> <span class="cm">/* c */</span><span class="p">,</span> <span class="mh">0x0064</span> <span class="cm">/* d */</span><span class="p">);</span>
+<span class="n">CodePoints</span> <span class="n">cdCp</span> <span class="o">=</span> <span class="k">new</span> <span class="n">CodePoints</span><span class="p">(</span><span class="mh">0x0063</span> <span class="cm">/* c */</span><span class="p">,</span> <span class="mh">0x0064</span> <span class="cm">/* d */</span><span class="p">);</span>
+
+<span class="n">CodePoints</span> <span class="n">abCp</span> <span class="o">=</span> <span class="n">abcdCp</span><span class="p">.</span><span class="na">subtract</span><span class="p">(</span><span class="n">cdCp</span><span class="p">);</span>    <span class="c1">// (1)</span>
+</pre></div>
+</div>
+<table border="1" class="colwidths-given docutils">
+<colgroup>
+<col width="10%" />
+<col width="90%" />
+</colgroup>
+<thead valign="bottom">
+<tr class="row-odd"><th class="head">項番</th>
+<th class="head">説明</th>
+</tr>
+</thead>
+<tbody valign="top">
+<tr class="row-even"><td><div class="first last line-block">
+<div class="line">(1)</div>
+</div>
+</td>
+<td><div class="first last line-block">
+<div class="line"><code class="docutils literal"><span class="pre">CodePoints#subtract</span></code>メソッドを使用して２つのコードポイント集合の差集合を計算し、新規のコードポイント集合のインスタンスを作成する。</div>
+<div class="line">本例では、「文字列<code class="docutils literal"><span class="pre">abcd</span></code>に含まれるコードポイント集合」と「文字列<code class="docutils literal"><span class="pre">cd</span></code>に含まれるコードポイント集合」の差集合を計算し、新規のコードポイントの集合（文字列<code class="docutils literal"><span class="pre">ab</span></code>に含まれるコードポイント集合）のインスタンスを作成している。</div>
+</div>
+</td>
+</tr>
+</tbody>
+</table>
+<div class="line-block">
+<div class="line"><br /></div>
+</div>
+<p><strong>積集合で新規のコードポイント集合のインスタンスを作成する場合</strong></p>
+<div class="highlight-java"><div class="highlight"><pre><span></span><span class="n">CodePoints</span> <span class="n">abcdCp</span> <span class="o">=</span> <span class="k">new</span> <span class="n">CodePoints</span><span class="p">(</span><span class="mh">0x0061</span> <span class="cm">/* a */</span><span class="p">,</span> <span class="mh">0x0062</span> <span class="cm">/* b */</span><span class="p">,</span>
+        <span class="mh">0x0063</span> <span class="cm">/* c */</span><span class="p">,</span> <span class="mh">0x0064</span> <span class="cm">/* d */</span><span class="p">);</span>
+<span class="n">CodePoints</span> <span class="n">cdeCp</span> <span class="o">=</span> <span class="k">new</span> <span class="n">CodePoints</span><span class="p">(</span><span class="mh">0x0063</span> <span class="cm">/* c */</span><span class="p">,</span> <span class="mh">0x0064</span> <span class="cm">/* d */</span><span class="p">,</span> <span class="mh">0x0064</span> <span class="cm">/* e */</span><span class="p">);</span>
+
+<span class="n">CodePoints</span> <span class="n">cdCp</span> <span class="o">=</span> <span class="n">abcdCp</span><span class="p">.</span><span class="na">intersect</span><span class="p">(</span><span class="n">cdeCp</span><span class="p">);</span>    <span class="c1">// (1)</span>
+</pre></div>
+</div>
+<table border="1" class="colwidths-given docutils">
+<colgroup>
+<col width="10%" />
+<col width="90%" />
+</colgroup>
+<thead valign="bottom">
+<tr class="row-odd"><th class="head">項番</th>
+<th class="head">説明</th>
+</tr>
+</thead>
+<tbody valign="top">
+<tr class="row-even"><td><div class="first last line-block">
+<div class="line">(1)</div>
+</div>
+</td>
+<td><div class="first last line-block">
+<div class="line"><code class="docutils literal"><span class="pre">CodePoints#intersect</span></code>メソッドを使用して２つのコードポイント集合の積集合を計算し、新規のコードポイント集合のインスタンスを作成する。</div>
+<div class="line">本例では、「文字列<code class="docutils literal"><span class="pre">abcd</span></code>に含まれるコードポイント集合」と「文字列<code class="docutils literal"><span class="pre">cde</span></code>に含まれるコードポイント集合」の積集合を計算し、新規のコードポイントの集合（文字列<code class="docutils literal"><span class="pre">cd</span></code>に含まれるコードポイント集合）のインスタンスを作成している。</div>
+</div>
+</td>
+</tr>
+</tbody>
+</table>
+<div class="line-block">
+<div class="line"><br /></div>
+</div>
+</div>
+<div class="section" id="stringprocessinghowtousecodepointscheck">
+<span id="id17"></span><h4><a class="toc-backref" href="#id37">7.6.2.5.4. コードポイント集合を使った文字列チェック</a><a class="headerlink" href="#stringprocessinghowtousecodepointscheck" title="Permalink to this headline">¶</a></h4>
+<div class="line-block">
+<div class="line"><code class="docutils literal"><span class="pre">CodePoints</span></code>に用意されているメソッドを使用して文字列チェックを行うことが出来る。</div>
+<div class="line">以下に、文字列チェックを行う際に使用するメソッドの使用例を示す。</div>
+</div>
+<p><strong>containsAllメソッド</strong></p>
+<p>チェック対象の文字列が全てコードポイント集合に含まれているか判定する。</p>
+<div class="highlight-java"><div class="highlight"><pre><span></span><span class="n">CodePoints</span> <span class="n">jisX208KanaCp</span> <span class="o">=</span> <span class="n">CodePoints</span><span class="p">.</span><span class="na">of</span><span class="p">(</span><span class="n">JIS_X_0208_Katakana</span><span class="p">.</span><span class="na">class</span><span class="p">);</span>
+
+<span class="kt">boolean</span> <span class="n">result</span><span class="p">;</span>
+<span class="n">result</span> <span class="o">=</span> <span class="n">jisX208KanaCp</span><span class="p">.</span><span class="na">containsAll</span><span class="p">(</span><span class="s">&quot;カ&quot;</span><span class="p">);</span>     <span class="c1">// true</span>
+<span class="n">result</span> <span class="o">=</span> <span class="n">jisX208KanaCp</span><span class="p">.</span><span class="na">containsAll</span><span class="p">(</span><span class="s">&quot;カナ&quot;</span><span class="p">);</span>   <span class="c1">// true</span>
+<span class="n">result</span> <span class="o">=</span> <span class="n">jisX208KanaCp</span><span class="p">.</span><span class="na">containsAll</span><span class="p">(</span><span class="s">&quot;カナa&quot;</span><span class="p">);</span>  <span class="c1">// false</span>
+</pre></div>
+</div>
+<div class="line-block">
+<div class="line"><br /></div>
+</div>
+<p><strong>firstExcludedContPointメソッド</strong></p>
+<p>チェック対象の文字列のうち、コードポイント集合に含まれない最初のコードポイントを返却する。
+なお、チェック対象の文字列が全てコードポイント集合に含まれている場合は、<code class="docutils literal"><span class="pre">CodePoints#NOT_FOUND</span></code>を返却する。</p>
+<div class="highlight-java"><div class="highlight"><pre><span></span><span class="n">CodePoints</span> <span class="n">jisX208KanaCp</span> <span class="o">=</span> <span class="n">CodePoints</span><span class="p">.</span><span class="na">of</span><span class="p">(</span><span class="n">JIS_X_0208_Katakana</span><span class="p">.</span><span class="na">class</span><span class="p">);</span>
+
+<span class="kt">int</span> <span class="n">result</span><span class="p">;</span>
+<span class="n">result</span> <span class="o">=</span> <span class="n">jisX208KanaCp</span><span class="p">.</span><span class="na">firstExcludedCodePoint</span><span class="p">(</span><span class="s">&quot;カナa&quot;</span><span class="p">);</span>  <span class="c1">// 0x0061 (a)</span>
+<span class="n">result</span> <span class="o">=</span> <span class="n">jisX208KanaCp</span><span class="p">.</span><span class="na">firstExcludedCodePoint</span><span class="p">(</span><span class="s">&quot;カaナ&quot;</span><span class="p">);</span>  <span class="c1">// 0x0061 (a)</span>
+<span class="n">result</span> <span class="o">=</span> <span class="n">jisX208KanaCp</span><span class="p">.</span><span class="na">firstExcludedCodePoint</span><span class="p">(</span><span class="s">&quot;カナ&quot;</span><span class="p">);</span>   <span class="c1">// CodePoints#NOT_FOUND</span>
+</pre></div>
+</div>
+<div class="line-block">
+<div class="line"><br /></div>
+</div>
+<p><strong>allExcludedCodePointsメソッド</strong></p>
+<p>チェック対象の文字列のうち、コードポイント集合に含まれないコードポイントの <code class="docutils literal"><span class="pre">Set</span></code>を返却する。</p>
+<div class="highlight-java"><div class="highlight"><pre><span></span><span class="n">CodePoints</span> <span class="n">jisX208KanaCp</span> <span class="o">=</span> <span class="n">CodePoints</span><span class="p">.</span><span class="na">of</span><span class="p">(</span><span class="n">JIS_X_0208_Katakana</span><span class="p">.</span><span class="na">class</span><span class="p">);</span>
+
+<span class="n">Set</span><span class="o">&lt;</span><span class="n">Integer</span><span class="o">&gt;</span> <span class="n">result</span><span class="p">;</span>
+<span class="n">result</span> <span class="o">=</span> <span class="n">jisX208KanaCp</span><span class="p">.</span><span class="na">allExcludedCodePoints</span><span class="p">(</span><span class="s">&quot;カナa&quot;</span><span class="p">);</span>  <span class="c1">// [0x0061 (a)]</span>
+<span class="n">result</span> <span class="o">=</span> <span class="n">jisX208KanaCp</span><span class="p">.</span><span class="na">allExcludedCodePoints</span><span class="p">(</span><span class="s">&quot;カaナb&quot;</span><span class="p">);</span> <span class="c1">// [0x0061 (a), 0x0062 (b)]</span>
+<span class="n">result</span> <span class="o">=</span> <span class="n">jisX208KanaCp</span><span class="p">.</span><span class="na">allExcludedCodePoints</span><span class="p">(</span><span class="s">&quot;カナ&quot;</span><span class="p">);</span>   <span class="c1">// []</span>
+</pre></div>
+</div>
+<div class="line-block">
+<div class="line"><br /></div>
+</div>
+</div>
+<div class="section" id="bean-validation">
+<span id="stringprocessinghowtousecodepointsvalidator"></span><h4><a class="toc-backref" href="#id38">7.6.2.5.5. Bean Validationと連携した文字列チェック</a><a class="headerlink" href="#bean-validation" title="Permalink to this headline">¶</a></h4>
+<div class="line-block">
+<div class="line"><code class="docutils literal"><span class="pre">&#64;org.terasoluna.gfw.common.codepoints.ConsistOf</span></code>アノテーションにコードポイント集合クラスを指定することで、チェック対象の文字列が指定したコードポイント集合に全て含まれるかをチェックすることが出来る。</div>
+<div class="line">以下に使用例を示す。</div>
+</div>
+<p><strong>チェックに用いるコードポイント集合が一つの場合</strong></p>
+<div class="highlight-java"><div class="highlight"><pre><span></span><span class="nd">@ConsistOf</span><span class="p">(</span><span class="n">JIS_X_0208_Hiragana</span><span class="p">.</span><span class="na">class</span><span class="p">)</span>    <span class="c1">// (1)</span>
+<span class="kd">private</span> <span class="n">String</span> <span class="n">firstName</span><span class="p">;</span>
+</pre></div>
+</div>
+<table border="1" class="colwidths-given docutils">
+<colgroup>
+<col width="10%" />
+<col width="90%" />
+</colgroup>
+<thead valign="bottom">
+<tr class="row-odd"><th class="head">項番</th>
+<th class="head">説明</th>
+</tr>
+</thead>
+<tbody valign="top">
+<tr class="row-even"><td><div class="first last line-block">
+<div class="line">(1)</div>
+</div>
+</td>
+<td><div class="first last line-block">
+<div class="line">対象のフィールドに設定された文字列が、全て「JIS X 0208のひらがな」であることをチェックする。</div>
+</div>
+</td>
+</tr>
+</tbody>
+</table>
+<div class="line-block">
+<div class="line"><br /></div>
+</div>
+<p><strong>チェックに用いるコードポイント集合が複数の場合</strong></p>
+<div class="highlight-java"><div class="highlight"><pre><span></span><span class="nd">@ConsistOf</span><span class="p">({</span><span class="n">JIS_X_0208_Hiragana</span><span class="p">.</span><span class="na">class</span><span class="p">,</span> <span class="n">JIS_X_0208_Katakana</span><span class="p">.</span><span class="na">class</span><span class="p">})</span>    <span class="c1">// (1)</span>
+<span class="kd">private</span> <span class="n">String</span> <span class="n">firstName</span><span class="p">;</span>
+</pre></div>
+</div>
+<table border="1" class="colwidths-given docutils">
+<colgroup>
+<col width="10%" />
+<col width="90%" />
+</colgroup>
+<thead valign="bottom">
+<tr class="row-odd"><th class="head">項番</th>
+<th class="head">説明</th>
+</tr>
+</thead>
+<tbody valign="top">
+<tr class="row-even"><td><div class="first last line-block">
+<div class="line">(1)</div>
+</div>
+</td>
+<td><div class="first last line-block">
+<div class="line">対象のフィールドに設定された文字列が、全て「JIS X 0208のひらがな」または「JIS X 0208のカタカナ」であることをチェックする。</div>
+</div>
+</td>
+</tr>
+</tbody>
+</table>
+<div class="admonition note">
+<p class="first admonition-title">Note</p>
+<p class="last">長さNの文字列をM個のコードポイント集合でチェックした場合、N x M回のチェック処理が発生する。文字列の長さが大きい場合は、性能劣化の要因となる恐れがある。
+そのため、チェックに使用するコードポイント集合の和集合となる新規コードポイント集合のクラスを作成し、そのクラスのみを指定したほうが良い。</p>
+</div>
+<div class="line-block">
+<div class="line"><br /></div>
+</div>
+</div>
+<div class="section" id="stringprocessinghowtousecodepointsclasscreation">
+<span id="id18"></span><h4><a class="toc-backref" href="#id39">7.6.2.5.6. コードポイント集合クラスの新規作成</a><a class="headerlink" href="#stringprocessinghowtousecodepointsclasscreation" title="Permalink to this headline">¶</a></h4>
+<div class="line-block">
+<div class="line">コードポイント集合クラスを新規で作成する場合、<code class="docutils literal"><span class="pre">CodePoints</span></code>クラスを継承してコンストラクタでコードポイントを指定する。</div>
+<div class="line">コードポイント集合クラスを新規で作成する方法を以下に示す。</div>
+<div class="line"><br /></div>
+</div>
+<p><strong>コードポイントを指定して新規にコードポイント集合のクラスを作成する場合</strong></p>
+<p>「数字のみ」からなるコードポイント集合の作成例</p>
+<div class="highlight-java"><div class="highlight"><pre><span></span><span class="kd">public</span> <span class="kd">class</span> <span class="nc">NumberChars</span> <span class="kd">extends</span> <span class="n">CodePoints</span> <span class="p">{</span>
+    <span class="kd">public</span> <span class="nf">NumberCodePoints</span><span class="p">()</span> <span class="p">{</span>
+        <span class="kd">super</span><span class="p">(</span><span class="mh">0x0030</span> <span class="cm">/* 0 */</span><span class="p">,</span> <span class="mh">0x0031</span> <span class="cm">/* 1 */</span><span class="p">,</span> <span class="mh">0x0032</span> <span class="cm">/* 2 */</span><span class="p">,</span> <span class="mh">0x0033</span> <span class="cm">/* 3 */</span><span class="p">,</span>
+                <span class="mh">0x0034</span> <span class="cm">/* 4 */</span><span class="p">,</span> <span class="mh">0x0035</span> <span class="cm">/* 5 */</span><span class="p">,</span> <span class="mh">0x0036</span> <span class="cm">/* 6 */</span><span class="p">,</span>
+                <span class="mh">0x0037</span> <span class="cm">/* 7 */</span><span class="p">,</span> <span class="mh">0x0038</span> <span class="cm">/* 8 */</span><span class="p">,</span> <span class="mh">0x0039</span> <span class="cm">/* 9 */</span><span class="p">);</span>
+    <span class="p">}</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+<div class="line-block">
+<div class="line"><br /></div>
+</div>
+<p><strong>コードポイント集合クラスの集合演算メソッドを使用して新規にコードポイント集合クラスを作成する場合</strong></p>
+<p>「ひらがな」と「カタカナ」からなる和集合を用いたコードポイント集合の作成例</p>
+<div class="highlight-java"><div class="highlight"><pre><span></span><span class="kd">public</span> <span class="kd">class</span> <span class="nc">FullwidthHiraganaKatakana</span> <span class="kd">extends</span> <span class="n">CodePoints</span> <span class="p">{</span>
+    <span class="kd">public</span> <span class="nf">FullwidthHiraganaKatakana</span><span class="p">()</span> <span class="p">{</span>
+        <span class="kd">super</span><span class="p">(</span><span class="k">new</span> <span class="n">X_JIS_0208_Hiragana</span><span class="p">().</span><span class="na">union</span><span class="p">(</span><span class="k">new</span> <span class="n">X_JIS_0208_Katakana</span><span class="p">()));</span>
+    <span class="p">}</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+<p>「記号（｡｢｣､･）を除いた半角カタカナ」からなる差集合を用いたコードポイント集合の作成例</p>
+<div class="highlight-java"><div class="highlight"><pre><span></span><span class="kd">public</span> <span class="kd">class</span> <span class="nc">HalfwidthKatakana</span> <span class="kd">extends</span> <span class="n">CodePoints</span> <span class="p">{</span>
+    <span class="kd">public</span> <span class="nf">HalfwidthKatakana</span><span class="p">()</span> <span class="p">{</span>
+        <span class="kd">super</span><span class="p">(</span><span class="k">new</span> <span class="n">JIS_X_0201_Katakana</span><span class="p">().</span><span class="na">subtract</span><span class="p">(</span><span class="k">new</span> <span class="n">CodePoints</span><span class="p">(</span><span class="mh">0xFF61</span> <span class="cm">/* ｡ */</span><span class="p">,</span> <span class="mh">0xFF62</span> <span class="cm">/* ｢ */</span><span class="p">,</span>
+                <span class="mh">0xFF63</span> <span class="cm">/* ｣ */</span><span class="p">,</span> <span class="mh">0xFF64</span> <span class="cm">/* ､ */</span><span class="p">,</span> <span class="mh">0xFF65</span> <span class="cm">/* ･ */</span><span class="p">)));</span>
+    <span class="p">}</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+<div class="admonition note">
+<p class="first admonition-title">Note</p>
+<p class="last">集合演算で使用するコードポイント集合クラス（本例では <code class="docutils literal"><span class="pre">X_JIS_0208_Hiragana</span></code>や、 <code class="docutils literal"><span class="pre">X_JIS_0208_Katakana</span></code>等）を個別に使用するケースがない場合は、 <code class="docutils literal"><span class="pre">new</span></code>演算子を使用してコンストラクタを呼び出し、コードポイント集合が無駄にキャッシュされないようにすべきである。
+<code class="docutils literal"><span class="pre">CodePoints#of</span></code>メソッドを使用してキャッシュさせてしまうと、集合演算の途中計算のみで使用するコードポイント集合がヒープに残り、メモリを圧迫してしまう。
+逆に個別に使用するケースがある場合は、<code class="docutils literal"><span class="pre">CodePoints#of</span></code>メソッドを使用してキャッシュすべきである。</p>
+</div>
+<div class="line-block">
+<div class="line"><br /></div>
+</div>
+</div>
+<div class="section" id="stringprocessinghowtousecodepointsclasses">
+<span id="id19"></span><h4><a class="toc-backref" href="#id40">7.6.2.5.7. 共通ライブラリから提供しているコードポイント集合クラス</a><a class="headerlink" href="#stringprocessinghowtousecodepointsclasses" title="Permalink to this headline">¶</a></h4>
+<p>共通ライブラリから提供しているコードポイント集合クラス(<code class="docutils literal"><span class="pre">org.terasoluna.gfw.common.codepoints.catalog</span></code>パッケージのクラス)と、
+使用する際に取り込む必要があるアーティファクトの情報を以下に示す。</p>
+<table border="1" class="colwidths-given longtable docutils">
+<colgroup>
+<col width="10%" />
+<col width="20%" />
+<col width="30%" />
+<col width="40%" />
+</colgroup>
+<thead valign="bottom">
+<tr class="row-odd"><th class="head">項番</th>
+<th class="head">クラス名</th>
+<th class="head">説明</th>
+<th class="head">アーティファクト情報</th>
+</tr>
+</thead>
+<tbody valign="top">
+<tr class="row-even"><td><div class="first last line-block">
+<div class="line">(1)</div>
+</div>
+</td>
+<td><div class="first last line-block">
+<div class="line"><code class="docutils literal"><span class="pre">ASCIIControlChars</span></code></div>
+</div>
+</td>
+<td><div class="first last line-block">
+<div class="line">Ascii制御文字の集合。</div>
+<div class="line">(<code class="docutils literal"><span class="pre">0x0000</span></code>-<code class="docutils literal"><span class="pre">0x001F</span></code>、<code class="docutils literal"><span class="pre">0x007F</span></code>)</div>
+</div>
+</td>
+<td><div class="first last highlight-xml"><div class="highlight"><pre><span></span><span class="nt">&lt;dependency&gt;</span>
+    <span class="nt">&lt;groupId&gt;</span>org.terasoluna.gfw<span class="nt">&lt;/groupId&gt;</span>
+    <span class="nt">&lt;artifactId&gt;</span>terasoluna-gfw-codepoints<span class="nt">&lt;/artifactId&gt;</span>
+<span class="nt">&lt;/dependency&gt;</span>
+</pre></div>
+</div>
+</td>
+</tr>
+<tr class="row-odd"><td><div class="first last line-block">
+<div class="line">(2)</div>
+</div>
+</td>
+<td><div class="first last line-block">
+<div class="line"><code class="docutils literal"><span class="pre">ASCIIPrintableChars</span></code></div>
+</div>
+</td>
+<td><div class="first last line-block">
+<div class="line">Ascii印字可能文字の集合。</div>
+<div class="line">(<code class="docutils literal"><span class="pre">0x0020</span></code>-<code class="docutils literal"><span class="pre">0x007E</span></code>)</div>
+</div>
+</td>
+<td><div class="first last line-block">
+<div class="line">(同上)</div>
+</div>
+</td>
+</tr>
+<tr class="row-even"><td><div class="first last line-block">
+<div class="line">(3)</div>
+</div>
+</td>
+<td><div class="first last line-block">
+<div class="line"><code class="docutils literal"><span class="pre">CRLF</span></code></div>
+</div>
+</td>
+<td><div class="first last line-block">
+<div class="line">改行コードの集合。</div>
+<div class="line"><code class="docutils literal"><span class="pre">0x000A</span></code>(LINE FEED)と<code class="docutils literal"><span class="pre">0x000D</span></code>(CARRIAGE RETURN)。</div>
+</div>
+</td>
+<td><div class="first last line-block">
+<div class="line">(同上)</div>
+</div>
+</td>
+</tr>
+<tr class="row-odd"><td><div class="first last line-block">
+<div class="line">(4)</div>
+</div>
+</td>
+<td><div class="first last line-block">
+<div class="line"><code class="docutils literal"><span class="pre">JIS_X_0201_Katakana</span></code></div>
+</div>
+</td>
+<td><div class="first last line-block">
+<div class="line">JIS X 0201 のカタカナの集合。</div>
+<div class="line">記号(｡｢｣､･)も含まれる。</div>
+</div>
+</td>
+<td><div class="first last highlight-xml"><div class="highlight"><pre><span></span><span class="nt">&lt;dependency&gt;</span>
+    <span class="nt">&lt;groupId&gt;</span>org.terasoluna.gfw.codepoints<span class="nt">&lt;/groupId&gt;</span>
+    <span class="nt">&lt;artifactId&gt;</span>terasoluna-gfw-codepoints-jisx0201<span class="nt">&lt;/artifactId&gt;</span>
+<span class="nt">&lt;/dependency&gt;</span>
+</pre></div>
+</div>
+</td>
+</tr>
+<tr class="row-even"><td><div class="first last line-block">
+<div class="line">(5)</div>
+</div>
+</td>
+<td><div class="first last line-block">
+<div class="line"><code class="docutils literal"><span class="pre">JIS_X_0201_LatinLetters</span></code></div>
+</div>
+</td>
+<td><div class="first last line-block">
+<div class="line">JIS X 0201 のLatin文字の集合。</div>
+</div>
+</td>
+<td><div class="first last line-block">
+<div class="line">(同上)</div>
+</div>
+</td>
+</tr>
+<tr class="row-odd"><td><div class="first last line-block">
+<div class="line">(6)</div>
+</div>
+</td>
+<td><div class="first last line-block">
+<div class="line"><code class="docutils literal"><span class="pre">JIS_X_0208_SpecialChars</span></code></div>
+</div>
+</td>
+<td><div class="first last line-block">
+<div class="line">JIS X 0208 の1-2区：特殊文字の集合。</div>
+</div>
+</td>
+<td><div class="first last highlight-xml"><div class="highlight"><pre><span></span><span class="nt">&lt;dependency&gt;</span>
+    <span class="nt">&lt;groupId&gt;</span>org.terasoluna.gfw.codepoints<span class="nt">&lt;/groupId&gt;</span>
+    <span class="nt">&lt;artifactId&gt;</span>terasoluna-gfw-codepoints-jisx0208<span class="nt">&lt;/artifactId&gt;</span>
+<span class="nt">&lt;/dependency&gt;</span>
+</pre></div>
+</div>
+</td>
+</tr>
+<tr class="row-even"><td><div class="first last line-block">
+<div class="line">(7)</div>
+</div>
+</td>
+<td><div class="first last line-block">
+<div class="line"><code class="docutils literal"><span class="pre">JIS_X_0208_LatinLetters</span></code></div>
+</div>
+</td>
+<td><div class="first last line-block">
+<div class="line">JIS X 0208 の3区：英数字の集合。</div>
+</div>
+</td>
+<td><div class="first last line-block">
+<div class="line">(同上)</div>
+</div>
+</td>
+</tr>
+<tr class="row-odd"><td><div class="first last line-block">
+<div class="line">(8)</div>
+</div>
+</td>
+<td><div class="first last line-block">
+<div class="line"><code class="docutils literal"><span class="pre">JIS_X_0208_Hiragana</span></code></div>
+</div>
+</td>
+<td><div class="first last line-block">
+<div class="line">JIS X 0208 の4区：ひらがなの集合。</div>
+</div>
+</td>
+<td><div class="first last line-block">
+<div class="line">(同上)</div>
+</div>
+</td>
+</tr>
+<tr class="row-even"><td><div class="first last line-block">
+<div class="line">(9)</div>
+</div>
+</td>
+<td><div class="first last line-block">
+<div class="line"><code class="docutils literal"><span class="pre">JIS_X_0208_Katakana</span></code></div>
+</div>
+</td>
+<td><div class="first last line-block">
+<div class="line">JIS X 0208 の5区：カタカナの集合。</div>
+</div>
+</td>
+<td><div class="first last line-block">
+<div class="line">(同上)</div>
+</div>
+</td>
+</tr>
+<tr class="row-odd"><td><div class="first last line-block">
+<div class="line">(10)</div>
+</div>
+</td>
+<td><div class="first last line-block">
+<div class="line"><code class="docutils literal"><span class="pre">JIS_X_0208_GreekLetters</span></code></div>
+</div>
+</td>
+<td><div class="first last line-block">
+<div class="line">JIS X 0208 の6区：ギリシア文字の集合。</div>
+</div>
+</td>
+<td><div class="first last line-block">
+<div class="line">(同上)</div>
+</div>
+</td>
+</tr>
+<tr class="row-even"><td><div class="first last line-block">
+<div class="line">(11)</div>
+</div>
+</td>
+<td><div class="first last line-block">
+<div class="line"><code class="docutils literal"><span class="pre">JIS_X_0208_CyrillicLetters</span></code></div>
+</div>
+</td>
+<td><div class="first last line-block">
+<div class="line">JIS X 0208 の7区：キリル文字の集合。</div>
+</div>
+</td>
+<td><div class="first last line-block">
+<div class="line">(同上)</div>
+</div>
+</td>
+</tr>
+<tr class="row-odd"><td><div class="first last line-block">
+<div class="line">(12)</div>
+</div>
+</td>
+<td><div class="first last line-block">
+<div class="line"><code class="docutils literal"><span class="pre">JIS_X_0208_BoxDrawingChars</span></code></div>
+</div>
+</td>
+<td><div class="first last line-block">
+<div class="line">JIS X 0208 の8区：罫線素片の集合。</div>
+</div>
+</td>
+<td><div class="first last line-block">
+<div class="line">(同上)</div>
+</div>
+</td>
+</tr>
+<tr class="row-even"><td><div class="first last line-block">
+<div class="line">(13)</div>
+</div>
+</td>
+<td><div class="first last line-block">
+<div class="line"><code class="docutils literal"><span class="pre">JIS_X_0208_Kanji</span></code></div>
+</div>
+</td>
+<td><div class="first last line-block">
+<div class="line">JIS X 208で規定される漢字6355字。</div>
+<div class="line">第一・第二水準漢字。</div>
+</div>
+</td>
+<td><div class="first last highlight-xml"><div class="highlight"><pre><span></span><span class="nt">&lt;dependency&gt;</span>
+    <span class="nt">&lt;groupId&gt;</span>org.terasoluna.gfw.codepoints<span class="nt">&lt;/groupId&gt;</span>
+    <span class="nt">&lt;artifactId&gt;</span>terasoluna-gfw-codepoints-jisx0208kanji<span class="nt">&lt;/artifactId&gt;</span>
+<span class="nt">&lt;/dependency&gt;</span>
+</pre></div>
+</div>
+</td>
+</tr>
+<tr class="row-odd"><td><div class="first last line-block">
+<div class="line">(14)</div>
+</div>
+</td>
+<td><div class="first last line-block">
+<div class="line"><code class="docutils literal"><span class="pre">JIS_X_0213_Kanji</span></code></div>
+</div>
+</td>
+<td><div class="first last line-block">
+<div class="line">JIS X 0213:2004で規定される漢字10050字。</div>
+<div class="line">第一・第二・第三・第四水準漢字。</div>
+</div>
+</td>
+<td><div class="first last highlight-xml"><div class="highlight"><pre><span></span><span class="nt">&lt;dependency&gt;</span>
+    <span class="nt">&lt;groupId&gt;</span>org.terasoluna.gfw.codepoints<span class="nt">&lt;/groupId&gt;</span>
+    <span class="nt">&lt;artifactId&gt;</span>terasoluna-gfw-codepoints-jisx0213kanji<span class="nt">&lt;/artifactId&gt;</span>
+<span class="nt">&lt;/dependency&gt;</span>
+</pre></div>
+</div>
+</td>
+</tr>
+</tbody>
+</table>
+<div class="admonition note">
+<p class="first admonition-title">Note</p>
+<p class="last">上記設定例は、依存ライブラリのバージョンを親プロジェクトである terasoluna-gfw-parent で管理する前提であるため、pom.xmlでのバージョンの指定は不要である。</p>
+</div>
+<div class="admonition note">
+<p class="first admonition-title">Note</p>
+<p><code class="docutils literal"><span class="pre">&lt;artifactId&gt;</span></code>が <code class="docutils literal"><span class="pre">terasoluna-gfw-codepoints-xxx</span></code>（<code class="docutils literal"><span class="pre">terasoluna-gfw-codepoints-jisx0201</span></code>など）のライブラリでは依存関係として <code class="docutils literal"><span class="pre">terasoluna-gfw-codepoints</span></code>を取り込んでいる。</p>
+<p class="last">そのため、 <code class="docutils literal"><span class="pre">terasoluna-gfw-codepoints-xxx</span></code>のアーティファクト情報を取り込むことにより、<code class="docutils literal"><span class="pre">terasoluna-gfw-codepoints</span></code>が提供するコードポイント集合クラスも利用することができる。</p>
+</div>
+<div class="admonition note">
+<p class="first admonition-title">Note</p>
+<p class="last"><code class="docutils literal"><span class="pre">JIS_X_0208_SpecialChars</span></code>コードポイント集合クラスはJIS漢字(JIS X 0208)の01-02区に該当する特殊文字集合である。
+JIS漢字の全角ダッシュ(―)はEM DASHであり、対応するUCS(ISO/IEC 10646-1, JIS X 0221, Unicode)のコードポイントは、一般的に<code class="docutils literal"><span class="pre">U+2014</span></code>に相当する。
+しかし、Unicodeコンソーシアムが提供する変換表では、Unicodeで対応する文字がEM DASHでなく<a class="reference external" href="http://www.unicode.org/Public/MAPPINGS/OBSOLETE/EASTASIA/JIS/JIS0208.TXT">HORINZONTAL BAR (U+2015)</a>になっている。
+実用されている一般的な変換ルールと、Unicode変換表が異なっているため、Unicode変換表通りにコードポイント集合を定義してしまうと実用上問題が出るケースが発生する可能性がある。そのため、<code class="docutils literal"><span class="pre">JIS_X_0208_SpecialChars</span></code>コードポイント集合クラスではHORINZONTAL BAR (<code class="docutils literal"><span class="pre">U+2015</span></code>)をEM DASH (<code class="docutils literal"><span class="pre">U+2014</span></code>)に変更してコードポイント集合を定義している。</p>
+</div>
+</div>
+</div>
+</div>
+</div>
+
+
+          </div>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../../genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="Dozer.html" title="7.7. Beanマッピング(Dozer)"
+             >next</a> |</li>
+        <li class="right" >
+          <a href="SystemDate.html" title="7.5. システム時刻"
+             >previous</a> |</li>
+        <li class="nav-item nav-item-0"><a href="../../index.html">TERASOLUNA Server Framework for Java (5.x) Development Guideline 5.7.1.RELEASE documentation</a> &#187;</li>
+          <li class="nav-item nav-item-1"><a href="index.html" >7. アプリケーション形態に依存しない汎用機能</a> &#187;</li> 
+      </ul>
+    </div>
+    <div class="footer">
+      © Copyright 2013, NTT DATA Corporation. © Copyright 2013, NTT Corporation.
+      Created using <a href="https://www.sphinx-doc.org/en/master/">Sphinx</a> 1.6.3.Theme is <a href="https://pypi.org/project/solar-theme/">Solar</a>
+    </div>
+    
+    <script>
+    
+    $(function() {
+    	var $sidebar	= $('.sphinxsidebar'),
+    		$window		= $(window),
+    		offset		= $sidebar.offset(),
+    		topPadding	= 3,
+    		$scroll		= $('#scroll');
+    	
+    	$window.scroll(function() {
+    		if ($scroll.is(':checked')) {
+				if ($window.scrollTop() > offset.top) {
+					$sidebar.stop().animate({
+						marginTop:$window.scrollTop() - offset.top + topPadding
+					});
+				} else {
+					$sidebar.stop().animate({
+						marginTop:0
+					});
+				}
+			}
+		});
+    	
+    	var $navList = $('ul:first', $sidebar);
+    	$('li:first', $navList).addClass('open');
+    	
+    	$navList.treeview({
+    		persist: "location",
+    		collapsed: true,
+    		unique: false
+    	});
+    	
+	});
+    (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+        (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+            m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+    })(window,document,'script','//www.google-analytics.com/analytics.js','ga');
+
+    ga('create', 'UA-46550814-1', 'terasolunaorg.github.io');
+    ga('send', 'pageview');
+    </script>
+  </body>
+</html>
