@@ -824,7 +824,7 @@ Controllerで\ ``ResultMessages``\ を生成して画面に渡し、JSPで\ ``<t
 
             e.ex.an.8001=Cannot upload, Because the file size must be less than {0,number,#}MB.
 
-    詳細は、\ `Javadoc <http://docs.oracle.com/javase/8/docs/api/java/text/MessageFormat.html>`_\ を参照されたい。
+    詳細は、\ `Javadoc <https://docs.oracle.com/javase/8/docs/api/java/text/MessageFormat.html>`_\ を参照されたい。
 
 |
 

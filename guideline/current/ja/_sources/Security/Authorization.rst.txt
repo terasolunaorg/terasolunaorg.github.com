@@ -26,7 +26,7 @@ Spring Securityでは、以下の3つのリソースに対してアクセスポ�
 
 本節では、「Webリソース」「Javaメソッド」「JSPの画面項目」のアクセスに対して認可処理を適用するための実装例(定義例)を紹介しながら、Spring Securityの認可機能について説明する。
 
-.. [#fSpringSecurityAuthorization1] ドメインオブジェクトのアクセスに対する認可処理については、 \ `Spring Security Reference -Domain Object Security (ACLs)- <https://docs.spring.io/spring-security/site/docs/5.4.2/reference/html5/#domain-acls>`_\ を参照されたい。
+.. [#fSpringSecurityAuthorization1] ドメインオブジェクトのアクセスに対する認可処理については、 \ `Spring Security Reference -Domain Object Security (ACLs)- <https://docs.spring.io/spring-security/reference/5.6.0/servlet/authorization/acls.html>`_\ を参照されたい。
 
 |
 
@@ -157,7 +157,7 @@ How to use
 
 Spring Securityは、アクセスポリシーを指定する記述方法としてSpring Expression Language(SpEL)をサポートしている。
 SpELを使わない方法もあるが、本ガイドラインではExpressionを使ってアクセスポリシーを指定する方法で説明を行う。
-SpELの使い方については本節でも紹介するが、より詳しい使い方を知りたい場合は \ `Spring Framework Documentation -Spring Expression Language (SpEL)- <https://docs.spring.io/spring-framework/docs/5.3.2/reference/html/core.html#expressions>`_\ を参照されたい。
+SpELの使い方については本節でも紹介するが、より詳しい使い方を知りたい場合は \ `Spring Framework Documentation -Spring Expression Language (SpEL)- <https://docs.spring.io/spring-framework/docs/5.3.13/reference/html/core.html#expressions>`_\ を参照されたい。
 
 |
 
@@ -329,7 +329,7 @@ bean定義ファイルを使用して、Webリソースに対してアクセス�
       - | 「http」、もしくは「https」を指定する。指定したプロトコルでのアクセスを強制するための属性。
         | 指定しない場合、どちらでもアクセス可能である。
 
-上記以外の属性については、\ `<intercept-url> <https://docs.spring.io/spring-security/site/docs/5.4.2/reference/html5/#nsa-intercept-url>`_\ を参照されたい。
+上記以外の属性については、\ `<intercept-url> <https://docs.spring.io/spring-security/reference/5.6.0/servlet/appendix/namespace/http.html#nsa-intercept-url>`_\ を参照されたい。
 
 * \ ``<sec:intercept-url>``\ タグ\ ``pattern``\ 属性の定義例（spring-security.xml）
 
@@ -386,7 +386,7 @@ Spring Securityは定義した順番でリクエストとのマッチング処�
 
 .. note::
     Spring MVCとSpring Securityでは、リクエストとのマッチングの仕組みが厳密には異なっており、この差異を利用してSpring Securityの認可機能を突破し、ハンドラメソッドにアクセスできる脆弱性が存在する。
-    本事象の詳細は「\ `CVE-2016-5007 Spring Security / MVC Path Matching Inconsistency <https://pivotal.io/security/cve-2016-5007>`_\」を参照されたい。
+    本事象の詳細は「\ `CVE-2016-5007 Spring Security / MVC Path Matching Inconsistency <https://tanzu.vmware.com/security/cve-2016-5007>`_\」を参照されたい。
 
     \ `trimTokens` \ プロパティに \ `true` \ を設定した\ `org.springframework.util.AntPathMatcher` \ のBeanがSpring MVCに適用されている場合に、本事象が発生する。
     Spring Framework 4.2以前は \ `trimTokens` \ プロパティのデフォルト値が\ `true`\ となっていたが、Spring Framework 4.3 からデフォルト値は \ `false` \ となったため、意図的に変更しない限り本事象は発生しない。
@@ -707,7 +707,7 @@ Expression内で「# + 引数名」形式のExpressionを指定することで�
 
 .. warning::
 
-   Spring 5から、SpringのコアAPIに\ `null-safety <https://docs.spring.io/spring-framework/docs/5.3.2/reference/html/core.html#null-safety>`_\ の機能が取り入れられており、SpELが解釈される際の\ ``null``\に対する動作も変更(\ `SPR-15540 <https://jira.spring.io/browse/SPR-15540>`_\ )されている。
+   Spring 5から、SpringのコアAPIに\ `null-safety <https://docs.spring.io/spring-framework/docs/5.3.13/reference/html/core.html#null-safety>`_\ の機能が取り入れられており、SpELが解釈される際の\ ``null``\に対する動作も変更(\ `SPR-15540 <https://jira.spring.io/browse/SPR-15540?redirect=false>`_\ )されている。
    例えば\ ``@PreAuthorize``\ の引数(\ ``#xxx``\)や、\ ``@PostAuthorize``\ の戻り値（\ ``resultObject``\）が\ ``Map``\ を含む場合、\ ``Map``\ から値を取得するSpELでキー値に\ ``null``\ となる値を入力すると、Spring 4以前ではそのまま\ ``Map``\ に\ ``null``\ が渡され該当する値がないため\ ``null``\ が返却されていたが、Spring 5以降ではキーとなるSpELを評価した結果に対する\ ``null``\ チェックが追加されており、\ ``null``\ の場合は\ ``IllegalStateException``\ が発生する。
    そのため、キーとする値に対して事前に\ ``null``\ チェックを行うなど、\ ``null``\ を考慮した実装が必要となる。
 

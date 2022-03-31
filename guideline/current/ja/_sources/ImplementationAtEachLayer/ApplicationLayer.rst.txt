@@ -160,7 +160,7 @@ Controllerクラスの作成方法
               // ...
           }
 
-    詳細は、`Spring Framework Documentation -Request Mapping- <https://docs.spring.io/spring-framework/docs/5.3.2/reference/html/web.html#mvc-ann-requestmapping>`_ を参照されたい。
+    詳細は、`Spring Framework Documentation -Request Mapping- <https://docs.spring.io/spring-framework/docs/5.3.13/reference/html/web.html#mvc-ann-requestmapping>`_ を参照されたい。
 
 |
 
@@ -221,7 +221,7 @@ Controllerクラスの作成方法
     @RequestMapping(value = {"hello", "bonjour"})
     public String hello() {
 
-指定するリクエストパスは、具体的な値ではなくパターンを指定することも可能である。パターン指定の詳細は、`Spring Framework Documentation -URI patterns- <https://docs.spring.io/spring-framework/docs/5.3.2/reference/html/web.html#mvc-ann-requestmapping-uri-templates>`_ を参照されたい。
+指定するリクエストパスは、具体的な値ではなくパターンを指定することも可能である。パターン指定の詳細は、`Spring Framework Documentation -URI patterns- <https://docs.spring.io/spring-framework/docs/5.3.13/reference/html/web.html#mvc-ann-requestmapping-uri-templates>`_ を参照されたい。
 
 |
 
@@ -230,7 +230,7 @@ Controllerクラスの作成方法
 HTTPメソッドでマッピング
 """"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 下記の定義の場合、 ``sample/hello`` というURLにPOSTメソッドでアクセスすると、helloメソッドが実行される。
-サポートしているHTTPメソッドの一覧は `RequestMethodのJavadoc <https://docs.spring.io/spring/docs/5.3.2/javadoc-api/org/springframework/web/bind/annotation/RequestMethod.html>`_ を参照されたい。
+サポートしているHTTPメソッドの一覧は `RequestMethodのJavadoc <https://docs.spring.io/spring/docs/5.3.13/javadoc-api/org/springframework/web/bind/annotation/RequestMethod.html>`_ を参照されたい。
 指定しない場合、サポートしている全てのHTTPメソッドがマッピング対象となる。
 
  .. code-block:: java
@@ -449,7 +449,7 @@ Acceptヘッダでマッピング
 
  .. note::
 
-     Entity参照、Entity更新、Entity削除処理のURL内に指定している ``{id}`` は、`URI patterns <https://docs.spring.io/spring-framework/docs/5.3.2/reference/html/web.html#mvc-ann-requestmapping-uri-templates>`_\ と呼ばれ、任意の値を指定する事ができる。
+     Entity参照、Entity更新、Entity削除処理のURL内に指定している ``{id}`` は、`URI patterns <https://docs.spring.io/spring-framework/docs/5.3.13/reference/html/web.html#mvc-ann-requestmapping-uri-templates>`_\ と呼ばれ、任意の値を指定する事ができる。
      サンプルアプリケーションでは、操作するEntityのIDを指定する。
 
  画面フロー図に各処理に割り振られたURLをマッピングすると以下のようになる。
@@ -1105,7 +1105,7 @@ Backボタン押下時の動作については、 :ref:`controller-mapping-polic
 ハンドラメソッドの引数について
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-`ハンドラメソッドの引数は様々な値をとることができる <https://docs.spring.io/spring-framework/docs/5.3.2/reference/html/web.html#mvc-ann-arguments>`_ が、
+`ハンドラメソッドの引数は様々な値をとることができる <https://docs.spring.io/spring-framework/docs/5.3.13/reference/html/web.html#mvc-ann-arguments>`_ が、
 基本的には次に挙げるものは原則として使用しないこと。
 
 * ServletRequest
@@ -1300,7 +1300,7 @@ URLのパスから値を取得する
 
     なお、リクエストパスの拡張子によるパターンマッチングはブラウザから送信されるAcceptヘッダーを一貫して解釈することが困難だった古い時代の手法であり、
     拡張子ではなくAcceptヘッダーやURLのクエリパラメータでマッピングを切り分けることが、Springでは推奨されている。
-    詳細は \ `Spring Framework Documentation -Suffix Match- <https://docs.spring.io/spring/docs/5.3.0-M2/spring-framework-reference/web.html#mvc-ann-requestmapping-suffix-pattern-match>`_\ を参照されたい。
+    詳細は \ `Spring Framework Documentation -Suffix Match- <https://docs.spring.io/spring-framework/docs/5.3.0-M2/spring-framework-reference/web.html#mvc-ann-requestmapping-suffix-pattern-match>`_\ を参照されたい。
 
 
 |
@@ -1760,7 +1760,7 @@ Cookieに値を書き込む
     HTTP Cookieの処理を規定するRFC 6265では、Cookieの名前や値に一部使用できない文字があることに注意されたい。
     例えば、RFC 6265に準拠した実装のTomcat 8.5では、Cookieの値にスペースを使用することができない。
     
-    `RFC 6265(HTTP State Management Mechanism)の4.1 SetCookie <https://tools.ietf.org/html/rfc6265#section-4.1>`_ のSyntaxを参照されたい。
+    `RFC 6265(HTTP State Management Mechanism)の4.1 SetCookie <https://datatracker.ietf.org/doc/html/rfc6265#section-4.1>`_ のSyntaxを参照されたい。
 
 |
 
@@ -1804,7 +1804,7 @@ Cookieに値を書き込む
 
 ハンドラメソッドの返り値について
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-`ハンドラメソッドの返り値についても様々な値をとることができる <https://docs.spring.io/spring-framework/docs/5.3.2/reference/html/web.html#mvc-ann-return-types>`_ が、
+`ハンドラメソッドの返り値についても様々な値をとることができる <https://docs.spring.io/spring-framework/docs/5.3.13/reference/html/web.html#mvc-ann-return-types>`_ が、
 基本的には次に挙げるもののみを使用すること。
 
 - String(View名)
@@ -1887,7 +1887,7 @@ HTMLを応答する
 
 .. warning:: **<mvc:view-controller>使用に関する留意点**
 
-    Spring Framework 4.3以降では、\ ``<mvc:view-controller>``\ が許可するHTTPメソッドはGETとHEADのみに限定される様になったため(`SPR-13130 <https://jira.spring.io/browse/SPR-13130>`_)、
+    Spring Framework 4.3以降では、\ ``<mvc:view-controller>``\ が許可するHTTPメソッドはGETとHEADのみに限定される様になったため(`SPR-13130 <https://jira.spring.io/browse/SPR-13130?redirect=false>`_)、
     HTTPメソッドがGETとHEAD以外(POSTなど)でアクセスするページの場合、\ ``<mvc:view-controller>``\ は使用できない。
     GETとHEAD以外(POSTなど)からフォワードされた場合も同様となるため、エラーページへの遷移などフォワード元のHTTPメソッドが限定できない場合には\ ``<mvc:view-controller>``\ を使用しないよう注意されたい。
 
@@ -2314,9 +2314,9 @@ Spring Frameworkでは、HTML formから送信されたリクエストパラメ�
 
     Spring Frameworkは、以下の3つの仕組みを使って型変換を行っており、基本的な型への変換は標準でサポートされている。各変換機能の詳細については、リンク先のページを参照されたい。
 
-    * `Spring Type Conversion <https://docs.spring.io/spring-framework/docs/5.3.2/reference/html/core.html#core-convert>`_\
-    * `Spring Field Formatting <https://docs.spring.io/spring-framework/docs/5.3.2/reference/html/core.html#format>`_\
-    * `java.beans.PropertyEditor implementations <https://docs.spring.io/spring-framework/docs/5.3.2/reference/html/core.html#beans-beans-conversion>`_\
+    * `Spring Type Conversion <https://docs.spring.io/spring-framework/docs/5.3.13/reference/html/core.html#core-convert>`_\
+    * `Spring Field Formatting <https://docs.spring.io/spring-framework/docs/5.3.13/reference/html/core.html#format>`_\
+    * `java.beans.PropertyEditor implementations <https://docs.spring.io/spring-framework/docs/5.3.13/reference/html/core.html#beans-beans-conversion>`_\
 
  .. warning::
 
@@ -2362,10 +2362,10 @@ Spring Frameworkでは、HTML formから送信されたリクエストパラメ�
      - 説明
    * - 1.
      - style
-     - 数値のスタイルを指定する。詳細は、`NumberFormat.StyleのJavadoc <https://docs.spring.io/spring/docs/5.3.2/javadoc-api/org/springframework/format/annotation/NumberFormat.Style.html>`_\ を参照されたい。
+     - 数値のスタイルを指定する。詳細は、`NumberFormat.StyleのJavadoc <https://docs.spring.io/spring-framework/docs/5.3.13/javadoc-api/org/springframework/format/annotation/NumberFormat.Style.html>`_\ を参照されたい。
    * - 2.
      - pattern
-     - Javaの数値形式を指定する。詳細は、`DecimalFormatのJavadoc <http://docs.oracle.com/javase/8/docs/api/java/text/DecimalFormat.html>`_\ を参照されたい。
+     - Javaの数値形式を指定する。詳細は、`DecimalFormatのJavadoc <https://docs.oracle.com/javase/8/docs/api/java/text/DecimalFormat.html>`_\ を参照されたい。
 
 |
 
@@ -2407,10 +2407,10 @@ Spring Frameworkでは、HTML formから送信されたリクエストパラメ�
      - 説明
    * - 1.
      - iso
-     - ISOの日時形式を指定する。詳細は、`DateTimeFormat.ISOのJavadoc <https://docs.spring.io/spring/docs/5.3.2/javadoc-api/org/springframework/format/annotation/DateTimeFormat.ISO.html>`_\ を参照。
+     - ISOの日時形式を指定する。詳細は、`DateTimeFormat.ISOのJavadoc <https://docs.spring.io/spring-framework/docs/5.3.13/javadoc-api/org/springframework/format/annotation/DateTimeFormat.ISO.html>`_\ を参照。
    * - 2.
      - pattern
-     - Javaの日時形式を指定する。詳細は、`SimpleDateFormatのJavadoc <http://docs.oracle.com/javase/8/docs/api/java/text/SimpleDateFormat.html>`_\ を参照されたい。
+     - Javaの日時形式を指定する。詳細は、`SimpleDateFormatのJavadoc <https://docs.oracle.com/javase/8/docs/api/java/text/SimpleDateFormat.html>`_\ を参照されたい。
    * - 3.
      - style
      - | 日付と時刻のスタイルを2桁の文字列として指定する。
@@ -2556,7 +2556,7 @@ form-backing beanの初期化は、\ ``@ModelAttribute``\ アノテーション�
 HTML formへのバインディング方法
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 | \ ``Model``\ に追加されたフォームオブジェクトは\ ``<form:xxx>``\ タグを用いて、HTML(JSP)のformにバインドすることができる。
-| \ ``<form:xxx>``\ タグの詳細は、 `Spring Framework Documentation -Spring’s form tag library- <https://docs.spring.io/spring-framework/docs/5.3.2/reference/html/web.html#mvc-view-jsp-formtaglib>`_\ を参照されたい。
+| \ ``<form:xxx>``\ タグの詳細は、 `Spring Framework Documentation -Spring’s form tag library- <https://docs.spring.io/spring-framework/docs/5.3.13/reference/html/web.html#mvc-view-jsp-formtaglib>`_\ を参照されたい。
 
  .. code-block:: jsp
     :emphasize-lines: 1
@@ -2748,13 +2748,13 @@ JSPの実装
      - ドキュメント
    * - 1.
      - Spring's form tag library
-     - - `<https://docs.spring.io/spring-framework/docs/5.3.2/reference/html/web.html#mvc-view-jsp-formtaglib>`_\
+     - - `<https://docs.spring.io/spring-framework/docs/5.3.13/reference/html/web.html#mvc-view-jsp-formtaglib>`_\
    * - 2.
      - Spring's JSP Tag Library
-     - - `<https://docs.spring.io/spring-framework/docs/5.3.2/reference/html/web.html#mvc-view-jsp-tags>`_\
+     - - `<https://docs.spring.io/spring-framework/docs/5.3.13/reference/html/web.html#mvc-view-jsp-tags>`_\
    * - 3.
      - JSTL
-     - - `<http://download.oracle.com/otndocs/jcp/jstl-1.2-mrel2-eval-oth-JSpec/>`_\
+     - - `<https://download.oracle.com/otndocs/jcp/jstl-1.2-mrel2-eval-oth-JSpec/>`_\
    * - 4.
      - Common library's tags & el functions
      - - 本ガイドラインの「:doc:`../ArchitectureInDetail/WebApplicationDetail/TagLibAndELFunctions`」
@@ -2764,7 +2764,7 @@ JSPの実装
     terasoluna-gfw-web 1.0.0.RELEASEを使用している場合は、Spring's form tag libraryから提供されている\ ``<form:form>``\タグを使う際は、必ず\ ``action``\属性を指定すること。
 
     terasoluna-gfw-web 1.0.0.RELEASEが依存しているSpring MVC(3.2.4.RELEASE)では、\ ``<form:form>``\タグの\ ``action``\属性を省略した場合、XSS(Cross-site scripting)の脆弱性が存在する。
-    脆弱性に関する情報については、\ `National Vulnerability Database (NVD)のCVE-2014-1904 <http://web.nvd.nist.gov/view/vuln/detail?vulnId=CVE-2014-1904>`_\を参照されたい。
+    脆弱性に関する情報については、\ `National Vulnerability Database (NVD)のCVE-2014-1904 <https://nvd.nist.gov/vuln/detail/CVE-2014-1904>`_\を参照されたい。
 
     尚、terasoluna-gfw-web 1.0.1.RELEASE以上では、XSS対策が行われているSpring MVC(3.2.10.RELEASE以上)に依存しているため、本脆弱性は存在しない。
 
@@ -2898,7 +2898,7 @@ JSTLのJSPタグライブラリから提供されている ``<c:out>`` タグを
      - | EL式で取得した値を ``<c:out>`` タグのvalue属性に指定する。HTMLエスケープも行われる。
 
  .. note::
-    ``<c:out>`` の詳細は、`JavaServer Pages Standard Tag Library(Version 1.2) <http://download.oracle.com/otndocs/jcp/jstl-1.2-mrel2-eval-oth-JSpec/>`_\ の "CHAPTER 4 General-Purpose Actions" を参照されたい。
+    ``<c:out>`` の詳細は、`JavaServer Pages Standard Tag Library(Version 1.2) <https://download.oracle.com/otndocs/jcp/jstl-1.2-mrel2-eval-oth-JSpec/>`_\ の "CHAPTER 4 General-Purpose Actions" を参照されたい。
 
 |
 
@@ -2927,7 +2927,7 @@ JSTLのJSPタグライブラリから提供されている ``<c:out>`` タグを
        | 仮に ``${helloBean.numberItem}`` で取得した値が ``1.2`` の場合、画面には ``1.20`` が出力される。
 
 .. note::
-    ``<fmt:formatNumber>`` の詳細は、`JavaServer Pages Standard Tag Library(Version 1.2) <http://download.oracle.com/otndocs/jcp/jstl-1.2-mrel2-eval-oth-JSpec/>`_\ の "CHAPTER 9 Formatting Actions" を参照されたい。
+    ``<fmt:formatNumber>`` の詳細は、`JavaServer Pages Standard Tag Library(Version 1.2) <https://download.oracle.com/otndocs/jcp/jstl-1.2-mrel2-eval-oth-JSpec/>`_\ の "CHAPTER 9 Formatting Actions" を参照されたい。
 
 |
 
@@ -2956,7 +2956,7 @@ JSTLのJSPタグライブラリから提供されている ``<fmt:formatDate>`` 
        | 仮に ``${helloBean.dateItem}`` で取得した値が2013年3月2日の場合、画面には ``2013-03-02`` が出力される。
 
 .. note::
-    ``<fmt:formatDate>`` の詳細は、`JavaServer Pages Standard Tag Library(Version 1.2) <http://download.oracle.com/otndocs/jcp/jstl-1.2-mrel2-eval-oth-JSpec/>`_\ の "CHAPTER 9 Formatting Actions" を参照されたい。
+    ``<fmt:formatDate>`` の詳細は、`JavaServer Pages Standard Tag Library(Version 1.2) <https://download.oracle.com/otndocs/jcp/jstl-1.2-mrel2-eval-oth-JSpec/>`_\ の "CHAPTER 9 Formatting Actions" を参照されたい。
 
 .. note::
     日時オブジェクトの型として、Joda Timeから提供されている ``org.joda.time.DateTime`` などを利用する場合は、Jada Timeから提供されているJSPタグライブラリを使用すること。
@@ -3093,7 +3093,7 @@ HTMLの\ ``<form>``\ 要素(JSPタグライブラリの\ ``<form:form>``\ 要素
         \ ``arg``\ メソッドや\ ``buildAndExpand``\ メソッドを呼び出す必要がある。
 
         \ ``arg``\ メソッドと\ ``buildAndExpand``\ メソッドの具体的な使用例については、
-        「\ `Spring Framework Documentation -Links in Views- <https://docs.spring.io/spring-framework/docs/5.3.2/reference/html/web.html#mvc-links-to-controllers-from-views>`_\ 」を参照されたい。
+        「\ `Spring Framework Documentation -Links in Views- <https://docs.spring.io/spring-framework/docs/5.3.13/reference/html/web.html#mvc-links-to-controllers-from-views>`_\ 」を参照されたい。
 
 
  .. note:: **リクエストマッピング名について**
@@ -3135,7 +3135,7 @@ Spring Frameworkから提供されている ``<form:form>`` タグを使用し�
      - \ ``<form:xxx>``\ タグのpath属性に、バインドしたいプロパティのプロパティ名を指定する。  ``xxx`` の部分は、入力項目のタイプによってかわる。
 
 .. note::
-    \ ``<form:form>``\ 、\ ``<form:xxx>``\ タグの詳細は、 `Spring Framework Documentation -Spring’s form tag library- <https://docs.spring.io/spring-framework/docs/5.3.2/reference/html/web.html#mvc-view-jsp-formtaglib>`_\ を参照されたい。
+    \ ``<form:form>``\ 、\ ``<form:xxx>``\ タグの詳細は、 `Spring Framework Documentation -Spring’s form tag library- <https://docs.spring.io/spring-framework/docs/5.3.13/reference/html/web.html#mvc-view-jsp-formtaglib>`_\ を参照されたい。
 
 |
 
@@ -3348,7 +3348,7 @@ JSTLのJSPタグライブラリから提供されている ``<c:if>`` タグ又�
      - 全ての ``<c:when>`` タグのtest属性の結果が ``false`` の場合、 ``<c:otherwise>`` タグ内の表示処理が実行される。
 
 .. note::
-    詳細は、 `JavaServer Pages Standard Tag Library(Version 1.2) <http://download.oracle.com/otndocs/jcp/jstl-1.2-mrel2-eval-oth-JSpec/>`_\ の "CHAPTER 5 Conditional Actions" を参照されたい。
+    詳細は、 `JavaServer Pages Standard Tag Library(Version 1.2) <https://download.oracle.com/otndocs/jcp/jstl-1.2-mrel2-eval-oth-JSpec/>`_\ の "CHAPTER 5 Conditional Actions" を参照されたい。
 
 |
 
@@ -3389,12 +3389,12 @@ JSTLのJSPタグライブラリから提供されている ``<c:forEach>`` を�
        処理対象となっている要素のオブジェクトを参照する場合は、var属性にオブジェクトを格納するための変数名を指定する。
    * - | (2)
      - ``<c:forEach>`` タグのvarStatus属性で指定した変数から現在処理を行っている要素位置(count)を取得している。
-       count以外の属性については、 ``javax.servlet.jsp.jstl.core.LoopTagStatus`` の `JavaDoc <http://download.oracle.com/otndocs/jcp/jstl-1.2-mrel2-eval-oth-JSpec/>`_\ を参照されたい。
+       count以外の属性については、 ``javax.servlet.jsp.jstl.core.LoopTagStatus`` の `JavaDoc <https://download.oracle.com/otndocs/jcp/jstl-1.2-mrel2-eval-oth-JSpec/>`_\ を参照されたい。
    * - | (3)
      - ``<c:forEach>`` タグのvar属性で指定した変数に格納されているオブジェクトから値を取得している。
 
 .. note::
-    詳細は、 `JavaServer Pages Standard Tag Library(Version 1.2) <http://download.oracle.com/otndocs/jcp/jstl-1.2-mrel2-eval-oth-JSpec/>`_\ の "CHAPTER 6 Iterator Actions" を参照されたい。
+    詳細は、 `JavaServer Pages Standard Tag Library(Version 1.2) <https://download.oracle.com/otndocs/jcp/jstl-1.2-mrel2-eval-oth-JSpec/>`_\ の "CHAPTER 6 Iterator Actions" を参照されたい。
 
 |
 

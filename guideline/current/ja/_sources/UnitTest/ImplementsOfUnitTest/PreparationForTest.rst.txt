@@ -31,34 +31,34 @@ OSSライブラリの設定
 
     <!-- == Begin Unit Test == -->
     <dependency>
-        <groupId>junit</groupId>
-        <artifactId>junit</artifactId>
-        <scope>test</scope>
+      <groupId>junit</groupId>
+      <artifactId>junit</artifactId>
+      <scope>test</scope>
     </dependency>
     <dependency>
-        <groupId>org.mockito</groupId>
-        <artifactId>mockito-core</artifactId>
-        <scope>test</scope>
+      <groupId>org.mockito</groupId>
+      <artifactId>mockito-core</artifactId>
+      <scope>test</scope>
     </dependency>
     <dependency>
-        <groupId>org.springframework</groupId>
-        <artifactId>spring-test</artifactId>
-        <scope>test</scope>
+      <groupId>org.springframework</groupId>
+      <artifactId>spring-test</artifactId>
+      <scope>test</scope>
     </dependency>
     <!--  REMOVE THIS LINE IF YOU USE DBUnit
     <dependency>
-        <groupId>org.dbunit</groupId>
-        <artifactId>dbunit</artifactId>
-        <version>2.5.4</version>
-        <scope>test</scope>
+      <groupId>org.dbunit</groupId>
+      <artifactId>dbunit</artifactId>
+      <version>2.7.2</version>
+      <scope>test</scope>
     </dependency>
     -->
     <!--  REMOVE THIS LINE IF YOU USE Spring Test DBUnit
     <dependency>
-        <groupId>com.github.springtestdbunit</groupId>
-        <artifactId>spring-test-dbunit</artifactId>
-        <version>1.3.0</version>
-        <scope>test</scope>
+      <groupId>com.github.springtestdbunit</groupId>
+      <artifactId>spring-test-dbunit</artifactId>
+      <version>1.3.0</version>
+      <scope>test</scope>
     </dependency>
     -->
     <!-- == End Unit Test == -->
@@ -156,7 +156,7 @@ initdbプロジェクトについては、\ :ref:`CreateWebApplicationProjectCon
     * SQL解析メタデータ(\ ``config``\ に\ ``@SqlConfig``\ アノテーションを指定)
 
     また、\ ``@Sql``\ アノテーションはデフォルトで有効になっている\ ``SqlScriptsTestExecutionListener``\ によって
-    実行される。詳細は、\ `Executing SQL scripts declaratively with @Sql <https://docs.spring.io/spring-framework/docs/5.3.2/reference/html/testing.html#testcontext-executing-sql-declaratively>`_\
+    実行される。詳細は、\ `Executing SQL scripts declaratively with @Sql <https://docs.spring.io/spring-framework/docs/5.3.13/reference/html/testing.html#testcontext-executing-sql-declaratively>`_\
     を参照されたい。
 
     なお、\ ``@Sql``\ アノテーションと\ ``@SqlConfig``\ アノテーションによる構成は\ ``<jdbc:initialize-database>``\ 要素
@@ -218,7 +218,8 @@ Excel形式に対応する\ ``DataSetLoader``\ インタフェースの実装例
     public class XlsDataSetLoader extends AbstractDataSetLoader { // (1)
 
         @Override
-        protected IDataSet createDataSet(Resource resource) throws IOException, DataSetException {
+        protected IDataSet createDataSet(
+                Resource resource) throws IOException, DataSetException {
             try (InputStream inputStream = resource.getInputStream()) {
                 return new XlsDataSet(inputStream);
             }
@@ -291,10 +292,10 @@ Excel形式のデータ定義ファイルでは、各シートが各テーブル
        <!-- (1) -->
        <?xml version='1.0' encoding='UTF-8'?>
        <dataset>
-           <MEMBER_LOGIN CUSTOMER_NO="0000000001"
-               PASSWORD="{pbkdf2}1030550073b359714fe2f7537fa1a794a5b0866c7adf62f7f974ff0492681d0db41f95c66be98f94"
-               LAST_PASSWORD="{pbkdf2}8f702ea4c50c58921c8be11b811a535d5c29856fc4f50b8545efe13914ac87e880cb5b7d390e770b"
-               LOGIN_DATE_TIME="2017-09-13 16:47:04.283" LOGIN_FLG="FALSE" />
+         <MEMBER_LOGIN CUSTOMER_NO="0000000001"
+           PASSWORD="{pbkdf2}1030550073b359714fe2f7537fa1a794a5b0866c7adf62f7f974ff0492681d0db41f95c66be98f94"
+           LAST_PASSWORD="{pbkdf2}8f702ea4c50c58921c8be11b811a535d5c29856fc4f50b8545efe13914ac87e880cb5b7d390e770b"
+           LOGIN_DATE_TIME="2017-09-13 16:47:04.283" LOGIN_FLG="FALSE" />
        </dataset>
 
 
@@ -340,42 +341,42 @@ Spring Testの DI機能を使用することでテストで使用するBeanを�
     <beans xmlns="http://www.springframework.org/schema/beans"
       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
       xmlns:context="http://www.springframework.org/schema/context"
-      xsi:schemaLocation="http://www.springframework.org/schema/beans https://www.springframework.org/schema/beans/spring-beans.xsd
-            http://www.springframework.org/schema/context https://www.springframework.org/schema/context/spring-context.xsd">
+      xsi:schemaLocation="http://www.springframework.org/schema/beans
+        https://www.springframework.org/schema/beans/spring-beans.xsd
+        https://www.springframework.org/schema/context/spring-context.xsd">
 
-        <context:property-placeholder
-                        location="classpath*:/META-INF/spring/*.properties" />
+      <context:property-placeholder
+        location="classpath*:/META-INF/spring/*.properties" />
 
-        <!-- (1) -->
-        <bean id="exceptionLogger" class="org.terasoluna.gfw.common.exception.ExceptionLogger" />
+      <!-- (1) -->
+      <bean id="exceptionLogger" class="org.terasoluna.gfw.common.exception.ExceptionLogger" />
 
-        <bean id="jdbcTemplate" class="org.springframework.jdbc.core.JdbcTemplate">
-            <property name="dataSource" ref="dataSource" />
-        </bean>
+      <bean id="jdbcTemplate" class="org.springframework.jdbc.core.JdbcTemplate">
+        <property name="dataSource" ref="dataSource" />
+      </bean>
 
-        <!-- (2) -->
-        <bean id="passwordEncoder" class="org.springframework.security.crypto.password.DelegatingPasswordEncoder">
-          <constructor-arg name="idForEncode" value="pbkdf2" />
-          <constructor-arg name="idToPasswordEncoder">
-            <map>
-              <entry key="pbkdf2">
-                <bean class="org.springframework.security.crypto.password.Pbkdf2PasswordEncoder" />
-              </entry>
-              <entry key="bcrypt">
-                <bean class="org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder" />
-              </entry>
-              <!-- When using commented out PasswordEncoders, you need to add bcprov-jdk15on.jar to the dependency.
-              <entry key="argon2">
-                <bean class="org.springframework.security.crypto.argon2.Argon2PasswordEncoder" />
-              </entry>
-              <entry key="scrypt">
-                <bean class="org.springframework.security.crypto.scrypt.SCryptPasswordEncoder" />
-              </entry>
-              -->
-            </map>
-          </constructor-arg>
-        </bean>
-
+      <!-- (2) -->
+      <bean id="passwordEncoder" class="org.springframework.security.crypto.password.DelegatingPasswordEncoder">
+        <constructor-arg name="idForEncode" value="pbkdf2" />
+        <constructor-arg name="idToPasswordEncoder">
+          <map>
+            <entry key="pbkdf2">
+              <bean class="org.springframework.security.crypto.password.Pbkdf2PasswordEncoder" />
+            </entry>
+            <entry key="bcrypt">
+              <bean class="org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder" />
+            </entry>
+            <!-- When using commented out PasswordEncoders, you need to add bcprov-jdk15on.jar to the dependency.
+            <entry key="argon2">
+              <bean class="org.springframework.security.crypto.argon2.Argon2PasswordEncoder" />
+            </entry>
+            <entry key="scrypt">
+              <bean class="org.springframework.security.crypto.scrypt.SCryptPasswordEncoder" />
+            </entry>
+            -->
+          </map>
+        </constructor-arg>
+      </bean>
 
     </beans>
 

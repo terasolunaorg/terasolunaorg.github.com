@@ -12,7 +12,7 @@ Overview
 | ヘッダ、フッタ、サイドメニューといった共通的なレイアウトを持つWebアプリケーションを開発する場合に、全てのJSPに共通部分をコーディングすると、メンテナンスが煩雑になる。
 | 例えば、ヘッダのデザインを修正する必要がある場合、全てのJSPに修正を加えなければならない。
 
-| JSPでの開発で多くの画面で同じレイアウトを使用する場合は、 `Apache Tiles <http://tiles.apache.org/>`_\ (以下、Tiles)の利用を推奨する。
+| JSPでの開発で多くの画面で同じレイアウトを使用する場合は、 `Apache Tiles <https://tiles.apache.org/>`_\ (以下、Tiles)の利用を推奨する。
 | 理由は、以下3つの通りである。
 
 #. 設計者によるレイアウトの誤差をなくすこと
@@ -232,8 +232,8 @@ Tilesを使用するためにカスタムタグ(TLD)を設定する必要があ�
   <%@ taglib uri="http://www.springframework.org/security/tags" prefix="sec"%>
   <%@ taglib uri="http://terasoluna.org/functions" prefix="f"%>
   <%@ taglib uri="http://terasoluna.org/tags" prefix="t"%>
-  <%@ taglib uri="http://tiles.apache.org/tags-tiles" prefix="tiles"%> <!-- (1) -->
-  <%@ taglib uri="http://tiles.apache.org/tags-tiles-extras" prefix="tilesx"%> <!-- (2) -->
+  <%@ taglib uri="https://tiles.apache.org/tags-tiles" prefix="tiles"%> <!-- (1) -->
+  <%@ taglib uri="https://tiles.apache.org/tags-tiles-extras" prefix="tilesx"%> <!-- (2) -->
 
  .. tabularcolumns:: |p{0.10\linewidth}|p{0.90\linewidth}|
  .. list-table::
@@ -247,7 +247,7 @@ Tilesを使用するためにカスタムタグ(TLD)を設定する必要があ�
    * - | (2)
      - | Tiles-extras用のカスタムタグ(TLD)の定義を追加する。
 
-Tilesのカスタムタグの詳細は、\ `こちら <http://tiles.apache.org/framework/tiles-jsp/tagreference.html>`_\ を参照されたい。
+Tilesのカスタムタグの詳細は、\ `こちら <https://tiles.apache.org/framework/tiles-jsp/tagreference.html>`_\ を参照されたい。
 
 .. tip::
 

@@ -297,7 +297,7 @@ pom.xmlの設定
 EntityManagerの設定
 """"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 \ ``EntityManager``\ を使用するための設定を行う。
-ここでは\ `JPA用のブランクプロジェクト <https://github.com/terasolunaorg/terasoluna-gfw-web-multi-blank/tree/5.7.0.RELEASE#multi-blank-project-with-jpa-spring-data-jpa>`_\ の設定をもとに解説を行う。
+ここでは\ `JPA用のブランクプロジェクト <https://github.com/terasolunaorg/terasoluna-gfw-web-multi-blank/tree/5.7.1.RELEASE#multi-blank-project-with-jpa-spring-data-jpa>`_\ の設定をもとに解説を行う。
 
 - xxx-infra.xml
 
@@ -363,7 +363,7 @@ EntityManagerの設定
         | (1)で設定済みのbeanを指定する。
     * - | (7)
       - | Hibernateから提供されている ``EntityManager`` の動作設定を指定する。
-        | この設定例は\ `JPA用のブランクプロジェクト <https://github.com/terasolunaorg/terasoluna-gfw-web-multi-blank/tree/5.7.0.RELEASE#multi-blank-project-with-jpa-spring-data-jpa>`_\ で設定されているものであるため、プロジェクトの要件に合わせて設定を変更されたい。
+        | この設定例は\ `JPA用のブランクプロジェクト <https://github.com/terasolunaorg/terasoluna-gfw-web-multi-blank/tree/5.7.1.RELEASE#multi-blank-project-with-jpa-spring-data-jpa>`_\ で設定されているものであるため、プロジェクトの要件に合わせて設定を変更されたい。
         | 詳細については「`Developing Hibernate Applications <https://access.redhat.com/documentation/en-us/red_hat_jboss_enterprise_application_platform/7.3/html/developing_hibernate_applications/reference_material>`_\」を参照されたい。
 
 - EntityManagerの動作設定について
@@ -396,7 +396,7 @@ EntityManagerの設定
     \ ``EntityManager``\の動作設定で\ ``hibernate.use_sql_comments``\に\ ``true``\を指定する場合、利用しているHibernateのバージョンによっては
     \ `CVE-2020-25638 <https://cve.mitre.org/cgi-bin/cvename.cgi?name=2020-25638>`_\で報告されているセキュリティの脆弱性が発生する可能性がある。
 
-    なお、TERASOLUNA Server Framework for Javaの本バージョンで利用しているHibernateでは脆弱性の対策が行われているため
+    なお、TERASOLUNA Server Framework for Java (5.x)の本バージョンで利用しているHibernateでは脆弱性の対策が行われているため
     \ ``hibernate.use_sql_comments``\を利用しても問題は発生しない。
 
 
@@ -620,7 +620,7 @@ Spring Data JPAを有効化するための設定
     * - 4.
       - query-lookup-strategy
       - | Queryメソッドが呼び出された特に実行するQueryをLookupする方法を指定する。
-        | デフォルトは ``CREATE_IF_NOT_FOUND`` となっている。詳細は、`Spring Data Commons - Reference Documentationの "Query lookup strategies" <https://docs.spring.io/spring-data/commons/docs/2.4.2/reference/html/#repositories.query-methods.query-lookup-strategies>`_\ を参照されたい。 特に理由がない場合は、デフォルトのままでよい。
+        | デフォルトは ``CREATE_IF_NOT_FOUND`` となっている。詳細は、`Spring Data Commons - Reference Documentationの "Query lookup strategies" <https://docs.spring.io/spring-data/commons/docs/2.6.0/reference/html/#repositories.query-methods.query-lookup-strategies>`_\ を参照されたい。 特に理由がない場合は、デフォルトのままでよい。
     * - 5.
       - factory-class
       - | Repositoryインタフェースのメソッドが呼び出された際の処理を実装するクラスを生成するためのFactoryを指定する。
@@ -826,16 +826,26 @@ Spring Dataから提供されているインタフェースを継承してEntity
         | PagingAndSortingRepository
       - ``CrudRepository`` のfindAllメソッドにページネーション機能とソート機能を追加したRepositoryインタフェース。
     * - 3.
+      - | org.springframework.data.repository.query
+        | QueryByExampleExecutor
+      - | 例示による問い合わせ(Query by Example)の実行を可能にするRepositoryインタフェース。
+        | 本ガイドラインではQuery by Exampleについては取り扱わない。
+    * - 4.
       - org.springframework.data.jpa.repository
         JpaRepository
       - | JPAの仕様に依存するメソッドを提供しているRepositoryインタフェース。
-        | ``PagingAndSortingRepository`` を継承しているため、 ``PagingAndSortingRepository`` および ``CrudRepository`` のメソッドも使用する事ができる。
+        | ``PagingAndSortingRepository`` 、 ``QueryByExampleExecutor`` を継承しているため、 ``PagingAndSortingRepository`` 、 ``CrudRepository`` 、``QueryByExampleExecutor`` のメソッドも使用する事ができる。
         | **特に理由がない場合は、本インタフェースを継承してEntity毎のRepositoryインタフェースを作成することを推奨する。**
 
  .. note:: **Spring Data提供のRepositoryインタフェースのデフォルト実装について**
 
     上記インタフェースで定義されているメソッドの実装は、Spring Data JPAより提供されている
     ``org.springframework.data.jpa.repository.support.SimpleJpaRepository`` で行われている。
+
+ .. note:: **例示による問い合わせ(Query by Example)について**
+
+    Query by Exampleでは動的なクエリの作成が可能になり、フィールド名を含むクエリを作成する必要がない。
+    Query by Exampleについては\ `Spring Data JPA - Reference Documentation の "Query by Example" <https://docs.spring.io/spring-data/jpa/docs/current/reference/html/#query-by-example>`_\ を参照されたい。
 
 |
 
@@ -860,7 +870,7 @@ Spring Dataから提供されているインタフェースを継承してEntity
 
 |
 
-``JpaRepository`` を継承してEntity毎のRepositoryインタフェースを作成すると、以下のメソッドに対する実装を得ることが出来る。
+``JpaRepository`` を継承してEntity毎のRepositoryインタフェースを作成すると、以下のメソッドに対する実装を得ることが出来る。なお、QueryByExampleExecutorのメソッドおよび非推奨メソッドは記載していない。
 
  .. tabularcolumns:: |p{0.10\linewidth}|p{0.35\linewidth}|p{0.55\linewidth}|
  .. list-table::
@@ -881,61 +891,83 @@ Spring Dataから提供されているインタフェースを継承してEntity
       - | 指定された複数のEntityに対する永続操作を ``EntityManger`` に蓄積するためのメソッド。
         | ``<S extends T> S save(S entity)`` メソッドを繰り返し呼び出す事で実現している。
     * - 3.
-      - T saveAndFlush(T entity)
+      - <S extends T> saveAndFlush(T entity)
       - | 指定されたEntityに対する永続操作を ``EntityManger`` に蓄積した後に、蓄積されている永続操作(INSERT/UPDATE/DELETE)を永続層(DB)に反映するためのメソッド。
     * - 4.
+      - <S extends T> List<S> saveAllAndFlush(Iterable<S> entities)
+      - | 指定された複数のEntityに対する永続操作を ``EntityManger`` に蓄積した後に、蓄積されている永続操作(INSERT/UPDATE/DELETE)を永続層(DB)に反映するためのメソッド
+    * - 5.
       - void flush()
       - ``EntityManager`` に蓄積されたEntityへの永続操作(INSERT/UPDATE/DELETE)を永続層(DB)に実行するためのメソッド。
-    * - 5.
+    * - 6.
       - void deleteById(ID id)
       - | 指定されたIDのEntityに対する削除操作を ``EntityManger`` に蓄積するためのメソッド。
         | このメソッドは ``findById(ID)`` メソッドを呼び出してEntityオブジェクトを ``EntityManger`` の管理下にしてから削除している。
         | ``findById(ID)`` メソッドの呼び出し時にEntityが存在しない場合は、 ``org.springframework.dao.EmptyResultDataAccessException`` が発生する。
-    * - 6.
+    * - 7.
       - void delete(T entity)
       - | 指定されたEntityに対する削除操作を ``EntityManger`` に蓄積するためのメソッド。
-    * - 7.
+    * - 8.
       - void deleteAll(Iterable<? extends T> entities)
       - | 指定された複数のEntityに対する削除操作を ``EntityManger`` に蓄積するためのメソッド。
-        | ``void delete(T entity)``  メソッドを繰り返し呼び出す事で実現している。削除対象のEntityが大量になる場合は、 ``void deleteInBatch(Iterable<T> entities)`` メソッドを使用した方が効率的に削除することができる。
-    * - 8.
+        | ``void delete(T entity)``  メソッドを繰り返し呼び出す事で実現している。削除対象のEntityが大量になる場合は、 ``void deleteAllInBatch(Iterable<T> entities)`` メソッドを使用した方が効率的に削除することができる。
+    * - 9.
       - void deleteAll()
       - | すべてのEntityに対する削除操作を ``EntityManger`` に蓄積するためのメソッド。
         | ``List<T> findAll()`` メソッドで取得したEntityに対して ``void delete(T entity)`` メソッドを繰り返し呼び出す事で実現している。
         | 削除対象のEntityが大量になる場合は、 ``void deleteAllInBatch()`` メソッドを使用すること。このメソッドは削除するEntityをすべてアプリケーション上に読み込むので、メモリ枯渇の原因になる。
-    * - 9.
-      - void deleteInBatch(Iterable<T> entities)
+    * - 10.
+      - void deleteAllInBatch(Iterable<T> entities)
       - | 指定された複数のEntityを直接永続層(DB)から削除するためのメソッド。
         | このメソッドを使って削除した場合、 ``EntityManager`` 上で管理(キャッシュ)されているEntityは削除されないため、 本メソッドで削除した後に ``findById(ID id)`` メソッドを呼び出すと ``EntityManager`` 上で管理されているEntityが返却されるので注意が必要。
-        | 後続処理で削除したEntityに対して ``findById(ID id)`` メソッドなどの ``EntityManager`` 上で管理(キャッシュ)されているEntityオブジェクトを返却するメソッドを呼び出す可能性がある場合は、 ``void delete(Iterable<? extends T> entities)`` メソッドを使用して削除すること。
-    * - 10.
+        | 後続処理で削除したEntityに対して ``findById(ID id)`` メソッドなどの ``EntityManager`` 上で管理(キャッシュ)されているEntityオブジェクトを返却するメソッドを呼び出す可能性がある場合は、 ``void deleteAll(Iterable<? extends T> entities)`` メソッドを使用して削除すること。
+    * - 11.
       - void deleteAllInBatch()
       - | すべてのEntityを直接永続層(DB)から削除するためのメソッド。
-        | ``void deleteInBatch(Iterable<T> entities)`` メソッドと同様、``EntityManager`` 上で管理(キャッシュ)されているEntityは削除されない点に注意すること。
-    * - 11.
+        | ``void deleteAllInBatch(Iterable<T> entities)`` メソッドと同様、``EntityManager`` 上で管理(キャッシュ)されているEntityは削除されない点に注意すること。
+    * - 12.
+      - void deleteAllByIdInBatch(Iterable<ID> ids)
+      - | 指定されたIDの複数のEntityを直接永続層(DB)から削除するためのメソッド。
+        | このメソッドを使って削除した場合、 ``EntityManager`` 上で管理(キャッシュ)されているEntityは削除されないため、 本メソッドで削除した後に ``findById(ID id)`` メソッドを呼び出すと ``EntityManager`` 上で管理されているEntityが返却されるので注意が必要。
+        | 後続処理で削除したEntityに対して ``findById(ID id)`` メソッドなどの ``EntityManager`` 上で管理(キャッシュ)されているEntityオブジェクトを返却するメソッドを呼び出す可能性がある場合は、 ``void deleteAll(Iterable<? extends T> entities)`` メソッドを使用して削除すること。
+    * - 13.
+      - void deleteAllById(Iterable<? extends ID> ids)
+      - | 指定されたIDの複数のEntityに対する削除操作を ``EntityManger`` に蓄積するためのメソッド。
+        | ``void deleteById(ID id)`` メソッドを繰り返し呼び出す事で実現している。削除対象のEntityが大量になる場合は、 ``void deleteAllByIdInBatch(Iterable<ID> ids)`` メソッドを使用した方が効率的に削除することができる。
+    * - 14.
       - Optional<T> findById(ID id)
       - | 指定されたIDのEntityを永続層(DB)から取得するためのメソッド。
         | 永続層から取得されたEntityは ``EntityManager`` によって管理(キャッシュ)されるため、2回目以降のアクセスでは永続層へのアクセスは発生せず、キャッシュされているEntityが返却される。
-    * - 12.
+    * - 15.
+      - T getById(ID id)
+      - | 指定されたIDのEntityを永続層(DB)から取得するためのメソッド。
+        | 永続層から取得されたEntityは ``EntityManager`` によって管理(キャッシュ)されるため、2回目以降のアクセスでは永続層へのアクセスは発生せず、キャッシュされているEntityが返却される。
+        | findByIdメソッドとは異なりEntityはLazy Fetchされ、データが存在しない場合はEntityのプロパティへの最初のアクセス時に ``EntityNotFoundException`` がスローされる。
+
+        .. warning::
+
+           Entityの取得とプロパティへのアクセスを別々の箇所で行うよう実装した場合、実装者がLazy Fetchを意識できずに例外ハンドリングが漏れる恐れがあるため、意図的にLazy Fetchするとき以外はfindByIdメソッドを使用することを推奨する。
+
+    * - 16.
       - List<T> findAll()
       - | すべてのEntityを永続層(DB)から取得するためのメソッド。
         | 永続層から取得されたEntityは ``EntityManager`` によって管理(キャッシュ)される。
-    * - 13.
-      - Iterable<T> findAllById(Iterable<ID> ids)
+    * - 17.
+      - List<T> findAllById(Iterable<ID> ids)
       - | 指定された複数のIDのEntityを永続層(DB)から取得するためのメソッド。
         | 永続層から取得されたEntityは ``EntityManager`` によって管理(キャッシュ)される。 指定されたIDはIN句を使って検索されるため、OracleなどIN句に指定できる値の数に制限があるDBを使う場合は注意すること。
-    * - 14.
+    * - 18.
       - List<T> findAll(Sort sort)
       - | 指定された並び順ですべてのEntityを永続層(DB)から取得するためのメソッド。
         | 永続層から取得されたEntityは ``EntityManager`` によって管理(キャッシュ)される。
-    * - 15.
+    * - 19.
       - Page<T> findAll(Pageable pageable)
       - | 指定されたページ(並び順、ページ数、ページ内に表示する件数)に一致するEntityを永続層(DB)から取得するためのメソッド。
         | 永続層から取得されたEntityは ``EntityManager`` によって管理(キャッシュ)される。
-    * - 16.
+    * - 20.
       - boolean existsById(ID id)
       - | 指定されたIDのEntityが存在するかチェックするためのメソッド。
-    * - 17.
+    * - 21.
       - long count()
       - | 永続化対象のEntityの件数を取得するためのメソッド。
 
@@ -951,10 +983,12 @@ Spring Dataから提供されているインタフェースを継承してEntity
       * <S extends T> S save(S entity)
       * <S extends T> List<S> saveAll(Iterable<S> entities)
       * T saveAndFlush(T entity)
+      * <S extends T> List<S> saveAllAndFlush(Iterable<S> entities)
       * void deleteById(ID id)
       * void delete(T entity)
       * void deleteAll(Iterable<? extends T> entities)
       * void deleteAll()
+      * void deleteAllById(Iterable<? extends ID> ids)
       * void flush()
 
      JPAの楽観ロックの詳細については :doc:`ExclusionControl` を参照されたい。
@@ -994,7 +1028,7 @@ Spring Dataから提供されているインタフェースを継承してEntity
     以下のメソッドを呼び出した場合、\ ``EntityManager``\ と、永続層(DB)で管理しているデータの不整合が発生しないようにするために、
     メインの処理が行われる前に ``EntityManager`` に蓄積されているEntityへの永続操作が永続層(DB)に反映される。
 
-     * ``List<T> findAll`` 系メソッド
+     * ``findAll`` 系メソッド
      * ``boolean existsById(ID id)``
      * ``long count()``
 
@@ -1184,7 +1218,7 @@ Queryメソッドは、Entity毎のRepositoryインタフェースのメソッ�
     #. メソッド名からQuery(JPQL)が作成できない場合は、エラーとなる。
 
     QueryのLookup方法の詳細については、 `Spring Data Commons - Reference Documentation「Defining query methods」の
-    「Query lookup strategies」 <https://docs.spring.io/spring-data/commons/docs/2.4.2/reference/html/#repositories.query-methods.query-lookup-strategies>`_\ を参照されたい。
+    「Query lookup strategies」 <https://docs.spring.io/spring-data/commons/docs/2.6.0/reference/html/#repositories.query-methods.query-lookup-strategies>`_\ を参照されたい。
 
 Entityのロックを取得する
 """"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
@@ -1585,19 +1619,19 @@ Queryメソッド呼び出し時に実行するQueryの指定方法について�
       - 参照ページ
       - 説明
     * - 1.
-      - `Spring Data Commons - Reference Documentation「Defining query methods」の「Query creation」 <https://docs.spring.io/spring-data/commons/docs/2.4.2/reference/html/#repositories.query-methods.query-creation>`_\
+      - `Spring Data Commons - Reference Documentation「Defining query methods」の「Query creation」 <https://docs.spring.io/spring-data/commons/docs/2.6.0/reference/html/#repositories.query-methods.query-creation>`_\
       - Distinct、ORDER BY、Case insensitiveの指定方法などが記載されている。
     * - 2.
-      - `Spring Data Commons - Reference Documentation「Defining query methods」の「Property expressions」 <https://docs.spring.io/spring-data/commons/docs/2.4.2/reference/html/#repositories.query-methods.query-property-expressions>`_\
+      - `Spring Data Commons - Reference Documentation「Defining query methods」の「Property expressions」 <https://docs.spring.io/spring-data/commons/docs/2.6.0/reference/html/#repositories.query-methods.query-property-expressions>`_\
       - ネストされたEntityのプロパティを条件に指定する方法などが記載されている。
     * - 3.
-      - `Spring Data Commons - Reference Documentation「Defining query methods」の「Special parameter handling」 <https://docs.spring.io/spring-data/commons/docs/2.4.2/reference/html/#repositories.special-parameters>`_\
+      - `Spring Data Commons - Reference Documentation「Defining query methods」の「Special parameter handling」 <https://docs.spring.io/spring-data/commons/docs/2.6.0/reference/html/#repositories.special-parameters>`_\
       - 特別なメソッド引数(``Pageable`` 、 ``Sort``)についての説明が記載されている。
     * - 4.
-      - `Spring Data JPA - Reference Documentation「Query methods」の「Query creation」 <https://docs.spring.io/spring-data/jpa/docs/2.4.2/reference/html/#jpa.query-methods.query-creation>`_\
+      - `Spring Data JPA - Reference Documentation「Query methods」の「Query creation」 <https://docs.spring.io/spring-data/jpa/docs/2.6.0/reference/html/#jpa.query-methods.query-creation>`_\
       - JPQLを組み立てるための命名規約(キーワード)に関する説明が記載されている。
     * - 5.
-      - `Spring Data Commons - Reference Documentation「Appendix C. Repository query keywords」 <https://docs.spring.io/spring-data/commons/docs/2.4.2/reference/html/#repository-query-keywords>`_\
+      - `Spring Data Commons - Reference Documentation「Appendix C. Repository query keywords」 <https://docs.spring.io/spring-data/commons/docs/2.6.0/reference/html/#repository-query-keywords>`_\
       - JPQLを組み立てるための命名規約(キーワード)に関する説明が記載されている。
 
 以下に、実装例を示す。
@@ -3447,7 +3481,7 @@ Queryメソッドを使用して削除
     Queryメソッドを使用して永続層(DB)から直接Entityを削除した場合、関連付けアノテーションの指定に関係なく、
     関連Entityのオブジェクトは永続層から削除されない。
 
-    Repositoryインタフェースの ``void deleteInBatch(Iterable<T> entities)`` と ``void deleteAllInBatch()`` も同様の動作となる。
+    Repositoryインタフェースの ``void deleteAllInBatch(Iterable<T> entities)`` と ``void deleteAllInBatch()`` も同様の動作となる。
 
 |
 

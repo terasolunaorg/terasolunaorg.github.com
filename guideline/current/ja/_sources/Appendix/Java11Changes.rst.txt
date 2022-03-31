@@ -83,7 +83,7 @@ Java SE 11でJAX-WSを利用する場合、以下のようにjakarta.xml.ws-api�
     * - 項番
       - 説明
     * - | (1)
-      - | jaxws-apiのバージョンはterasoluna-gfw-parentが依存している\ `Spring Boot <https://docs.spring.io/spring-boot/docs/2.4.1/reference/htmlsingle/#dependency-versions>`_\ で管理されているため、pom.xmlでのバージョンの指定は不要である。
+      - | jakarta.xml.ws-apiのバージョンはterasoluna-gfw-parentが依存している\ `Spring Boot <https://docs.spring.io/spring-boot/docs/2.6.1/reference/htmlsingle/#dependency-versions>`_\ で管理されているため、pom.xmlでのバージョンの指定は不要である。
     * - | (2)
       - | Jakarta EE 8に準拠した任意のバージョンを指定する。
 
@@ -114,7 +114,7 @@ Java SE 11でCommon Annotationsを利用する場合、以下のようにjakarta
     * - 項番
       - 説明
     * - | (1)
-      - | jakarta.annotation-apiのバージョンはterasoluna-gfw-parentが依存している\ `Spring Boot <https://docs.spring.io/spring-boot/docs/2.4.1/reference/htmlsingle/#dependency-versions>`_\ で管理されているため、pom.xmlでのバージョンの指定は不要である。
+      - | jakarta.annotation-apiのバージョンはterasoluna-gfw-parentが依存している\ `Spring Boot <https://docs.spring.io/spring-boot/docs/2.6.1/reference/htmlsingle/#dependency-versions>`_\ で管理されているため、pom.xmlでのバージョンの指定は不要である。
 
 なお、Common Annotationsを動作させるための実装は各APサーバによって提供される想定であり、上記ではアプリケーションのコンパイルに必要となるAPIのみを追加している。
 
@@ -161,7 +161,7 @@ Java SE 11より、TLS(Transport Layer Security) バージョン1.3がサポー�
 クライアントで使用するバージョンは、JVMのシステム・プロパティ\ ``jdk.tls.client.protocols``\を設定することで変更可能である。
 APサーバを介さずに公開するサーバで使用するバージョンは、同様にシステム・プロパティ\ ``jdk.tls.server.protocols``\を設定することで変更可能である。
 
-詳細は\ `JDK 11 Release Notes <https://www.oracle.com/technetwork/java/javase/11-relnote-issues-5012449.html>`_\ を参照されたい。
+詳細は\ `JDK 11 Release Notes <https://www.oracle.com/java/technologies/javase/11-relnote-issues.html#JDK-8145252>`_\ を参照されたい。
 
 .. note::
 

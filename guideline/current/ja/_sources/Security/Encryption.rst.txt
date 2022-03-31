@@ -26,7 +26,7 @@ Overview
 * JCA (Java Cryptography Architecture) を利用した公開鍵暗号化方式の暗号化と復号
 * JCAを利用したハイブリッド暗号化方式の暗号化と復号
 
-Spring Securityの暗号化機能の詳細については、\ `Spring Security Reference -Spring Security Crypto Module- <https://docs.spring.io/spring-security/site/docs/5.4.2/reference/html5/#crypto>`_\ を参照されたい。
+Spring Securityの暗号化機能の詳細については、\ `Spring Security Reference -Spring Security Crypto Module- <https://docs.spring.io/spring-security/reference/5.6.0/features/integrations/cryptography.html>`_\ を参照されたい。
 
 .. _EncryptionOverviewEncryptionScheme:
 
@@ -199,7 +199,7 @@ Oracleなど、一部のJava製品ではAESの鍵長256ビットを扱うため�
 
    JCE管轄ポリシーファイルのダウンロード先
 
-   * \ `Oracle Java 8 用 <http://www.oracle.com/technetwork/java/javase/downloads/jce8-download-2133166.html>`_\
+   * \ `Oracle Java 8 用 <https://www.oracle.com/java/technologies/javase-jce8-downloads.html>`_\
 
 .. _EncryptionHowToUseCommonKey:
 
@@ -280,7 +280,7 @@ Oracleなど、一部のJava製品ではAESの鍵長256ビットを扱うため�
 
   .. note:: **GCMを用いたAESに対するJavaの対応状況**
 
-    GCMを用いたAESはJava SE8以降で使用可能である。詳細については、\ `JDK 8セキュリティの拡張機能 <http://docs.oracle.com/javase/jp/8/docs/technotes/guides/security/enhancements-8.html>`_\を参照されたい。
+    GCMを用いたAESはJava SE8以降で使用可能である。詳細については、\ `JDK 8セキュリティの拡張機能 <https://docs.oracle.com/javase/jp/8/docs/technotes/guides/security/enhancements-8.html>`_\を参照されたい。
 
 |
 
@@ -614,7 +614,7 @@ OpenSSL
    OpenSSLのダウンロード先
 
    * \ `Linux 用 <https://www.openssl.org/source/>`_\
-   * \ `Windows 用 <http://slproweb.com/products/Win32OpenSSL.html>`_\
+   * \ `Windows 用 <https://slproweb.com/products/Win32OpenSSL.html>`_\
 
 |
 

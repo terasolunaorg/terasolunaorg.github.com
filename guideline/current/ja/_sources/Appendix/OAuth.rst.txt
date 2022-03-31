@@ -1,6 +1,6 @@
 .. _OAuth:
 
-OAuth
+OAuth(org.springframework.security.oauth)
 ================================================================================
 
 .. only:: html
@@ -12,13 +12,18 @@ OAuth
 
 Overview
 --------------------------------------------------------------------------------
-本節では、OAuth 2.0の概要とSpringプロジェクトの一つである
-Spring Security OAuthを使用してOAuth 2.0の仕様に沿った認可制御機能を実装する方法について説明する。
+本節では、OAuth 2.0の概要とSpringプロジェクトの一つであるSpring Security OAuthを使用してOAuth 2.0の仕様に沿った認可制御機能を実装する方法について説明する。なお、本節はSpring Security OAuth (org.springframework.security.oauth)に関する説明となる。Spring Security (org.springframework.security)が提供するOAuthに関する説明は\ :ref:`OAuth 2.0 <OAuth2>`\ を参照されたい。
 
 .. tip:: **Spring Security OAuth のリファレンス**
 
     Spring Security OAuthは、本ガイドラインで紹介していない機能も提供している。
     Spring Security OAuthについて詳しく知りたい場合は、\ `OAuth 2 Developers Guide <https://projects.spring.io/spring-security-oauth/docs/oauth2.html>`_\ を参照されたい。
+
+.. warning::
+
+    Spring Security 5よりOAuth2がサポートされ、Spring Security OAuthは非推奨となっている。
+    Spring Security OAuth 2.4.0より全てのクラスに ``@Deprecated`` が付与されており、本ガイドラインに沿って実装を行なうと大量の警告が出力される点に留意されたい。
+    また、Spring Security OAuth のサポートは\ `2022/5/28でEOLを迎える <https://spring.io/projects/spring-security-oauth#support>`_\ため、\ `Spring Security <https://docs.spring.io/spring-security/reference/5.6.0/servlet/oauth2/index.html>`_\ への移行を検討されたい。
 
 |
 
@@ -464,7 +469,7 @@ OAuth 2.0では、グラントタイプとして以下の4つを定義してい�
       - | リソースサーバはクライアントが提示したアクセストークンの正当性を検証し、アクセストークンの有効期限が切れている場合はエラーを返却する。
     * - | (7)
       - | リソースサーバよりアクセストークンの有効期限切れエラーが返却された場合、
-          クライアントはリフレッシュトークン（有効期限切れ）を提示することで新しいアクセストークンを要求する。
+          クライアントはリフレッシュトークンを提示することで新しいアクセストークンを要求する。
     * - | (8)
       - | 認可サーバはクライアントが提示したリフレッシュトークンの正当性を検証し、正当であればアクセストークンとオプションでリフレッシュトークンを発行する。
 
@@ -659,7 +664,7 @@ Spring Security OAuthは、認可エンドポイント（\ ``AuthorizationEndpoi
 
 不正クライアントエラー
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-RFC 6749の\ `4.1.2.1. Error Response <https://tools.ietf.org/html/rfc6749#section-4.1.2.1>`_\ にあるとおり、
+RFC 6749の\ `4.1.2.1. Error Response <https://datatracker.ietf.org/doc/html/rfc6749#section-4.1.2.1>`_\ にあるとおり、
 リクエストパラメータの検証でリダイレクトURIもしくはクライアントIDの正当性が確認できない場合、不正なクライアントであるとみなす。
 この場合、ユーザエージェントを不正なクライアントへリダイレクトさせず、ユーザエージェントを認可サーバが提供するエラー画面へと遷移させることで、リソースオーナに不正なクライアントであることを通知する。
 本ガイドラインでは、上記エラーを\ **不正クライアントエラー**\ と呼ぶこととする。
@@ -890,6 +895,7 @@ Spring Security OAuthが提供している機能を使用するために、Sprin
     <dependency>
         <groupId>org.springframework.security.oauth</groupId>
         <artifactId>spring-security-oauth2</artifactId>
+        <version>2.5.1.RELEASE</version>
     </dependency>
 
 .. tabularcolumns:: |p{0.10\linewidth}|p{0.90\linewidth}|
@@ -904,23 +910,14 @@ Spring Security OAuthが提供している機能を使用するために、Sprin
       - | Spring Security OAuthを使用するプロジェクトの :file:`pom.xml` に、Spring Security OAuthを依存ライブラリとして追加する。
         | リソースサーバ、認可サーバ、クライアントを別プロジェクトとして作成する場合、それぞれについて記述を追加すること。
 
-.. note::
-
-    上記設定例は、依存ライブラリのバージョンを親プロジェクトである terasoluna-gfw-parent で管理する前提であるため、pom.xmlでのバージョンの指定は不要である。
-
 .. note:: **Spring Security OAuthにおけるオープンリダイレクト脆弱性**
 
     Spring Security OAuth 2.3.4, 2.2.3, 2.1.3, 2.0.16以前では、
-    \ `CVE-2019-3778 <https://pivotal.io/security/cve-2019-3778>`_\で報告されているオープンリダイレクト脆弱性が存在した。
+    \ `CVE-2019-3778 <https://tanzu.vmware.com/security/cve-2019-3778>`_\で報告されているオープンリダイレクト脆弱性が存在した。
 
     具体的には、認可コードグラントを利用した認可サーバにおいて、オープンリダイレクト脆弱性により認可コードが漏洩する危険性があった。
 
     2.3.5, 2.2.4, 2.1.4, 2.0.17で修正されており、脆弱性の影響を受けない。
-
-.. warning::
-
-    Spring Security 5よりOAuth2がサポートされ、Spring Security OAuthは非推奨となっている。
-    Spring Security OAuth 2.4.0より全てのクラスに ``@Deprecated`` が付与されており、本ガイドラインに沿って実装を行なうと大量の警告が出力される点に留意されたい。
 
 |
 
@@ -1342,7 +1339,7 @@ Spring Security OAuthではクライアント情報を取得するためのイ�
         | \ ``authentication-manager-ref``\ 属性に(7)で定義しているクライアント認証用の\ ``AuthenticationManager``\のBeanを指定する。
     * - | (3)
       - | クライアント認証にBasic認証を適用する。
-        | 詳細については\ `Spring Security Reference -Basic Authentication- <https://docs.spring.io/spring-security/site/docs/5.4.2/reference/html5/#servlet-authentication-basic>`_\を参照されたい。
+        | 詳細については\ `Spring Security Reference -Basic Authentication- <https://docs.spring.io/spring-security/reference/5.6.0/servlet/authentication/passwords/basic.html>`_\を参照されたい。
     * - | (4)
       - | \ ``/oauth/*token*/**``\ へのアクセスに対してCSRF対策機能を無効化する。
         | Spring Security OAuthでは、OAuth 2.0のCSRF対策として推奨されている、stateパラメータを使用したリクエストの正当性確認を採用している。
@@ -1350,7 +1347,7 @@ Spring Security OAuthではクライアント情報を取得するためのイ�
       - | エンドポイント配下に対して、認証済みユーザのみがアクセスできる権限を付与する設定。
         | Webリソースに対してアクセスポリシーの指定方法については、\ :doc:`../../Security/Authorization`\ を参照されたい。
     * - | (6)
-      - | \ ``access-denied-handler``\には\ ``OAuth2AccessDeniedHandler``\のBeanを設定する。ここでは(12)で定義している\ ``oauth2AccessDeniedHandler``\のBeanを指定する。
+      - | \ ``access-denied-handler``\には\ ``OAuth2AccessDeniedHandler``\のBeanを設定する。ここでは(11)で定義している\ ``oauth2AccessDeniedHandler``\のBeanを指定する。
     * - | (7)
       - | クライアントを認証するための\ ``AuthenticationManager``\ をBean定義する。
         | リソースオーナの認証で使用する\ ``AuthenticationManager``\ と別名のBean名を指定する必要がある。
@@ -1728,7 +1725,7 @@ Spring Securityの詳細については \ :doc:`../../Security/Authentication`\ 
 
     Internet Explorer/Microsoft Edgeでは、応答されたHTMLのサイズが規定値以下だと、アプリケーションが用意したエラー画面の代わりに、Internet Explorer/Microsoft Edgeが用意した簡易メッセージが表示されるためである。
 
-    参考までに、Internet Explorerでの詳細な条件は、「`Friendly HTTP Error Pages <https://blogs.msdn.microsoft.com/ieinternals/2010/08/18/friendly-http-error-pages/>`_」を参照されたい。
+    参考までに、Internet Explorerでの詳細な条件は、「`Friendly HTTP Error Pages <https://docs.microsoft.com/ja-jp/archive/blogs/ieinternals/friendly-http-error-pages>`_」を参照されたい。
 
 .. _OAuthAuthorizationServerHowToConfigureAccessToken:
 
@@ -2189,7 +2186,7 @@ Spring Security OAuthが取り扱う情報（認可コード、認可情報、�
         | ここでは(7)で定義している\ ``oauth2AuthenticationFilter``\のBeanを指定する。
         | \ ``OAuth2AuthenticationProcessingFilter``\はリクエストに含まれるアクセストークンを利用してPre-Authenticationを行うためのフィルタであるため、
           \ ``before``\に\ ``PRE_AUTH_FILTER``\を指定し\ ``PRE_AUTH_FILTER``\の前に\ ``OAuth2AuthenticationProcessingFilter``\の処理が実行されるように設定する。
-        | Pre-Authenticationについては\ `Spring Security Reference -Pre-Authentication Scenarios- <https://docs.spring.io/spring-security/site/docs/5.4.2/reference/html5/#servlet-preauth>`_\を参照されたい。
+        | Pre-Authenticationについては\ `Spring Security Reference -Pre-Authentication Scenarios- <https://docs.spring.io/spring-security/reference/5.6.0/servlet/authentication/preauth.html>`_\を参照されたい。
     * - | (5)
       - | Spring Security OAuthが提供するリソースサーバ用の\ ``AccessDeniedHandler``\を定義する。
         | \ ``OAuth2AccessDeniedHandler``\は、認可エラー時に発生する例外をハンドリングしてエラー応答を行う。
@@ -3042,7 +3039,7 @@ OAuth2RestTemplateの設定
 
 .. warning:: **エラー時のレスポンスで扱うリクエストパラメータについて**
 
-    RFC 6749の\ `4.1.2.1. Error Response <https://tools.ietf.org/html/rfc6749#section-4.1.2.1>`_\ に定められている通り、
+    RFC 6749の\ `4.1.2.1. Error Response <https://datatracker.ietf.org/doc/html/rfc6749#section-4.1.2.1>`_\ に定められている通り、
     OAuth 2.0ではエラー時のレスポンスにリクエストパラメータ\ ``error``\ および\ ``error_description``\ を含む。
     このため業務実装時にこれらの名前のパラメータを使用していると、パラメータ名が競合してしまう場合があることに注意されたい。
 
@@ -5532,11 +5529,11 @@ OAuth 2.0による認可機能を提供するアプリケーションではこ�
 Spring Security OAuthでは、前述のRFC 6749に規定された拡張ポイントに対してどのようにサポートしているかは明示的に公表されていないが、
 以下の拡張ポイントがサポートされていると考えられる。
 
-* \ `8.1 Defining Access Token Types <https://tools.ietf.org/html/rfc6749#section-8.1>`_\
-* \ `8.2 Defining New Endpoint Parameters <https://tools.ietf.org/html/rfc6749#section-8.2>`_\
-* \ `8.3 Defining New Authorization Grant Types <https://tools.ietf.org/html/rfc6749#section-8.3>`_\
+* \ `8.1 Defining Access Token Types <https://datatracker.ietf.org/doc/html/rfc6749#section-8.1>`_\
+* \ `8.2 Defining New Endpoint Parameters <https://datatracker.ietf.org/doc/html/rfc6749#section-8.2>`_\
+* \ `8.3 Defining New Authorization Grant Types <https://datatracker.ietf.org/doc/html/rfc6749#section-8.3>`_\
 
-本節では、特に\ `8.2 Defining New Endpoint Parameters <https://tools.ietf.org/html/rfc6749#section-8.2>`_\
+本節では、特に\ `8.2 Defining New Endpoint Parameters <https://datatracker.ietf.org/doc/html/rfc6749#section-8.2>`_\
 に関連するアクセストークンリクエストとそのレスポンスの拡張ポイントについて主要なコンポーネントと処理の流れを解説する。
 
 

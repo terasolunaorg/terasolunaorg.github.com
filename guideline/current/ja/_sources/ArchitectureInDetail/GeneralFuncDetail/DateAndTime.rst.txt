@@ -485,7 +485,7 @@ org.terasoluna.gfw.common.date パッケージの利用方法
 | また、 ``ResolverStyle`` （厳密性）は ``ofPattern`` メソッドを使う場合、デフォルトで ``ResolverStyle.SMART`` が設定されるが、本ガイドラインでは予期せぬ挙動が起こらないよう、厳密に日付を解釈する ``ResolverStyle.STRICT`` の設定を推奨している。（ISOパターンのフォーマッタを利用する場合は ``ResolverStyle.STRICT`` が設定されている)
 |
 | なお、Date and Time API では書式 ``yyyy`` は暦に対する年を表すため、暦によって解釈が異なる(西暦なら2015と解釈されるが、和暦なら0027と解釈される）。
-| 西暦を表したい場合は、 ``yyyy`` 形式に変えて ``uuuu`` 形式を利用することを推奨する。定義されている書式一覧は `DateTimeFormatter <http://docs.oracle.com/javase/8/docs/api/java/time/format/DateTimeFormatter.html#patterns>`_ を参照されたい。
+| 西暦を表したい場合は、 ``yyyy`` 形式に変えて ``uuuu`` 形式を利用することを推奨する。定義されている書式一覧は `DateTimeFormatter <https://docs.oracle.com/javase/8/docs/api/java/time/format/DateTimeFormatter.html#patterns>`_ を参照されたい。
 |
 | 以下に例を示す。
 

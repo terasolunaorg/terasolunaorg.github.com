@@ -25,7 +25,7 @@
 テスティングフレームワーク
 """"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 
-Javaのテスティングフレームワークとして、\ `JUnit <http://www.junit.org/>`_\ を使用する。
+Javaのテスティングフレームワークとして、\ `JUnit <https://junit.org/junit4/>`_\ を使用する。
 
 アサーション
 """"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
@@ -36,27 +36,27 @@ JUnit4が標準でサポートしているアサーションライブラリで�
 モック化
 """"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 
-テスト対象のメソッドが依存するクラスをモック化するためのライブラリとして\ `Mockito <http://mockito.org/>`_\
+テスト対象のメソッドが依存するクラスをモック化するためのライブラリとして\ `Mockito <https://site.mockito.org/>`_\
 を使用する。
 
 DIコンテナ
 """"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 
 テスト用のDIコンテナとして
-\ `Spring TestのDI機能 <https://docs.spring.io/spring-framework/docs/5.3.2/reference/html/testing.html#testing-fixture-di>`_\を使用する。
+\ `Spring TestのDI機能 <https://docs.spring.io/spring-framework/docs/5.3.13/reference/html/testing.html#testing-fixture-di>`_\を使用する。
 
 MVCフレームワーク
 """"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 
 テスト用のMVCフレームワークとして
-\ `Spring MVC Test Framework <https://docs.spring.io/spring-framework/docs/5.3.2/reference/html/testing.html#spring-mvc-test-framework>`_\を使用する。
+\ `Spring MVC Test Framework <https://docs.spring.io/spring-framework/docs/5.3.13/reference/html/testing.html#spring-mvc-test-framework>`_\を使用する。
 
 
 トランザクション管理
 """"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 
 テスト用のトランザクション管理として
-\ `Spring Testのトランザクション管理機能 <https://docs.spring.io/spring-framework/docs/5.3.2/reference/html/testing.html#testing-tx>`_\を使用する。
+\ `Spring Testのトランザクション管理機能 <https://docs.spring.io/spring-framework/docs/5.3.13/reference/html/testing.html#testing-tx>`_\を使用する。
 
 
 データアクセス
@@ -64,7 +64,7 @@ MVCフレームワーク
 
 テスト用のデータアクセスとして、Spring TestまたはDBUnitとSpring Test DBUnitを使用することを想定している。
 
-* \ `Spring Test <https://docs.spring.io/spring-framework/docs/5.3.2/reference/html/testing.html#testing-introduction>`_\
+* \ `Spring Test <https://docs.spring.io/spring-framework/docs/5.3.13/reference/html/testing.html#testing-introduction>`_\
 
   * Spring Testは\ ``@Sql``\ アノテーションや\ ``JdbcTemplate``\ などを使用してSQLを発行する機能を提供している。
 
@@ -99,7 +99,7 @@ MVCフレームワーク
     * - JUnit
       - junit
       - junit
-      - 4.12
+      - 4.13.2
       - \*
     * - Hamcrest
       - org.hamcrest
@@ -109,38 +109,28 @@ MVCフレームワーク
     * - Mockito
       - org.mockito
       - mockito-core
-      - 3.6.28
+      - 4.0.0
       - \*
     * - Spring Test
       - org.springframework
       - spring-test
-      - 5.3.2
+      - 5.3.13
       - \*
     * - DBUnit
       - org.dbunit
       - dbunit
-      - 2.5.4
+      - 2.7.2
       - \
     * - Spring Test DBUnit
       - com.github.springtestdbunit
       - spring-test-dbunit
       - 1.3.0
       - \
-    * - Apache POI
-      - org.apache.poi
-      - poi-ooxml
-      - 3.17
-      - \
 
 .. note::
 
     Hamcrest 2.1より、\ ``hamcrest-core``\ と\ ``hamcrest-library``\ にあたるモジュールが\ ``hamcrest``\ に統合されたため、実施したいアサーションにより\ ``hamcrest-library``\ のような依存関係を追加する必要がなくなった。
     なお、Maven依存関係としては\ ``hamcrest-core``\ と\ ``hamcrest-library``\ を引き続き利用することができるが、実態としてはすべて\ ``hamcrest``\ を参照する形となる。
-
-.. warning::
-
-    \ :ref:`frameworkstack_using_oss_version`\ のとおり、本フレームワークで利用するApache POIは4.xであるが、単体テストでのみ3.17を利用する。
-    これは、本フレームワークで利用しているDBUnitがApache POI 3.17に依存しており、4.xではDBUnitが利用するいくつかのメソッドが廃止されているため、Excel形式のデータ定義ファイルを読み込む際に実行時エラーとなることが確認されているためである。
 
 |
 
@@ -179,15 +169,11 @@ MVCフレームワーク
     * - OS
       - Windows 10
     * - JVM
-      - `Java <http://www.oracle.com/technetwork/java/javase/downloads/index.html>`_ 1.8
+      - `Java <https://www.oracle.com/java/technologies/downloads/>`_ 1.8
     * - IDE
-      - `Spring Tool Suite <https://github.com/spring-projects/toolsuite-distribution/wiki/Spring-Tool-Suite-3>`_ 3.9.12.RELEASE (以降「STS」と呼ぶ)
+      - `Spring Tool Suite <https://spring.io/tools>`_ 4.11.0.RELEASE (以降「STS」と呼ぶ。設定方法は :doc:`../Appendix/SpringToolSuite4` を参照されたい。)
     * - Build Tool
-      - `Apache Maven <http://maven.apache.org/download.cgi>`_ 3.3.9 (以降「Maven」と呼ぶ)
+      - `Apache Maven <https://maven.apache.org/download.cgi>`_ 3.8.3 (以降「Maven」と呼ぶ)
     * - RDBMS
-      - `PostgreSQL <https://www.postgresql.org/docs/12/sql-insert.html>`_ 12.4.1
-
-.. warning::
-
-    本ガイドラインではSTS 4.xではなく、3.xを利用している。詳細は :ref:`STS 4.x について <warning_sts_4>` を参照されたい。
+      - `PostgreSQL <https://www.postgresql.org/docs/13/sql-insert.html>`_ 13.5
 

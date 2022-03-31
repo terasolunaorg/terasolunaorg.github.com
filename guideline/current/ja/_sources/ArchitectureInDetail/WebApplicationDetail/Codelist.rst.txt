@@ -1328,7 +1328,7 @@ How to extend
 #. Task Schedulerで実現する方法
 #. Controller(Service)クラスでrefreshメソッドを呼び出す方法
 
-本ガイドラインでは、\ `Springから提供されているTask Scheduler <https://docs.spring.io/spring-framework/docs/5.3.2/reference/html/integration.html#scheduling>`_\ を使用して、コードリストを定期的にリロードする方式を基本的に推奨する。
+本ガイドラインでは、\ `Springから提供されているTask Scheduler <https://docs.spring.io/spring-framework/docs/5.3.13/reference/html/integration.html#scheduling>`_\ を使用して、コードリストを定期的にリロードする方式を基本的に推奨する。
 
 ただし、任意のタイミングでコードリストをリフレッシュする必要がある場合はControllerクラスでrefreshメソッドを呼び出す方法で実現すればよい。
 
@@ -1374,7 +1374,7 @@ Task Schedulerの設定例について、以下に示す。
      - | ``<task:scheduled-tasks>`` の要素を定義し、scheduler属性に、 ``<task:scheduler>`` のIDを設定する。
    * - | (3)
      - | ``<task:scheduled>`` 要素を定義する。method属性に、refreshメソッドを指定する。
-       | cron属性に、``org.springframework.scheduling.support.CronSequenceGenerator`` でサポートされた形式で記述すること。
+       | cron属性に、``org.springframework.scheduling.support.CronExpression`` でサポートされた形式で記述すること。
        | cron属性は開発環境、商用環境など環境によってリロードするタイミングが変わることが想定されるため、プロパティファイルや、環境変数等から取得することを推奨する。
        |
        | **cron属性の設定例**
@@ -1383,8 +1383,7 @@ Task Schedulerの設定例について、以下に示す。
        | 毎時実行               「0 0 \* \* \* \*」
        | 平日の9-17時の毎時実行 「0 0 9-17 \* \* MON-FRI」
        |
-       | 詳細はJavaDocを参照されたい。
-       | https://docs.spring.io/spring/docs/5.3.2/javadoc-api/org/springframework/scheduling/support/CronSequenceGenerator.html
+       | cronの指定値の詳細については、\ `CronExpressionのJavaDoc <https://docs.spring.io/spring-framework/docs/5.3.13/javadoc-api/org/springframework/scheduling/support/CronExpression.html#parse-java.lang.String->`_\ を参照されたい。
 
 |
 

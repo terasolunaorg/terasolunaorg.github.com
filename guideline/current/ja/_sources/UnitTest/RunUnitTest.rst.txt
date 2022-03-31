@@ -236,7 +236,7 @@ MavenでJUnitを実行する場合は、対象プロジェクト配下に移動�
 .. warning::
 
     メソッド単位の指定は \ ``maven-surefire-plugin``\ のバージョンが2.7.3以上必要となる。
-    詳細は \ `maven-surefire-plugin (Running a Set of Methods in a Single Test Class) <http://maven.apache.org/surefire/maven-surefire-plugin/examples/single-test.html>`_\ を参照されたい。
+    詳細は \ `maven-surefire-plugin (Running a Set of Methods in a Single Test Class) <https://maven.apache.org/surefire/maven-surefire-plugin/examples/single-test.html>`_\ を参照されたい。
 
 .. note::
 

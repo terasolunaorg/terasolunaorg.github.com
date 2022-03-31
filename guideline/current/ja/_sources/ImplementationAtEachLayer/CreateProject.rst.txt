@@ -55,7 +55,7 @@ Maven Archetypeで作成したプロジェクトでは、warファイルを作�
     #. CIサーバ上ではビルドツール(maven)によるテストの実行とパッケージングを行い、必要に応じてパッケージリポジトリにartifactをdeployする。
     #. 試験サーバ、本番サーバでは、パッケージリポジトリにあらかじめ保管しているプロジェクト本体に、リリース先環境にあわせてビルドした\*-envプロジェクトを追加してリリースすることにより、アプリケーションの動作が可能になる。
 
-    詳細については\ `サンプルアプリケーション <https://github.com/terasolunaorg/terasoluna-tourreservation-mybatis3/tree/5.7.0.RELEASE>`_\ を参考にされたい。
+    詳細については\ `サンプルアプリケーション <https://github.com/terasolunaorg/terasoluna-tourreservation-mybatis3/tree/5.7.1.RELEASE>`_\ を参考にされたい。
 
 .. warning:: **ビルド環境について**
 
@@ -222,7 +222,7 @@ WebアプリケーションをTomcat 8.5およびTomcat 9上にリリースす�
 4. Tomcatのリソース機能を使用して、 /etc/foo/bar/\*.jar をクラスパスに追加する。
 
  * [CATALINA_HOME]/conf/Catalina/localhost/[contextPath].xmlファイルに下記の定義を追加する。
- * 詳しくは、 `The Resources Component <https://tomcat.apache.org/tomcat-9.0-doc/config/resources.html>`_\ と `terasoluna-tourreservation-envのconfigsフォルダ <https://github.com/terasolunaorg/terasoluna-tourreservation-mybatis3/tree/5.7.0.RELEASE/terasoluna-tourreservation-env/configs>`_\ を参考されたい。
+ * 詳しくは、 `The Resources Component <https://tomcat.apache.org/tomcat-9.0-doc/config/resources.html>`_\ と `terasoluna-tourreservation-envのconfigsフォルダ <https://github.com/terasolunaorg/terasoluna-tourreservation-mybatis3/tree/5.7.1.RELEASE/terasoluna-tourreservation-env/configs>`_\ を参考されたい。
  * リソースの設定例：
    
   .. code-block:: xml
@@ -245,7 +245,7 @@ WebアプリケーションをTomcat 8.5およびTomcat 9上にリリースす�
     Tomcat 7およびTomcat 6を使用する場合は、上記手順 4.の代わりにTomcatのVirtualWebappLoader機能を使用して /etc/foo/bar/\*.jar をクラスパスに追加する。
 
     * [CATALINA_HOME]/conf/Catalina/localhost/[contextPath].xmlファイルに下記の定義を追加する。
-    * 詳しくは、 `VirtualWebappLoader <http://tomcat.apache.org/tomcat-7.0-doc/api/org/apache/catalina/loader/VirtualWebappLoader.html>`_\ と `terasoluna-tourreservation-envのconfigsフォルダ <https://github.com/terasolunaorg/terasoluna-tourreservation-mybatis3/tree/5.7.0.RELEASE/terasoluna-tourreservation-env/configs>`_\ を参考されたい。
+    * 詳しくは、 `VirtualWebappLoader <https://tomcat.apache.org/tomcat-7.0-doc/api/org/apache/catalina/loader/VirtualWebappLoader.html>`_\ と `terasoluna-tourreservation-envのconfigsフォルダ <https://github.com/terasolunaorg/terasoluna-tourreservation-mybatis3/tree/5.7.1.RELEASE/terasoluna-tourreservation-env/configs>`_\ を参考されたい。
 
     VirtualWebappLoaderの設定例：
     
@@ -292,15 +292,12 @@ TomcatのVirtualWebappLoaderのように、Webアプリケーションごとに�
 
 .. code-block:: console
 
-    mvn org.apache.maven.plugins:maven-dependency-plugin:2.5:get^
-     -DgroupId=com.example.todo^
-     -DartifactId=todo-web^
-     -Dversion=1.0.0-SNAPSHOT^
-     -Dpackaging=war^
-     -Ddest=target/todo-web.war
+    mvn org.apache.maven.plugins:maven-dependency-plugin:3.2.0:copy^
+     -Dartifact=com.example.todo:todo-web:1.0.0-SNAPSHOT:war^
+     -DoutputDirectory=target
 
 | コマンドの実行が成功すると、envモジュールのtargetディレクトリの中に、指定したwarファイルがコピーされる。
-| (例：\ ``C:\work\todo\todo-env\target\todo-web.war``\ )
+| (例：\ ``C:\work\todo\todo-env\target\todo-web-1.0.0-SNAPSHOT.war``\ )
 
 .. note::
 
@@ -318,7 +315,7 @@ TomcatのVirtualWebappLoaderのように、Webアプリケーションごとに�
     mkdir target\WEB-INF\lib
     copy target\todo-env-1.0.0-SNAPSHOT-test-server.jar target\WEB-INF\lib\.
     cd target
-    jar -uvf todo-web.war WEB-INF\lib
+    jar -uvf todo-web-1.0.0-SNAPSHOT.war WEB-INF\lib
 
 **[Linux系の場合]**
 
@@ -327,7 +324,7 @@ TomcatのVirtualWebappLoaderのように、Webアプリケーションごとに�
     mkdir -p target/WEB-INF/lib
     cp target/todo-env-1.0.0-SNAPSHOT-test-server.jar target/WEB-INF/lib/.
     cd target
-    jar -uvf todo-web.war WEB-INF/lib
+    jar -uvf todo-web-1.0.0-SNAPSHOT.war WEB-INF/lib
 
 .. note:: **jarコマンドが見つからない場合の対処**
 
@@ -407,7 +404,7 @@ RELEASEバージョンの運用
 
 .. note::
 
- pom.xmlファイルの<version>タグの変更は `versions-maven-plugin <http://www.mojohaus.org/versions-maven-plugin/>`_ で可能である。
+ pom.xmlファイルの<version>タグの変更は `versions-maven-plugin <https://www.mojohaus.org/versions-maven-plugin/>`_ で可能である。
  
  .. code-block:: bash
  
@@ -438,27 +435,24 @@ Webサービスを提供するAPサーバにアプリケーションをリリー
 
 .. note::
 
- mavenパッケージリポジトリからのwarファイルのダウンロードは、maven-dependency-pluginのgetゴールで可能である。
+ mavenパッケージリポジトリからのwarファイルのダウンロードは、maven-dependency-pluginのcopyゴールで可能である。
 
  .. code-block:: bash
 
-  mvn org.apache.maven.plugins:maven-dependency-plugin:2.5:get^
-   -DgroupId=com.example^
-   -DartifactId=mywebapp^
-   -Dversion=0.0.1-SNAPSHOT^
-   -Dpackaging=war^
-   -Ddest=${WORKSPACE}/target/mywebapp.war
+  mvn org.apache.maven.plugins:maven-dependency-plugin:3.2.0:copy^
+   -Dartifact=com.example:mywebapp:0.0.1-SNAPSHOT:war^
+   -DoutputDirectory=target
 
- これで、targetというディレクトリ配下にmywebapp.warファイルがダウンロードされる。
+ これで、targetというディレクトリ配下にmywebapp-0.0.1-SNAPSHOT.warファイルがダウンロードされる。
  
- さらに、下記のようなコマンドで環境依存設定ファイルのパッケージをmywebapp.warファイル内に追加することができる。
+ さらに、下記のようなコマンドで環境依存設定ファイルのパッケージをmywebapp-0.0.1-SNAPSHOT.warファイル内に追加することができる。
 
  .. code-block:: bash
 
   mkdir -p $WORKSPACE/target/WEB-INF/lib
   cd $WORKSPACE/target
   cp ./mywebapp-resources*.jar WEB-INF/lib
-  jar -ufv mywebapp.war WEB-INF/lib
+  jar -ufv mywebapp-0.0.1-SNAPSHOT.war WEB-INF/lib
 
 
 

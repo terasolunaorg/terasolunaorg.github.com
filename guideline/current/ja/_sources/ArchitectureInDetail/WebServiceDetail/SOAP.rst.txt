@@ -30,7 +30,7 @@ SOAPとは
 | もともとは「\ **S**\imple \ **O**\bject \ **A**\ccess \ **P**\rotocol」の略であった。
 | しかし現在では、「SOAP」はなにかの略ではなく、固有名詞であるとW3Cは宣言している。
 | W3CによるSOAP1.1、SOAP1.2の仕様はW3Cにより定義されている。
-| 詳細は、\ `W3C -SOAP Specifications- <http://www.w3.org/TR/soap/>`_\を参照されたい。
+| 詳細は、\ `W3C -SOAP Specifications- <https://www.w3.org/TR/soap/>`_\を参照されたい。
 
 | 本ガイドラインでは、以下の図のような構成でのSOAP Web Serviceを行う場合を想定して説明する。
 | ただし、下記の構成以外でのSOAP Web Serviceの場合にも応用可能である。（例：クライアントがバッチの場合など）
@@ -161,7 +161,7 @@ Spring FrameworkのJAX-WS連携機能について
 
 .. note::
 
-    SpringでのJAX-WS実装の詳細は、\ `Spring Framework Documentation -Remoting and Web Services- <https://docs.spring.io/spring-framework/docs/5.3.2/reference/html/integration.html#remoting>`_\ を参照されたい。
+    SpringでのJAX-WS実装の詳細は、\ `Spring Framework Documentation -Remoting and Web Services- <https://docs.spring.io/spring-framework/docs/5.3.13/reference/html/integration.html#remoting>`_\ を参照されたい。
 
 |
 
@@ -235,7 +235,7 @@ Webサービスとして公開されるURL
 
 
 | SOAP Web Serviceを作成するとWSDL（\ **W**\ eb \ **S**\ ervices \ **D**\ escription \ **L**\ anguage）というWebサービスのインターフェース定義が公開され、クライアントはこの定義をもとにSOAP Web Serviceを実行する。
-| WSDLの詳細は、`W3C -Web Services Description Language (WSDL)- <http://www.w3.org/TR/wsdl>`_\を参照されたい。
+| WSDLの詳細は、`W3C -Web Services Description Language (WSDL)- <https://www.w3.org/TR/wsdl/>`_\を参照されたい。
 
 
 | WSDL内には、Webサービス実行時のアクセスURLやメソッド名、引数、戻り値などが定義される。
@@ -363,9 +363,9 @@ SOAPサーバの作成
      
     JBoss Enterprise Application Platform 7.3: \ `DEVELOPING JAX-WS WEB SERVICES <https://access.redhat.com/documentation/en-us/red_hat_jboss_enterprise_application_platform/7.3/html/developing_web_services_applications/developing_jax_ws_web_services>`_\
 
-    JBoss Enterprise Application Platform 6.4: \ `DEVELOPMENT GUIDE JAX-WS WEB SERVICES <https://access.redhat.com/documentation/en-US/JBoss_Enterprise_Application_Platform/6.4/html/Development_Guide/chap-JAX-WS_Web_Services.html>`_\
+    JBoss Enterprise Application Platform 6.4: \ `JAX-WS WEB SERVICES <https://access.redhat.com/documentation/en-us/red_hat_jboss_enterprise_application_platform/6.4/html/development_guide/chap-jax-ws_web_services>`_\
     
-    WebSphere Application Server 9.0: \ `IBM Knowledge Center - Web services <https://www.ibm.com/support/knowledgecenter/SSEQTP_9.0.5/com.ibm.websphere.base.doc/ae/cwbs_wbs2.html>`_\
+    WebSphere Application Server 9.0: \ `IBM Knowledge Center - Web services <https://www.ibm.com/docs/en/was/9.0.5?topic=services-web>`_\
 
 |
 
@@ -648,7 +648,7 @@ webプロジェクト内にWebServiceインターフェースの実装クラス�
         .. note::
           使用するAPサーバのJAX-WS実装により、バインディング方式で挙動が異なる場合があるため注意すること。
           
-          たとえば、WebSphere Application Serverの特定のバージョンではSOAP1.2でのバインディングの場合にWSDLが自動生成されない。詳細については\ `IBM Knowledge Center - Using annotations to create web services <https://www.ibm.com/support/knowledgecenter/SSRTLW_9.7.0/com.ibm.webservice.doc/topics/jaxws/cwsandoc001.html>`_\を参照されたい。
+          たとえば、WebSphere Application Serverの特定のバージョンではSOAP1.2でのバインディングの場合にWSDLが自動生成されない。詳細については\ `IBM Knowledge Center - Using annotations to create web services <https://www.ibm.com/docs/en/radfws/9.7?topic=SSRTLW_9.7.0/com.ibm.webservice.doc/topics/jaxws/cwsandoc001.html>`_\を参照されたい。
 
     * - | (3)
       - | 先ほど作成した\ ``TodoWebService``\ インターフェースを実装する。
@@ -1358,7 +1358,7 @@ MTOMを利用した大容量のバイナリデータを扱う方法
 | SOAPでは、バイナリデータを扱う場合、Byte配列にマッピングすることで、送受信を行うことができる。
 | ただし、大容量のバイナリデータを扱う場合、ヒープが枯渇するなどの問題が発生することがある。
 | そこで、MTOM（Message Transmission Optimization Mechanism）に準拠した実装を行うことで、最適化した状態で添付ファイルとしてバイナリデータを扱うことができる。
-| 詳細な定義は `W3C -SOAP Message Transmission Optimization Mechanism- <http://www.w3.org/TR/soap12-mtom/>`_\ を参照されたい。
+| 詳細な定義は `W3C -SOAP Message Transmission Optimization Mechanism- <https://www.w3.org/TR/soap12-mtom/>`_\ を参照されたい。
 | 以下にその方法を記述する。
 
 *[server projectName]-webservice/src/main/java/com/example/ws/todo/TodoWebService.java*
@@ -1589,7 +1589,7 @@ WebServiceインターフェースを実装したプロキシを生成する\ ``
 
         .. Note:: **wsdlDocumentResourceへのWSDLファイルのURL以外の指定**
 
-            上記の例では、SOAPサーバがWSDLファイルを公開している前提である。\ ``classpath:``\ や\ ``file:``\ プレフィックスを使用して指定することで静的ファイルを指定することもできる。指定できる文字列は、\ `Spring Framework Documentation -The ResourceLoader- <https://docs.spring.io/spring-framework/docs/5.3.2/reference/html/core.html#resources-resourceloader>`_\ を参照されたい。
+            上記の例では、SOAPサーバがWSDLファイルを公開している前提である。\ ``classpath:``\ や\ ``file:``\ プレフィックスを使用して指定することで静的ファイルを指定することもできる。指定できる文字列は、\ `Spring Framework Documentation -The ResourceLoader- <https://docs.spring.io/spring-framework/docs/5.3.13/reference/html/core.html#resources-resourceloader>`_\ を参照されたい。
 
 
 .. Note:: **エンドポイントアドレスの上書き指定**
@@ -1700,11 +1700,11 @@ WebServiceインターフェースを実装したプロキシを生成する\ ``
          BindingProvider provider = (BindingProvider) todoWebService;
          int status = (int) provider.getResponseContext().get(MessageContext.HTTP_RESPONSE_CODE);
 
-    \ ``BindingProvider``\ の詳細については \ `The Java API for XML-Based Web Services(JAX-WS) 2.2 -4.2 javax.xml.ws.BindingProvider- <http://download.oracle.com/otn-pub/jcp/jaxws-2.2-mrel3-evalu-oth-JSpec/jaxws-2_2-mrel3-spec.pdf>`_\ を参照されたい。
+    \ ``BindingProvider``\ の詳細については \ `The Java API for XML-Based Web Services(JAX-WS) 2.2 -4.2 javax.xml.ws.BindingProvider- <https://download.oracle.com/otn-pub/jcp/jaxws-2.2-mrel3-evalu-oth-JSpec/jaxws-2_2-mrel3-spec.pdf>`_\ を参照されたい。
     
     ただし、クライアントの依存関係にApatch CXFライブラリが含まれる場合、通信エラー時に上記の方法でレスポンスの情報を取得することができない。
     これは、依存関係にApatch CXFライブラリが含まれる場合は自動的にApatch CXFのプロキシが使用されるため、およびApache CXFのプロキシは通信エラーが発生した場合にレスポンスの情報をレスポンスコンテキストに保持しないためである。
-    Apache CXFのエラー処理については\ `Apache CXF Software Architecture Guide -Fault Handling- <http://cxf.apache.org/docs/cxf-architecture.html#CXFArchitecture-FaultHandling>`_\を参照されたい。
+    Apache CXFのエラー処理については\ `Apache CXF Software Architecture Guide -Fault Handling- <https://cxf.apache.org/docs/cxf-architecture.html#CXFArchitecture-FaultHandling>`_\を参照されたい。
 
     Webサービスと別のWebサービスへのクライアントを持つ中継サービスのように、どうしてもクライアントにApache CXFライブラリの依存関係を含んでしまう場合は制限事項として注意されたい。
 
@@ -2461,7 +2461,7 @@ wsimportの使い方
           * -p 出力するソースのパッケージを指定する。
           * -s 出力するソースを格納する場所を指定する。
           
-        | その他オプションについては、\ `Java Platform, Standard Edition Tools Reference -Web Services(wsimport)- <http://docs.oracle.com/javase/8/docs/technotes/tools/windows/wsimport.html>`_\ を参照されたい。
+        | その他オプションについては、\ `Java Platform, Standard Edition Tools Reference -Web Services(wsimport)- <https://docs.oracle.com/javase/8/docs/technotes/tools/windows/wsimport.html>`_\ を参照されたい。
 
 .. note::
 
@@ -2558,7 +2558,7 @@ CXFServletを使用する場合の設定
 
    .. note::
 
-      saaj-implのバージョンはterasoluna-gfw-parentが依存している\ `Spring Boot <https://docs.spring.io/spring-boot/docs/2.4.1/reference/htmlsingle/#dependency-versions>`_\ で管理されているため、pom.xmlでのバージョンの指定は不要である。
+      saaj-implのバージョンはterasoluna-gfw-parentが依存している\ `Spring Boot <https://docs.spring.io/spring-boot/docs/2.6.1/reference/htmlsingle/#dependency-versions>`_\ で管理されているため、pom.xmlでのバージョンの指定は不要である。
 
 
 |

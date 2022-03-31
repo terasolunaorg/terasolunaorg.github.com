@@ -12,7 +12,7 @@
    LinkageWithBrowser
    XSS
    Encryption
-   OAuth
+   OAuth2
    SecureLoginDemo
 
 .. raw:: latex

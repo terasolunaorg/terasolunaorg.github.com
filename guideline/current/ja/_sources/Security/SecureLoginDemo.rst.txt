@@ -497,8 +497,8 @@ ER図
 ================================================================================
 
 | セキュリティ要件の分類ごとに、本アプリケーションにおける実装の方法とコードの説明を行う。
-| ここでは分類ごとで要件の実現のために必要最小限なコード片のみを掲載している。コード全体を確認したい場合は `GitHub <https://github.com/terasolunaorg/tutorial-apps/tree/5.7.0.RELEASE/secure-login-demo>`_ を参照すること。
-| 本アプリケーションを動作させるための初期データ登録用SQLは `ここ <https://github.com/terasolunaorg/tutorial-apps/tree/5.7.0.RELEASE/secure-login-demo/secure-login/secure-login-env/src/main/resources/database>`_ に配置されている。
+| ここでは分類ごとで要件の実現のために必要最小限なコード片のみを掲載している。コード全体を確認したい場合は `GitHub <https://github.com/terasolunaorg/tutorial-apps/tree/5.7.1.RELEASE/secure-login-demo>`_ を参照すること。
+| 本アプリケーションを動作させるための初期データ登録用SQLは `ここ <https://github.com/terasolunaorg/tutorial-apps/tree/5.7.1.RELEASE/secure-login-demo/secure-login/secure-login-env/src/main/resources/database>`_ に配置されている。
 
 .. note::
 
@@ -896,7 +896,7 @@ ER図
      isInitialPassword および isCurrentPasswordExpired に付与されている \ ``@Cacheable``\ は Spring の Cache Abstraction 機能を使用するためのアノテーションである。
      \ ``@Cacheable`` \ アノテーションを付与することで、メソッドの引数に対する結果をキャッシュすることができる。
      ここでは、キャッシュの使用により初期パスワード判定、パスワード期限切れ判定のたびにデータベースへのアクセスが発生することを防止し、パフォーマンスの低下を防いでいる。
-     Cache Abstraction については `Spring Framework Documentation -Cache Abstraction- <https://docs.spring.io/spring-framework/docs/5.3.2/reference/html/integration.html#cache>`_ を参照すること。
+     Cache Abstraction については `Spring Framework Documentation -Cache Abstraction- <https://docs.spring.io/spring-framework/docs/5.3.13/reference/html/integration.html#cache>`_ を参照すること。
 
      尚、キャッシュを使用する際には、必要なタイミングでキャッシュをクリアする必要があることに注意すること。
      本アプリケーションではパスワード変更時や、ログアウト時には再度初期パスワード判定、パスワード期限切れ判定を行うためにキャッシュをクリアする。
@@ -1120,7 +1120,7 @@ ER図
 """"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 | パスワード変更時等にユーザが指定したパスワードの品質を検査するためには、 :doc:`../ArchitectureInDetail/WebApplicationDetail/Validation` の機能を利用することができる。本アプリケーションではBean Validationを用いてパスワードの品質を検査する。
 | パスワードの品質として求められる要件はアプリケーションによって異なり、多岐にわたる。
-| そこで、パスワード入力チェック用のライブラリとして `Passay <http://www.passay.org/>`_ を利用し、必要なBean Validationのアノテーションを作成する。
+| そこで、パスワード入力チェック用のライブラリとして `Passay <https://www.passay.org/>`_ を利用し、必要なBean Validationのアノテーションを作成する。
 | Passayではパスワード入力チェックで一般的に使用される機能の多くを提供しており、提供されていない機能についても標準機能を拡張することで容易に実装することができる。
 | Passayの概要については :ref:`Appendix <passay_overview>` を参照。
 | 具体的には以下の設定、処理を記述し、使用することで要件を実現する。
@@ -1399,7 +1399,7 @@ ER図
                        .getPropertyValue(newPasswordPropertyName);
 
                RuleResult result = characteristicPasswordValidator
-                       .validate(PasswordData.newInstance(newPassword, username, null)); // (2)
+                       .validate(new PasswordData(username, newPassword)); // (2)
 
                if (result.isValid()) { // (3)
                    return true;
@@ -1426,7 +1426,7 @@ ER図
        * - | (1)
          - | Passayの検証器をインジェクションする。
        * - | (2)
-         - | パスワードとユーザ名を指定した\ ``org.passay.PasswordData`` \のインスタンスを作成し、検証器で入力チェックを行う。
+         - | ユーザ名とパスワードを指定した\ ``org.passay.PasswordData`` \のインスタンスを作成し、検証器で入力チェックを行う。
        * - | (3)
          - | チェックの結果を確認し、OKならばtrueを返し、そうでなければfalseを返す。
        * - | (4)
@@ -1577,8 +1577,8 @@ ER図
                            .getPassword())); // (7)
                }
 
-               PasswordData passwordData = PasswordData.newInstance(newPassword,
-                       username, historyData); // (8)
+               PasswordData passwordData = new PasswordData(username,
+                       newPassword, historyData); // (8)
                RuleResult result = encodedPasswordHistoryValidator
                        .validate(passwordData); // (9)
 
@@ -1617,7 +1617,7 @@ ER図
        * - | (7)
          - | Passayの検証器で過去のパスワードとの比較を行うために、パスワード変更履歴エンティティからパスワードを取得し、\ ``org.passay.PasswordData.HistoricalReference`` \のリストを作成する。
        * - | (8)
-         - | パスワード、ユーザ名、過去のパスワードのリストを指定した\ ``org.passay.PasswordData`` \のインスタンスを作成する。
+         - | ユーザ名、パスワード、過去のパスワードのリストを指定した\ ``org.passay.PasswordData`` \のインスタンスを作成する。
        * - | (9)
          - | 検証器で入力チェックを行う。
        * - | (10)
@@ -5487,7 +5487,7 @@ URLに含まれるトークンと秘密情報の組が正しい場合にのみ�
 * 操作結果：メソッドの処理を実行した結果例外が発生したか否か
 
 | すべてのサービスクラスのメソッド呼び出しに対してログ出力を行うといった、横断的な機能を実現するためには、Springが提供するAOP(Aspect Oriented Programming)の機能を利用することができる。
-| Springが提供しているAOPの実装方法は複数あるが、本アプリケーションでは `共通ライブラリ <https://github.com/terasolunaorg/terasoluna-gfw/tree/5.7.0.RELEASE>`_ で提供しているロギング関連の部品の実装と合わせることを重視し、\ ``org.aopalliance.intercept.MethodInterceptor`` \を実装する方式を採用する。
+| Springが提供しているAOPの実装方法は複数あるが、本アプリケーションでは `共通ライブラリ <https://github.com/terasolunaorg/terasoluna-gfw/tree/5.7.1.RELEASE>`_ で提供しているロギング関連の部品の実装と合わせることを重視し、\ ``org.aopalliance.intercept.MethodInterceptor`` \を実装する方式を採用する。
 | 具体的には以下の実装・設定を行うことで要件を実現する。
 
 * \ ``UserIdMDCPutFilter`` \ を設定する
@@ -5500,7 +5500,7 @@ URLに含まれるトークンと秘密情報の組が正しい場合にのみ�
 
     アドバイスとは、AOPにおいて指定されたタイミングで実行する処理のことを指す。
     また、アドバイスを織り込むことのできる箇所のことをジョインポイントと呼び、どのジョインポイントにアドバイスを織り込むかを定義したものポイントカットと呼ぶ。
-    Springが提供するAOP機能に関しては、`Spring Framework Documentation -Aspect Oriented Programming with Spring- <https://docs.spring.io/spring-framework/docs/5.3.2/reference/html/core.html#aop>`_ を参照すること。
+    Springが提供するAOP機能に関しては、`Spring Framework Documentation -Aspect Oriented Programming with Spring- <https://docs.spring.io/spring-framework/docs/5.3.13/reference/html/core.html#aop>`_ を参照すること。
 
 コード解説
 """"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
@@ -5553,7 +5553,7 @@ URLに含まれるトークンと秘密情報の組が正しい場合にのみ�
          </rollingPolicy>
          <encoder>
              <charset>UTF-8</charset>
-             <pattern><![CDATA[date:%d{yyyy-MM-dd HH:mm:ss}\tthread:%thread\tUSER:%X{USER}\tX-Track:%X{X-Track}\tlevel:%-5level\tlogger:%-48logger{48}\tmessage:%msg%n]]></pattern>  <!-- (2) -->
+             <pattern><![CDATA[date:%d{yyyy-MM-dd HH:mm:ss}\tthread:%thread\tUSER:%X{USER}\tX-Track:%X{X-Track}\tlevel:%-5level\tlogger:%-48logger{48}\tmessage:%replace(%msg){'(\r\n|\r|\n)','$1  '}%n%replace(%replace(%xEx){'(\r\n|\r|\n)','$1  '}){'  $',''}%nopex]]></pattern>  <!-- (2) -->
          </encoder>
      </appender>
 
@@ -5687,7 +5687,7 @@ URLに含まれるトークンと秘密情報の組が正しい場合にのみ�
 
      SpringのAOPは、自動的に作成されたプロキシクラスがメソッド呼び出しをハンドリングする、プロキシ方式を採用している。
      プロキシ方式のAOPの制限として、可視性が\ ``public`` \以外のメソッドの呼び出しや、同一クラス内のメソッド呼び出しの際にはアドバイスが実行されない点に注意する必要がある。
-     詳細は `Spring Framework Documentation -Understanding AOP Proxies- <https://docs.spring.io/spring-framework/docs/5.3.2/reference/html/core.html#aop-understanding-aop-proxies>`_ を参照すること。
+     詳細は `Spring Framework Documentation -Understanding AOP Proxies- <https://docs.spring.io/spring-framework/docs/5.3.13/reference/html/core.html#aop-understanding-aop-proxies>`_ を参照すること。
 
   ログの出力結果を以下に示す。
 
@@ -5743,7 +5743,7 @@ Passayの機能を使用する場合は、pom.xmlに以下の定義を追加す�
      <dependency>
          <groupId>org.passay</groupId>
          <artifactId>passay</artifactId>
-         <version>1.1.0</version>
+         <version>1.6.1</version>
      </dependency>
    <dependencies>
 
@@ -5811,7 +5811,7 @@ Passayが提供している検証規則のクラスの一部を以下の表に�
        | \ ``ignoreCase`` \ : 大文字、小文字を区別しない(\ ``boolean`` \)。コンストラクタまたはsetterで設定。
 
 この他にも、特定の文字を含む/含まないことのチェックや、正規表現によるチェックを行うための検証規則のクラス等が提供されている。
-詳細は `<http://www.passay.org/>`_ を参照。
+詳細は `<https://www.passay.org/>`_ を参照。
 
 How to use
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^

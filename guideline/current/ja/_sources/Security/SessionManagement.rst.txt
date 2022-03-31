@@ -86,7 +86,7 @@ Webアプリケーションでセッションを扱う場合、一般的には�
     なお、Spring Security 5.0.1, 4.2.4, 4.1.5以降では、URLにセミコロンが含まれる場合、無効なリクエストと判断される。そのため、デフォルトの設定ではURL Rewritingによるセッションの共有は行えない。
 
     セミコロンが含まれるURLを許可するように変更することも可能であるが、認証認可のバイパスやReflected File Download(RFD)攻撃に対する脆弱性が発生する可能性があるため、推奨しない。
-    詳細は、\ `StrictHttpFirewall#setAllowSemicolon <https://docs.spring.io/spring-security/site/docs/5.4.2/api/org/springframework/security/web/firewall/StrictHttpFirewall.html#setAllowSemicolon-boolean->`_\ を参照されたい。
+    詳細は、\ `StrictHttpFirewall#setAllowSemicolon <https://docs.spring.io/spring-security/site/docs/5.6.0/api/org/springframework/security/web/firewall/StrictHttpFirewall.html#setAllowSemicolon-boolean->`_\ を参照されたい。
 
 |
 
