@@ -1,0 +1,651 @@
+<!DOCTYPE html>
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <title>10.2.1. テストの事前準備 &#8212; TERASOLUNA Server Framework for Java (5.x) Development Guideline 5.7.0.SP1.RELEASE documentation</title>
+    <link rel="stylesheet" href="../../_static/solar.css" type="text/css" />
+    <link rel="stylesheet" href="../../_static/pygments.css" type="text/css" />
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    '../../',
+        VERSION:     '5.7.0.SP1.RELEASE',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true,
+        SOURCELINK_SUFFIX: '.txt'
+      };
+    </script>
+    <script type="text/javascript" src="../../_static/jquery.js"></script>
+    <script type="text/javascript" src="../../_static/underscore.js"></script>
+    <script type="text/javascript" src="../../_static/doctools.js"></script>
+    <link rel="index" title="Index" href="../../genindex.html" />
+    <link rel="search" title="Search" href="../../search.html" />
+    <link rel="next" title="10.2.2. レイヤごとのテスト実装" href="ImplementsOfTestByLayer.html" />
+    <link rel="prev" title="10.2. 単体テストの実装" href="index.html" /><script src="../../_static/jquery.treeview.js" type="text/javascript"></script>
+<!-- <link href='http://fonts.googleapis.com/css?family=Source+Code+Pro|Open+Sans:300italic,400italic,700italic,400,300,700' rel='stylesheet' type='text/css'> -->
+<link href="../../_static/solarized-dark.css" rel="stylesheet">
+<link href="../../_static/jquery.treeview.css" rel="stylesheet">
+  </head>
+  <body>
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../../genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="ImplementsOfTestByLayer.html" title="10.2.2. レイヤごとのテスト実装"
+             accesskey="N">next</a> |</li>
+        <li class="right" >
+          <a href="index.html" title="10.2. 単体テストの実装"
+             accesskey="P">previous</a> |</li>
+        <li class="nav-item nav-item-0"><a href="../../index.html">TERASOLUNA Server Framework for Java (5.x) Development Guideline 5.7.0.SP1.RELEASE documentation</a> &#187;</li>
+          <li class="nav-item nav-item-1"><a href="../index.html" >10. 単体テスト</a> &#187;</li>
+          <li class="nav-item nav-item-2"><a href="index.html" accesskey="U">10.2. 単体テストの実装</a> &#187;</li> 
+      </ul>
+    </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper"><label><input id="scroll" type="checkbox" checked> scroll sidebar</label>
+
+  <h3><a href="../../index.html">Table Of Contents</a></h3>
+  <ul>
+<li><a class="reference internal" href="#">10.2.1. テストの事前準備</a><ul>
+<li><a class="reference internal" href="#oss">10.2.1.1. OSSライブラリの設定</a></li>
+<li><a class="reference internal" href="#id3">10.2.1.2. データベースのセットアップ</a><ul>
+<li><a class="reference internal" href="#spring-test">10.2.1.2.1. スキーマとテストデータのセットアップ（Spring Test標準機能のみを利用したテストの場合）</a></li>
+<li><a class="reference internal" href="#spring-test-dbunit">10.2.1.2.2. テストデータのセットアップ（Spring Test DBUnitを利用したテスト場合）</a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#preparationfortestmakesettingfileforspringtest">10.2.1.3. テスト実装例で使用する設定ファイル</a></li>
+</ul>
+</li>
+</ul>
+
+
+  <h4>Previous topic</h4>
+  <p class="topless"><a href="index.html"
+                        title="previous chapter">10.2. 単体テストの実装</a></p>
+  <h4>Next topic</h4>
+  <p class="topless"><a href="ImplementsOfTestByLayer.html"
+                        title="next chapter">10.2.2. レイヤごとのテスト実装</a></p>
+  <div role="note" aria-label="source link">
+    <h3>This Page</h3>
+    <ul class="this-page-menu">
+      <li><a href="../../_sources/UnitTest/ImplementsOfUnitTest/PreparationForTest.rst.txt"
+            rel="nofollow">Show Source</a></li>
+    </ul>
+   </div>
+<div id="searchbox" style="display: none" role="search">
+  <h3>Quick search</h3>
+    <form class="search" action="../../search.html" method="get">
+      <div><input type="text" name="q" /></div>
+      <div><input type="submit" value="Go" /></div>
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <div class="section" id="preparationfortest">
+<span id="id1"></span><h1>10.2.1. テストの事前準備<a class="headerlink" href="#preparationfortest" title="Permalink to this headline">¶</a></h1>
+<div class="contents local topic" id="id2">
+<p class="topic-title">目次</p>
+<ul class="simple">
+<li><a class="reference internal" href="#oss" id="id5">OSSライブラリの設定</a></li>
+<li><a class="reference internal" href="#id3" id="id6">データベースのセットアップ</a><ul>
+<li><a class="reference internal" href="#spring-test" id="id7">スキーマとテストデータのセットアップ（Spring Test標準機能のみを利用したテストの場合）</a></li>
+<li><a class="reference internal" href="#spring-test-dbunit" id="id8">テストデータのセットアップ（Spring Test DBUnitを利用したテスト場合）</a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#preparationfortestmakesettingfileforspringtest" id="id9">テスト実装例で使用する設定ファイル</a></li>
+</ul>
+</div>
+<p>本節では単体テストを実施するための事前準備として、利用するOSSライブラリの設定方法とデータセットアップ方法および
+テスト実装例で使用する設定ファイルについて説明する。</p>
+<div class="section" id="oss">
+<h2><a class="toc-backref" href="#id5">10.2.1.1. OSSライブラリの設定</a><a class="headerlink" href="#oss" title="Permalink to this headline">¶</a></h2>
+<p>単体テストを実行するプロジェクト（domainプロジェクト、webプロジェクト）のPOMファイルにテストで利用するOSSライブラリを設定する。</p>
+<ul class="simple">
+<li><code class="docutils literal"><span class="pre">pom.xml</span></code></li>
+</ul>
+<div class="highlight-xml"><div class="highlight"><pre><span></span><span class="c">&lt;!-- == Begin Database == --&gt;</span>
+<span class="c">&lt;!-- &lt;dependency&gt; --&gt;</span>
+<span class="c">&lt;!-- &lt;groupId&gt;org.postgresql&lt;/groupId&gt; --&gt;</span>
+<span class="c">&lt;!-- &lt;artifactId&gt;postgresql&lt;/artifactId&gt; --&gt;</span>
+<span class="c">&lt;!-- &lt;scope&gt;test&lt;/scope&gt; --&gt;</span>
+<span class="c">&lt;!-- &lt;/dependency&gt; --&gt;</span>
+<span class="c">&lt;!-- == End Database == --&gt;</span>
+
+<span class="c">&lt;!-- == Begin Unit Test == --&gt;</span>
+<span class="nt">&lt;dependency&gt;</span>
+    <span class="nt">&lt;groupId&gt;</span>junit<span class="nt">&lt;/groupId&gt;</span>
+    <span class="nt">&lt;artifactId&gt;</span>junit<span class="nt">&lt;/artifactId&gt;</span>
+    <span class="nt">&lt;scope&gt;</span>test<span class="nt">&lt;/scope&gt;</span>
+<span class="nt">&lt;/dependency&gt;</span>
+<span class="nt">&lt;dependency&gt;</span>
+    <span class="nt">&lt;groupId&gt;</span>org.mockito<span class="nt">&lt;/groupId&gt;</span>
+    <span class="nt">&lt;artifactId&gt;</span>mockito-core<span class="nt">&lt;/artifactId&gt;</span>
+    <span class="nt">&lt;scope&gt;</span>test<span class="nt">&lt;/scope&gt;</span>
+<span class="nt">&lt;/dependency&gt;</span>
+<span class="nt">&lt;dependency&gt;</span>
+    <span class="nt">&lt;groupId&gt;</span>org.springframework<span class="nt">&lt;/groupId&gt;</span>
+    <span class="nt">&lt;artifactId&gt;</span>spring-test<span class="nt">&lt;/artifactId&gt;</span>
+    <span class="nt">&lt;scope&gt;</span>test<span class="nt">&lt;/scope&gt;</span>
+<span class="nt">&lt;/dependency&gt;</span>
+<span class="c">&lt;!--  REMOVE THIS LINE IF YOU USE DBUnit</span>
+<span class="c">&lt;dependency&gt;</span>
+<span class="c">    &lt;groupId&gt;org.dbunit&lt;/groupId&gt;</span>
+<span class="c">    &lt;artifactId&gt;dbunit&lt;/artifactId&gt;</span>
+<span class="c">    &lt;version&gt;2.5.4&lt;/version&gt;</span>
+<span class="c">    &lt;scope&gt;test&lt;/scope&gt;</span>
+<span class="c">&lt;/dependency&gt;</span>
+<span class="c">--&gt;</span>
+<span class="c">&lt;!--  REMOVE THIS LINE IF YOU USE Spring Test DBUnit</span>
+<span class="c">&lt;dependency&gt;</span>
+<span class="c">    &lt;groupId&gt;com.github.springtestdbunit&lt;/groupId&gt;</span>
+<span class="c">    &lt;artifactId&gt;spring-test-dbunit&lt;/artifactId&gt;</span>
+<span class="c">    &lt;version&gt;1.3.0&lt;/version&gt;</span>
+<span class="c">    &lt;scope&gt;test&lt;/scope&gt;</span>
+<span class="c">&lt;/dependency&gt;</span>
+<span class="c">--&gt;</span>
+<span class="c">&lt;!-- == End Unit Test == --&gt;</span>
+</pre></div>
+</div>
+<div class="admonition note">
+<p class="first admonition-title">Note</p>
+<p class="last"><code class="docutils literal"><span class="pre">dbunit</span></code>と<code class="docutils literal"><span class="pre">spring-test-dbunit</span></code>以外の上記設定例は、依存ライブラリのバージョンを親プロジェクトである
+terasoluna-gfw-parentで管理する前提であるため、<code class="docutils literal"><span class="pre">pom.xml</span></code>でのバージョン指定は不要である。
+また、<code class="docutils literal"><span class="pre">hamcrest</span></code>については、<code class="docutils literal"><span class="pre">junit</span></code>が依存関係を解決しているため、改めて定義する必要はない。</p>
+</div>
+<div class="admonition tip">
+<p class="first admonition-title">Tip</p>
+<p><strong>PostgreSQLドライバの追加方法について</strong></p>
+<p class="last">データアクセスを伴うテストでPostgreSQLのドライバを使用する場合は、POMファイル内のPostgreSQLのドライバのコメントアウトを外すこと。
+なお、テストのために依存ライブラリが必要になる場合のスコープは<code class="docutils literal"><span class="pre">test</span></code>が適切である。</p>
+</div>
+</div>
+<div class="section" id="id3">
+<h2><a class="toc-backref" href="#id6">10.2.1.2. データベースのセットアップ</a><a class="headerlink" href="#id3" title="Permalink to this headline">¶</a></h2>
+<div class="section" id="spring-test">
+<span id="preparationfortestdatasetupwithspringtest"></span><h3><a class="toc-backref" href="#id7">10.2.1.2.1. スキーマとテストデータのセットアップ（Spring Test標準機能のみを利用したテストの場合）</a><a class="headerlink" href="#spring-test" title="Permalink to this headline">¶</a></h3>
+<p>単体テストで利用するデータベースのセットアップについて、以下の方法がある。</p>
+<table border="1" class="colwidths-given docutils">
+<colgroup>
+<col width="30%" />
+<col width="40%" />
+<col width="30%" />
+</colgroup>
+<thead valign="bottom">
+<tr class="row-odd"><th class="head">セットアップ方法</th>
+<th class="head">特徴</th>
+<th class="head">利用シーン</th>
+</tr>
+</thead>
+<tbody valign="top">
+<tr class="row-even"><td><div class="first last line-block">
+<div class="line"><code class="docutils literal"><span class="pre">&lt;jdbc:initialize-database&gt;</span></code>要素を使用する。</div>
+</div>
+</td>
+<td><div class="first last line-block">
+<div class="line"><code class="docutils literal"><span class="pre">&lt;jdbc:initialize-database&gt;</span></code>要素を定義した設定ファイルをテスト実施時に読み込みセットアップする。</div>
+</div>
+</td>
+<td><div class="first last line-block">
+<div class="line">インメモリデータベース(H2 Database)をセットアップする際に使用する。</div>
+</div>
+</td>
+</tr>
+<tr class="row-odd"><td><div class="first last line-block">
+<div class="line">initdbプロジェクトを使用する。</div>
+</div>
+</td>
+<td><div class="first last line-block">
+<div class="line">テスト実施と分離して事前にDBの初期化ができる。</div>
+</div>
+</td>
+<td><div class="first last line-block">
+<div class="line">テスト実施前にまとめてデータベースをセットアップする際に使用する。</div>
+</div>
+</td>
+</tr>
+<tr class="row-even"><td><div class="first last line-block">
+<div class="line"><code class="docutils literal"><span class="pre">&#64;org.springframework.test.context.jdbc.Sql</span></code>アノテーションを使用する。</div>
+</div>
+</td>
+<td><div class="first last line-block">
+<div class="line"><code class="docutils literal"><span class="pre">&#64;Sql</span></code>アノテーションの引数で指定したSQLを発行する。
+<code class="docutils literal"><span class="pre">&#64;Sql</span></code>アノテーションはメソッドレベル、クラスレベルで指定できる。
+メソッドレベルで指定した場合は指定したテストメソッドだけで、
+クラスレベルで指定した場合は<code class="docutils literal"><span class="pre">&#64;Sql</span></code>アノテーションの指定がないすべてのテストメソッドで、
+実行前後にSQLを発行できる。</div>
+</div>
+</td>
+<td><div class="first last line-block">
+<div class="line">テストごとにテストデータをセットアップする際に使用する。</div>
+</div>
+</td>
+</tr>
+</tbody>
+</table>
+<div class="admonition warning">
+<p class="first admonition-title">Warning</p>
+<p class="last"><code class="docutils literal"><span class="pre">&lt;jdbc:initialize-database&gt;</span></code>タグに設定するSQLファイルには、明示的に「COMMIT;」を記述すること。</p>
+</div>
+<p>単体テストで利用するスキーマのセットアップは、テストごとではなくテスト実施前にまとめて実施されることが想定される。
+そのため、本章ではテストと分離したinitdbプロジェクトを使用してスキーマを作成することを前提に説明する。
+initdbプロジェクトについては、<a class="reference internal" href="../../ImplementationAtEachLayer/CreateWebApplicationProject.html#createwebapplicationprojectconfigurationinitdb"><span class="std std-ref">initdbモジュールの構成</span></a>を参照されたい。</p>
+<p>一方、テストデータのセットアップはテストごとに実施されることが想定される。
+そのため、本章ではテストクラスまたはテストメソッド毎にSQLを発行できる<code class="docutils literal"><span class="pre">&#64;Sql</span></code>アノテーションを使用することを前提に説明する。</p>
+<p>以下に、メソッドレベルに<code class="docutils literal"><span class="pre">&#64;Sql</span></code>アノテーションを付与する場合のテストデータのセットアップ例を示す。</p>
+<ul class="simple">
+<li><code class="docutils literal"><span class="pre">MemberRepositoryTest.java</span></code></li>
+</ul>
+<div class="highlight-java"><div class="highlight"><pre><span></span><span class="kd">public</span> <span class="kd">class</span> <span class="nc">MemberRepositoryTest</span> <span class="p">{</span>
+
+<span class="nd">@Test</span>
+<span class="nd">@Sql</span><span class="p">(</span><span class="n">scripts</span> <span class="o">=</span> <span class="s">&quot;classpath:META-INF/sql/setupMemberLogin.sql&quot;</span> <span class="c1">// (1)</span>
+     <span class="n">config</span> <span class="o">=</span> <span class="nd">@SqlConfig</span><span class="p">(</span><span class="n">encoding</span> <span class="o">=</span> <span class="s">&quot;utf-8&quot;</span><span class="p">))</span> <span class="c1">// (2)</span>
+<span class="kd">public</span> <span class="kt">void</span> <span class="nf">testUpdateMemberLogin</span><span class="p">()</span> <span class="p">{</span>
+    <span class="c1">// omitted</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+<table border="1" class="colwidths-given docutils">
+<colgroup>
+<col width="10%" />
+<col width="90%" />
+</colgroup>
+<thead valign="bottom">
+<tr class="row-odd"><th class="head">項番</th>
+<th class="head">説明</th>
+</tr>
+</thead>
+<tbody valign="top">
+<tr class="row-even"><td><div class="first last line-block">
+<div class="line">(1)</div>
+</div>
+</td>
+<td><div class="first last line-block">
+<div class="line"><code class="docutils literal"><span class="pre">&#64;Sql</span></code>アノテーションに、テストに必要なデータを投入するSQLファイルを指定する。</div>
+</div>
+</td>
+</tr>
+<tr class="row-odd"><td><div class="first last line-block">
+<div class="line">(2)</div>
+</div>
+</td>
+<td><div class="first last line-block">
+<div class="line"><code class="docutils literal"><span class="pre">&#64;SqlConfig</span></code>アノテーションを使用してSQLファイルのエンコードを指定する。</div>
+</div>
+</td>
+</tr>
+</tbody>
+</table>
+<div class="admonition tip" id="preparationfortesttipsqlannotation">
+<p class="first admonition-title">Tip</p>
+<p><strong>&#64;Sqlについて</strong></p>
+<p><code class="docutils literal"><span class="pre">&#64;Sql</span></code>アノテーションの引数には、以下を指定できる。</p>
+<ul class="simple">
+<li>SQLファイル（<code class="docutils literal"><span class="pre">scripts</span></code>または <code class="docutils literal"><span class="pre">value</span></code>）</li>
+<li>SQLステートメント（<code class="docutils literal"><span class="pre">statements</span></code>）</li>
+<li>SQL実行フェイズ（<code class="docutils literal"><span class="pre">executionPhase</span></code>）</li>
+<li>SQL解析メタデータ(<code class="docutils literal"><span class="pre">config</span></code>に<code class="docutils literal"><span class="pre">&#64;SqlConfig</span></code>アノテーションを指定)</li>
+</ul>
+<p>また、<code class="docutils literal"><span class="pre">&#64;Sql</span></code>アノテーションはデフォルトで有効になっている<code class="docutils literal"><span class="pre">SqlScriptsTestExecutionListener</span></code>によって
+実行される。詳細は、<a class="reference external" href="https://docs.spring.io/spring-framework/docs/5.3.18/reference/html/testing.html#testcontext-executing-sql-declaratively">Executing SQL scripts declaratively with &#64;Sql</a>を参照されたい。</p>
+<p class="last">なお、<code class="docutils literal"><span class="pre">&#64;Sql</span></code>アノテーションと<code class="docutils literal"><span class="pre">&#64;SqlConfig</span></code>アノテーションによる構成は<code class="docutils literal"><span class="pre">&lt;jdbc:initialize-database&gt;</span></code>要素
+による構成の上位セットである。</p>
+</div>
+<div class="admonition note" id="preparationfortestnoteomittedsqlfilepath">
+<p class="first admonition-title">Note</p>
+<p><strong>&#64;SqlのSQLファイルパスの省略</strong></p>
+<p><code class="docutils literal"><span class="pre">&#64;Sql</span></code>アノテーションは、<code class="docutils literal"><span class="pre">&#64;ContextConfiguration</span></code>アノテーション同様、SQLファイルのパスを省略でき、
+省略した場合<code class="docutils literal"><span class="pre">&#64;Sql</span></code>アノテーションが指定された場所に基づいてSQLファイルの検索が行われる。</p>
+<p>例えば、以下のようにデフォルトのパスにあるファイルがロードされる。</p>
+<p><code class="docutils literal"><span class="pre">com.example.domain.repository.SampleRepositoryTest</span></code>に指定した場合 →
+<code class="docutils literal"><span class="pre">classpath:com/example/domain/repository/SampleRepositoryTest.sql</span></code></p>
+<p><code class="docutils literal"><span class="pre">SampleRepositoryTest#testUpdate()</span></code>に指定した場合 →
+<code class="docutils literal"><span class="pre">classpath:com/example/domain/repository/SampleRepositoryTest.testUpdate.sql</span></code></p>
+<p class="last">なお、デフォルトのパスを検出できない場合は、<code class="docutils literal"><span class="pre">java.lang.IllegalStateException</span></code>がthrowされる。</p>
+</div>
+<div class="admonition note">
+<p class="first admonition-title">Note</p>
+<p><strong>&#64;Sqlの複数指定</strong></p>
+<p class="last"><code class="docutils literal"><span class="pre">&#64;Sql</span></code>にはJava SE8から追加された<code class="docutils literal"><span class="pre">&#64;Repeatable</span></code>が付与されているため、同じ箇所に複数指定することができる。
+なお、<code class="docutils literal"><span class="pre">&#64;org.springframework.test.context.jdbc.SqlGroup</span></code>を使用して、<code class="docutils literal"><span class="pre">&#64;Sql</span></code>を配列で複数指定することも可能である。</p>
+</div>
+</div>
+<div class="section" id="spring-test-dbunit">
+<span id="preparationfortestdatasetupwithdbunit"></span><h3><a class="toc-backref" href="#id8">10.2.1.2.2. テストデータのセットアップ（Spring Test DBUnitを利用したテスト場合）</a><a class="headerlink" href="#spring-test-dbunit" title="Permalink to this headline">¶</a></h3>
+<p>DBUnitとは、データベースに依存するクラスのテストを行うためのJUnit拡張フレームワークである。
+DBUnitとSpring Test DBUnitを使用して、テスト用データベースをセットアップする方法を説明する。</p>
+<p>DBUnitは、表形式で記載したデータベース情報をJavaオブジェクトとして抽象化して操作するための
+<code class="docutils literal"><span class="pre">org.dbunit.dataset.IDataSet</span></code>インタフェースを提供している。
+<code class="docutils literal"><span class="pre">IDataSet</span></code>インタフェースを使用することで、テストデータや期待結果データを定義したデータ定義ファイルを読み込むことができ、
+デフォルトではFlat XML形式のファイルが使用される。
+DBUnitはFlat XML形式の他に、Excel形式（.xlsx）やCSV形式などに対応した<code class="docutils literal"><span class="pre">IDataSet</span></code>インタフェースの実装クラスを持つ。</p>
+<p>Spring Test DBUnitではデータ定義ファイルの読込機能を<code class="docutils literal"><span class="pre">com.github.springtestdbunit.dataset.DataSetLoader</span></code>インタフェースの実装クラスに委譲している。デフォルトではXML形式のデータ定義ファイルが読み込まれる。
+ファイル形式を変更したい場合は、変更したい形式に対応した<code class="docutils literal"><span class="pre">IDataSet</span></code>インタフェースの実装クラスを生成する
+<code class="docutils literal"><span class="pre">DataSetLoader</span></code>インタフェースの実装クラスを作成することで実現できる。</p>
+<p>なお、Spring Test DBUnitを使用してデータのセットアップをする場合は、<code class="docutils literal"><span class="pre">&#64;DatabaseSetup</span></code>アノテーションを使用することで
+テストコードにテストデータを定義したファイルを読み込ませることができる。
+<code class="docutils literal"><span class="pre">&#64;DatabaseSetup</span></code>アノテーションはクラスレベル、メソッドレベルで指定でき、メソッドレベルに指定した場合は指定した
+メソッド、クラスレベルで指定した場合は各メソッドのテスト実行前に指定したファイルでデータのセットアップが行われる。</p>
+<p>本章では、Excel形式（.xlsx）のデータ定義ファイルを使用することを前提に説明する。
+Excel形式に対応する<code class="docutils literal"><span class="pre">DataSetLoader</span></code>インタフェースの実装例を以下に示す。</p>
+<ul class="simple">
+<li><code class="docutils literal"><span class="pre">XlsDataSetLoader.java</span></code></li>
+</ul>
+<div class="highlight-java"><div class="highlight"><pre><span></span><span class="kd">public</span> <span class="kd">class</span> <span class="nc">XlsDataSetLoader</span> <span class="kd">extends</span> <span class="n">AbstractDataSetLoader</span> <span class="p">{</span> <span class="c1">// (1)</span>
+
+    <span class="nd">@Override</span>
+    <span class="kd">protected</span> <span class="n">IDataSet</span> <span class="nf">createDataSet</span><span class="p">(</span><span class="n">Resource</span> <span class="n">resource</span><span class="p">)</span> <span class="kd">throws</span> <span class="n">IOException</span><span class="p">,</span> <span class="n">DataSetException</span> <span class="p">{</span>
+        <span class="k">try</span> <span class="p">(</span><span class="n">InputStream</span> <span class="n">inputStream</span> <span class="o">=</span> <span class="n">resource</span><span class="p">.</span><span class="na">getInputStream</span><span class="p">())</span> <span class="p">{</span>
+            <span class="k">return</span> <span class="k">new</span> <span class="n">XlsDataSet</span><span class="p">(</span><span class="n">inputStream</span><span class="p">);</span>
+        <span class="p">}</span>
+    <span class="p">}</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+<table border="1" class="colwidths-given docutils">
+<colgroup>
+<col width="10%" />
+<col width="90%" />
+</colgroup>
+<thead valign="bottom">
+<tr class="row-odd"><th class="head">項番</th>
+<th class="head">説明</th>
+</tr>
+</thead>
+<tbody valign="top">
+<tr class="row-even"><td><div class="first last line-block">
+<div class="line">(1)</div>
+</div>
+</td>
+<td><div class="first last line-block">
+<div class="line">Spring Test DBUnitが提供する抽象基底クラスである<code class="docutils literal"><span class="pre">com.github.springtestdbunit.dataset.AbstractDataSetLoader</span></code>を利用して、Excel形式のデータ定義ファイルの<code class="docutils literal"><span class="pre">XlsDataSetLoader</span></code>クラスを定義する。</div>
+</div>
+</td>
+</tr>
+</tbody>
+</table>
+<ul class="simple">
+<li><code class="docutils literal"><span class="pre">MemberRepositoryDbunitTest.java</span></code></li>
+</ul>
+<div class="highlight-java"><div class="highlight"><pre><span></span><span class="c1">// omitted</span>
+<span class="nd">@DbUnitConfiguration</span><span class="p">(</span><span class="n">dataSetLoader</span> <span class="o">=</span> <span class="n">XlsDataSetLoader</span><span class="p">.</span><span class="na">class</span><span class="p">)</span> <span class="c1">// (1)</span>
+<span class="nd">@DatabaseSetup</span><span class="p">(</span><span class="s">&quot;classpath:META-INF/dbunit/setup_MemberLogin.xlsx&quot;</span><span class="p">)</span>
+<span class="kd">public</span> <span class="kd">class</span> <span class="nc">MemberRepositoryDbunitTest</span> <span class="p">{</span>
+    <span class="c1">// omitted</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+<table border="1" class="colwidths-given docutils">
+<colgroup>
+<col width="10%" />
+<col width="90%" />
+</colgroup>
+<thead valign="bottom">
+<tr class="row-odd"><th class="head">項番</th>
+<th class="head">説明</th>
+</tr>
+</thead>
+<tbody valign="top">
+<tr class="row-even"><td><div class="first last line-block">
+<div class="line">(1)</div>
+</div>
+</td>
+<td><div class="first last line-block">
+<div class="line"><code class="docutils literal"><span class="pre">&#64;DbUnitConfiguration</span></code>アノテーションに<code class="docutils literal"><span class="pre">XlsDataSetLoader</span></code>クラスを指定することで、
+<code class="docutils literal"><span class="pre">&#64;DatabaseSetup</span></code>アノテーションを使用したExcel形式のデータ定義ファイル読込みができるようになる。</div>
+</div>
+</td>
+</tr>
+</tbody>
+</table>
+<ul class="simple">
+<li>Excel形式のデータ定義ファイル（setup_MemberLogin.xlsx）</li>
+</ul>
+<div class="figure">
+<a class="reference internal image-reference" href="../../_images/PreparationForTestExcelFile.png"><img alt="../../_images/PreparationForTestExcelFile.png" src="../../_images/PreparationForTestExcelFile.png" style="width: 70%;" /></a>
+</div>
+<p>Excel形式のデータ定義ファイルでは、各シートが各テーブルに対応する。
+シート名にはテーブル名、シートの一行目にはカラム名を設定する。 二行目以降にテーブルに挿入されるデータを記述する。</p>
+<div class="line-block">
+<div class="line"><br /></div>
+</div>
+<div class="admonition note">
+<p class="first admonition-title">Note</p>
+<p><strong>CSV形式のデータ定義ファイルを使用する場合</strong></p>
+<p class="last">DBUnitでCSV形式のデータ定義ファイルを使用する場合は、<code class="docutils literal"><span class="pre">IDataSet</span></code>インタフェースの実装クラスとして
+<code class="docutils literal"><span class="pre">org.dbunit.dataset.csv.CsvDataSet.CsvDataSet</span></code>クラスを使用することで実現できる。</p>
+</div>
+<div class="admonition note">
+<p class="first admonition-title">Note</p>
+<p><strong>DBUnitがデフォルトで読み込むファイル形式について</strong></p>
+<p>DBUnitは、デフォルトでFlat XML形式のデータ定義ファイルをサポートしている。</p>
+<p>Spring Test DBUnitを使用した場合は、<code class="docutils literal"><span class="pre">&#64;DbUnitConfiguration</span></code>に<code class="docutils literal"><span class="pre">dataSetLoader</span></code>を指定しなかった場合、
+Flat XML形式のファイルに対応した<code class="docutils literal"><span class="pre">IDataSet</span></code>インタフェースの実装クラスである
+<code class="docutils literal"><span class="pre">org.dbunit.dataset.xml.FlatXmlDataSet</span></code>クラスが使用される。</p>
+<blockquote>
+<div>Flat XML形式のデータ定義ファイル例を以下に示す。</div></blockquote>
+<ul class="simple">
+<li><code class="docutils literal"><span class="pre">setup_MemberLogin.xml</span></code></li>
+</ul>
+<blockquote class="last">
+<div><div class="highlight-xml"><div class="highlight"><pre><span></span><span class="c">&lt;!-- (1) --&gt;</span>
+<span class="cp">&lt;?xml version=&#39;1.0&#39; encoding=&#39;UTF-8&#39;?&gt;</span>
+<span class="nt">&lt;dataset&gt;</span>
+    <span class="nt">&lt;MEMBER_LOGIN</span> <span class="na">CUSTOMER_NO=</span><span class="s">&quot;0000000001&quot;</span>
+        <span class="na">PASSWORD=</span><span class="s">&quot;{pbkdf2}1030550073b359714fe2f7537fa1a794a5b0866c7adf62f7f974ff0492681d0db41f95c66be98f94&quot;</span>
+        <span class="na">LAST_PASSWORD=</span><span class="s">&quot;{pbkdf2}8f702ea4c50c58921c8be11b811a535d5c29856fc4f50b8545efe13914ac87e880cb5b7d390e770b&quot;</span>
+        <span class="na">LOGIN_DATE_TIME=</span><span class="s">&quot;2017-09-13 16:47:04.283&quot;</span> <span class="na">LOGIN_FLG=</span><span class="s">&quot;FALSE&quot;</span> <span class="nt">/&gt;</span>
+<span class="nt">&lt;/dataset&gt;</span>
+</pre></div>
+</div>
+<table border="1" class="colwidths-given docutils">
+<colgroup>
+<col width="10%" />
+<col width="90%" />
+</colgroup>
+<thead valign="bottom">
+<tr class="row-odd"><th class="head">項番</th>
+<th class="head">説明</th>
+</tr>
+</thead>
+<tbody valign="top">
+<tr class="row-even"><td><div class="first last line-block">
+<div class="line">(1)</div>
+</div>
+</td>
+<td><div class="first last line-block">
+<div class="line"><code class="docutils literal"><span class="pre">dataset</span></code>要素配下の各XML要素は、テーブルのレコードに対応しており、各XMLの要素名にテーブル名、
+属性名にカラム名、属性値に投入するデータを定義する。例では、<code class="docutils literal"><span class="pre">MEMBER_LOGIN</span></code>テーブルに値を定義している。</div>
+</div>
+</td>
+</tr>
+</tbody>
+</table>
+</div></blockquote>
+</div>
+<div class="line-block">
+<div class="line"><br /></div>
+</div>
+</div>
+</div>
+<div class="section" id="preparationfortestmakesettingfileforspringtest">
+<span id="id4"></span><h2><a class="toc-backref" href="#id9">10.2.1.3. テスト実装例で使用する設定ファイル</a><a class="headerlink" href="#preparationfortestmakesettingfileforspringtest" title="Permalink to this headline">¶</a></h2>
+<p>Spring Testの DI機能を使用することでテストで使用するBeanを定義した設定ファイルを読み込み、テスト時に使用することができる。
+詳細は<a class="reference internal" href="UsageOfLibraryForTest.html#usageoflibraryfortestdiofspringtest"><span class="std std-ref">Spring TestのDI機能</span></a>を参照されたい。</p>
+<p>本章では、テストを行う際に必要な設定を<code class="docutils literal"><span class="pre">test-context.xml</span></code>に定義し、その設定ファイルをテスト時の共通設定としている。
+なお、<code class="docutils literal"><span class="pre">test-context.xml</span></code>はdomainプロジェクトの<code class="docutils literal"><span class="pre">src/test/resources/test-context.xml</span></code>から
+<code class="docutils literal"><span class="pre">&lt;import</span> <span class="pre">resource=&quot;classpath:META-INF/spring/projectName-domain.xml&quot;</span> <span class="pre">/&gt;</span></code>を削除し、各層ごとにアプリケーションが
+保持する設定ファイル（<code class="docutils literal"><span class="pre">sample-infra.xml</span></code>など）と組み合わせて読み込む方針でテストを実装している。</p>
+<div class="admonition note">
+<p class="first admonition-title">Note</p>
+<p><strong>単体テストで利用する設定ファイルの作成単位</strong></p>
+<p class="last">本章では上記のように設定ファイルを作成しているが、実際に設定ファイルを用意する際には、アーキテクトが業務要件を考慮して
+共通設定を定義し、それを元にテスト実装チームで必要な設定を追加するようにして対応すること。</p>
+</div>
+<p>以下に本章の実装例で使用する設定ファイルを示す。</p>
+<ul class="simple">
+<li><code class="docutils literal"><span class="pre">test-context.xml</span></code></li>
+</ul>
+<div class="highlight-xml"><div class="highlight"><pre><span></span><span class="cp">&lt;?xml version=&quot;1.0&quot; encoding=&quot;UTF-8&quot;?&gt;</span>
+<span class="nt">&lt;beans</span> <span class="na">xmlns=</span><span class="s">&quot;http://www.springframework.org/schema/beans&quot;</span>
+  <span class="na">xmlns:xsi=</span><span class="s">&quot;http://www.w3.org/2001/XMLSchema-instance&quot;</span>
+  <span class="na">xmlns:context=</span><span class="s">&quot;http://www.springframework.org/schema/context&quot;</span>
+  <span class="na">xsi:schemaLocation=</span><span class="s">&quot;http://www.springframework.org/schema/beans https://www.springframework.org/schema/beans/spring-beans.xsd</span>
+<span class="s">        http://www.springframework.org/schema/context https://www.springframework.org/schema/context/spring-context.xsd&quot;</span><span class="nt">&gt;</span>
+
+    <span class="nt">&lt;context:property-placeholder</span>
+                    <span class="na">location=</span><span class="s">&quot;classpath*:/META-INF/spring/*.properties&quot;</span> <span class="nt">/&gt;</span>
+
+    <span class="c">&lt;!-- (1) --&gt;</span>
+    <span class="nt">&lt;bean</span> <span class="na">id=</span><span class="s">&quot;exceptionLogger&quot;</span> <span class="na">class=</span><span class="s">&quot;org.terasoluna.gfw.common.exception.ExceptionLogger&quot;</span> <span class="nt">/&gt;</span>
+
+    <span class="nt">&lt;bean</span> <span class="na">id=</span><span class="s">&quot;jdbcTemplate&quot;</span> <span class="na">class=</span><span class="s">&quot;org.springframework.jdbc.core.JdbcTemplate&quot;</span><span class="nt">&gt;</span>
+        <span class="nt">&lt;property</span> <span class="na">name=</span><span class="s">&quot;dataSource&quot;</span> <span class="na">ref=</span><span class="s">&quot;dataSource&quot;</span> <span class="nt">/&gt;</span>
+    <span class="nt">&lt;/bean&gt;</span>
+
+    <span class="c">&lt;!-- (2) --&gt;</span>
+    <span class="nt">&lt;bean</span> <span class="na">id=</span><span class="s">&quot;passwordEncoder&quot;</span> <span class="na">class=</span><span class="s">&quot;org.springframework.security.crypto.password.DelegatingPasswordEncoder&quot;</span><span class="nt">&gt;</span>
+      <span class="nt">&lt;constructor-arg</span> <span class="na">name=</span><span class="s">&quot;idForEncode&quot;</span> <span class="na">value=</span><span class="s">&quot;pbkdf2&quot;</span> <span class="nt">/&gt;</span>
+      <span class="nt">&lt;constructor-arg</span> <span class="na">name=</span><span class="s">&quot;idToPasswordEncoder&quot;</span><span class="nt">&gt;</span>
+        <span class="nt">&lt;map&gt;</span>
+          <span class="nt">&lt;entry</span> <span class="na">key=</span><span class="s">&quot;pbkdf2&quot;</span><span class="nt">&gt;</span>
+            <span class="nt">&lt;bean</span> <span class="na">class=</span><span class="s">&quot;org.springframework.security.crypto.password.Pbkdf2PasswordEncoder&quot;</span> <span class="nt">/&gt;</span>
+          <span class="nt">&lt;/entry&gt;</span>
+          <span class="nt">&lt;entry</span> <span class="na">key=</span><span class="s">&quot;bcrypt&quot;</span><span class="nt">&gt;</span>
+            <span class="nt">&lt;bean</span> <span class="na">class=</span><span class="s">&quot;org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder&quot;</span> <span class="nt">/&gt;</span>
+          <span class="nt">&lt;/entry&gt;</span>
+          <span class="c">&lt;!-- When using commented out PasswordEncoders, you need to add bcprov-jdk15on.jar to the dependency.</span>
+<span class="c">          &lt;entry key=&quot;argon2&quot;&gt;</span>
+<span class="c">            &lt;bean class=&quot;org.springframework.security.crypto.argon2.Argon2PasswordEncoder&quot; /&gt;</span>
+<span class="c">          &lt;/entry&gt;</span>
+<span class="c">          &lt;entry key=&quot;scrypt&quot;&gt;</span>
+<span class="c">            &lt;bean class=&quot;org.springframework.security.crypto.scrypt.SCryptPasswordEncoder&quot; /&gt;</span>
+<span class="c">          &lt;/entry&gt;</span>
+<span class="c">          --&gt;</span>
+        <span class="nt">&lt;/map&gt;</span>
+      <span class="nt">&lt;/constructor-arg&gt;</span>
+    <span class="nt">&lt;/bean&gt;</span>
+
+
+<span class="nt">&lt;/beans&gt;</span>
+</pre></div>
+</div>
+<table border="1" class="colwidths-given docutils">
+<colgroup>
+<col width="10%" />
+<col width="90%" />
+</colgroup>
+<thead valign="bottom">
+<tr class="row-odd"><th class="head">項番</th>
+<th class="head">説明</th>
+</tr>
+</thead>
+<tbody valign="top">
+<tr class="row-even"><td><div class="first last line-block">
+<div class="line">(1)</div>
+</div>
+</td>
+<td><div class="first last line-block">
+<div class="line">テスト実施に必要なBeanを定義する。</div>
+</div>
+</td>
+</tr>
+<tr class="row-odd"><td><div class="first last line-block">
+<div class="line">(2)</div>
+</div>
+</td>
+<td><div class="first last line-block">
+<div class="line">ここでは、テスト例を実装するために<code class="docutils literal"><span class="pre">passwordEncoder</span></code>のBean定義を追加している。</div>
+<div class="line">Bean定義については、業務に応じて適宜追加されたい。</div>
+</div>
+</td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
+
+
+          </div>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../../genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="ImplementsOfTestByLayer.html" title="10.2.2. レイヤごとのテスト実装"
+             >next</a> |</li>
+        <li class="right" >
+          <a href="index.html" title="10.2. 単体テストの実装"
+             >previous</a> |</li>
+        <li class="nav-item nav-item-0"><a href="../../index.html">TERASOLUNA Server Framework for Java (5.x) Development Guideline 5.7.0.SP1.RELEASE documentation</a> &#187;</li>
+          <li class="nav-item nav-item-1"><a href="../index.html" >10. 単体テスト</a> &#187;</li>
+          <li class="nav-item nav-item-2"><a href="index.html" >10.2. 単体テストの実装</a> &#187;</li> 
+      </ul>
+    </div>
+    <div class="footer">
+      © Copyright 2013, NTT DATA Corporation. © Copyright 2013, NTT Corporation.
+      Created using <a href="http://sphinx.pocoo.org/">Sphinx</a> 1.6.3.Theme is <a href="http://github.com/vimalkvn/solar-theme">Solar</a>
+    </div>
+    
+    <script>
+    
+    $(function() {
+    	var $sidebar	= $('.sphinxsidebar'),
+    		$window		= $(window),
+    		offset		= $sidebar.offset(),
+    		topPadding	= 3,
+    		$scroll		= $('#scroll');
+    	
+    	$window.scroll(function() {
+    		if ($scroll.is(':checked')) {
+				if ($window.scrollTop() > offset.top) {
+					$sidebar.stop().animate({
+						marginTop:$window.scrollTop() - offset.top + topPadding
+					});
+				} else {
+					$sidebar.stop().animate({
+						marginTop:0
+					});
+				}
+			}
+		});
+    	
+    	var $navList = $('ul:first', $sidebar);
+    	$('li:first', $navList).addClass('open');
+    	
+    	$navList.treeview({
+    		persist: "location",
+    		collapsed: true,
+    		unique: false
+    	});
+    	
+	});
+    (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+        (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+            m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+    })(window,document,'script','//www.google-analytics.com/analytics.js','ga');
+
+    ga('create', 'UA-46550814-1', 'terasolunaorg.github.io');
+    ga('send', 'pageview');
+    </script>
+  </body>
+</html>
