@@ -1,0 +1,1915 @@
+<!DOCTYPE html>
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <title>10.2.4. 単体テストで利用するOSSライブラリの使い方 &#8212; TERASOLUNA Server Framework for Java (5.x) Development Guideline 5.6.0.SP1.RELEASE documentation</title>
+    <link rel="stylesheet" href="../../_static/solar.css" type="text/css" />
+    <link rel="stylesheet" href="../../_static/pygments.css" type="text/css" />
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    '../../',
+        VERSION:     '5.6.0.SP1.RELEASE',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true,
+        SOURCELINK_SUFFIX: '.txt'
+      };
+    </script>
+    <script type="text/javascript" src="../../_static/jquery.js"></script>
+    <script type="text/javascript" src="../../_static/underscore.js"></script>
+    <script type="text/javascript" src="../../_static/doctools.js"></script>
+    <link rel="index" title="Index" href="../../genindex.html" />
+    <link rel="search" title="Search" href="../../search.html" />
+    <link rel="next" title="10.3. 単体テストの実行" href="../RunUnitTest.html" />
+    <link rel="prev" title="10.2.3. 機能ごとのテスト実装" href="ImplementsOfTestByFunction.html" /><script src="../../_static/jquery.treeview.js" type="text/javascript"></script>
+<!-- <link href='http://fonts.googleapis.com/css?family=Source+Code+Pro|Open+Sans:300italic,400italic,700italic,400,300,700' rel='stylesheet' type='text/css'> -->
+<link href="../../_static/solarized-dark.css" rel="stylesheet">
+<link href="../../_static/jquery.treeview.css" rel="stylesheet">
+  </head>
+  <body>
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../../genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="../RunUnitTest.html" title="10.3. 単体テストの実行"
+             accesskey="N">next</a> |</li>
+        <li class="right" >
+          <a href="ImplementsOfTestByFunction.html" title="10.2.3. 機能ごとのテスト実装"
+             accesskey="P">previous</a> |</li>
+        <li class="nav-item nav-item-0"><a href="../../index.html">TERASOLUNA Server Framework for Java (5.x) Development Guideline 5.6.0.SP1.RELEASE documentation</a> &#187;</li>
+          <li class="nav-item nav-item-1"><a href="../index.html" >10. 単体テスト</a> &#187;</li>
+          <li class="nav-item nav-item-2"><a href="index.html" accesskey="U">10.2. 単体テストの実装</a> &#187;</li> 
+      </ul>
+    </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper"><label><input id="scroll" type="checkbox" checked> scroll sidebar</label>
+
+  <h3><a href="../../index.html">Table Of Contents</a></h3>
+  <ul>
+<li><a class="reference internal" href="#">10.2.4. 単体テストで利用するOSSライブラリの使い方</a><ul>
+<li><a class="reference internal" href="#spring-test">10.2.4.1. Spring Test</a><ul>
+<li><a class="reference internal" href="#id2">10.2.4.1.1. Spring Test とは</a><ul>
+<li><a class="reference internal" href="#spring-testdi">10.2.4.1.1.1. Spring TestのDI機能</a></li>
+<li><a class="reference internal" href="#testexecutionlistener">10.2.4.1.1.2. TestExecutionListenerの登録</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li><a class="reference internal" href="#mockmvc">10.2.4.2. MockMvc</a><ul>
+<li><a class="reference internal" href="#usageoflibraryfortestmockmvcoverview">10.2.4.2.1. MockMvcとは</a></li>
+<li><a class="reference internal" href="#usageoflibraryfortestsettingmockmvc">10.2.4.2.2. MockMvcのセットアップ</a><ul>
+<li><a class="reference internal" href="#webappcontextsetup">10.2.4.2.2.1. webAppContextSetupによるセットアップ</a></li>
+<li><a class="reference internal" href="#standalonesetup">10.2.4.2.2.2. standaloneSetupによるセットアップ</a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#id5">10.2.4.2.3. MockMvcによるテストの実装</a><ul>
+<li><a class="reference internal" href="#usageoflibraryfortestsettingofrequestdata">10.2.4.2.3.1. リクエストデータの設定</a></li>
+<li><a class="reference internal" href="#usageoflibraryfortestexecutionofrequest">10.2.4.2.3.2. リクエスト送信の実装</a></li>
+<li><a class="reference internal" href="#usageoflibraryfortestimplementationofexecutionresultverification">10.2.4.2.3.3. 実行結果検証の実装</a></li>
+<li><a class="reference internal" href="#id9">10.2.4.2.3.4. 実行結果出力の実装</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li><a class="reference internal" href="#mockito">10.2.4.3. Mockito</a><ul>
+<li><a class="reference internal" href="#id10">10.2.4.3.1. Mockitoとは</a><ul>
+<li><a class="reference internal" href="#id11">10.2.4.3.1.1. モックの概要</a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#id12">10.2.4.3.2. Mockitoの利用</a><ul>
+<li><a class="reference internal" href="#id13">10.2.4.3.2.1. モック化の制限</a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#id14">10.2.4.3.3. Mockitoの機能</a><ul>
+<li><a class="reference internal" href="#usageoflibraryfortestcreatemockobject">10.2.4.3.3.1. モックの生成</a></li>
+<li><a class="reference internal" href="#usageoflibraryfortestmockingmethods">10.2.4.3.3.2. メソッドのモック化</a><ul>
+<li><a class="reference internal" href="#id17">10.2.4.3.3.2.1. 引数、返り値の設定</a></li>
+<li><a class="reference internal" href="#id18">10.2.4.3.3.2.2. 任意の引数による定義</a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#void">10.2.4.3.3.3. 返り値がvoid型であるメソッドのモック化</a><ul>
+<li><a class="reference internal" href="#id19">10.2.4.3.3.3.1. 動作の設定</a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#usageoflibraryfortestvalidationofmockmethod">10.2.4.3.3.4. モック化したメソッドの検証</a></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+
+
+  <h4>Previous topic</h4>
+  <p class="topless"><a href="ImplementsOfTestByFunction.html"
+                        title="previous chapter">10.2.3. 機能ごとのテスト実装</a></p>
+  <h4>Next topic</h4>
+  <p class="topless"><a href="../RunUnitTest.html"
+                        title="next chapter">10.3. 単体テストの実行</a></p>
+  <div role="note" aria-label="source link">
+    <h3>This Page</h3>
+    <ul class="this-page-menu">
+      <li><a href="../../_sources/UnitTest/ImplementsOfUnitTest/UsageOfLibraryForTest.rst.txt"
+            rel="nofollow">Show Source</a></li>
+    </ul>
+   </div>
+<div id="searchbox" style="display: none" role="search">
+  <h3>Quick search</h3>
+    <form class="search" action="../../search.html" method="get">
+      <div><input type="text" name="q" /></div>
+      <div><input type="submit" value="Go" /></div>
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <div class="section" id="oss">
+<span id="usageoflibraryfortest"></span><h1>10.2.4. 単体テストで利用するOSSライブラリの使い方<a class="headerlink" href="#oss" title="Permalink to this headline">¶</a></h1>
+<div class="contents local topic" id="id1">
+<p class="topic-title">目次</p>
+<ul class="simple">
+<li><a class="reference internal" href="#spring-test" id="id29">Spring Test</a><ul>
+<li><a class="reference internal" href="#id2" id="id30">Spring Test とは</a><ul>
+<li><a class="reference internal" href="#spring-testdi" id="id31">Spring TestのDI機能</a></li>
+<li><a class="reference internal" href="#testexecutionlistener" id="id32">TestExecutionListenerの登録</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li><a class="reference internal" href="#mockmvc" id="id33">MockMvc</a><ul>
+<li><a class="reference internal" href="#usageoflibraryfortestmockmvcoverview" id="id34">MockMvcとは</a></li>
+<li><a class="reference internal" href="#usageoflibraryfortestsettingmockmvc" id="id35">MockMvcのセットアップ</a><ul>
+<li><a class="reference internal" href="#webappcontextsetup" id="id36">webAppContextSetupによるセットアップ</a></li>
+<li><a class="reference internal" href="#standalonesetup" id="id37">standaloneSetupによるセットアップ</a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#id5" id="id38">MockMvcによるテストの実装</a><ul>
+<li><a class="reference internal" href="#usageoflibraryfortestsettingofrequestdata" id="id39">リクエストデータの設定</a></li>
+<li><a class="reference internal" href="#usageoflibraryfortestexecutionofrequest" id="id40">リクエスト送信の実装</a></li>
+<li><a class="reference internal" href="#usageoflibraryfortestimplementationofexecutionresultverification" id="id41">実行結果検証の実装</a></li>
+<li><a class="reference internal" href="#id9" id="id42">実行結果出力の実装</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li><a class="reference internal" href="#mockito" id="id43">Mockito</a><ul>
+<li><a class="reference internal" href="#id10" id="id44">Mockitoとは</a><ul>
+<li><a class="reference internal" href="#id11" id="id45">モックの概要</a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#id12" id="id46">Mockitoの利用</a><ul>
+<li><a class="reference internal" href="#id13" id="id47">モック化の制限</a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#id14" id="id48">Mockitoの機能</a><ul>
+<li><a class="reference internal" href="#usageoflibraryfortestcreatemockobject" id="id49">モックの生成</a></li>
+<li><a class="reference internal" href="#usageoflibraryfortestmockingmethods" id="id50">メソッドのモック化</a><ul>
+<li><a class="reference internal" href="#id17" id="id51">引数、返り値の設定</a></li>
+<li><a class="reference internal" href="#id18" id="id52">任意の引数による定義</a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#void" id="id53">返り値がvoid型であるメソッドのモック化</a><ul>
+<li><a class="reference internal" href="#id19" id="id54">動作の設定</a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#usageoflibraryfortestvalidationofmockmethod" id="id55">モック化したメソッドの検証</a></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+</div>
+<p>本節では、単体テストで利用するOSSライブラリとして、Spring Test（MockMvc）、Mockitoについて説明する。</p>
+<div class="section" id="spring-test">
+<span id="usageoflibraryfortestspringtestoverview"></span><h2><a class="toc-backref" href="#id29">10.2.4.1. Spring Test</a><a class="headerlink" href="#spring-test" title="Permalink to this headline">¶</a></h2>
+<div class="section" id="id2">
+<h3><a class="toc-backref" href="#id30">10.2.4.1.1. Spring Test とは</a><a class="headerlink" href="#id2" title="Permalink to this headline">¶</a></h3>
+<p>Spring Testとは、Spring Framework上で動作するアプリケーションのテストを支援するモジュールである。
+テストには、対象クラスが依存しているクラスをモックやスタブで代用して行うテストと、SpringのDIコンテナや実際の依存クラスと
+組み合わせて行うテストがある。</p>
+<p>本ガイドラインでは、モックを使用してテスト対象クラス単体でテストを行う方法と、
+設定ファイルや実際の依存クラスを組み合わせてテストを行う方法の2通りの実装方法を例示する。</p>
+<p>Spring Testでは主に以下の機能が提供されている。</p>
+<ul class="simple">
+<li>テスティングフレームワーク（JUnit）上でSpringのDIコンテナを動かす機能</li>
+<li>テストデータをセットアップする機能</li>
+<li>アプリケーションサーバ上にデプロイせずに、Spring MVCの動作を再現する機能</li>
+<li>テストに最適なトランザクション管理機能</li>
+</ul>
+<p>その他、様々なSpring固有のアノテーションや、単体テストで利用するAPIが提供されている。</p>
+<p>Spring Testは、テスティングフレームワーク上で動作するテスト用のフレームワーク機能として、
+Spring TestContext Frameworkを提供している。</p>
+<p>Spring TestContext Frameworkの処理フロー図を以下に示す。</p>
+<div class="figure">
+<a class="reference internal image-reference" href="../../_images/UsageOfLibraryForTestSpringTestProcessFlow.png"><img alt="../../_images/UsageOfLibraryForTestSpringTestProcessFlow.png" src="../../_images/UsageOfLibraryForTestSpringTestProcessFlow.png" style="width: 95%;" /></a>
+</div>
+<table border="1" class="colwidths-given longtable docutils">
+<colgroup>
+<col width="10%" />
+<col width="90%" />
+</colgroup>
+<thead valign="bottom">
+<tr class="row-odd"><th class="head">項番</th>
+<th class="head">説明</th>
+</tr>
+</thead>
+<tbody valign="top">
+<tr class="row-even"><td><div class="first last line-block">
+<div class="line">(1)</div>
+</div>
+</td>
+<td><div class="first last line-block">
+<div class="line">テスト実行により、<code class="docutils literal"><span class="pre">org.springframework.test.context.junit4.SpringJUnit4ClassRunner</span></code>クラスが呼び出される。</div>
+</div>
+</td>
+</tr>
+<tr class="row-odd"><td><div class="first last line-block">
+<div class="line">(2)</div>
+</div>
+</td>
+<td><div class="first last line-block">
+<div class="line"><code class="docutils literal"><span class="pre">SpringJUnit4ClassRunner</span></code>クラスは<code class="docutils literal"><span class="pre">org.springframework.test.context.TestContextManager</span></code>クラスを
+生成する。</div>
+</div>
+</td>
+</tr>
+<tr class="row-even"><td><div class="first last line-block">
+<div class="line">(3)</div>
+</div>
+</td>
+<td><div class="first last line-block">
+<div class="line"><code class="docutils literal"><span class="pre">TestContextManager</span></code>クラスは<code class="docutils literal"><span class="pre">org.springframework.test.context.TestContextBootstrapper</span></code>インタフェース
+の<code class="docutils literal"><span class="pre">org.springframework.test.context.TestContext</span></code>インタフェースのビルド処理を呼び出す。</div>
+</div>
+</td>
+</tr>
+<tr class="row-odd"><td><div class="first last line-block">
+<div class="line">(4)</div>
+</div>
+</td>
+<td><div class="first last line-block">
+<div class="line"><code class="docutils literal"><span class="pre">TestContextBootstrapper</span></code>クラスはテストクラスで指定された設定ファイルをマージする
+<code class="docutils literal"><span class="pre">org.springframework.test.context.MergedContextConfiguration</span></code>クラスのビルド処理を呼び出す。</div>
+<div class="line">この時、テストクラスに明示的にブートストラップが指定されていない場合、<code class="docutils literal"><span class="pre">&#64;WebAppConfiguration</span></code>があれば
+<code class="docutils literal"><span class="pre">org.springframework.test.context.web.WebTestContextBootstrapper</span></code>クラス、指定されていなければ
+<code class="docutils literal"><span class="pre">org.springframework.test.context.support.DefaultTestContextBootstrapper</span></code>クラスが呼び出される。</div>
+</div>
+</td>
+</tr>
+<tr class="row-even"><td><div class="first last line-block">
+<div class="line">(5)</div>
+</div>
+</td>
+<td><div class="first last line-block">
+<div class="line"><code class="docutils literal"><span class="pre">MergedContextConfiguration</span></code>クラスのビルド処理で<code class="docutils literal"><span class="pre">org.springframework.test.context.SmartContextLoader</span></code>インタフェースの実装クラスが呼び出される。</div>
+</div>
+</td>
+</tr>
+<tr class="row-odd"><td><div class="first last line-block">
+<div class="line">(6)</div>
+</div>
+</td>
+<td><div class="first last line-block">
+<div class="line">ブートストラップに<code class="docutils literal"><span class="pre">WebTestContextBootstrapper</span></code>クラスが使用されている場合は
+<code class="docutils literal"><span class="pre">org.springframework.test.context.web.WebDelegatingSmartContextLoader</span></code>クラス、
+<code class="docutils literal"><span class="pre">DefaultTestContextBootstrapper</span></code>クラスが使用されている場合は
+<code class="docutils literal"><span class="pre">org.springframework.test.context.support.DelegatingSmartContextLoader</span></code>クラスが<code class="docutils literal"><span class="pre">SmartContextLoader</span></code>インタフェースの実装クラスとして呼び出される。
+<code class="docutils literal"><span class="pre">SmartContextLoader</span></code>インタフェースの実装クラスでテストクラスの<code class="docutils literal"><span class="pre">&#64;ContextConfiguration</span></code>で指定された
+ApplicationContextをロードする。</div>
+</div>
+</td>
+</tr>
+<tr class="row-even"><td><div class="first last line-block">
+<div class="line">(7)</div>
+</div>
+</td>
+<td><div class="first last line-block">
+<div class="line">ブートストラップで取得した<code class="docutils literal"><span class="pre">MergedContextConfiguration</span></code>クラスを使用して
+<code class="docutils literal"><span class="pre">org.springframework.test.context.TestContext</span></code>インタフェースの実装クラスである
+<code class="docutils literal"><span class="pre">org.springframework.test.context.support.DefaultTestContext</span></code>クラスを生成する。</div>
+</div>
+</td>
+</tr>
+<tr class="row-odd"><td><div class="first last line-block">
+<div class="line">(8)</div>
+</div>
+</td>
+<td><div class="first line-block">
+<div class="line"><code class="docutils literal"><span class="pre">TestContextManager</span></code>クラスにテストクラスの<code class="docutils literal"><span class="pre">&#64;TestExecutionListeners</span></code>で指定された
+<code class="docutils literal"><span class="pre">org.springframework.test.context.TestExecutionListener</span></code>インタフェースを登録し、以下のエントリポイントで
+<code class="docutils literal"><span class="pre">TestExecutionListener</span></code>の処理を呼び出す。</div>
+</div>
+<blockquote>
+<div><ul class="simple">
+<li>テストケースの全テストメソッド実行前（<code class="docutils literal"><span class="pre">&#64;BeforeClass</span></code>）</li>
+<li>テストインスタンスの生成後</li>
+<li>各テストメソッドの実行前（<code class="docutils literal"><span class="pre">&#64;Before</span></code>）</li>
+<li>各テストメソッドの実行後（<code class="docutils literal"><span class="pre">&#64;After</span></code>）</li>
+<li>テストケースの全テストメソッド実行後（<code class="docutils literal"><span class="pre">&#64;AfterClass</span></code>）</li>
+</ul>
+</div></blockquote>
+<div class="last line-block">
+<div class="line">トランザクションの管理やテストデータのセットアップ処理は、<code class="docutils literal"><span class="pre">TestExecutionListener</span></code>の処理によって行われる。</div>
+<div class="line"><code class="docutils literal"><span class="pre">TestExecutionListener</span></code>の登録については<a class="reference internal" href="#usageoflibraryfortestregistrationoftestexecutionlistener"><span class="std std-ref">TestExecutionListenerの登録</span></a>を参照されたい。</div>
+</div>
+</td>
+</tr>
+</tbody>
+</table>
+<div class="line-block">
+<div class="line"><br /></div>
+</div>
+<div class="section" id="spring-testdi">
+<span id="usageoflibraryfortestdiofspringtest"></span><h4><a class="toc-backref" href="#id31">10.2.4.1.1.1. Spring TestのDI機能</a><a class="headerlink" href="#spring-testdi" title="Permalink to this headline">¶</a></h4>
+<p>テストケースの<code class="docutils literal"><span class="pre">&#64;ContextConfiguration</span></code>に設定ファイルを指定すると、<code class="docutils literal"><span class="pre">SpringJUnit4ClassRunner</span></code>にデフォルトで
+設定されている<code class="docutils literal"><span class="pre">DependencyInjectionTestExecutionListener</span></code>の処理によってテスト実行時にSpringのDI機能を利用することが
+できる。</p>
+<p>以下に<code class="docutils literal"><span class="pre">&#64;ContextConfiguration</span></code>を使用して設定ファイルを読み込む例を示す。
+ここでは、アプリケーションで使用する<code class="docutils literal"><span class="pre">sample-infra.xml</span></code>を使用してテスト対象の
+<code class="docutils literal"><span class="pre">com.example.domain.repository.member.MemberRepository</span></code>をインジェクションしている。</p>
+<ul class="simple">
+<li><code class="docutils literal"><span class="pre">sample-infra.xml</span></code></li>
+</ul>
+<div class="highlight-xml"><div class="highlight"><pre><span></span><span class="cp">&lt;?xml version=&quot;1.0&quot; encoding=&quot;UTF-8&quot;?&gt;</span>
+<span class="nt">&lt;beans</span> <span class="na">xmlns=</span><span class="s">&quot;http://www.springframework.org/schema/beans&quot;</span>
+    <span class="na">xmlns:mybatis=</span><span class="s">&quot;http://mybatis.org/schema/mybatis-spring&quot;</span>
+    <span class="na">xmlns:xsi=</span><span class="s">&quot;http://www.w3.org/2001/XMLSchema-instance&quot;</span>
+    <span class="na">xsi:schemaLocation=</span><span class="s">&quot;</span>
+<span class="s">        http://www.springframework.org/schema/beans https://www.springframework.org/schema/beans/spring-beans.xsd</span>
+<span class="s">        http://mybatis.org/schema/mybatis-spring http://mybatis.org/schema/mybatis-spring.xsd</span>
+<span class="s">    &quot;</span><span class="nt">&gt;</span>
+
+  <span class="nt">&lt;import</span> <span class="na">resource=</span><span class="s">&quot;classpath:/META-INF/spring/sample-env.xml&quot;</span> <span class="nt">/&gt;</span>
+
+    <span class="c">&lt;!-- define the SqlSessionFactory --&gt;</span>
+    <span class="nt">&lt;bean</span> <span class="na">id=</span><span class="s">&quot;sqlSessionFactory&quot;</span> <span class="na">class=</span><span class="s">&quot;org.mybatis.spring.SqlSessionFactoryBean&quot;</span><span class="nt">&gt;</span>
+        <span class="nt">&lt;property</span> <span class="na">name=</span><span class="s">&quot;dataSource&quot;</span> <span class="na">ref=</span><span class="s">&quot;dataSource&quot;</span> <span class="nt">/&gt;</span>
+        <span class="nt">&lt;property</span> <span class="na">name=</span><span class="s">&quot;configLocation&quot;</span> <span class="na">value=</span><span class="s">&quot;classpath:/META-INF/mybatis/mybatis-config.xml&quot;</span> <span class="nt">/&gt;</span>
+    <span class="nt">&lt;/bean&gt;</span>
+
+    <span class="c">&lt;!-- scan for Mappers --&gt;</span>
+    <span class="nt">&lt;mybatis:scan</span> <span class="na">base-package=</span><span class="s">&quot;com.example.domain.repository&quot;</span> <span class="nt">/&gt;</span>
+
+<span class="nt">&lt;/beans&gt;</span>
+</pre></div>
+</div>
+<ul class="simple">
+<li><code class="docutils literal"><span class="pre">MemberRepositoryTest.java</span></code></li>
+</ul>
+<div class="highlight-java"><div class="highlight"><pre><span></span><span class="nd">@RunWith</span><span class="p">(</span><span class="n">SpringJUnit4ClassRunner</span><span class="p">.</span><span class="na">class</span><span class="p">)</span>
+<span class="nd">@ContextConfiguration</span><span class="p">(</span><span class="n">locations</span> <span class="o">=</span> <span class="p">{</span>
+        <span class="s">&quot;classpath:META-INF/spring/sample-infra.xml&quot;</span> <span class="p">})</span> <span class="c1">//(1)</span>
+<span class="nd">@Transactional</span>
+<span class="kd">public</span> <span class="kd">class</span> <span class="nc">MemberRepositoryTest</span> <span class="p">{</span>
+
+    <span class="nd">@Inject</span>
+    <span class="n">MemberRepository</span> <span class="n">target</span><span class="p">;</span> <span class="c1">// (2)</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+<table border="1" class="colwidths-given docutils">
+<colgroup>
+<col width="10%" />
+<col width="90%" />
+</colgroup>
+<thead valign="bottom">
+<tr class="row-odd"><th class="head">項番</th>
+<th class="head">説明</th>
+</tr>
+</thead>
+<tbody valign="top">
+<tr class="row-even"><td><div class="first last line-block">
+<div class="line">(1)</div>
+</div>
+</td>
+<td><div class="first last line-block">
+<div class="line"><code class="docutils literal"><span class="pre">&#64;ContextConfiguration</span></code>に<code class="docutils literal"><span class="pre">sample-infra.xml</span></code>を指定する。</div>
+</div>
+</td>
+</tr>
+<tr class="row-odd"><td><div class="first last line-block">
+<div class="line">(2)</div>
+</div>
+</td>
+<td><div class="first last line-block">
+<div class="line"><code class="docutils literal"><span class="pre">sample-infra.xml</span></code>に定義された<code class="docutils literal"><span class="pre">&lt;mybatis:scan&gt;</span></code>でBean登録されている<code class="docutils literal"><span class="pre">MemberRepository</span></code>を
+インジェクションする。</div>
+</div>
+</td>
+</tr>
+</tbody>
+</table>
+</div>
+<div class="section" id="testexecutionlistener">
+<span id="usageoflibraryfortestregistrationoftestexecutionlistener"></span><h4><a class="toc-backref" href="#id32">10.2.4.1.1.2. TestExecutionListenerの登録</a><a class="headerlink" href="#testexecutionlistener" title="Permalink to this headline">¶</a></h4>
+<p>テストケースに<code class="docutils literal"><span class="pre">&#64;TestExecutionListeners</span></code>アノテーションを明示的に指定しない場合、Spring Testが提供している以下の
+<code class="docutils literal"><span class="pre">org.springframework.test.context.TestExecutionListener</span></code>インタフェースの実装クラスがデフォルトで登録される。</p>
+<p>なお、<code class="docutils literal"><span class="pre">&#64;TestExecutionListeners</span></code>アノテーションを明示的に指定しない場合、デフォルトで登録される
+<code class="docutils literal"><span class="pre">TestExecutionListener</span></code>はOrderを持っており、呼び出し順は下記表の順に固定されている。
+<code class="docutils literal"><span class="pre">TestExecutionListener</span></code>が個別に指定された場合は、指定された順番通りに呼び出される。</p>
+<table border="1" class="colwidths-given docutils">
+<colgroup>
+<col width="50%" />
+<col width="50%" />
+</colgroup>
+<thead valign="bottom">
+<tr class="row-odd"><th class="head">TestExecutionListenerの実装クラス</th>
+<th class="head">説明</th>
+</tr>
+</thead>
+<tbody valign="top">
+<tr class="row-even"><td>ServletTestExecutionListener</td>
+<td><code class="docutils literal"><span class="pre">WebApplicationContext</span></code>のテストをサポートするモックサーブレットAPIを設定する機能を提供している。</td>
+</tr>
+<tr class="row-odd"><td>DirtiesContextBeforeModesTestExecutionListener</td>
+<td>テストで使用するDIコンテナのライフサイクル管理機能を提供している。
+テストクラスまたはテストメソッドの実行前に呼び出される。</td>
+</tr>
+<tr class="row-even"><td>DependencyInjectionTestExecutionLiLstener</td>
+<td>テストで使用するインスタンスへのDI機能を提供している。</td>
+</tr>
+<tr class="row-odd"><td>DirtiesContextTestExecutionListener</td>
+<td>テストで使用するDIコンテナのライフサイクル管理機能を提供している。
+テストクラスまたはテストメソッドの実行後に呼び出される。</td>
+</tr>
+<tr class="row-even"><td>TransactionalTestExecutionListener</td>
+<td>テスト実行時のトランザクション管理機能を提供している。</td>
+</tr>
+<tr class="row-odd"><td>SqlScriptsTestExecutionListener</td>
+<td><code class="docutils literal"><span class="pre">&#64;Sql</span></code>アノテーションで指定されているSQLを実行する機能を提供している。</td>
+</tr>
+</tbody>
+</table>
+<p>各<code class="docutils literal"><span class="pre">TestExecutionListener</span></code>の詳細は<a class="reference external" href="https://docs.spring.io/spring/docs/5.2.20.RELEASE/spring-framework-reference/testing.html#testcontext-tel-config">Spring Framework Documentation -TestExecutionListener Configuration-</a>を参照されたい。</p>
+<p><code class="docutils literal"><span class="pre">TestExecutionListener</span></code>は通常、デフォルト設定から変更する必要はないが、テストライブラリが独自に
+提供している<code class="docutils literal"><span class="pre">TestExecutionListener</span></code>を使用する場合は<code class="docutils literal"><span class="pre">&#64;TestExecutionListeners</span></code>アノテーションを使用して
+<code class="docutils literal"><span class="pre">TestContextManager</span></code>に登録する必要がある。</p>
+<p>ここでは例として、Spring Test DBUnitが提供する<code class="docutils literal"><span class="pre">TransactionDbUnitTestExecutionListener</span></code>を登録する方法を説明する。</p>
+<ul class="simple">
+<li><code class="docutils literal"><span class="pre">MemberRepositoryDbunitTest.java</span></code></li>
+</ul>
+<div class="highlight-java"><div class="highlight"><pre><span></span><span class="nd">@TestExecutionListeners</span><span class="p">({</span>                               <span class="c1">// (1)</span>
+        <span class="n">DirtiesContextBeforeModesTestExecutionListener</span><span class="p">.</span><span class="na">class</span><span class="p">,</span>
+        <span class="n">DependencyInjectionTestExecutionListener</span><span class="p">.</span><span class="na">class</span><span class="p">,</span>
+        <span class="n">DirtiesContextTestExecutionListener</span><span class="p">.</span><span class="na">class</span><span class="p">,</span>
+        <span class="n">TransactionDbUnitTestExecutionListener</span><span class="p">.</span><span class="na">class</span><span class="p">})</span>  <span class="c1">// (2)</span>
+<span class="nd">@Transactional</span>
+<span class="kd">public</span> <span class="kd">class</span> <span class="nc">MemberRepositoryDbunitTest</span> <span class="p">{</span>
+</pre></div>
+</div>
+<table border="1" class="colwidths-given docutils">
+<colgroup>
+<col width="10%" />
+<col width="90%" />
+</colgroup>
+<thead valign="bottom">
+<tr class="row-odd"><th class="head">項番</th>
+<th class="head">説明</th>
+</tr>
+</thead>
+<tbody valign="top">
+<tr class="row-even"><td><div class="first last line-block">
+<div class="line">(1)</div>
+</div>
+</td>
+<td><div class="first last line-block">
+<div class="line">クラスレベルに<code class="docutils literal"><span class="pre">&#64;TestExecutionListeners</span></code>アノテーションを付けて<code class="docutils literal"><span class="pre">TestExecutionListener</span></code>インタフェース
+の実装クラスを指定することで、テスト実行時に指定した<code class="docutils literal"><span class="pre">TestExecutionListener</span></code>の処理を呼び出すことができる。
+詳細は<a class="reference external" href="https://docs.spring.io/spring/docs/5.2.20.RELEASE/javadoc-api/org/springframework/test/context/TestExecutionListeners.html">&#64;TestExecutionListenersのJavadoc</a>を参照されたい。</div>
+</div>
+</td>
+</tr>
+<tr class="row-odd"><td><div class="first last line-block">
+<div class="line">(2)</div>
+</div>
+</td>
+<td><div class="first last line-block">
+<div class="line"><code class="docutils literal"><span class="pre">TransactionDbUnitTestExecutionListener</span></code>はSpring Test DBUnitが提供する<code class="docutils literal"><span class="pre">TestExecutionListener</span></code>インタフェースの実装クラスである。<code class="docutils literal"><span class="pre">&#64;DatabaseSetup</span></code>や<code class="docutils literal"><span class="pre">&#64;ExpectedDatabase</span></code>、<code class="docutils literal"><span class="pre">&#64;DatabaseTearDown</span></code>などのアノテーションを使用したデータのセットアップ、検証、後処理の機能を提供している。</div>
+<div class="line"><code class="docutils literal"><span class="pre">TransactionDbUnitTestExecutionListener</span></code>は内部で<code class="docutils literal"><span class="pre">TransactionalTestExecutionListener</span></code>と
+<code class="docutils literal"><span class="pre">com.github.springtestdbunit.DbUnitTestExecutionListener</span></code>をチェインしている。</div>
+</div>
+</td>
+</tr>
+</tbody>
+</table>
+<div class="admonition warning">
+<p class="first admonition-title">Warning</p>
+<p><strong>DbUnitTestExecutionListenerの注意点</strong></p>
+<p class="last">テストケース内で<code class="docutils literal"><span class="pre">&#64;Transactional</span></code>を指定せずにSpring Test DBUnitの提供する<code class="docutils literal"><span class="pre">DbUnitTestExecutionListener</span></code>を
+使用した場合、<code class="docutils literal"><span class="pre">&#64;DatabaseSetup</span></code>などのアノテーションのトランザクションと、テスト対象クラスのトランザクションは別に
+なるため、データのセットアップが反映されないなど正常に動作しない可能性があることに注意されたい。なお、テストケース内で
+<code class="docutils literal"><span class="pre">&#64;Transactional</span></code>を指定する場合は<code class="docutils literal"><span class="pre">DbUnitTestExecutionListener</span></code>の代わりに
+<code class="docutils literal"><span class="pre">TransactionDbUnitTestExecutionListener</span></code>が提供されているため、そちらを使用する必要がある。</p>
+</div>
+<div class="line-block">
+<div class="line"><br /></div>
+</div>
+</div>
+</div>
+</div>
+<div class="section" id="mockmvc">
+<h2><a class="toc-backref" href="#id33">10.2.4.2. MockMvc</a><a class="headerlink" href="#mockmvc" title="Permalink to this headline">¶</a></h2>
+<p><code class="docutils literal"><span class="pre">MockMvc</span></code>は、本来Spring Testの機能に含まれるが、
+本章ではアプリケーション層の単体テストにおいて使用しているため、
+Spring Testの説明と切り出して詳しく説明する。</p>
+<div class="section" id="usageoflibraryfortestmockmvcoverview">
+<span id="id3"></span><h3><a class="toc-backref" href="#id34">10.2.4.2.1. MockMvcとは</a><a class="headerlink" href="#usageoflibraryfortestmockmvcoverview" title="Permalink to this headline">¶</a></h3>
+<p>Spring Testには、Spring MVC フレームワークと結合した状態でテストするための仕組みとして、
+<code class="docutils literal"><span class="pre">org.springframework.test.web.servlet.MockMvc</span></code>クラスを提供している。
+<code class="docutils literal"><span class="pre">MockMvc</span></code>を使用すると、アプリケーションサーバ上にデプロイすることなくSpring MVCの動作を再現できるため、
+サーバやデータベースを用意する手間を省くことができる。
+なお、Spring MVCの詳細については<a class="reference internal" href="../../Overview/SpringMVCOverview.html#springmvcoverview"><span class="std std-ref">Overview of Spring MVC Processing Sequence</span></a>を参照されたい。</p>
+<p>テスト実行時にリクエストを受けてから、レスポンスを返すまでの
+<code class="docutils literal"><span class="pre">MockMvc</span></code>の処理フローを、以下の図に示す。</p>
+<div class="figure">
+<a class="reference internal image-reference" href="../../_images/UsageOfLibraryForTestMockMvcProcessFlow.png"><img alt="../../_images/UsageOfLibraryForTestMockMvcProcessFlow.png" src="../../_images/UsageOfLibraryForTestMockMvcProcessFlow.png" style="width: 95%;" /></a>
+</div>
+<table border="1" class="colwidths-given docutils">
+<colgroup>
+<col width="10%" />
+<col width="90%" />
+</colgroup>
+<thead valign="bottom">
+<tr class="row-odd"><th class="head">項番</th>
+<th class="head">説明</th>
+</tr>
+</thead>
+<tbody valign="top">
+<tr class="row-even"><td><div class="first last line-block">
+<div class="line">(1)</div>
+</div>
+</td>
+<td><div class="first last line-block">
+<div class="line">テストメソッドは、Spring Testが用意した<code class="docutils literal"><span class="pre">org.springframework.test.web.servlet.TestDispatcherServlet</span></code>にリクエストするデータをセットアップする。</div>
+</div>
+</td>
+</tr>
+<tr class="row-odd"><td><div class="first last line-block">
+<div class="line">(2)</div>
+</div>
+</td>
+<td><div class="first last line-block">
+<div class="line"><code class="docutils literal"><span class="pre">MockMvc</span></code>は<code class="docutils literal"><span class="pre">TestDispatcherServlet</span></code>に疑似的なリクエストを行なう。</div>
+</div>
+</td>
+</tr>
+<tr class="row-even"><td><div class="first last line-block">
+<div class="line">(3)</div>
+</div>
+</td>
+<td><div class="first last line-block">
+<div class="line"><code class="docutils literal"><span class="pre">TestDispatcherServlet</span></code>は、リクエスト内容に一致する<code class="docutils literal"><span class="pre">Controller</span></code>のメソッドを呼び出す。</div>
+</div>
+</td>
+</tr>
+<tr class="row-odd"><td><div class="first last line-block">
+<div class="line">(4)</div>
+</div>
+</td>
+<td><div class="first last line-block">
+<div class="line">テストメソッドは、<code class="docutils literal"><span class="pre">MockMvc</span></code>から実行結果を受け取り、実行結果の妥当性を検証する。</div>
+</div>
+</td>
+</tr>
+</tbody>
+</table>
+<div class="line-block">
+<div class="line"><br /></div>
+</div>
+<p>また、<code class="docutils literal"><span class="pre">MockMvc</span></code>には2つの動作オプションが実装されている。
+テストを行う際は、それぞれの特性を把握し、用途毎に適したオプションを選択されたい。</p>
+<p>以下に、2つのオプションの概要を示す。</p>
+<table border="1" class="colwidths-given docutils">
+<colgroup>
+<col width="10%" />
+<col width="90%" />
+</colgroup>
+<thead valign="bottom">
+<tr class="row-odd"><th class="head">動作オプション</th>
+<th class="head">概要</th>
+</tr>
+</thead>
+<tbody valign="top">
+<tr class="row-even"><td><div class="first last line-block">
+<div class="line">webAppContextSetup</div>
+</div>
+</td>
+<td><div class="first last line-block">
+<div class="line"><code class="docutils literal"><span class="pre">spring-mvc.xml</span></code>などで定義したSpring MVC の設定を読み込み、
+<code class="docutils literal"><span class="pre">WebApplicationContext</span></code>を生成することで、デプロイ時とほぼ同じ状態でテストすることができる。</div>
+</div>
+</td>
+</tr>
+<tr class="row-odd"><td><div class="first last line-block">
+<div class="line">standaloneSetup</div>
+</div>
+</td>
+<td><div class="first last line-block">
+<div class="line"><code class="docutils literal"><span class="pre">Controller</span></code>にDIされているコンポーネントを、テストで利用する設定ファイルに定義することで、
+Spring Testが生成したDIコンテナを用いてテストを行うことができる。
+よって、Spring MVC のフレームワーク機能を利用しつつ、<code class="docutils literal"><span class="pre">Controller</span></code>のテストを単体テスト観点で行なうことができる。</div>
+</div>
+</td>
+</tr>
+</tbody>
+</table>
+<p>以下に、2つのオプションのメリット、デメリットを示す。</p>
+<table border="1" class="colwidths-given docutils">
+<colgroup>
+<col width="10%" />
+<col width="45%" />
+<col width="45%" />
+</colgroup>
+<thead valign="bottom">
+<tr class="row-odd"><th class="head">動作オプション</th>
+<th class="head">メリット</th>
+<th class="head">デメリット</th>
+</tr>
+</thead>
+<tbody valign="top">
+<tr class="row-even"><td><div class="first last line-block">
+<div class="line">webAppContextSetup</div>
+</div>
+</td>
+<td><div class="first last line-block">
+<div class="line">実際の稼働で使用する設定ファイルを読み込むことで、
+アプリケーションを動かさなければ確認できないこともデプロイなしで検証することができる。
+実際の設定ファイルを読み込みテストするため、設定ファイルが正しく作成されているかを確認することもできる。</div>
+<div class="line">また、Bean定義にモッククラスを指定しておけば、<code class="docutils literal"><span class="pre">Controller</span></code>にDIされる<code class="docutils literal"><span class="pre">Service</span></code>などをモック化することも可能である。</div>
+</div>
+</td>
+<td><div class="first last line-block">
+<div class="line">巨大なアプリケーションをテストする場合や、膨大なBean定義を読み込む場合は実行に時間がかかってしまう。
+そのため、デプロイする場合の設定ファイルから、必要な記述だけを抽出した設定ファイルを用意するなどの工夫が必要となる。</div>
+</div>
+</td>
+</tr>
+<tr class="row-odd"><td><div class="first last line-block">
+<div class="line">standaloneSetup</div>
+</div>
+</td>
+<td><div class="first last line-block">
+<div class="line">生成されるDIコンテナに特定の<code class="docutils literal"><span class="pre">Interceptor</span></code>や<code class="docutils literal"><span class="pre">Resolver</span></code>等を適用してテストを実施できる。
+そのため、Springの設定ファイルを参照せずコントローラ単体だけ見たい場合は、<code class="docutils literal"><span class="pre">webAppContextSetup</span></code>よりも実施コストが低い。</div>
+</div>
+</td>
+<td><div class="first last line-block">
+<div class="line"><code class="docutils literal"><span class="pre">Interceptor</span></code>や<code class="docutils literal"><span class="pre">Resolver</span></code>などを多く適用するテストにおける設定コストが高い。</div>
+<div class="line">また、あくまで<code class="docutils literal"><span class="pre">Contoroller</span></code>の単体テスト観点で動作するため、
+Spring MVC のフレームワーク機能と合わせて<code class="docutils literal"><span class="pre">Controller</span></code>のテストを行いたい場合は、
+<code class="docutils literal"><span class="pre">webAppContextSetup</span></code>でのテストを検討する必要があることに留意されたい。</div>
+</div>
+</td>
+</tr>
+</tbody>
+</table>
+</div>
+<div class="section" id="usageoflibraryfortestsettingmockmvc">
+<span id="id4"></span><h3><a class="toc-backref" href="#id35">10.2.4.2.2. MockMvcのセットアップ</a><a class="headerlink" href="#usageoflibraryfortestsettingmockmvc" title="Permalink to this headline">¶</a></h3>
+<p>ここでは<code class="docutils literal"><span class="pre">MockMvc</span></code>の2つのオプションについて、
+実際にテストで使用する際のセットアップ方法を説明する。</p>
+<div class="section" id="webappcontextsetup">
+<span id="usageoflibraryfortestsettingmockmvcwithwebappcontextsetup"></span><h4><a class="toc-backref" href="#id36">10.2.4.2.2.1. webAppContextSetupによるセットアップ</a><a class="headerlink" href="#webappcontextsetup" title="Permalink to this headline">¶</a></h4>
+<p>ここでは、<code class="docutils literal"><span class="pre">webAppContextSetup</span></code>でテストを行うためのセットアップ方法について説明する。</p>
+<p>MockMvcのセットアップ設定例を以下に示す。</p>
+<ul class="simple">
+<li>MockMvcのセットアップ設定例</li>
+</ul>
+<div class="highlight-java"><div class="highlight"><pre><span></span><span class="nd">@RunWith</span><span class="p">(</span><span class="n">SpringJUnit4ClassRunner</span><span class="p">.</span><span class="na">class</span><span class="p">)</span>
+<span class="nd">@ContextHierarchy</span><span class="p">({</span> <span class="nd">@ContextConfiguration</span><span class="p">({</span> <span class="c1">// (1)</span>
+        <span class="s">&quot;classpath:META-INF/spring/applicationContext.xml&quot;</span><span class="p">,</span>
+        <span class="s">&quot;classpath:META-INF/spring/spring-security.xml&quot;</span> <span class="p">}),</span>
+        <span class="nd">@ContextConfiguration</span><span class="p">(</span><span class="s">&quot;classpath:META-INF/spring/spring-mvc.xml&quot;</span><span class="p">)</span> <span class="p">})</span>
+<span class="nd">@WebAppConfiguration</span> <span class="c1">// (2)</span>
+<span class="kd">public</span> <span class="kd">class</span> <span class="nc">MemberRegisterControllerWebAppContextTest</span> <span class="p">{</span>
+
+    <span class="nd">@Inject</span>
+    <span class="n">WebApplicationContext</span> <span class="n">webApplicationContext</span><span class="p">;</span> <span class="c1">// (3)</span>
+
+    <span class="n">MockMvc</span> <span class="n">mockMvc</span><span class="p">;</span>
+
+    <span class="nd">@Before</span>
+    <span class="kd">public</span> <span class="kt">void</span> <span class="nf">setUp</span><span class="p">()</span> <span class="p">{</span>
+
+        <span class="n">mockMvc</span> <span class="o">=</span> <span class="n">MockMvcBuilders</span><span class="p">.</span><span class="na">webAppContextSetup</span><span class="p">(</span><span class="n">webApplicationContext</span><span class="p">)</span> <span class="c1">// (4)</span>
+                <span class="p">.</span><span class="na">alwaysDo</span><span class="p">(</span><span class="n">log</span><span class="p">()).</span><span class="na">build</span><span class="p">();</span>
+    <span class="p">}</span>
+
+    <span class="nd">@Test</span>
+    <span class="kd">public</span> <span class="kt">void</span> <span class="nf">testRegisterConfirm01</span><span class="p">()</span> <span class="kd">throws</span> <span class="n">Exception</span> <span class="p">{</span>
+
+        <span class="n">ResultActions</span> <span class="n">results</span> <span class="o">=</span> <span class="n">mockMvc</span><span class="p">.</span><span class="na">perform</span><span class="p">(</span><span class="n">post</span><span class="p">(</span><span class="s">&quot;/member/register&quot;</span><span class="p">)</span>
+                <span class="c1">// omitted</span>
+                <span class="p">.</span><span class="na">param</span><span class="p">(</span><span class="s">&quot;confirm&quot;</span><span class="p">,</span> <span class="s">&quot;&quot;</span><span class="p">);</span>
+
+        <span class="n">results</span><span class="p">.</span><span class="na">andExpect</span><span class="p">(</span><span class="n">status</span><span class="p">().</span><span class="na">is</span><span class="p">(</span><span class="mi">200</span><span class="p">));</span>
+
+        <span class="c1">// omitted</span>
+    <span class="p">}</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+<table border="1" class="colwidths-given docutils">
+<colgroup>
+<col width="10%" />
+<col width="90%" />
+</colgroup>
+<thead valign="bottom">
+<tr class="row-odd"><th class="head">項番</th>
+<th class="head">説明</th>
+</tr>
+</thead>
+<tbody valign="top">
+<tr class="row-even"><td><div class="first last line-block">
+<div class="line">(1)</div>
+</div>
+</td>
+<td><div class="first last line-block">
+<div class="line">テスト実行時に生成するDIコンテナの設定ファイルを指定する。
+DIコンテナの階層関係については、<code class="docutils literal"><span class="pre">&#64;org.springframework.test.context.ContextHierarchy</span></code>を使うことで再現することができる。
+DIコンテナの階層関係については<a class="reference internal" href="../../ImplementationAtEachLayer/CreateWebApplicationProject.html#createwebapplicationprojectappendixapplicationcontext"><span class="std std-ref">アプリケーションコンテキストの構成とBean定義ファイルの関係</span></a>を参照されたい。</div>
+</div>
+</td>
+</tr>
+<tr class="row-odd"><td><div class="first last line-block">
+<div class="line">(2)</div>
+</div>
+</td>
+<td><div class="first last line-block">
+<div class="line">Webアプリケーション向けのDIコンテナ（<code class="docutils literal"><span class="pre">WebApplicationContext</span></code>）が作成できるようになる。
+また、<code class="docutils literal"><span class="pre">&#64;WebAppConfiguration</span></code>を指定すると開発プロジェクト内の<code class="docutils literal"><span class="pre">src/main/webapp</span></code>がWebアプリケーションのルートディレクトリ
+になるが、これはMavenの標準構成と同じなので特別に設定を加える必要はない。</div>
+</div>
+</td>
+</tr>
+<tr class="row-even"><td><div class="first last line-block">
+<div class="line">(3)</div>
+</div>
+</td>
+<td><div class="first last line-block">
+<div class="line">テスト実行時に使用するDIコンテナをインジェクションする。</div>
+</div>
+</td>
+</tr>
+<tr class="row-odd"><td><div class="first last line-block">
+<div class="line">(4)</div>
+</div>
+</td>
+<td><div class="first last line-block">
+<div class="line">テスト実行時に使用するDIコンテナを指定して、MockMvcを生成する。</div>
+</div>
+</td>
+</tr>
+</tbody>
+</table>
+</div>
+<div class="section" id="standalonesetup">
+<h4><a class="toc-backref" href="#id37">10.2.4.2.2.2. standaloneSetupによるセットアップ</a><a class="headerlink" href="#standalonesetup" title="Permalink to this headline">¶</a></h4>
+<p>ここでは、<code class="docutils literal"><span class="pre">standaloneSetup</span></code>でテストを行うためのセットアップ方法について説明する。</p>
+<p>MockMvcのセットアップ設定例を以下に示す。</p>
+<ul class="simple">
+<li>MockMvcのセットアップ設定例</li>
+</ul>
+<div class="highlight-java"><div class="highlight"><pre><span></span><span class="nd">@RunWith</span><span class="p">(</span><span class="n">SpringJUnit4ClassRunner</span><span class="p">.</span><span class="na">class</span><span class="p">)</span>
+<span class="nd">@ContextConfiguration</span><span class="p">(</span><span class="n">locations</span> <span class="o">=</span> <span class="p">{</span>
+        <span class="s">&quot;classpath:META-INF/spring/applicationContext.xml&quot;</span><span class="p">,</span>
+        <span class="s">&quot;classpath:META-INF/spring/test-context.xml&quot;</span><span class="p">,</span>
+        <span class="s">&quot;classpath:META-INF/spring/spring-mvc-test.xml&quot;</span><span class="p">})</span>
+<span class="kd">public</span> <span class="kd">class</span> <span class="nc">MemberRegisterControllerStandaloneTest</span> <span class="p">{</span>
+
+    <span class="nd">@Inject</span>
+    <span class="n">MemberRegisterController</span> <span class="n">target</span><span class="p">;</span>
+
+    <span class="n">MockMvc</span> <span class="n">mockMvc</span><span class="p">;</span>
+
+    <span class="nd">@Before</span>
+    <span class="kd">public</span> <span class="kt">void</span> <span class="nf">setUp</span><span class="p">()</span> <span class="p">{</span>
+        <span class="n">mockMvc</span> <span class="o">=</span> <span class="n">MockMvcBuilders</span><span class="p">.</span><span class="na">standaloneSetup</span><span class="p">(</span><span class="n">target</span><span class="p">).</span><span class="na">alwaysDo</span><span class="p">(</span><span class="n">log</span><span class="p">()).</span><span class="na">build</span><span class="p">();</span> <span class="c1">// (1)</span>
+    <span class="p">}</span>
+
+    <span class="nd">@Test</span>
+    <span class="kd">public</span> <span class="kt">void</span> <span class="nf">testRegisterConfirm01</span><span class="p">()</span> <span class="kd">throws</span> <span class="n">Exception</span> <span class="p">{</span>
+
+        <span class="n">ResultActions</span> <span class="n">results</span> <span class="o">=</span> <span class="n">mockMvc</span><span class="p">.</span><span class="na">perform</span><span class="p">(</span><span class="n">post</span><span class="p">(</span><span class="s">&quot;/member/register&quot;</span><span class="p">)</span>
+                <span class="c1">// omitted</span>
+                <span class="p">.</span><span class="na">param</span><span class="p">(</span><span class="s">&quot;password&quot;</span><span class="p">,</span> <span class="s">&quot;testpassword&quot;</span><span class="p">)</span>
+                <span class="p">.</span><span class="na">param</span><span class="p">(</span><span class="s">&quot;reEnterPassword&quot;</span><span class="p">,</span> <span class="s">&quot;testpassword&quot;</span><span class="p">));</span>
+
+        <span class="n">results</span><span class="p">.</span><span class="na">andExpect</span><span class="p">(</span><span class="n">status</span><span class="p">().</span><span class="na">is</span><span class="p">(</span><span class="mi">200</span><span class="p">));</span>
+
+        <span class="c1">// omitted</span>
+    <span class="p">}</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+<table border="1" class="colwidths-given docutils">
+<colgroup>
+<col width="10%" />
+<col width="90%" />
+</colgroup>
+<thead valign="bottom">
+<tr class="row-odd"><th class="head">項番</th>
+<th class="head">説明</th>
+</tr>
+</thead>
+<tbody valign="top">
+<tr class="row-even"><td><div class="first last line-block">
+<div class="line">(1)</div>
+</div>
+</td>
+<td><div class="first last line-block">
+<div class="line">テスト対象の<code class="docutils literal"><span class="pre">Controller</span></code>を指定して、MockMvcを生成する。
+必要に応じて<code class="docutils literal"><span class="pre">org.springframework.test.web.servlet.setup.StandaloneMockMvcBuilder</span></code>のメソッドを呼び出して、
+Spring Testが生成するDIコンテナをカスタマイズすることができる。
+カスタマイズするためのメソッドについての詳細は、
+<a class="reference external" href="https://docs.spring.io/spring/docs/5.2.20.RELEASE/javadoc-api/org/springframework/test/web/servlet/setup/StandaloneMockMvcBuilder.html">StandaloneMockMvcBuilderのJavadoc</a>を参照されたい。</div>
+</div>
+</td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
+<div class="section" id="id5">
+<h3><a class="toc-backref" href="#id38">10.2.4.2.3. MockMvcによるテストの実装</a><a class="headerlink" href="#id5" title="Permalink to this headline">¶</a></h3>
+<p>ここではMockMvcによるテスト実行の流れとして、リクエストデータの設定から、
+リクエスト送信の実装方法、実行結果の検証、出力まで説明する。</p>
+<div class="section" id="usageoflibraryfortestsettingofrequestdata">
+<span id="id6"></span><h4><a class="toc-backref" href="#id39">10.2.4.2.3.1. リクエストデータの設定</a><a class="headerlink" href="#usageoflibraryfortestsettingofrequestdata" title="Permalink to this headline">¶</a></h4>
+<p>リクエストデータの設定は、<code class="docutils literal"><span class="pre">org.springframework.test.web.servlet.request.MockHttpServletRequestBuilder</span></code>や
+<code class="docutils literal"><span class="pre">org.springframework.test.web.servlet.request.MockMultipartHttpServletRequestBuilder</span></code>のファクトリメソッドを使用して行う。</p>
+<p>ここでは、2つのクラスのファクトリメソッドの中から主要なメソッドについて紹介する。
+詳細は、<a class="reference external" href="https://docs.spring.io/spring/docs/5.2.20.RELEASE/javadoc-api/org/springframework/test/web/servlet/request/MockHttpServletRequestBuilder.html">MockHttpServletRequestBuilder のJavadoc</a>または<a class="reference external" href="https://docs.spring.io/spring/docs/5.2.20.RELEASE/javadoc-api/org/springframework/test/web/servlet/request/MockMultipartHttpServletRequestBuilder.html">MockMultipartHttpServletRequestBuilder のJavadoc</a>を参照されたい。</p>
+<p></p>
+<table border="1" class="colwidths-given docutils" id="id21">
+<caption><span class="caption-text"><strong>MockHttpServletRequestBuilderの主なメソッド</strong></span><a class="headerlink" href="#id21" title="Permalink to this table">¶</a></caption>
+<colgroup>
+<col width="15%" />
+<col width="85%" />
+</colgroup>
+<thead valign="bottom">
+<tr class="row-odd"><th class="head">メソッド名</th>
+<th class="head">説明</th>
+</tr>
+</thead>
+<tbody valign="top">
+<tr class="row-even"><td><code class="docutils literal"><span class="pre">param</span></code>/ <code class="docutils literal"><span class="pre">params</span></code></td>
+<td>テスト実行時のリクエストに、リクエストパラメータを追加するメソッド。</td>
+</tr>
+<tr class="row-odd"><td><code class="docutils literal"><span class="pre">content</span></code></td>
+<td>テスト実行時のリクエストに、リクエストボディを追加するメソッド。</td>
+</tr>
+<tr class="row-even"><td><code class="docutils literal"><span class="pre">header</span></code>/ <code class="docutils literal"><span class="pre">headers</span></code></td>
+<td>テスト実行時のリクエストに、リクエストヘッダーを追加するメソッド。
+<code class="docutils literal"><span class="pre">contentType</span></code>や<code class="docutils literal"><span class="pre">accept</span></code>などの特定のヘッダーを指定するためのメソッドも提供されている。</td>
+</tr>
+<tr class="row-odd"><td><code class="docutils literal"><span class="pre">requestAttr</span></code></td>
+<td>リクエストスコープにオブジェクトを設定するメソッド。</td>
+</tr>
+<tr class="row-even"><td><code class="docutils literal"><span class="pre">flashAttr</span></code></td>
+<td>フラッシュスコープにオブジェクトを設定するメソッド。</td>
+</tr>
+<tr class="row-odd"><td><code class="docutils literal"><span class="pre">sessionAttr</span></code></td>
+<td>セッションスコープにオブジェクトを設定するメソッド。</td>
+</tr>
+<tr class="row-even"><td><code class="docutils literal"><span class="pre">cookie</span></code></td>
+<td>テスト実行時のリクエストに、指定したcookieを追加するメソッド。</td>
+</tr>
+</tbody>
+</table>
+<p></p>
+<table border="1" class="colwidths-given docutils" id="id22">
+<caption><span class="caption-text"><strong>MockMultipartHttpServletRequestBuilderの主なメソッド</strong></span><a class="headerlink" href="#id22" title="Permalink to this table">¶</a></caption>
+<colgroup>
+<col width="15%" />
+<col width="85%" />
+</colgroup>
+<thead valign="bottom">
+<tr class="row-odd"><th class="head">メソッド名</th>
+<th class="head">説明</th>
+</tr>
+</thead>
+<tbody valign="top">
+<tr class="row-even"><td><code class="docutils literal"><span class="pre">file</span></code></td>
+<td>テスト実行時のリクエストに、アップロードするファイルを設定するメソッド。</td>
+</tr>
+</tbody>
+</table>
+<p>ここでは、<code class="docutils literal"><span class="pre">param</span></code>メソッドを用いたリクエストデータの設定と、
+<code class="docutils literal"><span class="pre">post</span></code>メソッドを用いたリクエスト実行の例を示す。</p>
+<p>以下に、テスト対象の<code class="docutils literal"><span class="pre">Controller</span></code>の実装を示す。</p>
+<ul class="simple">
+<li>テスト対象の<code class="docutils literal"><span class="pre">Controller</span></code>クラス</li>
+</ul>
+<div class="highlight-java"><div class="highlight"><pre><span></span><span class="nd">@Controller</span>
+<span class="nd">@RequestMapping</span><span class="p">(</span><span class="s">&quot;member/register&quot;</span><span class="p">)</span>
+<span class="nd">@TransactionTokenCheck</span><span class="p">(</span><span class="s">&quot;member/register&quot;</span><span class="p">)</span>
+<span class="kd">public</span> <span class="kd">class</span> <span class="nc">MemberRegisterController</span> <span class="p">{</span>
+
+    <span class="nd">@RequestMapping</span><span class="p">(</span><span class="n">method</span> <span class="o">=</span> <span class="n">RequestMethod</span><span class="p">.</span><span class="na">POST</span><span class="p">,</span> <span class="n">params</span> <span class="o">=</span> <span class="s">&quot;confirm&quot;</span><span class="p">)</span>
+    <span class="kd">public</span> <span class="n">String</span> <span class="nf">registerConfirm</span><span class="p">(</span><span class="nd">@Validated</span> <span class="n">MemberRegisterForm</span> <span class="n">memberRegisterForm</span><span class="p">,</span>
+        <span class="n">BindingResult</span> <span class="n">result</span><span class="p">,</span> <span class="n">Model</span> <span class="n">model</span><span class="p">)</span> <span class="p">{</span>
+
+        <span class="c1">// omitted</span>
+
+        <span class="k">return</span> <span class="s">&quot;C1/memberRegisterConfirm&quot;</span><span class="p">;</span>
+    <span class="p">}</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+<p>以下に、リクエスト送信の実装例を示す。</p>
+<ul class="simple">
+<li>リクエスト送信の実装例</li>
+</ul>
+<div class="highlight-java"><div class="highlight"><pre><span></span><span class="nd">@Test</span>
+<span class="kd">public</span> <span class="kt">void</span> <span class="nf">testRegisterConfirm01</span><span class="p">()</span> <span class="kd">throws</span> <span class="n">Exception</span> <span class="p">{</span>
+    <span class="n">mockMvc</span><span class="p">.</span><span class="na">perform</span><span class="p">(</span>
+         <span class="n">post</span><span class="p">(</span><span class="s">&quot;/member/register&quot;</span><span class="p">)</span>
+        <span class="p">.</span><span class="na">param</span><span class="p">(</span><span class="s">&quot;confirm&quot;</span><span class="p">,</span> <span class="s">&quot;&quot;</span><span class="p">));</span> <span class="c1">// (1)</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+<table border="1" class="colwidths-given docutils">
+<colgroup>
+<col width="10%" />
+<col width="90%" />
+</colgroup>
+<thead valign="bottom">
+<tr class="row-odd"><th class="head">項番</th>
+<th class="head">説明</th>
+</tr>
+</thead>
+<tbody valign="top">
+<tr class="row-even"><td><div class="first last line-block">
+<div class="line">(1)</div>
+</div>
+</td>
+<td><div class="first last line-block">
+<div class="line"><code class="docutils literal"><span class="pre">form</span></code>をリクエストパラメータに持つリクエストデータを設定している。</div>
+</div>
+</td>
+</tr>
+</tbody>
+</table>
+</div>
+<div class="section" id="usageoflibraryfortestexecutionofrequest">
+<span id="id7"></span><h4><a class="toc-backref" href="#id40">10.2.4.2.3.2. リクエスト送信の実装</a><a class="headerlink" href="#usageoflibraryfortestexecutionofrequest" title="Permalink to this headline">¶</a></h4>
+<p>設定したリクエストデータを<code class="docutils literal"><span class="pre">MockMvc</span></code>の<code class="docutils literal"><span class="pre">perform</span></code>メソッドの引数として渡すことで、
+テストで利用するリクエストデータを設定し、<code class="docutils literal"><span class="pre">DispatcherServlet</span></code>に疑似的なリクエストを行なう。
+<code class="docutils literal"><span class="pre">MockMvcRequestBuilders</span></code>のメソッドには、<code class="docutils literal"><span class="pre">get</span></code>、<code class="docutils literal"><span class="pre">post</span></code>、<code class="docutils literal"><span class="pre">fileUpload</span></code>といったメソッドが、リクエストの種類ごとに提供されている。
+詳細は、<a class="reference external" href="https://docs.spring.io/spring/docs/5.2.20.RELEASE/javadoc-api/org/springframework/test/web/servlet/request/MockMvcRequestBuilders.html">MockMvcRequestBuilders のJavadoc</a>を参照されたい。</p>
+<p>以下に、リクエスト送信の実装例を示す。</p>
+<ul class="simple">
+<li>リクエスト送信の実装例</li>
+</ul>
+<div class="highlight-java"><div class="highlight"><pre><span></span><span class="nd">@Test</span>
+<span class="kd">public</span> <span class="kt">void</span> <span class="nf">testRegisterConfirm01</span><span class="p">()</span> <span class="kd">throws</span> <span class="n">Exception</span> <span class="p">{</span>
+    <span class="n">mockMvc</span><span class="p">.</span><span class="na">perform</span><span class="p">(</span> <span class="c1">// (1)</span>
+         <span class="n">post</span><span class="p">(</span><span class="s">&quot;/member/register&quot;</span><span class="p">)</span> <span class="c1">// (2)</span>
+        <span class="p">.</span><span class="na">param</span><span class="p">(</span><span class="s">&quot;confirm&quot;</span><span class="p">,</span> <span class="s">&quot;&quot;</span><span class="p">));</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+<table border="1" class="colwidths-given docutils">
+<colgroup>
+<col width="10%" />
+<col width="90%" />
+</colgroup>
+<thead valign="bottom">
+<tr class="row-odd"><th class="head">項番</th>
+<th class="head">説明</th>
+</tr>
+</thead>
+<tbody valign="top">
+<tr class="row-even"><td><div class="first last line-block">
+<div class="line">(1)</div>
+</div>
+</td>
+<td><div class="first last line-block">
+<div class="line">リクエストを実行し、返り値として実行結果の検証を行うための<code class="docutils literal"><span class="pre">ResultActions</span></code>クラスを返す。
+詳細は後述の<a class="reference internal" href="#usageoflibraryfortestimplementationofexecutionresultverification"><span class="std std-ref">実行結果検証の実装</span></a>を参照されたい。</div>
+</div>
+</td>
+</tr>
+<tr class="row-odd"><td><div class="first last line-block">
+<div class="line">(2)</div>
+</div>
+</td>
+<td><div class="first last line-block">
+<div class="line"><code class="docutils literal"><span class="pre">/ticket/search</span></code>へPOSTリクエストを実行するように設定している。</div>
+</div>
+</td>
+</tr>
+</tbody>
+</table>
+<div class="admonition warning">
+<p class="first admonition-title">Warning</p>
+<p><strong>テスト時のトランザクショントークンチェック、CSRFチェック</strong></p>
+<p class="last">テスト対象がトランザクショントークンチェックやCSRFチェックを利用している場合は、
+<code class="docutils literal"><span class="pre">mockMvc</span></code>のリクエストについてもチェックが適用されることに注意されたい。
+なお、本章では<code class="docutils literal"><span class="pre">spring-security</span></code>の設定は無効にしているため、CSRFチェックは行われていない。</p>
+</div>
+</div>
+<div class="section" id="usageoflibraryfortestimplementationofexecutionresultverification">
+<span id="id8"></span><h4><a class="toc-backref" href="#id41">10.2.4.2.3.3. 実行結果検証の実装</a><a class="headerlink" href="#usageoflibraryfortestimplementationofexecutionresultverification" title="Permalink to this headline">¶</a></h4>
+<p>実行結果の検証には、<code class="docutils literal"><span class="pre">org.springframework.test.web.servlet.ResultActions</span></code>の<code class="docutils literal"><span class="pre">andExpect</span></code>メソッドを使用する。
+<code class="docutils literal"><span class="pre">andExpect</span></code>メソッドの引数には<code class="docutils literal"><span class="pre">org.springframework.test.web.servlet.ResultMatcher</span></code>を指定する。
+Spring Testは、<code class="docutils literal"><span class="pre">org.springframework.test.web.servlet.result.MockMvcResultMatchers</span></code>のファクトリメソッドを介して
+さまざまな<code class="docutils literal"><span class="pre">ResultMatcher</span></code>を提供している。</p>
+<p>ここでは、<code class="docutils literal"><span class="pre">andExpect</span></code>メソッドの引数として、主要となる<code class="docutils literal"><span class="pre">MockMvcResultMatchers</span></code>のメソッドを紹介する。
+ここで紹介しないメソッドについては、
+<a class="reference external" href="https://docs.spring.io/spring/docs/5.2.20.RELEASE/javadoc-api/org/springframework/test/web/servlet/result/MockMvcResultMatchers.html">MockMvcResultMatchers のJavadoc</a>を参照されたい。</p>
+<p></p>
+<table border="1" class="colwidths-given docutils" id="id23">
+<caption><span class="caption-text"><strong>MockMvcResultMatchersの主なメソッド</strong></span><a class="headerlink" href="#id23" title="Permalink to this table">¶</a></caption>
+<colgroup>
+<col width="15%" />
+<col width="85%" />
+</colgroup>
+<thead valign="bottom">
+<tr class="row-odd"><th class="head">メソッド名</th>
+<th class="head">説明</th>
+</tr>
+</thead>
+<tbody valign="top">
+<tr class="row-even"><td><code class="docutils literal"><span class="pre">status</span></code></td>
+<td>HTTPステータスコードを検証するメソッド。</td>
+</tr>
+<tr class="row-odd"><td><code class="docutils literal"><span class="pre">view</span></code></td>
+<td><code class="docutils literal"><span class="pre">Controller</span></code>が返却したView名を検証するメソッド。</td>
+</tr>
+<tr class="row-even"><td><code class="docutils literal"><span class="pre">model</span></code></td>
+<td>Spring MVCの<code class="docutils literal"><span class="pre">Model</span></code>について検証するメソッド</td>
+</tr>
+<tr class="row-odd"><td><code class="docutils literal"><span class="pre">request</span></code></td>
+<td>リクエストスコープおよびセッションスコープの状態、
+Servlet 3.0からサポートされている非同期処理の処理状態を検証するメソッド。</td>
+</tr>
+<tr class="row-even"><td><code class="docutils literal"><span class="pre">flash</span></code></td>
+<td>フラッシュスコープの状態を検証するメソッド。</td>
+</tr>
+<tr class="row-odd"><td><code class="docutils literal"><span class="pre">redirectedUrl</span></code></td>
+<td>リダイレクト先のパスを検証するメソッド。
+<code class="docutils literal"><span class="pre">redirectedUrlPattern</span></code>メソッドを用いたパターンによる検証も提供されている。</td>
+</tr>
+<tr class="row-even"><td><code class="docutils literal"><span class="pre">fowardedUrl</span></code></td>
+<td>フォワード先のパスを検証するメソッド。
+<code class="docutils literal"><span class="pre">forwardedUrlPattern</span></code>メソッドを用いたパターンによる検証も提供されている。</td>
+</tr>
+<tr class="row-odd"><td><code class="docutils literal"><span class="pre">content</span></code></td>
+<td>レスポンスボディの中身を検証するメソッド。
+jsonPathやxPathなどの特定のコンテンツ向けのメソッドも提供されている。</td>
+</tr>
+<tr class="row-even"><td><code class="docutils literal"><span class="pre">header</span></code></td>
+<td>レスポンスヘッダーの状態を検証するメソッド。</td>
+</tr>
+<tr class="row-odd"><td><code class="docutils literal"><span class="pre">cookie</span></code></td>
+<td>cookieの状態を検証するメソッド。</td>
+</tr>
+</tbody>
+</table>
+<p>以下に、テストの実行結果検証の実装例を示す。</p>
+<ul class="simple">
+<li>実行結果検証の実装例</li>
+</ul>
+<div class="highlight-java"><div class="highlight"><pre><span></span><span class="nd">@Test</span>
+<span class="kd">public</span> <span class="kt">void</span> <span class="nf">testRegisterConfirm01</span><span class="p">()</span> <span class="kd">throws</span> <span class="n">Exception</span> <span class="p">{</span>
+    <span class="n">mockMvc</span><span class="p">.</span><span class="na">perform</span><span class="p">(</span><span class="n">post</span><span class="p">(</span><span class="s">&quot;/member/register&quot;</span><span class="p">)</span>
+        <span class="p">.</span><span class="na">param</span><span class="p">(</span><span class="s">&quot;confirm&quot;</span><span class="p">,</span> <span class="s">&quot;&quot;</span><span class="p">));</span>
+        <span class="p">.</span><span class="na">andExpect</span><span class="p">(</span><span class="n">status</span><span class="p">().</span><span class="na">is</span><span class="p">(</span><span class="mi">302</span><span class="p">))</span> <span class="c1">// (1)</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+<table border="1" class="colwidths-given docutils">
+<colgroup>
+<col width="10%" />
+<col width="90%" />
+</colgroup>
+<thead valign="bottom">
+<tr class="row-odd"><th class="head">項番</th>
+<th class="head">説明</th>
+</tr>
+</thead>
+<tbody valign="top">
+<tr class="row-even"><td><div class="first last line-block">
+<div class="line">(1)</div>
+</div>
+</td>
+<td><div class="first last line-block">
+<div class="line">テスト実行時のリクエストデータを設定している。
+<code class="docutils literal"><span class="pre">andExpect</span></code>メソッドは<code class="docutils literal"><span class="pre">ResultActions</span></code>からチェーンして記述することができるため、
+IDEの補完機能によってコーディングの負担を減らすことができる。</div>
+</div>
+</td>
+</tr>
+</tbody>
+</table>
+<div class="admonition warning">
+<p class="first admonition-title">Warning</p>
+<p><strong>Modelの検証とアサーションライブラリ</strong></p>
+<p>Spring Testでは<code class="docutils literal"><span class="pre">Model</span></code>の検証として、<code class="docutils literal"><span class="pre">model</span></code>メソッドにチェーンする形で
+<code class="docutils literal"><span class="pre">org.springframework.test.web.servlet.result.ModelResultMatchers</span></code>の<code class="docutils literal"><span class="pre">attribute</span></code>メソッドを使用することが
+できる。このメソッドを用いることで<code class="docutils literal"><span class="pre">Model</span></code>の中身を検証することができるが、引数としてHamcrestの
+<code class="docutils literal"><span class="pre">org.hamcrest.Matcher</span></code>を使用するため、Hamcrest以外のアサーションライブラリを使用する場合は注意されたい。</p>
+<p>Hamcrest以外のアサーションライブラリを併用する場合は、<code class="docutils literal"><span class="pre">MvcResult</span></code>から<code class="docutils literal"><span class="pre">ModelAndView</span></code>オブジェクトを取得し、
+さらに<code class="docutils literal"><span class="pre">ModelAndView</span></code>オブジェクトから<code class="docutils literal"><span class="pre">Model</span></code>に格納されたオブジェクトを取得することで、使用している
+アサーションライブラリを使って<code class="docutils literal"><span class="pre">Model</span></code>を検証することができる。</p>
+<p>以下に<code class="docutils literal"><span class="pre">ModelAndView</span></code>オブジェクトから取得した<code class="docutils literal"><span class="pre">Model</span></code>の検証例を示す。</p>
+<blockquote class="last">
+<div><div class="highlight-java"><div class="highlight"><pre><span></span><span class="nd">@Test</span>
+<span class="kd">public</span> <span class="kt">void</span> <span class="nf">testRegisterConfirm01</span><span class="p">()</span> <span class="kd">throws</span> <span class="n">Exception</span> <span class="p">{</span>
+    <span class="n">MvcResult</span> <span class="n">mvcResult</span> <span class="o">=</span> <span class="n">mockMvc</span><span class="p">.</span><span class="na">perform</span><span class="p">(</span><span class="n">post</span><span class="p">(</span><span class="s">&quot;/member/register&quot;</span><span class="p">).</span><span class="na">param</span><span class="p">(</span><span class="s">&quot;confirm&quot;</span><span class="p">,</span> <span class="s">&quot;&quot;</span><span class="p">)</span>
+                <span class="p">.</span><span class="na">param</span><span class="p">(</span><span class="s">&quot;kanjiFamilyName&quot;</span><span class="p">,</span> <span class="s">&quot;電電&quot;</span><span class="p">)</span>
+                <span class="p">.</span><span class="na">andExpect</span><span class="p">(</span><span class="n">status</span><span class="p">().</span><span class="na">is</span><span class="p">(</span><span class="mi">200</span><span class="p">))</span>
+                <span class="p">.</span><span class="na">andReturn</span><span class="p">();</span> <span class="c1">// (1)</span>
+
+    <span class="n">ModelAndView</span> <span class="n">mav</span> <span class="o">=</span> <span class="n">mvcResult</span><span class="p">.</span><span class="na">getModelAndView</span><span class="p">();</span> <span class="c1">// (2)</span>
+
+    <span class="n">MemberRegisterForm</span> <span class="n">actForm</span> <span class="o">=</span> <span class="p">(</span><span class="n">MemberRegisterForm</span><span class="p">)</span> <span class="n">mav</span><span class="p">.</span><span class="na">getModel</span><span class="p">().</span><span class="na">get</span><span class="p">(</span><span class="s">&quot;memberRegisterForm&quot;</span><span class="p">);</span>
+
+    <span class="n">assertThat</span><span class="p">(</span><span class="n">actForm</span><span class="p">.</span><span class="na">getKanjiFamilyName</span><span class="p">(),</span> <span class="n">is</span><span class="p">(</span><span class="s">&quot;電電&quot;</span><span class="p">));</span>
+    <span class="c1">// omitted</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+<table border="1" class="colwidths-given docutils">
+<colgroup>
+<col width="10%" />
+<col width="90%" />
+</colgroup>
+<thead valign="bottom">
+<tr class="row-odd"><th class="head">項番</th>
+<th class="head">説明</th>
+</tr>
+</thead>
+<tbody valign="top">
+<tr class="row-even"><td><div class="first last line-block">
+<div class="line">(1)</div>
+</div>
+</td>
+<td><div class="first last line-block">
+<div class="line"><code class="docutils literal"><span class="pre">ResultActions</span></code>の<code class="docutils literal"><span class="pre">andReturn</span></code>メソッドを使用して <code class="docutils literal"><span class="pre">MvcResult</span></code>オブジェクトを取得する。</div>
+</div>
+</td>
+</tr>
+<tr class="row-odd"><td><div class="first last line-block">
+<div class="line">(2)</div>
+</div>
+</td>
+<td><div class="first last line-block">
+<div class="line"><code class="docutils literal"><span class="pre">MvcResult</span></code>から<code class="docutils literal"><span class="pre">ModelAndView</span></code>オブジェクトを取得し、<code class="docutils literal"><span class="pre">ModelAndView</span></code>オブジェクトから
+<code class="docutils literal"><span class="pre">Model</span></code>に格納されたオブジェクトを取得して<code class="docutils literal"><span class="pre">Model</span></code>の検証を行う。</div>
+</div>
+</td>
+</tr>
+</tbody>
+</table>
+</div></blockquote>
+</div>
+</div>
+<div class="section" id="id9">
+<h4><a class="toc-backref" href="#id42">10.2.4.2.3.4. 実行結果出力の実装</a><a class="headerlink" href="#id9" title="Permalink to this headline">¶</a></h4>
+<p>テスト実行時のログ出力などを有効化する場合は、<code class="docutils literal"><span class="pre">ResultActions</span></code>の<code class="docutils literal"><span class="pre">alwaysDo</span></code>メソッドや<code class="docutils literal"><span class="pre">andDo</span></code>メソッドを使う。
+ログの出力などは共通処理になる場合が多いため、
+<code class="docutils literal"><span class="pre">MockMvc</span></code>生成時に<code class="docutils literal"><span class="pre">StandaloneMockMvcBuilder</span></code>の<code class="docutils literal"><span class="pre">alwaysDo</span></code>メソッドを使うことを推奨する。</p>
+<p><code class="docutils literal"><span class="pre">alwaysDo</span></code>メソッドの引数には、実行結果に対して任意の処理を行なう<code class="docutils literal"><span class="pre">org.springframework.test.web.servlet.ResultHandler</span></code>を指定する。Spring Testでは、<code class="docutils literal"><span class="pre">org.springframework.test.web.servlet.result.MockMvcResultHandlers</span></code>のファクトリメソッドを介して
+さまざまな<code class="docutils literal"><span class="pre">ResultHandler</span></code>を提供している。
+ここでは、<code class="docutils literal"><span class="pre">alwaysDo</span></code>メソッドの引数として主要となる<code class="docutils literal"><span class="pre">MockMvcResultHandlers</span></code>のメソッドを紹介する。
+各メソッドの詳細については、
+<a class="reference external" href="https://docs.spring.io/spring/docs/5.2.20.RELEASE/javadoc-api/org/springframework/test/web/servlet/result/MockMvcResultHandlers.html">MockMvcResultHandlers のJavadoc</a>を参照されたい。</p>
+<p></p>
+<table border="1" class="colwidths-given docutils" id="id24">
+<caption><span class="caption-text"><strong>MockMvcResultHandlersの主なメソッド</strong></span><a class="headerlink" href="#id24" title="Permalink to this table">¶</a></caption>
+<colgroup>
+<col width="15%" />
+<col width="85%" />
+</colgroup>
+<thead valign="bottom">
+<tr class="row-odd"><th class="head">メソッド名</th>
+<th class="head">説明</th>
+</tr>
+</thead>
+<tbody valign="top">
+<tr class="row-even"><td><code class="docutils literal"><span class="pre">log</span></code></td>
+<td>実行結果をデバッグレベルでログ出力するメソッド。
+ログ出力時に使用されるロガー名は<code class="docutils literal"><span class="pre">org.springframework.test.web.servlet.result</span></code>である。</td>
+</tr>
+<tr class="row-odd"><td><code class="docutils literal"><span class="pre">print</span></code></td>
+<td>実行結果を任意の出力先に出力するメソッド。出力先を指定しない場合、標準出力が出力先になる。</td>
+</tr>
+</tbody>
+</table>
+<p>以下に、テストの実行結果出力の設定例を示す。</p>
+<ul class="simple">
+<li>実行結果出力の設定例</li>
+</ul>
+<div class="highlight-java"><div class="highlight"><pre><span></span><span class="nd">@Before</span>
+<span class="kd">public</span> <span class="kt">void</span> <span class="nf">setUp</span><span class="p">()</span> <span class="p">{</span>
+    <span class="n">mockMvc</span> <span class="o">=</span> <span class="n">MockMvcBuilders</span><span class="p">.</span><span class="na">standaloneSetup</span><span class="p">(</span><span class="n">target</span><span class="p">).</span><span class="na">alwaysDo</span><span class="p">(</span><span class="n">log</span><span class="p">()).</span><span class="na">build</span><span class="p">();</span> <span class="c1">// (1)</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+<table border="1" class="colwidths-given docutils">
+<colgroup>
+<col width="10%" />
+<col width="90%" />
+</colgroup>
+<thead valign="bottom">
+<tr class="row-odd"><th class="head">項番</th>
+<th class="head">説明</th>
+</tr>
+</thead>
+<tbody valign="top">
+<tr class="row-even"><td><div class="first last line-block">
+<div class="line">(1)</div>
+</div>
+</td>
+<td><div class="first last line-block">
+<div class="line"><code class="docutils literal"><span class="pre">alwayDo</span></code>メソッドの引数に<code class="docutils literal"><span class="pre">log</span></code>メソッドを指定することで、
+<code class="docutils literal"><span class="pre">mockMvc</span></code>を用いたテスト実行の際は、常に実行結果をログとして出力する。</div>
+</div>
+</td>
+</tr>
+</tbody>
+</table>
+<div class="admonition note">
+<p class="first admonition-title">Note</p>
+<p><strong>テストケースごとの出力設定</strong></p>
+<p>テスト実行時のログ出力などをテストケースごとに有効化する場合は、<code class="docutils literal"><span class="pre">ResultActions</span></code>の<code class="docutils literal"><span class="pre">andDo</span></code>メソッドを使う。
+<code class="docutils literal"><span class="pre">andDo</span></code>メソッドも<code class="docutils literal"><span class="pre">alwaysDo</span></code>メソッドと同じく引数に<code class="docutils literal"><span class="pre">ResultHandler</span></code>を指定する。</p>
+<p>以下に、ログ出力をテストケースごとに有効化する場合の設定例を示す。</p>
+<ul class="simple">
+<li>ログ出力を常に有効化する場合の設定例</li>
+</ul>
+<blockquote class="last">
+<div><div class="highlight-java"><div class="highlight"><pre><span></span><span class="nd">@Test</span>
+<span class="kd">public</span> <span class="kt">void</span> <span class="nf">testSearchForm</span><span class="p">()</span> <span class="kd">throws</span> <span class="n">Exception</span> <span class="p">{</span>
+    <span class="n">mockMvc</span><span class="p">.</span><span class="na">perform</span><span class="p">(</span><span class="n">get</span><span class="p">(</span><span class="s">&quot;/ticket/search&quot;</span><span class="p">).</span><span class="na">param</span><span class="p">(</span><span class="s">&quot;form&quot;</span><span class="p">,</span> <span class="s">&quot;&quot;</span><span class="p">))</span>
+            <span class="p">.</span><span class="na">andDo</span><span class="p">(</span><span class="n">log</span><span class="p">());</span> <span class="c1">// (1)</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+<table border="1" class="colwidths-given docutils">
+<colgroup>
+<col width="10%" />
+<col width="90%" />
+</colgroup>
+<thead valign="bottom">
+<tr class="row-odd"><th class="head">項番</th>
+<th class="head">説明</th>
+</tr>
+</thead>
+<tbody valign="top">
+<tr class="row-even"><td><div class="first last line-block">
+<div class="line">(1)</div>
+</div>
+</td>
+<td><div class="first last line-block">
+<div class="line">テストの実行結果をログ出力する。</div>
+</div>
+</td>
+</tr>
+</tbody>
+</table>
+</div></blockquote>
+</div>
+<div class="line-block">
+<div class="line"><br /></div>
+</div>
+</div>
+</div>
+</div>
+<div class="section" id="mockito">
+<h2><a class="toc-backref" href="#id43">10.2.4.3. Mockito</a><a class="headerlink" href="#mockito" title="Permalink to this headline">¶</a></h2>
+<p>ここでは、モックの概要、Mockitoの使い方について説明する。</p>
+<div class="section" id="id10">
+<h3><a class="toc-backref" href="#id44">10.2.4.3.1. Mockitoとは</a><a class="headerlink" href="#id10" title="Permalink to this headline">¶</a></h3>
+<p>Mockitoとは、単体テストにおいてテスト対象の依存クラスをモック化する際に使われる
+モックライブラリの一つである。
+モックライブラリを利用することで、モックの生成を簡単に行なうことができるため、
+単体テストの実装時にはよく利用されている。</p>
+<p>ここからは、モックについての説明を行なう。</p>
+<div class="section" id="id11">
+<h4><a class="toc-backref" href="#id45">10.2.4.3.1.1. モックの概要</a><a class="headerlink" href="#id11" title="Permalink to this headline">¶</a></h4>
+<p>モックとは、テスト対象が依存するクラスの代用となる疑似クラスである。
+このように依存するクラスをモックに置き換えることをモック化と呼ぶ。
+モックは単体テストにおいて、依存クラスが正しく使用されているかを検証するために使用される。
+テスト対象のクラスのみ着目してテストを行いたい場合や、テスト対象の依存クラスが完成していないときは、
+依存クラスをモック化してテストを行なうことを考えるべきである。</p>
+<p>以下に、モックを利用したテストのフロー図を示す。</p>
+<div class="figure">
+<a class="reference internal image-reference" href="../../_images/UsageOfLibraryForTestMockCreationOfMockito.png"><img alt="../../_images/UsageOfLibraryForTestMockCreationOfMockito.png" src="../../_images/UsageOfLibraryForTestMockCreationOfMockito.png" style="width: 50%;" /></a>
+</div>
+<table border="1" class="colwidths-given docutils">
+<colgroup>
+<col width="10%" />
+<col width="90%" />
+</colgroup>
+<thead valign="bottom">
+<tr class="row-odd"><th class="head">項番</th>
+<th class="head">説明</th>
+</tr>
+</thead>
+<tbody valign="top">
+<tr class="row-even"><td><div class="first last line-block">
+<div class="line">(1)</div>
+</div>
+</td>
+<td><div class="first last line-block">
+<div class="line">依存クラスが作成され、動作も保障されている場合は、
+そのまま依存クラスを用いてテストすればよい。</div>
+</div>
+</td>
+</tr>
+<tr class="row-odd"><td><div class="first last line-block">
+<div class="line">(2)</div>
+</div>
+</td>
+<td><div class="first last line-block">
+<div class="line">依存クラスの動作が保障されていない場合や、作成されていない場合など、
+依存クラスを利用できない場合は、モッククラスを用いてテストする。</div>
+</div>
+</td>
+</tr>
+</tbody>
+</table>
+<p>実際に依存クラスをモック化する場合、通常テスト実施者自身でモッククラスを用意する必要がある。
+しかし、検証のためのクラスをテストごとに一から作成していては、
+テスト実施に多大なコストがかかると予想される。
+そのような場合に利用されるのが、モック作成のためのモックライブラリである。
+モックライブラリを用いることで、より簡単にモックを作成することができるため、
+モックを利用するときはモックライブラリの使用を推奨する。</p>
+<p>本章では、代表的なモックライブラリとしてMockitoを使用し説明を行なう。</p>
+</div>
+</div>
+<div class="section" id="id12">
+<h3><a class="toc-backref" href="#id46">10.2.4.3.2. Mockitoの利用</a><a class="headerlink" href="#id12" title="Permalink to this headline">¶</a></h3>
+<p>Mockitoは、依存クラスのモック化、メソッドの呼び出し検証、
+メソッドの引数検証など、テストを行なう上で必要となる機能を提供している。
+しかし、テスト対象のコードによってはMockitoを利用できない場合もあるので注意されたい。</p>
+<p>ここでは、Mockitoを利用できない状況の中でも、
+特に注意が必要となる状況について紹介する。</p>
+<div class="section" id="id13">
+<h4><a class="toc-backref" href="#id47">10.2.4.3.2.1. モック化の制限</a><a class="headerlink" href="#id13" title="Permalink to this headline">¶</a></h4>
+<p>Mockitoでは、<code class="docutils literal"><span class="pre">final</span></code>宣言、<code class="docutils literal"><span class="pre">private</span></code>宣言されたクラス/メソッド、
+<code class="docutils literal"><span class="pre">static</span></code>宣言されたメソッドをモック化することができない。
+通常のオブジェクト指向に沿った実装であれば、モック化に制限のかかるようなテストになることは考えにくいため、
+このような事態に直面した場合はテスト対象の設計に問題がないか一度確認したほうがよい。</p>
+<p>その他のMockitoの制限については、
+<a class="reference external" href="https://github.com/mockito/mockito/wiki/FAQ#what-are-the-limitations-of-mockito">What are the limitations of Mockito</a>を参照されたい。</p>
+</div>
+</div>
+<div class="section" id="id14">
+<h3><a class="toc-backref" href="#id48">10.2.4.3.3. Mockitoの機能</a><a class="headerlink" href="#id14" title="Permalink to this headline">¶</a></h3>
+<p>ここでは、Mockitoの代表的な機能として、モックの作成、
+モック化されたメソッドの定義、検証について紹介する。</p>
+<div class="section" id="usageoflibraryfortestcreatemockobject">
+<span id="id15"></span><h4><a class="toc-backref" href="#id49">10.2.4.3.3.1. モックの生成</a><a class="headerlink" href="#usageoflibraryfortestcreatemockobject" title="Permalink to this headline">¶</a></h4>
+<p>Mockitoのモック化には2種類の方法が存在する。
+1つは、<code class="docutils literal"><span class="pre">mock</span></code>メソッドを用いて依存クラスをすべてモックにする方法、
+もう1つは、<code class="docutils literal"><span class="pre">spy</span></code>メソッドを用いて依存クラスの一部のメソッドのみをモックにする方法である。</p>
+<p>ここではより単純な、依存クラスをすべてモック化する方法について紹介する。
+依存クラスの一部のみをモックにする方法については、
+<a class="reference external" href="https://javadoc.io/doc/org.mockito/mockito-core/3.1.0/org/mockito/Mockito.html#13">MockitoのJavadoc</a>を参照されたい。</p>
+<p>完全にモック化する場合、基本的には<code class="docutils literal"><span class="pre">mock</span></code>メソッドを用いてモック化する。</p>
+<p>以下に、<code class="docutils literal"><span class="pre">mock</span></code>メソッドを用いたモック化の例を示す。</p>
+<div class="highlight-java"><div class="highlight"><pre><span></span><span class="kd">public</span> <span class="kd">class</span> <span class="nc">TicketReserveServiceImpl</span> <span class="kd">implements</span> <span class="n">TicketReserveService</span> <span class="p">{</span>
+
+    <span class="nd">@Inject</span> <span class="c1">// (1)</span>
+    <span class="n">ReservationRepository</span> <span class="n">reservationRepository</span><span class="p">;</span>
+
+    <span class="c1">// omitted</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+<table border="1" class="colwidths-given docutils">
+<colgroup>
+<col width="10%" />
+<col width="90%" />
+</colgroup>
+<thead valign="bottom">
+<tr class="row-odd"><th class="head">項番</th>
+<th class="head">説明</th>
+</tr>
+</thead>
+<tbody valign="top">
+<tr class="row-even"><td><div class="first last line-block">
+<div class="line">(1)</div>
+</div>
+</td>
+<td><div class="first last line-block">
+<div class="line">テスト対象の<code class="docutils literal"><span class="pre">TicketReserveServiceImpl</span></code>は
+<code class="docutils literal"><span class="pre">ReservationRepository</span></code>をインジェクトしているため、
+<code class="docutils literal"><span class="pre">ReservationRepository</span></code>に依存した実装となっている。</div>
+</div>
+</td>
+</tr>
+</tbody>
+</table>
+<div class="highlight-java"><div class="highlight"><pre><span></span><span class="kd">public</span> <span class="kd">class</span> <span class="nc">TicketReserveServiceImplMockTest</span> <span class="p">{</span>
+
+    <span class="n">ReservationRepository</span> <span class="n">mockReservationRepository</span> <span class="o">=</span> <span class="n">mock</span><span class="p">(</span><span class="n">ReservationRepository</span><span class="p">.</span><span class="na">class</span><span class="p">);</span> <span class="c1">// (1)</span>
+
+    <span class="kd">private</span> <span class="n">TicketReserveServiceImpl</span> <span class="n">target</span><span class="p">;</span>
+
+    <span class="nd">@Test</span>
+    <span class="kd">public</span> <span class="kt">void</span> <span class="nf">testRegisterReservation</span><span class="p">()</span> <span class="p">{</span>
+
+        <span class="n">target</span><span class="p">.</span><span class="na">reservationRepository</span> <span class="o">=</span> <span class="n">mockReservationRepository</span><span class="p">;</span> <span class="c1">// (2)</span>
+
+        <span class="c1">// omitted</span>
+    <span class="p">}</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+<table border="1" class="colwidths-given docutils">
+<colgroup>
+<col width="10%" />
+<col width="90%" />
+</colgroup>
+<thead valign="bottom">
+<tr class="row-odd"><th class="head">項番</th>
+<th class="head">説明</th>
+</tr>
+</thead>
+<tbody valign="top">
+<tr class="row-even"><td><div class="first last line-block">
+<div class="line">(1)</div>
+</div>
+</td>
+<td><div class="first last line-block">
+<div class="line"><code class="docutils literal"><span class="pre">mock</span></code>メソッドを使うことで、<code class="docutils literal"><span class="pre">TicketReserveServiceImpl</span></code>が依存していた
+<code class="docutils literal"><span class="pre">ReservationRepository</span></code>をモック化している。</div>
+</div>
+</td>
+</tr>
+<tr class="row-odd"><td><div class="first last line-block">
+<div class="line">(2)</div>
+</div>
+</td>
+<td><div class="first last line-block">
+<div class="line">テスト対象のフィールドにモッククラスのオブジェクトを適用する。</div>
+</div>
+</td>
+</tr>
+</tbody>
+</table>
+<div class="line-block">
+<div class="line"><br /></div>
+</div>
+<p><code class="docutils literal"><span class="pre">mock</span></code>メソッドを使用すると、テスト実施者自身が1つずつモックを適用していく必要があった。
+そのため、テスト対象の依存クラスが数多く存在する場合は、記述量も増加し実装コストもかかる。
+そのような場合は、<code class="docutils literal"><span class="pre">&#64;Mock</span></code>アノテーションを使用したモックを自動で適用させる方法を推奨する。
+また、本章ではモック化の際に、<code class="docutils literal"><span class="pre">mock</span></code>メソッドより簡潔に記述できる<code class="docutils literal"><span class="pre">&#64;Mock</span></code>アノテーションを使用している。</p>
+<p>以下に、<code class="docutils literal"><span class="pre">&#64;Mock</span></code>アノテーションを用いたモック化の例を示す。</p>
+<ul class="simple">
+<li><code class="docutils literal"><span class="pre">TicketReserveServiceImplMockTest.java</span></code></li>
+</ul>
+<div class="highlight-java"><div class="highlight"><pre><span></span><span class="kd">public</span> <span class="kd">class</span> <span class="nc">TicketReserveServiceImplMockTest</span> <span class="p">{</span>
+
+    <span class="nd">@Mock</span> <span class="c1">// (1)</span>
+    <span class="n">ReservationRepository</span> <span class="n">mockReservationRepository</span><span class="p">;</span>
+
+    <span class="nd">@InjectMocks</span> <span class="c1">// (2)</span>
+    <span class="kd">private</span> <span class="n">TicketReserveServiceImpl</span> <span class="n">target</span><span class="p">;</span>
+
+    <span class="nd">@Rule</span> <span class="c1">// (3)</span>
+    <span class="kd">public</span> <span class="n">MockitoRule</span> <span class="n">mockito</span> <span class="o">=</span> <span class="n">MockitoJUnit</span><span class="p">.</span><span class="na">rule</span><span class="p">();</span>
+
+    <span class="c1">// omitted</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+<table border="1" class="colwidths-given docutils">
+<colgroup>
+<col width="10%" />
+<col width="90%" />
+</colgroup>
+<thead valign="bottom">
+<tr class="row-odd"><th class="head">項番</th>
+<th class="head">説明</th>
+</tr>
+</thead>
+<tbody valign="top">
+<tr class="row-even"><td><div class="first last line-block">
+<div class="line">(1)</div>
+</div>
+</td>
+<td><div class="first last line-block">
+<div class="line"><code class="docutils literal"><span class="pre">&#64;Mock</span></code>アノテーションをモック化したいクラスに付与することで、対象クラスのモックオブジェクトが
+Mockitoによって自動的に代入される。モッククラスを別途定義する必要はない。</div>
+</div>
+</td>
+</tr>
+<tr class="row-odd"><td><div class="first last line-block">
+<div class="line">(2)</div>
+</div>
+</td>
+<td><div class="first last line-block">
+<div class="line"><code class="docutils literal"><span class="pre">&#64;InjectMocks</span></code>アノテーションをテスト対象としたい具象クラスに付与することで、対象クラスのインスタンスが
+Mockitoによって自動的に代入され、さらに対象クラスが依存しているクラスと、
+<code class="docutils literal"><span class="pre">&#64;Mock</span></code>アノテーションが付与されたクラスが一致する場合、自動的にモックオブジェクトが設定される。</div>
+</div>
+</td>
+</tr>
+<tr class="row-even"><td><div class="first last line-block">
+<div class="line">(3)</div>
+</div>
+</td>
+<td><div class="first last line-block">
+<div class="line">JUnitでMockitoを利用するための宣言。
+<code class="docutils literal"><span class="pre">&#64;Rule</span></code>により、後述のアノテーションベースのモックオブジェクトの初期化機能が利用可能になる。</div>
+</div>
+</td>
+</tr>
+</tbody>
+</table>
+</div>
+<div class="section" id="usageoflibraryfortestmockingmethods">
+<span id="id16"></span><h4><a class="toc-backref" href="#id50">10.2.4.3.3.2. メソッドのモック化</a><a class="headerlink" href="#usageoflibraryfortestmockingmethods" title="Permalink to this headline">¶</a></h4>
+<p>モック化したオブジェクトの持つすべてのメソッドは、
+返り値がプリミティブ型の場合はそれぞれの型の初期値(例: int型の場合は0)を、
+それ以外の場合は<code class="docutils literal"><span class="pre">null</span></code>を返すようなメソッドとして定義される。
+そのため、テストを行なう際は実施するテスト内容に合わせて、
+メソッドの返り値を改めて定義する必要がある。</p>
+<div class="section" id="id17">
+<h5><a class="toc-backref" href="#id51">10.2.4.3.3.2.1. 引数、返り値の設定</a><a class="headerlink" href="#id17" title="Permalink to this headline">¶</a></h5>
+<p>メソッドのモック化には、<code class="docutils literal"><span class="pre">Mockito</span></code>クラスの<code class="docutils literal"><span class="pre">when</span></code>メソッドと、
+<code class="docutils literal"><span class="pre">when</span></code>メソッドが返す <code class="docutils literal"><span class="pre">org.mockito.stubbing.OngoingStubbing</span></code>インスタンスのメソッドを使用する。
+<code class="docutils literal"><span class="pre">when</span></code>メソッドの引数にはモック化するメソッドとその引数を指定し、実行時の返り値を<code class="docutils literal"><span class="pre">OngoingStubbing</span></code>のメソッドで定義する。</p>
+<p>以下に、<code class="docutils literal"><span class="pre">OngoingStubbing</span></code>の主なメソッドを示す。
+<code class="docutils literal"><span class="pre">OngoingStubbing</span></code>の詳細については、
+<a class="reference external" href="https://javadoc.io/doc/org.mockito/mockito-core/3.1.0/org/mockito/stubbing/OngoingStubbing.html">OngoingStubbingのJavadoc</a>を、
+また<code class="docutils literal"><span class="pre">when</span></code>メソッドについては
+<a class="reference external" href="https://javadoc.io/doc/org.mockito/mockito-core/3.1.0/org/mockito/Mockito.html">MockitoのJavadoc</a>を参照されたい。</p>
+<table border="1" class="colwidths-given docutils" id="id25">
+<caption><span class="caption-text"><strong>OngoingStubbingの主なメソッド</strong></span><a class="headerlink" href="#id25" title="Permalink to this table">¶</a></caption>
+<colgroup>
+<col width="15%" />
+<col width="85%" />
+</colgroup>
+<thead valign="bottom">
+<tr class="row-odd"><th class="head">メソッド名</th>
+<th class="head">説明</th>
+</tr>
+</thead>
+<tbody valign="top">
+<tr class="row-even"><td><code class="docutils literal"><span class="pre">thenReturn</span></code></td>
+<td>メソッドが呼び出されるときの返り値を引数に設定するメソッド。</td>
+</tr>
+<tr class="row-odd"><td><code class="docutils literal"><span class="pre">thenThrow</span></code></td>
+<td>メソッドが呼び出されるときにthrowされる<code class="docutils literal"><span class="pre">Throwable</span></code>オブジェクトを引数に設定するメソッド。
+引数にはthrowしたい例外クラスの<code class="docutils literal"><span class="pre">java.lang.Class</span></code>オブジェクトを指定することもできる。</td>
+</tr>
+</tbody>
+</table>
+<p>以下に、<code class="docutils literal"><span class="pre">thenReturn</span></code>の使用例を示す。</p>
+<div class="highlight-java"><div class="highlight"><pre><span></span><span class="kd">public</span> <span class="kd">class</span> <span class="nc">TicketReserveServiceImplMockTest</span> <span class="p">{</span>
+
+    <span class="nd">@Test</span>
+    <span class="kd">public</span> <span class="kt">void</span> <span class="nf">testRegisterReservation</span><span class="p">()</span> <span class="p">{</span>
+
+        <span class="n">Reservation</span> <span class="n">testReservation</span> <span class="o">=</span> <span class="k">new</span> <span class="n">Reservation</span><span class="p">();</span>
+        <span class="n">reservation</span><span class="p">.</span><span class="na">setReserveNo</span><span class="p">(</span><span class="s">&quot;0000000001&quot;</span><span class="p">);</span>
+
+        <span class="n">when</span><span class="p">(</span><span class="n">reservationRepository</span><span class="p">.</span><span class="na">insert</span><span class="p">(</span><span class="n">testReservation</span><span class="p">)).</span><span class="na">thenReturn</span><span class="p">(</span><span class="mi">1</span><span class="p">);</span> <span class="c1">// (2)</span>
+    <span class="p">}</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+<table border="1" class="colwidths-given docutils">
+<colgroup>
+<col width="10%" />
+<col width="90%" />
+</colgroup>
+<thead valign="bottom">
+<tr class="row-odd"><th class="head">項番</th>
+<th class="head">説明</th>
+</tr>
+</thead>
+<tbody valign="top">
+<tr class="row-even"><td><div class="first last line-block">
+<div class="line">(1)</div>
+</div>
+</td>
+<td><div class="first last line-block">
+<div class="line"><code class="docutils literal"><span class="pre">when</span></code>メソッドの引数には、動作を定義したいメソッドとその引数を指定する。</div>
+</div>
+</td>
+</tr>
+<tr class="row-odd"><td><div class="first last line-block">
+<div class="line">(2)</div>
+</div>
+</td>
+<td><div class="first last line-block">
+<div class="line"><code class="docutils literal"><span class="pre">insert</span></code>メソッドの引数に<code class="docutils literal"><span class="pre">testReservation</span></code>を指定することで、
+テスト対象が<code class="docutils literal"><span class="pre">insert</span></code>メソッドを引数<code class="docutils literal"><span class="pre">testReservation</span></code>で実行するとき、
+返り値は”<code class="docutils literal"><span class="pre">1</span></code>” になる。</div>
+</div>
+</td>
+</tr>
+</tbody>
+</table>
+</div>
+<div class="section" id="id18">
+<h5><a class="toc-backref" href="#id52">10.2.4.3.3.2.2. 任意の引数による定義</a><a class="headerlink" href="#id18" title="Permalink to this headline">¶</a></h5>
+<p>モック化したいメソッドの引数に<code class="docutils literal"><span class="pre">org.mockito.Matchers</span></code>のメソッドを用いることで、
+任意の引数を対象に返り値を定義することもできる。</p>
+<p>以下に、<code class="docutils literal"><span class="pre">Matchers</span></code>の主なメソッドを示す。
+詳細については、<a class="reference external" href="https://javadoc.io/doc/org.mockito/mockito-core/3.1.0/org/mockito/Matchers.html">MatchersのJavadoc</a>を参照されたい。</p>
+<table border="1" class="colwidths-given docutils" id="id26">
+<caption><span class="caption-text"><strong>Matchersの主なメソッド</strong></span><a class="headerlink" href="#id26" title="Permalink to this table">¶</a></caption>
+<colgroup>
+<col width="15%" />
+<col width="85%" />
+</colgroup>
+<thead valign="bottom">
+<tr class="row-odd"><th class="head">メソッド名</th>
+<th class="head">説明</th>
+</tr>
+</thead>
+<tbody valign="top">
+<tr class="row-even"><td><code class="docutils literal"><span class="pre">any</span></code></td>
+<td>モック化されるメソッドの引数が任意の<code class="docutils literal"><span class="pre">Object</span></code>であることを示すメソッド。</td>
+</tr>
+<tr class="row-odd"><td><code class="docutils literal"><span class="pre">anyString</span></code></td>
+<td>モック化されるメソッドの引数が<code class="docutils literal"><span class="pre">null</span></code>以外の任意の<code class="docutils literal"><span class="pre">String</span></code>であることを示すメソッド。</td>
+</tr>
+<tr class="row-even"><td><code class="docutils literal"><span class="pre">anyInt</span></code></td>
+<td>モック化されるメソッドの引数が任意のint型、または<code class="docutils literal"><span class="pre">null</span></code>以外の任意の<code class="docutils literal"><span class="pre">Integer</span></code>であることを示すメソッド。</td>
+</tr>
+</tbody>
+</table>
+<p>以下に、<code class="docutils literal"><span class="pre">any</span></code>の使用例を示す。</p>
+<div class="highlight-java"><div class="highlight"><pre><span></span><span class="kd">public</span> <span class="kd">class</span> <span class="nc">TicketReserveServiceImplMockTest</span> <span class="p">{</span>
+
+    <span class="nd">@Test</span>
+    <span class="kd">public</span> <span class="kt">void</span> <span class="nf">testRegisterReservation</span><span class="p">()</span> <span class="p">{</span>
+
+        <span class="c1">// omitted</span>
+
+        <span class="n">when</span><span class="p">(</span><span class="n">reservationRepository</span><span class="p">.</span><span class="na">insert</span><span class="p">((</span><span class="n">Reservation</span><span class="p">)</span> <span class="n">any</span><span class="p">())).</span><span class="na">thenReturn</span><span class="p">(</span><span class="mi">0</span><span class="p">);</span> <span class="c1">// (1)</span>
+    <span class="p">}</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+<table border="1" class="colwidths-given docutils">
+<colgroup>
+<col width="10%" />
+<col width="90%" />
+</colgroup>
+<thead valign="bottom">
+<tr class="row-odd"><th class="head">項番</th>
+<th class="head">説明</th>
+</tr>
+</thead>
+<tbody valign="top">
+<tr class="row-even"><td><div class="first last line-block">
+<div class="line">(1)</div>
+</div>
+</td>
+<td><div class="first last line-block">
+<div class="line"><code class="docutils literal"><span class="pre">insert</span></code>メソッドの引数として<code class="docutils literal"><span class="pre">Reservation</span></code>にキャストした
+<code class="docutils literal"><span class="pre">any</span></code>メソッドを指定することで、
+<code class="docutils literal"><span class="pre">insert</span></code>メソッドを任意の<code class="docutils literal"><span class="pre">Reservation</span></code>引数で実行するとき、
+返り値が”<code class="docutils literal"><span class="pre">0</span></code>” になるように設定している。</div>
+</div>
+</td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
+<div class="section" id="void">
+<h4><a class="toc-backref" href="#id53">10.2.4.3.3.3. 返り値がvoid型であるメソッドのモック化</a><a class="headerlink" href="#void" title="Permalink to this headline">¶</a></h4>
+<p>モック化された返り値が<code class="docutils literal"><span class="pre">void</span></code>型であるメソッドは、デフォルトでは何も動作しないメソッドとして定義される。
+そのため、例外をスローさせたい場合などは改めて定義する必要がある。</p>
+<div class="section" id="id19">
+<h5><a class="toc-backref" href="#id54">10.2.4.3.3.3.1. 動作の設定</a><a class="headerlink" href="#id19" title="Permalink to this headline">¶</a></h5>
+<p><code class="docutils literal"><span class="pre">when</span></code>メソッドでは定義できない返り値が<code class="docutils literal"><span class="pre">void</span></code>型であるメソッドについては、
+<code class="docutils literal"><span class="pre">Mockito</span></code>クラスの<code class="docutils literal"><span class="pre">doThrow</span></code>メソッドなどを用いることで定義できる。</p>
+<p>以下に、返り値が<code class="docutils literal"><span class="pre">void</span></code>型であるメソッドを再定義するための<code class="docutils literal"><span class="pre">Mockito</span></code>の主なメソッドを示す。
+詳細については、
+<a class="reference external" href="https://javadoc.io/doc/org.mockito/mockito-core/3.1.0/org/mockito/Mockito.html">MockitoのJavadoc</a>を参照されたい。</p>
+<table border="1" class="colwidths-given docutils" id="id27">
+<caption><span class="caption-text"><strong>返り値がvoid型であるメソッドを再定義するMockitoの主なメソッド</strong></span><a class="headerlink" href="#id27" title="Permalink to this table">¶</a></caption>
+<colgroup>
+<col width="15%" />
+<col width="85%" />
+</colgroup>
+<thead valign="bottom">
+<tr class="row-odd"><th class="head">メソッド名</th>
+<th class="head">説明</th>
+</tr>
+</thead>
+<tbody valign="top">
+<tr class="row-even"><td><code class="docutils literal"><span class="pre">doThrow</span></code></td>
+<td>返り値が<code class="docutils literal"><span class="pre">void</span></code>型であるメソッドにthrowさせる例外を設定する場合に用いるメソッド。</td>
+</tr>
+<tr class="row-odd"><td><code class="docutils literal"><span class="pre">doNothing</span></code></td>
+<td>返り値が<code class="docutils literal"><span class="pre">void</span></code>型であるメソッドに何もさせないよう設定する場合に用いるメソッド。</td>
+</tr>
+</tbody>
+</table>
+<p>以下に、<code class="docutils literal"><span class="pre">doThrow</span></code>の使用例を示す。</p>
+<div class="highlight-java"><div class="highlight"><pre><span></span><span class="n">doThrow</span><span class="p">(</span><span class="k">new</span> <span class="n">RuntimeException</span><span class="p">()).</span><span class="na">when</span><span class="p">(</span><span class="n">mock</span><span class="p">).</span><span class="na">someVoidMethod</span><span class="p">();</span> <span class="c1">// (1)</span>
+</pre></div>
+</div>
+<table border="1" class="colwidths-given docutils">
+<colgroup>
+<col width="10%" />
+<col width="90%" />
+</colgroup>
+<thead valign="bottom">
+<tr class="row-odd"><th class="head">項番</th>
+<th class="head">説明</th>
+</tr>
+</thead>
+<tbody valign="top">
+<tr class="row-even"><td><div class="first last line-block">
+<div class="line">(1)</div>
+</div>
+</td>
+<td><div class="first last line-block">
+<div class="line"><code class="docutils literal"><span class="pre">doThrow</span></code>メソッドは<code class="docutils literal"><span class="pre">when</span></code>メソッドの前に記述し、
+<code class="docutils literal"><span class="pre">when</span></code>メソッドはその後、チェーンする形で記載する。</div>
+<div class="line"><code class="docutils literal"><span class="pre">doThrow</span></code>メソッドの引数にスローしたい例外を指定することで、
+モック化したメソッドが実行されるときに例外をスローするようになる。</div>
+</div>
+</td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
+<div class="section" id="usageoflibraryfortestvalidationofmockmethod">
+<span id="id20"></span><h4><a class="toc-backref" href="#id55">10.2.4.3.3.4. モック化したメソッドの検証</a><a class="headerlink" href="#usageoflibraryfortestvalidationofmockmethod" title="Permalink to this headline">¶</a></h4>
+<p>Mockitoで作成したオブジェクトをモックとして用いる場合は、
+<code class="docutils literal"><span class="pre">Mockito</span></code>クラスの<code class="docutils literal"><span class="pre">verify</span></code>メソッドを用いることで、
+モック化したメソッドの呼び出しについて検証することができる。</p>
+<p><code class="docutils literal"><span class="pre">verify</span></code>メソッドは引数にモックを指定し、チェーンする形で
+モック化したメソッドを続けることで、そのメソッドが正しく呼ばれているかどうかを検証できる。
+また、<code class="docutils literal"><span class="pre">verify</span></code>メソッドの引数としてモックと<code class="docutils literal"><span class="pre">org.mockito.verification.VerificationMode</span></code>を指定することで、より詳しくメソッドの呼び出しについて検証できる。</p>
+<p>以下に、<code class="docutils literal"><span class="pre">VerificationMode</span></code>の主なメソッドを示す。
+詳細については、<a class="reference external" href="https://javadoc.io/doc/org.mockito/mockito-core/3.1.0/org/mockito/verification/VerificationMode.html">VerificationModeのJavadoc</a>を参照されたい。</p>
+<table border="1" class="colwidths-given docutils" id="id28">
+<caption><span class="caption-text"><strong>VerificationModeの主なメソッド</strong></span><a class="headerlink" href="#id28" title="Permalink to this table">¶</a></caption>
+<colgroup>
+<col width="15%" />
+<col width="85%" />
+</colgroup>
+<thead valign="bottom">
+<tr class="row-odd"><th class="head">メソッド名</th>
+<th class="head">説明</th>
+</tr>
+</thead>
+<tbody valign="top">
+<tr class="row-even"><td><code class="docutils literal"><span class="pre">times</span></code></td>
+<td>期待する呼び出し回数を設定するメソッド。
+引数に期待する呼び出し回数を設定できる。
+<code class="docutils literal"><span class="pre">verify</span></code>メソッドの引数に<code class="docutils literal"><span class="pre">VerificationMode</span></code>を指定しない場合は
+<code class="docutils literal"><span class="pre">times(1)</span></code>が設定される。</td>
+</tr>
+<tr class="row-odd"><td><code class="docutils literal"><span class="pre">never</span></code></td>
+<td>呼び出されていないことを期待する場合に設定するメソッド。</td>
+</tr>
+</tbody>
+</table>
+<p>以下に、<code class="docutils literal"><span class="pre">times</span></code>の使用例を示す。</p>
+<div class="highlight-java"><div class="highlight"><pre><span></span><span class="nd">@Test</span>
+<span class="kd">public</span> <span class="kt">void</span> <span class="nf">testRegisterReservation</span><span class="p">()</span> <span class="p">{</span>
+
+    <span class="c1">// omitted</span>
+
+    <span class="n">when</span><span class="p">(</span><span class="n">reservationRepository</span><span class="p">.</span><span class="na">insert</span><span class="p">(</span><span class="n">testReservation</span><span class="p">)).</span><span class="na">thenReturn</span><span class="p">(</span><span class="mi">1</span><span class="p">);</span>
+
+    <span class="n">TicketReserveDto</span> <span class="n">ticketReserveDto</span> <span class="o">=</span> <span class="n">target</span><span class="p">.</span><span class="na">registerReservation</span><span class="p">(</span><span class="n">testReservation</span><span class="p">);</span> <span class="c1">// (1)</span>
+
+    <span class="n">verify</span><span class="p">(</span><span class="n">reservationRepository</span><span class="p">,</span> <span class="n">times</span><span class="p">(</span><span class="mi">1</span><span class="p">)).</span><span class="na">insert</span><span class="p">(</span><span class="n">testReservation</span><span class="p">);</span> <span class="c1">// (2)</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+<table border="1" class="colwidths-given docutils">
+<colgroup>
+<col width="10%" />
+<col width="90%" />
+</colgroup>
+<thead valign="bottom">
+<tr class="row-odd"><th class="head">項番</th>
+<th class="head">説明</th>
+</tr>
+</thead>
+<tbody valign="top">
+<tr class="row-even"><td><div class="first last line-block">
+<div class="line">(1)</div>
+</div>
+</td>
+<td><div class="first last line-block">
+<div class="line"><code class="docutils literal"><span class="pre">target</span></code>の<code class="docutils literal"><span class="pre">insert</span></code>メソッドでは、
+<code class="docutils literal"><span class="pre">ReservationRepository</span></code>の<code class="docutils literal"><span class="pre">insert</span></code>メソッドが1回実行されるような実装になっている。</div>
+</div>
+</td>
+</tr>
+<tr class="row-odd"><td><div class="first last line-block">
+<div class="line">(2)</div>
+</div>
+</td>
+<td><div class="first last line-block">
+<div class="line"><code class="docutils literal"><span class="pre">verify</span></code>メソッドの引数にモックオブジェクトと、
+<code class="docutils literal"><span class="pre">times</span></code>メソッドを指定することで、<code class="docutils literal"><span class="pre">insert</span></code>メソッドが引数<code class="docutils literal"><span class="pre">testReservation</span></code>で
+正しく1回呼ばれているかを検証することができる。</div>
+<div class="line">この場合は、<code class="docutils literal"><span class="pre">times</span></code>メソッドの引数が”<code class="docutils literal"><span class="pre">1</span></code>” なので省略しても同様の検証となる。</div>
+</div>
+</td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
+</div>
+</div>
+
+
+          </div>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../../genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="../RunUnitTest.html" title="10.3. 単体テストの実行"
+             >next</a> |</li>
+        <li class="right" >
+          <a href="ImplementsOfTestByFunction.html" title="10.2.3. 機能ごとのテスト実装"
+             >previous</a> |</li>
+        <li class="nav-item nav-item-0"><a href="../../index.html">TERASOLUNA Server Framework for Java (5.x) Development Guideline 5.6.0.SP1.RELEASE documentation</a> &#187;</li>
+          <li class="nav-item nav-item-1"><a href="../index.html" >10. 単体テスト</a> &#187;</li>
+          <li class="nav-item nav-item-2"><a href="index.html" >10.2. 単体テストの実装</a> &#187;</li> 
+      </ul>
+    </div>
+    <div class="footer">
+      © Copyright 2013, NTT DATA Corporation. © Copyright 2013, NTT Corporation.
+      Created using <a href="http://sphinx.pocoo.org/">Sphinx</a> 1.6.3.Theme is <a href="http://github.com/vimalkvn/solar-theme">Solar</a>
+    </div>
+    
+    <script>
+    
+    $(function() {
+    	var $sidebar	= $('.sphinxsidebar'),
+    		$window		= $(window),
+    		offset		= $sidebar.offset(),
+    		topPadding	= 3,
+    		$scroll		= $('#scroll');
+    	
+    	$window.scroll(function() {
+    		if ($scroll.is(':checked')) {
+				if ($window.scrollTop() > offset.top) {
+					$sidebar.stop().animate({
+						marginTop:$window.scrollTop() - offset.top + topPadding
+					});
+				} else {
+					$sidebar.stop().animate({
+						marginTop:0
+					});
+				}
+			}
+		});
+    	
+    	var $navList = $('ul:first', $sidebar);
+    	$('li:first', $navList).addClass('open');
+    	
+    	$navList.treeview({
+    		persist: "location",
+    		collapsed: true,
+    		unique: false
+    	});
+    	
+	});
+    (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+        (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+            m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+    })(window,document,'script','//www.google-analytics.com/analytics.js','ga');
+
+    ga('create', 'UA-46550814-1', 'terasolunaorg.github.io');
+    ga('send', 'pageview');
+    </script>
+  </body>
+</html>
