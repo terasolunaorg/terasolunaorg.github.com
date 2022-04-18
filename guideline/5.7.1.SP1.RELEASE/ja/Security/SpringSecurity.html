@@ -1,0 +1,909 @@
+<!DOCTYPE html>
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <title>9.1. Spring Security概要 &#8212; TERASOLUNA Server Framework for Java (5.x) Development Guideline 5.7.1.SP1.RELEASE documentation</title>
+    <link rel="stylesheet" href="../_static/solar.css" type="text/css" />
+    <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    '../',
+        VERSION:     '5.7.1.SP1.RELEASE',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true,
+        SOURCELINK_SUFFIX: '.txt'
+      };
+    </script>
+    <script type="text/javascript" src="../_static/jquery.js"></script>
+    <script type="text/javascript" src="../_static/underscore.js"></script>
+    <script type="text/javascript" src="../_static/doctools.js"></script>
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="next" title="9.2. 認証" href="Authentication.html" />
+    <link rel="prev" title="9. セキュリティ対策" href="index.html" /><script src="../_static/jquery.treeview.js" type="text/javascript"></script>
+<!-- <link href='http://fonts.googleapis.com/css?family=Source+Code+Pro|Open+Sans:300italic,400italic,700italic,400,300,700' rel='stylesheet' type='text/css'> -->
+<link href="../_static/solarized-dark.css" rel="stylesheet">
+<link href="../_static/jquery.treeview.css" rel="stylesheet">
+  </head>
+  <body>
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="Authentication.html" title="9.2. 認証"
+             accesskey="N">next</a> |</li>
+        <li class="right" >
+          <a href="index.html" title="9. セキュリティ対策"
+             accesskey="P">previous</a> |</li>
+        <li class="nav-item nav-item-0"><a href="../index.html">TERASOLUNA Server Framework for Java (5.x) Development Guideline 5.7.1.SP1.RELEASE documentation</a> &#187;</li>
+          <li class="nav-item nav-item-1"><a href="index.html" accesskey="U">9. セキュリティ対策</a> &#187;</li> 
+      </ul>
+    </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper"><label><input id="scroll" type="checkbox" checked> scroll sidebar</label>
+
+  <h3><a href="../index.html">Table Of Contents</a></h3>
+  <ul>
+<li><a class="reference internal" href="#">9.1. Spring Security概要</a><ul>
+<li><a class="reference internal" href="#springsecurityfunctionalities">9.1.1. Spring Securityの機能</a><ul>
+<li><a class="reference internal" href="#id3">9.1.1.1. セキュリティ対策の基本機能</a></li>
+<li><a class="reference internal" href="#id4">9.1.1.2. セキュリティ対策の強化機能</a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#springsecurityarchitecture">9.1.2. Spring Securityのアーキテクチャ</a><ul>
+<li><a class="reference internal" href="#id6">9.1.2.1. Spring Securityのモジュール</a><ul>
+<li><a class="reference internal" href="#id7">9.1.2.1.1. フレームワークスタックモジュール群</a></li>
+<li><a class="reference internal" href="#id8">9.1.2.1.2. 要件に合わせて使用するモジュール群</a></li>
+<li><a class="reference internal" href="#id13">9.1.2.1.3. テスト用のモジュール</a></li>
+<li><a class="reference internal" href="#id15">9.1.2.1.4. 要件に合わせて利用する関連モジュール群</a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#springsecurityprocess">9.1.2.2. フレームワーク処理</a><ul>
+<li><a class="reference internal" href="#filterchainproxy">9.1.2.2.1. FilterChainProxy</a></li>
+<li><a class="reference internal" href="#httpfirewall">9.1.2.2.2. HttpFirewall</a></li>
+<li><a class="reference internal" href="#securityfilterchain">9.1.2.2.3. SecurityFilterChain</a></li>
+<li><a class="reference internal" href="#security-filter">9.1.2.2.4. Security Filter</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li><a class="reference internal" href="#springsecuritysetup">9.1.3. Spring Securityのセットアップ</a><ul>
+<li><a class="reference internal" href="#springsecuritysetupdependency">9.1.3.1. 依存ライブラリの適用</a></li>
+<li><a class="reference internal" href="#bean">9.1.3.2. bean定義ファイルの作成</a></li>
+<li><a class="reference internal" href="#id24">9.1.3.3. サーブレットフィルタの設定</a></li>
+<li><a class="reference internal" href="#springsecuritynotapply">9.1.3.4. セキュリティ対策を適用しないため設定</a></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+
+
+  <h4>Previous topic</h4>
+  <p class="topless"><a href="index.html"
+                        title="previous chapter">9. セキュリティ対策</a></p>
+  <h4>Next topic</h4>
+  <p class="topless"><a href="Authentication.html"
+                        title="next chapter">9.2. 認証</a></p>
+  <div role="note" aria-label="source link">
+    <h3>This Page</h3>
+    <ul class="this-page-menu">
+      <li><a href="../_sources/Security/SpringSecurity.rst.txt"
+            rel="nofollow">Show Source</a></li>
+    </ul>
+   </div>
+<div id="searchbox" style="display: none" role="search">
+  <h3>Quick search</h3>
+    <form class="search" action="../search.html" method="get">
+      <div><input type="text" name="q" /></div>
+      <div><input type="submit" value="Go" /></div>
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <div class="section" id="spring-security">
+<span id="springsecurityoverview"></span><h1>9.1. Spring Security概要<a class="headerlink" href="#spring-security" title="Permalink to this headline">¶</a></h1>
+<div class="contents local topic" id="id1">
+<p class="topic-title">目次</p>
+<ul class="simple">
+<li><a class="reference internal" href="#springsecurityfunctionalities" id="id34">Spring Securityの機能</a><ul>
+<li><a class="reference internal" href="#id3" id="id35">セキュリティ対策の基本機能</a></li>
+<li><a class="reference internal" href="#id4" id="id36">セキュリティ対策の強化機能</a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#springsecurityarchitecture" id="id37">Spring Securityのアーキテクチャ</a><ul>
+<li><a class="reference internal" href="#id6" id="id38">Spring Securityのモジュール</a><ul>
+<li><a class="reference internal" href="#id7" id="id39">フレームワークスタックモジュール群</a></li>
+<li><a class="reference internal" href="#id8" id="id40">要件に合わせて使用するモジュール群</a></li>
+<li><a class="reference internal" href="#id13" id="id41">テスト用のモジュール</a></li>
+<li><a class="reference internal" href="#id15" id="id42">要件に合わせて利用する関連モジュール群</a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#springsecurityprocess" id="id43">フレームワーク処理</a><ul>
+<li><a class="reference internal" href="#filterchainproxy" id="id44">FilterChainProxy</a></li>
+<li><a class="reference internal" href="#httpfirewall" id="id45">HttpFirewall</a></li>
+<li><a class="reference internal" href="#securityfilterchain" id="id46">SecurityFilterChain</a></li>
+<li><a class="reference internal" href="#security-filter" id="id47">Security Filter</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li><a class="reference internal" href="#springsecuritysetup" id="id48">Spring Securityのセットアップ</a><ul>
+<li><a class="reference internal" href="#springsecuritysetupdependency" id="id49">依存ライブラリの適用</a></li>
+<li><a class="reference internal" href="#bean" id="id50">bean定義ファイルの作成</a></li>
+<li><a class="reference internal" href="#id24" id="id51">サーブレットフィルタの設定</a></li>
+<li><a class="reference internal" href="#springsecuritynotapply" id="id52">セキュリティ対策を適用しないため設定</a></li>
+</ul>
+</li>
+</ul>
+</div>
+<p>Spring Securityは、アプリケーションにセキュリティ対策機能を実装する際に使用するフレームワークである。
+Spring Securityはスタンドアロンなアプリケーションでも利用できるが、サーブレットコンテナにデプロイするWebアプリケーションに対してセキュリティ対策を行う際に利用するのが一般的である。
+本章では、Spring Securityが提供する機能のうち、一般的なWebアプリケーションでの利用頻度が高いと思われる機能にしぼって説明する。</p>
+<div class="admonition tip">
+<p class="first admonition-title">Tip</p>
+<p><strong>ガイドラインで紹介していない機能</strong></p>
+<p class="last">Spring Securityは、本ガイドラインで紹介していない機能も多く提供している。
+Spring Securityが提供するすべての機能を知りたい場合は、<a class="reference external" href="https://docs.spring.io/spring-security/reference/5.6.0/servlet/index.html">Spring Security Reference -Servlet Applications-</a>を参照されたい。</p>
+</div>
+<div class="section" id="springsecurityfunctionalities">
+<span id="id2"></span><h2><a class="toc-backref" href="#id34">9.1.1. Spring Securityの機能</a><a class="headerlink" href="#springsecurityfunctionalities" title="Permalink to this headline">¶</a></h2>
+<div class="section" id="id3">
+<h3><a class="toc-backref" href="#id35">9.1.1.1. セキュリティ対策の基本機能</a><a class="headerlink" href="#id3" title="Permalink to this headline">¶</a></h3>
+<p>Spring Securityは、セキュリティ対策の基本機能として以下の機能を提供している。</p>
+<p></p>
+<table border="1" class="colwidths-given docutils" id="id26">
+<caption><span class="caption-text"><strong>セキュリティ対策の基本機能</strong></span><a class="headerlink" href="#id26" title="Permalink to this table">¶</a></caption>
+<colgroup>
+<col width="25%" />
+<col width="75%" />
+</colgroup>
+<thead valign="bottom">
+<tr class="row-odd"><th class="head">機能</th>
+<th class="head">説明</th>
+</tr>
+</thead>
+<tbody valign="top">
+<tr class="row-even"><td><a class="reference internal" href="Authentication.html#springsecurityauthentication"><span class="std std-ref">認証機能</span></a></td>
+<td>アプリケーションを利用するユーザーの正当性を確認する機能。</td>
+</tr>
+<tr class="row-odd"><td><a class="reference internal" href="Authorization.html#springsecurityauthorization"><span class="std std-ref">認可機能</span></a></td>
+<td>アプリケーションが提供するリソースや処理に対してアクセスを制御する機能。</td>
+</tr>
+</tbody>
+</table>
+<div class="line-block">
+<div class="line"><br /></div>
+</div>
+</div>
+<div class="section" id="id4">
+<h3><a class="toc-backref" href="#id36">9.1.1.2. セキュリティ対策の強化機能</a><a class="headerlink" href="#id4" title="Permalink to this headline">¶</a></h3>
+<p>Spring Securityでは認証と認可という基本的な機能に加え、Webアプリケーションのセキュリティを強化するための機能をいくつか提供している。</p>
+<p></p>
+<table border="1" class="colwidths-given docutils" id="id27">
+<caption><span class="caption-text"><strong>セキュリティ対策の強化機能</strong></span><a class="headerlink" href="#id27" title="Permalink to this table">¶</a></caption>
+<colgroup>
+<col width="25%" />
+<col width="75%" />
+</colgroup>
+<thead valign="bottom">
+<tr class="row-odd"><th class="head">機能</th>
+<th class="head">説明</th>
+</tr>
+</thead>
+<tbody valign="top">
+<tr class="row-even"><td><a class="reference internal" href="SessionManagement.html#springsecuritysessionmanagement"><span class="std std-ref">セッション管理機能</span></a></td>
+<td>セッションハイジャック攻撃やセッション固定攻撃からユーザーを守る機能、
+セッションのライフサイクル(生成、破棄、タイムアウト)を制御するための機能。</td>
+</tr>
+<tr class="row-odd"><td><a class="reference internal" href="CSRF.html#springsecuritycsrf"><span class="std std-ref">CSRF対策機能</span></a></td>
+<td>クロスサイトリクエストフォージェリ(CSRF)攻撃からユーザーを守るための機能。</td>
+</tr>
+<tr class="row-even"><td><a class="reference internal" href="LinkageWithBrowser.html#springsecuritylinkagewithbrowser"><span class="std std-ref">セキュリティヘッダ出力機能</span></a></td>
+<td>Webブラウザのセキュリティ対策機能と連携し、ブラウザの機能を悪用した攻撃からユーザーを守るための機能。</td>
+</tr>
+</tbody>
+</table>
+<div class="line-block">
+<div class="line"><br /></div>
+</div>
+</div>
+</div>
+<div class="section" id="springsecurityarchitecture">
+<span id="id5"></span><h2><a class="toc-backref" href="#id37">9.1.2. Spring Securityのアーキテクチャ</a><a class="headerlink" href="#springsecurityarchitecture" title="Permalink to this headline">¶</a></h2>
+<p>各機能の詳細な説明を行う前に、Spring Securityのアーキテクチャ概要とSpring Securityを構成する主要なコンポーネントの役割を説明する。</p>
+<div class="admonition note">
+<p class="first admonition-title">Note</p>
+<p>ここで説明する内容は、Spring Securityが提供するデフォルトの動作をそのまま利用する場合や、
+Spring Securityのコンフィギュレーションをサポートする仕組みを利用する場合は、開発者が直接意識する必要ない。
+そのため、まず各機能の使い方を知りたい場合は、本節を読み飛ばしても問題はない。</p>
+<p class="last">ただし、ここで説明する内容は、Spring Securityのデフォルトの動作をカスタマイズする際に必要になるので、
+アプリケーションのアーキテクトは一読しておくことを推奨する。</p>
+</div>
+<div class="line-block">
+<div class="line"><br /></div>
+</div>
+<div class="section" id="id6">
+<h3><a class="toc-backref" href="#id38">9.1.2.1. Spring Securityのモジュール</a><a class="headerlink" href="#id6" title="Permalink to this headline">¶</a></h3>
+<p>まずフレームワークスタックとなっているSpring Securityの提供モジュールを紹介する。</p>
+<div class="section" id="id7">
+<h4><a class="toc-backref" href="#id39">9.1.2.1.1. フレームワークスタックモジュール群</a><a class="headerlink" href="#id7" title="Permalink to this headline">¶</a></h4>
+<p>フレームワークスタックモジュールは、以下の通りである。
+本ガイドラインでもこれらのモジュールを使用してセキュリティ対策を行う方法について説明する。</p>
+<p></p>
+<table border="1" class="colwidths-given docutils" id="id28">
+<caption><span class="caption-text"><strong>フレームワークスタックモジュール群</strong></span><a class="headerlink" href="#id28" title="Permalink to this table">¶</a></caption>
+<colgroup>
+<col width="25%" />
+<col width="75%" />
+</colgroup>
+<thead valign="bottom">
+<tr class="row-odd"><th class="head">モジュール名</th>
+<th class="head">説明</th>
+</tr>
+</thead>
+<tbody valign="top">
+<tr class="row-even"><td><code class="docutils literal"><span class="pre">spring-security-core</span></code></td>
+<td>認証と認可機能を実現するために必要となるコアなコンポーネントが格納されている。
+このモジュールに含まれるコンポーネントは、スタンドアロン環境で実行するアプリケーションでも使用することができる。</td>
+</tr>
+<tr class="row-odd"><td><code class="docutils literal"><span class="pre">spring-security-web</span></code></td>
+<td>Webアプリケーションのセキュリティ対策を実現するために必要となるコンポーネントが格納されている。
+このモジュールに含まれるコンポーネントは、Web層(サーブレットAPIなど)に依存する処理を行う。</td>
+</tr>
+<tr class="row-even"><td><code class="docutils literal"><span class="pre">spring-security-config</span></code></td>
+<td>各モジュールから提供されているコンポーネントのセットアップをサポートするためのコンポーネント(コンフィギュレーションをサポートするクラスやXMLネームスペースを解析するクラスなど)が格納されている。
+このモジュールを使用すると、Spring Securityのbean定義を簡単に行うことができる。</td>
+</tr>
+<tr class="row-odd"><td><code class="docutils literal"><span class="pre">spring-security-taglibs</span></code></td>
+<td>認証情報や認可機能にアクセスするためのJSPタグライブラリが格納されている。</td>
+</tr>
+<tr class="row-even"><td><code class="docutils literal"><span class="pre">spring-security-acl</span></code></td>
+<td>EntityなどのドメインオブジェクトをAccess Control List(ACL)を使用して認可制御するために必要となるコンポーネントが格納されている。
+本モジュールは依存関係の都合上、フレームワークスタックに含まれているモジュールであるため、本ガイドラインにおいて使用方法の説明は行わない。</td>
+</tr>
+</tbody>
+</table>
+</div>
+<div class="section" id="id8">
+<h4><a class="toc-backref" href="#id40">9.1.2.1.2. 要件に合わせて使用するモジュール群</a><a class="headerlink" href="#id8" title="Permalink to this headline">¶</a></h4>
+<p>フレームワークスタックではないが、一般的に利用される認証方法などをサポートするために、
+以下のようなモジュールも提供されている。
+セキュリティ要件に応じて、これらのモジュールの使用も検討されたい。</p>
+<p></p>
+<table border="1" class="colwidths-given docutils" id="id29">
+<caption><span class="caption-text"><strong>要件に合わせて使用するモジュール群</strong></span><a class="headerlink" href="#id29" title="Permalink to this table">¶</a></caption>
+<colgroup>
+<col width="25%" />
+<col width="75%" />
+</colgroup>
+<thead valign="bottom">
+<tr class="row-odd"><th class="head">モジュール名</th>
+<th class="head">説明</th>
+</tr>
+</thead>
+<tbody valign="top">
+<tr class="row-even"><td><code class="docutils literal"><span class="pre">spring-security-remoting</span></code></td>
+<td>JNDI経由でDNSにアクセス、Basic認証が必要なWebサイトにアクセス、Spring Securityを使用してセキュリティ対策しているメソッドにRMI経由でアクセスする際に必要となるコンポーネントが格納されている。</td>
+</tr>
+<tr class="row-odd"><td><code class="docutils literal"><span class="pre">spring-security-aspects</span></code></td>
+<td>AspectJを使用してJavaのメソッドに認可機能を適用する際、必要となるコンポーネントが格納されている。
+このモジュールは、AOPとしてSpring AOPを使う場合は不要である。</td>
+</tr>
+<tr class="row-even"><td><code class="docutils literal"><span class="pre">spring-security-messaging</span></code><a class="footnote-reference" href="#fspringsecurityarchitecture5" id="id9">[5]</a></td>
+<td>SpringのWeb Socket機能に対してセキュリティ対策を追加するためのコンポーネントが格納されている。</td>
+</tr>
+<tr class="row-odd"><td><code class="docutils literal"><span class="pre">spring-security-data</span></code><a class="footnote-reference" href="#fspringsecurityarchitecture5" id="id10">[5]</a></td>
+<td>Spring Dataの機能から認証情報にアクセスできるようにするためのコンポーネントが格納されている。</td>
+</tr>
+<tr class="row-even"><td><code class="docutils literal"><span class="pre">spring-security-ldap</span></code></td>
+<td>Lightweight Directory Access Protocol(LDAP)を使用した認証を実現するために必要となるコンポーネントが格納されている。</td>
+</tr>
+<tr class="row-odd"><td><code class="docutils literal"><span class="pre">spring-security-openid</span></code></td>
+<td>OpenID<a class="footnote-reference" href="#fspringsecurityarchitecture1" id="id11">[1]</a>を使用した認証を実現するために必要となるコンポーネントが格納されている。</td>
+</tr>
+<tr class="row-even"><td><code class="docutils literal"><span class="pre">spring-security-cas</span></code></td>
+<td>Central Authentication Service(CAS)<a class="footnote-reference" href="#fspringsecurityarchitecture2" id="id12">[2]</a>と連携するために必要となるコンポーネントが格納されている。</td>
+</tr>
+<tr class="row-odd"><td><code class="docutils literal"><span class="pre">spring-security-crypto</span></code></td>
+<td>暗号化、キーの生成、ハッシュアルゴリズムを利用したパスワードエンコーディングを行うためのコンポーネントが格納されている。
+このモジュールに含まれるクラスは、フレームワークスタックモジュールである<code class="docutils literal"><span class="pre">spring-security-core</span></code>にも含まれている。</td>
+</tr>
+</tbody>
+</table>
+</div>
+<div class="section" id="id13">
+<h4><a class="toc-backref" href="#id41">9.1.2.1.3. テスト用のモジュール</a><a class="headerlink" href="#id13" title="Permalink to this headline">¶</a></h4>
+<p>Spring Security 4.0からはテストを支援するためのモジュールが追加されている。</p>
+<table border="1" class="colwidths-given docutils" id="id30">
+<caption><span class="caption-text"><strong>テスト用のモジュール</strong></span><a class="headerlink" href="#id30" title="Permalink to this table">¶</a></caption>
+<colgroup>
+<col width="25%" />
+<col width="75%" />
+</colgroup>
+<thead valign="bottom">
+<tr class="row-odd"><th class="head">モジュール名</th>
+<th class="head">説明</th>
+</tr>
+</thead>
+<tbody valign="top">
+<tr class="row-even"><td><code class="docutils literal"><span class="pre">spring-security-test</span></code><a class="footnote-reference" href="#fspringsecurityarchitecture5" id="id14">[5]</a></td>
+<td>Spring Securityに依存しているクラスのテストを支援するためのコンポーネントが格納されている。
+このモジュールを使用すると、JUnitテスト時に必要となる認証情報を簡単にセットアップすることができる。
+また、Spring MVCのテスト用コンポーネント(<code class="docutils literal"><span class="pre">MockMvc</span></code>)と連携して使用するコンポーネントも含まれている。</td>
+</tr>
+</tbody>
+</table>
+</div>
+<div class="section" id="id15">
+<h4><a class="toc-backref" href="#id42">9.1.2.1.4. 要件に合わせて利用する関連モジュール群</a><a class="headerlink" href="#id15" title="Permalink to this headline">¶</a></h4>
+<p>また、いくつかの関連モジュールも提供されている。</p>
+<table border="1" class="colwidths-given docutils" id="id31">
+<caption><span class="caption-text"><strong>要件に合わせて利用する主な関連モジュール群</strong></span><a class="headerlink" href="#id31" title="Permalink to this table">¶</a></caption>
+<colgroup>
+<col width="25%" />
+<col width="75%" />
+</colgroup>
+<thead valign="bottom">
+<tr class="row-odd"><th class="head">モジュール名</th>
+<th class="head">説明</th>
+</tr>
+</thead>
+<tbody valign="top">
+<tr class="row-even"><td><code class="docutils literal"><span class="pre">spring-security-oauth2</span></code><a class="footnote-reference" href="#fspringsecurityarchitecture3" id="id16">[3]</a></td>
+<td>OAuth 2.0<a class="footnote-reference" href="#fspringsecurityarchitecture4" id="id17">[4]</a>の仕組みを使用してAPIの認可を実現するために必要となるコンポーネントが格納されている。</td>
+</tr>
+<tr class="row-odd"><td><code class="docutils literal"><span class="pre">spring-security-oauth</span></code><a class="footnote-reference" href="#fspringsecurityarchitecture3" id="id18">[3]</a></td>
+<td>OAuth 1.0の仕組みを使用してAPIの認可を実現するために必要となるコンポーネントが格納されている。</td>
+</tr>
+</tbody>
+</table>
+<div class="line-block">
+<div class="line"><br /></div>
+</div>
+<table class="docutils footnote" frame="void" id="fspringsecurityarchitecture1" rules="none">
+<colgroup><col class="label" /><col /></colgroup>
+<tbody valign="top">
+<tr><td class="label"><a class="fn-backref" href="#id11">[1]</a></td><td>OpenIDは、簡単に言うと「1つのIDで複数のサイトにログインできるようにする」ための仕組みである。</td></tr>
+</tbody>
+</table>
+<table class="docutils footnote" frame="void" id="fspringsecurityarchitecture2" rules="none">
+<colgroup><col class="label" /><col /></colgroup>
+<tbody valign="top">
+<tr><td class="label"><a class="fn-backref" href="#id12">[2]</a></td><td>CASは、OSSとして提供されているシングルサインオン用のサーバーコンポーネントである。詳細は <a class="reference external" href="https://www.apereo.org/projects/cas">https://www.apereo.org/projects/cas</a> を参照されたい。</td></tr>
+</tbody>
+</table>
+<table class="docutils footnote" frame="void" id="fspringsecurityarchitecture3" rules="none">
+<colgroup><col class="label" /><col /></colgroup>
+<tbody valign="top">
+<tr><td class="label">[3]</td><td><em>(<a class="fn-backref" href="#id16">1</a>, <a class="fn-backref" href="#id18">2</a>)</em> 詳細は <a class="reference external" href="https://spring.io/projects/spring-security-oauth">https://spring.io/projects/spring-security-oauth</a> を参照されたい。</td></tr>
+</tbody>
+</table>
+<table class="docutils footnote" frame="void" id="fspringsecurityarchitecture4" rules="none">
+<colgroup><col class="label" /><col /></colgroup>
+<tbody valign="top">
+<tr><td class="label"><a class="fn-backref" href="#id17">[4]</a></td><td>OAuth 2.0は、OAuth 1.0が抱えていた課題(署名と認証フローの複雑さ、モバイルやデスクトップのクライアントアプリの未対応など)を改善したバージョンで、OAuth 1.0との後方互換性はない。</td></tr>
+</tbody>
+</table>
+<table class="docutils footnote" frame="void" id="fspringsecurityarchitecture5" rules="none">
+<colgroup><col class="label" /><col /></colgroup>
+<tbody valign="top">
+<tr><td class="label">[5]</td><td><em>(<a class="fn-backref" href="#id9">1</a>, <a class="fn-backref" href="#id10">2</a>, <a class="fn-backref" href="#id14">3</a>)</em> Spring Security 4.0から追加されたモジュールである。</td></tr>
+</tbody>
+</table>
+<div class="line-block">
+<div class="line"><br /></div>
+</div>
+</div>
+</div>
+<div class="section" id="springsecurityprocess">
+<span id="id19"></span><h3><a class="toc-backref" href="#id43">9.1.2.2. フレームワーク処理</a><a class="headerlink" href="#springsecurityprocess" title="Permalink to this headline">¶</a></h3>
+<p>Spring Securityは、サーブレットフィルタの仕組みを使用してWebアプリケーションのセキュリティ対策を行うアーキテクチャを採用しており、以下のような流れで処理を実行している。</p>
+<div class="figure" id="id32">
+<a class="reference internal image-reference" href="../_images/Architecture.png"><img alt="../_images/Architecture.png" src="../_images/Architecture.png" style="width: 100%;" /></a>
+<p class="caption"><span class="caption-text"><strong>Spring Securityのフレームワークアーキテクチャ</strong></span></p>
+</div>
+<table border="1" class="colwidths-given docutils">
+<colgroup>
+<col width="10%" />
+<col width="90%" />
+</colgroup>
+<thead valign="bottom">
+<tr class="row-odd"><th class="head">項番</th>
+<th class="head">説明</th>
+</tr>
+</thead>
+<tbody valign="top">
+<tr class="row-even"><td>(1)</td>
+<td>クライアントは、Webアプリケーションに対してリクエストを送る。</td>
+</tr>
+<tr class="row-odd"><td>(2)</td>
+<td>Spring Securityの<code class="docutils literal"><span class="pre">FilterChainProxy</span></code>クラス(サーブレットフィルタ)がリクエストを受け取り、
+<code class="docutils literal"><span class="pre">HttpFirewall</span></code>インタフェースのメソッドを呼び出して<code class="docutils literal"><span class="pre">HttpServletRequest</span></code>と<code class="docutils literal"><span class="pre">HttpServletResponse</span></code>に対してファイアウォール機能を組み込む。</td>
+</tr>
+<tr class="row-even"><td>(3)</td>
+<td><code class="docutils literal"><span class="pre">FilterChainProxy</span></code>クラスは、Spring Securityが提供しているセキュリティ対策用のSecurity Filter(サーブレットフィルタ)クラスに処理を委譲する。</td>
+</tr>
+<tr class="row-odd"><td>(4)</td>
+<td>Security Filterは複数のクラスで構成されており、サーブレットフィルタの処理が正常に終了すると後続のサーブレットフィルタが呼び出される。</td>
+</tr>
+<tr class="row-even"><td>(5)</td>
+<td>最後のSecurity Filterの処理が正常に終了した場合、後続処理(サーブレットフィルタやサーブレットなど)を呼びだし、Webアプリケーション内のリソースへアクセスする。</td>
+</tr>
+<tr class="row-odd"><td>(6)</td>
+<td><code class="docutils literal"><span class="pre">FilterChainProxy</span></code>クラスは、Webアプリケーションから返却されたリソースをクライアントへレスポンスする。</td>
+</tr>
+</tbody>
+</table>
+<div class="line-block">
+<div class="line"><br /></div>
+</div>
+<p>Webアプリケーション向けのフレームワーク処理を構成する主要なコンポーネントは以下の通りである。
+詳細は <a class="reference external" href="https://docs.spring.io/spring-security/reference/5.6.0/servlet/architecture.html">Spring Security Reference -Servlet Applications:Architecture-</a>を参照されたい。</p>
+<div class="section" id="filterchainproxy">
+<h4><a class="toc-backref" href="#id44">9.1.2.2.1. FilterChainProxy</a><a class="headerlink" href="#filterchainproxy" title="Permalink to this headline">¶</a></h4>
+<p><code class="docutils literal"><span class="pre">FilterChainProxy</span></code>クラスは、Webアプリケーション向けのフレームワーク処理のエントリーポイントとなるサーブレットフィルタクラスである。
+このクラスはフレームワーク処理の全体の流れを制御するクラスであり、具体的なセキュリティ対策処理はSecurity Filterに委譲している。</p>
+</div>
+<div class="section" id="httpfirewall">
+<h4><a class="toc-backref" href="#id45">9.1.2.2.2. HttpFirewall</a><a class="headerlink" href="#httpfirewall" title="Permalink to this headline">¶</a></h4>
+<p><code class="docutils literal"><span class="pre">HttpFirewall</span></code>インタフェースは、<code class="docutils literal"><span class="pre">HttpServletRequest</span></code>と<code class="docutils literal"><span class="pre">HttpServletResponse</span></code>に対してファイアウォール機能を組み込むためのインタフェースである。
+デフォルトでは、<code class="docutils literal"><span class="pre">StrictHttpFirewall</span></code>クラスが使用され、ディレクトリトラバーサル攻撃やHTTPレスポンス分割攻撃に対するチェックなどが実装されている。</p>
+<div class="admonition note">
+<p class="first admonition-title">Note</p>
+<p>Spring Security 5.0.1, 4.2.4, 4.1.5より、
+デフォルトで使用される<code class="docutils literal"><span class="pre">HttpFirewall</span></code>インタフェースの実装クラスは<code class="docutils literal"><span class="pre">DefaultHttpFirewall</span></code>から<code class="docutils literal"><span class="pre">StrictHttpFirewall</span></code>へ変更された。</p>
+<p><code class="docutils literal"><span class="pre">DefaultHttpFirewall</span></code>は<a class="reference external" href="https://www.ietf.org/rfc/rfc2396.txt">RFC 2396</a>に基づきリクエストURLの正規化を行うことで悪意あるURLを拒否するが、
+<code class="docutils literal"><span class="pre">StrictHttpFirewall</span></code>はより厳密にURLを構成する文字に不正な値がないことをチェックし、悪意あるURLを拒否する。
+これにより、認証認可のバイパスやReflected File Download(RFD)攻撃への対策がなされている。</p>
+<p>URLの正規化は脆弱性対策としては不十分であるため、従来通り<code class="docutils literal"><span class="pre">DefaultHttpFirewall</span></code>を利用するように変更することは推奨しない。
+また、<code class="docutils literal"><span class="pre">StrictHttpFirewall</span></code>のチェックについても、一部カスタマイズ可能なパラメータも存在するが、脆弱性の原因となりうるため変更することは推奨しない。</p>
+<p class="last"><code class="docutils literal"><span class="pre">StrictHttpFirewall</span></code>の詳細については、<a class="reference external" href="https://docs.spring.io/spring-security/site/docs/5.6.0/api/org/springframework/security/web/firewall/StrictHttpFirewall.html">Javadoc</a>を参照されたい。</p>
+</div>
+</div>
+<div class="section" id="securityfilterchain">
+<h4><a class="toc-backref" href="#id46">9.1.2.2.3. SecurityFilterChain</a><a class="headerlink" href="#securityfilterchain" title="Permalink to this headline">¶</a></h4>
+<p><code class="docutils literal"><span class="pre">SecurityFilterChain</span></code>インタフェースは、<code class="docutils literal"><span class="pre">FilterChainProxy</span></code>が受け取ったリクエストに対して、適用するSecurity Filterのリストを管理するためのインタフェースである。
+デフォルトでは<code class="docutils literal"><span class="pre">DefaultSecurityFilterChain</span></code>クラスが使用され、適用するSecurity Filterのリストを、リクエストURLのパターン毎に管理する。</p>
+<p>たとえば、以下のようなbean定義を行うと、URLに応じて異なる内容のセキュリティ対策を適用することができる。</p>
+<ul class="simple">
+<li>xxx-web/src/main/resources/META-INF/spring/spring-security.xmlの定義例</li>
+</ul>
+<div class="highlight-xml"><div class="highlight"><pre><span></span><span class="nt">&lt;sec:http</span> <span class="na">pattern=</span><span class="s">&quot;/api/**&quot;</span><span class="nt">&gt;</span>
+    <span class="c">&lt;!-- ... --&gt;</span>
+<span class="nt">&lt;/sec:http&gt;</span>
+
+<span class="nt">&lt;sec:http</span> <span class="na">pattern=</span><span class="s">&quot;/ui/**&quot;</span><span class="nt">&gt;</span>
+    <span class="c">&lt;!-- ... --&gt;</span>
+<span class="nt">&lt;/sec:http&gt;</span>
+</pre></div>
+</div>
+</div>
+<div class="section" id="security-filter">
+<h4><a class="toc-backref" href="#id47">9.1.2.2.4. Security Filter</a><a class="headerlink" href="#security-filter" title="Permalink to this headline">¶</a></h4>
+<p>Security Filterクラスは、フレームワーク機能やセキュリティ対策機能を実現する上で必要となる処理を提供するサーブレットフィルタクラスである。</p>
+<p>Spring Securityは、複数のSecurity Filterを連鎖させることでWebアプリケーションのセキュリティ対策を行う仕組みになっている。
+ここでは、認証と認可機能を実現するために必要となるコアなクラスを紹介する。
+詳細は <a class="reference external" href="https://docs.spring.io/spring-security/site/docs/5.1.3.RELEASE/reference/htmlsingle/#core-web-filters">Spring Security Reference -Core Security Filters-</a>を参照されたい。
+リンク先はSpring Security 5.1.3のリファレンスを示している。</p>
+<table border="1" class="colwidths-given docutils" id="id33">
+<caption><span class="caption-text"><strong>コアなSecurity Filter</strong></span><a class="headerlink" href="#id33" title="Permalink to this table">¶</a></caption>
+<colgroup>
+<col width="35%" />
+<col width="65%" />
+</colgroup>
+<thead valign="bottom">
+<tr class="row-odd"><th class="head">クラス名</th>
+<th class="head">説明</th>
+</tr>
+</thead>
+<tbody valign="top">
+<tr class="row-even"><td><code class="docutils literal"><span class="pre">SecurityContextPersistenceFilter</span></code></td>
+<td>認証情報についてリクエストを跨いで共有するための処理を提供するクラス。
+デフォルトの実装では、<code class="docutils literal"><span class="pre">HttpSession</span></code>に認証情報を格納することで、リクエストをまたいで認証情報を共有している。</td>
+</tr>
+<tr class="row-odd"><td><code class="docutils literal"><span class="pre">UsernamePasswordAuthenticationFilter</span></code></td>
+<td>リクエストパラメータで指定されたユーザー名とパスワードを使用して認証処理を行うクラス。
+フォーム認証を行う際に使用する。</td>
+</tr>
+<tr class="row-even"><td><code class="docutils literal"><span class="pre">LogoutFilter</span></code></td>
+<td>ログアウト処理を行うクラス。</td>
+</tr>
+<tr class="row-odd"><td><code class="docutils literal"><span class="pre">FilterSecurityInterceptor</span></code></td>
+<td>HTTPリクエスト(<code class="docutils literal"><span class="pre">HttpServletRequest</span></code>)に対して認可処理を実行するためのクラス。</td>
+</tr>
+<tr class="row-even"><td><code class="docutils literal"><span class="pre">ExceptionTranslationFilter</span></code></td>
+<td><code class="docutils literal"><span class="pre">FilterSecurityInterceptor</span></code>で発生した例外をハンドリングし、クライアントへ返却するレスポンスを制御するクラス。
+デフォルトの実装では、未認証ユーザーからのアクセスの場合は認証を促すレスポンス、
+認証済みのユーザーからのアクセスの場合は認可エラーを通知するレスポンスを返却する。</td>
+</tr>
+</tbody>
+</table>
+<div class="line-block">
+<div class="line"><br /></div>
+</div>
+</div>
+</div>
+</div>
+<div class="section" id="springsecuritysetup">
+<span id="id20"></span><h2><a class="toc-backref" href="#id48">9.1.3. Spring Securityのセットアップ</a><a class="headerlink" href="#springsecuritysetup" title="Permalink to this headline">¶</a></h2>
+<p>WebアプリケーションにSpring Securityを適用するためのセットアップ方法について説明する。</p>
+<p>ここでは、WebアプリケーションにSpring Securityを適用し、Spring Securityが提供しているデフォルトのログイン画面を表示させる最もシンプルなセットアップ方法を説明する。
+実際のアプリケーション開発で必要となるカスタマイズ方法や拡張方法については、次節以降で順次説明する。</p>
+<div class="admonition note">
+<p class="first admonition-title">Note</p>
+<p class="last">開発プロジェクトを<a class="reference external" href="https://github.com/terasolunaorg/terasoluna-gfw-web-multi-blank/tree/5.7.1.SP1.RELEASE">ブランクプロジェクト</a>から作成すると、ここで説明する各設定はセットアップ済みの状態になっている。
+開発プロジェクトの作成方法については、「<a class="reference internal" href="../ImplementationAtEachLayer/CreateWebApplicationProject.html"><span class="doc">Webアプリケーション向け開発プロジェクトの作成</span></a>」を参照されたい。</p>
+</div>
+<div class="line-block">
+<div class="line"><br /></div>
+</div>
+<div class="section" id="springsecuritysetupdependency">
+<span id="id22"></span><h3><a class="toc-backref" href="#id49">9.1.3.1. 依存ライブラリの適用</a><a class="headerlink" href="#springsecuritysetupdependency" title="Permalink to this headline">¶</a></h3>
+<p>まず、Spring Securityを依存関係として使用している共通ライブラリを適用する。
+Spring Securityと共通ライブラリの関連については、<a class="reference internal" href="../Overview/FrameworkStack.html#frameworkstack-common-library"><span class="std std-ref">共通ライブラリの構成要素</span></a> を参照されたい。</p>
+<p>本ガイドラインでは、Mavenを使って開発プロジェクトを作成していることを前提とする。</p>
+<ul class="simple">
+<li>xxx-domain/pom.xmlの設定例</li>
+</ul>
+<div class="highlight-xml"><div class="highlight"><pre><span></span><span class="nt">&lt;dependency&gt;</span>
+    <span class="nt">&lt;groupId&gt;</span>org.terasoluna.gfw<span class="nt">&lt;/groupId&gt;</span>
+    <span class="nt">&lt;artifactId&gt;</span>terasoluna-gfw-security-core<span class="nt">&lt;/artifactId&gt;</span>  <span class="c">&lt;!-- (1) --&gt;</span>
+<span class="nt">&lt;/dependency&gt;</span>
+</pre></div>
+</div>
+<ul class="simple">
+<li>xxx-web/pom.xmlの設定例</li>
+</ul>
+<div class="highlight-xml"><div class="highlight"><pre><span></span><span class="nt">&lt;dependency&gt;</span>
+    <span class="nt">&lt;groupId&gt;</span>org.terasoluna.gfw<span class="nt">&lt;/groupId&gt;</span>
+    <span class="nt">&lt;artifactId&gt;</span>terasoluna-gfw-security-web<span class="nt">&lt;/artifactId&gt;</span>  <span class="c">&lt;!-- (2) --&gt;</span>
+<span class="nt">&lt;/dependency&gt;</span>
+</pre></div>
+</div>
+<table border="1" class="colwidths-given docutils">
+<colgroup>
+<col width="10%" />
+<col width="90%" />
+</colgroup>
+<thead valign="bottom">
+<tr class="row-odd"><th class="head">項番</th>
+<th class="head">説明</th>
+</tr>
+</thead>
+<tbody valign="top">
+<tr class="row-even"><td>(1)</td>
+<td>ドメイン層のプロジェクトでSpring Securityの機能を使用する場合は、terasoluna-gfw-security-coreをdependencyに追加する。</td>
+</tr>
+<tr class="row-odd"><td>(2)</td>
+<td>アプリケーション層のプロジェクトでSpring Securityの機能を使用する場合は、terasoluna-gfw-security-webをdependencyに追加する。</td>
+</tr>
+</tbody>
+</table>
+<div class="admonition note">
+<p class="first admonition-title">Note</p>
+<p class="last">上記設定例は、依存ライブラリのバージョンを親プロジェクトである terasoluna-gfw-parent で管理する前提であるため、pom.xmlでのバージョンの指定は不要である。</p>
+</div>
+<div class="line-block">
+<div class="line"><br /></div>
+</div>
+</div>
+<div class="section" id="bean">
+<h3><a class="toc-backref" href="#id50">9.1.3.2. bean定義ファイルの作成</a><a class="headerlink" href="#bean" title="Permalink to this headline">¶</a></h3>
+<p>Spring Securityのコンポーネントをbean定義するため、以下のようなXMLファイルを作成する。（<a class="reference external" href="https://github.com/terasolunaorg/terasoluna-gfw-web-multi-blank/tree/5.7.1.SP1.RELEASE">ブランクプロジェクト</a>より抜粋）</p>
+<ul class="simple">
+<li>xxx-web/src/main/resources/META-INF/spring/spring-security.xmlの定義例</li>
+</ul>
+<div class="highlight-xml"><div class="highlight"><pre><span></span><span class="cp">&lt;?xml version=&quot;1.0&quot; encoding=&quot;UTF-8&quot;?&gt;</span>
+<span class="nt">&lt;beans</span> <span class="na">xmlns=</span><span class="s">&quot;http://www.springframework.org/schema/beans&quot;</span>
+    <span class="na">xmlns:xsi=</span><span class="s">&quot;http://www.w3.org/2001/XMLSchema-instance&quot;</span>
+    <span class="na">xmlns:sec=</span><span class="s">&quot;http://www.springframework.org/schema/security&quot;</span>
+    <span class="na">xsi:schemaLocation=</span><span class="s">&quot;</span>
+<span class="s">        http://www.springframework.org/schema/security https://www.springframework.org/schema/security/spring-security.xsd</span>
+<span class="s">        http://www.springframework.org/schema/beans https://www.springframework.org/schema/beans/spring-beans.xsd</span>
+<span class="s">    &quot;</span><span class="nt">&gt;</span> <span class="c">&lt;!-- (1) --&gt;</span>
+
+    <span class="nt">&lt;sec:http</span> <span class="na">pattern=</span><span class="s">&quot;/resources/**&quot;</span> <span class="na">security=</span><span class="s">&quot;none&quot;</span><span class="nt">/&gt;</span> <span class="c">&lt;!-- (2) --&gt;</span>
+    <span class="nt">&lt;sec:http&gt;</span> <span class="c">&lt;!-- (3) --&gt;</span>
+        <span class="nt">&lt;sec:form-login</span> <span class="nt">/&gt;</span> <span class="c">&lt;!-- (4) --&gt;</span>
+        <span class="nt">&lt;sec:logout</span> <span class="nt">/&gt;</span> <span class="c">&lt;!-- (5) --&gt;</span>
+        <span class="nt">&lt;sec:access-denied-handler</span> <span class="na">ref=</span><span class="s">&quot;accessDeniedHandler&quot;</span><span class="nt">/&gt;</span> <span class="c">&lt;!-- (6) --&gt;</span>
+        <span class="nt">&lt;sec:custom-filter</span> <span class="na">ref=</span><span class="s">&quot;userIdMDCPutFilter&quot;</span> <span class="na">after=</span><span class="s">&quot;ANONYMOUS_FILTER&quot;</span><span class="nt">/&gt;</span> <span class="c">&lt;!-- (7) --&gt;</span>
+        <span class="nt">&lt;sec:session-management</span> <span class="nt">/&gt;</span> <span class="c">&lt;!-- (8) --&gt;</span>
+    <span class="nt">&lt;/sec:http&gt;</span>
+
+    <span class="nt">&lt;sec:authentication-manager</span> <span class="nt">/&gt;</span> <span class="c">&lt;!-- (9) --&gt;</span>
+
+    <span class="c">&lt;!-- CSRF Protection --&gt;</span>
+    <span class="nt">&lt;bean</span> <span class="na">id=</span><span class="s">&quot;accessDeniedHandler&quot;</span>
+        <span class="na">class=</span><span class="s">&quot;org.springframework.security.web.access.DelegatingAccessDeniedHandler&quot;</span><span class="nt">&gt;</span> <span class="c">&lt;!-- (10) --&gt;</span>
+        <span class="c">&lt;!-- omitted --&gt;</span>
+    <span class="nt">&lt;/bean&gt;</span>
+
+    <span class="c">&lt;!-- Put UserID into MDC --&gt;</span>
+    <span class="nt">&lt;bean</span> <span class="na">id=</span><span class="s">&quot;userIdMDCPutFilter&quot;</span> <span class="na">class=</span><span class="s">&quot;org.terasoluna.gfw.security.web.logging.UserIdMDCPutFilter&quot;</span><span class="nt">&gt;</span>  <span class="c">&lt;!-- (11) --&gt;</span>
+    <span class="nt">&lt;/bean&gt;</span>
+
+<span class="nt">&lt;/beans&gt;</span>
+</pre></div>
+</div>
+<table border="1" class="colwidths-given docutils">
+<colgroup>
+<col width="10%" />
+<col width="90%" />
+</colgroup>
+<thead valign="bottom">
+<tr class="row-odd"><th class="head">項番</th>
+<th class="head">説明</th>
+</tr>
+</thead>
+<tbody valign="top">
+<tr class="row-even"><td>(1)</td>
+<td>Spring Securityから提供されているXMLネームスペースを有効にする。
+上記例では、<code class="docutils literal"><span class="pre">sec</span></code>という名前を割り当てている。
+XMLネームスペースを使用すると、Spring Securityのコンポーネントのbean定義を簡単に行うことができる。</td>
+</tr>
+<tr class="row-odd"><td>(2)</td>
+<td><code class="docutils literal"><span class="pre">&lt;sec:http&gt;</span></code>タグを定義し、セキュリティ対策が不要なリソースパスの設定を行う。
+詳細は <a class="reference internal" href="#springsecuritynotapply"><span class="std std-ref">セキュリティ対策を適用しないため設定</span></a> を参照されたい。</td>
+</tr>
+<tr class="row-even"><td>(3)</td>
+<td><code class="docutils literal"><span class="pre">&lt;sec:http&gt;</span></code>タグを定義する。
+<code class="docutils literal"><span class="pre">&lt;sec:http&gt;</span></code>タグを定義すると、Spring Securityを利用するために必要となるコンポーネントのbean定義が自動的に行われる。</td>
+</tr>
+<tr class="row-odd"><td>(4)</td>
+<td><code class="docutils literal"><span class="pre">&lt;sec:form-login&gt;</span></code>タグを定義し、フォーム認証を使用したログインに関する設定を行う。
+詳細は <a class="reference internal" href="Authentication.html#form-login"><span class="std std-ref">フォーム認証</span></a> を参照されたい。</td>
+</tr>
+<tr class="row-even"><td>(5)</td>
+<td><code class="docutils literal"><span class="pre">&lt;sec:logout&gt;</span></code>タグ を定義し、ログアウトに関する設定を行う。
+詳細は <a class="reference internal" href="Authentication.html#springsecurityauthenticationlogout"><span class="std std-ref">ログアウト</span></a> を参照されたい。</td>
+</tr>
+<tr class="row-odd"><td>(6)</td>
+<td><code class="docutils literal"><span class="pre">&lt;sec:access-denied-handler&gt;</span></code>タグを定義し、アクセスエラー時の制御を行うための設定を定義する。
+詳細は <a class="reference internal" href="Authorization.html#springsecurityauthorizationaccessdeniedhandler"><span class="std std-ref">AccessDeniedHandlerの適用</span></a> 、 <a class="reference internal" href="Authorization.html#springsecurityauthorizationonerror"><span class="std std-ref">認可エラー時の遷移先</span></a> を参照されたい。</td>
+</tr>
+<tr class="row-even"><td>(7)</td>
+<td>ログ出力するユーザ情報をMDCに格納するための共通ライブラリのフィルタを定義する。</td>
+</tr>
+<tr class="row-odd"><td>(8)</td>
+<td><code class="docutils literal"><span class="pre">&lt;sec:session-management&gt;</span></code>タグ を定義し、セッション管理に関する設定を行う。
+詳細は <a class="reference internal" href="SessionManagement.html#springsecuritysessionmanagement"><span class="std std-ref">セッション管理</span></a> を参照されたい。</td>
+</tr>
+<tr class="row-even"><td>(9)</td>
+<td><code class="docutils literal"><span class="pre">&lt;sec:authentication-manager&gt;</span></code>タグを定義して、認証機能用のコンポーネントをbean定義する。
+このタグを定義しておかないとサーバ起動時にエラーが発生する。</td>
+</tr>
+<tr class="row-odd"><td>(10)</td>
+<td>アクセスエラー時のエラーハンドリングを行うコンポーネントをbean定義する。</td>
+</tr>
+<tr class="row-even"><td>(11)</td>
+<td>ログ出力するユーザ情報をMDCにする共通ライブラリのコンポーネントをbean定義する。</td>
+</tr>
+</tbody>
+</table>
+<div class="line-block">
+<div class="line"><br /></div>
+</div>
+<p>作成したbean定義ファイルを使用してSpringのDIコンテナを生成するように定義する。</p>
+<ul class="simple">
+<li>xxx-web/src/main/webapp/WEB-INF/web.xmlの設定例</li>
+</ul>
+<div class="highlight-xml"><div class="highlight"><pre><span></span><span class="c">&lt;!-- (1) --&gt;</span>
+<span class="nt">&lt;listener&gt;</span>
+    <span class="nt">&lt;listener-class&gt;</span>
+        org.springframework.web.context.ContextLoaderListener
+    <span class="nt">&lt;/listener-class&gt;</span>
+<span class="nt">&lt;/listener&gt;</span>
+<span class="c">&lt;!-- (2) --&gt;</span>
+<span class="nt">&lt;context-param&gt;</span>
+    <span class="nt">&lt;param-name&gt;</span>contextConfigLocation<span class="nt">&lt;/param-name&gt;</span>
+    <span class="nt">&lt;param-value&gt;</span>
+        classpath*:META-INF/spring/applicationContext.xml
+        classpath*:META-INF/spring/spring-security.xml
+    <span class="nt">&lt;/param-value&gt;</span>
+<span class="nt">&lt;/context-param&gt;</span>
+</pre></div>
+</div>
+<table border="1" class="colwidths-given docutils">
+<colgroup>
+<col width="10%" />
+<col width="90%" />
+</colgroup>
+<thead valign="bottom">
+<tr class="row-odd"><th class="head">項番</th>
+<th class="head">説明</th>
+</tr>
+</thead>
+<tbody valign="top">
+<tr class="row-even"><td>(1)</td>
+<td>サーブレットコンテナのリスナクラスとして、<code class="docutils literal"><span class="pre">ContextLoaderListener</span></code>クラスを指定する。</td>
+</tr>
+<tr class="row-odd"><td>(2)</td>
+<td>サーブレットコンテナの<code class="docutils literal"><span class="pre">contextClass</span></code>パラメータに、<code class="docutils literal"><span class="pre">applicationContext.xml</span></code>に加えて、Spring Security用のbean定義ファイルを追加する。</td>
+</tr>
+</tbody>
+</table>
+<div class="line-block">
+<div class="line"><br /></div>
+</div>
+</div>
+<div class="section" id="id24">
+<h3><a class="toc-backref" href="#id51">9.1.3.3. サーブレットフィルタの設定</a><a class="headerlink" href="#id24" title="Permalink to this headline">¶</a></h3>
+<p>最後に、Spring Securityが提供しているサーブレットフィルタクラス(<code class="docutils literal"><span class="pre">FilterChainProxy</span></code>) をサーブレットコンテナに登録する。</p>
+<ul class="simple">
+<li>xxx-web/src/main/webapp/WEB-INF/web.xmlの設定例</li>
+</ul>
+<div class="highlight-xml"><div class="highlight"><pre><span></span><span class="c">&lt;!-- (1) --&gt;</span>
+<span class="nt">&lt;filter&gt;</span>
+    <span class="nt">&lt;filter-name&gt;</span>springSecurityFilterChain<span class="nt">&lt;/filter-name&gt;</span>
+    <span class="nt">&lt;filter-class&gt;</span>
+        org.springframework.web.filter.DelegatingFilterProxy
+    <span class="nt">&lt;/filter-class&gt;</span>
+<span class="nt">&lt;/filter&gt;</span>
+<span class="c">&lt;!-- (2) --&gt;</span>
+<span class="nt">&lt;filter-mapping&gt;</span>
+    <span class="nt">&lt;filter-name&gt;</span>springSecurityFilterChain<span class="nt">&lt;/filter-name&gt;</span>
+    <span class="nt">&lt;url-pattern&gt;</span>/*<span class="nt">&lt;/url-pattern&gt;</span>
+<span class="nt">&lt;/filter-mapping&gt;</span>
+</pre></div>
+</div>
+<table border="1" class="colwidths-given docutils">
+<colgroup>
+<col width="10%" />
+<col width="90%" />
+</colgroup>
+<thead valign="bottom">
+<tr class="row-odd"><th class="head">項番</th>
+<th class="head">説明</th>
+</tr>
+</thead>
+<tbody valign="top">
+<tr class="row-even"><td>(1)</td>
+<td>Spring Frameworkから提供されている<code class="docutils literal"><span class="pre">DelegatingFilterProxy</span></code>を使用して、
+SpringのDIコンテナで管理されているbean(<code class="docutils literal"><span class="pre">FilterChainProxy</span></code>)をサーブレットコンテナに登録する。
+サーブレットフィルタの名前には、SpringのDIコンテナで管理されているbeanのbean名(<code class="docutils literal"><span class="pre">springSecurityFilterChain</span></code>)を指定する。</td>
+</tr>
+<tr class="row-odd"><td>(2)</td>
+<td>Spring Securityを適用するURLのパターンを指定する。
+上記例では、すべてのリクエストに対してSpring Securityを適用する。</td>
+</tr>
+</tbody>
+</table>
+<div class="line-block">
+<div class="line"><br /></div>
+</div>
+</div>
+<div class="section" id="springsecuritynotapply">
+<span id="id25"></span><h3><a class="toc-backref" href="#id52">9.1.3.4. セキュリティ対策を適用しないため設定</a><a class="headerlink" href="#springsecuritynotapply" title="Permalink to this headline">¶</a></h3>
+<p>セキュリティ対策が不要なリソースのパス(cssファイルやimageファイルにアクセスするためのパスなど)に対しては、
+<code class="docutils literal"><span class="pre">&lt;sec:http&gt;</span></code>タグを使用して、Spring Securityのセキュリティ機能(Security Filter)が適用されないように制御することができる。</p>
+<ul class="simple">
+<li>xxx-web/src/main/resources/META-INF/spring/spring-security.xmlの定義例</li>
+</ul>
+<div class="highlight-xml"><div class="highlight"><pre><span></span><span class="nt">&lt;sec:http</span> <span class="na">pattern=</span><span class="s">&quot;/resources/**&quot;</span> <span class="na">security=</span><span class="s">&quot;none&quot;</span><span class="nt">/&gt;</span>  <span class="c">&lt;!-- (1) (2) --&gt;</span>
+<span class="nt">&lt;sec:http&gt;</span>
+    <span class="c">&lt;!-- omitted --&gt;</span>
+<span class="nt">&lt;/sec:http&gt;</span>
+</pre></div>
+</div>
+<table border="1" class="colwidths-given docutils">
+<colgroup>
+<col width="10%" />
+<col width="90%" />
+</colgroup>
+<thead valign="bottom">
+<tr class="row-odd"><th class="head">項番</th>
+<th class="head">説明</th>
+</tr>
+</thead>
+<tbody valign="top">
+<tr class="row-even"><td><div class="first last line-block">
+<div class="line">(1)</div>
+</div>
+</td>
+<td><div class="first last line-block">
+<div class="line"><code class="docutils literal"><span class="pre">pattern</span></code>属性にセキュリティ機能を適用しないパスのパターンを指定する。</div>
+</div>
+</td>
+</tr>
+<tr class="row-odd"><td><div class="first last line-block">
+<div class="line">(2)</div>
+</div>
+</td>
+<td><div class="first last line-block">
+<div class="line"><code class="docutils literal"><span class="pre">security</span></code>属性に<code class="docutils literal"><span class="pre">none</span></code>を指定する。</div>
+<div class="line"><code class="docutils literal"><span class="pre">none</span></code>を指定すると、Spring Securityのセキュリティ機能(Security Filter)が適用されない。</div>
+</div>
+</td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
+</div>
+
+
+          </div>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="Authentication.html" title="9.2. 認証"
+             >next</a> |</li>
+        <li class="right" >
+          <a href="index.html" title="9. セキュリティ対策"
+             >previous</a> |</li>
+        <li class="nav-item nav-item-0"><a href="../index.html">TERASOLUNA Server Framework for Java (5.x) Development Guideline 5.7.1.SP1.RELEASE documentation</a> &#187;</li>
+          <li class="nav-item nav-item-1"><a href="index.html" >9. セキュリティ対策</a> &#187;</li> 
+      </ul>
+    </div>
+    <div class="footer">
+      © Copyright 2013, NTT DATA Corporation. © Copyright 2013, NTT Corporation.
+      Created using <a href="https://www.sphinx-doc.org/en/master/">Sphinx</a> 1.6.3.Theme is <a href="https://pypi.org/project/solar-theme/">Solar</a>
+    </div>
+    
+    <script>
+    
+    $(function() {
+    	var $sidebar	= $('.sphinxsidebar'),
+    		$window		= $(window),
+    		offset		= $sidebar.offset(),
+    		topPadding	= 3,
+    		$scroll		= $('#scroll');
+    	
+    	$window.scroll(function() {
+    		if ($scroll.is(':checked')) {
+				if ($window.scrollTop() > offset.top) {
+					$sidebar.stop().animate({
+						marginTop:$window.scrollTop() - offset.top + topPadding
+					});
+				} else {
+					$sidebar.stop().animate({
+						marginTop:0
+					});
+				}
+			}
+		});
+    	
+    	var $navList = $('ul:first', $sidebar);
+    	$('li:first', $navList).addClass('open');
+    	
+    	$navList.treeview({
+    		persist: "location",
+    		collapsed: true,
+    		unique: false
+    	});
+    	
+	});
+    (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+        (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+            m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+    })(window,document,'script','//www.google-analytics.com/analytics.js','ga');
+
+    ga('create', 'UA-46550814-1', 'terasolunaorg.github.io');
+    ga('send', 'pageview');
+    </script>
+  </body>
+</html>
