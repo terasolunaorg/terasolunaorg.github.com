@@ -1,0 +1,2984 @@
+<!DOCTYPE html>
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <title>4.9. ファイルアップロード &#8212; TERASOLUNA Server Framework for Java (5.x) Development Guideline 5.6.1.SP1.RELEASE documentation</title>
+    <link rel="stylesheet" href="../../_static/solar.css" type="text/css" />
+    <link rel="stylesheet" href="../../_static/pygments.css" type="text/css" />
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    '../../',
+        VERSION:     '5.6.1.SP1.RELEASE',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true,
+        SOURCELINK_SUFFIX: '.txt'
+      };
+    </script>
+    <script type="text/javascript" src="../../_static/jquery.js"></script>
+    <script type="text/javascript" src="../../_static/underscore.js"></script>
+    <script type="text/javascript" src="../../_static/doctools.js"></script>
+    <link rel="index" title="Index" href="../../genindex.html" />
+    <link rel="search" title="Search" href="../../search.html" />
+    <link rel="next" title="4.10. ファイルダウンロード" href="FileDownload.html" />
+    <link rel="prev" title="4.8. コードリスト" href="Codelist.html" /><script src="../../_static/jquery.treeview.js" type="text/javascript"></script>
+<!-- <link href='http://fonts.googleapis.com/css?family=Source+Code+Pro|Open+Sans:300italic,400italic,700italic,400,300,700' rel='stylesheet' type='text/css'> -->
+<link href="../../_static/solarized-dark.css" rel="stylesheet">
+<link href="../../_static/jquery.treeview.css" rel="stylesheet">
+  </head>
+  <body>
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../../genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="FileDownload.html" title="4.10. ファイルダウンロード"
+             accesskey="N">next</a> |</li>
+        <li class="right" >
+          <a href="Codelist.html" title="4.8. コードリスト"
+             accesskey="P">previous</a> |</li>
+        <li class="nav-item nav-item-0"><a href="../../index.html">TERASOLUNA Server Framework for Java (5.x) Development Guideline 5.6.1.SP1.RELEASE documentation</a> &#187;</li>
+          <li class="nav-item nav-item-1"><a href="index.html" accesskey="U">4. Webアプリ開発機能</a> &#187;</li> 
+      </ul>
+    </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper"><label><input id="scroll" type="checkbox" checked> scroll sidebar</label>
+
+  <h3><a href="../../index.html">Table Of Contents</a></h3>
+  <ul>
+<li><a class="reference internal" href="#">4.9. ファイルアップロード</a><ul>
+<li><a class="reference internal" href="#overview">4.9.1. Overview</a><ul>
+<li><a class="reference internal" href="#id3">4.9.1.1. アップロード処理の基本フロー</a></li>
+<li><a class="reference internal" href="#spring-web">4.9.1.2. Spring Webから提供されているクラスについて</a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#how-to-use">4.9.2. How to use</a><ul>
+<li><a class="reference internal" href="#file-upload-how-to-usr-application-settings">4.9.2.1. アプリケーションの設定</a><ul>
+<li><a class="reference internal" href="#servlet-3-0">4.9.2.1.1. Servlet 3.0のアップロード機能を有効化するための設定</a></li>
+<li><a class="reference internal" href="#servlet-filter">4.9.2.1.2. Servlet Filterの設定</a></li>
+<li><a class="reference internal" href="#id5">4.9.2.1.3. 例外ハンドリングの設定</a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#id6">4.9.2.2. 単一ファイルのアップロード</a><ul>
+<li><a class="reference internal" href="#id7">4.9.2.2.1. フォームの実装</a></li>
+<li><a class="reference internal" href="#jsp">4.9.2.2.2. JSPの実装</a></li>
+<li><a class="reference internal" href="#controller">4.9.2.2.3. Controllerの実装</a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#bean-validation">4.9.2.3. ファイルアップロードのBean Validation</a><ul>
+<li><a class="reference internal" href="#id8">4.9.2.3.1. ファイルが選択されていることを検証するためのバリデーションの実装</a></li>
+<li><a class="reference internal" href="#id9">4.9.2.3.2. ファイルが空でないことを検証するためのバリデーションの実装</a></li>
+<li><a class="reference internal" href="#id10">4.9.2.3.3. ファイルのサイズが許容サイズ内であることを検証するためのバリデーションの実装</a></li>
+<li><a class="reference internal" href="#id11">4.9.2.3.4. フォームの実装</a></li>
+<li><a class="reference internal" href="#id12">4.9.2.3.5. Controllerの実装</a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#id13">4.9.2.4. 複数ファイルのアップロード</a><ul>
+<li><a class="reference internal" href="#id14">4.9.2.4.1. フォームの実装</a></li>
+<li><a class="reference internal" href="#id15">4.9.2.4.2. JSPの実装</a></li>
+<li><a class="reference internal" href="#id16">4.9.2.4.3. Controllerの実装</a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#html5multiple">4.9.2.5. HTML5のmultiple属性を使った複数ファイルのアップロード</a><ul>
+<li><a class="reference internal" href="#id17">4.9.2.5.1. フォームの実装</a></li>
+<li><a class="reference internal" href="#validator">4.9.2.5.2. Validatorの実装</a></li>
+<li><a class="reference internal" href="#id18">4.9.2.5.3. JSPの実装</a></li>
+<li><a class="reference internal" href="#id19">4.9.2.5.4. Controllerの実装</a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#id20">4.9.2.6. 仮アップロード</a><ul>
+<li><a class="reference internal" href="#id21">4.9.2.6.1. Controllerの実装</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li><a class="reference internal" href="#how-to-extend">4.9.3. How to extend</a><ul>
+<li><a class="reference internal" href="#housekeeping">4.9.3.1. 仮アップロード時の不要ファイルのHousekeeping</a><ul>
+<li><a class="reference internal" href="#id22">4.9.3.1.1. 不要ファイルを削除するコンポーネントクラスの実装</a></li>
+<li><a class="reference internal" href="#id23">4.9.3.1.2. 不要ファイルを削除する処理のスケジューリング設定</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li><a class="reference internal" href="#appendix">4.9.4. Appendix</a><ul>
+<li><a class="reference internal" href="#id24">4.9.4.1. ファイルアップロードに関するセキュリティ問題への考慮</a><ul>
+<li><a class="reference internal" href="#dos">4.9.4.1.1. アップロード機能に対するDoS攻撃</a></li>
+<li><a class="reference internal" href="#web">4.9.4.1.2. アップロードしたファイルをWebサーバ上で実行する攻撃</a></li>
+<li><a class="reference internal" href="#file-upload-security-related-warning-points-directory-traversal">4.9.4.1.3. ディレクトリトラバーサル攻撃</a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#commons-fileupload">4.9.4.2. Commons FileUpload を使用したファイルのアップロード</a></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+
+
+  <h4>Previous topic</h4>
+  <p class="topless"><a href="Codelist.html"
+                        title="previous chapter">4.8. コードリスト</a></p>
+  <h4>Next topic</h4>
+  <p class="topless"><a href="FileDownload.html"
+                        title="next chapter">4.10. ファイルダウンロード</a></p>
+  <div role="note" aria-label="source link">
+    <h3>This Page</h3>
+    <ul class="this-page-menu">
+      <li><a href="../../_sources/ArchitectureInDetail/WebApplicationDetail/FileUpload.rst.txt"
+            rel="nofollow">Show Source</a></li>
+    </ul>
+   </div>
+<div id="searchbox" style="display: none" role="search">
+  <h3>Quick search</h3>
+    <form class="search" action="../../search.html" method="get">
+      <div><input type="text" name="q" /></div>
+      <div><input type="submit" value="Go" /></div>
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <div class="section" id="id1">
+<h1>4.9. ファイルアップロード<a class="headerlink" href="#id1" title="Permalink to this headline">¶</a></h1>
+<div class="contents local topic" id="id2">
+<p class="topic-title">目次</p>
+<ul class="simple">
+<li><a class="reference internal" href="#overview" id="id28">Overview</a><ul>
+<li><a class="reference internal" href="#id3" id="id29">アップロード処理の基本フロー</a></li>
+<li><a class="reference internal" href="#spring-web" id="id30">Spring Webから提供されているクラスについて</a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#how-to-use" id="id31">How to use</a><ul>
+<li><a class="reference internal" href="#file-upload-how-to-usr-application-settings" id="id32">アプリケーションの設定</a><ul>
+<li><a class="reference internal" href="#servlet-3-0" id="id33">Servlet 3.0のアップロード機能を有効化するための設定</a></li>
+<li><a class="reference internal" href="#servlet-filter" id="id34">Servlet Filterの設定</a></li>
+<li><a class="reference internal" href="#id5" id="id35">例外ハンドリングの設定</a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#id6" id="id36">単一ファイルのアップロード</a><ul>
+<li><a class="reference internal" href="#id7" id="id37">フォームの実装</a></li>
+<li><a class="reference internal" href="#jsp" id="id38">JSPの実装</a></li>
+<li><a class="reference internal" href="#controller" id="id39">Controllerの実装</a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#bean-validation" id="id40">ファイルアップロードのBean Validation</a><ul>
+<li><a class="reference internal" href="#id8" id="id41">ファイルが選択されていることを検証するためのバリデーションの実装</a></li>
+<li><a class="reference internal" href="#id9" id="id42">ファイルが空でないことを検証するためのバリデーションの実装</a></li>
+<li><a class="reference internal" href="#id10" id="id43">ファイルのサイズが許容サイズ内であることを検証するためのバリデーションの実装</a></li>
+<li><a class="reference internal" href="#id11" id="id44">フォームの実装</a></li>
+<li><a class="reference internal" href="#id12" id="id45">Controllerの実装</a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#id13" id="id46">複数ファイルのアップロード</a><ul>
+<li><a class="reference internal" href="#id14" id="id47">フォームの実装</a></li>
+<li><a class="reference internal" href="#id15" id="id48">JSPの実装</a></li>
+<li><a class="reference internal" href="#id16" id="id49">Controllerの実装</a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#html5multiple" id="id50">HTML5のmultiple属性を使った複数ファイルのアップロード</a><ul>
+<li><a class="reference internal" href="#id17" id="id51">フォームの実装</a></li>
+<li><a class="reference internal" href="#validator" id="id52">Validatorの実装</a></li>
+<li><a class="reference internal" href="#id18" id="id53">JSPの実装</a></li>
+<li><a class="reference internal" href="#id19" id="id54">Controllerの実装</a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#id20" id="id55">仮アップロード</a><ul>
+<li><a class="reference internal" href="#id21" id="id56">Controllerの実装</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li><a class="reference internal" href="#how-to-extend" id="id57">How to extend</a><ul>
+<li><a class="reference internal" href="#housekeeping" id="id58">仮アップロード時の不要ファイルのHousekeeping</a><ul>
+<li><a class="reference internal" href="#id22" id="id59">不要ファイルを削除するコンポーネントクラスの実装</a></li>
+<li><a class="reference internal" href="#id23" id="id60">不要ファイルを削除する処理のスケジューリング設定</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li><a class="reference internal" href="#appendix" id="id61">Appendix</a><ul>
+<li><a class="reference internal" href="#id24" id="id62">ファイルアップロードに関するセキュリティ問題への考慮</a><ul>
+<li><a class="reference internal" href="#dos" id="id63">アップロード機能に対するDoS攻撃</a></li>
+<li><a class="reference internal" href="#web" id="id64">アップロードしたファイルをWebサーバ上で実行する攻撃</a></li>
+<li><a class="reference internal" href="#file-upload-security-related-warning-points-directory-traversal" id="id65">ディレクトリトラバーサル攻撃</a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#commons-fileupload" id="id66">Commons FileUpload を使用したファイルのアップロード</a></li>
+</ul>
+</li>
+</ul>
+</div>
+<div class="section" id="overview">
+<span id="fileuploadoverview"></span><h2><a class="toc-backref" href="#id28">4.9.1. Overview</a><a class="headerlink" href="#overview" title="Permalink to this headline">¶</a></h2>
+<div class="line-block">
+<div class="line">本節では、ファイルをアップロードする方法について、説明する。</div>
+</div>
+<div class="line-block">
+<div class="line">ファイルのアップロードは、Servlet 3.0からサポートされたファイルアップロード機能と、Spring Webから提供されているクラスを利用して行う。</div>
+</div>
+<blockquote>
+<div><div class="admonition note">
+<p class="first admonition-title">Note</p>
+<p class="last">本節では、Servlet 3.0でサポートされたファイルアップロード機能を使用しているため、Servletのバージョンは、3.0以上であることが前提となる。</p>
+</div>
+<div class="admonition note">
+<p class="first admonition-title">Note</p>
+<p>一部のアプリケーションサーバ上でServlet 3.0のファイルアップロード機能を使用すると、
+リクエストパラメータやファイル名のマルチバイト文字が文字化けすることがある。</p>
+<p>version 5.6.1.SP1.RELEASEまでで問題の発生を確認した実績のあるアプリケーションサーバは以下の通りである。</p>
+<ul class="simple">
+<li>WebLogic 12.1.3</li>
+<li>JBoss EAP 7.0</li>
+<li>JBoss EAP 6.4.0.GA</li>
+</ul>
+<p>このうちJBoss EAP 7.0では、アプリケーションサーバ独自の設定を追加することで問題を回避することができる。
+詳細は、<a class="reference external" href="https://github.com/terasolunaorg/terasoluna-gfw/wiki/JBoss7_ja">JBoss EAP 7を利用する際の注意点</a>を参照されたい。
+なお、JBoss EAP 7.2では問題が解消され、設定の追加は不要であることを確認している。</p>
+<p class="last">その他の問題が発生するアプリケーションサーバを使用する場合は、Commons FileUploadを使用することで問題を回避することができる。
+Commons FileUploadを使用するための設定方法については、「<a class="reference internal" href="#file-upload-usage-commons-fileupload"><span class="std std-ref">Commons FileUpload を使用したファイルのアップロード</span></a>」を参照されたい。</p>
+</div>
+<div class="admonition warning">
+<p class="first admonition-title">Warning</p>
+<p>使用するアプリケーションサーバのファイルアップロードの実装が、Apache Commons FileUploadの実装に依存している場合、<a class="reference external" href="http://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2014-0050">CVE-2014-0050</a>および<a class="reference external" href="https://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2016-3092">CVE-2016-3092</a>で報告されているセキュリティの脆弱性が発生する可能性がある。
+使用するアプリケーションサーバに同様の脆弱性がない事を確認されたい。</p>
+<p class="last">Tomcatを使用する場合、7.0系は7.0.70以上、8.5系は8.5.3以上を使用する必要がある。
+Tomcat 9.0系ではこの脆弱性は対策済みである。</p>
+</div>
+</div></blockquote>
+<div class="section" id="id3">
+<h3><a class="toc-backref" href="#id29">4.9.1.1. アップロード処理の基本フロー</a><a class="headerlink" href="#id3" title="Permalink to this headline">¶</a></h3>
+<p>Servlet 3.0からサポートされたファイルアップロード機能と、Spring Webのクラスを使って、ファイルをアップロードする際の基本フローを、以下に示す。</p>
+<blockquote>
+<div><div class="figure">
+<a class="reference internal image-reference" href="../../_images/file-upload-overview_basicflow.png"><img alt="Screen image of single file upload." src="../../_images/file-upload-overview_basicflow.png" style="width: 100%;" /></a>
+</div>
+<table border="1" class="colwidths-given longtable docutils">
+<colgroup>
+<col width="10%" />
+<col width="90%" />
+</colgroup>
+<thead valign="bottom">
+<tr class="row-odd"><th class="head">項番</th>
+<th class="head">説明</th>
+</tr>
+</thead>
+<tbody valign="top">
+<tr class="row-even"><td><div class="first last line-block">
+<div class="line">(1)</div>
+</div>
+</td>
+<td><div class="first last line-block">
+<div class="line">アップロードするファイルを選択し、アップロードを実行する。</div>
+</div>
+</td>
+</tr>
+<tr class="row-odd"><td><div class="first last line-block">
+<div class="line">(2)</div>
+</div>
+</td>
+<td><div class="first last line-block">
+<div class="line">サーブレットコンテナは、<code class="docutils literal"><span class="pre">multipart/form-data</span></code>リクエストを受け取り、<code class="docutils literal"><span class="pre">org.springframework.web.multipart.support.MultipartFilter</span></code>を呼び出す。</div>
+</div>
+</td>
+</tr>
+<tr class="row-even"><td><div class="first last line-block">
+<div class="line">(3)</div>
+</div>
+</td>
+<td><div class="first last line-block">
+<div class="line"><code class="docutils literal"><span class="pre">MultipartFilter</span></code>は、 <code class="docutils literal"><span class="pre">org.springframework.web.multipart.support.StandardServletMultipartResolver</span></code>のメソッドを呼び出し、Servlet 3.0のファイルアップロード機能を、Spring MVCで扱えるようにする。</div>
+<div class="line"><code class="docutils literal"><span class="pre">StandardServletMultipartResolver</span></code>は、Servlet 3.0から導入されたAPI( <code class="docutils literal"><span class="pre">javax.servlet.http.Part</span></code>)をラップする <code class="docutils literal"><span class="pre">org.springframework.web.multipart.MultipartFile</span></code>のオブジェクトを生成する。</div>
+</div>
+</td>
+</tr>
+<tr class="row-odd"><td><div class="first last line-block">
+<div class="line">(4)</div>
+</div>
+</td>
+<td><div class="first last line-block">
+<div class="line"><code class="docutils literal"><span class="pre">MultipartFilter</span></code>から <code class="docutils literal"><span class="pre">DispatcherServlet</span></code>にフィルタチェーンする。</div>
+</div>
+</td>
+</tr>
+<tr class="row-even"><td><div class="first last line-block">
+<div class="line">(5)</div>
+</div>
+</td>
+<td><div class="first last line-block">
+<div class="line"><code class="docutils literal"><span class="pre">DispatcherServlet</span></code>は、Controllerのハンドラメソッドを呼び出す。</div>
+<div class="line">(3)で生成された <code class="docutils literal"><span class="pre">MultipartFile</span></code>オブジェクトは、 Controllerの引数またはフォームオブジェクトに、バインドされる。</div>
+</div>
+</td>
+</tr>
+<tr class="row-odd"><td><div class="first last line-block">
+<div class="line">(6)</div>
+</div>
+</td>
+<td><div class="first last line-block">
+<div class="line">Controllerは、 <code class="docutils literal"><span class="pre">MultipartFile</span></code>オブジェクトのメソッドを呼び出し、アップロードされたファイルの中身と、メタ情報(ファイル名など)を取得する。</div>
+</div>
+</td>
+</tr>
+<tr class="row-even"><td><div class="first last line-block">
+<div class="line">(7)</div>
+</div>
+</td>
+<td><div class="first last line-block">
+<div class="line"><code class="docutils literal"><span class="pre">MultipartFile</span></code>は、Servlet 3.0から導入された <code class="docutils literal"><span class="pre">Part</span></code>オブジェクトのメソッドを呼び出し、アップロードされたファイルの中身と、メタ情報(ファイル名など)を取得し、Controllerに返却する。</div>
+</div>
+</td>
+</tr>
+<tr class="row-odd"><td><div class="first last line-block">
+<div class="line">(8)</div>
+</div>
+</td>
+<td><div class="first last line-block">
+<div class="line">Controllerは、Serviceのメソッドを呼び出し、アップロード処理を実行する。</div>
+<div class="line"><code class="docutils literal"><span class="pre">MultipartFile</span></code>オブジェクトより取得した、ファイルの中身と、メタ情報(ファイル名など)は、Serviceのメソッドの引数として、引き渡す。</div>
+</div>
+</td>
+</tr>
+<tr class="row-even"><td><div class="first last line-block">
+<div class="line">(9)</div>
+</div>
+</td>
+<td><div class="first last line-block">
+<div class="line">Serviceは、アップロードされたファイルの中身と、メタ情報(ファイル名など)を、ファイルまたはデータベースに格納する。</div>
+</div>
+</td>
+</tr>
+<tr class="row-odd"><td><div class="first last line-block">
+<div class="line">(10)</div>
+</div>
+</td>
+<td><div class="first last line-block">
+<div class="line"><code class="docutils literal"><span class="pre">MultipartFilter</span></code>は、 <code class="docutils literal"><span class="pre">StandardServletMultipartResolver</span></code>を呼び出し、Servlet 3.0のファイルアップロード機能で使用される一時ファイルを削除する。</div>
+</div>
+</td>
+</tr>
+<tr class="row-even"><td><div class="first last line-block">
+<div class="line">(11)</div>
+</div>
+</td>
+<td><div class="first last line-block">
+<div class="line"><code class="docutils literal"><span class="pre">StandardServletMultipartResolver</span></code>は、Servlet 3.0から導入された <code class="docutils literal"><span class="pre">Part</span></code>オブジェクトのメソッドを呼び出し、ディスクに保存されている一時ファイルを削除する。</div>
+</div>
+</td>
+</tr>
+</tbody>
+</table>
+<div class="admonition note">
+<p class="first admonition-title">Note</p>
+<p class="last">Controllerでは、Spring Webから提供されている<code class="docutils literal"><span class="pre">MultipartFile</span></code>オブジェクトに対して処理を行うため、Servlet 3.0から提供されたファイルアップロード用のAPIに依存した実装を、排除することができる。</p>
+</div>
+</div></blockquote>
+</div>
+<div class="section" id="spring-web">
+<h3><a class="toc-backref" href="#id30">4.9.1.2. Spring Webから提供されているクラスについて</a><a class="headerlink" href="#spring-web" title="Permalink to this headline">¶</a></h3>
+<p>Spring Webから提供されているファイルアップロード用のクラスについて、説明する。</p>
+<blockquote>
+<div><table border="1" class="colwidths-given docutils">
+<colgroup>
+<col width="10%" />
+<col width="40%" />
+<col width="50%" />
+</colgroup>
+<thead valign="bottom">
+<tr class="row-odd"><th class="head"><div class="first last line-block">
+<div class="line">項番</div>
+</div>
+</th>
+<th class="head"><div class="first last line-block">
+<div class="line">クラス名</div>
+</div>
+</th>
+<th class="head"><div class="first last line-block">
+<div class="line">説明</div>
+</div>
+</th>
+</tr>
+</thead>
+<tbody valign="top">
+<tr class="row-even"><td><ol class="first last arabic simple">
+<li></li>
+</ol>
+</td>
+<td><div class="first last line-block">
+<div class="line">org.springframework.web.multipart.</div>
+<div class="line">MultipartFile</div>
+</div>
+</td>
+<td><div class="first last line-block">
+<div class="line">アップロードされたファイルであることを示すインタフェース。</div>
+<div class="line">利用するファイルアップロード機能で扱うファイルオブジェクトを、抽象化する役割をもつ。</div>
+</div>
+</td>
+</tr>
+<tr class="row-odd"><td><ol class="first last arabic simple" start="2">
+<li></li>
+</ol>
+</td>
+<td><div class="first last line-block">
+<div class="line">org.springframework.web.multipart.support.</div>
+<div class="line">StandardMultipartHttpServletRequest$</div>
+<div class="line">StandardMultipartFile</div>
+</div>
+</td>
+<td><div class="first last line-block">
+<div class="line">Servlet 3.0から導入されたファイルアップロード機能用の<code class="docutils literal"><span class="pre">MultipartFile</span></code>クラス。</div>
+<div class="line">Servlet 3.0から導入された<code class="docutils literal"><span class="pre">Part</span></code>オブジェクトに、処理を委譲している。</div>
+</div>
+</td>
+</tr>
+<tr class="row-even"><td><ol class="first last arabic simple" start="3">
+<li></li>
+</ol>
+</td>
+<td><div class="first last line-block">
+<div class="line">org.springframework.web.multipart.</div>
+<div class="line">MultipartResolver</div>
+</div>
+</td>
+<td><div class="first last line-block">
+<div class="line"><code class="docutils literal"><span class="pre">multipart/form-data</span></code>リクエストの解析方法を解決するためのインタフェース。</div>
+<div class="line">ファイルアップロード機能の、実装に対応する<code class="docutils literal"><span class="pre">MultipartFile</span></code>オブジェクトを生成する役割をもつ。</div>
+</div>
+</td>
+</tr>
+<tr class="row-odd"><td><ol class="first last arabic simple" start="4">
+<li></li>
+</ol>
+</td>
+<td><div class="first last line-block">
+<div class="line">org.springframework.web.multipart.support.</div>
+<div class="line">StandardServletMultipartResolver</div>
+</div>
+</td>
+<td><div class="first last line-block">
+<div class="line">Servlet 3.0から導入されたファイルアップロード機能用の<code class="docutils literal"><span class="pre">MultipartResolver</span></code>クラス。</div>
+</div>
+</td>
+</tr>
+<tr class="row-even"><td><ol class="first last arabic simple" start="5">
+<li></li>
+</ol>
+</td>
+<td><div class="first last line-block">
+<div class="line">org.springframework.web.multipart.support.</div>
+<div class="line">MultipartFilter</div>
+</div>
+</td>
+<td><div class="first last line-block">
+<div class="line">multipart/form-dataリクエストの時に、DIコンテナからMultipartResolverを実装するクラスを呼び出し、MultipartFileを生成するクラス。</div>
+<div class="line">このクラスを使用しないと、ファイルアップロードで許容する最大サイズを超えた場合に、Servlet Filterの処理内でリクエストパラメータを取得できない。</div>
+<div class="line">そのため、本ガイドラインではMultipartFilterを使用することを推奨している。</div>
+</div>
+</td>
+</tr>
+</tbody>
+</table>
+<div class="admonition tip">
+<p class="first admonition-title">Tip</p>
+<p class="last">本ガイドラインでは、Servlet 3.0から導入されたファイルアップロード機能を使うことを前提としているが、Spring Webでは、<a class="reference external" href="https://docs.spring.io/spring/docs/5.2.20.RELEASE/spring-framework-reference/web.html#mvc-multipart-resolver-commons">「Apache Commons FileUpload」用の実装クラスも提供している</a>。
+アップロード処理の実装の違いは、<code class="docutils literal"><span class="pre">MultipartResolver</span></code>と、<code class="docutils literal"><span class="pre">MultipartFile</span></code>オブジェクトによって吸収されるため、Controllerの実装に影響を与えることはない。</p>
+</div>
+</div></blockquote>
+<div class="line-block">
+<div class="line"><br /></div>
+</div>
+</div>
+</div>
+<div class="section" id="how-to-use">
+<h2><a class="toc-backref" href="#id31">4.9.2. How to use</a><a class="headerlink" href="#how-to-use" title="Permalink to this headline">¶</a></h2>
+<div class="section" id="file-upload-how-to-usr-application-settings">
+<span id="id4"></span><h3><a class="toc-backref" href="#id32">4.9.2.1. アプリケーションの設定</a><a class="headerlink" href="#file-upload-how-to-usr-application-settings" title="Permalink to this headline">¶</a></h3>
+<div class="section" id="servlet-3-0">
+<span id="file-upload-how-to-enable-servlet-3-0"></span><h4><a class="toc-backref" href="#id33">4.9.2.1.1. Servlet 3.0のアップロード機能を有効化するための設定</a><a class="headerlink" href="#servlet-3-0" title="Permalink to this headline">¶</a></h4>
+<p>Servlet 3.0のアップロード機能を有効化するために、以下の設定を行う。</p>
+<ul class="simple">
+<li><code class="file docutils literal"><span class="pre">web.xml</span></code></li>
+</ul>
+<blockquote>
+<div><div class="highlight-xml"><div class="highlight"><pre><span></span> <span class="nt">&lt;web-app</span> <span class="na">xmlns=</span><span class="s">&quot;http://java.sun.com/xml/ns/javaee&quot;</span>
+     <span class="na">xmlns:xsi=</span><span class="s">&quot;http://www.w3.org/2001/XMLSchema-instance&quot;</span>
+     <span class="na">xsi:schemaLocation=</span><span class="s">&quot;http://java.sun.com/xml/ns/javaee http://java.sun.com/xml/ns/javaee/web-app_3_0.xsd&quot;</span>
+     <span class="na">version=</span><span class="s">&quot;3.0&quot;</span><span class="nt">&gt;</span> <span class="c">&lt;!-- (1) (2) --&gt;</span>
+
+     <span class="nt">&lt;servlet&gt;</span>
+         <span class="nt">&lt;servlet-class&gt;</span>
+             org.springframework.web.servlet.DispatcherServlet
+         <span class="nt">&lt;/servlet-class&gt;</span>
+         <span class="c">&lt;!-- omitted --&gt;</span>
+<span class="hll">         <span class="nt">&lt;multipart-config&gt;</span> <span class="c">&lt;!-- (3) --&gt;</span>
+</span><span class="hll">             <span class="nt">&lt;max-file-size&gt;</span>5242880<span class="nt">&lt;/max-file-size&gt;</span> <span class="c">&lt;!-- (4) --&gt;</span>
+</span><span class="hll">             <span class="nt">&lt;max-request-size&gt;</span>27262976<span class="nt">&lt;/max-request-size&gt;</span> <span class="c">&lt;!-- (5) --&gt;</span>
+</span><span class="hll">             <span class="nt">&lt;file-size-threshold&gt;</span>0<span class="nt">&lt;/file-size-threshold&gt;</span> <span class="c">&lt;!-- (6) --&gt;</span>
+</span><span class="hll">         <span class="nt">&lt;/multipart-config&gt;</span>
+</span>     <span class="nt">&lt;/servlet&gt;</span>
+
+     <span class="c">&lt;!-- omitted --&gt;</span>
+
+ <span class="nt">&lt;/web-app&gt;</span>
+</pre></div>
+</div>
+<table border="1" class="colwidths-given longtable docutils">
+<colgroup>
+<col width="10%" />
+<col width="90%" />
+</colgroup>
+<thead valign="bottom">
+<tr class="row-odd"><th class="head">項番</th>
+<th class="head">説明</th>
+</tr>
+</thead>
+<tbody valign="top">
+<tr class="row-even"><td><div class="first last line-block">
+<div class="line">(1)</div>
+</div>
+</td>
+<td><div class="first last line-block">
+<div class="line"><code class="docutils literal"><span class="pre">&lt;web-app&gt;</span></code>要素の<code class="docutils literal"><span class="pre">xsi:schemaLocation</span></code>属性に、Servlet 3.0以上のXSDファイルを指定する。</div>
+</div>
+</td>
+</tr>
+<tr class="row-odd"><td><div class="first last line-block">
+<div class="line">(2)</div>
+</div>
+</td>
+<td><div class="first last line-block">
+<div class="line"><code class="docutils literal"><span class="pre">&lt;web-app&gt;</span></code>要素の<code class="docutils literal"><span class="pre">version</span></code>属性に、<code class="docutils literal"><span class="pre">3.0</span></code>以上のバージョンを指定する。</div>
+</div>
+</td>
+</tr>
+<tr class="row-even"><td><div class="first last line-block">
+<div class="line">(3)</div>
+</div>
+</td>
+<td><div class="first last line-block">
+<div class="line">ファイルアップロードを使用するServletの<code class="docutils literal"><span class="pre">&lt;servlet&gt;</span></code>要素に、<code class="docutils literal"><span class="pre">&lt;multipart-config&gt;</span></code>要素を追加する。</div>
+</div>
+</td>
+</tr>
+<tr class="row-odd"><td><div class="first last line-block">
+<div class="line">(4)</div>
+</div>
+</td>
+<td><div class="first last line-block">
+<div class="line">アップロードを許可する1ファイルの最大バイト数を指定する。</div>
+<div class="line">指定がない場合、-1 (制限なし)が設定される。</div>
+<div class="line">指定した値を超えた場合、<code class="docutils literal"><span class="pre">org.springframework.web.multipart.MultipartException</span></code>が発生する。</div>
+<div class="line"><br /></div>
+<div class="line">上記例では、 5MBを指定している。</div>
+</div>
+</td>
+</tr>
+<tr class="row-even"><td><div class="first last line-block">
+<div class="line">(5)</div>
+</div>
+</td>
+<td><div class="first last line-block">
+<div class="line"><code class="docutils literal"><span class="pre">multipart/form-data</span></code>リクエストのContent-Lengthの最大値を指定する。</div>
+<div class="line">指定がない場合、-1 (制限なし)が設定される。</div>
+<div class="line">指定した値を超えた場合、<code class="docutils literal"><span class="pre">org.springframework.web.multipart.MultipartException</span></code>が発生する。</div>
+<div class="line"><br /></div>
+<div class="line">本パラメータに設定する値は、以下の計算式で算出される値を設定する必要がある。</div>
+<div class="line"><br /></div>
+<div class="line"><strong>(「アップロードを許可する1ファイルの最大バイト数」  * 「同時にアップロードを許可するファイル数」 ) + 「その他のフォーム項目のデータサイズ」 + 「multipart/form-dataリクエストのメタ情報サイズ」</strong></div>
+<div class="line"><br /></div>
+<div class="line">上記例では、 26MBを指定している。</div>
+<div class="line">内訳は、25MB(5MB * 5 files)と、1MB(メタ情報のバイト数 + フォーム項目のバイト数)である。</div>
+</div>
+</td>
+</tr>
+<tr class="row-odd"><td><div class="first last line-block">
+<div class="line">(6)</div>
+</div>
+</td>
+<td><div class="first last line-block">
+<div class="line">アップロードされたファイルの中身を、一時ファイルとして保存するかの閾値(1ファイルのバイト数)を指定する。</div>
+<div class="line">このパラメータを明示的に指定しないと <code class="docutils literal"><span class="pre">&lt;max-file-size&gt;</span></code> 要素や <code class="docutils literal"><span class="pre">&lt;max-request-size&gt;</span></code> 要素で指定した値が有効にならないアプリケーションサーバが存在するため、デフォルト値(0)を明示的に指定している。</div>
+</div>
+</td>
+</tr>
+</tbody>
+</table>
+<div class="admonition warning">
+<p class="first admonition-title">Warning</p>
+<p>DoS攻撃に対する攻撃耐性を高めるため、<code class="docutils literal"><span class="pre">max-file-size</span></code>と、<code class="docutils literal"><span class="pre">max-request-size</span></code>は、かならず指定すること。</p>
+<p class="last">DoS攻撃については、<a class="reference internal" href="#file-upload-security-related-warning-points-dos"><span class="std std-ref">アップロード機能に対するDoS攻撃</span></a>を参照されたい。</p>
+</div>
+<div class="admonition note">
+<p class="first admonition-title">Note</p>
+<p class="last">Spring Framework 5.0より、指定サイズを超えるファイルのアップロードやマルチパートのリクエストが行われた際、TomcatやWebLogicなど一部のアプリケーションサーバ上では<code class="docutils literal"><span class="pre">org.springframework.web.multipart.MultipartException</span></code>のサブクラスである<code class="docutils literal"><span class="pre">org.springframework.web.multipart.MaxUploadSizeExceededException</span></code>が発生するようになった。</p>
+</div>
+<div class="admonition note">
+<p class="first admonition-title">Note</p>
+<p>デフォルトの設定では、アップロードされたファイルは必ず一時ファイルに出力されるが、<code class="docutils literal"><span class="pre">&lt;multipart-config&gt;</span></code>の子要素である<code class="docutils literal"><span class="pre">&lt;file-size-threshold&gt;</span></code>要素の設定値によって、出力有無を制御することができる。</p>
+<blockquote>
+<div><div class="highlight-xml"><div class="highlight"><pre><span></span><span class="c">&lt;!-- omitted --&gt;</span>
+
+<span class="nt">&lt;multipart-config&gt;</span>
+    <span class="c">&lt;!-- omitted --&gt;</span>
+    <span class="nt">&lt;file-size-threshold&gt;</span>32768<span class="nt">&lt;/file-size-threshold&gt;</span> <span class="c">&lt;!-- (7) --&gt;</span>
+<span class="nt">&lt;/multipart-config&gt;</span>
+
+<span class="c">&lt;!-- omitted --&gt;</span>
+</pre></div>
+</div>
+<table border="1" class="colwidths-given docutils">
+<colgroup>
+<col width="10%" />
+<col width="90%" />
+</colgroup>
+<thead valign="bottom">
+<tr class="row-odd"><th class="head">項番</th>
+<th class="head">説明</th>
+</tr>
+</thead>
+<tbody valign="top">
+<tr class="row-even"><td><div class="first last line-block">
+<div class="line">(7)</div>
+</div>
+</td>
+<td><div class="first last line-block">
+<div class="line">アップロードされたファイルの中身を、一時ファイルとして保存するかの閾値(1ファイルのバイト数)を指定する。</div>
+<div class="line">指定がない場合、0が設定される。</div>
+<div class="line">指定値を超えるサイズのファイルがアップロードされた場合、アップロードされたファイルは、</div>
+<div class="line">一時ファイルとしてディスクに出力され、リクエストが完了した時点で削除される。</div>
+<div class="line"><br /></div>
+<div class="line">上記例では、 32KBを指定している。</div>
+</div>
+</td>
+</tr>
+</tbody>
+</table>
+<div class="admonition warning">
+<p class="first admonition-title">Warning</p>
+<p>本パラメータは、以下の点でトレードオフの関係となっているため、<strong>システム特性にあった設定値を指定すること。</strong></p>
+<ul class="last simple">
+<li>設定値を大きくすると、メモリ内で処理が完結するため、処理性能は向上するが、 DoS攻撃などによって<code class="docutils literal"><span class="pre">OutOfMemoryError</span></code>が発生する可能性が高くなる。</li>
+<li>設定値を小さくすると、メモリの使用率を最小限に抑えることができるため、DoS攻撃などによって<code class="docutils literal"><span class="pre">OutOfMemoryError</span></code>が発生する可能性を抑えることができるが、
+ディスクIOの発生頻度が高くなるため、性能劣化が発生する可能性が高くなる。</li>
+</ul>
+</div>
+</div></blockquote>
+<p>一時ファイルの出力ディレクトリを変更したい場合は、<code class="docutils literal"><span class="pre">&lt;multipart-config&gt;</span></code>の子要素である<code class="docutils literal"><span class="pre">&lt;location&gt;</span></code>要素にディレクトリパスを指定する。</p>
+<blockquote class="last">
+<div><div class="highlight-xml"><div class="highlight"><pre><span></span><span class="c">&lt;!-- omitted --&gt;</span>
+
+<span class="nt">&lt;multipart-config&gt;</span>
+    <span class="nt">&lt;location&gt;</span>/tmp<span class="nt">&lt;/location&gt;</span> <span class="c">&lt;!-- (8) --&gt;</span>
+    <span class="c">&lt;!-- omitted --&gt;</span>
+<span class="nt">&lt;/multipart-config&gt;</span>
+
+<span class="c">&lt;!-- omitted --&gt;</span>
+</pre></div>
+</div>
+<table border="1" class="colwidths-given docutils">
+<colgroup>
+<col width="10%" />
+<col width="90%" />
+</colgroup>
+<thead valign="bottom">
+<tr class="row-odd"><th class="head">項番</th>
+<th class="head">説明</th>
+</tr>
+</thead>
+<tbody valign="top">
+<tr class="row-even"><td><div class="first last line-block">
+<div class="line">(8)</div>
+</div>
+</td>
+<td><div class="first last line-block">
+<div class="line">一時ファイルを出力するディレクトリのパスを指定する。</div>
+<div class="line">省略した場合、アプリケーションサーバの一時ファイルを格納するためのディレクトに出力される。</div>
+<div class="line"><br /></div>
+<div class="line">上記例では、<code class="docutils literal"><span class="pre">/tmp</span></code>を指定している。</div>
+</div>
+</td>
+</tr>
+</tbody>
+</table>
+<div class="admonition warning">
+<p class="first admonition-title">Warning</p>
+<p><code class="docutils literal"><span class="pre">&lt;location&gt;</span></code>要素で指定するディレクトリは、アプリケーションサーバ(サーブレットコンテナ)が利用するディレクトリであり、<strong>アプリケーションからアクセスする場所ではない。</strong></p>
+<p class="last">アプリケーションとしてアップロードされたファイルを一時的なファイルとして保存しておきたい場合は、<code class="docutils literal"><span class="pre">&lt;location&gt;</span></code>要素で指定するディレクトリとは、別のディレクトリに出力すること。</p>
+</div>
+</div></blockquote>
+</div>
+</div></blockquote>
+</div>
+<div class="section" id="servlet-filter">
+<span id="file-upload-setting-servlet-filter"></span><h4><a class="toc-backref" href="#id34">4.9.2.1.2. Servlet Filterの設定</a><a class="headerlink" href="#servlet-filter" title="Permalink to this headline">¶</a></h4>
+<p>multipart/form-dataリクエストの時、ファイルアップロードで許容する最大サイズを超えた場合の動作は、アプリケーションサーバによって異なる。アプリケーションサーバによっては、許容サイズを超えたアップロードの際に発生する<code class="docutils literal"><span class="pre">MultipartException</span></code>が検知されず、後述する例外ハンドリングの設定が有効にならない場合がある。</p>
+<div class="line-block">
+<div class="line">この動作は<code class="docutils literal"><span class="pre">MiltipartFilter</span></code>を設定することで回避できるため、本ガイドラインでは<code class="docutils literal"><span class="pre">MiltipartFilter</span></code>の設定を前提として説明を行う。</div>
+<div class="line">以下に、設定例を示す。</div>
+</div>
+<ul class="simple">
+<li><code class="file docutils literal"><span class="pre">web.xml</span></code></li>
+</ul>
+<blockquote>
+<div><div class="highlight-xml"><div class="highlight"><pre><span></span><span class="c">&lt;!-- (1) --&gt;</span>
+<span class="nt">&lt;filter&gt;</span>
+    <span class="nt">&lt;filter-name&gt;</span>MultipartFilter<span class="nt">&lt;/filter-name&gt;</span>
+    <span class="nt">&lt;filter-class&gt;</span>org.springframework.web.multipart.support.MultipartFilter<span class="nt">&lt;/filter-class&gt;</span>
+<span class="nt">&lt;/filter&gt;</span>
+<span class="c">&lt;!-- (2) --&gt;</span>
+<span class="nt">&lt;filter-mapping&gt;</span>
+    <span class="nt">&lt;filter-name&gt;</span>MultipartFilter<span class="nt">&lt;/filter-name&gt;</span>
+    <span class="nt">&lt;url-pattern&gt;</span>/*<span class="nt">&lt;/url-pattern&gt;</span>
+<span class="nt">&lt;/filter-mapping&gt;</span>
+</pre></div>
+</div>
+<table border="1" class="colwidths-given docutils">
+<colgroup>
+<col width="10%" />
+<col width="90%" />
+</colgroup>
+<thead valign="bottom">
+<tr class="row-odd"><th class="head">項番</th>
+<th class="head">説明</th>
+</tr>
+</thead>
+<tbody valign="top">
+<tr class="row-even"><td><div class="first last line-block">
+<div class="line">(1)</div>
+</div>
+</td>
+<td><div class="first last line-block">
+<div class="line">Servlet Fliterとして <code class="docutils literal"><span class="pre">MultipartFilter</span></code>を定義する。</div>
+</div>
+</td>
+</tr>
+<tr class="row-odd"><td><div class="first last line-block">
+<div class="line">(2)</div>
+</div>
+</td>
+<td><div class="first last line-block">
+<div class="line"><code class="docutils literal"><span class="pre">MultipartFilter</span></code>を適用するURLのパターンを指定する。</div>
+</div>
+</td>
+</tr>
+</tbody>
+</table>
+<div class="admonition warning">
+<p class="first admonition-title">Warning</p>
+<p><strong>Spring Security使用時の注意点</strong></p>
+<p>Spring Securityを使ってセキュリティ対策を行う場合は、<code class="docutils literal"><span class="pre">springSecurityFilterChain</span></code>より前に定義すること。
+また、プロジェクト独自で作成するServlet Filterでリクエストパラメータにアクセスするものがある場合は、そのServlet Filterより前に定義すること。</p>
+<p class="last">ただし、<code class="docutils literal"><span class="pre">springSecurityFilterChain</span></code>より前に定義することで、認証又は認可されていないユーザーからのアップロード(一時ファイル作成)を許容することになる。
+この動作を回避する方法が<a class="reference external" href="https://docs.spring.io/spring-security/site/docs/5.2.1.RELEASE/reference/htmlsingle/#servlet-csrf-considerations-multipart-url">Spring Security Reference -Include CSRF token in action-</a>の中で紹介されているが、セキュリティ上のリスクを含む回避方法になるため、本ガイドラインでは回避策の適用は推奨していない。</p>
+</div>
+<div class="admonition warning">
+<p class="first admonition-title">Warning</p>
+<p><strong>ファイルアップロードの許容サイズを超過した場合の注意点</strong></p>
+<p class="last">ファイルアップロードの許容サイズを超過した場合、WebLogicなど一部のアプリケーションサーバでは、CSRFトークンを取得する前にサイズ超過のエラーが検知され、CSRFトークンチェックが行われないことがある。</p>
+</div>
+<div class="admonition note">
+<p class="first admonition-title">Note</p>
+<p><strong>MultipartResolverのデフォルト呼び出し</strong></p>
+<p class="last"><code class="docutils literal"><span class="pre">MultipartFilter</span></code>を使用すると、デフォルトで
+<code class="docutils literal"><span class="pre">org.springframework.web.multipart.support.StandardServletMultipartResolver</span></code>が呼び出される。
+<code class="docutils literal"><span class="pre">StandardServletMultipartResolver</span></code>は、アップロードされたファイルを<code class="docutils literal"><span class="pre">org.springframework.web.multipart.MultipartFile</span></code>として生成し、Controllerの引数およびフォームオブジェクトのプロパティとして、受け取ることができるようにする。</p>
+</div>
+</div></blockquote>
+</div>
+<div class="section" id="id5">
+<h4><a class="toc-backref" href="#id35">4.9.2.1.3. 例外ハンドリングの設定</a><a class="headerlink" href="#id5" title="Permalink to this headline">¶</a></h4>
+<p>許可されないサイズのファイルやマルチパートのリクエストが行われた際に発生する<code class="docutils literal"><span class="pre">MultipartException</span></code>の例外ハンドリングの定義を追加する。</p>
+<div class="line-block">
+<div class="line"><code class="docutils literal"><span class="pre">MultipartException</span></code>は、クライアントが指定するファイルサイズに起因して発生する例外なので、クライアントエラー(HTTPレスポンスコード=4xx)として扱うことを推奨する。</div>
+<div class="line"><strong>例外ハンドリングを個別に追加しないと、システムエラー扱いとなってしまうので、かならず定義を追加すること。</strong></div>
+</div>
+<div class="line-block">
+<div class="line"><code class="docutils literal"><span class="pre">MultipartException</span></code>をハンドリングするための設定は、<code class="docutils literal"><span class="pre">MultipartFilter</span></code>を使用するか否かによって異なる。</div>
+<div class="line"><code class="docutils literal"><span class="pre">MultipartFilter</span></code>を使用する場合は、サーブレットコンテナの<code class="docutils literal"><span class="pre">&lt;error-page&gt;</span></code>機能を使って例外ハンドリングを行う。</div>
+<div class="line">以下に、設定例を示す。</div>
+</div>
+<ul class="simple">
+<li><code class="file docutils literal"><span class="pre">web.xml</span></code></li>
+</ul>
+<blockquote>
+<div><div class="highlight-xml"><div class="highlight"><pre><span></span><span class="nt">&lt;error-page&gt;</span>
+    <span class="c">&lt;!-- (1) --&gt;</span>
+    <span class="nt">&lt;exception-type&gt;</span>org.springframework.web.multipart.MultipartException<span class="nt">&lt;/exception-type&gt;</span>
+    <span class="c">&lt;!-- (2) --&gt;</span>
+    <span class="nt">&lt;location&gt;</span>/WEB-INF/views/common/error/fileUploadError.jsp<span class="nt">&lt;/location&gt;</span>
+<span class="nt">&lt;/error-page&gt;</span>
+</pre></div>
+</div>
+<table border="1" class="colwidths-given docutils">
+<colgroup>
+<col width="10%" />
+<col width="90%" />
+</colgroup>
+<thead valign="bottom">
+<tr class="row-odd"><th class="head">項番</th>
+<th class="head">説明</th>
+</tr>
+</thead>
+<tbody valign="top">
+<tr class="row-even"><td><div class="first last line-block">
+<div class="line">(1)</div>
+</div>
+</td>
+<td><div class="first last line-block">
+<div class="line">ハンドリング対象の例外クラスとして、<code class="docutils literal"><span class="pre">MultipartException</span></code>を指定する。</div>
+</div>
+</td>
+</tr>
+<tr class="row-odd"><td><div class="first last line-block">
+<div class="line">(2)</div>
+</div>
+</td>
+<td><div class="first last line-block">
+<div class="line"><code class="docutils literal"><span class="pre">MultipartException</span></code>が発生した際に表示するファイルを指定する。</div>
+<div class="line"><br /></div>
+<div class="line">上記例では、<code class="docutils literal"><span class="pre">/WEB-INF/views/common/error/fileUploadError.jsp</span></code>を指定している。</div>
+</div>
+</td>
+</tr>
+</tbody>
+</table>
+</div></blockquote>
+<ul class="simple">
+<li><code class="file docutils literal"><span class="pre">fileUploadError.jsp</span></code></li>
+</ul>
+<blockquote>
+<div><div class="highlight-jsp"><div class="highlight"><pre><span></span><span class="k">&lt;%-</span><span class="o">-</span> <span class="p">(</span><span class="mi">3</span><span class="p">)</span> <span class="o">--</span><span class="k">%&gt;</span>
+<span class="k">&lt;%</span> <span class="n">response</span><span class="p">.</span><span class="na">setStatus</span><span class="p">(</span><span class="n">HttpServletResponse</span><span class="p">.</span><span class="na">SC_BAD_REQUEST</span><span class="p">);</span> <span class="k">%&gt;</span>
+<span class="cp">&lt;!DOCTYPE html&gt;</span>
+<span class="nt">&lt;html&gt;</span>
+
+    <span class="c">&lt;!-- omitted --&gt;</span>
+
+<span class="nt">&lt;/html&gt;</span>
+</pre></div>
+</div>
+<table border="1" class="colwidths-given docutils">
+<colgroup>
+<col width="10%" />
+<col width="90%" />
+</colgroup>
+<thead valign="bottom">
+<tr class="row-odd"><th class="head">項番</th>
+<th class="head">説明</th>
+</tr>
+</thead>
+<tbody valign="top">
+<tr class="row-even"><td><div class="first last line-block">
+<div class="line">(3)</div>
+</div>
+</td>
+<td><div class="first last line-block">
+<div class="line">HTTPステータスコードは、<code class="docutils literal"><span class="pre">HttpServletResponse</span></code>のAPIを呼び出して設定する。</div>
+<div class="line"><br /></div>
+<div class="line">上記例では、<code class="docutils literal"><span class="pre">400</span></code>(Bad Request) を設定している。</div>
+<div class="line">明示的に設定しない場合、HTTPステータスコードは<code class="docutils literal"><span class="pre">500</span></code>(Internal Server Error)となる。</div>
+</div>
+</td>
+</tr>
+</tbody>
+</table>
+</div></blockquote>
+<div class="line-block">
+<div class="line"><br /></div>
+</div>
+<div class="line-block">
+<div class="line"><code class="docutils literal"><span class="pre">MultipartFilter</span></code>を使用しない場合は、<code class="docutils literal"><span class="pre">SystemExceptionResolver</span></code>を使用して例外ハンドリングを行う。</div>
+<div class="line">以下に、設定例を示す。</div>
+</div>
+<ul class="simple">
+<li><code class="file docutils literal"><span class="pre">spring-mvc.xml</span></code></li>
+</ul>
+<blockquote>
+<div><div class="highlight-xml"><div class="highlight"><pre><span></span><span class="nt">&lt;bean</span> <span class="na">class=</span><span class="s">&quot;org.terasoluna.gfw.web.exception.SystemExceptionResolver&quot;</span><span class="nt">&gt;</span>
+    <span class="c">&lt;!-- omitted --&gt;</span>
+    <span class="nt">&lt;property</span> <span class="na">name=</span><span class="s">&quot;exceptionMappings&quot;</span><span class="nt">&gt;</span>
+        <span class="nt">&lt;map&gt;</span>
+            <span class="c">&lt;!-- omitted --&gt;</span>
+            <span class="c">&lt;!-- (4) --&gt;</span>
+            <span class="nt">&lt;entry</span> <span class="na">key=</span><span class="s">&quot;MultipartException&quot;</span>
+                   <span class="na">value=</span><span class="s">&quot;common/error/fileUploadError&quot;</span> <span class="nt">/&gt;</span>
+
+        <span class="nt">&lt;/map&gt;</span>
+    <span class="nt">&lt;/property&gt;</span>
+    <span class="nt">&lt;property</span> <span class="na">name=</span><span class="s">&quot;statusCodes&quot;</span><span class="nt">&gt;</span>
+        <span class="nt">&lt;map&gt;</span>
+            <span class="c">&lt;!-- omitted --&gt;</span>
+            <span class="c">&lt;!-- (5) --&gt;</span>
+            <span class="nt">&lt;entry</span> <span class="na">key=</span><span class="s">&quot;common/error/fileUploadError&quot;</span> <span class="na">value=</span><span class="s">&quot;400&quot;</span> <span class="nt">/&gt;</span>
+        <span class="nt">&lt;/map&gt;</span>
+    <span class="nt">&lt;/property&gt;</span>
+    <span class="c">&lt;!-- omitted --&gt;</span>
+<span class="nt">&lt;/bean&gt;</span>
+</pre></div>
+</div>
+<table border="1" class="colwidths-given docutils">
+<colgroup>
+<col width="10%" />
+<col width="90%" />
+</colgroup>
+<thead valign="bottom">
+<tr class="row-odd"><th class="head">項番</th>
+<th class="head">説明</th>
+</tr>
+</thead>
+<tbody valign="top">
+<tr class="row-even"><td><div class="first last line-block">
+<div class="line">(4)</div>
+</div>
+</td>
+<td><div class="first last line-block">
+<div class="line"><code class="docutils literal"><span class="pre">SystemExceptionResolver</span></code>の<code class="docutils literal"><span class="pre">exceptionMappings</span></code>に、<code class="docutils literal"><span class="pre">MultipartException</span></code>が発生した際に表示するView(JSP)の定義を追加する。</div>
+<div class="line"><br /></div>
+<div class="line">上記例では、<code class="docutils literal"><span class="pre">common/error/fileUploadError</span></code>を指定している。</div>
+</div>
+</td>
+</tr>
+<tr class="row-odd"><td><div class="first last line-block">
+<div class="line">(5)</div>
+</div>
+</td>
+<td><div class="first last line-block">
+<div class="line"><code class="docutils literal"><span class="pre">MultipartException</span></code> が発生した際に応答するHTTPステータスコードの定義を追加する。</div>
+<div class="line"><br /></div>
+<div class="line">上記例では、<code class="docutils literal"><span class="pre">400</span></code>(Bad Request) を指定している。</div>
+<div class="line">クライアントエラー(HTTPレスポンスコード = 4xx)を指定することで、</div>
+<div class="line">共通ライブラリの例外ハンドリング機能から提供しているクラス( <code class="docutils literal"><span class="pre">HandlerExceptionResolverLoggingInterceptor</span></code> )によって出力されるログは、<code class="docutils literal"><span class="pre">ERROR</span></code>レベルではなく、<code class="docutils literal"><span class="pre">WARN</span></code>レベルとなる。</div>
+</div>
+</td>
+</tr>
+</tbody>
+</table>
+</div></blockquote>
+<div class="line-block">
+<div class="line"><br /></div>
+</div>
+<div class="line-block">
+<div class="line"><code class="docutils literal"><span class="pre">MultipartException</span></code>に対する例外コードを設ける場合は、例外コードの設定を追加する。</div>
+<div class="line">例外コードは、共通ライブラリのログ出力機能により出力されるログに、出力される。</div>
+<div class="line">例外コードは、View(JSP)から参照することもできる。</div>
+<div class="line">View(JSP)から例外コードを参照する方法については、<a class="reference internal" href="ExceptionHandling.html#exception-handling-how-to-use-codingpoint-view-exceptioncode-label"><span class="std std-ref">システム例外の例外コードを、画面表示する方法</span></a>を参照されたい。</div>
+</div>
+<ul class="simple">
+<li><code class="file docutils literal"><span class="pre">applicationContext.xml</span></code></li>
+</ul>
+<blockquote>
+<div><div class="highlight-xml"><div class="highlight"><pre><span></span><span class="nt">&lt;bean</span> <span class="na">id=</span><span class="s">&quot;exceptionCodeResolver&quot;</span>
+    <span class="na">class=</span><span class="s">&quot;org.terasoluna.gfw.common.exception.SimpleMappingExceptionCodeResolver&quot;</span><span class="nt">&gt;</span>
+    <span class="nt">&lt;property</span> <span class="na">name=</span><span class="s">&quot;exceptionMappings&quot;</span><span class="nt">&gt;</span>
+        <span class="nt">&lt;map&gt;</span>
+            <span class="c">&lt;!-- (6) --&gt;</span>
+            <span class="nt">&lt;entry</span> <span class="na">key=</span><span class="s">&quot;MultipartException&quot;</span> <span class="na">value=</span><span class="s">&quot;e.xx.fw.6001&quot;</span> <span class="nt">/&gt;</span>
+            <span class="c">&lt;!-- omitted --&gt;</span>
+        <span class="nt">&lt;/map&gt;</span>
+    <span class="nt">&lt;/property&gt;</span>
+    <span class="nt">&lt;property</span> <span class="na">name=</span><span class="s">&quot;defaultExceptionCode&quot;</span> <span class="na">value=</span><span class="s">&quot;e.xx.fw.9001&quot;</span> <span class="nt">/&gt;</span>
+    <span class="c">&lt;!-- omitted --&gt;</span>
+<span class="nt">&lt;/bean&gt;</span>
+</pre></div>
+</div>
+<table border="1" class="colwidths-given docutils">
+<colgroup>
+<col width="10%" />
+<col width="90%" />
+</colgroup>
+<thead valign="bottom">
+<tr class="row-odd"><th class="head">項番</th>
+<th class="head">説明</th>
+</tr>
+</thead>
+<tbody valign="top">
+<tr class="row-even"><td><div class="first last line-block">
+<div class="line">(6)</div>
+</div>
+</td>
+<td><div class="first last line-block">
+<div class="line"><code class="docutils literal"><span class="pre">SimpleMappingExceptionCodeResolver</span></code>の<code class="docutils literal"><span class="pre">exceptionMappings</span></code>に、<code class="docutils literal"><span class="pre">MultipartException</span></code>が発生した際に適用する、例外コードを追加する。</div>
+<div class="line"><br /></div>
+<div class="line">上記例では、<code class="docutils literal"><span class="pre">e.xx.fw.6001</span></code>を指定している。</div>
+<div class="line">個別に定義を行わない場合は、<code class="docutils literal"><span class="pre">defaultExceptionCode</span></code>に指定した例外コードが適用される。</div>
+</div>
+</td>
+</tr>
+</tbody>
+</table>
+<div class="admonition note">
+<p class="first admonition-title">Note</p>
+<p>TomcatやWebLogicなど一部のアプリケーションサーバでは、<code class="docutils literal"><span class="pre">MaxUploadSizeExceededException</span></code>をハンドリングすることで、アップロードされたファイルやリクエストのサイズ超過を検知することが可能である。
+<code class="docutils literal"><span class="pre">MaxUploadSizeExceededException</span></code>は<code class="docutils literal"><span class="pre">MultipartException</span></code>のサブクラスであるため、サイズ超過とその他の例外を区別する必要がなければ<code class="docutils literal"><span class="pre">MultipartException</span></code>をハンドリングすれば良い。</p>
+<p class="last"><code class="docutils literal"><span class="pre">MaxUploadSizeExceededException</span></code>については、<a class="reference internal" href="#file-upload-how-to-enable-servlet-3-0"><span class="std std-ref">Servlet 3.0のアップロード機能を有効化するための設定</span></a> のNoteを参照されたい。</p>
+</div>
+</div></blockquote>
+</div>
+</div>
+<div class="section" id="id6">
+<h3><a class="toc-backref" href="#id36">4.9.2.2. 単一ファイルのアップロード</a><a class="headerlink" href="#id6" title="Permalink to this headline">¶</a></h3>
+<p>単一ファイルをアップロードする方法について、説明する。</p>
+<blockquote>
+<div><div class="figure">
+<a class="reference internal image-reference" href="../../_images/file-upload-how_to_use_single.png"><img alt="Screen image of single file upload." src="../../_images/file-upload-how_to_use_single.png" style="width: 100%;" /></a>
+</div>
+</div></blockquote>
+<div class="line-block">
+<div class="line">単一ファイルの場合は、<code class="docutils literal"><span class="pre">org.springframework.web.multipart.MultipartFile</span></code>オブジェクトを、フォームオブジェクトにバインドして受け取る方法と、Controllerの引数として直接受け取る2つの方法があるが、本ガイドラインでは、フォームオブジェクトにバインドして受け取る方法を推奨する。</div>
+<div class="line">その理由は、アップロードされたファイルの単項目チェックを、Bean Validationの仕組みを使って行うことができるためである。</div>
+</div>
+<p>以下に、フォームオブジェクトにバインドして受け取る方法について、説明する。</p>
+<div class="section" id="id7">
+<h4><a class="toc-backref" href="#id37">4.9.2.2.1. フォームの実装</a><a class="headerlink" href="#id7" title="Permalink to this headline">¶</a></h4>
+<blockquote>
+<div><div class="highlight-java"><div class="highlight"><pre><span></span><span class="kd">public</span> <span class="kd">class</span> <span class="nc">FileUploadForm</span> <span class="kd">implements</span> <span class="n">Serializable</span> <span class="p">{</span>
+
+    <span class="c1">// omitted</span>
+
+    <span class="kd">private</span> <span class="n">MultipartFile</span> <span class="n">file</span><span class="p">;</span> <span class="c1">// (1)</span>
+
+    <span class="nd">@NotNull</span>
+    <span class="nd">@Size</span><span class="p">(</span><span class="n">min</span> <span class="o">=</span> <span class="mi">0</span><span class="p">,</span> <span class="n">max</span> <span class="o">=</span> <span class="mi">100</span><span class="p">)</span>
+    <span class="kd">private</span> <span class="n">String</span> <span class="n">description</span><span class="p">;</span>
+
+    <span class="c1">// omitted getter/setter methods.</span>
+
+<span class="p">}</span>
+</pre></div>
+</div>
+<table border="1" class="colwidths-given docutils">
+<colgroup>
+<col width="10%" />
+<col width="90%" />
+</colgroup>
+<thead valign="bottom">
+<tr class="row-odd"><th class="head">項番</th>
+<th class="head">説明</th>
+</tr>
+</thead>
+<tbody valign="top">
+<tr class="row-even"><td><div class="first last line-block">
+<div class="line">(1)</div>
+</div>
+</td>
+<td><div class="first last line-block">
+<div class="line">フォームオブジェクトに、<code class="docutils literal"><span class="pre">org.springframework.web.multipart.MultipartFile</span></code>のプロパティを定義する。</div>
+</div>
+</td>
+</tr>
+</tbody>
+</table>
+</div></blockquote>
+</div>
+<div class="section" id="jsp">
+<h4><a class="toc-backref" href="#id38">4.9.2.2.2. JSPの実装</a><a class="headerlink" href="#jsp" title="Permalink to this headline">¶</a></h4>
+<blockquote>
+<div><div class="highlight-jsp"><div class="highlight"><pre><span></span><span class="nt">&lt;form:form</span>
+  <span class="na">action=</span><span class="s">&quot;${pageContext.request.contextPath}/article/upload&quot;</span> <span class="na">method=</span><span class="s">&quot;post&quot;</span>
+  <span class="na">modelAttribute=</span><span class="s">&quot;fileUploadForm&quot;</span> <span class="na">enctype=</span><span class="s">&quot;multipart/form-data&quot;</span><span class="nt">&gt;</span> <span class="c">&lt;!-- (1) (2) --&gt;</span>
+  <span class="nt">&lt;table&gt;</span>
+    <span class="nt">&lt;tr&gt;</span>
+      <span class="nt">&lt;th</span> <span class="na">width=</span><span class="s">&quot;35%&quot;</span><span class="nt">&gt;</span>File to upload<span class="nt">&lt;/th&gt;</span>
+      <span class="nt">&lt;td</span> <span class="na">width=</span><span class="s">&quot;65%&quot;</span><span class="nt">&gt;</span>
+        <span class="nt">&lt;form:input</span> <span class="na">type=</span><span class="s">&quot;file&quot;</span> <span class="na">path=</span><span class="s">&quot;file&quot;</span> <span class="nt">/&gt;</span> <span class="c">&lt;!-- (3) --&gt;</span>
+        <span class="nt">&lt;form:errors</span> <span class="na">path=</span><span class="s">&quot;file&quot;</span> <span class="nt">/&gt;</span>
+      <span class="nt">&lt;/td&gt;</span>
+    <span class="nt">&lt;/tr&gt;</span>
+    <span class="nt">&lt;tr&gt;</span>
+      <span class="nt">&lt;th</span> <span class="na">width=</span><span class="s">&quot;35%&quot;</span><span class="nt">&gt;</span>Description<span class="nt">&lt;/th&gt;</span>
+      <span class="nt">&lt;td</span> <span class="na">width=</span><span class="s">&quot;65%&quot;</span><span class="nt">&gt;</span>
+        <span class="nt">&lt;form:input</span> <span class="na">path=</span><span class="s">&quot;description&quot;</span> <span class="nt">/&gt;</span>
+        <span class="nt">&lt;form:errors</span> <span class="na">path=</span><span class="s">&quot;description&quot;</span> <span class="nt">/&gt;</span>
+      <span class="nt">&lt;/td&gt;</span>
+    <span class="nt">&lt;/tr&gt;</span>
+    <span class="nt">&lt;tr&gt;</span>
+      <span class="nt">&lt;td&gt;</span><span class="ni">&amp;nbsp;</span><span class="nt">&lt;/td&gt;</span>
+      <span class="nt">&lt;td&gt;&lt;form:button&gt;</span>Upload<span class="nt">&lt;/form:button&gt;&lt;/td&gt;</span>
+    <span class="nt">&lt;/tr&gt;</span>
+  <span class="nt">&lt;/table&gt;</span>
+<span class="nt">&lt;/form:form&gt;</span>
+</pre></div>
+</div>
+<table border="1" class="colwidths-given docutils">
+<colgroup>
+<col width="10%" />
+<col width="90%" />
+</colgroup>
+<thead valign="bottom">
+<tr class="row-odd"><th class="head">項番</th>
+<th class="head">説明</th>
+</tr>
+</thead>
+<tbody valign="top">
+<tr class="row-even"><td><div class="first last line-block">
+<div class="line">(1)</div>
+</div>
+</td>
+<td><div class="first last line-block">
+<div class="line"><code class="docutils literal"><span class="pre">&lt;form:form&gt;</span></code>要素のenctype属性に、<code class="docutils literal"><span class="pre">multipart/form-data</span></code>を指定する。</div>
+</div>
+</td>
+</tr>
+<tr class="row-odd"><td><div class="first last line-block">
+<div class="line">(2)</div>
+</div>
+</td>
+<td><div class="first last line-block">
+<div class="line"><code class="docutils literal"><span class="pre">&lt;form:form&gt;</span></code>要素のmodelAttribute属性に、フォームオブジェクトの属性名を指定する。</div>
+<div class="line">上記例では、<code class="docutils literal"><span class="pre">fileUploadForm</span></code>を指定している。</div>
+</div>
+</td>
+</tr>
+<tr class="row-even"><td><div class="first last line-block">
+<div class="line">(3)</div>
+</div>
+</td>
+<td><div class="first last line-block">
+<div class="line"><code class="docutils literal"><span class="pre">&lt;form:input&gt;</span></code>要素type属性に、<code class="docutils literal"><span class="pre">file</span></code>を指定し、path属性に、<code class="docutils literal"><span class="pre">MultipartFile</span></code>プロパティ名を指定する。</div>
+<div class="line">上記例では、アップロードされたファイルは、<code class="docutils literal"><span class="pre">FileUploadForm</span></code>オブジェクトの<code class="docutils literal"><span class="pre">file</span></code>プロパティに格納される。</div>
+</div>
+</td>
+</tr>
+</tbody>
+</table>
+</div></blockquote>
+</div>
+<div class="section" id="controller">
+<h4><a class="toc-backref" href="#id39">4.9.2.2.3. Controllerの実装</a><a class="headerlink" href="#controller" title="Permalink to this headline">¶</a></h4>
+<blockquote>
+<div><div class="highlight-java"><div class="highlight"><pre><span></span><span class="nd">@RequestMapping</span><span class="p">(</span><span class="s">&quot;article&quot;</span><span class="p">)</span>
+<span class="nd">@Controller</span>
+<span class="kd">public</span> <span class="kd">class</span> <span class="nc">ArticleController</span> <span class="p">{</span>
+
+    <span class="nd">@Value</span><span class="p">(</span><span class="s">&quot;${upload.allowableFileSize}&quot;</span><span class="p">)</span>
+    <span class="kd">private</span> <span class="kt">int</span> <span class="n">uploadAllowableFileSize</span><span class="p">;</span>
+
+    <span class="c1">// omitted</span>
+
+    <span class="c1">// (1)</span>
+    <span class="nd">@ModelAttribute</span>
+    <span class="kd">public</span> <span class="n">FileUploadForm</span> <span class="nf">setFileUploadForm</span><span class="p">()</span> <span class="p">{</span>
+        <span class="k">return</span> <span class="k">new</span> <span class="n">FileUploadForm</span><span class="p">();</span>
+    <span class="p">}</span>
+
+    <span class="c1">// (2)</span>
+    <span class="nd">@RequestMapping</span><span class="p">(</span><span class="n">value</span> <span class="o">=</span> <span class="s">&quot;upload&quot;</span><span class="p">,</span> <span class="n">method</span> <span class="o">=</span> <span class="n">RequestMethod</span><span class="p">.</span><span class="na">GET</span><span class="p">,</span> <span class="n">params</span> <span class="o">=</span> <span class="s">&quot;form&quot;</span><span class="p">)</span>
+    <span class="kd">public</span> <span class="n">String</span> <span class="nf">uploadForm</span><span class="p">()</span> <span class="p">{</span>
+        <span class="k">return</span> <span class="s">&quot;article/uploadForm&quot;</span><span class="p">;</span>
+    <span class="p">}</span>
+
+    <span class="c1">// (3)</span>
+    <span class="nd">@RequestMapping</span><span class="p">(</span><span class="n">value</span> <span class="o">=</span> <span class="s">&quot;upload&quot;</span><span class="p">,</span> <span class="n">method</span> <span class="o">=</span> <span class="n">RequestMethod</span><span class="p">.</span><span class="na">POST</span><span class="p">)</span>
+    <span class="kd">public</span> <span class="n">String</span> <span class="nf">upload</span><span class="p">(</span><span class="nd">@Validated</span> <span class="n">FileUploadForm</span> <span class="n">form</span><span class="p">,</span>
+            <span class="n">BindingResult</span> <span class="n">result</span><span class="p">,</span> <span class="n">RedirectAttributes</span> <span class="n">redirectAttributes</span><span class="p">)</span> <span class="p">{</span>
+
+        <span class="k">if</span> <span class="p">(</span><span class="n">result</span><span class="p">.</span><span class="na">hasErrors</span><span class="p">())</span> <span class="p">{</span>
+            <span class="k">return</span> <span class="s">&quot;article/uploadForm&quot;</span><span class="p">;</span>
+        <span class="p">}</span>
+
+        <span class="n">MultipartFile</span> <span class="n">uploadFile</span> <span class="o">=</span> <span class="n">form</span><span class="p">.</span><span class="na">getFile</span><span class="p">();</span>
+
+        <span class="c1">// (4)</span>
+        <span class="k">if</span> <span class="p">(</span><span class="o">!</span><span class="n">StringUtils</span><span class="p">.</span><span class="na">hasLength</span><span class="p">(</span><span class="n">uploadFile</span><span class="p">.</span><span class="na">getOriginalFilename</span><span class="p">()))</span> <span class="p">{</span>
+            <span class="n">result</span><span class="p">.</span><span class="na">rejectValue</span><span class="p">(</span><span class="n">uploadFile</span><span class="p">.</span><span class="na">getName</span><span class="p">(),</span> <span class="s">&quot;e.xx.at.6002&quot;</span><span class="p">);</span>
+            <span class="k">return</span> <span class="s">&quot;article/uploadForm&quot;</span><span class="p">;</span>
+        <span class="p">}</span>
+
+        <span class="c1">// (5)</span>
+        <span class="k">if</span> <span class="p">(</span><span class="n">uploadFile</span><span class="p">.</span><span class="na">isEmpty</span><span class="p">())</span> <span class="p">{</span>
+            <span class="n">result</span><span class="p">.</span><span class="na">rejectValue</span><span class="p">(</span><span class="n">uploadFile</span><span class="p">.</span><span class="na">getName</span><span class="p">(),</span> <span class="s">&quot;e.xx.at.6003&quot;</span><span class="p">);</span>
+            <span class="k">return</span> <span class="s">&quot;article/uploadForm&quot;</span><span class="p">;</span>
+        <span class="p">}</span>
+
+        <span class="c1">// (6)</span>
+        <span class="k">if</span> <span class="p">(</span><span class="n">uploadAllowableFileSize</span> <span class="o">&lt;</span> <span class="n">uploadFile</span><span class="p">.</span><span class="na">getSize</span><span class="p">())</span> <span class="p">{</span>
+            <span class="n">result</span><span class="p">.</span><span class="na">rejectValue</span><span class="p">(</span><span class="n">uploadFile</span><span class="p">.</span><span class="na">getName</span><span class="p">(),</span> <span class="s">&quot;e.xx.at.6004&quot;</span><span class="p">,</span>
+                    <span class="k">new</span> <span class="n">Object</span><span class="o">[]</span> <span class="p">{</span> <span class="n">uploadAllowableFileSize</span> <span class="p">},</span> <span class="kc">null</span><span class="p">);</span>
+            <span class="k">return</span> <span class="s">&quot;article/uploadForm&quot;</span><span class="p">;</span>
+        <span class="p">}</span>
+
+        <span class="c1">// (7)</span>
+        <span class="c1">// omit processing of upload.</span>
+
+        <span class="c1">// (8)</span>
+        <span class="n">redirectAttributes</span><span class="p">.</span><span class="na">addFlashAttribute</span><span class="p">(</span><span class="n">ResultMessages</span><span class="p">.</span><span class="na">success</span><span class="p">().</span><span class="na">add</span><span class="p">(</span>
+                <span class="s">&quot;i.xx.at.0001&quot;</span><span class="p">));</span>
+
+        <span class="c1">// (9)</span>
+        <span class="k">return</span> <span class="s">&quot;redirect:/article/upload?complete&quot;</span><span class="p">;</span>
+    <span class="p">}</span>
+
+    <span class="nd">@RequestMapping</span><span class="p">(</span><span class="n">value</span> <span class="o">=</span> <span class="s">&quot;upload&quot;</span><span class="p">,</span> <span class="n">method</span> <span class="o">=</span> <span class="n">RequestMethod</span><span class="p">.</span><span class="na">GET</span><span class="p">,</span> <span class="n">params</span> <span class="o">=</span> <span class="s">&quot;complete&quot;</span><span class="p">)</span>
+    <span class="kd">public</span> <span class="n">String</span> <span class="nf">uploadComplete</span><span class="p">()</span> <span class="p">{</span>
+        <span class="k">return</span> <span class="s">&quot;article/uploadComplete&quot;</span><span class="p">;</span>
+    <span class="p">}</span>
+
+    <span class="c1">// omitted</span>
+
+<span class="p">}</span>
+</pre></div>
+</div>
+<table border="1" class="colwidths-given longtable docutils">
+<colgroup>
+<col width="10%" />
+<col width="90%" />
+</colgroup>
+<thead valign="bottom">
+<tr class="row-odd"><th class="head">項番</th>
+<th class="head">説明</th>
+</tr>
+</thead>
+<tbody valign="top">
+<tr class="row-even"><td><div class="first last line-block">
+<div class="line">(1)</div>
+</div>
+</td>
+<td><div class="first last line-block">
+<div class="line">ファイルアップロード用のフォームオブジェクトを、<code class="docutils literal"><span class="pre">Model</span></code>に格納するためのメソッド。</div>
+<div class="line">上記例では、<code class="docutils literal"><span class="pre">Model</span></code>に格納するための属性名は、<code class="docutils literal"><span class="pre">fileUploadForm</span></code>となる。</div>
+</div>
+</td>
+</tr>
+<tr class="row-odd"><td><div class="first last line-block">
+<div class="line">(2)</div>
+</div>
+</td>
+<td><div class="first last line-block">
+<div class="line">アップロード画面を表示するためのハンドラメソッド。</div>
+</div>
+</td>
+</tr>
+<tr class="row-even"><td><div class="first last line-block">
+<div class="line">(3)</div>
+</div>
+</td>
+<td><div class="first last line-block">
+<div class="line">ファイルをアップロードするためのハンドラメソッド。</div>
+</div>
+</td>
+</tr>
+<tr class="row-odd"><td><div class="first last line-block">
+<div class="line">(4)</div>
+</div>
+</td>
+<td><div class="first last line-block">
+<div class="line">アップロードファイルが選択されているかのチェックを行っている。</div>
+<div class="line">ファイルが選択されたかチェックする場合は、<code class="docutils literal"><span class="pre">MultipartFile#getOriginalFilename</span></code>メソッドを呼び出し、ファイル名の指定有無で判断する。</div>
+<div class="line">上記例では、ファイルが選択されていない場合は、入力チェックエラーとしている。</div>
+</div>
+</td>
+</tr>
+<tr class="row-even"><td><div class="first last line-block">
+<div class="line">(5)</div>
+</div>
+</td>
+<td><div class="first last line-block">
+<div class="line">空のファイルが選択されているかのチェックを行っている。</div>
+<div class="line">選択されたファイルの中身が空でないことをチェックする場合は、<code class="docutils literal"><span class="pre">MultipartFile#isEmpty</span></code>メソッドを呼び出し、中身の存在チェックを行う。</div>
+<div class="line">上記例では、 空のファイルが選択されている場合は、入力チェックエラーとしている。</div>
+</div>
+</td>
+</tr>
+<tr class="row-odd"><td><div class="first last line-block">
+<div class="line">(6)</div>
+</div>
+</td>
+<td><div class="first last line-block">
+<div class="line">ファイルのサイズが、許容サイズ内かどうかのチェックを行っている。</div>
+<div class="line">選択されたファイルのサイズをチェックする場合は、<code class="docutils literal"><span class="pre">MultipartFile#getSize</span></code>メソッドを呼び出し、サイズが許容範囲内かチェックを行う。</div>
+<div class="line">上記例では、 ファイルのサイズが許容サイズを超えている場合は、入力チェックエラーとしている。</div>
+</div>
+</td>
+</tr>
+<tr class="row-even"><td><div class="first last line-block">
+<div class="line">(7)</div>
+</div>
+</td>
+<td><div class="first last line-block">
+<div class="line">アップロード処理を実装する。</div>
+<div class="line">上記例では、具体的な実装は省略しているが、共有ディスクやデータベースへ保存する処理を行うことになる。</div>
+</div>
+</td>
+</tr>
+<tr class="row-odd"><td><div class="first last line-block">
+<div class="line">(8)</div>
+</div>
+</td>
+<td><div class="first last line-block">
+<div class="line">要件に応じて、アップロードが成功したことを通知する、処理結果メッセージを格納する。</div>
+</div>
+</td>
+</tr>
+<tr class="row-even"><td><div class="first last line-block">
+<div class="line">(9)</div>
+</div>
+</td>
+<td><div class="first last line-block">
+<div class="line">アップロード処理完了後の画面表示は、リダイレクトして表示する。</div>
+</div>
+</td>
+</tr>
+</tbody>
+</table>
+<div class="admonition note">
+<p class="first admonition-title">Note</p>
+<p><strong>重複アップロードの防止</strong></p>
+<p>ファイルのアップロードを行う場合は、PRGパターンによる画面遷移と、トランザクショントークンチェックを行うことを推奨する。
+PRGパターンによる画面遷移と、トランザクショントークンチェックを行うことで、重複送信に伴う、同一ファイルのアップロードを防ぐことができる。</p>
+<p class="last">重複送信の防止方法について、詳細は、<a class="reference internal" href="DoubleSubmitProtection.html"><span class="doc">二重送信防止</span></a>を参照されたい。</p>
+</div>
+<div class="admonition note">
+<p class="first admonition-title">Note</p>
+<p><strong>MultipartFileについて</strong></p>
+<p class="last">MultipartFileには、アップロードされたファイルを操作するためのメソッドが用意されている。
+各メソッドの利用方法については、<a class="reference external" href="https://docs.spring.io/spring/docs/5.2.20.RELEASE/javadoc-api/org/springframework/web/multipart/MultipartFile.html">MultipartFileクラスのJavaDoc</a>を参照されたい。</p>
+</div>
+</div></blockquote>
+</div>
+</div>
+<div class="section" id="bean-validation">
+<span id="fileupload-validator"></span><h3><a class="toc-backref" href="#id40">4.9.2.3. ファイルアップロードのBean Validation</a><a class="headerlink" href="#bean-validation" title="Permalink to this headline">¶</a></h3>
+<div class="line-block">
+<div class="line">上記の実装例では、アップロードファイルのバリデーションをControllerの処理として行っていたが、ここでは、Bean Validationの仕組みを使ってバリデーションする方法について説明する。</div>
+<div class="line">バリデーションの詳細は、<a class="reference internal" href="Validation.html"><span class="doc">入力チェック</span></a>を参照されたい。</div>
+</div>
+<blockquote>
+<div><div class="admonition note">
+<p class="first admonition-title">Note</p>
+<p class="last">Bean Validationの仕組みでチェックすることで、Controllerの処理をシンプルに保つことができるため、Bean Validationの仕組みを使うことを推奨する。</p>
+</div>
+</div></blockquote>
+<div class="section" id="id8">
+<h4><a class="toc-backref" href="#id41">4.9.2.3.1. ファイルが選択されていることを検証するためのバリデーションの実装</a><a class="headerlink" href="#id8" title="Permalink to this headline">¶</a></h4>
+<blockquote>
+<div><div class="highlight-java"><div class="highlight"><pre><span></span><span class="c1">// (1)</span>
+<span class="nd">@Target</span><span class="p">({</span> <span class="n">METHOD</span><span class="p">,</span> <span class="n">FIELD</span><span class="p">,</span> <span class="n">ANNOTATION_TYPE</span><span class="p">,</span> <span class="n">CONSTRUCTOR</span><span class="p">,</span> <span class="n">PARAMETER</span><span class="p">,</span> <span class="n">TYPE_USE</span> <span class="p">})</span>
+<span class="nd">@Retention</span><span class="p">(</span><span class="n">RUNTIME</span><span class="p">)</span>
+<span class="nd">@Constraint</span><span class="p">(</span><span class="n">validatedBy</span> <span class="o">=</span> <span class="n">UploadFileRequiredValidator</span><span class="p">.</span><span class="na">class</span><span class="p">)</span>
+<span class="nd">@Repeatable</span><span class="p">(</span><span class="n">List</span><span class="p">.</span><span class="na">class</span><span class="p">)</span>
+<span class="kd">public</span> <span class="nd">@interface</span> <span class="n">UploadFileRequired</span> <span class="p">{</span>
+    <span class="n">String</span> <span class="nf">message</span><span class="p">()</span> <span class="k">default</span> <span class="s">&quot;{com.examples.upload.UploadFileRequired.message}&quot;</span><span class="p">;</span>
+    <span class="n">Class</span><span class="o">&lt;?&gt;[]</span> <span class="n">groups</span><span class="p">()</span> <span class="k">default</span> <span class="p">{};</span>
+    <span class="n">Class</span><span class="o">&lt;?</span> <span class="kd">extends</span> <span class="n">Payload</span><span class="o">&gt;[]</span> <span class="nf">payload</span><span class="p">()</span> <span class="k">default</span> <span class="p">{};</span>
+
+    <span class="nd">@Target</span><span class="p">({</span> <span class="n">METHOD</span><span class="p">,</span> <span class="n">FIELD</span><span class="p">,</span> <span class="n">ANNOTATION_TYPE</span><span class="p">,</span> <span class="n">CONSTRUCTOR</span><span class="p">,</span> <span class="n">PARAMETER</span><span class="p">,</span> <span class="n">TYPE_USE</span> <span class="p">})</span>
+    <span class="nd">@Retention</span><span class="p">(</span><span class="n">RUNTIME</span><span class="p">)</span>
+    <span class="nd">@Documented</span>
+    <span class="nd">@interface</span> <span class="n">List</span> <span class="p">{</span>
+        <span class="n">UploadFileRequired</span><span class="o">[]</span> <span class="nf">value</span><span class="p">();</span>
+    <span class="p">}</span>
+
+<span class="p">}</span>
+</pre></div>
+</div>
+<div class="highlight-java"><div class="highlight"><pre><span></span><span class="c1">// (2)</span>
+<span class="kd">public</span> <span class="kd">class</span> <span class="nc">UploadFileRequiredValidator</span> <span class="kd">implements</span>
+    <span class="n">ConstraintValidator</span><span class="o">&lt;</span><span class="n">UploadFileRequired</span><span class="p">,</span> <span class="n">MultipartFile</span><span class="o">&gt;</span> <span class="p">{</span>
+
+    <span class="nd">@Override</span>
+    <span class="kd">public</span> <span class="kt">void</span> <span class="nf">initialize</span><span class="p">(</span><span class="n">UploadFileRequired</span> <span class="n">constraint</span><span class="p">)</span> <span class="p">{</span>
+    <span class="p">}</span>
+
+    <span class="nd">@Override</span>
+    <span class="kd">public</span> <span class="kt">boolean</span> <span class="nf">isValid</span><span class="p">(</span><span class="n">MultipartFile</span> <span class="n">multipartFile</span><span class="p">,</span>
+        <span class="n">ConstraintValidatorContext</span> <span class="n">context</span><span class="p">)</span> <span class="p">{</span>
+        <span class="k">return</span> <span class="n">multipartFile</span> <span class="o">!=</span> <span class="kc">null</span> <span class="o">&amp;&amp;</span>
+            <span class="n">StringUtils</span><span class="p">.</span><span class="na">hasLength</span><span class="p">(</span><span class="n">multipartFile</span><span class="p">.</span><span class="na">getOriginalFilename</span><span class="p">());</span>
+    <span class="p">}</span>
+
+<span class="p">}</span>
+</pre></div>
+</div>
+<table border="1" class="colwidths-given docutils">
+<colgroup>
+<col width="10%" />
+<col width="90%" />
+</colgroup>
+<thead valign="bottom">
+<tr class="row-odd"><th class="head">項番</th>
+<th class="head">説明</th>
+</tr>
+</thead>
+<tbody valign="top">
+<tr class="row-even"><td><div class="first last line-block">
+<div class="line">(1)</div>
+</div>
+</td>
+<td><div class="first last line-block">
+<div class="line">ファイルが、選択されていることを検証するための、アノテーションを作成する。</div>
+</div>
+</td>
+</tr>
+<tr class="row-odd"><td><div class="first last line-block">
+<div class="line">(2)</div>
+</div>
+</td>
+<td><div class="first last line-block">
+<div class="line">ファイルが、選択されていることを検証するための、実装を行うクラスを作成する。</div>
+</div>
+</td>
+</tr>
+</tbody>
+</table>
+</div></blockquote>
+</div>
+<div class="section" id="id9">
+<h4><a class="toc-backref" href="#id42">4.9.2.3.2. ファイルが空でないことを検証するためのバリデーションの実装</a><a class="headerlink" href="#id9" title="Permalink to this headline">¶</a></h4>
+<blockquote>
+<div><div class="highlight-java"><div class="highlight"><pre><span></span><span class="c1">// (3)</span>
+<span class="nd">@Target</span><span class="p">({</span> <span class="n">METHOD</span><span class="p">,</span> <span class="n">FIELD</span><span class="p">,</span> <span class="n">ANNOTATION_TYPE</span><span class="p">,</span> <span class="n">CONSTRUCTOR</span><span class="p">,</span> <span class="n">PARAMETER</span><span class="p">,</span> <span class="n">TYPE_USE</span> <span class="p">})</span>
+<span class="nd">@Retention</span><span class="p">(</span><span class="n">RUNTIME</span><span class="p">)</span>
+<span class="nd">@Constraint</span><span class="p">(</span><span class="n">validatedBy</span> <span class="o">=</span> <span class="n">UploadFileNotEmptyValidator</span><span class="p">.</span><span class="na">class</span><span class="p">)</span>
+<span class="nd">@Repeatable</span><span class="p">(</span><span class="n">List</span><span class="p">.</span><span class="na">class</span><span class="p">)</span>
+<span class="kd">public</span> <span class="nd">@interface</span> <span class="n">UploadFileNotEmpty</span> <span class="p">{</span>
+    <span class="n">String</span> <span class="nf">message</span><span class="p">()</span> <span class="k">default</span> <span class="s">&quot;{com.examples.upload.UploadFileNotEmpty.message}&quot;</span><span class="p">;</span>
+    <span class="n">Class</span><span class="o">&lt;?&gt;[]</span> <span class="n">groups</span><span class="p">()</span> <span class="k">default</span> <span class="p">{};</span>
+    <span class="n">Class</span><span class="o">&lt;?</span> <span class="kd">extends</span> <span class="n">Payload</span><span class="o">&gt;[]</span> <span class="nf">payload</span><span class="p">()</span> <span class="k">default</span> <span class="p">{};</span>
+
+    <span class="nd">@Target</span><span class="p">({</span> <span class="n">METHOD</span><span class="p">,</span> <span class="n">FIELD</span><span class="p">,</span> <span class="n">ANNOTATION_TYPE</span><span class="p">,</span> <span class="n">CONSTRUCTOR</span><span class="p">,</span> <span class="n">PARAMETER</span><span class="p">,</span> <span class="n">TYPE_USE</span> <span class="p">})</span>
+    <span class="nd">@Retention</span><span class="p">(</span><span class="n">RUNTIME</span><span class="p">)</span>
+    <span class="nd">@Documented</span>
+    <span class="nd">@interface</span> <span class="n">List</span> <span class="p">{</span>
+        <span class="n">UploadFileNotEmpty</span><span class="o">[]</span> <span class="nf">value</span><span class="p">();</span>
+    <span class="p">}</span>
+
+<span class="p">}</span>
+</pre></div>
+</div>
+<div class="highlight-java"><div class="highlight"><pre><span></span><span class="c1">// (4)</span>
+<span class="kd">public</span> <span class="kd">class</span> <span class="nc">UploadFileNotEmptyValidator</span> <span class="kd">implements</span>
+    <span class="n">ConstraintValidator</span><span class="o">&lt;</span><span class="n">UploadFileNotEmpty</span><span class="p">,</span> <span class="n">MultipartFile</span><span class="o">&gt;</span> <span class="p">{</span>
+
+    <span class="nd">@Override</span>
+    <span class="kd">public</span> <span class="kt">void</span> <span class="nf">initialize</span><span class="p">(</span><span class="n">UploadFileNotEmpty</span> <span class="n">constraint</span><span class="p">)</span> <span class="p">{</span>
+    <span class="p">}</span>
+
+    <span class="nd">@Override</span>
+    <span class="kd">public</span> <span class="kt">boolean</span> <span class="nf">isValid</span><span class="p">(</span><span class="n">MultipartFile</span> <span class="n">multipartFile</span><span class="p">,</span>
+        <span class="n">ConstraintValidatorContext</span> <span class="n">context</span><span class="p">)</span> <span class="p">{</span>
+        <span class="k">if</span> <span class="p">(</span><span class="n">multipartFile</span> <span class="o">==</span> <span class="kc">null</span> <span class="o">||</span>
+            <span class="o">!</span><span class="n">StringUtils</span><span class="p">.</span><span class="na">hasLength</span><span class="p">(</span><span class="n">multipartFile</span><span class="p">.</span><span class="na">getOriginalFilename</span><span class="p">()))</span> <span class="p">{</span>
+            <span class="k">return</span> <span class="kc">true</span><span class="p">;</span>
+        <span class="p">}</span>
+        <span class="k">return</span> <span class="o">!</span><span class="n">multipartFile</span><span class="p">.</span><span class="na">isEmpty</span><span class="p">();</span>
+    <span class="p">}</span>
+
+<span class="p">}</span>
+</pre></div>
+</div>
+<table border="1" class="colwidths-given docutils">
+<colgroup>
+<col width="10%" />
+<col width="90%" />
+</colgroup>
+<thead valign="bottom">
+<tr class="row-odd"><th class="head">項番</th>
+<th class="head">説明</th>
+</tr>
+</thead>
+<tbody valign="top">
+<tr class="row-even"><td><div class="first last line-block">
+<div class="line">(3)</div>
+</div>
+</td>
+<td><div class="first last line-block">
+<div class="line">ファイルが、空でないことを検証するための、アノテーションを作成する。</div>
+</div>
+</td>
+</tr>
+<tr class="row-odd"><td><div class="first last line-block">
+<div class="line">(4)</div>
+</div>
+</td>
+<td><div class="first last line-block">
+<div class="line">ファイルが、空でないことを検証するための、実装を行うクラスを作成する。</div>
+</div>
+</td>
+</tr>
+</tbody>
+</table>
+</div></blockquote>
+</div>
+<div class="section" id="id10">
+<h4><a class="toc-backref" href="#id43">4.9.2.3.3. ファイルのサイズが許容サイズ内であることを検証するためのバリデーションの実装</a><a class="headerlink" href="#id10" title="Permalink to this headline">¶</a></h4>
+<blockquote>
+<div><div class="highlight-java"><div class="highlight"><pre><span></span><span class="c1">// (5)</span>
+<span class="nd">@Target</span><span class="p">({</span> <span class="n">METHOD</span><span class="p">,</span> <span class="n">FIELD</span><span class="p">,</span> <span class="n">ANNOTATION_TYPE</span><span class="p">,</span> <span class="n">CONSTRUCTOR</span><span class="p">,</span> <span class="n">PARAMETER</span><span class="p">,</span> <span class="n">TYPE_USE</span> <span class="p">})</span>
+<span class="nd">@Retention</span><span class="p">(</span><span class="n">RUNTIME</span><span class="p">)</span>
+<span class="nd">@Constraint</span><span class="p">(</span><span class="n">validatedBy</span> <span class="o">=</span> <span class="n">UploadFileMaxSizeValidator</span><span class="p">.</span><span class="na">class</span><span class="p">)</span>
+<span class="nd">@Repeatable</span><span class="p">(</span><span class="n">List</span><span class="p">.</span><span class="na">class</span><span class="p">)</span>
+<span class="kd">public</span> <span class="nd">@interface</span> <span class="n">UploadFileMaxSize</span> <span class="p">{</span>
+    <span class="n">String</span> <span class="nf">message</span><span class="p">()</span> <span class="k">default</span> <span class="s">&quot;{com.examples.upload.UploadFileMaxSize.message}&quot;</span><span class="p">;</span>
+    <span class="kt">long</span> <span class="nf">value</span><span class="p">()</span> <span class="k">default</span> <span class="p">(</span><span class="mi">1024</span> <span class="o">*</span> <span class="mi">1024</span><span class="p">);</span>
+    <span class="n">Class</span><span class="o">&lt;?&gt;[]</span> <span class="n">groups</span><span class="p">()</span> <span class="k">default</span> <span class="p">{};</span>
+    <span class="n">Class</span><span class="o">&lt;?</span> <span class="kd">extends</span> <span class="n">Payload</span><span class="o">&gt;[]</span> <span class="nf">payload</span><span class="p">()</span> <span class="k">default</span> <span class="p">{};</span>
+
+    <span class="nd">@Target</span><span class="p">({</span> <span class="n">METHOD</span><span class="p">,</span> <span class="n">FIELD</span><span class="p">,</span> <span class="n">ANNOTATION_TYPE</span><span class="p">,</span> <span class="n">CONSTRUCTOR</span><span class="p">,</span> <span class="n">PARAMETER</span><span class="p">,</span> <span class="n">TYPE_USE</span> <span class="p">})</span>
+    <span class="nd">@Retention</span><span class="p">(</span><span class="n">RUNTIME</span><span class="p">)</span>
+    <span class="nd">@Documented</span>
+    <span class="nd">@interface</span> <span class="n">List</span> <span class="p">{</span>
+        <span class="n">UploadFileMaxSize</span><span class="o">[]</span> <span class="nf">value</span><span class="p">();</span>
+    <span class="p">}</span>
+
+<span class="p">}</span>
+</pre></div>
+</div>
+<div class="highlight-java"><div class="highlight"><pre><span></span><span class="c1">// (6)</span>
+<span class="kd">public</span> <span class="kd">class</span> <span class="nc">UploadFileMaxSizeValidator</span> <span class="kd">implements</span>
+    <span class="n">ConstraintValidator</span><span class="o">&lt;</span><span class="n">UploadFileMaxSize</span><span class="p">,</span> <span class="n">MultipartFile</span><span class="o">&gt;</span> <span class="p">{</span>
+
+    <span class="kd">private</span> <span class="n">UploadFileMaxSize</span> <span class="n">constraint</span><span class="p">;</span>
+
+    <span class="nd">@Override</span>
+    <span class="kd">public</span> <span class="kt">void</span> <span class="nf">initialize</span><span class="p">(</span><span class="n">UploadFileMaxSize</span> <span class="n">constraint</span><span class="p">)</span> <span class="p">{</span>
+        <span class="k">this</span><span class="p">.</span><span class="na">constraint</span> <span class="o">=</span> <span class="n">constraint</span><span class="p">;</span>
+    <span class="p">}</span>
+
+    <span class="nd">@Override</span>
+    <span class="kd">public</span> <span class="kt">boolean</span> <span class="nf">isValid</span><span class="p">(</span><span class="n">MultipartFile</span> <span class="n">multipartFile</span><span class="p">,</span>
+        <span class="n">ConstraintValidatorContext</span> <span class="n">context</span><span class="p">)</span> <span class="p">{</span>
+        <span class="k">if</span> <span class="p">(</span><span class="n">constraint</span><span class="p">.</span><span class="na">value</span><span class="p">()</span> <span class="o">&lt;</span> <span class="mi">0</span> <span class="o">||</span> <span class="n">multipartFile</span> <span class="o">==</span> <span class="kc">null</span><span class="p">)</span> <span class="p">{</span>
+            <span class="k">return</span> <span class="kc">true</span><span class="p">;</span>
+        <span class="p">}</span>
+        <span class="k">return</span> <span class="n">multipartFile</span><span class="p">.</span><span class="na">getSize</span><span class="p">()</span> <span class="o">&lt;=</span> <span class="n">constraint</span><span class="p">.</span><span class="na">value</span><span class="p">();</span>
+    <span class="p">}</span>
+
+<span class="p">}</span>
+</pre></div>
+</div>
+<table border="1" class="colwidths-given docutils">
+<colgroup>
+<col width="10%" />
+<col width="90%" />
+</colgroup>
+<thead valign="bottom">
+<tr class="row-odd"><th class="head">項番</th>
+<th class="head">説明</th>
+</tr>
+</thead>
+<tbody valign="top">
+<tr class="row-even"><td><div class="first last line-block">
+<div class="line">(5)</div>
+</div>
+</td>
+<td><div class="first last line-block">
+<div class="line">ファイルのサイズが、許容サイズ内であることを検証するための、アノテーションを作成する。</div>
+</div>
+</td>
+</tr>
+<tr class="row-odd"><td><div class="first last line-block">
+<div class="line">(6)</div>
+</div>
+</td>
+<td><div class="first last line-block">
+<div class="line">ファイルのサイズが、許容サイズ内であることを検証するための、実装を行うクラスを作成する。</div>
+</div>
+</td>
+</tr>
+</tbody>
+</table>
+</div></blockquote>
+</div>
+<div class="section" id="id11">
+<h4><a class="toc-backref" href="#id44">4.9.2.3.4. フォームの実装</a><a class="headerlink" href="#id11" title="Permalink to this headline">¶</a></h4>
+<blockquote>
+<div><div class="highlight-java"><div class="highlight"><pre><span></span><span class="kd">public</span> <span class="kd">class</span> <span class="nc">FileUploadForm</span> <span class="kd">implements</span> <span class="n">Serializable</span> <span class="p">{</span>
+
+    <span class="c1">// omitted</span>
+
+    <span class="c1">// (7)</span>
+    <span class="nd">@UploadFileRequired</span>
+    <span class="nd">@UploadFileNotEmpty</span>
+    <span class="nd">@UploadFileMaxSize</span>
+    <span class="kd">private</span> <span class="n">MultipartFile</span> <span class="n">file</span><span class="p">;</span>
+
+    <span class="nd">@NotNull</span>
+    <span class="nd">@Size</span><span class="p">(</span><span class="n">min</span> <span class="o">=</span> <span class="mi">0</span><span class="p">,</span> <span class="n">max</span> <span class="o">=</span> <span class="mi">100</span><span class="p">)</span>
+    <span class="kd">private</span> <span class="n">String</span> <span class="n">description</span><span class="p">;</span>
+
+    <span class="c1">// omitted getter/setter methods.</span>
+
+<span class="p">}</span>
+</pre></div>
+</div>
+<table border="1" class="colwidths-given docutils">
+<colgroup>
+<col width="10%" />
+<col width="90%" />
+</colgroup>
+<thead valign="bottom">
+<tr class="row-odd"><th class="head">項番</th>
+<th class="head">説明</th>
+</tr>
+</thead>
+<tbody valign="top">
+<tr class="row-even"><td><div class="first last line-block">
+<div class="line">(7)</div>
+</div>
+</td>
+<td><div class="first last line-block">
+<div class="line"><code class="docutils literal"><span class="pre">MultipartFile</span></code>のフィールドに、アップロードファイルのバリデーションを行うための、アノテーションを付与する。</div>
+</div>
+</td>
+</tr>
+</tbody>
+</table>
+</div></blockquote>
+</div>
+<div class="section" id="id12">
+<h4><a class="toc-backref" href="#id45">4.9.2.3.5. Controllerの実装</a><a class="headerlink" href="#id12" title="Permalink to this headline">¶</a></h4>
+<blockquote>
+<div><div class="highlight-java"><div class="highlight"><pre><span></span><span class="nd">@RequestMapping</span><span class="p">(</span><span class="n">value</span> <span class="o">=</span> <span class="s">&quot;upload&quot;</span><span class="p">,</span> <span class="n">method</span> <span class="o">=</span> <span class="n">RequestMethod</span><span class="p">.</span><span class="na">POST</span><span class="p">)</span>
+<span class="kd">public</span> <span class="n">String</span> <span class="nf">uploadFile</span><span class="p">(</span><span class="nd">@Validated</span> <span class="n">FileUploadForm</span> <span class="n">form</span><span class="p">,</span>
+        <span class="n">BindingResult</span> <span class="n">result</span><span class="p">,</span> <span class="n">RedirectAttributes</span> <span class="n">redirectAttributes</span><span class="p">)</span> <span class="p">{</span>
+
+    <span class="c1">// (8)</span>
+    <span class="k">if</span> <span class="p">(</span><span class="n">result</span><span class="p">.</span><span class="na">hasErrors</span><span class="p">())</span> <span class="p">{</span>
+        <span class="k">return</span> <span class="s">&quot;article/uploadForm&quot;</span><span class="p">;</span>
+    <span class="p">}</span>
+
+    <span class="n">MultipartFile</span> <span class="n">uploadFile</span> <span class="o">=</span> <span class="n">form</span><span class="p">.</span><span class="na">getFile</span><span class="p">();</span>
+
+    <span class="c1">// omit processing of upload.</span>
+
+    <span class="n">redirectAttributes</span><span class="p">.</span><span class="na">addFlashAttribute</span><span class="p">(</span><span class="n">ResultMessages</span><span class="p">.</span><span class="na">success</span><span class="p">().</span><span class="na">add</span><span class="p">(</span>
+            <span class="s">&quot;i.xx.at.0001&quot;</span><span class="p">));</span>
+
+    <span class="k">return</span> <span class="s">&quot;redirect:/article/upload&quot;</span><span class="p">;</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+<table border="1" class="colwidths-given docutils">
+<colgroup>
+<col width="10%" />
+<col width="90%" />
+</colgroup>
+<thead valign="bottom">
+<tr class="row-odd"><th class="head">項番</th>
+<th class="head">説明</th>
+</tr>
+</thead>
+<tbody valign="top">
+<tr class="row-even"><td><div class="first last line-block">
+<div class="line">(8)</div>
+</div>
+</td>
+<td><div class="first last line-block">
+<div class="line">アップロードファイルのバリデーションの結果は、<code class="docutils literal"><span class="pre">BindingResult</span></code>に格納される。</div>
+</div>
+</td>
+</tr>
+</tbody>
+</table>
+</div></blockquote>
+</div>
+</div>
+<div class="section" id="id13">
+<h3><a class="toc-backref" href="#id46">4.9.2.4. 複数ファイルのアップロード</a><a class="headerlink" href="#id13" title="Permalink to this headline">¶</a></h3>
+<p>複数ファイルを同時にアップロードする方法について説明する。</p>
+<blockquote>
+<div><div class="figure">
+<a class="reference internal image-reference" href="../../_images/file-upload-how_to_use_multi.png"><img alt="Screen image of multiple file upload." src="../../_images/file-upload-how_to_use_multi.png" style="width: 100%;" /></a>
+</div>
+</div></blockquote>
+<p>複数ファイルを同時にアップロードする場合は、<code class="docutils literal"><span class="pre">org.springframework.web.multipart.MultipartFile</span></code>オブジェクトを、フォームオブジェクトにバインドして受け取る必要がある。</p>
+<p>以降の説明では、単一ファイルのアップロードと重複する箇所の説明については、省略する。</p>
+<div class="section" id="id14">
+<h4><a class="toc-backref" href="#id47">4.9.2.4.1. フォームの実装</a><a class="headerlink" href="#id14" title="Permalink to this headline">¶</a></h4>
+<blockquote>
+<div><div class="highlight-java"><div class="highlight"><pre><span></span><span class="c1">// (1)</span>
+<span class="kd">public</span> <span class="kd">class</span> <span class="nc">FileUploadForm</span> <span class="kd">implements</span> <span class="n">Serializable</span> <span class="p">{</span>
+
+    <span class="c1">// omitted</span>
+
+    <span class="nd">@UploadFileRequired</span>
+    <span class="nd">@UploadFileNotEmpty</span>
+    <span class="nd">@UploadFileMaxSize</span>
+    <span class="kd">private</span> <span class="n">MultipartFile</span> <span class="n">file</span><span class="p">;</span>
+
+    <span class="nd">@NotNull</span>
+    <span class="nd">@Size</span><span class="p">(</span><span class="n">min</span> <span class="o">=</span> <span class="mi">0</span><span class="p">,</span> <span class="n">max</span> <span class="o">=</span> <span class="mi">100</span><span class="p">)</span>
+    <span class="kd">private</span> <span class="n">String</span> <span class="n">description</span><span class="p">;</span>
+
+    <span class="c1">// omitted getter/setter methods.</span>
+
+<span class="p">}</span>
+</pre></div>
+</div>
+<div class="highlight-java"><div class="highlight"><pre><span></span><span class="kd">public</span> <span class="kd">class</span> <span class="nc">FilesUploadForm</span> <span class="kd">implements</span> <span class="n">Serializable</span> <span class="p">{</span>
+
+    <span class="c1">// omitted</span>
+
+    <span class="nd">@Valid</span> <span class="c1">// (2)</span>
+    <span class="kd">private</span> <span class="n">List</span><span class="o">&lt;</span><span class="n">FileUploadForm</span><span class="o">&gt;</span> <span class="n">fileUploadForms</span><span class="p">;</span> <span class="c1">// (3)</span>
+
+    <span class="c1">// omitted getter/setter methods.</span>
+
+<span class="p">}</span>
+</pre></div>
+</div>
+<table border="1" class="colwidths-given docutils">
+<colgroup>
+<col width="10%" />
+<col width="90%" />
+</colgroup>
+<thead valign="bottom">
+<tr class="row-odd"><th class="head">項番</th>
+<th class="head">説明</th>
+</tr>
+</thead>
+<tbody valign="top">
+<tr class="row-even"><td><div class="first last line-block">
+<div class="line">(1)</div>
+</div>
+</td>
+<td><div class="first last line-block">
+<div class="line">ファイル単位の情報(アップロードファイル自体と、関連するフォーム項目)を保持するクラス。</div>
+<div class="line">上記例では、単一ファイルのアップロードの説明で作成したフォームオブジェクトを再利用している。</div>
+</div>
+</td>
+</tr>
+<tr class="row-odd"><td><div class="first last line-block">
+<div class="line">(2)</div>
+</div>
+</td>
+<td><div class="first last line-block">
+<div class="line">リスト内で保持しているオブジェクトに対して、Bean Validationによる入力チェックを行うために、<code class="docutils literal"><span class="pre">&#64;Valid</span></code>アノテーションを付与する。</div>
+</div>
+</td>
+</tr>
+<tr class="row-even"><td><div class="first last line-block">
+<div class="line">(3)</div>
+</div>
+</td>
+<td><div class="first last line-block">
+<div class="line">ファイル単位の情報(アップロードファイル自体と、関連するフォーム項目)を保持するオブジェクトを、List型のプロパティとして定義する。</div>
+</div>
+</td>
+</tr>
+</tbody>
+</table>
+<div class="admonition note">
+<p class="first admonition-title">Note</p>
+<p class="last">ファイルのみアップロードする場合は、<code class="docutils literal"><span class="pre">MultipartFile</span></code>オブジェクトを、List型のプロパティとして定義することもできるが、
+Bean Validationを使用してアップロードファイルの入力チェックを行う場合は、ファイル単位の情報を保持するオブジェクトを、List型のプロパティとして定義する方が相性がよい。</p>
+</div>
+</div></blockquote>
+</div>
+<div class="section" id="id15">
+<h4><a class="toc-backref" href="#id48">4.9.2.4.2. JSPの実装</a><a class="headerlink" href="#id15" title="Permalink to this headline">¶</a></h4>
+<blockquote>
+<div><div class="highlight-jsp"><div class="highlight"><pre><span></span><span class="nt">&lt;form:form</span>
+  <span class="na">action=</span><span class="s">&quot;${pageContext.request.contextPath}/article/uploadFiles&quot;</span> <span class="na">method=</span><span class="s">&quot;post&quot;</span>
+  <span class="na">modelAttribute=</span><span class="s">&quot;filesUploadForm&quot;</span> <span class="na">enctype=</span><span class="s">&quot;multipart/form-data&quot;</span><span class="nt">&gt;</span>
+  <span class="nt">&lt;c:forEach</span> <span class="na">var=</span><span class="s">&quot;i&quot;</span> <span class="na">begin=</span><span class="s">&quot;0&quot;</span> <span class="na">end=</span><span class="s">&quot;1&quot;</span> <span class="na">step=</span><span class="s">&quot;1&quot;</span><span class="nt">&gt;</span>
+    <span class="nt">&lt;table&gt;</span>
+      <span class="nt">&lt;tr&gt;</span>
+        <span class="nt">&lt;th</span> <span class="na">width=</span><span class="s">&quot;35%&quot;</span><span class="nt">&gt;</span>File to upload<span class="nt">&lt;/th&gt;</span>
+        <span class="nt">&lt;td</span> <span class="na">width=</span><span class="s">&quot;65%&quot;</span><span class="nt">&gt;</span>
+          <span class="nt">&lt;form:input</span> <span class="na">type=</span><span class="s">&quot;file&quot;</span> <span class="na">path=</span><span class="s">&quot;fileUploadForms[${i}].file&quot;</span> <span class="nt">/&gt;</span> <span class="c">&lt;!-- (1) --&gt;</span>
+          <span class="nt">&lt;form:errors</span> <span class="na">path=</span><span class="s">&quot;fileUploadForms[${i}].file&quot;</span> <span class="nt">/&gt;</span>
+        <span class="nt">&lt;/td&gt;</span>
+      <span class="nt">&lt;/tr&gt;</span>
+      <span class="nt">&lt;tr&gt;</span>
+        <span class="nt">&lt;th</span> <span class="na">width=</span><span class="s">&quot;35%&quot;</span><span class="nt">&gt;</span>Description<span class="nt">&lt;/th&gt;</span>
+        <span class="nt">&lt;td</span> <span class="na">width=</span><span class="s">&quot;65%&quot;</span><span class="nt">&gt;</span>
+          <span class="nt">&lt;form:input</span> <span class="na">path=</span><span class="s">&quot;fileUploadForms[${i}].description&quot;</span> <span class="nt">/&gt;</span>
+          <span class="nt">&lt;form:errors</span>  <span class="na">path=</span><span class="s">&quot;fileUploadForms[${i}].description&quot;</span> <span class="nt">/&gt;</span>
+        <span class="nt">&lt;/td&gt;</span>
+      <span class="nt">&lt;/tr&gt;</span>
+    <span class="nt">&lt;/table&gt;</span>
+  <span class="nt">&lt;/c:forEach&gt;</span>
+  <span class="nt">&lt;div&gt;</span>
+    <span class="nt">&lt;form:button&gt;</span>Upload<span class="nt">&lt;/form:button&gt;</span>
+  <span class="nt">&lt;/div&gt;</span>
+<span class="nt">&lt;/form:form&gt;</span>
+</pre></div>
+</div>
+<table border="1" class="colwidths-given docutils">
+<colgroup>
+<col width="10%" />
+<col width="90%" />
+</colgroup>
+<thead valign="bottom">
+<tr class="row-odd"><th class="head">項番</th>
+<th class="head">説明</th>
+</tr>
+</thead>
+<tbody valign="top">
+<tr class="row-even"><td><div class="first last line-block">
+<div class="line">(1)</div>
+</div>
+</td>
+<td><div class="first last line-block">
+<div class="line">アップロードファイルをバインドするList内の位置を指定する。</div>
+<div class="line">バインドするリスト内の位置は、<code class="docutils literal"><span class="pre">[]</span></code>の中に指定する。開始位置は、”<code class="docutils literal"><span class="pre">0</span></code>” 開始となる。</div>
+</div>
+</td>
+</tr>
+</tbody>
+</table>
+</div></blockquote>
+</div>
+<div class="section" id="id16">
+<h4><a class="toc-backref" href="#id49">4.9.2.4.3. Controllerの実装</a><a class="headerlink" href="#id16" title="Permalink to this headline">¶</a></h4>
+<blockquote>
+<div><div class="highlight-java"><div class="highlight"><pre><span></span><span class="nd">@RequestMapping</span><span class="p">(</span><span class="n">value</span> <span class="o">=</span> <span class="s">&quot;uploadFiles&quot;</span><span class="p">,</span> <span class="n">method</span> <span class="o">=</span> <span class="n">RequestMethod</span><span class="p">.</span><span class="na">POST</span><span class="p">)</span>
+<span class="kd">public</span> <span class="n">String</span> <span class="nf">uploadFiles</span><span class="p">(</span><span class="nd">@Validated</span> <span class="n">FilesUploadForm</span> <span class="n">form</span><span class="p">,</span>
+        <span class="n">BindingResult</span> <span class="n">result</span><span class="p">,</span> <span class="n">RedirectAttributes</span> <span class="n">redirectAttributes</span><span class="p">)</span> <span class="p">{</span>
+
+    <span class="k">if</span> <span class="p">(</span><span class="n">result</span><span class="p">.</span><span class="na">hasErrors</span><span class="p">())</span> <span class="p">{</span>
+        <span class="k">return</span> <span class="s">&quot;article/uploadForm&quot;</span><span class="p">;</span>
+    <span class="p">}</span>
+
+    <span class="c1">// (1)</span>
+    <span class="k">for</span> <span class="p">(</span><span class="n">FileUploadForm</span> <span class="n">fileUploadForm</span> <span class="p">:</span> <span class="n">form</span><span class="p">.</span><span class="na">getFileUploadForms</span><span class="p">())</span> <span class="p">{</span>
+
+        <span class="n">MultipartFile</span> <span class="n">uploadFile</span> <span class="o">=</span> <span class="n">fileUploadForm</span><span class="p">.</span><span class="na">getFile</span><span class="p">();</span>
+
+        <span class="c1">// omit processing of upload.</span>
+
+    <span class="p">}</span>
+
+    <span class="n">redirectAttributes</span><span class="p">.</span><span class="na">addFlashAttribute</span><span class="p">(</span><span class="n">ResultMessages</span><span class="p">.</span><span class="na">success</span><span class="p">().</span><span class="na">add</span><span class="p">(</span>
+            <span class="s">&quot;i.xx.at.0001&quot;</span><span class="p">));</span>
+
+    <span class="k">return</span> <span class="s">&quot;redirect:/article/upload?complete&quot;</span><span class="p">;</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+<table border="1" class="colwidths-given docutils">
+<colgroup>
+<col width="10%" />
+<col width="90%" />
+</colgroup>
+<thead valign="bottom">
+<tr class="row-odd"><th class="head">項番</th>
+<th class="head">説明</th>
+</tr>
+</thead>
+<tbody valign="top">
+<tr class="row-even"><td><div class="first last line-block">
+<div class="line">(1)</div>
+</div>
+</td>
+<td><div class="first last line-block">
+<div class="line">ファイル単位の情報(アップロードファイル自体と関連するフォーム項目)を保持するオブジェクトから <code class="docutils literal"><span class="pre">MultipartFile</span></code> を取得し、アップロード処理を実装する。</div>
+<div class="line">上記例では、具体的な実装は省略しているが、共有ディスクやデータベースへ保存する処理を行うことになる。</div>
+</div>
+</td>
+</tr>
+</tbody>
+</table>
+</div></blockquote>
+</div>
+</div>
+<div class="section" id="html5multiple">
+<h3><a class="toc-backref" href="#id50">4.9.2.5. HTML5のmultiple属性を使った複数ファイルのアップロード</a><a class="headerlink" href="#html5multiple" title="Permalink to this headline">¶</a></h3>
+<p>HTML5でサポートされたinputタグのmultiple属性を使用して、複数ファイルを同時にアップロードする方法について説明する。</p>
+<blockquote>
+<div><div class="figure">
+<a class="reference internal image-reference" href="../../_images/file-upload-how_to_use_multi_html5.png"><img alt="Screen image of multiple file upload(html5)." src="../../_images/file-upload-how_to_use_multi_html5.png" style="width: 100%;" /></a>
+</div>
+</div></blockquote>
+<p>以降の説明では、単一ファイルのアップロード及び複数ファイルのアップロードと重複する箇所の説明については、省略する。</p>
+<div class="section" id="id17">
+<h4><a class="toc-backref" href="#id51">4.9.2.5.1. フォームの実装</a><a class="headerlink" href="#id17" title="Permalink to this headline">¶</a></h4>
+<p>HTML5のinputタグのmultiple属性を使用して、複数ファイルを同時にアップロードする場合は、<code class="docutils literal"><span class="pre">org.springframework.web.multipart.MultipartFile</span></code>オブジェクトのコレクションを、フォームオブジェクトにバインドして受け取る必要がある。</p>
+<blockquote>
+<div><div class="highlight-java"><div class="highlight"><pre><span></span><span class="c1">// (1)</span>
+<span class="kd">public</span> <span class="kd">class</span> <span class="nc">FilesUploadForm</span> <span class="kd">implements</span> <span class="n">Serializable</span> <span class="p">{</span>
+
+    <span class="c1">// omitted</span>
+
+    <span class="c1">// (2)</span>
+    <span class="nd">@UploadFileNotEmpty</span>
+    <span class="kd">private</span> <span class="n">List</span><span class="o">&lt;</span><span class="n">MultipartFile</span><span class="o">&gt;</span> <span class="n">files</span><span class="p">;</span>
+
+    <span class="c1">// omitted getter/setter methods.</span>
+
+<span class="p">}</span>
+</pre></div>
+</div>
+<table border="1" class="colwidths-given docutils">
+<colgroup>
+<col width="10%" />
+<col width="90%" />
+</colgroup>
+<thead valign="bottom">
+<tr class="row-odd"><th class="head">項番</th>
+<th class="head">説明</th>
+</tr>
+</thead>
+<tbody valign="top">
+<tr class="row-even"><td><div class="first last line-block">
+<div class="line">(1)</div>
+</div>
+</td>
+<td><div class="first last line-block">
+<div class="line">複数のアップロードファイルを保持するためのフォームオブジェクト。</div>
+</div>
+</td>
+</tr>
+<tr class="row-odd"><td><div class="first last line-block">
+<div class="line">(2)</div>
+</div>
+</td>
+<td><div class="first last line-block">
+<div class="line"><code class="docutils literal"><span class="pre">MultipartFile</span></code> クラスをリストとして宣言する。</div>
+<div class="line">上記例では、入力チェックとして、ファイルが空でないことを検証するためのアノテーションを指定している。</div>
+<div class="line">本来は他の必須チェックやファイルのサイズチェックなども必要であるが、上記例では割愛している。</div>
+</div>
+</td>
+</tr>
+</tbody>
+</table>
+</div></blockquote>
+</div>
+<div class="section" id="validator">
+<h4><a class="toc-backref" href="#id52">4.9.2.5.2. Validatorの実装</a><a class="headerlink" href="#validator" title="Permalink to this headline">¶</a></h4>
+<p>コレクションに格納されている複数の <code class="docutils literal"><span class="pre">MultipartFile</span></code> オブジェクトに対して入力チェックを行う場合は、コレクション用のValidatorを実装する必要がある。</p>
+<p>以下では、単一ファイル用に作成したValidatorを利用してコレクション用のValidatorを作成する方法について説明する。</p>
+<blockquote>
+<div><div class="highlight-java"><div class="highlight"><pre><span></span><span class="c1">// (1)</span>
+<span class="kd">public</span> <span class="kd">class</span> <span class="nc">UploadFileNotEmptyForCollectionValidator</span> <span class="kd">implements</span>
+    <span class="n">ConstraintValidator</span><span class="o">&lt;</span><span class="n">UploadFileNotEmpty</span><span class="p">,</span> <span class="n">Collection</span><span class="o">&lt;</span><span class="n">MultipartFile</span><span class="o">&gt;&gt;</span> <span class="p">{</span>
+
+    <span class="c1">// (2)</span>
+    <span class="kd">private</span> <span class="kd">final</span> <span class="n">UploadFileNotEmptyValidator</span> <span class="n">validator</span> <span class="o">=</span>
+        <span class="k">new</span> <span class="n">UploadFileNotEmptyValidator</span><span class="p">();</span>
+
+    <span class="c1">// (3)</span>
+    <span class="nd">@Override</span>
+    <span class="kd">public</span> <span class="kt">void</span> <span class="nf">initialize</span><span class="p">(</span><span class="n">UploadFileNotEmpty</span> <span class="n">constraintAnnotation</span><span class="p">)</span> <span class="p">{</span>
+        <span class="n">validator</span><span class="p">.</span><span class="na">initialize</span><span class="p">(</span><span class="n">constraintAnnotation</span><span class="p">);</span>
+    <span class="p">}</span>
+
+    <span class="c1">// (4)</span>
+    <span class="nd">@Override</span>
+    <span class="kd">public</span> <span class="kt">boolean</span> <span class="nf">isValid</span><span class="p">(</span><span class="n">Collection</span><span class="o">&lt;</span><span class="n">MultipartFile</span><span class="o">&gt;</span> <span class="n">values</span><span class="p">,</span>
+            <span class="n">ConstraintValidatorContext</span> <span class="n">context</span><span class="p">)</span> <span class="p">{</span>
+        <span class="k">for</span> <span class="p">(</span><span class="n">MultipartFile</span> <span class="n">file</span> <span class="p">:</span> <span class="n">values</span><span class="p">)</span> <span class="p">{</span>
+            <span class="k">if</span> <span class="p">(</span><span class="o">!</span><span class="n">validator</span><span class="p">.</span><span class="na">isValid</span><span class="p">(</span><span class="n">file</span><span class="p">,</span> <span class="n">context</span><span class="p">))</span> <span class="p">{</span>
+                <span class="k">return</span> <span class="kc">false</span><span class="p">;</span>
+            <span class="p">}</span>
+        <span class="p">}</span>
+        <span class="k">return</span> <span class="kc">true</span><span class="p">;</span>
+    <span class="p">}</span>
+
+<span class="p">}</span>
+</pre></div>
+</div>
+<table border="1" class="colwidths-given docutils">
+<colgroup>
+<col width="10%" />
+<col width="90%" />
+</colgroup>
+<thead valign="bottom">
+<tr class="row-odd"><th class="head">項番</th>
+<th class="head">説明</th>
+</tr>
+</thead>
+<tbody valign="top">
+<tr class="row-even"><td><div class="first last line-block">
+<div class="line">(1)</div>
+</div>
+</td>
+<td><div class="first last line-block">
+<div class="line">全てのファイルが空でないことを検証するための実装を行うクラス。</div>
+<div class="line">検証対象となる値の型として、 <code class="docutils literal"><span class="pre">Collection&lt;MultipartFile&gt;</span></code> を指定する。</div>
+</div>
+</td>
+</tr>
+<tr class="row-odd"><td><div class="first last line-block">
+<div class="line">(2)</div>
+</div>
+</td>
+<td><div class="first last line-block">
+<div class="line">実際の処理は単一ファイル用のValidatorに委譲するため、単一ファイル用のValidatorのインスタンスを作成しておく。</div>
+</div>
+</td>
+</tr>
+<tr class="row-even"><td><div class="first last line-block">
+<div class="line">(3)</div>
+</div>
+</td>
+<td><div class="first last line-block">
+<div class="line">Validatorを初期化する。</div>
+<div class="line">上記例では、実際の処理を行う単一ファイル用のValidatorの初期化を行っている。</div>
+</div>
+</td>
+</tr>
+<tr class="row-odd"><td><div class="first last line-block">
+<div class="line">(4)</div>
+</div>
+</td>
+<td><div class="first last line-block">
+<div class="line">全てのファイルが空でないことを検証する。</div>
+<div class="line">上記例では、単一ファイル用のValidatorのメソッドを呼び出して、１ファイルずつ検証を行っている。</div>
+</div>
+</td>
+</tr>
+</tbody>
+</table>
+<div class="highlight-java"><div class="highlight"><pre><span></span><span class="nd">@Target</span><span class="p">({</span> <span class="n">METHOD</span><span class="p">,</span> <span class="n">FIELD</span><span class="p">,</span> <span class="n">ANNOTATION_TYPE</span><span class="p">,</span> <span class="n">CONSTRUCTOR</span><span class="p">,</span> <span class="n">PARAMETER</span><span class="p">,</span> <span class="n">TYPE_USE</span> <span class="p">})</span>
+<span class="nd">@Retention</span><span class="p">(</span><span class="n">RUNTIME</span><span class="p">)</span>
+<span class="nd">@Repeatable</span><span class="p">(</span><span class="n">List</span><span class="p">.</span><span class="na">class</span><span class="p">)</span>
+<span class="nd">@Constraint</span><span class="p">(</span><span class="n">validatedBy</span> <span class="o">=</span>
+    <span class="p">{</span><span class="n">UploadFileNotEmptyValidator</span><span class="p">.</span><span class="na">class</span><span class="p">,</span>
+     <span class="n">UploadFileNotEmptyForCollectionValidator</span><span class="p">.</span><span class="na">class</span><span class="p">})</span> <span class="c1">// (5)</span>
+<span class="kd">public</span> <span class="nd">@interface</span> <span class="n">UploadFileNotEmpty</span> <span class="p">{</span>
+
+    <span class="c1">// omitted</span>
+
+<span class="p">}</span>
+</pre></div>
+</div>
+<table border="1" class="colwidths-given docutils">
+<colgroup>
+<col width="10%" />
+<col width="90%" />
+</colgroup>
+<thead valign="bottom">
+<tr class="row-odd"><th class="head">項番</th>
+<th class="head">説明</th>
+</tr>
+</thead>
+<tbody valign="top">
+<tr class="row-even"><td><div class="first last line-block">
+<div class="line">(5)</div>
+</div>
+</td>
+<td><div class="first last line-block">
+<div class="line">複数のファイルに対してチェックを行うValidatorクラスを、検証用アノテーションに追加する。</div>
+<div class="line"><code class="docutils literal"><span class="pre">&#64;Constraint</span></code> アノテーションのvalidatedBy属性に、(1)で作成したクラスを指定する。</div>
+<div class="line">こうすることで、  <code class="docutils literal"><span class="pre">&#64;UploadFileNotEmpty</span></code> アノテーションを付与したプロパティに対する妥当性チェックを行う際に、(1)で作成したクラスが実行される。</div>
+</div>
+</td>
+</tr>
+</tbody>
+</table>
+</div></blockquote>
+</div>
+<div class="section" id="id18">
+<h4><a class="toc-backref" href="#id53">4.9.2.5.3. JSPの実装</a><a class="headerlink" href="#id18" title="Permalink to this headline">¶</a></h4>
+<blockquote>
+<div><div class="highlight-jsp"><div class="highlight"><pre><span></span><span class="nt">&lt;form:form</span>
+  <span class="na">action=</span><span class="s">&quot;${pageContext.request.contextPath}/article/uploadFiles&quot;</span> <span class="na">method=</span><span class="s">&quot;post&quot;</span>
+  <span class="na">modelAttribute=</span><span class="s">&quot;filesUploadForm&quot;</span> <span class="na">enctype=</span><span class="s">&quot;multipart/form-data&quot;</span><span class="nt">&gt;</span>
+  <span class="nt">&lt;table&gt;</span>
+    <span class="nt">&lt;tr&gt;</span>
+      <span class="nt">&lt;th</span> <span class="na">width=</span><span class="s">&quot;35%&quot;</span><span class="nt">&gt;</span>File to upload<span class="nt">&lt;/th&gt;</span>
+      <span class="nt">&lt;td</span> <span class="na">width=</span><span class="s">&quot;65%&quot;</span><span class="nt">&gt;</span>
+        <span class="nt">&lt;form:input</span> <span class="na">type=</span><span class="s">&quot;file&quot;</span> <span class="na">path=</span><span class="s">&quot;files&quot;</span> <span class="na">multiple=</span><span class="s">&quot;multiple&quot;</span> <span class="nt">/&gt;</span> <span class="c">&lt;!-- (1) --&gt;</span>
+        <span class="nt">&lt;form:errors</span> <span class="na">path=</span><span class="s">&quot;files&quot;</span> <span class="nt">/&gt;</span>
+      <span class="nt">&lt;/td&gt;</span>
+    <span class="nt">&lt;/tr&gt;</span>
+  <span class="nt">&lt;/table&gt;</span>
+  <span class="nt">&lt;div&gt;</span>
+    <span class="nt">&lt;form:button&gt;</span>Upload<span class="nt">&lt;/form:button&gt;</span>
+  <span class="nt">&lt;/div&gt;</span>
+<span class="nt">&lt;/form:form&gt;</span>
+</pre></div>
+</div>
+<table border="1" class="colwidths-given docutils">
+<colgroup>
+<col width="10%" />
+<col width="90%" />
+</colgroup>
+<thead valign="bottom">
+<tr class="row-odd"><th class="head">項番</th>
+<th class="head">説明</th>
+</tr>
+</thead>
+<tbody valign="top">
+<tr class="row-even"><td><div class="first last line-block">
+<div class="line">(1)</div>
+</div>
+</td>
+<td><div class="first last line-block">
+<div class="line">path属性には フォームオブジェクトのプロパティ名を指定し、 multiple属性を指定する。</div>
+<div class="line">multiple属性を指定すると、HTML5をサポートしているブラウザで複数のファイルを選択しアップロードすることができる。</div>
+</div>
+</td>
+</tr>
+</tbody>
+</table>
+</div></blockquote>
+</div>
+<div class="section" id="id19">
+<h4><a class="toc-backref" href="#id54">4.9.2.5.4. Controllerの実装</a><a class="headerlink" href="#id19" title="Permalink to this headline">¶</a></h4>
+<blockquote>
+<div><div class="highlight-java"><div class="highlight"><pre><span></span><span class="nd">@RequestMapping</span><span class="p">(</span><span class="n">value</span> <span class="o">=</span> <span class="s">&quot;uploadFiles&quot;</span><span class="p">,</span> <span class="n">method</span> <span class="o">=</span> <span class="n">RequestMethod</span><span class="p">.</span><span class="na">POST</span><span class="p">)</span>
+<span class="kd">public</span> <span class="n">String</span> <span class="nf">uploadFiles</span><span class="p">(</span><span class="nd">@Validated</span> <span class="n">FilesUploadForm</span> <span class="n">form</span><span class="p">,</span>
+        <span class="n">BindingResult</span> <span class="n">result</span><span class="p">,</span> <span class="n">RedirectAttributes</span> <span class="n">redirectAttributes</span><span class="p">)</span> <span class="p">{</span>
+    <span class="k">if</span> <span class="p">(</span><span class="n">result</span><span class="p">.</span><span class="na">hasErrors</span><span class="p">())</span> <span class="p">{</span>
+        <span class="k">return</span> <span class="s">&quot;article/uploadForm&quot;</span><span class="p">;</span>
+    <span class="p">}</span>
+
+    <span class="c1">// (1)</span>
+    <span class="k">for</span> <span class="p">(</span><span class="n">MultipartFile</span> <span class="n">file</span> <span class="p">:</span> <span class="n">form</span><span class="p">.</span><span class="na">getFiles</span><span class="p">())</span> <span class="p">{</span>
+
+        <span class="c1">// omit processing of upload.</span>
+
+    <span class="p">}</span>
+
+    <span class="n">redirectAttributes</span><span class="p">.</span><span class="na">addFlashAttribute</span><span class="p">(</span><span class="n">ResultMessages</span><span class="p">.</span><span class="na">success</span><span class="p">().</span><span class="na">add</span><span class="p">(</span>
+            <span class="s">&quot;i.xx.at.0001&quot;</span><span class="p">));</span>
+
+    <span class="k">return</span> <span class="s">&quot;redirect:/article/upload?complete&quot;</span><span class="p">;</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+<table border="1" class="colwidths-given docutils">
+<colgroup>
+<col width="10%" />
+<col width="90%" />
+</colgroup>
+<thead valign="bottom">
+<tr class="row-odd"><th class="head">項番</th>
+<th class="head">説明</th>
+</tr>
+</thead>
+<tbody valign="top">
+<tr class="row-even"><td><div class="first last line-block">
+<div class="line">(1)</div>
+</div>
+</td>
+<td><div class="first last line-block">
+<div class="line">フォームオブジェクトから <code class="docutils literal"><span class="pre">MultipartFile</span></code> オブジェクトが格納されているリストを取得し、アップロード処理を実装する。</div>
+<div class="line">上記例では、具体的な実装は省略しているが、共有ディスクやデータベースへ保存する処理を行うことになる。</div>
+</div>
+</td>
+</tr>
+</tbody>
+</table>
+</div></blockquote>
+</div>
+</div>
+<div class="section" id="id20">
+<h3><a class="toc-backref" href="#id55">4.9.2.6. 仮アップロード</a><a class="headerlink" href="#id20" title="Permalink to this headline">¶</a></h3>
+<p>アップロード結果の確認画面など、画面遷移の途中でファイルをアップロードする場合、仮アップロードという考え方が必要になる。</p>
+<blockquote>
+<div><div class="admonition note">
+<p class="first admonition-title">Note</p>
+<p><code class="docutils literal"><span class="pre">MultipartFile</span></code>オブジェクトで保持しているファイルの中身は、アップロードしたリクエストが完了した時点で消滅する可能性がある。
+そのため、ファイルの中身についてリクエストを跨いで扱いたい場合は、<code class="docutils literal"><span class="pre">MultipartFile</span></code>オブジェクトで保持しているファイルの中身や、メタ情報(ファイル名など)をファイルやフォームに退避する必要がある。</p>
+<p class="last"><code class="docutils literal"><span class="pre">MultipartFile</span></code>オブジェクトで保持しているファイルの中身は、下記処理フローの(3)が完了した時点で、消滅する。</p>
+</div>
+<div class="figure">
+<a class="reference internal image-reference" href="../../_images/file-upload-how_to_use_temporary_upload.png"><img alt="Processing flow of temporary upload." src="../../_images/file-upload-how_to_use_temporary_upload.png" style="width: 100%;" /></a>
+</div>
+<table border="1" class="colwidths-given longtable docutils">
+<colgroup>
+<col width="10%" />
+<col width="90%" />
+</colgroup>
+<thead valign="bottom">
+<tr class="row-odd"><th class="head">項番</th>
+<th class="head">説明</th>
+</tr>
+</thead>
+<tbody valign="top">
+<tr class="row-even"><td><div class="first last line-block">
+<div class="line">(1)</div>
+</div>
+</td>
+<td><div class="first last line-block">
+<div class="line">入力画面にて、アップロードするファイルを選択し、確認画面に遷移するためのリクエストを送信する。</div>
+</div>
+</td>
+</tr>
+<tr class="row-odd"><td><div class="first last line-block">
+<div class="line">(2)</div>
+</div>
+</td>
+<td><div class="first last line-block">
+<div class="line">Controllerは、アップロードされたファイルの中身を、アプリケーション用の仮ディレクトリに一時保存する。</div>
+</div>
+</td>
+</tr>
+<tr class="row-even"><td><div class="first last line-block">
+<div class="line">(3)</div>
+</div>
+</td>
+<td><div class="first last line-block">
+<div class="line">Controllerは、確認画面のView名を返却し、確認画面に遷移する。</div>
+</div>
+</td>
+</tr>
+<tr class="row-odd"><td><div class="first last line-block">
+<div class="line">(4)</div>
+</div>
+</td>
+<td><div class="first last line-block">
+<div class="line">確認画面にて、処理を実行するためのリクエストを送信する。</div>
+</div>
+</td>
+</tr>
+<tr class="row-even"><td><div class="first last line-block">
+<div class="line">(5)</div>
+</div>
+</td>
+<td><div class="first last line-block">
+<div class="line">Controllerは、Serviceのメソッドを呼び出し、処理を実行する。</div>
+</div>
+</td>
+</tr>
+<tr class="row-odd"><td><div class="first last line-block">
+<div class="line">(6)</div>
+</div>
+</td>
+<td><div class="first last line-block">
+<div class="line">Serviceは、仮ディレクトリに格納されている一時ファイルを、本ディレクトリまたはデータベースに移動する。</div>
+</div>
+</td>
+</tr>
+<tr class="row-even"><td><div class="first last line-block">
+<div class="line">(7)</div>
+</div>
+</td>
+<td><div class="first last line-block">
+<div class="line">Controllerは、完了画面を表示するためのView名を返却し、完了画面に遷移する。</div>
+</div>
+</td>
+</tr>
+</tbody>
+</table>
+<div class="admonition note">
+<p class="first admonition-title">Note</p>
+<p class="last">仮アップロードの処理は、アプリケーション層の役割なので、Controller又はHelperクラスで実装することになる。</p>
+</div>
+</div></blockquote>
+<div class="section" id="id21">
+<h4><a class="toc-backref" href="#id56">4.9.2.6.1. Controllerの実装</a><a class="headerlink" href="#id21" title="Permalink to this headline">¶</a></h4>
+<p>以下に、アップロードされたファイルを仮ディレクトリに一時保存する実装例を示す。</p>
+<blockquote>
+<div><div class="highlight-java"><div class="highlight"><pre><span></span><span class="nd">@Component</span>
+<span class="kd">public</span> <span class="kd">class</span> <span class="nc">UploadHelper</span> <span class="p">{</span>
+
+    <span class="c1">// (2)</span>
+    <span class="nd">@Value</span><span class="p">(</span><span class="s">&quot;${app.upload.temporaryDirectory}&quot;</span><span class="p">)</span>
+    <span class="kd">private</span> <span class="n">File</span> <span class="n">uploadTemporaryDirectory</span><span class="p">;</span>
+
+    <span class="c1">// (1)</span>
+    <span class="kd">public</span> <span class="n">String</span> <span class="nf">saveTemporaryFile</span><span class="p">(</span><span class="n">MultipartFile</span> <span class="n">multipartFile</span><span class="p">)</span>
+        <span class="kd">throws</span> <span class="n">IOException</span> <span class="p">{</span>
+
+        <span class="n">String</span> <span class="n">uploadTemporaryFileId</span> <span class="o">=</span> <span class="n">UUID</span><span class="p">.</span><span class="na">randomUUID</span><span class="p">().</span><span class="na">toString</span><span class="p">();</span>
+        <span class="n">File</span> <span class="n">uploadTemporaryFile</span> <span class="o">=</span>
+            <span class="k">new</span> <span class="n">File</span><span class="p">(</span><span class="n">uploadTemporaryDirectory</span><span class="p">,</span> <span class="n">uploadTemporaryFileId</span><span class="p">);</span>
+
+        <span class="c1">// (2)</span>
+        <span class="n">FileUtils</span><span class="p">.</span><span class="na">copyInputStreamToFile</span><span class="p">(</span><span class="n">multipartFile</span><span class="p">.</span><span class="na">getInputStream</span><span class="p">(),</span>
+                <span class="n">uploadTemporaryFile</span><span class="p">);</span>
+
+        <span class="k">return</span> <span class="n">uploadTemporaryFileId</span><span class="p">;</span>
+    <span class="p">}</span>
+
+<span class="p">}</span>
+</pre></div>
+</div>
+<table border="1" class="colwidths-given docutils">
+<colgroup>
+<col width="10%" />
+<col width="90%" />
+</colgroup>
+<thead valign="bottom">
+<tr class="row-odd"><th class="head">項番</th>
+<th class="head">説明</th>
+</tr>
+</thead>
+<tbody valign="top">
+<tr class="row-even"><td><div class="first last line-block">
+<div class="line">(1)</div>
+</div>
+</td>
+<td><div class="first last line-block">
+<div class="line">仮アップロードを行うためのメソッドをHelperクラスに作成する。</div>
+<div class="line">ファイルアップロードを行う処理が複数ある場合は、共通的なHelperメソッドを用意し、仮アップロード処理を共通化することを推奨する。</div>
+</div>
+</td>
+</tr>
+<tr class="row-odd"><td><div class="first last line-block">
+<div class="line">(2)</div>
+</div>
+</td>
+<td><div class="first last line-block">
+<div class="line">アップロードしたファイルを一時ファイルとして保存する。</div>
+<div class="line">上記例では、<code class="docutils literal"><span class="pre">org.apache.commons.io.FileUtils</span></code>クラスの copyInputStreamToFileメソッドを呼び出し、アップロードしたファイルの中身をファイルに保存している。</div>
+</div>
+</td>
+</tr>
+</tbody>
+</table>
+<div class="highlight-java"><div class="highlight"><pre><span></span><span class="c1">// omitted</span>
+
+<span class="nd">@Inject</span>
+<span class="n">UploadHelper</span> <span class="n">uploadHelper</span><span class="p">;</span>
+
+<span class="nd">@RequestMapping</span><span class="p">(</span><span class="n">value</span> <span class="o">=</span> <span class="s">&quot;upload&quot;</span><span class="p">,</span> <span class="n">method</span> <span class="o">=</span> <span class="n">RequestMethod</span><span class="p">.</span><span class="na">POST</span><span class="p">,</span> <span class="n">params</span> <span class="o">=</span> <span class="s">&quot;confirm&quot;</span><span class="p">)</span>
+<span class="kd">public</span> <span class="n">String</span> <span class="nf">uploadConfirm</span><span class="p">(</span><span class="nd">@Validated</span> <span class="n">FileUploadForm</span> <span class="n">form</span><span class="p">,</span>
+        <span class="n">BindingResult</span> <span class="n">result</span><span class="p">)</span> <span class="kd">throws</span> <span class="n">IOException</span> <span class="p">{</span>
+
+    <span class="k">if</span> <span class="p">(</span><span class="n">result</span><span class="p">.</span><span class="na">hasErrors</span><span class="p">())</span> <span class="p">{</span>
+        <span class="k">return</span> <span class="s">&quot;article/uploadForm&quot;</span><span class="p">;</span>
+    <span class="p">}</span>
+
+    <span class="c1">// (3)</span>
+    <span class="n">String</span> <span class="n">uploadTemporaryFileId</span> <span class="o">=</span> <span class="n">uploadHelper</span><span class="p">.</span><span class="na">saveTemporaryFile</span><span class="p">(</span><span class="n">form</span>
+            <span class="p">.</span><span class="na">getFile</span><span class="p">());</span>
+
+    <span class="c1">// (4)</span>
+    <span class="n">form</span><span class="p">.</span><span class="na">setUploadTemporaryFileId</span><span class="p">(</span><span class="n">uploadTemporaryFileId</span><span class="p">);</span>
+    <span class="n">form</span><span class="p">.</span><span class="na">setFileName</span><span class="p">(</span><span class="n">form</span><span class="p">.</span><span class="na">getFile</span><span class="p">().</span><span class="na">getOriginalFilename</span><span class="p">());</span>
+
+    <span class="k">return</span> <span class="s">&quot;article/uploadConfirm&quot;</span><span class="p">;</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+<table border="1" class="colwidths-given docutils">
+<colgroup>
+<col width="10%" />
+<col width="90%" />
+</colgroup>
+<thead valign="bottom">
+<tr class="row-odd"><th class="head">項番</th>
+<th class="head">説明</th>
+</tr>
+</thead>
+<tbody valign="top">
+<tr class="row-even"><td><div class="first last line-block">
+<div class="line">(3)</div>
+</div>
+</td>
+<td><div class="first last line-block">
+<div class="line">アップロードファイルを一時保存するためのHelperメソッドを呼び出す。</div>
+<div class="line">上記例では、一時保存したファイルを識別するためのIDがHelperメソッドの返り値として返却される。</div>
+</div>
+</td>
+</tr>
+<tr class="row-odd"><td><div class="first last line-block">
+<div class="line">(4)</div>
+</div>
+</td>
+<td><div class="first last line-block">
+<div class="line">アップロードしたファイルのメタ情報（ファイルを識別するためのID、ファイル名など）をフォームオブジェクトに格納する。</div>
+<div class="line">上記例では、アップロードファイルのファイル名と一時保存したファイルを識別するためのIDをフォームオブジェクトに格納している。</div>
+</div>
+</td>
+</tr>
+</tbody>
+</table>
+<div class="admonition note">
+<p class="first admonition-title">Note</p>
+<p class="last">仮ディレクトリのディレクトリは、アプリケーションをデプロイする環境によって異なる可能性があるため、外部プロパティから取得すること。
+外部プロパティの詳細については、<a class="reference internal" href="../GeneralFuncDetail/PropertyManagement.html"><span class="doc">プロパティ管理</span></a>を参照されたい。</p>
+</div>
+<div class="admonition warning">
+<p class="first admonition-title">Warning</p>
+<p>上記例では、アプリケーションサーバ上のローカルディスクに一時保存する例としているが、アプリケーションサーバがクラスタ化されている場合は、
+データベース又は共有ディスクに保存する必要がでてくるので、非機能要件も考慮して保存先を設計する必要がある。</p>
+<p class="last">データベースに保存する場合は、トランザクション管理が必要となるため、 データベースに保存する処理をServiceのメソッドに委譲することになる。</p>
+</div>
+</div></blockquote>
+<div class="line-block">
+<div class="line"><br /></div>
+</div>
+</div>
+</div>
+</div>
+<div class="section" id="how-to-extend">
+<h2><a class="toc-backref" href="#id57">4.9.3. How to extend</a><a class="headerlink" href="#how-to-extend" title="Permalink to this headline">¶</a></h2>
+<div class="section" id="housekeeping">
+<span id="file-upload-how-to-use-housekeeping"></span><h3><a class="toc-backref" href="#id58">4.9.3.1. 仮アップロード時の不要ファイルのHousekeeping</a><a class="headerlink" href="#housekeeping" title="Permalink to this headline">¶</a></h3>
+<div class="line-block">
+<div class="line">仮アップロードの仕組みを使用してファイルのアップロードを行う場合、仮ディレクトリに不要なファイルが残るケースがある。</div>
+<div class="line">具体的には、以下のようなケースである。</div>
+</div>
+<ul class="simple">
+<li>仮アップロード後の画面操作を中止した場合</li>
+<li>仮アップロード後の画面操作中にシステムエラーが発生した場合</li>
+<li>仮アップロード後の画面操作中にサーバが停止した場合</li>
+<li>etc …</li>
+</ul>
+<blockquote>
+<div><div class="admonition warning">
+<p class="first admonition-title">Warning</p>
+<p class="last">不要なファイルを残したままにすると、ディスクを圧迫する可能性があるため、必ず不要なファイルを削除する仕組みを用意すること。</p>
+</div>
+</div></blockquote>
+<p>本ガイドラインでは、Spring Frameworkから提供されている「Task Scheduler」機能を使用して、不要なファイルを削除する方法について説明する。
+「Task Scheduler」の詳細については、<a class="reference external" href="https://docs.spring.io/spring/docs/5.2.20.RELEASE/spring-framework-reference/integration.html#scheduling">Spring Framework Documentation -Task Execution and Scheduling-</a>を参照されたい。</p>
+<blockquote>
+<div><div class="admonition note">
+<p class="first admonition-title">Note</p>
+<p class="last">ガイドラインとしては、Spring Frameworkから提供されている「Task Scheduler」機能を使用する方法について説明するが、使用を強制するものではない。
+実際のプロジェクトでは、インフラチームによって不要なファイルを削除するバッチアプリケーション(Shellアプリケーション)が提供されるケースがある。
+その場合は、インフラチーム作成のバッチアプリケーションを使用して不要なファイルを削除することを推奨する。</p>
+</div>
+</div></blockquote>
+<div class="section" id="id22">
+<h4><a class="toc-backref" href="#id59">4.9.3.1.1. 不要ファイルを削除するコンポーネントクラスの実装</a><a class="headerlink" href="#id22" title="Permalink to this headline">¶</a></h4>
+<p>不要なファイルを削除するコンポーネントクラスを実装する。</p>
+<blockquote>
+<div><div class="highlight-java"><div class="highlight"><pre><span></span><span class="kn">package</span> <span class="nn">com.examples.common.upload</span><span class="p">;</span>
+
+<span class="kn">import</span> <span class="nn">java.io.File</span><span class="p">;</span>
+<span class="kn">import</span> <span class="nn">java.util.Collection</span><span class="p">;</span>
+<span class="kn">import</span> <span class="nn">java.util.Date</span><span class="p">;</span>
+
+<span class="kn">import</span> <span class="nn">javax.inject.Inject</span><span class="p">;</span>
+
+<span class="kn">import</span> <span class="nn">org.apache.commons.io.FileUtils</span><span class="p">;</span>
+<span class="kn">import</span> <span class="nn">org.apache.commons.io.filefilter.FileFilterUtils</span><span class="p">;</span>
+<span class="kn">import</span> <span class="nn">org.apache.commons.io.filefilter.IOFileFilter</span><span class="p">;</span>
+<span class="kn">import</span> <span class="nn">org.springframework.beans.factory.annotation.Value</span><span class="p">;</span>
+<span class="kn">import</span> <span class="nn">org.terasoluna.gfw.common.date.jodatime.JodaTimeDateFactory</span><span class="p">;</span>
+
+<span class="c1">// (1)</span>
+<span class="kd">public</span> <span class="kd">class</span> <span class="nc">UnnecessaryFilesCleaner</span> <span class="p">{</span>
+
+    <span class="nd">@Inject</span>
+    <span class="n">JodaTimeDateFactory</span> <span class="n">dateFactory</span><span class="p">;</span>
+
+    <span class="nd">@Value</span><span class="p">(</span><span class="s">&quot;${app.upload.temporaryFileSavedPeriodMinutes}&quot;</span><span class="p">)</span>
+    <span class="kd">private</span> <span class="kt">int</span> <span class="n">savedPeriodMinutes</span><span class="p">;</span>
+
+    <span class="nd">@Value</span><span class="p">(</span><span class="s">&quot;${app.upload.temporaryDirectory}&quot;</span><span class="p">)</span>
+    <span class="kd">private</span> <span class="n">File</span> <span class="n">targetDirectory</span><span class="p">;</span>
+
+    <span class="c1">// (2)</span>
+    <span class="kd">public</span> <span class="kt">void</span> <span class="nf">cleanup</span><span class="p">()</span> <span class="p">{</span>
+
+        <span class="c1">// calculate cutoff date.</span>
+        <span class="n">Date</span> <span class="n">cutoffDate</span> <span class="o">=</span> <span class="n">dateFactory</span><span class="p">.</span><span class="na">newDateTime</span><span class="p">().</span><span class="na">minusMinutes</span><span class="p">(</span>
+                <span class="n">savedPeriodMinutes</span><span class="p">).</span><span class="na">toDate</span><span class="p">();</span>
+
+        <span class="c1">// collect target files.</span>
+        <span class="n">IOFileFilter</span> <span class="n">fileFilter</span> <span class="o">=</span> <span class="n">FileFilterUtils</span><span class="p">.</span><span class="na">ageFileFilter</span><span class="p">(</span><span class="n">cutoffDate</span><span class="p">);</span>
+        <span class="n">Collection</span><span class="o">&lt;</span><span class="n">File</span><span class="o">&gt;</span> <span class="n">targetFiles</span> <span class="o">=</span> <span class="n">FileUtils</span><span class="p">.</span><span class="na">listFiles</span><span class="p">(</span><span class="n">targetDirectory</span><span class="p">,</span>
+                <span class="n">fileFilter</span><span class="p">,</span> <span class="kc">null</span><span class="p">);</span>
+
+        <span class="k">if</span> <span class="p">(</span><span class="n">targetFiles</span><span class="p">.</span><span class="na">isEmpty</span><span class="p">())</span> <span class="p">{</span>
+            <span class="k">return</span><span class="p">;</span>
+        <span class="p">}</span>
+
+        <span class="c1">// delete files.</span>
+        <span class="k">for</span> <span class="p">(</span><span class="n">File</span> <span class="n">targetFile</span> <span class="p">:</span> <span class="n">targetFiles</span><span class="p">)</span> <span class="p">{</span>
+            <span class="n">FileUtils</span><span class="p">.</span><span class="na">deleteQuietly</span><span class="p">(</span><span class="n">targetFile</span><span class="p">);</span>
+        <span class="p">}</span>
+
+    <span class="p">}</span>
+
+<span class="p">}</span>
+</pre></div>
+</div>
+<table border="1" class="colwidths-given docutils">
+<colgroup>
+<col width="10%" />
+<col width="90%" />
+</colgroup>
+<thead valign="bottom">
+<tr class="row-odd"><th class="head">項番</th>
+<th class="head">説明</th>
+</tr>
+</thead>
+<tbody valign="top">
+<tr class="row-even"><td><div class="first last line-block">
+<div class="line">(1)</div>
+</div>
+</td>
+<td><div class="first last line-block">
+<div class="line">不要なファイルを削除するためのコンポーネントクラスを作成する。</div>
+</div>
+</td>
+</tr>
+<tr class="row-odd"><td><div class="first last line-block">
+<div class="line">(2)</div>
+</div>
+</td>
+<td><div class="first last line-block">
+<div class="line">不要なファイルを削除するメソッドを実装する。</div>
+<div class="line">上記例では、ファイルの最終更新日時から、一定期間更新がないファイルを、不要ファイルとして削除している。</div>
+</div>
+</td>
+</tr>
+</tbody>
+</table>
+<div class="admonition note">
+<p class="first admonition-title">Note</p>
+<p class="last">削除対象ファイルが格納されているディレクトリのパスや、削除基準となる時間などは、アプリケーションをデプロイする環境によって異なる可能性があるため、外部プロパティから取得すること。
+外部プロパティの詳細については、<a class="reference internal" href="../GeneralFuncDetail/PropertyManagement.html"><span class="doc">プロパティ管理</span></a>を参照されたい。</p>
+</div>
+</div></blockquote>
+</div>
+<div class="section" id="id23">
+<h4><a class="toc-backref" href="#id60">4.9.3.1.2. 不要ファイルを削除する処理のスケジューリング設定</a><a class="headerlink" href="#id23" title="Permalink to this headline">¶</a></h4>
+<p>不要ファイルを削除するPOJOクラスを、bean登録とタスクスケジュールの設定を行う。</p>
+<ul class="simple">
+<li><code class="file docutils literal"><span class="pre">applicationContext.xml</span></code></li>
+</ul>
+<blockquote>
+<div><div class="highlight-xml"><div class="highlight"><pre><span></span><span class="c">&lt;!-- omitted --&gt;</span>
+
+<span class="c">&lt;!-- (3) --&gt;</span>
+<span class="nt">&lt;bean</span> <span class="na">id=</span><span class="s">&quot;uploadTemporaryFileCleaner&quot;</span>
+    <span class="na">class=</span><span class="s">&quot;com.examples.common.upload.UnnecessaryFilesCleaner&quot;</span> <span class="nt">/&gt;</span>
+
+<span class="c">&lt;!-- (4) --&gt;</span>
+<span class="nt">&lt;task:scheduler</span> <span class="na">id=</span><span class="s">&quot;fileCleanupTaskScheduler&quot;</span> <span class="nt">/&gt;</span>
+
+<span class="c">&lt;!-- (5) --&gt;</span>
+<span class="nt">&lt;task:scheduled-tasks</span> <span class="na">scheduler=</span><span class="s">&quot;fileCleanupTaskScheduler&quot;</span><span class="nt">&gt;</span>
+    <span class="c">&lt;!-- (6)(7)(8) --&gt;</span>
+    <span class="nt">&lt;task:scheduled</span> <span class="na">ref=</span><span class="s">&quot;uploadTemporaryFileCleaner&quot;</span>
+                    <span class="na">method=</span><span class="s">&quot;cleanup&quot;</span>
+                    <span class="na">cron=</span><span class="s">&quot;${app.upload.temporaryFilesCleaner.cron}&quot;</span><span class="nt">/&gt;</span>
+<span class="nt">&lt;/task:scheduled-tasks&gt;</span>
+
+<span class="c">&lt;!-- omitted --&gt;</span>
+</pre></div>
+</div>
+<table border="1" class="colwidths-given docutils">
+<colgroup>
+<col width="10%" />
+<col width="90%" />
+</colgroup>
+<thead valign="bottom">
+<tr class="row-odd"><th class="head">項番</th>
+<th class="head">説明</th>
+</tr>
+</thead>
+<tbody valign="top">
+<tr class="row-even"><td><div class="first last line-block">
+<div class="line">(3)</div>
+</div>
+</td>
+<td><div class="first last line-block">
+<div class="line">不要ファイルを削除するPOJOクラスをbean登録する。</div>
+<div class="line">上記例では、 <code class="docutils literal"><span class="pre">uploadTemporaryFileCleaner</span></code> というIDで登録している。</div>
+</div>
+</td>
+</tr>
+<tr class="row-odd"><td><div class="first last line-block">
+<div class="line">(4)</div>
+</div>
+</td>
+<td><div class="first last line-block">
+<div class="line">不要ファイルを削除する処理を、実行するためのタスクスケジューラのbeanを、登録する。</div>
+<div class="line">上記例では、pool-size属性を省略しているため、このタスクスケジュールは、シングルスレッドでタスクを実行する。</div>
+<div class="line">複数のタスクを同時に実行する必要がある場合は、 pool-size属性に任意の数字を指定すること。</div>
+</div>
+</td>
+</tr>
+<tr class="row-even"><td><div class="first last line-block">
+<div class="line">(5)</div>
+</div>
+</td>
+<td><div class="first last line-block">
+<div class="line">不要ファイルを削除するタスクスケジューラに、タスクを追加する。</div>
+<div class="line">上記例では、(4)でbean登録したタスクスケジューラに対して、タスクを追加している。</div>
+</div>
+</td>
+</tr>
+<tr class="row-odd"><td><div class="first last line-block">
+<div class="line">(6)</div>
+</div>
+</td>
+<td><div class="first last line-block">
+<div class="line">ref属性に、不要ファイルを削除する処理が実装されているbeanを、指定する。</div>
+<div class="line">上記例では、(3)で登録したbeanを指定している。</div>
+</div>
+</td>
+</tr>
+<tr class="row-even"><td><div class="first last line-block">
+<div class="line">(7)</div>
+</div>
+</td>
+<td><div class="first last line-block">
+<div class="line">method属性に、不要ファイルを削除する処理が実装されているメソッド名を、指定する。</div>
+<div class="line">上記例では、(3)で登録したbeanのcleanupメソッドを指定している。</div>
+</div>
+</td>
+</tr>
+<tr class="row-odd"><td><div class="first last line-block">
+<div class="line">(8)</div>
+</div>
+</td>
+<td><div class="first last line-block">
+<div class="line">cron属性に、不要ファイルを削除する処理の実行タイミングを指定する。</div>
+<div class="line">上記例では、外部プロパティよりcron定義を取得している。</div>
+</div>
+</td>
+</tr>
+</tbody>
+</table>
+<div class="admonition note">
+<p class="first admonition-title">Note</p>
+<p>cron属性の設定値は、「秒 分 時 月 年 曜日」の形式で指定する。</p>
+<p>設定例）</p>
+<blockquote>
+<div><ul class="simple">
+<li><code class="docutils literal"><span class="pre">0</span> <span class="pre">*/15</span> <span class="pre">*</span> <span class="pre">*</span> <span class="pre">*</span> <span class="pre">*</span></code> : 毎時 0分,15分,30分,45分に実行される。</li>
+<li><code class="docutils literal"><span class="pre">0</span> <span class="pre">0</span> <span class="pre">*</span> <span class="pre">*</span> <span class="pre">*</span> <span class="pre">*</span></code> : 毎時 0分に実行される。</li>
+<li><code class="docutils literal"><span class="pre">0</span> <span class="pre">0</span> <span class="pre">9-17</span> <span class="pre">*</span> <span class="pre">*</span> <span class="pre">MON-FRI</span></code> : 平日9時～17時の間の毎時0分に実行される。</li>
+</ul>
+</div></blockquote>
+<p>cronの指定値の詳細については、<a class="reference external" href="https://docs.spring.io/spring/docs/5.2.20.RELEASE/javadoc-api/org/springframework/scheduling/support/CronSequenceGenerator.html">CronSequenceGeneratorのJavaDoc</a>を参照されたい。</p>
+<p class="last">実行タイミングは、アプリケーションをデプロイする環境によって異なる可能性があるため、外部プロパティから取得すること。
+外部プロパティの詳細については、<a class="reference internal" href="../GeneralFuncDetail/PropertyManagement.html"><span class="doc">プロパティ管理</span></a>を参照されたい。</p>
+</div>
+<div class="admonition tip">
+<p class="first admonition-title">Tip</p>
+<p>上記例では、タスクの実行トリガーとしてcronを使用しているが、cron以外に、fixed-delayとfixed-rateが、デフォルトで用意されているので、要件に応じて使い分けること。</p>
+<p class="last">デフォルトで用意されているトリガーでは要件を満たせない場合は、trigger属性に<code class="docutils literal"><span class="pre">org.springframework.scheduling.Trigger</span></code>を実装したbeanを指定することで、独自のトリガーを設けることもできる。</p>
+</div>
+</div></blockquote>
+<div class="line-block">
+<div class="line"><br /></div>
+</div>
+</div>
+</div>
+</div>
+<div class="section" id="appendix">
+<h2><a class="toc-backref" href="#id61">4.9.4. Appendix</a><a class="headerlink" href="#appendix" title="Permalink to this headline">¶</a></h2>
+<div class="section" id="id24">
+<h3><a class="toc-backref" href="#id62">4.9.4.1. ファイルアップロードに関するセキュリティ問題への考慮</a><a class="headerlink" href="#id24" title="Permalink to this headline">¶</a></h3>
+<div class="line-block">
+<div class="line">ファイルのアップロード機能を提供する場合、以下のようなセキュリティ問題を考慮する必要がある。</div>
+</div>
+<ol class="arabic simple">
+<li><a class="reference internal" href="#file-upload-security-related-warning-points-dos"><span class="std std-ref">アップロード機能に対するDoS攻撃</span></a></li>
+<li><a class="reference internal" href="#file-upload-security-related-warning-points-server-scripting"><span class="std std-ref">アップロードしたファイルをWebサーバ上で実行する攻撃</span></a></li>
+<li><a class="reference internal" href="#file-upload-security-related-warning-points-directory-traversal"><span class="std std-ref">ディレクトリトラバーサル攻撃</span></a></li>
+</ol>
+<p>以下に、対策方針について説明する。</p>
+<div class="section" id="dos">
+<span id="file-upload-security-related-warning-points-dos"></span><h4><a class="toc-backref" href="#id63">4.9.4.1.1. アップロード機能に対するDoS攻撃</a><a class="headerlink" href="#dos" title="Permalink to this headline">¶</a></h4>
+<p>アップロード機能に対するDoS攻撃とは、巨大なサイズのファイルを連続してアップロードしてサーバに対して負荷を掛けることで、
+サーバのダウンや、レスポンス速度の低下を狙った攻撃方法のことである。</p>
+<div class="line-block">
+<div class="line">アップロード可能なファイルのサイズに制限がない場合や、マルチパートリクエストのサイズに制限がない場合、DoS攻撃への耐性が脆弱となる。</div>
+<div class="line">DoS攻撃の耐性を高めるためには、<a class="reference internal" href="#file-upload-how-to-usr-application-settings"><span class="std std-ref">アプリケーションの設定</span></a>で説明した<code class="docutils literal"><span class="pre">&lt;multipart-config&gt;</span></code>要素を用いて、リクエストのサイズ制限を設ける必要がある。</div>
+</div>
+<div class="line-block">
+<div class="line"><br /></div>
+</div>
+</div>
+<div class="section" id="web">
+<span id="file-upload-security-related-warning-points-server-scripting"></span><h4><a class="toc-backref" href="#id64">4.9.4.1.2. アップロードしたファイルをWebサーバ上で実行する攻撃</a><a class="headerlink" href="#web" title="Permalink to this headline">¶</a></h4>
+<div class="line-block">
+<div class="line">アップロードしたファイルをWebサーバ上で実行する攻撃とは、Webサーバ(アプリケーションサーバ)で実行可能なスクリプトファイル(php, asp, aspx, jspなど)をアップロードし実行することで、Webサーバ内のファイルの閲覧・改竄・削除を行う攻撃方法のことである。</div>
+<div class="line">また、Webサーバを踏み台とすることで、Webサーバと同一ネットワーク上に存在する別のサーバに対して、攻撃することもできる。</div>
+</div>
+<p>この攻撃への対策方法は、以下の通りである。</p>
+<ul class="simple">
+<li>アップロードされたファイルを、Webサーバ(アプリケーションサーバ)上の公開ディレクトリに配置せず、ファイルの中身を表示するための処理を経由して、アップロードしたファイルの中身を閲覧させる。</li>
+<li>アップロード可能なファイルの拡張子を制限し、Webサーバ(アプリケーションサーバ)で実行可能なスクリプトファイルが、アップロードされないようにする。</li>
+</ul>
+<p>いずれかの対策を行うことで攻撃を防ぐことができるが、両方とも対策しておくことを推奨する。</p>
+<div class="line-block">
+<div class="line"><br /></div>
+</div>
+</div>
+<div class="section" id="file-upload-security-related-warning-points-directory-traversal">
+<span id="id25"></span><h4><a class="toc-backref" href="#id65">4.9.4.1.3. ディレクトリトラバーサル攻撃</a><a class="headerlink" href="#file-upload-security-related-warning-points-directory-traversal" title="Permalink to this headline">¶</a></h4>
+<div class="line-block">
+<div class="line">ディレクトリトラバーサル攻撃とは、”../” などの文字列が含まれる入力を用いてファイルシステムにアクセスすることにより、サーバ上の本来アクセスさせるべきでないファイルにアクセスされてしまう攻撃である。</div>
+<div class="line">例えば、ユーザからアップロードされたファイルをサーバ上の所定のディレクトリに配置するWebアプリケーションでは、実装方法によっては”../../../../somewhere/attack” というファイル名のファイルがアップロードされた際に所定外のディレクトリにファイルが配置されてしまう。</div>
+<div class="line">その場合、攻撃者からアップロードされたファイルによってサーバ上のファイルが改ざんされてしまう恐れがある。</div>
+<div class="line">ファイルアップロード機能を提供する場合の他、ファイルダウンロード機能を提供する際にもディレクトリトラバーサル攻撃のリスクがある。</div>
+<div class="line">これは例えば、ユーザからの入力されたファイル名に従ってファイルをダウンロードするWebアプリケーションにおいて、”../../../../etc/passwd” と入力されることで攻撃者に”/etc/passwd” の内容を取得されてしまうといった攻撃が考えられる。</div>
+</div>
+<p>この攻撃への対策方法は、以下の通りである。</p>
+<ul class="simple">
+<li>アップロードされたファイルをサーバ上に保存する際には、オリジナルのファイル名やユーザからの入力値を使用せず、別の名前で保存する。オリジナルのファイル名についてはサーバ上のファイル名との対応関係をDB等の外部に保存するなど、実際のファイルアクセスに利用されない形で保存しておく。</li>
+<li>サーバ上のファイルにアクセスさせる際は、実際のファイル名ではなくリクエスト用の識別名を介してリクエストさせ、サーバ側で対応するファイル名に変換する。例えば、実際のファイル名”file_A”, “file_B” に対してそれぞれ”id01”, “id02” という識別子を対応させ、クライアント側から”id01” へのリクエストがあればサーバ側で対応する”file_A” というファイル名に変換してアクセスする。</li>
+</ul>
+<div class="admonition tip">
+<p class="first admonition-title">Tip</p>
+<p class="last">入力されたファイルパスを正規化（ “./” や “../” 等、ファイルシステム上で特別な意味を持つ文字列を含まない形式に展開すること）し、あらかじめ定めておいたパスと前方一致するかどうかをチェックすることでアクセスを許可するかどうか判断するという対策方法も考えられる。
+しかしながら、入力値のエンコーディングやOSごとのパス形式の違いを考慮すると、あらゆる場合において正しく正規化されるかどうかを確認することは困難である。
+そのため、基本的にはユーザからの入力値を使用したファイルシステムへのアクセスは回避することが望ましい。</p>
+</div>
+</div>
+</div>
+<div class="section" id="commons-fileupload">
+<span id="file-upload-usage-commons-fileupload"></span><h3><a class="toc-backref" href="#id66">4.9.4.2. Commons FileUpload を使用したファイルのアップロード</a><a class="headerlink" href="#commons-fileupload" title="Permalink to this headline">¶</a></h3>
+<p>一部のアプリケーションサーバ上でServlet 3.0のファイルアップロード機能を使用すると、
+リクエストパラメータやファイル名のマルチバイト文字が文字化けすることがある。</p>
+<p>具体例としては、WebLogic 12.1.3でServlet 3.0のファイルアップロード機能を使用すると、
+ファイルと一緒に送信するフィールドのマルチバイト文字が文字化けすることが確認されている。
+なお、WebLogic 12.2.1では修正されている。</p>
+<p><strong>この問題は、Commons FileUploadを使用することで回避できるため、
+問題が発生する特定環境向けの暫定対処として、
+Commons FileUploadを使用したファイルのアップロードについて説明する。
+問題が発生しない環境でのCommons FileUploadの使用は推奨しない。</strong></p>
+<p>Commons FileUploadを使用する場合は以下の設定を行う。</p>
+<div class="line-block">
+<div class="line"><br /></div>
+</div>
+<p><code class="file docutils literal"><span class="pre">xxx-web/pom.xml</span></code></p>
+<div class="highlight-xml"><div class="highlight"><pre><span></span><span class="c">&lt;!-- (1) --&gt;</span>
+<span class="nt">&lt;dependency&gt;</span>
+    <span class="nt">&lt;groupId&gt;</span>commons-fileupload<span class="nt">&lt;/groupId&gt;</span>
+    <span class="nt">&lt;artifactId&gt;</span>commons-fileupload<span class="nt">&lt;/artifactId&gt;</span>
+<span class="nt">&lt;/dependency&gt;</span>
+</pre></div>
+</div>
+<table border="1" class="colwidths-given docutils">
+<colgroup>
+<col width="10%" />
+<col width="90%" />
+</colgroup>
+<thead valign="bottom">
+<tr class="row-odd"><th class="head"><div class="first last line-block">
+<div class="line">項番</div>
+</div>
+</th>
+<th class="head"><div class="first last line-block">
+<div class="line">説明</div>
+</div>
+</th>
+</tr>
+</thead>
+<tbody valign="top">
+<tr class="row-even"><td><div class="first last line-block">
+<div class="line">(1)</div>
+</div>
+</td>
+<td><div class="first last line-block">
+<div class="line"><code class="docutils literal"><span class="pre">commons-fileupload</span></code>への依存関係を追加する。</div>
+</div>
+</td>
+</tr>
+</tbody>
+</table>
+<div class="admonition note">
+<p class="first admonition-title">Note</p>
+<p class="last">上記設定例は、依存ライブラリのバージョンを親プロジェクトである terasoluna-gfw-parent で管理する前提であるため、pom.xmlでのバージョンの指定は不要である。</p>
+</div>
+<div class="admonition warning">
+<p class="first admonition-title">Warning</p>
+<p>Apache Commons FileUploadを使用する場合、
+<a class="reference external" href="http://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2014-0050">CVE-2014-0050</a>および<a class="reference external" href="https://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2016-3092">CVE-2016-3092</a>で報告されているセキュリティの脆弱性が発生する可能性がある。
+使用するApache Commons FileUploadのバージョンに脆弱性がない事を確認されたい。</p>
+<p>Apache Commons FileUploadを使用する場合、1.3.2以上を使用する必要がある。</p>
+<p class="last">なお、TERASOLUNA Server Framework for Java version 5.6.1.SP1.RELEASEで管理されているバージョンを使用すれば、CVE-2014-0050およびCVE-2016-3092で報告されている脆弱性は発生しない。
+意図的にApache Commons FileUploadのバージョンを変更する場合は、当該脆弱性が対処されているバージョンを指定すること。</p>
+</div>
+<div class="line-block">
+<div class="line"><br /></div>
+</div>
+<p><code class="file docutils literal"><span class="pre">xxx-web/src/main/resources/META-INF/spring/applicationContext.xml</span></code></p>
+<div class="highlight-xml"><div class="highlight"><pre><span></span><span class="c">&lt;!-- (1) --&gt;</span>
+<span class="nt">&lt;bean</span> <span class="na">id=</span><span class="s">&quot;filterMultipartResolver&quot;</span>
+    <span class="na">class=</span><span class="s">&quot;org.springframework.web.multipart.commons.CommonsMultipartResolver&quot;</span><span class="nt">&gt;</span>
+    <span class="nt">&lt;property</span> <span class="na">name=</span><span class="s">&quot;maxUploadSize&quot;</span> <span class="na">value=</span><span class="s">&quot;10240000&quot;</span> <span class="nt">/&gt;</span><span class="c">&lt;!-- (2) --&gt;</span>
+<span class="nt">&lt;/bean&gt;</span>
+
+<span class="c">&lt;!-- ... --&gt;</span>
+</pre></div>
+</div>
+<table border="1" class="colwidths-given docutils">
+<colgroup>
+<col width="10%" />
+<col width="90%" />
+</colgroup>
+<thead valign="bottom">
+<tr class="row-odd"><th class="head"><div class="first last line-block">
+<div class="line">項番</div>
+</div>
+</th>
+<th class="head"><div class="first last line-block">
+<div class="line">説明</div>
+</div>
+</th>
+</tr>
+</thead>
+<tbody valign="top">
+<tr class="row-even"><td><div class="first last line-block">
+<div class="line">(1)</div>
+</div>
+</td>
+<td><div class="first last line-block">
+<div class="line">Commons FileUploadを使用した<code class="docutils literal"><span class="pre">MultipartResolver</span></code>実装である<code class="docutils literal"><span class="pre">CommonsMultipartResolver</span></code>のbean定義を行う。</div>
+<div class="line">bean IDには<code class="docutils literal"><span class="pre">filterMultipartResolver</span></code>を指定する。</div>
+</div>
+</td>
+</tr>
+<tr class="row-odd"><td><div class="first last line-block">
+<div class="line">(2)</div>
+</div>
+</td>
+<td><div class="first last line-block">
+<div class="line">ファイルアップロードで許容する最大サイズを設定する。</div>
+<div class="line">Commons FileUploadの場合、最大値はHTTPヘッダを含めたリクエスト全体のサイズであることに注意すること。</div>
+<div class="line">また、<strong>デフォルト値は-1(無制限)なので、必ず値を設定すること。</strong> その他のプロパティは<a class="reference external" href="https://docs.spring.io/spring-framework/docs/5.2.20.RELEASE/javadoc-api/org/springframework/web/multipart/commons/CommonsMultipartResolver.html">JavaDoc</a>を参照されたい。</div>
+</div>
+</td>
+</tr>
+</tbody>
+</table>
+<div class="admonition warning">
+<p class="first admonition-title">Warning</p>
+<p class="last">Commons Fileuploadを使用する場合は、<code class="docutils literal"><span class="pre">MultipartResolver</span></code>の定義を<code class="file docutils literal"><span class="pre">spring-mvc.xml</span></code>ではなく、<code class="file docutils literal"><span class="pre">applicationContext.xml</span></code>に行う必要がある。
+<code class="file docutils literal"><span class="pre">spring-mvc.xml</span></code>に定義がある場合は削除すること。</p>
+</div>
+<div class="line-block">
+<div class="line"><br /></div>
+</div>
+<p><code class="file docutils literal"><span class="pre">xxx-web/src/main/webapp/WEB-INF/web.xml</span></code></p>
+<div class="highlight-xml"><div class="highlight"><pre><span></span><span class="nt">&lt;web-app</span> <span class="na">xmlns=</span><span class="s">&quot;http://java.sun.com/xml/ns/javaee&quot;</span>
+    <span class="na">xmlns:xsi=</span><span class="s">&quot;http://www.w3.org/2001/XMLSchema-instance&quot;</span>
+    <span class="na">xsi:schemaLocation=</span><span class="s">&quot;http://java.sun.com/xml/ns/javaee http://java.sun.com/xml/ns/javaee/web-app_3_0.xsd&quot;</span>
+    <span class="na">version=</span><span class="s">&quot;3.0&quot;</span><span class="nt">&gt;</span>
+
+    <span class="nt">&lt;servlet&gt;</span>
+        <span class="nt">&lt;servlet-class&gt;</span>org.springframework.web.servlet.DispatcherServlet<span class="nt">&lt;/servlet-class&gt;</span>
+        <span class="c">&lt;!-- omitted --&gt;</span>
+        <span class="c">&lt;!-- (1) --&gt;</span>
+        <span class="c">&lt;!-- &lt;multipart-config&gt;...&lt;/multipart-config&gt; --&gt;</span>
+    <span class="nt">&lt;/servlet&gt;</span>
+
+    <span class="c">&lt;!-- (2) --&gt;</span>
+    <span class="nt">&lt;filter&gt;</span>
+        <span class="nt">&lt;filter-name&gt;</span>MultipartFilter<span class="nt">&lt;/filter-name&gt;</span>
+        <span class="nt">&lt;filter-class&gt;</span>org.springframework.web.multipart.support.MultipartFilter<span class="nt">&lt;/filter-class&gt;</span>
+    <span class="nt">&lt;/filter&gt;</span>
+    <span class="nt">&lt;filter-mapping&gt;</span>
+        <span class="nt">&lt;filter-name&gt;</span>MultipartFilter<span class="nt">&lt;/filter-name&gt;</span>
+        <span class="nt">&lt;url-pattern&gt;</span>/*<span class="nt">&lt;/url-pattern&gt;</span>
+    <span class="nt">&lt;/filter-mapping&gt;</span>
+
+    <span class="c">&lt;!-- omitted --&gt;</span>
+
+<span class="nt">&lt;/web-app&gt;</span>
+</pre></div>
+</div>
+<table border="1" class="colwidths-given docutils">
+<colgroup>
+<col width="10%" />
+<col width="90%" />
+</colgroup>
+<thead valign="bottom">
+<tr class="row-odd"><th class="head">項番</th>
+<th class="head">説明</th>
+</tr>
+</thead>
+<tbody valign="top">
+<tr class="row-even"><td><div class="first last line-block">
+<div class="line">(1)</div>
+</div>
+</td>
+<td><div class="first last line-block">
+<div class="line">Commons FileUploadを使用する場合、Servlet 3.0のアップロード機能を無効にする必要がある。</div>
+<div class="line"><code class="docutils literal"><span class="pre">DispatcherServlet</span></code>の定義の中に<code class="docutils literal"><span class="pre">&lt;multipart-config&gt;</span></code>要素がある場合は、必ず削除すること。</div>
+</div>
+</td>
+</tr>
+<tr class="row-odd"><td><div class="first last line-block">
+<div class="line">(2)</div>
+</div>
+</td>
+<td><div class="first last line-block">
+<div class="line">Commons Fileuploadを使用する場合、Spring Securityを使ったセキュリティ対策を有効にするために<code class="docutils literal"><span class="pre">MultipartFilter</span></code>を定義する必要がある。</div>
+<div class="line"><code class="docutils literal"><span class="pre">MultipartFilter</span></code>のマッピング定義は、springSecurityFilterChain(Spring SecurityのServlet Filter)の定義より前に行うこと。</div>
+</div>
+</td>
+</tr>
+</tbody>
+</table>
+<div class="admonition tip">
+<p class="first admonition-title">Tip</p>
+<p class="last"><code class="docutils literal"><span class="pre">MultipartFilter</span></code>は、DIコンテナ(<code class="file docutils literal"><span class="pre">applicationContext.xml</span></code>)から<code class="docutils literal"><span class="pre">filterMultipartResolver</span></code>というbean IDで登録されている<code class="docutils literal"><span class="pre">MultipartResolver</span></code>を取得して、
+ファイルアップロード処理を行う仕組みになっている。</p>
+</div>
+<div class="line-block">
+<div class="line"><br /></div>
+</div>
+</div>
+</div>
+</div>
+
+
+          </div>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../../genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="FileDownload.html" title="4.10. ファイルダウンロード"
+             >next</a> |</li>
+        <li class="right" >
+          <a href="Codelist.html" title="4.8. コードリスト"
+             >previous</a> |</li>
+        <li class="nav-item nav-item-0"><a href="../../index.html">TERASOLUNA Server Framework for Java (5.x) Development Guideline 5.6.1.SP1.RELEASE documentation</a> &#187;</li>
+          <li class="nav-item nav-item-1"><a href="index.html" >4. Webアプリ開発機能</a> &#187;</li> 
+      </ul>
+    </div>
+    <div class="footer">
+      © Copyright 2013, NTT DATA Corporation. © Copyright 2013, NTT Corporation.
+      Created using <a href="http://sphinx.pocoo.org/">Sphinx</a> 1.6.3.Theme is <a href="http://github.com/vimalkvn/solar-theme">Solar</a>
+    </div>
+    
+    <script>
+    
+    $(function() {
+    	var $sidebar	= $('.sphinxsidebar'),
+    		$window		= $(window),
+    		offset		= $sidebar.offset(),
+    		topPadding	= 3,
+    		$scroll		= $('#scroll');
+    	
+    	$window.scroll(function() {
+    		if ($scroll.is(':checked')) {
+				if ($window.scrollTop() > offset.top) {
+					$sidebar.stop().animate({
+						marginTop:$window.scrollTop() - offset.top + topPadding
+					});
+				} else {
+					$sidebar.stop().animate({
+						marginTop:0
+					});
+				}
+			}
+		});
+    	
+    	var $navList = $('ul:first', $sidebar);
+    	$('li:first', $navList).addClass('open');
+    	
+    	$navList.treeview({
+    		persist: "location",
+    		collapsed: true,
+    		unique: false
+    	});
+    	
+	});
+    (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+        (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+            m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+    })(window,document,'script','//www.google-analytics.com/analytics.js','ga');
+
+    ga('create', 'UA-46550814-1', 'terasolunaorg.github.io');
+    ga('send', 'pageview');
+    </script>
+  </body>
+</html>
