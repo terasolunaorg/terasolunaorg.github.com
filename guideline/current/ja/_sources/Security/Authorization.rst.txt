@@ -157,7 +157,7 @@ How to use
 
 Spring Securityは、アクセスポリシーを指定する記述方法としてSpring Expression Language(SpEL)をサポートしている。
 SpELを使わない方法もあるが、本ガイドラインではExpressionを使ってアクセスポリシーを指定する方法で説明を行う。
-SpELの使い方については本節でも紹介するが、より詳しい使い方を知りたい場合は \ `Spring Framework Documentation -Spring Expression Language (SpEL)- <https://docs.spring.io/spring-framework/docs/5.3.13/reference/html/core.html#expressions>`_\ を参照されたい。
+SpELの使い方については本節でも紹介するが、より詳しい使い方を知りたい場合は \ `Spring Framework Documentation -Spring Expression Language (SpEL)- <https://docs.spring.io/spring-framework/docs/5.3.18/reference/html/core.html#expressions>`_\ を参照されたい。
 
 |
 
@@ -707,7 +707,7 @@ Expression内で「# + 引数名」形式のExpressionを指定することで�
 
 .. warning::
 
-   Spring 5から、SpringのコアAPIに\ `null-safety <https://docs.spring.io/spring-framework/docs/5.3.13/reference/html/core.html#null-safety>`_\ の機能が取り入れられており、SpELが解釈される際の\ ``null``\に対する動作も変更(\ `SPR-15540 <https://jira.spring.io/browse/SPR-15540?redirect=false>`_\ )されている。
+   Spring 5から、SpringのコアAPIに\ `null-safety <https://docs.spring.io/spring-framework/docs/5.3.18/reference/html/core.html#null-safety>`_\ の機能が取り入れられており、SpELが解釈される際の\ ``null``\に対する動作も変更(\ `SPR-15540 <https://jira.spring.io/browse/SPR-15540?redirect=false>`_\ )されている。
    例えば\ ``@PreAuthorize``\ の引数(\ ``#xxx``\)や、\ ``@PostAuthorize``\ の戻り値（\ ``resultObject``\）が\ ``Map``\ を含む場合、\ ``Map``\ から値を取得するSpELでキー値に\ ``null``\ となる値を入力すると、Spring 4以前ではそのまま\ ``Map``\ に\ ``null``\ が渡され該当する値がないため\ ``null``\ が返却されていたが、Spring 5以降ではキーとなるSpELを評価した結果に対する\ ``null``\ チェックが追加されており、\ ``null``\ の場合は\ ``IllegalStateException``\ が発生する。
    そのため、キーとする値に対して事前に\ ``null``\ チェックを行うなど、\ ``null``\ を考慮した実装が必要となる。
 

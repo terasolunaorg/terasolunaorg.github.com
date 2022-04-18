@@ -782,18 +782,18 @@ HTMLメールの送信
       - 例外クラス
       - 発生条件
     * - 1.
-      - `MailAuthenticationException <https://docs.spring.io/spring-framework/docs/5.3.13/javadoc-api/org/springframework/mail/MailAuthenticationException.html>`_
+      - `MailAuthenticationException <https://docs.spring.io/spring-framework/docs/5.3.18/javadoc-api/org/springframework/mail/MailAuthenticationException.html>`_
       - | 認証失敗時に発生する。
     * - 2.
-      - `MailParseException <https://docs.spring.io/spring-framework/docs/5.3.13/javadoc-api/org/springframework/mail/MailParseException.html>`_
+      - `MailParseException <https://docs.spring.io/spring-framework/docs/5.3.18/javadoc-api/org/springframework/mail/MailParseException.html>`_
       - | メールメッセージのプロパティに不正な値が設定されている場合に発生する。
     * - 3.
-      - `MailPreparationException <https://docs.spring.io/spring-framework/docs/5.3.13/javadoc-api/org/springframework/mail/MailPreparationException.html>`_
+      - `MailPreparationException <https://docs.spring.io/spring-framework/docs/5.3.18/javadoc-api/org/springframework/mail/MailPreparationException.html>`_
       - | メールメッセージを作成中に想定外のエラーが起きた場合に発生する。
           想定外のエラーとしては、例えばテンプレートライブラリで発生するエラーといったものがある。
         | \ ``MimeMessagePreparator``\ で発生した例外が\ ``MailPreparationException``\ にラップされてスローされる。
     * - 4.
-      - `MailSendException <https://docs.spring.io/spring-framework/docs/5.3.13/javadoc-api/org/springframework/mail/MailSendException.html>`_
+      - `MailSendException <https://docs.spring.io/spring-framework/docs/5.3.18/javadoc-api/org/springframework/mail/MailSendException.html>`_
       - | メールの送信エラーが起きた場合に発生する。
 
 .. note::
@@ -885,7 +885,7 @@ FreeMarkerを使用したメール本文の作成
 
     .. note::
 
-       上記以外の設定については、\ `FreeMarkerConfigurationFactoryBeanのJavaDoc <https://docs.spring.io/spring-framework/docs/5.3.13/javadoc-api/org/springframework/ui/freemarker/FreeMarkerConfigurationFactoryBean.html>`_\ を参照されたい。
+       上記以外の設定については、\ `FreeMarkerConfigurationFactoryBeanのJavaDoc <https://docs.spring.io/spring-framework/docs/5.3.18/javadoc-api/org/springframework/ui/freemarker/FreeMarkerConfigurationFactoryBean.html>`_\ を参照されたい。
        また、FreeMarker自体の設定については、\ `FreeMarker Manual (Programmer's Guide / The Configuration) <https://freemarker.apache.org/docs/pgui_config.html>`_\ を参照されたい。
 
 * メール本文のテンプレートファイルを作成する。

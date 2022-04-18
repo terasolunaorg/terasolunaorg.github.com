@@ -161,7 +161,7 @@ Spring FrameworkのJAX-WS連携機能について
 
 .. note::
 
-    SpringでのJAX-WS実装の詳細は、\ `Spring Framework Documentation -Remoting and Web Services- <https://docs.spring.io/spring-framework/docs/5.3.13/reference/html/integration.html#remoting>`_\ を参照されたい。
+    SpringでのJAX-WS実装の詳細は、\ `Spring Framework Documentation -Remoting and Web Services- <https://docs.spring.io/spring-framework/docs/5.3.18/reference/html/integration.html#remoting>`_\ を参照されたい。
 
 |
 
@@ -1589,7 +1589,7 @@ WebServiceインターフェースを実装したプロキシを生成する\ ``
 
         .. Note:: **wsdlDocumentResourceへのWSDLファイルのURL以外の指定**
 
-            上記の例では、SOAPサーバがWSDLファイルを公開している前提である。\ ``classpath:``\ や\ ``file:``\ プレフィックスを使用して指定することで静的ファイルを指定することもできる。指定できる文字列は、\ `Spring Framework Documentation -The ResourceLoader- <https://docs.spring.io/spring-framework/docs/5.3.13/reference/html/core.html#resources-resourceloader>`_\ を参照されたい。
+            上記の例では、SOAPサーバがWSDLファイルを公開している前提である。\ ``classpath:``\ や\ ``file:``\ プレフィックスを使用して指定することで静的ファイルを指定することもできる。指定できる文字列は、\ `Spring Framework Documentation -The ResourceLoader- <https://docs.spring.io/spring-framework/docs/5.3.18/reference/html/core.html#resources-resourceloader>`_\ を参照されたい。
 
 
 .. Note:: **エンドポイントアドレスの上書き指定**
