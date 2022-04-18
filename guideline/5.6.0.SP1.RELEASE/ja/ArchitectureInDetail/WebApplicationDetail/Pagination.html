@@ -1,0 +1,3348 @@
+<!DOCTYPE html>
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <title>4.4. ページネーション &#8212; TERASOLUNA Server Framework for Java (5.x) Development Guideline 5.6.0.SP1.RELEASE documentation</title>
+    <link rel="stylesheet" href="../../_static/solar.css" type="text/css" />
+    <link rel="stylesheet" href="../../_static/pygments.css" type="text/css" />
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    '../../',
+        VERSION:     '5.6.0.SP1.RELEASE',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true,
+        SOURCELINK_SUFFIX: '.txt'
+      };
+    </script>
+    <script type="text/javascript" src="../../_static/jquery.js"></script>
+    <script type="text/javascript" src="../../_static/underscore.js"></script>
+    <script type="text/javascript" src="../../_static/doctools.js"></script>
+    <link rel="index" title="Index" href="../../genindex.html" />
+    <link rel="search" title="Search" href="../../search.html" />
+    <link rel="next" title="4.5. 二重送信防止" href="DoubleSubmitProtection.html" />
+    <link rel="prev" title="4.3. セッション管理" href="SessionManagement.html" /><script src="../../_static/jquery.treeview.js" type="text/javascript"></script>
+<!-- <link href='http://fonts.googleapis.com/css?family=Source+Code+Pro|Open+Sans:300italic,400italic,700italic,400,300,700' rel='stylesheet' type='text/css'> -->
+<link href="../../_static/solarized-dark.css" rel="stylesheet">
+<link href="../../_static/jquery.treeview.css" rel="stylesheet">
+  </head>
+  <body>
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../../genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="DoubleSubmitProtection.html" title="4.5. 二重送信防止"
+             accesskey="N">next</a> |</li>
+        <li class="right" >
+          <a href="SessionManagement.html" title="4.3. セッション管理"
+             accesskey="P">previous</a> |</li>
+        <li class="nav-item nav-item-0"><a href="../../index.html">TERASOLUNA Server Framework for Java (5.x) Development Guideline 5.6.0.SP1.RELEASE documentation</a> &#187;</li>
+          <li class="nav-item nav-item-1"><a href="index.html" accesskey="U">4. Webアプリ開発機能</a> &#187;</li> 
+      </ul>
+    </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper"><label><input id="scroll" type="checkbox" checked> scroll sidebar</label>
+
+  <h3><a href="../../index.html">Table Of Contents</a></h3>
+  <ul>
+<li><a class="reference internal" href="#">4.4. ページネーション</a><ul>
+<li><a class="reference internal" href="#overview">4.4.1. Overview</a><ul>
+<li><a class="reference internal" href="#pagination-overview-page">4.4.1.1. ページ分割時の一覧画面の表示について</a></li>
+<li><a class="reference internal" href="#pagination-overview-page-search">4.4.1.2. ページ検索について</a><ul>
+<li><a class="reference internal" href="#spring-data">4.4.1.2.1. Spring Data提供のページ検索機能について</a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#pagination-overview-page-display">4.4.1.3. ページネーションの表示について</a><ul>
+<li><a class="reference internal" href="#pagination-overview-page-display-fetcheddata">4.4.1.3.1. 取得データの表示について</a></li>
+<li><a class="reference internal" href="#pagination-overview-page-display-paginationlink">4.4.1.3.2. ページネーションリンクの表示について</a><ul>
+<li><a class="reference internal" href="#pagination-overview-page-display-paginationlink-structure">4.4.1.3.2.1. ページネーションリンクの構成</a></li>
+<li><a class="reference internal" href="#html">4.4.1.3.2.2. ページネーションリンクのHTML構造</a></li>
+<li><a class="reference internal" href="#jsp">4.4.1.3.2.3. JSPタブライブラリのパラメータについて</a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#pagination-overview-page-display-paginationinfo">4.4.1.3.3. ページネーション情報の表示について</a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#id10">4.4.1.4. ページネーション機能使用時の処理フロー</a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#how-to-use">4.4.2. How to use</a><ul>
+<li><a class="reference internal" href="#id11">4.4.2.1. アプリケーションの設定</a><ul>
+<li><a class="reference internal" href="#id12">4.4.2.1.1. Spring Dataのページネーション機能を有効化するための設定</a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#id13">4.4.2.2. ページ検索の実装</a><ul>
+<li><a class="reference internal" href="#id14">4.4.2.2.1. アプリケーション層の実装</a></li>
+<li><a class="reference internal" href="#mybatis3">4.4.2.2.2. ドメイン層の実装(MyBatis3編)</a></li>
+<li><a class="reference internal" href="#jpa">4.4.2.2.3. ドメイン層の実装(JPA編)</a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#id15">4.4.2.3. JSPの実装(基本編)</a><ul>
+<li><a class="reference internal" href="#id16">4.4.2.3.1. 取得データの表示</a></li>
+<li><a class="reference internal" href="#pagination-how-to-use-make-jsp-basic-paginationlink">4.4.2.3.2. ページネーションリンクの表示</a></li>
+<li><a class="reference internal" href="#id18">4.4.2.3.3. ページネーション情報の表示</a></li>
+<li><a class="reference internal" href="#pagination-how-to-use-make-jsp-basic-search-criteria">4.4.2.3.4. ページリンクで検索条件を引き継ぐ</a></li>
+<li><a class="reference internal" href="#id20">4.4.2.3.5. ページリンクでソート条件を引き継ぐ</a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#pagination-how-to-use-make-jsp-layout">4.4.2.4. JSPの実装(レイアウト変更編)</a><ul>
+<li><a class="reference internal" href="#id22">4.4.2.4.1. 先頭ページと最終ページに移動するリンクの削除</a></li>
+<li><a class="reference internal" href="#id23">4.4.2.4.2. 前ページと次ページに移動するリンクの削除</a></li>
+<li><a class="reference internal" href="#disabled">4.4.2.4.3. disabled状態のリンクの削除</a></li>
+<li><a class="reference internal" href="#id24">4.4.2.4.4. 指定ページへ移動するリンクの最大表示数の変更</a></li>
+<li><a class="reference internal" href="#id25">4.4.2.4.5. 指定ページへ移動するリンクの削除</a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#id26">4.4.2.5. JSPの実装(動作編)</a><ul>
+<li><a class="reference internal" href="#id27">4.4.2.5.1. ソート条件の指定</a></li>
+<li><a class="reference internal" href="#javascript">4.4.2.5.2. JavaScriptを使用したページリンクの無効化</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li><a class="reference internal" href="#appendix">4.4.3. Appendix</a><ul>
+<li><a class="reference internal" href="#pageablehandlermethodargumentresolver">4.4.3.1. <code class="docutils literal"><span class="pre">PageableHandlerMethodArgumentResolver</span></code> のプロパティ値について</a></li>
+<li><a class="reference internal" href="#sorthandlermethodargumentresolver">4.4.3.2. <code class="docutils literal"><span class="pre">SortHandlerMethodArgumentResolver</span></code> のプロパティ値について</a></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+
+
+  <h4>Previous topic</h4>
+  <p class="topless"><a href="SessionManagement.html"
+                        title="previous chapter">4.3. セッション管理</a></p>
+  <h4>Next topic</h4>
+  <p class="topless"><a href="DoubleSubmitProtection.html"
+                        title="next chapter">4.5. 二重送信防止</a></p>
+  <div role="note" aria-label="source link">
+    <h3>This Page</h3>
+    <ul class="this-page-menu">
+      <li><a href="../../_sources/ArchitectureInDetail/WebApplicationDetail/Pagination.rst.txt"
+            rel="nofollow">Show Source</a></li>
+    </ul>
+   </div>
+<div id="searchbox" style="display: none" role="search">
+  <h3>Quick search</h3>
+    <form class="search" action="../../search.html" method="get">
+      <div><input type="text" name="q" /></div>
+      <div><input type="submit" value="Go" /></div>
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <div class="section" id="id1">
+<h1>4.4. ページネーション<a class="headerlink" href="#id1" title="Permalink to this headline">¶</a></h1>
+<div class="contents local topic" id="id2">
+<p class="topic-title">目次</p>
+<ul class="simple">
+<li><a class="reference internal" href="#overview" id="id28">Overview</a><ul>
+<li><a class="reference internal" href="#pagination-overview-page" id="id29">ページ分割時の一覧画面の表示について</a></li>
+<li><a class="reference internal" href="#pagination-overview-page-search" id="id30">ページ検索について</a><ul>
+<li><a class="reference internal" href="#spring-data" id="id31">Spring Data提供のページ検索機能について</a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#pagination-overview-page-display" id="id32">ページネーションの表示について</a><ul>
+<li><a class="reference internal" href="#pagination-overview-page-display-fetcheddata" id="id33">取得データの表示について</a></li>
+<li><a class="reference internal" href="#pagination-overview-page-display-paginationlink" id="id34">ページネーションリンクの表示について</a></li>
+<li><a class="reference internal" href="#pagination-overview-page-display-paginationinfo" id="id35">ページネーション情報の表示について</a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#id10" id="id36">ページネーション機能使用時の処理フロー</a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#how-to-use" id="id37">How to use</a><ul>
+<li><a class="reference internal" href="#id11" id="id38">アプリケーションの設定</a><ul>
+<li><a class="reference internal" href="#id12" id="id39">Spring Dataのページネーション機能を有効化するための設定</a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#id13" id="id40">ページ検索の実装</a><ul>
+<li><a class="reference internal" href="#id14" id="id41">アプリケーション層の実装</a></li>
+<li><a class="reference internal" href="#mybatis3" id="id42">ドメイン層の実装(MyBatis3編)</a></li>
+<li><a class="reference internal" href="#jpa" id="id43">ドメイン層の実装(JPA編)</a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#id15" id="id44">JSPの実装(基本編)</a><ul>
+<li><a class="reference internal" href="#id16" id="id45">取得データの表示</a></li>
+<li><a class="reference internal" href="#pagination-how-to-use-make-jsp-basic-paginationlink" id="id46">ページネーションリンクの表示</a></li>
+<li><a class="reference internal" href="#id18" id="id47">ページネーション情報の表示</a></li>
+<li><a class="reference internal" href="#pagination-how-to-use-make-jsp-basic-search-criteria" id="id48">ページリンクで検索条件を引き継ぐ</a></li>
+<li><a class="reference internal" href="#id20" id="id49">ページリンクでソート条件を引き継ぐ</a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#pagination-how-to-use-make-jsp-layout" id="id50">JSPの実装(レイアウト変更編)</a><ul>
+<li><a class="reference internal" href="#id22" id="id51">先頭ページと最終ページに移動するリンクの削除</a></li>
+<li><a class="reference internal" href="#id23" id="id52">前ページと次ページに移動するリンクの削除</a></li>
+<li><a class="reference internal" href="#disabled" id="id53">disabled状態のリンクの削除</a></li>
+<li><a class="reference internal" href="#id24" id="id54">指定ページへ移動するリンクの最大表示数の変更</a></li>
+<li><a class="reference internal" href="#id25" id="id55">指定ページへ移動するリンクの削除</a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#id26" id="id56">JSPの実装(動作編)</a><ul>
+<li><a class="reference internal" href="#id27" id="id57">ソート条件の指定</a></li>
+<li><a class="reference internal" href="#javascript" id="id58">JavaScriptを使用したページリンクの無効化</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li><a class="reference internal" href="#appendix" id="id59">Appendix</a><ul>
+<li><a class="reference internal" href="#pageablehandlermethodargumentresolver" id="id60"><code class="docutils literal"><span class="pre">PageableHandlerMethodArgumentResolver</span></code> のプロパティ値について</a></li>
+<li><a class="reference internal" href="#sorthandlermethodargumentresolver" id="id61"><code class="docutils literal"><span class="pre">SortHandlerMethodArgumentResolver</span></code> のプロパティ値について</a></li>
+</ul>
+</li>
+</ul>
+</div>
+<div class="section" id="overview">
+<h2><a class="toc-backref" href="#id28">4.4.1. Overview</a><a class="headerlink" href="#overview" title="Permalink to this headline">¶</a></h2>
+<p>本章では、検索条件に一致するデータをページ分割して表示する方法(ページネーション)について説明する。</p>
+<div class="line-block">
+<div class="line"><strong>検索条件に一致するデータが大量になる場合は、ページネーション機能を使用することを推奨する。</strong></div>
+<div class="line">一度に大量のデータを取得し画面に表示すると、以下3点の問題が発生する可能性がある。</div>
+</div>
+<ul>
+<li><div class="first line-block">
+<div class="line">サーバ側のメモリ枯渇の発生。</div>
+<div class="line">単発のリクエストで問題が発生しなくても、同時に複数実行された場合に <code class="docutils literal"><span class="pre">java.lang.OutOfMemoryError</span></code> が発生する可能性がある。</div>
+</div>
+</li>
+<li><div class="first line-block">
+<div class="line">ネットワーク負荷の発生。</div>
+<div class="line">不要なデータがネットワークに流れることで、ネットワーク全体にかかる負荷が高くなり、システム全体のレスポンスタイムに影響を与える可能性がある。</div>
+</div>
+</li>
+<li><div class="first line-block">
+<div class="line">画面のレスポンス遅延の発生。</div>
+<div class="line">大量のデータを扱う場合、サーバの処理、ネットワークのトラフィック処理、クライアントの描画処理の全てで時間がかかるため、画面のレスポンスが遅くなる可能性がある。</div>
+</div>
+</li>
+</ul>
+<div class="line-block">
+<div class="line"><br /></div>
+</div>
+<div class="section" id="pagination-overview-page">
+<span id="id3"></span><h3><a class="toc-backref" href="#id29">4.4.1.1. ページ分割時の一覧画面の表示について</a><a class="headerlink" href="#pagination-overview-page" title="Permalink to this headline">¶</a></h3>
+<div class="line-block">
+<div class="line">ページネーション機能を利用してページ分割した場合、以下のような画面になる。</div>
+<div class="line">各要素の表示にはサーバ側で行う検索処理をページ検索に対応させる必要がある。ページ検索機能については、「<a class="reference internal" href="#pagination-overview-page-search"><span class="std std-ref">ページ検索について</span></a> 」を参照されたい。</div>
+<div class="line">また、各要素の概要及びHTML構造等については、「<a class="reference internal" href="#pagination-overview-page-display"><span class="std std-ref">ページネーションの表示について</span></a>」を参照されたい。</div>
+</div>
+<blockquote>
+<div><div class="figure">
+<a class="reference internal image-reference" href="../../_images/pagination-overview_screen.png"><img alt="Screen image of Pagination." src="../../_images/pagination-overview_screen.png" style="width: 100%;" /></a>
+</div>
+<table border="1" class="colwidths-given docutils">
+<colgroup>
+<col width="10%" />
+<col width="90%" />
+</colgroup>
+<thead valign="bottom">
+<tr class="row-odd"><th class="head">項番</th>
+<th class="head">説明</th>
+</tr>
+</thead>
+<tbody valign="top">
+<tr class="row-even"><td><div class="first last line-block">
+<div class="line">(1)</div>
+</div>
+</td>
+<td><div class="first last line-block">
+<div class="line">ページ検索処理で取得したデータを表示する。</div>
+</div>
+</td>
+</tr>
+<tr class="row-odd"><td><div class="first last line-block">
+<div class="line">(2)</div>
+</div>
+</td>
+<td><div class="first last line-block">
+<div class="line">ページを移動するためのリンクを表示する。</div>
+<div class="line">リンク押下時には、該当ページを表示するためのリクエストを送信する。</div>
+</div>
+</td>
+</tr>
+<tr class="row-even"><td><div class="first last line-block">
+<div class="line">(3)</div>
+</div>
+</td>
+<td><div class="first last line-block">
+<div class="line">ページネーションに関連する情報(合計件数、合計ページ数、表示ページ数など)を表示する。</div>
+</div>
+</td>
+</tr>
+</tbody>
+</table>
+</div></blockquote>
+<div class="line-block">
+<div class="line"><br /></div>
+</div>
+</div>
+<div class="section" id="pagination-overview-page-search">
+<span id="id4"></span><h3><a class="toc-backref" href="#id30">4.4.1.2. ページ検索について</a><a class="headerlink" href="#pagination-overview-page-search" title="Permalink to this headline">¶</a></h3>
+<div class="line-block">
+<div class="line">ページネーションを実現する際には、まずサーバ側で行う検索処理をページ検索できるように実装する必要がある。</div>
+<div class="line">本ガイドラインでは、サーバ側のページ検索は、 Spring Data から提供されている仕組みを利用することを前提としている。</div>
+</div>
+<div class="line-block">
+<div class="line"><br /></div>
+</div>
+<div class="section" id="spring-data">
+<span id="pagination-overview-page-springdata"></span><h4><a class="toc-backref" href="#id31">4.4.1.2.1. Spring Data提供のページ検索機能について</a><a class="headerlink" href="#spring-data" title="Permalink to this headline">¶</a></h4>
+<p>Spring Dataより提供されているページ検索用の機能は、以下の通り。</p>
+<blockquote>
+<div><table border="1" class="colwidths-given docutils">
+<colgroup>
+<col width="10%" />
+<col width="90%" />
+</colgroup>
+<thead valign="bottom">
+<tr class="row-odd"><th class="head">項番</th>
+<th class="head">説明</th>
+</tr>
+</thead>
+<tbody valign="top">
+<tr class="row-even"><td>1</td>
+<td><div class="first last line-block">
+<div class="line">リクエストパラメータよりページ検索に必要な情報(検索対象のページ位置、取得件数、ソート条件)を抽出し、抽出した情報を <code class="docutils literal"><span class="pre">org.springframework.data.domain.Pageable</span></code> のオブジェクトとしてControllerの引数に引き渡す。</div>
+<div class="line">この機能は、 <code class="docutils literal"><span class="pre">org.springframework.data.web.PageableHandlerMethodArgumentResolver</span></code> クラスとして提供されており、 <code class="file docutils literal"><span class="pre">spring-mvc.xml</span></code> の <code class="docutils literal"><span class="pre">&lt;mvc:argument-resolvers&gt;</span></code> 要素に追加することで有効となる。</div>
+<div class="line">リクエストパラメータについては、「 <a class="reference internal" href="#pagination-overview-pagesearch-requestparameter"><span class="std std-ref">Note欄</span></a> 」を参照されたい。</div>
+</div>
+</td>
+</tr>
+<tr class="row-odd"><td>2</td>
+<td><div class="first last line-block">
+<div class="line">ページ情報(合計件数、該当ページのデータ、検索対象のページ位置、取得件数、ソート条件)を保持する。</div>
+<div class="line">この機能は、 <code class="docutils literal"><span class="pre">org.springframework.data.domain.Page</span></code> インタフェースとして提供されており、デフォルトの実装クラスとして <code class="docutils literal"><span class="pre">org.springframework.data.domain.PageImpl</span></code> が提供されている。</div>
+<div class="line"><strong>共通ライブラリより提供しているページネーションリンクを出力するためのJSPタグライブラリでは、 Pageオブジェクトから必要なデータを取得する仕様となっている。</strong></div>
+</div>
+</td>
+</tr>
+<tr class="row-even"><td>3</td>
+<td><div class="first last line-block">
+<div class="line">データベースアクセスとしてSpring Data JPAを使用する場合は、RepositoryのQueryメソッドの引数に <code class="docutils literal"><span class="pre">Pageable</span></code> オブジェクトを指定することで、該当ページの情報が <code class="docutils literal"><span class="pre">Page</span></code> オブジェクトとして返却される。</div>
+<div class="line">合計件数を取得するSQLの発行、ソート条件の追加、該当ページに一致するデータの抽出などの処理が全て自動で行われる。</div>
+<div class="line">データベースアクセスとして、MyBatisを使用する場合は、Spring Data JPAが自動で行ってくれる処理を、Java(Service)及びSQLマッピングファイル内で実装する必要がある。</div>
+</div>
+</td>
+</tr>
+</tbody>
+</table>
+</div></blockquote>
+<blockquote id="pagination-overview-pagesearch-requestparameter">
+<div><div class="admonition note">
+<p class="first admonition-title">Note</p>
+<p><strong>ページ検索用のリクエストパラメータについて</strong></p>
+<p>Spring Dataより提供されているページ検索用のリクエストパラメータは以下の3つとなる。</p>
+<blockquote class="last">
+<div><table border="1" class="colwidths-given docutils">
+<colgroup>
+<col width="10%" />
+<col width="15%" />
+<col width="75%" />
+</colgroup>
+<thead valign="bottom">
+<tr class="row-odd"><th class="head">項番</th>
+<th class="head">パラメータ名</th>
+<th class="head">説明</th>
+</tr>
+</thead>
+<tbody valign="top">
+<tr class="row-even"><td><ol class="first last arabic simple">
+<li></li>
+</ol>
+</td>
+<td>page</td>
+<td><div class="first last line-block">
+<div class="line">検索対象のページ位置を指定するためのリクエストパラメータ。</div>
+<div class="line">値には、0以上の数値を指定する。</div>
+<div class="line">デフォルトの設定では、ページ位置の値は “<code class="docutils literal"><span class="pre">0</span></code>” から開始する。そのため、1ページ目のデータを取得する場合は “<code class="docutils literal"><span class="pre">0</span></code>” を、2ページ目のデータを取得する場合は “<code class="docutils literal"><span class="pre">1</span></code>” を指定する必要がある。</div>
+</div>
+</td>
+</tr>
+<tr class="row-odd"><td><ol class="first last arabic simple" start="2">
+<li></li>
+</ol>
+</td>
+<td>size</td>
+<td><div class="first last line-block">
+<div class="line">取得する件数を指定するためのリクエストパラメータ。</div>
+<div class="line">値には、1以上の数値を指定する。</div>
+<div class="line"><code class="docutils literal"><span class="pre">PageableHandlerMethodArgumentResolver</span></code> の <code class="docutils literal"><span class="pre">maxPageSize</span></code> に指定された値より大きい値が指定された場合は、 <code class="docutils literal"><span class="pre">maxPageSize</span></code> の値が <code class="docutils literal"><span class="pre">size</span></code> の値となる。</div>
+</div>
+</td>
+</tr>
+<tr class="row-even"><td><ol class="first last arabic simple" start="3">
+<li></li>
+</ol>
+</td>
+<td>sort</td>
+<td><div class="first last line-block">
+<div class="line">ソート条件を指定するためのパラメータ(複数指定可能)。</div>
+<div class="line">値には、<code class="docutils literal"><span class="pre">{ソート項目名(,ソート順)}</span></code> の形式で指定する。</div>
+<div class="line">ソート順には、<code class="docutils literal"><span class="pre">ASC</span></code> 又は <code class="docutils literal"><span class="pre">DESC</span></code> のどちらかの値を指定し、省略した場合は <code class="docutils literal"><span class="pre">ASC</span></code> が適用される。</div>
+<div class="line">項目名は “<code class="docutils literal"><span class="pre">,</span></code>” 区切りで複数指定することが可能である。</div>
+<div class="line">例えば、クエリ文字列として <code class="docutils literal"><span class="pre">sort=lastModifiedDate,id,DESC&amp;sort=subId</span></code> が指定された場合、 <code class="docutils literal"><span class="pre">ORDER</span> <span class="pre">BY</span> <span class="pre">lastModifiedDate</span> <span class="pre">DESC,</span> <span class="pre">id</span> <span class="pre">DESC,</span> <span class="pre">subId</span> <span class="pre">ASC</span></code> のようなOrder By句をQueryに追加することになる。</div>
+</div>
+</td>
+</tr>
+</tbody>
+</table>
+</div></blockquote>
+</div>
+</div></blockquote>
+</div>
+</div>
+<div class="section" id="pagination-overview-page-display">
+<span id="id5"></span><h3><a class="toc-backref" href="#id32">4.4.1.3. ページネーションの表示について</a><a class="headerlink" href="#pagination-overview-page-display" title="Permalink to this headline">¶</a></h3>
+<p>「<a class="reference internal" href="#pagination-overview-page"><span class="std std-ref">ページ分割時の一覧画面の表示について</span></a>」にて説明した画面の各要素について説明する。</p>
+<div class="section" id="pagination-overview-page-display-fetcheddata">
+<span id="id6"></span><h4><a class="toc-backref" href="#id33">4.4.1.3.1. 取得データの表示について</a><a class="headerlink" href="#pagination-overview-page-display-fetcheddata" title="Permalink to this headline">¶</a></h4>
+<div class="line-block">
+<div class="line">ページ検索処理で検索条件(検索対象のページ位置、取得件数、ソート条件等)を指定して取得したデータを表示する。</div>
+<div class="line">ページ検索については、「<a class="reference internal" href="#pagination-overview-page-search"><span class="std std-ref">ページ検索について</span></a> 」を参照されたい。</div>
+</div>
+<div class="line-block">
+<div class="line"><br /></div>
+</div>
+</div>
+<div class="section" id="pagination-overview-page-display-paginationlink">
+<span id="id7"></span><h4><a class="toc-backref" href="#id34">4.4.1.3.2. ページネーションリンクの表示について</a><a class="headerlink" href="#pagination-overview-page-display-paginationlink" title="Permalink to this headline">¶</a></h4>
+<div class="line-block">
+<div class="line">共通ライブラリから提供しているJSPタグライブラリを使って出力されるページネーションリンクについて以下の流れで説明する。</div>
+</div>
+<ol class="arabic simple">
+<li><a class="reference internal" href="#pagination-overview-page-display-paginationlink-structure"><span class="std std-ref">ページネーションリンクの構成</span></a></li>
+<li><a class="reference internal" href="#pagination-overview-page-display-paginationlink-htmlstructure"><span class="std std-ref">ページネーションリンクのHTML構造</span></a></li>
+<li><a class="reference internal" href="#pagination-overview-page-display-paginationlink-taglibparameters"><span class="std std-ref">JSPタブライブラリのパラメータについて</span></a></li>
+</ol>
+<div class="line-block">
+<div class="line">共通ライブラリからはページネーションリンクを表示するためのスタイルシートの提供は行っていないため、各プロジェクトにて用意すること。</div>
+<div class="line">以降の説明で使用する画面は、Bootstrap v3.0.0のスタイルシートを適用している。</div>
+</div>
+<div class="line-block">
+<div class="line"><br /></div>
+</div>
+<div class="section" id="pagination-overview-page-display-paginationlink-structure">
+<span id="id8"></span><h5>4.4.1.3.2.1. ページネーションリンクの構成<a class="headerlink" href="#pagination-overview-page-display-paginationlink-structure" title="Permalink to this headline">¶</a></h5>
+<p>ページネーションリンクは、以下の要素から構成される。</p>
+<blockquote>
+<div><div class="figure align-center">
+<a class="reference internal image-reference" href="../../_images/pagination-how_to_use_jsp_pagelink_description.png"><img alt="Structure of the pagination link." src="../../_images/pagination-how_to_use_jsp_pagelink_description.png" style="width: 90%;" /></a>
+</div>
+<table border="1" class="colwidths-given docutils">
+<colgroup>
+<col width="10%" />
+<col width="90%" />
+</colgroup>
+<thead valign="bottom">
+<tr class="row-odd"><th class="head">項番</th>
+<th class="head">説明</th>
+</tr>
+</thead>
+<tbody valign="top">
+<tr class="row-even"><td><div class="first last line-block">
+<div class="line">(1)</div>
+</div>
+</td>
+<td><div class="first last line-block">
+<div class="line">最初のページに移動するためのリンク。</div>
+</div>
+</td>
+</tr>
+<tr class="row-odd"><td><div class="first last line-block">
+<div class="line">(2)</div>
+</div>
+</td>
+<td><div class="first last line-block">
+<div class="line">前のページに移動するためのリンク。</div>
+</div>
+</td>
+</tr>
+<tr class="row-even"><td><div class="first last line-block">
+<div class="line">(3)</div>
+</div>
+</td>
+<td><div class="first last line-block">
+<div class="line">指定したページに移動するためのリンク。</div>
+</div>
+</td>
+</tr>
+<tr class="row-odd"><td><div class="first last line-block">
+<div class="line">(4)</div>
+</div>
+</td>
+<td><div class="first last line-block">
+<div class="line">次のページに移動するためのリンク。</div>
+</div>
+</td>
+</tr>
+<tr class="row-even"><td><div class="first last line-block">
+<div class="line">(5)</div>
+</div>
+</td>
+<td><div class="first last line-block">
+<div class="line">最後のページに移動するためのリンク。</div>
+</div>
+</td>
+</tr>
+</tbody>
+</table>
+</div></blockquote>
+<div class="line-block">
+<div class="line"><br /></div>
+</div>
+<p>ページネーションリンクは、以下の状態をもつ。</p>
+<blockquote>
+<div><div class="figure align-center">
+<a class="reference internal image-reference" href="../../_images/pagination-how_to_use_jsp_pagelink_description_status.png"><img alt="Status of the pagination link." src="../../_images/pagination-how_to_use_jsp_pagelink_description_status.png" style="width: 90%;" /></a>
+</div>
+<table border="1" class="colwidths-given docutils">
+<colgroup>
+<col width="10%" />
+<col width="90%" />
+</colgroup>
+<thead valign="bottom">
+<tr class="row-odd"><th class="head">項番</th>
+<th class="head">説明</th>
+</tr>
+</thead>
+<tbody valign="top">
+<tr class="row-even"><td><div class="first last line-block">
+<div class="line">(6)</div>
+</div>
+</td>
+<td><div class="first last line-block">
+<div class="line">現在表示しているページで操作することができないリンクであることを示す状態。</div>
+<div class="line">具体的には、1ページ目を表示している時の「最初のページに移動するためのリンク」「前のページに移動するためのリンク」と、最終ページを表示している時の「次のページに移動するためのリンク」「最後のページに移動するためのリンク」がこの状態となる。</div>
+<div class="line">共通ライブラリから提供しているJSPタグライブラリでは、この状態を <code class="docutils literal"><span class="pre">disabled</span></code> と定義している。</div>
+</div>
+</td>
+</tr>
+<tr class="row-odd"><td><div class="first last line-block">
+<div class="line">(7)</div>
+</div>
+</td>
+<td><div class="first last line-block">
+<div class="line">現在表示しているページであることを示す状態。</div>
+<div class="line">共通ライブラリから提供しているJSPタグライブラリでは、この状態を <code class="docutils literal"><span class="pre">active</span></code> と定義している。</div>
+</div>
+</td>
+</tr>
+</tbody>
+</table>
+</div></blockquote>
+<div class="line-block">
+<div class="line"><br /></div>
+</div>
+<div class="line-block">
+<div class="line">共通ライブラリを使って出力されるHTMLは、以下の構造となる。</div>
+<div class="line">図中の番号は、上記で説明した「ページネーションリンクの構成」と「ページネーションリンクの状態」の項番に対応させている。</div>
+</div>
+<ul class="simple">
+<li>JSP</li>
+</ul>
+<blockquote>
+<div><div class="highlight-jsp"><div class="highlight"><pre><span></span><span class="nt">&lt;t:pagination</span> <span class="na">page=</span><span class="s">&quot;${page}&quot;</span> <span class="nt">/&gt;</span>
+</pre></div>
+</div>
+</div></blockquote>
+<ul class="simple">
+<li>出力されるHTML</li>
+</ul>
+<blockquote>
+<div><div class="figure align-center">
+<a class="reference internal image-reference" href="../../_images/pagination-overview_html.png"><img alt="html of the pagination link." src="../../_images/pagination-overview_html.png" style="width: 90%;" /></a>
+</div>
+</div></blockquote>
+<div class="line-block">
+<div class="line"><br /></div>
+</div>
+</div>
+<div class="section" id="html">
+<span id="pagination-overview-page-display-paginationlink-htmlstructure"></span><h5>4.4.1.3.2.2. ページネーションリンクのHTML構造<a class="headerlink" href="#html" title="Permalink to this headline">¶</a></h5>
+<p>共通ライブラリを使って出力されるページネーションリンクのHTMLは、以下の構造となる。</p>
+<ul class="simple">
+<li>HTML</li>
+</ul>
+<blockquote>
+<div><div class="figure align-center">
+<a class="reference internal image-reference" href="../../_images/pagination-overview_html_basic.png"><img alt="html structure of the pagination link." src="../../_images/pagination-overview_html_basic.png" style="width: 100%;" /></a>
+</div>
+</div></blockquote>
+<ul class="simple">
+<li>画面イメージ</li>
+</ul>
+<blockquote>
+<div><div class="figure align-center">
+<a class="reference internal image-reference" href="../../_images/pagination-overview_html_basic_screen.png"><img alt="screen structure of the pagination link." src="../../_images/pagination-overview_html_basic_screen.png" style="width: 80%;" /></a>
+</div>
+<table border="1" class="colwidths-given longtable docutils">
+<colgroup>
+<col width="10%" />
+<col width="70%" />
+<col width="20%" />
+</colgroup>
+<thead valign="bottom">
+<tr class="row-odd"><th class="head">項番</th>
+<th class="head">説明</th>
+<th class="head">デフォルト値</th>
+</tr>
+</thead>
+<tbody valign="top">
+<tr class="row-even"><td><div class="first last line-block">
+<div class="line">(1)</div>
+</div>
+</td>
+<td><div class="first last line-block">
+<div class="line">ページネーションリンクの構成要素をまとめるための要素。</div>
+<div class="line">共通ライブラリでは、この部分を「Outer Element」と呼び、複数の「Inner Element」を保持する。</div>
+<div class="line">使用する要素は、JSPタグライブラリのパラメータによって変更することが出来る。</div>
+</div>
+</td>
+<td><div class="first last line-block">
+<div class="line"><code class="docutils literal"><span class="pre">&lt;ul&gt;</span></code> 要素</div>
+</div>
+</td>
+</tr>
+<tr class="row-odd"><td><div class="first last line-block">
+<div class="line">(2)</div>
+</div>
+</td>
+<td><div class="first last line-block">
+<div class="line">「Outer Element」のスタイルクラスを指定するための属性。</div>
+<div class="line">共通ライブラリでは、この部分を「Outer Element Class」と呼び、属性値はJSPタグライブラリのパラメータによって指定する。</div>
+</div>
+</td>
+<td><div class="first last line-block">
+<div class="line">指定なし</div>
+</div>
+</td>
+</tr>
+<tr class="row-even"><td><div class="first last line-block">
+<div class="line">(3)</div>
+</div>
+</td>
+<td><div class="first last line-block">
+<div class="line">ページネーションリンクを構成するための要素。</div>
+<div class="line">共通ライブラリでは、この部分を「Inner Element」と呼び、 ページ移動するためのリクエストを送信するための <code class="docutils literal"><span class="pre">&lt;a&gt;</span></code> 要素を保持する。</div>
+<div class="line">使用する要素は、JSPタグライブラリのパラメータによって変更することが出来る。</div>
+</div>
+</td>
+<td><div class="first last line-block">
+<div class="line"><code class="docutils literal"><span class="pre">&lt;li&gt;</span></code> 要素</div>
+</div>
+</td>
+</tr>
+<tr class="row-odd"><td><div class="first last line-block">
+<div class="line">(4)</div>
+</div>
+</td>
+<td><div class="first last line-block">
+<div class="line">「Inner Element」のスタイルクラスを指定するための属性。</div>
+<div class="line">共通ライブラリでは、この部分を「Inner Element Class」と呼び、属性値は表示しているページ位置によってJSPタグライブラリ内の処理で切り替わる。</div>
+</div>
+</td>
+<td><div class="first last line-block">
+<div class="line">「 <a class="reference internal" href="#pagination-overview-paginationlink-innerelementclass"><span class="std std-ref">Note欄</span></a> 」を参照されたい。</div>
+</div>
+</td>
+</tr>
+<tr class="row-even"><td><div class="first last line-block">
+<div class="line">(5)</div>
+</div>
+</td>
+<td><div class="first last line-block">
+<div class="line">ページ移動するためのリクエストを送信するための要素。</div>
+<div class="line">共通ライブラリでは、この部分を「Page Link」と呼ぶ。</div>
+</div>
+</td>
+<td><div class="first last line-block">
+<div class="line"><cite>&lt;a&gt;</cite> 要素固定</div>
+</div>
+</td>
+</tr>
+<tr class="row-odd"><td><div class="first last line-block">
+<div class="line">(6)</div>
+</div>
+</td>
+<td><div class="first last line-block">
+<div class="line">ページ移動するためのURLを指定するための属性。</div>
+<div class="line">共通ライブラリでは、この部分を「Page Link URL」と呼ぶ。</div>
+</div>
+</td>
+<td><div class="first last line-block">
+<div class="line">下記の「 <a class="reference internal" href="#pagination-overview-paginationlink-pagelinkurl"><span class="std std-ref">Note欄</span></a> 」を参照されたい。</div>
+</div>
+</td>
+</tr>
+<tr class="row-even"><td><div class="first last line-block">
+<div class="line">(7)</div>
+</div>
+</td>
+<td><div class="first last line-block">
+<div class="line">ページ移動するためのリンクの表示テキストを指定する。</div>
+<div class="line">共通ライブラリでは、この部分を「Page Link Text」と呼ぶ。</div>
+</div>
+</td>
+<td><div class="first last line-block">
+<div class="line">下記の「 <a class="reference internal" href="#pagination-overview-paginationlink-pagelinktext"><span class="std std-ref">Note欄</span></a> 」を参照されたい。</div>
+</div>
+</td>
+</tr>
+</tbody>
+</table>
+<div class="admonition note">
+<p class="first admonition-title">Note</p>
+<p><strong>「Inner Element」の数について</strong></p>
+<p>デフォルトの設定では、「Inner Element」は最大で14個となる。内訳は以下の通り。</p>
+<ul class="simple">
+<li>最初のページに移動するためのリンク : 1</li>
+<li>前のページに移動するためのリンク : 1</li>
+<li>指定したページに移動するためのリンク : 最大10</li>
+<li>次のページに移動するためのリンク : 1</li>
+<li>最後のページに移動するためのリンク : 1</li>
+</ul>
+<p class="last">「Inner Element」の数は、JSPタグライブラリのパラメータの指定によって変更することができる。</p>
+</div>
+</div></blockquote>
+<blockquote id="pagination-overview-paginationlink-innerelementclass">
+<div><div class="admonition note">
+<p class="first admonition-title">Note</p>
+<p><strong>「Inner Element Class」の設定値について</strong></p>
+<p>デフォルトの設定では、ページ位置によって、以下3つの値となる。</p>
+<ul class="simple">
+<li><code class="docutils literal"><span class="pre">disabled</span></code> : 現在表示しているページでは操作することができないリンクであることを示すためのスタイルクラス。</li>
+<li><code class="docutils literal"><span class="pre">active</span></code> : 現在表示しているページのリンクであることを示すためのスタイルクラス。</li>
+<li>指定なし : 上記以外のリンクであることを示す。</li>
+</ul>
+<p class="last"><code class="docutils literal"><span class="pre">disabled</span></code> と <code class="docutils literal"><span class="pre">active</span></code> は、JSPタグライブラリのパラメータの指定によって別の値に変更することができる。</p>
+</div>
+</div></blockquote>
+<blockquote id="pagination-overview-paginationlink-pagelinkurl">
+<div><div class="admonition note">
+<p class="first admonition-title">Note</p>
+<p><strong>「Page Link URL」のデフォルト値について</strong></p>
+<p>リンクの状態が<code class="docutils literal"><span class="pre">disabled</span></code>と<code class="docutils literal"><span class="pre">active</span></code>の場合は<code class="docutils literal"><span class="pre">javascript:void(0)</span></code>、それ以外の場合は<code class="docutils literal"><span class="pre">?page={page}&amp;size={size}</span></code>となる。</p>
+<p>「Page Link URL」は、JSPタグライブラリのパラメータの指定によって別の値に変更することができる。</p>
+<p class="last">terasoluna-gfw-web 5.0.0.RELEASEより、<code class="docutils literal"><span class="pre">active</span></code>状態のリンクのデフォルト値を<code class="docutils literal"><span class="pre">?page={page}&amp;size={size}</span></code>から<code class="docutils literal"><span class="pre">javascript:void(0)</span></code>に変更している。
+これは、メジャーなWebサイトのページネーションリンクの実装やメジャーなCSSライブラリ(Bootstrapなど)の実装に合わせるためである。</p>
+</div>
+</div></blockquote>
+<blockquote id="pagination-overview-paginationlink-pagelinktext">
+<div><div class="admonition note">
+<p class="first admonition-title">Note</p>
+<p><strong>「Page Link Text」のデフォルト値について</strong></p>
+<blockquote>
+<div><table border="1" class="colwidths-given docutils">
+<colgroup>
+<col width="11%" />
+<col width="56%" />
+<col width="33%" />
+</colgroup>
+<thead valign="bottom">
+<tr class="row-odd"><th class="head">項番</th>
+<th class="head">リンク名</th>
+<th class="head">デフォルト値</th>
+</tr>
+</thead>
+<tbody valign="top">
+<tr class="row-even"><td><ol class="first last arabic simple">
+<li></li>
+</ol>
+</td>
+<td>最初のページに移動するためのリンク</td>
+<td><code class="docutils literal"><span class="pre">&lt;&lt;</span></code></td>
+</tr>
+<tr class="row-odd"><td><ol class="first last arabic simple" start="2">
+<li></li>
+</ol>
+</td>
+<td>前のページに移動するためのリンク</td>
+<td>“<code class="docutils literal"><span class="pre">&lt;</span></code>”</td>
+</tr>
+<tr class="row-even"><td><ol class="first last arabic simple" start="3">
+<li></li>
+</ol>
+</td>
+<td>指定したページに移動するためのリンク</td>
+<td><div class="first last line-block">
+<div class="line">該当ページのページ番号</div>
+<div class="line">(変更不可)</div>
+</div>
+</td>
+</tr>
+<tr class="row-odd"><td><ol class="first last arabic simple" start="4">
+<li></li>
+</ol>
+</td>
+<td>次のページに移動するためのリンク</td>
+<td>“<code class="docutils literal"><span class="pre">&gt;</span></code>”</td>
+</tr>
+<tr class="row-even"><td><ol class="first last arabic simple" start="5">
+<li></li>
+</ol>
+</td>
+<td>最後のページに移動するためのリンク</td>
+<td><code class="docutils literal"><span class="pre">&gt;&gt;</span></code></td>
+</tr>
+</tbody>
+</table>
+</div></blockquote>
+<p class="last">「指定したページに移動するためのリンク」以外は、JSPタグライブラリのパラメータの指定によって、別の値に変更することができる。</p>
+</div>
+</div></blockquote>
+<div class="line-block">
+<div class="line"><br /></div>
+</div>
+</div>
+<div class="section" id="jsp">
+<span id="pagination-overview-page-display-paginationlink-taglibparameters"></span><h5>4.4.1.3.2.3. JSPタブライブラリのパラメータについて<a class="headerlink" href="#jsp" title="Permalink to this headline">¶</a></h5>
+<p>JSPタグライブラリのパラメータに値を指定することで、デフォルト動作を変更することができる。</p>
+<p>以下にパラメータの一覧を示す。</p>
+<p><strong>レイアウトを制御するためのパラメータ</strong></p>
+<blockquote>
+<div><table border="1" class="colwidths-given longtable docutils">
+<colgroup>
+<col width="10%" />
+<col width="25%" />
+<col width="65%" />
+</colgroup>
+<thead valign="bottom">
+<tr class="row-odd"><th class="head">項番</th>
+<th class="head">パラメータ名</th>
+<th class="head">説明</th>
+</tr>
+</thead>
+<tbody valign="top">
+<tr class="row-even"><td><ol class="first last arabic simple">
+<li></li>
+</ol>
+</td>
+<td>outerElement</td>
+<td><div class="first last line-block">
+<div class="line">「Outer Element」として使用するHTML要素名を指定する。</div>
+<div class="line">例) div</div>
+</div>
+</td>
+</tr>
+<tr class="row-odd"><td><ol class="first last arabic simple" start="2">
+<li></li>
+</ol>
+</td>
+<td>outerElementClass</td>
+<td><div class="first last line-block">
+<div class="line">「Outer Element」のclass属性に設定するスタイルシートのクラス名を指定する。</div>
+<div class="line">例) pagination</div>
+</div>
+</td>
+</tr>
+<tr class="row-even"><td><ol class="first last arabic simple" start="3">
+<li></li>
+</ol>
+</td>
+<td>innerElement</td>
+<td><div class="first last line-block">
+<div class="line">「Inner Element」として使用するHTML要素名を指定する。</div>
+<div class="line">例) span</div>
+</div>
+</td>
+</tr>
+<tr class="row-odd"><td><ol class="first last arabic simple" start="4">
+<li></li>
+</ol>
+</td>
+<td>innerElementClass</td>
+<td><div class="first last line-block">
+<div class="line">「Inner Element」のclass属性に設定するスタイルシートのクラス名を指定する。 <strong>5.6.0から追加</strong></div>
+<div class="line">例) enablePageLink</div>
+</div>
+</td>
+</tr>
+<tr class="row-even"><td><ol class="first last arabic simple" start="5">
+<li></li>
+</ol>
+</td>
+<td>disabledClass</td>
+<td><div class="first last line-block">
+<div class="line"><code class="docutils literal"><span class="pre">disabled</span></code> 状態と判断された「Inner Element」のclass属性に設定する値を指定する。</div>
+<div class="line">例) hiddenPageLink</div>
+</div>
+</td>
+</tr>
+<tr class="row-odd"><td><ol class="first last arabic simple" start="6">
+<li></li>
+</ol>
+</td>
+<td>activeClass</td>
+<td><div class="first last line-block">
+<div class="line"><code class="docutils literal"><span class="pre">active</span></code> 状態の「Inner Element」のclass属性に設定する値を指定する。</div>
+<div class="line">例) currentPageLink</div>
+</div>
+</td>
+</tr>
+<tr class="row-even"><td><ol class="first last arabic simple" start="7">
+<li></li>
+</ol>
+</td>
+<td>firstLinkText</td>
+<td><div class="first last line-block">
+<div class="line">「最初のページに移動するためのリンク」の「Page Link Text」に設定する値を指定する。</div>
+<div class="line"><code class="docutils literal"><span class="pre">&quot;&quot;</span></code> を指定すると、「最初のページに移動するためのリンク」自体が出力されなくなる。</div>
+<div class="line">例) First</div>
+</div>
+</td>
+</tr>
+<tr class="row-odd"><td><ol class="first last arabic simple" start="8">
+<li></li>
+</ol>
+</td>
+<td>previousLinkText</td>
+<td><div class="first last line-block">
+<div class="line">「前のページに移動するためのリンク」の「Page Link Text」に設定する値を指定する。</div>
+<div class="line"><code class="docutils literal"><span class="pre">&quot;&quot;</span></code> を指定すると、「前のページに移動するためのリンク」自体が出力されなくなる。</div>
+<div class="line">例) Prev</div>
+</div>
+</td>
+</tr>
+<tr class="row-even"><td><ol class="first last arabic simple" start="9">
+<li></li>
+</ol>
+</td>
+<td>nextLinkText</td>
+<td><div class="first last line-block">
+<div class="line">「次のページに移動するためのリンク」の「Page Link Text」に設定する値を指定する。</div>
+<div class="line"><code class="docutils literal"><span class="pre">&quot;&quot;</span></code> を指定すると、「次のページに移動するためのリンク」自体が出力されなくなる。</div>
+<div class="line">例) Next</div>
+</div>
+</td>
+</tr>
+<tr class="row-odd"><td><ol class="first last arabic simple" start="10">
+<li></li>
+</ol>
+</td>
+<td>lastLinkText</td>
+<td><div class="first last line-block">
+<div class="line">「最後のページに移動するためのリンク」の「Page Link Text」に設定する値を指定する。</div>
+<div class="line"><code class="docutils literal"><span class="pre">&quot;&quot;</span></code> を指定すると、「次のページに移動するためのリンク」自体が出力されなくなる。</div>
+<div class="line">例) Last</div>
+</div>
+</td>
+</tr>
+<tr class="row-even"><td><ol class="first last arabic simple" start="11">
+<li></li>
+</ol>
+</td>
+<td>maxDisplayCount</td>
+<td><div class="first last line-block">
+<div class="line">「指定したページに移動するためのリンク」の最大表示数を指定する。</div>
+<div class="line">“<code class="docutils literal"><span class="pre">0</span></code>” を指定すると、「指定したページに移動するためのリンク」自体が出力されなくなる。</div>
+<div class="line">例) 5</div>
+</div>
+</td>
+</tr>
+</tbody>
+</table>
+</div></blockquote>
+<div class="line-block">
+<div class="line"><br /></div>
+</div>
+<blockquote>
+<div><p>レイアウトを制御するためのパラメータを、全てデフォルトから変更した時に出力されるHTMLは以下の通り。
+図中の番号は、上記で説明したパラメータ一覧の項番に対応している。</p>
+<ul class="simple">
+<li>JSP</li>
+</ul>
+<blockquote>
+<div><div class="highlight-jsp"><div class="highlight"><pre><span></span><span class="nt">&lt;t:pagination</span> <span class="na">page=</span><span class="s">&quot;${page}&quot;</span>
+    <span class="na">outerElement=</span><span class="s">&quot;div&quot;</span>
+    <span class="na">outerElementClass=</span><span class="s">&quot;pagination&quot;</span>
+    <span class="na">innerElement=</span><span class="s">&quot;span&quot;</span>
+    <span class="na">innerElementClass=</span><span class="s">&quot;enablePageLink&quot;</span>
+    <span class="na">disabledClass=</span><span class="s">&quot;hiddenPageLink&quot;</span>
+    <span class="na">activeClass=</span><span class="s">&quot;currentPageLink&quot;</span>
+    <span class="na">firstLinkText=</span><span class="s">&quot;First&quot;</span>
+    <span class="na">previousLinkText=</span><span class="s">&quot;Prev&quot;</span>
+    <span class="na">nextLinkText=</span><span class="s">&quot;Next&quot;</span>
+    <span class="na">lastLinkText=</span><span class="s">&quot;Last&quot;</span>
+    <span class="na">maxDisplayCount=</span><span class="s">&quot;5&quot;</span>
+    <span class="nt">/&gt;</span>
+</pre></div>
+</div>
+</div></blockquote>
+<ul class="simple">
+<li>出力されるHTML</li>
+</ul>
+<blockquote>
+<div><div class="figure align-center">
+<a class="reference internal image-reference" href="../../_images/pagination-overview_html_changed.png"><img alt="html of the pagination link(changed layout)." src="../../_images/pagination-overview_html_changed.png" style="width: 100%;" /></a>
+</div>
+</div></blockquote>
+</div></blockquote>
+<div class="line-block">
+<div class="line"><br /></div>
+</div>
+<blockquote>
+<div></div></blockquote>
+<p><strong>動作を制御するためのパラメータ</strong></p>
+<blockquote>
+<div><table border="1" class="colwidths-given longtable docutils">
+<colgroup>
+<col width="10%" />
+<col width="25%" />
+<col width="65%" />
+</colgroup>
+<thead valign="bottom">
+<tr class="row-odd"><th class="head">項番</th>
+<th class="head">パラメータ名</th>
+<th class="head">説明</th>
+</tr>
+</thead>
+<tbody valign="top">
+<tr class="row-even"><td><ol class="first last arabic simple">
+<li></li>
+</ol>
+</td>
+<td>disabledHref</td>
+<td><div class="first last line-block">
+<div class="line"><code class="docutils literal"><span class="pre">disabled</span></code> 状態のリンクの「Page Link URL」に設定する値を指定する。</div>
+</div>
+</td>
+</tr>
+<tr class="row-odd"><td><ol class="first last arabic simple" start="2">
+<li></li>
+</ol>
+</td>
+<td>pathTmpl</td>
+<td><div class="first last line-block">
+<div class="line">「Page Link URL」に設定するリクエストパスのテンプレートを指定する。</div>
+<div class="line">ページ表示時のリクエストパスとページ移動するためのリクエストパスが異なる場合は、このパラメータにページ移動用のリクエストパスを指定する必要がある。</div>
+<div class="line">指定するリクエストパスのテンプレートには、ページ位置(page)や取得件数(size)などをパス変数(プレースホルダ)として指定することができる。</div>
+<div class="line">指定した値はUTF-8でURLエンコーディングされる。</div>
+</div>
+</td>
+</tr>
+<tr class="row-even"><td><ol class="first last arabic simple" start="3">
+<li></li>
+</ol>
+</td>
+<td>queryTmpl</td>
+<td><div class="first last line-block">
+<div class="line">「Page Link URL」のクエリ文字列のテンプレートを指定する。</div>
+<div class="line">ページ移動する際に必要となるページネーション用のクエリ文字列(page,size,sortパラメータ)を生成するためのテンプレートを指定する。</div>
+<div class="line">ページ位置や取得件数のリクエストパラメータ名をデフォルト以外の値にする場合は、このパラメータにクエリ文字列を指定する必要がある。</div>
+<div class="line">指定するクエリ文字列のテンプレートには、ページ位置(page)や取得件数(size)などをパス変数(プレースホルダ)として指定することができる。</div>
+<div class="line">指定した値はUTF-8でURLエンコーディングされる。</div>
+<div class="line"><br /></div>
+<div class="line">この属性は、ページネーション用のクエリ文字列(page,size,sortパラメータ)を生成するための属性であるため、検索条件を引き継ぐためのクエリ文字列はcriteriaQuery属性に指定すること。</div>
+</div>
+</td>
+</tr>
+<tr class="row-odd"><td><ol class="first last arabic simple" start="4">
+<li></li>
+</ol>
+</td>
+<td>criteriaQuery</td>
+<td><div class="first last line-block">
+<div class="line">「Page Link URL」に追加する検索条件用のクエリ文字列を指定する。</div>
+<div class="line"><strong>「Page Link URL」に検索条件を引き継ぐ場合は、このパラメータに検索条件用のクエリ文字列を指定すること。</strong></div>
+<div class="line"><strong>指定した値はURLエンコーディングされないため、URLエンコーディング済みのクエリ文字列を指定する必要がある。</strong></div>
+<div class="line"><br /></div>
+<div class="line">フォームオブジェクトに格納されている検索条件をURLエンコーディング済みのクエリ文字列に変換する場合は、共通ライブラリから提供しているELファンクション(<code class="docutils literal"><span class="pre">f:query(Object)</span></code>)を使用すると、簡単に条件を引き継ぐことができる。</div>
+<div class="line"><br /></div>
+<div class="line">terasoluna-gfw-web 1.0.1.RELEASE以上で利用可能なパラメータである。</div>
+</div>
+</td>
+</tr>
+<tr class="row-even"><td><ol class="first last arabic simple" start="5">
+<li></li>
+</ol>
+</td>
+<td>disableHtmlEscapeOfCriteriaQuery</td>
+<td><div class="first last line-block">
+<div class="line"><code class="docutils literal"><span class="pre">criteriaQuery</span></code>パラメータに指定された値に対するHTMLエスケープ処理を無効化するためのフラグ。</div>
+<div class="line"><code class="docutils literal"><span class="pre">true</span></code>を指定する事で、<code class="docutils literal"><span class="pre">criteriaQuery</span></code>パラメータに指定された値に対してHTMLエスケープ処理が行われなくなる。(デフォルト値は<code class="docutils literal"><span class="pre">false</span></code>)</div>
+<div class="line"><strong>trueを指定する場合は、XSS対策が必要な文字がクエリ文字列内に含まれない事が保証されていること。</strong></div>
+<div class="line"><br /></div>
+<div class="line">terasoluna-gfw-web 1.0.1.RELEASE以上で利用可能なパラメータである。</div>
+</div>
+</td>
+</tr>
+<tr class="row-odd"><td><ol class="first last arabic simple" start="6">
+<li></li>
+</ol>
+</td>
+<td>enableLinkOfCurrentPage</td>
+<td><div class="first last line-block">
+<div class="line"><code class="docutils literal"><span class="pre">active</span></code>状態のページリンクを押下した際に、該当ページを再表示するためのリクエストを送信するためのフラグ。</div>
+<div class="line"><code class="docutils literal"><span class="pre">true</span></code>を指定する事で、「Page Link URL」に該当ページを再表示するためのURL(デフォルト値は<code class="docutils literal"><span class="pre">?page={page}&amp;size={size}</span></code>)が設定される。(デフォルト値は<code class="docutils literal"><span class="pre">false</span></code>で、「Page Link URL」には<code class="docutils literal"><span class="pre">disabledHref</span></code>属性の値が設定される)</div>
+<div class="line"><br /></div>
+<div class="line">terasoluna-gfw-web 5.0.0.RELEASE以上で利用可能なパラメータである。</div>
+</div>
+</td>
+</tr>
+</tbody>
+</table>
+<div class="admonition note">
+<p class="first admonition-title">Note</p>
+<p><strong>disabledHrefの設定値について</strong></p>
+<p>デフォルトでは、<code class="docutils literal"><span class="pre">disabledHref</span></code>属性には<code class="docutils literal"><span class="pre">javascript:void(0)</span></code>が設定されている。
+ページリンク押下時の動作を無効化するだけであれば、デフォルトのままでよい。</p>
+<p>ただし、デフォルトの状態でページリンクにフォーカスを移動又はマウスオーバーした場合、
+ブラウザのステータスバーに<code class="docutils literal"><span class="pre">javascript:void(0)</span></code>が表示されることがある。
+この挙動を変えたい場合は、JavaScriptを使用してページリンク押下時の動作を無効化する必要がある。
+実装例については、「<a class="reference internal" href="#paginationhowtousedisablepagelinkusingjavascript"><span class="std std-ref">JavaScriptを使用したページリンクの無効化</span></a>」を参照されたい。</p>
+<p class="last">terasoluna-gfw-web 5.0.0.RELEASEより、<code class="docutils literal"><span class="pre">disabledHref</span></code>属性のデフォルト値を”<code class="docutils literal"><span class="pre">#</span></code>”から<code class="docutils literal"><span class="pre">javascript:void(0)</span></code>に変更している。
+この変更を行うことで、<code class="docutils literal"><span class="pre">disabled</span></code>状態のページリンクを押下した際に、フォーカスがページのトップへ移動しないようになっている。</p>
+</div>
+<div class="admonition note">
+<p class="first admonition-title">Note</p>
+<p><strong>パス変数(プレースホルダ)について</strong></p>
+<p><code class="docutils literal"><span class="pre">pathTmpl</span></code> 及び <code class="docutils literal"><span class="pre">queryTmpl</span></code> に指定できるパス変数は、以下の通り。</p>
+<blockquote>
+<div><table border="1" class="colwidths-given docutils">
+<colgroup>
+<col width="10%" />
+<col width="25%" />
+<col width="65%" />
+</colgroup>
+<thead valign="bottom">
+<tr class="row-odd"><th class="head">項番</th>
+<th class="head">パス変数名</th>
+<th class="head">説明</th>
+</tr>
+</thead>
+<tbody valign="top">
+<tr class="row-even"><td><ol class="first last arabic simple">
+<li></li>
+</ol>
+</td>
+<td>page</td>
+<td>ページ位置を埋め込むためのパス変数。</td>
+</tr>
+<tr class="row-odd"><td><ol class="first last arabic simple" start="2">
+<li></li>
+</ol>
+</td>
+<td>size</td>
+<td>取得件数を埋め込むためのパス変数。</td>
+</tr>
+<tr class="row-even"><td><ol class="first last arabic simple" start="3">
+<li></li>
+</ol>
+</td>
+<td>sortOrderProperty</td>
+<td>ソート条件のソート項目を埋め込むためのパス変数。</td>
+</tr>
+<tr class="row-odd"><td><ol class="first last arabic simple" start="4">
+<li></li>
+</ol>
+</td>
+<td>sortOrderDirection</td>
+<td>ソート条件のソート順を埋め込むためのパス変数。</td>
+</tr>
+</tbody>
+</table>
+</div></blockquote>
+<p class="last">パス変数は、<code class="docutils literal"><span class="pre">{パス変数名}</span></code> の形式で指定する。</p>
+</div>
+<div class="admonition warning">
+<p class="first admonition-title">Warning</p>
+<p><strong>ソート条件の制約事項</strong></p>
+<p class="last">ソート条件のパス変数に設定される値は、ひとつのソート条件のみとなっている。
+そのため、複数のソート条件を指定して検索した結果を、ページネーション表示する必要がある場合は、
+共通ライブラリから提供しているJSPタグライブラリを拡張する必要がある。</p>
+</div>
+</div></blockquote>
+<div class="line-block">
+<div class="line"><br /></div>
+</div>
+<blockquote>
+<div><p>動作を制御するためのパラメータを変更した時に出力されるHTMLは、以下の通り。
+図中の番号は、上記で説明したパラメータ一覧の項番に対応している。</p>
+<ul class="simple">
+<li>JSP</li>
+</ul>
+<blockquote>
+<div><div class="highlight-jsp"><div class="highlight"><pre><span></span><span class="nt">&lt;t:pagination</span> <span class="na">page=</span><span class="s">&quot;${page}&quot;</span>
+    <span class="na">disabledHref=</span><span class="s">&quot;#&quot;</span>
+    <span class="na">pathTmpl=</span><span class="s">&quot;${pageContext.request.contextPath}/article/list/{page}/{size}&quot;</span>
+    <span class="na">queryTmpl=</span><span class="s">&quot;sort={sortOrderProperty},{sortOrderDirection}&quot;</span>
+    <span class="na">criteriaQuery=</span><span class="s">&quot;${f:query(articleSearchCriteriaForm)}&quot;</span>
+    <span class="na">enableLinkOfCurrentPage=</span><span class="s">&quot;true&quot;</span> <span class="nt">/&gt;</span>
+</pre></div>
+</div>
+</div></blockquote>
+<ul class="simple">
+<li>出力されるHTML</li>
+</ul>
+<blockquote>
+<div><div class="figure align-center">
+<a class="reference internal image-reference" href="../../_images/pagination-overview_html_changed2.png"><img alt="html of the pagination link(changed behavior)." src="../../_images/pagination-overview_html_changed2.png" style="width: 100%;" /></a>
+</div>
+</div></blockquote>
+</div></blockquote>
+<div class="line-block">
+<div class="line"><br /></div>
+</div>
+</div>
+</div>
+<div class="section" id="pagination-overview-page-display-paginationinfo">
+<span id="id9"></span><h4><a class="toc-backref" href="#id35">4.4.1.3.3. ページネーション情報の表示について</a><a class="headerlink" href="#pagination-overview-page-display-paginationinfo" title="Permalink to this headline">¶</a></h4>
+<div class="line-block">
+<div class="line">ページネーションに関する情報の表示を行う。</div>
+<div class="line">Spring Data提供のページ検索機能を使用することで、以下の情報を画面に表示することができる。</div>
+</div>
+<ul class="simple">
+<li>合計件数</li>
+<li>検索対象のページ位置</li>
+<li>取得件数</li>
+<li>ソート条件</li>
+</ul>
+<div class="line-block">
+<div class="line">ページ検索については、「<a class="reference internal" href="#pagination-overview-page-search"><span class="std std-ref">ページ検索について</span></a> 」を参照されたい。</div>
+</div>
+<div class="line-block">
+<div class="line"><br /></div>
+</div>
+</div>
+</div>
+<div class="section" id="id10">
+<h3><a class="toc-backref" href="#id36">4.4.1.4. ページネーション機能使用時の処理フロー</a><a class="headerlink" href="#id10" title="Permalink to this headline">¶</a></h3>
+<p>Spring Dataより提供されているページネーション機能と、共通ライブラリから提供しているJSPタグライブラリを利用した際の処理フローは、以下の通り。</p>
+<blockquote>
+<div><div class="figure">
+<a class="reference internal image-reference" href="../../_images/pagination-overview_flow.png"><img alt="processing flow of pagination" src="../../_images/pagination-overview_flow.png" style="width: 100%;" /></a>
+</div>
+<table border="1" class="colwidths-given longtable docutils">
+<colgroup>
+<col width="10%" />
+<col width="90%" />
+</colgroup>
+<thead valign="bottom">
+<tr class="row-odd"><th class="head">項番</th>
+<th class="head">説明</th>
+</tr>
+</thead>
+<tbody valign="top">
+<tr class="row-even"><td><div class="first last line-block">
+<div class="line">(1)</div>
+</div>
+</td>
+<td><div class="first last line-block">
+<div class="line">検索条件と共に、リクエストパラメータとして検索対象のページ位置(page)と取得件数(size)を指定してリクエストを送信する。</div>
+</div>
+</td>
+</tr>
+<tr class="row-odd"><td><div class="first last line-block">
+<div class="line">(2)</div>
+</div>
+</td>
+<td><div class="first last line-block">
+<div class="line"><code class="docutils literal"><span class="pre">PageableHandlerMethodArgumentResolver</span></code> は、リクエストパラメータに指定されている検索対象のページ位置(page)と取得件数(size)を取得し、 <code class="docutils literal"><span class="pre">Pageable</span></code> オブジェクトを生成する。</div>
+<div class="line">生成された <code class="docutils literal"><span class="pre">Pageable</span></code> オブジェクトは、Controllerのハンドラメソッドの引数に設定される。</div>
+</div>
+</td>
+</tr>
+<tr class="row-even"><td><div class="first last line-block">
+<div class="line">(3)</div>
+</div>
+</td>
+<td><div class="first last line-block">
+<div class="line">Controllerは、引数で受け取った <code class="docutils literal"><span class="pre">Pageable</span></code> オブジェクトを、Serviceのメソッドに引き渡す。</div>
+</div>
+</td>
+</tr>
+<tr class="row-odd"><td><div class="first last line-block">
+<div class="line">(4)</div>
+</div>
+</td>
+<td><div class="first last line-block">
+<div class="line">Serviceは、引数で受け取った <code class="docutils literal"><span class="pre">Pageable</span></code> オブジェクトを、 RepositoryのQueryメソッドに引き渡す。</div>
+</div>
+</td>
+</tr>
+<tr class="row-even"><td><div class="first last line-block">
+<div class="line">(5)</div>
+</div>
+</td>
+<td><div class="first last line-block">
+<div class="line">Repositoryは、検索条件に一致するデータの合計件数(totalElements)と、引数で受け取った <code class="docutils literal"><span class="pre">Pageable</span></code> オブジェクトに指定されているページ位置(page)と取得件数(size)の範囲に存在するデータを、データベースより取得する。</div>
+</div>
+</td>
+</tr>
+<tr class="row-odd"><td><div class="first last line-block">
+<div class="line">(6)</div>
+</div>
+</td>
+<td><div class="first last line-block">
+<div class="line">Repositoryは、取得した合計件数(totalElements)、取得データ(content)、引数で受け取った <code class="docutils literal"><span class="pre">Pageable</span></code> オブジェクトより <code class="docutils literal"><span class="pre">Page</span></code> オブジェクトを作成し、Service及びControllerへ返却する。</div>
+</div>
+</td>
+</tr>
+<tr class="row-even"><td><div class="first last line-block">
+<div class="line">(7)</div>
+</div>
+</td>
+<td><div class="first last line-block">
+<div class="line">Controllerは、返却された <code class="docutils literal"><span class="pre">Page</span></code> オブジェクトを、 <code class="docutils literal"><span class="pre">Model</span></code> オブジェクトに格納後、JSPに遷移する。</div>
+</div>
+</td>
+</tr>
+<tr class="row-odd"><td><div class="first last line-block">
+<div class="line">(8)</div>
+</div>
+</td>
+<td><div class="first last line-block">
+<div class="line">JSPは、 <code class="docutils literal"><span class="pre">Model</span></code> オブジェクトに格納されている <code class="docutils literal"><span class="pre">Page</span></code> オブジェクトを取得し、共通ライブラリから提供されているページネーション用のJSPタグライブラリ( <code class="docutils literal"><span class="pre">&lt;t:pagination&gt;</span></code> )を呼び出す。</div>
+<div class="line">ページネーション用のJSPタグライブラリは <code class="docutils literal"><span class="pre">Page</span></code> オブジェクトを参照し、ページネーションリンクを生成する。</div>
+</div>
+</td>
+</tr>
+<tr class="row-even"><td><div class="first last line-block">
+<div class="line">(9)</div>
+</div>
+</td>
+<td><div class="first last line-block">
+<div class="line">JSPで生成したHTMLを、クライアント(ブラウザ)に返却する。</div>
+</div>
+</td>
+</tr>
+<tr class="row-odd"><td><div class="first last line-block">
+<div class="line">(10)</div>
+</div>
+</td>
+<td><div class="first last line-block">
+<div class="line">ページネーションリンクを押下すると、該当ページを表示するためリクエストが送信される。</div>
+</div>
+</td>
+</tr>
+</tbody>
+</table>
+<div class="admonition note">
+<p class="first admonition-title">Note</p>
+<p><strong>Repositoryの実装について</strong></p>
+<p>上記フローの(5)と(6)の処理は、使用するO/R Mapperによって実装方法が異なる。</p>
+<ul class="simple">
+<li>MyBatis3を使用する場合は、Java(Service)及びSQLマッピングファイルの実装が必要である。</li>
+<li>Spring Data JPAを使用する場合は、Spring Data JPAの機能で自動的で行われるため実装は不要である。</li>
+</ul>
+<p>具体的な実装例については、</p>
+<ul class="simple">
+<li><a class="reference internal" href="../DataAccessDetail/DataAccessMyBatis3.html"><span class="doc">データベースアクセス（MyBatis3編）</span></a></li>
+<li><a class="reference internal" href="../DataAccessDetail/DataAccessJpa.html"><span class="doc">データベースアクセス（JPA編）</span></a></li>
+</ul>
+<p class="last">を参照されたい。</p>
+</div>
+</div></blockquote>
+<div class="line-block">
+<div class="line"><br /></div>
+</div>
+</div>
+</div>
+<div class="section" id="how-to-use">
+<h2><a class="toc-backref" href="#id37">4.4.2. How to use</a><a class="headerlink" href="#how-to-use" title="Permalink to this headline">¶</a></h2>
+<p>ページネーション機能の具体的な使用方法を以下に示す。</p>
+<div class="section" id="id11">
+<h3><a class="toc-backref" href="#id38">4.4.2.1. アプリケーションの設定</a><a class="headerlink" href="#id11" title="Permalink to this headline">¶</a></h3>
+<div class="section" id="id12">
+<h4><a class="toc-backref" href="#id39">4.4.2.1.1. Spring Dataのページネーション機能を有効化するための設定</a><a class="headerlink" href="#id12" title="Permalink to this headline">¶</a></h4>
+<div class="line-block">
+<div class="line">リクエストパラメータに指定された検索対象のページ位置(page)、取得件数(size)、ソート条件(sort)を、 <code class="docutils literal"><span class="pre">Pageable</span></code> オブジェクトとしてControllerの引数に設定するための機能を有効化する。</div>
+<div class="line">下記の設定は、ブランクプロジェクトでは設定済みの状態になっている。</div>
+</div>
+<p><code class="file docutils literal"><span class="pre">spring-mvc.xml</span></code></p>
+<blockquote>
+<div><div class="highlight-xml"><div class="highlight"><pre><span></span><span class="nt">&lt;mvc:annotation-driven&gt;</span>
+    <span class="nt">&lt;mvc:argument-resolvers&gt;</span>
+        <span class="c">&lt;!-- (1) --&gt;</span>
+        <span class="nt">&lt;bean</span>
+            <span class="na">class=</span><span class="s">&quot;org.springframework.data.web.PageableHandlerMethodArgumentResolver&quot;</span> <span class="nt">/&gt;</span>
+    <span class="nt">&lt;/mvc:argument-resolvers&gt;</span>
+<span class="nt">&lt;/mvc:annotation-driven&gt;</span>
+</pre></div>
+</div>
+<table border="1" class="colwidths-given docutils">
+<colgroup>
+<col width="10%" />
+<col width="90%" />
+</colgroup>
+<thead valign="bottom">
+<tr class="row-odd"><th class="head">項番</th>
+<th class="head">説明</th>
+</tr>
+</thead>
+<tbody valign="top">
+<tr class="row-even"><td><div class="first last line-block">
+<div class="line">(1)</div>
+</div>
+</td>
+<td><div class="first last line-block">
+<div class="line"><code class="docutils literal"><span class="pre">&lt;mvc:argument-resolvers&gt;</span></code> に <code class="docutils literal"><span class="pre">org.springframework.data.web.PageableHandlerMethodArgumentResolver</span></code> を指定する。</div>
+<div class="line"><code class="docutils literal"><span class="pre">PageableHandlerMethodArgumentResolver</span></code> で指定できるプロパティについては、「 <a class="reference internal" href="#paginatin-appendix-pageablehandlermethodargumentresolver"><span class="std std-ref">PageableHandlerMethodArgumentResolver のプロパティ値について</span></a> 」を参照されたい。</div>
+</div>
+</td>
+</tr>
+</tbody>
+</table>
+</div></blockquote>
+<div class="line-block">
+<div class="line"><br /></div>
+</div>
+</div>
+</div>
+<div class="section" id="id13">
+<h3><a class="toc-backref" href="#id40">4.4.2.2. ページ検索の実装</a><a class="headerlink" href="#id13" title="Permalink to this headline">¶</a></h3>
+<p>ページ検索を実現するための実装方法を以下に示す。</p>
+<div class="section" id="id14">
+<h4><a class="toc-backref" href="#id41">4.4.2.2.1. アプリケーション層の実装</a><a class="headerlink" href="#id14" title="Permalink to this headline">¶</a></h4>
+<p>ページ検索に必要な情報(検索対象のページ位置、取得件数、ソート条件)を、Controllerの引数として受け取り、Serviceのメソッドに引き渡す。</p>
+<ul class="simple">
+<li>Controller</li>
+</ul>
+<blockquote>
+<div><div class="highlight-java"><div class="highlight"><pre><span></span><span class="nd">@RequestMapping</span><span class="p">(</span><span class="s">&quot;list&quot;</span><span class="p">)</span>
+<span class="kd">public</span> <span class="n">String</span> <span class="nf">list</span><span class="p">(</span><span class="nd">@Validated</span> <span class="n">ArticleSearchCriteriaForm</span> <span class="n">form</span><span class="p">,</span>
+        <span class="n">BindingResult</span> <span class="n">result</span><span class="p">,</span>
+        <span class="n">Pageable</span> <span class="n">pageable</span><span class="p">,</span> <span class="c1">// (1)</span>
+        <span class="n">Model</span> <span class="n">model</span><span class="p">)</span> <span class="p">{</span>
+
+    <span class="n">ArticleSearchCriteria</span> <span class="n">criteria</span> <span class="o">=</span> <span class="n">beanMapper</span><span class="p">.</span><span class="na">map</span><span class="p">(</span><span class="n">form</span><span class="p">,</span>
+            <span class="n">ArticleSearchCriteria</span><span class="p">.</span><span class="na">class</span><span class="p">);</span>
+
+    <span class="n">Page</span><span class="o">&lt;</span><span class="n">Article</span><span class="o">&gt;</span> <span class="n">page</span> <span class="o">=</span> <span class="n">articleService</span><span class="p">.</span><span class="na">searchArticle</span><span class="p">(</span><span class="n">criteria</span><span class="p">,</span> <span class="n">pageable</span><span class="p">);</span> <span class="c1">// (2)</span>
+
+    <span class="n">model</span><span class="p">.</span><span class="na">addAttribute</span><span class="p">(</span><span class="s">&quot;page&quot;</span><span class="p">,</span> <span class="n">page</span><span class="p">);</span> <span class="c1">// (3)</span>
+
+    <span class="k">return</span> <span class="s">&quot;article/list&quot;</span><span class="p">;</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+<table border="1" class="colwidths-given docutils">
+<colgroup>
+<col width="10%" />
+<col width="90%" />
+</colgroup>
+<thead valign="bottom">
+<tr class="row-odd"><th class="head">項番</th>
+<th class="head">説明</th>
+</tr>
+</thead>
+<tbody valign="top">
+<tr class="row-even"><td><div class="first last line-block">
+<div class="line">(1)</div>
+</div>
+</td>
+<td><div class="first last line-block">
+<div class="line">ハンドラメソッドの引数として <code class="docutils literal"><span class="pre">Pageable</span></code> を指定する。</div>
+<div class="line"><code class="docutils literal"><span class="pre">Pageable</span></code> オブジェクトには、ページ検索に必要な情報(検索対象のページ位置、取得件数、ソート条件)が格納されている。</div>
+</div>
+</td>
+</tr>
+<tr class="row-odd"><td><div class="first last line-block">
+<div class="line">(2)</div>
+</div>
+</td>
+<td><div class="first last line-block">
+<div class="line">Serviceのメソッドの引数に <code class="docutils literal"><span class="pre">Pageable</span></code> オブジェクトを指定して呼び出す。</div>
+</div>
+</td>
+</tr>
+<tr class="row-even"><td><div class="first last line-block">
+<div class="line">(3)</div>
+</div>
+</td>
+<td><div class="first last line-block">
+<div class="line">Serviceから返却された検索結果( <code class="docutils literal"><span class="pre">Page</span></code> オブジェクト )を <code class="docutils literal"><span class="pre">Model</span></code> に追加する。 <code class="docutils literal"><span class="pre">Model</span></code> に追加することで、View(JSP)から参照できるようになる。</div>
+</div>
+</td>
+</tr>
+</tbody>
+</table>
+<div class="admonition note">
+<p class="first admonition-title">Note</p>
+<p><strong>リクエストパラメータにページ検索に必要な情報の指定がない場合の動作について</strong></p>
+<p>ページ検索に必要な情報(検索対象のページ位置、取得件数、ソート条件)がリクエストパラメータに指定されていない場合は、デフォルト値が適用される。
+デフォルト値は、以下の通り。</p>
+<ul class="simple">
+<li>検索対象のページ位置 : <cite>0</cite> (1ページ目)</li>
+<li>取得件数 : <cite>20</cite></li>
+<li>ソート条件 : <cite>null</cite> (ソート条件なし)</li>
+</ul>
+<p>デフォルト値は、以下の２つの方法で変更することができる。</p>
+<ul class="last simple">
+<li>ハンドラメソッドの <code class="docutils literal"><span class="pre">Pageable</span></code> の引数に、 <code class="docutils literal"><span class="pre">&#64;org.springframework.data.web.PageableDefault</span></code> アノテーションを指定してデフォルト値を定義する。</li>
+<li><code class="docutils literal"><span class="pre">PageableHandlerMethodArgumentResolver</span></code> の <code class="docutils literal"><span class="pre">fallbackPageable</span></code> プロパティにデフォルト値を定義した <code class="docutils literal"><span class="pre">Pageable</span></code> オブジェクトを指定する。</li>
+</ul>
+</div>
+</div></blockquote>
+<div class="line-block">
+<div class="line"><br /></div>
+</div>
+<div class="line-block">
+<div class="line"><code class="docutils literal"><span class="pre">&#64;PageableDefault</span></code> アノテーションを使用してデフォルト値を指定する方法について説明する。</div>
+<div class="line">ページ検索処理毎にデフォルト値を変更する必要がある場合は、<code class="docutils literal"><span class="pre">&#64;PageableDefault</span></code> アノテーションを使ってデフォルト値を指定する。</div>
+</div>
+<blockquote>
+<div><div class="highlight-java"><div class="highlight"><pre><span></span><span class="nd">@RequestMapping</span><span class="p">(</span><span class="s">&quot;list&quot;</span><span class="p">)</span>
+<span class="kd">public</span> <span class="n">String</span> <span class="nf">list</span><span class="p">(</span><span class="nd">@Validated</span> <span class="n">ArticleSearchCriteriaForm</span> <span class="n">form</span><span class="p">,</span>
+        <span class="n">BindingResult</span> <span class="n">result</span><span class="p">,</span>
+        <span class="nd">@PageableDefault</span><span class="p">(</span> <span class="c1">// (1)</span>
+                <span class="n">page</span> <span class="o">=</span> <span class="mi">0</span><span class="p">,</span>    <span class="c1">// (2)</span>
+                <span class="n">size</span> <span class="o">=</span> <span class="mi">50</span><span class="p">,</span>   <span class="c1">// (3)</span>
+                <span class="n">direction</span> <span class="o">=</span> <span class="n">Direction</span><span class="p">.</span><span class="na">DESC</span><span class="p">,</span>  <span class="c1">// (4)</span>
+                <span class="n">sort</span> <span class="o">=</span> <span class="p">{</span>     <span class="c1">// (5)</span>
+                    <span class="s">&quot;publishedDate&quot;</span><span class="p">,</span>
+                    <span class="s">&quot;articleId&quot;</span>
+                    <span class="p">}</span>
+                <span class="p">)</span> <span class="n">Pageable</span> <span class="n">pageable</span><span class="p">,</span>
+        <span class="n">Model</span> <span class="n">model</span><span class="p">)</span> <span class="p">{</span>
+    <span class="c1">// ...</span>
+    <span class="k">return</span> <span class="s">&quot;article/list&quot;</span><span class="p">;</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+<table border="1" class="colwidths-given docutils">
+<colgroup>
+<col width="10%" />
+<col width="70%" />
+<col width="20%" />
+</colgroup>
+<thead valign="bottom">
+<tr class="row-odd"><th class="head">項番</th>
+<th class="head">説明</th>
+<th class="head">デフォルト値</th>
+</tr>
+</thead>
+<tbody valign="top">
+<tr class="row-even"><td><div class="first last line-block">
+<div class="line">(1)</div>
+</div>
+</td>
+<td><div class="first last line-block">
+<div class="line"><code class="docutils literal"><span class="pre">Pageable</span></code> の引数に <code class="docutils literal"><span class="pre">&#64;PageableDefault</span></code> アノテーションを指定する。</div>
+</div>
+</td>
+<td><div class="first last line-block">
+<div class="line">-</div>
+</div>
+</td>
+</tr>
+<tr class="row-odd"><td><div class="first last line-block">
+<div class="line">(2)</div>
+</div>
+</td>
+<td><div class="first last line-block">
+<div class="line">ページ位置のデフォルト値を変更する場合は、 <code class="docutils literal"><span class="pre">&#64;PageableDefault</span></code> のpage属性に値を指定する。</div>
+<div class="line">通常変更する必要はない。</div>
+</div>
+</td>
+<td><div class="first last line-block">
+<div class="line">“<code class="docutils literal"><span class="pre">0</span></code>”</div>
+<div class="line">(1ページ目)</div>
+</div>
+</td>
+</tr>
+<tr class="row-even"><td><div class="first last line-block">
+<div class="line">(3)</div>
+</div>
+</td>
+<td><div class="first last line-block">
+<div class="line">取得件数のデフォルト値を変更する場合は、 <code class="docutils literal"><span class="pre">&#64;PageableDefault</span></code> のsize又はvalue属性に値を指定する。</div>
+</div>
+</td>
+<td><div class="first last line-block">
+<div class="line"><code class="docutils literal"><span class="pre">10</span></code></div>
+</div>
+</td>
+</tr>
+<tr class="row-odd"><td><div class="first last line-block">
+<div class="line">(4)</div>
+</div>
+</td>
+<td><div class="first last line-block">
+<div class="line">ソート条件のデフォルト値を変更する場合は、 <code class="docutils literal"><span class="pre">&#64;PageableDefault</span></code> のdirection属性に値を指定する。</div>
+</div>
+</td>
+<td><div class="first last line-block">
+<div class="line"><code class="docutils literal"><span class="pre">Direction.ASC</span></code></div>
+<div class="line">(昇順)</div>
+</div>
+</td>
+</tr>
+<tr class="row-even"><td><div class="first last line-block">
+<div class="line">(5)</div>
+</div>
+</td>
+<td><div class="first last line-block">
+<div class="line">ソート条件のソート項目を指定する場合は、 <code class="docutils literal"><span class="pre">&#64;PageableDefault</span></code> のsort属性にソート項目を指定する。</div>
+<div class="line">複数の項目でソートする場合は、ソートするプロパティ名を配列で指定する。</div>
+</div>
+</td>
+<td><div class="first last line-block">
+<div class="line">空の配列</div>
+<div class="line">(ソート項目なし)</div>
+</div>
+</td>
+</tr>
+</tbody>
+</table>
+<p>指定したソート条件のクエリへの反映法はO/RMapperにより異なる。</p>
+<p>上記例では、JPAの場合、 <code class="docutils literal"><span class="pre">ORDER</span> <span class="pre">BY</span> <span class="pre">publishedDate</span> <span class="pre">DESC,</span> <span class="pre">articleId</span> <span class="pre">DESC</span></code> というソート条件がQueryに追加される。
+Mybatisの場合、 <code class="docutils literal"><span class="pre">ORDER</span> <span class="pre">BY</span> <span class="pre">publishedDate</span> <span class="pre">DESC,</span> <span class="pre">articleId</span> <span class="pre">DESC</span></code> のようなOrder By句をQueryに追加することになる。</p>
+<p>詳細については</p>
+<ul class="simple">
+<li><a class="reference internal" href="#dataaccessmybatis3howtousepageableobject"><span class="std std-ref">ドメイン層の実装(MyBatis3編)</span></a></li>
+<li><a class="reference internal" href="#dataaccessjpahowtousepageableobject"><span class="std std-ref">ドメイン層の実装(JPA編)</span></a></li>
+</ul>
+<p>を参照されたい。</p>
+<div class="admonition note">
+<p class="first admonition-title">Note</p>
+<p><strong>&#64;PageableDefaultアノテーションで指定できるソート順について</strong></p>
+<p class="last"><code class="docutils literal"><span class="pre">&#64;PageableDefault</span></code> アノテーションで指定できるソート順は昇順か降順のどちらか一つなので、項目ごとに異なるソート順を指定したい場合は <code class="docutils literal"><span class="pre">&#64;org.springframework.data.web.SortDefaults</span></code> アノテーションを使用する必要がある。
+具体的には、 <code class="docutils literal"><span class="pre">ORDER</span> <span class="pre">BY</span> <span class="pre">publishedDate</span> <span class="pre">DESC,</span> <span class="pre">articleId</span> <span class="pre">ASC</span></code> というソート順にしたい場合である。</p>
+</div>
+<div class="admonition tip">
+<p class="first admonition-title">Tip</p>
+<p><strong>取得件数のデフォルト値のみ変更する場合の指定方法</strong></p>
+<p class="last">取得件数のデフォルト値のみ変更する場合は、 <code class="docutils literal"><span class="pre">&#64;PageableDefault(50)</span></code> と指定することもできる。これは <code class="docutils literal"><span class="pre">&#64;PageableDefault(size</span> <span class="pre">=</span> <span class="pre">50)</span></code> と同じ動作となる。</p>
+</div>
+</div></blockquote>
+<div class="line-block">
+<div class="line"><br /></div>
+</div>
+<div class="line-block">
+<div class="line"><code class="docutils literal"><span class="pre">&#64;SortDefaults</span></code> アノテーションを使用してデフォルト値を指定する方法について説明する。</div>
+<div class="line"><code class="docutils literal"><span class="pre">&#64;SortDefaults</span></code> アノテーションは、ソート項目が複数あり、項目ごとに異なるソート順を指定したい場合に使用する。</div>
+</div>
+<blockquote>
+<div><div class="highlight-java"><div class="highlight"><pre><span></span><span class="nd">@RequestMapping</span><span class="p">(</span><span class="s">&quot;list&quot;</span><span class="p">)</span>
+<span class="kd">public</span> <span class="n">String</span> <span class="nf">list</span><span class="p">(</span>
+        <span class="nd">@Validated</span> <span class="n">ArticleSearchCriteriaForm</span> <span class="n">form</span><span class="p">,</span>
+        <span class="n">BindingResult</span> <span class="n">result</span><span class="p">,</span>
+        <span class="nd">@PageableDefault</span><span class="p">(</span><span class="n">size</span> <span class="o">=</span> <span class="mi">50</span><span class="p">)</span>
+        <span class="nd">@SortDefaults</span><span class="p">(</span>  <span class="c1">// (1)</span>
+                <span class="p">{</span>
+                    <span class="nd">@SortDefault</span><span class="p">(</span>  <span class="c1">// (2)</span>
+                                 <span class="n">sort</span> <span class="o">=</span> <span class="s">&quot;publishedDate&quot;</span><span class="p">,</span>    <span class="c1">// (3)</span>
+                                 <span class="n">direction</span> <span class="o">=</span> <span class="n">Direction</span><span class="p">.</span><span class="na">DESC</span> <span class="c1">// (4)</span>
+                                <span class="p">),</span>
+                    <span class="nd">@SortDefault</span><span class="p">(</span>
+                                 <span class="n">sort</span> <span class="o">=</span> <span class="s">&quot;articleId&quot;</span>
+                                <span class="p">)</span>
+                <span class="p">})</span> <span class="n">Pageable</span> <span class="n">pageable</span><span class="p">,</span>
+        <span class="n">Model</span> <span class="n">model</span><span class="p">)</span> <span class="p">{</span>
+    <span class="c1">// ...</span>
+    <span class="k">return</span> <span class="s">&quot;article/list&quot;</span><span class="p">;</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+<table border="1" class="colwidths-given docutils">
+<colgroup>
+<col width="10%" />
+<col width="70%" />
+<col width="20%" />
+</colgroup>
+<thead valign="bottom">
+<tr class="row-odd"><th class="head">項番</th>
+<th class="head">説明</th>
+<th class="head">デフォルト値</th>
+</tr>
+</thead>
+<tbody valign="top">
+<tr class="row-even"><td><div class="first last line-block">
+<div class="line">(1)</div>
+</div>
+</td>
+<td><div class="first last line-block">
+<div class="line"><code class="docutils literal"><span class="pre">Pageable</span></code> の引数に <code class="docutils literal"><span class="pre">&#64;SortDefaults</span></code> アノテーションを指定する。</div>
+<div class="line"><code class="docutils literal"><span class="pre">&#64;SortDefaults</span></code> アノテーションには、複数の <code class="docutils literal"><span class="pre">&#64;org.springframework.data.web.SortDefault</span></code> アノテーションを配列として指定することができる。</div>
+</div>
+</td>
+<td><div class="first last line-block">
+<div class="line">-</div>
+</div>
+</td>
+</tr>
+<tr class="row-odd"><td><div class="first last line-block">
+<div class="line">(2)</div>
+</div>
+</td>
+<td><div class="first last line-block">
+<div class="line"><code class="docutils literal"><span class="pre">&#64;SortDefaults</span></code> アノテーションの value属性に、 <code class="docutils literal"><span class="pre">&#64;SortDefault</span></code> アノテーションを指定する。</div>
+<div class="line">複数指定する場合は配列として指定する。</div>
+</div>
+</td>
+<td><div class="first last line-block">
+<div class="line">-</div>
+</div>
+</td>
+</tr>
+<tr class="row-even"><td><div class="first last line-block">
+<div class="line">(3)</div>
+</div>
+</td>
+<td><div class="first last line-block">
+<div class="line"><code class="docutils literal"><span class="pre">&#64;PageableDefault</span></code> のsort又はvalue属性にソート項目を指定する。</div>
+<div class="line">複数の項目を指定する場合は配列として指定する。</div>
+</div>
+</td>
+<td><div class="first last line-block">
+<div class="line">空の配列</div>
+<div class="line">(ソート項目なし)</div>
+</div>
+</td>
+</tr>
+<tr class="row-odd"><td><div class="first last line-block">
+<div class="line">(4)</div>
+</div>
+</td>
+<td><div class="first last line-block">
+<div class="line">ソート条件のデフォルト値を変更する場合は、<code class="docutils literal"><span class="pre">&#64;PageableDefault</span></code> のdirection属性に値を指定する。</div>
+</div>
+</td>
+<td><div class="first last line-block">
+<div class="line"><code class="docutils literal"><span class="pre">Direction.ASC</span></code></div>
+<div class="line">(昇順)</div>
+</div>
+</td>
+</tr>
+</tbody>
+</table>
+<p>指定したソート条件のクエリへの反映法はO/RMapperにより異なるため、詳細については、</p>
+<ul class="simple">
+<li><a class="reference internal" href="#dataaccessmybatis3howtousepageableobject"><span class="std std-ref">ドメイン層の実装(MyBatis3編)</span></a></li>
+<li><a class="reference internal" href="#dataaccessjpahowtousepageableobject"><span class="std std-ref">ドメイン層の実装(JPA編)</span></a></li>
+</ul>
+<p>を参照されたい。</p>
+<div class="admonition tip">
+<p class="first admonition-title">Tip</p>
+<p><strong>ソート項目のデフォルト値のみ指定する場合の指定方法</strong></p>
+<p class="last">取得項目のみ指定する場合は、 <code class="docutils literal"><span class="pre">&#64;PageableDefault(&quot;articleId&quot;)</span></code> と指定することもできる。
+これは <code class="docutils literal"><span class="pre">&#64;PageableDefault(sort</span> <span class="pre">=</span> <span class="pre">&quot;articleId&quot;)</span></code> や <code class="docutils literal"><span class="pre">&#64;PageableDefault(sort</span> <span class="pre">=</span> <span class="pre">&quot;articleId&quot;,</span> <span class="pre">direction</span> <span class="pre">=</span> <span class="pre">Direction.ASC)</span></code> と同じ動作となる。</p>
+</div>
+</div></blockquote>
+<div class="line-block">
+<div class="line"><br /></div>
+</div>
+<p>アプリケーション全体のデフォルト値を変更する必要がある場合は、 <code class="file docutils literal"><span class="pre">spring-mvc.xml</span></code> に定義した <code class="docutils literal"><span class="pre">PageableHandlerMethodArgumentResolver</span></code>
+の <code class="docutils literal"><span class="pre">fallbackPageable</span></code> プロパティにデフォルト値を定義した <code class="docutils literal"><span class="pre">Pageable</span></code> オブジェクトを指定する。</p>
+<p><code class="docutils literal"><span class="pre">fallbackPageable</span></code> の説明や具体的な設定例については、「 <a class="reference internal" href="#paginatin-appendix-pageablehandlermethodargumentresolver"><span class="std std-ref">PageableHandlerMethodArgumentResolver のプロパティ値について</span></a> 」を参照されたい。</p>
+<div class="line-block">
+<div class="line"><br /></div>
+</div>
+</div>
+<div class="section" id="mybatis3">
+<span id="dataaccessmybatis3howtousepageableobject"></span><h4><a class="toc-backref" href="#id42">4.4.2.2.2. ドメイン層の実装(MyBatis3編)</a><a class="headerlink" href="#mybatis3" title="Permalink to this headline">¶</a></h4>
+<div class="line-block">
+<div class="line">MyBatisを使用してデータベースにアクセスする場合は、Controllerから受け取った <code class="docutils literal"><span class="pre">Pageable</span></code> オブジェクトより、必要な情報を抜き出してRepositoryに引き渡す。</div>
+<div class="line">該当データを抽出するためのSQLやソート条件については、SQLマッピングで実装する必要がある。</div>
+</div>
+<p>ドメイン層で実装するページ検索処理の詳細については、</p>
+<ul class="simple">
+<li><a class="reference internal" href="../DataAccessDetail/DataAccessMyBatis3.html#dataaccessmybatis3howtousefindpageusingmybatisfunction"><span class="std std-ref">Entityのページネーション検索(MyBatis3標準方式)</span></a></li>
+<li><a class="reference internal" href="../DataAccessDetail/DataAccessMyBatis3.html#dataaccessmybatis3howtousefindpageusingsqlfilter"><span class="std std-ref">Entityのページネーション検索(SQL絞り込み方式)</span></a></li>
+<li><a class="reference internal" href="../DataAccessDetail/DataAccessMyBatis3.html#dataaccessmybatis3howtousefindpageusingsort"><span class="std std-ref">Entityのページネーション検索(検索結果のソート)</span></a></li>
+</ul>
+<p>を参照されたい。</p>
+<div class="line-block">
+<div class="line"><br /></div>
+</div>
+</div>
+<div class="section" id="jpa">
+<span id="dataaccessjpahowtousepageableobject"></span><h4><a class="toc-backref" href="#id43">4.4.2.2.3. ドメイン層の実装(JPA編)</a><a class="headerlink" href="#jpa" title="Permalink to this headline">¶</a></h4>
+<p>JPA(Spring Data JPA)を使用してデータベースにアクセスする場合は、Controllerから受け取った <code class="docutils literal"><span class="pre">Pageable</span></code> オブジェクトをRepositoryに引き渡す。</p>
+<p>ドメイン層で実装するページ検索処理の詳細については、</p>
+<ul class="simple">
+<li><a class="reference internal" href="../DataAccessDetail/DataAccessJpa.html#dataaccessjpahowtousefindpage"><span class="std std-ref">条件に一致するEntityのページ検索</span></a></li>
+</ul>
+<p>を参照されたい。</p>
+<div class="line-block">
+<div class="line"><br /></div>
+</div>
+</div>
+</div>
+<div class="section" id="id15">
+<h3><a class="toc-backref" href="#id44">4.4.2.3. JSPの実装(基本編)</a><a class="headerlink" href="#id15" title="Permalink to this headline">¶</a></h3>
+<p>ページ検索処理で取得した <code class="docutils literal"><span class="pre">Page</span></code> オブジェクトを一覧画面に表示し、ページネーションリンク及びページネーション情報(合計件数、合計ページ数、表示ページ数など)を表示する方法を以下に示す。</p>
+<div class="section" id="id16">
+<h4><a class="toc-backref" href="#id45">4.4.2.3.1. 取得データの表示</a><a class="headerlink" href="#id16" title="Permalink to this headline">¶</a></h4>
+<p>ページ検索処理で取得したデータを表示するための実装例を以下に示す。</p>
+<ul class="simple">
+<li>Controller</li>
+</ul>
+<blockquote>
+<div><div class="highlight-java"><div class="highlight"><pre><span></span><span class="nd">@RequestMapping</span><span class="p">(</span><span class="s">&quot;list&quot;</span><span class="p">)</span>
+<span class="kd">public</span> <span class="n">String</span> <span class="nf">list</span><span class="p">(</span><span class="nd">@Validated</span> <span class="n">ArticleSearchCriteriaForm</span> <span class="n">form</span><span class="p">,</span> <span class="n">BindingResult</span> <span class="n">result</span><span class="p">,</span>
+        <span class="n">Pageable</span> <span class="n">pageable</span><span class="p">,</span> <span class="n">Model</span> <span class="n">model</span><span class="p">)</span> <span class="p">{</span>
+
+    <span class="k">if</span> <span class="p">(</span><span class="o">!</span><span class="n">StringUtils</span><span class="p">.</span><span class="na">hasLength</span><span class="p">(</span><span class="n">form</span><span class="p">.</span><span class="na">getWord</span><span class="p">()))</span> <span class="p">{</span>
+        <span class="k">return</span> <span class="s">&quot;article/list&quot;</span><span class="p">;</span>
+    <span class="p">}</span>
+
+    <span class="n">ArticleSearchCriteria</span> <span class="n">criteria</span> <span class="o">=</span> <span class="n">beanMapper</span><span class="p">.</span><span class="na">map</span><span class="p">(</span><span class="n">form</span><span class="p">,</span>
+            <span class="n">ArticleSearchCriteria</span><span class="p">.</span><span class="na">class</span><span class="p">);</span>
+
+    <span class="n">Page</span><span class="o">&lt;</span><span class="n">Article</span><span class="o">&gt;</span> <span class="n">page</span> <span class="o">=</span> <span class="n">articleService</span><span class="p">.</span><span class="na">searchArticle</span><span class="p">(</span><span class="n">criteria</span><span class="p">,</span> <span class="n">pageable</span><span class="p">);</span>
+
+    <span class="n">model</span><span class="p">.</span><span class="na">addAttribute</span><span class="p">(</span><span class="s">&quot;page&quot;</span><span class="p">,</span> <span class="n">page</span><span class="p">);</span> <span class="c1">// (1)</span>
+
+    <span class="k">return</span> <span class="s">&quot;article/list&quot;</span><span class="p">;</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+<table border="1" class="colwidths-given docutils">
+<colgroup>
+<col width="10%" />
+<col width="90%" />
+</colgroup>
+<thead valign="bottom">
+<tr class="row-odd"><th class="head">項番</th>
+<th class="head">説明</th>
+</tr>
+</thead>
+<tbody valign="top">
+<tr class="row-even"><td><div class="first last line-block">
+<div class="line">(1)</div>
+</div>
+</td>
+<td><div class="first last line-block">
+<div class="line"><code class="docutils literal"><span class="pre">page</span></code> という属性名で <code class="docutils literal"><span class="pre">Page</span></code> オブジェクトを <code class="docutils literal"><span class="pre">Model</span></code> に格納する。</div>
+<div class="line">JSPでは <code class="docutils literal"><span class="pre">page</span></code> という属性名を指定して <code class="docutils literal"><span class="pre">Page</span></code> オブジェクトにアクセスすることになる。</div>
+</div>
+</td>
+</tr>
+</tbody>
+</table>
+</div></blockquote>
+<ul class="simple">
+<li>JSP</li>
+</ul>
+<blockquote>
+<div><div class="highlight-jsp"><div class="highlight"><pre><span></span><span class="k">&lt;%-</span><span class="o">-</span> <span class="p">...</span> <span class="o">--</span><span class="k">%&gt;</span>
+
+<span class="k">&lt;%-</span><span class="o">-</span> <span class="p">(</span><span class="mi">1</span><span class="p">)</span> <span class="o">--</span><span class="k">%&gt;</span>
+<span class="nt">&lt;c:when</span> <span class="na">test=</span><span class="s">&quot;${page != null &amp;&amp; page.totalPages != 0}&quot;</span><span class="nt">&gt;</span>
+
+    <span class="nt">&lt;table</span> <span class="na">class=</span><span class="s">&quot;maintable&quot;</span><span class="nt">&gt;</span>
+        <span class="nt">&lt;thead&gt;</span>
+            <span class="nt">&lt;tr&gt;</span>
+                <span class="nt">&lt;th</span> <span class="na">class=</span><span class="s">&quot;no&quot;</span><span class="nt">&gt;</span>No<span class="nt">&lt;/th&gt;</span>
+                <span class="nt">&lt;th</span> <span class="na">class=</span><span class="s">&quot;articleClass&quot;</span><span class="nt">&gt;</span>Class<span class="nt">&lt;/th&gt;</span>
+                <span class="nt">&lt;th</span> <span class="na">class=</span><span class="s">&quot;title&quot;</span><span class="nt">&gt;</span>Title<span class="nt">&lt;/th&gt;</span>
+                <span class="nt">&lt;th</span> <span class="na">class=</span><span class="s">&quot;overview&quot;</span><span class="nt">&gt;</span>Overview<span class="nt">&lt;/th&gt;</span>
+                <span class="nt">&lt;th</span> <span class="na">class=</span><span class="s">&quot;date&quot;</span><span class="nt">&gt;</span>Published Date<span class="nt">&lt;/th&gt;</span>
+            <span class="nt">&lt;/tr&gt;</span>
+        <span class="nt">&lt;/thead&gt;</span>
+
+        <span class="k">&lt;%-</span><span class="o">-</span> <span class="p">(</span><span class="mi">2</span><span class="p">)</span> <span class="o">--</span><span class="k">%&gt;</span>
+        <span class="nt">&lt;c:forEach</span> <span class="na">var=</span><span class="s">&quot;article&quot;</span> <span class="na">items=</span><span class="s">&quot;${page.content}&quot;</span> <span class="na">varStatus=</span><span class="s">&quot;rowStatus&quot;</span><span class="nt">&gt;</span>
+            <span class="nt">&lt;tr&gt;</span>
+                <span class="nt">&lt;td</span> <span class="na">class=</span><span class="s">&quot;no&quot;</span><span class="nt">&gt;</span>
+                    ${(page.number * page.size) + rowStatus.count}
+                <span class="nt">&lt;/td&gt;</span>
+                <span class="nt">&lt;td</span> <span class="na">class=</span><span class="s">&quot;articleClass&quot;</span><span class="nt">&gt;</span>
+                    ${f:h(article.articleClass.name)}
+                <span class="nt">&lt;/td&gt;</span>
+                <span class="nt">&lt;td</span> <span class="na">class=</span><span class="s">&quot;title&quot;</span><span class="nt">&gt;</span>
+                    ${f:h(article.title)}
+                <span class="nt">&lt;/td&gt;</span>
+                <span class="nt">&lt;td</span> <span class="na">class=</span><span class="s">&quot;overview&quot;</span><span class="nt">&gt;</span>
+                    ${f:h(article.overview)}
+                <span class="nt">&lt;/td&gt;</span>
+                <span class="nt">&lt;td</span> <span class="na">class=</span><span class="s">&quot;date&quot;</span><span class="nt">&gt;</span>
+                    ${f:h(article.publishedDate)}
+                <span class="nt">&lt;/td&gt;</span>
+            <span class="nt">&lt;/tr&gt;</span>
+        <span class="nt">&lt;/c:forEach&gt;</span>
+
+    <span class="nt">&lt;/table&gt;</span>
+
+    <span class="nt">&lt;div</span> <span class="na">class=</span><span class="s">&quot;paginationPart&quot;</span><span class="nt">&gt;</span>
+
+    <span class="k">&lt;%-</span><span class="o">-</span> <span class="p">...</span> <span class="o">--</span><span class="k">%&gt;</span>
+
+    <span class="nt">&lt;/div&gt;</span>
+<span class="nt">&lt;/c:when&gt;</span>
+
+<span class="k">&lt;%-</span><span class="o">-</span> <span class="p">...</span> <span class="o">--</span><span class="k">%&gt;</span>
+</pre></div>
+</div>
+<table border="1" class="colwidths-given docutils">
+<colgroup>
+<col width="10%" />
+<col width="90%" />
+</colgroup>
+<thead valign="bottom">
+<tr class="row-odd"><th class="head">項番</th>
+<th class="head">説明</th>
+</tr>
+</thead>
+<tbody valign="top">
+<tr class="row-even"><td><div class="first last line-block">
+<div class="line">(1)</div>
+</div>
+</td>
+<td><div class="first last line-block">
+<div class="line">上記例では、条件に一致するデータが存在するかチェックを行い、一致するデータがない場合はヘッダ行も含めて表示していない。</div>
+<div class="line">一致するデータがない場合でもヘッダ行は表示させる必要がある場合は、この分岐は不要となる。</div>
+</div>
+</td>
+</tr>
+<tr class="row-odd"><td><div class="first last line-block">
+<div class="line">(2)</div>
+</div>
+</td>
+<td><div class="first last line-block">
+<div class="line">JSTLの <code class="docutils literal"><span class="pre">&lt;c:forEach&gt;</span></code> タグを使用して、取得したデータの一覧を表示する。</div>
+<div class="line">取得したデータは、 <code class="docutils literal"><span class="pre">Page</span></code> オブジェクトの <code class="docutils literal"><span class="pre">content</span></code> プロパティにリスト形式で格納されている。</div>
+</div>
+</td>
+</tr>
+</tbody>
+</table>
+</div></blockquote>
+<ul class="simple">
+<li>上記JSPで出力される画面例</li>
+</ul>
+<blockquote>
+<div><div class="figure align-center">
+<a class="reference internal image-reference" href="../../_images/pagination-how_to_use_view_list_screen.png"><img alt="Screen image of content table" src="../../_images/pagination-how_to_use_view_list_screen.png" style="width: 100%;" /></a>
+</div>
+</div></blockquote>
+<div class="line-block">
+<div class="line"><br /></div>
+</div>
+</div>
+<div class="section" id="pagination-how-to-use-make-jsp-basic-paginationlink">
+<span id="id17"></span><h4><a class="toc-backref" href="#id46">4.4.2.3.2. ページネーションリンクの表示</a><a class="headerlink" href="#pagination-how-to-use-make-jsp-basic-paginationlink" title="Permalink to this headline">¶</a></h4>
+<p>ページ移動するためのリンク(ページネーションリンク)を表示するための実装例を以下に示す。</p>
+<p>共通ライブラリより提供しているJSPタグライブラリを使用して、ページネーションリンクを出力する。</p>
+<ul class="simple">
+<li><code class="file docutils literal"><span class="pre">include.jsp</span></code></li>
+</ul>
+<blockquote>
+<div><p>共通ライブラリより提供しているJSPタグライブラリの宣言を行う。ブランクプロジェクトでは設定済みの状態となっている。</p>
+<div class="highlight-jsp"><div class="highlight"><pre><span></span><span class="k">&lt;%@</span> <span class="n">taglib</span> <span class="n">uri</span><span class="o">=</span><span class="s">&quot;http://terasoluna.org/tags&quot;</span> <span class="n">prefix</span><span class="o">=</span><span class="s">&quot;t&quot;</span><span class="k">%&gt;</span>       <span class="k">&lt;%-</span><span class="o">-</span> <span class="p">(</span><span class="mi">1</span><span class="p">)</span> <span class="o">--</span><span class="k">%&gt;</span>
+<span class="k">&lt;%@</span> <span class="n">taglib</span> <span class="n">uri</span><span class="o">=</span><span class="s">&quot;http://terasoluna.org/functions&quot;</span> <span class="n">prefix</span><span class="o">=</span><span class="s">&quot;f&quot;</span><span class="k">%&gt;</span>  <span class="k">&lt;%-</span><span class="o">-</span> <span class="p">(</span><span class="mi">2</span><span class="p">)</span> <span class="o">--</span><span class="k">%&gt;</span>
+</pre></div>
+</div>
+<table border="1" class="colwidths-given docutils">
+<colgroup>
+<col width="10%" />
+<col width="90%" />
+</colgroup>
+<thead valign="bottom">
+<tr class="row-odd"><th class="head">項番</th>
+<th class="head">説明</th>
+</tr>
+</thead>
+<tbody valign="top">
+<tr class="row-even"><td><div class="first last line-block">
+<div class="line">(1)</div>
+</div>
+</td>
+<td><div class="first last line-block">
+<div class="line">ページネーションリンクを表示するためのJSPタグが格納されている。</div>
+</div>
+</td>
+</tr>
+<tr class="row-odd"><td><div class="first last line-block">
+<div class="line">(2)</div>
+</div>
+</td>
+<td><div class="first last line-block">
+<div class="line">ページネーションリンクを使う際に利用するJSPのELファンクションが格納されている。</div>
+</div>
+</td>
+</tr>
+</tbody>
+</table>
+</div></blockquote>
+<ul class="simple">
+<li>JSP</li>
+</ul>
+<blockquote>
+<div><div class="highlight-jsp"><div class="highlight"><pre><span></span><span class="nt">&lt;t:pagination</span> <span class="na">page=</span><span class="s">&quot;${page}&quot;</span> <span class="nt">/&gt;</span> <span class="k">&lt;%-</span><span class="o">-</span> <span class="p">(</span><span class="mi">3</span><span class="p">)</span> <span class="o">--</span><span class="k">%&gt;</span>
+</pre></div>
+</div>
+<table border="1" class="colwidths-given docutils">
+<colgroup>
+<col width="10%" />
+<col width="90%" />
+</colgroup>
+<thead valign="bottom">
+<tr class="row-odd"><th class="head">項番</th>
+<th class="head">説明</th>
+</tr>
+</thead>
+<tbody valign="top">
+<tr class="row-even"><td><div class="first last line-block">
+<div class="line">(3)</div>
+</div>
+</td>
+<td><div class="first last line-block">
+<div class="line"><code class="docutils literal"><span class="pre">&lt;t:pagination&gt;</span></code> タグを使用する。 page属性には、 Controllerで <code class="docutils literal"><span class="pre">Model</span></code> に格納した <code class="docutils literal"><span class="pre">Page</span></code> オブジェクトを指定する。</div>
+</div>
+</td>
+</tr>
+</tbody>
+</table>
+</div></blockquote>
+<div class="line-block">
+<div class="line"><br /></div>
+</div>
+<ul class="simple">
+<li>出力されるHTML</li>
+</ul>
+<blockquote>
+<div><p>下記の出力例は、<code class="docutils literal"><span class="pre">?page=0&amp;size=6</span></code> を指定して検索した際の結果である。</p>
+<div class="highlight-html"><div class="highlight"><pre><span></span> <span class="p">&lt;</span><span class="nt">ul</span><span class="p">&gt;</span>
+     <span class="p">&lt;</span><span class="nt">li</span> <span class="na">class</span><span class="o">=</span><span class="s">&quot;disabled&quot;</span><span class="p">&gt;&lt;</span><span class="nt">a</span> <span class="na">href</span><span class="o">=</span><span class="s">&quot;javascript:void(0)&quot;</span><span class="p">&gt;</span><span class="ni">&amp;lt;&amp;lt;</span><span class="p">&lt;/</span><span class="nt">a</span><span class="p">&gt;&lt;/</span><span class="nt">li</span><span class="p">&gt;</span>
+     <span class="p">&lt;</span><span class="nt">li</span> <span class="na">class</span><span class="o">=</span><span class="s">&quot;disabled&quot;</span><span class="p">&gt;&lt;</span><span class="nt">a</span> <span class="na">href</span><span class="o">=</span><span class="s">&quot;javascript:void(0)&quot;</span><span class="p">&gt;</span><span class="ni">&amp;lt;</span><span class="p">&lt;/</span><span class="nt">a</span><span class="p">&gt;&lt;/</span><span class="nt">li</span><span class="p">&gt;</span>
+     <span class="p">&lt;</span><span class="nt">li</span> <span class="na">class</span><span class="o">=</span><span class="s">&quot;active&quot;</span><span class="p">&gt;&lt;</span><span class="nt">a</span> <span class="na">href</span><span class="o">=</span><span class="s">&quot;javascript:void(0)&quot;</span><span class="p">&gt;</span>1<span class="p">&lt;/</span><span class="nt">a</span><span class="p">&gt;&lt;/</span><span class="nt">li</span><span class="p">&gt;</span>
+     <span class="p">&lt;</span><span class="nt">li</span><span class="p">&gt;&lt;</span><span class="nt">a</span> <span class="na">href</span><span class="o">=</span><span class="s">&quot;?page=1&amp;size=6&quot;</span><span class="p">&gt;</span>2<span class="p">&lt;/</span><span class="nt">a</span><span class="p">&gt;&lt;/</span><span class="nt">li</span><span class="p">&gt;</span>
+     <span class="p">&lt;</span><span class="nt">li</span><span class="p">&gt;&lt;</span><span class="nt">a</span> <span class="na">href</span><span class="o">=</span><span class="s">&quot;?page=2&amp;size=6&quot;</span><span class="p">&gt;</span>3<span class="p">&lt;/</span><span class="nt">a</span><span class="p">&gt;&lt;/</span><span class="nt">li</span><span class="p">&gt;</span>
+     <span class="p">&lt;</span><span class="nt">li</span><span class="p">&gt;&lt;</span><span class="nt">a</span> <span class="na">href</span><span class="o">=</span><span class="s">&quot;?page=3&amp;size=6&quot;</span><span class="p">&gt;</span>4<span class="p">&lt;/</span><span class="nt">a</span><span class="p">&gt;&lt;/</span><span class="nt">li</span><span class="p">&gt;</span>
+     <span class="p">&lt;</span><span class="nt">li</span><span class="p">&gt;&lt;</span><span class="nt">a</span> <span class="na">href</span><span class="o">=</span><span class="s">&quot;?page=4&amp;size=6&quot;</span><span class="p">&gt;</span>5<span class="p">&lt;/</span><span class="nt">a</span><span class="p">&gt;&lt;/</span><span class="nt">li</span><span class="p">&gt;</span>
+     <span class="p">&lt;</span><span class="nt">li</span><span class="p">&gt;&lt;</span><span class="nt">a</span> <span class="na">href</span><span class="o">=</span><span class="s">&quot;?page=5&amp;size=6&quot;</span><span class="p">&gt;</span>6<span class="p">&lt;/</span><span class="nt">a</span><span class="p">&gt;&lt;/</span><span class="nt">li</span><span class="p">&gt;</span>
+     <span class="p">&lt;</span><span class="nt">li</span><span class="p">&gt;&lt;</span><span class="nt">a</span> <span class="na">href</span><span class="o">=</span><span class="s">&quot;?page=6&amp;size=6&quot;</span><span class="p">&gt;</span>7<span class="p">&lt;/</span><span class="nt">a</span><span class="p">&gt;&lt;/</span><span class="nt">li</span><span class="p">&gt;</span>
+     <span class="p">&lt;</span><span class="nt">li</span><span class="p">&gt;&lt;</span><span class="nt">a</span> <span class="na">href</span><span class="o">=</span><span class="s">&quot;?page=7&amp;size=6&quot;</span><span class="p">&gt;</span>8<span class="p">&lt;/</span><span class="nt">a</span><span class="p">&gt;&lt;/</span><span class="nt">li</span><span class="p">&gt;</span>
+     <span class="p">&lt;</span><span class="nt">li</span><span class="p">&gt;&lt;</span><span class="nt">a</span> <span class="na">href</span><span class="o">=</span><span class="s">&quot;?page=8&amp;size=6&quot;</span><span class="p">&gt;</span>9<span class="p">&lt;/</span><span class="nt">a</span><span class="p">&gt;&lt;/</span><span class="nt">li</span><span class="p">&gt;</span>
+     <span class="p">&lt;</span><span class="nt">li</span><span class="p">&gt;&lt;</span><span class="nt">a</span> <span class="na">href</span><span class="o">=</span><span class="s">&quot;?page=9&amp;size=6&quot;</span><span class="p">&gt;</span>10<span class="p">&lt;/</span><span class="nt">a</span><span class="p">&gt;&lt;/</span><span class="nt">li</span><span class="p">&gt;</span>
+     <span class="p">&lt;</span><span class="nt">li</span><span class="p">&gt;&lt;</span><span class="nt">a</span> <span class="na">href</span><span class="o">=</span><span class="s">&quot;?page=1&amp;size=6&quot;</span><span class="p">&gt;</span><span class="ni">&amp;gt;</span><span class="p">&lt;/</span><span class="nt">a</span><span class="p">&gt;&lt;/</span><span class="nt">li</span><span class="p">&gt;</span>
+     <span class="p">&lt;</span><span class="nt">li</span><span class="p">&gt;&lt;</span><span class="nt">a</span> <span class="na">href</span><span class="o">=</span><span class="s">&quot;?page=9&amp;size=6&quot;</span><span class="p">&gt;</span><span class="ni">&amp;gt;&amp;gt;</span><span class="p">&lt;/</span><span class="nt">a</span><span class="p">&gt;&lt;/</span><span class="nt">li</span><span class="p">&gt;</span>
+<span class="p">&lt;/</span><span class="nt">ul</span><span class="p">&gt;</span>
+</pre></div>
+</div>
+</div></blockquote>
+<div class="line-block">
+<div class="line"><br /></div>
+</div>
+<div class="line-block">
+<div class="line">ページネーションリンク用のスタイルシートを用意しないと以下のような表示となる。</div>
+<div class="line">見てわかる通り、ページネーションリンクとして成立していない。</div>
+</div>
+<blockquote>
+<div><div class="figure">
+<a class="reference internal image-reference" href="../../_images/pagination-how_to_use_jsp_not_applied_css.png"><img alt="Screen image that style sheet is not applied." src="../../_images/pagination-how_to_use_jsp_not_applied_css.png" style="width: 120px; height: 290px;" /></a>
+</div>
+</div></blockquote>
+<div class="line-block">
+<div class="line"><br /></div>
+</div>
+<div class="line-block">
+<div class="line">ページネーションリンクとして成立する最低限のスタイルシートの定義の追加と、JSPの変更を行うと、以下のような表示となる。</div>
+</div>
+<ul class="simple">
+<li>画面イメージ</li>
+</ul>
+<blockquote>
+<div><div class="figure">
+<a class="reference internal image-reference" href="../../_images/pagination-how_to_use_jsp_applied_simple_css.png"><img alt="Screen image that simple style sheet applied." src="../../_images/pagination-how_to_use_jsp_applied_simple_css.png" style="width: 290px; height: 40px;" /></a>
+</div>
+</div></blockquote>
+<ul class="simple">
+<li>JSP</li>
+</ul>
+<blockquote>
+<div><div class="highlight-jsp"><div class="highlight"><pre><span></span><span class="k">&lt;%-</span><span class="o">-</span> <span class="p">...</span> <span class="o">--</span><span class="k">%&gt;</span>
+
+<span class="nt">&lt;t:pagination</span> <span class="na">page=</span><span class="s">&quot;${page}&quot;</span>
+    <span class="na">outerElementClass=</span><span class="s">&quot;pagination&quot;</span> <span class="nt">/&gt;</span> <span class="k">&lt;%-</span><span class="o">-</span> <span class="p">(</span><span class="mi">4</span><span class="p">)</span> <span class="o">--</span><span class="k">%&gt;</span>
+
+<span class="k">&lt;%-</span><span class="o">-</span> <span class="p">...</span> <span class="o">--</span><span class="k">%&gt;</span>
+</pre></div>
+</div>
+<table border="1" class="colwidths-given docutils">
+<colgroup>
+<col width="10%" />
+<col width="90%" />
+</colgroup>
+<thead valign="bottom">
+<tr class="row-odd"><th class="head">項番</th>
+<th class="head">説明</th>
+</tr>
+</thead>
+<tbody valign="top">
+<tr class="row-even"><td><div class="first last line-block">
+<div class="line">(4)</div>
+</div>
+</td>
+<td><div class="first last line-block">
+<div class="line">ページネーションリンクであることを示すクラス名を指定する。</div>
+<div class="line">クラス名を指定することによってスタイルシートで指定するスタイルの適用範囲をページネーションリンクに限定することができる。</div>
+</div>
+</td>
+</tr>
+</tbody>
+</table>
+</div></blockquote>
+<ul class="simple">
+<li>スタイルシート</li>
+</ul>
+<blockquote>
+<div><div class="highlight-css"><div class="highlight"><pre><span></span><span class="p">.</span><span class="nc">pagination</span> <span class="nt">li</span> <span class="p">{</span>
+    <span class="k">display</span><span class="p">:</span> <span class="kc">inline</span><span class="p">;</span>
+<span class="p">}</span>
+
+<span class="p">.</span><span class="nc">pagination</span> <span class="nt">li</span><span class="o">&gt;</span><span class="nt">a</span> <span class="p">{</span>
+    <span class="k">margin-left</span><span class="p">:</span> <span class="mi">10</span><span class="kt">px</span><span class="p">;</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+</div></blockquote>
+<div class="line-block">
+<div class="line"><br /></div>
+</div>
+<p>ページネーションリンクとして成立したが、以下2つの問題が残る。</p>
+<ul class="simple">
+<li>押下できるリンクと押下できないリンクの区別ができない。</li>
+<li>現在表示しているページ位置がわからない。</li>
+</ul>
+<div class="line-block">
+<div class="line"><br /></div>
+</div>
+<p>上記の問題を解決する手段として、Bootstrap v3.0.0のスタイルシートと適用すると、以下のような表示となる。</p>
+<ul class="simple">
+<li>画面イメージ</li>
+</ul>
+<blockquote>
+<div><div class="figure">
+<a class="reference internal image-reference" href="../../_images/pagination-how_to_use_jsp_applied_bootstrap_v3_0_0_css.png"><img alt="Screen image that v3.0.0 of bootstrap is applied." src="../../_images/pagination-how_to_use_jsp_applied_bootstrap_v3_0_0_css.png" style="width: 520px; height: 70px;" /></a>
+</div>
+</div></blockquote>
+<ul class="simple">
+<li>スタイルシート</li>
+</ul>
+<blockquote>
+<div><div class="line-block">
+<div class="line">bootstrap v3.0.0 の cssファイルを <code class="docutils literal"><span class="pre">$WEB_APP_ROOT/resources/vendor/bootstrap-3.0.0/css/bootstrap.css</span></code> に配置する。</div>
+<div class="line">以下、ページネーション関連のスタイル定義の抜粋。</div>
+</div>
+<div class="highlight-css"><div class="highlight"><pre><span></span><span class="p">.</span><span class="nc">pagination</span> <span class="p">{</span>
+  <span class="k">display</span><span class="p">:</span> <span class="kc">inline-block</span><span class="p">;</span>
+  <span class="k">padding-left</span><span class="p">:</span> <span class="mi">0</span><span class="p">;</span>
+  <span class="k">margin</span><span class="p">:</span> <span class="mi">20</span><span class="kt">px</span> <span class="mi">0</span><span class="p">;</span>
+  <span class="k">border-radius</span><span class="p">:</span> <span class="mi">4</span><span class="kt">px</span><span class="p">;</span>
+<span class="p">}</span>
+
+<span class="p">.</span><span class="nc">pagination</span> <span class="o">&gt;</span> <span class="nt">li</span> <span class="p">{</span>
+  <span class="k">display</span><span class="p">:</span> <span class="kc">inline</span><span class="p">;</span>
+<span class="p">}</span>
+
+<span class="p">.</span><span class="nc">pagination</span> <span class="o">&gt;</span> <span class="nt">li</span> <span class="o">&gt;</span> <span class="nt">a</span><span class="o">,</span>
+<span class="p">.</span><span class="nc">pagination</span> <span class="o">&gt;</span> <span class="nt">li</span> <span class="o">&gt;</span> <span class="nt">span</span> <span class="p">{</span>
+  <span class="k">position</span><span class="p">:</span> <span class="kc">relative</span><span class="p">;</span>
+  <span class="k">float</span><span class="p">:</span> <span class="kc">left</span><span class="p">;</span>
+  <span class="k">padding</span><span class="p">:</span> <span class="mi">6</span><span class="kt">px</span> <span class="mi">12</span><span class="kt">px</span><span class="p">;</span>
+  <span class="k">margin-left</span><span class="p">:</span> <span class="mi">-1</span><span class="kt">px</span><span class="p">;</span>
+  <span class="k">line-height</span><span class="p">:</span> <span class="mf">1.428571429</span><span class="p">;</span>
+  <span class="k">text-decoration</span><span class="p">:</span> <span class="kc">none</span><span class="p">;</span>
+  <span class="k">background-color</span><span class="p">:</span> <span class="mh">#ffffff</span><span class="p">;</span>
+  <span class="k">border</span><span class="p">:</span> <span class="mi">1</span><span class="kt">px</span> <span class="kc">solid</span> <span class="mh">#dddddd</span><span class="p">;</span>
+<span class="p">}</span>
+
+<span class="p">.</span><span class="nc">pagination</span> <span class="o">&gt;</span> <span class="nt">li</span><span class="p">:</span><span class="nd">first-child</span> <span class="o">&gt;</span> <span class="nt">a</span><span class="o">,</span>
+<span class="p">.</span><span class="nc">pagination</span> <span class="o">&gt;</span> <span class="nt">li</span><span class="p">:</span><span class="nd">first-child</span> <span class="o">&gt;</span> <span class="nt">span</span> <span class="p">{</span>
+  <span class="k">margin-left</span><span class="p">:</span> <span class="mi">0</span><span class="p">;</span>
+  <span class="k">border-bottom-left-radius</span><span class="p">:</span> <span class="mi">4</span><span class="kt">px</span><span class="p">;</span>
+  <span class="k">border-top-left-radius</span><span class="p">:</span> <span class="mi">4</span><span class="kt">px</span><span class="p">;</span>
+<span class="p">}</span>
+
+<span class="p">.</span><span class="nc">pagination</span> <span class="o">&gt;</span> <span class="nt">li</span><span class="p">:</span><span class="nd">last-child</span> <span class="o">&gt;</span> <span class="nt">a</span><span class="o">,</span>
+<span class="p">.</span><span class="nc">pagination</span> <span class="o">&gt;</span> <span class="nt">li</span><span class="p">:</span><span class="nd">last-child</span> <span class="o">&gt;</span> <span class="nt">span</span> <span class="p">{</span>
+  <span class="k">border-top-right-radius</span><span class="p">:</span> <span class="mi">4</span><span class="kt">px</span><span class="p">;</span>
+  <span class="k">border-bottom-right-radius</span><span class="p">:</span> <span class="mi">4</span><span class="kt">px</span><span class="p">;</span>
+<span class="p">}</span>
+
+<span class="p">.</span><span class="nc">pagination</span> <span class="o">&gt;</span> <span class="nt">li</span> <span class="o">&gt;</span> <span class="nt">a</span><span class="p">:</span><span class="nd">hover</span><span class="o">,</span>
+<span class="p">.</span><span class="nc">pagination</span> <span class="o">&gt;</span> <span class="nt">li</span> <span class="o">&gt;</span> <span class="nt">span</span><span class="p">:</span><span class="nd">hover</span><span class="o">,</span>
+<span class="p">.</span><span class="nc">pagination</span> <span class="o">&gt;</span> <span class="nt">li</span> <span class="o">&gt;</span> <span class="nt">a</span><span class="p">:</span><span class="nd">focus</span><span class="o">,</span>
+<span class="p">.</span><span class="nc">pagination</span> <span class="o">&gt;</span> <span class="nt">li</span> <span class="o">&gt;</span> <span class="nt">span</span><span class="p">:</span><span class="nd">focus</span> <span class="p">{</span>
+  <span class="k">background-color</span><span class="p">:</span> <span class="mh">#eeeeee</span><span class="p">;</span>
+<span class="p">}</span>
+
+<span class="p">.</span><span class="nc">pagination</span> <span class="o">&gt;</span> <span class="p">.</span><span class="nc">active</span> <span class="o">&gt;</span> <span class="nt">a</span><span class="o">,</span>
+<span class="p">.</span><span class="nc">pagination</span> <span class="o">&gt;</span> <span class="p">.</span><span class="nc">active</span> <span class="o">&gt;</span> <span class="nt">span</span><span class="o">,</span>
+<span class="p">.</span><span class="nc">pagination</span> <span class="o">&gt;</span> <span class="p">.</span><span class="nc">active</span> <span class="o">&gt;</span> <span class="nt">a</span><span class="p">:</span><span class="nd">hover</span><span class="o">,</span>
+<span class="p">.</span><span class="nc">pagination</span> <span class="o">&gt;</span> <span class="p">.</span><span class="nc">active</span> <span class="o">&gt;</span> <span class="nt">span</span><span class="p">:</span><span class="nd">hover</span><span class="o">,</span>
+<span class="p">.</span><span class="nc">pagination</span> <span class="o">&gt;</span> <span class="p">.</span><span class="nc">active</span> <span class="o">&gt;</span> <span class="nt">a</span><span class="p">:</span><span class="nd">focus</span><span class="o">,</span>
+<span class="p">.</span><span class="nc">pagination</span> <span class="o">&gt;</span> <span class="p">.</span><span class="nc">active</span> <span class="o">&gt;</span> <span class="nt">span</span><span class="p">:</span><span class="nd">focus</span> <span class="p">{</span>
+  <span class="k">z-index</span><span class="p">:</span> <span class="mi">2</span><span class="p">;</span>
+  <span class="k">color</span><span class="p">:</span> <span class="mh">#ffffff</span><span class="p">;</span>
+  <span class="k">cursor</span><span class="p">:</span> <span class="kc">default</span><span class="p">;</span>
+  <span class="k">background-color</span><span class="p">:</span> <span class="mh">#428bca</span><span class="p">;</span>
+  <span class="k">border-color</span><span class="p">:</span> <span class="mh">#428bca</span><span class="p">;</span>
+<span class="p">}</span>
+
+<span class="p">.</span><span class="nc">pagination</span> <span class="o">&gt;</span> <span class="p">.</span><span class="nc">disabled</span> <span class="o">&gt;</span> <span class="nt">span</span><span class="o">,</span>
+<span class="p">.</span><span class="nc">pagination</span> <span class="o">&gt;</span> <span class="p">.</span><span class="nc">disabled</span> <span class="o">&gt;</span> <span class="nt">a</span><span class="o">,</span>
+<span class="p">.</span><span class="nc">pagination</span> <span class="o">&gt;</span> <span class="p">.</span><span class="nc">disabled</span> <span class="o">&gt;</span> <span class="nt">a</span><span class="p">:</span><span class="nd">hover</span><span class="o">,</span>
+<span class="p">.</span><span class="nc">pagination</span> <span class="o">&gt;</span> <span class="p">.</span><span class="nc">disabled</span> <span class="o">&gt;</span> <span class="nt">a</span><span class="p">:</span><span class="nd">focus</span> <span class="p">{</span>
+  <span class="k">color</span><span class="p">:</span> <span class="mh">#999999</span><span class="p">;</span>
+  <span class="k">cursor</span><span class="p">:</span> <span class="kc">not-allowed</span><span class="p">;</span>
+  <span class="k">background-color</span><span class="p">:</span> <span class="mh">#ffffff</span><span class="p">;</span>
+  <span class="k">border-color</span><span class="p">:</span> <span class="mh">#dddddd</span><span class="p">;</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+</div></blockquote>
+<ul class="simple">
+<li>JSP</li>
+</ul>
+<blockquote>
+<div><p>JSPでは配置したcssファイルを読み込む定義を追加する。</p>
+<div class="highlight-jsp"><div class="highlight"><pre><span></span><span class="nt">&lt;link</span> <span class="na">rel=</span><span class="s">&quot;stylesheet&quot;</span>
+    <span class="na">href=</span><span class="s">&quot;${pageContext.request.contextPath}/resources/vendor/bootstrap-3.0.0/css/bootstrap.css&quot;</span>
+    <span class="na">type=</span><span class="s">&quot;text/css&quot;</span> <span class="na">media=</span><span class="s">&quot;screen, projection&quot;</span><span class="nt">&gt;</span>
+</pre></div>
+</div>
+</div></blockquote>
+<div class="line-block">
+<div class="line"><br /></div>
+</div>
+</div>
+<div class="section" id="id18">
+<h4><a class="toc-backref" href="#id47">4.4.2.3.3. ページネーション情報の表示</a><a class="headerlink" href="#id18" title="Permalink to this headline">¶</a></h4>
+<p>ページネーションに関連する情報(合計件数、合計ページ数、表示ページ数など)を表示するための実装例を以下に示す。</p>
+<ul class="simple">
+<li>画面例</li>
+</ul>
+<blockquote>
+<div><div class="figure">
+<a class="reference internal image-reference" href="../../_images/pagination-how_to_use_view_pagination_info1.png"><img alt="Screen image of pagination information(total results, current pages, total pages)" src="../../_images/pagination-how_to_use_view_pagination_info1.png" style="width: 400px; height: 250px;" /></a>
+</div>
+</div></blockquote>
+<ul class="simple">
+<li>JSP</li>
+</ul>
+<blockquote>
+<div><div class="highlight-jsp"><div class="highlight"><pre><span></span><span class="nt">&lt;div&gt;</span>
+    <span class="nt">&lt;fmt:formatNumber</span> <span class="na">value=</span><span class="s">&quot;${page.totalElements}&quot;</span> <span class="nt">/&gt;</span> results <span class="k">&lt;%-</span><span class="o">-</span> <span class="p">(</span><span class="mi">1</span><span class="p">)</span> <span class="o">--</span><span class="k">%&gt;</span>
+<span class="nt">&lt;/div&gt;</span>
+<span class="nt">&lt;div&gt;</span>
+    ${f:h(page.number + 1) } /       <span class="k">&lt;%-</span><span class="o">-</span> <span class="p">(</span><span class="mi">2</span><span class="p">)</span> <span class="o">--</span><span class="k">%&gt;</span>
+    ${f:h(page.totalPages)} Pages    <span class="k">&lt;%-</span><span class="o">-</span> <span class="p">(</span><span class="mi">3</span><span class="p">)</span> <span class="o">--</span><span class="k">%&gt;</span>
+<span class="nt">&lt;/div&gt;</span>
+</pre></div>
+</div>
+<table border="1" class="colwidths-given docutils">
+<colgroup>
+<col width="10%" />
+<col width="90%" />
+</colgroup>
+<thead valign="bottom">
+<tr class="row-odd"><th class="head">項番</th>
+<th class="head">説明</th>
+</tr>
+</thead>
+<tbody valign="top">
+<tr class="row-even"><td><div class="first last line-block">
+<div class="line">(1)</div>
+</div>
+</td>
+<td><div class="first last line-block">
+<div class="line">検索条件に一致するデータの合計件数を表示する場合は、 <code class="docutils literal"><span class="pre">Page</span></code> オブジェクトの <code class="docutils literal"><span class="pre">totalElements</span></code> プロパティから値を取得する。</div>
+</div>
+</td>
+</tr>
+<tr class="row-odd"><td><div class="first last line-block">
+<div class="line">(2)</div>
+</div>
+</td>
+<td><div class="first last line-block">
+<div class="line">表示しているページのページ数を表示する場合は、 <code class="docutils literal"><span class="pre">Page</span></code> オブジェクトの <code class="docutils literal"><span class="pre">number</span></code> プロパティから値を取得し、<code class="docutils literal"><span class="pre">+1</span></code> する。</div>
+<div class="line"><code class="docutils literal"><span class="pre">Page</span></code> オブジェクトの <code class="docutils literal"><span class="pre">number</span></code> プロパティは “<code class="docutils literal"><span class="pre">0</span></code>” 開始のため、 ページ番号を表示する際は <code class="docutils literal"><span class="pre">+1</span></code> が必要となる。</div>
+</div>
+</td>
+</tr>
+<tr class="row-even"><td><div class="first last line-block">
+<div class="line">(3)</div>
+</div>
+</td>
+<td><div class="first last line-block">
+<div class="line">検索条件に一致するデータの合計ページ数を表示する場合は、 <code class="docutils literal"><span class="pre">Page</span></code> オブジェクトの <code class="docutils literal"><span class="pre">totalPages</span></code> プロパティから値を取得する。</div>
+</div>
+</td>
+</tr>
+</tbody>
+</table>
+</div></blockquote>
+<div class="line-block">
+<div class="line"><br /></div>
+</div>
+<p>該当ページの表示データ範囲を表示するための実装例を以下に示す。</p>
+<ul class="simple">
+<li>画面例</li>
+</ul>
+<blockquote>
+<div><div class="figure">
+<a class="reference internal image-reference" href="../../_images/pagination-how_to_use_view_pagination_info2.png"><img alt="Screen image of pagination information(begin position, end position)" src="../../_images/pagination-how_to_use_view_pagination_info2.png" style="width: 400px; height: 250px;" /></a>
+</div>
+</div></blockquote>
+<ul class="simple">
+<li>JSP</li>
+</ul>
+<blockquote>
+<div><div class="highlight-jsp"><div class="highlight"><pre><span></span><span class="nt">&lt;div&gt;</span>
+    <span class="k">&lt;%-</span><span class="o">-</span> <span class="p">(</span><span class="mi">4</span><span class="p">)</span> <span class="o">--</span><span class="k">%&gt;</span>
+    <span class="nt">&lt;fmt:formatNumber</span> <span class="na">value=</span><span class="s">&quot;${(page.number * page.size) + 1}&quot;</span> <span class="nt">/&gt;</span> -
+    <span class="k">&lt;%-</span><span class="o">-</span> <span class="p">(</span><span class="mi">5</span><span class="p">)</span> <span class="o">--</span><span class="k">%&gt;</span>
+    <span class="nt">&lt;fmt:formatNumber</span> <span class="na">value=</span><span class="s">&quot;${(page.number * page.size) + page.numberOfElements}&quot;</span> <span class="nt">/&gt;</span>
+<span class="nt">&lt;/div&gt;</span>
+</pre></div>
+</div>
+<table border="1" class="colwidths-given docutils">
+<colgroup>
+<col width="10%" />
+<col width="90%" />
+</colgroup>
+<thead valign="bottom">
+<tr class="row-odd"><th class="head">項番</th>
+<th class="head">説明</th>
+</tr>
+</thead>
+<tbody valign="top">
+<tr class="row-even"><td><div class="first last line-block">
+<div class="line">(4)</div>
+</div>
+</td>
+<td><div class="first last line-block">
+<div class="line">開始位置を表示する場合は、 <code class="docutils literal"><span class="pre">Page</span></code> オブジェクトの <code class="docutils literal"><span class="pre">number</span></code> プロパティと <code class="docutils literal"><span class="pre">size</span></code> プロパティを使って計算する。</div>
+<div class="line"><code class="docutils literal"><span class="pre">Page</span></code> オブジェクトの <code class="docutils literal"><span class="pre">number</span></code> プロパティは “<code class="docutils literal"><span class="pre">0</span></code>” 開始のため、データ開始位置を表示する際は <code class="docutils literal"><span class="pre">+1</span></code> が必要となる。</div>
+</div>
+</td>
+</tr>
+<tr class="row-odd"><td><div class="first last line-block">
+<div class="line">(5)</div>
+</div>
+</td>
+<td><div class="first last line-block">
+<div class="line">終了位置を表示する場合は、 <code class="docutils literal"><span class="pre">Page</span></code> オブジェクトの <code class="docutils literal"><span class="pre">number</span></code> プロパティ、 <code class="docutils literal"><span class="pre">size</span></code> プロパティ、 <code class="docutils literal"><span class="pre">numberOfElements</span></code> プロパティ を使って計算する。</div>
+<div class="line">最終ページは端数となる可能性があるので、 <code class="docutils literal"><span class="pre">numberOfElements</span></code> を加算する必要がある。</div>
+</div>
+</td>
+</tr>
+</tbody>
+</table>
+<div class="admonition tip">
+<p class="first admonition-title">Tip</p>
+<p><strong>数値のフォーマットについて</strong></p>
+<p class="last">表示する数値をフォーマットする必要がある場合は、 JSTLから提供されているタグライブラリ( <code class="docutils literal"><span class="pre">&lt;fmt:formatNumber&gt;</span></code> )を使用する。</p>
+</div>
+</div></blockquote>
+<div class="line-block">
+<div class="line"><br /></div>
+</div>
+</div>
+<div class="section" id="pagination-how-to-use-make-jsp-basic-search-criteria">
+<span id="id19"></span><h4><a class="toc-backref" href="#id48">4.4.2.3.4. ページリンクで検索条件を引き継ぐ</a><a class="headerlink" href="#pagination-how-to-use-make-jsp-basic-search-criteria" title="Permalink to this headline">¶</a></h4>
+<p>検索条件をページ移動時のリクエストに引き継ぐ方法を、以下に示す。</p>
+<blockquote>
+<div><div class="figure align-center">
+<a class="reference internal image-reference" href="../../_images/pagination-how_to_use_view_take_over_search_criteria.png"><img alt="Processing image of take over search criteria" src="../../_images/pagination-how_to_use_view_take_over_search_criteria.png" style="width: 100%;" /></a>
+</div>
+</div></blockquote>
+<ul class="simple">
+<li>JSP</li>
+</ul>
+<blockquote>
+<div><div class="highlight-jsp"><div class="highlight"><pre><span></span><span class="k">&lt;%-</span><span class="o">-</span> <span class="p">(</span><span class="mi">1</span><span class="p">)</span> <span class="o">--</span><span class="k">%&gt;</span>
+<span class="nt">&lt;div</span> <span class="na">id=</span><span class="s">&quot;criteriaPart&quot;</span><span class="nt">&gt;</span>
+    <span class="nt">&lt;form:form</span> <span class="na">action=</span><span class="s">&quot;${pageContext.request.contextPath}/article/list&quot;</span> <span class="na">method=</span><span class="s">&quot;get&quot;</span>
+        <span class="na">modelAttribute=</span><span class="s">&quot;articleSearchCriteriaForm&quot;</span><span class="nt">&gt;</span>
+        <span class="nt">&lt;form:input</span> <span class="na">path=</span><span class="s">&quot;word&quot;</span> <span class="nt">/&gt;</span>
+        <span class="nt">&lt;form:button&gt;</span>Search<span class="nt">&lt;/form:button&gt;</span>
+        <span class="nt">&lt;br&gt;</span>
+    <span class="nt">&lt;/form:form&gt;</span>
+<span class="nt">&lt;/div&gt;</span>
+
+<span class="k">&lt;%-</span><span class="o">-</span> <span class="p">...</span> <span class="o">--</span><span class="k">%&gt;</span>
+
+<span class="nt">&lt;t:pagination</span> <span class="na">page=</span><span class="s">&quot;${page}&quot;</span>
+    <span class="na">outerElementClass=</span><span class="s">&quot;pagination&quot;</span>
+    <span class="na">criteriaQuery=</span><span class="s">&quot;${f:query(articleSearchCriteriaForm)}&quot;</span> <span class="nt">/&gt;</span> <span class="k">&lt;%-</span><span class="o">-</span> <span class="p">(</span><span class="mi">2</span><span class="p">)</span> <span class="o">--</span><span class="k">%&gt;</span>
+</pre></div>
+</div>
+<table border="1" class="colwidths-given docutils">
+<colgroup>
+<col width="10%" />
+<col width="90%" />
+</colgroup>
+<thead valign="bottom">
+<tr class="row-odd"><th class="head">項番</th>
+<th class="head">説明</th>
+</tr>
+</thead>
+<tbody valign="top">
+<tr class="row-even"><td><div class="first last line-block">
+<div class="line">(1)</div>
+</div>
+</td>
+<td><div class="first last line-block">
+<div class="line">検索条件を指定するフォーム。</div>
+<div class="line">検索条件として <code class="docutils literal"><span class="pre">word</span></code> が存在する。</div>
+</div>
+</td>
+</tr>
+<tr class="row-odd"><td><div class="first last line-block">
+<div class="line">(2)</div>
+</div>
+</td>
+<td><div class="first last line-block">
+<div class="line">ページ移動時のリクエストに検索条件を引き継ぐ場合は、 <code class="docutils literal"><span class="pre">criteriaQuery</span></code>属性に<strong>URLエンコーディング済みのクエリ文字列</strong>を指定する。</div>
+<div class="line">検索条件をフォームオブジェクトに格納する場合は、共通ライブラリから提供しているELファンクション( <code class="docutils literal"><span class="pre">f:query(Object)</span></code> ) を使用すると、簡単に条件を引き継ぐことができる。</div>
+<div class="line">上記例の場合、 <code class="docutils literal"><span class="pre">?page=ページ位置&amp;size=取得件数&amp;word=入力値</span></code>という形式のクエリ文字列が生成される。</div>
+<div class="line"><br /></div>
+<div class="line"><code class="docutils literal"><span class="pre">criteriaQuery</span></code>属性は、terasoluna-gfw-web 1.0.1.RELEASE以上で利用可能な属性である。</div>
+</div>
+</td>
+</tr>
+</tbody>
+</table>
+<div class="admonition note">
+<p class="first admonition-title">Note</p>
+<p><strong>f:query(Object) の仕様について</strong></p>
+<p><code class="docutils literal"><span class="pre">f:query</span></code> の引数には、 フォームオブジェクトなどのJavaBeanと <code class="docutils literal"><span class="pre">Map</span></code> オブジェクトを指定することができる。
+JavaBeanの場合はプロパティ名がリクエストパラメータ名となり、 <code class="docutils literal"><span class="pre">Map</span></code> オブジェクトの場合はマップのキー名がリクエストパラメータとなる。
+生成されるクエリ文字列は、UTF-8のURLエンコーディングが行われる。</p>
+<p>terasoluna-gfw-web 5.0.1.RELEASEより、ネスト構造をもつJavaBeanと<code class="docutils literal"><span class="pre">Map</span></code>オブジェクトを指定できるように改善されている。</p>
+<p class="last"><code class="docutils literal"><span class="pre">f:query</span></code>の詳細な仕様(URLエンコーディングの仕様など)については、「<a class="reference internal" href="TagLibAndELFunctions.html#taglibandelfunctionshowtouseelfunctionquery"><span class="std std-ref">f:query()</span></a>」を参照されたい。</p>
+</div>
+<div class="admonition warning">
+<p class="first admonition-title">Warning</p>
+<p><strong>f:queryを使用して生成したクエリ文字列をqueryTmpl属性に指定した際の動作について</strong></p>
+<p><code class="docutils literal"><span class="pre">f:query</span></code>を使用して生成したクエリ文字列をqueryTmpl属性に指定すると、URLエンコーディングが重複してしまい、特殊文字の引き継ぎが正しく行われないことが判明している。</p>
+<p class="last">URLエンコーディングが重複してしまう事象については、terasoluna-gfw-web 1.0.1.RELEASE以上で利用可能な<code class="docutils literal"><span class="pre">criteriaQuery</span></code>属性を使用することで回避する事が出来る。</p>
+</div>
+</div></blockquote>
+<div class="line-block">
+<div class="line"><br /></div>
+</div>
+</div>
+<div class="section" id="id20">
+<h4><a class="toc-backref" href="#id49">4.4.2.3.5. ページリンクでソート条件を引き継ぐ</a><a class="headerlink" href="#id20" title="Permalink to this headline">¶</a></h4>
+<p>ソート条件をページ移動時のリクエストに引き継ぐ方法を、以下に示す。</p>
+<ul class="simple">
+<li>JSP</li>
+</ul>
+<blockquote>
+<div><div class="highlight-jsp"><div class="highlight"><pre><span></span><span class="nt">&lt;t:pagination</span> <span class="na">page=</span><span class="s">&quot;${page}&quot;</span>
+    <span class="na">outerElementClass=</span><span class="s">&quot;pagination&quot;</span>
+    <span class="na">queryTmpl=</span><span class="s">&quot;page={page}&amp;size={size}&amp;sort={sortOrderProperty},{sortOrderDirection}&quot;</span> <span class="nt">/&gt;</span>  <span class="k">&lt;%-</span><span class="o">-</span> <span class="p">(</span><span class="mi">1</span><span class="p">)</span> <span class="o">--</span><span class="k">%&gt;</span>
+</pre></div>
+</div>
+<table border="1" class="colwidths-given docutils">
+<colgroup>
+<col width="10%" />
+<col width="90%" />
+</colgroup>
+<thead valign="bottom">
+<tr class="row-odd"><th class="head">項番</th>
+<th class="head">説明</th>
+</tr>
+</thead>
+<tbody valign="top">
+<tr class="row-even"><td><div class="first last line-block">
+<div class="line">(1)</div>
+</div>
+</td>
+<td><div class="first last line-block">
+<div class="line">ページ移動時のリクエストにソート条件を引き継ぐ場合は、 <code class="docutils literal"><span class="pre">queryTmpl</span></code> を指定し、クエリ文字列にソート条件を追加する。</div>
+<div class="line">ソート条件を指定するためのパラメータの仕様については、「 <a class="reference internal" href="#pagination-overview-pagesearch-requestparameter"><span class="std std-ref">ページ検索用のリクエストパラメータについて</span></a> 」を参照されたい。</div>
+<div class="line">上記例の場合、 <code class="docutils literal"><span class="pre">?page=0&amp;size=20&amp;sort=ソート項目,ソート順(ASC</span> <span class="pre">or</span> <span class="pre">DESC)</span></code> がクエリ文字列となる。</div>
+</div>
+</td>
+</tr>
+</tbody>
+</table>
+</div></blockquote>
+<div class="line-block">
+<div class="line"><br /></div>
+</div>
+</div>
+</div>
+<div class="section" id="pagination-how-to-use-make-jsp-layout">
+<span id="id21"></span><h3><a class="toc-backref" href="#id50">4.4.2.4. JSPの実装(レイアウト変更編)</a><a class="headerlink" href="#pagination-how-to-use-make-jsp-layout" title="Permalink to this headline">¶</a></h3>
+<div class="section" id="id22">
+<h4><a class="toc-backref" href="#id51">4.4.2.4.1. 先頭ページと最終ページに移動するリンクの削除</a><a class="headerlink" href="#id22" title="Permalink to this headline">¶</a></h4>
+<p>「最初のページに移動するためのリンク」と「最後のページに移動するためのリンク」を削除するための実装例を、以下に示す。</p>
+<ul class="simple">
+<li>画面例</li>
+</ul>
+<blockquote>
+<div><div class="figure">
+<a class="reference internal image-reference" href="../../_images/pagination-how_to_use_view_remove_link1.png"><img alt="Remove page link that move to first &amp; last page" src="../../_images/pagination-how_to_use_view_remove_link1.png" style="width: 510px; height: 140px;" /></a>
+</div>
+</div></blockquote>
+<ul class="simple">
+<li>JSP</li>
+</ul>
+<blockquote>
+<div><div class="highlight-jsp"><div class="highlight"><pre><span></span><span class="nt">&lt;t:pagination</span> <span class="na">page=</span><span class="s">&quot;${page}&quot;</span>
+    <span class="na">outerElementClass=</span><span class="s">&quot;pagination&quot;</span>
+    <span class="na">firstLinkText=</span><span class="s">&quot;&quot;</span>
+    <span class="na">lastLinkText=</span><span class="s">&quot;&quot;</span> <span class="nt">/&gt;</span> <span class="k">&lt;%-</span><span class="o">-</span> <span class="p">(</span><span class="mi">1</span><span class="p">)</span> <span class="p">(</span><span class="mi">2</span><span class="p">)</span> <span class="o">--</span><span class="k">%&gt;</span>
+</pre></div>
+</div>
+<table border="1" class="colwidths-given docutils">
+<colgroup>
+<col width="10%" />
+<col width="90%" />
+</colgroup>
+<thead valign="bottom">
+<tr class="row-odd"><th class="head">項番</th>
+<th class="head">説明</th>
+</tr>
+</thead>
+<tbody valign="top">
+<tr class="row-even"><td><div class="first last line-block">
+<div class="line">(1)</div>
+</div>
+</td>
+<td><div class="first last line-block">
+<div class="line">「最初のページに移動するためのリンク」を非表示にする場合は、 <code class="docutils literal"><span class="pre">&lt;t:pagination&gt;</span></code> タグの firstLinkText属性に <code class="docutils literal"><span class="pre">&quot;&quot;</span></code> を指定する。</div>
+</div>
+</td>
+</tr>
+<tr class="row-odd"><td><div class="first last line-block">
+<div class="line">(2)</div>
+</div>
+</td>
+<td><div class="first last line-block">
+<div class="line">「最後のページに移動するためのリンク」を非表示にする場合は、 <code class="docutils literal"><span class="pre">&lt;t:pagination&gt;</span></code> タグの lastLinkText属性に <code class="docutils literal"><span class="pre">&quot;&quot;</span></code> を指定する。</div>
+</div>
+</td>
+</tr>
+</tbody>
+</table>
+</div></blockquote>
+<div class="line-block">
+<div class="line"><br /></div>
+</div>
+</div>
+<div class="section" id="id23">
+<h4><a class="toc-backref" href="#id52">4.4.2.4.2. 前ページと次ページに移動するリンクの削除</a><a class="headerlink" href="#id23" title="Permalink to this headline">¶</a></h4>
+<p>「前のページに移動するためのリンク」と「次のページに移動するためのリンク」を削除するための実装例を、以下に示す。</p>
+<ul class="simple">
+<li>画面例</li>
+</ul>
+<blockquote>
+<div><div class="figure">
+<a class="reference internal image-reference" href="../../_images/pagination-how_to_use_view_remove_link2.png"><img alt="Remove page link that move to previous &amp; next page" src="../../_images/pagination-how_to_use_view_remove_link2.png" style="width: 470px; height: 220px;" /></a>
+</div>
+</div></blockquote>
+<ul class="simple">
+<li>JSP</li>
+</ul>
+<blockquote>
+<div><div class="highlight-jsp"><div class="highlight"><pre><span></span><span class="nt">&lt;t:pagination</span> <span class="na">page=</span><span class="s">&quot;${page}&quot;</span>
+    <span class="na">outerElementClass=</span><span class="s">&quot;pagination&quot;</span>
+    <span class="na">previousLinkText=</span><span class="s">&quot;&quot;</span>
+    <span class="na">nextLinkText=</span><span class="s">&quot;&quot;</span> <span class="nt">/&gt;</span> <span class="k">&lt;%-</span><span class="o">-</span> <span class="p">(</span><span class="mi">1</span><span class="p">)</span> <span class="p">(</span><span class="mi">2</span><span class="p">)</span> <span class="o">--</span><span class="k">%&gt;</span>
+</pre></div>
+</div>
+<table border="1" class="colwidths-given docutils">
+<colgroup>
+<col width="10%" />
+<col width="90%" />
+</colgroup>
+<thead valign="bottom">
+<tr class="row-odd"><th class="head">項番</th>
+<th class="head">説明</th>
+</tr>
+</thead>
+<tbody valign="top">
+<tr class="row-even"><td><div class="first last line-block">
+<div class="line">(1)</div>
+</div>
+</td>
+<td><div class="first last line-block">
+<div class="line">「前のページに移動するためのリンク」を非表示にする場合は、 <code class="docutils literal"><span class="pre">&lt;t:pagination&gt;</span></code> タグの previousLinkText属性に <code class="docutils literal"><span class="pre">&quot;&quot;</span></code> を指定する。</div>
+</div>
+</td>
+</tr>
+<tr class="row-odd"><td><div class="first last line-block">
+<div class="line">(2)</div>
+</div>
+</td>
+<td><div class="first last line-block">
+<div class="line">「次のページに移動するためのリンク」を非表示にする場合は、 <code class="docutils literal"><span class="pre">&lt;t:pagination&gt;</span></code> タグの nextLinkText属性に <code class="docutils literal"><span class="pre">&quot;&quot;</span></code> を指定する。</div>
+</div>
+</td>
+</tr>
+</tbody>
+</table>
+</div></blockquote>
+<div class="line-block">
+<div class="line"><br /></div>
+</div>
+</div>
+<div class="section" id="disabled">
+<h4><a class="toc-backref" href="#id53">4.4.2.4.3. disabled状態のリンクの削除</a><a class="headerlink" href="#disabled" title="Permalink to this headline">¶</a></h4>
+<div class="line-block">
+<div class="line"><code class="docutils literal"><span class="pre">disabled</span></code> 状態のリンクを削除するための実装例を、以下に示す。</div>
+<div class="line"><code class="docutils literal"><span class="pre">disabled</span></code> 時のスタイルシートに、以下の定義を追加する。</div>
+</div>
+<ul class="simple">
+<li>画面例</li>
+</ul>
+<blockquote>
+<div><div class="figure">
+<a class="reference internal image-reference" href="../../_images/pagination-how_to_use_view_remove_link3.png"><img alt="Remove page link that move to previous &amp; next page" src="../../_images/pagination-how_to_use_view_remove_link3.png" style="width: 530px; height: 200px;" /></a>
+</div>
+</div></blockquote>
+<ul class="simple">
+<li>スタイルシート</li>
+</ul>
+<blockquote>
+<div><div class="highlight-css"><div class="highlight"><pre><span></span><span class="p">.</span><span class="nc">pagination</span> <span class="p">.</span><span class="nc">disabled</span> <span class="p">{</span>
+    <span class="k">display</span><span class="p">:</span> <span class="kc">none</span><span class="p">;</span>  <span class="c">/* (1) */</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+<table border="1" class="colwidths-given docutils">
+<colgroup>
+<col width="10%" />
+<col width="90%" />
+</colgroup>
+<thead valign="bottom">
+<tr class="row-odd"><th class="head">項番</th>
+<th class="head">説明</th>
+</tr>
+</thead>
+<tbody valign="top">
+<tr class="row-even"><td><div class="first last line-block">
+<div class="line">(1)</div>
+</div>
+</td>
+<td><div class="first last line-block">
+<div class="line"><code class="docutils literal"><span class="pre">disabled</span></code> クラスの属性値として、 <code class="docutils literal"><span class="pre">display:</span> <span class="pre">none;</span></code> を指定する。</div>
+</div>
+</td>
+</tr>
+</tbody>
+</table>
+</div></blockquote>
+<div class="line-block">
+<div class="line"><br /></div>
+</div>
+</div>
+<div class="section" id="id24">
+<h4><a class="toc-backref" href="#id54">4.4.2.4.4. 指定ページへ移動するリンクの最大表示数の変更</a><a class="headerlink" href="#id24" title="Permalink to this headline">¶</a></h4>
+<p>指定したページに移動するためのリンクの最大表示数を変更するための実装例を、以下に示す。</p>
+<ul class="simple">
+<li>画面例</li>
+</ul>
+<blockquote>
+<div><div class="figure">
+<a class="reference internal image-reference" href="../../_images/pagination-how_to_use_view_change_maxsize.png"><img alt="change max display count of page link that move to specified page" src="../../_images/pagination-how_to_use_view_change_maxsize.png" style="width: 450px; height: 220px;" /></a>
+</div>
+</div></blockquote>
+<ul class="simple">
+<li>JSP</li>
+</ul>
+<blockquote>
+<div><div class="highlight-jsp"><div class="highlight"><pre><span></span><span class="nt">&lt;t:pagination</span> <span class="na">page=</span><span class="s">&quot;${page}&quot;</span>
+    <span class="na">outerElementClass=</span><span class="s">&quot;pagination&quot;</span>
+    <span class="na">maxDisplayCount=</span><span class="s">&quot;5&quot;</span> <span class="nt">/&gt;</span> <span class="k">&lt;%-</span><span class="o">-</span> <span class="p">(</span><span class="mi">1</span><span class="p">)</span> <span class="o">--</span><span class="k">%&gt;</span>
+</pre></div>
+</div>
+<table border="1" class="colwidths-given docutils">
+<colgroup>
+<col width="10%" />
+<col width="90%" />
+</colgroup>
+<thead valign="bottom">
+<tr class="row-odd"><th class="head">項番</th>
+<th class="head">説明</th>
+</tr>
+</thead>
+<tbody valign="top">
+<tr class="row-even"><td><div class="first last line-block">
+<div class="line">(1)</div>
+</div>
+</td>
+<td><div class="first last line-block">
+<div class="line">指定したページに移動するためのリンクの最大表示数を変更する場合は、 <code class="docutils literal"><span class="pre">&lt;t:pagination&gt;</span></code> タグの maxDisplayCount属性に値を指定する。</div>
+</div>
+</td>
+</tr>
+</tbody>
+</table>
+</div></blockquote>
+<div class="line-block">
+<div class="line"><br /></div>
+</div>
+</div>
+<div class="section" id="id25">
+<h4><a class="toc-backref" href="#id55">4.4.2.4.5. 指定ページへ移動するリンクの削除</a><a class="headerlink" href="#id25" title="Permalink to this headline">¶</a></h4>
+<div class="line-block">
+<div class="line">指定したページに移動するためのリンクを削除するための実装例を、以下に示す。</div>
+</div>
+<ul class="simple">
+<li>画面例</li>
+</ul>
+<blockquote>
+<div><div class="figure">
+<a class="reference internal image-reference" href="../../_images/pagination-how_to_use_view_remove_link4.png"><img alt="Remove page link that move to specified page" src="../../_images/pagination-how_to_use_view_remove_link4.png" style="width: 410px; height: 220px;" /></a>
+</div>
+</div></blockquote>
+<ul class="simple">
+<li>JSP</li>
+</ul>
+<blockquote>
+<div><div class="highlight-jsp"><div class="highlight"><pre><span></span><span class="nt">&lt;t:pagination</span> <span class="na">page=</span><span class="s">&quot;${page}&quot;</span>
+    <span class="na">outerElementClass=</span><span class="s">&quot;pagination&quot;</span>
+    <span class="na">maxDisplayCount=</span><span class="s">&quot;0&quot;</span> <span class="nt">/&gt;</span> <span class="k">&lt;%-</span><span class="o">-</span> <span class="p">(</span><span class="mi">1</span><span class="p">)</span> <span class="o">--</span><span class="k">%&gt;</span>
+</pre></div>
+</div>
+<table border="1" class="colwidths-given docutils">
+<colgroup>
+<col width="10%" />
+<col width="90%" />
+</colgroup>
+<thead valign="bottom">
+<tr class="row-odd"><th class="head">項番</th>
+<th class="head">説明</th>
+</tr>
+</thead>
+<tbody valign="top">
+<tr class="row-even"><td><div class="first last line-block">
+<div class="line">(1)</div>
+</div>
+</td>
+<td><div class="first last line-block">
+<div class="line">指定したページに移動するためのリンクを非表示にする場合は、 <code class="docutils literal"><span class="pre">&lt;t:pagination&gt;</span></code> タグの maxDisplayCount属性に “<code class="docutils literal"><span class="pre">0</span></code>” を指定する。</div>
+</div>
+</td>
+</tr>
+</tbody>
+</table>
+</div></blockquote>
+<div class="line-block">
+<div class="line"><br /></div>
+</div>
+</div>
+</div>
+<div class="section" id="id26">
+<h3><a class="toc-backref" href="#id56">4.4.2.5. JSPの実装(動作編)</a><a class="headerlink" href="#id26" title="Permalink to this headline">¶</a></h3>
+<div class="section" id="id27">
+<h4><a class="toc-backref" href="#id57">4.4.2.5.1. ソート条件の指定</a><a class="headerlink" href="#id27" title="Permalink to this headline">¶</a></h4>
+<p>クライアントからソート条件を指定するための実装例を、以下に示す。</p>
+<ul class="simple">
+<li>画面例</li>
+</ul>
+<blockquote>
+<div><div class="figure">
+<a class="reference internal image-reference" href="../../_images/pagination-how_to_use_view_sort.png"><img alt="specify the sort condition" src="../../_images/pagination-how_to_use_view_sort.png" style="width: 100%;" /></a>
+</div>
+</div></blockquote>
+<ul class="simple">
+<li>JSP</li>
+</ul>
+<blockquote>
+<div><div class="highlight-jsp"><div class="highlight"><pre><span></span><span class="nt">&lt;div</span> <span class="na">id=</span><span class="s">&quot;criteriaPart&quot;</span><span class="nt">&gt;</span>
+    <span class="nt">&lt;form:form</span>
+        <span class="na">action=</span><span class="s">&quot;${pageContext.request.contextPath}/article/search&quot;</span>
+        <span class="na">method=</span><span class="s">&quot;get&quot;</span> <span class="na">modelAttribute=</span><span class="s">&quot;articleSearchCriteriaForm&quot;</span><span class="nt">&gt;</span>
+        <span class="nt">&lt;form:input</span> <span class="na">path=</span><span class="s">&quot;word&quot;</span> <span class="nt">/&gt;</span>
+        <span class="k">&lt;%-</span><span class="o">-</span> <span class="p">(</span><span class="mi">1</span><span class="p">)</span> <span class="o">--</span><span class="k">%&gt;</span>
+        <span class="nt">&lt;form:select</span> <span class="na">path=</span><span class="s">&quot;sort&quot;</span><span class="nt">&gt;</span>
+            <span class="nt">&lt;form:option</span> <span class="na">value=</span><span class="s">&quot;publishedDate,DESC&quot;</span><span class="nt">&gt;</span>Newest<span class="nt">&lt;/form:option&gt;</span>
+            <span class="nt">&lt;form:option</span> <span class="na">value=</span><span class="s">&quot;publishedDate,ASC&quot;</span><span class="nt">&gt;</span>Oldest<span class="nt">&lt;/form:option&gt;</span>
+        <span class="nt">&lt;/form:select&gt;</span>
+        <span class="nt">&lt;form:button&gt;</span>Search<span class="nt">&lt;/form:button&gt;</span>
+        <span class="nt">&lt;br&gt;</span>
+    <span class="nt">&lt;/form:form&gt;</span>
+<span class="nt">&lt;/div&gt;</span>
+</pre></div>
+</div>
+<table border="1" class="colwidths-given docutils">
+<colgroup>
+<col width="10%" />
+<col width="90%" />
+</colgroup>
+<thead valign="bottom">
+<tr class="row-odd"><th class="head">項番</th>
+<th class="head">説明</th>
+</tr>
+</thead>
+<tbody valign="top">
+<tr class="row-even"><td><div class="first last line-block">
+<div class="line">(1)</div>
+</div>
+</td>
+<td><div class="first last line-block">
+<div class="line">クライアントからソート条件を指定する場合は、 ソート条件を指定するためのパラメータを追加する。</div>
+<div class="line">ソート条件を指定するためのパラメータの仕様については、「 <a class="reference internal" href="#pagination-overview-pagesearch-requestparameter"><span class="std std-ref">ページ検索用のリクエストパラメータについて</span></a> 」を参照されたい。</div>
+<div class="line">上記例では、publishedDateの昇順と降順をプルダウンで選択できるようにしている。</div>
+</div>
+</td>
+</tr>
+</tbody>
+</table>
+</div></blockquote>
+<div class="line-block">
+<div class="line"><br /></div>
+</div>
+</div>
+<div class="section" id="javascript">
+<span id="paginationhowtousedisablepagelinkusingjavascript"></span><h4><a class="toc-backref" href="#id58">4.4.2.5.2. JavaScriptを使用したページリンクの無効化</a><a class="headerlink" href="#javascript" title="Permalink to this headline">¶</a></h4>
+<p>デフォルトでは、<code class="docutils literal"><span class="pre">disabled</span></code>状態と<code class="docutils literal"><span class="pre">active</span></code>状態のページリンク押下時の動作を無効化するために、<code class="docutils literal"><span class="pre">&lt;t:pagination&gt;</span></code>タグの<code class="docutils literal"><span class="pre">disabledHref</span></code>属性に<code class="docutils literal"><span class="pre">javascript:void(0)</span></code>を設定している。
+この状態でページリンクにフォーカスを移動又はマウスオーバーすると、 ブラウザのステータスバーに<code class="docutils literal"><span class="pre">javascript:void(0)</span></code>が表示されることがある。
+この挙動を変えたい場合は、JavaScriptを使用してページリンク押下時の動作を無効化する必要がある。</p>
+<p>以下に実装例を示す。</p>
+<p><strong>JSP</strong></p>
+<div class="highlight-jsp"><div class="highlight"><pre><span></span><span class="k">&lt;%-</span><span class="o">-</span> <span class="p">(</span><span class="mi">1</span><span class="p">)</span> <span class="o">--</span><span class="k">%&gt;</span>
+<span class="nt">&lt;script</span> <span class="na">type=</span><span class="s">&quot;text/javascript&quot;</span>
+        <span class="na">src=</span><span class="s">&quot;${pageContext.request.contextPath}/resources/vendor/js/jquery.js&quot;</span><span class="nt">&gt;&lt;/script&gt;</span>
+
+<span class="k">&lt;%-</span><span class="o">-</span> <span class="p">(</span><span class="mi">2</span><span class="p">)</span> <span class="o">--</span><span class="k">%&gt;</span>
+<span class="nt">&lt;script</span> <span class="na">type=</span><span class="s">&quot;text/javascript&quot;</span><span class="nt">&gt;</span>
+    $(function(){
+        $(document).on(&quot;click&quot;, &quot;.disabled a, .active a&quot;, function(){
+            return false;
+        });
+    });
+<span class="nt">&lt;/script&gt;</span>
+
+<span class="k">&lt;%-</span><span class="o">-</span> <span class="p">...</span> <span class="o">--</span><span class="k">%&gt;</span>
+
+<span class="k">&lt;%-</span><span class="o">-</span> <span class="p">(</span><span class="mi">3</span><span class="p">)</span> <span class="o">--</span><span class="k">%&gt;</span>
+<span class="nt">&lt;t:pagination</span> <span class="na">page=</span><span class="s">&quot;${page}&quot;</span> <span class="na">disabledHref=</span><span class="s">&quot;#&quot;</span> <span class="nt">/&gt;</span>
+</pre></div>
+</div>
+<table border="1" class="colwidths-given docutils">
+<colgroup>
+<col width="10%" />
+<col width="90%" />
+</colgroup>
+<thead valign="bottom">
+<tr class="row-odd"><th class="head">項番</th>
+<th class="head">説明</th>
+</tr>
+</thead>
+<tbody valign="top">
+<tr class="row-even"><td><div class="first last line-block">
+<div class="line">(1)</div>
+</div>
+</td>
+<td><p class="first">jQueryのjsファイルを読み込む。</p>
+<p class="last">上記例では、JavaScriptを使用してページリンク押下時の動作を無効化するためにjQueryのAPIを利用する。</p>
+</td>
+</tr>
+<tr class="row-odd"><td><div class="first last line-block">
+<div class="line">(2)</div>
+</div>
+</td>
+<td><p class="first">jQueryのAPIを使用して、<code class="docutils literal"><span class="pre">disabled</span></code>状態と<code class="docutils literal"><span class="pre">active</span></code>状態のページリンクのクリックイベントを無効化する。</p>
+<p class="last">ただし、<code class="docutils literal"><span class="pre">&lt;t:pagination&gt;</span></code>タグの<code class="docutils literal"><span class="pre">enableLinkOfCurrentPage</span></code>属性に<code class="docutils literal"><span class="pre">true</span></code>を指定している場合は、<code class="docutils literal"><span class="pre">active</span></code>状態のページリンクのクリックイベントを無効化してはいけない。</p>
+</td>
+</tr>
+<tr class="row-even"><td><div class="first last line-block">
+<div class="line">(3)</div>
+</div>
+</td>
+<td><code class="docutils literal"><span class="pre">disabledHref</span></code>属性に”<code class="docutils literal"><span class="pre">#</span></code>” を指定する。</td>
+</tr>
+</tbody>
+</table>
+<div class="line-block">
+<div class="line"><br /></div>
+</div>
+</div>
+</div>
+</div>
+<div class="section" id="appendix">
+<span id="paginatin-appendix"></span><h2><a class="toc-backref" href="#id59">4.4.3. Appendix</a><a class="headerlink" href="#appendix" title="Permalink to this headline">¶</a></h2>
+<div class="section" id="pageablehandlermethodargumentresolver">
+<span id="paginatin-appendix-pageablehandlermethodargumentresolver"></span><h3><a class="toc-backref" href="#id60">4.4.3.1. <code class="docutils literal"><span class="pre">PageableHandlerMethodArgumentResolver</span></code> のプロパティ値について</a><a class="headerlink" href="#pageablehandlermethodargumentresolver" title="Permalink to this headline">¶</a></h3>
+<div class="line-block">
+<div class="line"><code class="docutils literal"><span class="pre">PageableHandlerMethodArgumentResolver</span></code> で指定できるプロパティは以下の通り。</div>
+<div class="line">アプリケーションの要件に応じて、値を変更すること。</div>
+</div>
+<blockquote>
+<div><table border="1" class="colwidths-given longtable docutils">
+<colgroup>
+<col width="10%" />
+<col width="20%" />
+<col width="55%" />
+<col width="15%" />
+</colgroup>
+<thead valign="bottom">
+<tr class="row-odd"><th class="head">項番</th>
+<th class="head">プロパティ名</th>
+<th class="head">説明</th>
+<th class="head">デフォルト値</th>
+</tr>
+</thead>
+<tbody valign="top">
+<tr class="row-even"><td><ol class="first last arabic simple">
+<li></li>
+</ol>
+</td>
+<td>maxPageSize</td>
+<td><div class="first last line-block">
+<div class="line">取得件数として許可する最大値を指定する。</div>
+<div class="line">指定された取得件数が <code class="docutils literal"><span class="pre">maxPageSize</span></code> を超えていた場合は、 <code class="docutils literal"><span class="pre">maxPageSize</span></code> が取得件数となる。</div>
+</div>
+</td>
+<td><div class="first last line-block">
+<div class="line"><cite>2000</cite></div>
+</div>
+</td>
+</tr>
+<tr class="row-odd"><td><ol class="first last arabic simple" start="2">
+<li></li>
+</ol>
+</td>
+<td>fallbackPageable</td>
+<td><div class="first last line-block">
+<div class="line">アプリケーション全体のページ位置、取得件数、ソート条件のデフォルト値を指定する。</div>
+<div class="line">ページ位置、取得件数、ソート条件が指定されていない場合は、fallbackPageableに設定されている値が適用される。</div>
+</div>
+</td>
+<td><div class="first last line-block">
+<div class="line">ページ位置 : <cite>0</cite></div>
+<div class="line">取得件数 : <cite>20</cite></div>
+<div class="line">ソート条件 : <cite>null</cite></div>
+</div>
+</td>
+</tr>
+<tr class="row-even"><td><ol class="first last arabic simple" start="3">
+<li></li>
+</ol>
+</td>
+<td>oneIndexedParameters</td>
+<td><div class="first last line-block">
+<div class="line">ページ位置の開始値を指定する。</div>
+<div class="line"><cite>false</cite> を指定した場合はページ位置の開始値は <cite>0</cite> となり、 <cite>true</cite> を指定した場合はページ位置の開始値は <cite>1</cite> となる。</div>
+</div>
+</td>
+<td><div class="first last line-block">
+<div class="line"><cite>false</cite></div>
+</div>
+</td>
+</tr>
+<tr class="row-odd"><td><ol class="first last arabic simple" start="4">
+<li></li>
+</ol>
+</td>
+<td>pageParameterName</td>
+<td><div class="first last line-block">
+<div class="line">ページ位置を指定するためのリクエストパラメータ名を指定する。</div>
+</div>
+</td>
+<td><div class="first last line-block">
+<div class="line"><code class="docutils literal"><span class="pre">page</span></code></div>
+</div>
+</td>
+</tr>
+<tr class="row-even"><td><ol class="first last arabic simple" start="5">
+<li></li>
+</ol>
+</td>
+<td>sizeParameterName</td>
+<td><div class="first last line-block">
+<div class="line">取得件数を指定するためのリクエストパラメータ名を指定する。</div>
+</div>
+</td>
+<td><div class="first last line-block">
+<div class="line"><code class="docutils literal"><span class="pre">size</span></code></div>
+</div>
+</td>
+</tr>
+<tr class="row-odd"><td><ol class="first last arabic simple" start="6">
+<li></li>
+</ol>
+</td>
+<td>prefix</td>
+<td><div class="first last line-block">
+<div class="line">ページ位置と取得件数を指定するためのリクエストパラメータの接頭辞(ネームスペース)を指定する。</div>
+<div class="line">デフォルトのパラメータ名がアプリケーションで使用するパラメータと衝突する場合は、ネームスペースを指定することでリクエストパラメータ名の衝突を防ぐことが出来る。</div>
+<div class="line">prefixを指定すると、ページ位置を指定するためのリクエストパラメータ名は <code class="docutils literal"><span class="pre">prefix</span> <span class="pre">+</span> <span class="pre">pageParameterName</span></code> 、取得件数を指定するためのリクエストパラメータ名は <code class="docutils literal"><span class="pre">prefix</span> <span class="pre">+</span> <span class="pre">sizeParameterName</span></code> となる。</div>
+</div>
+</td>
+<td><div class="first last line-block">
+<div class="line"><code class="docutils literal"><span class="pre">&quot;&quot;</span></code></div>
+<div class="line">(ネームスペースなし)</div>
+</div>
+</td>
+</tr>
+<tr class="row-even"><td><ol class="first last arabic simple" start="7">
+<li></li>
+</ol>
+</td>
+<td>qualifierDelimiter</td>
+<td><div class="first last line-block">
+<div class="line">同一リクエストで複数のページ検索が必要になる場合、ページ検索に必要な情報(検索対象のページ位置、取得件数など)を区別するために、リクエストパラメータ名は <code class="docutils literal"><span class="pre">qualifier</span> <span class="pre">+</span> <span class="pre">delimiter</span> <span class="pre">+</span> <span class="pre">標準パラメータ名</span></code> の形式で指定する。</div>
+<div class="line">本プロパティは、上記形式の中の <code class="docutils literal"><span class="pre">delimiter</span></code> の値を設定する。</div>
+<div class="line">この設定を変更する場合は、 <code class="docutils literal"><span class="pre">SortHandlerMethodArgumentResolver</span></code> の <code class="docutils literal"><span class="pre">qualifierDelimiter</span></code> 設定も合わせて変更する必要がある。</div>
+</div>
+</td>
+<td><div class="first last line-block">
+<div class="line">“<code class="docutils literal"><span class="pre">_</span></code>”</div>
+</div>
+</td>
+</tr>
+</tbody>
+</table>
+<div class="admonition note">
+<p class="first admonition-title">Note</p>
+<p><strong>maxPageSizeの設定値について</strong></p>
+<p class="last">デフォルト値は <code class="docutils literal"><span class="pre">2000</span></code> であるが、アプリケーションが許容する最大値に設定を変更することを推奨する。
+アプリケーションが許可する最大値が <cite>100</cite> ならば、maxPageSizeも <cite>100</cite> に設定する。</p>
+</div>
+<div class="admonition note">
+<p class="first admonition-title">Note</p>
+<p><strong>fallbackPageableの設定方法について</strong></p>
+<p class="last">アプリケーション全体に適用するデフォルト値を変更する場合は、 <code class="docutils literal"><span class="pre">fallbackPageable</span></code> プロパティにデフォルト値が定義されている <code class="docutils literal"><span class="pre">Pageable</span></code> ( <code class="docutils literal"><span class="pre">org.springframework.data.domain.PageRequest</span></code> ) オブジェクトを設定する。
+ソート条件のデフォルト値を変更する場合は、 <code class="docutils literal"><span class="pre">SortHandlerMethodArgumentResolver</span></code> の <code class="docutils literal"><span class="pre">fallbackSort</span></code> プロパティにデフォルト値が定義されている  <code class="docutils literal"><span class="pre">org.springframework.data.domain.Sort</span></code> オブジェクトを設定する。</p>
+</div>
+</div></blockquote>
+<div class="line-block">
+<div class="line"><br /></div>
+</div>
+<p>開発するアプリケーション毎に変更が想定される以下の項目について、デフォルト値を変更する際の設定例を以下に示す。</p>
+<ul class="simple">
+<li>取得件数として許可する最大値( <code class="docutils literal"><span class="pre">maxPageSize</span></code> )</li>
+<li>アプリケーション全体のページ位置、取得件数のデフォルト値( <code class="docutils literal"><span class="pre">fallbackPageable</span></code> )</li>
+<li>ソート条件のデフォルト値( <code class="docutils literal"><span class="pre">fallbackSort</span></code> )</li>
+</ul>
+<blockquote>
+<div><div class="highlight-xml"><div class="highlight"><pre><span></span><span class="nt">&lt;mvc:annotation-driven&gt;</span>
+    <span class="nt">&lt;mvc:argument-resolvers&gt;</span>
+        <span class="nt">&lt;bean</span>
+            <span class="na">class=</span><span class="s">&quot;org.springframework.data.web.PageableHandlerMethodArgumentResolver&quot;</span><span class="nt">&gt;</span>
+            <span class="c">&lt;!-- (1) --&gt;</span>
+            <span class="nt">&lt;property</span> <span class="na">name=</span><span class="s">&quot;maxPageSize&quot;</span> <span class="na">value=</span><span class="s">&quot;100&quot;</span> <span class="nt">/&gt;</span>
+            <span class="c">&lt;!-- (2) --&gt;</span>
+            <span class="nt">&lt;property</span> <span class="na">name=</span><span class="s">&quot;fallbackPageable&quot;</span><span class="nt">&gt;</span>
+                <span class="nt">&lt;bean</span> <span class="na">class=</span><span class="s">&quot;org.springframework.data.domain.PageRequest&quot;</span> <span class="na">factory-method=</span><span class="s">&quot;of&quot;</span><span class="nt">&gt;</span>
+                    <span class="c">&lt;!-- (3) --&gt;</span>
+                    <span class="nt">&lt;constructor-arg</span> <span class="na">index=</span><span class="s">&quot;0&quot;</span> <span class="na">value=</span><span class="s">&quot;0&quot;</span> <span class="nt">/&gt;</span>
+                    <span class="c">&lt;!-- (4) --&gt;</span>
+                    <span class="nt">&lt;constructor-arg</span> <span class="na">index=</span><span class="s">&quot;1&quot;</span> <span class="na">value=</span><span class="s">&quot;50&quot;</span> <span class="nt">/&gt;</span>
+                <span class="nt">&lt;/bean&gt;</span>
+            <span class="nt">&lt;/property&gt;</span>
+            <span class="c">&lt;!-- (5) --&gt;</span>
+            <span class="nt">&lt;constructor-arg</span> <span class="na">index=</span><span class="s">&quot;0&quot;</span><span class="nt">&gt;</span>
+                <span class="nt">&lt;bean</span> <span class="na">class=</span><span class="s">&quot;org.springframework.data.web.SortHandlerMethodArgumentResolver&quot;</span><span class="nt">&gt;</span>
+                    <span class="c">&lt;!-- (6) --&gt;</span>
+                    <span class="nt">&lt;property</span> <span class="na">name=</span><span class="s">&quot;fallbackSort&quot;</span><span class="nt">&gt;</span>
+                        <span class="nt">&lt;bean</span> <span class="na">class=</span><span class="s">&quot;org.springframework.data.domain.Sort&quot;</span> <span class="na">factory-method=</span><span class="s">&quot;by&quot;</span><span class="nt">&gt;</span>
+                            <span class="c">&lt;!-- (7) --&gt;</span>
+                            <span class="nt">&lt;constructor-arg</span> <span class="na">index=</span><span class="s">&quot;0&quot;</span><span class="nt">&gt;</span>
+                                <span class="nt">&lt;list&gt;</span>
+                                    <span class="c">&lt;!-- (8) --&gt;</span>
+                                    <span class="nt">&lt;bean</span> <span class="na">class=</span><span class="s">&quot;org.springframework.data.domain.Sort.Order&quot;</span><span class="nt">&gt;</span>
+                                        <span class="c">&lt;!-- (9) --&gt;</span>
+                                        <span class="nt">&lt;constructor-arg</span> <span class="na">index=</span><span class="s">&quot;0&quot;</span> <span class="na">value=</span><span class="s">&quot;DESC&quot;</span> <span class="nt">/&gt;</span>
+                                        <span class="c">&lt;!-- (10) --&gt;</span>
+                                        <span class="nt">&lt;constructor-arg</span> <span class="na">index=</span><span class="s">&quot;1&quot;</span> <span class="na">value=</span><span class="s">&quot;lastModifiedDate&quot;</span> <span class="nt">/&gt;</span>
+                                    <span class="nt">&lt;/bean&gt;</span>
+                                    <span class="c">&lt;!-- (8) --&gt;</span>
+                                    <span class="nt">&lt;bean</span> <span class="na">class=</span><span class="s">&quot;org.springframework.data.domain.Sort.Order&quot;</span><span class="nt">&gt;</span>
+                                        <span class="nt">&lt;constructor-arg</span> <span class="na">index=</span><span class="s">&quot;0&quot;</span> <span class="na">value=</span><span class="s">&quot;ASC&quot;</span> <span class="nt">/&gt;</span>
+                                        <span class="nt">&lt;constructor-arg</span> <span class="na">index=</span><span class="s">&quot;1&quot;</span> <span class="na">value=</span><span class="s">&quot;id&quot;</span> <span class="nt">/&gt;</span>
+                                    <span class="nt">&lt;/bean&gt;</span>
+                                <span class="nt">&lt;/list&gt;</span>
+                            <span class="nt">&lt;/constructor-arg&gt;</span>
+                        <span class="nt">&lt;/bean&gt;</span>
+                    <span class="nt">&lt;/property&gt;</span>
+                <span class="nt">&lt;/bean&gt;</span>
+            <span class="nt">&lt;/constructor-arg&gt;</span>
+        <span class="nt">&lt;/bean&gt;</span>
+    <span class="nt">&lt;/mvc:argument-resolvers&gt;</span>
+<span class="nt">&lt;/mvc:annotation-driven&gt;</span>
+</pre></div>
+</div>
+<table border="1" class="colwidths-given longtable docutils">
+<colgroup>
+<col width="10%" />
+<col width="90%" />
+</colgroup>
+<thead valign="bottom">
+<tr class="row-odd"><th class="head">項番</th>
+<th class="head">説明</th>
+</tr>
+</thead>
+<tbody valign="top">
+<tr class="row-even"><td><div class="first last line-block">
+<div class="line">(1)</div>
+</div>
+</td>
+<td><div class="first last line-block">
+<div class="line">上記例では取得件数の最大値を <cite>100</cite> に設定している。 取得件数(size)に <cite>101</cite> 以上が指定された場合は、 <cite>100</cite> に切り捨てて検索が行われる。</div>
+</div>
+</td>
+</tr>
+<tr class="row-odd"><td><div class="first last line-block">
+<div class="line">(2)</div>
+</div>
+</td>
+<td><div class="first last line-block">
+<div class="line"><code class="docutils literal"><span class="pre">org.springframework.data.domain.PageRequest</span></code> のインスタンスを生成し、 <code class="docutils literal"><span class="pre">fallbackPageable</span></code> に設定する。</div>
+<div class="line">spring-data-commons 2.2.0より <code class="docutils literal"><span class="pre">PageRequest</span></code> クラスからpublicなコンストラクタが削除されたため、factory-methodを利用してstaticな <code class="docutils literal"><span class="pre">PageRequest#of</span></code> メソッドによりBeanを生成する必要がある。</div>
+</div>
+</td>
+</tr>
+<tr class="row-even"><td><div class="first last line-block">
+<div class="line">(3)</div>
+</div>
+</td>
+<td><div class="first last line-block">
+<div class="line"><code class="docutils literal"><span class="pre">PageRequest#of</span></code> メソッドの第1引数に、ページ位置のデフォルト値を指定する。</div>
+<div class="line">上記例では <cite>0</cite> を指定しているため、デフォルト値は変更していない。</div>
+</div>
+</td>
+</tr>
+<tr class="row-odd"><td><div class="first last line-block">
+<div class="line">(4)</div>
+</div>
+</td>
+<td><div class="first last line-block">
+<div class="line"><code class="docutils literal"><span class="pre">PageRequest#of</span></code> メソッドの第2引数に、取得件数のデフォルト値を指定する。</div>
+<div class="line">上記例ではリクエストパラメータに取得件数の指定がない場合の取得件数は <cite>50</cite> となる。</div>
+</div>
+</td>
+</tr>
+<tr class="row-even"><td><div class="first last line-block">
+<div class="line">(5)</div>
+</div>
+</td>
+<td><div class="first last line-block">
+<div class="line"><code class="docutils literal"><span class="pre">PageableHandlerMethodArgumentResolver</span></code> のコンストラクタとして、 <code class="docutils literal"><span class="pre">SortHandlerMethodArgumentResolver</span></code> のインスタンスを設定する。</div>
+</div>
+</td>
+</tr>
+<tr class="row-odd"><td><div class="first last line-block">
+<div class="line">(6)</div>
+</div>
+</td>
+<td><div class="first last line-block">
+<div class="line"><code class="docutils literal"><span class="pre">Sort</span></code> のインスタンスを生成し、 <code class="docutils literal"><span class="pre">fallbackSort</span></code> に設定する。</div>
+<div class="line">spring-data-commons 2.2.0より <code class="docutils literal"><span class="pre">Sort</span></code> クラスからpublicなコンストラクタが削除されたため、factory-methodを利用してstaticな <code class="docutils literal"><span class="pre">Sort#by</span></code> メソッドによりBeanを生成する必要がある。</div>
+</div>
+</td>
+</tr>
+<tr class="row-even"><td><div class="first last line-block">
+<div class="line">(7)</div>
+</div>
+</td>
+<td><div class="first last line-block">
+<div class="line"><code class="docutils literal"><span class="pre">Sort#by</span></code> メソッドの第1引数に、 デフォルト値として使用する <code class="docutils literal"><span class="pre">Order</span></code> オブジェクトのリストを設定する。</div>
+</div>
+</td>
+</tr>
+<tr class="row-odd"><td><div class="first last line-block">
+<div class="line">(8)</div>
+</div>
+</td>
+<td><div class="first last line-block">
+<div class="line"><code class="docutils literal"><span class="pre">Order</span></code> のインスタンスを生成し、 デフォルト値として使用する <code class="docutils literal"><span class="pre">Order</span></code> オブジェクトのリストに追加する。</div>
+<div class="line">ソート条件のクエリへの反映法はO/RMapperにより異なるため、詳細については</div>
+<div class="line"><a class="reference internal" href="#dataaccessmybatis3howtousepageableobject"><span class="std std-ref">ドメイン層の実装(MyBatis3編)</span></a></div>
+<div class="line"><a class="reference internal" href="#dataaccessjpahowtousepageableobject"><span class="std std-ref">ドメイン層の実装(JPA編)</span></a></div>
+<div class="line">を参照されたい。</div>
+</div>
+</td>
+</tr>
+<tr class="row-even"><td><div class="first last line-block">
+<div class="line">(9)</div>
+</div>
+</td>
+<td><div class="first last line-block">
+<div class="line"><code class="docutils literal"><span class="pre">Order</span></code> のコンストラクタの第1引数に、ソート順(ASC/DESC)を指定する。</div>
+</div>
+</td>
+</tr>
+<tr class="row-odd"><td><div class="first last line-block">
+<div class="line">(10)</div>
+</div>
+</td>
+<td><div class="first last line-block">
+<div class="line"><code class="docutils literal"><span class="pre">Order</span></code> のコンストラクタの第2引数に、ソート項目を指定する。</div>
+</div>
+</td>
+</tr>
+</tbody>
+</table>
+</div></blockquote>
+<div class="line-block">
+<div class="line"><br /></div>
+</div>
+</div>
+<div class="section" id="sorthandlermethodargumentresolver">
+<span id="paginatin-appendix-sorthandlermethodargumentresolver"></span><h3><a class="toc-backref" href="#id61">4.4.3.2. <code class="docutils literal"><span class="pre">SortHandlerMethodArgumentResolver</span></code> のプロパティ値について</a><a class="headerlink" href="#sorthandlermethodargumentresolver" title="Permalink to this headline">¶</a></h3>
+<div class="line-block">
+<div class="line"><code class="docutils literal"><span class="pre">SortHandlerMethodArgumentResolver</span></code> で指定できるプロパティは以下の通り。</div>
+<div class="line">アプリケーションの要件に応じて、値を変更すること。</div>
+</div>
+<blockquote>
+<div><table border="1" class="colwidths-given docutils">
+<colgroup>
+<col width="10%" />
+<col width="20%" />
+<col width="55%" />
+<col width="15%" />
+</colgroup>
+<thead valign="bottom">
+<tr class="row-odd"><th class="head">項番</th>
+<th class="head">プロパティ名</th>
+<th class="head">説明</th>
+<th class="head">デフォルト値</th>
+</tr>
+</thead>
+<tbody valign="top">
+<tr class="row-even"><td><ol class="first last arabic simple">
+<li></li>
+</ol>
+</td>
+<td>fallbackSort</td>
+<td><div class="first last line-block">
+<div class="line">アプリケーション全体のソート条件のデフォルト値を指定する。</div>
+<div class="line">ソート条件が指定されていない場合は、fallbackSortに設定されている値が適用される。</div>
+</div>
+</td>
+<td><div class="first last line-block">
+<div class="line"><cite>null</cite></div>
+<div class="line">(ソート条件なし)</div>
+</div>
+</td>
+</tr>
+<tr class="row-odd"><td><ol class="first last arabic simple" start="2">
+<li></li>
+</ol>
+</td>
+<td>sortParameter</td>
+<td><div class="first last line-block">
+<div class="line">ソート条件を指定するためのリクエストパラメータ名を指定する。</div>
+<div class="line">デフォルトのパラメータ名がアプリケーションで使用するパラメータと衝突する場合は、リクエストパラメータ名を変更することで衝突を防ぐことができる。</div>
+</div>
+</td>
+<td><div class="first last line-block">
+<div class="line"><code class="docutils literal"><span class="pre">sort</span></code></div>
+</div>
+</td>
+</tr>
+<tr class="row-even"><td><ol class="first last arabic simple" start="3">
+<li></li>
+</ol>
+</td>
+<td>propertyDelimiter</td>
+<td><div class="first last line-block">
+<div class="line">ソート項目及びソート順(ASC,DESC)の区切り文字を指定する。</div>
+</div>
+</td>
+<td><div class="first last line-block">
+<div class="line">“<code class="docutils literal"><span class="pre">,</span></code>”</div>
+</div>
+</td>
+</tr>
+<tr class="row-odd"><td><ol class="first last arabic simple" start="4">
+<li></li>
+</ol>
+</td>
+<td>qualifierDelimiter</td>
+<td><div class="first last line-block">
+<div class="line">同一リクエストで複数のページ検索が必要になる場合、ページ検索に必要な情報(ソート条件)を区別するために、リクエストパラメータ名は <code class="docutils literal"><span class="pre">qualifier</span> <span class="pre">+</span> <span class="pre">delimiter</span> <span class="pre">+</span> <span class="pre">sortParameter</span></code> の形式で指定する。</div>
+<div class="line">本プロパティは、上記形式の中の <code class="docutils literal"><span class="pre">delimiter</span></code> の値を設定する。</div>
+</div>
+</td>
+<td><div class="first last line-block">
+<div class="line">“<code class="docutils literal"><span class="pre">_</span></code>”</div>
+</div>
+</td>
+</tr>
+</tbody>
+</table>
+</div></blockquote>
+</div>
+</div>
+</div>
+
+
+          </div>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../../genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="DoubleSubmitProtection.html" title="4.5. 二重送信防止"
+             >next</a> |</li>
+        <li class="right" >
+          <a href="SessionManagement.html" title="4.3. セッション管理"
+             >previous</a> |</li>
+        <li class="nav-item nav-item-0"><a href="../../index.html">TERASOLUNA Server Framework for Java (5.x) Development Guideline 5.6.0.SP1.RELEASE documentation</a> &#187;</li>
+          <li class="nav-item nav-item-1"><a href="index.html" >4. Webアプリ開発機能</a> &#187;</li> 
+      </ul>
+    </div>
+    <div class="footer">
+      © Copyright 2013, NTT DATA Corporation. © Copyright 2013, NTT Corporation.
+      Created using <a href="http://sphinx.pocoo.org/">Sphinx</a> 1.6.3.Theme is <a href="http://github.com/vimalkvn/solar-theme">Solar</a>
+    </div>
+    
+    <script>
+    
+    $(function() {
+    	var $sidebar	= $('.sphinxsidebar'),
+    		$window		= $(window),
+    		offset		= $sidebar.offset(),
+    		topPadding	= 3,
+    		$scroll		= $('#scroll');
+    	
+    	$window.scroll(function() {
+    		if ($scroll.is(':checked')) {
+				if ($window.scrollTop() > offset.top) {
+					$sidebar.stop().animate({
+						marginTop:$window.scrollTop() - offset.top + topPadding
+					});
+				} else {
+					$sidebar.stop().animate({
+						marginTop:0
+					});
+				}
+			}
+		});
+    	
+    	var $navList = $('ul:first', $sidebar);
+    	$('li:first', $navList).addClass('open');
+    	
+    	$navList.treeview({
+    		persist: "location",
+    		collapsed: true,
+    		unique: false
+    	});
+    	
+	});
+    (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+        (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+            m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+    })(window,document,'script','//www.google-analytics.com/analytics.js','ga');
+
+    ga('create', 'UA-46550814-1', 'terasolunaorg.github.io');
+    ga('send', 'pageview');
+    </script>
+  </body>
+</html>
