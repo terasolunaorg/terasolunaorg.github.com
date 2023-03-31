@@ -2,16 +2,15 @@
 ================================================================================
 
 .. toctree::
-   :maxdepth: 1
+  :maxdepth: 1
 
-   Logging
-   PropertyManagement
-   DateAndTime
-   JodaTime
-   SystemDate
-   StringProcessing
-   Dozer
+  Logging
+  PropertyManagement
+  DateAndTime
+  SystemDate
+  StringProcessing
+  BeanMapping
 
 .. raw:: latex
 
-   \newpage
+  \newpage

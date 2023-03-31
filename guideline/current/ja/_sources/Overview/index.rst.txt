@@ -4,14 +4,14 @@
 本ガイドラインで想定しているアーキテクチャについて説明する。
 
 .. toctree::
-   :maxdepth: 1
+  :maxdepth: 1
 
-   FrameworkStack
-   SpringMVCOverview
-   FirstApplication
-   ApplicationLayering
+  FrameworkStack
+  SpringMVCOverview
+  FirstApplication
+  ApplicationLayering
 
 .. raw:: latex
 
-   \newpage
+  \newpage
 

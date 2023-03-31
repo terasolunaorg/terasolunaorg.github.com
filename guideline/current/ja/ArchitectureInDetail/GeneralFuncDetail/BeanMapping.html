@@ -1,0 +1,2797 @@
+<!DOCTYPE html>
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <title>7.6. Beanマッピング(MapStruct) &#8212; TERASOLUNA Server Framework for Java (5.x) Development Guideline 5.8.0.RELEASE documentation</title>
+    <link rel="stylesheet" href="../../_static/solar.css" type="text/css" />
+    <link rel="stylesheet" href="../../_static/pygments.css" type="text/css" />
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    '../../',
+        VERSION:     '5.8.0.RELEASE',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true,
+        SOURCELINK_SUFFIX: '.txt'
+      };
+    </script>
+    <script type="text/javascript" src="../../_static/jquery.js"></script>
+    <script type="text/javascript" src="../../_static/underscore.js"></script>
+    <script type="text/javascript" src="../../_static/doctools.js"></script>
+    <link rel="index" title="Index" href="../../genindex.html" />
+    <link rel="search" title="Search" href="../../search.html" />
+    <link rel="next" title="8. メッセージ連携" href="../MessagingDetail/index.html" />
+    <link rel="prev" title="7.5. 文字列処理" href="StringProcessing.html" /><script async src="https://www.googletagmanager.com/gtag/js?id=G-847V2Q99G8"></script>
+<script>
+window.dataLayer = window.dataLayer || [];
+function gtag(){dataLayer.push(arguments);}
+gtag('js', new Date()); gtag('config', 'G-847V2Q99G8');
+</script>
+<script src="../../_static/jquery.treeview.js" type="text/javascript"></script>
+<!-- <link href='http://fonts.googleapis.com/css?family=Source+Code+Pro|Open+Sans:300italic,400italic,700italic,400,300,700' rel='stylesheet' type='text/css'> -->
+<link href="../../_static/solarized-dark.css" rel="stylesheet">
+<link href="../../_static/jquery.treeview.css" rel="stylesheet">
+  </head>
+  <body>
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../../genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="../MessagingDetail/index.html" title="8. メッセージ連携"
+             accesskey="N">next</a> |</li>
+        <li class="right" >
+          <a href="StringProcessing.html" title="7.5. 文字列処理"
+             accesskey="P">previous</a> |</li>
+        <li class="nav-item nav-item-0"><a href="../../index.html">TERASOLUNA Server Framework for Java (5.x) Development Guideline 5.8.0.RELEASE documentation</a> &#187;</li>
+          <li class="nav-item nav-item-1"><a href="index.html" accesskey="U">7. アプリケーション形態に依存しない汎用機能</a> &#187;</li> 
+      </ul>
+    </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper"><label><input id="scroll" type="checkbox"> scroll sidebar</label>
+
+  <h3><a href="../../index.html">Table Of Contents</a></h3>
+  <ul>
+<li><a class="reference internal" href="#">7.6. Beanマッピング(MapStruct)</a><ul>
+<li><a class="reference internal" href="#overview">7.6.1. Overview</a></li>
+<li><a class="reference internal" href="#how-to-use">7.6.2. How to use</a><ul>
+<li><a class="reference internal" href="#id2">7.6.2.1. マッパーの作成方法</a><ul>
+<li><a class="reference internal" href="#mapstruct-setting">7.6.2.1.1. MapStructを使用するための設定</a></li>
+<li><a class="reference internal" href="#id5">7.6.2.1.2. マッパーインタフェースの作成</a></li>
+<li><a class="reference internal" href="#mapstructbean">7.6.2.1.3. MapStructを使用するためのBean定義</a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#id6">7.6.2.2. マッピング方法</a><ul>
+<li><a class="reference internal" href="#bean">7.6.2.2.1. Bean間のフィールド名、型が同じ場合のマッピング</a></li>
+<li><a class="reference internal" href="#beanconverter-difference-type-mapping-label">7.6.2.2.2. Bean間のフィールドの型が異なる場合のマッピング</a></li>
+<li><a class="reference internal" href="#beanconverter-difference-item-xml-mapping-label">7.6.2.2.3. Bean間のフィールド名が異なる場合のマッピング</a></li>
+<li><a class="reference internal" href="#nest">7.6.2.2.4. Nestしたフィールドのマッピング</a></li>
+<li><a class="reference internal" href="#existing-bean-update">7.6.2.2.5. 既存のBeanの更新</a></li>
+<li><a class="reference internal" href="#collection">7.6.2.2.6. Collectionマッピング</a></li>
+<li><a class="reference internal" href="#mapbean">7.6.2.2.7. MapからBeanのマッピング</a></li>
+<li><a class="reference internal" href="#id10">7.6.2.2.8. 複数のBeanからのマッピング</a></li>
+<li><a class="reference internal" href="#subclass-mapping">7.6.2.2.9. マッピングメソッドにインタフェースを用いる場合</a></li>
+<li><a class="reference internal" href="#fieldexclude">7.6.2.2.10. フィールド除外設定</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li><a class="reference internal" href="#how-to-extend">7.6.3. How to extend</a><ul>
+<li><a class="reference internal" href="#how-to-make-custom-mapping">7.6.3.1. 独自のマッピングの定義方法</a><ul>
+<li><a class="reference internal" href="#default">7.6.3.1.1. defaultメソッドを用いた方法</a></li>
+<li><a class="reference internal" href="#named">7.6.3.1.2. &#64;Namedアノテーションを用いた方法</a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#null">7.6.3.2. ソースのnullフィールドの制御</a></li>
+<li><a class="reference internal" href="#id14">7.6.3.3. 条件付きマッピング</a><ul>
+<li><a class="reference internal" href="#id15">7.6.3.3.1. defaultメソッドを用いた方法</a></li>
+<li><a class="reference internal" href="#id16">7.6.3.3.2. &#64;Namedアノテーションを用いた方法</a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#string-format">7.6.3.4. 文字列からの変換のフォーマット指定</a></li>
+<li><a class="reference internal" href="#id19">7.6.3.5. 複数のマッパーインタフェースの共通設定</a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#appendix">7.6.4. Appendix</a><ul>
+<li><a class="reference internal" href="#constructor">7.6.4.1. ターゲットに使用されるコンストラクタ</a></li>
+<li><a class="reference internal" href="#lombok">7.6.4.2. Lombokを使用する際の設定</a></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+
+
+  <h4>Previous topic</h4>
+  <p class="topless"><a href="StringProcessing.html"
+                        title="previous chapter">7.5. 文字列処理</a></p>
+  <h4>Next topic</h4>
+  <p class="topless"><a href="../MessagingDetail/index.html"
+                        title="next chapter">8. メッセージ連携</a></p>
+  <div role="note" aria-label="source link">
+    <h3>This Page</h3>
+    <ul class="this-page-menu">
+      <li><a href="../../_sources/ArchitectureInDetail/GeneralFuncDetail/BeanMapping.rst.txt"
+            rel="nofollow">Show Source</a></li>
+    </ul>
+   </div>
+<div id="searchbox" style="display: none" role="search">
+  <h3>Quick search</h3>
+    <form class="search" action="../../search.html" method="get">
+      <div><input type="text" name="q" /></div>
+      <div><input type="submit" value="Go" /></div>
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <div class="section" id="bean-mapstruct">
+<h1>7.6. Beanマッピング(MapStruct)<a class="headerlink" href="#bean-mapstruct" title="Permalink to this headline">¶</a></h1>
+<div class="contents local topic" id="id1">
+<p class="topic-title">目次</p>
+<ul class="simple">
+<li><a class="reference internal" href="#overview" id="id22">Overview</a></li>
+<li><a class="reference internal" href="#how-to-use" id="id23">How to use</a><ul>
+<li><a class="reference internal" href="#id2" id="id24">マッパーの作成方法</a><ul>
+<li><a class="reference internal" href="#mapstruct-setting" id="id25">MapStructを使用するための設定</a></li>
+<li><a class="reference internal" href="#id5" id="id26">マッパーインタフェースの作成</a></li>
+<li><a class="reference internal" href="#mapstructbean" id="id27">MapStructを使用するためのBean定義</a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#id6" id="id28">マッピング方法</a><ul>
+<li><a class="reference internal" href="#bean" id="id29">Bean間のフィールド名、型が同じ場合のマッピング</a></li>
+<li><a class="reference internal" href="#beanconverter-difference-type-mapping-label" id="id30">Bean間のフィールドの型が異なる場合のマッピング</a></li>
+<li><a class="reference internal" href="#beanconverter-difference-item-xml-mapping-label" id="id31">Bean間のフィールド名が異なる場合のマッピング</a></li>
+<li><a class="reference internal" href="#nest" id="id32">Nestしたフィールドのマッピング</a></li>
+<li><a class="reference internal" href="#existing-bean-update" id="id33">既存のBeanの更新</a></li>
+<li><a class="reference internal" href="#collection" id="id34">Collectionマッピング</a></li>
+<li><a class="reference internal" href="#mapbean" id="id35">MapからBeanのマッピング</a></li>
+<li><a class="reference internal" href="#id10" id="id36">複数のBeanからのマッピング</a></li>
+<li><a class="reference internal" href="#subclass-mapping" id="id37">マッピングメソッドにインタフェースを用いる場合</a></li>
+<li><a class="reference internal" href="#fieldexclude" id="id38">フィールド除外設定</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li><a class="reference internal" href="#how-to-extend" id="id39">How to extend</a><ul>
+<li><a class="reference internal" href="#how-to-make-custom-mapping" id="id40">独自のマッピングの定義方法</a><ul>
+<li><a class="reference internal" href="#default" id="id41">defaultメソッドを用いた方法</a></li>
+<li><a class="reference internal" href="#named" id="id42">&#64;Namedアノテーションを用いた方法</a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#null" id="id43">ソースのnullフィールドの制御</a></li>
+<li><a class="reference internal" href="#id14" id="id44">条件付きマッピング</a><ul>
+<li><a class="reference internal" href="#id15" id="id45">defaultメソッドを用いた方法</a></li>
+<li><a class="reference internal" href="#id16" id="id46">&#64;Namedアノテーションを用いた方法</a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#string-format" id="id47">文字列からの変換のフォーマット指定</a></li>
+<li><a class="reference internal" href="#id19" id="id48">複数のマッパーインタフェースの共通設定</a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#appendix" id="id49">Appendix</a><ul>
+<li><a class="reference internal" href="#constructor" id="id50">ターゲットに使用されるコンストラクタ</a></li>
+<li><a class="reference internal" href="#lombok" id="id51">Lombokを使用する際の設定</a></li>
+</ul>
+</li>
+</ul>
+</div>
+<div class="line-block">
+<div class="line"><br /></div>
+</div>
+<div class="section" id="overview">
+<h2><a class="toc-backref" href="#id22">7.6.1. Overview</a><a class="headerlink" href="#overview" title="Permalink to this headline">¶</a></h2>
+<div class="line-block">
+<div class="line">Beanマッピングは、BeanからBeanへフィールド値をコピーすることである。</div>
+<div class="line">アプリケーションの異なるレイヤ間(アプリケーション層とドメイン層)で、データの受け渡しをする場合など、Beanマッピングが必要となるケースは多い。</div>
+</div>
+<div class="line-block">
+<div class="line">例として、アプリケーション層の<code class="docutils literal"><span class="pre">AccountForm</span></code>オブジェクトを、ドメイン層の<code class="docutils literal"><span class="pre">Account</span></code>オブジェクトに変換する場合を考える。</div>
+<div class="line">ドメイン層は、アプリケーション層に依存してはならないため、AccountFormオブジェクトをそのままドメイン層で使用できない。</div>
+<div class="line">そこで、<code class="docutils literal"><span class="pre">AccountForm</span></code>オブジェクトを、<code class="docutils literal"><span class="pre">Account</span></code>オブジェクトにBeanマッピングし、ドメイン層では、<code class="docutils literal"><span class="pre">Account</span></code>オブジェクトを使用する。</div>
+<div class="line">これによって、アプリケーション層と、ドメイン層の依存関係を一方向に保つことができる。</div>
+</div>
+<div class="figure">
+<a class="reference internal image-reference" href="../../_images/beanmapping-overview.png"><img alt="../../_images/beanmapping-overview.png" src="../../_images/beanmapping-overview.png" style="width: 80%;" /></a>
+</div>
+<div class="line-block">
+<div class="line">このオブジェクト間のマッピングは、Beanのgetter/setterを呼び出して、データの受け渡しを行うことで実現できる。</div>
+<div class="line">しかしながら、SetterやGetterを利用したBeanマッピングを行うと実装が煩雑になり、プログラムの見通しが悪くなるため、本ガイドラインではOSSで利用可能なBeanマッピングライブラリとして <a class="reference external" href="https://mapstruct.org/">MapStruct</a> を使用することを推奨する。</div>
+</div>
+<div class="admonition tip">
+<p class="first admonition-title">Tip</p>
+<p>MapStructはJava コンパイラにプラグインするAnnotation Processorで、コードジェネレーターとして動作する。</p>
+<p class="last">ユーザが作成するインタフェースをインプットとして、コンパイル時にそのインタフェースに従ってBeanマッピングを行うコードを生成する。</p>
+</div>
+<div class="line-block">
+<div class="line">MapStructを使用することで下図のように、コピー元クラスとコピー先クラスで型が異なるコピーや、ネストしたBean同士のコピーも容易に行うことができる。</div>
+</div>
+<div class="figure">
+<a class="reference internal image-reference" href="../../_images/beanMapper-functionality-overview.png"><img alt="../../_images/beanMapper-functionality-overview.png" src="../../_images/beanMapper-functionality-overview.png" style="width: 75%;" /></a>
+</div>
+<p>MapStructを使用した場合と使用しない場合のコード例を挙げる。</p>
+<ul>
+<li><p class="first">煩雑になり、プログラムの見通しが悪くなる例</p>
+<div class="highlight-java"><div class="highlight"><pre><span></span><span class="n">Source</span> <span class="n">source</span> <span class="o">=</span> <span class="n">userService</span><span class="p">.</span><span class="na">findById</span><span class="p">(</span><span class="n">userId</span><span class="p">);</span>
+
+<span class="n">Target</span> <span class="n">target</span> <span class="o">=</span> <span class="k">new</span> <span class="n">Target</span><span class="p">();</span>
+
+<span class="n">target</span><span class="p">.</span><span class="na">setId</span><span class="p">(</span><span class="n">source</span><span class="p">.</span><span class="na">getId</span><span class="p">());</span>
+<span class="n">target</span><span class="p">.</span><span class="na">setPerson</span><span class="p">(</span><span class="k">new</span> <span class="n">Person</span><span class="p">(</span><span class="n">source</span><span class="p">.</span><span class="na">getPersonForm</span><span class="p">().</span><span class="na">getCode</span><span class="p">(),</span> <span class="n">source</span><span class="p">.</span><span class="na">getPersonForm</span><span class="p">().</span><span class="na">getName</span><span class="p">()));</span>
+<span class="n">target</span><span class="p">.</span><span class="na">setOrders</span><span class="p">(</span><span class="k">new</span> <span class="n">HashSet</span><span class="o">&lt;&gt;</span><span class="p">(</span><span class="n">source</span><span class="p">.</span><span class="na">getOrders</span><span class="p">()));</span>
+</pre></div>
+</div>
+</li>
+<li><p class="first">MapStructを使用した場合の例</p>
+<div class="highlight-java"><div class="highlight"><pre><span></span><span class="nd">@Mapper</span>
+<span class="kd">public</span> <span class="kd">interface</span> <span class="nc">BeanMapper</span> <span class="p">{</span>
+
+    <span class="n">Target</span> <span class="nf">map</span><span class="p">(</span><span class="n">Source</span> <span class="n">source</span><span class="p">);</span>
+
+<span class="p">}</span>
+</pre></div>
+</div>
+<div class="highlight-java"><div class="highlight"><pre><span></span><span class="n">Source</span> <span class="n">source</span> <span class="o">=</span> <span class="n">userService</span><span class="p">.</span><span class="na">findById</span><span class="p">(</span><span class="n">userId</span><span class="p">);</span>
+
+<span class="n">Target</span> <span class="n">target</span> <span class="o">=</span> <span class="n">beanMapper</span><span class="p">.</span><span class="na">map</span><span class="p">(</span><span class="n">source</span><span class="p">);</span>
+</pre></div>
+</div>
+</li>
+</ul>
+<div class="line-block">
+<div class="line"><br /></div>
+<div class="line">以降は、MapStructの利用方法について説明する。</div>
+<div class="line"><br /></div>
+</div>
+</div>
+<div class="section" id="how-to-use">
+<h2><a class="toc-backref" href="#id23">7.6.2. How to use</a><a class="headerlink" href="#how-to-use" title="Permalink to this headline">¶</a></h2>
+<div class="section" id="id2">
+<h3><a class="toc-backref" href="#id24">7.6.2.1. マッパーの作成方法</a><a class="headerlink" href="#id2" title="Permalink to this headline">¶</a></h3>
+<div class="section" id="mapstruct-setting">
+<span id="id3"></span><h4><a class="toc-backref" href="#id25">7.6.2.1.1. MapStructを使用するための設定</a><a class="headerlink" href="#mapstruct-setting" title="Permalink to this headline">¶</a></h4>
+<div class="line-block">
+<div class="line">MavenでMapStructを使用するためには、maven-compiler-pluginに下記の設定を追加する必要がある。</div>
+</div>
+<div class="highlight-xml"><div class="highlight"><pre><span></span><span class="nt">&lt;plugin&gt;</span>
+    <span class="nt">&lt;groupId&gt;</span>org.apache.maven.plugins<span class="nt">&lt;/groupId&gt;</span>
+    <span class="nt">&lt;artifactId&gt;</span>maven-compiler-plugin<span class="nt">&lt;/artifactId&gt;</span>
+    <span class="nt">&lt;configuration&gt;</span>
+        <span class="nt">&lt;annotationProcessorPaths&gt;</span>
+            <span class="nt">&lt;path&gt;</span>
+                <span class="nt">&lt;groupId&gt;</span>org.mapstruct<span class="nt">&lt;/groupId&gt;</span>
+                <span class="nt">&lt;artifactId&gt;</span>mapstruct-processor<span class="nt">&lt;/artifactId&gt;</span>
+                <span class="nt">&lt;version&gt;</span>${mapstruct.version}<span class="nt">&lt;/version&gt;</span> <span class="c">&lt;!-- (1) --&gt;</span>
+            <span class="nt">&lt;/path&gt;</span>
+        <span class="nt">&lt;/annotationProcessorPaths&gt;</span>
+        <span class="nt">&lt;compilerArgs&gt;</span>
+            <span class="nt">&lt;arg&gt;</span>-Amapstruct.defaultComponentModel=spring<span class="nt">&lt;/arg&gt;</span> <span class="c">&lt;!-- (2) --&gt;</span>
+        <span class="nt">&lt;/compilerArgs&gt;</span>
+    <span class="nt">&lt;/configuration&gt;</span>
+<span class="nt">&lt;/plugin&gt;</span>
+</pre></div>
+</div>
+<table border="1" class="colwidths-given docutils">
+<colgroup>
+<col width="10%" />
+<col width="90%" />
+</colgroup>
+<thead valign="bottom">
+<tr class="row-odd"><th class="head">項番</th>
+<th class="head">説明</th>
+</tr>
+</thead>
+<tbody valign="top">
+<tr class="row-even"><td><div class="first last line-block">
+<div class="line">(1)</div>
+</div>
+</td>
+<td><div class="first last line-block">
+<div class="line"><code class="docutils literal"><span class="pre">mapstruct.version</span></code>は依存ライブラリのバージョンを親プロジェクトである terasoluna-gfw-parent で管理する前提であるため、pom.xmlでプロパティとして変数を定義する必要は無い。</div>
+</div>
+</td>
+</tr>
+<tr class="row-odd"><td><div class="first last line-block">
+<div class="line">(2)</div>
+</div>
+</td>
+<td><div class="first last line-block">
+<div class="line">生成されるマッパーインタフェースの実装クラスに<code class="docutils literal"><span class="pre">org.springframework.stereotype.Component</span></code>アノテーションを付与する設定。</div>
+<div class="line">この設定を行わない場合は、<a class="reference internal" href="#bean-mapper-definition"><span class="std std-ref">MapStructを使用するためのBean定義</span></a>で記載されているようにマッパーインタフェースに直接設定を記載することができる。</div>
+<div class="line">本ガイドラインでは上記のようにmaven-compiler-pluginに設定を追加している前提とする。</div>
+</div>
+</td>
+</tr>
+</tbody>
+</table>
+<div class="admonition note">
+<p class="first admonition-title">Note</p>
+<p>開発プロジェクトを<a class="reference external" href="https://github.com/terasolunaorg/terasoluna-gfw-web-multi-blank/tree/5.8.0.RELEASE">ブランクプロジェクト</a>から作成すると、上記の設定はpom.xmlに記載されている。</p>
+<p class="last">開発プロジェクトの作成方法については、「<a class="reference internal" href="../../ImplementationAtEachLayer/CreateWebApplicationProject.html"><span class="doc">Webアプリケーション向け開発プロジェクトの作成</span></a>」を参照されたい。</p>
+</div>
+<div class="line-block">
+<div class="line"><br /></div>
+</div>
+</div>
+<div class="section" id="id5">
+<h4><a class="toc-backref" href="#id26">7.6.2.1.2. マッパーインタフェースの作成</a><a class="headerlink" href="#id5" title="Permalink to this headline">¶</a></h4>
+<div class="line-block">
+<div class="line">MapStructでは、マッピングの前後の関係を定義するために、インタフェースとそのインタフェースに記載されたメソッドを利用する。</div>
+<div class="line">以降、前者をマッパーインタフェース、後者をマッピングメソッドと呼ぶ。マッパーインタフェースには<code class="docutils literal"><span class="pre">&#64;Mapper</span></code>アノテーションが付与されている必要がある。また、マッピング元をソース、マッピング先をターゲットと呼ぶ。</div>
+<div class="line"><code class="docutils literal"><span class="pre">&#64;Mapper</span></code>アノテーションを付与することにより、コンパイル時にマッパーインタフェースの実装クラスが自動で生成される。この際、サポートされていない型のマッピングを行おうとするとコンパイルエラーが発生する。</div>
+</div>
+<div class="highlight-java"><div class="highlight"><pre><span></span><span class="nd">@Mapper</span> <span class="c1">// (1)</span>
+<span class="kd">public</span> <span class="kd">interface</span> <span class="nc">BeanMapper</span> <span class="p">{</span>
+
+    <span class="n">Target</span> <span class="nf">map</span><span class="p">(</span><span class="n">Source</span> <span class="n">source</span><span class="p">);</span> <span class="c1">// (2)</span>
+
+<span class="p">}</span>
+</pre></div>
+</div>
+<table border="1" class="colwidths-given docutils">
+<colgroup>
+<col width="10%" />
+<col width="90%" />
+</colgroup>
+<thead valign="bottom">
+<tr class="row-odd"><th class="head">項番</th>
+<th class="head">説明</th>
+</tr>
+</thead>
+<tbody valign="top">
+<tr class="row-even"><td><div class="first last line-block">
+<div class="line">(1)</div>
+</div>
+</td>
+<td><div class="first last line-block">
+<div class="line">対象のインタフェースに<code class="docutils literal"><span class="pre">&#64;Mapper</span></code>アノテーションを付与する。</div>
+</div>
+</td>
+</tr>
+<tr class="row-odd"><td><div class="first last line-block">
+<div class="line">(2)</div>
+</div>
+</td>
+<td><div class="first last line-block">
+<div class="line">マッピングメソッドを定義する。ソースとなるクラスを引数に、ターゲットとなるクラスを返り値にする。</div>
+</div>
+</td>
+</tr>
+</tbody>
+</table>
+<div class="admonition note">
+<p class="first admonition-title">Note</p>
+<p>マッパーインタフェースはソースとターゲット両方のBeanを参照できる必要がある。</p>
+<p class="last">本ガイドラインではマッパーを使用するクラスと同じパッケージにマッパーインタフェースを配置する前提とする。</p>
+</div>
+<div class="admonition note">
+<p class="first admonition-title">Note</p>
+<p>マッピングメソッドを定義するファイルはインタフェースではなく抽象クラスにすることもできる。</p>
+<p>抽象クラスにすることにより、インスタンスフィールドやprivateメソッドを活用することが可能となり、より柔軟なマッピング処理を記載することができる。</p>
+<blockquote class="last">
+<div><div class="highlight-java"><div class="highlight"><pre><span></span><span class="nd">@Mapper</span>
+<span class="kd">public</span> <span class="kd">abstract</span> <span class="kd">class</span> <span class="nc">BeanMapper</span> <span class="p">{</span>
+
+    <span class="kd">public</span> <span class="kd">abstract</span> <span class="n">Target</span> <span class="nf">map</span><span class="p">(</span><span class="n">Source</span> <span class="n">source</span><span class="p">);</span>
+
+<span class="p">}</span>
+</pre></div>
+</div>
+</div></blockquote>
+</div>
+<div class="line-block">
+<div class="line"><br /></div>
+</div>
+</div>
+<div class="section" id="mapstructbean">
+<span id="bean-mapper-definition"></span><h4><a class="toc-backref" href="#id27">7.6.2.1.3. MapStructを使用するためのBean定義</a><a class="headerlink" href="#mapstructbean" title="Permalink to this headline">¶</a></h4>
+<p>maven-compiler-pluginに<a class="reference internal" href="#mapstruct-setting"><span class="std std-ref">MapStructを使用するための設定</span></a>の(2)の設定をしていない場合は、<code class="docutils literal"><span class="pre">&#64;Mapper</span></code>アノテーションに下記の設定を行う必要がある。</p>
+<div class="highlight-java"><div class="highlight"><pre><span></span><span class="nd">@Mapper</span><span class="p">(</span><span class="n">componentModel</span> <span class="o">=</span> <span class="n">MappingConstants</span><span class="p">.</span><span class="na">ComponentModel</span><span class="p">.</span><span class="na">SPRING</span><span class="p">)</span> <span class="c1">// (1)</span>
+<span class="kd">public</span> <span class="kd">interface</span> <span class="nc">BeanMapper</span> <span class="p">{</span>
+
+<span class="p">}</span>
+</pre></div>
+</div>
+<table border="1" class="colwidths-given docutils">
+<colgroup>
+<col width="10%" />
+<col width="90%" />
+</colgroup>
+<thead valign="bottom">
+<tr class="row-odd"><th class="head">項番</th>
+<th class="head">説明</th>
+</tr>
+</thead>
+<tbody valign="top">
+<tr class="row-even"><td><div class="first last line-block">
+<div class="line">(1)</div>
+</div>
+</td>
+<td><div class="first last line-block">
+<div class="line">componentModelに<code class="docutils literal"><span class="pre">MappingConstants.ComponentModel.SPRING</span></code>を指定することにより、生成されるクラスに<code class="docutils literal"><span class="pre">org.springframework.stereotype.Component</span></code>アノテーションが付与され、component-scanの対象となる。</div>
+</div>
+</td>
+</tr>
+</tbody>
+</table>
+<div class="admonition note">
+<p class="first admonition-title">Note</p>
+<p>生成されるクラスは<code class="docutils literal"><span class="pre">target/generated-sources/annotations</span></code>配下のマッパーインタフェースと同じパッケージに配置される。そのため、マッパーインタフェースはcomponent-scanの対象となるパスに配置をする必要がある。</p>
+<blockquote class="last">
+<div><div class="highlight-console"><div class="highlight"><pre><span></span><span class="go">artifactId-web</span>
+<span class="go">    └── src</span>
+<span class="go">    │   └── main</span>
+<span class="go">    │       └── java</span>
+<span class="go">    │           └── com</span>
+<span class="go">    │               └── example</span>
+<span class="go">    │                   └── project</span>
+<span class="go">    │                       └── app</span>
+<span class="go">    │                           └── welcome</span>
+<span class="go">    │                               └── BeanMapper.java</span>
+<span class="go">    └── target</span>
+<span class="go">        └── generated-sources</span>
+<span class="go">            └── annotations</span>
+<span class="go">                └── com</span>
+<span class="go">                    └── example</span>
+<span class="go">                        └── project</span>
+<span class="go">                            └── app</span>
+<span class="go">                                └── welcome</span>
+<span class="go">                                    └── BeanMapperImpl.java</span>
+</pre></div>
+</div>
+</div></blockquote>
+</div>
+<p>生成された実装クラスを呼び出すためには、フィールドにマッパーインタフェースをインジェクトすればよい。</p>
+<div class="highlight-java"><div class="highlight"><pre><span></span><span class="nd">@Inject</span>
+<span class="n">BeanMapper</span> <span class="n">beanMapper</span><span class="p">;</span>
+</pre></div>
+</div>
+<div class="line-block">
+<div class="line"><br /></div>
+</div>
+</div>
+</div>
+<div class="section" id="id6">
+<h3><a class="toc-backref" href="#id28">7.6.2.2. マッピング方法</a><a class="headerlink" href="#id6" title="Permalink to this headline">¶</a></h3>
+<div class="section" id="bean">
+<span id="beanconverter-basic-mapping-label"></span><h4><a class="toc-backref" href="#id29">7.6.2.2.1. Bean間のフィールド名、型が同じ場合のマッピング</a><a class="headerlink" href="#bean" title="Permalink to this headline">¶</a></h4>
+<p>対象のBean間のフィールド名及び型が同じ場合、マッパーインタフェースにマッピングメソッドを定義するだけでよい。</p>
+<ul>
+<li><p class="first">ソース</p>
+<div class="highlight-java"><div class="highlight"><pre><span></span><span class="kd">public</span> <span class="kd">class</span> <span class="nc">Source</span> <span class="p">{</span>
+    <span class="kd">private</span> <span class="kt">int</span> <span class="n">id</span><span class="p">;</span>
+    <span class="kd">private</span> <span class="n">String</span> <span class="n">name</span><span class="p">;</span>
+    <span class="c1">// omitted setter/getter</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+</li>
+<li><p class="first">ターゲット</p>
+<div class="highlight-java"><div class="highlight"><pre><span></span><span class="kd">public</span> <span class="kd">class</span> <span class="nc">Target</span> <span class="p">{</span>
+    <span class="kd">private</span> <span class="kt">int</span> <span class="n">id</span><span class="p">;</span>
+    <span class="kd">private</span> <span class="n">String</span> <span class="n">name</span><span class="p">;</span>
+    <span class="c1">// omitted setter/getter</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+</li>
+<li><p class="first">マッパーインタフェース</p>
+<div class="highlight-java"><div class="highlight"><pre><span></span><span class="nd">@Mapper</span>
+<span class="kd">public</span> <span class="kd">interface</span> <span class="nc">BeanMapper</span> <span class="p">{</span>
+
+    <span class="n">Target</span> <span class="nf">map</span><span class="p">(</span><span class="n">Source</span> <span class="n">source</span><span class="p">);</span>
+
+<span class="p">}</span>
+</pre></div>
+</div>
+</li>
+</ul>
+<div class="line-block">
+<div class="line">以下のように、定義されたMappingメソッドを使ってBeanマッピングを行う。</div>
+<div class="line">下記メソッドを実行した後、Targetオブジェクトが新たに作成され、sourceの各フィールドの値が作成されたTargetオブジェクトにコピーされる。</div>
+</div>
+<blockquote>
+<div><div class="highlight-java"><div class="highlight"><pre><span></span><span class="n">Source</span> <span class="n">source</span> <span class="o">=</span> <span class="k">new</span> <span class="n">Source</span><span class="p">();</span>
+<span class="n">source</span><span class="p">.</span><span class="na">setId</span><span class="p">(</span><span class="mi">1</span><span class="p">);</span>
+<span class="n">source</span><span class="p">.</span><span class="na">setName</span><span class="p">(</span><span class="s">&quot;SourceName&quot;</span><span class="p">);</span>
+
+<span class="n">Target</span> <span class="n">target</span> <span class="o">=</span> <span class="n">beanMapper</span><span class="p">.</span><span class="na">map</span><span class="p">(</span><span class="n">source</span><span class="p">);</span>
+
+<span class="n">System</span><span class="p">.</span><span class="na">out</span><span class="p">.</span><span class="na">println</span><span class="p">(</span><span class="n">target</span><span class="p">.</span><span class="na">getId</span><span class="p">());</span>
+<span class="n">System</span><span class="p">.</span><span class="na">out</span><span class="p">.</span><span class="na">println</span><span class="p">(</span><span class="n">target</span><span class="p">.</span><span class="na">getName</span><span class="p">());</span>
+</pre></div>
+</div>
+</div></blockquote>
+<div class="line-block">
+<div class="line">上記のコードを実行すると以下のように出力される。</div>
+</div>
+<blockquote>
+<div><div class="highlight-console"><div class="highlight"><pre><span></span><span class="go">1</span>
+<span class="go">SourceName</span>
+</pre></div>
+</div>
+</div></blockquote>
+<p>作成されたオブジェクトにソースのオブジェクトの値が設定されていることが分かる。</p>
+<div class="line-block">
+<div class="line"><br /></div>
+</div>
+</div>
+<div class="section" id="beanconverter-difference-type-mapping-label">
+<span id="id7"></span><h4><a class="toc-backref" href="#id30">7.6.2.2.2. Bean間のフィールドの型が異なる場合のマッピング</a><a class="headerlink" href="#beanconverter-difference-type-mapping-label" title="Permalink to this headline">¶</a></h4>
+<p>ソースとターゲットでBeanのフィールドの型が異なる場合、MapStructでサポートされている型変換の場合は自動でマッピングできる。</p>
+<p>例えば、以下のような変換はMappingメソッドを定義するだけで変換できる。</p>
+<p>例 : String -&gt; BigDecimal</p>
+<div class="line-block">
+<div class="line">サポートされている型変換については、<a class="reference external" href="https://mapstruct.org/documentation/1.5/reference/html/#implicit-type-conversions">マニュアル -Implicit type conversions-</a>を参照されたい。</div>
+<div class="line">マニュアルに載っていない型変換を行いたい場合は<a class="reference internal" href="#how-to-make-custom-mapping"><span class="std std-ref">独自のマッピングの定義方法</span></a>を参照されたい。</div>
+<div class="line">なお、Stringから日付型や数値型の変換についてはフォーマット指定もできる。詳しくは<a class="reference internal" href="#string-format"><span class="std std-ref">文字列からの変換のフォーマット指定</span></a>を参照されたい。</div>
+</div>
+<ul>
+<li><p class="first">ソース</p>
+<div class="highlight-java"><div class="highlight"><pre><span></span><span class="kd">public</span> <span class="kd">class</span> <span class="nc">Source</span> <span class="p">{</span>
+    <span class="kd">private</span> <span class="n">String</span> <span class="n">amount</span><span class="p">;</span>
+    <span class="c1">// omitted setter/getter</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+</li>
+<li><p class="first">ターゲット</p>
+<div class="highlight-java"><div class="highlight"><pre><span></span><span class="kd">public</span> <span class="kd">class</span> <span class="nc">Target</span> <span class="p">{</span>
+    <span class="kd">private</span> <span class="n">BigDecimal</span> <span class="n">amount</span><span class="p">;</span>
+    <span class="c1">// omitted setter/getter</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+</li>
+<li><p class="first">マッピングメソッド</p>
+<div class="highlight-java"><div class="highlight"><pre><span></span><span class="nd">@Mapper</span>
+<span class="kd">public</span> <span class="kd">interface</span> <span class="nc">BeanMapper</span> <span class="p">{</span>
+
+    <span class="n">Target</span> <span class="nf">map</span><span class="p">(</span><span class="n">Source</span> <span class="n">source</span><span class="p">);</span>
+
+<span class="p">}</span>
+</pre></div>
+</div>
+</li>
+<li><p class="first">マッピング例</p>
+<div class="highlight-java"><div class="highlight"><pre><span></span><span class="n">Source</span> <span class="n">source</span> <span class="o">=</span> <span class="k">new</span> <span class="n">Source</span><span class="p">();</span>
+<span class="n">source</span><span class="p">.</span><span class="na">setAmount</span><span class="p">(</span><span class="s">&quot;123.45&quot;</span><span class="p">);</span>
+
+<span class="n">Target</span> <span class="n">target</span> <span class="o">=</span> <span class="n">beanMapper</span><span class="p">.</span><span class="na">map</span><span class="p">(</span><span class="n">source</span><span class="p">);</span>
+
+<span class="n">System</span><span class="p">.</span><span class="na">out</span><span class="p">.</span><span class="na">println</span><span class="p">(</span><span class="n">target</span><span class="p">.</span><span class="na">getAmount</span><span class="p">());</span>
+</pre></div>
+</div>
+</li>
+</ul>
+<p>上記のコードを実行すると以下のように出力される。</p>
+<blockquote>
+<div><div class="highlight-console"><div class="highlight"><pre><span></span><span class="go">123.45</span>
+</pre></div>
+</div>
+</div></blockquote>
+<p>型が異なる場合でも値をコピーできていることが分かる。</p>
+<div class="line-block">
+<div class="line"><br /></div>
+</div>
+</div>
+<div class="section" id="beanconverter-difference-item-xml-mapping-label">
+<span id="id8"></span><h4><a class="toc-backref" href="#id31">7.6.2.2.3. Bean間のフィールド名が異なる場合のマッピング</a><a class="headerlink" href="#beanconverter-difference-item-xml-mapping-label" title="Permalink to this headline">¶</a></h4>
+<div class="line-block">
+<div class="line">ソースとターゲットでフィールド名が異なる場合、マッピングメソッドに<code class="docutils literal"><span class="pre">&#64;Mapping</span></code>アノテーションを設定することで変換できる。</div>
+<div class="line"><code class="docutils literal"><span class="pre">&#64;Mapping</span></code>アノテーションにはマッピングするフィールド名を設定する。</div>
+</div>
+<ul>
+<li><p class="first">ソース</p>
+<div class="highlight-java"><div class="highlight"><pre><span></span><span class="kd">public</span> <span class="kd">class</span> <span class="nc">Source</span> <span class="p">{</span>
+    <span class="kd">private</span> <span class="kt">int</span> <span class="n">id</span><span class="p">;</span>
+    <span class="kd">private</span> <span class="n">String</span> <span class="n">name</span><span class="p">;</span>
+    <span class="c1">// omitted setter/getter</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+</li>
+<li><p class="first">ターゲット</p>
+<div class="highlight-java"><div class="highlight"><pre><span></span><span class="kd">public</span> <span class="kd">class</span> <span class="nc">Target</span> <span class="p">{</span>
+    <span class="kd">private</span> <span class="kt">int</span> <span class="n">targetId</span><span class="p">;</span>
+    <span class="kd">private</span> <span class="n">String</span> <span class="n">targetName</span><span class="p">;</span>
+    <span class="c1">// omitted setter/getter</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+</li>
+<li><p class="first">マッパーインタフェース</p>
+<div class="highlight-java"><div class="highlight"><pre><span></span><span class="nd">@Mapper</span>
+<span class="kd">public</span> <span class="kd">interface</span> <span class="nc">BeanMapper</span> <span class="p">{</span>
+
+    <span class="nd">@Mapping</span><span class="p">(</span><span class="n">target</span> <span class="o">=</span> <span class="s">&quot;targetId&quot;</span><span class="p">,</span> <span class="n">source</span> <span class="o">=</span> <span class="s">&quot;id&quot;</span><span class="p">)</span> <span class="c1">// (1)</span>
+    <span class="nd">@Mapping</span><span class="p">(</span><span class="n">target</span> <span class="o">=</span> <span class="s">&quot;targetName&quot;</span><span class="p">,</span> <span class="n">source</span> <span class="o">=</span> <span class="s">&quot;name&quot;</span><span class="p">)</span> <span class="c1">// (1)</span>
+    <span class="n">Target</span> <span class="nf">map</span><span class="p">(</span><span class="n">Source</span> <span class="n">source</span><span class="p">);</span>
+
+<span class="p">}</span>
+</pre></div>
+</div>
+<table border="1" class="colwidths-given docutils">
+<colgroup>
+<col width="10%" />
+<col width="90%" />
+</colgroup>
+<thead valign="bottom">
+<tr class="row-odd"><th class="head">項番</th>
+<th class="head">説明</th>
+</tr>
+</thead>
+<tbody valign="top">
+<tr class="row-even"><td><div class="first last line-block">
+<div class="line">(1)</div>
+</div>
+</td>
+<td><div class="first last line-block">
+<div class="line">対象のメソッドに<code class="docutils literal"><span class="pre">&#64;Mapping</span></code>を付与し、<code class="docutils literal"><span class="pre">target</span></code>にターゲットのフィールドを、<code class="docutils literal"><span class="pre">source</span></code>にソースのフィールドを指定する。</div>
+<div class="line"><code class="docutils literal"><span class="pre">&#64;Mapping</span></code>は対象のフィールドの分だけ設定する。</div>
+</div>
+</td>
+</tr>
+</tbody>
+</table>
+</li>
+<li><p class="first">マッピング例</p>
+<div class="highlight-java"><div class="highlight"><pre><span></span><span class="n">Source</span> <span class="n">source</span> <span class="o">=</span> <span class="k">new</span> <span class="n">Source</span><span class="p">();</span>
+<span class="n">source</span><span class="p">.</span><span class="na">setId</span><span class="p">(</span><span class="mi">1</span><span class="p">);</span>
+<span class="n">source</span><span class="p">.</span><span class="na">setName</span><span class="p">(</span><span class="s">&quot;SourceName&quot;</span><span class="p">);</span>
+
+<span class="n">Target</span> <span class="n">target</span> <span class="o">=</span> <span class="n">beanMapper</span><span class="p">.</span><span class="na">map</span><span class="p">(</span><span class="n">source</span><span class="p">);</span>
+
+<span class="n">System</span><span class="p">.</span><span class="na">out</span><span class="p">.</span><span class="na">println</span><span class="p">(</span><span class="n">target</span><span class="p">.</span><span class="na">getTargetId</span><span class="p">());</span>
+<span class="n">System</span><span class="p">.</span><span class="na">out</span><span class="p">.</span><span class="na">println</span><span class="p">(</span><span class="n">target</span><span class="p">.</span><span class="na">getTargetName</span><span class="p">());</span>
+</pre></div>
+</div>
+</li>
+</ul>
+<p>上記のコードを実行すると以下のように出力される。</p>
+<blockquote>
+<div><div class="highlight-console"><div class="highlight"><pre><span></span><span class="go">1</span>
+<span class="go">SourceName</span>
+</pre></div>
+</div>
+</div></blockquote>
+<p>フィールド名が異なる場合でも値をコピーできていることが分かる。</p>
+<div class="line-block">
+<div class="line"><br /></div>
+</div>
+</div>
+<div class="section" id="nest">
+<h4><a class="toc-backref" href="#id32">7.6.2.2.4. Nestしたフィールドのマッピング</a><a class="headerlink" href="#nest" title="Permalink to this headline">¶</a></h4>
+<div class="line-block">
+<div class="line">ソースのBeanまたはターゲットのBeanがフィールドにBeanを持つ場合、そのNestしたBeanに対してもマッピングすることができる。</div>
+<div class="line">以下にSourceというBeanにNestしたBeanであるDeptSourceを持つ例を記載する。</div>
+</div>
+<ul>
+<li><p class="first">ソース</p>
+<div class="highlight-java"><div class="highlight"><pre><span></span><span class="kd">public</span> <span class="kd">class</span> <span class="nc">Source</span> <span class="p">{</span>
+    <span class="kd">private</span> <span class="kt">int</span> <span class="n">id</span><span class="p">;</span>
+    <span class="kd">private</span> <span class="n">String</span> <span class="n">name</span><span class="p">;</span>
+    <span class="kd">private</span> <span class="n">DeptSource</span> <span class="n">deptSource</span><span class="p">;</span>
+    <span class="c1">// omitted setter/getter</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+</li>
+<li><p class="first">ソースにネストしたBean</p>
+<div class="highlight-java"><div class="highlight"><pre><span></span><span class="kd">public</span> <span class="kd">class</span> <span class="nc">DeptSource</span> <span class="p">{</span>
+    <span class="kd">private</span> <span class="n">String</span> <span class="n">deptId</span><span class="p">;</span>
+    <span class="kd">private</span> <span class="n">String</span> <span class="n">depetName</span>
+    <span class="c1">// omitted setter/getter and other fields</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+</li>
+<li><p class="first">ターゲット</p>
+<div class="highlight-java"><div class="highlight"><pre><span></span><span class="kd">public</span> <span class="kd">class</span> <span class="nc">Target</span> <span class="p">{</span>
+    <span class="kd">private</span> <span class="kt">int</span> <span class="n">id</span><span class="p">;</span>
+    <span class="kd">private</span> <span class="n">String</span> <span class="n">name</span><span class="p">;</span>
+    <span class="kd">private</span> <span class="n">String</span> <span class="n">deptId</span><span class="p">;</span>
+    <span class="kd">private</span> <span class="n">String</span> <span class="n">deptName</span><span class="p">;</span>
+    <span class="c1">// omitted setter/getter</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+</li>
+</ul>
+<div class="line-block">
+<div class="line"><code class="docutils literal"><span class="pre">Source</span></code>オブジェクトが持つ<code class="docutils literal"><span class="pre">DeptSource</span></code>の<code class="docutils literal"><span class="pre">deptId</span></code>と<code class="docutils literal"><span class="pre">deptName</span></code>を、<code class="docutils literal"><span class="pre">Target</span></code>オブジェクトが持つ<code class="docutils literal"><span class="pre">deptId</span></code>と<code class="docutils literal"><span class="pre">deptName</span></code>にマップしたい場合、以下のように定義する。</div>
+<div class="line">ターゲットのBeanがNestしたBeanのフィールドを持つ場合も同様に表現できる。</div>
+</div>
+<ul>
+<li><p class="first">マッパーインタフェース</p>
+<div class="highlight-java"><div class="highlight"><pre><span></span><span class="nd">@Mapper</span>
+<span class="kd">public</span> <span class="kd">interface</span> <span class="nc">BeanMapper</span> <span class="p">{</span>
+
+    <span class="nd">@Mapping</span><span class="p">(</span><span class="n">target</span> <span class="o">=</span> <span class="s">&quot;deptId&quot;</span><span class="p">,</span> <span class="n">source</span> <span class="o">=</span> <span class="s">&quot;deptSource.deptId&quot;</span><span class="p">)</span>
+    <span class="nd">@Mapping</span><span class="p">(</span><span class="n">target</span> <span class="o">=</span> <span class="s">&quot;deptName&quot;</span><span class="p">,</span> <span class="n">source</span> <span class="o">=</span> <span class="s">&quot;deptSource.deptName&quot;</span><span class="p">)</span>
+    <span class="n">Target</span> <span class="nf">map</span><span class="p">(</span><span class="n">Source</span> <span class="n">source</span><span class="p">);</span>
+
+<span class="p">}</span>
+</pre></div>
+</div>
+</li>
+</ul>
+<div class="admonition note">
+<p class="first admonition-title">Note</p>
+<p><code class="docutils literal"><span class="pre">Source</span></code>オブジェクトが持つ<code class="docutils literal"><span class="pre">DeptSource</span></code>のフィールドを全てマッピングする場合は、以下のように<code class="docutils literal"><span class="pre">&quot;.&quot;</span></code>を設定することで全てのフィールドをマッピングすることができる。</p>
+<blockquote class="last">
+<div><div class="highlight-java"><div class="highlight"><pre><span></span><span class="nd">@Mapper</span>
+<span class="kd">public</span> <span class="kd">interface</span> <span class="nc">BeanMapper</span> <span class="p">{</span>
+
+    <span class="nd">@Mapping</span><span class="p">(</span><span class="n">target</span> <span class="o">=</span> <span class="s">&quot;.&quot;</span><span class="p">,</span> <span class="n">source</span> <span class="o">=</span> <span class="s">&quot;deptSource&quot;</span><span class="p">)</span> <span class="c1">// (1)</span>
+    <span class="n">Target</span> <span class="nf">map</span><span class="p">(</span><span class="n">Source</span> <span class="n">source</span><span class="p">);</span>
+
+<span class="p">}</span>
+</pre></div>
+</div>
+<table border="1" class="colwidths-given docutils">
+<colgroup>
+<col width="10%" />
+<col width="90%" />
+</colgroup>
+<thead valign="bottom">
+<tr class="row-odd"><th class="head">項番</th>
+<th class="head">説明</th>
+</tr>
+</thead>
+<tbody valign="top">
+<tr class="row-even"><td><div class="first last line-block">
+<div class="line">(1)</div>
+</div>
+</td>
+<td><div class="first last line-block">
+<div class="line">targetに<code class="docutils literal"><span class="pre">&quot;.&quot;</span></code>を指定すると、<code class="docutils literal"><span class="pre">DeptSource</span></code>のフィールドを全てマッピングする。なお、<code class="docutils literal"><span class="pre">&quot;.&quot;</span></code>は<strong>sourceには設定ができない。</strong></div>
+</div>
+</td>
+</tr>
+</tbody>
+</table>
+</div></blockquote>
+</div>
+<ul>
+<li><p class="first">マッピング例</p>
+<div class="highlight-java"><div class="highlight"><pre><span></span><span class="n">Source</span> <span class="n">source</span> <span class="o">=</span> <span class="k">new</span> <span class="n">Source</span><span class="p">();</span>
+<span class="n">source</span><span class="p">.</span><span class="na">setId</span><span class="p">(</span><span class="mi">1</span><span class="p">);</span>
+<span class="n">source</span><span class="p">.</span><span class="na">setName</span><span class="p">(</span><span class="s">&quot;John&quot;</span><span class="p">);</span>
+<span class="n">source</span><span class="p">.</span><span class="na">setDeptId</span><span class="p">(</span><span class="s">&quot;D01&quot;</span><span class="p">);</span>
+<span class="n">source</span><span class="p">.</span><span class="na">setDeptName</span><span class="p">(</span><span class="s">&quot;Mike&quot;</span><span class="p">)</span>
+
+<span class="n">Target</span> <span class="n">target</span> <span class="o">=</span> <span class="n">beanMapper</span><span class="p">.</span><span class="na">map</span><span class="p">(</span><span class="n">source</span><span class="p">);</span>
+<span class="n">System</span><span class="p">.</span><span class="na">out</span><span class="p">.</span><span class="na">println</span><span class="p">(</span><span class="n">target</span><span class="p">.</span><span class="na">getId</span><span class="p">());</span>
+<span class="n">System</span><span class="p">.</span><span class="na">out</span><span class="p">.</span><span class="na">println</span><span class="p">(</span><span class="n">target</span><span class="p">.</span><span class="na">getName</span><span class="p">());</span>
+<span class="n">System</span><span class="p">.</span><span class="na">out</span><span class="p">.</span><span class="na">println</span><span class="p">(</span><span class="n">target</span><span class="p">.</span><span class="na">getDepartment</span><span class="p">().</span><span class="na">getDeptId</span><span class="p">());</span>
+<span class="n">System</span><span class="p">.</span><span class="na">out</span><span class="p">.</span><span class="na">println</span><span class="p">(</span><span class="n">target</span><span class="p">.</span><span class="na">getDepartment</span><span class="p">().</span><span class="na">getDeptName</span><span class="p">());</span>
+</pre></div>
+</div>
+</li>
+</ul>
+<p>上記のコードを実行すると以下のように出力される。</p>
+<blockquote>
+<div><div class="highlight-console"><div class="highlight"><pre><span></span><span class="go">1</span>
+<span class="go">John</span>
+<span class="go">D01</span>
+<span class="go">Mike</span>
+</pre></div>
+</div>
+</div></blockquote>
+<div class="line-block">
+<div class="line"><br /></div>
+</div>
+</div>
+<div class="section" id="existing-bean-update">
+<span id="id9"></span><h4><a class="toc-backref" href="#id33">7.6.2.2.5. 既存のBeanの更新</a><a class="headerlink" href="#existing-bean-update" title="Permalink to this headline">¶</a></h4>
+<p>ターゲットのBeanを新たに生成せずに、既存のBeanを更新したい場合はメソッドを以下のように定義する。</p>
+<blockquote>
+<div><div class="highlight-java"><div class="highlight"><pre><span></span><span class="nd">@Mapper</span>
+<span class="kd">public</span> <span class="kd">interface</span> <span class="nc">BeanMapper</span> <span class="p">{</span>
+
+    <span class="kt">void</span> <span class="nf">map</span><span class="p">(</span><span class="n">Source</span> <span class="n">source</span><span class="p">,</span> <span class="nd">@MappingTarget</span> <span class="n">Target</span> <span class="n">target</span><span class="p">);</span> <span class="c1">// (1)</span>
+
+<span class="p">}</span>
+</pre></div>
+</div>
+<table border="1" class="colwidths-given docutils">
+<colgroup>
+<col width="10%" />
+<col width="90%" />
+</colgroup>
+<thead valign="bottom">
+<tr class="row-odd"><th class="head">項番</th>
+<th class="head">説明</th>
+</tr>
+</thead>
+<tbody valign="top">
+<tr class="row-even"><td><div class="first last line-block">
+<div class="line">(1)</div>
+</div>
+</td>
+<td><div class="first last line-block">
+<div class="line">第2引数にターゲットのクラスを設定し、<code class="docutils literal"><span class="pre">&#64;MappingTarget</span></code>アノテーションを付与することにより既存のオブジェクトの更新ができる。</div>
+</div>
+</td>
+</tr>
+</tbody>
+</table>
+</div></blockquote>
+<p>以下のように、定義されたMappingメソッドを使って既存のBeanの更新を行う。</p>
+<blockquote>
+<div><div class="highlight-java"><div class="highlight"><pre><span></span><span class="n">Source</span> <span class="n">source</span> <span class="o">=</span> <span class="k">new</span> <span class="n">Source</span><span class="p">();</span>
+<span class="n">source</span><span class="p">.</span><span class="na">setId</span><span class="p">(</span><span class="mi">1</span><span class="p">);</span>
+<span class="n">source</span><span class="p">.</span><span class="na">setName</span><span class="p">(</span><span class="s">&quot;SourceName&quot;</span><span class="p">);</span>
+
+<span class="n">Target</span> <span class="n">target</span> <span class="o">=</span> <span class="k">new</span> <span class="n">Target</span><span class="p">();</span>
+
+<span class="n">target</span><span class="p">.</span><span class="na">setId</span><span class="p">(</span><span class="mi">2</span><span class="p">);</span>
+<span class="n">target</span><span class="p">.</span><span class="na">setName</span><span class="p">(</span><span class="s">&quot;TargetName&quot;</span><span class="p">);</span>
+
+<span class="n">beanMapper</span><span class="p">.</span><span class="na">map</span><span class="p">(</span><span class="n">source</span><span class="p">,</span> <span class="n">target</span><span class="p">);</span>
+
+<span class="n">System</span><span class="p">.</span><span class="na">out</span><span class="p">.</span><span class="na">println</span><span class="p">(</span><span class="n">target</span><span class="p">.</span><span class="na">getId</span><span class="p">());</span>
+<span class="n">System</span><span class="p">.</span><span class="na">out</span><span class="p">.</span><span class="na">println</span><span class="p">(</span><span class="n">target</span><span class="p">.</span><span class="na">getName</span><span class="p">());</span>
+</pre></div>
+</div>
+</div></blockquote>
+<p>上記のコードを実行すると以下のように出力される。</p>
+<blockquote>
+<div><div class="highlight-console"><div class="highlight"><pre><span></span><span class="go">1</span>
+<span class="go">SourceName</span>
+</pre></div>
+</div>
+</div></blockquote>
+<p>ソースのオブジェクトの値がターゲットに反映されていることが分かる。</p>
+<div class="admonition note">
+<p class="first admonition-title">Note</p>
+<p>ターゲットにマッピングされないフィールドが存在する場合、該当するフィールドの値はコピー前後で変わらない。ただし、マッピングされないフィールドが存在する場合はコンパイル時に警告が発生する。</p>
+<p>これを抑制するには、下記のようにunmappedTargetPolicyの値を<code class="docutils literal"><span class="pre">ReportingPolicy.IGNORE</span></code>に設定するか、後述の<a class="reference internal" href="#fieldexclude"><span class="std std-ref">フィールド除外設定</span></a>で紹介するようにフィールドの除外設定を行う必要がある。</p>
+<blockquote>
+<div><div class="highlight-java"><div class="highlight"><pre><span></span><span class="nd">@Mapper</span><span class="p">(</span><span class="n">unmappedTargetPolicy</span> <span class="o">=</span> <span class="n">ReportingPolicy</span><span class="p">.</span><span class="na">IGNORE</span><span class="p">)</span>
+<span class="kd">public</span> <span class="kd">interface</span> <span class="nc">BeanMapper</span> <span class="p">{</span>
+
+    <span class="kt">void</span> <span class="nf">map</span><span class="p">(</span><span class="n">Source</span> <span class="n">source</span><span class="p">,</span> <span class="nd">@MappingTarget</span> <span class="n">Target</span> <span class="n">target</span><span class="p">);</span>
+
+<span class="p">}</span>
+</pre></div>
+</div>
+</div></blockquote>
+<p class="last">ソースにマッピングしないフィールドが存在する場合も同様に警告が発生する。この場合はunmappedSourcePolicyの値を上記と同様に<code class="docutils literal"><span class="pre">ReportingPolicy.IGNORE</span></code>に設定すればよい。</p>
+</div>
+<div class="line-block">
+<div class="line"><br /></div>
+</div>
+</div>
+<div class="section" id="collection">
+<h4><a class="toc-backref" href="#id34">7.6.2.2.6. Collectionマッピング</a><a class="headerlink" href="#collection" title="Permalink to this headline">¶</a></h4>
+<div class="line-block">
+<div class="line">Collectionタイプのマッピングもできる。</div>
+<div class="line">フィールド名が同じである場合、<code class="docutils literal"><span class="pre">&#64;Mapping</span></code>の設定は不要である。</div>
+</div>
+<p>以下にEmailクラスのListをフィールドemailsとして持つクラスを例にとって説明する</p>
+<blockquote>
+<div><div class="highlight-java"><div class="highlight"><pre><span></span><span class="kd">public</span> <span class="kd">class</span> <span class="nc">Email</span> <span class="p">{</span>
+    <span class="kd">private</span> <span class="n">String</span> <span class="n">email</span><span class="p">;</span>
+
+    <span class="kd">public</span> <span class="nf">Email</span><span class="p">()</span> <span class="p">{</span>
+    <span class="p">}</span>
+
+    <span class="kd">public</span> <span class="nf">Email</span><span class="p">(</span><span class="n">String</span> <span class="n">email</span><span class="p">)</span> <span class="p">{</span>
+        <span class="k">this</span><span class="p">.</span><span class="na">email</span> <span class="o">=</span> <span class="n">email</span><span class="p">;</span>
+    <span class="p">}</span>
+
+    <span class="kd">public</span> <span class="n">String</span> <span class="nf">getEmail</span><span class="p">()</span> <span class="p">{</span>
+        <span class="k">return</span> <span class="n">email</span><span class="p">;</span>
+    <span class="p">}</span>
+
+    <span class="kd">public</span> <span class="kt">void</span> <span class="nf">setEmail</span><span class="p">(</span><span class="n">String</span> <span class="n">email</span><span class="p">)</span> <span class="p">{</span>
+        <span class="k">this</span><span class="p">.</span><span class="na">email</span> <span class="o">=</span> <span class="n">email</span><span class="p">;</span>
+    <span class="p">}</span>
+
+<span class="p">}</span>
+</pre></div>
+</div>
+</div></blockquote>
+<ul>
+<li><p class="first">ソース</p>
+<div class="highlight-java"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">java.util.List</span><span class="p">;</span>
+
+<span class="kd">public</span> <span class="kd">class</span> <span class="nc">AccountForm</span> <span class="p">{</span>
+    <span class="kd">private</span> <span class="n">List</span><span class="o">&lt;</span><span class="n">Email</span><span class="o">&gt;</span> <span class="n">emails</span><span class="p">;</span>
+
+    <span class="kd">public</span> <span class="kt">void</span> <span class="nf">setEmails</span><span class="p">(</span><span class="n">List</span><span class="o">&lt;</span><span class="n">Email</span><span class="o">&gt;</span> <span class="n">emails</span><span class="p">)</span> <span class="p">{</span>
+        <span class="k">this</span><span class="p">.</span><span class="na">emails</span> <span class="o">=</span> <span class="n">emails</span><span class="p">;</span>
+    <span class="p">}</span>
+
+    <span class="kd">public</span> <span class="n">List</span><span class="o">&lt;</span><span class="n">Email</span><span class="o">&gt;</span> <span class="nf">getEmails</span><span class="p">()</span> <span class="p">{</span>
+        <span class="k">return</span> <span class="n">emails</span><span class="p">;</span>
+    <span class="p">}</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+</li>
+<li><p class="first">ターゲット</p>
+<div class="highlight-java"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">java.util.List</span><span class="p">;</span>
+
+<span class="kd">public</span> <span class="kd">class</span> <span class="nc">Account</span> <span class="p">{</span>
+    <span class="kd">private</span> <span class="n">List</span><span class="o">&lt;</span><span class="n">Email</span><span class="o">&gt;</span> <span class="n">emails</span><span class="p">;</span>
+
+    <span class="kd">public</span> <span class="kt">void</span> <span class="nf">setEmails</span><span class="p">(</span><span class="n">List</span><span class="o">&lt;</span><span class="n">Email</span><span class="o">&gt;</span> <span class="n">emails</span><span class="p">)</span> <span class="p">{</span>
+        <span class="k">this</span><span class="p">.</span><span class="na">emails</span> <span class="o">=</span> <span class="n">emails</span><span class="p">;</span>
+    <span class="p">}</span>
+
+    <span class="kd">public</span> <span class="kt">void</span> <span class="nf">addEmail</span><span class="p">(</span><span class="n">Email</span> <span class="n">emali</span><span class="p">)</span> <span class="p">{</span>
+
+        <span class="k">if</span> <span class="p">(</span><span class="k">this</span><span class="p">.</span><span class="na">emails</span> <span class="o">==</span> <span class="kc">null</span><span class="p">)</span> <span class="p">{</span>
+            <span class="k">this</span><span class="p">.</span><span class="na">emails</span> <span class="o">=</span> <span class="k">new</span> <span class="n">ArrayList</span><span class="o">&lt;</span><span class="n">EmailDto</span><span class="o">&gt;</span><span class="p">();</span>
+        <span class="p">}</span>
+
+        <span class="k">this</span><span class="p">.</span><span class="na">emails</span><span class="p">.</span><span class="na">add</span><span class="p">(</span><span class="n">email</span><span class="p">);</span>
+    <span class="p">}</span>
+
+    <span class="kd">public</span> <span class="n">List</span><span class="o">&lt;</span><span class="n">Email</span><span class="o">&gt;</span> <span class="nf">getEmails</span><span class="p">()</span> <span class="p">{</span>
+        <span class="k">return</span> <span class="n">emails</span><span class="p">;</span>
+    <span class="p">}</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+</li>
+<li><p class="first">マッパーインタフェース</p>
+<div class="highlight-java"><div class="highlight"><pre><span></span><span class="nd">@Mapper</span>
+<span class="kd">public</span> <span class="kd">interface</span> <span class="nc">BeanMapper</span> <span class="p">{</span>
+
+    <span class="n">Account</span> <span class="nf">map</span><span class="p">(</span><span class="n">AccountForm</span> <span class="n">accountForm</span><span class="p">);</span>
+
+<span class="p">}</span>
+</pre></div>
+</div>
+</li>
+<li><p class="first">マッピング例</p>
+<div class="highlight-java"><div class="highlight"><pre><span></span><span class="n">AccountForm</span> <span class="n">accountForm</span> <span class="o">=</span> <span class="k">new</span> <span class="n">AccountForm</span><span class="p">();</span>
+
+<span class="n">List</span><span class="o">&lt;</span><span class="n">Email</span><span class="o">&gt;</span> <span class="n">emailList</span> <span class="o">=</span> <span class="k">new</span> <span class="n">ArrayList</span><span class="o">&lt;</span><span class="n">Email</span><span class="o">&gt;</span><span class="p">();</span>
+
+<span class="n">emailList</span><span class="p">.</span><span class="na">add</span><span class="p">(</span><span class="k">new</span> <span class="n">Email</span><span class="p">(</span><span class="s">&quot;a@example.com&quot;</span><span class="p">));</span>
+<span class="n">emailList</span><span class="p">.</span><span class="na">add</span><span class="p">(</span><span class="k">new</span> <span class="n">Email</span><span class="p">(</span><span class="s">&quot;b@example.com&quot;</span><span class="p">));</span>
+<span class="n">emailList</span><span class="p">.</span><span class="na">add</span><span class="p">(</span><span class="k">new</span> <span class="n">Email</span><span class="p">(</span><span class="s">&quot;c@example.com&quot;</span><span class="p">));</span>
+
+<span class="n">accountForm</span><span class="p">.</span><span class="na">setEmails</span><span class="p">(</span><span class="n">emailList</span><span class="p">);</span>
+
+<span class="n">Account</span> <span class="n">account</span> <span class="o">=</span> <span class="n">beanMapper</span><span class="p">.</span><span class="na">map</span><span class="p">(</span><span class="n">accountForm</span><span class="p">);</span>
+
+<span class="n">System</span><span class="p">.</span><span class="na">out</span><span class="p">.</span><span class="na">println</span><span class="p">(</span><span class="n">account</span><span class="p">.</span><span class="na">getEmails</span><span class="p">());</span>
+</pre></div>
+</div>
+</li>
+</ul>
+<p>上記のコードを実行すると以下のように出力される。</p>
+<blockquote>
+<div><div class="highlight-console"><div class="highlight"><pre><span></span><span class="go">[a@example.com, b@example.com, c@example.com]</span>
+</pre></div>
+</div>
+</div></blockquote>
+<p>ターゲットのBeanが持つCollectionフィールドに要素が存在しない場合は特に問題はないが、既に要素が存在する場合は注意が必要である。以下に既に要素が存在する場合の例を記載する。</p>
+<ul>
+<li><p class="first">マッパーインタフェース</p>
+<div class="highlight-java"><div class="highlight"><pre><span></span><span class="nd">@Mapper</span>
+<span class="kd">public</span> <span class="kd">interface</span> <span class="nc">BeanMapper</span> <span class="p">{</span>
+
+    <span class="kt">void</span> <span class="nf">map</span><span class="p">(</span><span class="n">AccountForm</span> <span class="n">accountForm</span><span class="p">,</span> <span class="nd">@MappingTarget</span> <span class="n">Account</span> <span class="n">account</span><span class="p">);</span>
+
+<span class="p">}</span>
+</pre></div>
+</div>
+</li>
+<li><p class="first">マッピング例</p>
+<div class="highlight-java"><div class="highlight"><pre><span></span><span class="n">AccountForm</span> <span class="n">accountForm</span> <span class="o">=</span> <span class="k">new</span> <span class="n">AccountForm</span><span class="p">();</span>
+<span class="n">Account</span> <span class="n">account</span> <span class="o">=</span> <span class="k">new</span> <span class="n">Account</span><span class="p">();</span>
+
+<span class="n">List</span><span class="o">&lt;</span><span class="n">Email</span><span class="o">&gt;</span> <span class="n">emailList</span> <span class="o">=</span> <span class="k">new</span> <span class="n">ArrayList</span><span class="o">&lt;</span><span class="n">Email</span><span class="o">&gt;</span><span class="p">();</span>
+<span class="n">List</span><span class="o">&lt;</span><span class="n">Email</span><span class="o">&gt;</span> <span class="n">emailsDest</span> <span class="o">=</span> <span class="k">new</span> <span class="n">ArrayList</span><span class="o">&lt;</span><span class="n">Email</span><span class="o">&gt;</span><span class="p">();</span>
+
+<span class="n">emailList</span><span class="p">.</span><span class="na">add</span><span class="p">(</span><span class="k">new</span> <span class="n">Email</span><span class="p">(</span><span class="s">&quot;a@example.com&quot;</span><span class="p">));</span>
+<span class="n">emailList</span><span class="p">.</span><span class="na">add</span><span class="p">(</span><span class="k">new</span> <span class="n">Email</span><span class="p">(</span><span class="s">&quot;b@example.com&quot;</span><span class="p">));</span>
+<span class="n">emailList</span><span class="p">.</span><span class="na">add</span><span class="p">(</span><span class="k">new</span> <span class="n">Email</span><span class="p">(</span><span class="s">&quot;c@example.com&quot;</span><span class="p">));</span>
+
+<span class="n">emailsDest</span><span class="p">.</span><span class="na">add</span><span class="p">(</span><span class="k">new</span> <span class="n">Email</span><span class="p">(</span><span class="s">&quot;d@example.com&quot;</span><span class="p">));</span>
+<span class="n">emailsDest</span><span class="p">.</span><span class="na">add</span><span class="p">(</span><span class="k">new</span> <span class="n">Email</span><span class="p">(</span><span class="s">&quot;e@example.com&quot;</span><span class="p">));</span>
+<span class="n">emailsDest</span><span class="p">.</span><span class="na">add</span><span class="p">(</span><span class="k">new</span> <span class="n">Email</span><span class="p">(</span><span class="s">&quot;f@example.com&quot;</span><span class="p">));</span>
+
+<span class="n">accountForm</span><span class="p">.</span><span class="na">setEmails</span><span class="p">(</span><span class="n">emailList</span><span class="p">);</span>
+<span class="n">account</span><span class="p">.</span><span class="na">setEmails</span><span class="p">(</span><span class="n">emailsDest</span><span class="p">);</span>
+
+<span class="n">beanMapper</span><span class="p">.</span><span class="na">map</span><span class="p">(</span><span class="n">accountForm</span><span class="p">,</span> <span class="n">account</span><span class="p">);</span>
+
+<span class="n">System</span><span class="p">.</span><span class="na">out</span><span class="p">.</span><span class="na">println</span><span class="p">(</span><span class="n">account</span><span class="p">.</span><span class="na">getEmails</span><span class="p">());</span>
+</pre></div>
+</div>
+</li>
+</ul>
+<p>デフォルトでは、ソースのCollectionフィールドに上書きされる。</p>
+<blockquote>
+<div><div class="highlight-console"><div class="highlight"><pre><span></span><span class="go">[a@example.com, b@example.com, c@example.com]</span>
+</pre></div>
+</div>
+</div></blockquote>
+<div class="line-block">
+<div class="line">Collectionフィールドに対するマッピングは、 &#64;Mapperアノテーションに設定するcollectionMappingStrategyの値とsetter/adderの有無によって動作が変わる。</div>
+<div class="line">collectionMappingStrategyに設定できる値は下記のとおりである。</div>
+<div class="line">詳しくは<a class="reference external" href="https://mapstruct.org/documentation/1.5/api/org/mapstruct/CollectionMappingStrategy.html">CollectionMappingStrategyのjavadoc</a> および <a class="reference external" href="https://mapstruct.org/documentation/1.5/reference/html/#collection-mapping-strategies">マニュアル -Collection mapping strategies-</a>を参照されたい。</div>
+</div>
+<blockquote>
+<div><table border="1" class="colwidths-given docutils">
+<colgroup>
+<col width="10%" />
+<col width="90%" />
+</colgroup>
+<thead valign="bottom">
+<tr class="row-odd"><th class="head">設定値</th>
+<th class="head">説明</th>
+</tr>
+</thead>
+<tbody valign="top">
+<tr class="row-even"><td><div class="first last line-block">
+<div class="line"><code class="docutils literal"><span class="pre">CollectionMappingStrategy.ACCESSOR_ONLY</span></code></div>
+</div>
+</td>
+<td><div class="first last line-block">
+<div class="line">デフォルト。ターゲットにadderが存在しても使用されることは無い</div>
+</div>
+</td>
+</tr>
+<tr class="row-odd"><td><div class="first last line-block">
+<div class="line"><code class="docutils literal"><span class="pre">CollectionMappingStrategy.SETTER_PREFERRED</span></code></div>
+</div>
+</td>
+<td><div class="first last line-block">
+<div class="line">ターゲットにsetterとadderがある場合にはsetterが優先して使用される。</div>
+</div>
+</td>
+</tr>
+<tr class="row-even"><td><div class="first last line-block">
+<div class="line"><code class="docutils literal"><span class="pre">CollectionMappingStrategy.ADDER_PREFERRED</span></code></div>
+</div>
+</td>
+<td><div class="first last line-block">
+<div class="line">ターゲットにsetterとadderがある場合にはadderが優先して使用される。</div>
+</div>
+</td>
+</tr>
+<tr class="row-odd"><td><div class="first last line-block">
+<div class="line"><code class="docutils literal"><span class="pre">CollectionMappingStrategy.TARGET_IMMUTABLE</span></code></div>
+</div>
+</td>
+<td><div class="first last line-block">
+<div class="line">既存のBeanを更新する場合はターゲットのコレクションがクリアされない。</div>
+</div>
+</td>
+</tr>
+</tbody>
+</table>
+</div></blockquote>
+<p>以下に<code class="docutils literal"><span class="pre">CollectionMappingStrategy.ADDER_PREFERRED</span></code>を設定した場合の例を示す。</p>
+<ul>
+<li><p class="first">マッパーインタフェース</p>
+<div class="highlight-java"><div class="highlight"><pre><span></span><span class="nd">@Mapper</span><span class="p">(</span><span class="n">collectionMappingStrategy</span> <span class="o">=</span> <span class="n">CollectionMappingStrategy</span><span class="p">.</span><span class="na">ADDER_PREFERRED</span><span class="p">)</span> <span class="c1">// (1)</span>
+<span class="kd">public</span> <span class="kd">interface</span> <span class="nc">BeanMapper</span> <span class="p">{</span>
+
+    <span class="kt">void</span> <span class="nf">map</span><span class="p">(</span><span class="n">AccountForm</span> <span class="n">accountForm</span><span class="p">,</span> <span class="nd">@MappingTarget</span> <span class="n">Account</span> <span class="n">account</span><span class="p">);</span>
+
+<span class="p">}</span>
+</pre></div>
+</div>
+<table border="1" class="colwidths-given docutils">
+<colgroup>
+<col width="10%" />
+<col width="90%" />
+</colgroup>
+<thead valign="bottom">
+<tr class="row-odd"><th class="head">項番</th>
+<th class="head">説明</th>
+</tr>
+</thead>
+<tbody valign="top">
+<tr class="row-even"><td><div class="first last line-block">
+<div class="line">(1)</div>
+</div>
+</td>
+<td><div class="first last line-block">
+<div class="line">ターゲットのBeanにsetterとadderがあり、adderを優先して使用したい場合は<code class="docutils literal"><span class="pre">CollectionMappingStrategy.ADDER_PREFERRED</span></code>を設定する</div>
+</div>
+</td>
+</tr>
+</tbody>
+</table>
+</li>
+</ul>
+<p>先ほどのマッピング例に適用させると、下記のような結果になる。</p>
+<blockquote>
+<div><div class="highlight-console"><div class="highlight"><pre><span></span><span class="go">[d@example.com, e@example.com, f@example.com, a@example.com, b@example.com, c@example.com]</span>
+</pre></div>
+</div>
+</div></blockquote>
+<p>ターゲットにadderが存在するため、ターゲットのリストにソースのリストの値が追加されている。</p>
+<div class="line-block">
+<div class="line"><br /></div>
+</div>
+</div>
+<div class="section" id="mapbean">
+<h4><a class="toc-backref" href="#id35">7.6.2.2.7. MapからBeanのマッピング</a><a class="headerlink" href="#mapbean" title="Permalink to this headline">¶</a></h4>
+<div class="line-block">
+<div class="line">String型のキーを持つMapからBeanへマッピングが可能である。</div>
+<div class="line">MapのキーがBeanのフィールド名に、Mapの値がBeanのフィールドの値に該当するようにマッピングされる。</div>
+</div>
+<ul>
+<li><p class="first">ターゲット</p>
+<div class="highlight-java"><div class="highlight"><pre><span></span><span class="kd">public</span> <span class="kd">class</span> <span class="nc">Target</span> <span class="p">{</span>
+    <span class="kd">private</span> <span class="kt">int</span> <span class="n">id</span><span class="p">;</span>
+    <span class="kd">private</span> <span class="n">String</span> <span class="n">name</span><span class="p">;</span>
+    <span class="c1">// omitted setter/getter</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+</li>
+<li><p class="first">マッパーインタフェース</p>
+<div class="highlight-java"><div class="highlight"><pre><span></span><span class="nd">@Mapper</span>
+<span class="kd">public</span> <span class="kd">interface</span> <span class="nc">BeanMapper</span> <span class="p">{</span>
+
+    <span class="nd">@Mapping</span><span class="p">(</span><span class="n">target</span> <span class="o">=</span> <span class="s">&quot;name&quot;</span><span class="p">,</span> <span class="n">source</span> <span class="o">=</span> <span class="s">&quot;mapName&quot;</span><span class="p">)</span> <span class="c1">// (1)</span>
+    <span class="n">Target</span> <span class="nf">map</span><span class="p">(</span><span class="n">Map</span><span class="o">&lt;</span><span class="n">String</span><span class="p">,</span> <span class="n">String</span><span class="o">&gt;</span> <span class="n">map</span><span class="p">);</span>
+
+<span class="p">}</span>
+</pre></div>
+</div>
+<table border="1" class="colwidths-given docutils">
+<colgroup>
+<col width="10%" />
+<col width="90%" />
+</colgroup>
+<thead valign="bottom">
+<tr class="row-odd"><th class="head">項番</th>
+<th class="head">説明</th>
+</tr>
+</thead>
+<tbody valign="top">
+<tr class="row-even"><td><div class="first last line-block">
+<div class="line">(1)</div>
+</div>
+</td>
+<td><div class="first last line-block">
+<div class="line">ソースとなるMapのキーとターゲットとなるBeanのフィールド名が違う場合は、<a class="reference internal" href="#beanconverter-difference-item-xml-mapping-label"><span class="std std-ref">Bean間のフィールド名が異なる場合のマッピング</span></a>と同様に<code class="docutils literal"><span class="pre">&#64;Mapping</span></code>アノテーション内に設定を記載する。</div>
+</div>
+</td>
+</tr>
+</tbody>
+</table>
+</li>
+<li><p class="first">マッピング例</p>
+<div class="highlight-java"><div class="highlight"><pre><span></span><span class="n">Map</span><span class="o">&lt;</span><span class="n">String</span><span class="p">,</span> <span class="n">String</span><span class="o">&gt;</span> <span class="n">map</span> <span class="o">=</span> <span class="k">new</span> <span class="n">HashMap</span><span class="o">&lt;&gt;</span><span class="p">();</span>
+<span class="n">map</span><span class="p">.</span><span class="na">put</span><span class="p">(</span><span class="s">&quot;id&quot;</span><span class="p">,</span> <span class="s">&quot;1&quot;</span><span class="p">);</span>
+<span class="n">map</span><span class="p">.</span><span class="na">put</span><span class="p">(</span><span class="s">&quot;mapName&quot;</span><span class="p">,</span> <span class="s">&quot;sourceName&quot;</span><span class="p">);</span>
+
+<span class="n">Target</span> <span class="n">target</span> <span class="o">=</span> <span class="n">beanMapper</span><span class="p">.</span><span class="na">map</span><span class="p">(</span><span class="n">map</span><span class="p">);</span>
+
+<span class="n">System</span><span class="p">.</span><span class="na">out</span><span class="p">.</span><span class="na">println</span><span class="p">(</span><span class="n">target</span><span class="p">.</span><span class="na">getId</span><span class="p">());</span>
+<span class="n">System</span><span class="p">.</span><span class="na">out</span><span class="p">.</span><span class="na">println</span><span class="p">(</span><span class="n">target</span><span class="p">.</span><span class="na">getName</span><span class="p">());</span>
+</pre></div>
+</div>
+</li>
+</ul>
+<div class="line-block">
+<div class="line">上記のコードを実行すると以下のように出力される。</div>
+</div>
+<blockquote>
+<div><div class="highlight-console"><div class="highlight"><pre><span></span><span class="go">1</span>
+<span class="go">SourceName</span>
+</pre></div>
+</div>
+</div></blockquote>
+<div class="line-block">
+<div class="line"><br /></div>
+</div>
+</div>
+<div class="section" id="id10">
+<h4><a class="toc-backref" href="#id36">7.6.2.2.8. 複数のBeanからのマッピング</a><a class="headerlink" href="#id10" title="Permalink to this headline">¶</a></h4>
+<div class="line-block">
+<div class="line">マッピングメソッドの引数に複数のBeanを指定することにより、それらのパラメータを1つのBeanへマッピングすることができる。</div>
+<div class="line">2つのソースから1つのターゲットへマッピングを行う例を記載する。</div>
+</div>
+<ul>
+<li><p class="first">ソース</p>
+<div class="highlight-java"><div class="highlight"><pre><span></span><span class="kd">public</span> <span class="kd">class</span> <span class="nc">Source1</span> <span class="p">{</span>
+    <span class="kd">private</span> <span class="kt">int</span> <span class="n">id</span><span class="p">;</span>
+    <span class="kd">private</span> <span class="n">String</span> <span class="n">name</span><span class="p">;</span>
+    <span class="c1">// omitted setter/getter</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+<div class="highlight-java"><div class="highlight"><pre><span></span><span class="kd">public</span> <span class="kd">class</span> <span class="nc">Source2</span> <span class="p">{</span>
+    <span class="kd">private</span> <span class="kt">int</span> <span class="n">id</span><span class="p">;</span>
+    <span class="kd">private</span> <span class="n">String</span> <span class="n">title</span><span class="p">;</span>
+    <span class="c1">// omitted setter/getter</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+</li>
+<li><p class="first">ターゲット</p>
+<div class="highlight-java"><div class="highlight"><pre><span></span><span class="kd">public</span> <span class="kd">class</span> <span class="nc">Target</span> <span class="p">{</span>
+    <span class="kd">private</span> <span class="kt">int</span> <span class="n">id</span><span class="p">;</span>
+    <span class="kd">private</span> <span class="n">String</span> <span class="n">name</span><span class="p">;</span>
+    <span class="kd">private</span> <span class="n">String</span> <span class="n">title</span><span class="p">;</span>
+    <span class="c1">// omitted setter/getter</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+</li>
+<li><p class="first">マッパーインタフェース</p>
+<div class="highlight-java"><div class="highlight"><pre><span></span><span class="nd">@Mapper</span>
+<span class="kd">public</span> <span class="kd">interface</span> <span class="nc">BeanMapper</span> <span class="p">{</span>
+
+    <span class="nd">@Mapping</span><span class="p">(</span><span class="n">target</span> <span class="o">=</span> <span class="s">&quot;id&quot;</span><span class="p">,</span> <span class="n">source</span> <span class="o">=</span> <span class="s">&quot;source1.id&quot;</span><span class="p">)</span> <span class="c1">// (1)</span>
+    <span class="n">Target</span> <span class="nf">map</span><span class="p">(</span><span class="n">Source1</span> <span class="n">source1</span><span class="p">,</span> <span class="n">Source2</span> <span class="n">source2</span><span class="p">);</span> <span class="c1">//(2)</span>
+
+<span class="p">}</span>
+</pre></div>
+</div>
+<table border="1" class="colwidths-given docutils">
+<colgroup>
+<col width="10%" />
+<col width="90%" />
+</colgroup>
+<thead valign="bottom">
+<tr class="row-odd"><th class="head">項番</th>
+<th class="head">説明</th>
+</tr>
+</thead>
+<tbody valign="top">
+<tr class="row-even"><td><div class="first last line-block">
+<div class="line">(1)</div>
+</div>
+</td>
+<td><div class="first last line-block">
+<div class="line">ソースとなるBeanに同じ名前のフィールドがある場合は、ソースのBeanを明示的に指定する必要がある。</div>
+<div class="line">記載しない場合はコンパイルエラーが発生する。</div>
+</div>
+</td>
+</tr>
+<tr class="row-odd"><td><div class="first last line-block">
+<div class="line">(2)</div>
+</div>
+</td>
+<td><div class="first last line-block">
+<div class="line">マッピングメソッドの引数を複数にすることで、複数のBeanからマッピングができる。</div>
+</div>
+</td>
+</tr>
+</tbody>
+</table>
+</li>
+</ul>
+<div class="line-block">
+<div class="line"><br /></div>
+</div>
+</div>
+<div class="section" id="subclass-mapping">
+<span id="id11"></span><h4><a class="toc-backref" href="#id37">7.6.2.2.9. マッピングメソッドにインタフェースを用いる場合</a><a class="headerlink" href="#subclass-mapping" title="Permalink to this headline">¶</a></h4>
+<div class="line-block">
+<div class="line">マッピングメソッドの引数には、インタフェースを指定することもできる。この場合、インタフェース内で定義されているメソッドのみが適用される。</div>
+</div>
+<ul>
+<li><p class="first">ソースのインタフェース</p>
+<div class="highlight-java"><div class="highlight"><pre><span></span><span class="kd">public</span> <span class="kd">class</span> <span class="nc">SourceInterface</span> <span class="p">{</span>
+
+    <span class="kd">public</span> <span class="kt">int</span> <span class="nf">getId</span><span class="p">();</span>
+
+<span class="p">}</span>
+</pre></div>
+</div>
+</li>
+<li><p class="first">ソース</p>
+<div class="highlight-java"><div class="highlight"><pre><span></span><span class="kd">public</span> <span class="kd">class</span> <span class="nc">SourceImpl1</span> <span class="kd">implements</span> <span class="n">SourceInterface</span> <span class="p">{</span>
+    <span class="kd">private</span> <span class="kt">int</span> <span class="n">id</span><span class="p">;</span>
+    <span class="kd">private</span> <span class="n">String</span> <span class="n">name</span><span class="p">;</span>
+
+    <span class="nd">@Override</span>
+    <span class="kd">public</span> <span class="kt">int</span> <span class="nf">getId</span><span class="p">(){</span>
+        <span class="k">return</span> <span class="k">this</span><span class="p">.</span><span class="na">id</span><span class="p">;</span>
+    <span class="p">}</span>
+
+    <span class="c1">// omitted other setter/getter</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+</li>
+<li><p class="first">ターゲット</p>
+<div class="highlight-java"><div class="highlight"><pre><span></span><span class="kd">public</span> <span class="kd">class</span> <span class="nc">Target</span> <span class="p">{</span>
+    <span class="kd">private</span> <span class="kt">int</span> <span class="n">id</span><span class="p">;</span>
+    <span class="kd">private</span> <span class="n">String</span> <span class="n">name</span><span class="p">;</span>
+    <span class="c1">// omitted setter/getter</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+</li>
+<li><p class="first">マッパーインタフェース</p>
+<div class="highlight-java"><div class="highlight"><pre><span></span><span class="nd">@Mapper</span>
+<span class="kd">public</span> <span class="kd">interface</span> <span class="nc">BeanMapper</span> <span class="p">{</span>
+
+    <span class="n">Target</span> <span class="nf">map</span><span class="p">(</span><span class="n">SourceInterface</span> <span class="n">sourceInterface</span><span class="p">);</span>
+
+<span class="p">}</span>
+</pre></div>
+</div>
+</li>
+</ul>
+<p><code class="docutils literal"><span class="pre">SourceInterface</span></code>を引数にしたマッピングメソッドに、<code class="docutils literal"><span class="pre">SourceInterface</span></code>を実装した<code class="docutils literal"><span class="pre">SourceImpl</span></code>のオブジェクトを渡す。</p>
+<blockquote>
+<div><div class="highlight-java"><div class="highlight"><pre><span></span><span class="n">SourceImpl1</span> <span class="n">source1</span> <span class="o">=</span> <span class="k">new</span> <span class="n">SourceImpl1</span><span class="p">();</span>
+<span class="n">source1</span><span class="p">.</span><span class="na">setId</span><span class="p">(</span><span class="mi">1</span><span class="p">);</span>
+<span class="n">source1</span><span class="p">.</span><span class="na">setName</span><span class="p">(</span><span class="s">&quot;SourceName&quot;</span><span class="p">);</span>
+
+<span class="n">Tatget</span> <span class="n">target</span> <span class="o">=</span> <span class="n">beanMapper</span><span class="p">.</span><span class="na">map</span><span class="p">(</span><span class="n">source1</span><span class="p">);</span>
+
+<span class="n">System</span><span class="p">.</span><span class="na">out</span><span class="p">.</span><span class="na">println</span><span class="p">(</span><span class="n">target</span><span class="p">.</span><span class="na">getId</span><span class="p">());</span>
+<span class="n">System</span><span class="p">.</span><span class="na">out</span><span class="p">.</span><span class="na">println</span><span class="p">(</span><span class="n">target</span><span class="p">.</span><span class="na">getName</span><span class="p">());</span>
+</pre></div>
+</div>
+</div></blockquote>
+<p>上記のコードを実行すると以下のように出力される。</p>
+<blockquote>
+<div><div class="highlight-console"><div class="highlight"><pre><span></span><span class="go">1</span>
+</pre></div>
+</div>
+</div></blockquote>
+<div class="line-block">
+<div class="line">マッピングメソッドに指定した<code class="docutils literal"><span class="pre">SourceInterface</span></code>にはgetNameが定義されていないため、<code class="docutils literal"><span class="pre">SourceImple</span></code>で定義されていてもnameフィールドのマッピングは行われない。</div>
+</div>
+<div class="line-block">
+<div class="line">通常はマッピングメソッドにはインタフェースを指定せずに実装クラスのBeanをそのまま使用すればよい。</div>
+<div class="line">しかし、マッピングしたいインタフェースの実装クラスの型が複数あり、共通のマッピングメソッドを呼び出してマッピングしたい場合はこのままでは実現できない。</div>
+<div class="line">そのような場合は<code class="docutils literal"><span class="pre">&#64;SubclassMapping</span></code>アノテーションを使用することで実現できる。</div>
+</div>
+<div class="line-block">
+<div class="line">以下にインタフェースで複数の実装クラスをマッピングする方法を示す。</div>
+</div>
+<ul>
+<li><p class="first">2つ目のソース</p>
+<div class="highlight-java"><div class="highlight"><pre><span></span><span class="kd">public</span> <span class="kd">class</span> <span class="nc">SourceImpl2</span> <span class="kd">implements</span> <span class="n">SourceInterface</span> <span class="p">{</span>
+    <span class="kd">private</span> <span class="kt">int</span> <span class="n">id</span><span class="p">;</span>
+    <span class="kd">private</span> <span class="n">String</span> <span class="n">title</span><span class="p">;</span>
+
+    <span class="nd">@Override</span>
+    <span class="kd">public</span> <span class="kt">int</span> <span class="nf">getId</span><span class="p">(){</span>
+        <span class="k">return</span> <span class="k">this</span><span class="p">.</span><span class="na">id</span><span class="p">;</span>
+    <span class="p">}</span>
+
+    <span class="c1">// omitted other setter/getter</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+</li>
+<li><p class="first">マッパーインタフェース</p>
+<div class="highlight-java"><div class="highlight"><pre><span></span><span class="nd">@Mapper</span>
+<span class="kd">public</span> <span class="kd">interface</span> <span class="nc">BeanMapper</span> <span class="p">{</span>
+
+    <span class="n">Target</span> <span class="nf">map1</span><span class="p">(</span><span class="n">SourceImpl1</span> <span class="n">source1</span><span class="p">);</span> <span class="c1">// (1)</span>
+
+    <span class="n">Target</span> <span class="nf">map2</span><span class="p">(</span><span class="n">SourceImpl2</span> <span class="n">source2</span><span class="p">);</span> <span class="c1">// (1)</span>
+
+    <span class="c1">//(2)</span>
+    <span class="nd">@SubclassMapping</span><span class="p">(</span><span class="n">source</span> <span class="o">=</span> <span class="n">SourceImpl1</span><span class="p">.</span><span class="na">class</span><span class="p">,</span> <span class="n">target</span> <span class="o">=</span> <span class="n">Target</span><span class="p">.</span><span class="na">class</span><span class="p">)</span>
+    <span class="nd">@SubclassMapping</span><span class="p">(</span><span class="n">source</span> <span class="o">=</span> <span class="n">SourceImpl2</span><span class="p">.</span><span class="na">class</span><span class="p">,</span> <span class="n">target</span> <span class="o">=</span> <span class="n">Target</span><span class="p">.</span><span class="na">class</span><span class="p">)</span>
+    <span class="n">Target</span> <span class="nf">map</span><span class="p">(</span><span class="n">SourceInterface</span> <span class="n">sourceInterface</span><span class="p">);</span>
+
+<span class="p">}</span>
+</pre></div>
+</div>
+<table border="1" class="colwidths-given docutils">
+<colgroup>
+<col width="10%" />
+<col width="90%" />
+</colgroup>
+<thead valign="bottom">
+<tr class="row-odd"><th class="head">項番</th>
+<th class="head">説明</th>
+</tr>
+</thead>
+<tbody valign="top">
+<tr class="row-even"><td><div class="first last line-block">
+<div class="line">(1)</div>
+</div>
+</td>
+<td><div class="first last line-block">
+<div class="line">マッピングに対応させたいSourceInterface実装クラスに対応したマッピングメソッドを定義する。</div>
+</div>
+</td>
+</tr>
+<tr class="row-odd"><td><div class="first last line-block">
+<div class="line">(2)</div>
+</div>
+</td>
+<td><div class="first last line-block">
+<div class="line"><code class="docutils literal"><span class="pre">&#64;SubclassMapping</span></code>アノテーションを用いて<code class="docutils literal"><span class="pre">source</span></code>と<code class="docutils literal"><span class="pre">target</span></code>それぞれにマッピングしたい実装クラスを指定する。</div>
+<div class="line">これにより、<code class="docutils literal"><span class="pre">map</span></code>メソッドに<code class="docutils literal"><span class="pre">SourceImpl1</span></code>が渡された場合は<code class="docutils literal"><span class="pre">map1</span></code>メソッドが、<code class="docutils literal"><span class="pre">SourceImpl2</span></code>が渡された場合は<code class="docutils literal"><span class="pre">map2</span></code>メソッドが呼び出されるようになる。</div>
+</div>
+</td>
+</tr>
+</tbody>
+</table>
+</li>
+<li><p class="first">マッピング例</p>
+<div class="highlight-java"><div class="highlight"><pre><span></span><span class="n">SourceImpl1</span> <span class="n">source1</span> <span class="o">=</span> <span class="k">new</span> <span class="n">Source1Impl</span><span class="p">();</span>
+<span class="n">source1</span><span class="p">.</span><span class="na">setId</span><span class="p">(</span><span class="mi">1</span><span class="p">);</span>
+<span class="n">source1</span><span class="p">.</span><span class="na">setName</span><span class="p">(</span><span class="s">&quot;SourceName&quot;</span><span class="p">);</span>
+
+<span class="n">Source2Impl</span> <span class="n">source2</span> <span class="o">=</span> <span class="k">new</span> <span class="n">Source2Impl</span><span class="p">();</span>
+<span class="n">source2</span><span class="p">.</span><span class="na">setId</span><span class="p">(</span><span class="mi">2</span><span class="p">);</span>
+<span class="n">source2</span><span class="p">.</span><span class="na">setTitle</span><span class="p">(</span><span class="s">&quot;SourceTitle&quot;</span><span class="p">);</span>
+
+<span class="n">Target</span> <span class="n">target1</span> <span class="o">=</span> <span class="n">beanMapper</span><span class="p">.</span><span class="na">map</span><span class="p">(</span><span class="n">source1</span><span class="p">);</span> <span class="c1">//(1)</span>
+<span class="n">Target</span> <span class="n">target2</span> <span class="o">=</span> <span class="n">beanMapper</span><span class="p">.</span><span class="na">map</span><span class="p">(</span><span class="n">source2</span><span class="p">);</span> <span class="c1">//(1)</span>
+
+<span class="n">System</span><span class="p">.</span><span class="na">out</span><span class="p">.</span><span class="na">println</span><span class="p">(</span><span class="n">target1</span><span class="p">.</span><span class="na">getId</span><span class="p">());</span>
+<span class="n">System</span><span class="p">.</span><span class="na">out</span><span class="p">.</span><span class="na">println</span><span class="p">(</span><span class="n">target1</span><span class="p">.</span><span class="na">getName</span><span class="p">());</span>
+
+<span class="n">System</span><span class="p">.</span><span class="na">out</span><span class="p">.</span><span class="na">println</span><span class="p">(</span><span class="n">target2</span><span class="p">.</span><span class="na">getId</span><span class="p">());</span>
+<span class="n">System</span><span class="p">.</span><span class="na">out</span><span class="p">.</span><span class="na">println</span><span class="p">(</span><span class="n">target2</span><span class="p">.</span><span class="na">getTitle</span><span class="p">());</span>
+</pre></div>
+</div>
+<table border="1" class="colwidths-given docutils">
+<colgroup>
+<col width="10%" />
+<col width="90%" />
+</colgroup>
+<thead valign="bottom">
+<tr class="row-odd"><th class="head">項番</th>
+<th class="head">説明</th>
+</tr>
+</thead>
+<tbody valign="top">
+<tr class="row-even"><td><div class="first last line-block">
+<div class="line">(1)</div>
+</div>
+</td>
+<td><div class="first last line-block">
+<div class="line">source1とsource2はインタフェースが共通で実装クラスが異なるが、同じマッピングメソッドを使用している。</div>
+</div>
+</td>
+</tr>
+</tbody>
+</table>
+</li>
+</ul>
+<p>上記のコードを実行すると以下のように出力される。</p>
+<blockquote>
+<div><div class="highlight-console"><div class="highlight"><pre><span></span><span class="go">1</span>
+<span class="go">SourceName</span>
+<span class="go">2</span>
+<span class="go">SourceTitle</span>
+</pre></div>
+</div>
+</div></blockquote>
+<p>インタフェースを引数に持つマッピングメソッドを呼び出し、実装クラスのみに定義されているgetter/setterを用いてマッピングされていることが分かる。</p>
+<div class="line-block">
+<div class="line"><br /></div>
+</div>
+</div>
+<div class="section" id="fieldexclude">
+<span id="id12"></span><h4><a class="toc-backref" href="#id38">7.6.2.2.10. フィールド除外設定</a><a class="headerlink" href="#fieldexclude" title="Permalink to this headline">¶</a></h4>
+<div class="line-block">
+<div class="line">Beanを変換する際に、マッピングをしたくないフィールドを除外することができる。</div>
+<div class="line">以下の様なBeanを変換する場合に、フィールドがマッピングされないようにする例を記載する。</div>
+</div>
+<ul>
+<li><p class="first">ソース</p>
+<div class="highlight-java"><div class="highlight"><pre><span></span><span class="kd">public</span> <span class="kd">class</span> <span class="nc">Source</span> <span class="p">{</span>
+    <span class="kd">private</span> <span class="kt">int</span> <span class="n">id</span><span class="p">;</span>
+    <span class="kd">private</span> <span class="n">String</span> <span class="n">name</span><span class="p">;</span>
+    <span class="c1">// omitted setter/getter</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+</li>
+<li><p class="first">ターゲット</p>
+<div class="highlight-java"><div class="highlight"><pre><span></span><span class="kd">public</span> <span class="kd">class</span> <span class="nc">Target</span> <span class="p">{</span>
+    <span class="kd">private</span> <span class="kt">int</span> <span class="n">id</span><span class="p">;</span>
+    <span class="kd">private</span> <span class="n">String</span> <span class="n">name</span><span class="p">;</span>
+    <span class="c1">// omitted setter/getter</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+</li>
+</ul>
+<p>任意のフィールドをマッピングから除外したい場合は、<code class="docutils literal"><span class="pre">&#64;Mapping</span></code>に次のような設定を入れる。</p>
+<blockquote>
+<div><div class="highlight-java"><div class="highlight"><pre><span></span><span class="nd">@Mapper</span>
+<span class="kd">public</span> <span class="kd">interface</span> <span class="nc">BeanMapper</span> <span class="p">{</span>
+
+    <span class="nd">@Mapping</span><span class="p">(</span><span class="n">target</span> <span class="o">=</span> <span class="s">&quot;name&quot;</span><span class="p">,</span> <span class="n">ignore</span> <span class="o">=</span> <span class="kc">true</span><span class="p">)</span> <span class="c1">// (1)</span>
+    <span class="kt">void</span> <span class="nf">map</span><span class="p">(</span><span class="n">Source</span> <span class="n">source</span><span class="p">,</span> <span class="nd">@MappingTarget</span> <span class="n">Target</span> <span class="n">target</span><span class="p">);</span>
+
+<span class="p">}</span>
+</pre></div>
+</div>
+<table border="1" class="colwidths-given docutils">
+<colgroup>
+<col width="10%" />
+<col width="90%" />
+</colgroup>
+<thead valign="bottom">
+<tr class="row-odd"><th class="head">項番</th>
+<th class="head">説明</th>
+</tr>
+</thead>
+<tbody valign="top">
+<tr class="row-even"><td><div class="first last line-block">
+<div class="line">(1)</div>
+</div>
+</td>
+<td><div class="first last line-block">
+<div class="line">除外したいフィールドを<code class="docutils literal"><span class="pre">target</span></code>に設定し、<code class="docutils literal"><span class="pre">ignore</span></code>にtrueを設定する。この例の場合、SourceオブジェクトからTargetオブジェクトをコピーする際にtargetのnameの値が上書きされない。</div>
+</div>
+</td>
+</tr>
+</tbody>
+</table>
+</div></blockquote>
+<ul>
+<li><p class="first">マッピング例</p>
+<div class="highlight-java"><div class="highlight"><pre><span></span><span class="n">Source</span> <span class="n">source</span> <span class="o">=</span> <span class="k">new</span> <span class="n">Source</span><span class="p">();</span>
+<span class="n">source</span><span class="p">.</span><span class="na">setId</span><span class="p">(</span><span class="mi">1</span><span class="p">);</span>
+<span class="n">source</span><span class="p">.</span><span class="na">setName</span><span class="p">(</span><span class="s">&quot;SourceName&quot;</span><span class="p">);</span>
+
+<span class="n">Target</span> <span class="n">target</span> <span class="o">=</span> <span class="k">new</span> <span class="n">Target</span><span class="p">();</span>
+<span class="n">target</span><span class="p">.</span><span class="na">setId</span><span class="p">(</span><span class="mi">2</span><span class="p">);</span>
+<span class="n">target</span><span class="p">.</span><span class="na">setName</span><span class="p">(</span><span class="s">&quot;TargetName&quot;</span><span class="p">);</span>
+
+<span class="n">beanMapper</span><span class="p">.</span><span class="na">map</span><span class="p">(</span><span class="n">source</span><span class="p">,</span> <span class="n">target</span><span class="p">);</span>
+
+<span class="n">System</span><span class="p">.</span><span class="na">out</span><span class="p">.</span><span class="na">println</span><span class="p">(</span><span class="n">target</span><span class="p">.</span><span class="na">getId</span><span class="p">());</span>
+<span class="n">System</span><span class="p">.</span><span class="na">out</span><span class="p">.</span><span class="na">println</span><span class="p">(</span><span class="n">target</span><span class="p">.</span><span class="na">getName</span><span class="p">());</span>
+</pre></div>
+</div>
+</li>
+</ul>
+<p>上記のコードを実行すると以下のように出力される。</p>
+<blockquote>
+<div><div class="highlight-console"><div class="highlight"><pre><span></span><span class="go">1</span>
+<span class="go">TargetName</span>
+</pre></div>
+</div>
+</div></blockquote>
+<p>マッピング後、targetのnameフィールドは前の状態のままである。</p>
+<div class="line-block">
+<div class="line"><br /></div>
+</div>
+</div>
+</div>
+</div>
+<div class="section" id="how-to-extend">
+<h2><a class="toc-backref" href="#id39">7.6.3. How to extend</a><a class="headerlink" href="#how-to-extend" title="Permalink to this headline">¶</a></h2>
+<div class="section" id="how-to-make-custom-mapping">
+<span id="id13"></span><h3><a class="toc-backref" href="#id40">7.6.3.1. 独自のマッピングの定義方法</a><a class="headerlink" href="#how-to-make-custom-mapping" title="Permalink to this headline">¶</a></h3>
+<div class="line-block">
+<div class="line">MapStructで独自にマッピングする方法を説明する。</div>
+<div class="line">独自マッピングを定義するには、下記の手段がある。</div>
+</div>
+<ul class="simple">
+<li>defaultメソッドを用いた方法</li>
+<li><code class="docutils literal"><span class="pre">&#64;Named</span></code>アノテーションを用いた方法</li>
+</ul>
+<div class="line-block">
+<div class="line">あるマッパーインタフェース内で定義するすべてのマッピングメソッドに対して、同一の独自マッピング処理を行いたい場合はdefaultメソッドで独自マッピングの処理を定義することを推奨する。</div>
+</div>
+<div class="line-block">
+<div class="line"><br /></div>
+</div>
+<div class="section" id="default">
+<h4><a class="toc-backref" href="#id41">7.6.3.1.1. defaultメソッドを用いた方法</a><a class="headerlink" href="#default" title="Permalink to this headline">¶</a></h4>
+<div class="line-block">
+<div class="line">defaultメソッドを用いてマッピングの際に大文字に変換する例を記載する。</div>
+</div>
+<ul>
+<li><p class="first">ソース</p>
+<div class="highlight-java"><div class="highlight"><pre><span></span><span class="kd">public</span> <span class="kd">class</span> <span class="nc">Source</span> <span class="p">{</span>
+    <span class="kd">private</span> <span class="n">String</span> <span class="n">name</span><span class="p">;</span>
+    <span class="kd">private</span> <span class="n">Strint</span> <span class="n">title</span>
+    <span class="c1">// omitted setter/getter</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+</li>
+<li><p class="first">ターゲット</p>
+<div class="highlight-java"><div class="highlight"><pre><span></span><span class="kd">public</span> <span class="kd">class</span> <span class="nc">Target</span> <span class="p">{</span>
+    <span class="kd">private</span> <span class="n">String</span> <span class="n">name</span><span class="p">;</span>
+    <span class="kd">private</span> <span class="n">String</span> <span class="n">title</span>
+    <span class="c1">// omitted setter/getter</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+</li>
+<li><p class="first">マッパーインタフェース</p>
+<div class="highlight-java"><div class="highlight"><pre><span></span><span class="nd">@Mapper</span>
+<span class="kd">public</span> <span class="kd">interface</span> <span class="nc">BeanMapper</span> <span class="p">{</span>
+
+    <span class="n">Target</span> <span class="nf">map</span><span class="p">(</span><span class="n">Source</span> <span class="n">source</span><span class="p">);</span>
+
+    <span class="k">default</span> <span class="n">String</span> <span class="nf">stringToUpper</span><span class="p">(</span><span class="n">String</span> <span class="n">string</span><span class="p">)</span> <span class="p">{</span>  <span class="c1">// (1)</span>
+
+        <span class="k">if</span> <span class="p">(</span><span class="n">string</span> <span class="o">==</span> <span class="kc">null</span><span class="p">)</span> <span class="p">{</span>
+            <span class="k">return</span> <span class="kc">null</span><span class="p">;</span>
+        <span class="p">}</span>
+
+        <span class="k">return</span> <span class="n">string</span><span class="p">.</span><span class="na">toUpperCase</span><span class="p">();</span>
+    <span class="p">}</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+<table border="1" class="colwidths-given docutils">
+<colgroup>
+<col width="10%" />
+<col width="90%" />
+</colgroup>
+<thead valign="bottom">
+<tr class="row-odd"><th class="head">項番</th>
+<th class="head">説明</th>
+</tr>
+</thead>
+<tbody valign="top">
+<tr class="row-even"><td><div class="first last line-block">
+<div class="line">(1)</div>
+</div>
+</td>
+<td><div class="first last line-block">
+<div class="line">defaultメソッドを定義し、独自のマッピングロジックを記載する。</div>
+<div class="line">引数、返り値の型が一致するフィールドのマッピング全てに適用される。</div>
+</div>
+</td>
+</tr>
+</tbody>
+</table>
+</li>
+<li><p class="first">マッピング例</p>
+<div class="highlight-java"><div class="highlight"><pre><span></span><span class="n">Source</span> <span class="n">source</span> <span class="o">=</span> <span class="k">new</span> <span class="n">Source</span><span class="p">();</span>
+<span class="n">source</span><span class="p">.</span><span class="na">setName</span><span class="p">(</span><span class="s">&quot;SourceName&quot;</span><span class="p">);</span>
+<span class="n">source</span><span class="p">.</span><span class="na">setTitle</span><span class="p">(</span><span class="s">&quot;SourceTitle&quot;</span><span class="p">);</span>
+
+<span class="n">Target</span> <span class="n">target</span> <span class="o">=</span> <span class="k">new</span> <span class="n">Target</span><span class="p">();</span>
+<span class="n">target</span><span class="p">.</span><span class="na">setName</span><span class="p">(</span><span class="s">&quot;TargetName&quot;</span><span class="p">);</span>
+<span class="n">target</span><span class="p">.</span><span class="na">setTitle</span><span class="p">(</span><span class="s">&quot;TargetTitle&quot;</span><span class="p">);</span>
+
+<span class="n">beanMapper</span><span class="p">.</span><span class="na">map</span><span class="p">(</span><span class="n">source</span><span class="p">,</span> <span class="n">target</span><span class="p">);</span>
+
+<span class="n">System</span><span class="p">.</span><span class="na">out</span><span class="p">.</span><span class="na">println</span><span class="p">(</span><span class="n">target</span><span class="p">.</span><span class="na">getName</span><span class="p">());</span>
+<span class="n">System</span><span class="p">.</span><span class="na">out</span><span class="p">.</span><span class="na">println</span><span class="p">(</span><span class="n">target</span><span class="p">.</span><span class="na">getTitle</span><span class="p">());</span>
+</pre></div>
+</div>
+</li>
+</ul>
+<p>上記のコードを実行すると以下のように出力される。</p>
+<blockquote>
+<div><div class="highlight-console"><div class="highlight"><pre><span></span><span class="go">SOURCENAME</span>
+<span class="go">SOURCETITLE</span>
+</pre></div>
+</div>
+</div></blockquote>
+<p>nameフィールド、titleフィールドともに大文字にマッピングされる。</p>
+<div class="line-block">
+<div class="line"><br /></div>
+</div>
+</div>
+<div class="section" id="named">
+<h4><a class="toc-backref" href="#id42">7.6.3.1.2. &#64;Namedアノテーションを用いた方法</a><a class="headerlink" href="#named" title="Permalink to this headline">¶</a></h4>
+<p>特定のフィールドのみ、独自に定義したマッピングロジックを適用させたい場合は<code class="docutils literal"><span class="pre">&#64;Named</span></code>アノテーションを使用する。</p>
+<blockquote>
+<div><div class="highlight-java"><div class="highlight"><pre><span></span><span class="nd">@Mapper</span>
+<span class="kd">public</span> <span class="kd">interface</span> <span class="nc">BeanMapper</span> <span class="p">{</span>
+
+    <span class="nd">@Mapping</span><span class="p">(</span><span class="n">target</span> <span class="o">=</span> <span class="s">&quot;name&quot;</span><span class="p">,</span> <span class="n">qualifiedByName</span> <span class="o">=</span> <span class="s">&quot;toUpper&quot;</span><span class="p">)</span> <span class="c1">// (1)</span>
+    <span class="n">Target</span> <span class="nf">map</span><span class="p">(</span><span class="n">Source</span> <span class="n">source</span><span class="p">);</span>
+
+    <span class="nd">@Named</span><span class="p">(</span><span class="s">&quot;toUpper&quot;</span><span class="p">)</span> <span class="c1">// (2)</span>
+    <span class="k">default</span> <span class="n">String</span> <span class="nf">stringToUpper</span><span class="p">(</span><span class="n">String</span> <span class="n">string</span><span class="p">)</span> <span class="p">{</span>
+
+        <span class="k">if</span> <span class="p">(</span><span class="n">string</span> <span class="o">==</span> <span class="kc">null</span><span class="p">)</span> <span class="p">{</span>
+            <span class="k">return</span> <span class="kc">null</span><span class="p">;</span>
+        <span class="p">}</span>
+
+        <span class="k">return</span> <span class="n">string</span><span class="p">.</span><span class="na">toUpperCase</span><span class="p">();</span>
+    <span class="p">}</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+<table border="1" class="colwidths-given docutils">
+<colgroup>
+<col width="10%" />
+<col width="90%" />
+</colgroup>
+<thead valign="bottom">
+<tr class="row-odd"><th class="head">項番</th>
+<th class="head">説明</th>
+</tr>
+</thead>
+<tbody valign="top">
+<tr class="row-even"><td><div class="first last line-block">
+<div class="line">(1)</div>
+</div>
+</td>
+<td><div class="first last line-block">
+<div class="line">targetにnameを指定し、qualifiedByNameに下記の<code class="docutils literal"><span class="pre">&#64;Named</span></code>アノテーションで設定した名前を指定することにより、このフィールドのみに下記のマッピングロジックを反映できる。</div>
+<div class="line">titleフィールドには<code class="docutils literal"><span class="pre">&#64;Named</span></code>アノテーションの名前を指定していないので、(2)で設定するロジックは反映されない。</div>
+</div>
+</td>
+</tr>
+<tr class="row-odd"><td><div class="first last line-block">
+<div class="line">(2)</div>
+</div>
+</td>
+<td><div class="first last line-block">
+<div class="line">マッピングロジックを定義するデフォルトメソッドに<code class="docutils literal"><span class="pre">&#64;Named</span></code>アノテーションを付与し、任意の名前を設定する。</div>
+</div>
+</td>
+</tr>
+</tbody>
+</table>
+</div></blockquote>
+<p><code class="docutils literal"><span class="pre">&#64;Named</span></code>アノテーションを別のクラスに付与することで、独自マッピング定義をマッピングインタフェースの外で定義する事ができる。</p>
+<ul>
+<li><p class="first">ロジック定義用のクラス</p>
+<div class="highlight-java"><div class="highlight"><pre><span></span><span class="nd">@Named</span><span class="p">(</span><span class="s">&quot;StringConverter&quot;</span><span class="p">)</span> <span class="c1">// (1)</span>
+<span class="kd">public</span> <span class="kd">class</span> <span class="nc">StringLogic</span> <span class="p">{</span>
+
+    <span class="nd">@Named</span><span class="p">(</span><span class="s">&quot;UpperConverter&quot;</span><span class="p">)</span> <span class="c1">// (2)</span>
+    <span class="kd">public</span> <span class="n">String</span> <span class="nf">stringToUpper</span><span class="p">(</span><span class="n">String</span> <span class="n">string</span><span class="p">)</span> <span class="p">{</span>
+
+        <span class="k">if</span> <span class="p">(</span><span class="n">string</span> <span class="o">==</span> <span class="kc">null</span><span class="p">)</span> <span class="p">{</span>
+            <span class="k">return</span> <span class="kc">null</span><span class="p">;</span>
+        <span class="p">}</span>
+
+        <span class="k">return</span> <span class="n">string</span><span class="p">.</span><span class="na">toUpperCase</span><span class="p">();</span>
+    <span class="p">}</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+<table border="1" class="colwidths-given docutils">
+<colgroup>
+<col width="10%" />
+<col width="90%" />
+</colgroup>
+<thead valign="bottom">
+<tr class="row-odd"><th class="head">項番</th>
+<th class="head">説明</th>
+</tr>
+</thead>
+<tbody valign="top">
+<tr class="row-even"><td><div class="first last line-block">
+<div class="line">(1)</div>
+</div>
+</td>
+<td><div class="first last line-block">
+<div class="line">クラスレベルに<code class="docutils literal"><span class="pre">&#64;Named</span></code>アノテーションを付与し、任意の名前を設定する。</div>
+</div>
+</td>
+</tr>
+<tr class="row-odd"><td><div class="first last line-block">
+<div class="line">(2)</div>
+</div>
+</td>
+<td><div class="first last line-block">
+<div class="line">メソッドレベルに<code class="docutils literal"><span class="pre">&#64;Named</span></code>アノテーションを付与し、任意の名前を設定する。</div>
+</div>
+</td>
+</tr>
+</tbody>
+</table>
+</li>
+<li><p class="first">マッパーインタフェース</p>
+<div class="highlight-java"><div class="highlight"><pre><span></span><span class="nd">@Mapper</span><span class="p">(</span><span class="n">uses</span> <span class="o">=</span> <span class="n">StringLogic</span><span class="p">.</span><span class="na">class</span><span class="p">)</span>  <span class="c1">// (1)</span>
+<span class="kd">public</span> <span class="kd">interface</span> <span class="nc">BeanMapper</span> <span class="p">{</span>
+
+    <span class="nd">@Mapping</span><span class="p">(</span><span class="n">target</span> <span class="o">=</span> <span class="s">&quot;name&quot;</span><span class="p">,</span> <span class="n">qualifiedByName</span> <span class="o">=</span> <span class="p">{</span><span class="s">&quot;StringConverter&quot;</span><span class="p">,</span> <span class="s">&quot;UpperConverter&quot;</span><span class="p">})</span> <span class="c1">// (2)</span>
+    <span class="n">Target</span> <span class="nf">map</span><span class="p">(</span><span class="n">Source</span> <span class="n">source</span><span class="p">);.</span>
+
+<span class="p">}</span>
+</pre></div>
+</div>
+<table border="1" class="colwidths-given docutils">
+<colgroup>
+<col width="10%" />
+<col width="90%" />
+</colgroup>
+<thead valign="bottom">
+<tr class="row-odd"><th class="head">項番</th>
+<th class="head">説明</th>
+</tr>
+</thead>
+<tbody valign="top">
+<tr class="row-even"><td><div class="first last line-block">
+<div class="line">(1)</div>
+</div>
+</td>
+<td><div class="first last line-block">
+<div class="line"><code class="docutils literal"><span class="pre">&#64;Mapper</span></code>アノテーションの<code class="docutils literal"><span class="pre">uses</span></code>にロジック定義用のクラスを指定する。</div>
+</div>
+</td>
+</tr>
+<tr class="row-odd"><td><div class="first last line-block">
+<div class="line">(2)</div>
+</div>
+</td>
+<td><div class="first last line-block">
+<div class="line">qualifiedByNameに、マッピングロジックを定義したクラスの<code class="docutils literal"><span class="pre">&#64;Named</span></code>アノテーションで設定した名前を記載する。</div>
+<div class="line">クラスレベルに設定した名前、メソッドレベルに設定した名前の順番で設定する。</div>
+</div>
+</td>
+</tr>
+</tbody>
+</table>
+</li>
+<li><p class="first">マッピング例</p>
+<div class="highlight-java"><div class="highlight"><pre><span></span><span class="n">Source</span> <span class="n">source</span> <span class="o">=</span> <span class="k">new</span> <span class="n">Source</span><span class="p">();</span>
+<span class="n">source</span><span class="p">.</span><span class="na">setName</span><span class="p">(</span><span class="s">&quot;sourceName&quot;</span><span class="p">);</span>
+<span class="n">source</span><span class="p">.</span><span class="na">setTitle</span><span class="p">(</span><span class="s">&quot;sourceTitle&quot;</span><span class="p">);</span>
+
+<span class="n">Target</span> <span class="n">target</span> <span class="o">=</span> <span class="n">beanMapper</span><span class="p">.</span><span class="na">map</span><span class="p">(</span><span class="n">source</span><span class="p">);</span>
+
+<span class="n">System</span><span class="p">.</span><span class="na">out</span><span class="p">.</span><span class="na">println</span><span class="p">(</span><span class="n">target</span><span class="p">.</span><span class="na">getName</span><span class="p">());</span>
+<span class="n">System</span><span class="p">.</span><span class="na">out</span><span class="p">.</span><span class="na">println</span><span class="p">(</span><span class="n">target</span><span class="p">.</span><span class="na">getTitle</span><span class="p">());</span>
+</pre></div>
+</div>
+</li>
+</ul>
+<p>上記のコードを実行すると以下のように出力される。</p>
+<blockquote>
+<div><div class="highlight-console"><div class="highlight"><pre><span></span><span class="go">SOURCENAME</span>
+<span class="go">sourceTitle</span>
+</pre></div>
+</div>
+</div></blockquote>
+<p>ソースの<code class="docutils literal"><span class="pre">name</span></code>フィールドのみ独自マッピングが適用されていることが分かる。</p>
+<p>この方法を使えばMapStructがサポートしていないデータ型のマッピングもできる。</p>
+<p>例 : <code class="docutils literal"><span class="pre">java.lang.String</span></code>&lt;=&gt; <code class="docutils literal"><span class="pre">java.sql.Date</span></code></p>
+<ul>
+<li><p class="first">マッパーインタフェース</p>
+<div class="highlight-java"><div class="highlight"><pre><span></span><span class="nd">@Mapper</span>
+<span class="kd">public</span> <span class="kd">interface</span> <span class="nc">BeanMapper</span> <span class="p">{</span>
+
+    <span class="n">Target</span> <span class="nf">map</span><span class="p">(</span><span class="n">Source</span> <span class="n">source</span><span class="p">);</span>
+
+    <span class="k">default</span> <span class="n">Date</span> <span class="nf">stringToDate</span><span class="p">(</span><span class="n">String</span> <span class="n">string</span><span class="p">)</span> <span class="p">{</span>
+        <span class="k">return</span> <span class="n">Date</span><span class="p">.</span><span class="na">valueOf</span><span class="p">(</span><span class="n">string</span><span class="p">);</span>
+    <span class="p">}</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+</li>
+</ul>
+<div class="line-block">
+<div class="line"><br /></div>
+</div>
+</div>
+</div>
+<div class="section" id="null">
+<span id="null-property-config"></span><h3><a class="toc-backref" href="#id43">7.6.3.2. ソースのnullフィールドの制御</a><a class="headerlink" href="#null" title="Permalink to this headline">¶</a></h3>
+<div class="line-block">
+<div class="line">ソースのフィールドが<code class="docutils literal"><span class="pre">null</span></code>の場合について、<code class="docutils literal"><span class="pre">&#64;Mapping</span></code>アノテーションで挙動を制御できる。</div>
+</div>
+<p>以下にソースのフィールドが<code class="docutils literal"><span class="pre">null</span></code>の場合にデフォルト値を設定する方法を記載する。</p>
+<ul>
+<li><p class="first">ソース</p>
+<div class="highlight-java"><div class="highlight"><pre><span></span><span class="kd">public</span> <span class="kd">class</span> <span class="nc">Source</span> <span class="p">{</span>
+    <span class="kd">private</span> <span class="kt">int</span> <span class="n">id</span><span class="p">;</span>
+    <span class="kd">private</span> <span class="n">String</span> <span class="n">name</span><span class="p">;</span>
+    <span class="c1">// omitted setter/getter</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+</li>
+<li><p class="first">ターゲット</p>
+<div class="highlight-java"><div class="highlight"><pre><span></span><span class="kd">public</span> <span class="kd">class</span> <span class="nc">Target</span> <span class="p">{</span>
+    <span class="kd">private</span> <span class="kt">int</span> <span class="n">id</span><span class="p">;</span>
+    <span class="kd">private</span> <span class="n">String</span> <span class="n">name</span><span class="p">;</span>
+    <span class="c1">// omitted setter/getter</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+</li>
+<li><p class="first">マッパーインタフェース</p>
+<div class="highlight-java"><div class="highlight"><pre><span></span><span class="nd">@Mapper</span>
+<span class="kd">public</span> <span class="kd">interface</span> <span class="nc">BeanMapper</span> <span class="p">{</span>
+
+    <span class="nd">@Mapping</span><span class="p">(</span><span class="n">target</span> <span class="o">=</span> <span class="s">&quot;name&quot;</span><span class="p">,</span> <span class="n">defaultValue</span> <span class="o">=</span> <span class="s">&quot;DefaultName&quot;</span><span class="p">)</span> <span class="c1">// (1)</span>
+    <span class="kt">void</span> <span class="nf">map</span><span class="p">(</span><span class="n">Source</span> <span class="n">source</span><span class="p">,</span> <span class="nd">@MappingTarget</span> <span class="n">Target</span> <span class="n">target</span><span class="p">);</span>
+
+<span class="p">}</span>
+</pre></div>
+</div>
+<table border="1" class="colwidths-given docutils">
+<colgroup>
+<col width="10%" />
+<col width="90%" />
+</colgroup>
+<thead valign="bottom">
+<tr class="row-odd"><th class="head">項番</th>
+<th class="head">説明</th>
+</tr>
+</thead>
+<tbody valign="top">
+<tr class="row-even"><td><div class="first last line-block">
+<div class="line">(1)</div>
+</div>
+</td>
+<td><div class="first last line-block">
+<div class="line">ソースのフィールドが<code class="docutils literal"><span class="pre">null</span></code>の場合、あらかじめ設定した値にするには<code class="docutils literal"><span class="pre">defaultValue</span></code>に値を設定する。</div>
+<div class="line">設定する値は文字列であり、ターゲットのフィールドの型に合わせて変換される。</div>
+</div>
+</td>
+</tr>
+</tbody>
+</table>
+</li>
+<li><p class="first">マッピング例</p>
+<div class="highlight-java"><div class="highlight"><pre><span></span><span class="n">Source</span> <span class="n">source</span> <span class="o">=</span> <span class="k">new</span> <span class="n">Source</span><span class="p">();</span>
+<span class="n">source</span><span class="p">.</span><span class="na">setId</span><span class="p">(</span><span class="mi">1</span><span class="p">);</span>
+<span class="n">source</span><span class="p">.</span><span class="na">setName</span><span class="p">(</span><span class="kc">null</span><span class="p">);</span>
+
+<span class="n">Target</span> <span class="n">target</span> <span class="o">=</span> <span class="k">new</span> <span class="n">Target</span><span class="p">();</span>
+<span class="n">target</span><span class="p">.</span><span class="na">setId</span><span class="p">(</span><span class="mi">2</span><span class="p">);</span>
+<span class="n">target</span><span class="p">.</span><span class="na">setName</span><span class="p">(</span><span class="s">&quot;TargetName&quot;</span><span class="p">);</span>
+<span class="n">beanMapper</span><span class="p">.</span><span class="na">map</span><span class="p">(</span><span class="n">source</span><span class="p">,</span> <span class="n">target</span><span class="p">);</span>
+<span class="n">System</span><span class="p">.</span><span class="na">out</span><span class="p">.</span><span class="na">println</span><span class="p">(</span><span class="n">target</span><span class="p">.</span><span class="na">getId</span><span class="p">());</span>
+<span class="n">System</span><span class="p">.</span><span class="na">out</span><span class="p">.</span><span class="na">println</span><span class="p">(</span><span class="n">target</span><span class="p">.</span><span class="na">getName</span><span class="p">());</span>
+</pre></div>
+</div>
+</li>
+</ul>
+<p>上記のコードを実行すると以下のように出力される。</p>
+<blockquote>
+<div><div class="highlight-console"><div class="highlight"><pre><span></span><span class="go">1</span>
+<span class="go">DefaultName</span>
+</pre></div>
+</div>
+</div></blockquote>
+<p>ソースの<code class="docutils literal"><span class="pre">name</span></code>フィールドは<code class="docutils literal"><span class="pre">null</span></code>のため、<code class="docutils literal"><span class="pre">defaultValue</span></code>に設定された値がマッピングされている。</p>
+<p>また、<code class="docutils literal"><span class="pre">nullValuePropertyMappingStrategy</span></code>の値を設定することで、ソースのフィールドが<code class="docutils literal"><span class="pre">null</span></code>の場合の動作をカスタマイズできる。</p>
+<table border="1" class="colwidths-given docutils">
+<colgroup>
+<col width="10%" />
+<col width="90%" />
+</colgroup>
+<thead valign="bottom">
+<tr class="row-odd"><th class="head">設定値</th>
+<th class="head">説明</th>
+</tr>
+</thead>
+<tbody valign="top">
+<tr class="row-even"><td><div class="first last line-block">
+<div class="line"><code class="docutils literal"><span class="pre">NullValuePropertyMappingStrategy.SET_TO_NULL</span></code></div>
+</div>
+</td>
+<td><div class="first last line-block">
+<div class="line">デフォルト値。nullをマッピングする。</div>
+</div>
+</td>
+</tr>
+<tr class="row-odd"><td><div class="first last line-block">
+<div class="line"><code class="docutils literal"><span class="pre">NullValuePropertyMappingStrategy.SET_TO_DEFAULT</span></code></div>
+</div>
+</td>
+<td><div class="first last line-block">
+<div class="line">プロパティの型に対応した、あらかじめ決められたデフォルト値をマッピングする。例えば、Stringの場合は<code class="docutils literal"><span class="pre">&quot;&quot;</span></code>（空文字）をマッピングする。</div>
+<div class="line">その他の型については<a class="reference external" href="https://mapstruct.org/documentation/1.5/api/org/mapstruct/NullValuePropertyMappingStrategy.html#SET_TO_DEFAULT">NullValuePropertyMappingStrategyのJavadoc</a>を参照されたい。</div>
+</div>
+</td>
+</tr>
+<tr class="row-even"><td><div class="first last line-block">
+<div class="line"><code class="docutils literal"><span class="pre">NullValuePropertyMappingStrategy.IGNORE</span></code></div>
+</div>
+</td>
+<td><div class="first last line-block">
+<div class="line">ソースのフィールドが<code class="docutils literal"><span class="pre">null</span></code>の場合はマッピングから除外される。</div>
+</div>
+</td>
+</tr>
+</tbody>
+</table>
+<p>以下にNullValuePropertyMappingStrategy.IGNOREを設定した場合の例を示す。</p>
+<blockquote>
+<div><div class="highlight-java"><div class="highlight"><pre><span></span><span class="nd">@Mapper</span>
+<span class="kd">public</span> <span class="kd">interface</span> <span class="nc">BeanMapper</span> <span class="p">{</span>
+
+    <span class="nd">@Mapping</span><span class="p">(</span><span class="n">target</span> <span class="o">=</span> <span class="s">&quot;name&quot;</span><span class="p">,</span> <span class="n">nullValuePropertyMappingStrategy</span> <span class="o">=</span> <span class="n">NullValuePropertyMappingStrategy</span><span class="p">.</span><span class="na">IGNORE</span><span class="p">)</span> <span class="c1">// (1)</span>
+    <span class="kt">void</span> <span class="nf">map</span><span class="p">(</span><span class="n">Source</span> <span class="n">source</span><span class="p">,</span> <span class="nd">@MappingTarget</span> <span class="n">Target</span> <span class="n">target</span><span class="p">);</span>
+
+<span class="p">}</span>
+</pre></div>
+</div>
+<table border="1" class="colwidths-given docutils">
+<colgroup>
+<col width="10%" />
+<col width="90%" />
+</colgroup>
+<thead valign="bottom">
+<tr class="row-odd"><th class="head">項番</th>
+<th class="head">説明</th>
+</tr>
+</thead>
+<tbody valign="top">
+<tr class="row-even"><td><div class="first last line-block">
+<div class="line">(1)</div>
+</div>
+</td>
+<td><div class="first last line-block">
+<div class="line">ソースのフィールドが<code class="docutils literal"><span class="pre">null</span></code>の場合にマッピングから除外したい場合は<code class="docutils literal"><span class="pre">nullValuePropertyMappingStrategy</span></code>に<code class="docutils literal"><span class="pre">NullValuePropertyMappingStrategy.IGNORE</span></code>を設定する。</div>
+</div>
+</td>
+</tr>
+</tbody>
+</table>
+</div></blockquote>
+<ul>
+<li><p class="first">ソース</p>
+<div class="highlight-java"><div class="highlight"><pre><span></span><span class="kd">public</span> <span class="kd">class</span> <span class="nc">Source</span> <span class="p">{</span>
+    <span class="kd">private</span> <span class="kt">int</span> <span class="n">id</span><span class="p">;</span>
+    <span class="kd">private</span> <span class="n">String</span> <span class="n">name</span><span class="p">;</span>
+    <span class="c1">// omitted setter/getter</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+</li>
+<li><p class="first">ターゲット</p>
+<div class="highlight-java"><div class="highlight"><pre><span></span><span class="kd">public</span> <span class="kd">class</span> <span class="nc">Target</span> <span class="p">{</span>
+    <span class="kd">private</span> <span class="kt">int</span> <span class="n">id</span><span class="p">;</span>
+    <span class="kd">private</span> <span class="n">String</span> <span class="n">name</span><span class="p">;</span>
+    <span class="c1">// omitted setter/getter</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+</li>
+<li><p class="first">マッピング例</p>
+<div class="highlight-java"><div class="highlight"><pre><span></span><span class="n">Source</span> <span class="n">source</span> <span class="o">=</span> <span class="k">new</span> <span class="n">Source</span><span class="p">();</span>
+<span class="n">source</span><span class="p">.</span><span class="na">setId</span><span class="p">(</span><span class="mi">1</span><span class="p">);</span>
+<span class="n">source</span><span class="p">.</span><span class="na">setName</span><span class="p">(</span><span class="kc">null</span><span class="p">);</span>
+
+<span class="n">Target</span> <span class="n">target</span> <span class="o">=</span> <span class="k">new</span> <span class="n">Target</span><span class="p">();</span>
+<span class="n">target</span><span class="p">.</span><span class="na">setId</span><span class="p">(</span><span class="mi">2</span><span class="p">);</span>
+<span class="n">target</span><span class="p">.</span><span class="na">setName</span><span class="p">(</span><span class="s">&quot;TargetName&quot;</span><span class="p">);</span>
+<span class="n">beanMapper</span><span class="p">.</span><span class="na">map</span><span class="p">(</span><span class="n">source</span><span class="p">,</span> <span class="n">target</span><span class="p">);</span>
+<span class="n">System</span><span class="p">.</span><span class="na">out</span><span class="p">.</span><span class="na">println</span><span class="p">(</span><span class="n">target</span><span class="p">.</span><span class="na">getId</span><span class="p">());</span>
+<span class="n">System</span><span class="p">.</span><span class="na">out</span><span class="p">.</span><span class="na">println</span><span class="p">(</span><span class="n">target</span><span class="p">.</span><span class="na">getName</span><span class="p">());</span>
+</pre></div>
+</div>
+</li>
+</ul>
+<p>上記のコードを実行すると以下のように出力される。</p>
+<blockquote>
+<div><div class="highlight-console"><div class="highlight"><pre><span></span><span class="go">1</span>
+<span class="go">TargetName</span>
+</pre></div>
+</div>
+</div></blockquote>
+<p>ソースの<code class="docutils literal"><span class="pre">name</span></code>フィールドは<code class="docutils literal"><span class="pre">null</span></code>のため、マッピングから除外されている。</p>
+<div class="line-block">
+<div class="line"><br /></div>
+</div>
+</div>
+<div class="section" id="id14">
+<h3><a class="toc-backref" href="#id44">7.6.3.3. 条件付きマッピング</a><a class="headerlink" href="#id14" title="Permalink to this headline">¶</a></h3>
+<div class="line-block">
+<div class="line"><code class="docutils literal"><span class="pre">&#64;Condition</span></code>アノテーションを使用して条件を定義することにより、その条件を満たすフィールドのみをマッピングするように設定できる。</div>
+<div class="line">独自マッピングと定義方法と同様に、条件の定義方法にも下記の手段がある。</div>
+</div>
+<ul class="simple">
+<li>defaultメソッドを用いた方法</li>
+<li><code class="docutils literal"><span class="pre">&#64;Named</span></code>アノテーションを用いた方法</li>
+</ul>
+<p>あるマッパーインタフェース内で定義する、すべてのフィールドに対して、同一の条件を付与したい場合はdefaultメソッドで条件を定義することを推奨する。</p>
+<div class="line-block">
+<div class="line"><br /></div>
+</div>
+<div class="section" id="id15">
+<h4><a class="toc-backref" href="#id45">7.6.3.3.1. defaultメソッドを用いた方法</a><a class="headerlink" href="#id15" title="Permalink to this headline">¶</a></h4>
+<div class="line-block">
+<div class="line">defaultメソッドを用いて条件を定義する方法を説明する。</div>
+<div class="line">以下ではソースBeanのあるフィールドが<code class="docutils literal"><span class="pre">null</span></code>でない、かつ、空文字でない場合にマッピングの対象とする例を示す。</div>
+</div>
+<ul>
+<li><p class="first">ソース</p>
+<div class="highlight-java"><div class="highlight"><pre><span></span><span class="kd">public</span> <span class="kd">class</span> <span class="nc">Source</span> <span class="p">{</span>
+    <span class="kd">private</span> <span class="n">String</span> <span class="n">name</span><span class="p">;</span>
+    <span class="kd">private</span> <span class="n">String</span> <span class="n">title</span><span class="p">;</span>
+    <span class="c1">// omitted setter/getter</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+</li>
+<li><p class="first">ターゲット</p>
+<div class="highlight-java"><div class="highlight"><pre><span></span><span class="kd">public</span> <span class="kd">class</span> <span class="nc">Target</span> <span class="p">{</span>
+    <span class="kd">private</span> <span class="n">String</span> <span class="n">name</span><span class="p">;</span>
+    <span class="kd">private</span> <span class="n">String</span> <span class="n">title</span><span class="p">;</span>
+    <span class="c1">// omitted setter/getter</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+</li>
+<li><p class="first">マッパーインタフェース</p>
+<div class="highlight-java"><div class="highlight"><pre><span></span><span class="nd">@Mapper</span>
+<span class="kd">public</span> <span class="kd">interface</span> <span class="nc">BeanMapper</span> <span class="p">{</span>
+
+    <span class="kt">void</span> <span class="nf">map</span><span class="p">(</span><span class="n">Source</span> <span class="n">source</span><span class="p">,</span> <span class="nd">@MappingTarget</span> <span class="n">Target</span> <span class="n">target</span><span class="p">);</span>
+
+    <span class="nd">@Condition</span> <span class="c1">// (1)</span>
+    <span class="k">default</span> <span class="kt">boolean</span> <span class="nf">isNotEmpty</span><span class="p">(</span><span class="n">String</span> <span class="n">string</span><span class="p">)</span> <span class="p">{</span>
+        <span class="k">return</span> <span class="n">StringUtils</span><span class="p">.</span><span class="na">hasLength</span><span class="p">(</span><span class="n">string</span><span class="p">);</span>
+    <span class="p">}</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+<table border="1" class="colwidths-given docutils">
+<colgroup>
+<col width="10%" />
+<col width="90%" />
+</colgroup>
+<thead valign="bottom">
+<tr class="row-odd"><th class="head">項番</th>
+<th class="head">説明</th>
+</tr>
+</thead>
+<tbody valign="top">
+<tr class="row-even"><td><div class="first last line-block">
+<div class="line">(1)</div>
+</div>
+</td>
+<td><div class="first last line-block">
+<div class="line"><code class="docutils literal"><span class="pre">&#64;Condition</span></code>アノテーションをbooleanを返すメソッドに付与することで条件付きのマッピングを設定できる。</div>
+<div class="line">返り値がtrueの場合は通常通りマッピングが行われ、falseの場合は<code class="docutils literal"><span class="pre">null</span></code>がマッピングされる。</div>
+</div>
+</td>
+</tr>
+</tbody>
+</table>
+</li>
+<li><p class="first">マッピング例</p>
+<div class="highlight-java"><div class="highlight"><pre><span></span><span class="n">Source</span> <span class="n">source</span> <span class="o">=</span> <span class="k">new</span> <span class="n">Source</span><span class="p">();</span>
+<span class="n">source</span><span class="p">.</span><span class="na">setName</span><span class="p">(</span><span class="s">&quot;&quot;</span><span class="p">);</span>
+<span class="n">source</span><span class="p">.</span><span class="na">setTitle</span><span class="p">(</span><span class="s">&quot;&quot;</span><span class="p">);</span>
+
+<span class="n">Target</span> <span class="n">target</span> <span class="o">=</span> <span class="k">new</span> <span class="n">Target</span><span class="p">();</span>
+<span class="n">target</span><span class="p">.</span><span class="na">setName</span><span class="p">(</span><span class="s">&quot;TargetName&quot;</span><span class="p">);</span>
+<span class="n">target</span><span class="p">.</span><span class="na">setTitle</span><span class="p">(</span><span class="s">&quot;TargetTitle&quot;</span><span class="p">);</span>
+
+<span class="n">beanMapper</span><span class="p">.</span><span class="na">map</span><span class="p">(</span><span class="n">source</span><span class="p">,</span> <span class="n">target</span><span class="p">);</span>
+
+<span class="n">System</span><span class="p">.</span><span class="na">out</span><span class="p">.</span><span class="na">println</span><span class="p">(</span><span class="n">target</span><span class="p">.</span><span class="na">getName</span><span class="p">());</span>
+<span class="n">System</span><span class="p">.</span><span class="na">out</span><span class="p">.</span><span class="na">println</span><span class="p">(</span><span class="n">target</span><span class="p">.</span><span class="na">getTitle</span><span class="p">());</span>
+</pre></div>
+</div>
+</li>
+</ul>
+<p>上記のコードを実行すると以下のように出力される。</p>
+<blockquote>
+<div><div class="highlight-console"><div class="highlight"><pre><span></span><span class="go">null</span>
+<span class="go">null</span>
+</pre></div>
+</div>
+</div></blockquote>
+<p>nameフィールド、titleフィールドともに定義した条件が適用される。</p>
+<div class="line-block">
+<div class="line"><br /></div>
+</div>
+</div>
+<div class="section" id="id16">
+<h4><a class="toc-backref" href="#id46">7.6.3.3.2. &#64;Namedアノテーションを用いた方法</a><a class="headerlink" href="#id16" title="Permalink to this headline">¶</a></h4>
+<div class="line-block">
+<div class="line">特定のフィールドでのみチェックさせたい場合は、<code class="docutils literal"><span class="pre">&#64;Named</span></code>アノテーションを使用する。</div>
+<div class="line">この例では、nameフィールドでのみ条件判定が行われるようにしている。</div>
+</div>
+<ul>
+<li><p class="first">マッパーインタフェース</p>
+<div class="highlight-java"><div class="highlight"><pre><span></span><span class="nd">@Mapper</span>
+<span class="kd">public</span> <span class="kd">interface</span> <span class="nc">BeanMapper</span> <span class="p">{</span>
+
+    <span class="nd">@Mapping</span><span class="p">(</span><span class="n">target</span> <span class="o">=</span> <span class="s">&quot;name&quot;</span><span class="p">,</span> <span class="n">conditionQualifiedByName</span> <span class="o">=</span> <span class="s">&quot;NotEmpty&quot;</span><span class="p">)</span> <span class="c1">// (1)</span>
+    <span class="kt">void</span> <span class="nf">map</span><span class="p">(</span><span class="n">Source</span> <span class="n">source</span><span class="p">,</span> <span class="nd">@MappingTarget</span> <span class="n">Target</span> <span class="n">target</span><span class="p">);</span>
+
+    <span class="nd">@Named</span><span class="p">(</span><span class="s">&quot;NotEmpty&quot;</span><span class="p">)</span> <span class="c1">// (2)</span>
+    <span class="nd">@Condition</span>
+    <span class="k">default</span> <span class="kt">boolean</span> <span class="nf">isNotEmpty</span><span class="p">(</span><span class="n">String</span> <span class="n">value</span><span class="p">)</span> <span class="p">{</span>
+        <span class="k">return</span> <span class="n">StringUtils</span><span class="p">.</span><span class="na">hasLength</span><span class="p">(</span><span class="n">string</span><span class="p">);</span>
+    <span class="p">}</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+<table border="1" class="colwidths-given docutils">
+<colgroup>
+<col width="10%" />
+<col width="90%" />
+</colgroup>
+<thead valign="bottom">
+<tr class="row-odd"><th class="head">項番</th>
+<th class="head">説明</th>
+</tr>
+</thead>
+<tbody valign="top">
+<tr class="row-even"><td><div class="first last line-block">
+<div class="line">(1)</div>
+</div>
+</td>
+<td><div class="first last line-block">
+<div class="line">conditionQualifiedByNameに、(2)の<code class="docutils literal"><span class="pre">&#64;Named</span></code>アノテーションで設定した名前を指定する。</div>
+<div class="line">これにより、特定のフィールドのみに下記の条件を反映できる。</div>
+</div>
+</td>
+</tr>
+<tr class="row-odd"><td><div class="first last line-block">
+<div class="line">(2)</div>
+</div>
+</td>
+<td><div class="first last line-block">
+<div class="line">条件を定義するデフォルトメソッドに<code class="docutils literal"><span class="pre">&#64;Named</span></code>アノテーションを付与し、任意の名前を設定する。</div>
+</div>
+</td>
+</tr>
+</tbody>
+</table>
+</li>
+</ul>
+<div class="admonition note">
+<p class="first admonition-title">Note</p>
+<p class="last"><a class="reference internal" href="#how-to-make-custom-mapping"><span class="std std-ref">独自のマッピングの定義方法</span></a>に記載してある内容と同様に、<code class="docutils literal"><span class="pre">&#64;Named</span></code>アノテーションを使用すれば別クラスに条件のロジックを記載できる。</p>
+</div>
+<ul>
+<li><p class="first">マッピング例</p>
+<div class="highlight-java"><div class="highlight"><pre><span></span><span class="n">Source</span> <span class="n">source</span> <span class="o">=</span> <span class="k">new</span> <span class="n">Source</span><span class="p">();</span>
+<span class="n">source</span><span class="p">.</span><span class="na">setName</span><span class="p">(</span><span class="s">&quot;&quot;</span><span class="p">);</span>
+<span class="n">source</span><span class="p">.</span><span class="na">setTitle</span><span class="p">(</span><span class="s">&quot;&quot;</span><span class="p">);</span>
+
+<span class="n">Target</span> <span class="n">target</span> <span class="o">=</span> <span class="k">new</span> <span class="n">Target</span><span class="p">();</span>
+<span class="n">target</span><span class="p">.</span><span class="na">setName</span><span class="p">(</span><span class="s">&quot;TargetName&quot;</span><span class="p">);</span>
+<span class="n">target</span><span class="p">.</span><span class="na">setName</span><span class="p">(</span><span class="s">&quot;TargetTitle&quot;</span><span class="p">);</span>
+
+<span class="n">beanMapper</span><span class="p">.</span><span class="na">map</span><span class="p">(</span><span class="n">source</span><span class="p">,</span> <span class="n">target</span><span class="p">);</span>
+
+<span class="n">System</span><span class="p">.</span><span class="na">out</span><span class="p">.</span><span class="na">println</span><span class="p">(</span><span class="n">target</span><span class="p">.</span><span class="na">getName</span><span class="p">());</span>
+<span class="n">System</span><span class="p">.</span><span class="na">out</span><span class="p">.</span><span class="na">println</span><span class="p">(</span><span class="n">target</span><span class="p">.</span><span class="na">getTitle</span><span class="p">());</span>
+</pre></div>
+</div>
+</li>
+</ul>
+<p>上記のコードを実行すると以下のように出力される。</p>
+<blockquote>
+<div><div class="highlight-console"><div class="highlight"><pre><span></span><span class="go">null</span>
+<span class="gp gp-VirtualEnv">(空文字)</span>
+</pre></div>
+</div>
+</div></blockquote>
+<div class="line-block">
+<div class="line"><code class="docutils literal"><span class="pre">name</span></code>フィールドは<code class="docutils literal"><span class="pre">null</span></code>がマッピングされているが、<code class="docutils literal"><span class="pre">title</span></code>フィールドは条件が適用されていないため空文字がそのままマッピングされている。</div>
+<div class="line"><code class="docutils literal"><span class="pre">null</span></code>をマッピングせずにマッピングから除外したい場合は<a class="reference internal" href="#null-property-config"><span class="std std-ref">ソースのnullフィールドの制御</span></a>に記載してあるように、<code class="docutils literal"><span class="pre">nullValuePropertyMappingStrategy</span></code>に<code class="docutils literal"><span class="pre">NullValuePropertyMappingStrategy.IGNORE</span></code>を設定すればよい。</div>
+</div>
+<div class="line-block">
+<div class="line"><br /></div>
+</div>
+</div>
+</div>
+<div class="section" id="string-format">
+<span id="id17"></span><h3><a class="toc-backref" href="#id47">7.6.3.4. 文字列からの変換のフォーマット指定</a><a class="headerlink" href="#string-format" title="Permalink to this headline">¶</a></h3>
+<div class="line-block">
+<div class="line">ソースの文字列型のフィールドをマッピングする際に、フォーマットを指定できる。</div>
+<div class="line">サポートしている型については<a class="reference external" href="https://mapstruct.org/documentation/1.5/reference/html/#implicit-type-conversions">マニュアル</a>を参照されたい。</div>
+</div>
+<div class="line-block">
+<div class="line">例として、Stringから<code class="docutils literal"><span class="pre">java.time.LocalDateTime</span></code>への変換と、<code class="docutils literal"><span class="pre">java.math.BigDecimal</span></code>からStringの変換について説明する。</div>
+</div>
+<ul>
+<li><p class="first">ソース</p>
+<div class="highlight-java"><div class="highlight"><pre><span></span><span class="kd">public</span> <span class="kd">class</span> <span class="nc">Source</span> <span class="p">{</span>
+    <span class="kd">private</span> <span class="n">BigDecimal</span> <span class="n">number</span>
+    <span class="kd">private</span> <span class="n">String</span> <span class="n">date</span><span class="p">;</span>
+    <span class="c1">// omitted setter/getter</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+</li>
+<li><p class="first">ターゲット</p>
+<div class="highlight-java"><div class="highlight"><pre><span></span><span class="kd">public</span> <span class="kd">class</span> <span class="nc">Target</span> <span class="p">{</span>
+    <span class="kd">private</span> <span class="n">String</span> <span class="n">number</span><span class="p">;</span>
+    <span class="kd">private</span> <span class="n">LocalDateTime</span> <span class="n">date</span><span class="p">;</span>
+    <span class="c1">// omitted setter/getter</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+</li>
+<li><p class="first">マッパーインタフェース</p>
+<div class="highlight-java"><div class="highlight"><pre><span></span><span class="nd">@Mapper</span>
+<span class="kd">public</span> <span class="kd">interface</span> <span class="nc">BeanMapper</span> <span class="p">{</span>
+
+    <span class="nd">@Mapping</span><span class="p">(</span><span class="n">target</span> <span class="o">=</span> <span class="s">&quot;number&quot;</span><span class="p">,</span> <span class="n">numberFormat</span> <span class="o">=</span> <span class="s">&quot;000,000&quot;</span><span class="p">)</span> <span class="c1">// (1)</span>
+    <span class="nd">@Mapping</span><span class="p">(</span><span class="n">target</span> <span class="o">=</span> <span class="s">&quot;date&quot;</span><span class="p">,</span> <span class="n">dateFormat</span> <span class="o">=</span> <span class="s">&quot;uuuu-MM-dd HH:mm:ss&quot;</span><span class="p">)</span> <span class="c1">// (2)</span>
+    <span class="n">Target</span> <span class="nf">map</span><span class="p">(</span><span class="n">Source</span> <span class="n">source</span><span class="p">);</span>
+
+<span class="p">}</span>
+</pre></div>
+</div>
+<table border="1" class="colwidths-given docutils">
+<colgroup>
+<col width="10%" />
+<col width="90%" />
+</colgroup>
+<thead valign="bottom">
+<tr class="row-odd"><th class="head">項番</th>
+<th class="head">説明</th>
+</tr>
+</thead>
+<tbody valign="top">
+<tr class="row-even"><td><div class="first last line-block">
+<div class="line">(1)</div>
+</div>
+</td>
+<td><div class="first last line-block">
+<div class="line">targetにターゲットのフィールド名を指定し、numberFormatに<code class="docutils literal"><span class="pre">DecimalFormat</span></code>形式のフォーマットを指定する。</div>
+</div>
+</td>
+</tr>
+<tr class="row-odd"><td><div class="first last line-block">
+<div class="line">(2)</div>
+</div>
+</td>
+<td><div class="first last line-block">
+<div class="line">targetにターゲットのフィールド名を指定し、dateFormatに<code class="docutils literal"><span class="pre">SimpleDateFormat</span></code>形式のフォーマットを指定する。</div>
+</div>
+</td>
+</tr>
+</tbody>
+</table>
+</li>
+<li><p class="first">マッピング</p>
+<div class="highlight-java"><div class="highlight"><pre><span></span><span class="n">Source</span> <span class="n">source</span> <span class="o">=</span> <span class="k">new</span> <span class="n">Source</span><span class="p">();</span>
+
+<span class="n">source</span><span class="p">.</span><span class="na">setNumber</span><span class="p">(</span><span class="k">new</span> <span class="n">BigDecimal</span><span class="p">(</span><span class="s">&quot;123456&quot;</span><span class="p">));</span>
+<span class="n">source</span><span class="p">.</span><span class="na">setDate</span><span class="p">(</span><span class="s">&quot;2022-10-10 11:11:11&quot;</span><span class="p">);</span>
+
+<span class="n">Target</span> <span class="n">target</span> <span class="o">=</span> <span class="n">beanMapper</span><span class="p">.</span><span class="na">map</span><span class="p">(</span><span class="n">source</span><span class="p">);</span>
+
+<span class="n">System</span><span class="p">.</span><span class="na">out</span><span class="p">.</span><span class="na">println</span><span class="p">(</span><span class="n">target</span><span class="p">.</span><span class="na">getNumber</span><span class="p">());</span>
+<span class="n">System</span><span class="p">.</span><span class="na">out</span><span class="p">.</span><span class="na">println</span><span class="p">(</span><span class="n">DateTimeFormatter</span><span class="p">.</span><span class="na">ofPattern</span><span class="p">(</span><span class="s">&quot;yyyy-MM-dd HH:mm:ss&quot;</span><span class="p">).</span><span class="na">format</span><span class="p">(</span><span class="n">target</span><span class="p">.</span><span class="na">getDate</span><span class="p">()));</span>
+</pre></div>
+</div>
+</li>
+</ul>
+<p>上記のコードを実行すると以下のように出力される。</p>
+<blockquote>
+<div><div class="highlight-console"><div class="highlight"><pre><span></span><span class="go">123,456</span>
+<span class="go">2022-10-10 11:11:11</span>
+</pre></div>
+</div>
+</div></blockquote>
+<p>マッピングメソッドで指定したフォーマットが適用されていることが分かる。</p>
+<div class="line-block">
+<div class="line"><br /></div>
+</div>
+</div>
+<div class="section" id="id19">
+<h3><a class="toc-backref" href="#id48">7.6.3.5. 複数のマッパーインタフェースの共通設定</a><a class="headerlink" href="#id19" title="Permalink to this headline">¶</a></h3>
+<div class="line-block">
+<div class="line"><a class="reference internal" href="#existing-bean-update"><span class="std std-ref">既存のBeanの更新</span></a>で紹介した、unmappedTargetPolicyやunmappedTargetPolicyなどの設定を、複数のマッパーインタフェース間で同一に設定したい場合がある。</div>
+<div class="line">このようなケースでは<code class="docutils literal"><span class="pre">&#64;MapperConfig</span></code>アノテーションを利用して、共通設定用のインタフェースを書くことで実現することができる。</div>
+</div>
+<ul>
+<li><p class="first">共通設定用のインタフェース</p>
+<div class="highlight-java"><div class="highlight"><pre><span></span><span class="c1">// (1)</span>
+<span class="nd">@MapperConfig</span><span class="p">(</span>
+        <span class="n">unmappedTargetPolicy</span> <span class="o">=</span> <span class="n">ReportingPolicy</span><span class="p">.</span><span class="na">IGNORE</span><span class="p">,</span>
+        <span class="n">unmappedSourcePolicy</span> <span class="o">=</span> <span class="n">ReportingPolicy</span><span class="p">.</span><span class="na">IGNORE</span><span class="p">,</span>
+        <span class="c1">//omitted</span>
+<span class="p">)</span>
+<span class="kd">public</span> <span class="kd">interface</span> <span class="nc">BeanMapperConfig</span> <span class="p">{</span>
+
+<span class="p">}</span>
+</pre></div>
+</div>
+<table border="1" class="colwidths-given docutils">
+<colgroup>
+<col width="10%" />
+<col width="90%" />
+</colgroup>
+<thead valign="bottom">
+<tr class="row-odd"><th class="head">項番</th>
+<th class="head">説明</th>
+</tr>
+</thead>
+<tbody valign="top">
+<tr class="row-even"><td><div class="first last line-block">
+<div class="line">(1)</div>
+</div>
+</td>
+<td><div class="first last line-block">
+<div class="line">共通設定用のインタフェースに<code class="docutils literal"><span class="pre">&#64;MapperConfig</span></code>アノテーションを付与する。<code class="docutils literal"><span class="pre">&#64;Mapper</span></code>アノテーションと同じ属性を設定できる。</div>
+</div>
+</td>
+</tr>
+</tbody>
+</table>
+</li>
+<li><p class="first">マッパーインタフェース</p>
+<div class="highlight-java"><div class="highlight"><pre><span></span><span class="nd">@Mapper</span><span class="p">(</span><span class="n">config</span> <span class="o">=</span> <span class="n">BeanMapperConfig</span><span class="p">.</span><span class="na">class</span><span class="p">)</span> <span class="c1">// (2)</span>
+<span class="kd">public</span> <span class="kd">interface</span> <span class="nc">BeanMapper</span> <span class="p">{</span>
+
+<span class="p">}</span>
+</pre></div>
+</div>
+<table border="1" class="colwidths-given docutils">
+<colgroup>
+<col width="10%" />
+<col width="90%" />
+</colgroup>
+<thead valign="bottom">
+<tr class="row-odd"><th class="head">項番</th>
+<th class="head">説明</th>
+</tr>
+</thead>
+<tbody valign="top">
+<tr class="row-even"><td><div class="first last line-block">
+<div class="line">(2)</div>
+</div>
+</td>
+<td><div class="first last line-block">
+<div class="line"><code class="docutils literal"><span class="pre">&#64;Mapper</span></code>アノテーションのconfigに共通設定用のインタフェースのクラス型を指定する。これによりこのマッパーインタフェースに(1)の設定内容が反映される。</div>
+</div>
+</td>
+</tr>
+</tbody>
+</table>
+</li>
+</ul>
+<div class="line-block">
+<div class="line"><br /></div>
+</div>
+</div>
+</div>
+<div class="section" id="appendix">
+<h2><a class="toc-backref" href="#id49">7.6.4. Appendix</a><a class="headerlink" href="#appendix" title="Permalink to this headline">¶</a></h2>
+<div class="section" id="constructor">
+<span id="id20"></span><h3><a class="toc-backref" href="#id50">7.6.4.1. ターゲットに使用されるコンストラクタ</a><a class="headerlink" href="#constructor" title="Permalink to this headline">¶</a></h3>
+<div class="line-block">
+<div class="line">ターゲットのインスタンスの生成は、コンストラクタを定義していなければデフォルトコンストラクタが使用される。</div>
+<div class="line">しかし、Beanにコンストラクタを独自に定義している場合は、次の順番で使用されるコンストラクタが選ばれる。</div>
+</div>
+<ol class="arabic simple">
+<li><code class="docutils literal"><span class="pre">&#64;Default</span></code>アノテーションが付与されている場合、そのコンストラクタが使用される。</li>
+</ol>
+<blockquote>
+<div><div class="highlight-java"><div class="highlight"><pre><span></span><span class="kd">public</span> <span class="kd">class</span> <span class="nc">Target</span> <span class="p">{</span>
+    <span class="kd">private</span> <span class="kt">int</span> <span class="n">id</span><span class="p">;</span>
+    <span class="kd">private</span> <span class="n">String</span> <span class="n">name</span><span class="p">;</span>
+
+    <span class="kd">public</span> <span class="nf">Target</span><span class="p">()</span> <span class="p">{</span>
+
+    <span class="p">}</span>
+
+    <span class="nd">@Default</span> <span class="c1">// (1)</span>
+    <span class="kd">public</span> <span class="nf">Target</span><span class="p">(</span><span class="kt">int</span> <span class="n">id</span><span class="p">,</span> <span class="n">String</span> <span class="n">name</span><span class="p">)</span> <span class="p">{</span>
+        <span class="c1">// omitted</span>
+    <span class="p">}</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+<table border="1" class="colwidths-given docutils">
+<colgroup>
+<col width="10%" />
+<col width="90%" />
+</colgroup>
+<thead valign="bottom">
+<tr class="row-odd"><th class="head">項番</th>
+<th class="head">説明</th>
+</tr>
+</thead>
+<tbody valign="top">
+<tr class="row-even"><td><div class="first last line-block">
+<div class="line">(1)</div>
+</div>
+</td>
+<td><div class="first last line-block">
+<div class="line"><code class="docutils literal"><span class="pre">&#64;Default</span></code>アノテーションが付与されているコンストラクタが使用される。</div>
+<div class="line"><code class="docutils literal"><span class="pre">&#64;Default</span></code>アノテーションはMapStructから提供されておらず、独自アノテーションを作成する必要がある。アノテーションの作成例は <a class="reference external" href="https://mapstruct.org/documentation/1.5/reference/html/#non-shipped-annotations">マニュアル -Non-shipped annotations-</a> を参照されたい。</div>
+</div>
+</td>
+</tr>
+</tbody>
+</table>
+</div></blockquote>
+<ol class="arabic simple" start="2">
+<li>publicのコンストラクタが1つしか存在しない場合、そのコンストラクタが使用される。</li>
+</ol>
+<blockquote>
+<div><div class="highlight-java"><div class="highlight"><pre><span></span><span class="kd">public</span> <span class="kd">class</span> <span class="nc">Target</span> <span class="p">{</span>
+    <span class="kd">private</span> <span class="kt">int</span> <span class="n">id</span><span class="p">;</span>
+    <span class="kd">private</span> <span class="n">String</span> <span class="n">name</span><span class="p">;</span>
+
+    <span class="kd">protected</span> <span class="nf">Target</span><span class="p">()</span> <span class="p">{</span>
+
+    <span class="p">}</span>
+
+    <span class="c1">// (1)</span>
+    <span class="kd">public</span> <span class="nf">Target</span><span class="p">(</span><span class="kt">int</span> <span class="n">id</span><span class="p">,</span> <span class="n">String</span> <span class="n">name</span><span class="p">)</span> <span class="p">{</span>
+        <span class="c1">// omitted</span>
+    <span class="p">}</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+<table border="1" class="colwidths-given docutils">
+<colgroup>
+<col width="10%" />
+<col width="90%" />
+</colgroup>
+<thead valign="bottom">
+<tr class="row-odd"><th class="head">項番</th>
+<th class="head">説明</th>
+</tr>
+</thead>
+<tbody valign="top">
+<tr class="row-even"><td><div class="first last line-block">
+<div class="line">(1)</div>
+</div>
+</td>
+<td><div class="first last line-block">
+<div class="line">publicのコンストラクタが1つしか存在しないため、このコンストラクタが使用される。</div>
+</div>
+</td>
+</tr>
+</tbody>
+</table>
+</div></blockquote>
+<ol class="arabic simple" start="3">
+<li>引数の無いコンストラクタが使用される。</li>
+</ol>
+<blockquote>
+<div><div class="highlight-java"><div class="highlight"><pre><span></span><span class="kd">public</span> <span class="kd">class</span> <span class="nc">Target</span> <span class="p">{</span>
+    <span class="kd">private</span> <span class="kt">int</span> <span class="n">id</span><span class="p">;</span>
+    <span class="kd">private</span> <span class="n">String</span> <span class="n">name</span><span class="p">;</span>
+
+    <span class="c1">// (1)</span>
+    <span class="kd">public</span> <span class="nf">Target</span><span class="p">()</span> <span class="p">{</span>
+
+    <span class="p">}</span>
+
+    <span class="kd">public</span> <span class="nf">Target</span><span class="p">(</span><span class="kt">int</span> <span class="n">id</span><span class="p">,</span> <span class="n">String</span> <span class="n">name</span><span class="p">)</span> <span class="p">{</span>
+        <span class="c1">// omitted</span>
+    <span class="p">}</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+<table border="1" class="colwidths-given docutils">
+<colgroup>
+<col width="10%" />
+<col width="90%" />
+</colgroup>
+<thead valign="bottom">
+<tr class="row-odd"><th class="head">項番</th>
+<th class="head">説明</th>
+</tr>
+</thead>
+<tbody valign="top">
+<tr class="row-even"><td><div class="first last line-block">
+<div class="line">(1)</div>
+</div>
+</td>
+<td><div class="first last line-block">
+<div class="line">引数が無いため、このコンストラクタが使用される。</div>
+</div>
+</td>
+</tr>
+</tbody>
+</table>
+</div></blockquote>
+<p>上記のどの条件にも該当しない場合はコンパイルエラーが発生する。</p>
+<blockquote>
+<div><div class="highlight-java"><div class="highlight"><pre><span></span><span class="kd">public</span> <span class="kd">class</span> <span class="nc">Target</span> <span class="p">{</span>
+    <span class="kd">private</span> <span class="kt">int</span> <span class="n">id</span><span class="p">;</span>
+    <span class="kd">private</span> <span class="n">String</span> <span class="n">name</span><span class="p">;</span>
+
+    <span class="c1">// (1)</span>
+    <span class="kd">public</span> <span class="nf">Target</span><span class="p">(</span><span class="kt">int</span> <span class="n">id</span><span class="p">)</span> <span class="p">{</span>
+        <span class="c1">// omitted</span>
+    <span class="p">}</span>
+
+    <span class="c1">// (1)</span>
+    <span class="kd">public</span> <span class="nf">Target</span><span class="p">(</span><span class="kt">int</span> <span class="n">id</span><span class="p">,</span> <span class="n">String</span> <span class="n">name</span><span class="p">)</span> <span class="p">{</span>
+        <span class="c1">// omitted</span>
+    <span class="p">}</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+<table border="1" class="colwidths-given docutils">
+<colgroup>
+<col width="10%" />
+<col width="90%" />
+</colgroup>
+<thead valign="bottom">
+<tr class="row-odd"><th class="head">項番</th>
+<th class="head">説明</th>
+</tr>
+</thead>
+<tbody valign="top">
+<tr class="row-even"><td><div class="first last line-block">
+<div class="line">(1)</div>
+</div>
+</td>
+<td><div class="first last line-block">
+<div class="line">独自にコンストラクタを定義しているが、上記3つのルールで使用するコンストラクタを決定できないためコンパイルエラーが発生する。</div>
+</div>
+</td>
+</tr>
+</tbody>
+</table>
+</div></blockquote>
+<div class="line-block">
+<div class="line"><br /></div>
+</div>
+</div>
+<div class="section" id="lombok">
+<span id="mapstruct-lombok"></span><h3><a class="toc-backref" href="#id51">7.6.4.2. Lombokを使用する際の設定</a><a class="headerlink" href="#lombok" title="Permalink to this headline">¶</a></h3>
+<div class="line-block">
+<div class="line"><a class="reference internal" href="#mapstruct-setting"><span class="std std-ref">MapStructを使用するための設定</span></a>に示したmaven-compiler-pluginの設定では、mavenはmapstructプロセッサのみを使用しLombokプロセッサを使用しない状態になり、Lombokが動作しなくなる。</div>
+<div class="line">Lombokを正常に機能させるためには、maven-compiler-pluginに以下の設定を追加する必要がある。</div>
+</div>
+<div class="highlight-xml"><div class="highlight"><pre><span></span><span class="nt">&lt;dependencies&gt;</span>
+    <span class="nt">&lt;dependency&gt;</span>
+        <span class="nt">&lt;groupId&gt;</span>org.projectlombok<span class="nt">&lt;/groupId&gt;</span>
+        <span class="nt">&lt;artifactId&gt;</span>lombok<span class="nt">&lt;/artifactId&gt;</span>
+        <span class="nt">&lt;version&gt;</span>${lombok.version}<span class="nt">&lt;/version&gt;</span> <span class="c">&lt;!-- (1) --&gt;</span>
+        <span class="nt">&lt;scope&gt;</span>provided<span class="nt">&lt;/scope&gt;</span>
+    <span class="nt">&lt;/dependency&gt;</span>
+<span class="nt">&lt;/dependencies&gt;</span>
+
+<span class="nt">&lt;build&gt;</span>
+    <span class="nt">&lt;plugins&gt;</span>
+        <span class="nt">&lt;plugin&gt;</span>
+            <span class="nt">&lt;groupId&gt;</span>org.apache.maven.plugins<span class="nt">&lt;/groupId&gt;</span>
+            <span class="nt">&lt;artifactId&gt;</span>maven-compiler-plugin<span class="nt">&lt;/artifactId&gt;</span>
+            <span class="nt">&lt;configuration&gt;</span>
+                <span class="nt">&lt;annotationProcessorPaths&gt;</span>
+                    <span class="nt">&lt;path&gt;</span>
+                        <span class="nt">&lt;groupId&gt;</span>org.mapstruct<span class="nt">&lt;/groupId&gt;</span>
+                        <span class="nt">&lt;artifactId&gt;</span>mapstruct-processor<span class="nt">&lt;/artifactId&gt;</span>
+                        <span class="nt">&lt;version&gt;</span>${mapstruct.version}<span class="nt">&lt;/version&gt;</span>
+                    <span class="nt">&lt;/path&gt;</span>
+                    <span class="nt">&lt;path&gt;</span>
+                        <span class="nt">&lt;groupId&gt;</span>org.projectlombok<span class="nt">&lt;/groupId&gt;</span>
+                        <span class="nt">&lt;artifactId&gt;</span>lombok<span class="nt">&lt;/artifactId&gt;</span>
+                        <span class="nt">&lt;version&gt;</span>${lombok.version}<span class="nt">&lt;/version&gt;</span> <span class="c">&lt;!-- (1) --&gt;</span>
+                    <span class="nt">&lt;/path&gt;</span>
+                    <span class="nt">&lt;path&gt;</span>
+                        <span class="nt">&lt;groupId&gt;</span>org.projectlombok<span class="nt">&lt;/groupId&gt;</span>
+                        <span class="nt">&lt;artifactId&gt;</span>lombok-mapstruct-binding<span class="nt">&lt;/artifactId&gt;</span>
+                        <span class="nt">&lt;version&gt;</span>${lombok-mapstruct-binding.version}<span class="nt">&lt;/version&gt;</span> <span class="c">&lt;!-- (2) --&gt;</span>
+                    <span class="nt">&lt;/path&gt;</span>
+                <span class="nt">&lt;/annotationProcessorPaths&gt;</span>
+                <span class="nt">&lt;compilerArgs&gt;</span>
+                    <span class="nt">&lt;arg&gt;</span>-Amapstruct.defaultComponentModel=spring<span class="nt">&lt;/arg&gt;</span>
+                <span class="nt">&lt;/compilerArgs&gt;</span>
+            <span class="nt">&lt;/configuration&gt;</span>
+        <span class="nt">&lt;/plugin&gt;</span>
+    <span class="nt">&lt;/plugins&gt;</span>
+<span class="nt">&lt;/build&gt;</span>
+</pre></div>
+</div>
+<table border="1" class="colwidths-given docutils">
+<colgroup>
+<col width="10%" />
+<col width="90%" />
+</colgroup>
+<thead valign="bottom">
+<tr class="row-odd"><th class="head">項番</th>
+<th class="head">説明</th>
+</tr>
+</thead>
+<tbody valign="top">
+<tr class="row-even"><td><div class="first last line-block">
+<div class="line">(1)</div>
+</div>
+</td>
+<td><div class="first last line-block">
+<div class="line"><code class="docutils literal"><span class="pre">lombok.version</span></code>は依存ライブラリのバージョンを親プロジェクトである terasoluna-gfw-parent で管理する前提であるため、pom.xmlでプロパティとして変数を定義する必要は無い。</div>
+</div>
+</td>
+</tr>
+<tr class="row-odd"><td><div class="first last line-block">
+<div class="line">(2)</div>
+</div>
+</td>
+<td><div class="first last line-block">
+<div class="line"><code class="docutils literal"><span class="pre">lombok-mapstruct-binding.version</span></code>は依存ライブラリのバージョンを親プロジェクトである terasoluna-gfw-parent で管理する前提であるため、pom.xmlでプロパティとして変数を定義する必要は無い。</div>
+</div>
+</td>
+</tr>
+</tbody>
+</table>
+<div class="admonition note">
+<p class="first admonition-title">Note</p>
+<p class="last">開発プロジェクトを<a class="reference external" href="https://github.com/terasolunaorg/terasoluna-gfw-web-multi-blank/tree/5.8.0.RELEASE">ブランクプロジェクト</a>から作成すると、上記のLombokの設定はコメントアウトされた状態でpom.xmlに記載されている。</p>
+</div>
+</div>
+</div>
+</div>
+
+
+          </div>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../../genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="../MessagingDetail/index.html" title="8. メッセージ連携"
+             >next</a> |</li>
+        <li class="right" >
+          <a href="StringProcessing.html" title="7.5. 文字列処理"
+             >previous</a> |</li>
+        <li class="nav-item nav-item-0"><a href="../../index.html">TERASOLUNA Server Framework for Java (5.x) Development Guideline 5.8.0.RELEASE documentation</a> &#187;</li>
+          <li class="nav-item nav-item-1"><a href="index.html" >7. アプリケーション形態に依存しない汎用機能</a> &#187;</li> 
+      </ul>
+    </div>
+    <div class="footer">
+      © Copyright 2013, NTT DATA Corporation. © Copyright 2013, NTT Corporation.
+      Created using <a href="https://www.sphinx-doc.org/en/master/">Sphinx</a> 1.6.3.Theme is <a href="https://pypi.org/project/solar-theme/">Solar</a>
+    </div>
+    
+    <script>
+    
+    $(function() {
+    	var $sidebar	= $('.sphinxsidebar'),
+    		$window		= $(window),
+    		offset		= $sidebar.offset(),
+    		topPadding	= 3,
+    		$scroll		= $('#scroll');
+    	
+    	$window.scroll(function() {
+    		if ($scroll.is(':checked')) {
+				if ($window.scrollTop() > offset.top) {
+					$sidebar.stop().animate({
+						marginTop:$window.scrollTop() - offset.top + topPadding
+					});
+				} else {
+					$sidebar.stop().animate({
+						marginTop:0
+					});
+				}
+			}
+		});
+    	
+    	var $navList = $('ul:first', $sidebar);
+    	$('li:first', $navList).addClass('open');
+    	
+    	$navList.treeview({
+    		persist: "location",
+    		collapsed: true,
+    		unique: false
+    	});
+    	
+	});
+    (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+        (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+            m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+    })(window,document,'script','//www.google-analytics.com/analytics.js','ga');
+
+    ga('create', 'UA-46550814-1', 'terasolunaorg.github.io');
+    ga('send', 'pageview');
+    </script>
+  </body>
+</html>

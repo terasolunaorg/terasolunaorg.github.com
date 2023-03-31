@@ -379,7 +379,7 @@ RFC 3986では、クエリ文字列のパート以下のように定義してい
     "\ ``+``\" がエンコーディング対象外となったことによる影響を受ける可能性がある為、注意すること。
     なお、\ ``UriComponentsBuilder``\ では、クエリパラメータに含まれる\ ``unreserved``\文字以外をエンコーディングする機能を提供している為、
     当機能を用いる事でクエリパラメータに含まれる "\ ``+``\" のエンコーディングは可能である。
-    \ ``UriComponentsBuilder``\ を利用してURIをエンコーディングする方法については、`Spring Framework Documentation -URI Encoding- <https://docs.spring.io/spring-framework/docs/5.3.18/reference/html/web.html#web-uri-encoding>`_\ を参照されたい。
+    \ ``UriComponentsBuilder``\ を利用してURIをエンコーディングする方法については、`Spring Framework Documentation -URI Encoding- <https://docs.spring.io/spring-framework/docs/6.0.3/reference/html/web.html#web-uri-encoding>`_\ を参照されたい。
 
 
 f:query() 関数仕様
@@ -409,7 +409,7 @@ f:query() 関数仕様
         * JavaBean
         * シンプル型 (\ ``DefaultFormattingConversionService``\ を使って\ ``String``\ 型へ変換可能なクラス)
 
-        terasoluna-gfw-web 5.0.1.RELEASEより、ネスト構造をもつJavaBean及び\ ``Map``\ を指定できるように改善されている。
+        ネスト構造をもつJavaBean及び\ ``Map``\ も指定可能である。
 
 
  .. note::
@@ -417,8 +417,7 @@ f:query() 関数仕様
     指定されたオブジェクトのシンプル型のプロパティ値は、
     \ ``org.springframework.format.support.DefaultFormattingConversionService``\ の \ ``convert``\ メソッドを使用して文字列に変換される。
     \ ``ConversionService``\ については、
-    \ `Spring Framework Documentation -Spring Type Conversion- <https://docs.spring.io/spring-framework/docs/5.3.18/reference/html/core.html#core-convert>`_\ を参照されたい。
-
+    \ `Spring Framework Documentation -Spring Type Conversion- <https://docs.spring.io/spring-framework/docs/6.0.3/reference/html/core.html#core-convert>`_\ を参照されたい。
 
 **戻り値**
 
@@ -495,11 +494,11 @@ f:query() 関数仕様
           - \ ``DefaultFormattingConversionService``\ を使って\ ``String``\ 型へ変換した値
           - \ ``targetDate=20150801``\
 
-    Spring Web MVCのバインディング処理(\ ``WebDataBinder``\)のデフォルト設定では「"\ ``_``\" (アンダースコア) + プロパティ名」のリクエストパラメータが送信された場合、
-    \ ``List``\、配列、\ ``Map``\に対してはそれぞれに対応する空のオブジェクトをバインドし、\ ``boolean``\及び\ ``Boolean``\型のプロパティに対しては\ ``Boolean``\型のfalseをバインドする。
-    詳細は\ `WebDataBinder#getEmptyValueのJavadoc <https://docs.spring.io/spring-framework/docs/5.3.18/javadoc-api/org/springframework/web/bind/WebDataBinder.html#getEmptyValue-java.lang.Class->`_\を参照されたい。
+    Spring Web MVCのバインディング処理(\ ``WebDataBinder``\)のデフォルト設定では「"\ ``_``\" (アンダースコア) + プロパティ名」のリクエストパラメータが送信された場合、 \ ``List``\ 、配列、 \ ``Map``\ に対してはそれぞれに対応する空のオブジェクトをバインドし、\ ``boolean``\ 及び\ ``Boolean``\ 型のプロパティに対しては\ ``Boolean``\ 型のfalseをバインドする。
+    
+    詳細は、\ `WebDataBinder#getEmptyValueのJavadoc <https://docs.spring.io/spring-framework/docs/6.0.3/javadoc-api/org/springframework/web/bind/WebDataBinder.html#getEmptyValue(java.lang.Class)>`_\ を参照されたい。
 
-    terasoluna-gfw-web 5.6.0.RELEASEからは、\ ``Boolean``\型プロパティで\ ``null``\がfalseに変換されてしまうことを防ぐため「"\ ``_``\" (アンダースコア) + プロパティ名」のリクエストパラメータを送信しないよう改善されている。
+    terasoluna-gfw-webでは、\ ``Boolean``\ 型プロパティで\ ``null``\ がfalseに変換されてしまうことを防ぐために「”_" (アンダースコア) + プロパティ名」のリクエストパラメータを送信しないようにしている。
 
 
 f:query() 使用方法

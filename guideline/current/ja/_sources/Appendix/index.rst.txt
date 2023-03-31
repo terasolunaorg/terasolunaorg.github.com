@@ -7,9 +7,10 @@ Appendix(Know How)
 
    Nexus
    Lombok
-   Java11Changes
+   Java17Settings
    SpringToolSuite4
-   OAuth
+   JodaTime
+   SOAP
    ReferenceBooks
    SpringComprehensionCheck
 
