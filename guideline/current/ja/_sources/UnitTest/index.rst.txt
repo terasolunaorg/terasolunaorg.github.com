@@ -2,13 +2,13 @@
 ========================
 
 .. toctree::
-   :maxdepth: 1
+  :maxdepth: 1
 
-   UnitTestOverview.rst
-   ./ImplementsOfUnitTest/index.rst
-   RunUnitTest.rst
+  UnitTestOverview.rst
+  ./ImplementsOfUnitTest/index.rst
+  RunUnitTest.rst
 
 .. raw:: latex
 
-   \newpage
+  \newpage
 

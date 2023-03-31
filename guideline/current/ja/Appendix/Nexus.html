@@ -3,13 +3,13 @@
 <html xmlns="http://www.w3.org/1999/xhtml">
   <head>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
-    <title>12.1. NEXUSによるMavenリポジトリの管理 &#8212; TERASOLUNA Server Framework for Java (5.x) Development Guideline 5.7.1.SP1.RELEASE documentation</title>
+    <title>12.1. NEXUSによるMavenリポジトリの管理 &#8212; TERASOLUNA Server Framework for Java (5.x) Development Guideline 5.8.0.RELEASE documentation</title>
     <link rel="stylesheet" href="../_static/solar.css" type="text/css" />
     <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
     <script type="text/javascript">
       var DOCUMENTATION_OPTIONS = {
         URL_ROOT:    '../',
-        VERSION:     '5.7.1.SP1.RELEASE',
+        VERSION:     '5.8.0.RELEASE',
         COLLAPSE_INDEX: false,
         FILE_SUFFIX: '.html',
         HAS_SOURCE:  true,
@@ -22,7 +22,13 @@
     <link rel="index" title="Index" href="../genindex.html" />
     <link rel="search" title="Search" href="../search.html" />
     <link rel="next" title="12.2. ボイラープレートコードの排除(Lombok)" href="Lombok.html" />
-    <link rel="prev" title="12. Appendix(Know How)" href="index.html" /><script src="../_static/jquery.treeview.js" type="text/javascript"></script>
+    <link rel="prev" title="12. Appendix(Know How)" href="index.html" /><script async src="https://www.googletagmanager.com/gtag/js?id=G-847V2Q99G8"></script>
+<script>
+window.dataLayer = window.dataLayer || [];
+function gtag(){dataLayer.push(arguments);}
+gtag('js', new Date()); gtag('config', 'G-847V2Q99G8');
+</script>
+<script src="../_static/jquery.treeview.js" type="text/javascript"></script>
 <!-- <link href='http://fonts.googleapis.com/css?family=Source+Code+Pro|Open+Sans:300italic,400italic,700italic,400,300,700' rel='stylesheet' type='text/css'> -->
 <link href="../_static/solarized-dark.css" rel="stylesheet">
 <link href="../_static/jquery.treeview.css" rel="stylesheet">
@@ -40,12 +46,12 @@
         <li class="right" >
           <a href="index.html" title="12. Appendix(Know How)"
              accesskey="P">previous</a> |</li>
-        <li class="nav-item nav-item-0"><a href="../index.html">TERASOLUNA Server Framework for Java (5.x) Development Guideline 5.7.1.SP1.RELEASE documentation</a> &#187;</li>
+        <li class="nav-item nav-item-0"><a href="../index.html">TERASOLUNA Server Framework for Java (5.x) Development Guideline 5.8.0.RELEASE documentation</a> &#187;</li>
           <li class="nav-item nav-item-1"><a href="index.html" accesskey="U">12. Appendix(Know How)</a> &#187;</li> 
       </ul>
     </div>
       <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
-        <div class="sphinxsidebarwrapper"><label><input id="scroll" type="checkbox" checked> scroll sidebar</label>
+        <div class="sphinxsidebarwrapper"><label><input id="scroll" type="checkbox"> scroll sidebar</label>
 
   <h3><a href="../index.html">Table Of Contents</a></h3>
   <ul>
@@ -97,41 +103,44 @@
             
   <div class="section" id="nexusmaven">
 <h1>12.1. NEXUSによるMavenリポジトリの管理<a class="headerlink" href="#nexusmaven" title="Permalink to this headline">¶</a></h1>
-<p>Sonatype NEXUSはパッケージリポジトリマネージャソフトウェアである。
-<a class="reference external" href="https://www.sonatype.com/products/repository-oss">OSS版</a> と
-<a class="reference external" href="https://www.sonatype.com/products/repository-pro">商用版</a> があるが、OSS版でも十分な機能がある。</p>
+<div class="line-block">
+<div class="line">Sonatype NEXUSはパッケージリポジトリマネージャソフトウェアである。</div>
+<div class="line"><a class="reference external" href="https://www.sonatype.com/products/repository-oss">OSS版</a>と<a class="reference external" href="https://www.sonatype.com/products/repository-pro">商用版</a>があるが、OSS版でも十分な機能がある。</div>
+</div>
 <p>本章ではOSS版のNEXUSの役割と設定方法などについて解決する。</p>
 <div class="section" id="why-nexus">
 <h2>12.1.1. Why NEXUS ?<a class="headerlink" href="#why-nexus" title="Permalink to this headline">¶</a></h2>
-<p>開発者が一人しかいない場合には、インターネット上のセントラルリポジトリと、
-その開発者のPC内のローカルリポジトリだけでも、mavenやant+ivyを使って開発することは可能である。</p>
-<p>しかし、Javaアプリケーションを複数のサブプロジェクトに分けてチームで開発する場合には
-ライブラリの依存性解決が複雑になるため、ライブラリの依存性解決の自動化が必要となる。
-そのためにはパッケージリポジトリサーバの存在が不可欠である。</p>
+<p>開発者が一人しかいない場合には、インターネット上のセントラルリポジトリと、その開発者のPC内のローカルリポジトリだけでも、mavenやant+ivyを使って開発することは可能である。</p>
+<p>しかし、Javaアプリケーションを複数のサブプロジェクトに分けてチームで開発する場合にはライブラリの依存性解決が複雑になるため、ライブラリの依存性解決の自動化が必要となる。そのためにはパッケージリポジトリサーバの存在が不可欠である。</p>
 <p>Javaアプリケーション開発プロジェクトにおいて必要となるパッケージリポジトリは次のようなものがある。</p>
 <ul class="simple">
-<li>セントラルリポジトリをはじめとする外部のリポジトリサーバへのアクセスをプロキシする <strong>プロキシリポジトリ</strong></li>
-<li>インターネット上のリポジトリでは公開されていない、他者から提供されたartifactを組織内部で配布するための <strong>サードパーティリポジトリ</strong></li>
-<li>そのプロジェクト自体で開発されたartifactを格納するための <strong>プライベートリポジトリ</strong></li>
-<li>複数の異なるリポジトリのartifactへのアクセスを一つのリポジトリURLに集約するための <strong>グループリポジトリ</strong></li>
+<li>セントラルリポジトリをはじめとする外部のリポジトリサーバへのアクセスをプロキシする<strong>プロキシリポジトリ</strong></li>
+<li>インターネット上のリポジトリでは公開されていない、他者から提供されたartifactを組織内部で配布するための<strong>サードパーティリポジトリ</strong></li>
+<li>そのプロジェクト自体で開発されたartifactを格納するための<strong>プライベートリポジトリ</strong></li>
+<li>複数の異なるリポジトリのartifactへのアクセスを一つのリポジトリURLに集約するための<strong>グループリポジトリ</strong></li>
 </ul>
 <p>NEXUSならこうした複数のリポジトリを楽に運用管理できる。</p>
+<div class="line-block">
+<div class="line"><br /></div>
+</div>
 </div>
 <div class="section" id="install-and-start-up">
 <h2>12.1.2. Install and Start up<a class="headerlink" href="#install-and-start-up" title="Permalink to this headline">¶</a></h2>
 <p>NEXUSをインストールするマシンは次の条件を満たしている必要がある。</p>
 <ul class="simple">
 <li>JRE6以上がインストール済みであること</li>
-<li>インターネット上のセントラルリポジトリ（先頭がhttps://repo1.maven.org/ で始まるURL）にhttpsアクセス可能であること</li>
+<li>インターネット上のセントラルリポジトリ（先頭が<code class="docutils literal"><span class="pre">https://repo1.maven.org/</span></code>で始まるURL）にhttpsアクセス可能であること</li>
 </ul>
 <p>インストール手順は次の通り。</p>
 <ol class="arabic simple">
-<li><a class="reference external" href="https://www.sonatype.com/products/repository-oss">NEXUS OSS</a> をダウンロードし、アーカイブを展開する。</li>
+<li><a class="reference external" href="https://www.sonatype.com/products/repository-oss">NEXUS OSS</a>をダウンロードし、アーカイブを展開する。</li>
 <li>bin/nexus または bin/nexus.bat を実行するとNEXUSが起動する。</li>
-<li><a class="reference external" href="http://[IP">http://[IP</a> or FQDN]:8081/nexus/ へアクセスし、NEXUSの初期画面が見えることを確認する。</li>
+<li><code class="docutils literal"><span class="pre">http://[IP</span> <span class="pre">or</span> <span class="pre">FQDN]:8081/nexus/</span></code>へアクセスし、NEXUSの初期画面が見えることを確認する。</li>
 </ol>
-<p>いくつかのリポジトリがデフォルトで用意されている。特別な場合を除いて、デフォルトのままでも十分に開発に使える。
-画面左のメニュー部のRepositoriesをクリックするとリポジトリ一覧が表示される。</p>
+<div class="line-block">
+<div class="line">いくつかのリポジトリがデフォルトで用意されている。特別な場合を除いて、デフォルトのままでも十分に開発に使える。</div>
+<div class="line">画面左のメニュー部のRepositoriesをクリックするとリポジトリ一覧が表示される。</div>
+</div>
 <div class="figure">
 <img alt="default repositories on nexus" src="../_images/appendix-nexus-repositories.png" />
 </div>
@@ -142,14 +151,17 @@
 <li><strong>Snapshots</strong> = 自分たちで開発したアプリケーションのSNAPSHOTバージョンの成果物を格納するリポジトリ。</li>
 <li><strong>Public Repositories</strong> = 上記4つのリポジトリへ、一つのURLでアクセスできるようにするためのグループリポジトリ。</li>
 </ul>
+<div class="line-block">
+<div class="line"><br /></div>
+</div>
 </div>
 <div class="section" id="settings-xml">
 <h2>12.1.3. settings.xml<a class="headerlink" href="#settings-xml" title="Permalink to this headline">¶</a></h2>
 <p>構築したNEXUSをmavenコマンドから使用するには、
 ローカル開発環境のユーザーホームディレクトリにsettings.xmlファイルを作成しておく必要がある。</p>
 <ul class="simple">
-<li>Windows: C:/Users/[OSaccount]/.m2/settings.xml</li>
-<li>Unix: $HOME/.m2/settings.xml</li>
+<li>Windows: <code class="docutils literal"><span class="pre">C:/Users/[OSaccount]/.m2/settings.xml</span></code></li>
+<li>Unix: <code class="docutils literal"><span class="pre">HOME/.m2/settings.xml</span></code></li>
 </ul>
 <div class="highlight-xml"><div class="highlight"><pre><span></span><span class="cp">&lt;?xml version=&quot;1.0&quot; encoding=&quot;UTF-8&quot;?&gt;</span>
 <span class="nt">&lt;settings&gt;</span>
@@ -196,14 +208,15 @@
 <p class="first admonition-title">Note</p>
 <p class="last">see also: <a class="reference external" href="https://help.sonatype.com/repomanager2/maven-and-other-build-tools/apache-maven">Nexus Repository Manager 2 &gt; Apache Maven</a></p>
 </div>
+<div class="line-block">
+<div class="line"><br /></div>
+</div>
 </div>
 <div class="section" id="mvn-deploy-how-to">
 <h2>12.1.4. mvn deploy how to<a class="headerlink" href="#mvn-deploy-how-to" title="Permalink to this headline">¶</a></h2>
 <p>jar/warファイルをartifactとしてパッケージリポジトリ（NEXUS）にアップロードするには、mvn deployコマンドを使用する。</p>
-<p>パッケージリポジトリに誰でもデプロイ可能な状態は混乱を招くので避けるべきである。
-そこで、Jenkinsだけがパッケージリポジトリに対してmvn deploy可能とする運用を推奨する。</p>
-<p>Jenkinsサーバ内のJenkinsの実行ユーザーのホームディレクトリ配下の.m2/settings.xmlに、
-前述と同じ内容に加えて、さらに下記を追加しておく。</p>
+<p>パッケージリポジトリに誰でもデプロイ可能な状態は混乱を招くので避けるべきである。そこで、Jenkinsだけがパッケージリポジトリに対してmvn deploy可能とする運用を推奨する。</p>
+<p>Jenkinsサーバ内のJenkinsの実行ユーザーのホームディレクトリ配下の<code class="docutils literal"><span class="pre">.m2/settings.xml</span></code>に、前述と同じ内容に加えて、さらに下記を追加しておく。</p>
 <div class="highlight-xml"><div class="highlight"><pre><span></span><span class="nt">&lt;servers&gt;</span>
   <span class="nt">&lt;server&gt;</span>
    <span class="nt">&lt;id&gt;</span>releases<span class="nt">&lt;/id&gt;</span>
@@ -218,22 +231,23 @@
 <span class="nt">&lt;/servers&gt;</span>
 </pre></div>
 </div>
-<p>deploymentはデプロイ権限を持つアカウント（NEXUSにデフォルトで設定済みの）であり、
-deployment123はそのパスワードである。
-もちろん、NEXUSのGUI画面上であらかじめパスワードを変更しておくことを推奨する。</p>
+<div class="line-block">
+<div class="line">deploymentはデプロイ権限を持つアカウント（NEXUSにデフォルトで設定済みの）であり、<code class="docutils literal"><span class="pre">deployment123</span></code>はそのパスワードである。</div>
+<div class="line">もちろん、NEXUSのGUI画面上であらかじめパスワードを変更しておくことを推奨する。</div>
+</div>
 <div class="admonition note">
 <p class="first admonition-title">Note</p>
-<p class="last">settings.xml上にplain textでパスワードを保存することを避けたい場合には、
-mavenのパスワード暗号化機能を利用するとよい。詳しくは
-<a class="reference external" href="https://maven.apache.org/guides/mini/guide-encryption.html">Maven - Password Encryption</a>
-を参照のこと。</p>
+<p>settings.xml上にplain textでパスワードを保存することを避けたい場合には、mavenのパスワード暗号化機能を利用するとよい。</p>
+<p class="last">詳しくは<a class="reference external" href="https://maven.apache.org/guides/mini/guide-encryption.html">Maven - Password Encryption</a>を参照されたい。</p>
 </div>
 <p>Jenkinsのビルドジョブでは次のようにしてmvn deploy手順を設定する。</p>
+<div class="line-block">
+<div class="line"><br /></div>
+</div>
 </div>
 <div class="section" id="pom-xml">
 <h2>12.1.5. pom.xml<a class="headerlink" href="#pom-xml" title="Permalink to this headline">¶</a></h2>
-<p>mavenで管理されたプロジェクトでは、artifactとなった自分自身をどのパッケージリポジトリに格納されるべきかを
-pom.xml上の&lt;distributionManagement&gt;タグで表明する必要がある。</p>
+<p>mavenで管理されたプロジェクトでは、artifactとなった自分自身をどのパッケージリポジトリに格納されるべきかを<code class="docutils literal"><span class="pre">pom.xml</span></code>上の<code class="docutils literal"><span class="pre">&lt;distributionManagement&gt;</span></code>タグで表明する必要がある。</p>
 <div class="highlight-xml"><div class="highlight"><pre><span></span><span class="nt">&lt;distributionManagement&gt;</span>
   <span class="nt">&lt;repository&gt;</span>
     <span class="nt">&lt;id&gt;</span>releases<span class="nt">&lt;/id&gt;</span>
@@ -248,15 +262,19 @@ pom.xml上の&lt;distributionManagement&gt;タグで表明する必要がある�
 <span class="nt">&lt;/distributionManagement&gt;</span>
 </pre></div>
 </div>
-<p>前述のmvn deployコマンドは、&lt;distributionManagement&gt;タグで指定されたURLに対してHTTP PUTでartifactをアップロードする。</p>
+<p>前述のmvn deployコマンドは、<code class="docutils literal"><span class="pre">&lt;distributionManagement&gt;</span></code>タグで指定されたURLに対してHTTP PUTでartifactをアップロードする。</p>
+<div class="line-block">
+<div class="line"><br /></div>
+</div>
 </div>
 <div class="section" id="upload-3rd-party-artifact-ex-ojdbc6-jar">
 <h2>12.1.6. Upload 3rd party artifact (ex. ojdbc6.jar)<a class="headerlink" href="#upload-3rd-party-artifact-ex-ojdbc6-jar" title="Permalink to this headline">¶</a></h2>
 <p>サードパーティ用リポジトリには、外部のリモートリポジトリでは公開されていないartifactを格納する。</p>
-<p>典型的な例が、oracleのJDBCドライバ(ojdbc*.jar)である。
-RDBMSとしてoracleを使用する場合に必須だが、
-セントラルリポジトリはもちろん、インターネット上の公開リポジトリに格納されていることはほとんどない。
-そのため、組織内のパッケージリポジトリに格納しておく必要がある。</p>
+<div class="line-block">
+<div class="line">典型的な例が、oracleのJDBCドライバ(ojdbc*.jar)である。</div>
+<div class="line">RDBMSとしてoracleを使用する場合に必須だが、セントラルリポジトリはもちろん、インターネット上の公開リポジトリに格納されていることはほとんどない。</div>
+<div class="line">そのため、組織内のパッケージリポジトリに格納しておく必要がある。</div>
+</div>
 <ol class="arabic simple">
 <li>adminユーザーでログインする。（デフォルトのパスワードはadmin123）</li>
 </ol>
@@ -266,7 +284,7 @@ RDBMSとしてoracleを使用する場合に必須だが、
 </div>
 </div></blockquote>
 <ol class="arabic simple" start="2">
-<li>3rdPartyリポジトリを選択し、 <strong>Artifact Upload</strong> タブを選択する。</li>
+<li>3rdPartyリポジトリを選択し、<strong>Artifact Upload</strong>タブを選択する。</li>
 </ol>
 <blockquote>
 <div><div class="figure">
@@ -282,7 +300,7 @@ RDBMSとしてoracleを使用する場合に必須だが、
 </div>
 </div></blockquote>
 <ol class="arabic simple" start="4">
-<li>ローカルPC上のojdbc6.jarファイルを選択し、 <strong>Add Artifact</strong> ボタンを押す。</li>
+<li>ローカルPC上のojdbc6.jarファイルを選択し、<strong>Add Artifact</strong>ボタンを押す。</li>
 </ol>
 <blockquote>
 <div><div class="figure">
@@ -290,7 +308,7 @@ RDBMSとしてoracleを使用する場合に必須だが、
 </div>
 </div></blockquote>
 <ol class="arabic simple" start="5">
-<li>最後に <strong>Upload Artifact(s)</strong> ボタンを押すと、リポジトリにjarファイルが格納される。</li>
+<li>最後に<strong>Upload Artifact(s)</strong>ボタンを押すと、リポジトリにjarファイルが格納される。</li>
 </ol>
 <blockquote>
 <div><div class="figure">
@@ -300,18 +318,16 @@ RDBMSとしてoracleを使用する場合に必須だが、
 <p>以上でアップロード作業は完了。</p>
 <div class="admonition note">
 <p class="first admonition-title">Note</p>
-<p class="last">NEXUSのGUI画面を使ってartifactをアップロードする作業は完全に手作業であり
-オペレーションミスを誘発しやすいため、推奨しない。
-odjbc6.jarのような、サードパーティ製で、しかも1個または数個程度のファイルで
-構成可能な単純なライブラリに対してのみ、ここで説明している方法を用いるべきである。
-それ以外のケースでは <strong>mvn deploy</strong> コマンドを使うべきである。</p>
+<p>NEXUSのGUI画面を使ってartifactをアップロードする作業は完全に手作業でありオペレーションミスを誘発しやすいため、推奨しない。</p>
+<p class="last">odjbc6.jarのような、サードパーティ製で、しかも1個または数個程度のファイルで構成可能な単純なライブラリに対してのみ、ここで説明している方法を用いるべきである。それ以外のケースでは<strong>mvn deploy</strong>コマンドを使うべきである。</p>
+</div>
+<div class="line-block">
+<div class="line"><br /></div>
 </div>
 <div class="section" id="use-artifact">
 <h3>12.1.6.1. use artifact<a class="headerlink" href="#use-artifact" title="Permalink to this headline">¶</a></h3>
-<p>3rd partyリポジトリ上のojdbc6をプロジェクトの依存性管理に追加するには、
-そのプロジェクトのpom.xmlにdependencyタグを追加するだけである。</p>
-<p><strong>Browse Storage</strong> タブから目的のartifactを選択すると、画面右側にdependencyタグのサンプルが表示される。
-それをpom.xmlにコピー＆ペーストすればよい。</p>
+<p>3rd partyリポジトリ上のojdbc6をプロジェクトの依存性管理に追加するには、そのプロジェクトの<code class="docutils literal"><span class="pre">pom.xml</span></code>にdependencyタグを追加するだけである。</p>
+<p><strong>Browse Storage</strong>タブから目的のartifactを選択すると、画面右側にdependencyタグのサンプルが表示される。それを<code class="docutils literal"><span class="pre">pom.xml</span></code>にコピー&amp;ペーストすればよい。</p>
 <div class="figure">
 <img alt="../_images/appendix-nexus-ojdbc6-dependency-tag.png" src="../_images/appendix-nexus-ojdbc6-dependency-tag.png" />
 </div>
@@ -337,7 +353,7 @@ odjbc6.jarのような、サードパーティ製で、しかも1個または数
         <li class="right" >
           <a href="index.html" title="12. Appendix(Know How)"
              >previous</a> |</li>
-        <li class="nav-item nav-item-0"><a href="../index.html">TERASOLUNA Server Framework for Java (5.x) Development Guideline 5.7.1.SP1.RELEASE documentation</a> &#187;</li>
+        <li class="nav-item nav-item-0"><a href="../index.html">TERASOLUNA Server Framework for Java (5.x) Development Guideline 5.8.0.RELEASE documentation</a> &#187;</li>
           <li class="nav-item nav-item-1"><a href="index.html" >12. Appendix(Know How)</a> &#187;</li> 
       </ul>
     </div>

@@ -2,14 +2,14 @@
 --------------------------------------------------------------------------------
 
 .. toctree::
-   :maxdepth: 1
+  :maxdepth: 1
 
-   PreparationForTest.rst
-   ImplementsOfTestByLayer.rst
-   ImplementsOfTestByFunction.rst
-   UsageOfLibraryForTest.rst
+  PreparationForTest.rst
+  ImplementsOfTestByLayer.rst
+  ImplementsOfTestByFunction.rst
+  UsageOfLibraryForTest.rst
 
 .. raw:: latex
 
-   \newpage
+  \newpage
 
