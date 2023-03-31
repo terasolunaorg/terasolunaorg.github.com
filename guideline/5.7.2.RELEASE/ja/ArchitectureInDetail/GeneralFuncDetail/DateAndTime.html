@@ -1,0 +1,1123 @@
+<!DOCTYPE html>
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <title>7.3. 日付操作(JSR-310 Date and Time API) &#8212; TERASOLUNA Server Framework for Java (5.x) Development Guideline 5.7.2.RELEASE documentation</title>
+    <link rel="stylesheet" href="../../_static/solar.css" type="text/css" />
+    <link rel="stylesheet" href="../../_static/pygments.css" type="text/css" />
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    '../../',
+        VERSION:     '5.7.2.RELEASE',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true,
+        SOURCELINK_SUFFIX: '.txt'
+      };
+    </script>
+    <script type="text/javascript" src="../../_static/jquery.js"></script>
+    <script type="text/javascript" src="../../_static/underscore.js"></script>
+    <script type="text/javascript" src="../../_static/doctools.js"></script>
+    <link rel="index" title="Index" href="../../genindex.html" />
+    <link rel="search" title="Search" href="../../search.html" />
+    <link rel="next" title="7.4. 日付操作(Joda Time)" href="JodaTime.html" />
+    <link rel="prev" title="7.2. プロパティ管理" href="PropertyManagement.html" /><script async src="https://www.googletagmanager.com/gtag/js?id=G-847V2Q99G8"></script>
+<script>
+window.dataLayer = window.dataLayer || [];
+function gtag(){dataLayer.push(arguments);}
+gtag('js', new Date()); gtag('config', 'G-847V2Q99G8');
+</script>
+<script src="../../_static/jquery.treeview.js" type="text/javascript"></script>
+<!-- <link href='http://fonts.googleapis.com/css?family=Source+Code+Pro|Open+Sans:300italic,400italic,700italic,400,300,700' rel='stylesheet' type='text/css'> -->
+<link href="../../_static/solarized-dark.css" rel="stylesheet">
+<link href="../../_static/jquery.treeview.css" rel="stylesheet">
+  </head>
+  <body>
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../../genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="JodaTime.html" title="7.4. 日付操作(Joda Time)"
+             accesskey="N">next</a> |</li>
+        <li class="right" >
+          <a href="PropertyManagement.html" title="7.2. プロパティ管理"
+             accesskey="P">previous</a> |</li>
+        <li class="nav-item nav-item-0"><a href="../../index.html">TERASOLUNA Server Framework for Java (5.x) Development Guideline 5.7.2.RELEASE documentation</a> &#187;</li>
+          <li class="nav-item nav-item-1"><a href="index.html" accesskey="U">7. アプリケーション形態に依存しない汎用機能</a> &#187;</li> 
+      </ul>
+    </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper"><label><input id="scroll" type="checkbox" checked> scroll sidebar</label>
+
+  <h3><a href="../../index.html">Table Of Contents</a></h3>
+  <ul>
+<li><a class="reference internal" href="#">7.3. 日付操作(JSR-310 Date and Time API)</a><ul>
+<li><a class="reference internal" href="#overview">7.3.1. Overview</a></li>
+<li><a class="reference internal" href="#how-to-use">7.3.2. How to use</a><ul>
+<li><a class="reference internal" href="#id2">7.3.2.1. 日時取得</a><ul>
+<li><a class="reference internal" href="#id3">7.3.2.1.1. 現在日時で取得</a></li>
+<li><a class="reference internal" href="#id4">7.3.2.1.2. 年月日時分秒を指定して取得</a></li>
+<li><a class="reference internal" href="#id5">7.3.2.1.3. タイムゾーンを指定する場合の日時取得</a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#id6">7.3.2.2. 期間</a><ul>
+<li><a class="reference internal" href="#id7">7.3.2.2.1. 期間の取得</a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#id8">7.3.2.3. 型変換</a><ul>
+<li><a class="reference internal" href="#date-and-time-api">7.3.2.3.1. Date and Time APIの各クラスの相互運用性</a></li>
+<li><a class="reference internal" href="#java-util-date">7.3.2.3.2. java.util.Dateとの相互運用性</a></li>
+<li><a class="reference internal" href="#java-sql">7.3.2.3.3. java.sql パッケージとの相互運用性</a></li>
+<li><a class="reference internal" href="#org-terasoluna-gfw-common-date">7.3.2.3.4. org.terasoluna.gfw.common.date パッケージの利用方法</a></li>
+<li><a class="reference internal" href="#id10">7.3.2.3.5. 文字列へのフォーマット</a></li>
+<li><a class="reference internal" href="#id11">7.3.2.3.6. 文字列からのパース</a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#id12">7.3.2.4. 日付操作</a><ul>
+<li><a class="reference internal" href="#id13">7.3.2.4.1. 日時の計算</a></li>
+<li><a class="reference internal" href="#id14">7.3.2.4.2. 日時の比較</a></li>
+<li><a class="reference internal" href="#id15">7.3.2.4.3. 日時の判定</a></li>
+<li><a class="reference internal" href="#id16">7.3.2.4.4. 年月日時分秒の取得</a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#japanesedate">7.3.2.5. 和暦（JapaneseDate）</a><ul>
+<li><a class="reference internal" href="#id18">7.3.2.5.1. 和暦の取得</a></li>
+<li><a class="reference internal" href="#id19">7.3.2.5.2. 文字列へのフォーマット</a></li>
+<li><a class="reference internal" href="#id20">7.3.2.5.3. 文字列からのパース</a></li>
+<li><a class="reference internal" href="#id21">7.3.2.5.4. 西暦・和暦の変換</a></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+
+
+  <h4>Previous topic</h4>
+  <p class="topless"><a href="PropertyManagement.html"
+                        title="previous chapter">7.2. プロパティ管理</a></p>
+  <h4>Next topic</h4>
+  <p class="topless"><a href="JodaTime.html"
+                        title="next chapter">7.4. 日付操作(Joda Time)</a></p>
+  <div role="note" aria-label="source link">
+    <h3>This Page</h3>
+    <ul class="this-page-menu">
+      <li><a href="../../_sources/ArchitectureInDetail/GeneralFuncDetail/DateAndTime.rst.txt"
+            rel="nofollow">Show Source</a></li>
+    </ul>
+   </div>
+<div id="searchbox" style="display: none" role="search">
+  <h3>Quick search</h3>
+    <form class="search" action="../../search.html" method="get">
+      <div><input type="text" name="q" /></div>
+      <div><input type="submit" value="Go" /></div>
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <div class="section" id="jsr-310-date-and-time-api">
+<h1>7.3. 日付操作(JSR-310 Date and Time API)<a class="headerlink" href="#jsr-310-date-and-time-api" title="Permalink to this headline">¶</a></h1>
+<div class="contents local topic" id="id1">
+<p class="topic-title">目次</p>
+<ul class="simple">
+<li><a class="reference internal" href="#overview" id="id22">Overview</a></li>
+<li><a class="reference internal" href="#how-to-use" id="id23">How to use</a><ul>
+<li><a class="reference internal" href="#id2" id="id24">日時取得</a><ul>
+<li><a class="reference internal" href="#id3" id="id25">現在日時で取得</a></li>
+<li><a class="reference internal" href="#id4" id="id26">年月日時分秒を指定して取得</a></li>
+<li><a class="reference internal" href="#id5" id="id27">タイムゾーンを指定する場合の日時取得</a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#id6" id="id28">期間</a><ul>
+<li><a class="reference internal" href="#id7" id="id29">期間の取得</a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#id8" id="id30">型変換</a><ul>
+<li><a class="reference internal" href="#date-and-time-api" id="id31">Date and Time APIの各クラスの相互運用性</a></li>
+<li><a class="reference internal" href="#java-util-date" id="id32">java.util.Dateとの相互運用性</a></li>
+<li><a class="reference internal" href="#java-sql" id="id33">java.sql パッケージとの相互運用性</a></li>
+<li><a class="reference internal" href="#org-terasoluna-gfw-common-date" id="id34">org.terasoluna.gfw.common.date パッケージの利用方法</a></li>
+<li><a class="reference internal" href="#id10" id="id35">文字列へのフォーマット</a></li>
+<li><a class="reference internal" href="#id11" id="id36">文字列からのパース</a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#id12" id="id37">日付操作</a><ul>
+<li><a class="reference internal" href="#id13" id="id38">日時の計算</a></li>
+<li><a class="reference internal" href="#id14" id="id39">日時の比較</a></li>
+<li><a class="reference internal" href="#id15" id="id40">日時の判定</a></li>
+<li><a class="reference internal" href="#id16" id="id41">年月日時分秒の取得</a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#japanesedate" id="id42">和暦（JapaneseDate）</a><ul>
+<li><a class="reference internal" href="#id18" id="id43">和暦の取得</a></li>
+<li><a class="reference internal" href="#id19" id="id44">文字列へのフォーマット</a></li>
+<li><a class="reference internal" href="#id20" id="id45">文字列からのパース</a></li>
+<li><a class="reference internal" href="#id21" id="id46">西暦・和暦の変換</a></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+</div>
+<div class="line-block">
+<div class="line"><br /></div>
+</div>
+<div class="section" id="overview">
+<h2><a class="toc-backref" href="#id22">7.3.1. Overview</a><a class="headerlink" href="#overview" title="Permalink to this headline">¶</a></h2>
+<div class="line-block">
+<div class="line">本ガイドラインでは、<code class="docutils literal"><span class="pre">java.util.Date</span></code> , <code class="docutils literal"><span class="pre">java.util.Calendar</span></code> に比べて、</div>
+<div class="line">様々な日時計算が提供されている JSR-310 Date and Time API の使用を推奨する。</div>
+</div>
+</div>
+<div class="section" id="how-to-use">
+<h2><a class="toc-backref" href="#id23">7.3.2. How to use</a><a class="headerlink" href="#how-to-use" title="Permalink to this headline">¶</a></h2>
+<div class="line-block">
+<div class="line">Date and Time APIでは、日付のみ扱うクラス、時刻のみ扱うクラスなど、用途に応じた様々なクラスが提供されている。</div>
+<div class="line">本ガイドラインでは、<code class="docutils literal"><span class="pre">java.time.LocalDate</span></code> , <code class="docutils literal"><span class="pre">java.time.LocalTime</span></code> , <code class="docutils literal"><span class="pre">java.time.LocalDateTime</span></code> を中心に説明を進めるが、主要な日時操作については、各クラスで提供されるメソッドの接頭辞が同一であるため、適時クラス名を置き換えて解釈されたい。</div>
+<div class="line">主に使われるクラスとメソッドを示す。</div>
+<div class="line"><br /></div>
+<div class="line"><strong>日時を扱う主なクラス</strong></div>
+</div>
+<table border="1" class="colwidths-given docutils">
+<colgroup>
+<col width="30%" />
+<col width="35%" />
+<col width="35%" />
+</colgroup>
+<thead valign="bottom">
+<tr class="row-odd"><th class="head">クラス名</th>
+<th class="head">説明</th>
+<th class="head">主なファクトリメソッド</th>
+</tr>
+</thead>
+<tbody valign="top">
+<tr class="row-even"><td><div class="first last line-block">
+<div class="line"><a class="reference external" href="https://docs.oracle.com/javase/8/docs/api/java/time/LocalDate.html">java.time.LocalDate</a></div>
+<div class="line"><a class="reference external" href="https://docs.oracle.com/javase/8/docs/api/java/time/LocalTime.html">java.time.LocalTime</a></div>
+<div class="line"><a class="reference external" href="https://docs.oracle.com/javase/8/docs/api/java/time/LocalDateTime.html">java.time.LocalDateTime</a></div>
+</div>
+</td>
+<td>タイムゾーン・時差の情報を持たない日付・時刻の操作を行うクラス</td>
+<td><div class="first last line-block">
+<div class="line"><code class="docutils literal"><span class="pre">now</span></code> 現在日時で生成</div>
+<div class="line"><code class="docutils literal"><span class="pre">of</span></code>  任意日時で生成</div>
+<div class="line"><code class="docutils literal"><span class="pre">parse</span></code> 日時文字列から生成</div>
+<div class="line"><code class="docutils literal"><span class="pre">from</span></code>  日時情報を持つ他オブジェクトから生成</div>
+</div>
+</td>
+</tr>
+<tr class="row-odd"><td><div class="first last line-block">
+<div class="line"><a class="reference external" href="https://docs.oracle.com/javase/8/docs/api/java/time/OffsetTime.html">java.time.OffsetTime</a></div>
+<div class="line"><a class="reference external" href="https://docs.oracle.com/javase/8/docs/api/java/time/OffsetDateTime.html">java.time.OffsetDateTime</a></div>
+<div class="line"><a class="reference external" href="https://docs.oracle.com/javase/8/docs/api/java/time/ZonedDateTime.html">java.time.ZonedDateTime</a></div>
+</div>
+</td>
+<td>タイムゾーン・時差を考慮した日付・時刻の操作を行うクラス</td>
+<td>同上</td>
+</tr>
+<tr class="row-even"><td><div class="first last line-block">
+<div class="line"><a class="reference external" href="https://docs.oracle.com/javase/8/docs/api/java/time/chrono/JapaneseDate.html">java.time.chrono.JapaneseDate</a></div>
+</div>
+</td>
+<td>和暦の操作を行うクラス</td>
+<td>同上</td>
+</tr>
+</tbody>
+</table>
+<div class="line-block">
+<div class="line"><br /></div>
+<div class="line"><strong>期間の情報を扱う主なクラス</strong></div>
+</div>
+<table border="1" class="colwidths-given docutils">
+<colgroup>
+<col width="30%" />
+<col width="35%" />
+<col width="35%" />
+</colgroup>
+<thead valign="bottom">
+<tr class="row-odd"><th class="head">クラス名</th>
+<th class="head">説明</th>
+<th class="head">主なファクトリメソッド</th>
+</tr>
+</thead>
+<tbody valign="top">
+<tr class="row-even"><td><div class="first last line-block">
+<div class="line"><a class="reference external" href="https://docs.oracle.com/javase/8/docs/api/java/time/Period.html">java.time.Period</a></div>
+<div class="line"><a class="reference external" href="https://docs.oracle.com/javase/8/docs/api/java/time/Duration.html">java.time.Duration</a></div>
+</div>
+</td>
+<td>日時ベース、時間ベースの期間を扱うクラス</td>
+<td><div class="first line-block">
+<div class="line"><code class="docutils literal"><span class="pre">between</span></code> 日時情報を持つ2つのオブジェクトの差から生成</div>
+</div>
+<div class="line-block">
+<div class="line"><code class="docutils literal"><span class="pre">from</span></code> 時間量を持つ他オブジェクトから生成</div>
+</div>
+<div class="last line-block">
+<div class="line"><code class="docutils literal"><span class="pre">of</span></code> 任意期間で生成</div>
+</div>
+</td>
+</tr>
+</tbody>
+</table>
+<div class="line-block">
+<div class="line"><br /></div>
+<div class="line"><strong>フォーマットを扱うクラス</strong></div>
+</div>
+<table border="1" class="colwidths-given docutils">
+<colgroup>
+<col width="30%" />
+<col width="35%" />
+<col width="35%" />
+</colgroup>
+<thead valign="bottom">
+<tr class="row-odd"><th class="head">クラス名</th>
+<th class="head">説明</th>
+<th class="head">主なファクトリメソッド</th>
+</tr>
+</thead>
+<tbody valign="top">
+<tr class="row-even"><td><div class="first last line-block">
+<div class="line"><a class="reference external" href="https://docs.oracle.com/javase/8/docs/api/java/time/format/DateTimeFormatter.html">java.time.format.DateTimeFormatter</a></div>
+</div>
+</td>
+<td>日時のフォーマットに関する操作を行うクラス</td>
+<td><div class="first last line-block">
+<div class="line"><code class="docutils literal"><span class="pre">ofPattern</span></code> 指定されたパターンでフォーマッタを生成</div>
+</div>
+</td>
+</tr>
+</tbody>
+</table>
+<div class="line-block">
+<div class="line"><br /></div>
+<div class="line">各クラス・メソッドの具体的な利用方法を、以下で説明する。</div>
+<div class="line"><br /></div>
+</div>
+<blockquote>
+<div><div class="admonition note">
+<p class="first admonition-title">Note</p>
+<p class="last">本ガイドラインで触れなかった内容を含め、詳細は <a class="reference external" href="https://docs.oracle.com/javase/8/docs/api/java/time/package-summary.html">Javadoc</a> を参照されたい。</p>
+</div>
+<div class="admonition note">
+<p class="first admonition-title">Note</p>
+<p class="last">Date and Time APIのクラスは、immutableである(日時計算等の結果は、新規オブジェクトであり、計算元オブジェクトに変化は起きない)。</p>
+</div>
+</div></blockquote>
+<div class="section" id="id2">
+<h3><a class="toc-backref" href="#id24">7.3.2.1. 日時取得</a><a class="headerlink" href="#id2" title="Permalink to this headline">¶</a></h3>
+<div class="section" id="id3">
+<h4><a class="toc-backref" href="#id25">7.3.2.1.1. 現在日時で取得</a><a class="headerlink" href="#id3" title="Permalink to this headline">¶</a></h4>
+<div class="line-block">
+<div class="line">利用用途に合わせて <code class="docutils literal"><span class="pre">java.time.LocalTime</span></code> , <code class="docutils literal"><span class="pre">java.time.LocalDate</span></code> , <code class="docutils literal"><span class="pre">java.time.LocalDateTime</span></code>  を使い分けること。以下に例を示す。</div>
+</div>
+<ol class="arabic simple">
+<li>時刻のみ取得したい場合は <code class="docutils literal"><span class="pre">java.time.LocalTime</span></code> を使用する。</li>
+</ol>
+<div class="highlight-java"><div class="highlight"><pre><span></span><span class="n">LocalTime</span> <span class="n">localTime</span> <span class="o">=</span>  <span class="n">LocalTime</span><span class="p">.</span><span class="na">now</span><span class="p">();</span>
+</pre></div>
+</div>
+<ol class="arabic simple" start="2">
+<li>日付のみ取得したい場合は <code class="docutils literal"><span class="pre">java.time.LocalDate</span></code> を使用する。</li>
+</ol>
+<div class="highlight-java"><div class="highlight"><pre><span></span><span class="n">LocalDate</span> <span class="n">localDate</span> <span class="o">=</span>  <span class="n">LocalDate</span><span class="p">.</span><span class="na">now</span><span class="p">();</span>
+</pre></div>
+</div>
+<ol class="arabic simple" start="3">
+<li>日付・時刻を取得したい場合は <code class="docutils literal"><span class="pre">java.time.LocalDateTime</span></code> を使用する。</li>
+</ol>
+<div class="highlight-java"><div class="highlight"><pre><span></span><span class="n">LocalDateTime</span> <span class="n">localDateTime</span> <span class="o">=</span> <span class="n">LocalDateTime</span><span class="p">.</span><span class="na">now</span><span class="p">();</span>
+</pre></div>
+</div>
+<div class="line-block">
+<div class="line"><br /></div>
+</div>
+</div>
+<div class="section" id="id4">
+<h4><a class="toc-backref" href="#id26">7.3.2.1.2. 年月日時分秒を指定して取得</a><a class="headerlink" href="#id4" title="Permalink to this headline">¶</a></h4>
+<div class="line-block">
+<div class="line">ofメソッドを使うことで特定の日時を指定することができる。以下に例を示す。</div>
+</div>
+<ol class="arabic simple">
+<li>時刻を指定して <code class="docutils literal"><span class="pre">java.time.LocalTime</span></code> を取得する。</li>
+</ol>
+<div class="highlight-java"><div class="highlight"><pre><span></span><span class="c1">// 23:30:59</span>
+<span class="n">LocalTime</span> <span class="n">localTime</span> <span class="o">=</span>  <span class="n">LocalTime</span><span class="p">.</span><span class="na">of</span><span class="p">(</span><span class="mi">23</span><span class="p">,</span> <span class="mi">30</span><span class="p">,</span> <span class="mi">59</span><span class="p">);</span>
+</pre></div>
+</div>
+<ol class="arabic simple" start="2">
+<li>日付を指定して <code class="docutils literal"><span class="pre">java.time.LocalDate</span></code> を取得する。</li>
+</ol>
+<div class="highlight-java"><div class="highlight"><pre><span></span><span class="c1">// 2015/12/25</span>
+<span class="n">LocalDate</span> <span class="n">localDate</span> <span class="o">=</span>  <span class="n">LocalDate</span><span class="p">.</span><span class="na">of</span><span class="p">(</span><span class="mi">2015</span><span class="p">,</span> <span class="mi">12</span><span class="p">,</span> <span class="mi">25</span><span class="p">);</span>
+</pre></div>
+</div>
+<ol class="arabic simple" start="3">
+<li>日付・時刻）を指定して <code class="docutils literal"><span class="pre">java.time.LocalDateTime</span></code> を取得する。</li>
+</ol>
+<div class="highlight-java"><div class="highlight"><pre><span></span><span class="c1">// 2015/12/25 23:30:59</span>
+<span class="n">LocalDateTime</span> <span class="n">localDateTime</span> <span class="o">=</span> <span class="n">LocalDateTime</span><span class="p">.</span><span class="na">of</span><span class="p">(</span><span class="mi">2015</span><span class="p">,</span> <span class="mi">12</span><span class="p">,</span> <span class="mi">25</span><span class="p">,</span> <span class="mi">23</span><span class="p">,</span> <span class="mi">30</span><span class="p">,</span> <span class="mi">59</span><span class="p">);</span>
+</pre></div>
+</div>
+<div class="line-block">
+<div class="line"><br /></div>
+<div class="line">また、<code class="docutils literal"><span class="pre">java.time.temporal.TemporalAdjusters</span></code> を使うことで様々な日時を取得することができる。</div>
+</div>
+<div class="highlight-java"><div class="highlight"><pre><span></span><span class="c1">// LeapYear(2012/2)</span>
+<span class="n">LocalDate</span> <span class="n">localDate1</span> <span class="o">=</span> <span class="n">LocalDate</span><span class="p">.</span><span class="na">of</span><span class="p">(</span><span class="mi">2012</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">1</span><span class="p">);</span>
+
+<span class="c1">// Last day of month(2012/2/29)</span>
+<span class="n">LocalDate</span> <span class="n">localDate2</span> <span class="o">=</span> <span class="n">localDate1</span><span class="p">.</span><span class="na">with</span><span class="p">(</span><span class="n">TemporalAdjusters</span><span class="p">.</span><span class="na">lastDayOfMonth</span><span class="p">());</span>
+
+<span class="c1">// Next monday（2012/2/6）</span>
+<span class="n">LocalDate</span> <span class="n">localDate3</span> <span class="o">=</span> <span class="n">localDate1</span><span class="p">.</span><span class="na">with</span><span class="p">(</span><span class="n">TemporalAdjusters</span><span class="p">.</span><span class="na">next</span><span class="p">(</span><span class="n">DayOfWeek</span><span class="p">.</span><span class="na">MONDAY</span><span class="p">));</span>
+</pre></div>
+</div>
+<div class="admonition note">
+<p class="first admonition-title">Note</p>
+<p class="last"><code class="docutils literal"><span class="pre">java.util.Calendar</span></code> の仕様とは異なり、Monthは 1 始まりである。</p>
+</div>
+</div>
+<div class="section" id="id5">
+<h4><a class="toc-backref" href="#id27">7.3.2.1.3. タイムゾーンを指定する場合の日時取得</a><a class="headerlink" href="#id5" title="Permalink to this headline">¶</a></h4>
+<div class="line-block">
+<div class="line">国際的なアプリケーションを作成する場合、タイムゾーンを意識した設計を行う場合がある。</div>
+<div class="line">Date and Time APIでは、利用用途に合わせて、 <code class="docutils literal"><span class="pre">java.time.OffsetTime</span></code> , <code class="docutils literal"><span class="pre">java.time.OffsetDateTime</span></code> , <code class="docutils literal"><span class="pre">java.time.ZonedDateTime</span></code>  を使い分けること。</div>
+<div class="line">以下に例を示す。</div>
+</div>
+<ol class="arabic simple">
+<li>時刻＋UTCとの時差を取得したい場合は、 <code class="docutils literal"><span class="pre">java.time.OffsetTime</span></code> を使用する。</li>
+</ol>
+<div class="highlight-java"><div class="highlight"><pre><span></span><span class="c1">// Ex, 12:30:11.567+09:00</span>
+<span class="n">OffsetTime</span> <span class="n">offsetTime</span> <span class="o">=</span>  <span class="n">OffsetTime</span><span class="p">.</span><span class="na">now</span><span class="p">();</span>
+</pre></div>
+</div>
+<ol class="arabic simple" start="2">
+<li>日付・時刻＋UTCとの時差を取得したい場合は <code class="docutils literal"><span class="pre">java.time.OffsetDateTime</span></code> を使用する。</li>
+</ol>
+<div class="highlight-java"><div class="highlight"><pre><span></span><span class="c1">// Ex, 2015-12-25T12:30:11.567+09:00</span>
+<span class="n">OffsetDateTime</span> <span class="n">offsetDateTime</span> <span class="o">=</span>  <span class="n">OffsetDateTime</span><span class="p">.</span><span class="na">now</span><span class="p">();</span>
+</pre></div>
+</div>
+<ol class="arabic simple" start="3">
+<li>日付・時刻＋UTCとの時差・地域を取得したい場合は <code class="docutils literal"><span class="pre">java.time.ZonedDateTime</span></code> を使用する。</li>
+</ol>
+<div class="highlight-java"><div class="highlight"><pre><span></span><span class="c1">// Ex, 2015-12-25T12:30:11.567+09:00[Asia/Tokyo]</span>
+<span class="n">ZonedDateTime</span> <span class="n">zonedDateTime</span> <span class="o">=</span> <span class="n">ZonedDateTime</span><span class="p">.</span><span class="na">now</span><span class="p">();</span>
+</pre></div>
+</div>
+<div class="line-block">
+<div class="line">また、これらのメソッドでは全て、タイムゾーンを表す <code class="docutils literal"><span class="pre">java.time.ZoneId</span></code> を引数に設定することで、タイムゾーンを考慮した現在日時が取得できる。</div>
+<div class="line">以下に <code class="docutils literal"><span class="pre">java.time.ZoneId</span></code> の例を示す。</div>
+</div>
+<div class="highlight-java"><div class="highlight"><pre><span></span><span class="n">ZoneId</span> <span class="n">zoneIdTokyo</span> <span class="o">=</span> <span class="n">ZoneId</span><span class="p">.</span><span class="na">of</span><span class="p">(</span><span class="s">&quot;Asia/Tokyo&quot;</span><span class="p">);</span>
+<span class="n">OffsetTime</span> <span class="n">offsetTime</span> <span class="o">=</span>  <span class="n">OffsetTime</span><span class="p">.</span><span class="na">now</span><span class="p">(</span><span class="n">zoneIdTokyo</span><span class="p">);</span>
+</pre></div>
+</div>
+<div class="line-block">
+<div class="line">なお、 <code class="docutils literal"><span class="pre">java.time.ZoneId</span></code> は地域名/地名形式で定義する方法や、UTCからの時差で定義する方法がある。</div>
+</div>
+<div class="highlight-java"><div class="highlight"><pre><span></span><span class="n">ZoneId</span><span class="p">.</span><span class="na">of</span><span class="p">(</span><span class="s">&quot;Asia/Tokyo&quot;</span><span class="p">);</span>
+<span class="n">ZoneId</span><span class="p">.</span><span class="na">of</span><span class="p">(</span><span class="s">&quot;UTC+01:00&quot;</span><span class="p">);</span>
+</pre></div>
+</div>
+<div class="line-block">
+<div class="line"><br /></div>
+</div>
+<div class="line-block">
+<div class="line"><code class="docutils literal"><span class="pre">java.time.OffsetDateTime</span></code> , <code class="docutils literal"><span class="pre">java.time.ZonedDateTime</span></code> の2クラスは用途が似ているが、具体的には以下のような違いがある。</div>
+<div class="line">作成するシステムの特性に応じて適切なクラスを選択されたい。</div>
+</div>
+<table border="1" class="colwidths-given docutils">
+<colgroup>
+<col width="50%" />
+<col width="50%" />
+</colgroup>
+<thead valign="bottom">
+<tr class="row-odd"><th class="head">クラス名</th>
+<th class="head">説明</th>
+</tr>
+</thead>
+<tbody valign="top">
+<tr class="row-even"><td><div class="first last line-block">
+<div class="line"><code class="docutils literal"><span class="pre">java.time.OffsetDateTime</span></code></div>
+</div>
+</td>
+<td>定量値（時差のみ）を持つため、各地域の時間の概念に変化がある場合も、システムに変化が起こらない。</td>
+</tr>
+<tr class="row-odd"><td><div class="first last line-block">
+<div class="line"><code class="docutils literal"><span class="pre">java.time.ZonedDateTime</span></code></div>
+</div>
+</td>
+<td>時差に加えて地域の概念があるため、各地域の時間の概念に変化があった場合、システムに変化が起こる。（政策としてサマータイム導入される場合など）</td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
+<div class="section" id="id6">
+<h3><a class="toc-backref" href="#id28">7.3.2.2. 期間</a><a class="headerlink" href="#id6" title="Permalink to this headline">¶</a></h3>
+<div class="section" id="id7">
+<h4><a class="toc-backref" href="#id29">7.3.2.2.1. 期間の取得</a><a class="headerlink" href="#id7" title="Permalink to this headline">¶</a></h4>
+<div class="line-block">
+<div class="line">日付ベースの期間を扱う場合は、 <code class="docutils literal"><span class="pre">java.time.Period</span></code> 、時間ベースの期間を扱う場合は、 <code class="docutils literal"><span class="pre">java.time.Duration</span></code> を使用する。</div>
+<div class="line"><code class="docutils literal"><span class="pre">java.time.Duration</span></code> で表される1日は厳密に24時間であるため、サマータイムの変化が解釈されずに想定通りの結果にならない可能性がある。</div>
+<div class="line">対して、 <code class="docutils literal"><span class="pre">java.time.Period</span></code> はサマータイムなどの概念を考慮した1日を表すため、サマータイムを扱うシステムであっても誤差は生じない。</div>
+<div class="line">以下に例を示す。</div>
+</div>
+<div class="highlight-java"><div class="highlight"><pre><span></span><span class="n">LocalDate</span> <span class="n">date1</span> <span class="o">=</span> <span class="n">LocalDate</span><span class="p">.</span><span class="na">of</span><span class="p">(</span><span class="mi">2010</span><span class="p">,</span> <span class="mo">01</span><span class="p">,</span> <span class="mi">15</span><span class="p">);</span>
+<span class="n">LocalDate</span> <span class="n">date2</span> <span class="o">=</span> <span class="n">LocalDate</span><span class="p">.</span><span class="na">of</span><span class="p">(</span><span class="mi">2011</span><span class="p">,</span> <span class="mo">03</span><span class="p">,</span> <span class="mi">18</span><span class="p">);</span>
+<span class="n">LocalTime</span> <span class="n">time1</span> <span class="o">=</span> <span class="n">LocalTime</span><span class="p">.</span><span class="na">of</span><span class="p">(</span><span class="mi">11</span><span class="p">,</span> <span class="mi">50</span><span class="p">,</span> <span class="mi">50</span><span class="p">);</span>
+<span class="n">LocalTime</span> <span class="n">time2</span> <span class="o">=</span> <span class="n">LocalTime</span><span class="p">.</span><span class="na">of</span><span class="p">(</span><span class="mi">12</span><span class="p">,</span> <span class="mi">52</span><span class="p">,</span> <span class="mi">53</span><span class="p">);</span>
+
+<span class="c1">// One year, two months and three days.</span>
+<span class="n">Period</span> <span class="n">pd</span> <span class="o">=</span> <span class="n">Period</span><span class="p">.</span><span class="na">between</span><span class="p">(</span><span class="n">date1</span><span class="p">,</span> <span class="n">date2</span><span class="p">);</span>
+
+<span class="c1">// One hour, two minutes and three seconds.</span>
+<span class="n">Duration</span> <span class="n">dn</span> <span class="o">=</span> <span class="n">Duration</span><span class="p">.</span><span class="na">between</span><span class="p">(</span><span class="n">time1</span><span class="p">,</span> <span class="n">time2</span><span class="p">);</span>
+</pre></div>
+</div>
+<div class="line-block">
+<div class="line"><br /></div>
+</div>
+<blockquote>
+<div><div class="admonition note">
+<p class="first admonition-title">Note</p>
+<p class="last"><code class="docutils literal"><span class="pre">of</span></code> メソッドを利用して、期間を指定して生成する方法もある。詳細は <a class="reference external" href="https://docs.oracle.com/javase/8/docs/api/java/time/package-summary.html">Period, DurationのJavadoc</a> を参照されたい。</p>
+</div>
+</div></blockquote>
+</div>
+</div>
+<div class="section" id="id8">
+<h3><a class="toc-backref" href="#id30">7.3.2.3. 型変換</a><a class="headerlink" href="#id8" title="Permalink to this headline">¶</a></h3>
+<div class="section" id="date-and-time-api">
+<h4><a class="toc-backref" href="#id31">7.3.2.3.1. Date and Time APIの各クラスの相互運用性</a><a class="headerlink" href="#date-and-time-api" title="Permalink to this headline">¶</a></h4>
+<div class="line-block">
+<div class="line"><code class="docutils literal"><span class="pre">java.time.LocalTime</span></code> , <code class="docutils literal"><span class="pre">java.time.LocalDate</span></code> , <code class="docutils literal"><span class="pre">java.time.LocalDateTime</span></code> はそれぞれ容易に変換が可能である。以下に例を示す。</div>
+</div>
+<ol class="arabic simple">
+<li><code class="docutils literal"><span class="pre">java.time.LocalTime</span></code> から <code class="docutils literal"><span class="pre">java.time.LocalDateTime</span></code> への変換。</li>
+</ol>
+<div class="highlight-java"><div class="highlight"><pre><span></span><span class="c1">// Ex. 12:10:30</span>
+<span class="n">LocalTime</span> <span class="n">localTime</span> <span class="o">=</span>  <span class="n">LocalTime</span><span class="p">.</span><span class="na">now</span><span class="p">();</span>
+
+<span class="c1">// 2015-12-25 12:10:30</span>
+<span class="n">LocalDateTime</span> <span class="n">localDateTime</span> <span class="o">=</span> <span class="n">localTime</span><span class="p">.</span><span class="na">atDate</span><span class="p">(</span><span class="n">LocalDate</span><span class="p">.</span><span class="na">of</span><span class="p">(</span><span class="mi">2015</span><span class="p">,</span> <span class="mi">12</span><span class="p">,</span> <span class="mi">25</span><span class="p">));</span>
+</pre></div>
+</div>
+<ol class="arabic simple" start="2">
+<li><code class="docutils literal"><span class="pre">java.time.LocalDate</span></code> から <code class="docutils literal"><span class="pre">java.time.LocalDateTime</span></code> への変換。</li>
+</ol>
+<div class="highlight-java"><div class="highlight"><pre><span></span><span class="c1">// Ex. 2012-12-25</span>
+<span class="n">LocalDate</span> <span class="n">localDate</span> <span class="o">=</span>  <span class="n">LocalDate</span><span class="p">.</span><span class="na">now</span><span class="p">();</span>
+
+<span class="c1">// 2015-12-25 12:10:30</span>
+<span class="n">LocalDateTime</span> <span class="n">localDateTime</span> <span class="o">=</span> <span class="n">localDate</span><span class="p">.</span><span class="na">atTime</span><span class="p">(</span><span class="n">LocalTime</span><span class="p">.</span><span class="na">of</span><span class="p">(</span><span class="mi">12</span><span class="p">,</span> <span class="mi">10</span><span class="p">,</span> <span class="mi">30</span><span class="p">));</span>
+</pre></div>
+</div>
+<ol class="arabic simple" start="3">
+<li><code class="docutils literal"><span class="pre">java.time.LocalDateTime</span></code> から <code class="docutils literal"><span class="pre">java.time.LocalTime</span></code> ,  <code class="docutils literal"><span class="pre">java.time.LocalDate</span></code> への変換。</li>
+</ol>
+<div class="highlight-java"><div class="highlight"><pre><span></span><span class="c1">// Ex. 2015-12-25 12:10:30</span>
+<span class="n">LocalDateTime</span> <span class="n">localDateTime</span> <span class="o">=</span>  <span class="n">LocalDateTime</span><span class="p">.</span><span class="na">now</span><span class="p">();</span>
+
+<span class="c1">// 12:10:30</span>
+<span class="n">LocalTime</span> <span class="n">localTime</span> <span class="o">=</span>  <span class="n">localDateTime</span><span class="p">.</span><span class="na">toLocalTime</span><span class="p">();</span>
+
+<span class="c1">// 2012-12-25</span>
+<span class="n">LocalDate</span> <span class="n">localDate</span> <span class="o">=</span>  <span class="n">localDateTime</span><span class="p">.</span><span class="na">toLocalDate</span><span class="p">();</span>
+</pre></div>
+</div>
+<div class="line-block">
+<div class="line"><br /></div>
+<div class="line">同様に、<code class="docutils literal"><span class="pre">java.time.OffsetTime</span></code> , <code class="docutils literal"><span class="pre">java.time.OffsetDateTime</span></code> , <code class="docutils literal"><span class="pre">java.time.ZonedDateTime</span></code> もそれぞれ容易に変換が可能である。以下に例を示す。</div>
+</div>
+<ol class="arabic simple">
+<li><code class="docutils literal"><span class="pre">java.time.OffsetTime</span></code> から、 <code class="docutils literal"><span class="pre">java.time.OffsetDateTime</span></code> への変換。</li>
+</ol>
+<div class="highlight-java"><div class="highlight"><pre><span></span><span class="c1">// Ex, 12:30:11.567+09:00</span>
+<span class="n">OffsetTime</span> <span class="n">offsetTime</span> <span class="o">=</span>  <span class="n">OffsetTime</span><span class="p">.</span><span class="na">now</span><span class="p">();</span>
+
+<span class="c1">// 2015-12-25T12:30:11.567+09:00</span>
+<span class="n">OffsetDateTime</span> <span class="n">offsetDateTime</span> <span class="o">=</span> <span class="n">offsetTime</span><span class="p">.</span><span class="na">atDate</span><span class="p">(</span><span class="n">LocalDate</span><span class="p">.</span><span class="na">of</span><span class="p">(</span><span class="mi">2015</span><span class="p">,</span> <span class="mi">12</span><span class="p">,</span> <span class="mi">25</span><span class="p">));</span>
+</pre></div>
+</div>
+<ol class="arabic simple" start="2">
+<li><code class="docutils literal"><span class="pre">java.time.OffsetDateTime</span></code> から <code class="docutils literal"><span class="pre">java.time.ZonedDateTime</span></code> への変換。</li>
+</ol>
+<div class="highlight-java"><div class="highlight"><pre><span></span><span class="c1">// Ex, 2015-12-25T12:30:11.567+09:00</span>
+<span class="n">OffsetDateTime</span> <span class="n">offsetDateTime</span> <span class="o">=</span>  <span class="n">OffsetDateTime</span><span class="p">.</span><span class="na">now</span><span class="p">();</span>
+
+<span class="c1">// 2015-12-25T12:30:11.567+09:00[Asia/Tokyo]</span>
+<span class="n">ZonedDateTime</span> <span class="n">zonedDateTime</span> <span class="o">=</span> <span class="n">offsetDateTime</span><span class="p">.</span><span class="na">atZoneSameInstant</span><span class="p">(</span><span class="n">ZoneId</span><span class="p">.</span><span class="na">of</span><span class="p">(</span><span class="s">&quot;Asia/Tokyo&quot;</span><span class="p">));</span>
+</pre></div>
+</div>
+<ol class="arabic simple" start="3">
+<li><code class="docutils literal"><span class="pre">java.time.ZonedDateTime</span></code> から <code class="docutils literal"><span class="pre">java.time.OffsetDateTime</span></code> ,  <code class="docutils literal"><span class="pre">java.time.OffsetTime</span></code> への変換。</li>
+</ol>
+<div class="highlight-java"><div class="highlight"><pre><span></span><span class="c1">// Ex, 2015-12-25T12:30:11.567+09:00[Asia/Tokyo]</span>
+<span class="n">ZonedDateTime</span> <span class="n">zonedDateTime</span> <span class="o">=</span>  <span class="n">ZonedDateTime</span><span class="p">.</span><span class="na">now</span><span class="p">();</span>
+
+<span class="c1">// 2015-12-25T12:30:11.567+09:00</span>
+<span class="n">OffsetDateTime</span> <span class="n">offsetDateTime</span> <span class="o">=</span>  <span class="n">zonedDateTime</span><span class="p">.</span><span class="na">toOffsetDateTime</span><span class="p">();</span>
+
+<span class="c1">// 12:30:11.567+09:00</span>
+<span class="n">OffsetTime</span> <span class="n">offsetTime</span> <span class="o">=</span>  <span class="n">zonedDateTime</span><span class="p">.</span><span class="na">toOffsetDateTime</span><span class="p">().</span><span class="na">toOffsetTime</span><span class="p">();</span>
+</pre></div>
+</div>
+<div class="line-block">
+<div class="line"><br /></div>
+<div class="line">また、時差情報を加えることで、<code class="docutils literal"><span class="pre">java.time.LocalTime</span></code> を <code class="docutils literal"><span class="pre">java.time.OffsetTime</span></code> に変換することも可能である。</div>
+</div>
+<div class="highlight-java"><div class="highlight"><pre><span></span><span class="c1">// Ex, 12:30:11.567</span>
+<span class="n">LocalTime</span> <span class="n">localTime</span> <span class="o">=</span>  <span class="n">LocalTime</span><span class="p">.</span><span class="na">now</span><span class="p">();</span>
+
+<span class="c1">// 12:30:11.567+09:00</span>
+<span class="n">OffsetTime</span> <span class="n">offsetTime</span> <span class="o">=</span> <span class="n">localTime</span><span class="p">.</span><span class="na">atOffset</span><span class="p">(</span><span class="n">ZoneOffset</span><span class="p">.</span><span class="na">ofHours</span><span class="p">(</span><span class="mi">9</span><span class="p">));</span>
+</pre></div>
+</div>
+<div class="line-block">
+<div class="line"><br /></div>
+<div class="line">この他についても、不足している情報（ <code class="docutils literal"><span class="pre">LocalTime</span></code> から <code class="docutils literal"><span class="pre">LocalDateTime</span></code> の変換であれば日付の情報が不足している の要領）を加えることで別のクラスへ変換が可能である。</div>
+<div class="line">変換メソッドは接頭辞が <code class="docutils literal"><span class="pre">at</span></code> または <code class="docutils literal"><span class="pre">to</span></code> で始まる。詳細は <a class="reference external" href="https://docs.oracle.com/javase/8/docs/api/java/time/package-summary.html">各クラスのJavadoc</a> を参照されたい。</div>
+</div>
+</div>
+<div class="section" id="java-util-date">
+<h4><a class="toc-backref" href="#id32">7.3.2.3.2. java.util.Dateとの相互運用性</a><a class="headerlink" href="#java-util-date" title="Permalink to this headline">¶</a></h4>
+<div class="line-block">
+<div class="line"><code class="docutils literal"><span class="pre">java.time.LocalDate</span></code> 等のクラスは、<code class="docutils literal"><span class="pre">java.time.Instant</span></code> に変換したうえで <code class="docutils literal"><span class="pre">java.util.Date</span></code> に変換することが可能である。</div>
+<div class="line">以下に例を示す。</div>
+</div>
+<ol class="arabic simple">
+<li><code class="docutils literal"><span class="pre">java.time.LocalDateTime</span></code> から、 <code class="docutils literal"><span class="pre">java.util.Date</span></code> への変換。</li>
+</ol>
+<div class="highlight-java"><div class="highlight"><pre><span></span><span class="n">LocalDateTime</span> <span class="n">localDateTime</span> <span class="o">=</span> <span class="n">LocalDateTime</span><span class="p">.</span><span class="na">now</span><span class="p">();</span>
+<span class="n">Instant</span> <span class="n">instant</span> <span class="o">=</span> <span class="n">localDateTime</span><span class="p">.</span><span class="na">toInstant</span><span class="p">(</span><span class="n">ZoneOffset</span><span class="p">.</span><span class="na">ofHours</span><span class="p">(</span><span class="mi">9</span><span class="p">));</span>
+<span class="n">Date</span> <span class="n">date</span> <span class="o">=</span> <span class="n">Date</span><span class="p">.</span><span class="na">from</span><span class="p">(</span><span class="n">instant</span><span class="p">);</span>
+</pre></div>
+</div>
+<ol class="arabic simple" start="2">
+<li><code class="docutils literal"><span class="pre">java.util.Date</span></code> から <code class="docutils literal"><span class="pre">java.time.LocalDateTime</span></code> への変換。</li>
+</ol>
+<div class="highlight-java"><div class="highlight"><pre><span></span><span class="n">Date</span> <span class="n">date</span> <span class="o">=</span> <span class="k">new</span> <span class="n">Date</span><span class="p">();</span>
+<span class="n">Instant</span> <span class="n">instant</span> <span class="o">=</span> <span class="n">date</span><span class="p">.</span><span class="na">toInstant</span><span class="p">();</span>
+<span class="n">LocalDateTime</span> <span class="n">localDateTime</span> <span class="o">=</span> <span class="n">LocalDateTime</span><span class="p">.</span><span class="na">ofInstant</span><span class="p">(</span><span class="n">instant</span><span class="p">,</span> <span class="n">ZoneId</span><span class="p">.</span><span class="na">systemDefault</span><span class="p">());</span>
+</pre></div>
+</div>
+<div class="line-block">
+<div class="line"><br /></div>
+</div>
+<blockquote>
+<div><div class="admonition note">
+<p class="first admonition-title">Note</p>
+<p class="last"><code class="docutils literal"><span class="pre">java.time.LocalTime</span></code> , <code class="docutils literal"><span class="pre">java.time.LocalDate</span></code> はInstant値を持たないため、一度 <code class="docutils literal"><span class="pre">java.time.LocalDateTime</span></code> に変換する必要がある。</p>
+</div>
+</div></blockquote>
+</div>
+<div class="section" id="java-sql">
+<h4><a class="toc-backref" href="#id33">7.3.2.3.3. java.sql パッケージとの相互運用性</a><a class="headerlink" href="#java-sql" title="Permalink to this headline">¶</a></h4>
+<div class="line-block">
+<div class="line">Java8 より <code class="docutils literal"><span class="pre">java.sql</span></code> パッケージに改修が入り、 <code class="docutils literal"><span class="pre">java.time</span></code> パッケージとの相互変換メソッドが定義された。</div>
+<div class="line">以下に例を示す。</div>
+</div>
+<ol class="arabic simple">
+<li><code class="docutils literal"><span class="pre">java.sql.Date</span></code> から <code class="docutils literal"><span class="pre">java.time.LocalDate</span></code> への変換。</li>
+</ol>
+<div class="highlight-java"><div class="highlight"><pre><span></span><span class="n">java</span><span class="p">.</span><span class="na">sql</span><span class="p">.</span><span class="na">Date</span> <span class="n">date</span> <span class="o">=</span>  <span class="k">new</span> <span class="n">java</span><span class="p">.</span><span class="na">sql</span><span class="p">.</span><span class="na">Date</span><span class="p">(</span><span class="n">System</span><span class="p">.</span><span class="na">currentTimeMillis</span><span class="p">());</span>
+<span class="n">LocalDate</span> <span class="n">localDate</span> <span class="o">=</span> <span class="n">date</span><span class="p">.</span><span class="na">toLocalDate</span><span class="p">();</span>
+</pre></div>
+</div>
+<ol class="arabic simple" start="2">
+<li><code class="docutils literal"><span class="pre">java.time.LocalDate</span></code> から <code class="docutils literal"><span class="pre">java.sql.Date</span></code> への変換。</li>
+</ol>
+<div class="highlight-java"><div class="highlight"><pre><span></span><span class="n">LocalDate</span> <span class="n">localDate</span> <span class="o">=</span> <span class="n">LocalDate</span><span class="p">.</span><span class="na">now</span><span class="p">();</span>
+<span class="n">java</span><span class="p">.</span><span class="na">sql</span><span class="p">.</span><span class="na">Date</span> <span class="n">date</span> <span class="o">=</span>  <span class="n">java</span><span class="p">.</span><span class="na">sql</span><span class="p">.</span><span class="na">Date</span><span class="p">.</span><span class="na">valueOf</span><span class="p">(</span><span class="n">localDate</span><span class="p">);</span>
+</pre></div>
+</div>
+<ol class="arabic simple" start="3">
+<li><code class="docutils literal"><span class="pre">java.sql.Time</span></code> から <code class="docutils literal"><span class="pre">java.time.LocalTime</span></code> への変換。</li>
+</ol>
+<div class="highlight-java"><div class="highlight"><pre><span></span><span class="n">java</span><span class="p">.</span><span class="na">sql</span><span class="p">.</span><span class="na">Time</span> <span class="n">time</span> <span class="o">=</span>  <span class="k">new</span> <span class="n">java</span><span class="p">.</span><span class="na">sql</span><span class="p">.</span><span class="na">Time</span><span class="p">(</span><span class="n">System</span><span class="p">.</span><span class="na">currentTimeMillis</span><span class="p">());</span>
+<span class="n">LocalTime</span> <span class="n">localTime</span> <span class="o">=</span> <span class="n">time</span><span class="p">.</span><span class="na">toLocalTime</span><span class="p">();</span>
+</pre></div>
+</div>
+<ol class="arabic simple" start="4">
+<li><code class="docutils literal"><span class="pre">java.time.LocalTime</span></code> から <code class="docutils literal"><span class="pre">java.sql.Time</span></code> への変換。</li>
+</ol>
+<div class="highlight-java"><div class="highlight"><pre><span></span><span class="n">LocalTime</span> <span class="n">localTime</span> <span class="o">=</span> <span class="n">LocalTime</span><span class="p">.</span><span class="na">now</span><span class="p">();</span>
+<span class="n">java</span><span class="p">.</span><span class="na">sql</span><span class="p">.</span><span class="na">Time</span> <span class="n">time</span> <span class="o">=</span>  <span class="n">java</span><span class="p">.</span><span class="na">sql</span><span class="p">.</span><span class="na">Time</span><span class="p">.</span><span class="na">valueOf</span><span class="p">(</span><span class="n">localTime</span><span class="p">);</span>
+</pre></div>
+</div>
+<ol class="arabic simple" start="5">
+<li><code class="docutils literal"><span class="pre">java.sql.Timestamp</span></code> から <code class="docutils literal"><span class="pre">java.time.LocalDateTime</span></code> への変換。</li>
+</ol>
+<div class="highlight-java"><div class="highlight"><pre><span></span><span class="n">java</span><span class="p">.</span><span class="na">sql</span><span class="p">.</span><span class="na">Timestamp</span> <span class="n">timestamp</span> <span class="o">=</span>  <span class="k">new</span> <span class="n">java</span><span class="p">.</span><span class="na">sql</span><span class="p">.</span><span class="na">Timestamp</span><span class="p">(</span><span class="n">System</span><span class="p">.</span><span class="na">currentTimeMillis</span><span class="p">());</span>
+<span class="n">LocalDateTime</span> <span class="n">localDateTime</span> <span class="o">=</span> <span class="n">timestamp</span><span class="p">.</span><span class="na">toLocalDateTime</span><span class="p">();</span>
+</pre></div>
+</div>
+<ol class="arabic simple" start="6">
+<li><code class="docutils literal"><span class="pre">java.time.LocalDateTime</span></code> から <code class="docutils literal"><span class="pre">java.sql.Timestamp</span></code> への変換。</li>
+</ol>
+<div class="highlight-java"><div class="highlight"><pre><span></span><span class="n">LocalDateTime</span> <span class="n">localDateTime</span> <span class="o">=</span> <span class="n">LocalDateTime</span><span class="p">.</span><span class="na">now</span><span class="p">();</span>
+<span class="n">java</span><span class="p">.</span><span class="na">sql</span><span class="p">.</span><span class="na">Timestamp</span> <span class="n">timestamp</span> <span class="o">=</span>  <span class="n">java</span><span class="p">.</span><span class="na">sql</span><span class="p">.</span><span class="na">Timestamp</span><span class="p">.</span><span class="na">valueOf</span><span class="p">(</span><span class="n">localDateTime</span><span class="p">);</span>
+</pre></div>
+</div>
+</div>
+<div class="section" id="org-terasoluna-gfw-common-date">
+<h4><a class="toc-backref" href="#id34">7.3.2.3.4. org.terasoluna.gfw.common.date パッケージの利用方法</a><a class="headerlink" href="#org-terasoluna-gfw-common-date" title="Permalink to this headline">¶</a></h4>
+<div class="line-block">
+<div class="line">現在、Date and Time API用のDate Factoryは共通ライブラリから提供されていない。（参照： <a class="reference internal" href="SystemDate.html"><span class="doc">システム時刻</span></a> ）</div>
+<div class="line">ただし、暫定対処として、 <code class="docutils literal"><span class="pre">org.terasoluna.gfw.common.date.ClassicDateFactory</span></code> と <code class="docutils literal"><span class="pre">java.sql.Date</span></code> を利用することで、 <code class="docutils literal"><span class="pre">java.time.LocalDate</span></code> を生成できる。</div>
+<div class="line"><code class="docutils literal"><span class="pre">java.time.LocalTime</span></code> , <code class="docutils literal"><span class="pre">java.time.LocalDateTime</span></code> クラスに関しても、 <code class="docutils literal"><span class="pre">java.time.LocalDate</span></code> から変換することで生成できる。</div>
+<div class="line">以下に例を示す。</div>
+</div>
+<p><strong>bean定義ファイル([projectname]-env.xml)</strong></p>
+<div class="highlight-xml"><div class="highlight"><pre><span></span><span class="nt">&lt;bean</span> <span class="na">id=</span><span class="s">&quot;dateFactory&quot;</span> <span class="na">class=</span><span class="s">&quot;org.terasoluna.gfw.common.date.DefaultClassicDateFactory&quot;</span> <span class="nt">/&gt;</span>
+</pre></div>
+</div>
+<p><strong>Javaクラス</strong></p>
+<div class="highlight-java"><div class="highlight"><pre><span></span><span class="nd">@Inject</span>
+<span class="n">ClassicDateFactory</span> <span class="n">dateFactory</span><span class="p">;</span>
+
+<span class="kd">public</span> <span class="n">DateFactorySample</span> <span class="nf">getSystemDate</span><span class="p">()</span> <span class="p">{</span>
+
+ <span class="n">java</span><span class="p">.</span><span class="na">sql</span><span class="p">.</span><span class="na">Date</span> <span class="n">date</span> <span class="o">=</span> <span class="n">dateFactory</span><span class="p">.</span><span class="na">newSqlDate</span><span class="p">();</span>
+ <span class="n">LocalDate</span> <span class="n">localDate</span> <span class="o">=</span> <span class="n">date</span><span class="p">.</span><span class="na">toLocalDate</span><span class="p">();</span>
+
+ <span class="c1">// omitted</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+<div class="line-block">
+<div class="line"><br /></div>
+</div>
+<blockquote>
+<div><div class="admonition note">
+<p class="first admonition-title">Note</p>
+<p class="last">Date and Time APIに対応したDate Factoryは今後追加予定である。</p>
+</div>
+</div></blockquote>
+</div>
+<div class="section" id="id10">
+<h4><a class="toc-backref" href="#id35">7.3.2.3.5. 文字列へのフォーマット</a><a class="headerlink" href="#id10" title="Permalink to this headline">¶</a></h4>
+<div class="line-block">
+<div class="line">日時情報を持つオブジェクトを文字列に変換するには、<code class="docutils literal"><span class="pre">toString</span></code> メソッドを使用する方法と、<code class="docutils literal"><span class="pre">java.time.fomat.DateTimeFormatter</span></code> を使用する方法がある。</div>
+<div class="line">任意の日時文字列で出力したい場合は、<code class="docutils literal"><span class="pre">java.time.fomat.DateTimeFormatter</span></code> を使用し様々な日時文字列へ変換することが出来る。</div>
+<div class="line"><br /></div>
+<div class="line"><code class="docutils literal"><span class="pre">java.time.fomat.DateTimeFormatter</span></code> は、事前定義されたISOパターンのフォーマッタを利用する方法と、任意のパターンのフォーマットを定義して利用する方法がある。</div>
+</div>
+<div class="highlight-java"><div class="highlight"><pre><span></span><span class="n">DateTimeFormatter</span> <span class="n">formatter1</span> <span class="o">=</span> <span class="n">DateTimeFormatter</span><span class="p">.</span><span class="na">BASIC_ISO_DATE</span><span class="p">;</span>
+
+<span class="n">DateTimeFormatter</span> <span class="n">formatter2</span> <span class="o">=</span> <span class="n">DateTimeFormatter</span><span class="p">.</span><span class="na">ofPattern</span><span class="p">(</span><span class="s">&quot;G uuuu/MM/dd E&quot;</span><span class="p">)</span>
+                                          <span class="p">.</span><span class="na">withLocale</span><span class="p">(</span><span class="n">Locale</span><span class="p">.</span><span class="na">JAPANESE</span><span class="p">)</span>
+                                          <span class="p">.</span><span class="na">withResolverStyle</span><span class="p">(</span><span class="n">ResolverStyle</span><span class="p">.</span><span class="na">STRICT</span><span class="p">);</span>
+</pre></div>
+</div>
+<div class="line-block">
+<div class="line">その際、文字列の形式の他に <code class="docutils literal"><span class="pre">Locale</span></code> と <code class="docutils literal"><span class="pre">ResolverStyle</span></code> （厳密性）を定義できる。</div>
+<div class="line"><code class="docutils literal"><span class="pre">Locale</span></code> のデフォルト値はシステムによって変化するため、初期化時に設定することが望ましい。</div>
+<div class="line">また、 <code class="docutils literal"><span class="pre">ResolverStyle</span></code> （厳密性）は <code class="docutils literal"><span class="pre">ofPattern</span></code> メソッドを使う場合、デフォルトで <code class="docutils literal"><span class="pre">ResolverStyle.SMART</span></code> が設定されるが、本ガイドラインでは予期せぬ挙動が起こらないよう、厳密に日付を解釈する <code class="docutils literal"><span class="pre">ResolverStyle.STRICT</span></code> の設定を推奨している。（ISOパターンのフォーマッタを利用する場合は <code class="docutils literal"><span class="pre">ResolverStyle.STRICT</span></code> が設定されている)</div>
+<div class="line"><br /></div>
+<div class="line">なお、Date and Time API では書式 <code class="docutils literal"><span class="pre">yyyy</span></code> は暦に対する年を表すため、暦によって解釈が異なる(西暦なら2015と解釈されるが、和暦なら0027と解釈される）。</div>
+<div class="line">西暦を表したい場合は、 <code class="docutils literal"><span class="pre">yyyy</span></code> 形式に変えて <code class="docutils literal"><span class="pre">uuuu</span></code> 形式を利用することを推奨する。定義されている書式一覧は <a class="reference external" href="https://docs.oracle.com/javase/8/docs/api/java/time/format/DateTimeFormatter.html#patterns">DateTimeFormatter</a> を参照されたい。</div>
+<div class="line"><br /></div>
+<div class="line">以下に例を示す。</div>
+</div>
+<div class="highlight-java"><div class="highlight"><pre><span></span><span class="n">DateTimeFormatter</span> <span class="n">formatter1</span> <span class="o">=</span> <span class="n">DateTimeFormatter</span><span class="p">.</span><span class="na">BASIC_ISO_DATE</span><span class="p">;</span>
+
+<span class="n">DateTimeFormatter</span> <span class="n">formatter2</span> <span class="o">=</span> <span class="n">DateTimeFormatter</span><span class="p">.</span><span class="na">ofPattern</span><span class="p">(</span><span class="s">&quot;G uuuu/MM/dd E&quot;</span><span class="p">)</span>
+                                          <span class="p">.</span><span class="na">withLocale</span><span class="p">(</span><span class="n">Locale</span><span class="p">.</span><span class="na">JAPANESE</span><span class="p">)</span>
+                                          <span class="p">.</span><span class="na">withResolverStyle</span><span class="p">(</span><span class="n">ResolverStyle</span><span class="p">.</span><span class="na">STRICT</span><span class="p">);</span>
+
+<span class="n">LocalDate</span> <span class="n">localDate1</span> <span class="o">=</span> <span class="n">LocalDate</span><span class="p">.</span><span class="na">of</span><span class="p">(</span><span class="mi">2015</span><span class="p">,</span> <span class="mi">12</span><span class="p">,</span> <span class="mi">25</span><span class="p">);</span>
+
+<span class="c1">// &quot;2015-12-25&quot;</span>
+<span class="n">System</span><span class="p">.</span><span class="na">out</span><span class="p">.</span><span class="na">println</span><span class="p">(</span><span class="n">localDate1</span><span class="p">.</span><span class="na">toString</span><span class="p">());</span>
+<span class="c1">// &quot;20151225&quot;</span>
+<span class="n">System</span><span class="p">.</span><span class="na">out</span><span class="p">.</span><span class="na">println</span><span class="p">(</span><span class="n">formatter1</span><span class="p">.</span><span class="na">format</span><span class="p">(</span><span class="n">localDate1</span><span class="p">));</span>
+<span class="c1">// &quot;西暦 2015/12/25 金&quot;</span>
+<span class="n">System</span><span class="p">.</span><span class="na">out</span><span class="p">.</span><span class="na">println</span><span class="p">(</span><span class="n">formatter2</span><span class="p">.</span><span class="na">format</span><span class="p">(</span><span class="n">localDate1</span><span class="p">));</span>
+</pre></div>
+</div>
+<div class="line-block">
+<div class="line"><br /></div>
+<div class="line">また、これらの文字列を画面上に表示したい場合、</div>
+<div class="line">Date and Time APIでは、Joda Timeと異なり、専用のJSPタグは存在していない。</div>
+<div class="line">JSTLの <code class="docutils literal"><span class="pre">fmt:formatDate</span></code> タグは、<code class="docutils literal"><span class="pre">java.util.Date</span></code> と、 <code class="docutils literal"><span class="pre">java.util.TimeZone</span></code> オブジェクトのみを扱うため、</div>
+<div class="line">JSP上でDate and Time APIのオブジェクトが持つ日時情報を表示する場合は、フォーマット済みの文字列を渡して表示する。</div>
+</div>
+<p><strong>Controllerクラス</strong></p>
+<div class="highlight-java"><div class="highlight"><pre><span></span><span class="nd">@Controller</span>
+<span class="kd">public</span> <span class="kd">class</span> <span class="nc">HomeController</span> <span class="p">{</span>
+
+    <span class="nd">@RequestMapping</span><span class="p">(</span><span class="n">value</span> <span class="o">=</span> <span class="s">&quot;/&quot;</span><span class="p">,</span> <span class="n">method</span> <span class="o">=</span> <span class="p">{</span><span class="n">RequestMethod</span><span class="p">.</span><span class="na">GET</span><span class="p">,</span> <span class="n">RequestMethod</span><span class="p">.</span><span class="na">POST</span><span class="p">})</span>
+    <span class="kd">public</span> <span class="n">String</span> <span class="nf">home</span><span class="p">(</span><span class="n">Model</span> <span class="n">model</span><span class="p">,</span> <span class="n">Locale</span> <span class="n">locale</span><span class="p">)</span> <span class="p">{</span>
+
+        <span class="n">DateTimeFormatter</span> <span class="n">dateFormatter</span> <span class="o">=</span> <span class="n">DateTimeFormatter</span><span class="p">.</span><span class="na">ofPattern</span><span class="p">(</span><span class="s">&quot;uuuu/MM/dd&quot;</span><span class="p">)</span>
+                                           <span class="p">.</span><span class="na">withLocale</span><span class="p">(</span><span class="n">locale</span><span class="p">)</span>
+                                           <span class="p">.</span><span class="na">withResolverStyle</span><span class="p">(</span><span class="n">ResolverStyle</span><span class="p">.</span><span class="na">STRICT</span><span class="p">);</span>
+
+        <span class="n">LocalDate</span> <span class="n">localDate1</span> <span class="o">=</span> <span class="n">LocalDate</span><span class="p">.</span><span class="na">now</span><span class="p">();</span>
+
+        <span class="n">model</span><span class="p">.</span><span class="na">addAttribute</span><span class="p">(</span><span class="s">&quot;currentDate&quot;</span><span class="p">,</span> <span class="n">localDate1</span><span class="p">.</span><span class="na">toString</span><span class="p">());</span>
+        <span class="n">model</span><span class="p">.</span><span class="na">addAttribute</span><span class="p">(</span><span class="s">&quot;formattedCurrentDateString&quot;</span><span class="p">,</span> <span class="n">dateFormatter</span><span class="p">.</span><span class="na">format</span><span class="p">(</span><span class="n">localDate1</span><span class="p">));</span>
+
+    <span class="c1">// omitted</span>
+
+    <span class="p">}</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+<p><strong>jspファイル</strong></p>
+<div class="highlight-jsp"><div class="highlight"><pre><span></span><span class="nt">&lt;p&gt;</span>currentDate =  ${f:h(currentDate)}.<span class="nt">&lt;/p&gt;</span>
+<span class="nt">&lt;p&gt;</span>formattedCurrentDateString =  ${f:h(formattedCurrentDateString)}.<span class="nt">&lt;/p&gt;</span>
+</pre></div>
+</div>
+<p><strong>出力結果例(html)</strong></p>
+<div class="highlight-html"><div class="highlight"><pre><span></span><span class="p">&lt;</span><span class="nt">p</span><span class="p">&gt;</span>currentDate =  2015-12-25.<span class="p">&lt;/</span><span class="nt">p</span><span class="p">&gt;</span>
+<span class="p">&lt;</span><span class="nt">p</span><span class="p">&gt;</span>formattedCurrentDateString =  2015/12/25.<span class="p">&lt;/</span><span class="nt">p</span><span class="p">&gt;</span>
+</pre></div>
+</div>
+<div class="admonition note">
+<p class="first admonition-title">Note</p>
+<p class="last">Java SE 11ではJava SE 8と日付の文字列表現が異なる場合がある。
+Java SE 8と同様に表現するには<a class="reference internal" href="../../Appendix/Java11Changes.html#change-default-locale-data-from-java9"><span class="std std-ref">デフォルトで使用されるロケール・データの変更</span></a>を参照されたい。</p>
+</div>
+</div>
+<div class="section" id="id11">
+<h4><a class="toc-backref" href="#id36">7.3.2.3.6. 文字列からのパース</a><a class="headerlink" href="#id11" title="Permalink to this headline">¶</a></h4>
+<div class="line-block">
+<div class="line">文字列への変換と同様に、<code class="docutils literal"><span class="pre">java.time.fomat.DateTimeFormatter</span></code> を用いることで、様々な日付文字列をDate and Time APIのクラスへ変換することが出来る。</div>
+<div class="line">以下に例を示す。</div>
+</div>
+<div class="highlight-java"><div class="highlight"><pre><span></span><span class="n">DateTimeFormatter</span> <span class="n">formatter1</span> <span class="o">=</span> <span class="n">DateTimeFormatter</span><span class="p">.</span><span class="na">ofPattern</span><span class="p">(</span><span class="s">&quot;uuuu/MM/dd&quot;</span><span class="p">)</span>
+                                           <span class="p">.</span><span class="na">withLocale</span><span class="p">(</span><span class="n">Locale</span><span class="p">.</span><span class="na">JAPANESE</span><span class="p">)</span>
+                                           <span class="p">.</span><span class="na">withResolverStyle</span><span class="p">(</span><span class="n">ResolverStyle</span><span class="p">.</span><span class="na">STRICT</span><span class="p">);</span>
+
+<span class="n">DateTimeFormatter</span> <span class="n">formatter2</span> <span class="o">=</span> <span class="n">DateTimeFormatter</span><span class="p">.</span><span class="na">ofPattern</span><span class="p">(</span><span class="s">&quot;HH:mm:ss&quot;</span><span class="p">)</span>
+                                           <span class="p">.</span><span class="na">withLocale</span><span class="p">(</span><span class="n">Locale</span><span class="p">.</span><span class="na">JAPANESE</span><span class="p">)</span>
+                                           <span class="p">.</span><span class="na">withResolverStyle</span><span class="p">(</span><span class="n">ResolverStyle</span><span class="p">.</span><span class="na">STRICT</span><span class="p">);</span>
+
+<span class="n">LocalDate</span> <span class="n">localDate</span> <span class="o">=</span> <span class="n">LocalDate</span><span class="p">.</span><span class="na">parse</span><span class="p">(</span><span class="s">&quot;2015/12/25&quot;</span><span class="p">,</span> <span class="n">formatter1</span><span class="p">);</span>
+<span class="n">LocalTime</span> <span class="n">localTime</span> <span class="o">=</span> <span class="n">LocalTime</span><span class="p">.</span><span class="na">parse</span><span class="p">(</span><span class="s">&quot;14:09:20&quot;</span><span class="p">,</span> <span class="n">formatter2</span><span class="p">);</span>
+</pre></div>
+</div>
+<div class="line-block">
+<div class="line"><br /></div>
+</div>
+</div>
+</div>
+<div class="section" id="id12">
+<h3><a class="toc-backref" href="#id37">7.3.2.4. 日付操作</a><a class="headerlink" href="#id12" title="Permalink to this headline">¶</a></h3>
+<div class="line-block">
+<div class="line">Date and Time APIでは、日時の計算や比較などを容易に行うことが出来る。</div>
+<div class="line">以下に例を示す。</div>
+</div>
+<div class="section" id="id13">
+<h4><a class="toc-backref" href="#id38">7.3.2.4.1. 日時の計算</a><a class="headerlink" href="#id13" title="Permalink to this headline">¶</a></h4>
+<div class="line-block">
+<div class="line">日時の計算をするために <code class="docutils literal"><span class="pre">plus</span></code> メソッドと <code class="docutils literal"><span class="pre">minus</span></code> メソッドが提供されている。</div>
+</div>
+<ol class="arabic simple">
+<li>時間の計算を行う場合の例。</li>
+</ol>
+<div class="highlight-java"><div class="highlight"><pre><span></span><span class="n">LocalTime</span> <span class="n">localTime</span> <span class="o">=</span>  <span class="n">LocalTime</span><span class="p">.</span><span class="na">of</span><span class="p">(</span><span class="mi">20</span><span class="p">,</span> <span class="mi">30</span><span class="p">,</span> <span class="mi">50</span><span class="p">);</span>
+<span class="n">LocalTime</span> <span class="n">plusHoursTime</span> <span class="o">=</span> <span class="n">localTime</span><span class="p">.</span><span class="na">plusHours</span><span class="p">(</span><span class="mi">2</span><span class="p">);</span>
+<span class="n">LocalTime</span> <span class="n">plusMinutesTime</span> <span class="o">=</span> <span class="n">localTime</span><span class="p">.</span><span class="na">plusMinutes</span><span class="p">(</span><span class="mi">10</span><span class="p">);</span>
+<span class="n">LocalTime</span> <span class="n">minusSecondsTime</span> <span class="o">=</span> <span class="n">localTime</span><span class="p">.</span><span class="na">minusSeconds</span><span class="p">(</span><span class="mi">15</span><span class="p">);</span>
+</pre></div>
+</div>
+<ol class="arabic simple" start="2">
+<li>日付の計算を行う場合の例。</li>
+</ol>
+<div class="highlight-java"><div class="highlight"><pre><span></span><span class="n">LocalDate</span> <span class="n">localDate</span> <span class="o">=</span>  <span class="n">LocalDate</span><span class="p">.</span><span class="na">of</span><span class="p">(</span><span class="mi">2015</span><span class="p">,</span> <span class="mi">12</span><span class="p">,</span> <span class="mi">25</span><span class="p">);</span>
+<span class="n">LocalDate</span> <span class="n">plusYearsDate</span> <span class="o">=</span> <span class="n">localDate</span><span class="p">.</span><span class="na">plusYears</span><span class="p">(</span><span class="mi">10</span><span class="p">);</span>
+<span class="n">LocalDate</span> <span class="n">minusMonthsTime</span> <span class="o">=</span> <span class="n">localDate</span><span class="p">.</span><span class="na">minusMonths</span><span class="p">(</span><span class="mi">1</span><span class="p">);</span>
+<span class="n">LocalDate</span> <span class="n">plusDaysTime</span> <span class="o">=</span> <span class="n">localDate</span><span class="p">.</span><span class="na">plusDays</span><span class="p">(</span><span class="mi">3</span><span class="p">);</span>
+</pre></div>
+</div>
+<div class="line-block">
+<div class="line"><br /></div>
+</div>
+<blockquote>
+<div><div class="admonition note">
+<p class="first admonition-title">Note</p>
+<p class="last"><code class="docutils literal"><span class="pre">plus</span></code> メソッドに負数を渡すと、 <code class="docutils literal"><span class="pre">minus</span></code> メソッドを利用した場合と同様の結果が得られる。 <code class="docutils literal"><span class="pre">minus</span></code> メソッドも同様。</p>
+</div>
+</div></blockquote>
+</div>
+<div class="section" id="id14">
+<h4><a class="toc-backref" href="#id39">7.3.2.4.2. 日時の比較</a><a class="headerlink" href="#id14" title="Permalink to this headline">¶</a></h4>
+<div class="line-block">
+<div class="line">Date and Time APIでは、過去・未来・同時などの時系列の比較が行える。</div>
+<div class="line">以下に例を示す。</div>
+</div>
+<ol class="arabic simple">
+<li>時間の比較を行う場合の例。</li>
+</ol>
+<div class="highlight-java"><div class="highlight"><pre><span></span><span class="n">LocalTime</span> <span class="n">morning</span> <span class="o">=</span>  <span class="n">LocalTime</span><span class="p">.</span><span class="na">of</span><span class="p">(</span><span class="mi">7</span><span class="p">,</span> <span class="mi">30</span><span class="p">,</span> <span class="mo">00</span><span class="p">);</span>
+<span class="n">LocalTime</span> <span class="n">daytime</span> <span class="o">=</span>  <span class="n">LocalTime</span><span class="p">.</span><span class="na">of</span><span class="p">(</span><span class="mi">12</span><span class="p">,</span> <span class="mo">00</span><span class="p">,</span> <span class="mo">00</span><span class="p">);</span>
+<span class="n">LocalTime</span> <span class="n">evening</span> <span class="o">=</span>  <span class="n">LocalTime</span><span class="p">.</span><span class="na">of</span><span class="p">(</span><span class="mi">17</span><span class="p">,</span> <span class="mi">30</span><span class="p">,</span> <span class="mo">00</span><span class="p">);</span>
+
+<span class="n">daytime</span><span class="p">.</span><span class="na">isBefore</span><span class="p">(</span><span class="n">morning</span><span class="p">);</span> <span class="c1">// false</span>
+<span class="n">morning</span><span class="p">.</span><span class="na">isAfter</span><span class="p">(</span><span class="n">evening</span><span class="p">);</span> <span class="c1">// true</span>
+<span class="n">evening</span><span class="p">.</span><span class="na">equals</span><span class="p">(</span><span class="n">LocalTime</span><span class="p">.</span><span class="na">of</span><span class="p">(</span><span class="mi">17</span><span class="p">,</span> <span class="mi">30</span><span class="p">,</span> <span class="mo">00</span><span class="p">));</span> <span class="c1">// true</span>
+
+<span class="n">daytime</span><span class="p">.</span><span class="na">isBefore</span><span class="p">(</span><span class="n">daytime</span><span class="p">);</span> <span class="c1">// false</span>
+<span class="n">morning</span><span class="p">.</span><span class="na">isAfter</span><span class="p">(</span><span class="n">morning</span><span class="p">);</span> <span class="c1">// false</span>
+</pre></div>
+</div>
+<ol class="arabic simple" start="2">
+<li>日付の比較を行う場合の例。</li>
+</ol>
+<div class="highlight-java"><div class="highlight"><pre><span></span><span class="n">LocalDate</span> <span class="n">may</span> <span class="o">=</span>  <span class="n">LocalDate</span><span class="p">.</span><span class="na">of</span><span class="p">(</span><span class="mi">2015</span><span class="p">,</span> <span class="mi">6</span><span class="p">,</span> <span class="mi">1</span><span class="p">);</span>
+<span class="n">LocalDate</span> <span class="n">june</span> <span class="o">=</span>  <span class="n">LocalDate</span><span class="p">.</span><span class="na">of</span><span class="p">(</span><span class="mi">2015</span><span class="p">,</span> <span class="mi">7</span><span class="p">,</span> <span class="mi">1</span><span class="p">);</span>
+<span class="n">LocalDate</span> <span class="n">july</span> <span class="o">=</span>  <span class="n">LocalDate</span><span class="p">.</span><span class="na">of</span><span class="p">(</span><span class="mi">2015</span><span class="p">,</span> <span class="mi">8</span><span class="p">,</span> <span class="mi">1</span><span class="p">);</span>
+
+<span class="n">may</span><span class="p">.</span><span class="na">isBefore</span><span class="p">(</span><span class="n">june</span><span class="p">);</span> <span class="c1">// true</span>
+<span class="n">june</span><span class="p">.</span><span class="na">isAfter</span><span class="p">(</span><span class="n">july</span><span class="p">);</span> <span class="c1">// false</span>
+<span class="n">july</span><span class="p">.</span><span class="na">equals</span><span class="p">(</span><span class="n">may</span><span class="p">);</span> <span class="c1">// false</span>
+
+<span class="n">may</span><span class="p">.</span><span class="na">isBefore</span><span class="p">(</span><span class="n">may</span><span class="p">);</span> <span class="c1">// false</span>
+<span class="n">june</span><span class="p">.</span><span class="na">isAfter</span><span class="p">(</span><span class="n">june</span><span class="p">);</span> <span class="c1">// false</span>
+</pre></div>
+</div>
+<div class="line-block">
+<div class="line"><br /></div>
+<div class="line">なお、Date and Time APIでは現在、Joda Timeの <code class="docutils literal"><span class="pre">Interval</span></code> に当たるクラスは存在しない。</div>
+</div>
+</div>
+<div class="section" id="id15">
+<h4><a class="toc-backref" href="#id40">7.3.2.4.3. 日時の判定</a><a class="headerlink" href="#id15" title="Permalink to this headline">¶</a></h4>
+<div class="line-block">
+<div class="line">以下に日時の判定の例を示す。</div>
+</div>
+<ol class="arabic simple">
+<li>妥当な日時文字列かを判定したい場合、 <code class="docutils literal"><span class="pre">java.time.format.DateTimeParseException</span></code> の発生有無で判定できる。</li>
+</ol>
+<div class="highlight-java"><div class="highlight"><pre><span></span><span class="n">String</span> <span class="n">strDateTime</span> <span class="o">=</span> <span class="s">&quot;aabbcc&quot;</span><span class="p">;</span>
+<span class="n">DateTimeFormatter</span> <span class="n">timeFormatter</span>  <span class="o">=</span> <span class="n">DateTimeFormatter</span><span class="p">.</span><span class="na">ofPattern</span><span class="p">(</span><span class="s">&quot;HHmmss&quot;</span><span class="p">)</span>
+                              <span class="p">.</span><span class="na">withLocale</span><span class="p">(</span><span class="n">Locale</span><span class="p">.</span><span class="na">JAPANESE</span><span class="p">)</span>
+                              <span class="p">.</span><span class="na">withResolverStyle</span><span class="p">(</span><span class="n">ResolverStyle</span><span class="p">.</span><span class="na">STRICT</span><span class="p">);;</span>
+
+<span class="n">DateTimeFormatter</span> <span class="n">dateFormatter</span>  <span class="o">=</span> <span class="n">DateTimeFormatter</span><span class="p">.</span><span class="na">ofPattern</span><span class="p">(</span><span class="s">&quot;uuMMdd&quot;</span><span class="p">)</span>
+                              <span class="p">.</span><span class="na">withLocale</span><span class="p">(</span><span class="n">Locale</span><span class="p">.</span><span class="na">JAPANESE</span><span class="p">)</span>
+                              <span class="p">.</span><span class="na">withResolverStyle</span><span class="p">(</span><span class="n">ResolverStyle</span><span class="p">.</span><span class="na">STRICT</span><span class="p">);;</span>
+
+<span class="k">try</span> <span class="p">{</span>
+    <span class="c1">// DateTimeParseException</span>
+    <span class="n">LocalTime</span> <span class="n">localTime</span> <span class="o">=</span> <span class="n">LocalTime</span><span class="p">.</span><span class="na">parse</span><span class="p">(</span><span class="n">strDateTime</span><span class="p">,</span> <span class="n">timeFormatter</span><span class="p">);</span>
+<span class="p">}</span>
+<span class="k">catch</span> <span class="p">(</span><span class="n">DateTimeParseException</span> <span class="n">e</span><span class="p">)</span> <span class="p">{</span>
+    <span class="n">System</span><span class="p">.</span><span class="na">out</span><span class="p">.</span><span class="na">println</span><span class="p">(</span><span class="s">&quot;Invalid time string !!&quot;</span><span class="p">);</span>
+<span class="p">}</span>
+
+<span class="k">try</span> <span class="p">{</span>
+    <span class="c1">// DateTimeParseException</span>
+    <span class="n">LocalDate</span> <span class="n">localDate</span> <span class="o">=</span> <span class="n">LocalDate</span><span class="p">.</span><span class="na">parse</span><span class="p">(</span><span class="n">strDateTime</span><span class="p">,</span> <span class="n">dateFormatter</span><span class="p">);</span>
+<span class="p">}</span>
+<span class="k">catch</span> <span class="p">(</span><span class="n">DateTimeParseException</span> <span class="n">e</span><span class="p">)</span> <span class="p">{</span>
+    <span class="n">System</span><span class="p">.</span><span class="na">out</span><span class="p">.</span><span class="na">println</span><span class="p">(</span><span class="s">&quot;Invalid date string !!&quot;</span><span class="p">);</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+<ol class="arabic simple" start="2">
+<li>うるう年かを判定したい場合、<code class="docutils literal"><span class="pre">java.time.LocalDate</span></code> の <code class="docutils literal"><span class="pre">isLeapYear</span></code> メソッドで判定できる。</li>
+</ol>
+<div class="highlight-java"><div class="highlight"><pre><span></span><span class="n">LocalDate</span> <span class="n">date1</span> <span class="o">=</span> <span class="n">LocalDate</span><span class="p">.</span><span class="na">of</span><span class="p">(</span><span class="mi">2012</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">);</span>
+<span class="n">LocalDate</span> <span class="n">date2</span> <span class="o">=</span> <span class="n">LocalDate</span><span class="p">.</span><span class="na">of</span><span class="p">(</span><span class="mi">2015</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">);</span>
+
+<span class="n">date1</span><span class="p">.</span><span class="na">isLeapYear</span><span class="p">();</span> <span class="c1">// true</span>
+<span class="n">date2</span><span class="p">.</span><span class="na">isLeapYear</span><span class="p">();</span> <span class="c1">// false</span>
+</pre></div>
+</div>
+</div>
+<div class="section" id="id16">
+<h4><a class="toc-backref" href="#id41">7.3.2.4.4. 年月日時分秒の取得</a><a class="headerlink" href="#id16" title="Permalink to this headline">¶</a></h4>
+<div class="line-block">
+<div class="line">年月日時分秒をそれぞれ取得したい場合は、 <code class="docutils literal"><span class="pre">get</span></code> メソッドを利用する。</div>
+<div class="line">以下に日付に関する情報を取得する例を示す。</div>
+</div>
+<div class="highlight-java"><div class="highlight"><pre><span></span><span class="n">LocalDate</span> <span class="n">localDate</span> <span class="o">=</span> <span class="n">LocalDate</span><span class="p">.</span><span class="na">of</span><span class="p">(</span><span class="mi">2015</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">1</span><span class="p">);</span>
+
+<span class="c1">// 2015</span>
+<span class="kt">int</span> <span class="n">year</span> <span class="o">=</span> <span class="n">localDate</span><span class="p">.</span><span class="na">getYear</span><span class="p">();</span>
+
+<span class="c1">// 2</span>
+<span class="kt">int</span> <span class="n">month</span> <span class="o">=</span> <span class="n">localDate</span><span class="p">.</span><span class="na">getMonthValue</span><span class="p">();</span>
+
+<span class="c1">// 1</span>
+<span class="kt">int</span> <span class="n">dayOfMonth</span> <span class="o">=</span> <span class="n">localDate</span><span class="p">.</span><span class="na">getDayOfMonth</span><span class="p">();</span>
+
+<span class="c1">// 32 ( day of year )</span>
+<span class="kt">int</span> <span class="n">dayOfYear</span> <span class="o">=</span> <span class="n">localDate</span><span class="p">.</span><span class="na">getDayOfYear</span><span class="p">();</span>
+</pre></div>
+</div>
+</div>
+</div>
+<div class="section" id="japanesedate">
+<span id="id17"></span><h3><a class="toc-backref" href="#id42">7.3.2.5. 和暦（JapaneseDate）</a><a class="headerlink" href="#japanesedate" title="Permalink to this headline">¶</a></h3>
+<div class="line-block">
+<div class="line">Date and Time APIでは <code class="docutils literal"><span class="pre">java.time.chrono.JapaneseDate</span></code> という、和暦を扱うクラスが提供されている。</div>
+</div>
+<blockquote>
+<div><div class="admonition note">
+<p class="first admonition-title">Note</p>
+<p class="last"><code class="docutils literal"><span class="pre">java.time.chrono.JapaneseDate</span></code> は、グレゴリオ暦が導入された明治6年(西暦1873年)より前は利用できない。</p>
+</div>
+</div></blockquote>
+<div class="section" id="id18">
+<h4><a class="toc-backref" href="#id43">7.3.2.5.1. 和暦の取得</a><a class="headerlink" href="#id18" title="Permalink to this headline">¶</a></h4>
+<div class="line-block">
+<div class="line"><code class="docutils literal"><span class="pre">java.time.LocalDate</span></code> と同様に、 <code class="docutils literal"><span class="pre">now</span></code> メソッド,  <code class="docutils literal"><span class="pre">of</span></code> メソッドで取得できる。</div>
+<div class="line">また、<code class="docutils literal"><span class="pre">java.time.chrono.JapaneseEra</span></code> クラスを使うことで、和暦を指定した取得も行うことが出来る。</div>
+</div>
+<div class="line-block">
+<div class="line">以下に例を示す。</div>
+</div>
+<div class="highlight-java"><div class="highlight"><pre><span></span><span class="n">JapaneseDate</span> <span class="n">japaneseDate1</span> <span class="o">=</span> <span class="n">JapaneseDate</span><span class="p">.</span><span class="na">now</span><span class="p">();</span>
+<span class="n">JapaneseDate</span> <span class="n">japaneseDate2</span> <span class="o">=</span> <span class="n">JapaneseDate</span><span class="p">.</span><span class="na">of</span><span class="p">(</span><span class="mi">2015</span><span class="p">,</span> <span class="mi">12</span><span class="p">,</span> <span class="mi">25</span><span class="p">);</span>
+<span class="n">JapaneseDate</span> <span class="n">japaneseDate3</span> <span class="o">=</span> <span class="n">JapaneseDate</span><span class="p">.</span><span class="na">of</span><span class="p">(</span><span class="n">JapaneseEra</span><span class="p">.</span><span class="na">HEISEI</span><span class="p">,</span> <span class="mi">27</span><span class="p">,</span> <span class="mi">12</span><span class="p">,</span> <span class="mi">25</span><span class="p">);</span>
+</pre></div>
+</div>
+<div class="line-block">
+<div class="line">明治6年より前を引数に指定すると例外が発生する。</div>
+</div>
+<div class="highlight-java"><div class="highlight"><pre><span></span><span class="c1">// DateTimeException</span>
+<span class="n">JapaneseDate</span> <span class="n">japaneseDate</span> <span class="o">=</span> <span class="n">JapaneseDate</span><span class="p">.</span><span class="na">of</span><span class="p">(</span><span class="mi">1500</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">);</span>
+</pre></div>
+</div>
+</div>
+<div class="section" id="id19">
+<h4><a class="toc-backref" href="#id44">7.3.2.5.2. 文字列へのフォーマット</a><a class="headerlink" href="#id19" title="Permalink to this headline">¶</a></h4>
+<div class="line-block">
+<div class="line"><code class="docutils literal"><span class="pre">java.time.fomat.DateTimeFormatter</span></code> を用いることで、和暦日付へ変換することが出来る。利用の際には、 <code class="docutils literal"><span class="pre">DateTimeFormatter#withChronology</span></code> メソッドで暦を <code class="docutils literal"><span class="pre">java.time.chrono.JapaneseChronology</span></code> に設定する。</div>
+<div class="line">和暦日付でも様々なフォーマットを扱うことが出来るため、0埋めや空白埋めなど要件に応じた出力が行える。</div>
+<div class="line">以下に空白埋めで和暦を表示する例を示す。</div>
+</div>
+<div class="highlight-java"><div class="highlight"><pre><span></span><span class="n">DateTimeFormatter</span> <span class="n">formatter</span> <span class="o">=</span> <span class="n">DateTimeFormatter</span><span class="p">.</span><span class="na">ofPattern</span><span class="p">(</span><span class="s">&quot;Gppy年ppM月ppd日&quot;</span><span class="p">)</span>
+                                 <span class="p">.</span><span class="na">withLocale</span><span class="p">(</span><span class="n">Locale</span><span class="p">.</span><span class="na">JAPANESE</span><span class="p">)</span>
+                                 <span class="p">.</span><span class="na">withResolverStyle</span><span class="p">(</span><span class="n">ResolverStyle</span><span class="p">.</span><span class="na">STRICT</span><span class="p">)</span>
+                                 <span class="p">.</span><span class="na">withChronology</span><span class="p">(</span><span class="n">JapaneseChronology</span><span class="p">.</span><span class="na">INSTANCE</span><span class="p">);</span>
+
+<span class="n">JapaneseDate</span> <span class="n">japaneseDate</span> <span class="o">=</span> <span class="n">JapaneseDate</span><span class="p">.</span><span class="na">of</span><span class="p">(</span><span class="mi">1992</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">);</span>
+
+<span class="c1">// &quot;平成 4年 1月 1日&quot;</span>
+<span class="n">System</span><span class="p">.</span><span class="na">out</span><span class="p">.</span><span class="na">println</span><span class="p">(</span><span class="n">formatter</span><span class="p">.</span><span class="na">format</span><span class="p">(</span><span class="n">japaneseDate</span><span class="p">));</span>
+</pre></div>
+</div>
+</div>
+<div class="section" id="id20">
+<h4><a class="toc-backref" href="#id45">7.3.2.5.3. 文字列からのパース</a><a class="headerlink" href="#id20" title="Permalink to this headline">¶</a></h4>
+<div class="line-block">
+<div class="line"><code class="docutils literal"><span class="pre">java.time.fomat.DateTimeFormatter</span></code> を用いることで、和暦文字列から <code class="docutils literal"><span class="pre">java.time.chrono.JapaneseDate</span></code> へ変換することが出来る。</div>
+<div class="line">以下に例を示す。</div>
+</div>
+<div class="highlight-java"><div class="highlight"><pre><span></span><span class="n">DateTimeFormatter</span> <span class="n">formatter</span> <span class="o">=</span> <span class="n">DateTimeFormatter</span><span class="p">.</span><span class="na">ofPattern</span><span class="p">(</span><span class="s">&quot;Gy年MM月dd日&quot;</span><span class="p">)</span>
+                                <span class="p">.</span><span class="na">withLocale</span><span class="p">(</span><span class="n">Locale</span><span class="p">.</span><span class="na">JAPANESE</span><span class="p">)</span>
+                                <span class="p">.</span><span class="na">withResolverStyle</span><span class="p">(</span><span class="n">ResolverStyle</span><span class="p">.</span><span class="na">STRICT</span><span class="p">)</span>
+                                <span class="p">.</span><span class="na">withChronology</span><span class="p">(</span><span class="n">JapaneseChronology</span><span class="p">.</span><span class="na">INSTANCE</span><span class="p">);</span>
+
+<span class="n">JapaneseDate</span> <span class="n">japaneseDate1</span> <span class="o">=</span> <span class="n">JapaneseDate</span><span class="p">.</span><span class="na">from</span><span class="p">(</span><span class="n">formatter</span><span class="p">.</span><span class="na">parse</span><span class="p">(</span><span class="s">&quot;平成27年12月25日&quot;</span><span class="p">));</span>
+<span class="n">JapaneseDate</span> <span class="n">japaneseDate2</span> <span class="o">=</span> <span class="n">JapaneseDate</span><span class="p">.</span><span class="na">from</span><span class="p">(</span><span class="n">formatter</span><span class="p">.</span><span class="na">parse</span><span class="p">(</span><span class="s">&quot;明治6年01月01日&quot;</span><span class="p">));</span>
+</pre></div>
+</div>
+</div>
+<div class="section" id="id21">
+<h4><a class="toc-backref" href="#id46">7.3.2.5.4. 西暦・和暦の変換</a><a class="headerlink" href="#id21" title="Permalink to this headline">¶</a></h4>
+<div class="line-block">
+<div class="line">fromメソッドを使うことで <code class="docutils literal"><span class="pre">java.time.LocalDate</span></code> からの変換を容易に行える。</div>
+</div>
+<div class="highlight-java"><div class="highlight"><pre><span></span><span class="n">LocalDate</span> <span class="n">localDate</span> <span class="o">=</span> <span class="n">LocalDate</span><span class="p">.</span><span class="na">of</span><span class="p">(</span><span class="mi">2015</span><span class="p">,</span> <span class="mi">12</span><span class="p">,</span> <span class="mi">25</span><span class="p">);</span>
+<span class="n">JapaneseDate</span> <span class="n">jpDate</span> <span class="o">=</span> <span class="n">JapaneseDate</span><span class="p">.</span><span class="na">from</span><span class="p">(</span><span class="n">localDate</span><span class="p">);</span>
+</pre></div>
+</div>
+</div>
+</div>
+</div>
+</div>
+
+
+          </div>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../../genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="JodaTime.html" title="7.4. 日付操作(Joda Time)"
+             >next</a> |</li>
+        <li class="right" >
+          <a href="PropertyManagement.html" title="7.2. プロパティ管理"
+             >previous</a> |</li>
+        <li class="nav-item nav-item-0"><a href="../../index.html">TERASOLUNA Server Framework for Java (5.x) Development Guideline 5.7.2.RELEASE documentation</a> &#187;</li>
+          <li class="nav-item nav-item-1"><a href="index.html" >7. アプリケーション形態に依存しない汎用機能</a> &#187;</li> 
+      </ul>
+    </div>
+    <div class="footer">
+      © Copyright 2013, NTT DATA Corporation. © Copyright 2013, NTT Corporation.
+      Created using <a href="https://www.sphinx-doc.org/en/master/">Sphinx</a> 1.6.3.Theme is <a href="https://pypi.org/project/solar-theme/">Solar</a>
+    </div>
+    
+    <script>
+    
+    $(function() {
+    	var $sidebar	= $('.sphinxsidebar'),
+    		$window		= $(window),
+    		offset		= $sidebar.offset(),
+    		topPadding	= 3,
+    		$scroll		= $('#scroll');
+    	
+    	$window.scroll(function() {
+    		if ($scroll.is(':checked')) {
+				if ($window.scrollTop() > offset.top) {
+					$sidebar.stop().animate({
+						marginTop:$window.scrollTop() - offset.top + topPadding
+					});
+				} else {
+					$sidebar.stop().animate({
+						marginTop:0
+					});
+				}
+			}
+		});
+    	
+    	var $navList = $('ul:first', $sidebar);
+    	$('li:first', $navList).addClass('open');
+    	
+    	$navList.treeview({
+    		persist: "location",
+    		collapsed: true,
+    		unique: false
+    	});
+    	
+	});
+    (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+        (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+            m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+    })(window,document,'script','//www.google-analytics.com/analytics.js','ga');
+
+    ga('create', 'UA-46550814-1', 'terasolunaorg.github.io');
+    ga('send', 'pageview');
+    </script>
+  </body>
+</html>

@@ -1,0 +1,840 @@
+<!DOCTYPE html>
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <title>9.5. CSRF対策 &#8212; TERASOLUNA Server Framework for Java (5.x) Development Guideline 5.7.2.RELEASE documentation</title>
+    <link rel="stylesheet" href="../_static/solar.css" type="text/css" />
+    <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    '../',
+        VERSION:     '5.7.2.RELEASE',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true,
+        SOURCELINK_SUFFIX: '.txt'
+      };
+    </script>
+    <script type="text/javascript" src="../_static/jquery.js"></script>
+    <script type="text/javascript" src="../_static/underscore.js"></script>
+    <script type="text/javascript" src="../_static/doctools.js"></script>
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="next" title="9.6. ブラウザのセキュリティ対策機能との連携" href="LinkageWithBrowser.html" />
+    <link rel="prev" title="9.4. セッション管理" href="SessionManagement.html" /><script async src="https://www.googletagmanager.com/gtag/js?id=G-847V2Q99G8"></script>
+<script>
+window.dataLayer = window.dataLayer || [];
+function gtag(){dataLayer.push(arguments);}
+gtag('js', new Date()); gtag('config', 'G-847V2Q99G8');
+</script>
+<script src="../_static/jquery.treeview.js" type="text/javascript"></script>
+<!-- <link href='http://fonts.googleapis.com/css?family=Source+Code+Pro|Open+Sans:300italic,400italic,700italic,400,300,700' rel='stylesheet' type='text/css'> -->
+<link href="../_static/solarized-dark.css" rel="stylesheet">
+<link href="../_static/jquery.treeview.css" rel="stylesheet">
+  </head>
+  <body>
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="LinkageWithBrowser.html" title="9.6. ブラウザのセキュリティ対策機能との連携"
+             accesskey="N">next</a> |</li>
+        <li class="right" >
+          <a href="SessionManagement.html" title="9.4. セッション管理"
+             accesskey="P">previous</a> |</li>
+        <li class="nav-item nav-item-0"><a href="../index.html">TERASOLUNA Server Framework for Java (5.x) Development Guideline 5.7.2.RELEASE documentation</a> &#187;</li>
+          <li class="nav-item nav-item-1"><a href="index.html" accesskey="U">9. セキュリティ対策</a> &#187;</li> 
+      </ul>
+    </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper"><label><input id="scroll" type="checkbox" checked> scroll sidebar</label>
+
+  <h3><a href="../index.html">Table Of Contents</a></h3>
+  <ul>
+<li><a class="reference internal" href="#">9.5. CSRF対策</a><ul>
+<li><a class="reference internal" href="#overview">9.5.1. Overview</a><ul>
+<li><a class="reference internal" href="#spring-securitycsrf">9.5.1.1. Spring SecurityのCSRF対策</a><ul>
+<li><a class="reference internal" href="#csrf-ckeck-target">9.5.1.1.1. トークンチェックの対象リクエスト</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li><a class="reference internal" href="#how-to-use">9.5.2. How to use</a><ul>
+<li><a class="reference internal" href="#id5">9.5.2.1. CSRF対策機能の適用</a></li>
+<li><a class="reference internal" href="#id6">9.5.2.2. CSRFトークン値の連携</a><ul>
+<li><a class="reference internal" href="#spring-mvc">9.5.2.2.1. Spring MVCを使用した連携</a><ul>
+<li><a class="reference internal" href="#hidden">9.5.2.2.1.1. hidden項目の自動出力</a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#html">9.5.2.2.2. HTMLフォーム使用時の連携</a></li>
+<li><a class="reference internal" href="#ajax">9.5.2.2.3. Ajax使用時の連携</a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#csrf-token-error-response">9.5.2.3. トークンチェックエラー時の遷移先の制御</a></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+
+
+  <h4>Previous topic</h4>
+  <p class="topless"><a href="SessionManagement.html"
+                        title="previous chapter">9.4. セッション管理</a></p>
+  <h4>Next topic</h4>
+  <p class="topless"><a href="LinkageWithBrowser.html"
+                        title="next chapter">9.6. ブラウザのセキュリティ対策機能との連携</a></p>
+  <div role="note" aria-label="source link">
+    <h3>This Page</h3>
+    <ul class="this-page-menu">
+      <li><a href="../_sources/Security/CSRF.rst.txt"
+            rel="nofollow">Show Source</a></li>
+    </ul>
+   </div>
+<div id="searchbox" style="display: none" role="search">
+  <h3>Quick search</h3>
+    <form class="search" action="../search.html" method="get">
+      <div><input type="text" name="q" /></div>
+      <div><input type="submit" value="Go" /></div>
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <div class="section" id="csrf">
+<span id="springsecuritycsrf"></span><h1>9.5. CSRF対策<a class="headerlink" href="#csrf" title="Permalink to this headline">¶</a></h1>
+<div class="contents local topic" id="id1">
+<p class="topic-title">目次</p>
+<ul class="simple">
+<li><a class="reference internal" href="#overview" id="id11">Overview</a><ul>
+<li><a class="reference internal" href="#spring-securitycsrf" id="id12">Spring SecurityのCSRF対策</a><ul>
+<li><a class="reference internal" href="#csrf-ckeck-target" id="id13">トークンチェックの対象リクエスト</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li><a class="reference internal" href="#how-to-use" id="id14">How to use</a><ul>
+<li><a class="reference internal" href="#id5" id="id15">CSRF対策機能の適用</a></li>
+<li><a class="reference internal" href="#id6" id="id16">CSRFトークン値の連携</a><ul>
+<li><a class="reference internal" href="#spring-mvc" id="id17">Spring MVCを使用した連携</a><ul>
+<li><a class="reference internal" href="#hidden" id="id18">hidden項目の自動出力</a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#html" id="id19">HTMLフォーム使用時の連携</a></li>
+<li><a class="reference internal" href="#ajax" id="id20">Ajax使用時の連携</a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#csrf-token-error-response" id="id21">トークンチェックエラー時の遷移先の制御</a></li>
+</ul>
+</li>
+</ul>
+</div>
+<div class="section" id="overview">
+<h2><a class="toc-backref" href="#id11">9.5.1. Overview</a><a class="headerlink" href="#overview" title="Permalink to this headline">¶</a></h2>
+<p>本節では、Spring Securityが提供しているCross site request forgeries(以下、CSRFと略す）対策の機能について説明する。</p>
+<p>CSRFとは、Webサイトにスクリプトや自動転送(HTTPリダイレクト)を実装することにより、
+ログイン済みの別のWebサイト上で、ユーザーが意図しない何らかの操作を行わせる攻撃手法のことである。</p>
+<p>サーバ側でCSRFを防ぐには、以下の方法が知られている。</p>
+<ul class="simple">
+<li>秘密情報(トークン)の埋め込み</li>
+<li>パスワードの再入力</li>
+<li>Refererのチェック</li>
+</ul>
+<p>CSRF対策機能は、攻撃者が用意したWebページから送られてくる偽造リクエストを不正なリクエストとして扱うための機能である。
+CSRF対策が行われていないWebアプリケーションを利用すると、以下のような方法で攻撃を受ける可能性がある。</p>
+<ul class="simple">
+<li>利用者は、CSRF対策が行われていないWebアプリケーションにログインする。</li>
+<li>利用者は、攻撃者からの巧みな誘導によって、攻撃者が用意したWebページを開いてしまう。</li>
+<li>攻撃者が用意したWebページは、フォームの自動送信などのテクニックを使用して、偽造したリクエストをCSRF対策が行われていないWebアプリケーションに対して送信する。</li>
+<li>CSRF対策が行われていないWebアプリケーションは、攻撃者が偽造したリクエストを正規のリクエストとして処理してしまう。</li>
+</ul>
+<div class="admonition tip">
+<p class="first admonition-title">Tip</p>
+<p>OWASP<a class="footnote-reference" href="#fspringsecuritycsrf1" id="id2">[1]</a>では、<a class="reference external" href="https://cheatsheetseries.owasp.org/cheatsheets/Cross-Site_Request_Forgery_Prevention_Cheat_Sheet.html#synchronizer-token-pattern">トークンパターンを使用する方法が推奨されている。</a></p>
+<blockquote class="last">
+<div><table class="docutils footnote" frame="void" id="fspringsecuritycsrf1" rules="none">
+<colgroup><col class="label" /><col /></colgroup>
+<tbody valign="top">
+<tr><td class="label"><a class="fn-backref" href="#id2">[1]</a></td><td>Open Web Application Security Projectの略称であり、信頼できるアプリケーションや、セキュリティに関する  効果的なアプローチなどを検証、提唱する、国際的な非営利団体である。
+<a class="reference external" href="https://owasp.org/">https://owasp.org/</a></td></tr>
+</tbody>
+</table>
+</div></blockquote>
+</div>
+<div class="admonition note">
+<p class="first admonition-title">Note</p>
+<p><strong>ログイン時におけるCSRF対策</strong></p>
+<p class="last">CSRF対策はログイン中のリクエストだけではなく、ログイン処理でも行う必要がある。
+ログイン処理に対してCSRF対策を怠った場合、攻撃者が用意したアカウントを使って知らぬ間にログインさせられ、ログイン中に行った操作履歴などを盗まれる可能性がある。</p>
+</div>
+<div class="admonition warning">
+<p class="first admonition-title">Warning</p>
+<p><strong>マルチパートリクエスト(ファイルアップロード)時におけるCSRF対策</strong></p>
+<p class="last">ファイルアップロード時のCSRF対策については、<a class="reference internal" href="../ArchitectureInDetail/WebApplicationDetail/FileUpload.html#file-upload-setting-servlet-filter"><span class="std std-ref">ファイルアップロード Servlet Filterの設定</span></a>を留意されたい。</p>
+</div>
+<div class="section" id="spring-securitycsrf">
+<h3><a class="toc-backref" href="#id12">9.5.1.1. Spring SecurityのCSRF対策</a><a class="headerlink" href="#spring-securitycsrf" title="Permalink to this headline">¶</a></h3>
+<p>Spring Securityは、セッション単位にランダムに生成される固定トークン値(CSRFトークン)を払い出し、払い出されたCSRFトークンをリクエストパラメータ(HTMLフォームのhidden項目)として送信する。
+これにより正規のWebページからのリクエストなのか、攻撃者が用意したWebページからのリクエストなのかを判断する仕組みを採用している。</p>
+<div class="figure" id="id9">
+<a class="reference internal image-reference" href="../_images/Csrf.png"><img alt="../_images/Csrf.png" src="../_images/Csrf.png" style="width: 100%;" /></a>
+<p class="caption"><span class="caption-text"><strong>Spring SecurityのCSRF対策の仕組み</strong></span></p>
+</div>
+<table border="1" class="colwidths-given docutils">
+<colgroup>
+<col width="10%" />
+<col width="90%" />
+</colgroup>
+<thead valign="bottom">
+<tr class="row-odd"><th class="head">項番</th>
+<th class="head">説明</th>
+</tr>
+</thead>
+<tbody valign="top">
+<tr class="row-even"><td><div class="first last line-block">
+<div class="line">(1)</div>
+</div>
+</td>
+<td><div class="first last line-block">
+<div class="line">クライアントは、HTTPのGETメソッドを使用してアプリケーションサーバにアクセスする。</div>
+</div>
+</td>
+</tr>
+<tr class="row-odd"><td><div class="first last line-block">
+<div class="line">(2)</div>
+</div>
+</td>
+<td><div class="first last line-block">
+<div class="line">Spring Securityは、CSRFトークンを生成しHTTPセッションに格納する。</div>
+<div class="line">生成したCSRFトークンは、HTMLフォームのhiddenタグを使ってクライアントと連携する。</div>
+</div>
+</td>
+</tr>
+<tr class="row-even"><td><div class="first last line-block">
+<div class="line">(3)</div>
+</div>
+</td>
+<td><div class="first last line-block">
+<div class="line">クライアントは、HTMLフォーム内のボタンを押下してアプリケーションサーバーにリクエストを送信する。</div>
+<div class="line">HTMLフォーム内のhidden項目にCSRFトークンが埋め込まれているため、CSRFトークン値はリクエストパラメータとして送信される。</div>
+</div>
+</td>
+</tr>
+<tr class="row-odd"><td><div class="first last line-block">
+<div class="line">(4)</div>
+</div>
+</td>
+<td><div class="first last line-block">
+<div class="line">Spring Securityは、HTTPのPOSTメソッドを使ってアクセスされた際は、リクエストパラメータに指定されたCSRFトークン値とHTTPセッション内に保持しているCSRFトークン値が同じ値であることをチェックする。</div>
+<div class="line">トークン値が一致しない場合は、不正なリクエスト(攻撃者からのリクエスト)としてエラーを発生させる。</div>
+</div>
+</td>
+</tr>
+<tr class="row-even"><td><div class="first last line-block">
+<div class="line">(5)</div>
+</div>
+</td>
+<td><div class="first last line-block">
+<div class="line">クライアントは、HTTPのGETメソッドを使用してアプリケーションサーバにアクセスする。</div>
+</div>
+</td>
+</tr>
+<tr class="row-odd"><td><div class="first last line-block">
+<div class="line">(6)</div>
+</div>
+</td>
+<td><div class="first last line-block">
+<div class="line">Spring Securityは、GETメソッドを使ってアクセスされた際は、CSRFトークン値のチェックは行わない。</div>
+</div>
+</td>
+</tr>
+</tbody>
+</table>
+<div class="admonition note">
+<p class="first admonition-title">Note</p>
+<p><strong>Ajax使用時のCSRFトークン</strong></p>
+<p class="last">Spring Securityは、リクエストヘッダにCSRFトークン値を設定することができるため、Ajax向けのリクエストなどに対してCSRF対策を行うことが可能である。</p>
+</div>
+<div class="section" id="csrf-ckeck-target">
+<span id="id4"></span><h4><a class="toc-backref" href="#id13">9.5.1.1.1. トークンチェックの対象リクエスト</a><a class="headerlink" href="#csrf-ckeck-target" title="Permalink to this headline">¶</a></h4>
+<p>Spring Securityのデフォルト実装では、以下のHTTPメソッドを使用したリクエストに対して、CSRFトークンチェックを行う。</p>
+<ul class="simple">
+<li>POST</li>
+<li>PUT</li>
+<li>DELETE</li>
+<li>PATCH</li>
+</ul>
+<div class="admonition note">
+<p class="first admonition-title">Note</p>
+<p><strong>CSRFトークンチェックを行わない理由</strong></p>
+<p class="last">GET, HEAD, OPTIONS, TRACE メソッドがチェック対象外となっている理由は、これらのメソッドがアプリケーションの状態を変更するようなリクエストを実行するためのメソッドではないためである。</p>
+</div>
+</div>
+</div>
+</div>
+<div class="section" id="how-to-use">
+<span id="csrf-spring-security-setting"></span><h2><a class="toc-backref" href="#id14">9.5.2. How to use</a><a class="headerlink" href="#how-to-use" title="Permalink to this headline">¶</a></h2>
+<div class="section" id="id5">
+<h3><a class="toc-backref" href="#id15">9.5.2.1. CSRF対策機能の適用</a><a class="headerlink" href="#id5" title="Permalink to this headline">¶</a></h3>
+<p>CSRFトークン用の<code class="docutils literal"><span class="pre">RequestDataValueProcessor</span></code>実装クラスを利用し、Springのタグライブラリの<code class="docutils literal"><span class="pre">&lt;form:form&gt;</span></code>タグを使うことで、自動的にCSRFトークンを、hidden項目に埋め込むことができる。</p>
+<ul class="simple">
+<li>spring-mvc.xmlの設定例</li>
+</ul>
+<div class="highlight-xml"><div class="highlight"><pre><span></span><span class="nt">&lt;bean</span> <span class="na">id=</span><span class="s">&quot;requestDataValueProcessor&quot;</span>
+    <span class="na">class=</span><span class="s">&quot;org.terasoluna.gfw.web.mvc.support.CompositeRequestDataValueProcessor&quot;</span><span class="nt">&gt;</span> <span class="c">&lt;!-- (1)  --&gt;</span>
+    <span class="nt">&lt;constructor-arg&gt;</span>
+        <span class="nt">&lt;util:list&gt;</span>
+            <span class="nt">&lt;bean</span>
+                <span class="na">class=</span><span class="s">&quot;org.springframework.security.web.servlet.support.csrf.CsrfRequestDataValueProcessor&quot;</span> <span class="nt">/&gt;</span> <span class="c">&lt;!-- (2)  --&gt;</span>
+            <span class="nt">&lt;bean</span>
+                <span class="na">class=</span><span class="s">&quot;org.terasoluna.gfw.web.token.transaction.TransactionTokenRequestDataValueProcessor&quot;</span> <span class="nt">/&gt;</span>
+        <span class="nt">&lt;/util:list&gt;</span>
+    <span class="nt">&lt;/constructor-arg&gt;</span>
+<span class="nt">&lt;/bean&gt;</span>
+</pre></div>
+</div>
+<table border="1" class="colwidths-given docutils">
+<colgroup>
+<col width="10%" />
+<col width="90%" />
+</colgroup>
+<thead valign="bottom">
+<tr class="row-odd"><th class="head">項番</th>
+<th class="head">説明</th>
+</tr>
+</thead>
+<tbody valign="top">
+<tr class="row-even"><td><div class="first last line-block">
+<div class="line">(1)</div>
+</div>
+</td>
+<td><div class="first last line-block">
+<div class="line">共通ライブラリから提供されている、<code class="docutils literal"><span class="pre">org.springframework.web.servlet.support.RequestDataValueProcessor</span></code>を複数定義可能な</div>
+<div class="line"><code class="docutils literal"><span class="pre">org.terasoluna.gfw.web.mvc.support.CompositeRequestDataValueProcessor</span></code>をbean定義する。</div>
+</div>
+</td>
+</tr>
+<tr class="row-odd"><td><div class="first last line-block">
+<div class="line">(2)</div>
+</div>
+</td>
+<td><div class="first last line-block">
+<div class="line">コンストラクタの第1引数に、<code class="docutils literal"><span class="pre">org.springframework.security.web.servlet.support.csrf.CsrfRequestDataValueProcessor</span></code>のbean定義を設定する。</div>
+</div>
+</td>
+</tr>
+</tbody>
+</table>
+<p>Spring Security 4.0からは、上記設定により、デフォルトでCSRF対策機能が有効となる。このため、CSRF対策機能を適用したくない場合は、明示的に無効化する必要がある。</p>
+<p>CSRF対策機能を使用しない場合は、以下のようなbean定義を行う。</p>
+<ul class="simple">
+<li>spring-security.xmlの定義例</li>
+</ul>
+<div class="highlight-xml"><div class="highlight"><pre><span></span><span class="nt">&lt;sec:http</span> <span class="na">once-per-request=</span><span class="s">&quot;false&quot;</span><span class="nt">&gt;</span>
+    <span class="c">&lt;!-- omitted --&gt;</span>
+    <span class="nt">&lt;sec:csrf</span> <span class="na">disabled=</span><span class="s">&quot;true&quot;</span><span class="nt">/&gt;</span> <span class="c">&lt;!-- disabled属性にtrueを設定して無効化 --&gt;</span>
+    <span class="c">&lt;!-- omitted --&gt;</span>
+<span class="nt">&lt;/sec:http&gt;</span>
+</pre></div>
+</div>
+</div>
+<div class="section" id="id6">
+<h3><a class="toc-backref" href="#id16">9.5.2.2. CSRFトークン値の連携</a><a class="headerlink" href="#id6" title="Permalink to this headline">¶</a></h3>
+<p>Spring Securityは、CSRFトークン値をクライアントとサーバー間で連携する方法として、以下の2種類の方法を提供している。</p>
+<ul class="simple">
+<li>HTMLフォームのhidden項目としてCSRFトークン値を出力し、リクエストパラメータとして連携する</li>
+<li>HTMLのmetaタグとしてCSRFトークンの情報を出力し、Ajax通信時にリクエストヘッダにトークン値を設定して連携する</li>
+</ul>
+<div class="section" id="spring-mvc">
+<span id="csrf-formtag-use"></span><h4><a class="toc-backref" href="#id17">9.5.2.2.1. Spring MVCを使用した連携</a><a class="headerlink" href="#spring-mvc" title="Permalink to this headline">¶</a></h4>
+<p>Spring Securityは、Spring MVCと連携するためのコンポーネントをいくつか提供している。
+ここでは、CSRF対策機能と連携するためのコンポーネントの使い方を説明する。</p>
+<div class="section" id="hidden">
+<h5><a class="toc-backref" href="#id18">9.5.2.2.1.1. hidden項目の自動出力</a><a class="headerlink" href="#hidden" title="Permalink to this headline">¶</a></h5>
+<p>HTMLフォームを作成する際は、以下のようなJSPの実装を行う。</p>
+<ul class="simple">
+<li>JSPの実装例</li>
+</ul>
+<div class="highlight-jsp"><div class="highlight"><pre><span></span><span class="k">&lt;%@</span> <span class="n">taglib</span> <span class="n">prefix</span><span class="o">=</span><span class="s">&quot;form&quot;</span> <span class="n">uri</span><span class="o">=</span><span class="s">&quot;http://www.springframework.org/tags/form&quot;</span> <span class="k">%&gt;</span>
+
+<span class="nt">&lt;c:url</span> <span class="na">var=</span><span class="s">&quot;loginUrl&quot;</span> <span class="na">value=</span><span class="s">&quot;/login&quot;</span><span class="nt">/&gt;</span>
+<span class="nt">&lt;form:form</span> <span class="na">action=</span><span class="s">&quot;${loginUrl}&quot;</span><span class="nt">&gt;</span> <span class="c">&lt;!-- (1) --&gt;</span>
+    <span class="c">&lt;!-- omitted --&gt;</span>
+<span class="nt">&lt;/form:form&gt;</span>
+</pre></div>
+</div>
+<table border="1" class="colwidths-given docutils">
+<colgroup>
+<col width="10%" />
+<col width="90%" />
+</colgroup>
+<thead valign="bottom">
+<tr class="row-odd"><th class="head">項番</th>
+<th class="head">説明</th>
+</tr>
+</thead>
+<tbody valign="top">
+<tr class="row-even"><td><div class="first last line-block">
+<div class="line">(1)</div>
+</div>
+</td>
+<td><div class="first last line-block">
+<div class="line">HTMLフォームを作成する際は、Spring MVCから提供されている<code class="docutils literal"><span class="pre">&lt;form:form&gt;</span></code>要素を使用する。</div>
+</div>
+</td>
+</tr>
+</tbody>
+</table>
+<p>Spring MVCから提供されている<code class="docutils literal"><span class="pre">&lt;form:form&gt;</span></code>要素を使うと、以下のようなHTMLフォームが作成される。</p>
+<ul class="simple">
+<li>HTMLの出力例</li>
+</ul>
+<div class="highlight-html"><div class="highlight"><pre><span></span><span class="p">&lt;</span><span class="nt">form</span> <span class="na">id</span><span class="o">=</span><span class="s">&quot;command&quot;</span> <span class="na">action</span><span class="o">=</span><span class="s">&quot;/login&quot;</span> <span class="na">method</span><span class="o">=</span><span class="s">&quot;post&quot;</span><span class="p">&gt;</span>
+    <span class="c">&lt;!-- omitted --&gt;</span>
+    <span class="c">&lt;!-- Spring MVCの機能と連携して出力されたCSRFトークン値のhidden項目 --&gt;</span>
+    <span class="p">&lt;</span><span class="nt">div</span><span class="p">&gt;</span>
+        <span class="p">&lt;</span><span class="nt">input</span> <span class="na">type</span><span class="o">=</span><span class="s">&quot;hidden&quot;</span>
+               <span class="na">name</span><span class="o">=</span><span class="s">&quot;_csrf&quot;</span> <span class="na">value</span><span class="o">=</span><span class="s">&quot;63845086-6b57-4261-8440-97a3c6fa6b99&quot;</span> <span class="p">/&gt;</span>
+    <span class="p">&lt;/</span><span class="nt">div</span><span class="p">&gt;</span>
+<span class="p">&lt;/</span><span class="nt">form</span><span class="p">&gt;</span>
+</pre></div>
+</div>
+<div class="admonition tip">
+<p class="first admonition-title">Tip</p>
+<p><strong>出力されるCSRFトークンチェック値</strong></p>
+<p>Spring 4上で<code class="docutils literal"><span class="pre">CsrfRequestDataValueProcessor</span></code>を使用すると、<code class="docutils literal"><span class="pre">&lt;form:form&gt;</span></code>タグの<code class="docutils literal"><span class="pre">method</span></code>属性に指定した値がCSRFトークンチェック対象の
+HTTPメソッド(Spring Securityのデフォルト実装ではGET,HEAD,TRACE,OPTIONS以外のHTTPメソッド)と一致する場合に限り、CSRFトークンが埋め込まれた<code class="docutils literal"><span class="pre">&lt;input</span> <span class="pre">type=&quot;hidden&quot;&gt;</span></code>タグが出力される。</p>
+<p>例えば、以下の例のように <code class="docutils literal"><span class="pre">method</span></code>属性にGETメソッドを指定した場合は、CSRFトークンが埋め込まれた<code class="docutils literal"><span class="pre">&lt;input</span> <span class="pre">type=&quot;hidden&quot;&gt;</span></code>タグは出力されない。</p>
+<blockquote>
+<div><div class="highlight-jsp"><div class="highlight"><pre><span></span><span class="nt">&lt;form:form</span> <span class="na">method=</span><span class="s">&quot;GET&quot;</span> <span class="na">modelAttribute=</span><span class="s">&quot;xxxForm&quot;</span> <span class="na">action=</span><span class="s">&quot;...&quot;</span><span class="nt">&gt;</span>
+    <span class="k">&lt;%-</span><span class="o">-</span> <span class="p">...</span> <span class="o">--</span><span class="k">%&gt;</span>
+<span class="nt">&lt;/form:form&gt;</span>
+</pre></div>
+</div>
+</div></blockquote>
+<p class="last">これは、<a class="reference external" href="https://cheatsheetseries.owasp.org/cheatsheets/Cross-Site_Request_Forgery_Prevention_Cheat_Sheet.html#synchronizer-token-pattern">Cross-Site Request Forgery (CSRF) Prevention Cheat Sheet</a>で説明されている内容に対応している事を意味しており、セキュアなWebアプリケーション構築の手助けとなる。</p>
+</div>
+</div>
+</div>
+<div class="section" id="html">
+<span id="csrf-htmlformtag-use"></span><h4><a class="toc-backref" href="#id19">9.5.2.2.2. HTMLフォーム使用時の連携</a><a class="headerlink" href="#html" title="Permalink to this headline">¶</a></h4>
+<p><a class="reference internal" href="#csrf-formtag-use"><span class="std std-ref">Spring MVCと連携</span></a> せずに、HTMLフォームを使用してCSRFトークン値を連携することも可能である。
+HTMLフォームを使ってリクエストを送信する場合は、HTMLフォームのhidden項目としてCSRFトークン値を出力し、リクエストパラメータとして連携する。</p>
+<ul class="simple">
+<li>JSPの実装例</li>
+</ul>
+<div class="highlight-text"><div class="highlight"><pre><span></span>&lt;%@ taglib prefix=&quot;sec&quot; uri=&quot;http://www.springframework.org/security/tags&quot; %&gt;
+
+&lt;form action=&quot;&lt;c:url value=&quot;/login&quot; /&gt;&quot; method=&quot;post&quot;&gt;
+    &lt;!-- omitted --&gt;
+    &lt;sec:csrfInput /&gt; &lt;!-- (1) --&gt;
+    &lt;!-- omitted --&gt;
+&lt;/form&gt;
+</pre></div>
+</div>
+<table border="1" class="colwidths-given docutils">
+<colgroup>
+<col width="10%" />
+<col width="90%" />
+</colgroup>
+<thead valign="bottom">
+<tr class="row-odd"><th class="head">項番</th>
+<th class="head">説明</th>
+</tr>
+</thead>
+<tbody valign="top">
+<tr class="row-even"><td><div class="first last line-block">
+<div class="line">(1)</div>
+</div>
+</td>
+<td><div class="first last line-block">
+<div class="line">HTMLの<code class="docutils literal"><span class="pre">&lt;form&gt;</span></code>要素の中に<code class="docutils literal"><span class="pre">&lt;sec:csrfInput&gt;</span></code>要素を指定する。</div>
+</div>
+</td>
+</tr>
+</tbody>
+</table>
+<p>Spring Securityから提供されている<code class="docutils literal"><span class="pre">&lt;sec:csrfInput&gt;</span></code>要素を指定すると、以下のようなhidden項目が出力される。
+HTMLフォーム内にhidden項目を出力することで、CSRFトークン値がリクエストパラメータとして連携される。
+デフォルトでは、CSRFトークン値を連携するためのリクエストパラメータ名は<code class="docutils literal"><span class="pre">_csrf</span></code>になる。</p>
+<ul class="simple">
+<li>HTMLの出力例</li>
+</ul>
+<div class="highlight-html"><div class="highlight"><pre><span></span><span class="p">&lt;</span><span class="nt">form</span> <span class="na">action</span><span class="o">=</span><span class="s">&quot;/login&quot;</span> <span class="na">method</span><span class="o">=</span><span class="s">&quot;post&quot;</span><span class="p">&gt;</span>
+    <span class="c">&lt;!-- omitted --&gt;</span>
+    <span class="c">&lt;!-- CSRFトークン値のhidden項目 --&gt;</span>
+    <span class="p">&lt;</span><span class="nt">input</span> <span class="na">type</span><span class="o">=</span><span class="s">&quot;hidden&quot;</span>
+           <span class="na">name</span><span class="o">=</span><span class="s">&quot;_csrf&quot;</span>
+           <span class="na">value</span><span class="o">=</span><span class="s">&quot;63845086-6b57-4261-8440-97a3c6fa6b99&quot;</span> <span class="p">/&gt;</span>
+    <span class="c">&lt;!-- omitted --&gt;</span>
+<span class="p">&lt;/</span><span class="nt">form</span><span class="p">&gt;</span>
+</pre></div>
+</div>
+<div class="admonition warning">
+<p class="first admonition-title">Warning</p>
+<p><strong>GETメソッド使用時の注意点</strong></p>
+<p class="last">HTTPメソッドとしてGETを使用する場合、<code class="docutils literal"><span class="pre">&lt;sec:csrfInput&gt;</span></code>要素を指定しないこと。
+<code class="docutils literal"><span class="pre">&lt;sec:csrfInput&gt;</span></code>要素を指定してしまうと、URLにCSRFトークン値が含まれてしまうため、CSRFトークン値が盗まれるリスクが高くなる。</p>
+</div>
+</div>
+<div class="section" id="ajax">
+<span id="csrf-ajax-token-setting"></span><h4><a class="toc-backref" href="#id20">9.5.2.2.3. Ajax使用時の連携</a><a class="headerlink" href="#ajax" title="Permalink to this headline">¶</a></h4>
+<p>Ajaxを使ってリクエストを送信する場合は、HTMLのmetaタグとしてCSRFトークンの情報を出力し、metaタグから取得したトークン値をAjax通信時のリクエストヘッダに設定して連携する。</p>
+<p>まず、Spring Securityから提供されているJSPタグライブラリを使用して、HTMLのmetaタグにCSRFトークンの情報を出力する。</p>
+<ul class="simple">
+<li>JSPの実装例</li>
+</ul>
+<div class="highlight-jsp"><div class="highlight"><pre><span></span><span class="k">&lt;%@</span> <span class="n">taglib</span> <span class="n">prefix</span><span class="o">=</span><span class="s">&quot;sec&quot;</span> <span class="n">uri</span><span class="o">=</span><span class="s">&quot;http://www.springframework.org/security/tags&quot;</span> <span class="k">%&gt;</span>
+
+<span class="nt">&lt;head&gt;</span>
+    <span class="c">&lt;!-- omitted --&gt;</span>
+    <span class="nt">&lt;sec:csrfMetaTags</span> <span class="nt">/&gt;</span> <span class="c">&lt;!-- (1) --&gt;</span>
+    <span class="c">&lt;!-- omitted --&gt;</span>
+<span class="nt">&lt;/head&gt;</span>
+</pre></div>
+</div>
+<table border="1" class="colwidths-given docutils">
+<colgroup>
+<col width="10%" />
+<col width="90%" />
+</colgroup>
+<thead valign="bottom">
+<tr class="row-odd"><th class="head">項番</th>
+<th class="head">説明</th>
+</tr>
+</thead>
+<tbody valign="top">
+<tr class="row-even"><td><div class="first last line-block">
+<div class="line">(1)</div>
+</div>
+</td>
+<td><div class="first last line-block">
+<div class="line">HTMLの<code class="docutils literal"><span class="pre">&lt;head&gt;</span></code>要素内に<code class="docutils literal"><span class="pre">&lt;sec:csrfMetaTags&gt;</span></code>要素を指定する。</div>
+</div>
+</td>
+</tr>
+</tbody>
+</table>
+<p><code class="docutils literal"><span class="pre">&lt;sec:csrfMetaTags&gt;</span></code>要素を指定すると、以下のようなmetaタグが出力される。
+デフォルトでは、CSRFトークン値を連携するためのリクエストヘッダ名は<code class="docutils literal"><span class="pre">X-CSRF-TOKEN</span></code>となる。</p>
+<ul class="simple">
+<li>HTMLの出力例</li>
+</ul>
+<div class="highlight-html"><div class="highlight"><pre><span></span><span class="p">&lt;</span><span class="nt">head</span><span class="p">&gt;</span>
+    <span class="c">&lt;!-- omitted --&gt;</span>
+    <span class="p">&lt;</span><span class="nt">meta</span> <span class="na">name</span><span class="o">=</span><span class="s">&quot;_csrf_parameter&quot;</span> <span class="na">content</span><span class="o">=</span><span class="s">&quot;_csrf&quot;</span> <span class="p">/&gt;</span>
+    <span class="p">&lt;</span><span class="nt">meta</span> <span class="na">name</span><span class="o">=</span><span class="s">&quot;_csrf_header&quot;</span> <span class="na">content</span><span class="o">=</span><span class="s">&quot;X-CSRF-TOKEN&quot;</span> <span class="p">/&gt;</span> <span class="c">&lt;!-- ヘッダ名 --&gt;</span>
+    <span class="p">&lt;</span><span class="nt">meta</span> <span class="na">name</span><span class="o">=</span><span class="s">&quot;_csrf&quot;</span>
+          <span class="na">content</span><span class="o">=</span><span class="s">&quot;63845086-6b57-4261-8440-97a3c6fa6b99&quot;</span> <span class="p">/&gt;</span> <span class="c">&lt;!-- トークン値 --&gt;</span>
+    <span class="c">&lt;!-- omitted --&gt;</span>
+<span class="p">&lt;/</span><span class="nt">head</span><span class="p">&gt;</span>
+</pre></div>
+</div>
+<p>つぎに、JavaScriptを使ってmetaタグからCSRFトークンの情報を取得し、Ajax通信時のリクエストヘッダ
+にCSRFトークン値を設定する。(ここではjQueryを使った実装例となっている)</p>
+<ul class="simple">
+<li>JavaScriptの実装例</li>
+</ul>
+<div class="highlight-javascript"><div class="highlight"><pre><span></span><span class="nx">$</span><span class="p">(</span><span class="kd">function</span> <span class="p">()</span> <span class="p">{</span>
+    <span class="kd">var</span> <span class="nx">headerName</span> <span class="o">=</span> <span class="nx">$</span><span class="p">(</span><span class="s2">&quot;meta[name=&#39;_csrf_header&#39;]&quot;</span><span class="p">).</span><span class="nx">attr</span><span class="p">(</span><span class="s2">&quot;content&quot;</span><span class="p">);</span> <span class="c1">// (1)</span>
+    <span class="kd">var</span> <span class="nx">tokenValue</span> <span class="o">=</span> <span class="nx">$</span><span class="p">(</span><span class="s2">&quot;meta[name=&#39;_csrf&#39;]&quot;</span><span class="p">).</span><span class="nx">attr</span><span class="p">(</span><span class="s2">&quot;content&quot;</span><span class="p">);</span> <span class="c1">// (2)</span>
+    <span class="nx">$</span><span class="p">(</span><span class="nb">document</span><span class="p">).</span><span class="nx">ajaxSend</span><span class="p">(</span><span class="kd">function</span><span class="p">(</span><span class="nx">e</span><span class="p">,</span> <span class="nx">xhr</span><span class="p">,</span> <span class="nx">options</span><span class="p">)</span> <span class="p">{</span>
+        <span class="nx">xhr</span><span class="p">.</span><span class="nx">setRequestHeader</span><span class="p">(</span><span class="nx">headerName</span><span class="p">,</span> <span class="nx">tokenValue</span><span class="p">);</span> <span class="c1">// (3)</span>
+    <span class="p">});</span>
+<span class="p">});</span>
+</pre></div>
+</div>
+<table border="1" class="colwidths-given docutils">
+<colgroup>
+<col width="10%" />
+<col width="90%" />
+</colgroup>
+<thead valign="bottom">
+<tr class="row-odd"><th class="head">項番</th>
+<th class="head">説明</th>
+</tr>
+</thead>
+<tbody valign="top">
+<tr class="row-even"><td><div class="first last line-block">
+<div class="line">(1)</div>
+</div>
+</td>
+<td><div class="first last line-block">
+<div class="line">CSRFトークン値を連携するためのリクエストヘッダ名を取得する。</div>
+</div>
+</td>
+</tr>
+<tr class="row-odd"><td><div class="first last line-block">
+<div class="line">(2)</div>
+</div>
+</td>
+<td><div class="first last line-block">
+<div class="line">CSRFトークン値を取得する。</div>
+</div>
+</td>
+</tr>
+<tr class="row-even"><td><div class="first last line-block">
+<div class="line">(3)</div>
+</div>
+</td>
+<td><div class="first last line-block">
+<div class="line">リクエストヘッダにCSRFトークン値を設定する。</div>
+</div>
+</td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
+<div class="section" id="csrf-token-error-response">
+<span id="id7"></span><h3><a class="toc-backref" href="#id21">9.5.2.3. トークンチェックエラー時の遷移先の制御</a><a class="headerlink" href="#csrf-token-error-response" title="Permalink to this headline">¶</a></h3>
+<p>トークンチェックエラー時の遷移先の制御を行うためには、CSRFトークンチェックエラーに発生する例外である <code class="docutils literal"><span class="pre">AccessDeniedException</span></code>をハンドリングして、その例外に対応した遷移先を指定する。</p>
+<p>CSRFのトークンチェックエラー時に発生する例外は以下の通りである。</p>
+<table border="1" class="colwidths-given docutils" id="id10">
+<caption><span class="caption-text"><strong>CSRFトークンチェックで使用される例外クラス</strong></span><a class="headerlink" href="#id10" title="Permalink to this table">¶</a></caption>
+<colgroup>
+<col width="35%" />
+<col width="65%" />
+</colgroup>
+<thead valign="bottom">
+<tr class="row-odd"><th class="head">クラス名</th>
+<th class="head">説明</th>
+</tr>
+</thead>
+<tbody valign="top">
+<tr class="row-even"><td><div class="first last line-block">
+<div class="line"><code class="docutils literal"><span class="pre">InvalidCsrfTokenException</span></code></div>
+</div>
+</td>
+<td><div class="first last line-block">
+<div class="line">クライアントから送られたトークン値と、サーバー側で保持しているトークン値が一致しない場合に使用する例外クラス（主に不正なリクエスト）。</div>
+</div>
+</td>
+</tr>
+<tr class="row-odd"><td><div class="first last line-block">
+<div class="line"><code class="docutils literal"><span class="pre">MissingCsrfTokenException</span></code></div>
+</div>
+</td>
+<td><div class="first last line-block">
+<div class="line">サーバー側にトークン値が保存されていない場合に使用する例外クラス（主にセッション切れ）。</div>
+</div>
+</td>
+</tr>
+</tbody>
+</table>
+<p><code class="docutils literal"><span class="pre">DelegatingAccessDeniedHandler</span></code>クラスを使用して上記の例外をハンドリングし、それぞれに <code class="docutils literal"><span class="pre">AccessDeniedHandler</span></code>インタフェースの実装クラスを割り当てることで、例外毎の遷移先を設定することが可能である。</p>
+<p>CSRFトークンチェックエラー時に専用のエラー画面（JSP）に遷移させたい場合は、以下のようなBean定義を行う。(以下の定義例は、<a class="reference external" href="https://github.com/terasolunaorg/terasoluna-gfw-web-multi-blank/tree/5.7.2.RELEASE">ブランクプロジェクト</a>からの抜粋である)</p>
+<ul class="simple">
+<li>spring-security.xmlの定義例</li>
+</ul>
+<div class="highlight-xml"><div class="highlight"><pre><span></span><span class="nt">&lt;sec:http</span> <span class="na">once-per-request=</span><span class="s">&quot;false&quot;</span><span class="nt">&gt;</span>
+    <span class="c">&lt;!-- omitted --&gt;</span>
+    <span class="nt">&lt;sec:access-denied-handler</span> <span class="na">ref=</span><span class="s">&quot;accessDeniedHandler&quot;</span><span class="nt">/&gt;</span>  <span class="c">&lt;!-- (1) --&gt;</span>
+    <span class="c">&lt;!-- omitted --&gt;</span>
+<span class="nt">&lt;/sec:http&gt;</span>
+
+<span class="nt">&lt;bean</span> <span class="na">id=</span><span class="s">&quot;accessDeniedHandler&quot;</span>
+    <span class="na">class=</span><span class="s">&quot;org.springframework.security.web.access.DelegatingAccessDeniedHandler&quot;</span><span class="nt">&gt;</span>  <span class="c">&lt;!-- (2) --&gt;</span>
+    <span class="nt">&lt;constructor-arg</span> <span class="na">index=</span><span class="s">&quot;0&quot;</span><span class="nt">&gt;</span>  <span class="c">&lt;!-- (3) --&gt;</span>
+        <span class="nt">&lt;map&gt;</span>
+            <span class="c">&lt;!-- (4) --&gt;</span>
+            <span class="nt">&lt;entry</span>
+                <span class="na">key=</span><span class="s">&quot;org.springframework.security.web.csrf.InvalidCsrfTokenException&quot;</span><span class="nt">&gt;</span>
+                <span class="nt">&lt;bean</span>
+                    <span class="na">class=</span><span class="s">&quot;org.springframework.security.web.access.AccessDeniedHandlerImpl&quot;</span><span class="nt">&gt;</span>
+                    <span class="nt">&lt;property</span> <span class="na">name=</span><span class="s">&quot;errorPage&quot;</span>
+                        <span class="na">value=</span><span class="s">&quot;/WEB-INF/views/common/error/invalidCsrfTokenError.jsp&quot;</span> <span class="nt">/&gt;</span>
+                <span class="nt">&lt;/bean&gt;</span>
+            <span class="nt">&lt;/entry&gt;</span>
+            <span class="c">&lt;!-- (5) --&gt;</span>
+            <span class="nt">&lt;entry</span>
+                <span class="na">key=</span><span class="s">&quot;org.springframework.security.web.csrf.MissingCsrfTokenException&quot;</span><span class="nt">&gt;</span>
+                <span class="nt">&lt;bean</span>
+                    <span class="na">class=</span><span class="s">&quot;org.springframework.security.web.access.AccessDeniedHandlerImpl&quot;</span><span class="nt">&gt;</span>
+                    <span class="nt">&lt;property</span> <span class="na">name=</span><span class="s">&quot;errorPage&quot;</span>
+                        <span class="na">value=</span><span class="s">&quot;/WEB-INF/views/common/error/missingCsrfTokenError.jsp&quot;</span> <span class="nt">/&gt;</span>
+                <span class="nt">&lt;/bean&gt;</span>
+            <span class="nt">&lt;/entry&gt;</span>
+        <span class="nt">&lt;/map&gt;</span>
+    <span class="nt">&lt;/constructor-arg&gt;</span>
+    <span class="c">&lt;!-- (6) --&gt;</span>
+    <span class="nt">&lt;constructor-arg</span> <span class="na">index=</span><span class="s">&quot;1&quot;</span><span class="nt">&gt;</span>
+        <span class="nt">&lt;bean</span>
+            <span class="na">class=</span><span class="s">&quot;org.springframework.security.web.access.AccessDeniedHandlerImpl&quot;</span><span class="nt">&gt;</span>
+            <span class="nt">&lt;property</span> <span class="na">name=</span><span class="s">&quot;errorPage&quot;</span>
+                <span class="na">value=</span><span class="s">&quot;/WEB-INF/views/common/error/accessDeniedError.jsp&quot;</span> <span class="nt">/&gt;</span>
+        <span class="nt">&lt;/bean&gt;</span>
+    <span class="nt">&lt;/constructor-arg&gt;</span>
+<span class="nt">&lt;/bean&gt;</span>
+</pre></div>
+</div>
+<table border="1" class="colwidths-given docutils">
+<colgroup>
+<col width="10%" />
+<col width="90%" />
+</colgroup>
+<thead valign="bottom">
+<tr class="row-odd"><th class="head">項番</th>
+<th class="head">説明</th>
+</tr>
+</thead>
+<tbody valign="top">
+<tr class="row-even"><td><div class="first last line-block">
+<div class="line">(1)</div>
+</div>
+</td>
+<td><div class="first last line-block">
+<div class="line"><code class="docutils literal"><span class="pre">&lt;sec:access-denied-handler&gt;</span></code>タグのref属性に、Exception毎の制御を行うための<code class="docutils literal"><span class="pre">AccessDeniedHandler</span></code>のBean名を指定する。</div>
+<div class="line">エラー時遷移先が全て同じ画面である場合は <code class="docutils literal"><span class="pre">error-page</span></code> 属性に遷移先を指定すればよい。</div>
+<div class="line"><code class="docutils literal"><span class="pre">&lt;sec:access-denied-handler&gt;</span></code>でハンドリングしない場合は、<a class="reference internal" href="Authorization.html#springsecurityauthorizationonerror"><span class="std std-ref">認可エラー時の遷移先</span></a>を参照されたい。</div>
+</div>
+</td>
+</tr>
+<tr class="row-odd"><td><div class="first last line-block">
+<div class="line">(2)</div>
+</div>
+</td>
+<td><div class="first last line-block">
+<div class="line"><code class="docutils literal"><span class="pre">DelegatingAccessDeniedHandler</span></code>を使用して、発生した例外（ <code class="docutils literal"><span class="pre">AccessDeniedException</span></code>サブクラス ） と例外ハンドラ（ <code class="docutils literal"><span class="pre">AccessDeniedHandler</span></code>実装クラス ）を定義する。</div>
+</div>
+</td>
+</tr>
+<tr class="row-even"><td><div class="first last line-block">
+<div class="line">(3)</div>
+</div>
+</td>
+<td><div class="first last line-block">
+<div class="line">コンストラクタの第1引数で、個別に遷移先を指定したい例外（ <code class="docutils literal"><span class="pre">AccessDeniedException</span></code>サブクラス ）と、対応する例外ハンドラ（ <code class="docutils literal"><span class="pre">AccessDeniedHandler</span></code>実装クラス ）をMap形式で定義する。</div>
+</div>
+</td>
+</tr>
+<tr class="row-odd"><td><div class="first last line-block">
+<div class="line">(4)</div>
+</div>
+</td>
+<td><div class="first last line-block">
+<div class="line"><code class="docutils literal"><span class="pre">key</span></code>に <code class="docutils literal"><span class="pre">AccessDeniedException</span></code>のサブクラスを指定する。</div>
+<div class="line"><code class="docutils literal"><span class="pre">value</span></code> として、<code class="docutils literal"><span class="pre">AccessDeniedHandler</span></code>の実装クラスである、 <code class="docutils literal"><span class="pre">org.springframework.security.web.access.AccessDeniedHandlerImpl</span></code> を指定する。</div>
+<div class="line"><code class="docutils literal"><span class="pre">property</span></code>の <code class="docutils literal"><span class="pre">name</span></code>に <code class="docutils literal"><span class="pre">errorPage</span></code>を指定し、<code class="docutils literal"><span class="pre">value</span></code>に表示するviewを指定する。</div>
+<div class="line">マッピングするExceptionに関しては、<a class="reference internal" href="#csrf-token-error-response"><span class="std std-ref">トークンチェックエラー時の遷移先の制御</span></a> を参照されたい。</div>
+</div>
+</td>
+</tr>
+<tr class="row-even"><td><div class="first last line-block">
+<div class="line">(5)</div>
+</div>
+</td>
+<td><div class="first last line-block">
+<div class="line">(4)のExceptionと異なるExceptionを制御したい場合に定義する。</div>
+<div class="line">本例では <code class="docutils literal"><span class="pre">InvalidCsrfTokenException</span></code>、<code class="docutils literal"><span class="pre">MissingCsrfTokenException</span></code>それぞれに異なる遷移先を設定している。</div>
+</div>
+</td>
+</tr>
+<tr class="row-odd"><td><div class="first last line-block">
+<div class="line">(6)</div>
+</div>
+</td>
+<td><div class="first last line-block">
+<div class="line">コンストラクタの第2引数で、デフォルト例外（(4)(5)で指定していない <code class="docutils literal"><span class="pre">AccessDeniedException</span></code>のサブクラス）時の例外ハンドラ（ <code class="docutils literal"><span class="pre">AccessDeniedHandler</span></code>実装クラス ）と遷移先を指定する。</div>
+</div>
+</td>
+</tr>
+</tbody>
+</table>
+<div class="admonition note">
+<p class="first admonition-title">Note</p>
+<p><strong>無効なセッションを使ったリクエストの検知</strong></p>
+<p>セッション管理機能の「<a class="reference internal" href="SessionManagement.html#springsecuritysessiondetectinvalidsession"><span class="std std-ref">無効なセッションを使ったリクエストの検知</span></a>」処理を有効にしている場合は、<code class="docutils literal"><span class="pre">MissingCsrfTokenException</span></code>に対して「<a class="reference internal" href="SessionManagement.html#springsecuritysessiondetectinvalidsession"><span class="std std-ref">無効なセッションを使ったリクエストの検知</span></a>」処理と連動する<code class="docutils literal"><span class="pre">AccessDeniedHandler</span></code>インタフェースの実装クラスが適用される。</p>
+<p class="last">そのため、<code class="docutils literal"><span class="pre">MissingCsrfTokenException</span></code>が発生すると、「<a class="reference internal" href="SessionManagement.html#springsecuritysessiondetectinvalidsession"><span class="std std-ref">無効なセッションを使ったリクエストの検知</span></a>」処理を有効化する際に指定したパス(<code class="docutils literal"><span class="pre">invalid-session-url</span></code>)にリダイレクトする。</p>
+</div>
+<div class="admonition note">
+<p class="first admonition-title">Note</p>
+<p><strong>ステータスコード403以外を返却したい場合</strong></p>
+<p class="last">リクエストに含まれるCSRFトークンが一致しない場合に、ステータスコード403以外を返却したい場合は、<code class="docutils literal"><span class="pre">org.springframework.security.web.access.AccessDeniedHandler</span></code>インタフェースを実装した、独自のAccessDeniedHandlerを作成する必要がある。</p>
+</div>
+</div>
+</div>
+</div>
+
+
+          </div>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="LinkageWithBrowser.html" title="9.6. ブラウザのセキュリティ対策機能との連携"
+             >next</a> |</li>
+        <li class="right" >
+          <a href="SessionManagement.html" title="9.4. セッション管理"
+             >previous</a> |</li>
+        <li class="nav-item nav-item-0"><a href="../index.html">TERASOLUNA Server Framework for Java (5.x) Development Guideline 5.7.2.RELEASE documentation</a> &#187;</li>
+          <li class="nav-item nav-item-1"><a href="index.html" >9. セキュリティ対策</a> &#187;</li> 
+      </ul>
+    </div>
+    <div class="footer">
+      © Copyright 2013, NTT DATA Corporation. © Copyright 2013, NTT Corporation.
+      Created using <a href="https://www.sphinx-doc.org/en/master/">Sphinx</a> 1.6.3.Theme is <a href="https://pypi.org/project/solar-theme/">Solar</a>
+    </div>
+    
+    <script>
+    
+    $(function() {
+    	var $sidebar	= $('.sphinxsidebar'),
+    		$window		= $(window),
+    		offset		= $sidebar.offset(),
+    		topPadding	= 3,
+    		$scroll		= $('#scroll');
+    	
+    	$window.scroll(function() {
+    		if ($scroll.is(':checked')) {
+				if ($window.scrollTop() > offset.top) {
+					$sidebar.stop().animate({
+						marginTop:$window.scrollTop() - offset.top + topPadding
+					});
+				} else {
+					$sidebar.stop().animate({
+						marginTop:0
+					});
+				}
+			}
+		});
+    	
+    	var $navList = $('ul:first', $sidebar);
+    	$('li:first', $navList).addClass('open');
+    	
+    	$navList.treeview({
+    		persist: "location",
+    		collapsed: true,
+    		unique: false
+    	});
+    	
+	});
+    (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+        (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+            m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+    })(window,document,'script','//www.google-analytics.com/analytics.js','ga');
+
+    ga('create', 'UA-46550814-1', 'terasolunaorg.github.io');
+    ga('send', 'pageview');
+    </script>
+  </body>
+</html>
