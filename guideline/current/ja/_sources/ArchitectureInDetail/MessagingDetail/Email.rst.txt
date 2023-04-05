@@ -25,29 +25,29 @@ Overview
 Jakarta Mailについて
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-| \ `Jakarta Mail <https://eclipse-ee4j.github.io/angus-mail/>`_\ は、Javaでメールの送受信を行うためのAPIを提供している。
-| Jakarta Mailを利用することで、メール機能を容易にJavaアプリケーションに組み込むことができる。
+\ `Jakarta Mail <https://jakartaee.github.io/mail-api/>`_\ は、Javaでメールの送受信を行うためのAPIを提供している。
+Jakarta Mailを利用することで、メール機能を容易にJavaアプリケーションに組み込むことができる。
 
-| なお、本ガイドラインでは、Spring FrameworkのMail連携用コンポーネントを利用する前提であるため、Jakarta MailのAPIについての詳細には触れていない。
-| Jakarta MailのAPI仕様については、\ `API Documentation <https://jakarta.ee/specifications/mail/2.1/jakarta-mail-spec-2.1.html>`_\ を参照されたい。
+なお、本ガイドラインでは、Spring FrameworkのMail連携用コンポーネントを利用する前提であるため、Jakarta MailのAPIについての詳細には触れていない。
+Jakarta MailのAPI仕様については、\ `API Documentation <https://jakartaee.github.io/mail-api/#API_Documentation>`_\ を参照されたい。
 
 .. note:: **メールセッション**
 
-  メールセッション（\ `Session <https://jakarta.ee/specifications/mail/2.1/apidocs/jakarta.mail/jakarta/mail/session>`_\ ）は、メールサーバに接続する際に必要となる情報を管理する。
+   メールセッション（\ `Session <https://jakarta.ee/specifications/platform/8/apidocs/javax/mail/session>`_\ ）は、メールサーバに接続する際に必要となる情報を管理する。
    
-  メールセッションを取得するには以下のような方法がある。
+   メールセッションを取得するには以下のような方法がある。
    
-  * 典型的なエンタープライズアプリケーションにおいては、Jakarta EE（Java EE）のコンテナで管理されたメールセッションをJNDI経由で取得する。
-  * Tomcatの場合はリソースファクトリで定義したメールセッションをJNDI経由で取得する。
-  * staticファクトリメソッドを利用してBean定義したメールセッションをDIコンテナから取得する。
-  * Javaソースから直接\ ``Session``\ のstaticファクトリメソッドを利用して取得する。
+   * 典型的なエンタープライズアプリケーションにおいては、Jakarta EE（Java EE）のコンテナで管理されたメールセッションをJNDI経由で取得する。
+   * Tomcatの場合はリソースファクトリで定義したメールセッションをJNDI経由で取得する。
+   * staticファクトリメソッドを利用してBean定義したメールセッションをDIコンテナから取得する。
+   * Javaソースから直接\ ``Session``\ のstaticファクトリメソッドを利用して取得する。
    
-  なお、後述するSpringの\ ``JavaMailSenderImpl``\ を使用すると、メールセッションを直接扱わずにメールサーバと接続することも可能である。
+   なお、後述するSpringの\ ``JavaMailSenderImpl``\ を使用すると、メールセッションを直接扱わずにメールサーバと接続することも可能である。
    
-  本ガイドラインでは、以下の二つの方法による実装例を紹介する。
+   本ガイドラインでは、以下の二つの方法による実装例を紹介する。
 
-  * メールセッションをJNDI経由で取得する方法
-  * セッションを直接扱わずに\ ``JavaMailSenderImpl``\ のプロパティに接続情報を指定する方法
+   * メールセッションをJNDI経由で取得する方法
+   * セッションを直接扱わずに\ ``JavaMailSenderImpl``\ のプロパティに接続情報を指定する方法
 
 |
 
@@ -63,6 +63,10 @@ Spring Frameworkはメール送信を行うためのコンポーネント（\ ``
     :alt: Constitution of Spring Mail
     :width: 100%
 
+.. raw:: latex
+
+   \newpage
+
 .. tabularcolumns:: |p{0.10\linewidth}|p{0.20\linewidth}|p{0.60\linewidth}|
 .. list-table::
     :header-rows: 1
@@ -76,18 +80,18 @@ Spring Frameworkはメール送信を行うためのコンポーネント（\ ``
       - | アプリケーション
       - | \ ``JavaMailSender``\ のメソッドを呼び出し、メールの送信依頼を行う。
         |
-        | * 単純なメッセージを送信する場合は、\ ``SimpleMailMessage``\ を生成し宛先や本文を設定することでメールを送信することもできる。
+        | \* 単純なメッセージを送信する場合は、\ ``SimpleMailMessage``\ を生成し宛先や本文を設定することでメールを送信することもできる。
     * - | (2)
       - | \ ``JavaMailSender``\
       - | アプリケーションから指定された\ ``MimeMessagePreparator``\ (Jakarta Mailの\ ``MimeMessage``\ を作成するためのコールバックインターフェース)を呼び出し、メール送信用のメッセージ(\ ``MimeMessage``\ )の作成依頼を行う。
         |
-        | * \ ``SimpleMailMessage``\ を使用してメッセージを送信する場合はこの処理は呼びだされない。
+        | \* \ ``SimpleMailMessage``\ を使用してメッセージを送信する場合はこの処理は呼びだされない。
     * - | (3)
       - | アプリケーション
         | (\ ``MimeMessagePreparator``\)
       - | \ ``MimeMessageHelper``\ のメソッドを利用して、メール送信用のメッセージ(\ ``MimeMessage``\ )を作成する。
         |
-        | * \ ``SimpleMailMessage``\ を使用してメッセージを送信する場合はこの処理は呼びだされない。
+        | \* \ ``SimpleMailMessage``\ を使用してメッセージを送信する場合はこの処理は呼びだされない。
     * - | (4)
       - | \ ``JavaMailSender``\
       - | Jakarta MailのAPIを使用して、メールの送信依頼を行う。
@@ -95,11 +99,17 @@ Spring Frameworkはメール送信を行うためのコンポーネント（\ ``
       - | Jakarta Mail
       - | メールサーバへメッセージを送信する。
 
+.. raw:: latex
+
+   \newpage
+
+\
+
 本ガイドラインでは、以下のインタフェースやクラスを使用してメール送信処理を実装する方法について説明する。
 
 * \ ``JavaMailSender``\
     | Jakarta Mail用のメール送信インターフェース。
-    | Jakarta Mailの\ `MimeMessage <https://jakarta.ee/specifications/mail/2.1/apidocs/jakarta.mail/jakarta/mail/internet/mimemessage>`_\ とSpringの\ ``SimpleMailMessage``\ の両方に対応している。
+    | Jakarta Mailの\ `MimeMessage <https://jakarta.ee/specifications/platform/8/apidocs/javax/mail/internet/mimemessage>`_\ とSpringの\ ``SimpleMailMessage``\ の両方に対応している。
     | また、Jakarta Mailの\ ``Session``\ の管理は\ ``JavaMailSender``\ の実装クラスによって行われるため、メール送信処理をコーディングする際に\ ``Session``\ を直接扱う必要がない。
 
 * \ ``JavaMailSenderImpl``\
@@ -130,7 +140,7 @@ How to use
 
 Spring FrameworkのMail連携用コンポーネントを利用する場合、以下のライブラリが追加で必要となる。
 
-* \ `Jakarta Mail <https://eclipse-ee4j.github.io/angus-mail/>`_\
+* `Jakarta Mail <https://jakartaee.github.io/mail-api/>`_
 
 | 上記ライブラリに対する依存関係を\ :file:`pom.xml`\ に追加する。
 | マルチプロジェクト構成の場合は、domainプロジェクトの\ :file:`pom.xml`\ (:file:`projectName-domain/pom.xml`)に追加する。
@@ -141,7 +151,7 @@ Spring FrameworkのMail連携用コンポーネントを利用する場合、以
 
         <!-- (1) -->
         <dependency>
-          <groupId>org.eclipse.angus</groupId>
+            <groupId>com.sun.mail</groupId>
             <artifactId>jakarta.mail</artifactId>
         </dependency>
 
@@ -161,8 +171,7 @@ Spring FrameworkのMail連携用コンポーネントを利用する場合、以
 .. note::
 
     上記設定例は、依存ライブラリのバージョンを親プロジェクトである terasoluna-gfw-parent で管理する前提であるため、pom.xmlでのバージョンの指定は不要である。
-
-    上記の依存ライブラリはterasoluna-gfw-parentが依存している\ `Spring Boot <https://docs.spring.io/spring-boot/docs/3.0.1/reference/htmlsingle/#dependency-versions>`_\ で管理されている。
+    上記の依存ライブラリはterasoluna-gfw-parentが依存している\ `Spring Boot <https://docs.spring.io/spring-boot/docs/2.7.7/reference/htmlsingle/#dependency-versions>`_\ で管理されている。
 
 |
 
@@ -191,8 +200,27 @@ JavaMailSenderの設定方法
       - アプリケーションサーバ
       - 参照ページ
     * - 1.
-      - Apache Tomcat 10.1
-      - | \ `Apache Tomcat 10.1 User Guide(JNDI Resources HOW-TO) <https://tomcat.apache.org/tomcat-10.1-doc/jndi-resources-howto.html#JavaMail_Sessions>`_\ (JavaMail Sessions)を参照されたい。
+      - Apache Tomcat 9.0
+      - | \ `Apache Tomcat 9.0 User Guide(JNDI Resources HOW-TO) <https://tomcat.apache.org/tomcat-9.0-doc/jndi-resources-howto.html#JavaMail_Sessions>`_\ (JavaMail Sessions)を参照されたい。
+    * - 2.
+      - Apache Tomcat 8.5
+      - | \ `Apache Tomcat 8.5 User Guide(JNDI Resources HOW-TO) <https://tomcat.apache.org/tomcat-8.5-doc/jndi-resources-howto.html#JavaMail_Sessions>`_\ (JavaMail Sessions)を参照されたい。
+    * - 3.
+      - Oracle WebLogic Server 12c
+      - \ `Oracle WebLogic Server 12.2.1.4 Documentation <https://docs.oracle.com/en/middleware/fusion-middleware/weblogic-server/12.2.1.4/wlach/taskhelp/mail/CreateMailSessions.html>`_\ を参照されたい。
+    * - 4.
+      - Oracle WebLogic Server 14c
+      - \ `Oracle WebLogic Server 14.1.1.0 Documentation <https://docs.oracle.com/en/middleware/standalone/weblogic-server/14.1.1.0/wlach/taskhelp/mail/CreateMailSessions.html>`_\ を参照されたい。
+    * - 5.
+      - IBM WebSphere Application Server Version 9.0
+      - \ `WebSphere Application Server Version 9.0.5 documentation <https://www.ibm.com/docs/en/was/9.0.5?topic=sessions-mail-session-configuration-settings>`_\ を参照されたい。
+    * - 6.
+      - Red Hat JBoss Enterprise Application Platform Version 7.3
+      - \ `JBoss Enterprise Application Platform 7.3 Product Documentation <https://access.redhat.com/documentation/en-us/red_hat_jboss_enterprise_application_platform/7.3/html/configuration_guide/mail_subsystem>`_\ を参照されたい。
+    * - 7.
+      - Red Hat JBoss Enterprise Application Platform Version 6.4
+      - \ `JBoss Enterprise Application Platform 6.4 Product Documentation <https://access.redhat.com/documentation/en-us/red_hat_jboss_enterprise_application_platform/6.4/html/administration_and_configuration_guide/chap-mail_subsystem>`_\ を参照されたい。
+
 
 JNDI経由で取得したメールセッションをBeanとして登録するための設定を行う。
 
@@ -439,8 +467,9 @@ SimpleMailMessageによるメール送信方法
 MimeMessageによるメール送信方法
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-| 英文以外のメールやHTMLメール、添付ファイルの送信を行う場合、\ ``jakarta.mail.internet.MimeMessage``\ クラスを使用する。
-| 本ガイドラインでは\ ``MimeMessageHelper``\ クラスを使用して\ ``MimeMessage``\ を作成する方法を推奨している。
+英文以外のメールやHTMLメール、添付ファイルの送信を行う場合、
+\ ``javax.mail.internet.MimeMessage``\ クラスを使用する。
+本ガイドラインでは\ ``MimeMessageHelper``\ クラスを使用して\ ``MimeMessage``\ を作成する方法を推奨している。
 
 本項では、\ ``MimeMessageHelper``\ クラスを使用した以下のメール送信方法を説明する。
 
@@ -753,18 +782,18 @@ HTMLメールの送信
       - 例外クラス
       - 発生条件
     * - 1.
-      - \ `MailAuthenticationException <https://docs.spring.io/spring-framework/docs/6.0.3/javadoc-api/org/springframework/mail/MailAuthenticationException.html>`_\
+      - `MailAuthenticationException <https://docs.spring.io/spring-framework/docs/5.3.24/javadoc-api/org/springframework/mail/MailAuthenticationException.html>`_
       - | 認証失敗時に発生する。
     * - 2.
-      - \ `MailParseException <https://docs.spring.io/spring-framework/docs/6.0.3/javadoc-api/org/springframework/mail/MailParseException.html>`_\
+      - `MailParseException <https://docs.spring.io/spring-framework/docs/5.3.24/javadoc-api/org/springframework/mail/MailParseException.html>`_
       - | メールメッセージのプロパティに不正な値が設定されている場合に発生する。
     * - 3.
-      - \ `MailPreparationException <https://docs.spring.io/spring-framework/docs/6.0.3/javadoc-api/org/springframework/mail/MailPreparationException.html>`_\
+      - `MailPreparationException <https://docs.spring.io/spring-framework/docs/5.3.24/javadoc-api/org/springframework/mail/MailPreparationException.html>`_
       - | メールメッセージを作成中に想定外のエラーが起きた場合に発生する。
           想定外のエラーとしては、例えばテンプレートライブラリで発生するエラーといったものがある。
         | \ ``MimeMessagePreparator``\ で発生した例外が\ ``MailPreparationException``\ にラップされてスローされる。
     * - 4.
-      - \ `MailSendException <https://docs.spring.io/spring-framework/docs/6.0.3/javadoc-api/org/springframework/mail/MailSendException.html>`_\
+      - `MailSendException <https://docs.spring.io/spring-framework/docs/5.3.24/javadoc-api/org/springframework/mail/MailSendException.html>`_
       - | メールの送信エラーが起きた場合に発生する。
 
 .. note::
@@ -822,8 +851,8 @@ FreeMarkerを使用したメール本文の作成
     .. note::
 
        上記設定例は、依存ライブラリのバージョンを親プロジェクトである terasoluna-gfw-parent で管理する前提であるため、pom.xmlでのバージョンの指定は不要である。
+       上記の依存ライブラリはterasoluna-gfw-parentが依存している\ `Spring Boot <https://docs.spring.io/spring-boot/docs/2.7.7/reference/htmlsingle/#dependency-versions>`_\ で管理されている。
 
-       上記の依存ライブラリはterasoluna-gfw-parentが依存している\ `Spring Boot <https://docs.spring.io/spring-boot/docs/3.0.1/reference/htmlsingle/#dependency-versions>`_\ で管理されている。
 
 * \ ``freemarker.template.Configuration``\ を生成するためのFactoryBeanをBean定義する。
 
@@ -856,9 +885,8 @@ FreeMarkerを使用したメール本文の作成
 
     .. note::
 
-      上記以外の設定については、\ `FreeMarkerConfigurationFactoryBeanのJavaDoc <https://docs.spring.io/spring-framework/docs/6.0.3/javadoc-api/org/springframework/ui/freemarker/FreeMarkerConfigurationFactoryBean.html>`_\ を参照されたい。
-      
-      FreeMarker自体の設定については、\ `FreeMarker Manual (Programmer's Guide / The Configuration) <https://freemarker.apache.org/docs/pgui_config.html>`_\ を参照されたい。
+       上記以外の設定については、\ `FreeMarkerConfigurationFactoryBeanのJavaDoc <https://docs.spring.io/spring-framework/docs/5.3.24/javadoc-api/org/springframework/ui/freemarker/FreeMarkerConfigurationFactoryBean.html>`_\ を参照されたい。
+       また、FreeMarker自体の設定については、\ `FreeMarker Manual (Programmer's Guide / The Configuration) <https://freemarker.apache.org/docs/pgui_config.html>`_\ を参照されたい。
 
 * メール本文のテンプレートファイルを作成する。
 
@@ -1045,18 +1073,39 @@ MS932で入力された文字列に対し、エンコードにISO-2022-JPをは�
         char[] ch = targetStr.toCharArray();
 
         for (int i = 0; i < ch.length; i++) {
-          // @formatter:off
-          ch[i] = switch (ch[i]) {
-              case '\u2015' -> '\u2014'; // '―'（全角ハイフン） -> '—'（EM ダッシュ）
-              case '\uff0d' -> '\u2212'; // '－'（ハイフンマイナス） -> '−'（全角マイナス）
-              case '\uff5e' -> '\u301c'; // '～'（全角チルド） -> '〜'（波ダッシュ）
-              case '\u2225' -> '\u2016'; // '∥'（平行記号） -> '‖'（双柱）
-              case '\uffe0' -> '\u00A2'; // '￠'（全角セント記号） -> '¢'（セント記号）
-              case '\uffe1' -> '\u00A3'; // '￡'（全角ポンド記号） -> '£'（ポンド記号）
-              case '\uffe2' -> '\u00AC'; // '￢'（全角否定記号） -> '¬'（否定記号）
-              default -> ch[i];
-          };
-          // @formatter:on
+            switch (ch[i]) {
+
+            // '―'（全角ハイフン）
+            case '\u2015':
+                ch[i] = '\u2014';
+                break;
+            // '－'（全角マイナス）
+            case '\uff0d':
+                ch[i] = '\u2212';
+                break;
+            // '～'（波ダッシュ）
+            case '\uff5e':
+                ch[i] = '\u301c';
+                break;
+            // '∥'（双柱）
+            case '\u2225':
+                ch[i] = '\u2016';
+                break;
+            // '￠'（セント記号)
+            case '\uffe0':
+                ch[i] = '\u00A2';
+                break;
+            // '￡'（ポンド記号）
+            case '\uffe1':
+                ch[i] = '\u00A3';
+                break;
+            // '￢'（否定記号）
+            case '\uffe2':
+                ch[i] = '\u00AC';
+                break;
+            default:
+                break;
+            }
         }
 
         return String.valueOf(ch);
@@ -1103,9 +1152,8 @@ JavaMailでは、送信するメールの本文の終端がマルチバイト文
 * メール本文の終端文字を半角文字にする
 * メール本文の終端を改行コード（CRLF）にする
 
-.. tip:: 
-
-  本事象は、シングルバイト文字とマルチバイト文字の切り替えのために付与される制御コードが付与されていなかったことに起因し、JavaMail 1.4.4でワークアラウンドが施されたことによって、以降のバージョンでは当事象が発生しなくなった。
+これは、シングルバイト文字とマルチバイト文字の切り替えのために付与される制御コードが付与されていなかったことに起因し、
+JavaMail 1.4.4でワークアラウンドが施されたことによって、以降のバージョンでは当事象が発生しなくなった。
 
 |
 
@@ -1161,112 +1209,101 @@ JavaMailでは、送信するメールの本文の終端がマルチバイト文
 
 |
 
-.. **TBD** GreenMailはまだalpha版しか提供されておらず、FY2022では案内しない方が良いためコメントアウトとする
-  ".."に合わせ以降をインデントすることでコメントアウトしているため、次年度以降GreenMailが安定したタイミングで以降の行のインデントは見直すこと
-  
-  GreenMailに関しては\ `https://mvnrepository.com/artifact/com.icegreen/greenmail`\ を参照。
+.. _email-test-with-greenmail:
 
-  ちなみに、2022/12/31 時点で最新が"2.0.0-alpha-3"となる。
+GreenMailを利用したテスト
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-  \ `リリースノート <https://github.com/greenmail-mail-test/greenmail/releases>`\ を読む限りでは
-  「The 'alpha' in the version is for minor potential API changes but not for stability regarding bugs.」と言っていることから、
-  ライブラリ自体の単体試験はクリアしていても、Jakarta EE 10として安定しているとはいえない。
+メール送信機能をテストするためにフェイクサーバとして\ `GreenMail <https://greenmail-mail-test.github.io/greenmail/>`_\ を利用する方法を紹介する。
+GreenMailはライブラリとして利用する以外に、warファイルをデプロイして利用することも可能である。
 
-  .. _email-test-with-greenmail:
-  
-  GreenMailを利用したテスト
-  ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-  
-  メール送信機能をテストするためにフェイクサーバとして\ `GreenMail <https://greenmail-mail-test.github.io/greenmail/>`_\ を利用する方法を紹介する。
-  GreenMailはライブラリとして利用する以外に、warファイルをデプロイして利用することも可能である。
-  
-  GreenMailを利用したテストコードの実装例を以下に示す。
-  
-  **pom.xmlの設定例**
-  
-  .. code-block:: xml
-  
-      <dependencies>
-  
-          <!-- (1) -->
-          <dependency>
-              <groupId>com.icegreen</groupId>
-            <artifactId>greenmail-spring</artifactId>
-            <version>2.0.0-alpha-3</version>
-              <scope>test</scope>
-              <!-- (2) -->
-              <exclusions>
-                  <exclusion>
-                      <groupId>com.sun.mail</groupId>
-                    <artifactId>jakarta.mail</artifactId>
-                  </exclusion>
-              </exclusions>
-          </dependency>
-  
-      </dependencies>
-  
-  .. tabularcolumns:: |p{0.10\linewidth}|p{0.90\linewidth}|
-  .. list-table::
-      :header-rows: 1
-      :widths: 10 90
-  
-      * - 項番
-        - 説明
-      * - | (1)
-        - | GreenMailのライブラリをdependenciesに追加する。
-      * - | (2)
-        - | GreenMailはJakarta Mailの前身であるJavaMailに依存している。
-          | \ :ref:`depends_jakartaMail`\ においてJakarta Mailを追加している前提で、クラス競合を防ぐためJavaMailは除外すると良い。
-  
-  **JUnitソースの実装例**
-  
-  .. code-block:: java
-  
-      @Inject
-      EmailService emailService;
-  
-      @Rule
-      public final GreenMailRule greenMail = new GreenMailRule(
-              ServerSetupTest.SMTP); // (1)
-  
-      @Test
-      public void testSend() {
-  
-          String from = "info@example.com";
-          String to = "foo@example.com";
-          String subject = "Registration confirmation.";
-          String text = "Hi "
-                  + to
-                  + ", welcome to EXAMPLE.COM!\r\n"
-                  + "If you were not an intended recipient, Please notify the sender.";
-          emailService.send(from, to, subject, text);
-  
-          assertTrue(greenMail.waitForIncomingEmail(3000, 1)); // (2)
-  
-          Message[] messages = greenMail.getReceivedMessages(); // (3)
-  
-          assertNotNull(messages);
-          assertEquals(1, messages.length);
-          // omitted
-      }
-  
-  .. tabularcolumns:: |p{0.10\linewidth}|p{0.90\linewidth}|
-  .. list-table::
-     :header-rows: 1
-     :widths: 10 90
-  
-     * - 項番
-       - 説明
-     * - | (1)
-       - | \ ``ServerSetupTest.SMTP``\ を指定した\ ``GreenMailRule``\ をルールとして設定する。
-         | SMTPのポート番号はデフォルトで\ ``3025``\ が使用される。
-     * - | (2)
-       - | \ ``waitForIncomingEmail``\ メソッドを利用してメールの到達を待機する。
-         | 別スレッドで非同期にメール送信が行われる際に利用する。
-         | この例では、メール送信が非同期で行われている前提で、1通のメールが到達するまで最大3秒待機する。
-     * - | (3)
-       - | \ ``getReceivedMessages``\ メソッドを利用してすべての受信メールを取得する。
-         | GreenMailで送信したメールは宛先に係らず、すべてGreenMailで受信される。
+GreenMailを利用したテストコードの実装例を以下に示す。
+
+**pom.xmlの設定例**
+
+.. code-block:: xml
+
+    <dependencies>
+
+        <!-- (1) -->
+        <dependency>
+            <groupId>com.icegreen</groupId>
+            <artifactId>greenmail</artifactId>
+            <version>1.4.1</version>
+            <scope>test</scope>
+            <!-- (2) -->
+            <exclusions>
+                <exclusion>
+                    <groupId>com.sun.mail</groupId>
+                    <artifactId>javax.mail</artifactId>
+                </exclusion>
+            </exclusions>
+        </dependency>
+
+    </dependencies>
+
+.. tabularcolumns:: |p{0.10\linewidth}|p{0.90\linewidth}|
+.. list-table::
+    :header-rows: 1
+    :widths: 10 90
+
+    * - 項番
+      - 説明
+    * - | (1)
+      - | GreenMailのライブラリをdependenciesに追加する。
+    * - | (2)
+      - | GreenMailはJakarta Mailの前身であるJavaMailに依存している。
+        | \ :ref:`depends_jakartaMail`\ においてJakarta Mailを追加している前提で、クラス競合を防ぐためJavaMailは除外すると良い。
+
+**JUnitソースの実装例**
+
+.. code-block:: java
+
+    @Inject
+    EmailService emailService;
+
+    @Rule
+    public final GreenMailRule greenMail = new GreenMailRule(
+            ServerSetupTest.SMTP); // (1)
+
+    @Test
+    public void testSend() {
+
+        String from = "info@example.com";
+        String to = "foo@example.com";
+        String subject = "Registration confirmation.";
+        String text = "Hi "
+                + to
+                + ", welcome to EXAMPLE.COM!\r\n"
+                + "If you were not an intended recipient, Please notify the sender.";
+        emailService.send(from, to, subject, text);
+
+        assertTrue(greenMail.waitForIncomingEmail(3000, 1)); // (2)
+
+        Message[] messages = greenMail.getReceivedMessages(); // (3)
+
+        assertNotNull(messages);
+        assertEquals(1, messages.length);
+        // omitted
+    }
+
+.. tabularcolumns:: |p{0.10\linewidth}|p{0.90\linewidth}|
+.. list-table::
+   :header-rows: 1
+   :widths: 10 90
+
+   * - 項番
+     - 説明
+   * - | (1)
+     - | \ ``ServerSetupTest.SMTP``\ を指定した\ ``GreenMailRule``\ をルールとして設定する。
+       | SMTPのポート番号はデフォルトで\ ``3025``\ が使用される。
+   * - | (2)
+     - | \ ``waitForIncomingEmail``\ メソッドを利用してメールの到達を待機する。
+       | 別スレッドで非同期にメール送信が行われる際に利用する。
+       | この例では、メール送信が非同期で行われている前提で、1通のメールが到達するまで最大3秒待機する。
+   * - | (3)
+     - | \ ``getReceivedMessages``\ メソッドを利用してすべての受信メールを取得する。
+       | GreenMailで送信したメールは宛先に係らず、すべてGreenMailで受信される。
 
 .. raw:: latex
 

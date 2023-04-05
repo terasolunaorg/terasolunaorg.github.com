@@ -243,6 +243,10 @@ Spring Dataより提供されているページ検索用の機能は、以下の
    :width: 80%
    :align: center
 
+ .. raw:: latex
+
+    \newpage
+
  .. tabularcolumns:: |p{0.10\linewidth}|p{0.70\linewidth}|p{0.20\linewidth}|
  .. list-table::
     :header-rows: 1
@@ -282,6 +286,10 @@ Spring Dataより提供されているページ検索用の機能は、以下の
       - | ページ移動するためのリンクの表示テキストを指定する。
         | 共通ライブラリでは、この部分を「Page Link Text」と呼ぶ。
       - | 下記の「 :ref:`Note欄 <pagination_overview_paginationlink_pagelinktext>` 」を参照されたい。
+
+ .. raw:: latex
+
+    \newpage
 
  .. note:: **「Inner Element」の数について**
 
@@ -426,6 +434,10 @@ JSPタグライブラリのパラメータに値を指定することで、デ�
         | "``0``" を指定すると、「指定したページに移動するためのリンク」自体が出力されなくなる。
         | 例) 5
 
+ .. raw:: latex
+
+    \newpage
+
 |
 
  レイアウトを制御するためのパラメータを、全てデフォルトから変更した時に出力されるHTMLは以下の通り。
@@ -458,6 +470,10 @@ JSPタグライブラリのパラメータに値を指定することで、デ�
    :align: center
 
 |
+
+ .. raw:: latex
+
+    \newpage
 
 **動作を制御するためのパラメータ**
 
@@ -495,15 +511,25 @@ JSPタグライブラリのパラメータに値を指定することで、デ�
         | **指定した値はURLエンコーディングされないため、URLエンコーディング済みのクエリ文字列を指定する必要がある。**
         |
         | フォームオブジェクトに格納されている検索条件をURLエンコーディング済みのクエリ文字列に変換する場合は、共通ライブラリから提供しているELファンクション(\ ``f:query(Object)``\)を使用すると、簡単に条件を引き継ぐことができる。
+        |
+        | terasoluna-gfw-web 1.0.1.RELEASE以上で利用可能なパラメータである。
     * - 5.
       - disableHtmlEscapeOfCriteriaQuery
       - | \ ``criteriaQuery``\パラメータに指定された値に対するHTMLエスケープ処理を無効化するためのフラグ。
         | \ ``true``\ を指定する事で、\ ``criteriaQuery``\パラメータに指定された値に対してHTMLエスケープ処理が行われなくなる。(デフォルト値は\ ``false``\)
         | **trueを指定する場合は、XSS対策が必要な文字がクエリ文字列内に含まれない事が保証されていること。**
+        |
+        | terasoluna-gfw-web 1.0.1.RELEASE以上で利用可能なパラメータである。
     * - 6.
       - enableLinkOfCurrentPage
       - | \ ``active``\ 状態のページリンクを押下した際に、該当ページを再表示するためのリクエストを送信するためのフラグ。
         | \ ``true``\ を指定する事で、「Page Link URL」に該当ページを再表示するためのURL(デフォルト値は\ ``?page={page}&size={size}``\ )が設定される。(デフォルト値は\ ``false``\で、「Page Link URL」には\ ``disabledHref``\ 属性の値が設定される)
+        |
+        | terasoluna-gfw-web 5.0.0.RELEASE以上で利用可能なパラメータである。
+
+ .. raw:: latex
+
+    \newpage
 
  .. note:: **disabledHrefの設定値について**
 
@@ -632,6 +658,10 @@ Spring Dataより提供されているページネーション機能と、共通
     * - | (10)
       - | ページネーションリンクを押下すると、該当ページを表示するためリクエストが送信される。
 
+ .. raw:: latex
+
+    \newpage
+
  .. note:: **Repositoryの実装について**
 
     上記フローの(5)と(6)の処理は、使用するO/R Mapperによって実装方法が異なる。
@@ -699,17 +729,18 @@ Spring Dataのページネーション機能を有効化するための設定
 
  .. code-block:: java
 
-    @GetMapping("list")
+    @RequestMapping("list")
     public String list(@Validated ArticleSearchCriteriaForm form,
             BindingResult result,
             Pageable pageable, // (1)
             Model model) {
 
-        ArticleSearchCriteria criteria = beanMapper.map(form); // (2)
+        ArticleSearchCriteria criteria = beanMapper.map(form,
+                ArticleSearchCriteria.class);
 
-        Page<Article> page = articleService.searchArticle(criteria, pageable); // (3)
+        Page<Article> page = articleService.searchArticle(criteria, pageable); // (2)
 
-        model.addAttribute("page", page); // (4)
+        model.addAttribute("page", page); // (3)
 
         return "article/list";
     }
@@ -725,11 +756,8 @@ Spring Dataのページネーション機能を有効化するための設定
       - | ハンドラメソッドの引数として ``Pageable`` を指定する。
         | ``Pageable`` オブジェクトには、ページ検索に必要な情報(検索対象のページ位置、取得件数、ソート条件)が格納されている。
     * - | (2)
-      - | BeanのマッピングにはMapStructを用いて作成したマッパーインタフェースを使用する。
-        | Mapperインタフェースの定義方法については\ :doc:`../GeneralFuncDetail/BeanMapping`\を参照されたい。
-    * - | (3)
       - | Serviceのメソッドの引数に ``Pageable`` オブジェクトを指定して呼び出す。
-    * - | (4)
+    * - | (3)
       - | Serviceから返却された検索結果( ``Page`` オブジェクト )を ``Model`` に追加する。 ``Model`` に追加することで、View(JSP)から参照できるようになる。
 
  .. note:: **リクエストパラメータにページ検索に必要な情報の指定がない場合の動作について**
@@ -753,7 +781,7 @@ Spring Dataのページネーション機能を有効化するための設定
 
  .. code-block:: java
 
-    @GetMapping("list")
+    @RequestMapping("list")
     public String list(@Validated ArticleSearchCriteriaForm form,
             BindingResult result,
             @PageableDefault( // (1)
@@ -939,7 +967,7 @@ JSPの実装(基本編)
 
  .. code-block:: java
 
-    @GetMapping("list")
+    @RequestMapping("list")
     public String list(@Validated ArticleSearchCriteriaForm form, BindingResult result,
             Pageable pageable, Model model) {
 
@@ -947,7 +975,8 @@ JSPの実装(基本編)
             return "article/list";
         }
 
-        ArticleSearchCriteria criteria = beanMapper.map(form);
+        ArticleSearchCriteria criteria = beanMapper.map(form,
+                ArticleSearchCriteria.class);
 
         Page<Article> page = articleService.searchArticle(criteria, pageable);
 
@@ -1400,6 +1429,8 @@ JSPの実装(基本編)
       - | ページ移動時のリクエストに検索条件を引き継ぐ場合は、 \ ``criteriaQuery``\属性に\ **URLエンコーディング済みのクエリ文字列**\を指定する。
         | 検索条件をフォームオブジェクトに格納する場合は、共通ライブラリから提供しているELファンクション( ``f:query(Object)`` ) を使用すると、簡単に条件を引き継ぐことができる。
         | 上記例の場合、 \ ``?page=ページ位置&size=取得件数&word=入力値``\という形式のクエリ文字列が生成される。
+        |
+        | \ ``criteriaQuery``\属性は、terasoluna-gfw-web 1.0.1.RELEASE以上で利用可能な属性である。
 
  .. note:: **f:query(Object) の仕様について**
 
@@ -1773,6 +1804,10 @@ Appendix
         | この設定を変更する場合は、 ``SortHandlerMethodArgumentResolver`` の ``qualifierDelimiter`` 設定も合わせて変更する必要がある。
       - | "``_``"
 
+ .. raw:: latex
+
+    \newpage
+
  .. note:: **maxPageSizeの設定値について**
 
     デフォルト値は ``2000`` であるが、アプリケーションが許容する最大値に設定を変更することを推奨する。
@@ -1877,6 +1912,10 @@ Appendix
     * - | (10)
       - | ``Order`` のコンストラクタの第2引数に、ソート項目を指定する。
 
+ .. raw:: latex
+
+    \newpage
+
 |
 
 .. _paginatin_appendix_sortHandlerMethodArgumentResolver:
@@ -1919,3 +1958,4 @@ Appendix
 .. raw:: latex
 
    \newpage
+
