@@ -2,14 +2,13 @@
 ================================================================================
 
 .. toctree::
-   :maxdepth: 1
+  :maxdepth: 1
 
-   TutorialTodo
-   TutorialREST
-   TutorialSession
-   TutorialSecurity
+  TutorialTodo
+  TutorialREST
+  TutorialSession
+  TutorialSecurity
 
 .. raw:: latex
 
-   \newpage
-
+  \newpage

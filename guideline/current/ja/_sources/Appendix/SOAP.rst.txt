@@ -1,6 +1,12 @@
 SOAP Web Service（サーバ/クライアント）
 ================================================================================
 
+.. caution:: 
+
+  Spring Framework 6へのバージョンアップに伴い、\ `Spring#27422 <https://github.com/spring-projects/spring-framework/issues/27422>`_\ で\ ``org.springframework.remoting``\ パッケージが削除された。これに伴い、本章で説明しているSpring Frameworkが提供していたJAX-WSの連携機能を使用した処理が使えなくなった。
+
+  Springの機能を使用してSOAP Web Serviceの開発を行いたい場合は、\ `Spring Web Services <https://spring.io/projects/spring-ws>`_\ が提供されているため、Spring Web Servicesを使用することを検討されたい。
+
 .. only:: html
 
  .. contents:: 目次
@@ -150,18 +156,9 @@ Spring FrameworkのJAX-WS連携機能について
       - | [サーバ] Serviceでは、Repositoryなどを使用して業務処理を実行する。
         | 通常の呼び出しと変更点は特にない。
 
-.. raw:: latex
-
-   \newpage
-
 .. note::
 
-    Springでは、ドキュメントドリブンでWebサービスを開発するSpring Web Servicesが提供されているが、ここでは扱わない。
-    詳細は\ `Spring Web Services <https://spring.io/projects/spring-ws>`_\ を参照されたい。
-
-.. note::
-
-    SpringでのJAX-WS実装の詳細は、\ `Spring Framework Documentation -Remoting and Web Services- <https://docs.spring.io/spring-framework/docs/5.3.24/reference/html/integration.html#remoting>`_\ を参照されたい。
+    SpringでのJAX-WS実装の詳細は、\ `Spring Framework Documentation -Remoting and Web Services- <https://docs.spring.io/spring-framework/docs/5.3.13/reference/html/integration.html#remoting>`_\ を参照されたい。
 
 |
 
@@ -769,7 +766,7 @@ webプロジェクト内にWebServiceインターフェースの実装クラス�
       - 説明
     * - | (1)
       - | Bean ValidationでJavaBeanの入力チェックを定義する。
-        | 詳細は「\ :doc:`../WebApplicationDetail/Validation`\ 」を参照されたい。
+        | 詳細は「\ :doc:`../ArchitectureInDetail/WebApplicationDetail/Validation`\ 」を参照されたい。
     * - | (2)
       - | バリデーションのグループ化を行うために使用するインターフェースを定義する。
 
@@ -791,9 +788,7 @@ webプロジェクト内にWebServiceインターフェースの実装クラス�
 .. code-block:: xml
 
     <!-- (1) -->
-    <sec:http pattern="/ws/**"
-              create-session="stateless"
-              once-per-request="false">
+    <sec:http pattern="/ws/**" request-matcher="ant" create-session="stateless" >
        <sec:csrf disabled="true" />
        <sec:http-basic />
     </sec:http>
@@ -890,9 +885,7 @@ webプロジェクト内にWebServiceインターフェースの実装クラス�
 .. code-block:: xml
 
     <!-- (1) -->
-    <sec:http pattern="/ws/**"
-        create-session="stateless"
-        once-per-request="false">
+    <sec:http pattern="/ws/**" request-matcher="ant" create-session="stateless">
         <sec:http-basic />
         <sec:csrf disabled="true" />
     </sec:http>
@@ -1293,10 +1286,10 @@ Serviceからスローされる例外は以下を想定している。必要に�
       - | 出力するメッセージを取得するために\ ``MessageSource``\ を使用する。
     * - | (3)
       - | 共通ライブラリが提供する\ ``ExceptionCodeResolverMessageSource``\ を使用して例外の種類と例外コードをマッピングする。
-        | 詳細は、「\ :doc:`../WebApplicationDetail/ExceptionHandling`\」を参照されたい。
+        | 詳細は、「\ :doc:`../ArchitectureInDetail/WebApplicationDetail/ExceptionHandling`\」を参照されたい。
     * - | (4)
       - | 共通ライブラリが提供する\ ``ExceptionLogger``\ を使用して例外情報を例外に出力する。
-        | 詳細は、「\ :doc:`../WebApplicationDetail/ExceptionHandling`\ 」を参照されたい。
+        | 詳細は、「\ :doc:`../ArchitectureInDetail/WebApplicationDetail/ExceptionHandling`\ 」を参照されたい。
     * - | (5)
       - | Serviceから発生しうる各例外について、\ ``SOAPFault``\へのラップを行う。
         | 例外のマッピングは冒頭の表を参考されたい。
@@ -1591,7 +1584,7 @@ WebServiceインターフェースを実装したプロキシを生成する\ ``
 
         .. Note:: **wsdlDocumentResourceへのWSDLファイルのURL以外の指定**
 
-            上記の例では、SOAPサーバがWSDLファイルを公開している前提である。\ ``classpath:``\ や\ ``file:``\ プレフィックスを使用して指定することで静的ファイルを指定することもできる。指定できる文字列は、\ `Spring Framework Documentation -The ResourceLoader- <https://docs.spring.io/spring-framework/docs/5.3.24/reference/html/core.html#resources-resourceloader>`_\ を参照されたい。
+            上記の例では、SOAPサーバがWSDLファイルを公開している前提である。\ ``classpath:``\ や\ ``file:``\ プレフィックスを使用して指定することで静的ファイルを指定することもできる。指定できる文字列は、\ `Spring Framework Documentation -The ResourceLoader- <https://docs.spring.io/spring-framework/docs/5.3.13/reference/html/core.html#resources-resourceloader>`_\ を参照されたい。
 
 
 .. Note:: **エンドポイントアドレスの上書き指定**
@@ -1985,11 +1978,6 @@ modelプロジェクトの構成について説明する。
             </dependency>
             <dependency>
                 <groupId>org.terasoluna.gfw</groupId>
-                <artifactId>terasoluna-gfw-jodatime-dependencies</artifactId>
-                <type>pom</type>
-            </dependency>
-            <dependency>
-                <groupId>org.terasoluna.gfw</groupId>
                 <artifactId>terasoluna-gfw-security-core-dependencies</artifactId>
                 <type>pom</type>
             </dependency>
@@ -2055,11 +2043,6 @@ webserviceプロジェクトの構成について説明する。
             <dependency>
                 <groupId>org.terasoluna.gfw</groupId>
                 <artifactId>terasoluna-gfw-common-dependencies</artifactId>
-                <type>pom</type>
-            </dependency>
-            <dependency>
-                <groupId>org.terasoluna.gfw</groupId>
-                <artifactId>terasoluna-gfw-jodatime-dependencies</artifactId>
                 <type>pom</type>
             </dependency>
             <dependency>
@@ -2385,7 +2368,6 @@ SOAPサーバから提供される[server projectName]-webserviceの依存関係
                  │  └spring
                  │      ├[projectName]-env.xml ...(5)
                  │      └[projectName]-infra.properties ...(6)
-                 ├dozer.properties
                  └logback.xml ...(7)
 
 .. tabularcolumns:: |p{0.10\linewidth}|p{0.90\linewidth}|
@@ -2560,7 +2542,7 @@ CXFServletを使用する場合の設定
 
    .. note::
 
-      saaj-implのバージョンはterasoluna-gfw-parentが依存している\ `Spring Boot <https://docs.spring.io/spring-boot/docs/2.7.7/reference/htmlsingle/#dependency-versions>`_\ で管理されているため、pom.xmlでのバージョンの指定は不要である。
+      saaj-implのバージョンはterasoluna-gfw-parentが依存している\ `Spring Boot <https://docs.spring.io/spring-boot/docs/3.0.1/reference/htmlsingle/#dependency-versions>`_\ で管理されているため、pom.xmlでのバージョンの指定は不要である。
 
 
 |
