@@ -1,0 +1,2285 @@
+<!DOCTYPE html>
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <title>4.12. Ajax &#8212; TERASOLUNA Server Framework for Java (5.x) Development Guideline 5.8.1.RELEASE documentation</title>
+    <link rel="stylesheet" href="../../_static/solar.css" type="text/css" />
+    <link rel="stylesheet" href="../../_static/pygments.css" type="text/css" />
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    '../../',
+        VERSION:     '5.8.1.RELEASE',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true,
+        SOURCELINK_SUFFIX: '.txt'
+      };
+    </script>
+    <script type="text/javascript" src="../../_static/jquery.js"></script>
+    <script type="text/javascript" src="../../_static/underscore.js"></script>
+    <script type="text/javascript" src="../../_static/doctools.js"></script>
+    <link rel="index" title="Index" href="../../genindex.html" />
+    <link rel="search" title="Search" href="../../search.html" />
+    <link rel="next" title="4.13. ヘルスチェック" href="HealthCheck.html" />
+    <link rel="prev" title="4.11. 共通ライブラリが提供するJSP Tag Library と EL Functions" href="TagLibAndELFunctions.html" /><script async src="https://www.googletagmanager.com/gtag/js?id=G-847V2Q99G8"></script>
+<script>
+window.dataLayer = window.dataLayer || [];
+function gtag(){dataLayer.push(arguments);}
+gtag('js', new Date()); gtag('config', 'G-847V2Q99G8');
+</script>
+<script src="../../_static/jquery.treeview.js" type="text/javascript"></script>
+<!-- <link href='http://fonts.googleapis.com/css?family=Source+Code+Pro|Open+Sans:300italic,400italic,700italic,400,300,700' rel='stylesheet' type='text/css'> -->
+<link href="../../_static/solarized-dark.css" rel="stylesheet">
+<link href="../../_static/jquery.treeview.css" rel="stylesheet">
+  </head>
+  <body>
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../../genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="HealthCheck.html" title="4.13. ヘルスチェック"
+             accesskey="N">next</a> |</li>
+        <li class="right" >
+          <a href="TagLibAndELFunctions.html" title="4.11. 共通ライブラリが提供するJSP Tag Library と EL Functions"
+             accesskey="P">previous</a> |</li>
+        <li class="nav-item nav-item-0"><a href="../../index.html">TERASOLUNA Server Framework for Java (5.x) Development Guideline 5.8.1.RELEASE documentation</a> &#187;</li>
+          <li class="nav-item nav-item-1"><a href="index.html" accesskey="U">4. Webアプリ開発機能</a> &#187;</li> 
+      </ul>
+    </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper"><label><input id="scroll" type="checkbox"> scroll sidebar</label>
+
+  <h3><a href="../../index.html">Table Of Contents</a></h3>
+  <ul>
+<li><a class="reference internal" href="#">4.12. Ajax</a><ul>
+<li><a class="reference internal" href="#overview">4.12.1. Overview</a></li>
+<li><a class="reference internal" href="#how-to-use">4.12.2. How to use</a><ul>
+<li><a class="reference internal" href="#id2">4.12.2.1. アプリケーションの設定</a><ul>
+<li><a class="reference internal" href="#spring-mvcajax">4.12.2.1.1. Spring MVCのAjax関連の機能を有効化するための設定</a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#controller">4.12.2.2. Controllerの実装</a><ul>
+<li><a class="reference internal" href="#id3">4.12.2.2.1. データを取得する</a></li>
+<li><a class="reference internal" href="#post">4.12.2.2.2. フォームデータをPOSTする</a></li>
+<li><a class="reference internal" href="#jsonpost">4.12.2.2.3. フォームデータをJSONとしてPOSTする</a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#ajax-how-to-use-input-error">4.12.2.3. 入力エラーのハンドリング</a><ul>
+<li><a class="reference internal" href="#bindexception">4.12.2.3.1. BindException のハンドリング</a></li>
+<li><a class="reference internal" href="#methodargumentnotvalidexception">4.12.2.3.2. MethodArgumentNotValidException のハンドリング</a></li>
+<li><a class="reference internal" href="#httpmessagenotreadableexception">4.12.2.3.3. HttpMessageNotReadableException のハンドリング</a></li>
+<li><a class="reference internal" href="#bindingresult">4.12.2.3.4. BindingResult を使用したハンドリング</a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#id5">4.12.2.4. 業務エラーのハンドリング</a><ul>
+<li><a class="reference internal" href="#id6">4.12.2.4.1. 例外ハンドリング用のメソッドで業務例外をハンドリング</a></li>
+<li><a class="reference internal" href="#id7">4.12.2.4.2. ハンドラメソッド内で業務例外をハンドリング</a></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+
+
+  <h4>Previous topic</h4>
+  <p class="topless"><a href="TagLibAndELFunctions.html"
+                        title="previous chapter">4.11. 共通ライブラリが提供するJSP Tag Library と EL Functions</a></p>
+  <h4>Next topic</h4>
+  <p class="topless"><a href="HealthCheck.html"
+                        title="next chapter">4.13. ヘルスチェック</a></p>
+  <div role="note" aria-label="source link">
+    <h3>This Page</h3>
+    <ul class="this-page-menu">
+      <li><a href="../../_sources/ArchitectureInDetail/WebApplicationDetail/Ajax.rst.txt"
+            rel="nofollow">Show Source</a></li>
+    </ul>
+   </div>
+<div id="searchbox" style="display: none" role="search">
+  <h3>Quick search</h3>
+    <form class="search" action="../../search.html" method="get">
+      <div><input type="text" name="q" /></div>
+      <div><input type="submit" value="Go" /></div>
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <div class="section" id="ajax">
+<h1>4.12. Ajax<a class="headerlink" href="#ajax" title="Permalink to this headline">¶</a></h1>
+<div class="contents local topic" id="id1">
+<p class="topic-title">目次</p>
+<ul class="simple">
+<li><a class="reference internal" href="#overview" id="id8">Overview</a></li>
+<li><a class="reference internal" href="#how-to-use" id="id9">How to use</a><ul>
+<li><a class="reference internal" href="#id2" id="id10">アプリケーションの設定</a><ul>
+<li><a class="reference internal" href="#spring-mvcajax" id="id11">Spring MVCのAjax関連の機能を有効化するための設定</a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#controller" id="id12">Controllerの実装</a><ul>
+<li><a class="reference internal" href="#id3" id="id13">データを取得する</a></li>
+<li><a class="reference internal" href="#post" id="id14">フォームデータをPOSTする</a></li>
+<li><a class="reference internal" href="#jsonpost" id="id15">フォームデータをJSONとしてPOSTする</a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#ajax-how-to-use-input-error" id="id16">入力エラーのハンドリング</a><ul>
+<li><a class="reference internal" href="#bindexception" id="id17">BindException のハンドリング</a></li>
+<li><a class="reference internal" href="#methodargumentnotvalidexception" id="id18">MethodArgumentNotValidException のハンドリング</a></li>
+<li><a class="reference internal" href="#httpmessagenotreadableexception" id="id19">HttpMessageNotReadableException のハンドリング</a></li>
+<li><a class="reference internal" href="#bindingresult" id="id20">BindingResult を使用したハンドリング</a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#id5" id="id21">業務エラーのハンドリング</a><ul>
+<li><a class="reference internal" href="#id6" id="id22">例外ハンドリング用のメソッドで業務例外をハンドリング</a></li>
+<li><a class="reference internal" href="#id7" id="id23">ハンドラメソッド内で業務例外をハンドリング</a></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+</div>
+<div class="line-block">
+<div class="line"><br /></div>
+</div>
+<div class="section" id="overview">
+<h2><a class="toc-backref" href="#id8">4.12.1. Overview</a><a class="headerlink" href="#overview" title="Permalink to this headline">¶</a></h2>
+<p>本章では、Ajaxを利用するアプリケーションの実装方法について説明する。</p>
+<p>Ajaxとは、以下の処理を非同期に行うための技術の総称である。</p>
+<ul class="simple">
+<li>ブラウザ上で行われる画面操作</li>
+<li>画面操作をトリガーとしたサーバへのHTTP通信、及び通信結果のユーザインタフェースへの反映</li>
+</ul>
+<div class="line-block">
+<div class="line">Ajaxを使うことで、HTTP通信中に画面の操作を継続できるため、ユーザビリティの向上を目的として使用されることが多い。</div>
+<div class="line">この技術の代表的な適用例としては、検索サイトにおける検索ワードのSuggestion機能やリアルタイム検索などがあげられる。</div>
+</div>
+<div class="line-block">
+<div class="line"><br /></div>
+</div>
+</div>
+<div class="section" id="how-to-use">
+<span id="ajax-how-to-use"></span><h2><a class="toc-backref" href="#id9">4.12.2. How to use</a><a class="headerlink" href="#how-to-use" title="Permalink to this headline">¶</a></h2>
+<div class="section" id="id2">
+<h3><a class="toc-backref" href="#id10">4.12.2.1. アプリケーションの設定</a><a class="headerlink" href="#id2" title="Permalink to this headline">¶</a></h3>
+<p>Ajax向けのアプリケーションの設定について説明する。</p>
+<div class="admonition warning">
+<p class="first admonition-title">Warning</p>
+<p><strong>StAX(Streaming API for XML)使用時のDoS攻撃対策について</strong></p>
+<p>XML形式のデータについてStAXを使用して解析する場合は、DTDを使ったDoS攻撃を受けないように対応する必要がある。</p>
+<p class="last">詳細は、<a class="reference external" href="https://tanzu.vmware.com/security/cve-2015-3192">CVE-2015-3192 - DoS Attack with XML Input</a>を参照されたい。</p>
+</div>
+<div class="section" id="spring-mvcajax">
+<h4><a class="toc-backref" href="#id11">4.12.2.1.1. Spring MVCのAjax関連の機能を有効化するための設定</a><a class="headerlink" href="#spring-mvcajax" title="Permalink to this headline">¶</a></h4>
+<p>Ajax通信時で使用されるContent-Type(<code class="docutils literal"><span class="pre">application/xml</span></code>や<code class="docutils literal"><span class="pre">application/json</span></code>など)を、Controllerのハンドラメソッドでハンドリングできるようにする。</p>
+<ul>
+<li><p class="first"><code class="file docutils literal"><span class="pre">spring-mvc.xml</span></code></p>
+<div class="highlight-xml"><div class="highlight"><pre><span></span><span class="nt">&lt;mvc:annotation-driven</span> <span class="nt">/&gt;</span> <span class="c">&lt;!-- (1) --&gt;</span>
+</pre></div>
+</div>
+<table border="1" class="colwidths-given docutils">
+<colgroup>
+<col width="10%" />
+<col width="90%" />
+</colgroup>
+<thead valign="bottom">
+<tr class="row-odd"><th class="head"><div class="first last line-block">
+<div class="line">項番</div>
+</div>
+</th>
+<th class="head"><div class="first last line-block">
+<div class="line">説明</div>
+</div>
+</th>
+</tr>
+</thead>
+<tbody valign="top">
+<tr class="row-even"><td><div class="first last line-block">
+<div class="line">(1)</div>
+</div>
+</td>
+<td><div class="first last line-block">
+<div class="line"><code class="docutils literal"><span class="pre">&lt;mvc:annotation-driven&gt;</span></code>要素が指定されていると、Ajax通信時で必要となる機能が有効化されている。</div>
+<div class="line">そのため、Ajax通信用に特別な設定を行う必要はない。</div>
+</div>
+</td>
+</tr>
+</tbody>
+</table>
+<div class="admonition note">
+<p class="first admonition-title">Note</p>
+<p>Ajax通信時で必要となる機能とは、具体的には<code class="docutils literal"><span class="pre">org.springframework.http.converter.HttpMessageConverter</span></code>クラスで提供される機能の事をさす。</p>
+<p><code class="docutils literal"><span class="pre">HttpMessageConverter</span></code>は、以下の役割をもつ。</p>
+<ul class="last simple">
+<li>リクエストBodyに格納されているデータからJavaオブジェクトを生成する。</li>
+<li>JavaオブジェクトからレスポンスBodyに書き込むデータを生成する。</li>
+</ul>
+</div>
+</li>
+</ul>
+<p><code class="docutils literal"><span class="pre">&lt;mvc:annotation-driven&gt;</span></code>指定時にデフォルトで有効化される<code class="docutils literal"><span class="pre">HttpMessageConverter</span></code>は以下の通りである。</p>
+<blockquote>
+<div><table border="1" class="colwidths-given docutils">
+<colgroup>
+<col width="10%" />
+<col width="30%" />
+<col width="15%" />
+<col width="45%" />
+</colgroup>
+<thead valign="bottom">
+<tr class="row-odd"><th class="head"><div class="first last line-block">
+<div class="line">項番</div>
+</div>
+</th>
+<th class="head"><div class="first last line-block">
+<div class="line">クラス名</div>
+</div>
+</th>
+<th class="head"><div class="first last line-block">
+<div class="line">対象</div>
+<div class="line">フォーマット</div>
+</div>
+</th>
+<th class="head"><div class="first last line-block">
+<div class="line">説明</div>
+</div>
+</th>
+</tr>
+</thead>
+<tbody valign="top">
+<tr class="row-even"><td><ol class="first last arabic simple">
+<li></li>
+</ol>
+</td>
+<td><div class="first last line-block">
+<div class="line">org.springframework.http.converter.json.</div>
+<div class="line">MappingJackson2HttpMessageConverter</div>
+</div>
+</td>
+<td><div class="first last line-block">
+<div class="line">JSON</div>
+</div>
+</td>
+<td><div class="first last line-block">
+<div class="line">リクエストBody又はレスポンスBodyとしてJSONを扱うための<code class="docutils literal"><span class="pre">HttpMessageConverter</span></code>。</div>
+<div class="line">ブランクプロジェクトでは、<a class="reference external" href="https://github.com/FasterXML/jackson/">Jackson</a>を同封しているため、デフォルトの状態で使用することができる。</div>
+</div>
+</td>
+</tr>
+<tr class="row-odd"><td><ol class="first last arabic simple" start="2">
+<li></li>
+</ol>
+</td>
+<td><div class="first last line-block">
+<div class="line">org.springframework.http.converter.xml.</div>
+<div class="line">Jaxb2RootElementHttpMessageConverter</div>
+</div>
+</td>
+<td><div class="first last line-block">
+<div class="line">XML</div>
+</div>
+</td>
+<td><div class="first last line-block">
+<div class="line">リクエストBody又はレスポンスBodyとしてXMLを扱うための<code class="docutils literal"><span class="pre">HttpMessageConverter</span></code>。</div>
+<div class="line">Java SE 17でJAXBを利用するには<a class="reference internal" href="../../Appendix/Java17Settings.html#remove-jaxb-from-java11"><span class="std std-ref">JAXBの削除</span></a>を参照されたい。</div>
+</div>
+</td>
+</tr>
+</tbody>
+</table>
+</div></blockquote>
+<blockquote id="ajaxwarningxxeprotection">
+<div><div class="admonition note">
+<p class="first admonition-title">Note</p>
+<p><strong>XXE(XML External Entity) 対策について</strong></p>
+<p>Ajax通信でXML形式のデータを扱う場合は、<a class="reference external" href="https://owasp.org/www-community/vulnerabilities/XML_External_Entity_(XXE)_Processing">XXE(XML External Entity)</a>対策を行う必要がある。</p>
+<p class="last">TERASOLUNA Server Framework for Java (5.x)では、XXE 対策が行われているSpring MVC(3.2.10.RELEASE以上)に依存しているため、個別に対策を行う必要はない。</p>
+</div>
+</div></blockquote>
+<div class="line-block">
+<div class="line"><br /></div>
+</div>
+</div>
+</div>
+<div class="section" id="controller">
+<h3><a class="toc-backref" href="#id12">4.12.2.2. Controllerの実装</a><a class="headerlink" href="#controller" title="Permalink to this headline">¶</a></h3>
+<p>以降で説明するサンプルコードの前提は以下の通りである。</p>
+<ul class="simple">
+<li>応答データの形式にはJSONを使用する。</li>
+<li>クライアント側には、JQueryを使用する。バージョンは執筆時点の1.x系の最新バージョン(1.10.2)を使用する。</li>
+</ul>
+<div class="admonition warning">
+<p class="first admonition-title">Warning</p>
+<p><strong>循環参照への対策</strong></p>
+<p><code class="docutils literal"><span class="pre">HttpMessageConverter</span></code>を使用してJavaBeanをJSONやXML形式にシリアライズする際に、相互参照関係のオブジェクトをプロパティに保持していると、循環参照となり<code class="docutils literal"><span class="pre">StackOverflowError</span></code>や<code class="docutils literal"><span class="pre">OutOfMemoryError</span></code>などが発生するので、注意が必要である。</p>
+<p>循環参照を回避するためには、</p>
+<ul class="simple">
+<li>Jacksonを使用してJSON形式にシリアライズする場合は、シリアライズ対象から除外するプロパティに<code class="docutils literal"><span class="pre">&#64;com.fasterxml.jackson.annotation.JsonIgnore</span></code>アノテーション</li>
+<li>JAXBを使用してXML形式にシリアライズする場合は、シリアライズ対象から除外するプロパティに<code class="docutils literal"><span class="pre">jakarta.xml.bind.annotation.XmlTransient</span></code>アノテーション</li>
+</ul>
+<p>を付与すればよい。</p>
+<p>以下にJacksonを使用してJSON形式にシリアライズする際の回避例を示す。</p>
+<blockquote class="last">
+<div><div class="highlight-java"><div class="highlight"><pre><span></span><span class="kd">public</span> <span class="kd">class</span> <span class="nc">Order</span> <span class="p">{</span>
+    <span class="kd">private</span> <span class="n">String</span> <span class="n">orderId</span><span class="p">;</span>
+    <span class="kd">private</span> <span class="n">List</span><span class="o">&lt;</span><span class="n">OrderLine</span><span class="o">&gt;</span> <span class="n">orderLines</span><span class="p">;</span>
+    <span class="c1">// omitted</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+<div class="highlight-java"><div class="highlight"><pre><span></span><span class="kd">public</span> <span class="kd">class</span> <span class="nc">OrderLine</span> <span class="p">{</span>
+    <span class="nd">@JsonIgnore</span>
+    <span class="kd">private</span> <span class="n">Order</span> <span class="n">order</span><span class="p">;</span>
+    <span class="kd">private</span> <span class="n">String</span> <span class="n">itemCode</span><span class="p">;</span>
+    <span class="kd">private</span> <span class="kt">int</span> <span class="n">quantity</span><span class="p">;</span>
+    <span class="c1">// omitted</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+<table border="1" class="colwidths-given longtable docutils">
+<colgroup>
+<col width="10%" />
+<col width="90%" />
+</colgroup>
+<thead valign="bottom">
+<tr class="row-odd"><th class="head">項番</th>
+<th class="head">説明</th>
+</tr>
+</thead>
+<tbody valign="top">
+<tr class="row-even"><td><div class="first last line-block">
+<div class="line">(1)</div>
+</div>
+</td>
+<td>シリアライズ対象から除外するプロパティに対して<code class="docutils literal"><span class="pre">&#64;JsonIgnore</span></code>アノテーションを付与する。</td>
+</tr>
+</tbody>
+</table>
+</div></blockquote>
+</div>
+<div class="line-block">
+<div class="line"><br /></div>
+</div>
+<div class="section" id="id3">
+<h4><a class="toc-backref" href="#id13">4.12.2.2.1. データを取得する</a><a class="headerlink" href="#id3" title="Permalink to this headline">¶</a></h4>
+<p>Ajaxを使ってデータを取得する方法について説明する。</p>
+<p>下記例は、検索ワードに一致する情報を一覧として返却するAjax通信となっている。</p>
+<ul>
+<li><p class="first">リクエストデータを受け取るためのJavaBean</p>
+<div class="highlight-java"><div class="highlight"><pre><span></span><span class="c1">// (1)</span>
+<span class="kd">public</span> <span class="kd">class</span> <span class="nc">SearchCriteria</span> <span class="kd">implements</span> <span class="n">Serializable</span> <span class="p">{</span>
+
+    <span class="c1">// omitted</span>
+
+    <span class="kd">private</span> <span class="n">String</span> <span class="n">freeWord</span><span class="p">;</span> <span class="c1">// (2)</span>
+
+    <span class="c1">// omitted setter/getter</span>
+
+<span class="p">}</span>
+</pre></div>
+</div>
+<table border="1" class="colwidths-given docutils">
+<colgroup>
+<col width="10%" />
+<col width="90%" />
+</colgroup>
+<thead valign="bottom">
+<tr class="row-odd"><th class="head"><div class="first last line-block">
+<div class="line">項番</div>
+</div>
+</th>
+<th class="head"><div class="first last line-block">
+<div class="line">説明</div>
+</div>
+</th>
+</tr>
+</thead>
+<tbody valign="top">
+<tr class="row-even"><td><div class="first last line-block">
+<div class="line">(1)</div>
+</div>
+</td>
+<td><div class="first last line-block">
+<div class="line">リクエストデータを受け取るためのJavaBeanを作成する。</div>
+</div>
+</td>
+</tr>
+<tr class="row-odd"><td><div class="first last line-block">
+<div class="line">(2)</div>
+</div>
+</td>
+<td><div class="first last line-block">
+<div class="line">プロパティ名は、リクエストパラメータのパラメータ名と一致させる。</div>
+</div>
+</td>
+</tr>
+</tbody>
+</table>
+</li>
+</ul>
+<div class="line-block">
+<div class="line"><br /></div>
+</div>
+<ul>
+<li><p class="first">返却するデータを格納するJavaBean</p>
+<div class="highlight-java"><div class="highlight"><pre><span></span><span class="c1">// (3)</span>
+<span class="kd">public</span> <span class="kd">class</span> <span class="nc">SearchResult</span> <span class="kd">implements</span> <span class="n">Serializable</span> <span class="p">{</span>
+
+    <span class="c1">// omitted</span>
+
+    <span class="kd">private</span> <span class="n">List</span><span class="o">&lt;</span><span class="n">XxxEntity</span><span class="o">&gt;</span> <span class="n">list</span><span class="p">;</span>
+
+    <span class="c1">// omitted setter/getter</span>
+
+<span class="p">}</span>
+</pre></div>
+</div>
+<table border="1" class="colwidths-given docutils">
+<colgroup>
+<col width="10%" />
+<col width="90%" />
+</colgroup>
+<thead valign="bottom">
+<tr class="row-odd"><th class="head"><div class="first last line-block">
+<div class="line">項番</div>
+</div>
+</th>
+<th class="head"><div class="first last line-block">
+<div class="line">説明</div>
+</div>
+</th>
+</tr>
+</thead>
+<tbody valign="top">
+<tr class="row-even"><td><div class="first last line-block">
+<div class="line">(3)</div>
+</div>
+</td>
+<td><div class="first last line-block">
+<div class="line">返却するデータを格納するためのJavaBeanを作成する。</div>
+</div>
+</td>
+</tr>
+</tbody>
+</table>
+</li>
+</ul>
+<div class="line-block">
+<div class="line"><br /></div>
+</div>
+<ul>
+<li><p class="first">Controller</p>
+<div class="highlight-java"><div class="highlight"><pre><span></span><span class="nd">@GetMapping</span><span class="p">(</span><span class="n">value</span> <span class="o">=</span> <span class="s">&quot;search&quot;</span><span class="p">)</span> <span class="c1">// (4)</span>
+<span class="nd">@ResponseBody</span> <span class="c1">// (5)</span>
+<span class="kd">public</span> <span class="n">SearchResult</span> <span class="nf">search</span><span class="p">(</span><span class="nd">@Validated</span> <span class="n">SearchCriteria</span> <span class="n">criteria</span><span class="p">)</span> <span class="p">{</span> <span class="c1">// (6)</span>
+
+    <span class="n">SearchResult</span> <span class="n">searchResult</span> <span class="o">=</span> <span class="k">new</span> <span class="n">SearchResult</span><span class="p">();</span> <span class="c1">// (7)</span>
+
+    <span class="c1">// (8)</span>
+    <span class="c1">// omitted</span>
+
+    <span class="k">return</span> <span class="n">searchResult</span><span class="p">;</span> <span class="c1">// (9)</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+<table border="1" class="colwidths-given docutils">
+<colgroup>
+<col width="10%" />
+<col width="90%" />
+</colgroup>
+<thead valign="bottom">
+<tr class="row-odd"><th class="head"><div class="first last line-block">
+<div class="line">項番</div>
+</div>
+</th>
+<th class="head"><div class="first last line-block">
+<div class="line">説明</div>
+</div>
+</th>
+</tr>
+</thead>
+<tbody valign="top">
+<tr class="row-even"><td><div class="first last line-block">
+<div class="line">(4)</div>
+</div>
+</td>
+<td><div class="first last line-block">
+<div class="line"><code class="docutils literal"><span class="pre">&#64;GetMapping</span></code>アノテーションを指定する。</div>
+</div>
+</td>
+</tr>
+<tr class="row-odd"><td><div class="first last line-block">
+<div class="line">(5)</div>
+</div>
+</td>
+<td><div class="first last line-block">
+<div class="line"><code class="docutils literal"><span class="pre">&#64;org.springframework.web.bind.annotation.ResponseBody</span></code>アノテーションを付与する。</div>
+<div class="line">このアノテーションを付与することで、返却したオブジェクトがJSON形式にmarshalされ、レスポンスBodyに設定される。</div>
+</div>
+</td>
+</tr>
+<tr class="row-even"><td><div class="first last line-block">
+<div class="line">(6)</div>
+</div>
+</td>
+<td><div class="first last line-block">
+<div class="line">リクエストデータを受け取るためのJavaBeanを引数に指定する。</div>
+<div class="line">入力チェックが必要な場合は、<code class="docutils literal"><span class="pre">&#64;Validated</span></code>を指定する。入力チェックのエラーハンドリングについては、「<a class="reference internal" href="#ajax-how-to-use-input-error"><span class="std std-ref">入力エラーのハンドリング</span></a>」を参照されたい。</div>
+<div class="line">入力チェックの詳細については、「<a class="reference internal" href="Validation.html"><span class="doc">入力チェック</span></a>」を参照されたい。</div>
+</div>
+</td>
+</tr>
+<tr class="row-odd"><td><div class="first last line-block">
+<div class="line">(7)</div>
+</div>
+</td>
+<td><div class="first last line-block">
+<div class="line">返却するデータを格納するJavaBeanのオブジェクトを生成する。</div>
+</div>
+</td>
+</tr>
+<tr class="row-even"><td><div class="first last line-block">
+<div class="line">(8)</div>
+</div>
+</td>
+<td><div class="first last line-block">
+<div class="line">データを検索し、(7)で生成したオブジェクトに検索結果を格納する。</div>
+<div class="line">上記例では、実装は省略している。</div>
+</div>
+</td>
+</tr>
+<tr class="row-odd"><td><div class="first last line-block">
+<div class="line">(9)</div>
+</div>
+</td>
+<td><div class="first last line-block">
+<div class="line">レスポンスBodyにmarshalするためのオブジェクトを返却する。</div>
+</div>
+</td>
+</tr>
+</tbody>
+</table>
+</li>
+</ul>
+<div class="line-block">
+<div class="line"><br /></div>
+</div>
+<ul>
+<li><p class="first">HTML(JSP)</p>
+<div class="highlight-jsp"><div class="highlight"><pre><span></span><span class="c">&lt;!-- omitted --&gt;</span>
+
+<span class="nt">&lt;meta</span> <span class="na">name=</span><span class="s">&quot;contextPath&quot;</span> <span class="na">content=</span><span class="s">&quot;${pageContext.request.contextPath}&quot;</span> <span class="nt">/&gt;</span>
+
+<span class="c">&lt;!-- omitted --&gt;</span>
+
+<span class="c">&lt;!-- (10)  --&gt;</span>
+<span class="nt">&lt;form</span> <span class="na">id=</span><span class="s">&quot;searchForm&quot;</span><span class="nt">&gt;</span>
+  <span class="nt">&lt;input</span> <span class="na">name=</span><span class="s">&quot;freeWord&quot;</span> <span class="na">type=</span><span class="s">&quot;text&quot;</span><span class="nt">&gt;</span>
+  <span class="nt">&lt;button</span> <span class="na">onclick=</span><span class="s">&quot;return searchByFreeWord()&quot;</span><span class="nt">&gt;</span>Search<span class="nt">&lt;/button&gt;</span>
+<span class="nt">&lt;/form&gt;</span>
+</pre></div>
+</div>
+<table border="1" class="colwidths-given docutils">
+<colgroup>
+<col width="10%" />
+<col width="90%" />
+</colgroup>
+<thead valign="bottom">
+<tr class="row-odd"><th class="head"><div class="first last line-block">
+<div class="line">項番</div>
+</div>
+</th>
+<th class="head"><div class="first last line-block">
+<div class="line">説明</div>
+</div>
+</th>
+</tr>
+</thead>
+<tbody valign="top">
+<tr class="row-even"><td><div class="first last line-block">
+<div class="line">(10)</div>
+</div>
+</td>
+<td><div class="first last line-block">
+<div class="line">検索条件を入力するためのフォーム。</div>
+<div class="line">上記例では、検索条件を入力するためのテキストボックスと検索ボタンをもっている。</div>
+</div>
+</td>
+</tr>
+</tbody>
+</table>
+<div class="highlight-jsp"><div class="highlight"><pre><span></span><span class="c">&lt;!-- (11) --&gt;</span>
+<span class="nt">&lt;script</span> <span class="na">type=</span><span class="s">&quot;text/javascript&quot;</span>
+    <span class="na">src=</span><span class="s">&quot;${pageContext.request.contextPath}/resources/vendor/jquery/jquery-1.10.2.js&quot;</span><span class="nt">&gt;</span>
+<span class="nt">&lt;/script&gt;</span>
+</pre></div>
+</div>
+<table border="1" class="colwidths-given docutils">
+<colgroup>
+<col width="10%" />
+<col width="90%" />
+</colgroup>
+<thead valign="bottom">
+<tr class="row-odd"><th class="head"><div class="first last line-block">
+<div class="line">項番</div>
+</div>
+</th>
+<th class="head"><div class="first last line-block">
+<div class="line">説明</div>
+</div>
+</th>
+</tr>
+</thead>
+<tbody valign="top">
+<tr class="row-even"><td><div class="first last line-block">
+<div class="line">(11)</div>
+</div>
+</td>
+<td><div class="first last line-block">
+<div class="line">JQueryのJavaScriptファイルを読み込む。</div>
+<div class="line">上記例では、JQueryのJavaScriptファイルを読み込むために、<code class="docutils literal"><span class="pre">/resources/vendor/jquery/jquery-1.10.2.js</span></code>というパスに対してリクエストが送信される。</div>
+</div>
+</td>
+</tr>
+</tbody>
+</table>
+<div class="admonition note">
+<p class="first admonition-title">Note</p>
+<p>JQueryのJavaScriptファイルを読み込みための設定は、以下の通り。</p>
+<p>以下はブランクプロジェクトで提供されている設定値である。</p>
+<ul>
+<li><p class="first"><code class="file docutils literal"><span class="pre">spring-mvc.xml</span></code></p>
+<div class="highlight-xml"><div class="highlight"><pre><span></span><span class="c">&lt;!-- (12) --&gt;</span>
+<span class="nt">&lt;mvc:resources</span> <span class="na">mapping=</span><span class="s">&quot;/resources/**&quot;</span>
+    <span class="na">location=</span><span class="s">&quot;/resources/,classpath:META-INF/resources/&quot;</span>
+    <span class="na">cache-period=</span><span class="s">&quot;#{60 * 60}&quot;</span> <span class="nt">/&gt;</span>
+</pre></div>
+</div>
+<table border="1" class="colwidths-given docutils">
+<colgroup>
+<col width="10%" />
+<col width="90%" />
+</colgroup>
+<thead valign="bottom">
+<tr class="row-odd"><th class="head"><div class="first last line-block">
+<div class="line">項番</div>
+</div>
+</th>
+<th class="head"><div class="first last line-block">
+<div class="line">説明</div>
+</div>
+</th>
+</tr>
+</thead>
+<tbody valign="top">
+<tr class="row-even"><td><div class="first last line-block">
+<div class="line">(12)</div>
+</div>
+</td>
+<td><div class="first last line-block">
+<div class="line">リソースファイル(JavaScriptファイル, Stylesheetファイル, 画像ファイルなど)を公開するための設定。</div>
+<div class="line">上記設定例では、<code class="docutils literal"><span class="pre">/resources/</span></code>から始まるパスに対してリクエストがあった場合に、warファイル内の<code class="docutils literal"><span class="pre">/resources/</span></code>ディレクトリ又はクラスパス内の<code class="docutils literal"><span class="pre">/META-INF/resources/</span></code>ディレクトリに格納されているファイルが応答される。</div>
+</div>
+</td>
+</tr>
+</tbody>
+</table>
+</li>
+</ul>
+<div class="line-block">
+<div class="line"><br /></div>
+</div>
+<p>上記設定の場合、JQueryのJavaScriptファイルは以下の何れかのパスに配置する必要がある。</p>
+<ul class="last">
+<li><div class="first line-block">
+<div class="line">warファイル内の<code class="docutils literal"><span class="pre">/resources/vendor/jquery/jquery-1.10.2.js</span></code></div>
+<div class="line">プロジェクト内のパスで表現すると、<code class="docutils literal"><span class="pre">src/main/webapp/resources/vendor/jquery/jquery-1.10.2.js</span></code>となる。</div>
+</div>
+</li>
+<li><div class="first line-block">
+<div class="line">クラスパス内の<code class="docutils literal"><span class="pre">/META-INF/resources/vendor/jquery/jquery-1.10.2.js</span></code></div>
+<div class="line">プロジェクト内のパスで表現すると、<code class="docutils literal"><span class="pre">src/main/resources/META-INF/resources/vendor/jquery/jquery-1.10.2.js</span></code>となる。</div>
+</div>
+</li>
+</ul>
+</div>
+</li>
+</ul>
+<div class="line-block">
+<div class="line"><br /></div>
+</div>
+<ul>
+<li><p class="first">JavaScript</p>
+<div class="highlight-javascript"><div class="highlight"><pre><span></span><span class="kd">var</span> <span class="nx">contextPath</span> <span class="o">=</span> <span class="nx">$</span><span class="p">(</span><span class="s2">&quot;meta[name=&#39;contextPath&#39;]&quot;</span><span class="p">).</span><span class="nx">attr</span><span class="p">(</span><span class="s2">&quot;content&quot;</span><span class="p">);</span>
+
+<span class="c1">// (13)</span>
+<span class="kd">function</span> <span class="nx">searchByFreeWord</span><span class="p">()</span> <span class="p">{</span>
+    <span class="nx">$</span><span class="p">.</span><span class="nx">ajax</span><span class="p">(</span><span class="nx">contextPath</span> <span class="o">+</span> <span class="s2">&quot;/ajax/search&quot;</span><span class="p">,</span> <span class="p">{</span>
+        <span class="nx">type</span> <span class="o">:</span> <span class="s2">&quot;GET&quot;</span><span class="p">,</span>
+        <span class="nx">data</span> <span class="o">:</span> <span class="nx">$</span><span class="p">(</span><span class="s2">&quot;#searchForm&quot;</span><span class="p">).</span><span class="nx">serialize</span><span class="p">(),</span>
+        <span class="nx">dataType</span> <span class="o">:</span> <span class="s2">&quot;json&quot;</span><span class="p">,</span> <span class="c1">// (14)</span>
+
+    <span class="p">}).</span><span class="nx">done</span><span class="p">(</span><span class="kd">function</span><span class="p">(</span><span class="nx">json</span><span class="p">)</span> <span class="p">{</span>
+        <span class="c1">// (15)</span>
+        <span class="c1">// render search result</span>
+        <span class="c1">// omitted</span>
+
+    <span class="p">}).</span><span class="nx">fail</span><span class="p">(</span><span class="kd">function</span><span class="p">(</span><span class="nx">xhr</span><span class="p">)</span> <span class="p">{</span>
+        <span class="c1">// (16)</span>
+        <span class="c1">// render error message</span>
+        <span class="c1">// omitted</span>
+
+    <span class="p">});</span>
+    <span class="k">return</span> <span class="kc">false</span><span class="p">;</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+<table border="1" class="colwidths-given docutils">
+<colgroup>
+<col width="10%" />
+<col width="90%" />
+</colgroup>
+<thead valign="bottom">
+<tr class="row-odd"><th class="head"><div class="first last line-block">
+<div class="line">項番</div>
+</div>
+</th>
+<th class="head"><div class="first last line-block">
+<div class="line">説明</div>
+</div>
+</th>
+</tr>
+</thead>
+<tbody valign="top">
+<tr class="row-even"><td><div class="first last line-block">
+<div class="line">(13)</div>
+</div>
+</td>
+<td><div class="first last line-block">
+<div class="line">フォームに指定された検索条件をリクエストパラメータに変換し、GETメソッドで<code class="docutils literal"><span class="pre">/ajax/search</span></code>に対してリクエストを送信するAjax関数。</div>
+<div class="line">上記例では、ボタンの押下をAjax通信のトリガーとしているが、テキストボックスのキーダウンやキーアップをトリガーとすることでリアルタイム検索などを実現することができる。</div>
+</div>
+</td>
+</tr>
+<tr class="row-odd"><td><div class="first last line-block">
+<div class="line">(14)</div>
+</div>
+</td>
+<td><div class="first last line-block">
+<div class="line">レスポンスとして受け取るデータ形式を指定する。</div>
+<div class="line">上記例では<code class="docutils literal"><span class="pre">json</span></code>を指定しているため、Acceptヘッダーに<code class="docutils literal"><span class="pre">application/json</span></code>が設定される。</div>
+</div>
+</td>
+</tr>
+<tr class="row-even"><td><div class="first last line-block">
+<div class="line">(15)</div>
+</div>
+</td>
+<td><div class="first last line-block">
+<div class="line">Ajax通信が正常終了した時(Httpステータスコードが<code class="docutils literal"><span class="pre">200</span></code>の時)の処理を実装する。</div>
+<div class="line">上記例では、実装は省略している。</div>
+</div>
+</td>
+</tr>
+<tr class="row-odd"><td><div class="first last line-block">
+<div class="line">(16)</div>
+</div>
+</td>
+<td><div class="first last line-block">
+<div class="line">Ajax通信が正常終了しなかった時(Httpステータスコードが<code class="docutils literal"><span class="pre">4xx</span></code>や<code class="docutils literal"><span class="pre">5xx</span></code>の時)の処理を実装する。</div>
+<div class="line">上記例では、実装は省略している。</div>
+<div class="line">エラー処理の実装例は、<a class="reference internal" href="#ajax-post-formdata"><span class="std std-ref">フォームデータをPOSTする</span></a>を参照されたい。</div>
+</div>
+</td>
+</tr>
+</tbody>
+</table>
+<div class="admonition tip">
+<p class="first admonition-title">Tip</p>
+<p class="last">上記例ではWebアプリケーションのコンテキストパス(<code class="docutils literal"><span class="pre">${pageContext.request.contextPath}</span></code>) をHTMLの<code class="docutils literal"><span class="pre">&lt;meta&gt;</span></code>要素に設定しておくことで、JavaScriptのコードからJSPのコードを排除している。</p>
+</div>
+</li>
+</ul>
+<div class="line-block">
+<div class="line"><br /></div>
+</div>
+<div class="line-block">
+<div class="line">上記検索フォームの「Search」ボタンを押下した際には、以下のような通信が発生する。</div>
+<div class="line">ポイントとなる部分にハイライトを設けている。</div>
+</div>
+<ul>
+<li><p class="first">リクエストデータ</p>
+<div class="highlight-http"><div class="highlight"><pre><span></span><span class="hll"><span class="nf">GET</span> <span class="nn">/terasoluna-gfw-web-blank/ajax/search?freeWord=</span> <span class="kr">HTTP</span><span class="o">/</span><span class="m">1.1</span>
+</span><span class="na">Host</span><span class="o">:</span> <span class="l">localhost:9999</span>
+<span class="na">Connection</span><span class="o">:</span> <span class="l">keep-alive</span>
+<span class="hll"><span class="na">Accept</span><span class="o">:</span> <span class="l">application/json, text/javascript, */*; q=0.01</span>
+</span><span class="na">X-Requested-With</span><span class="o">:</span> <span class="l">XMLHttpRequest</span>
+<span class="na">User-Agent</span><span class="o">:</span> <span class="l">Mozilla/5.0 (Windows NT 6.1) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/30.0.1599.101 Safari/537.36</span>
+<span class="na">Referer</span><span class="o">:</span> <span class="l">http://localhost:9999/terasoluna-gfw-web-blank/ajax/xxe</span>
+<span class="na">Accept-Encoding</span><span class="o">:</span> <span class="l">gzip,deflate,sdch</span>
+<span class="na">Accept-Language</span><span class="o">:</span> <span class="l">en-US,en;q=0.8,ja;q=0.6</span>
+<span class="na">Cookie</span><span class="o">:</span> <span class="l">JSESSIONID=3A486604D7DEE62032BA6C073FC6BE9F</span>
+</pre></div>
+</div>
+</li>
+</ul>
+<div class="line-block">
+<div class="line"><br /></div>
+</div>
+<ul>
+<li><p class="first">レスポンスデータ</p>
+<div class="highlight-http"><div class="highlight"><pre><span></span><span class="kr">HTTP</span><span class="o">/</span><span class="m">1.1</span> <span class="m">200</span> <span class="ne">OK</span>
+<span class="na">Server</span><span class="o">:</span> <span class="l">Apache-Coyote/1.1</span>
+<span class="na">X-Track</span><span class="o">:</span> <span class="l">a8fb8fefaaf64ee2bffc2b0f77050226</span>
+<span class="hll"><span class="na">Content-Type</span><span class="o">:</span> <span class="l">application/json;charset=UTF-8</span>
+</span><span class="na">Transfer-Encoding</span><span class="o">:</span> <span class="l">chunked</span>
+<span class="na">Date</span><span class="o">:</span> <span class="l">Fri, 25 Oct 2013 13:52:55 GMT</span>
+
+<span class="hll"><span class="p">{</span><span class="nt">&quot;list&quot;</span><span class="p">:[]}</span>
+</span></pre></div>
+</div>
+</li>
+</ul>
+<div class="line-block">
+<div class="line"><br /></div>
+</div>
+</div>
+<div class="section" id="post">
+<span id="ajax-post-formdata"></span><h4><a class="toc-backref" href="#id14">4.12.2.2.2. フォームデータをPOSTする</a><a class="headerlink" href="#post" title="Permalink to this headline">¶</a></h4>
+<p>Ajaxを使ってフォームのデータをPOSTし、処理結果を取得する方法について説明する。</p>
+<p>下記例は、2つの数値を受け取り、加算結果を返却するAjax通信となっている。</p>
+<ul>
+<li><p class="first">フォームデータを受け取るためのJavaBean</p>
+<div class="highlight-java"><div class="highlight"><pre><span></span><span class="c1">// (1)</span>
+<span class="kd">public</span> <span class="kd">class</span> <span class="nc">CalculationParameters</span> <span class="kd">implements</span> <span class="n">Serializable</span> <span class="p">{</span>
+
+    <span class="c1">// omitted</span>
+
+    <span class="kd">private</span> <span class="n">Integer</span> <span class="n">number1</span><span class="p">;</span>
+
+    <span class="kd">private</span> <span class="n">Integer</span> <span class="n">number2</span><span class="p">;</span>
+
+    <span class="c1">// omitted setter/getter</span>
+
+<span class="p">}</span>
+</pre></div>
+</div>
+<table border="1" class="colwidths-given docutils">
+<colgroup>
+<col width="10%" />
+<col width="90%" />
+</colgroup>
+<thead valign="bottom">
+<tr class="row-odd"><th class="head"><div class="first last line-block">
+<div class="line">項番</div>
+</div>
+</th>
+<th class="head"><div class="first last line-block">
+<div class="line">説明</div>
+</div>
+</th>
+</tr>
+</thead>
+<tbody valign="top">
+<tr class="row-even"><td><div class="first last line-block">
+<div class="line">(1)</div>
+</div>
+</td>
+<td><div class="first last line-block">
+<div class="line">フォームデータを受け取るためのJavaBeanを作成する。</div>
+</div>
+</td>
+</tr>
+</tbody>
+</table>
+</li>
+</ul>
+<div class="line-block">
+<div class="line"><br /></div>
+</div>
+<ul>
+<li><p class="first">処理結果を格納するJavaBean</p>
+<div class="highlight-java"><div class="highlight"><pre><span></span><span class="c1">// (2)</span>
+<span class="kd">public</span> <span class="kd">class</span> <span class="nc">CalculationResult</span> <span class="kd">implements</span> <span class="n">Serializable</span> <span class="p">{</span>
+
+    <span class="c1">// omitted</span>
+
+    <span class="kd">private</span> <span class="kt">int</span> <span class="n">resultNumber</span><span class="p">;</span>
+
+    <span class="c1">// omitted setter/getter</span>
+
+<span class="p">}</span>
+</pre></div>
+</div>
+<table border="1" class="colwidths-given docutils">
+<colgroup>
+<col width="10%" />
+<col width="90%" />
+</colgroup>
+<thead valign="bottom">
+<tr class="row-odd"><th class="head"><div class="first last line-block">
+<div class="line">項番</div>
+</div>
+</th>
+<th class="head"><div class="first last line-block">
+<div class="line">説明</div>
+</div>
+</th>
+</tr>
+</thead>
+<tbody valign="top">
+<tr class="row-even"><td><div class="first last line-block">
+<div class="line">(2)</div>
+</div>
+</td>
+<td><div class="first last line-block">
+<div class="line">処理結果を格納するためのJavaBeanを作成する。</div>
+</div>
+</td>
+</tr>
+</tbody>
+</table>
+<div class="admonition warning">
+<p class="first admonition-title">Warning</p>
+<p>電文からJava Beanにデシリアライズする際、プロパティにジェネリクスやインターフェイスを使用しているなどの理由で型を特定できない場合は<code class="docutils literal"><span class="pre">&#64;com.fasterxml.jackson.annotation.JsonTypeInfo</span></code>アノテーションを付与する。<code class="docutils literal"><span class="pre">&#64;JsonTypeInfo</span></code>アノテーションを付与したプロパティをシリアライズするとJSONに型情報が出力され、これを読み取ってデシリアライズが行われる。</p>
+<p>ただし、<code class="docutils literal"><span class="pre">&#64;JsonTypeInfo</span></code>アノテーションのuse属性に<code class="docutils literal"><span class="pre">Id.CLASS</span></code>や<code class="docutils literal"><span class="pre">Id.MINIMAL_CLASS</span></code>を使用すると、JSONに出力されたクラス名を元にデシリアライズが行われるため、これにより不正にリモートコードが実行される危険がある。このため、(信頼できない送信元を含み得る)不特定多数からの電文を受け付ける前提のシステムにおいては、<code class="docutils literal"><span class="pre">Id.CLASS</span></code>や<code class="docutils literal"><span class="pre">Id.MINIMAL_CLASS</span></code>を指定してはならない。</p>
+<p class="last">なお、<code class="docutils literal"><span class="pre">ObjectMapper</span></code>の<code class="docutils literal"><span class="pre">defaultTyping</span></code>を利用すると、上記のようなデシリアライズ時の型判断をアプリケーション全体に適用することが可能である。こちらも合わせて注意されたい。</p>
+</div>
+</li>
+</ul>
+<div class="line-block">
+<div class="line"><br /></div>
+</div>
+<ul>
+<li><p class="first">Controller</p>
+<div class="highlight-java"><div class="highlight"><pre><span></span><span class="nd">@RequestMapping</span><span class="p">(</span><span class="s">&quot;xxx&quot;</span><span class="p">)</span>
+<span class="nd">@Controller</span>
+<span class="kd">public</span> <span class="kd">class</span> <span class="nc">XxxController</span> <span class="p">{</span>
+
+    <span class="nd">@PostMapping</span><span class="p">(</span><span class="n">value</span> <span class="o">=</span> <span class="s">&quot;plusForForm&quot;</span><span class="p">)</span> <span class="c1">// (3)</span>
+    <span class="nd">@ResponseBody</span>
+    <span class="kd">public</span> <span class="n">CalculationResult</span> <span class="nf">plusForForm</span><span class="p">(</span>
+        <span class="nd">@Validated</span> <span class="n">CalculationParameters</span> <span class="n">params</span><span class="p">)</span> <span class="p">{</span> <span class="c1">// (4)</span>
+        <span class="n">CalculationResult</span> <span class="n">result</span> <span class="o">=</span> <span class="k">new</span> <span class="n">CalculationResult</span><span class="p">();</span>
+        <span class="kt">int</span> <span class="n">sum</span> <span class="o">=</span> <span class="n">params</span><span class="p">.</span><span class="na">getNumber1</span><span class="p">()</span> <span class="o">+</span> <span class="n">params</span><span class="p">.</span><span class="na">getNumber2</span><span class="p">();</span>
+        <span class="n">result</span><span class="p">.</span><span class="na">setResultNumber</span><span class="p">(</span><span class="n">sum</span><span class="p">);</span> <span class="c1">// (5)</span>
+        <span class="k">return</span> <span class="n">result</span><span class="p">;</span> <span class="c1">// (6)</span>
+    <span class="p">}</span>
+
+    <span class="c1">// omitted</span>
+
+<span class="p">}</span>
+</pre></div>
+</div>
+<table border="1" class="colwidths-given docutils">
+<colgroup>
+<col width="10%" />
+<col width="90%" />
+</colgroup>
+<thead valign="bottom">
+<tr class="row-odd"><th class="head"><div class="first last line-block">
+<div class="line">項番</div>
+</div>
+</th>
+<th class="head"><div class="first last line-block">
+<div class="line">説明</div>
+</div>
+</th>
+</tr>
+</thead>
+<tbody valign="top">
+<tr class="row-even"><td><div class="first last line-block">
+<div class="line">(3)</div>
+</div>
+</td>
+<td><div class="first last line-block">
+<div class="line"><code class="docutils literal"><span class="pre">&#64;PostMapping</span></code>アノテーションを指定する。</div>
+</div>
+</td>
+</tr>
+<tr class="row-odd"><td><div class="first last line-block">
+<div class="line">(4)</div>
+</div>
+</td>
+<td><div class="first last line-block">
+<div class="line">フォームデータを受け取るためのJavaBeanを引数に指定する。</div>
+<div class="line">入力チェックが必要な場合は、<code class="docutils literal"><span class="pre">&#64;Validated</span></code>を指定する。入力チェックのエラーハンドリングについては、「<a class="reference internal" href="#ajax-how-to-use-input-error"><span class="std std-ref">入力エラーのハンドリング</span></a>」を参照されたい。</div>
+<div class="line">入力チェックの詳細については、「 <a class="reference internal" href="Validation.html"><span class="doc">入力チェック</span></a> 」を参照されたい。</div>
+</div>
+</td>
+</tr>
+<tr class="row-even"><td><div class="first last line-block">
+<div class="line">(5)</div>
+</div>
+</td>
+<td><div class="first last line-block">
+<div class="line">処理結果を格納するオブジェクトに処理結果を格納する。</div>
+<div class="line">上記例では、フォームオブジェクトから取得した２つの数値を加算した結果を格納している。</div>
+</div>
+</td>
+</tr>
+<tr class="row-odd"><td><div class="first last line-block">
+<div class="line">(6)</div>
+</div>
+</td>
+<td><div class="first last line-block">
+<div class="line">レスポンスBodyにmarshalするためのオブジェクトを返却する。</div>
+</div>
+</td>
+</tr>
+</tbody>
+</table>
+</li>
+</ul>
+<div class="line-block">
+<div class="line"><br /></div>
+</div>
+<ul>
+<li><p class="first">HTML(JSP)</p>
+<div class="highlight-jsp"><div class="highlight"><pre><span></span><span class="c">&lt;!-- omitted --&gt;</span>
+
+<span class="nt">&lt;meta</span> <span class="na">name=</span><span class="s">&quot;contextPath&quot;</span> <span class="na">content=</span><span class="s">&quot;${pageContext.request.contextPath}&quot;</span> <span class="nt">/&gt;</span>
+
+<span class="nt">&lt;sec:csrfMetaTags</span> <span class="nt">/&gt;</span>
+
+<span class="c">&lt;!-- omitted --&gt;</span>
+
+<span class="c">&lt;!-- (7)  --&gt;</span>
+<span class="nt">&lt;form</span> <span class="na">id=</span><span class="s">&quot;calculationForm&quot;</span><span class="nt">&gt;</span>
+    <span class="nt">&lt;input</span> <span class="na">name=</span><span class="s">&quot;number1&quot;</span> <span class="na">type=</span><span class="s">&quot;text&quot;</span><span class="nt">&gt;</span>+
+    <span class="nt">&lt;input</span> <span class="na">name=</span><span class="s">&quot;number2&quot;</span> <span class="na">type=</span><span class="s">&quot;text&quot;</span><span class="nt">&gt;</span>
+    <span class="nt">&lt;button</span> <span class="na">onclick=</span><span class="s">&quot;return plus()&quot;</span><span class="nt">&gt;</span>=<span class="nt">&lt;/button&gt;</span>
+    <span class="nt">&lt;span</span> <span class="na">id=</span><span class="s">&quot;calculationResult&quot;</span><span class="nt">&gt;&lt;/span&gt;</span> <span class="c">&lt;!-- (8) --&gt;</span>
+<span class="nt">&lt;/form&gt;</span>
+</pre></div>
+</div>
+<table border="1" class="colwidths-given docutils">
+<colgroup>
+<col width="10%" />
+<col width="90%" />
+</colgroup>
+<thead valign="bottom">
+<tr class="row-odd"><th class="head"><div class="first last line-block">
+<div class="line">項番</div>
+</div>
+</th>
+<th class="head"><div class="first last line-block">
+<div class="line">説明</div>
+</div>
+</th>
+</tr>
+</thead>
+<tbody valign="top">
+<tr class="row-even"><td><div class="first last line-block">
+<div class="line">(7)</div>
+</div>
+</td>
+<td><div class="first last line-block">
+<div class="line">計算対象の数値を入力するためのフォーム。</div>
+</div>
+</td>
+</tr>
+<tr class="row-odd"><td><div class="first last line-block">
+<div class="line">(8)</div>
+</div>
+</td>
+<td><div class="first last line-block">
+<div class="line">計算結果を表示するための領域。</div>
+<div class="line">上記例では、通信成功時には計算結果が表示され、通信失敗時には計算結果がクリアされる。</div>
+</div>
+</td>
+</tr>
+</tbody>
+</table>
+</li>
+</ul>
+<div class="line-block">
+<div class="line"><br /></div>
+</div>
+<ul>
+<li><p class="first">JavaScript</p>
+<div class="highlight-javascript"><div class="highlight"><pre><span></span><span class="kd">var</span> <span class="nx">contextPath</span> <span class="o">=</span> <span class="nx">$</span><span class="p">(</span><span class="s2">&quot;meta[name=&#39;contextPath&#39;]&quot;</span><span class="p">).</span><span class="nx">attr</span><span class="p">(</span><span class="s2">&quot;content&quot;</span><span class="p">);</span>
+
+<span class="c1">// (9)</span>
+<span class="kd">var</span> <span class="nx">csrfToken</span> <span class="o">=</span> <span class="nx">$</span><span class="p">(</span><span class="s2">&quot;meta[name=&#39;_csrf&#39;]&quot;</span><span class="p">).</span><span class="nx">attr</span><span class="p">(</span><span class="s2">&quot;content&quot;</span><span class="p">);</span>
+<span class="kd">var</span> <span class="nx">csrfHeaderName</span> <span class="o">=</span> <span class="nx">$</span><span class="p">(</span><span class="s2">&quot;meta[name=&#39;_csrf_header&#39;]&quot;</span><span class="p">).</span><span class="nx">attr</span><span class="p">(</span><span class="s2">&quot;content&quot;</span><span class="p">);</span>
+<span class="nx">$</span><span class="p">(</span><span class="nb">document</span><span class="p">).</span><span class="nx">ajaxSend</span><span class="p">(</span><span class="kd">function</span><span class="p">(</span><span class="nx">event</span><span class="p">,</span> <span class="nx">xhr</span><span class="p">,</span> <span class="nx">options</span><span class="p">)</span> <span class="p">{</span>
+    <span class="nx">xhr</span><span class="p">.</span><span class="nx">setRequestHeader</span><span class="p">(</span><span class="nx">csrfHeaderName</span><span class="p">,</span> <span class="nx">csrfToken</span><span class="p">);</span>
+<span class="p">});</span>
+
+<span class="c1">// (10)</span>
+<span class="kd">function</span> <span class="nx">plus</span><span class="p">()</span> <span class="p">{</span>
+    <span class="nx">$</span><span class="p">.</span><span class="nx">ajax</span><span class="p">(</span><span class="nx">contextPath</span> <span class="o">+</span> <span class="s2">&quot;/ajax/plusForForm&quot;</span><span class="p">,</span> <span class="p">{</span>
+        <span class="nx">type</span> <span class="o">:</span> <span class="s2">&quot;POST&quot;</span><span class="p">,</span>
+        <span class="nx">data</span> <span class="o">:</span> <span class="nx">$</span><span class="p">(</span><span class="s2">&quot;#calculationForm&quot;</span><span class="p">).</span><span class="nx">serialize</span><span class="p">(),</span>
+        <span class="nx">dataType</span> <span class="o">:</span> <span class="s2">&quot;json&quot;</span>
+    <span class="p">}).</span><span class="nx">done</span><span class="p">(</span><span class="kd">function</span><span class="p">(</span><span class="nx">json</span><span class="p">)</span> <span class="p">{</span>
+        <span class="nx">$</span><span class="p">(</span><span class="s2">&quot;#calculationResult&quot;</span><span class="p">).</span><span class="nx">text</span><span class="p">(</span><span class="nx">json</span><span class="p">.</span><span class="nx">resultNumber</span><span class="p">);</span>
+
+    <span class="p">}).</span><span class="nx">fail</span><span class="p">(</span><span class="kd">function</span><span class="p">(</span><span class="nx">xhr</span><span class="p">)</span> <span class="p">{</span>
+        <span class="c1">// (11)</span>
+        <span class="kd">var</span> <span class="nx">messages</span> <span class="o">=</span> <span class="s2">&quot;&quot;</span><span class="p">;</span>
+        <span class="c1">// (12)</span>
+        <span class="k">if</span><span class="p">(</span><span class="mi">400</span> <span class="o">&lt;=</span> <span class="nx">xhr</span><span class="p">.</span><span class="nx">status</span> <span class="o">&amp;&amp;</span> <span class="nx">xhr</span><span class="p">.</span><span class="nx">status</span> <span class="o">&lt;=</span> <span class="mi">499</span><span class="p">){</span>
+            <span class="c1">// (13)</span>
+            <span class="kd">var</span> <span class="nx">contentType</span> <span class="o">=</span> <span class="nx">xhr</span><span class="p">.</span><span class="nx">getResponseHeader</span><span class="p">(</span><span class="s1">&#39;Content-Type&#39;</span><span class="p">);</span>
+            <span class="k">if</span> <span class="p">(</span><span class="nx">contentType</span> <span class="o">!=</span> <span class="kc">null</span> <span class="o">&amp;&amp;</span> <span class="nx">contentType</span><span class="p">.</span><span class="nx">indexOf</span><span class="p">(</span><span class="s2">&quot;json&quot;</span><span class="p">)</span> <span class="o">!=</span> <span class="o">-</span><span class="mi">1</span><span class="p">)</span> <span class="p">{</span>
+                <span class="c1">// (14)</span>
+                <span class="nx">json</span> <span class="o">=</span> <span class="nx">$</span><span class="p">.</span><span class="nx">parseJSON</span><span class="p">(</span><span class="nx">xhr</span><span class="p">.</span><span class="nx">responseText</span><span class="p">);</span>
+                <span class="nx">$</span><span class="p">(</span><span class="nx">json</span><span class="p">.</span><span class="nx">errorResults</span><span class="p">).</span><span class="nx">each</span><span class="p">(</span><span class="kd">function</span><span class="p">(</span><span class="nx">i</span><span class="p">,</span> <span class="nx">errorResult</span><span class="p">)</span> <span class="p">{</span>
+                    <span class="nx">messages</span> <span class="o">+=</span> <span class="p">(</span><span class="s2">&quot;&lt;div&gt;&quot;</span> <span class="o">+</span> <span class="nx">errorResult</span><span class="p">.</span><span class="nx">message</span> <span class="o">+</span> <span class="s2">&quot;&lt;/div&gt;&quot;</span><span class="p">);</span>
+                <span class="p">});</span>
+            <span class="p">}</span> <span class="k">else</span> <span class="p">{</span>
+                <span class="c1">// (15)</span>
+                <span class="nx">messages</span> <span class="o">=</span> <span class="p">(</span><span class="s2">&quot;&lt;div&gt;&quot;</span> <span class="o">+</span> <span class="nx">xhr</span><span class="p">.</span><span class="nx">statusText</span> <span class="o">+</span> <span class="s2">&quot;&lt;/div&gt;&quot;</span><span class="p">);</span>
+            <span class="p">}</span>
+        <span class="p">}</span><span class="k">else</span><span class="p">{</span>
+            <span class="c1">// (16)</span>
+            <span class="nx">messages</span> <span class="o">=</span> <span class="p">(</span><span class="s2">&quot;&lt;div&gt;&quot;</span> <span class="o">+</span> <span class="s2">&quot;System error occurred.&quot;</span> <span class="o">+</span> <span class="s2">&quot;&lt;/div&gt;&quot;</span><span class="p">);</span>
+        <span class="p">}</span>
+        <span class="c1">// (17)</span>
+        <span class="nx">$</span><span class="p">(</span><span class="s2">&quot;#calculationResult&quot;</span><span class="p">).</span><span class="nx">html</span><span class="p">(</span><span class="nx">messages</span><span class="p">);</span>
+    <span class="p">});</span>
+
+    <span class="k">return</span> <span class="kc">false</span><span class="p">;</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+<table border="1" class="colwidths-given longtable docutils">
+<colgroup>
+<col width="10%" />
+<col width="90%" />
+</colgroup>
+<thead valign="bottom">
+<tr class="row-odd"><th class="head"><div class="first last line-block">
+<div class="line">項番</div>
+</div>
+</th>
+<th class="head"><div class="first last line-block">
+<div class="line">説明</div>
+</div>
+</th>
+</tr>
+</thead>
+<tbody valign="top">
+<tr class="row-even"><td><div class="first last line-block">
+<div class="line">(9)</div>
+</div>
+</td>
+<td><div class="first last line-block">
+<div class="line">POSTメソッドでリクエストを行う場合、CSRFトークンをHTTPヘッダに設定して送信する必要がある。</div>
+<div class="line">上記例では、<code class="docutils literal"><span class="pre">&lt;sec:csrfMetaTags</span> <span class="pre">/&gt;</span></code>を利用して<code class="docutils literal"><span class="pre">&lt;meta&gt;</span></code>要素にCSRFトークンヘッダー名とCSRFトークン値を設定し、JavaScriptで値を取得するようにしている。</div>
+<div class="line">CSRF対策の詳細については、「<a class="reference internal" href="../../Security/CSRF.html"><span class="doc">CSRF対策</span></a>」を参照されたい。</div>
+</div>
+</td>
+</tr>
+<tr class="row-odd"><td><div class="first last line-block">
+<div class="line">(10)</div>
+</div>
+</td>
+<td><div class="first last line-block">
+<div class="line">フォームに指定された数値をリクエストパラメータに変換し、POSTメソッドで<code class="docutils literal"><span class="pre">/ajax/plusForForm</span></code>に対してリクエストを送信するAjax関数。</div>
+<div class="line">上記例では、ボタンの押下をAjax通信のトリガーとしているが、テキストボックスのロストフォーカスをトリガーとすることでリアルタイム計算を実現することができる。</div>
+</div>
+</td>
+</tr>
+<tr class="row-even"><td><div class="first last line-block">
+<div class="line">(11)</div>
+</div>
+</td>
+<td><div class="first last line-block">
+<div class="line">エラー処理の実装例を以下に示す。</div>
+<div class="line">サーバ側のエラーハンドリング処理の実装例については、<a class="reference internal" href="#ajax-how-to-use-input-error"><span class="std std-ref">入力エラーのハンドリング</span></a>を参照されたい。</div>
+</div>
+</td>
+</tr>
+<tr class="row-odd"><td><div class="first last line-block">
+<div class="line">(12)</div>
+</div>
+</td>
+<td><div class="first last line-block">
+<div class="line">HTTPのステータスコードを判定し、どのようなエラーが発生したか判定する。</div>
+<div class="line">HTTPのステータスコードは、 XMLHttpRequestオブジェクトの<code class="docutils literal"><span class="pre">status</span></code>フィールドに格納されている。</div>
+</div>
+</td>
+</tr>
+<tr class="row-even"><td><div class="first last line-block">
+<div class="line">(13)</div>
+</div>
+</td>
+<td><div class="first last line-block">
+<div class="line">レスポンスされたデータがJSON形式か判定を行う。</div>
+<div class="line">上記例では、レスポンスヘッダの Content-Typeに設定されている値を参照して、レスポンスされたデータの形式をチェックしている。</div>
+<div class="line">形式をチェックしておかないと、JSON以外の形式で応答された際に、JSONオブジェクトにデシリアライズする処理でエラーが発生することになる。</div>
+<div class="line">サーバ側のエラーハンドリングを簡易的に行っていると、HTML形式のページが返却されることがある。</div>
+</div>
+</td>
+</tr>
+<tr class="row-odd"><td><div class="first last line-block">
+<div class="line">(14)</div>
+</div>
+</td>
+<td><div class="first last line-block">
+<div class="line">レスポンスデータをJSONオブジェクトにデシリアライズする。</div>
+<div class="line">レスポンスデータは、 XMLHttpRequestオブジェクトの<code class="docutils literal"><span class="pre">responseText</span></code>フィールドに格納されている。</div>
+<div class="line">上記例では、デシリアライズしたJSONオブジェクトからエラー情報を取得し、エラーメッセージを組み立てている。</div>
+</div>
+</td>
+</tr>
+<tr class="row-even"><td><div class="first last line-block">
+<div class="line">(15)</div>
+</div>
+</td>
+<td><div class="first last line-block">
+<div class="line">レスポンスされたデータがJSON形式以外だった場合の処理を行う。</div>
+<div class="line">上記例では、HTTPのステータステキストをエラーメッセージに格納している。</div>
+<div class="line">HTTPのステータステキストは、 XMLHttpRequestオブジェクトの<code class="docutils literal"><span class="pre">statusText</span></code>フィールドに格納されている。</div>
+</div>
+</td>
+</tr>
+<tr class="row-odd"><td><div class="first last line-block">
+<div class="line">(16)</div>
+</div>
+</td>
+<td><div class="first last line-block">
+<div class="line">サーバエラー時の処理を行う。</div>
+<div class="line">上記例では、システムエラーが発生したことを通知するメッセージをエラーメッセージに格納している。</div>
+</div>
+</td>
+</tr>
+<tr class="row-even"><td><div class="first last line-block">
+<div class="line">(17)</div>
+</div>
+</td>
+<td><div class="first last line-block">
+<div class="line">エラー時の描画処理を行う。</div>
+<div class="line">上記例では、計算結果を表示するための領域に、エラーメッセージを表示している。</div>
+</div>
+</td>
+</tr>
+</tbody>
+</table>
+<div class="admonition warning">
+<p class="first admonition-title">Warning</p>
+<p class="last">上記例では、Ajaxの通信処理、DOM操作処理(描画処理)、エラー処理を同じfunction内で行っているが、これらの処理は分離して実装することを推奨する。</p>
+</div>
+<div class="admonition tip">
+<p class="first admonition-title">Tip</p>
+<p>上記例では<code class="docutils literal"><span class="pre">&lt;sec:csrfMetaTags</span> <span class="pre">/&gt;</span></code>を利用して、CSRFトークン値とCSRFトークンヘッダー名をHTMLの<code class="docutils literal"><span class="pre">&lt;meta&gt;</span></code>要素に設定しておくことで、JavaScriptのコードからJSPのコードを排除している。<a class="reference internal" href="../../Security/CSRF.html#csrf-ajax-token-setting"><span class="std std-ref">Ajax使用時の連携</span></a>を参照されたい。</p>
+<p class="last">尚、CSRFトークン値とCSRFトークンヘッダー名はそれぞれ<code class="docutils literal"><span class="pre">${_csrf.token}</span></code>と<code class="docutils literal"><span class="pre">${_csrf.headerName}</span></code>を用いても取得可能である。</p>
+</div>
+</li>
+</ul>
+<div class="line-block">
+<div class="line"><br /></div>
+</div>
+<div class="line-block">
+<div class="line">上記検索フォームの「=」ボタンを押下した際には、以下のような通信が発生する。</div>
+<div class="line">ポイントとなる部分にハイライトを設けている。</div>
+</div>
+<ul>
+<li><p class="first">リクエストデータ</p>
+<div class="highlight-http"><div class="highlight"><pre><span></span><span class="hll"><span class="nf">POST</span> <span class="nn">/terasoluna-gfw-web-blank/ajax/plusForForm</span> <span class="kr">HTTP</span><span class="o">/</span><span class="m">1.1</span>
+</span><span class="na">Host</span><span class="o">:</span> <span class="l">localhost:9999</span>
+<span class="na">Connection</span><span class="o">:</span> <span class="l">keep-alive</span>
+<span class="na">Content-Length</span><span class="o">:</span> <span class="l">19</span>
+<span class="hll"><span class="na">Accept</span><span class="o">:</span> <span class="l">application/json, text/javascript, */*; q=0.01</span>
+</span><span class="na">Origin</span><span class="o">:</span> <span class="l">http://localhost:9999</span>
+<span class="hll"><span class="na">X-CSRF-TOKEN</span><span class="o">:</span> <span class="l">a5dd1858-8a4f-4ecc-88bd-a326388ab5c9</span>
+</span><span class="na">X-Requested-With</span><span class="o">:</span> <span class="l">XMLHttpRequest</span>
+<span class="na">User-Agent</span><span class="o">:</span> <span class="l">Mozilla/5.0 (Windows NT 6.1) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/30.0.1599.101 Safari/537.36</span>
+<span class="hll"><span class="na">Content-Type</span><span class="o">:</span> <span class="l">application/x-www-form-urlencoded; charset=UTF-8</span>
+</span><span class="na">Referer</span><span class="o">:</span> <span class="l">http://localhost:9999/terasoluna-gfw-web-blank/ajax/xxe</span>
+<span class="na">Accept-Encoding</span><span class="o">:</span> <span class="l">gzip,deflate,sdch</span>
+<span class="na">Accept-Language</span><span class="o">:</span> <span class="l">en-US,en;q=0.8,ja;q=0.6</span>
+<span class="na">Cookie</span><span class="o">:</span> <span class="l">JSESSIONID=3A486604D7DEE62032BA6C073FC6BE9F</span>
+
+<span class="hll">number1=1&amp;number2=2
+</span></pre></div>
+</div>
+</li>
+</ul>
+<div class="line-block">
+<div class="line"><br /></div>
+</div>
+<ul>
+<li><p class="first">レスポンスデータ</p>
+<div class="highlight-http"><div class="highlight"><pre><span></span><span class="kr">HTTP</span><span class="o">/</span><span class="m">1.1</span> <span class="m">200</span> <span class="ne">OK</span>
+<span class="na">Server</span><span class="o">:</span> <span class="l">Apache-Coyote/1.1</span>
+<span class="na">X-Track</span><span class="o">:</span> <span class="l">c2d5066d0fa946f584536775f07d1900</span>
+<span class="hll"><span class="na">Content-Type</span><span class="o">:</span> <span class="l">application/json;charset=UTF-8</span>
+</span><span class="na">Transfer-Encoding</span><span class="o">:</span> <span class="l">chunked</span>
+<span class="na">Date</span><span class="o">:</span> <span class="l">Fri, 25 Oct 2013 14:27:55 GMT</span>
+
+<span class="hll"><span class="p">{</span><span class="nt">&quot;resultNumber&quot;</span><span class="p">:</span><span class="mi">3</span><span class="p">}</span>
+</span></pre></div>
+</div>
+</li>
+</ul>
+<div class="line-block">
+<div class="line"><br /></div>
+</div>
+<ul>
+<li><p class="first">エラー時のレスポンスデータ
+下記のレスポンスデータは、入力エラーが発生時のものである。</p>
+<div class="highlight-http"><div class="highlight"><pre><span></span><span class="hll"><span class="kr">HTTP</span><span class="o">/</span><span class="m">1.1</span> <span class="m">400</span> <span class="ne">Bad Request</span>
+</span><span class="na">Server</span><span class="o">:</span> <span class="l">Apache-Coyote/1.1</span>
+<span class="na">X-Track</span><span class="o">:</span> <span class="l">cecd7b4d746249178643b7110b0eaa74</span>
+<span class="hll"><span class="na">Content-Type</span><span class="o">:</span> <span class="l">application/json;charset=UTF-8</span>
+</span><span class="na">Transfer-Encoding</span><span class="o">:</span> <span class="l">chunked</span>
+<span class="na">Date</span><span class="o">:</span> <span class="l">Wed, 04 Dec 2013 15:06:01 GMT</span>
+<span class="na">Connection</span><span class="o">:</span> <span class="l">close</span>
+
+<span class="hll"><span class="p">{</span><span class="nt">&quot;errorResults&quot;</span><span class="p">:[{</span><span class="nt">&quot;code&quot;</span><span class="p">:</span><span class="s2">&quot;NotNull&quot;</span><span class="p">,</span><span class="nt">&quot;message&quot;</span><span class="p">:</span><span class="s2">&quot;\&quot;number2\&quot;maynotbenull.&quot;</span><span class="p">,</span><span class="nt">&quot;itemPath&quot;</span><span class="p">:</span><span class="s2">&quot;number2&quot;</span><span class="p">},{</span><span class="nt">&quot;code&quot;</span><span class="p">:</span><span class="s2">&quot;NotNull&quot;</span><span class="p">,</span><span class="nt">&quot;message&quot;</span><span class="p">:</span><span class="s2">&quot;\&quot;number1\&quot;maynotbenull.&quot;</span><span class="p">,</span><span class="nt">&quot;itemPath&quot;</span><span class="p">:</span><span class="s2">&quot;number1&quot;</span><span class="p">}]}</span>
+</span></pre></div>
+</div>
+</li>
+</ul>
+<div class="line-block">
+<div class="line"><br /></div>
+</div>
+</div>
+<div class="section" id="jsonpost">
+<h4><a class="toc-backref" href="#id15">4.12.2.2.3. フォームデータをJSONとしてPOSTする</a><a class="headerlink" href="#jsonpost" title="Permalink to this headline">¶</a></h4>
+<p>Ajaxを使ってフォームのデータをJSON形式に変換してからPOSTし、処理結果を取得する方法について説明する。</p>
+<p>「フォームデータをPOSTする」方法との差分部分について説明する。</p>
+<ul>
+<li><p class="first">Controller</p>
+<div class="highlight-java"><div class="highlight"><pre><span></span><span class="nd">@RequestMapping</span><span class="p">(</span><span class="s">&quot;xxx&quot;</span><span class="p">)</span>
+<span class="nd">@Controller</span>
+<span class="kd">public</span> <span class="kd">class</span> <span class="nc">XxxController</span> <span class="p">{</span>
+
+    <span class="nd">@PostMapping</span><span class="p">(</span><span class="n">value</span> <span class="o">=</span> <span class="s">&quot;plusForJson&quot;</span><span class="p">)</span>
+    <span class="nd">@ResponseBody</span>
+    <span class="kd">public</span> <span class="n">CalculationResult</span> <span class="nf">plusForJson</span><span class="p">(</span>
+            <span class="nd">@Validated</span> <span class="nd">@RequestBody</span> <span class="n">CalculationParameters</span> <span class="n">params</span><span class="p">)</span> <span class="p">{</span> <span class="c1">// (1)</span>
+        <span class="n">CalculationResult</span> <span class="n">result</span> <span class="o">=</span> <span class="k">new</span> <span class="n">CalculationResult</span><span class="p">();</span>
+        <span class="kt">int</span> <span class="n">sum</span> <span class="o">=</span> <span class="n">params</span><span class="p">.</span><span class="na">getNumber1</span><span class="p">()</span> <span class="o">+</span> <span class="n">params</span><span class="p">.</span><span class="na">getNumber2</span><span class="p">();</span>
+        <span class="n">result</span><span class="p">.</span><span class="na">setResultNumber</span><span class="p">(</span><span class="n">sum</span><span class="p">);</span>
+        <span class="k">return</span> <span class="n">result</span><span class="p">;</span>
+    <span class="p">}</span>
+
+    <span class="c1">// omitted</span>
+
+<span class="p">}</span>
+</pre></div>
+</div>
+<table border="1" class="colwidths-given docutils">
+<colgroup>
+<col width="10%" />
+<col width="90%" />
+</colgroup>
+<thead valign="bottom">
+<tr class="row-odd"><th class="head"><div class="first last line-block">
+<div class="line">項番</div>
+</div>
+</th>
+<th class="head"><div class="first last line-block">
+<div class="line">説明</div>
+</div>
+</th>
+</tr>
+</thead>
+<tbody valign="top">
+<tr class="row-even"><td><div class="first last line-block">
+<div class="line">(1)</div>
+</div>
+</td>
+<td><div class="first last line-block">
+<div class="line">フォームデータを受け取るためのJavaBeanの引数アノテーションとして、<code class="docutils literal"><span class="pre">&#64;org.springframework.web.bind.annotation.RequestBody</span></code>アノテーションを付与する。</div>
+<div class="line">このアノテーションを付与することで、リクエストBodyに格納されているJSON形式のデータがunmarshalされ、オブジェクトに変換される。</div>
+<div class="line">入力チェックが必要な場合は、<code class="docutils literal"><span class="pre">&#64;Validated</span></code>を指定する。入力チェックのエラーハンドリングについては、「<a class="reference internal" href="#ajax-how-to-use-input-error"><span class="std std-ref">入力エラーのハンドリング</span></a>」を参照されたい。</div>
+<div class="line">入力チェックの詳細については、「<a class="reference internal" href="Validation.html"><span class="doc">入力チェック</span></a>」を参照されたい。</div>
+</div>
+</td>
+</tr>
+</tbody>
+</table>
+</li>
+</ul>
+<div class="line-block">
+<div class="line"><br /></div>
+</div>
+<ul>
+<li><p class="first">JavaScript/HTML(JSP)</p>
+<div class="highlight-javascript"><div class="highlight"><pre><span></span><span class="c1">// (2)</span>
+<span class="kd">function</span> <span class="nx">toJson</span><span class="p">(</span><span class="nx">$form</span><span class="p">)</span> <span class="p">{</span>
+    <span class="kd">var</span> <span class="nx">data</span> <span class="o">=</span> <span class="p">{};</span>
+    <span class="nx">$</span><span class="p">(</span><span class="nx">$form</span><span class="p">.</span><span class="nx">serializeArray</span><span class="p">()).</span><span class="nx">each</span><span class="p">(</span><span class="kd">function</span><span class="p">(</span><span class="nx">i</span><span class="p">,</span> <span class="nx">v</span><span class="p">)</span> <span class="p">{</span>
+        <span class="nx">data</span><span class="p">[</span><span class="nx">v</span><span class="p">.</span><span class="nx">name</span><span class="p">]</span> <span class="o">=</span> <span class="nx">v</span><span class="p">.</span><span class="nx">value</span><span class="p">;</span>
+    <span class="p">});</span>
+    <span class="k">return</span> <span class="nx">JSON</span><span class="p">.</span><span class="nx">stringify</span><span class="p">(</span><span class="nx">data</span><span class="p">);</span>
+<span class="p">}</span>
+
+<span class="kd">function</span> <span class="nx">plus</span><span class="p">()</span> <span class="p">{</span>
+
+    <span class="nx">$</span><span class="p">.</span><span class="nx">ajax</span><span class="p">(</span><span class="nx">contextPath</span> <span class="o">+</span> <span class="s2">&quot;/ajax/plusForJson&quot;</span><span class="p">,</span> <span class="p">{</span>
+        <span class="nx">type</span> <span class="o">:</span> <span class="s2">&quot;POST&quot;</span><span class="p">,</span>
+        <span class="nx">contentType</span> <span class="o">:</span> <span class="s2">&quot;application/json;charset=utf-8&quot;</span><span class="p">,</span> <span class="c1">// (3)</span>
+        <span class="nx">data</span> <span class="o">:</span> <span class="nx">toJson</span><span class="p">(</span><span class="nx">$</span><span class="p">(</span><span class="s2">&quot;#calculationForm&quot;</span><span class="p">)),</span> <span class="c1">// (2)</span>
+        <span class="nx">dataType</span> <span class="o">:</span> <span class="s2">&quot;json&quot;</span><span class="p">,</span>
+        <span class="nx">beforeSend</span> <span class="o">:</span> <span class="kd">function</span><span class="p">(</span><span class="nx">xhr</span><span class="p">)</span> <span class="p">{</span>
+            <span class="nx">xhr</span><span class="p">.</span><span class="nx">setRequestHeader</span><span class="p">(</span><span class="nx">csrfHeaderName</span><span class="p">,</span> <span class="nx">csrfToken</span><span class="p">);</span>
+        <span class="p">}</span>
+
+    <span class="p">}).</span><span class="nx">done</span><span class="p">(</span><span class="kd">function</span><span class="p">(</span><span class="nx">json</span><span class="p">)</span> <span class="p">{</span>
+        <span class="nx">$</span><span class="p">(</span><span class="s2">&quot;#calculationResult&quot;</span><span class="p">).</span><span class="nx">text</span><span class="p">(</span><span class="nx">json</span><span class="p">.</span><span class="nx">resultNumber</span><span class="p">);</span>
+
+    <span class="p">}).</span><span class="nx">fail</span><span class="p">(</span><span class="kd">function</span><span class="p">(</span><span class="nx">xhr</span><span class="p">)</span> <span class="p">{</span>
+        <span class="nx">$</span><span class="p">(</span><span class="s2">&quot;#calculationResult&quot;</span><span class="p">).</span><span class="nx">text</span><span class="p">(</span><span class="s2">&quot;&quot;</span><span class="p">);</span>
+
+    <span class="p">});</span>
+    <span class="k">return</span> <span class="kc">false</span><span class="p">;</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+<table border="1" class="colwidths-given docutils">
+<colgroup>
+<col width="10%" />
+<col width="90%" />
+</colgroup>
+<thead valign="bottom">
+<tr class="row-odd"><th class="head"><div class="first last line-block">
+<div class="line">項番</div>
+</div>
+</th>
+<th class="head"><div class="first last line-block">
+<div class="line">説明</div>
+</div>
+</th>
+</tr>
+</thead>
+<tbody valign="top">
+<tr class="row-even"><td><div class="first last line-block">
+<div class="line">(2)</div>
+</div>
+</td>
+<td><div class="first last line-block">
+<div class="line">フォーム内のinput項目をJSON形式の文字列にするための関数。</div>
+</div>
+</td>
+</tr>
+<tr class="row-odd"><td><div class="first last line-block">
+<div class="line">(3)</div>
+</div>
+</td>
+<td><div class="first last line-block">
+<div class="line">リクエストBodyにJSONを格納するので、Content-Typeのメディアタイプを<code class="docutils literal"><span class="pre">application/json</span></code>にする。</div>
+</div>
+</td>
+</tr>
+</tbody>
+</table>
+</li>
+</ul>
+<div class="line-block">
+<div class="line"><br /></div>
+</div>
+<div class="line-block">
+<div class="line">上記検索フォームの「=」ボタンを押下した際には、以下のような通信が発生する。</div>
+<div class="line">ポイントとなる部分にハイライトを設けている。</div>
+</div>
+<ul>
+<li><p class="first">リクエストデータ</p>
+<div class="highlight-http"><div class="highlight"><pre><span></span><span class="nf">POST</span> <span class="nn">/terasoluna-gfw-web-blank/ajax/plusForJson</span> <span class="kr">HTTP</span><span class="o">/</span><span class="m">1.1</span>
+<span class="na">Host</span><span class="o">:</span> <span class="l">localhost:9999</span>
+<span class="na">Connection</span><span class="o">:</span> <span class="l">keep-alive</span>
+<span class="na">Content-Length</span><span class="o">:</span> <span class="l">31</span>
+<span class="na">Accept</span><span class="o">:</span> <span class="l">application/json, text/javascript, */*; q=0.01</span>
+<span class="na">Origin</span><span class="o">:</span> <span class="l">http://localhost:9999</span>
+<span class="na">X-CSRF-TOKEN</span><span class="o">:</span> <span class="l">9d4f1e0c-c500-43f3-9125-a7a131ff88fa</span>
+<span class="na">X-Requested-With</span><span class="o">:</span> <span class="l">XMLHttpRequest</span>
+<span class="na">User-Agent</span><span class="o">:</span> <span class="l">Mozilla/5.0 (Windows NT 6.1) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/30.0.1599.101 Safari/537.36</span>
+<span class="hll"><span class="na">Content-Type</span><span class="o">:</span> <span class="l">application/json;charset=UTF-8</span>
+</span><span class="na">Referer</span><span class="o">:</span> <span class="l">http://localhost:9999/terasoluna-gfw-web-blank/ajax/xxe?</span>
+<span class="na">Accept-Encoding</span><span class="o">:</span> <span class="l">gzip,deflate,sdch</span>
+<span class="na">Accept-Language</span><span class="o">:</span> <span class="l">en-US,en;q=0.8,ja;q=0.6</span>
+<span class="na">Cookie</span><span class="o">:</span> <span class="l">JSESSIONID=CECD7A6CB0431266B8D1173CCFA66B95</span>
+
+<span class="hll"><span class="p">{</span><span class="nt">&quot;number1&quot;</span><span class="p">:</span><span class="s2">&quot;34&quot;</span><span class="p">,</span><span class="nt">&quot;number2&quot;</span><span class="p">:</span><span class="s2">&quot;56&quot;</span><span class="p">}</span>
+</span></pre></div>
+</div>
+</li>
+</ul>
+<div class="line-block">
+<div class="line"><br /></div>
+</div>
+</div>
+</div>
+<div class="section" id="ajax-how-to-use-input-error">
+<span id="id4"></span><h3><a class="toc-backref" href="#id16">4.12.2.3. 入力エラーのハンドリング</a><a class="headerlink" href="#ajax-how-to-use-input-error" title="Permalink to this headline">¶</a></h3>
+<p>入力値に不正な値が指定された場合のエラーハンドリング方法について説明する。</p>
+<p>入力エラーのハンドリング方法は、大きく分けて以下の２つに分類される。</p>
+<ul class="simple">
+<li>例外ハンドリング用のメソッドを用意してエラー処理を行う。</li>
+<li>Controllerのハンドラメソッドの引数として<code class="docutils literal"><span class="pre">org.springframework.validation.BindingResult</span></code>を受け取り、エラー処理を行う。</li>
+</ul>
+<div class="line-block">
+<div class="line"><br /></div>
+</div>
+<div class="section" id="bindexception">
+<h4><a class="toc-backref" href="#id17">4.12.2.3.1. BindException のハンドリング</a><a class="headerlink" href="#bindexception" title="Permalink to this headline">¶</a></h4>
+<div class="line-block">
+<div class="line"><code class="docutils literal"><span class="pre">org.springframework.validation.BindException</span></code>は、 リクエストパラメータとして送信したデータをJavaBeanにバインドする際に、入力値に不正な値が指定された場合に発生する例外クラスである。</div>
+<div class="line">GET時のリクエストパラメータや、フォームデータを<code class="docutils literal"><span class="pre">application/x-www-form-urlencoded</span></code>の形式として受け取る場合は、<code class="docutils literal"><span class="pre">BindException</span></code>の例外ハンドリングが必要となる。</div>
+</div>
+<ul>
+<li><p class="first">Controller</p>
+<div class="highlight-java"><div class="highlight"><pre><span></span><span class="nd">@RequestMapping</span><span class="p">(</span><span class="s">&quot;xxx&quot;</span><span class="p">)</span>
+<span class="nd">@Controller</span>
+<span class="kd">public</span> <span class="kd">class</span> <span class="nc">XxxController</span> <span class="p">{</span>
+
+    <span class="c1">// omitted</span>
+
+    <span class="nd">@ExceptionHandler</span><span class="p">(</span><span class="n">BindException</span><span class="p">.</span><span class="na">class</span><span class="p">)</span> <span class="c1">// (1)</span>
+    <span class="nd">@ResponseStatus</span><span class="p">(</span><span class="n">value</span> <span class="o">=</span> <span class="n">HttpStatus</span><span class="p">.</span><span class="na">BAD_REQUEST</span><span class="p">)</span> <span class="c1">// (2)</span>
+    <span class="nd">@ResponseBody</span> <span class="c1">// (3)</span>
+    <span class="kd">public</span> <span class="n">ErrorResults</span> <span class="nf">handleBindException</span><span class="p">(</span><span class="n">BindException</span> <span class="n">e</span><span class="p">,</span> <span class="n">Locale</span> <span class="n">locale</span><span class="p">)</span> <span class="p">{</span> <span class="c1">// (4)</span>
+        <span class="c1">// (5)</span>
+        <span class="n">ErrorResults</span> <span class="n">errorResults</span> <span class="o">=</span> <span class="k">new</span> <span class="n">ErrorResults</span><span class="p">();</span>
+        <span class="k">for</span> <span class="p">(</span><span class="n">FieldError</span> <span class="n">fieldError</span> <span class="p">:</span> <span class="n">e</span><span class="p">.</span><span class="na">getBindingResult</span><span class="p">().</span><span class="na">getFieldErrors</span><span class="p">())</span> <span class="p">{</span>
+            <span class="n">errorResults</span><span class="p">.</span><span class="na">add</span><span class="p">(</span><span class="n">fieldError</span><span class="p">.</span><span class="na">getCode</span><span class="p">(),</span>
+                    <span class="n">messageSource</span><span class="p">.</span><span class="na">getMessage</span><span class="p">(</span><span class="n">fieldError</span><span class="p">,</span> <span class="n">locale</span><span class="p">),</span>
+                        <span class="n">fieldError</span><span class="p">.</span><span class="na">getField</span><span class="p">());</span>
+        <span class="p">}</span>
+        <span class="k">for</span> <span class="p">(</span><span class="n">ObjectError</span> <span class="n">objectError</span> <span class="p">:</span> <span class="n">e</span><span class="p">.</span><span class="na">getBindingResult</span><span class="p">().</span><span class="na">getGlobalErrors</span><span class="p">())</span> <span class="p">{</span>
+            <span class="n">errorResults</span><span class="p">.</span><span class="na">add</span><span class="p">(</span><span class="n">objectError</span><span class="p">.</span><span class="na">getCode</span><span class="p">(),</span>
+                    <span class="n">messageSource</span><span class="p">.</span><span class="na">getMessage</span><span class="p">(</span><span class="n">objectError</span><span class="p">,</span> <span class="n">locale</span><span class="p">),</span>
+                        <span class="n">objectError</span><span class="p">.</span><span class="na">getObjectName</span><span class="p">());</span>
+        <span class="p">}</span>
+        <span class="k">return</span> <span class="n">errorResults</span><span class="p">;</span>
+    <span class="p">}</span>
+
+    <span class="c1">// omitted</span>
+
+<span class="p">}</span>
+</pre></div>
+</div>
+<table border="1" class="colwidths-given docutils">
+<colgroup>
+<col width="10%" />
+<col width="90%" />
+</colgroup>
+<thead valign="bottom">
+<tr class="row-odd"><th class="head"><div class="first last line-block">
+<div class="line">項番</div>
+</div>
+</th>
+<th class="head"><div class="first last line-block">
+<div class="line">説明</div>
+</div>
+</th>
+</tr>
+</thead>
+<tbody valign="top">
+<tr class="row-even"><td><div class="first last line-block">
+<div class="line">(1)</div>
+</div>
+</td>
+<td><div class="first last line-block">
+<div class="line">Controllerにエラーハンドリング用メソッドを定義する。</div>
+<div class="line">エラーハンドリング用のメソッドには、<code class="docutils literal"><span class="pre">&#64;org.springframework.web.bind.annotation.ExceptionHandler</span></code>アノテーションを付与し、 value属性にハンドリングする例外の型を指定する。</div>
+<div class="line">上記例では、 ハンドリング対象の例外として<code class="docutils literal"><span class="pre">BindException.class</span></code>を指定している。</div>
+</div>
+</td>
+</tr>
+<tr class="row-odd"><td><div class="first last line-block">
+<div class="line">(2)</div>
+</div>
+</td>
+<td><div class="first last line-block">
+<div class="line">応答するHTTPステータス情報を指定する。</div>
+<div class="line">上記例では、<code class="docutils literal"><span class="pre">400</span></code>(Bad Request) を指定している。</div>
+</div>
+</td>
+</tr>
+<tr class="row-even"><td><div class="first last line-block">
+<div class="line">(3)</div>
+</div>
+</td>
+<td><div class="first last line-block">
+<div class="line">返却したオブジェクトをレスポンスBodyに書き込むため、<code class="docutils literal"><span class="pre">&#64;ResponseBody</span></code>アノテーションを付与する。</div>
+</div>
+</td>
+</tr>
+<tr class="row-odd"><td><div class="first last line-block">
+<div class="line">(4)</div>
+</div>
+</td>
+<td><div class="first last line-block">
+<div class="line">エラーハンドリング用のメソッドの引数として、ハンドリング対象の例外クラスを宣言する。</div>
+</div>
+</td>
+</tr>
+<tr class="row-even"><td><div class="first last line-block">
+<div class="line">(5)</div>
+</div>
+</td>
+<td><div class="first last line-block">
+<div class="line">エラー処理を実装する。</div>
+<div class="line">上記例では、エラー情報を返却するためのJavaBeanを生成し、返却している。</div>
+</div>
+</td>
+</tr>
+</tbody>
+</table>
+<div class="admonition tip">
+<p class="first admonition-title">Tip</p>
+<p class="last">エラー処理としてメッセージを生成する際に国際化を意識する必要がある場合は、<code class="docutils literal"><span class="pre">Locale</span></code>オブジェクトを引数として受け取ることができる。</p>
+</div>
+</li>
+</ul>
+<div class="line-block">
+<div class="line"><br /></div>
+</div>
+<ul>
+<li><p class="first">エラー情報を保持するJavaBean</p>
+<div class="highlight-java"><div class="highlight"><pre><span></span><span class="c1">// (6)</span>
+<span class="kd">public</span> <span class="kd">class</span> <span class="nc">ErrorResult</span> <span class="kd">implements</span> <span class="n">Serializable</span> <span class="p">{</span>
+
+    <span class="kd">private</span> <span class="kd">static</span> <span class="kd">final</span> <span class="kt">long</span> <span class="n">serialVersionUID</span> <span class="o">=</span> <span class="mi">1L</span><span class="p">;</span>
+
+    <span class="kd">private</span> <span class="n">String</span> <span class="n">code</span><span class="p">;</span>
+
+    <span class="kd">private</span> <span class="n">String</span> <span class="n">message</span><span class="p">;</span>
+
+    <span class="kd">private</span> <span class="n">String</span> <span class="n">itemPath</span><span class="p">;</span>
+
+    <span class="kd">public</span> <span class="n">String</span> <span class="nf">getCode</span><span class="p">()</span> <span class="p">{</span>
+        <span class="k">return</span> <span class="n">code</span><span class="p">;</span>
+    <span class="p">}</span>
+
+    <span class="kd">public</span> <span class="kt">void</span> <span class="nf">setCode</span><span class="p">(</span><span class="n">String</span> <span class="n">code</span><span class="p">)</span> <span class="p">{</span>
+        <span class="k">this</span><span class="p">.</span><span class="na">code</span> <span class="o">=</span> <span class="n">code</span><span class="p">;</span>
+    <span class="p">}</span>
+
+    <span class="kd">public</span> <span class="n">String</span> <span class="nf">getMessage</span><span class="p">()</span> <span class="p">{</span>
+        <span class="k">return</span> <span class="n">message</span><span class="p">;</span>
+    <span class="p">}</span>
+
+    <span class="kd">public</span> <span class="kt">void</span> <span class="nf">setMessage</span><span class="p">(</span><span class="n">String</span> <span class="n">message</span><span class="p">)</span> <span class="p">{</span>
+        <span class="k">this</span><span class="p">.</span><span class="na">message</span> <span class="o">=</span> <span class="n">message</span><span class="p">;</span>
+    <span class="p">}</span>
+
+    <span class="kd">public</span> <span class="n">String</span> <span class="nf">getItemPath</span><span class="p">()</span> <span class="p">{</span>
+        <span class="k">return</span> <span class="n">itemPath</span><span class="p">;</span>
+    <span class="p">}</span>
+
+    <span class="kd">public</span> <span class="kt">void</span> <span class="nf">setItemPath</span><span class="p">(</span><span class="n">String</span> <span class="n">itemPath</span><span class="p">)</span> <span class="p">{</span>
+        <span class="k">this</span><span class="p">.</span><span class="na">itemPath</span> <span class="o">=</span> <span class="n">itemPath</span><span class="p">;</span>
+    <span class="p">}</span>
+
+<span class="p">}</span>
+</pre></div>
+</div>
+<div class="highlight-java"><div class="highlight"><pre><span></span><span class="c1">// (7)</span>
+<span class="kd">public</span> <span class="kd">class</span> <span class="nc">ErrorResults</span> <span class="kd">implements</span> <span class="n">Serializable</span> <span class="p">{</span>
+
+    <span class="kd">private</span> <span class="kd">static</span> <span class="kd">final</span> <span class="kt">long</span> <span class="n">serialVersionUID</span> <span class="o">=</span> <span class="mi">1L</span><span class="p">;</span>
+
+    <span class="kd">private</span> <span class="n">List</span><span class="o">&lt;</span><span class="n">ErrorResult</span><span class="o">&gt;</span> <span class="n">errorResults</span> <span class="o">=</span> <span class="k">new</span> <span class="n">ArrayList</span><span class="o">&lt;</span><span class="n">ErrorResult</span><span class="o">&gt;</span><span class="p">();</span>
+
+    <span class="kd">public</span> <span class="n">List</span><span class="o">&lt;</span><span class="n">ErrorResult</span><span class="o">&gt;</span> <span class="nf">getErrorResults</span><span class="p">()</span> <span class="p">{</span>
+        <span class="k">return</span> <span class="n">errorResults</span><span class="p">;</span>
+    <span class="p">}</span>
+
+    <span class="kd">public</span> <span class="kt">void</span> <span class="nf">setErrorResults</span><span class="p">(</span><span class="n">List</span><span class="o">&lt;</span><span class="n">ErrorResult</span><span class="o">&gt;</span> <span class="n">errorResults</span><span class="p">)</span> <span class="p">{</span>
+        <span class="k">this</span><span class="p">.</span><span class="na">errorResults</span> <span class="o">=</span> <span class="n">errorResults</span><span class="p">;</span>
+    <span class="p">}</span>
+
+    <span class="kd">public</span> <span class="n">ErrorResults</span> <span class="nf">add</span><span class="p">(</span><span class="n">String</span> <span class="n">code</span><span class="p">,</span> <span class="n">String</span> <span class="n">message</span><span class="p">)</span> <span class="p">{</span>
+        <span class="n">ErrorResult</span> <span class="n">errorResult</span> <span class="o">=</span> <span class="k">new</span> <span class="n">ErrorResult</span><span class="p">();</span>
+        <span class="n">errorResult</span><span class="p">.</span><span class="na">setCode</span><span class="p">(</span><span class="n">code</span><span class="p">);</span>
+        <span class="n">errorResult</span><span class="p">.</span><span class="na">setMessage</span><span class="p">(</span><span class="n">message</span><span class="p">);</span>
+        <span class="n">errorResults</span><span class="p">.</span><span class="na">add</span><span class="p">(</span><span class="n">errorResult</span><span class="p">);</span>
+        <span class="k">return</span> <span class="k">this</span><span class="p">;</span>
+    <span class="p">}</span>
+
+    <span class="kd">public</span> <span class="n">ErrorResults</span> <span class="nf">add</span><span class="p">(</span><span class="n">String</span> <span class="n">code</span><span class="p">,</span> <span class="n">String</span> <span class="n">message</span><span class="p">,</span> <span class="n">String</span> <span class="n">itemPath</span><span class="p">)</span> <span class="p">{</span>
+        <span class="n">ErrorResult</span> <span class="n">errorResult</span> <span class="o">=</span> <span class="k">new</span> <span class="n">ErrorResult</span><span class="p">();</span>
+        <span class="n">errorResult</span><span class="p">.</span><span class="na">setCode</span><span class="p">(</span><span class="n">code</span><span class="p">);</span>
+        <span class="n">errorResult</span><span class="p">.</span><span class="na">setMessage</span><span class="p">(</span><span class="n">message</span><span class="p">);</span>
+        <span class="n">errorResult</span><span class="p">.</span><span class="na">setItemPath</span><span class="p">(</span><span class="n">itemPath</span><span class="p">);</span>
+        <span class="n">errorResults</span><span class="p">.</span><span class="na">add</span><span class="p">(</span><span class="n">errorResult</span><span class="p">);</span>
+        <span class="k">return</span> <span class="k">this</span><span class="p">;</span>
+    <span class="p">}</span>
+
+<span class="p">}</span>
+</pre></div>
+</div>
+<table border="1" class="colwidths-given docutils">
+<colgroup>
+<col width="10%" />
+<col width="90%" />
+</colgroup>
+<thead valign="bottom">
+<tr class="row-odd"><th class="head"><div class="first last line-block">
+<div class="line">項番</div>
+</div>
+</th>
+<th class="head"><div class="first last line-block">
+<div class="line">説明</div>
+</div>
+</th>
+</tr>
+</thead>
+<tbody valign="top">
+<tr class="row-even"><td><div class="first last line-block">
+<div class="line">(6)</div>
+</div>
+</td>
+<td><div class="first last line-block">
+<div class="line">エラー情報を1件保持するためのJavaBean。</div>
+</div>
+</td>
+</tr>
+<tr class="row-odd"><td><div class="first last line-block">
+<div class="line">(7)</div>
+</div>
+</td>
+<td><div class="first last line-block">
+<div class="line">エラー情報を1件保持するJavaBeanを複数件保持するためのJavaBean。</div>
+<div class="line">(6)のJavaBeanをリストとして保持している。</div>
+</div>
+</td>
+</tr>
+</tbody>
+</table>
+</li>
+</ul>
+<div class="line-block">
+<div class="line"><br /></div>
+</div>
+</div>
+<div class="section" id="methodargumentnotvalidexception">
+<h4><a class="toc-backref" href="#id18">4.12.2.3.2. MethodArgumentNotValidException のハンドリング</a><a class="headerlink" href="#methodargumentnotvalidexception" title="Permalink to this headline">¶</a></h4>
+<div class="line-block">
+<div class="line"><code class="docutils literal"><span class="pre">org.springframework.web.bind.MethodArgumentNotValidException</span></code>は、<code class="docutils literal"><span class="pre">&#64;RequestBody</span></code>アノテーションを使用してリクエストBodyに格納されているデータをJavaBeanにバインドする際に、入力値に不正な値が指定された場合に発生する例外クラスである。</div>
+<div class="line"><code class="docutils literal"><span class="pre">application/json</span></code>や<code class="docutils literal"><span class="pre">application/xml</span></code>などの形式として受け取る場合は、<code class="docutils literal"><span class="pre">MethodArgumentNotValidException</span></code>の例外ハンドリングが必要となる。</div>
+</div>
+<ul>
+<li><p class="first">Controller</p>
+<div class="highlight-java"><div class="highlight"><pre><span></span><span class="nd">@ExceptionHandler</span><span class="p">(</span><span class="n">MethodArgumentNotValidException</span><span class="p">.</span><span class="na">class</span><span class="p">)</span> <span class="c1">// (1)</span>
+<span class="nd">@ResponseStatus</span><span class="p">(</span><span class="n">value</span> <span class="o">=</span> <span class="n">HttpStatus</span><span class="p">.</span><span class="na">BAD_REQUEST</span><span class="p">)</span>
+<span class="nd">@ResponseBody</span>
+<span class="kd">public</span> <span class="n">ErrorResults</span> <span class="nf">handleMethodArgumentNotValidException</span><span class="p">(</span>
+        <span class="n">MethodArgumentNotValidException</span> <span class="n">e</span><span class="p">,</span> <span class="n">Locale</span> <span class="n">locale</span><span class="p">)</span> <span class="p">{</span> <span class="c1">// (1)</span>
+    <span class="n">ErrorResults</span> <span class="n">errorResults</span> <span class="o">=</span> <span class="k">new</span> <span class="n">ErrorResults</span><span class="p">();</span>
+
+    <span class="c1">// implement error handling.</span>
+    <span class="c1">// omitted</span>
+
+    <span class="k">return</span> <span class="n">errorResults</span><span class="p">;</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+<table border="1" class="colwidths-given docutils">
+<colgroup>
+<col width="10%" />
+<col width="90%" />
+</colgroup>
+<thead valign="bottom">
+<tr class="row-odd"><th class="head"><div class="first last line-block">
+<div class="line">項番</div>
+</div>
+</th>
+<th class="head"><div class="first last line-block">
+<div class="line">説明</div>
+</div>
+</th>
+</tr>
+</thead>
+<tbody valign="top">
+<tr class="row-even"><td><div class="first last line-block">
+<div class="line">(1)</div>
+</div>
+</td>
+<td><div class="first last line-block">
+<div class="line">エラーハンドリング対象の例外として<code class="docutils literal"><span class="pre">MethodArgumentNotValidException.class</span></code>を指定する。</div>
+<div class="line">上記以外は<code class="docutils literal"><span class="pre">BindException</span></code>と同様。</div>
+</div>
+</td>
+</tr>
+</tbody>
+</table>
+</li>
+</ul>
+<div class="line-block">
+<div class="line"><br /></div>
+</div>
+</div>
+<div class="section" id="httpmessagenotreadableexception">
+<h4><a class="toc-backref" href="#id19">4.12.2.3.3. HttpMessageNotReadableException のハンドリング</a><a class="headerlink" href="#httpmessagenotreadableexception" title="Permalink to this headline">¶</a></h4>
+<div class="line-block">
+<div class="line"><code class="docutils literal"><span class="pre">org.springframework.http.converter.HttpMessageNotReadableException</span></code>は、<code class="docutils literal"><span class="pre">&#64;RequestBody</span></code>アノテーションを使用してリクエストBodyに格納されているデータをJavaBeanにバインドする際に、Bodyに格納されているデータからJavaBeanを生成できなかった場合に発生する例外クラスである。</div>
+<div class="line"><code class="docutils literal"><span class="pre">application/json</span></code>や<code class="docutils literal"><span class="pre">application/xml</span></code>などの形式として受け取る場合は、<code class="docutils literal"><span class="pre">MethodArgumentNotValidException</span></code>の例外ハンドリングが必要となる。</div>
+</div>
+<blockquote>
+<div><div class="admonition note">
+<p class="first admonition-title">Note</p>
+<p>具体的なエラー原因は、使用する<code class="docutils literal"><span class="pre">HttpMessageConverter</span></code>や利用するライブラリの実装によって異なる。</p>
+<p class="last">JSON形式のデータについてJacksonを使用してJavaBeanに変換する<code class="docutils literal"><span class="pre">MappingJackson2HttpMessageConverter</span></code>の実装では、Integer項目に数値以外の文字列を指定すると、<code class="docutils literal"><span class="pre">HttpMessageNotReadableException</span></code>が発生する。</p>
+</div>
+</div></blockquote>
+<ul>
+<li><p class="first">Controller</p>
+<div class="highlight-java"><div class="highlight"><pre><span></span><span class="nd">@ExceptionHandler</span><span class="p">(</span><span class="n">HttpMessageNotReadableException</span><span class="p">.</span><span class="na">class</span><span class="p">)</span> <span class="c1">// (1)</span>
+<span class="nd">@ResponseStatus</span><span class="p">(</span><span class="n">value</span> <span class="o">=</span> <span class="n">HttpStatus</span><span class="p">.</span><span class="na">BAD_REQUEST</span><span class="p">)</span>
+<span class="nd">@ResponseBody</span>
+<span class="kd">public</span> <span class="n">ErrorResults</span> <span class="nf">handleHttpMessageNotReadableException</span><span class="p">(</span>
+        <span class="n">HttpMessageNotReadableException</span> <span class="n">e</span><span class="p">,</span> <span class="n">Locale</span> <span class="n">locale</span><span class="p">)</span> <span class="p">{</span>  <span class="c1">// (1)</span>
+    <span class="n">ErrorResults</span> <span class="n">errorResults</span> <span class="o">=</span> <span class="k">new</span> <span class="n">ErrorResults</span><span class="p">();</span>
+
+    <span class="c1">// implement error handling.</span>
+    <span class="c1">// omitted</span>
+
+    <span class="k">return</span> <span class="n">errorResults</span><span class="p">;</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+<table border="1" class="colwidths-given docutils">
+<colgroup>
+<col width="10%" />
+<col width="90%" />
+</colgroup>
+<thead valign="bottom">
+<tr class="row-odd"><th class="head"><div class="first last line-block">
+<div class="line">項番</div>
+</div>
+</th>
+<th class="head"><div class="first last line-block">
+<div class="line">説明</div>
+</div>
+</th>
+</tr>
+</thead>
+<tbody valign="top">
+<tr class="row-even"><td><div class="first last line-block">
+<div class="line">(1)</div>
+</div>
+</td>
+<td><div class="first last line-block">
+<div class="line">エラーハンドリング対象の例外として<code class="docutils literal"><span class="pre">HttpMessageNotReadableException.class</span></code>を指定する。</div>
+<div class="line">上記以外は<code class="docutils literal"><span class="pre">BindException</span></code>と同様。</div>
+</div>
+</td>
+</tr>
+</tbody>
+</table>
+</li>
+</ul>
+<div class="line-block">
+<div class="line"><br /></div>
+</div>
+</div>
+<div class="section" id="bindingresult">
+<h4><a class="toc-backref" href="#id20">4.12.2.3.4. BindingResult を使用したハンドリング</a><a class="headerlink" href="#bindingresult" title="Permalink to this headline">¶</a></h4>
+<div class="line-block">
+<div class="line">正常終了時に返却するJavaBeanと入力エラー時に返却するJavaBeanの型が同じ場合は、<code class="docutils literal"><span class="pre">BindingResult</span></code>をハンドラメソッドの引数として受け取ることでエラーハンドリングすることができる。</div>
+<div class="line">この方法は、リクエストデータの形式に関係なく使用することができる。</div>
+<div class="line">ハンドラメソッドの引数として<code class="docutils literal"><span class="pre">BindingResult</span></code>を指定しない場合は、前述した例外をハンドリングする方法でエラー処理を実装する必要がある。</div>
+</div>
+<ul>
+<li><p class="first">Controller</p>
+<div class="highlight-java"><div class="highlight"><pre><span></span><span class="nd">@PostMapping</span><span class="p">(</span><span class="n">value</span> <span class="o">=</span> <span class="s">&quot;plus&quot;</span><span class="p">)</span>
+<span class="nd">@ResponseBody</span>
+<span class="kd">public</span> <span class="n">CalculationResult</span> <span class="nf">plus</span><span class="p">(</span>
+        <span class="nd">@Validated</span> <span class="nd">@RequestBody</span> <span class="n">CalculationParameters</span> <span class="n">params</span><span class="p">,</span>
+        <span class="n">BindingResult</span> <span class="n">bResult</span><span class="p">)</span> <span class="p">{</span> <span class="c1">// (1)</span>
+    <span class="n">CalculationResult</span> <span class="n">result</span> <span class="o">=</span> <span class="k">new</span> <span class="n">CalculationResult</span><span class="p">();</span>
+    <span class="k">if</span> <span class="p">(</span><span class="n">bResult</span><span class="p">.</span><span class="na">hasErrors</span><span class="p">())</span> <span class="p">{</span> <span class="c1">// (2)</span>
+
+        <span class="c1">// (3)</span>
+        <span class="c1">// implement error handling.</span>
+        <span class="c1">// omitted</span>
+
+        <span class="k">return</span> <span class="n">result</span><span class="p">;</span> <span class="c1">// (4)</span>
+    <span class="p">}</span>
+    <span class="kt">int</span> <span class="n">sum</span> <span class="o">=</span> <span class="n">params</span><span class="p">.</span><span class="na">getNumber1</span><span class="p">()</span> <span class="o">+</span> <span class="n">params</span><span class="p">.</span><span class="na">getNumber2</span><span class="p">();</span>
+    <span class="n">result</span><span class="p">.</span><span class="na">setResultNumber</span><span class="p">(</span><span class="n">sum</span><span class="p">);</span>
+    <span class="k">return</span> <span class="n">result</span><span class="p">;</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+<table border="1" class="colwidths-given docutils">
+<colgroup>
+<col width="10%" />
+<col width="90%" />
+</colgroup>
+<thead valign="bottom">
+<tr class="row-odd"><th class="head"><div class="first last line-block">
+<div class="line">項番</div>
+</div>
+</th>
+<th class="head"><div class="first last line-block">
+<div class="line">説明</div>
+</div>
+</th>
+</tr>
+</thead>
+<tbody valign="top">
+<tr class="row-even"><td><div class="first last line-block">
+<div class="line">(1)</div>
+</div>
+</td>
+<td><div class="first last line-block">
+<div class="line">ハンドラメソッドの引数として<code class="docutils literal"><span class="pre">BindingResult</span></code>を宣言する。</div>
+<div class="line"><code class="docutils literal"><span class="pre">BindingResult</span></code>は入力チェック対象のJavaBeanの直後に宣言する必要がある。</div>
+</div>
+</td>
+</tr>
+<tr class="row-odd"><td><div class="first last line-block">
+<div class="line">(2)</div>
+</div>
+</td>
+<td><div class="first last line-block">
+<div class="line">入力値のエラー有無を判定する。</div>
+</div>
+</td>
+</tr>
+<tr class="row-even"><td><div class="first last line-block">
+<div class="line">(3)</div>
+</div>
+</td>
+<td><div class="first last line-block">
+<div class="line">入力値にエラーがある場合は、入力エラー時のエラー処理を行う。</div>
+<div class="line">上記例ではエラー処理は省略しているが、エラーメッセージの設定などが行われる想定である。</div>
+</div>
+</td>
+</tr>
+<tr class="row-odd"><td><div class="first last line-block">
+<div class="line">(4)</div>
+</div>
+</td>
+<td><div class="first last line-block">
+<div class="line">処理結果を返却する。</div>
+</div>
+</td>
+</tr>
+</tbody>
+</table>
+<div class="admonition note">
+<p class="first admonition-title">Note</p>
+<p>上記例では、正常時及びエラー時共にレスポンスのHTTPステータスコードは<code class="docutils literal"><span class="pre">200</span></code>(OK) が返却される。</p>
+<p>HTTPステータスコードを処理結果によってわける必要がある場合は、<code class="docutils literal"><span class="pre">org.springframework.http.ResponseEntity</span></code>を返却値とすることで実現可能である。</p>
+<p>別のアプローチとしては、ハンドラメソッドの引数として<code class="docutils literal"><span class="pre">BindingResult</span></code>を指定せず、前述した例外をハンドリングする方法でエラー処理を実装する方法がある。</p>
+<blockquote class="last">
+<div><div class="highlight-java"><div class="highlight"><pre><span></span><span class="nd">@PostMapping</span><span class="p">(</span><span class="n">value</span> <span class="o">=</span> <span class="s">&quot;plus&quot;</span><span class="p">)</span>
+<span class="nd">@ResponseBody</span>
+<span class="kd">public</span> <span class="n">ResponseEntity</span><span class="o">&lt;</span><span class="n">CalculationResult</span><span class="o">&gt;</span> <span class="nf">plus</span><span class="p">(</span>
+        <span class="nd">@Validated</span> <span class="nd">@RequestBody</span> <span class="n">CalculationParameters</span> <span class="n">params</span><span class="p">,</span>
+        <span class="n">BindingResult</span> <span class="n">bResult</span><span class="p">)</span> <span class="p">{</span>
+    <span class="n">CalculationResult</span> <span class="n">result</span> <span class="o">=</span> <span class="k">new</span> <span class="n">CalculationResult</span><span class="p">();</span>
+    <span class="k">if</span> <span class="p">(</span><span class="n">bResult</span><span class="p">.</span><span class="na">hasErrors</span><span class="p">())</span> <span class="p">{</span>
+
+        <span class="c1">// implement error handling.</span>
+        <span class="c1">// omitted</span>
+
+        <span class="c1">// (1)</span>
+        <span class="k">return</span> <span class="n">ResponseEntity</span><span class="p">.</span><span class="na">badRequest</span><span class="p">().</span><span class="na">body</span><span class="p">(</span><span class="n">result</span><span class="p">);</span>
+    <span class="p">}</span>
+    <span class="c1">// omitted</span>
+
+    <span class="c1">// (2)</span>
+    <span class="k">return</span> <span class="n">ResponseEntity</span><span class="p">.</span><span class="na">ok</span><span class="p">().</span><span class="na">body</span><span class="p">(</span><span class="n">result</span><span class="p">);</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+<table border="1" class="colwidths-given longtable docutils">
+<colgroup>
+<col width="10%" />
+<col width="90%" />
+</colgroup>
+<thead valign="bottom">
+<tr class="row-odd"><th class="head"><div class="first last line-block">
+<div class="line">項番</div>
+</div>
+</th>
+<th class="head"><div class="first last line-block">
+<div class="line">説明</div>
+</div>
+</th>
+</tr>
+</thead>
+<tbody valign="top">
+<tr class="row-even"><td><div class="first last line-block">
+<div class="line">(1)</div>
+</div>
+</td>
+<td><div class="first last line-block">
+<div class="line">入力エラー時の応答データとHTTPステータスを返却する。</div>
+</div>
+</td>
+</tr>
+<tr class="row-odd"><td><div class="first last line-block">
+<div class="line">(2)</div>
+</div>
+</td>
+<td><div class="first last line-block">
+<div class="line">正常終了時の応答データとHTTPステータスを返却する。</div>
+</div>
+</td>
+</tr>
+</tbody>
+</table>
+</div></blockquote>
+</div>
+</li>
+</ul>
+<div class="line-block">
+<div class="line"><br /></div>
+</div>
+</div>
+</div>
+<div class="section" id="id5">
+<h3><a class="toc-backref" href="#id21">4.12.2.4. 業務エラーのハンドリング</a><a class="headerlink" href="#id5" title="Permalink to this headline">¶</a></h3>
+<p>業務エラーのエラーハンドリング方法について説明する。</p>
+<p>業務エラーのハンドリング方法は大きく分けて以下の２つに分類される。</p>
+<ul class="simple">
+<li>業務例外ハンドリング用のメソッドを用意してエラー処理を行う。</li>
+<li>Controllerのハンドラメソッド内で業務例外をcatchしてエラー処理を行う。</li>
+</ul>
+<div class="line-block">
+<div class="line"><br /></div>
+</div>
+<div class="section" id="id6">
+<h4><a class="toc-backref" href="#id22">4.12.2.4.1. 例外ハンドリング用のメソッドで業務例外をハンドリング</a><a class="headerlink" href="#id6" title="Permalink to this headline">¶</a></h4>
+<div class="line-block">
+<div class="line">入力エラーと同様、例外ハンドリング用のメソッドを用意して業務例外をハンドリングする。</div>
+<div class="line">複数のハンドラメソッドに対するリクエストで同じエラー処理を実装する必要がある場合、この方法でエラーハンドリングすることを推奨する。</div>
+</div>
+<ul>
+<li><p class="first">Controller</p>
+<div class="highlight-java"><div class="highlight"><pre><span></span><span class="nd">@ExceptionHandler</span><span class="p">(</span><span class="n">BusinessException</span><span class="p">.</span><span class="na">class</span><span class="p">)</span> <span class="c1">// (1)</span>
+<span class="nd">@ResponseStatus</span><span class="p">(</span><span class="n">value</span> <span class="o">=</span> <span class="n">HttpStatus</span><span class="p">.</span><span class="na">CONFLICT</span><span class="p">)</span> <span class="c1">// (2)</span>
+<span class="nd">@ResponseBody</span>
+<span class="kd">public</span> <span class="n">ErrorResults</span> <span class="nf">handleHttpBusinessException</span><span class="p">(</span><span class="n">BusinessException</span> <span class="n">e</span><span class="p">,</span> <span class="c1">// (1)</span>
+        <span class="n">Locale</span> <span class="n">locale</span><span class="p">)</span> <span class="p">{</span>
+    <span class="n">ErrorResults</span> <span class="n">errorResults</span> <span class="o">=</span> <span class="k">new</span> <span class="n">ErrorResults</span><span class="p">();</span>
+
+    <span class="c1">// implement error handling.</span>
+    <span class="c1">// omitted</span>
+
+    <span class="k">return</span> <span class="n">errorResults</span><span class="p">;</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+<table border="1" class="colwidths-given docutils">
+<colgroup>
+<col width="10%" />
+<col width="90%" />
+</colgroup>
+<thead valign="bottom">
+<tr class="row-odd"><th class="head"><div class="first last line-block">
+<div class="line">項番</div>
+</div>
+</th>
+<th class="head"><div class="first last line-block">
+<div class="line">説明</div>
+</div>
+</th>
+</tr>
+</thead>
+<tbody valign="top">
+<tr class="row-even"><td><div class="first last line-block">
+<div class="line">(1)</div>
+</div>
+</td>
+<td><div class="first last line-block">
+<div class="line">エラーハンドリング対象の例外として<code class="docutils literal"><span class="pre">BusinessException.class</span></code>を指定する。</div>
+<div class="line">上記以外は入力エラーの<code class="docutils literal"><span class="pre">BindException</span></code>のハンドリング方法と同様。</div>
+</div>
+</td>
+</tr>
+<tr class="row-odd"><td><div class="first last line-block">
+<div class="line">(2)</div>
+</div>
+</td>
+<td><div class="first last line-block">
+<div class="line">応答するHTTPステータス情報を指定する。</div>
+<div class="line">上記例では、<code class="docutils literal"><span class="pre">409</span></code>(Conflict) を指定している。</div>
+</div>
+</td>
+</tr>
+</tbody>
+</table>
+</li>
+</ul>
+<div class="line-block">
+<div class="line"><br /></div>
+</div>
+</div>
+<div class="section" id="id7">
+<h4><a class="toc-backref" href="#id23">4.12.2.4.2. ハンドラメソッド内で業務例外をハンドリング</a><a class="headerlink" href="#id7" title="Permalink to this headline">¶</a></h4>
+<div class="line-block">
+<div class="line">業務エラーが発生する処理を try句で囲み、業務例外をcatchする。</div>
+<div class="line">エラー処理がリクエスト毎に異なる場合は、この方法でエラーハンドリングすることになる。</div>
+</div>
+<ul>
+<li><p class="first">Controller</p>
+<div class="highlight-java"><div class="highlight"><pre><span></span><span class="nd">@PostMapping</span><span class="p">(</span><span class="n">value</span> <span class="o">=</span> <span class="s">&quot;plus&quot;</span><span class="p">)</span>
+<span class="nd">@ResponseBody</span>
+<span class="kd">public</span> <span class="n">ResponseEntity</span><span class="o">&lt;</span><span class="n">CalculationResult</span><span class="o">&gt;</span> <span class="nf">plusForJson</span><span class="p">(</span>
+        <span class="nd">@Validated</span> <span class="nd">@RequestBody</span> <span class="n">CalculationParameters</span> <span class="n">params</span><span class="p">)</span> <span class="p">{</span>
+    <span class="n">CalculationResult</span> <span class="n">result</span> <span class="o">=</span> <span class="k">new</span> <span class="n">CalculationResult</span><span class="p">();</span>
+
+    <span class="c1">// omitted</span>
+
+    <span class="c1">// (1)</span>
+    <span class="k">try</span> <span class="p">{</span>
+
+        <span class="c1">// call service method.</span>
+        <span class="c1">// omitted</span>
+
+     <span class="c1">// (2)</span>
+    <span class="p">}</span> <span class="k">catch</span> <span class="p">(</span><span class="n">BusinessException</span> <span class="n">e</span><span class="p">)</span> <span class="p">{</span>
+
+        <span class="c1">// (3)</span>
+        <span class="c1">// implement error handling.</span>
+        <span class="c1">// omitted</span>
+
+        <span class="k">return</span> <span class="n">ResponseEntity</span><span class="p">.</span><span class="na">status</span><span class="p">(</span><span class="n">HttpStatus</span><span class="p">.</span><span class="na">CONFLICT</span><span class="p">).</span><span class="na">body</span><span class="p">(</span><span class="n">result</span><span class="p">);</span>
+    <span class="p">}</span>
+
+    <span class="c1">// omitted</span>
+
+    <span class="k">return</span> <span class="n">ResponseEntity</span><span class="p">.</span><span class="na">ok</span><span class="p">().</span><span class="na">body</span><span class="p">(</span><span class="n">result</span><span class="p">);</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+<table border="1" class="colwidths-given docutils">
+<colgroup>
+<col width="10%" />
+<col width="90%" />
+</colgroup>
+<thead valign="bottom">
+<tr class="row-odd"><th class="head"><div class="first last line-block">
+<div class="line">項番</div>
+</div>
+</th>
+<th class="head"><div class="first last line-block">
+<div class="line">説明</div>
+</div>
+</th>
+</tr>
+</thead>
+<tbody valign="top">
+<tr class="row-even"><td><div class="first last line-block">
+<div class="line">(1)</div>
+</div>
+</td>
+<td><div class="first last line-block">
+<div class="line">業務例外が発生するメソッド呼び出しを try句で囲む。</div>
+</div>
+</td>
+</tr>
+<tr class="row-odd"><td><div class="first last line-block">
+<div class="line">(2)</div>
+</div>
+</td>
+<td><div class="first last line-block">
+<div class="line">業務例外をcatchする。</div>
+</div>
+</td>
+</tr>
+<tr class="row-even"><td><div class="first last line-block">
+<div class="line">(3)</div>
+</div>
+</td>
+<td><div class="first last line-block">
+<div class="line">業務例外エラー時のエラー処理を行う。</div>
+<div class="line">上記例ではエラー処理は省略しているが、エラーメッセージの設定などが行われる想定である。</div>
+</div>
+</td>
+</tr>
+</tbody>
+</table>
+</li>
+</ul>
+</div>
+</div>
+</div>
+</div>
+
+
+          </div>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../../genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="HealthCheck.html" title="4.13. ヘルスチェック"
+             >next</a> |</li>
+        <li class="right" >
+          <a href="TagLibAndELFunctions.html" title="4.11. 共通ライブラリが提供するJSP Tag Library と EL Functions"
+             >previous</a> |</li>
+        <li class="nav-item nav-item-0"><a href="../../index.html">TERASOLUNA Server Framework for Java (5.x) Development Guideline 5.8.1.RELEASE documentation</a> &#187;</li>
+          <li class="nav-item nav-item-1"><a href="index.html" >4. Webアプリ開発機能</a> &#187;</li> 
+      </ul>
+    </div>
+    <div class="footer">
+      © Copyright 2013, NTT DATA Corporation. © Copyright 2013, NTT Corporation.
+      Created using <a href="https://www.sphinx-doc.org/en/master/">Sphinx</a> 1.6.3.Theme is <a href="https://pypi.org/project/solar-theme/">Solar</a>
+    </div>
+    
+    <script>
+    
+    $(function() {
+    	var $sidebar	= $('.sphinxsidebar'),
+    		$window		= $(window),
+    		offset		= $sidebar.offset(),
+    		topPadding	= 3,
+    		$scroll		= $('#scroll');
+    	
+    	$window.scroll(function() {
+    		if ($scroll.is(':checked')) {
+				if ($window.scrollTop() > offset.top) {
+					$sidebar.stop().animate({
+						marginTop:$window.scrollTop() - offset.top + topPadding
+					});
+				} else {
+					$sidebar.stop().animate({
+						marginTop:0
+					});
+				}
+			}
+		});
+    	
+    	var $navList = $('ul:first', $sidebar);
+    	$('li:first', $navList).addClass('open');
+    	
+    	$navList.treeview({
+    		persist: "location",
+    		collapsed: true,
+    		unique: false
+    	});
+    	
+	});
+    (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+        (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+            m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+    })(window,document,'script','//www.google-analytics.com/analytics.js','ga');
+
+    ga('create', 'UA-46550814-1', 'terasolunaorg.github.io');
+    ga('send', 'pageview');
+    </script>
+  </body>
+</html>
