@@ -1,17 +1,15 @@
 はじめに
 ********************************************************************************
 
-
-
 .. toctree::
-   :maxdepth: 1
+  :maxdepth: 1
 
-   TermsOfUse
-   Introduction
-   CriteriaBasedMapping
-   ChangeLog
+  TermsOfUse
+  Introduction
+  CriteriaBasedMapping
+  ChangeLog
 
 .. raw:: latex
 
-   \newpage
+  \newpage
 

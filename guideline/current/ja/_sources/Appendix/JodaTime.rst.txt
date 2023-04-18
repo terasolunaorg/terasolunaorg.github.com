@@ -1,6 +1,12 @@
 日付操作(Joda Time)
 --------------------------------------------------------------------------------
 
+.. caution:: 
+
+  本ガイドラインでは日付操作には\ :doc:`../ArchitectureInDetail/GeneralFuncDetail/DateAndTime`\ を使用することを推奨する。
+
+  スタックからもJoda-Timeは外れているため注意されたい。
+
 .. only:: html
 
  .. contents:: 目次
@@ -57,32 +63,29 @@ Joda Time, Joda Time JSP tags の利用方法を、以下で説明する。
 
    DateTime dateTimeAtStartOfDay = new DateTime().withTimeAtStartOfDay();
 
-|
+.. note::
 
-    .. note::
+  LocalDateとLocalTimeは、TimeZone情報を持たない。
 
-        LocalDateとLocalTimeは、TimeZone情報を持たない。
+.. note::
 
-    .. note::
+  実際ServiceやControllerで現在時刻を取得するときのDateTime, LocalDate や、 LocalTimeのインスタンス取得には、\ ``org.terasoluna.gfw.common.date.jodatime.JodaTimeDateFactory``\を利用することを推奨する。
 
-        実際ServiceやControllerで現在時刻を取得するときのDateTime, LocalDate や、 LocalTimeのインスタンス取得には、
-        \ ``org.terasoluna.gfw.common.date.jodatime.JodaTimeDateFactory``\を利用することを推奨する。
+    .. code-block:: java
 
-            .. code-block:: java
+      DateTime dateTime = dataFactory.newDateTime();
 
-                DateTime dateTime = dataFactory.newDateTime();
+  DateFactoryの利用方法は、\ `システム時刻 <https://terasolunaorg.github.io/guideline/5.7.1.SP1.RELEASE/ja/ArchitectureInDetail/GeneralFuncDetail/SystemDate.html>`_\ を参照されたい。
 
-        DateFactoryの利用方法は、 :doc:`./SystemDate` を参照されたい。
+  LocalDateやLocalTimeの生成は
 
-        LocalDateやLocalTimeの生成は
+.. code-block:: java
 
-            .. code-block:: java
-
-                LocalDate localDate = dataFactory.newDateTime().toLocalDate();
-                LocalTime localTime = dataFactory.newDateTime().toLocalTime();
+  LocalDate localDate = dataFactory.newDateTime().toLocalDate();
+  LocalTime localTime = dataFactory.newDateTime().toLocalTime();
 
 
-        とすればよい。
+とすればよい。
 
 |
 
@@ -131,9 +134,9 @@ Joda Time, Joda Time JSP tags の利用方法を、以下で説明する。
 
 |
 
-    .. note::
+.. note::
 
-        TimeZoneを意識する必要がない場合は、\ ``DateTime``\ ではなく\ ``LocalDateTime``\ を利用することを推奨する。
+  TimeZoneを意識する必要がない場合は、\ ``DateTime``\ ではなく\ ``LocalDateTime``\ を利用することを推奨する。
 
 |
 
@@ -144,19 +147,19 @@ Joda Time, Joda Time JSP tags の利用方法を、以下で説明する。
 
 * ミリ秒まで指定して、DateTimeを取得したい場合
 
-.. code-block:: java
+  .. code-block:: java
 
     DateTime dateTime = new DateTime(year, month, day, hour, minite, second, millisecond);
 
 * 年月日を指定して、LocalDateを取得したい場合
 
-.. code-block:: java
+  .. code-block:: java
 
     LocalDate localDate = new LocalDate(year, month, day);
 
 * 時分秒を指定して、LocalDate取得したい場合
 
-.. code-block:: java
+  .. code-block:: java
 
     LocalTime localTime = new LocalTime(hour, minutes, seconds, milliseconds);
 
@@ -206,9 +209,9 @@ Joda Time, Joda Time JSP tags の利用方法を、以下で説明する。
 
 |
 
-    .. note::
+.. note::
 
-        ``java.util.Calendar`` の仕様とは異なり、getDayOfMonth()は、1始まりである。
+  ``java.util.Calendar`` の仕様とは異なり、getDayOfMonth()は、1始まりである。
 
 |
 
@@ -528,84 +531,43 @@ Periodは、期間を、年、月、週などの単位で表すクラスであ�
 JSP Tag Library
 """"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 
-| JSTLの fmt:formatDate タグは、java.util.Dateと、java.util.TimeZoneオブジェクトを扱う。
-| Joda-timeのDateTime, LocalDateTime, LocalDate, LocalTimeと、DateTimeZoneオブジェクトを扱うためには、Jodaのタグライブラリを使う。
-| 機能面でJSTLとほぼ同じであるため、JSTLの知識がある場合は、JodaのJSPタグライブラリを容易に使える。
+| JSTLの fmt:formatDate タグは、java.util.Date と、 java.util.TimeZone オブジェクトのみを扱うため、JSP上でJoda-Timeのオブジェクトが持つ日時情報を表示する場合は、フォーマット済みの文字列を渡して表示する。
 
-|
+.. warning:: 
 
-設定方法
-''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
+  Jakarta EE 9 以降Joda-TimeのJSP Tag Libraryは使用できなくなった。
 
-タブライブラリを利用するには、以下のtaglib定義が必要である。
+\ **Controller**\
 
-.. code-block:: jsp
+  .. code-block:: java
 
-    <%@ taglib uri="http://www.joda.org/joda/time/tags" prefix="joda"%>
+    @Controller
+    public class HomeController {
 
-joda:format タグ
-''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
+        @GetMapping("/")
+        public String home(Model model) {
 
-joda:format タグとは、DateTime, LocalDateTime, LocalDate, LocalTimeオブジェクトをフォーマットするタグである。
+            DateTime dateTime = new DateTime();
+            model.addAttribute("currentDate", dateTime.toString());
+            model.addAttribute("formattedCurrentDateString", dateTime.toString("yyyy/MM/dd hh:mm:ss"));
 
-.. code-block:: jsp
+            // omitted
+        }
+    }
 
-    <% pageContext.setAttribute("now", new org.joda.time.DateTime()); %>
+\ **jspファイル**\
 
-    <span>Using pattern="yyyyMMdd" to format the current system date</span><br/>
-    <joda:format value="${now}" pattern="yyyyMMdd" />
-    <br/>
-    <span>Using style="SM" to format the current system date</span><br/>
-    <joda:format value="${now}" style="SM" />
+  .. code-block:: jsp
 
-**出力結果**
+    <p>currentDate =  ${f:h(currentDate)}.</p>
+    <p>formattedCurrentDateString =  ${f:h(formattedCurrentDateString)}.</p>
 
-.. figure:: images/joda_format_tag.png
-   :alt: /jodatime
-   :width: 55%
+\ **実行結果**\
 
-joda:formatタグの属性一覧は、以下の通りである。
+  .. code-block:: html 
 
-.. tabularcolumns:: |p{0.05\linewidth}|p{0.10\linewidth}|p{0.85\linewidth}|
-.. list-table:: **属性情報**
-   :header-rows: 1
-   :widths: 5 10 85
-
-   * - No.
-     - Attributes
-     - Description
-   * - 1.
-     - | value
-     - | ReadableInstantかReadablePartialのインスタンスを設定する。
-   * - 2.
-     - | var
-     - | 時刻情報を持つ変数名
-   * - 3.
-     - | scope
-     - | 時刻情報を持つ変数名のスコープ
-   * - 4.
-     - | locale
-     - | ロケール情報
-   * - 5.
-     - | style
-     - | フォーマットするためのスタイル情報（2桁。日付部分と時刻部分それぞれのスタイルを設定する。入力可能な値は S=Short, M=Medium, L=Long, F=Full, -=None）
-   * - 6.
-     - | pattern
-     - | フォーマットするためのパターン（yyyyMMddなど）。入力可能なパターンは、 `Input and Output <https://www.joda.org/joda-time/userguide.html#Input_and_Output>`_ を参照されたい。
-   * - 7.
-     - | dateTimeZone
-     - | タイムゾーン
-
-Joda-Timeのほかのタグは、 `Joda Time JSP tags User guide <http://joda-time.sourceforge.net/contrib/jsptags/userguide.html>`_ を参照されたい。
-
-    .. note::
-        style属性を指定して日付と時刻部分を表示する場合、ブラウザのlocaleによって表示内容が異なる。
-        上記style属性で表示した形式のlocaleは"en"である。
-
-    .. note::
-
-        Java SE 11ではJava SE 8と日付の文字列表現が異なる場合がある。
-        Java SE 8と同様に表現するには\ :ref:`change-default-locale--data-from-java9`\ を参照されたい。
+    <p>currentDate =  2015-10-25T14:40:15.648+09:00</p>
+    <p>formattedCurrentDateString =  2015/10/25 14:40:15</p>
 
 |
 
@@ -636,7 +598,7 @@ Spring MVCを使って、月単位のカレンダーを表示するサンプル�
     @RequestMapping("calendar")
     public class CalendarController {
 
-        @RequestMapping
+        @GetMapping
         public String today(Model model) {
             LocalDate today = new LocalDate();
             int year = today.getYear();
@@ -644,7 +606,7 @@ Spring MVCを使って、月単位のカレンダーを表示するサンプル�
             return month(year, month, model);
         }
 
-        @RequestMapping(value = "month")
+        @GetMapping("month")
         public String month(@RequestParam("year") int year,
                 @RequestParam("month") int month, Model model) {
             LocalDate firstDayOfMonth = new LocalDate(year, month, 1);
@@ -656,8 +618,8 @@ Spring MVCを使って、月単位のカレンダーを表示するサンプル�
             LocalDate lastDayOfCalendar = lastDayOfMonth.dayOfWeek()
                     .withMaximumValue();
 
-            List<List<LocalDate>> calendar = new ArrayList<List<LocalDate>>();
-            List<LocalDate> weekList = null;
+            List<List<String>> calendar = new ArrayList<>();
+            List<String> weekList = null;
             for (int i = 0; i < 100; i++) {
                 LocalDate d = firstDayOfCalendar.plusDays(i);
                 if (d.isAfter(lastDayOfCalendar)) {
@@ -665,7 +627,7 @@ Spring MVCを使って、月単位のカレンダーを表示するサンプル�
                 }
 
                 if (weekList == null) {
-                    weekList = new ArrayList<LocalDate>();
+                    weekList = new ArrayList<String>();
                     calendar.add(weekList);
                 }
 
@@ -673,7 +635,7 @@ Spring MVCを使って、月単位のカレンダーを表示するサンプル�
                     // skip if the day is not in this month
                     weekList.add(null);
                 } else {
-                    weekList.add(d);
+                    weekList.add(d.toString("d"));
                 }
 
                 int week = d.getDayOfWeek();
@@ -686,7 +648,7 @@ Spring MVCを使って、月単位のカレンダーを表示するサンプル�
             LocalDate prevMonth = firstDayOfMonth.minusMonths(1);
             CalendarOutput output = new CalendarOutput();
             output.setCalendar(calendar);
-            output.setFirstDayOfMonth(firstDayOfMonth);
+            output.setFirstDayOfMonth(firstDayOfMonth.toString("yyyy-M"));
             output.setYearOfNextMonth(nextMonth.getYear());
             output.setMonthOfNextMonth(nextMonth.getMonthOfYear());
             output.setYearOfPrevMonth(prevMonth.getYear());
@@ -698,15 +660,14 @@ Spring MVCを使って、月単位のカレンダーを表示するサンプル�
         }
     }
 
-以下の ``CalendarOutput`` クラスは、画面に出力する情報をまとめたJavaBeanである。
-
+以下の\ ``CalendarOutput``\ クラスは、画面に出力する情報をまとめたJavaBeanである。
 
 .. code-block:: java
 
     public class CalendarOutput {
-        private List<List<LocalDate>> calendar;
+        private List<List<String>> calendar;
 
-        private LocalDate firstDayOfMonth;
+        private String firstDayOfMonth;
 
         private int yearOfNextMonth;
 
@@ -721,16 +682,15 @@ Spring MVCを使って、月単位のカレンダーを表示するサンプル�
 
 |
 
-    .. warning::
+.. warning::
 
-        このサンプルコードは単純なためControllerのハンドラメソッドに全ての処理を記述しているが、
-        メンテナンス性向上のため本来この処理は、Helperクラスに記述すべきである。
+  このサンプルコードは単純なためControllerのハンドラメソッドに全ての処理を記述しているが、メンテナンス性向上のため本来この処理は、Helperクラスに記述すべきである。
 
 |
 
 JSP(calendar.jsp)で、次のように出力する。
 
- .. code-block:: jsp
+.. code-block:: jsp
 
     <p>
         <a
@@ -738,8 +698,7 @@ JSP(calendar.jsp)で、次のように出力する。
             Prev</a> <a
             href="${pageContext.request.contextPath}/calendar/month?year=${f:h(output.yearOfNextMonth)}&month=${f:h(output.monthOfNextMonth)}">Next
             &rarr;</a> <br>
-        <joda:format value="${output.firstDayOfMonth}"
-            pattern="yyyy-M" />
+        ${f:h(output.firstDayOfMonth)}
     </p>
     <table>
         <tr>
@@ -756,8 +715,7 @@ JSP(calendar.jsp)で、次のように出力する。
                 <c:forEach var="day" items="${week}">
                     <td><c:choose>
                             <c:when test="${day != null}">
-                                <joda:format value="${day}"
-                                    pattern="d" />
+                                ${f:h(day)}
                             </c:when>
                             <c:otherwise>&nbsp;</c:otherwise>
                         </c:choose></td>
@@ -768,19 +726,17 @@ JSP(calendar.jsp)で、次のように出力する。
 
 {contextPath}/calendarにアクセスすると、以下のカレンダーが表示される（2012年11月時点での結果である）。
 
-.. figure:: images/calendar-today.jpg
+.. figure:: images_JodaTime/calendar-today.jpg
    :alt: /calendar
    :width: 30%
 
 {contextPath}/calendar/month?year=2012&month=12にアクセスすると、以下のカレンダーが表示される。
 
-.. figure:: images/calendar-month.jpg
+.. figure:: images_JodaTime /calendar-month.jpg
    :alt: /calendar/month?year=2012&month=12
    :width: 30%
 
-.. raw:: latex
-
-   \newpage
+|
 
 Appendix
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
@@ -790,7 +746,7 @@ Appendix
 
 | JSR-310 Date and Time APIとは異なり、Joda Timeでは和暦を扱うクラスが提供されていない。
 | そのため、和暦を扱うには\ ``java.time.chrono.JapaneseDate``\ もしくは\ ``java.util.Calendar``\ を使用する。
-| \ ``java.time.chrono.JapaneseDate``\ については、\ :doc:`../GeneralFuncDetail/DateAndTime`\ の\ :ref:`JapaneseDate`\ を参照されたい。
+| \ ``java.time.chrono.JapaneseDate``\ については、\ :doc:`../ArchitectureInDetail/GeneralFuncDetail/DateAndTime`\ の\ :ref:`JapaneseDate`\ を参照されたい。
 | \ ``java.util.Calendar``\ で和暦操作するには、\ ``java.util.Calendar``\ クラス、\ ``java.text.DateFormat``\ クラスに以下の\ ``java.util.Locale``\ を指定する必要がある。
 
 .. code-block:: java
@@ -831,7 +787,10 @@ Appendix
 
 |
 
-    .. note::
+.. note::
 
-        | \ ``new Locale("ja", "JP", "JP")``\ を\ ``getInstance``\ メソッドに指定することで、 和暦に対応した\ ``java.util.JapaneseImperialCalendar``\ オブジェクトが作成される。
-        | その他を指定すると\ ``java.util.GregorianCalendar``\ オブジェクトが作成されるため、留意されたい。
+  \ ``new Locale("ja", "JP", "JP")``\ を\ ``getInstance``\ メソッドに指定することで、 和暦に対応した\ ``java.util.JapaneseImperialCalendar``\ オブジェクトが作成される。その他を指定すると\ ``java.util.GregorianCalendar``\ オブジェクトが作成されるため、留意されたい。
+
+.. raw:: latex
+
+   \newpage

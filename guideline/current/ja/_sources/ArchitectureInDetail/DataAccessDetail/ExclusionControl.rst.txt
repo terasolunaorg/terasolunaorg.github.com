@@ -3,9 +3,9 @@
 
 .. only:: html
 
- .. contents:: 目次
-    :depth: 3
-    :local:
+.. contents:: 目次
+  :depth: 3
+  :local:
 
 |
 
@@ -13,17 +13,19 @@ Overview
 --------------------------------------------------------------------------------
 排他制御とは、複数のトランザクションから同じデータに対して、同時に更新処理が行われる際に、データの整合性を保つために行う処理のことである。
 
-複数のトランザクションから同じデータに対して、同時に更新処理が行われる可能性がある場合は、基本的に排他制御を行う必要がある。
-ここで言うトランザクションとは、かならずしもデータベースとのトランザクションとは限らず、ロングトランザクションも含まれる。
+| 複数のトランザクションから同じデータに対して、同時に更新処理が行われる可能性がある場合は、基本的に排他制御を行う必要がある。
+| ここで言うトランザクションとは、かならずしもデータベースとのトランザクションとは限らず、ロングトランザクションも含まれる。
 
-.. note:: **ロングトランザクションとは**
+.. note:: \ **ロングトランザクションとは**\
 
-    データの取得とデータの更新を、別々のデータベーストランザクションとして行う際に発生するトランザクションのことである。
+  データの取得とデータの更新を、別々のデータベーストランザクションとして行う際に発生するトランザクションのことである。
 
-    具体例としては、取得したデータを編集画面に表示し、画面で編集した値をデータベースに更新するようなアプリケーションで発生する。
+  具体例としては、取得したデータを編集画面に表示し、画面で編集した値をデータベースに更新するようなアプリケーションで発生する。
 
 | 本節では、データベース上で管理されているデータに対する排他制御について、説明する。
 | しかし、データベース以外で管理されているデータ(例えば、メモリ、ファイルなど)についても、同様に排他制御を行う必要があることに留意すること。
+
+|
 
 .. _ExclusionControl-Necessity:
 
@@ -31,18 +33,20 @@ Overview
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 まず、排他制御の必要性を理解してもらうために、排他制御を行わなかった際に発生する問題について、具体例を3つ挙げて説明する。
 
+|
+
 Problem1
 """"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 
 ここでは、ショッピングサイトにて、ユーザからTeaの注文を受け付ける場合の例を示す。
 
- .. figure:: ./images/ExclusionControl-problem1.png
+  .. figure:: ./images_ExclusionControl/ExclusionControl-problem1.png
    :alt: Exclusive Control problem1
    :width: 90%
    :align: center
 
- .. tabularcolumns:: |p{0.10\linewidth}|p{0.05\linewidth}|p{0.05\linewidth}|p{0.80\linewidth}|
- .. list-table::
+  .. tabularcolumns:: |p{0.10\linewidth}|p{0.05\linewidth}|p{0.05\linewidth}|p{0.80\linewidth}|
+  .. list-table::
     :header-rows: 1
     :widths: 10 5 5 80
 
@@ -67,21 +71,23 @@ Problem1
       - \-
       - User AがTeaを5個注文する。DB上のTeaの在庫を-5し、Teaの在庫は-5となる。
 
- | **User Aの注文は受け付けられたが、実際の在庫が無いため、謝りの連絡を入れることになる。**
- | **テーブルで管理しているTeaの在庫数についても、実際のTeaの在庫数と異なる値(マイナス値)になってしまう。**
+  | \ **User Aの注文は受け付けられたが、実際の在庫が無いため、謝りの連絡を入れることになる。**\
+  | \ **テーブルで管理しているTeaの在庫数についても、実際のTeaの在庫数と異なる値(マイナス値)になってしまう。**\
+
+|
 
 Problem2
 """"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 
 ここでは、ショッピングサイトでTeaの在庫数を管理するスタッフが、Teaの在庫数を表示し、仕入れたTeaの数をクライアントで計算して、Teaの在庫数を更新する場合の例を示す。
 
- .. figure:: ./images/ExclusionControl-problem2.png
+  .. figure:: ./images_ExclusionControl/ExclusionControl-problem2.png
    :alt: Exclusive Control problem2
    :width: 90%
    :align: center
 
- .. tabularcolumns:: |p{0.10\linewidth}|p{0.05\linewidth}|p{0.05\linewidth}|p{0.80\linewidth}|
- .. list-table::
+  .. tabularcolumns:: |p{0.10\linewidth}|p{0.05\linewidth}|p{0.05\linewidth}|p{0.80\linewidth}|
+  .. list-table::
     :header-rows: 1
     :widths: 10 5 5 80
 
@@ -106,20 +112,22 @@ Problem2
       - \-
       - Staff AがTeaを20個仕入れ、在庫数をクライアントで5＋20=25個と計算して更新する。
 
- **3の処理で追加した10個の仕入れが無くなってしまい、実際の在庫数(35個)と合わなくなってしまう。**
+  \ **3の処理で追加した10個の仕入れが無くなってしまい、実際の在庫数(35個)と合わなくなってしまう。**\
+
+|
 
 Problem3
 """"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 
 ここでは、バッチ処理によってロックされているデータに対して、オンライン処理で更新する例を示す。
 
- .. figure:: ./images/ExclusionControl-problem4.png
-   :alt: Exclusive Control problem4
-   :width: 90%
-   :align: center
+  .. figure:: ./images_ExclusionControl/ExclusionControl-problem4.png
+    :alt: Exclusive Control problem4
+    :width: 90%
+    :align: center
 
- .. tabularcolumns:: |p{0.10\linewidth}|p{0.05\linewidth}|p{0.05\linewidth}|p{0.80\linewidth}|
- .. list-table::
+  .. tabularcolumns:: |p{0.10\linewidth}|p{0.05\linewidth}|p{0.05\linewidth}|p{0.80\linewidth}|
+  .. list-table::
     :header-rows: 1
     :widths: 10 5 5 80
 
@@ -148,69 +156,72 @@ Problem3
       - \-
       - User Aの待たされていた更新処理が、実行可能となり更新処理を実行する。
 
- | **User AはBatch終了を待たされた後に、更新処理を実行する。しかし、User Aの取得した元のデータは、Batchの更新前のデータであり、Batchで更新した情報を上書く可能性がある。**
- | **また、Batch時間はオンライン処理と比べると長いものが多く、ユーザが待たされる時間が長くなる。**
+  | \ **User AはBatch終了を待たされた後に、更新処理を実行する。しかし、User Aの取得した元のデータは、Batchの更新前のデータであり、Batchで更新した情報を上書く可能性がある。**\
+  | \ **また、Batch時間はオンライン処理と比べると長いものが多く、ユーザが待たされる時間が長くなる。**\
+
+|
 
 トランザクションの分離レベルによる排他制御
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-| :ref:`ExclusionControl-Necessity` で挙げた3つの問題をすべて解決するための最も簡単な方法は、データベースへの処理を一つひとつ順番に（シリアルに）実行されるようにすることである。
+| \ :ref:`ExclusionControl-Necessity`\ で挙げた3つの問題をすべて解決するための最も簡単な方法は、データベースへの処理を一つひとつ順番に（シリアルに）実行されるようにすることである。
 | このようにシリアルに処理させることで、トランザクションが互いに影響を及ぼし合わなくなる。
 | しかしながら、シリアルに処理させる場合、単位時間内に実行可能なトランザクション数が減少するため、パフォーマンスが低下することになる。
 
-ANSI/ISO SQL標準では、トランザクションの分離レベル（各トランザクションがそれぞれどの程度互いに影響を及ぼし合うか）を表す指標を定義している。
-以下に、トランザクションの分離レベルを4つ示す。併せて、各分離レベルで起こりうる現象について説明する。
+| ANSI/ISO SQL標準では、トランザクションの分離レベル（各トランザクションがそれぞれどの程度互いに影響を及ぼし合うか）を表す指標を定義している。
+| 以下に、トランザクションの分離レベルを4つ示す。併せて、各分離レベルで起こりうる現象について説明する。
 
 .. tabularcolumns:: |p{0.10\linewidth}|p{0.20\linewidth}|p{0.20\linewidth}|p{0.20\linewidth}|p{0.20\linewidth}|
 .. list-table::
-   :header-rows: 1
-   :widths: 10 20 20 20 20
+  :header-rows: 1
+  :widths: 10 20 20 20 20
 
-   * - | 項番
-     - | 分離レベル
-     - | ダーティ・リード
-       | DRITY READ
-     - | 再読込不可能読取
-       | NON-REPEATABLE READ
-     - | ファントム・リード
-       | PHANTOM READ
-   * - | 1.
-     - | 未コミット読込
-       | READ UNCOMMITTED
-     - 有
-     - 有
-     - 有
-   * - | 2.
-     - | コミット済読込
-       | READ COMMITTED
-     - 無
-     - 有
-     - 有
-   * - | 3.
-     - | 再読込可能読取
-       | REPEATABLE READ
-     - 無
-     - 無
-     - 有
-   * - | 4.
-     - | 直列化
-       | SERIALIZABLE
-     - 無
-     - 無
-     - 無
+  * - | 項番
+    - | 分離レベル
+    - | ダーティ・リード
+      | DRITY READ
+    - | 再読込不可能読取
+      | NON-REPEATABLE READ
+    - | ファントム・リード
+      | PHANTOM READ
+  * - | 1.
+    - | 未コミット読込
+      | READ UNCOMMITTED
+    - 有
+    - 有
+    - 有
+  * - | 2.
+    - | コミット済読込
+      | READ COMMITTED
+    - 無
+    - 有
+    - 有
+  * - | 3.
+    - | 再読込可能読取
+      | REPEATABLE READ
+    - 無
+    - 無
+    - 有
+  * - | 4.
+    - | 直列化
+      | SERIALIZABLE
+    - 無
+    - 無
+    - 無
 
-.. tip:: **ダーティ・リード（DRITY READ）**
+.. tip:: \ **ダーティ・リード（DRITY READ）**\
 
-     まだコミットされていないトランザクションが書き込んだデータを、別のトランザクションが読み込む現象のことである。
+  まだコミットされていないトランザクションが書き込んだデータを、別のトランザクションが読み込む現象のことである。
 
-.. tip:: **再読込不可能読取（NON-REPEATABLE READ）**
+.. tip:: \ **再読込不可能読取（NON-REPEATABLE READ）**\
 
-     同一トランザクション内で同じレコードを2度読み込むような場合、1度目と2度目の読み込みの間に他トランザクションがコミットすると、1度目に読み込んだ内容と2度目に読み込んだ内容が異なる可能性がある。
-     複数回の読み込みの結果が、他のトランザクションのコミットのタイミングによって変わることである。
+  同一トランザクション内で同じレコードを2度読み込むような場合、1度目と2度目の読み込みの間に他トランザクションがコミットすると、1度目に読み込んだ内容と2度目に読み込んだ内容が異なる可能性がある。
 
-.. tip:: **ファントム・リード（PHANTOM READ）**
+  複数回の読み込みの結果が、他のトランザクションのコミットのタイミングによって変わることである。
 
-     同一トランザクション内で、同じレコードを2回読み込む間に、他のトランザクションがレコードを追加、または削除することにより、2回目の読み込みで1回目と取得レコード数（内容）が異なることである。
+.. tip:: \ **ファントム・リード（PHANTOM READ）**\
+
+  同一トランザクション内で、同じレコードを2回読み込む間に、他のトランザクションがレコードを追加、または削除することにより、2回目の読み込みで1回目と取得レコード数（内容）が異なることである。
 
 | 上記の表に定義されている分離レベルは、下にいくほどトランザクションの分離レベルが高くなる。
 | 分離レベルが高ければ、データは安全に守られるが、ロック待ちが多くなり、パフォーマンスが低下する。
@@ -224,43 +235,45 @@ ANSI/ISO SQL標準では、トランザクションの分離レベル（各ト�
 | 使用するデータベースにより、サポートされている分離レベルは違うため、使用するデータベースの特性を理解する必要がある。
 | 以下に、データベース毎でサポートされている分離レベルと、デフォルト値を示す。
 
- .. tabularcolumns:: |p{0.10\linewidth}|p{0.20\linewidth}|p{0.15\linewidth}|p{0.15\linewidth}|p{0.15\linewidth}|p{0.15\linewidth}|
- .. list-table::
-   :header-rows: 1
-   :widths: 10 20 15 15 15 15
+  .. tabularcolumns:: |p{0.10\linewidth}|p{0.20\linewidth}|p{0.15\linewidth}|p{0.15\linewidth}|p{0.15\linewidth}|p{0.15\linewidth}|
+  .. list-table::
+    :header-rows: 1
+    :widths: 10 20 15 15 15 15
 
-   * - | 項番
-     - | データベース
-     - | READ UNCOMMITTED
-     - | READ COMMITTED
-     - | REPEATABLE READ
-     - | SERIALIZABLE
-   * - | 1.
-     - | Oracle
-     - | ×
-     - | 〇(default)
-     - | ×
-     - | 〇
-   * - | 2.
-     - | PostgreSQL
-     - | ×
-     - | 〇(default)
-     - | ×
-     - | 〇
-   * - | 3.
-     - | DB2
-     - | 〇
-     - | 〇(default)
-     - | 〇
-     - | 〇
-   * - | 4.
-     - | MySQL InnoDB
-     - | 〇
-     - | 〇
-     - | 〇(default)
-     - | 〇
+    * - | 項番
+      - | データベース
+      - | READ UNCOMMITTED
+      - | READ COMMITTED
+      - | REPEATABLE READ
+      - | SERIALIZABLE
+    * - | 1.
+      - | Oracle
+      - | ×
+      - | 〇(default)
+      - | ×
+      - | 〇
+    * - | 2.
+      - | PostgreSQL
+      - | ×
+      - | 〇(default)
+      - | ×
+      - | 〇
+    * - | 3.
+      - | DB2
+      - | 〇
+      - | 〇(default)
+      - | 〇
+      - | 〇
+    * - | 4.
+      - | MySQL InnoDB
+      - | 〇
+      - | 〇
+      - | 〇(default)
+      - | 〇
 
-**データの整合性を保ちつつ、分離性と同時実行性のバランスをとる場合、データベースのロック機能を使用して排他制御を行う必要がある。以下に、データベースのロック機能について説明する。**
+\ **データの整合性を保ちつつ、分離性と同時実行性のバランスをとる場合、データベースのロック機能を使用して排他制御を行う必要がある。以下に、データベースのロック機能について説明する。**\
+
+|
 
 データベースのロック機能による排他制御
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
@@ -273,54 +286,52 @@ ANSI/ISO SQL標準では、トランザクションの分離レベル（各ト�
 | データベース上で管理されているデータをロックする方法は、下記の通り3種類ある。
 | アーキテクトは、これらのロックの特徴を十分に理解した上で、アプリケーションの特性にあったロックの方法を採用すること。
 
- .. tabularcolumns:: |p{0.10\linewidth}|p{0.15\linewidth}|p{0.40\linewidth}|p{0.35\linewidth}|
- .. list-table:: ロックの種類
-   :header-rows: 1
-   :widths: 10 15 40 35
+  .. tabularcolumns:: |p{0.10\linewidth}|p{0.15\linewidth}|p{0.40\linewidth}|p{0.35\linewidth}|
+  .. list-table:: ロックの種類
+    :header-rows: 1
+    :widths: 10 15 40 35
 
-   * - 項番
-     - ロック種類
-     - 適用ケース
-     - 特徴
-   * - 1.
-     - RDBMSによる自動的なロック
-     - * データの更新条件として、データの整合性を保証するために必要な条件を指定できる場合。
-       * 同一データに対する同時実行数が少なく、更新処理も短い時間でおわる場合。
-     - * チェックと更新処理を一つのSQLで実行するため、効率的である。
-       * 楽観ロックに比べ、データの整合性を保証するための条件を個別に検討する必要がある。
-   * - 2.
-     - 楽観ロック
-     - * 事前に取得したデータが他のトランザクションによって更新されていた場合に、更新内容を確認させる必要がある場合。
-       * 同一データに対する同時実行数が少なく、更新処理も短い時間でおわる場合。
-     - * 取得したデータに対して、他のトランザクションからの更新が行われていないことが保証される。
-       * テーブルにVersionを管理するためのカラムを定義する必要がある。
-   * - 3.
-     - 悲観ロック
-     - * 長い時間ロックされる可能性があるデータに対して更新する場合。
-       * 楽観ロックが使用できない(Versionを管理するためのカラムが定義できない)ため、処理としてデータの整合性チェックを行う必要がある場合。
-       * 同一データに対する同時実行数が多く、更新処理も長い時間実行される可能性がある場合。
-     - * 他のトランザクションの処理結果によって処理が失敗する可能性がなくなる。
-       * 悲観ロックを取得するためのselect文を発行する必要があるので、その分コストがかかる。
+    * - 項番
+      - ロック種類
+      - 適用ケース
+      - 特徴
+    * - 1.
+      - RDBMSによる自動的なロック
+      - * データの更新条件として、データの整合性を保証するために必要な条件を指定できる場合。
+        * 同一データに対する同時実行数が少なく、更新処理も短い時間でおわる場合。
+      - * チェックと更新処理を一つのSQLで実行するため、効率的である。
+        * 楽観ロックに比べ、データの整合性を保証するための条件を個別に検討する必要がある。
+    * - 2.
+      - 楽観ロック
+      - * 事前に取得したデータが他のトランザクションによって更新されていた場合に、更新内容を確認させる必要がある場合。
+        * 同一データに対する同時実行数が少なく、更新処理も短い時間でおわる場合。
+      - * 取得したデータに対して、他のトランザクションからの更新が行われていないことが保証される。
+        * テーブルにVersionを管理するためのカラムを定義する必要がある。
+    * - 3.
+      - 悲観ロック
+      - * 長い時間ロックされる可能性があるデータに対して更新する場合。
+        * 楽観ロックが使用できない(Versionを管理するためのカラムが定義できない)ため、処理としてデータの整合性チェックを行う必要がある場合。
+        * 同一データに対する同時実行数が多く、更新処理も長い時間実行される可能性がある場合。
+      - * 他のトランザクションの処理結果によって処理が失敗する可能性がなくなる。
+        * 悲観ロックを取得するためのselect文を発行する必要があるので、その分コストがかかる。
 
-.. note:: **ロックの種類の採用基準について**
+  .. note:: \ **ロックの種類の採用基準について**\
 
     どの手法を採用するかについて、アーキテクトが、機能要件および性能要件を考慮して決定すること。
 
     * 画面にデータを戻し、画面上でデータを変更するような、データベースとのトランザクションが切れて、次のトランザクションでデータが変わっていないことを保証するためには、楽観ロックが必要となる。
     * 1トランザクション内でロックをかける必要がある場合は、悲観ロックと楽観ロックの両方で実現できるが、悲観ロックを使用した場合、データベース内のロック制御処理が行われるため、データベース内の処理コストが高くなる可能性がある。特に問題がない場合は、楽観ロックの方がよい。
-    * 更新頻度が高い処理で、1トランザクション内で多くのテーブルを更新する場合は、楽観ロックを使用すると、ロックを取得するための待ち時間は最小限に抑えることが出できるが、途中で排他エラーとなる可能性があるため、エラーが発生するポイントが増える。
-      悲観ロックを使用すると、ロックを取得するまでの待ち時間が長くなる可能性はあるが、ロックを取得した後の処理で排他エラーが発生することはないため、エラーが発生するポイントが減る。
+    * 更新頻度が高い処理で、1トランザクション内で多くのテーブルを更新する場合は、楽観ロックを使用すると、ロックを取得するための待ち時間は最小限に抑えることが出できるが、途中で排他エラーとなる可能性があるため、エラーが発生するポイントが増える。悲観ロックを使用すると、ロックを取得するまでの待ち時間が長くなる可能性はあるが、ロックを取得した後の処理で排他エラーが発生することはないため、エラーが発生するポイントが減る。
 
-.. tip:: **業務トランザクションについて**
+  .. tip:: \ **業務トランザクションについて**\
 
-    実際のアプリケーション開発では、業務フローレベルのトランザクションに対して、排他制御が必要になる場合もある。
-    業務フローレベルのトランザクションとなる代表例としては、旅行代理店のカウンタで、お客様と話をしながら予約作業を進めていく際に使用するアプリケーションがあげられる。
+    実際のアプリケーション開発では、業務フローレベルのトランザクションに対して、排他制御が必要になる場合もある。業務フローレベルのトランザクションとなる代表例としては、旅行代理店のカウンタで、お客様と話をしながら予約作業を進めていく際に使用するアプリケーションがあげられる。
 
-    旅行予約を行う場合、鉄道、宿泊施設、さらに追加プランなどを話しながら決めていくことになる。
-    その際に、予約することに決めた宿泊施設や追加プランが、他の利用者に予約されないようにする仕組みが必要になる。
-    このような場合は、テーブルにステータスを持たせ、仮予約 -> 予約 のように更新し、仮予約中の場合も、他の利用者から更新されないようにする必要がある。
+    旅行予約を行う場合、鉄道、宿泊施設、さらに追加プランなどを話しながら決めていくことになる。その際に、予約することに決めた宿泊施設や追加プランが、他の利用者に予約されないようにする仕組みが必要になる。このような場合は、テーブルにステータスを持たせ、仮予約 -> 予約 のように更新し、仮予約中の場合も、他の利用者から更新されないようにする必要がある。
 
     業務トランザクションに対する排他制御については、業務設計や機能設計として検討・設計すべき箇所になるので、本節の説明範囲からは省いている。
+
+|
 
 データベースの行ロック機能による排他制御
 """"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
@@ -331,36 +342,36 @@ ANSI/ISO SQL標準では、トランザクションの分離レベル（各ト�
 | この特性を活かし、更新時のWHERE句に対して、データの整合性を担保するための条件を指定することで、排他制御を行うことができる。
 | 以下に、データベース毎の、更新時の行ロックのサポート状況を示す。
 
- .. tabularcolumns:: |p{0.10\linewidth}|p{0.20\linewidth}|p{0.10\linewidth}|p{0.15\linewidth}|p{0.35\linewidth}|
- .. list-table::
-   :header-rows: 1
-   :widths: 10 20 10 15 35
+  .. tabularcolumns:: |p{0.10\linewidth}|p{0.20\linewidth}|p{0.10\linewidth}|p{0.15\linewidth}|p{0.35\linewidth}|
+  .. list-table::
+    :header-rows: 1
+    :widths: 10 20 10 15 35
 
-   * - 項番
-     - データベース
-     - 確認Version
-     - デフォルト設定時のロック
-     - 備考
-   * - 1.
-     - Oracle
-     - 11
-     - 行ロック
-     - ロック分メモリ使用量が増大する。
-   * - 2.
-     - PostgreSQL
-     - 9
-     - 行ロック
-     - メモリ上に変更された行の情報を記憶しないので、同時にロックできる行数に、上限はない。ただし、テーブルに書き込むため、定期的にVACUUMしなければならない。
-   * - 3.
-     - DB2
-     - 9
-     - 行ロック
-     - ロック分メモリ使用量が増大する。
-   * - 4.
-     - MySQL InnoDB
-     - 5
-     - 行ロック
-     - ロック分メモリ使用量が増大する。
+    * - 項番
+      - データベース
+      - 確認Version
+      - デフォルト設定時のロック
+      - 備考
+    * - 1.
+      - Oracle
+      - 11
+      - 行ロック
+      - ロック分メモリ使用量が増大する。
+    * - 2.
+      - PostgreSQL
+      - 9
+      - 行ロック
+      - メモリ上に変更された行の情報を記憶しないので、同時にロックできる行数に、上限はない。ただし、テーブルに書き込むため、定期的にVACUUMしなければならない。
+    * - 3.
+      - DB2
+      - 9
+      - 行ロック
+      - ロック分メモリ使用量が増大する。
+    * - 4.
+      - MySQL InnoDB
+      - 5
+      - 行ロック
+      - ロック分メモリ使用量が増大する。
 
 | データベースの行ロック機能による排他制御は、他のトランザクションによって更新した内容を確認する必要がない場合に使用することができる。
 | 例えば、ショッピングサイトの購入処理にて、購入した商品の個数を、商品の在庫数を管理するレコードからマイナスするような処理が挙げられる。
@@ -368,21 +379,16 @@ ANSI/ISO SQL標準では、トランザクションの分離レベル（各ト�
 
 以下に、具体例を示す。シナリオは、以下の通りである。
 
-* ショッピングサイトでUser A,User Bともに同じ商品の購入画面を同時に表示する。
-  その際に、Stock Tableから取得した在庫数も表示されている。
+* ショッピングサイトでUser A,User Bともに同じ商品の購入画面を同時に表示する。その際に、Stock Tableから取得した在庫数も表示されている。
 * 買いたい商品を5個ずつ同時に購入したが、少しUserAの方が早く購入ボタンを押下したため、User Aが先に購入し、User Bが次に購入する。
 
- .. figure:: ./images/update-for-db-line-lock.png
-   :alt: update for db line lock
-   :width: 90%
-   :align: center
+  .. figure:: ./images_ExclusionControl/update-for-db-line-lock.png
+    :alt: update for db line lock
+    :width: 90%
+    :align: center
 
- .. raw:: latex
-
-    \newpage
-
- .. tabularcolumns:: |p{0.10\linewidth}|p{0.05\linewidth}|p{0.05\linewidth}|p{0.80\linewidth}|
- .. list-table::
+  .. tabularcolumns:: |p{0.10\linewidth}|p{0.05\linewidth}|p{0.05\linewidth}|p{0.80\linewidth}|
+  .. list-table::
     :header-rows: 1
     :widths: 10 5 5 80
     :class: longtable
@@ -443,27 +449,25 @@ ANSI/ISO SQL標準では、トランザクションの分離レベル（各ト�
       - 〇
       - User Bのトランザクションをコミットする。
 
- .. raw:: latex
-
-    \newpage
-
- .. note:: **ポイント**
+  .. note:: \ **ポイント**\
 
     SQL内で減算( ``quantity - 5`` )と、更新条件( ``and quantity >= 5`` )の指定を行うことが、ポイントとなる。
 
 | 上と同じシナリオで、商品の購入画面を表示した際の在庫数が、9個だった場合、User Bの更新処理が再開した時点の在庫数が、4個のため、\ ``quantity >= 5``\ を満たさないので、更新件数が0件となる。
 | アプリケーションでは、更新件数が0件の場合、購入処理をロールバックし、User Bに再度実行を促す。
 
- .. figure:: ./images/update-for-db-line-lock-not-enough.png
-   :alt: update for db line lock not enough
-   :width: 90%
-   :align: center
+  .. figure:: ./images_ExclusionControl/update-for-db-line-lock-not-enough.png
+    :alt: update for db line lock not enough
+    :width: 90%
+    :align: center
 
- .. note:: **ポイント**
+  .. note:: \ **ポイント**\
 
     アプリケーションで更新件数をチェックし、想定件数と異なる場合にエラーを発生させ、トランザクションをロールバックすることが、ポイントとなる。
 
-**この方法でロックする場合、参照した情報が変わっていても条件次第で処理を進めることができ、かつ、データベースの機能によってデータの整合性を保証することができる。**
+\ **この方法でロックする場合、参照した情報が変わっていても条件次第で処理を進めることができ、かつ、データベースの機能によってデータの整合性を保証することができる。**\
+
+|
 
 楽観ロックによる排他制御
 """"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
@@ -472,12 +476,11 @@ ANSI/ISO SQL標準では、トランザクションの分離レベル（各ト�
 | 楽観ロックを使用する場合は、更新対象のデータが、データ取得時と同じ状態であることを判断するために、Versionを管理するためのカラム(Versionカラム)を用意する。
 | 更新時の条件として、データ取得時のVersionと、データ更新時のVersionを同じとすることで、データの整合性を保証することができる。
 
-.. note:: **Versionカラムとは**
+.. note:: \ **Versionカラムとは**\
 
-    レコードの更新回数を管理するためのカラムで、レコード挿入時に0を設定し、更新成功時にインクリメントしていく楽観ロック用のカラムである。
-    Versionカラムは、数値以外に最終更新タイムスタンプで代用することもできる。
-    しかし、タイムスタンプを用いると、同時に処理が実行された際の、一意性が保証されない。
-    そこで、確実な一意性を求める場合、Versionカラムは、数値を使用する必要がある。
+  レコードの更新回数を管理するためのカラムで、レコード挿入時に0を設定し、更新成功時にインクリメントしていく楽観ロック用のカラムである。
+
+  Versionカラムは、数値以外に最終更新タイムスタンプで代用することもできる。しかし、タイムスタンプを用いると、同時に処理が実行された際の、一意性が保証されない。そこで、確実な一意性を求める場合、Versionカラムは、数値を使用する必要がある。
 
 | 楽観ロックによる排他制御は、他のトランザクションによって更新されていた場合に、更新内容を確認させる必要がある場合に使用する。
 | 例えば、ワークフローアプリケーションにおいて、申請者と承認者が同時に操作（引き戻しと承認）を行った場合を想像してほしい。
@@ -485,9 +488,9 @@ ANSI/ISO SQL標準では、トランザクションの分離レベル（各ト�
 
 .. warning::
 
-    楽観ロックを行う場合、IDとVersion以外の条件を加えて更新・削除するのは適切でない。
-    なぜなら更新できなかった場合に、Versionが一致しないことが理由なのか、別の条件に一致しないのが理由なのか、判断できないためである。
-    更新条件として別の条件がある場合は、事前の処理として条件を満たしているか、チェックを行う必要がある。
+  楽観ロックを行う場合、IDとVersion以外の条件を加えて更新・削除するのは適切でない。なぜなら更新できなかった場合に、Versionが一致しないことが理由なのか、別の条件に一致しないのが理由なのか、判断できないためである。
+
+  更新条件として別の条件がある場合は、事前の処理として条件を満たしているか、チェックを行う必要がある。
 
 具体例を、以下に示す。シナリオは、以下の通りである。
 
@@ -495,13 +498,13 @@ ANSI/ISO SQL標準では、トランザクションの分離レベル（各ト�
 * 仕入れた商品を、在庫管理システムに反映するために、在庫管理画面を表示する。その際、在庫管理システムで管理されている在庫数が表示される。
 * それぞれ表示された在庫数に対して、仕入れた数を加算した値を更新フォームに入力し、更新を行う。
 
- .. figure:: ./images/Optimistic-lock-flow.png
-   :alt: Optimistic lock flow
-   :width: 90%
-   :align: center
+  .. figure:: ./images_ExclusionControl/Optimistic-lock-flow.png
+    :alt: Optimistic lock flow
+    :width: 90%
+    :align: center
 
- .. tabularcolumns:: |p{0.10\linewidth}|p{0.05\linewidth}|p{0.05\linewidth}|p{0.80\linewidth}|
- .. list-table::
+  .. tabularcolumns:: |p{0.10\linewidth}|p{0.05\linewidth}|p{0.05\linewidth}|p{0.80\linewidth}|
+  .. list-table::
     :header-rows: 1
     :widths: 10 5 5 80
 
@@ -534,7 +537,7 @@ ANSI/ISO SQL標準では、トランザクションの分離レベル（各ト�
     * - 5.
       - 〇
       - \-
-      - Staff Aのトランザクションをコミットする。 **この時点で、Versionは  2 になる。**
+      - Staff Aのトランザクションをコミットする。\ **この時点で、Versionは  2 になる。**\
     * - 6.
       - 〇
       - \-
@@ -550,9 +553,11 @@ ANSI/ISO SQL標準では、トランザクションの分離レベル（各ト�
       - \-
       - Staff Bのトランザクションをロールバックする。
 
-.. note:: **ポイント**
+.. note:: \ **ポイント**\
 
     SQL内でVersionのインクリメント( ``version + 1`` )と、更新条件( ``and version = 1`` )の指定を行うことが、ポイントとなる。
+
+|
 
 悲観ロックによる排他制御
 """"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
@@ -563,40 +568,44 @@ ANSI/ISO SQL標準では、トランザクションの分離レベル（各ト�
 
 .. tabularcolumns:: |p{0.10\linewidth}|p{0.15\linewidth}|p{0.30\linewidth}|
 .. list-table:: RDBMS別の悲観ロック取得方法
-   :header-rows: 1
-   :widths: 10 15 30
+  :header-rows: 1
+  :widths: 10 15 30
 
-   * - 項番
-     - データベース
-     - 悲観ロック方法
-   * - 1.
-     - Oracle
-     - FOR UPDATE
-   * - 2.
-     - PostgreSQL
-     - FOR UPDATE
-   * - 3.
-     - DB2
-     - FOR UPDATE WITH
-   * - 4.
-     - MySQL
-     - FOR UPDATE
+  * - 項番
+    - データベース
+    - 悲観ロック方法
+  * - 1.
+    - Oracle
+    - FOR UPDATE
+  * - 2.
+    - PostgreSQL
+    - FOR UPDATE
+  * - 3.
+    - DB2
+    - FOR UPDATE WITH
+  * - 4.
+    - MySQL
+    - FOR UPDATE
 
-.. note:: **悲観ロックのタイムアウトについて**
+.. note:: \ **悲観ロックのタイムアウトについて**\
 
-     悲観ロックには、悲観ロック取得時に他のトランザクションによってロックが取得されていた場合に、どのような動作にするかをオプションとして指定することがある。
-     Oracleの場合は、
+  悲観ロックには、悲観ロック取得時に他のトランザクションによってロックが取得されていた場合に、どのような動作にするかをオプションとして指定することがある。
 
-     * デフォルトでは、\ ``select for update [wait]``\ となり、ロックが解除されるまで待つ。
-     * \ ``select for update nowait``\ とすると、他にロックされている場合は、即時にリソースビジーのエラーとなる。
-     * \ ``select for update wait 5``\ とすると5秒待ち、5秒間ロックが解除されない場合は、リソースビジーのエラーが返却される。
+  Oracleの場合は、
 
-     DBにより機能に差はあるが、悲観ロックを使用する際は、どの手法を採用するか検討が必要である。
+  * デフォルトでは、\ ``select for update [wait]``\ となり、ロックが解除されるまで待つ。
+  * \ ``select for update nowait``\ とすると、他にロックされている場合は、即時にリソースビジーのエラーとなる。
+  * \ ``select for update wait 5``\ とすると5秒待ち、5秒間ロックが解除されない場合は、リソースビジーのエラーが返却される。
 
-.. note:: **JPA(Hibernate)を使用する場合**
+  DBにより機能に差はあるが、悲観ロックを使用する際は、どの手法を採用するか検討が必要である。
 
-     悲観ロックの取得方法はデータベースによって異なるが、その差分はJPA(Hibernate)によって吸収される。
-     HibernateのサポートしているRDBMSについては、 `Hibernate ORM User Guide <https://docs.jboss.org/hibernate/orm/5.6/userguide/html_single/Hibernate_User_Guide.html#database-dialect>`_ を参照されたい。
+.. note:: \ **JPA(Hibernate)を使用する場合**\
+
+  悲観ロックの取得方法はデータベースによって異なるが、その差分はJPA(Hibernate)によって吸収される。
+
+  HibernateのサポートしているRDBMSについては、\ `Hibernate ORM User Guide <https://docs.jboss.org/hibernate/orm/6.1/userguide/html_single/Hibernate_User_Guide.html#database-dialect>`_\ を参照されたい。
+
+|
 
 悲観ロックによる排他制御は、以下3ケースのいずれかに当てはまる場合に使用する。
 
@@ -616,15 +625,15 @@ ANSI/ISO SQL標準では、トランザクションの分離レベル（各ト�
 * オンライン処理は10秒のタイムアウト時間を指定して、更新対象のデータのロックを取得する。
 * バッチ処理は5秒後(タイムアウト前)に終了する。
 
- .. figure:: ./images/Pessimistic-lock.png
-   :alt: Pessimistic lock
-   :width: 90%
-   :align: center
+  .. figure:: ./images_ExclusionControl/Pessimistic-lock.png
+    :alt: Pessimistic lock
+    :width: 90%
+    :align: center
 
 |
 
- .. tabularcolumns:: |p{0.10\linewidth}|p{0.05\linewidth}|p{0.05\linewidth}|p{0.80\linewidth}|
- .. list-table::
+  .. tabularcolumns:: |p{0.10\linewidth}|p{0.05\linewidth}|p{0.05\linewidth}|p{0.80\linewidth}|
+  .. list-table::
     :header-rows: 1
     :widths: 10 5 5 80
 
@@ -666,32 +675,26 @@ ANSI/ISO SQL標準では、トランザクションの分離レベル（各ト�
       - \-
       - オンライン処理のトランザクションをコミットする。
 
- .. raw:: latex
-
-    \newpage
-
 | 以下は、タイムアウトとなった場合の流れとなる。
 | バッチ処理の終了まで待たずに排他エラーとなる。
 
- .. figure:: ./images/Pessimistic-lock-timeout.png
-   :alt: Pessimistic lock
-   :width: 90%
-   :align: center
-
- .. raw:: latex
-
-    \newpage
+  .. figure:: ./images_ExclusionControl/Pessimistic-lock-timeout.png
+    :alt: Pessimistic lock
+    :width: 90%
+    :align: center
 
 | 以下は、悲観ロックの取得待ちを行わない設定のとき、他のトランザクションによって、悲観ロックが取得されていた場合の流れとなる。
 | 悲観ロックの解放を待つことなく、すぐに排他エラーとなる。
 
- .. figure:: ./images/Pessimistic-lock-nowait.png
-   :alt: Pessimistic lock
-   :width: 90%
-   :align: center
+  .. figure:: ./images_ExclusionControl/Pessimistic-lock-nowait.png
+    :alt: Pessimistic lock
+    :width: 90%
+    :align: center
 
-**バッチ処理とオンライン処理が競合する可能性があり、かつバッチ処理の処理時間が長くなる場合は、悲観排他のタイムアウト時間を指定することを推奨する。**
-**タイムアウト時間については、オンライン処理の処理要件に応じて決めること。**
+\ **バッチ処理とオンライン処理が競合する可能性があり、かつバッチ処理の処理時間が長くなる場合は、悲観排他のタイムアウト時間を指定することを推奨する。**\
+\ **タイムアウト時間については、オンライン処理の処理要件に応じて決めること。**\
+
+|
 
 デッドロックの予防
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
@@ -706,13 +709,13 @@ ANSI/ISO SQL標準では、トランザクションの分離レベル（各ト�
 """"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 以下(1)～(5)の流れで、複数のトランザクションから、同一テーブルのレコードに対してロックを行うと、デッドロックとなる。
 
- .. figure:: ./images/Dead-Lock-Record.png
-   :alt: Dead Lock Record
-   :width: 90%
-   :align: center
+  .. figure:: ./images_ExclusionControl/Dead-Lock-Record.png
+    :alt: Dead Lock Record
+    :width: 90%
+    :align: center
 
- .. tabularcolumns:: |p{0.10\linewidth}|p{0.05\linewidth}|p{0.05\linewidth}|p{0.80\linewidth}|
- .. list-table::
+  .. tabularcolumns:: |p{0.10\linewidth}|p{0.05\linewidth}|p{0.05\linewidth}|p{0.80\linewidth}|
+  .. list-table::
     :header-rows: 1
     :widths: 10 5 5 80
 
@@ -741,12 +744,15 @@ ANSI/ISO SQL標準では、トランザクションの分離レベル（各ト�
       - \-
       - Program AとProgram Bが、お互いに保持しているロックに対して解放待ちの状態となるため、デッドロックとなる。デッドロックが発生した場合、データベースによって検知されエラーとなる。
 
- .. note:: **デッドロックの解決方法について**
+  .. note:: \ **デッドロックの解決方法について**\
 
     タイムアウトやリトライ実施での解消する方法もあるが、同一テーブル上でのレコードの更新順序にルールを決めることが重要である。
+
     1行ずつ更新する場合は、PK(PRIMARY KEY)順の若い順に更新するなどのルールを定めること。
 
     仮にProgram AもProgram BもRecord Xから更新するというルールに準じていれば、上記\ :ref:`Dead-Lock-Record`\ の図のようなデッドロックは発生しなくなる。
+
+|
 
 .. _Dead-Lock-Table:
 
@@ -755,13 +761,13 @@ ANSI/ISO SQL標準では、トランザクションの分離レベル（各ト�
 | 以下(1)～(5)の流れで、複数のトランザクションから、別テーブルのレコードに対してロックを行うと、デッドロックとなる。
 | 基本的な考え方は、 :ref:`Dead-Lock-Record` と同じである。
 
- .. figure:: ./images/Dead-Lock-Table.png
-   :alt: Dead Lock Table
-   :width: 90%
-   :align: center
+  .. figure:: ./images_ExclusionControl/Dead-Lock-Table.png
+    :alt: Dead Lock Table
+    :width: 90%
+    :align: center
 
- .. tabularcolumns:: |p{0.10\linewidth}|p{0.05\linewidth}|p{0.05\linewidth}|p{0.80\linewidth}|
- .. list-table::
+  .. tabularcolumns:: |p{0.10\linewidth}|p{0.05\linewidth}|p{0.05\linewidth}|p{0.80\linewidth}|
+  .. list-table::
     :header-rows: 1
     :widths: 10 5 5 80
 
@@ -790,7 +796,7 @@ ANSI/ISO SQL標準では、トランザクションの分離レベル（各ト�
       - \-
       - Program AとProgram Bが、お互いに保持しているロックに対して解放待ちの状態となるため、デッドロックとなる。デッドロックが発生した場合、データベースによって検知されエラーとなる。
 
-.. note:: **デッドロックの解決方法について**
+.. note:: \ **デッドロックの解決方法について**\
 
     タイムアウトやリトライ実施での解消する方法もあるが、テーブルを跨った際も、更新順序をルール化しておくことが重要である。
 
@@ -798,8 +804,9 @@ ANSI/ISO SQL標準では、トランザクションの分離レベル（各ト�
 
 .. warning::
 
-    注意としては、どの方法を採用したとしても、レコードをロックする順序により、デッドロックが発生する可能性がある。
-    テーブル、レコードのロック順序については、ルールを決めること。
+  注意としては、どの方法を採用したとしても、レコードをロックする順序により、デッドロックが発生する可能性がある。
+
+  テーブル、レコードのロック順序については、ルールを決めること。
 
 |
 
@@ -810,12 +817,12 @@ How to use
 
 使用するO/R Mapperの実装方法を確認されたい。
 
-* :ref:`ExclusionControlHowToUseMyBatis3`
-* :ref:`ExclusionControlHowToUseJpa`
+* \ :ref:`ExclusionControlHowToUseMyBatis3`\
+* \ :ref:`ExclusionControlHowToUseJpa`\
 
 また、排他エラーのハンドリング方法については、
 
-* :ref:`ExclusionControlHowToUseExceptionHandling`
+* \ :ref:`ExclusionControlHowToUseExceptionHandling`\
 
 を参照されたい。
 
@@ -840,16 +847,16 @@ RDBMSの行ロック機能を使って排他制御を行う場合は、SQLの中
 
 - Repositoryインタフェースにメソッドを定義する。
 
- .. code-block:: java
+  .. code-block:: java
 
-     public interface StockRepository {
+    public interface StockRepository {
         // (1)
         boolean decrementQuantity(@Param("itemCode") String itemCode,
                                   @Param("quantity") int quantity);
     }
 
- .. tabularcolumns:: |p{0.10\linewidth}|p{0.90\linewidth}|
- .. list-table::
+  .. tabularcolumns:: |p{0.10\linewidth}|p{0.90\linewidth}|
+  .. list-table::
     :header-rows: 1
     :widths: 10 90
 
@@ -866,7 +873,7 @@ RDBMSの行ロック機能を使って排他制御を行う場合は、SQLの中
 
 - RDBMSの行ロック機能を使った排他制御が有効となるSQLを定義する。
 
- .. code-block:: xml
+  .. code-block:: xml
 
     <!-- (2) -->
     <update id="decrementQuantity">
@@ -884,8 +891,8 @@ RDBMSの行ロック機能を使って排他制御を行う場合は、SQLの中
     ]]>
     </update>
 
- .. tabularcolumns:: |p{0.10\linewidth}|p{0.90\linewidth}|
- .. list-table::
+  .. tabularcolumns:: |p{0.10\linewidth}|p{0.90\linewidth}|
+  .. list-table::
     :header-rows: 1
     :widths: 10 90
 
@@ -914,7 +921,7 @@ RDBMSの行ロック機能を使って排他制御を行う場合は、SQLの中
 
 - Repositoryのメソッドを呼び出し、RDBMSの行ロック機能を使用してデータを安全に更新する。
 
- .. code-block:: java
+  .. code-block:: java
 
     // (5)
     boolean updated = stockRepository.decrementQuantity(itemCode, quantityOfOrder);
@@ -926,8 +933,8 @@ RDBMSの行ロック機能を使って排他制御を行う場合は、SQLの中
         throw new BusinessException(messages);
     }
 
- .. tabularcolumns:: |p{0.10\linewidth}|p{0.90\linewidth}|
- .. list-table::
+  .. tabularcolumns:: |p{0.10\linewidth}|p{0.90\linewidth}|
+  .. list-table::
     :header-rows: 1
     :widths: 10 90
 
@@ -956,7 +963,7 @@ RDBMSの行ロック機能を使って排他制御を行う場合は、SQLの中
 
 - Entityにバージョン管理用のプロパティを定義する。
 
- .. code-block:: java
+  .. code-block:: java
 
     public class Stock implements Serializable {
         private static final long serialVersionUID = 1L;
@@ -966,12 +973,12 @@ RDBMSの行ロック機能を使って排他制御を行う場合は、SQLの中
         // (1)
         private long version;
 
-        // ...
+        // omitted
 
     }
 
- .. tabularcolumns:: |p{0.10\linewidth}|p{0.90\linewidth}|
- .. list-table::
+  .. tabularcolumns:: |p{0.10\linewidth}|p{0.90\linewidth}|
+  .. list-table::
     :header-rows: 1
     :widths: 10 90
 
@@ -984,7 +991,7 @@ RDBMSの行ロック機能を使って排他制御を行う場合は、SQLの中
 
 - Repositoryインタフェースにメソッドを定義する。
 
- .. code-block:: java
+  .. code-block:: java
 
     public interface StockRepository {
         // (2)
@@ -993,8 +1000,8 @@ RDBMSの行ロック機能を使って排他制御を行う場合は、SQLの中
         boolean updateQuantity(Stock stock);
     }
 
- .. tabularcolumns:: |p{0.10\linewidth}|p{0.90\linewidth}|
- .. list-table::
+  .. tabularcolumns:: |p{0.10\linewidth}|p{0.90\linewidth}|
+  .. list-table::
     :header-rows: 1
     :widths: 10 90
 
@@ -1012,7 +1019,7 @@ RDBMSの行ロック機能を使って排他制御を行う場合は、SQLの中
 
 - マッピングファイルにSQLを定義する。
 
- .. code-block:: xml
+  .. code-block:: xml
 
     <!-- (4) -->
     <select id="findByItemCode" parameterType="string" resultType="Stock">
@@ -1041,8 +1048,8 @@ RDBMSの行ロック機能を使って排他制御を行う場合は、SQLの中
             version = #{version}
     </update>
 
- .. tabularcolumns:: |p{0.10\linewidth}|p{0.90\linewidth}|
- .. list-table::
+  .. tabularcolumns:: |p{0.10\linewidth}|p{0.90\linewidth}|
+  .. list-table::
     :header-rows: 1
     :widths: 10 90
 
@@ -1065,7 +1072,7 @@ RDBMSの行ロック機能を使って排他制御を行う場合は、SQLの中
 
 - Repositoryのメソッドを呼び出し、楽観ロック機能を使用してデータを安全に更新する。
 
- .. code-block:: java
+  .. code-block:: java
 
     // (8)
     Stock stock = stockRepository.findByItemCode(itemCode);
@@ -1085,8 +1092,8 @@ RDBMSの行ロック機能を使って排他制御を行う場合は、SQLの中
         throw new ObjectOptimisticLockingFailureException(Stock.class, itemCode);
     }
 
- .. tabularcolumns:: |p{0.10\linewidth}|p{0.90\linewidth}|
- .. list-table::
+  .. tabularcolumns:: |p{0.10\linewidth}|p{0.90\linewidth}|
+  .. list-table::
     :header-rows: 1
     :widths: 10 90
 
@@ -1110,16 +1117,15 @@ RDBMSの行ロック機能を使って排他制御を行う場合は、SQLの中
 
 ロングトランザクションに対して楽観ロックを行う場合は、以下の点に注意すること。
 
- .. warning::
+  .. warning::
 
-    ロングトランザクションに対して楽観ロックを行う場合は、更新時のチェックとは別に、
-    データ取得時にもバージョンのチェックを行うこと。
+    ロングトランザクションに対して楽観ロックを行う場合は、更新時のチェックとは別に、データ取得時にもバージョンのチェックを行うこと。
 
 以下に、実装例を示す。
 
 - データ取得時にもバージョンのチェックを行う。
 
- .. code-block:: java
+  .. code-block:: java
 
     Stock stock = stockRepository.findByItemCode(itemCode);
     if (stock == null || stock.getVersion() != version) {
@@ -1131,8 +1137,8 @@ RDBMSの行ロック機能を使って排他制御を行う場合は、SQLの中
     boolean updated = stockRepository.updateQuantity(stock);
     // omitted
 
- .. tabularcolumns:: |p{0.10\linewidth}|p{0.90\linewidth}|
- .. list-table::
+  .. tabularcolumns:: |p{0.10\linewidth}|p{0.90\linewidth}|
+  .. list-table::
     :header-rows: 1
     :widths: 10 90
 
@@ -1149,20 +1155,17 @@ RDBMSの行ロック機能を使って排他制御を行う場合は、SQLの中
 
 RDBMSの行ロック機能と楽観ロック機能を併用するアプリケーション場合は、以下の点に注意すること。
 
- .. warning::
+  .. warning::
 
-    RDBMSの行ロック機能を利用して排他制御を行う処理と、
-    楽観ロック機能を利用して排他制御を行う処理が共存するアプリケーションの場合は、
-    RDBMSの行ロック機能を使うSQLの中で、**バージョンの更新(インクリメント)が必要となる。**
+    RDBMSの行ロック機能を利用して排他制御を行う処理と、楽観ロック機能を利用して排他制御を行う処理が共存するアプリケーションの場合は、RDBMSの行ロック機能を使うSQLの中で、\ **バージョンの更新(インクリメント)が必要となる。**\
 
-    仮にRDBMSの行ロック機能を使って排他制御を行うSQLの中でバージョンを更新しなかった場合、
-    楽観ロック機能を利用して排他制御を行っているSQLでデータを上書きしてしまう可能性がある。
+    仮にRDBMSの行ロック機能を使って排他制御を行うSQLの中でバージョンを更新しなかった場合、楽観ロック機能を利用して排他制御を行っているSQLでデータを上書きしてしまう可能性がある。
 
 以下に、実装例を示す。
 
 - SQL内でバージョンを更新する。
 
- .. code-block:: xml
+  .. code-block:: xml
 
     <update id="decrementQuantity">
     <![CDATA[
@@ -1179,8 +1182,8 @@ RDBMSの行ロック機能と楽観ロック機能を併用するアプリケー
     ]]>
     </update>
 
- .. tabularcolumns:: |p{0.10\linewidth}|p{0.90\linewidth}|
- .. list-table::
+  .. tabularcolumns:: |p{0.10\linewidth}|p{0.90\linewidth}|
+  .. list-table::
     :header-rows: 1
     :widths: 10 90
 
@@ -1198,7 +1201,7 @@ RDBMSの行ロック機能と楽観ロック機能を併用するアプリケー
 
 - SQLの中でロックを取得するためのキーワードを指定する
 
- .. code-block:: xml
+  .. code-block:: xml
 
     <select id="findByItemCodeWithPessimisticLock" parameterType="string" resultType="Stock">
         SELECT
@@ -1213,8 +1216,8 @@ RDBMSの行ロック機能と楽観ロック機能を併用するアプリケー
         FOR UPDATE
     </select>
 
- .. tabularcolumns:: |p{0.10\linewidth}|p{0.90\linewidth}|
- .. list-table::
+  .. tabularcolumns:: |p{0.10\linewidth}|p{0.90\linewidth}|
+  .. list-table::
     :header-rows: 1
     :widths: 10 90
 
@@ -1240,7 +1243,7 @@ RDBMSの行ロック機能
 
 - Repositoryインタフェース
 
- .. code-block:: java
+  .. code-block:: java
    :emphasize-lines: 5, 7
 
      public interface StockRepository extends JpaRepository<Stock, String> {
@@ -1255,8 +1258,8 @@ RDBMSの行ロック機能
 
     }
 
- .. tabularcolumns:: |p{0.10\linewidth}|p{0.90\linewidth}|
- .. list-table::
+  .. tabularcolumns:: |p{0.10\linewidth}|p{0.90\linewidth}|
+  .. list-table::
     :header-rows: 1
     :widths: 10 90
 
@@ -1268,7 +1271,7 @@ RDBMSの行ロック機能
 
 - Service
 
- .. code-block:: java
+  .. code-block:: java
 
     String itemCodeOfOrder = "ITM0000001";
     int quantityOfOrder = 31;
@@ -1281,14 +1284,14 @@ RDBMSの行ロック機能
         throw new BusinessException(message); // (4)
     }
 
- .. code-block:: sql
+  .. code-block:: sql
 
     update m_stock set quantity=quantity-31
                    where item_code='ITM0000001' and 31<=quantity -- (5)
 
 
- .. tabularcolumns:: |p{0.10\linewidth}|p{0.90\linewidth}|
- .. list-table::
+  .. tabularcolumns:: |p{0.10\linewidth}|p{0.90\linewidth}|
+  .. list-table::
     :header-rows: 1
     :widths: 10 90
 
@@ -1306,19 +1309,21 @@ RDBMSの行ロック機能
     * - | (5)
       - Queryメソッド呼び出し時に実行されるSQL。
 
+|
+
 楽観ロック
 """"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 
-JPAでは、バージョン管理用のプロパティに、\ ``@javax.persistence.Version``\ アノテーションを指定することで、楽観ロックを行うことができる。
+JPAでは、バージョン管理用のプロパティに、\ ``@jakarta.persistence.Version``\ アノテーションを指定することで、楽観ロックを行うことができる。
 
 - Entity
 
- .. code-block:: java
-   :emphasize-lines: 11
+  .. code-block:: java
+    :emphasize-lines: 11
 
-    @Entity
-    @Table(name = "m_stock")
-    public class Stock implements Serializable {
+     @Entity
+     @Table(name = "m_stock")
+     public class Stock implements Serializable {
 
         @Id
         @Column(name = "item_code")
@@ -1333,8 +1338,8 @@ JPAでは、バージョン管理用のプロパティに、\ ``@javax.persisten
 
     }
 
- .. tabularcolumns:: |p{0.10\linewidth}|p{0.90\linewidth}|
- .. list-table::
+  .. tabularcolumns:: |p{0.10\linewidth}|p{0.90\linewidth}|
+  .. list-table::
     :header-rows: 1
     :widths: 10 90
 
@@ -1345,7 +1350,7 @@ JPAでは、バージョン管理用のプロパティに、\ ``@javax.persisten
 
 - Service
 
- .. code-block:: java
+  .. code-block:: java
 
     String itemCode = "ITM0000001";
     int newQuantity = 30;
@@ -1361,13 +1366,13 @@ JPAでは、バージョン管理用のプロパティに、\ ``@javax.persisten
 
     stockRepository.flush(); // (4)
 
- .. code-block:: sql
+  .. code-block:: sql
 
     update m_stock set quantity=30, version=7
                    where item_code='ITM0000001' and version=6 -- ( 5)
 
- .. tabularcolumns:: |p{0.10\linewidth}|p{0.90\linewidth}|
- .. list-table::
+  .. tabularcolumns:: |p{0.10\linewidth}|p{0.90\linewidth}|
+  .. list-table::
     :header-rows: 1
     :widths: 10 90
 
@@ -1389,13 +1394,14 @@ JPAでは、バージョン管理用のプロパティに、\ ``@javax.persisten
 .. warning::
 
   ロングトランザクションに対する楽観ロックについては、\ ``@Version``\ アノテーションを付与するだけでは不十分である。
+
   ロングトランザクションに対して楽観ロックを行う場合は、JPAの機能で行われる更新時のチェックに加えて、更新対象のデータを取得する際にも、バージョンのチェックを行うこと。
 
 以下に、実装例を示す。
 
 - Service
 
- .. code-block:: java
+  .. code-block:: java
 
     long version = 12;
     String itemCode = "ITM0000001";
@@ -1410,8 +1416,8 @@ JPAでは、バージョン管理用のプロパティに、\ ``@javax.persisten
 
     stockRepository.flush();
 
- .. tabularcolumns:: |p{0.10\linewidth}|p{0.90\linewidth}|
- .. list-table::
+  .. tabularcolumns:: |p{0.10\linewidth}|p{0.90\linewidth}|
+  .. list-table::
     :header-rows: 1
     :widths: 10 90
 
@@ -1425,56 +1431,54 @@ JPAでは、バージョン管理用のプロパティに、\ ``@javax.persisten
     * - | (3)
       - バージョンが異なる場合は、楽観ロックエラー(\ ``org.springframework.orm.ObjectOptimisticLockingFailureException``\ )を発生させる。
 
-.. warning:: **Version管理用のプロパティに対する値の設定について**
+.. warning:: \ **Version管理用のプロパティに対する値の設定について**\
 
-    Repositoryインタフェースを使って取得したEntityは、「管理状態のEntity」と呼ばれる。
+  Repositoryインタフェースを使って取得したEntityは、「管理状態のEntity」と呼ばれる。
 
-     **「管理状態のEntity」に対して、処理でVersion管理用のプロパティの値を設定することはできないので、注意すること。**
+  \ **「管理状態のEntity」に対して、処理でVersion管理用のプロパティの値を設定することはできないので、注意すること。**\
 
-    以下のような処理をしても、「管理状態のEntity」に設定したバージョンの値は反映されないため、楽観ロックを取得する際に使用されることはない。楽観ロックで使用されるのは、findByIdメソッドで取得した時点のバージョンとなる。
+  以下のような処理をしても、「管理状態のEntity」に設定したバージョンの値は反映されないため、楽観ロックを取得する際に使用されることはない。楽観ロックで使用されるのは、findByIdメソッドで取得した時点のバージョンとなる。
 
-     .. code-block:: java
-        :emphasize-lines: 11
+    .. code-block:: java
+      :emphasize-lines: 11
 
-        long version = 12;
-        String itemCode = "ITM0000001";
-        int newQuantity = 30;
+      long version = 12;
+      String itemCode = "ITM0000001";
+      int newQuantity = 30;
 
-        Stock stock = stockRepository.findById(itemCode).get();
-        if (stock == null) {
-            ResultMessages messages = ResultMessages.error().add(ResultMessage
-                    .fromText("Stock not found. itemCode : " + itemCode));
-            throw new ResourceNotFoundException(messages);
-        }
-        stock.setVersion(version); // ★ Invalid Processing
-        stock.setQuantity(newQuantity);
+      Stock stock = stockRepository.findById(itemCode).get();
+      if (stock == null) {
+          ResultMessages messages = ResultMessages.error().add(ResultMessage
+                  .fromText("Stock not found. itemCode : " + itemCode));
+          throw new ResourceNotFoundException(messages);
+      }
+      stock.setVersion(version); // Invalid Processing
+      stock.setQuantity(newQuantity);
 
-        stockRepository.flush();
+      stockRepository.flush();
 
-    例えば、画面から送られてきたバージョンの値を上書きしても、Entityには反映されないため、排他制御が正しく行われなくなってしまう。
+  例えば、画面から送られてきたバージョンの値を上書きしても、Entityには反映されないため、排他制御が正しく行われなくなってしまう。
 
 
-.. note:: **ロングトランザクションに対する楽観ロック処理の共通化について**
+.. note:: \ **ロングトランザクションに対する楽観ロック処理の共通化について**\
 
   複数の処理でロングトランザクションに対して楽観ロックが必要になる場合は、上記の(1)～(3)の処理を共通的なメソッドにすることを検討した方がよい。
+
   共通化の方法については、\ :ref:`data-access-jpa_how_to_extends_custommethod`\ を参照されたい。
 
 RDBMSの行ロック機能と、楽観ロック機能を両方使用する場合は、以下の点に注意すること。
 
 .. warning::
 
-  同じデータに対して、RDBMSの行ロック機能を利用して排他制御を行う処理と、
-  楽観ロック機能を利用して排他制御を行う処理が共存するアプリケーションの場合は、
-  RDBMSの行ロック機能を使うQueryメソッドにて、\ **Versionの更新を必ず行う必要がある。**\
+  同じデータに対して、RDBMSの行ロック機能を利用して排他制御を行う処理と、楽観ロック機能を利用して排他制御を行う処理が共存するアプリケーションの場合は、RDBMSの行ロック機能を使うQueryメソッドにて、\ **Versionの更新を必ず行う必要がある。**\
 
-  RDBMSの行ロック機能を使って、排他制御を行うQueryメソッドでVersionを更新しない場合、
-  Queryメソッドで更新した内容が、別のトランザクションの処理で上書きされる可能性があるため、正しく排他制御が行われない。
+  RDBMSの行ロック機能を使って、排他制御を行うQueryメソッドでVersionを更新しない場合、Queryメソッドで更新した内容が、別のトランザクションの処理で上書きされる可能性があるため、正しく排他制御が行われない。
 
 以下に、実装例を示す。
 
 - Repositoryインタフェース
 
- .. code-block:: java
+  .. code-block:: java
    :emphasize-lines: 5
 
     public interface StockRepository extends JpaRepository<Stock, String> {
@@ -1489,8 +1493,8 @@ RDBMSの行ロック機能と、楽観ロック機能を両方使用する場合
 
     }
 
- .. tabularcolumns:: |p{0.10\linewidth}|p{0.90\linewidth}|
- .. list-table::
+  .. tabularcolumns:: |p{0.10\linewidth}|p{0.90\linewidth}|
+  .. list-table::
     :header-rows: 1
     :widths: 10 90
 
@@ -1499,13 +1503,15 @@ RDBMSの行ロック機能と、楽観ロック機能を両方使用する場合
     * - | (1)
       - | Versionの更新(\ ``s.version = s.version + 1``\ )を行う必要がある。
 
+|
+
 悲観ロック
 """"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 Spring Data JPAでは、\ ``@org.springframework.data.jpa.repository.Lock``\ アノテーションを指定することで、悲観ロックを行うことができる。
 
 - Repositoryインタフェース
 
- .. code-block:: java
+  .. code-block:: java
 
     public interface StockRepository extends JpaRepository<Stock, String> {
 
@@ -1515,7 +1521,7 @@ Spring Data JPAでは、\ ``@org.springframework.data.jpa.repository.Lock``\ ア
 
     }
 
- .. code-block:: sql
+  .. code-block:: sql
 
     -- (2)
     SELECT
@@ -1528,8 +1534,8 @@ Spring Data JPAでは、\ ``@org.springframework.data.jpa.repository.Lock``\ ア
             stock0_.item_code = 'ITM0000001'
         FOR UPDATE;
 
- .. tabularcolumns:: |p{0.10\linewidth}|p{0.90\linewidth}|
- .. list-table::
+  .. tabularcolumns:: |p{0.10\linewidth}|p{0.90\linewidth}|
+  .. list-table::
     :header-rows: 1
     :widths: 10 90
 
@@ -1542,90 +1548,89 @@ Spring Data JPAでは、\ ``@org.springframework.data.jpa.repository.Lock``\ ア
 
 \ ``@Lock``\ アノテーションで指定することができる悲観ロックの種類は、以下の通りである。
 
- .. tabularcolumns:: |p{0.10\linewidth}|p{0.25\linewidth}|p{0.45\linewidth}|p{0.20\linewidth}|
- .. list-table::
-   :header-rows: 1
-   :widths: 10 25 45 20
+  .. tabularcolumns:: |p{0.10\linewidth}|p{0.25\linewidth}|p{0.45\linewidth}|p{0.20\linewidth}|
+  .. list-table::
+    :header-rows: 1
+    :widths: 10 25 45 20
 
-   * - 項番
-     - LockModeType
-     - 説明
-     - 発行されるSQL
-   * - 1.
-     - PESSIMISTIC_READ
-     - | 参照用の悲観ロックが取得される。データベースによっては、排他ロックではなく共有ロックとなる。
-       | コミットまたはロールバック時に、ロック解放される
-     - | select ... for update / select ... for share
-   * - 2.
-     - PESSIMISTIC_WRITE
-     - | 更新用の悲観ロックが取得され、排他ロックがかかる。
-       | 排他ロックの場合、既にロックがかかっていた場合には、ロックが解放されるまで待機してからエンティティが取得される。
-       | コミットまたはロールバック時に、ロック解放される
-     - | select ... for update
-   * - 3.
-     - PESSIMISTIC_FORCE_INCREMENT
-     - | エンティティを取得した時点から、対象データに対して排他ロックがかかる。取得直後に強制的にバージョンの更新も行われる。
-       | コミットまたはロールバック時に、ロック解放される
-     - | select ... for update + update
+    * - 項番
+      - LockModeType
+      - 説明
+      - 発行されるSQL
+    * - 1.
+      - PESSIMISTIC_READ
+      - | 参照用の悲観ロックが取得される。データベースによっては、排他ロックではなく共有ロックとなる。
+        | コミットまたはロールバック時に、ロック解放される
+      - | select ... for update / select ... for share
+    * - 2.
+      - PESSIMISTIC_WRITE
+      - | 更新用の悲観ロックが取得され、排他ロックがかかる。
+        | 排他ロックの場合、既にロックがかかっていた場合には、ロックが解放されるまで待機してからエンティティが取得される。
+        | コミットまたはロールバック時に、ロック解放される
+      - | select ... for update
+    * - 3.
+      - PESSIMISTIC_FORCE_INCREMENT
+      - | エンティティを取得した時点から、対象データに対して排他ロックがかかる。取得直後に強制的にバージョンの更新も行われる。
+        | コミットまたはロールバック時に、ロック解放される
+      - | select ... for update + update
 
- .. note:: **ロックタイムアウト時間について**
+  .. note:: \ **ロックタイムアウト時間について**\
 
-    JPA(\ ``EntityManager``\ )の設定またはQueryヒントとして、\ ``javax.persistence.lock.timeout``\ を指定することで、タイムアウト時間を指定することができる。
+    JPA(\ ``EntityManager``\ )の設定またはQueryヒントとして、\ ``jakarta.persistence.lock.timeout``\ を指定することで、タイムアウト時間を指定することができる。
 
-ロックのタイムアウト時間の指定は、全体に適用する方法と、Query毎に適用する２つの方法が用意されている。
+ロックのタイムアウト時間の指定は、全体に適用する方法と、Query毎に適用する2つの方法が用意されている。
 
 全体に適用する方法は、以下の通りである。
 
-- :file:`xxx-infra.xml`
+- \ :file:`xxx-infra.xml`\
 
- .. code-block:: xml
+  .. code-block:: xml
 
-     <bean id="entityManagerFactory"
-         class="org.springframework.orm.jpa.LocalContainerEntityManagerFactoryBean">
-         <property name="packagesToScan" value="xxxxxx.yyyyyy.zzzzzz.domain.model" />
-         <property name="dataSource" ref="dataSource" />
-         <property name="jpaVendorAdapter" ref="jpaVendorAdapter" />
-         <property name="jpaPropertyMap">
-             <util:map>
-                 <!-- ... -->
-                 <entry key="javax.persistence.lock.timeout" value="1000" /> <!-- (1) -->
-             </util:map>
-         </property>
-     </bean>
+    <bean id="entityManagerFactory"
+        class="org.springframework.orm.jpa.LocalContainerEntityManagerFactoryBean">
+        <property name="packagesToScan" value="xxxxxx.yyyyyy.zzzzzz.domain.model" />
+        <property name="dataSource" ref="dataSource" />
+        <property name="jpaVendorAdapter" ref="jpaVendorAdapter" />
+        <property name="jpaPropertyMap">
+            <util:map>
+                <!-- omitted -->
+               <entry key="jakarta.persistence.lock.timeout" value="1000" /> <!-- (1) -->
+            </util:map>
+        </property>
+    </bean>
 
- .. tabularcolumns:: |p{0.10\linewidth}|p{0.90\linewidth}|
- .. list-table::
+  .. tabularcolumns:: |p{0.10\linewidth}|p{0.90\linewidth}|
+  .. list-table::
     :header-rows: 1
     :widths: 10 90
 
     * - 項番
       - 説明
     * - | (1)
-      - タイムアウトをミリ秒で指定する。\ ``1000``\ を指定すると、1秒となる。
+      - タイムアウトをミリ秒で指定する。\ ``1000``\を指定すると、1秒となる。
 
- .. note:: **nowaitのサポート**
+  .. note:: \ **nowaitのサポート**\
 
-    OracleとPostgreSQLについては、"\ ``0``\" を指定した場合、\ ``nowait``\ が付加され、他のトランザクションによってロックされていた場合に、ロックの解放待ちを行わずに排他エラーとなる。
+    OracleとPostgreSQLについては、"\ ``0``\ " を指定した場合、\ ``nowait``\が付加され、他のトランザクションによってロックされていた場合に、ロックの解放待ちを行わずに排他エラーとなる。
 
- .. warning:: **PostgreSQLの制約**
+  .. warning:: \ **PostgreSQLの制約**\
 
-    PostgreSQLではnowaitの指定はできるが、wait時間の指定ができない。
-    そのため、Queryのタイムアウトを別途設けておくなどの対策を行う必要がある。
+    PostgreSQLではnowaitの指定はできるが、wait時間の指定ができない。そのため、Queryのタイムアウトを別途設けておくなどの対策を行う必要がある。
 
 Query毎に適応する方法は、以下の通りである。
 
 
 - Repositoryインタフェース
 
- .. code-block:: java
+  .. code-block:: java
 
     @Lock(LockModeType.PESSIMISTIC_WRITE)
-    @QueryHints(@QueryHint(name = "javax.persistence.lock.timeout", value = "2000")) // (1)
+    @QueryHints(@QueryHint(name = "jakarta.persistence.lock.timeout", value = "2000")) // (1)
     @Query("SELECT s FROM Stock s WHERE s.itemCode = :itemCode")
     Optional<Stock> findByIdForUpdate(@Param("itemCode") String itemCode);
 
- .. tabularcolumns:: |p{0.10\linewidth}|p{0.90\linewidth}|
- .. list-table::
+  .. tabularcolumns:: |p{0.10\linewidth}|p{0.90\linewidth}|
+  .. list-table::
     :header-rows: 1
     :widths: 10 90
 
@@ -1645,14 +1650,13 @@ Query毎に適応する方法は、以下の通りである。
 楽観ロックの失敗時のエラーハンドリング
 """"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 
-楽観ロックの失敗時には、\ ``org.springframework.dao.OptimisticLockingFailureException``\ が発生するため、
-Controllerで適切にハンドリングする必要がある。
+楽観ロックの失敗時には、\ ``org.springframework.dao.OptimisticLockingFailureException``\ が発生するため、Controllerで適切にハンドリングする必要がある。
 
-| ハンドリング方法は、楽観ロックエラーが発生した時のアプリケーションの動作仕様によって異なる。
+ハンドリング方法は、楽観ロックエラーが発生した時のアプリケーションの動作仕様によって異なる。
 
 リクエスト単位に動作を変える必要がない場合は、\ ``@ExceptionHandler``\ アノテーションを使用してハンドリングする。
 
- .. code-block:: java
+  .. code-block:: java
 
     @ExceptionHandler(OptimisticLockingFailureException.class) // (1)
     public ModelAndView handleOptimisticLockingFailureException(
@@ -1668,8 +1672,8 @@ Controllerで適切にハンドリングする必要がある。
     }
 
 
- .. tabularcolumns:: |p{0.10\linewidth}|p{0.90\linewidth}|
- .. list-table::
+  .. tabularcolumns:: |p{0.10\linewidth}|p{0.90\linewidth}|
+  .. list-table::
     :header-rows: 1
     :widths: 10 90
 
@@ -1683,12 +1687,12 @@ Controllerで適切にハンドリングする必要がある。
 
 リクエスト単位に動作を変える必要がある場合は、Controllerのハンドラメソッドの中で、\ ``try - catch``\ を使用してハンドリングする。
 
- .. code-block:: java
+  .. code-block:: java
 
-    @RequestMapping(value = "{itemId}/update", method = RequestMethod.POST)
+    @PostMapping("{itemId}/update")
     public String update(StockForm form, Model model, RedirectAttributes attributes){
 
-        // ...
+        // omitted
 
         try {
             stockService.update(...);
@@ -1700,12 +1704,12 @@ Controllerで適切にハンドリングする必要がある。
             return updateRedo(modelMap);
         }
 
-        // ...
+        // omitted
 
     }
 
- .. tabularcolumns:: |p{0.10\linewidth}|p{0.90\linewidth}|
- .. list-table::
+  .. tabularcolumns:: |p{0.10\linewidth}|p{0.90\linewidth}|
+  .. list-table::
     :header-rows: 1
     :widths: 10 90
 
@@ -1717,6 +1721,8 @@ Controllerで適切にハンドリングする必要がある。
       - | エラーハンドリングの処理を実装する。エラーを通知するためのメッセージ、画面表示に必要な情報（フォームやその他のモデル）を生成し、遷移先のview名を返却する。
         | エラーハンドリングの詳細については、\ :ref:`exception-handling-how-to-use-codingpoint-controller-request-label`\ を参照されたい。
 
+|
+
 悲観ロックの失敗時のエラーハンドリング
 """"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 
@@ -1726,7 +1732,7 @@ Controllerで適切にハンドリングする必要がある。
 
 リクエスト単位に動作を変える必要がない場合は、\ ``@ExceptionHandler``\ アノテーションを使用してハンドリングする。
 
- .. code-block:: java
+  .. code-block:: java
 
     @ExceptionHandler(PessimisticLockingFailureException.class) // (1)
     public ModelAndView handlePessimisticLockingFailureException(
@@ -1741,8 +1747,8 @@ Controllerで適切にハンドリングする必要がある。
         return new ModelAndView(viewName, modelMap);
     }
 
- .. tabularcolumns:: |p{0.10\linewidth}|p{0.90\linewidth}|
- .. list-table::
+  .. tabularcolumns:: |p{0.10\linewidth}|p{0.90\linewidth}|
+  .. list-table::
     :header-rows: 1
     :widths: 10 90
 
@@ -1756,12 +1762,12 @@ Controllerで適切にハンドリングする必要がある。
 
 リクエスト単位に動作を変える必要がある場合は、Controllerのハンドラメソッドの中で、\ ``try - catch``\ を使用してハンドリングする。
 
- .. code-block:: java
+  .. code-block:: java
 
-    @RequestMapping(value = "{itemId}/update", method = RequestMethod.POST)
+    @PostMapping("{itemId}/update")
     public String update(StockForm form, Model model, RedirectAttributes attributes){
 
-        // ...
+        // omitted
 
         try {
             stockService.update(...);
@@ -1773,12 +1779,12 @@ Controllerで適切にハンドリングする必要がある。
             return updateRedo(modelMap);
         }
 
-        // ...
+        // omitted
 
     }
 
- .. tabularcolumns:: |p{0.10\linewidth}|p{0.90\linewidth}|
- .. list-table::
+  .. tabularcolumns:: |p{0.10\linewidth}|p{0.90\linewidth}|
+  .. list-table::
     :header-rows: 1
     :widths: 10 90
 
@@ -1790,8 +1796,7 @@ Controllerで適切にハンドリングする必要がある。
       - | エラーハンドリングの処理を実装する。エラーを通知するためのメッセージ、画面表示に必要な情報（フォームやその他のモデル）を生成し、遷移先のview名を返却する。
         | エラーハンドリングの詳細については、\ :ref:`exception-handling-how-to-use-codingpoint-controller-request-label`\ を参照されたい。
 
-
 .. raw:: latex
 
-   \newpage
+  \newpage
 
