@@ -1,0 +1,79 @@
+このドキュメントが示すこと
+================================================================================
+
+本ガイドラインではSpring、Spring MVCやJPA、MyBatisを中心としたフルスタックフレームワークを利用して、
+保守性の高いWebアプリケーション開発をするためのベストプラクティスを提供する。
+
+本ガイドラインを読むことで、ソフトウェア開発(主にコーディング)が円滑に進むことを期待する。
+
+このドキュメントの対象読者
+================================================================================
+
+本ガイドラインはソフトウェア開発経験のあるアーキテクトやプログラマ向けに書かれており、
+以下の知識があることを前提としている。
+
+* Spring FrameworkのDIやAOPに関する基礎的な知識がある
+* Servlet/JSPを使用してWebアプリケーションを開発したことがある
+* SQLに関する知識がある
+* Mavenによる構成管理を行ったことがある
+
+これからJavaを勉強し始めるという人向けではない。
+
+Spring Frameworkに関して、本ドキュメントを読むための基礎知識があるかどうかを測るために
+\ :doc:`../Appendix/SpringComprehensionCheck`\ を参照されたい。
+この理解度テストが4割回答できない場合は、別途以下のような入門書籍で学習することを推奨する。
+
+* `Spring3入門―Javaフレームワーク・より良い設計とアーキテクチャ (技術評論社) [日本語] <http://gihyo.jp/book/2012/978-4-7741-5380-3>`_
+* `Pro Spring 3 (Apress) <http://www.apress.com/9781430241072>`_
+
+このドキュメントの構成
+================================================================================
+
+* \ :doc:`../Overview/index`\ 
+    Spring MVCの概要や、TERASOLUNA Global Frameworkの基本的な考え方を説明する。
+* \ :doc:`../TutorialTodo/index`\ 
+    簡単なアプリケーション開発を通して、TERASOLUNA Global Frameworkによるアプリケーション開発を体験する。
+* \ :doc:`../ImplementationAtEachLayer/index`\ 
+    TERASOLUNA Global Frameworkを利用してアプリケーション開発する上で必ず押さえておかなくてはならない知識や作法について説明する。
+* \ :doc:`../ArchitectureInDetail/index`\
+    一般的にアプリケーション開発で必要となる機能をTERASOLUNA Global Frameworkを利用してどう実装するか、何に気を付けるべきかを機能ごとに説明する。
+* \ :doc:`../Security/index`\  
+    Spring Securityを中心としたセキュリティ対策について説明する。
+
+このドキュメントの読み方
+================================================================================
+
+まずは"\ :doc:`../Overview/index`\ "
+から読み進めていただきたい。特にSpring MVCの経験がない場合は"\ :doc:`../Overview/FirstApplication`\ "を実施すること。
+"\ :doc:`../Overview/ApplicationLayering`\ "は本ガイドラインで共通する用語と概念の説明を行っているため、必ず一読されたい。
+
+次に"\ :doc:`../TutorialTodo/index`\ "に進む。
+このチュートリアルでは"習うより慣れろ"を目的として、
+詳細な説明の前にまず手を動かして、TERASOLUNA Global Frameworkによるアプリケーション開発を体感していただきたい。
+
+チュートリアルを実践したのちに、"\ :doc:`../ImplementationAtEachLayer/index`\ "でアプリケーション開発の詳細を学ぶ。
+特に"\ :doc:`../ImplementationAtEachLayer/ApplicationLayer`\ "でSpring MVCによる開発のノウハウを凝集して説明しているため、
+何度も読み返すことを推奨する。
+本章を読み終えた後にもう一度"\ :doc:`../TutorialTodo/index`\ "を振り返るとより理解が深まる。
+
+**ここまではTERASOLUNA Global Frameworkを使用するすべての開発者が読むことを強く推奨する。**
+
+"\ :doc:`../ArchitectureInDetail/index`\ "、"\ :doc:`../Security/index`\ "については
+目的に応じて必要なタイミングで参照すればよい。ただし、":doc:`../ArchitectureInDetail/Validation`"はアプリケーション開発で通常は必要となるため、基本的には読んでおくこと。
+
+テクニカルリーダーはこれらをすべて読み内容を把握した上で
+プロジェクトにおいて、どのような方針を定めるか検討していただきたい。
+
+
+.. note::
+
+    時間がない場合、まずは
+    
+    #. \ :doc:`../Overview/FirstApplication`\ 
+    #. \ :doc:`../Overview/ApplicationLayering`\ 
+    #. \ :doc:`../TutorialTodo/index`\ 
+    #. \ :doc:`../ImplementationAtEachLayer/index`\ 
+    #. \ :doc:`../TutorialTodo/index`\ 
+    #. \ :doc:`../ArchitectureInDetail/Validation`\ 
+    
+    を読むとよい。
