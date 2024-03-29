@@ -87,60 +87,136 @@ Spring TestのDI機能
 
 テストケースの\ ``@ContextConfiguration``\ に設定ファイルを指定すると、\ ``SpringJUnit4ClassRunner``\ にデフォルトで設定されている\ ``DependencyInjectionTestExecutionListener``\ の処理によってテスト実行時にSpringのDI機能を利用することができる。
 
-| 以下に\ ``@ContextConfiguration``\ を使用して設定ファイルを読み込む例を示す。
-| ここでは、アプリケーションで使用する\ ``sample-infra.xml``\ を使用してテスト対象の\ ``com.example.domain.repository.member.MemberRepository``\ をインジェクションしている。
+.. tabs::
+  .. group-tab:: Java Config
 
-* \ ``sample-infra.xml``\
+    | 以下に\ ``@ContextConfiguration``\ を使用して設定ファイルを読み込む例を示す。
+    | ここでは、アプリケーションで使用する\ ``SampleInfraConfig.java``\ を使用してテスト対象の\ ``com.example.domain.repository.member.MemberRepository``\ をインジェクションしている。
 
-.. code-block:: xml
+    * ``SampleInfraConfig.java``
 
-  <?xml version="1.0" encoding="UTF-8"?>
-  <beans xmlns="http://www.springframework.org/schema/beans"
-      xmlns:mybatis="http://mybatis.org/schema/mybatis-spring"
-      xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-      xsi:schemaLocation="http://www.springframework.org/schema/beans https://www.springframework.org/schema/beans/spring-beans.xsd
-      http://mybatis.org/schema/mybatis-spring.xsd">
+    .. code-block:: java
 
-      <import resource="classpath:/META-INF/spring/sample-env.xml" />
+      /**
+       * Bean definitions for infrastructure layer.
+       */
+      @Configuration
+      @MapperScan("com.example.domain.repository")
+      public class SampleInfraConfig {
 
-      <!-- define the SqlSessionFactory -->
-      <bean id="sqlSessionFactory" class="org.mybatis.spring.SqlSessionFactoryBean">
+          /**
+           * MyBatisがマッパーを自動スキャンするパッケージを設定
+           * Configure {@link MapperScannerConfigurer} bean.
+           * @return Bean of configured {@link MapperScannerConfigurer}
+           */
+          @Bean
+          public MapperScannerConfigurer mapperScannerConfigurer() {
+              MapperScannerConfigurer bean = new MapperScannerConfigurer();
+              bean.setBasePackage("com.example.domain.repository");
+              return bean;
+          }
+
+          /**
+           * MyBatis設定
+           * Configure {@link SqlSessionFactory} bean.
+           * @param dataSource Bean defined by SampleEnvConfig#dataSource
+           * @see com.example.config.app.SampleEnvConfig#dataSource()
+           * @return Bean of configured {@link SqlSessionFactoryBean}
+           */
+          @Bean("sqlSessionFactory")
+          public SqlSessionFactoryBean sqlSessionFactory(DataSource dataSource) {
+              SqlSessionFactoryBean bean = new SqlSessionFactoryBean();
+              bean.setDataSource(dataSource);
+              bean.setTypeAliasesPackage("com.example.domain.model, com.example.domain.repository");
+              bean.setConfiguration(MybatisConfig.configuration());
+              return bean;
+          }
+
+      }
+
+    * \ ``MemberRepositoryTest.java``\
+
+    .. code-block:: java
+
+      @RunWith(SpringJUnit4ClassRunner.class)
+      @ContextConfiguration(classes = { TestContextConfig.class, SampleEnvConfig.class, SampleInfraConfig.class }) // (1)
+      @Transactional
+      public class MemberRepositoryTest {
+
+          @Inject
+          MemberRepository target; // (2)
+      }
+
+    .. tabularcolumns:: |p{0.10\linewidth}|p{0.90\linewidth}|
+    .. list-table::
+      :header-rows: 1
+      :widths: 10 90
+
+      * - 項番
+        - 説明
+      * - | (1)
+        - | \ ``@ContextConfiguration``\ に\ ``SampleInfraConfig.class``\ を指定する。
+      * - | (2)
+        - | \ ``SampleInfraConfig.java``\ でBean登録されている\ ``MemberRepository``\ をインジェクションする。
+
+  .. group-tab:: XML Config
+
+    | 以下に\ ``@ContextConfiguration``\ を使用して設定ファイルを読み込む例を示す。
+    | ここでは、アプリケーションで使用する\ ``sample-infra.xml``\ を使用してテスト対象の\ ``com.example.domain.repository.member.MemberRepository``\ をインジェクションしている。
+
+    * \ ``sample-infra.xml``\
+
+    .. code-block:: xml
+
+      <?xml version="1.0" encoding="UTF-8"?>
+      <beans xmlns="http://www.springframework.org/schema/beans"
+        xmlns:mybatis="http://mybatis.org/schema/mybatis-spring"
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:schemaLocation="http://www.springframework.org/schema/beans https://www.springframework.org/schema/beans/spring-beans.xsd
+          http://mybatis.org/schema/mybatis-spring.xsd">
+
+        <import resource="classpath:/META-INF/spring/sample-env.xml" />
+
+        <!-- define the SqlSessionFactory -->
+        <bean id="sqlSessionFactory" class="org.mybatis.spring.SqlSessionFactoryBean">
           <property name="dataSource" ref="dataSource" />
           <property name="typeAliasesPackage" value="com.example.domain.model, com.example.domain.repository" />
-      </bean>
+        </bean>
 
-      <!-- scan for Mappers -->
-      <bean class="org.mybatis.spring.mapper.MapperScannerConfigurer">
+        <!-- scan for Mappers -->
+        <bean class="org.mybatis.spring.mapper.MapperScannerConfigurer">
           <property name="basePackage" value="com.example.domain.repository" />
-      </bean>
+        </bean>
 
-    </beans>
+      </beans>
 
-* \ ``MemberRepositoryTest.java``\
 
-.. code-block:: java
+    * \ ``MemberRepositoryTest.java``\
 
-  @RunWith(SpringJUnit4ClassRunner.class)
-  @ContextConfiguration(locations = {
-          "classpath:META-INF/spring/sample-infra.xml" }) //(1)
-  @Transactional
-  public class MemberRepositoryTest {
+    .. code-block:: java
 
-      @Inject
-      MemberRepository target; // (2)
-  }
+      @RunWith(SpringJUnit4ClassRunner.class)
+      @ContextConfiguration(locations = {
+              "classpath:META-INF/spring/sample-infra.xml" }) //(1)
+      @Transactional
+      public class MemberRepositoryTest {
 
-.. tabularcolumns:: |p{0.10\linewidth}|p{0.90\linewidth}|
-.. list-table::
-  :header-rows: 1
-  :widths: 10 90
+          @Inject
+          MemberRepository target; // (2)
+      }
 
-  * - 項番
-    - 説明
-  * - | (1)
-    - | \ ``@ContextConfiguration``\ に\ ``sample-infra.xml``\ を指定する。
-  * - | (2)
-    - | \ ``sample-infra.xml``\ に定義された\ ``<mybatis:scan>``\ でBean登録されている\ ``MemberRepository``\ をインジェクションする。
+    .. tabularcolumns:: |p{0.10\linewidth}|p{0.90\linewidth}|
+    .. list-table::
+      :header-rows: 1
+      :widths: 10 90
+
+      * - 項番
+        - 説明
+      * - | (1)
+        - | \ ``@ContextConfiguration``\ に\ ``sample-infra.xml``\ を指定する。
+      * - | (2)
+        - | \ ``sample-infra.xml``\ に定義された\ ``<mybatis:scan>``\ でBean登録されている\ ``MemberRepository``\ を
+            インジェクションする。
 
 |
 
@@ -176,7 +252,7 @@ TestExecutionListenerの登録
     - \ ``@Sql``\ アノテーションで指定されているSQLを実行する機能を提供している。
 
 
-各\ ``TestExecutionListener``\ の詳細は\ `Spring Framework Documentation -TestExecutionListener Configuration- <https://docs.spring.io/spring-framework/docs/6.0.3/reference/html/testing.html#testcontext-tel-config>`_\ を参照されたい。
+各\ ``TestExecutionListener``\ の詳細は\ `Spring Framework Documentation -TestExecutionListener Configuration- <https://docs.spring.io/spring-framework/docs/6.1.3/reference/html/testing.html#testcontext-tel-config>`_\ を参照されたい。
 
 \ ``TestExecutionListener``\ は通常、デフォルト設定から変更する必要はないが、テストライブラリが独自に提供している\ ``TestExecutionListener``\ を使用する場合は\ ``@TestExecutionListeners``\ アノテーションを使用して\ ``TestContextManager``\ に登録する必要がある。
 
@@ -203,14 +279,14 @@ TestExecutionListenerの登録
     - 説明
   * - | (1)
     - | クラスレベルに\ ``@TestExecutionListeners``\ アノテーションを付けて\ ``TestExecutionListener``\ インタフェースの実装クラスを指定することで、テスト実行時に指定した\ ``TestExecutionListener``\ の処理を呼び出すことができる。
-      | 詳細は\ `@TestExecutionListenersのJavadoc <https://docs.spring.io/spring-framework/docs/6.0.3/javadoc-api/org/springframework/test/context/TestExecutionListeners.html>`_\ を参照されたい。
+      | 詳細は\ `@TestExecutionListenersのJavadoc <https://docs.spring.io/spring-framework/docs/6.1.3/javadoc-api/org/springframework/test/context/TestExecutionListeners.html>`_\ を参照されたい。
   * - | (2)
     - | \ ``TransactionDbUnitTestExecutionListener``\ はSpring Test DBUnitが提供する\ ``TestExecutionListener``\ インタフェースの実装クラスである。\ ``@DatabaseSetup``\ や\ ``@ExpectedDatabase``\ 、\ ``@DatabaseTearDown``\ などのアノテーションを使用したデータのセットアップ、検証、後処理の機能を提供している。
       | \ ``TransactionDbUnitTestExecutionListener``\ は内部で\ ``TransactionalTestExecutionListener``\ と\ ``com.github.springtestdbunit.DbUnitTestExecutionListener``\ をチェインしている。
 
 .. warning:: \ **DbUnitTestExecutionListenerの注意点**\
 
-  テストケース内で\ ``@Transactional``\ を指定せずにSpring Test DBUnitの提供する\ ``DbUnitTestExecutionListener``\ を使用した場合、\ ``@DatabaseSetup``\ などのアノテーションのトランザクションと、テスト対象クラスのトランザクションは別になるため、データのセットアップが反映されないなど正常に動作しない可能性があることに注意されたい。なお、テストケース内で\ ``@Transactional``\ を指定する場合は\ ``DbUnitTestExecutionListener``\の代わりに\ ``TransactionDbUnitTestExecutionListener``\ が提供されているため、そちらを使用する必要がある。
+  テストケース内で\ ``@Transactional``\ を指定せずにSpring Test DBUnitの提供する\ ``DbUnitTestExecutionListener``\ を使用した場合、\ ``@DatabaseSetup``\ などのアノテーションのトランザクションと、テスト対象クラスのトランザクションは別になるため、データのセットアップが反映されないなど正常に動作しない可能性があることに注意されたい。なお、テストケース内で\ ``@Transactional``\ を指定する場合は\ ``DbUnitTestExecutionListener``\ の代わりに\ ``TransactionDbUnitTestExecutionListener``\ が提供されているため、そちらを使用する必要がある。
 
 |
 
@@ -266,10 +342,9 @@ MockMvcとは
   * - 動作オプション
     - 概要
   * - | webAppContextSetup
-    - | \ ``spring-mvc.xml``\などで定義したSpring MVC の設定を読み込み、\ ``WebApplicationContext``\ を生成することで、デプロイ時とほぼ同じ状態でテストすることができる。
+    - | \ ``SpringMvcConfig.java``\ や\ ``spring-mvc.xml``\ などで定義したSpring MVC の設定を読み込み、\ ``WebApplicationContext``\ を生成することで、デプロイ時とほぼ同じ状態でテストすることができる。
   * - | standaloneSetup
-    - | \ ``Controller``\ にDIされているコンポーネントを、テストで利用する設定ファイルに定義することで、Spring Testが生成したDIコンテナを用いてテストを行うことができる。
-      | よって、Spring MVC のフレームワーク機能を利用しつつ、\ ``Controller``\ のテストを単体テスト観点で行なうことができる。
+    - | \ ``Controller``\ にDIされているコンポーネントを、テストで利用する設定ファイルに定義することで、Spring Testが生成したDIコンテナを用いてテストを行うことができる。よって、Spring MVC のフレームワーク機能を利用しつつ、\ ``Controller``\ のテストを単体テスト観点で行なうことができる。
 
 以下に、2つのオプションのメリット、デメリットを示す。
 
@@ -290,7 +365,7 @@ MockMvcとは
   * - | standaloneSetup
     - | 生成されるDIコンテナに特定の\ ``Interceptor``\ や\ ``Resolver``\ 等を適用してテストを実施できる。
       | そのため、Springの設定ファイルを参照せずコントローラ単体だけ見たい場合は、\ ``webAppContextSetup``\ よりも実施コストが低い。
-    - | \ ``Interceptor``\ や\ ``Resolver``\などを多く適用するテストにおける設定コストが高い。
+    - | \ ``Interceptor``\ や\ ``Resolver``\ などを多く適用するテストにおける設定コストが高い。
       | また、あくまで\ ``Contoroller``\ の単体テスト観点で動作するため、Spring MVC のフレームワーク機能と合わせて\ ``Controller``\ のテストを行いたい場合は、\ ``webAppContextSetup``\ でのテストを検討する必要があることに留意されたい。
 
 |
@@ -301,8 +376,6 @@ MockMvcのセットアップ
 """"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 
 ここでは\ ``MockMvc``\ の2つのオプションについて、実際にテストで使用する際のセットアップ方法を説明する。
-
-|
 
 .. _UsageOfLibraryForTestSettingMockMvcWithWebAppContextSetup:
 
@@ -315,40 +388,78 @@ MockMvcのセットアップ設定例を以下に示す。
 
 * MockMvcのセットアップ設定例
 
-.. code-block:: java
+.. tabs::
+  .. group-tab:: Java Config
 
-  @RunWith(SpringJUnit4ClassRunner.class)
-  @ContextHierarchy({ @ContextConfiguration({ // (1)
-          "classpath:META-INF/spring/applicationContext.xml",
-          "classpath:META-INF/spring/spring-security.xml" }),
-          @ContextConfiguration("classpath:META-INF/spring/spring-mvc.xml") })
-  @WebAppConfiguration // (2)
-  public class MemberRegisterControllerWebAppContextTest {
+    .. code-block:: java
 
-      @Inject
-      WebApplicationContext webApplicationContext; // (3)
+      @RunWith(SpringJUnit4ClassRunner.class)
+      @ContextHierarchy({ @ContextConfiguration(classes = { ApplicationContextConfig.class, SpringSecurityConfig.class }),
+            @ContextConfiguration(classes = { SpringMvcConfig.class }) }) // (1)
+      @WebAppConfiguration // (2)
+      public class MemberRegisterControllerWebAppContextTest {
 
-      MockMvc mockMvc;
+          @Inject
+          WebApplicationContext webApplicationContext; // (3)
 
-      @Before
-      public void setUp() {
+          MockMvc mockMvc;
 
-          mockMvc = MockMvcBuilders.webAppContextSetup(webApplicationContext) // (4)
-                  .alwaysDo(log()).build();
+          @Before
+          public void setUp() {
+
+              mockMvc = MockMvcBuilders.webAppContextSetup(webApplicationContext) // (4)
+                      .alwaysDo(log()).build();
+          }
+
+          @Test
+          public void testRegisterConfirm01() throws Exception {
+
+              ResultActions results = mockMvc.perform(post("/member/register")
+                      // omitted
+                      .param("confirm", "");
+
+              results.andExpect(status().isOk());
+
+              // omitted
+          }
       }
 
-      @Test
-      public void testRegisterConfirm01() throws Exception {
+  .. group-tab:: XML Config
 
-          ResultActions results = mockMvc.perform(post("/member/register")
-                  // omitted
-                  .param("confirm", "");
+    .. code-block:: java
 
-          results.andExpect(status().isOk());
+      @RunWith(SpringJUnit4ClassRunner.class)
+      @ContextHierarchy({ @ContextConfiguration({ // (1)
+              "classpath:META-INF/spring/applicationContext.xml",
+              "classpath:META-INF/spring/spring-security.xml" }),
+              @ContextConfiguration("classpath:META-INF/spring/spring-mvc.xml") })
+      @WebAppConfiguration // (2)
+      public class MemberRegisterControllerWebAppContextTest {
 
-          // omitted
+          @Inject
+          WebApplicationContext webApplicationContext; // (3)
+
+          MockMvc mockMvc;
+
+          @Before
+          public void setUp() {
+
+              mockMvc = MockMvcBuilders.webAppContextSetup(webApplicationContext) // (4)
+                      .alwaysDo(log()).build();
+          }
+
+          @Test
+          public void testRegisterConfirm01() throws Exception {
+
+              ResultActions results = mockMvc.perform(post("/member/register")
+                      // omitted
+                      .param("confirm", "");
+
+              results.andExpect(status().isOk());
+
+              // omitted
+          }
       }
-  }
 
 .. tabularcolumns:: |p{0.10\linewidth}|p{0.90\linewidth}|
 .. list-table::
@@ -362,7 +473,7 @@ MockMvcのセットアップ設定例を以下に示す。
       | DIコンテナの階層関係については、\ ``@org.springframework.test.context.ContextHierarchy``\ を使うことで再現することができる。
       | DIコンテナの階層関係については\ :ref:`CreateWebApplicationProjectAppendixApplicationContext`\ を参照されたい。
   * - | (2)
-    - | Webアプリケーション向けのDIコンテナ（\ ``WebApplicationContext``\）が作成できるようになる。
+    - | Webアプリケーション向けのDIコンテナ（\ ``WebApplicationContext``\ ）が作成できるようになる。
       | また、\ ``@WebAppConfiguration``\ を指定すると開発プロジェクト内の\ ``src/main/webapp``\ がWebアプリケーションのルートディレクトリになるが、これはMavenの標準構成と同じなので特別に設定を加える必要はない。
   * - | (3)
     - | テスト実行時に使用するDIコンテナをインジェクションする。
@@ -380,38 +491,74 @@ MockMvcのセットアップ設定例を以下に示す。
 
 * MockMvcのセットアップ設定例
 
-.. code-block:: java
+.. tabs::
 
-  @RunWith(SpringJUnit4ClassRunner.class)
-  @ContextConfiguration(locations = {
-          "classpath:META-INF/spring/applicationContext.xml",
-          "classpath:META-INF/spring/test-context.xml",
-          "classpath:META-INF/spring/spring-mvc-test.xml"})
-  public class MemberRegisterControllerStandaloneTest {
+  .. group-tab:: Java Config
 
-      @Inject
-      MemberRegisterController target;
+    .. code-block:: java
 
-      MockMvc mockMvc;
+      @RunWith(SpringJUnit4ClassRunner.class)
+      @ContextConfiguration(classes = { ApplicationContextConfig.class, TestContextConfig.class, SpringMvcTestConfig.class })
+      public class MemberRegisterControllerStandaloneTest {
 
-      @Before
-      public void setUp() {
-          mockMvc = MockMvcBuilders.standaloneSetup(target).alwaysDo(log()).build(); // (1)
+          @Inject
+          MemberRegisterController target;
+
+          MockMvc mockMvc;
+
+          @Before
+          public void setUp() {
+              mockMvc = MockMvcBuilders.standaloneSetup(target).alwaysDo(log()).build(); // (1)
+          }
+
+          @Test
+          public void testRegisterConfirm01() throws Exception {
+
+              ResultActions results = mockMvc.perform(post("/member/register")
+                      // omitted
+                      .param("password", "testpassword")
+                      .param("reEnterPassword", "testpassword"));
+
+              results.andExpect(status().isOk());
+
+              // omitted
+          }
       }
 
-      @Test
-      public void testRegisterConfirm01() throws Exception {
+  .. group-tab:: XML Config
 
-          ResultActions results = mockMvc.perform(post("/member/register")
-                  // omitted
-                  .param("password", "testpassword")
-                  .param("reEnterPassword", "testpassword"));
+    .. code-block:: java
 
-          results.andExpect(status().isOk());
+      @RunWith(SpringJUnit4ClassRunner.class)
+      @ContextConfiguration(locations = {
+              "classpath:META-INF/spring/applicationContext.xml",
+              "classpath:META-INF/spring/test-context.xml",
+              "classpath:META-INF/spring/spring-mvc-test.xml"})
+      public class MemberRegisterControllerStandaloneTest {
 
-          // omitted
+          @Inject
+          MemberRegisterController target;
+
+          MockMvc mockMvc;
+
+          @Before
+          public void setUp() {
+              mockMvc = MockMvcBuilders.standaloneSetup(target).alwaysDo(log()).build(); // (1)
+          }
+
+          @Test
+          public void testRegisterConfirm01() throws Exception {
+
+              ResultActions results = mockMvc.perform(post("/member/register")
+                      // omitted
+                      .param("password", "testpassword")
+                      .param("reEnterPassword", "testpassword"));
+
+              results.andExpect(status().isOk());
+
+              // omitted
+          }
       }
-  }
 
 .. tabularcolumns:: |p{0.10\linewidth}|p{0.90\linewidth}|
 .. list-table::
@@ -423,7 +570,7 @@ MockMvcのセットアップ設定例を以下に示す。
   * - | (1)
     - | テスト対象の\ ``Controller``\ を指定して、MockMvcを生成する。
       | 必要に応じて\ ``org.springframework.test.web.servlet.setup.StandaloneMockMvcBuilder``\ のメソッドを呼び出して、Spring Testが生成するDIコンテナをカスタマイズすることができる。
-      | カスタマイズするためのメソッドについての詳細は、\ `StandaloneMockMvcBuilderのJavadoc <https://docs.spring.io/spring-framework/docs/6.0.3/javadoc-api/org/springframework/test/web/servlet/setup/StandaloneMockMvcBuilder.html>`_\ を参照されたい。
+      | カスタマイズするためのメソッドについての詳細は、\ `StandaloneMockMvcBuilderのJavadoc <https://docs.spring.io/spring-framework/docs/6.1.3/javadoc-api/org/springframework/test/web/servlet/setup/StandaloneMockMvcBuilder.html>`_\ を参照されたい。
 
 |
 
@@ -442,7 +589,7 @@ MockMvcによるテストの実装
 リクエストデータの設定は、\ ``org.springframework.test.web.servlet.request.MockHttpServletRequestBuilder``\ や\ ``org.springframework.test.web.servlet.request.MockMultipartHttpServletRequestBuilder``\ のファクトリメソッドを使用して行う。
 
 | ここでは、2つのクラスのファクトリメソッドの中から主要なメソッドについて紹介する。
-| 詳細は、\ `MockHttpServletRequestBuilder のJavadoc <https://docs.spring.io/spring-framework/docs/6.0.3/javadoc-api/org/springframework/test/web/servlet/request/MockHttpServletRequestBuilder.html>`_\または\ `MockMultipartHttpServletRequestBuilder のJavadoc <https://docs.spring.io/spring-framework/docs/6.0.3/javadoc-api/org/springframework/test/web/servlet/request/MockMultipartHttpServletRequestBuilder.html>`_\ を参照されたい。
+| 詳細は、\ `MockHttpServletRequestBuilder のJavadoc <https://docs.spring.io/spring-framework/docs/6.1.3/javadoc-api/org/springframework/test/web/servlet/request/MockHttpServletRequestBuilder.html>`_\または\ `MockMultipartHttpServletRequestBuilder のJavadoc <https://docs.spring.io/spring-framework/docs/6.1.3/javadoc-api/org/springframework/test/web/servlet/request/MockMultipartHttpServletRequestBuilder.html>`_\ を参照されたい。
 
 .. tabularcolumns:: |p{0.15\linewidth}|p{0.85\linewidth}|
 .. list-table:: **MockHttpServletRequestBuilderの主なメソッド**
@@ -468,7 +615,7 @@ MockMvcによるテストの実装
     - テスト実行時のリクエストに、指定したcookieを追加するメソッド。
 
 .. tabularcolumns:: |p{0.15\linewidth}|p{0.85\linewidth}|
-.. list-table:: **MockMultipartHttpServletRequestBuilderの主なメソッド**
+.. list-table:: \ **MockMultipartHttpServletRequestBuilderの主なメソッド**\
   :header-rows: 1
   :widths: 15 85
 
@@ -535,7 +682,7 @@ MockMvcによるテストの実装
 
 | 設定したリクエストデータを\ ``MockMvc``\ の\ ``perform``\ メソッドの引数として渡すことで、テストで利用するリクエストデータを設定し、\ ``DispatcherServlet``\ に疑似的なリクエストを行なう。
 | \ ``MockMvcRequestBuilders``\ のメソッドには、\ ``get``\ 、\ ``post``\ 、\ ``fileUpload``\ といったメソッドが、リクエストの種類ごとに提供されている。
-| 詳細は、\ `MockMvcRequestBuilders のJavadoc <https://docs.spring.io/spring-framework/docs/6.0.3/javadoc-api/org/springframework/test/web/servlet/request/MockMvcRequestBuilders.html>`_\ を参照されたい。
+| 詳細は、\ `MockMvcRequestBuilders のJavadoc <https://docs.spring.io/spring-framework/docs/6.1.3/javadoc-api/org/springframework/test/web/servlet/request/MockMvcRequestBuilders.html>`_\ を参照されたい。
 
 以下に、リクエスト送信の実装例を示す。
 
@@ -571,7 +718,7 @@ MockMvcによるテストの実装
 
 .. note:: \ **"/"から始まらないパスへリクエストを送信する際の挙動**\
 
-  \ ``MockMvcRequestBuilders``\ の呼び出す\ ``UriComponentBuilder``\ は仕様上、スキームまたはパスから始める必要がある。そのため、Spring Framework 5.2.3以前では"/"から始まらないパスへリクエストを送る場合\ ``404 Not Found``\が発生していたが、Spring Framework 5.2.4からはスキームが正しいことをアサートする処理が追加されたためアサーションエラーが発生するようになった。
+  \ ``MockMvcRequestBuilders``\ の呼び出す\ ``UriComponentBuilder``\ は仕様上、スキームまたはパスから始める必要がある。そのため、Spring Framework 5.2.3以前では"/"から始まらないパスへリクエストを送る場合\ ``404 Not Found``\ が発生していたが、Spring Framework 5.2.4からはスキームが正しいことをアサートする処理が追加されたためアサーションエラーが発生するようになった。
 
 |
 
@@ -585,10 +732,10 @@ MockMvcによるテストの実装
 | Spring Testは、\ ``org.springframework.test.web.servlet.result.MockMvcResultMatchers``\ のファクトリメソッドを介してさまざまな\ ``ResultMatcher``\ を提供している。
 
 | ここでは、\ ``andExpect``\ メソッドの引数として、主要となる\ ``MockMvcResultMatchers``\ のメソッドを紹介する。
-| ここで紹介しないメソッドについては、\ `MockMvcResultMatchers のJavadoc <https://docs.spring.io/spring-framework/docs/6.0.3/javadoc-api/org/springframework/test/web/servlet/result/MockMvcResultMatchers.html>`_\ を参照されたい。
+| ここで紹介しないメソッドについては、\ `MockMvcResultMatchers のJavadoc <https://docs.spring.io/spring-framework/docs/6.1.3/javadoc-api/org/springframework/test/web/servlet/result/MockMvcResultMatchers.html>`_\ を参照されたい。
 
 .. tabularcolumns:: |p{0.15\linewidth}|p{0.85\linewidth}|
-.. list-table:: **MockMvcResultMatchersの主なメソッド**
+.. list-table:: \ **MockMvcResultMatchersの主なメソッド**\
   :header-rows: 1
   :widths: 15 85
 
@@ -645,9 +792,9 @@ MockMvcによるテストの実装
 
 .. warning:: \ **Modelの検証とアサーションライブラリ**\
 
-  Spring Testでは\ ``Model``\ の検証として、\ ``model``\メソッドにチェーンする形で\ ``org.springframework.test.web.servlet.result.ModelResultMatchers``\ の\ ``attribute``\ メソッドを使用することができる。このメソッドを用いることで\ ``Model``\ の中身を検証することができるが、引数としてHamcrestの\ ``org.hamcrest.Matcher``\ を使用するため、Hamcrest以外のアサーションライブラリを使用する場合は注意されたい。
+  Spring Testでは\ ``Model``\ の検証として、\ ``model``\ メソッドにチェーンする形で\ ``org.springframework.test.web.servlet.result.ModelResultMatchers``\ の\ ``attribute``\ メソッドを使用することができる。このメソッドを用いることで\ ``Model``\ の中身を検証することができるが、引数としてHamcrestの\ ``org.hamcrest.Matcher``\ を使用するため、Hamcrest以外のアサーションライブラリを使用する場合は注意されたい。
 
-  Hamcrest以外のアサーションライブラリを併用する場合は、\ ``MvcResult``\ から\ ``ModelAndView``\ オブジェクトを取得し、さらに\ ``ModelAndView``\ オブジェクトから\ ``Model``\に格納されたオブジェクトを取得することで、使用しているアサーションライブラリを使って\ ``Model``\ を検証することができる。
+  Hamcrest以外のアサーションライブラリを併用する場合は、\ ``MvcResult``\ から\ ``ModelAndView``\ オブジェクトを取得し、さらに\ ``ModelAndView``\ オブジェクトから\ ``Model``\ に格納されたオブジェクトを取得することで、使用しているアサーションライブラリを使って\ ``Model``\ を検証することができる。
     
   以下に\ ``ModelAndView``\ オブジェクトから取得した\ ``Model``\ の検証例を示す。
 
@@ -676,7 +823,7 @@ MockMvcによるテストの実装
       * - 項番
         - 説明
       * - | (1)
-        - | \ ``ResultActions``\ の\ ``andReturn``\メソッドを使用して \ ``MvcResult``\ オブジェクトを取得する。
+        - | \ ``ResultActions``\ の\ ``andReturn``\ メソッドを使用して \ ``MvcResult``\ オブジェクトを取得する。
       * - | (2)
         - | \ ``MvcResult``\ から\ ``ModelAndView``\ オブジェクトを取得し、\ ``ModelAndView``\ オブジェクトから\ ``Model``\ に格納されたオブジェクトを取得して\ ``Model``\ の検証を行う。
 
@@ -691,10 +838,10 @@ MockMvcによるテストの実装
 | \ ``alwaysDo``\ メソッドの引数には、実行結果に対して任意の処理を行なう\ ``org.springframework.test.web.servlet.ResultHandler``\ を指定する。
 | Spring Testでは、\ ``org.springframework.test.web.servlet.result.MockMvcResultHandlers``\ のファクトリメソッドを介してさまざまな\ ``ResultHandler``\ を提供している。
 | ここでは、\ ``alwaysDo``\ メソッドの引数として主要となる\ ``MockMvcResultHandlers``\ のメソッドを紹介する。
-| 各メソッドの詳細については、\ `MockMvcResultHandlers のJavadoc <https://docs.spring.io/spring-framework/docs/6.0.3/javadoc-api/org/springframework/test/web/servlet/result/MockMvcResultHandlers.html>`_\ を参照されたい。
+| 各メソッドの詳細については、\ `MockMvcResultHandlers のJavadoc <https://docs.spring.io/spring-framework/docs/6.1.3/javadoc-api/org/springframework/test/web/servlet/result/MockMvcResultHandlers.html>`_\ を参照されたい。
 
 .. tabularcolumns:: |p{0.15\linewidth}|p{0.85\linewidth}|
-.. list-table:: **MockMvcResultHandlersの主なメソッド**
+.. list-table:: \ **MockMvcResultHandlersの主なメソッド**\
   :header-rows: 1
   :widths: 15 85
 
@@ -840,7 +987,7 @@ Mockitoの機能
 
 Mockitoのモック化には2種類の方法が存在する。
 
-* \ ``mock``\メソッドを用いて依存クラスをすべてモックにする
+* \ ``mock``\ メソッドを用いて依存クラスをすべてモックにする
 * \ ``spy``\ メソッドを用いて依存クラスの一部のメソッドのみをモックにする
 
 | ここではより単純な、依存クラスをすべてモック化する方法について紹介する。
@@ -997,7 +1144,7 @@ Mockitoのモック化には2種類の方法が存在する。
     - 説明
   * - | (1)
     - | \ ``when``\ メソッドの引数には、動作を定義したいメソッドとその引数を指定する。
-      | \ ``insert``\ メソッドの引数に\ ``testReservation``\ を指定することで、テスト対象が\ ``insert``\ メソッドを引数\ ``testReservation``\ で実行するとき、返り値は"\ ``1``\" になる。
+      | \ ``insert``\ メソッドの引数に\ ``testReservation``\ を指定することで、テスト対象が\ ``insert``\ メソッドを引数\ ``testReservation``\ で実行するとき、返り値は"\ ``1``\ "になる。
 
 |
 
@@ -1046,7 +1193,7 @@ Mockitoのモック化には2種類の方法が存在する。
   * - 項番
     - 説明
   * - | (1)
-    - | \ ``insert``\ メソッドの引数として\ ``any``\ メソッドで\ ``Reservation``\クラスを指定することで、\ ``insert``\ メソッドを任意の\ ``Reservation``\ 引数で実行するとき、返り値が"\ ``0``\" になるように設定している。
+    - | \ ``insert``\ メソッドの引数として\ ``any``\ メソッドで\ ``Reservation``\ クラスを指定することで、\ ``insert``\ メソッドを任意の\ ``Reservation``\ 引数で実行するとき、返り値が"\ ``0``\ "になるように設定している。
 
 |
 
@@ -1109,7 +1256,7 @@ Mockitoで作成したオブジェクトをモックとして用いる場合は�
 | 詳細については、\ `VerificationModeのJavadoc <https://javadoc.io/doc/org.mockito/mockito-core/4.8.1/org/mockito/verification/VerificationMode.html>`_\ を参照されたい。
 
 .. tabularcolumns:: |p{0.15\linewidth}|p{0.85\linewidth}|
-.. list-table:: **VerificationModeの主なメソッド**
+.. list-table:: \ **VerificationModeの主なメソッド**\
   :header-rows: 1
   :widths: 15 85
 
@@ -1117,7 +1264,7 @@ Mockitoで作成したオブジェクトをモックとして用いる場合は�
     - 説明
   * - \ ``times``\
     - | 期待する呼び出し回数を設定するメソッド。引数に期待する呼び出し回数を設定できる。
-      | \ ``verify``\ メソッドの引数に\ ``VerificationMode``\を指定しない場合は\ ``times(1)``\ が設定される。
+      | \ ``verify``\ メソッドの引数に\ ``VerificationMode``\ を指定しない場合は\ ``times(1)``\ が設定される。
   * - \ ``never``\
     - 呼び出されていないことを期待する場合に設定するメソッド。
 
@@ -1148,7 +1295,7 @@ Mockitoで作成したオブジェクトをモックとして用いる場合は�
     - | \ ``target``\ の\ ``insert``\ メソッドでは、\ ``ReservationRepository``\ の\ ``insert``\ メソッドが1回実行されるような実装になっている。
   * - | (2)
     - | \ ``verify``\ メソッドの引数にモックオブジェクトと、\ ``times``\ メソッドを指定することで、\ ``insert``\ メソッドが引数\ ``testReservation``\ で正しく1回呼ばれているかを検証することができる。
-      | この場合は、\ ``times``\ メソッドの引数が"\ ``1``\" なので省略しても同様の検証となる。
+      | この場合は、\ ``times``\ メソッドの引数が"\ ``1``\ "なので省略しても同様の検証となる。
 
 .. raw:: latex
 

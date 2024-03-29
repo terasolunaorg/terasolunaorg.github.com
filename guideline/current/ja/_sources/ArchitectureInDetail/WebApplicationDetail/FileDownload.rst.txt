@@ -39,7 +39,7 @@ Overview
 | Springから提供されている\ ``org.springframework.web.servlet.view.document.AbstractXlsxView``\ クラスは、modelの情報を用いてExcelファイルをレンダリングするときに、サブクラスとして利用するクラスである。
 |
 | Spring では上記以外にも、いろいろなViewの実装を提供している。
-| Viewの技術詳細は、\ `Spring Framework Documentation -View Technologies- <https://docs.spring.io/spring-framework/docs/6.0.3/reference/html/web.html#mvc-view>`_\ を参照されたい。
+| Viewの技術詳細は、\ `Spring Framework Documentation -View Technologies- <https://docs.spring.io/spring-framework/docs/6.1.3/reference/html/web.html#mvc-view>`_\ を参照されたい。
 
 | 共通ライブラリから提供している、\ ``org.terasoluna.gfw.web.download.AbstractFileDownloadView``\ は、任意のファイルをダウンロードするために使用する抽象クラスである。
 | PDFやExcel形式以外のファイルをレンダリングする際に、本クラスをサブクラスに定義する。
@@ -80,7 +80,6 @@ PDFファイルのダウンロード
           document.add(new Paragraph(model.get("serverTime").toString()));
       }
   }
-
 
 .. tabularcolumns:: |p{0.10\linewidth}|p{0.90\linewidth}|
 .. list-table::
@@ -138,27 +137,125 @@ ViewResolverの定義
 
 |
 
-\ **bean定義ファイル**\
+.. tabs::
+  .. group-tab:: Java Config
 
-.. code-block:: xml
-  :emphasize-lines: 2
+    .. tabs::
+      .. group-tab:: JSP
+    
+        \ **bean定義ファイル**\
+        
+        .. code-block:: java
+        
+          @EnableAspectJAutoProxy
+          @EnableWebMvc
+          @Configuration
+          public class SpringMvcConfig implements WebMvcConfigurer {
+  
+              // omitted
+  
+              @Override
+              public void configureViewResolvers(ViewResolverRegistry registry) {
+                  registry.beanName(); // (1)(2)
+                  registry.jsp("/WEB-INF/views/", ".jsp");
+              }
 
-  <mvc:view-resolvers>
-      <mvc:bean-name /> <!-- (1) (2) -->
-      <mvc:jsp prefix="/WEB-INF/views/" />
-  </mvc:view-resolvers>
+        .. tabularcolumns:: |p{0.10\linewidth}|p{0.90\linewidth}|
+        .. list-table::
+          :header-rows: 1
+          :widths: 10 90
+        
+          * - 項番
+            - 説明
+          * - | (1)
+            - | \ ``ViewResolverRegistry#beanName``\ を呼び出し、\ ``BeanNameViewResolver``\ を定義する。
+          * - | (2)
+            - | \ ``ViewResolverRegistry#beanName``\ を先に呼び出し、通常使用する\ ``ViewResolver``\ (JSP用の\ ``ViewResolver``\ )より優先度を高くする。
+    
+      .. group-tab:: Thymeleaf
+    
+        .. code-block:: java
+        
+          @EnableAspectJAutoProxy
+          @EnableWebMvc
+          @Configuration
+          public class SpringMvcConfig implements WebMvcConfigurer {
+  
+              // omitted
+  
+              @Override
+              public void configureViewResolvers(ViewResolverRegistry registry) {
+                  registry.beanName(); // (1)(2)
+                  registry.viewResolver(thymeleafViewResolver());
+              }
 
-.. tabularcolumns:: |p{0.10\linewidth}|p{0.90\linewidth}|
-.. list-table::
-  :header-rows: 1
-  :widths: 10 90
+              @Bean
+              public ThymeleafViewResolver thymeleafViewResolver(
+                      SpringTemplateEngine templateEngine) {
 
-  * - 項番
-    - 説明
-  * - | (1)
-    - | \ ``<mvc:bean-name>``\ 要素を使用して、\ ``BeanNameViewResolver``\ を定義する。
-  * - | (2)
-    - | \ ``<mvc:bean-name>``\ 要素を先頭に定義し、通常使用する\ ``ViewResolver``\ (JSP用の\ ``ViewResolver``\ )より優先度を高くする。
+                  // omitted
+              }
+        
+        .. tabularcolumns:: |p{0.10\linewidth}|p{0.90\linewidth}|
+        .. list-table::
+          :header-rows: 1
+          :widths: 10 90
+        
+          * - 項番
+            - 説明
+          * - | (1)
+            - | \ ``ViewResolverRegistry#beanName``\ を呼び出し、\ ``BeanNameViewResolver``\ を定義する。
+          * - | (2)
+            - | \ ``ViewResolverRegistry#beanName``\ を先に呼び出し、通常使用する\ ``ViewResolver``\ (Thymeleaf用の\ ``ViewResolver``\ )より優先度を高くする。
+
+  .. group-tab:: XML Config
+
+    .. tabs::
+      .. group-tab:: JSP
+    
+        \ **bean定義ファイル**\
+        
+        .. code-block:: xml
+        
+          <mvc:view-resolvers>
+              <mvc:bean-name /> <!-- (1) (2) -->
+              <mvc:jsp prefix="/WEB-INF/views/" />
+          </mvc:view-resolvers>
+        
+        .. tabularcolumns:: |p{0.10\linewidth}|p{0.90\linewidth}|
+        .. list-table::
+          :header-rows: 1
+          :widths: 10 90
+        
+          * - 項番
+            - 説明
+          * - | (1)
+            - | \ ``<mvc:bean-name>``\ 要素を使用して、\ ``BeanNameViewResolver``\ を定義する。
+          * - | (2)
+            - | \ ``<mvc:bean-name>``\ 要素を先頭に定義し、通常使用する\ ``ViewResolver``\ (JSP用の\ ``ViewResolver``\ )より優先度を高くする。
+    
+      .. group-tab:: Thymeleaf
+    
+        .. code-block:: xml
+        
+          <mvc:view-resolvers>
+              <mvc:bean-name /> <!-- (1) (2) -->
+              <bean class="org.thymeleaf.spring6.view.ThymeleafViewResolver">
+                  <!-- omitted -->
+              </bean>
+          </mvc:view-resolvers>
+        
+        .. tabularcolumns:: |p{0.10\linewidth}|p{0.90\linewidth}|
+        .. list-table::
+          :header-rows: 1
+          :widths: 10 90
+        
+          * - 項番
+            - 説明
+          * - | (1)
+            - | \ ``<mvc:bean-name>``\ 要素を使用して、\ ``BeanNameViewResolver``\ を定義する。
+          * - | (2)
+            - | \ ``<mvc:bean-name>``\ 要素を先頭に定義し、通常使用する\ ``ViewResolver``\ (Thymeleaf用の\ ``ViewResolver``\ )より優先度を高くする。
 
 |
 
@@ -281,7 +378,7 @@ Excelファイルのダウンロード
 
   xlsファイル形式をサポートしたい場合は \ ``AbstractXlsView``\ を使用されたい。
 
-  詳細は、\ `AbstractXlsViewのJavaDoc <https://docs.spring.io/spring-framework/docs/6.0.3/javadoc-api/org/springframework/web/servlet/view/document/AbstractXlsView.html>`_\ を参照されたい。
+  詳細は、\ `AbstractXlsViewのJavaDoc <https://docs.spring.io/spring-framework/docs/6.1.3/javadoc-api/org/springframework/web/servlet/view/document/AbstractXlsView.html>`_\ を参照されたい。
 
 .. note::
 
@@ -315,6 +412,8 @@ ViewResolverの定義
 """"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 
 設定は、PDFファイルをレンダリングする場合と同様である。詳しくは、\ :ref:`viewresolver-label`\ を参照されたい。
+
+|
 
 コントローラでのViewの指定
 """"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
@@ -451,8 +550,8 @@ ViewResolverの定義
 
   前述してきたように、SpringはModelの情報をいろいろなViewにレンダリングすることができる。Springでは、複数のレンダリングエンジンをサポートしており、さまざまなViewを返却することが可能である。
 
-  詳細は、Spring の公式ドキュメント\ `Spring Framework Documentation -View Technologies- <https://docs.spring.io/spring-framework/docs/6.0.3/reference/html/web.html#mvc-view>`_\ を参照されたい。
+  詳細は、Spring の公式ドキュメント\ `Spring Framework Documentation -View Technologies- <https://docs.spring.io/spring-framework/docs/6.1.3/reference/html/web.html#mvc-view>`_\ を参照されたい。
 
 .. raw:: latex
 
-   \newpage
+  \newpage

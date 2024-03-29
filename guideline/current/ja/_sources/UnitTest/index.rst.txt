@@ -11,4 +11,3 @@
 .. raw:: latex
 
   \newpage
-

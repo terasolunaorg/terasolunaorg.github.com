@@ -3,20 +3,22 @@
 
 .. only:: html
 
- .. contents:: 目次
-    :depth: 3
-    :local:
+.. contents:: 目次
+  :depth: 3
+  :local:
+
+|
 
 Overview
 --------------------------------------------------------------------------------
 
 本章では、検索条件に一致するデータをページ分割して表示する方法(ページネーション)について説明する。
 
-| **検索条件に一致するデータが大量になる場合は、ページネーション機能を使用することを推奨する。**
+| \ **検索条件に一致するデータが大量になる場合は、ページネーション機能を使用することを推奨する。**\
 | 一度に大量のデータを取得し画面に表示すると、以下3点の問題が発生する可能性がある。
 
 * | サーバ側のメモリ枯渇の発生。
-  | 単発のリクエストで問題が発生しなくても、同時に複数実行された場合に ``java.lang.OutOfMemoryError`` が発生する可能性がある。
+  | 単発のリクエストで問題が発生しなくても、同時に複数実行された場合に\ ``java.lang.OutOfMemoryError``\ が発生する可能性がある。
 * | ネットワーク負荷の発生。
   | 不要なデータがネットワークに流れることで、ネットワーク全体にかかる負荷が高くなり、システム全体のレスポンスタイムに影響を与える可能性がある。
 * | 画面のレスポンス遅延の発生。
@@ -29,27 +31,27 @@ Overview
 ページ分割時の一覧画面の表示について
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 | ページネーション機能を利用してページ分割した場合、以下のような画面になる。
-| 各要素の表示にはサーバ側で行う検索処理をページ検索に対応させる必要がある。ページ検索機能については、「:ref:`ページ検索について <pagination_overview_page_search>` 」を参照されたい。
-| また、各要素の概要及びHTML構造等については、「:ref:`ページネーションの表示について<pagination_overview_page_display>`」を参照されたい。
+| 各要素の表示にはサーバ側で行う検索処理をページ検索に対応させる必要がある。ページ検索機能については、「\ :ref:`ページ検索について <pagination_overview_page_search>`\ 」を参照されたい。
+| また、各要素の概要及びHTML構造等については、「\ :ref:`ページネーションの表示について<pagination_overview_page_display>`\ 」を参照されたい。
 
- .. figure:: ./images/pagination-overview_screen.png
-   :alt: Screen image of Pagination.
-   :width: 100%
+.. figure:: ./images_Pagination/pagination-overview_screen.png
+  :alt: Screen image of Pagination.
+  :width: 100%
 
- .. tabularcolumns:: |p{0.10\linewidth}|p{0.90\linewidth}|
- .. list-table::
-    :header-rows: 1
-    :widths: 10 90
+.. tabularcolumns:: |p{0.10\linewidth}|p{0.90\linewidth}|
+.. list-table::
+  :header-rows: 1
+  :widths: 10 90
 
-    * - 項番
-      - 説明
-    * - | (1)
-      - | ページ検索処理で取得したデータを表示する。
-    * - | (2)
-      - | ページを移動するためのリンクを表示する。
-        | リンク押下時には、該当ページを表示するためのリクエストを送信する。
-    * - | (3)
-      - | ページネーションに関連する情報(合計件数、合計ページ数、表示ページ数など)を表示する。
+  * - 項番
+    - 説明
+  * - | (1)
+    - | ページ検索処理で取得したデータを表示する。
+  * - | (2)
+    - | ページを移動するためのリンクを表示する。
+      | リンク押下時には、該当ページを表示するためのリクエストを送信する。
+  * - | (3)
+    - | ページネーションに関連する情報(合計件数、合計ページ数、表示ページ数など)を表示する。
 
 |
 
@@ -58,7 +60,7 @@ Overview
 ページ検索について
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 | ページネーションを実現する際には、まずサーバ側で行う検索処理をページ検索できるように実装する必要がある。
-| 本ガイドラインでは、サーバ側のページ検索は、 Spring Data から提供されている仕組みを利用することを前提としている。
+| 本ガイドラインでは、サーバ側のページ検索は、Spring Dataから提供されている仕組みを利用することを前提としている。
 
 |
 
@@ -68,70 +70,82 @@ Spring Data提供のページ検索機能について
 """"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 Spring Dataより提供されているページ検索用の機能は、以下の通り。
 
- .. tabularcolumns:: |p{0.10\linewidth}|p{0.90\linewidth}|
- .. list-table::
-    :header-rows: 1
-    :widths: 10 90
+.. tabularcolumns:: |p{0.10\linewidth}|p{0.90\linewidth}|
+.. list-table::
+  :header-rows: 1
+  :widths: 10 90
 
-    * - 項番
-      - 説明
-    * - 1
-      - | リクエストパラメータよりページ検索に必要な情報(検索対象のページ位置、取得件数、ソート条件)を抽出し、抽出した情報を ``org.springframework.data.domain.Pageable`` のオブジェクトとしてControllerの引数に引き渡す。
-        | この機能は、 ``org.springframework.data.web.PageableHandlerMethodArgumentResolver`` クラスとして提供されており、 :file:`spring-mvc.xml` の ``<mvc:argument-resolvers>`` 要素に追加することで有効となる。
-        | リクエストパラメータについては、「 :ref:`Note欄 <pagination_overview_pagesearch_requestparameter>` 」を参照されたい。
-    * - 2
-      - | ページ情報(合計件数、該当ページのデータ、検索対象のページ位置、取得件数、ソート条件)を保持する。
-        | この機能は、 ``org.springframework.data.domain.Page`` インタフェースとして提供されており、デフォルトの実装クラスとして ``org.springframework.data.domain.PageImpl`` が提供されている。
-        | **共通ライブラリより提供しているページネーションリンクを出力するためのJSPタグライブラリでは、 Pageオブジェクトから必要なデータを取得する仕様となっている。**
-    * - 3
-      - | データベースアクセスとしてSpring Data JPAを使用する場合は、RepositoryのQueryメソッドの引数に ``Pageable`` オブジェクトを指定することで、該当ページの情報が ``Page`` オブジェクトとして返却される。
-        | 合計件数を取得するSQLの発行、ソート条件の追加、該当ページに一致するデータの抽出などの処理が全て自動で行われる。
-        | データベースアクセスとして、MyBatisを使用する場合は、Spring Data JPAが自動で行ってくれる処理を、Java(Service)及びSQLマッピングファイル内で実装する必要がある。
+  * - 項番
+    - 説明
+  * - 1
+    - | リクエストパラメータよりページ検索に必要な情報(検索対象のページ位置、取得件数、ソート条件)を抽出し、抽出した情報を\ ``org.springframework.data.domain.Pageable``\ のオブジェクトとしてControllerの引数に引き渡す。
+      | この機能は、\ ``org.springframework.data.web.PageableHandlerMethodArgumentResolver``\ クラスとして提供されており、\ :file:`spring-mvc.xml`\ の\ ``<mvc:argument-resolvers>``\ 要素に追加することで有効となる。
+      | リクエストパラメータについては、「\ :ref:`Note欄 <pagination_overview_pagesearch_requestparameter>`\ 」を参照されたい。
+  * - 2
+    - | ページ情報(合計件数、該当ページのデータ、検索対象のページ位置、取得件数、ソート条件)を保持する。
+      | この機能は、\ ``org.springframework.data.domain.Page``\ インタフェースとして提供されており、デフォルトの実装クラスとして\ ``org.springframework.data.domain.PageImpl``\ が提供されている。
+        
+      * JSP 
+        
+        共通ライブラリより提供しているページネーションリンクを出力するためのJSPタグライブラリを使用し、Pageオブジェクトから必要なデータを取得する。
+
+      * Thymeleaf
+        
+        ページネーションリンクを出力する際には、\ ``Page``\ オブジェクトから必要なデータを取得する。
+
+  * - 3
+    - | データベースアクセスとしてSpring Data JPAを使用する場合は、RepositoryのQueryメソッドの引数に\ ``Pageable``\ オブジェクトを指定することで、該当ページの情報が\ ``Page``\ オブジェクトとして返却される。
+      | 合計件数を取得するSQLの発行、ソート条件の追加、該当ページに一致するデータの抽出などの処理が全て自動で行われる。
+      | データベースアクセスとして、MyBatisを使用する場合は、Spring Data JPAが自動で行ってくれる処理を、Java(Service)及びSQLマッピングファイル内で実装する必要がある。
 
 .. _pagination_overview_pagesearch_requestparameter:
 
- .. note:: **ページ検索用のリクエストパラメータについて**
+.. note:: \ **ページ検索用のリクエストパラメータについて**\
 
-    Spring Dataより提供されているページ検索用のリクエストパラメータは以下の3つとなる。
+  Spring Dataより提供されているページ検索用のリクエストパラメータは以下の3つとなる。
 
-     .. tabularcolumns:: |p{0.10\linewidth}|p{0.15\linewidth}|p{0.75\linewidth}|
-     .. list-table::
-         :header-rows: 1
-         :widths: 10 15 75
+    .. tabularcolumns:: |p{0.10\linewidth}|p{0.15\linewidth}|p{0.75\linewidth}|
+    .. list-table::
+      :header-rows: 1
+      :widths: 10 15 75
 
-         * - 項番
-           - パラメータ名
-           - 説明
-         * - 1.
-           - page
-           - | 検索対象のページ位置を指定するためのリクエストパラメータ。
-             | 値には、0以上の数値を指定する。
-             | デフォルトの設定では、ページ位置の値は "``0``" から開始する。そのため、1ページ目のデータを取得する場合は "``0``" を、2ページ目のデータを取得する場合は "``1``" を指定する必要がある。
-         * - 2.
-           - size
-           - | 取得する件数を指定するためのリクエストパラメータ。
-             | 値には、1以上の数値を指定する。
-             | ``PageableHandlerMethodArgumentResolver`` の ``maxPageSize`` に指定された値より大きい値が指定された場合は、 ``maxPageSize`` の値が ``size`` の値となる。
-         * - 3.
-           - sort
-           - | ソート条件を指定するためのパラメータ(複数指定可能)。
-             | 値には、``{ソート項目名(,ソート順)}`` の形式で指定する。
-             | ソート順には、``ASC`` 又は ``DESC`` のどちらかの値を指定し、省略した場合は ``ASC`` が適用される。
-             | 項目名は "``,``" 区切りで複数指定することが可能である。
-             | 例えば、クエリ文字列として ``sort=lastModifiedDate,id,DESC&sort=subId`` が指定された場合、 ``ORDER BY lastModifiedDate DESC, id DESC, subId ASC`` のようなOrder By句をQueryに追加することになる。
+      * - 項番
+        - パラメータ名
+        - 説明
+      * - 1.
+        - page
+        - | 検索対象のページ位置を指定するためのリクエストパラメータ。
+          | 値には、0以上の数値を指定する。
+          | デフォルトの設定では、ページ位置の値は"\ ``0``\ " から開始する。そのため、1ページ目のデータを取得する場合は"\ ``0``\ "を、2ページ目のデータを取得する場合は"\ ``1``\ "を指定する必要がある。
+      * - 2.
+        - size
+        - | 取得する件数を指定するためのリクエストパラメータ。
+          | 値には、1以上の数値を指定する。
+          | \ ``PageableHandlerMethodArgumentResolver``\ の\ ``maxPageSize``\ に指定された値より大きい値が指定された場合は、\ ``maxPageSize``\ の値が\ ``size``\ の値となる。
+      * - 3.
+        - sort
+        - | ソート条件を指定するためのパラメータ(複数指定可能)。
+          | 値には、\ ``{ソート項目名(,ソート順)}``\ の形式で指定する。
+          | ソート順には、\ ``ASC``\ 又は\ ``DESC``\ のどちらかの値を指定し、省略した場合は\ ``ASC``\ が適用される。
+          | 項目名は"\ ``,``\ "区切りで複数指定することが可能である。
+          | 例えば、クエリ文字列として\ ``sort=lastModifiedDate,id,DESC&sort=subId``\ が指定された場合、\ ``ORDER BY lastModifiedDate DESC, id DESC, subId ASC``\ のようなOrder By句をQueryに追加することになる。
+
+|
 
 .. _pagination_overview_page_display:
 
 ページネーションの表示について
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-「:ref:`ページ分割時の一覧画面の表示について<pagination_overview_page>`」にて説明した画面の各要素について説明する。
+「\ :ref:`ページ分割時の一覧画面の表示について<pagination_overview_page>`\ 」にて説明した画面の各要素について説明する。
+
+|
 
 .. _pagination_overview_page_display_fetcheddata:
 
 取得データの表示について
 """"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 | ページ検索処理で検索条件(検索対象のページ位置、取得件数、ソート条件等)を指定して取得したデータを表示する。
-| ページ検索については、「:ref:`ページ検索について <pagination_overview_page_search>` 」を参照されたい。
+| ページ検索については、「\ :ref:`ページ検索について <pagination_overview_page_search>`\ 」を参照されたい。
 
 |
 
@@ -139,15 +153,16 @@ Spring Dataより提供されているページ検索用の機能は、以下の
 
 ページネーションリンクの表示について
 """"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
-| 共通ライブラリから提供しているJSPタグライブラリを使って出力されるページネーションリンクについて以下の流れで説明する。
+| この章で実装例として取り上げるページネーションリンクについて以下の流れで説明する。
 
-#. :ref:`ページネーションリンクの構成<pagination_overview_page_display_paginationlink_structure>`
-#. :ref:`ページネーションリンクのHTML構造<pagination_overview_page_display_paginationlink_htmlstructure>`
-#. :ref:`JSPタブライブラリのパラメータについて<pagination_overview_page_display_paginationlink_taglibparameters>`
+#. \ :ref:`ページネーションリンクの構成<pagination_overview_page_display_paginationlink_structure>`\
+#. \ :ref:`ページネーションリンクのHTML構造<pagination_overview_page_display_paginationlink_htmlstructure>`\
+#. \ :ref:`JSPタブライブラリのパラメータについて<pagination_overview_page_display_paginationlink_taglibparameters>`\
 
-| 共通ライブラリからはページネーションリンクを表示するためのスタイルシートの提供は行っていないため、各プロジェクトにて用意すること。
+| なおこの章では、TERASOLUNA共通ライブラリで提供されるJSPタグである\ ``<t:pagination>``\ のデフォルト設定で出力されるHTMLを例に、ページネーションリンクの実装例を説明する。
+| 実装例のページネーションリンクの構成・レイアウト等は、あくまでも一例である。実装例を参考にアプリケーションの要件によって適宜変更すること。
+|
 | 以降の説明で使用する画面は、Bootstrap v3.0.0のスタイルシートを適用している。
-
 |
 
 .. _pagination_overview_page_display_paginationlink_structure:
@@ -156,70 +171,77 @@ Spring Dataより提供されているページ検索用の機能は、以下の
 ''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
 ページネーションリンクは、以下の要素から構成される。
 
- .. figure:: ./images/pagination-how_to_use_jsp_pagelink_description.png
-   :alt: Structure of the pagination link.
-   :width: 90%
-   :align: center
+.. figure:: ./images_Pagination/pagination-how_to_use_jsp_pagelink_description.png
+  :alt: Structure of the pagination link.
+  :width: 90%
+  :align: center
 
- .. tabularcolumns:: |p{0.10\linewidth}|p{0.90\linewidth}|
- .. list-table::
-    :header-rows: 1
-    :widths: 10 90
+.. tabularcolumns:: |p{0.10\linewidth}|p{0.90\linewidth}|
+.. list-table::
+  :header-rows: 1
+  :widths: 10 90
 
-    * - 項番
-      - 説明
-    * - | (1)
-      - | 最初のページに移動するためのリンク。
-    * - | (2)
-      - | 前のページに移動するためのリンク。
-    * - | (3)
-      - | 指定したページに移動するためのリンク。
-    * - | (4)
-      - | 次のページに移動するためのリンク。
-    * - | (5)
-      - | 最後のページに移動するためのリンク。
+  * - 項番
+    - 説明
+  * - | (1)
+    - | 最初のページに移動するためのリンク。
+  * - | (2)
+    - | 前のページに移動するためのリンク。
+  * - | (3)
+    - | 指定したページに移動するためのリンク。
+  * - | (4)
+    - | 次のページに移動するためのリンク。
+  * - | (5)
+    - | 最後のページに移動するためのリンク。
 
 |
 
 ページネーションリンクは、以下の状態をもつ。
 
- .. figure:: ./images/pagination-how_to_use_jsp_pagelink_description_status.png
-   :alt: Status of the pagination link.
-   :width: 90%
-   :align: center
+.. figure:: ./images_Pagination/pagination-how_to_use_jsp_pagelink_description_status.png
+  :alt: Status of the pagination link.
+  :width: 90%
+  :align: center
 
- .. tabularcolumns:: |p{0.10\linewidth}|p{0.90\linewidth}|
- .. list-table::
-    :header-rows: 1
-    :widths: 10 90
+.. tabularcolumns:: |p{0.10\linewidth}|p{0.90\linewidth}|
+.. list-table::
+  :header-rows: 1
+  :widths: 10 90
 
-    * - 項番
-      - 説明
-    * - | (6)
-      - | 現在表示しているページで操作することができないリンクであることを示す状態。
-        | 具体的には、1ページ目を表示している時の「最初のページに移動するためのリンク」「前のページに移動するためのリンク」と、最終ページを表示している時の「次のページに移動するためのリンク」「最後のページに移動するためのリンク」がこの状態となる。
-        | 共通ライブラリから提供しているJSPタグライブラリでは、この状態を ``disabled`` と定義している。
-    * - | (7)
-      - | 現在表示しているページであることを示す状態。
-        | 共通ライブラリから提供しているJSPタグライブラリでは、この状態を ``active`` と定義している。
+  * - 項番
+    - 説明
+  * - | (6)
+    - | 現在表示しているページで操作することができないリンクであることを示す状態。
+      | 具体的には、1ページ目を表示している時の「最初のページに移動するためのリンク」「前のページに移動するためのリンク」と、最終ページを表示している時の「次のページに移動するためのリンク」「最後のページに移動するためのリンク」がこの状態となる。
+      | この状態を\ ``disabled``\ と定義する。
+  * - | (7)
+    - | 現在表示しているページであることを示す状態。
+      | この状態を\ ``active``\ と定義する。
 
 |
 
-| 共通ライブラリを使って出力されるHTMLは、以下の構造となる。
+| 上記を実現するHTMLは、以下の構造となる。
 | 図中の番号は、上記で説明した「ページネーションリンクの構成」と「ページネーションリンクの状態」の項番に対応させている。
 
-- JSP
+.. tabs::
+  .. group-tab:: JSP
 
- .. code-block:: jsp
+    .. code-block:: jsp
 
-    <t:pagination page="${page}" />
+      <t:pagination page="${page}" />
+
+  .. group-tab:: Thymeleaf
+
+    .. todo::
+
+      ThymeleafのDialectは次版以降に作成予定となる。
 
 - 出力されるHTML
 
- .. figure:: ./images/pagination-overview_html.png
-   :alt: html of the pagination link.
-   :width: 90%
-   :align: center
+  .. figure:: ./images_Pagination/pagination-overview_html.png
+    :alt: html of the pagination link.
+    :width: 90%
+    :align: center
 
 |
 
@@ -227,129 +249,168 @@ Spring Dataより提供されているページ検索用の機能は、以下の
 
 ページネーションリンクのHTML構造
 ''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
-共通ライブラリを使って出力されるページネーションリンクのHTMLは、以下の構造となる。
 
-- HTML
+ページネーションリンクのHTMLは、以下の構造となる。
 
- .. figure:: ./images/pagination-overview_html_basic.png
-   :alt: html structure of the pagination link.
-   :width: 100%
-   :align: center
+.. tabs::
+  .. group-tab:: JSP
 
-- 画面イメージ
+    TERASOLUNA共通ライブラリで提供しているJSPタグを使用する。
 
- .. figure:: ./images/pagination-overview_html_basic_screen.png
-   :alt: screen structure of the pagination link.
-   :width: 80%
-   :align: center
+    - HTML
+    
+      .. figure:: ./images_Pagination/pagination-overview_html_basic.png
+        :alt: html structure of the pagination link.
+        :width: 100%
+        :align: center
+    
+    - 画面イメージ
+    
+      .. figure:: ./images_Pagination/pagination-overview_html_basic_screen.png
+        :alt: screen structure of the pagination link.
+        :width: 80%
+        :align: center
+    
+      .. tabularcolumns:: |p{0.10\linewidth}|p{0.70\linewidth}|p{0.20\linewidth}|
+      .. list-table::
+        :header-rows: 1
+        :widths: 10 70 20
+        :class: longtable
+    
+        * - 項番
+          - 説明
+          - デフォルト値
+        * - | (1)
+          - | ページネーションリンクの構成要素をまとめるための要素。
+            | 共通ライブラリでは、この部分を「Outer Element」と呼び、複数の「Inner Element」を保持する。
+            | 使用する要素は、JSPタグライブラリのパラメータによって変更することが出来る。
+          - | \ ``<ul>``\ 要素
+        * - | (2)
+          - | 「Outer Element」のスタイルクラスを指定するための属性。
+            | 共通ライブラリでは、この部分を「Outer Element Class」と呼び、属性値はJSPタグライブラリのパラメータによって指定する。
+          - | 指定なし
+        * - | (3)
+          - | ページネーションリンクを構成するための要素。
+            | 共通ライブラリでは、この部分を「Inner Element」と呼び、ページ移動するためのリクエストを送信するための\ ``<a>``\ 要素を保持する。
+            | 使用する要素は、JSPタグライブラリのパラメータによって変更することが出来る。
+          - | \ ``<li>``\ 要素
+        * - | (4)
+          - | 「Inner Element」のスタイルクラスを指定するための属性。
+            | 共通ライブラリでは、この部分を「Inner Element Class」と呼び、属性値は表示しているページ位置によってJSPタグライブラリ内の処理で切り替わる。
+          - | 「\ :ref:`Note欄 <pagination_overview_paginationlink_innerelementclass>`\ 」を参照されたい。
+        * - | (5)
+          - | ページ移動するためのリクエストを送信するための要素。
+            | 共通ライブラリでは、この部分を「Page Link」と呼ぶ。
+          - | \ ``<a>``\ 要素固定
+        * - | (6)
+          - | ページ移動するためのURLを指定するための属性。
+            | 共通ライブラリでは、この部分を「Page Link URL」と呼ぶ。
+          - | 下記の「\ :ref:`Note欄 <pagination_overview_paginationlink_pagelinkurl>`\ 」を参照されたい。
+        * - | (7)
+          - | ページ移動するためのリンクの表示テキストを指定する。
+            | 共通ライブラリでは、この部分を「Page Link Text」と呼ぶ。
+          - | 下記の「\ :ref:`Note欄 <pagination_overview_paginationlink_pagelinktext>`\ 」を参照されたい。
+    
+      .. note:: \ **「Inner Element」の数について**\
+    
+        デフォルトの設定では、「Inner Element」は最大で14個となる。内訳は以下の通り。
+    
+        * 最初のページに移動するためのリンク : 1
+        * 前のページに移動するためのリンク : 1
+        * 指定したページに移動するためのリンク : 最大10
+        * 次のページに移動するためのリンク : 1
+        * 最後のページに移動するためのリンク : 1
+    
+        「Inner Element」の数は、JSPタグライブラリのパラメータの指定によって変更することができる。
+    
+    
+    .. _pagination_overview_paginationlink_innerelementclass:
+    
+      .. note:: \ **「Inner Element Class」の設定値について**\
+    
+        デフォルトの設定では、ページ位置によって、以下3つの値となる。
+    
+        * \ ``disabled``\  : 現在表示しているページでは操作することができないリンクであることを示すためのスタイルクラス。
+        * \ ``active``\  : 現在表示しているページのリンクであることを示すためのスタイルクラス。
+        * 指定なし : 上記以外のリンクであることを示す。
+    
+        \ ``disabled``\ と\ ``active``\ は、JSPタグライブラリのパラメータの指定によって別の値に変更することができる。
+    
+    
+    .. _pagination_overview_paginationlink_pagelinkurl:
+    
+     .. note:: \ **「Page Link URL」のデフォルト値について**\
+    
+        リンクの状態が\ ``disabled``\ と\ ``active``\ の場合は\ ``javascript:void(0)``\ 、それ以外の場合は\ ``?page={page}&size={size}``\ となる。
+    
+        「Page Link URL」は、JSPタグライブラリのパラメータの指定によって別の値に変更することができる。
+   
+    .. _pagination_overview_paginationlink_pagelinktext:
+    
+      .. note:: \ **「Page Link Text」のデフォルト値について**\
+    
+          .. tabularcolumns:: |p{0.10\linewidth}|p{0.50\linewidth}|p{0.30\linewidth}|
+          .. list-table::
+            :header-rows: 1
+            :widths: 10 50 30
+    
+            * - 項番
+              - リンク名
+              - デフォルト値
+            * - 1.
+              - 最初のページに移動するためのリンク
+              - \ ``<<``\
+            * - 2.
+              - 前のページに移動するためのリンク
+              - \ ``<``\ 
+            * - 3.
+              - 指定したページに移動するためのリンク
+              - | 該当ページのページ番号
+                | (変更不可)
+            * - 4.
+              - 次のページに移動するためのリンク
+              - \ ``>``\
+            * - 5.
+              - 最後のページに移動するためのリンク
+              - \ ``>>``\
+    
+       「指定したページに移動するためのリンク」以外は、JSPタグライブラリのパラメータの指定によって、別の値に変更することができる。
 
- .. tabularcolumns:: |p{0.10\linewidth}|p{0.70\linewidth}|p{0.20\linewidth}|
- .. list-table::
-    :header-rows: 1
-    :widths: 10 70 20
-    :class: longtable
+  .. group-tab:: Thymeleaf
 
-    * - 項番
-      - 説明
-      - デフォルト値
-    * - | (1)
-      - | ページネーションリンクの構成要素をまとめるための要素。
-        | 共通ライブラリでは、この部分を「Outer Element」と呼び、複数の「Inner Element」を保持する。
-        | 使用する要素は、JSPタグライブラリのパラメータによって変更することが出来る。
-      - | ``<ul>`` 要素
-    * - | (2)
-      - | 「Outer Element」のスタイルクラスを指定するための属性。
-        | 共通ライブラリでは、この部分を「Outer Element Class」と呼び、属性値はJSPタグライブラリのパラメータによって指定する。
-      - | 指定なし
-    * - | (3)
-      - | ページネーションリンクを構成するための要素。
-        | 共通ライブラリでは、この部分を「Inner Element」と呼び、 ページ移動するためのリクエストを送信するための ``<a>`` 要素を保持する。
-        | 使用する要素は、JSPタグライブラリのパラメータによって変更することが出来る。
-      - | ``<li>`` 要素
-    * - | (4)
-      - | 「Inner Element」のスタイルクラスを指定するための属性。
-        | 共通ライブラリでは、この部分を「Inner Element Class」と呼び、属性値は表示しているページ位置によってJSPタグライブラリ内の処理で切り替わる。
-      - | 「 :ref:`Note欄 <pagination_overview_paginationlink_innerelementclass>` 」を参照されたい。
-    * - | (5)
-      - | ページ移動するためのリクエストを送信するための要素。
-        | 共通ライブラリでは、この部分を「Page Link」と呼ぶ。
-      - | `<a>` 要素固定
-    * - | (6)
-      - | ページ移動するためのURLを指定するための属性。
-        | 共通ライブラリでは、この部分を「Page Link URL」と呼ぶ。
-      - | 下記の「 :ref:`Note欄 <pagination_overview_paginationlink_pagelinkurl>` 」を参照されたい。
-    * - | (7)
-      - | ページ移動するためのリンクの表示テキストを指定する。
-        | 共通ライブラリでは、この部分を「Page Link Text」と呼ぶ。
-      - | 下記の「 :ref:`Note欄 <pagination_overview_paginationlink_pagelinktext>` 」を参照されたい。
+    スタイルクラスの指定は省略している。スタイルクラスは、作成するアプリケーションの要件に応じて適宜指定すること。
 
- .. note:: **「Inner Element」の数について**
-
-    デフォルトの設定では、「Inner Element」は最大で14個となる。内訳は以下の通り。
-
-    * 最初のページに移動するためのリンク : 1
-    * 前のページに移動するためのリンク : 1
-    * 指定したページに移動するためのリンク : 最大10
-    * 次のページに移動するためのリンク : 1
-    * 最後のページに移動するためのリンク : 1
-
-    「Inner Element」の数は、JSPタグライブラリのパラメータの指定によって変更することができる。
-
-
-.. _pagination_overview_paginationlink_innerelementclass:
-
- .. note:: **「Inner Element Class」の設定値について**
-
-    デフォルトの設定では、ページ位置によって、以下3つの値となる。
-
-    * ``disabled`` : 現在表示しているページでは操作することができないリンクであることを示すためのスタイルクラス。
-    * ``active`` : 現在表示しているページのリンクであることを示すためのスタイルクラス。
-    * 指定なし : 上記以外のリンクであることを示す。
-
-    ``disabled`` と ``active`` は、JSPタグライブラリのパラメータの指定によって別の値に変更することができる。
-
-
-.. _pagination_overview_paginationlink_pagelinkurl:
-
- .. note:: **「Page Link URL」のデフォルト値について**
-
-    リンクの状態が\ ``disabled``\と\ ``active``\ の場合は\ ``javascript:void(0)``\ 、それ以外の場合は\ ``?page={page}&size={size}``\ となる。
-
-    「Page Link URL」は、JSPタグライブラリのパラメータの指定によって別の値に変更することができる。
-
-    terasoluna-gfw-web 5.0.0.RELEASEより、\ ``active``\ 状態のリンクのデフォルト値を\ ``?page={page}&size={size}``\から\ ``javascript:void(0)``\に変更している。
-    これは、メジャーなWebサイトのページネーションリンクの実装やメジャーなCSSライブラリ(Bootstrapなど)の実装に合わせるためである。
-
-.. _pagination_overview_paginationlink_pagelinktext:
-
- .. note:: **「Page Link Text」のデフォルト値について**
-
-     .. tabularcolumns:: |p{0.10\linewidth}|p{0.50\linewidth}|p{0.30\linewidth}|
-     .. list-table::
-         :header-rows: 1
-         :widths: 10 50 30
-
-         * - 項番
-           - リンク名
-           - デフォルト値
-         * - 1.
-           - 最初のページに移動するためのリンク
-           - ``<<``
-         * - 2.
-           - 前のページに移動するためのリンク
-           - "``<``"
-         * - 3.
-           - 指定したページに移動するためのリンク
-           - | 該当ページのページ番号
-             | (変更不可)
-         * - 4.
-           - 次のページに移動するためのリンク
-           - "``>``"
-         * - 5.
-           - 最後のページに移動するためのリンク
-           - ``>>``
-
-    「指定したページに移動するためのリンク」以外は、JSPタグライブラリのパラメータの指定によって、別の値に変更することができる。
+    - HTML
+    
+      .. figure:: ./images_Pagination/pagination-overview_html_basic.png
+        :alt: html structure of the pagination link.
+        :width: 80%
+        :align: center
+    
+    - 画面イメージ
+    
+      .. figure:: ./images_Pagination/pagination-overview_html_basic_screen.png
+        :alt: screen structure of the pagination link.
+        :width: 80%
+        :align: center
+    
+      .. tabularcolumns:: |p{0.10\linewidth}|p{0.90\linewidth}|
+      .. list-table::
+        :header-rows: 1
+        :widths: 10 90
+    
+        * - 項番
+          - 説明
+        * - | (1)
+          - | ページネーションリンクの構成要素をまとめるための要素。
+        * - | (2)
+          - | ページネーションリンクを構成するための要素。
+        * - | (3)
+          - | ページ移動するためのリクエストを送信するための要素。
+        * - | (4)
+          - | ページ移動するためのURLを指定するための属性。
+        * - | (5)
+          - | ページ移動するためのリンクの表示テキストを指定する。
 
 |
 
@@ -361,77 +422,77 @@ JSPタグライブラリのパラメータに値を指定することで、デ�
 
 以下にパラメータの一覧を示す。
 
-**レイアウトを制御するためのパラメータ**
+\ **レイアウトを制御するためのパラメータ**\
 
- .. tabularcolumns:: |p{0.10\linewidth}|p{0.25\linewidth}|p{0.65\linewidth}|
- .. list-table::
-    :header-rows: 1
-    :widths: 10 25 65
-    :class: longtable
+.. tabularcolumns:: |p{0.10\linewidth}|p{0.25\linewidth}|p{0.65\linewidth}|
+.. list-table::
+  :header-rows: 1
+  :widths: 10 25 65
+  :class: longtable
 
-    * - 項番
-      - パラメータ名
-      - 説明
-    * - 1.
-      - outerElement
-      - | 「Outer Element」として使用するHTML要素名を指定する。
-        | 例) div
-    * - 2.
-      - outerElementClass
-      - | 「Outer Element」のclass属性に設定するスタイルシートのクラス名を指定する。
-        | 例) pagination
-    * - 3.
-      - innerElement
-      - | 「Inner Element」として使用するHTML要素名を指定する。
-        | 例) span
-    * - 4.
-      - innerElementClass
-      - | 「Inner Element」のclass属性に設定するスタイルシートのクラス名を指定する。 **5.6.0から追加**
-        | 例) enablePage
-    * - 5.
-      - disabledClass
-      - | ``disabled`` 状態と判断された「Inner Element」のclass属性に設定する値を指定する。
-        | 例) hiddenPage
-    * - 6.
-      - activeClass
-      - | ``active`` 状態の「Inner Element」のclass属性に設定する値を指定する。
-        | 例) currentPage
-    * - 7.
-      - anchorClass
-      - | 「Page Link」のclass属性に設定するスタイルシートのクラス名を指定する。 **5.7.0から追加**
-        | 例) pageLink
-    * - 8.
-      - firstLinkText
-      - | 「最初のページに移動するためのリンク」の「Page Link Text」に設定する値を指定する。
-        | ``""`` を指定すると、「最初のページに移動するためのリンク」自体が出力されなくなる。
-        | 例) First
-    * - 9.
-      - previousLinkText
-      - | 「前のページに移動するためのリンク」の「Page Link Text」に設定する値を指定する。
-        | ``""`` を指定すると、「前のページに移動するためのリンク」自体が出力されなくなる。
-        | 例) Prev
-    * - 10.
-      - nextLinkText
-      - | 「次のページに移動するためのリンク」の「Page Link Text」に設定する値を指定する。
-        | ``""`` を指定すると、「次のページに移動するためのリンク」自体が出力されなくなる。
-        | 例) Next
-    * - 11.
-      - lastLinkText
-      - | 「最後のページに移動するためのリンク」の「Page Link Text」に設定する値を指定する。
-        | ``""`` を指定すると、「次のページに移動するためのリンク」自体が出力されなくなる。
-        | 例) Last
-    * - 12.
-      - maxDisplayCount
-      - | 「指定したページに移動するためのリンク」の最大表示数を指定する。
-        | "``0``" を指定すると、「指定したページに移動するためのリンク」自体が出力されなくなる。
-        | 例) 5
+  * - 項番
+    - パラメータ名
+    - 説明
+  * - 1.
+    - outerElement
+    - | 「Outer Element」として使用するHTML要素名を指定する。
+      | 例) div
+  * - 2.
+    - outerElementClass
+    - | 「Outer Element」のclass属性に設定するスタイルシートのクラス名を指定する。
+      | 例) pagination
+  * - 3.
+    - innerElement
+    - | 「Inner Element」として使用するHTML要素名を指定する。
+      | 例) span
+  * - 4.
+    - innerElementClass
+    - | 「Inner Element」のclass属性に設定するスタイルシートのクラス名を指定する。\ **5.6.0から追加**\
+      | 例) enablePage
+  * - 5.
+    - disabledClass
+    - | \ ``disabled``\ 状態と判断された「Inner Element」のclass属性に設定する値を指定する。
+      | 例) hiddenPage
+  * - 6.
+    - activeClass
+    - | \ ``active``\ 状態の「Inner Element」のclass属性に設定する値を指定する。
+      | 例) currentPage
+  * - 7.
+    - anchorClass
+    - | 「Page Link」のclass属性に設定するスタイルシートのクラス名を指定する。\ **5.7.0から追加**\
+      | 例) pageLink
+  * - 8.
+    - firstLinkText
+    - | 「最初のページに移動するためのリンク」の「Page Link Text」に設定する値を指定する。
+      | \ ``""``\ を指定すると、「最初のページに移動するためのリンク」自体が出力されなくなる。
+      | 例) First
+  * - 9.
+    - previousLinkText
+    - | 「前のページに移動するためのリンク」の「Page Link Text」に設定する値を指定する。
+      | \ ``""``\ を指定すると、「前のページに移動するためのリンク」自体が出力されなくなる。
+      | 例) Prev
+  * - 10.
+    - nextLinkText
+    - | 「次のページに移動するためのリンク」の「Page Link Text」に設定する値を指定する。
+      | \ ``""``\ を指定すると、「次のページに移動するためのリンク」自体が出力されなくなる。
+      | 例) Next
+  * - 11.
+    - lastLinkText
+    - | 「最後のページに移動するためのリンク」の「Page Link Text」に設定する値を指定する。
+      | \ ``""``\ を指定すると、「次のページに移動するためのリンク」自体が出力されなくなる。
+      | 例) Last
+  * - 12.
+    - maxDisplayCount
+    - | 「指定したページに移動するためのリンク」の最大表示数を指定する。
+      | "\ ``0``\ " を指定すると、「指定したページに移動するためのリンク」自体が出力されなくなる。
+      | 例) 5
 
 |
 
- レイアウトを制御するためのパラメータを、全てデフォルトから変更した時に出力されるHTMLは以下の通り。
- 図中の番号は、上記で説明したパラメータ一覧の項番に対応している。
+| レイアウトを制御するためのパラメータを、全てデフォルトから変更した時に出力されるHTMLは以下の通り。
+| 図中の番号は、上記で説明したパラメータ一覧の項番に対応している。
 
- - JSP
+- JSP
 
   .. code-block:: jsp
 
@@ -450,114 +511,104 @@ JSPタグライブラリのパラメータに値を指定することで、デ�
         maxDisplayCount="5"
         />
 
- - 出力されるHTML
+- 出力されるHTML
 
-  .. figure:: ./images/pagination-overview_html_changed.png
-   :alt: html of the pagination link(changed layout).
-   :width: 100%
-   :align: center
+  .. figure:: ./images_Pagination/pagination-overview_html_changed.png
+    :alt: html of the pagination link(changed layout).
+    :width: 100%
+    :align: center
 
 |
 
-**動作を制御するためのパラメータ**
+\ **動作を制御するためのパラメータ**\
 
- .. tabularcolumns:: |p{0.10\linewidth}|p{0.25\linewidth}|p{0.65\linewidth}|
- .. list-table::
-    :header-rows: 1
-    :widths: 10 25 65
-    :class: longtable
+.. tabularcolumns:: |p{0.10\linewidth}|p{0.25\linewidth}|p{0.65\linewidth}|
+.. list-table::
+  :header-rows: 1
+  :widths: 10 25 65
+  :class: longtable
 
-    * - 項番
-      - パラメータ名
-      - 説明
-    * - 1.
-      - disabledHref
-      - | ``disabled`` 状態のリンクの「Page Link URL」に設定する値を指定する。
-    * - 2.
-      - pathTmpl
-      - | 「Page Link URL」に設定するリクエストパスのテンプレートを指定する。
-        | ページ表示時のリクエストパスとページ移動するためのリクエストパスが異なる場合は、このパラメータにページ移動用のリクエストパスを指定する必要がある。
-        | 指定するリクエストパスのテンプレートには、ページ位置(page)や取得件数(size)などをパス変数(プレースホルダ)として指定することができる。
-        | 指定した値はUTF-8でURLエンコーディングされる。
-    * - 3.
-      - queryTmpl
-      - | 「Page Link URL」のクエリ文字列のテンプレートを指定する。
-        | ページ移動する際に必要となるページネーション用のクエリ文字列(page,size,sortパラメータ)を生成するためのテンプレートを指定する。
-        | ページ位置や取得件数のリクエストパラメータ名をデフォルト以外の値にする場合は、このパラメータにクエリ文字列を指定する必要がある。
-        | 指定するクエリ文字列のテンプレートには、ページ位置(page)や取得件数(size)などをパス変数(プレースホルダ)として指定することができる。
-        | 指定した値はUTF-8でURLエンコーディングされる。
-        |
-        | この属性は、ページネーション用のクエリ文字列(page,size,sortパラメータ)を生成するための属性であるため、検索条件を引き継ぐためのクエリ文字列はcriteriaQuery属性に指定すること。
-    * - 4.
-      - criteriaQuery
-      - | 「Page Link URL」に追加する検索条件用のクエリ文字列を指定する。
-        | **「Page Link URL」に検索条件を引き継ぐ場合は、このパラメータに検索条件用のクエリ文字列を指定すること。**
-        | **指定した値はURLエンコーディングされないため、URLエンコーディング済みのクエリ文字列を指定する必要がある。**
-        |
-        | フォームオブジェクトに格納されている検索条件をURLエンコーディング済みのクエリ文字列に変換する場合は、共通ライブラリから提供しているELファンクション(\ ``f:query(Object)``\)を使用すると、簡単に条件を引き継ぐことができる。
-    * - 5.
-      - disableHtmlEscapeOfCriteriaQuery
-      - | \ ``criteriaQuery``\パラメータに指定された値に対するHTMLエスケープ処理を無効化するためのフラグ。
-        | \ ``true``\ を指定する事で、\ ``criteriaQuery``\パラメータに指定された値に対してHTMLエスケープ処理が行われなくなる。(デフォルト値は\ ``false``\)
-        | **trueを指定する場合は、XSS対策が必要な文字がクエリ文字列内に含まれない事が保証されていること。**
-    * - 6.
-      - enableLinkOfCurrentPage
-      - | \ ``active``\ 状態のページリンクを押下した際に、該当ページを再表示するためのリクエストを送信するためのフラグ。
-        | \ ``true``\ を指定する事で、「Page Link URL」に該当ページを再表示するためのURL(デフォルト値は\ ``?page={page}&size={size}``\ )が設定される。(デフォルト値は\ ``false``\で、「Page Link URL」には\ ``disabledHref``\ 属性の値が設定される)
+  * - 項番
+    - パラメータ名
+    - 説明
+  * - 1.
+    - disabledHref
+    - | \ ``disabled``\ 状態のリンクの「Page Link URL」に設定する値を指定する。
+  * - 2.
+    - pathTmpl
+    - | 「Page Link URL」に設定するリクエストパスのテンプレートを指定する。
+      | ページ表示時のリクエストパスとページ移動するためのリクエストパスが異なる場合は、このパラメータにページ移動用のリクエストパスを指定する必要がある。
+      | 指定するリクエストパスのテンプレートには、ページ位置(page)や取得件数(size)などをパス変数(プレースホルダ)として指定することができる。
+      | 指定した値はUTF-8でURLエンコーディングされる。
+  * - 3.
+    - queryTmpl
+    - | 「Page Link URL」のクエリ文字列のテンプレートを指定する。
+      | ページ移動する際に必要となるページネーション用のクエリ文字列(page,size,sortパラメータ)を生成するためのテンプレートを指定する。
+      | ページ位置や取得件数のリクエストパラメータ名をデフォルト以外の値にする場合は、このパラメータにクエリ文字列を指定する必要がある。
+      | 指定するクエリ文字列のテンプレートには、ページ位置(page)や取得件数(size)などをパス変数(プレースホルダ)として指定することができる。
+      | 指定した値はUTF-8でURLエンコーディングされる。
+      |
+      | この属性は、ページネーション用のクエリ文字列(page,size,sortパラメータ)を生成するための属性であるため、検索条件を引き継ぐためのクエリ文字列はcriteriaQuery属性に指定すること。
+  * - 4.
+    - criteriaQuery
+    - | 「Page Link URL」に追加する検索条件用のクエリ文字列を指定する。
+      | \ **「Page Link URL」に検索条件を引き継ぐ場合は、このパラメータに検索条件用のクエリ文字列を指定すること。**\
+      | \ **指定した値はURLエンコーディングされないため、URLエンコーディング済みのクエリ文字列を指定する必要がある。**\
+      |
+      | フォームオブジェクトに格納されている検索条件をURLエンコーディング済みのクエリ文字列に変換する場合は、共通ライブラリから提供しているELファンクション(\ ``f:query(Object)``\ )を使用すると、簡単に条件を引き継ぐことができる。
+  * - 5.
+    - disableHtmlEscapeOfCriteriaQuery
+    - | \ ``criteriaQuery``\ パラメータに指定された値に対するHTMLエスケープ処理を無効化するためのフラグ。
+      | \ ``true``\ を指定する事で、\ ``criteriaQuery``\ パラメータに指定された値に対してHTMLエスケープ処理が行われなくなる。(デフォルト値は\ ``false``\ )
+      | \ **trueを指定する場合は、XSS対策が必要な文字がクエリ文字列内に含まれない事が保証されていること。**\
+  * - 6.
+    - enableLinkOfCurrentPage
+    - | \ ``active``\ 状態のページリンクを押下した際に、該当ページを再表示するためのリクエストを送信するためのフラグ。
+      | \ ``true``\ を指定する事で、「Page Link URL」に該当ページを再表示するためのURL(デフォルト値は\ ``?page={page}&size={size}``\ )が設定される。(デフォルト値は\ ``false``\ で、「Page Link URL」には\ ``disabledHref``\ 属性の値が設定される)
 
- .. note:: **disabledHrefの設定値について**
+.. note:: \ **disabledHrefの設定値について**\
 
-    デフォルトでは、\ ``disabledHref``\ 属性には\ ``javascript:void(0)``\ が設定されている。
-    ページリンク押下時の動作を無効化するだけであれば、デフォルトのままでよい。
+  デフォルトでは、\ ``disabledHref``\ 属性には\ ``javascript:void(0)``\ が設定されている。ページリンク押下時の動作を無効化するだけであれば、デフォルトのままでよい。
 
-    ただし、デフォルトの状態でページリンクにフォーカスを移動又はマウスオーバーした場合、
-    ブラウザのステータスバーに\ ``javascript:void(0)``\ が表示されることがある。
-    この挙動を変えたい場合は、JavaScriptを使用してページリンク押下時の動作を無効化する必要がある。
-    実装例については、「:ref:`PaginationHowToUseDisablePageLinkUsingJavaScript`」を参照されたい。
+  ただし、デフォルトの状態でページリンクにフォーカスを移動又はマウスオーバーした場合、ブラウザのステータスバーに\ ``javascript:void(0)``\ が表示されることがある。この挙動を変えたい場合は、JavaScriptを使用してページリンク押下時の動作を無効化する必要がある。実装例については、「\ :ref:`PaginationHowToUseDisablePageLinkUsingJavaScript`\ 」を参照されたい。
 
-    terasoluna-gfw-web 5.0.0.RELEASEより、\ ``disabledHref``\ 属性のデフォルト値を"\ ``#``\"から\ ``javascript:void(0)``\ に変更している。
-    この変更を行うことで、\ ``disabled``\ 状態のページリンクを押下した際に、フォーカスがページのトップへ移動しないようになっている。
+.. note:: \ **パス変数(プレースホルダ)について**\
 
+  \ ``pathTmpl``\ 及び\ ``queryTmpl``\ に指定できるパス変数は、以下の通り。
 
- .. note:: **パス変数(プレースホルダ)について**
-
-    ``pathTmpl`` 及び ``queryTmpl`` に指定できるパス変数は、以下の通り。
-
-        .. tabularcolumns:: |p{0.10\linewidth}|p{0.25\linewidth}|p{0.65\linewidth}|
-        .. list-table::
-            :header-rows: 1
-            :widths: 10 25 65
+    .. tabularcolumns:: |p{0.10\linewidth}|p{0.25\linewidth}|p{0.65\linewidth}|
+    .. list-table::
+      :header-rows: 1
+      :widths: 10 25 65
     
-            * - 項番
-              - パス変数名
-              - 説明
-            * - 1.
-              - page
-              - ページ位置を埋め込むためのパス変数。
-            * - 2.
-              - size
-              - 取得件数を埋め込むためのパス変数。
-            * - 3.
-              - sortOrderProperty
-              - ソート条件のソート項目を埋め込むためのパス変数。
-            * - 4.
-              - sortOrderDirection
-              - ソート条件のソート順を埋め込むためのパス変数。
+      * - 項番
+        - パス変数名
+        - 説明
+      * - 1.
+        - page
+        - ページ位置を埋め込むためのパス変数。
+      * - 2.
+        - size
+        - 取得件数を埋め込むためのパス変数。
+      * - 3.
+        - sortOrderProperty
+        - ソート条件のソート項目を埋め込むためのパス変数。
+      * - 4.
+        - sortOrderDirection
+        - ソート条件のソート順を埋め込むためのパス変数。
 
-    パス変数は、``{パス変数名}`` の形式で指定する。
+  パス変数は、\ ``{パス変数名}``\ の形式で指定する。
 
- .. warning:: **ソート条件の制約事項**
+.. warning:: \ **ソート条件の制約事項**\
 
-    ソート条件のパス変数に設定される値は、ひとつのソート条件のみとなっている。
-    そのため、複数のソート条件を指定して検索した結果を、ページネーション表示する必要がある場合は、
-    共通ライブラリから提供しているJSPタグライブラリを拡張する必要がある。
+  ソート条件のパス変数に設定される値は、ひとつのソート条件のみとなっている。そのため、複数のソート条件を指定して検索した結果を、ページネーション表示する必要がある場合は、共通ライブラリから提供しているJSPタグライブラリを拡張する必要がある。
 
 |
 
- 動作を制御するためのパラメータを変更した時に出力されるHTMLは、以下の通り。
- 図中の番号は、上記で説明したパラメータ一覧の項番に対応している。
+| 動作を制御するためのパラメータを変更した時に出力されるHTMLは、以下の通り。
+| 図中の番号は、上記で説明したパラメータ一覧の項番に対応している。
 
- - JSP
+- JSP
 
   .. code-block:: jsp
 
@@ -568,12 +619,12 @@ JSPタグライブラリのパラメータに値を指定することで、デ�
         criteriaQuery="${f:query(articleSearchCriteriaForm)}"
         enableLinkOfCurrentPage="true" />
 
- - 出力されるHTML
+- 出力されるHTML
 
-  .. figure:: ./images/pagination-overview_html_changed2.png
-   :alt: html of the pagination link(changed behavior).
-   :width: 100%
-   :align: center
+  .. figure:: ./images_Pagination/pagination-overview_html_changed2.png
+    :alt: html of the pagination link(changed behavior).
+    :width: 100%
+    :align: center
 
 |
 
@@ -589,63 +640,109 @@ JSPタグライブラリのパラメータに値を指定することで、デ�
 * 取得件数
 * ソート条件
 
-| ページ検索については、「:ref:`ページ検索について <pagination_overview_page_search>` 」を参照されたい。
+| ページ検索については、「\ :ref:`ページ検索について <pagination_overview_page_search>`\ 」を参照されたい。
 
 |
 
 ページネーション機能使用時の処理フロー
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-Spring Dataより提供されているページネーション機能と、共通ライブラリから提供しているJSPタグライブラリを利用した際の処理フローは、以下の通り。
+| Spring Dataより提供されているページネーション機能を利用した際の処理フローは、以下の通り。
+| (JSPの場合は共通ライブラリから提供しているJSPタグライブラリを利用する)
 
- .. figure:: ./images/pagination-overview_flow.png
-   :alt: processing flow of pagination
-   :width: 100%
+.. tabs::
+  .. group-tab:: JSP
 
- .. tabularcolumns:: |p{0.10\linewidth}|p{0.90\linewidth}|
- .. list-table::
-    :header-rows: 1
-    :widths: 10 90
-    :class: longtable
+    .. figure:: ./images_Pagination/pagination-overview_flow_jsp.png
+      :alt: processing flow of pagination
+      :width: 100%
+    
+    .. tabularcolumns:: |p{0.10\linewidth}|p{0.90\linewidth}|
+    .. list-table::
+      :header-rows: 1
+      :widths: 10 90
+      :class: longtable
+    
+      * - 項番
+        - 説明
+      * - | (1)
+        - | 検索条件と共に、リクエストパラメータとして検索対象のページ位置(page)と取得件数(size)を指定してリクエストを送信する。
+      * - | (2)
+        - | \ ``PageableHandlerMethodArgumentResolver``\ は、リクエストパラメータに指定されている検索対象のページ位置(page)と取得件数(size)を取得し、\ ``Pageable``\ オブジェクトを生成する。
+          | 生成された\ ``Pageable``\ オブジェクトは、Controllerのハンドラメソッドの引数に設定される。
+      * - | (3)
+        - | Controllerは、引数で受け取った\ ``Pageable``\ オブジェクトを、Serviceのメソッドに引き渡す。
+      * - | (4)
+        - | Serviceは、引数で受け取った\ ``Pageable``\ オブジェクトを、RepositoryのQueryメソッドに引き渡す。
+      * - | (5)
+        - | Repositoryは、検索条件に一致するデータの合計件数(totalElements)と、引数で受け取った\ ``Pageable``\ オブジェクトに指定されているページ位置(page)と取得件数(size)の範囲に存在するデータを、データベースより取得する。
+      * - | (6)
+        - | Repositoryは、取得した合計件数(totalElements)、取得データ(content)、引数で受け取った\ ``Pageable``\ オブジェクトより\ ``Page``\ オブジェクトを作成し、Service及びControllerへ返却する。
+      * - | (7)
+        - | Controllerは、返却された\ ``Page``\ オブジェクトを、\ ``Model``\ オブジェクトに格納後、JSPに遷移する。
+      * - | (8)
+        - | JSPは、\ ``Model``\ オブジェクトに格納されている\ ``Page``\ オブジェクトを取得し、共通ライブラリから提供されているページネーション用のJSPタグライブラリ(\ ``<t:pagination>``\ )を呼び出す。
+          | ページネーション用のJSPタグライブラリは\ ``Page``\ オブジェクトを参照し、ページネーションリンクを生成する。
+      * - | (9)
+        - | JSPで生成したHTMLを、クライアント(ブラウザ)に返却する。
+      * - | (10)
+        - | ページネーションリンクを押下すると、該当ページを表示するためリクエストが送信される。
+    
+    .. note:: \ **Repositoryの実装について**\
+    
+      上記フローの(5)と(6)の処理は、使用するO/R Mapperによって実装方法が異なる。
+    
+      * MyBatis3を使用する場合は、Java(Service)及びSQLマッピングファイルの実装が必要である。
+      * Spring Data JPAを使用する場合は、Spring Data JPAの機能で自動的で行われるため実装は不要である。
+    
+      具体的な実装例については、
+    
+      * \ :doc:`../DataAccessDetail/DataAccessMyBatis3`\
+      * \ :doc:`../DataAccessDetail/DataAccessJpa`\
+    
+      を参照されたい。
 
-    * - 項番
-      - 説明
-    * - | (1)
-      - | 検索条件と共に、リクエストパラメータとして検索対象のページ位置(page)と取得件数(size)を指定してリクエストを送信する。
-    * - | (2)
-      - | ``PageableHandlerMethodArgumentResolver`` は、リクエストパラメータに指定されている検索対象のページ位置(page)と取得件数(size)を取得し、 ``Pageable`` オブジェクトを生成する。
-        | 生成された ``Pageable`` オブジェクトは、Controllerのハンドラメソッドの引数に設定される。
-    * - | (3)
-      - | Controllerは、引数で受け取った ``Pageable`` オブジェクトを、Serviceのメソッドに引き渡す。
-    * - | (4)
-      - | Serviceは、引数で受け取った ``Pageable`` オブジェクトを、 RepositoryのQueryメソッドに引き渡す。
-    * - | (5)
-      - | Repositoryは、検索条件に一致するデータの合計件数(totalElements)と、引数で受け取った ``Pageable`` オブジェクトに指定されているページ位置(page)と取得件数(size)の範囲に存在するデータを、データベースより取得する。
-    * - | (6)
-      - | Repositoryは、取得した合計件数(totalElements)、取得データ(content)、引数で受け取った ``Pageable`` オブジェクトより ``Page`` オブジェクトを作成し、Service及びControllerへ返却する。
-    * - | (7)
-      - | Controllerは、返却された ``Page`` オブジェクトを、 ``Model`` オブジェクトに格納後、JSPに遷移する。
-    * - | (8)
-      - | JSPは、 ``Model`` オブジェクトに格納されている ``Page`` オブジェクトを取得し、共通ライブラリから提供されているページネーション用のJSPタグライブラリ( ``<t:pagination>`` )を呼び出す。
-        | ページネーション用のJSPタグライブラリは ``Page`` オブジェクトを参照し、ページネーションリンクを生成する。
-    * - | (9)
-      - | JSPで生成したHTMLを、クライアント(ブラウザ)に返却する。
-    * - | (10)
-      - | ページネーションリンクを押下すると、該当ページを表示するためリクエストが送信される。
+  .. group-tab:: Thymeleaf
 
- .. note:: **Repositoryの実装について**
-
-    上記フローの(5)と(6)の処理は、使用するO/R Mapperによって実装方法が異なる。
-
-    * MyBatis3を使用する場合は、Java(Service)及びSQLマッピングファイルの実装が必要である。
-    * Spring Data JPAを使用する場合は、Spring Data JPAの機能で自動的で行われるため実装は不要である。
-
-    具体的な実装例については、
-
-    * :doc:`../DataAccessDetail/DataAccessMyBatis3`
-    * :doc:`../DataAccessDetail/DataAccessJpa`
-
-    を参照されたい。
-
+    .. figure:: ./images_Pagination/pagination-overview_flow_thymeleaf.png
+      :alt: processing flow of pagination
+      :width: 100%
+    
+    .. tabularcolumns:: |p{0.10\linewidth}|p{0.90\linewidth}|
+    .. list-table::
+      :header-rows: 1
+      :widths: 10 90
+      :class: longtable
+    
+      * - 項番
+        - 説明
+      * - | (1)
+        - | 検索条件と共に、リクエストパラメータとして検索対象のページ位置(page)と取得件数(size)を指定してリクエストを送信する。
+      * - | (2)
+        - | \ ``PageableHandlerMethodArgumentResolver``\ は、リクエストパラメータに指定されている検索対象のページ位置(page)と取得件数(size)を取得し、\ ``Pageable``\ オブジェクトを生成する。
+          | 生成された\ ``Pageable``\ オブジェクトは、Controllerのハンドラメソッドの引数に設定される。
+      * - | (3)
+        - | Controllerは、引数で受け取った\ ``Pageable``\ オブジェクトを、Serviceのメソッドに引き渡す。
+      * - | (4)
+        - | Serviceは、引数で受け取った\ ``Pageable``\ オブジェクトを、RepositoryのQueryメソッドに引き渡す。
+      * - | (5)
+        - | Repositoryは、検索条件に一致するデータの合計件数(totalElements)と、引数で受け取った\ ``Pageable``\ オブジェクトに指定されているページ位置(page)と取得件数(size)の範囲に存在するデータを、データベースより取得する。
+      * - | (6)
+        - | Repositoryは、取得した合計件数(totalElements)、取得データ(content)、引数で受け取った\ ``Pageable``\ オブジェクトより\ ``Page``\ オブジェクトを作成し、Service及びControllerへ返却する。
+      * - | (7)
+        - | Controllerは、返却された\ ``Page``\ オブジェクトを、\ ``Model``\ オブジェクトに格納後、ThymeleafのテンプレートHTMLに遷移する。
+          | テンプレートHTMLは、\ ``Model``\ オブジェクトに格納されている\ ``Page``\ オブジェクトを取得し、ページネーションリンクを生成する。
+      * - | (8)
+        - | 生成したHTMLを、クライアント(ブラウザ)に返却する。
+      * - | (9)
+        - | ページネーションリンクを押下すると、該当ページを表示するためリクエストが送信される。
+    
+    .. note:: \ **Repositoryの実装について**\
+    
+      上記フローの(5)と(6)の具体的な実装例については、
+    
+      * \ :doc:`../DataAccessDetail/DataAccessMyBatis3`\
+    
+      を参照されたい。
 
 |
 
@@ -654,36 +751,74 @@ How to use
 
 ページネーション機能の具体的な使用方法を以下に示す。
 
+|
+
 アプリケーションの設定
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 Spring Dataのページネーション機能を有効化するための設定
 """"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
-| リクエストパラメータに指定された検索対象のページ位置(page)、取得件数(size)、ソート条件(sort)を、 ``Pageable`` オブジェクトとしてControllerの引数に設定するための機能を有効化する。
+| リクエストパラメータに指定された検索対象のページ位置(page)、取得件数(size)、ソート条件(sort)を、\ ``Pageable``\ オブジェクトとしてControllerの引数に設定するための機能を有効化する。
 | 下記の設定は、ブランクプロジェクトでは設定済みの状態になっている。
 
-:file:`spring-mvc.xml`
+.. tabs::
+  .. group-tab:: Java Config
 
- .. code-block:: xml
+    \ :file:`SpringMvcConfig.java`\
+    
+    .. code-block:: java
 
-    <mvc:annotation-driven>
-        <mvc:argument-resolvers>
-            <!-- (1) -->
-            <bean
-                class="org.springframework.data.web.PageableHandlerMethodArgumentResolver" />
-        </mvc:argument-resolvers>
-    </mvc:annotation-driven>
+      @EnableAspectJAutoProxy
+      @EnableWebMvc
+      @Configuration
+      public class SpringMvcConfig implements WebMvcConfigurer {
 
- .. tabularcolumns:: |p{0.10\linewidth}|p{0.90\linewidth}|
- .. list-table::
-    :header-rows: 1
-    :widths: 10 90
+          @Override
+          public void addArgumentResolvers(
+                  List<HandlerMethodArgumentResolver> argumentResolvers) {
+              argumentResolvers.add(pageableHandlerMethodArgumentResolver()); // (1)
+          }
+    
+          @Bean
+          public PageableHandlerMethodArgumentResolver pageableHandlerMethodArgumentResolver() {
+              return new PageableHandlerMethodArgumentResolver();
+          }
+    
+    .. tabularcolumns:: |p{0.10\linewidth}|p{0.90\linewidth}|
+    .. list-table::
+      :header-rows: 1
+      :widths: 10 90
+    
+      * - 項番
+        - 説明
+      * - | (1)
+        - | \ ``addArgumentResolvers``\ で\ ``argumentResolvers``\ に\ ``org.springframework.data.web.PageableHandlerMethodArgumentResolver``\ を追加する。
+          | \ ``PageableHandlerMethodArgumentResolver``\ で指定できるプロパティについては、「\ :ref:`paginatin_appendix_pageableHandlerMethodArgumentResolver`\ 」を参照されたい。
 
-    * - 項番
-      - 説明
-    * - | (1)
-      - | ``<mvc:argument-resolvers>`` に ``org.springframework.data.web.PageableHandlerMethodArgumentResolver`` を指定する。
-        | ``PageableHandlerMethodArgumentResolver`` で指定できるプロパティについては、「 :ref:`paginatin_appendix_pageableHandlerMethodArgumentResolver` 」を参照されたい。
+  .. group-tab:: XML Config
+
+    \ :file:`spring-mvc.xml`\
+    
+    .. code-block:: xml
+    
+      <mvc:annotation-driven>
+          <mvc:argument-resolvers>
+              <!-- (1) -->
+              <bean
+                  class="org.springframework.data.web.PageableHandlerMethodArgumentResolver" />
+          </mvc:argument-resolvers>
+      </mvc:annotation-driven>
+    
+    .. tabularcolumns:: |p{0.10\linewidth}|p{0.90\linewidth}|
+    .. list-table::
+      :header-rows: 1
+      :widths: 10 90
+    
+      * - 項番
+        - 説明
+      * - | (1)
+        - | \ ``<mvc:argument-resolvers>``\ に\ ``org.springframework.data.web.PageableHandlerMethodArgumentResolver``\ を指定する。
+          | \ ``PageableHandlerMethodArgumentResolver``\ で指定できるプロパティについては、「\ :ref:`paginatin_appendix_pageableHandlerMethodArgumentResolver`\ 」を参照されたい。
 
 |
 
@@ -691,13 +826,17 @@ Spring Dataのページネーション機能を有効化するための設定
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 ページ検索を実現するための実装方法を以下に示す。
 
+|
+
+.. _pagination_how_to_use_page_search_impl_app:
+
 アプリケーション層の実装
 """"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 ページ検索に必要な情報(検索対象のページ位置、取得件数、ソート条件)を、Controllerの引数として受け取り、Serviceのメソッドに引き渡す。
 
 - Controller
 
- .. code-block:: java
+  .. code-block:: java
 
     @GetMapping("list")
     public String list(@Validated ArticleSearchCriteriaForm form,
@@ -714,184 +853,184 @@ Spring Dataのページネーション機能を有効化するための設定
         return "article/list";
     }
 
- .. tabularcolumns:: |p{0.10\linewidth}|p{0.90\linewidth}|
- .. list-table::
+  .. tabularcolumns:: |p{0.10\linewidth}|p{0.90\linewidth}|
+  .. list-table::
     :header-rows: 1
     :widths: 10 90
 
     * - 項番
       - 説明
     * - | (1)
-      - | ハンドラメソッドの引数として ``Pageable`` を指定する。
-        | ``Pageable`` オブジェクトには、ページ検索に必要な情報(検索対象のページ位置、取得件数、ソート条件)が格納されている。
+      - | ハンドラメソッドの引数として\ ``Pageable``\ を指定する。
+        | \ ``Pageable``\ オブジェクトには、ページ検索に必要な情報(検索対象のページ位置、取得件数、ソート条件)が格納されている。
     * - | (2)
       - | BeanのマッピングにはMapStructを用いて作成したマッパーインタフェースを使用する。
-        | Mapperインタフェースの定義方法については\ :doc:`../GeneralFuncDetail/BeanMapping`\を参照されたい。
+        | Mapperインタフェースの定義方法については\ :doc:`../GeneralFuncDetail/BeanMapping`\ を参照されたい。
     * - | (3)
-      - | Serviceのメソッドの引数に ``Pageable`` オブジェクトを指定して呼び出す。
+      - | Serviceのメソッドの引数に\ ``Pageable``\ オブジェクトを指定して呼び出す。
     * - | (4)
-      - | Serviceから返却された検索結果( ``Page`` オブジェクト )を ``Model`` に追加する。 ``Model`` に追加することで、View(JSP)から参照できるようになる。
+      - | Serviceから返却された検索結果(\ ``Page``\ オブジェクト )を\ ``Model``\ に追加する。\ ``Model``\ に追加することで、View(JSP/テンプレートHTML)から参照できるようになる。
 
- .. note:: **リクエストパラメータにページ検索に必要な情報の指定がない場合の動作について**
+  .. note:: \ **リクエストパラメータにページ検索に必要な情報の指定がない場合の動作について**\
 
     ページ検索に必要な情報(検索対象のページ位置、取得件数、ソート条件)がリクエストパラメータに指定されていない場合は、デフォルト値が適用される。
     デフォルト値は、以下の通り。
 
-    * 検索対象のページ位置 : `0` (1ページ目)
-    * 取得件数 : `20`
-    * ソート条件 : `null` (ソート条件なし)
+    * 検索対象のページ位置 : \ ``0``\ (1ページ目)
+    * 取得件数 : \ ``20``\
+    * ソート条件 : \ ``null``\ (ソート条件なし)
 
     デフォルト値は、以下の２つの方法で変更することができる。
 
-    * ハンドラメソッドの ``Pageable`` の引数に、 ``@org.springframework.data.web.PageableDefault`` アノテーションを指定してデフォルト値を定義する。
-    * ``PageableHandlerMethodArgumentResolver`` の ``fallbackPageable`` プロパティにデフォルト値を定義した ``Pageable`` オブジェクトを指定する。
+    * ハンドラメソッドの\ ``Pageable``\ の引数に、\ ``@org.springframework.data.web.PageableDefault``\ アノテーションを指定してデフォルト値を定義する。
+    * \ ``PageableHandlerMethodArgumentResolver``\ の\ ``fallbackPageable``\ プロパティにデフォルト値を定義した\ ``Pageable``\ オブジェクトを指定する。
 
 |
 
-| ``@PageableDefault`` アノテーションを使用してデフォルト値を指定する方法について説明する。
-| ページ検索処理毎にデフォルト値を変更する必要がある場合は、``@PageableDefault`` アノテーションを使ってデフォルト値を指定する。
+| \ ``@PageableDefault``\ アノテーションを使用してデフォルト値を指定する方法について説明する。
+| ページ検索処理毎にデフォルト値を変更する必要がある場合は、\ ``@PageableDefault``\ アノテーションを使ってデフォルト値を指定する。
 
- .. code-block:: java
+.. code-block:: java
 
-    @GetMapping("list")
-    public String list(@Validated ArticleSearchCriteriaForm form,
-            BindingResult result,
-            @PageableDefault( // (1)
-                    page = 0,    // (2)
-                    size = 50,   // (3)
-                    direction = Direction.DESC,  // (4)
-                    sort = {     // (5)
-                        "publishedDate",
-                        "articleId"
-                        }
-                    ) Pageable pageable,
-            Model model) {
-        // ...
-        return "article/list";
-    }
+  @GetMapping("list")
+  public String list(@Validated ArticleSearchCriteriaForm form,
+          BindingResult result,
+          @PageableDefault( // (1)
+                  page = 0,    // (2)
+                  size = 50,   // (3)
+                  direction = Direction.DESC,  // (4)
+                  sort = {     // (5)
+                      "publishedDate",
+                      "articleId"
+                      }
+                  ) Pageable pageable,
+          Model model) {
+      // ...
+      return "article/list";
+  }
 
- .. tabularcolumns:: |p{0.10\linewidth}|p{0.70\linewidth}|p{0.20\linewidth}|
- .. list-table::
-    :header-rows: 1
-    :widths: 10 70 20
+.. tabularcolumns:: |p{0.10\linewidth}|p{0.70\linewidth}|p{0.20\linewidth}|
+.. list-table::
+  :header-rows: 1
+  :widths: 10 70 20
 
-    * - 項番
-      - 説明
-      - デフォルト値
-    * - | (1)
-      - | ``Pageable`` の引数に ``@PageableDefault`` アノテーションを指定する。
-      - | -
-    * - | (2)
-      - | ページ位置のデフォルト値を変更する場合は、 ``@PageableDefault`` のpage属性に値を指定する。
-        | 通常変更する必要はない。
-      - | "``0``"
-        | (1ページ目)
-    * - | (3)
-      - | 取得件数のデフォルト値を変更する場合は、 ``@PageableDefault`` のsize又はvalue属性に値を指定する。
-      - | ``10``
-    * - | (4)
-      - | ソート条件のデフォルト値を変更する場合は、 ``@PageableDefault`` のdirection属性に値を指定する。
-      - | ``Direction.ASC``
-        | (昇順)
-    * - | (5)
-      - | ソート条件のソート項目を指定する場合は、 ``@PageableDefault`` のsort属性にソート項目を指定する。
-        | 複数の項目でソートする場合は、ソートするプロパティ名を配列で指定する。
-      - | 空の配列
-        | (ソート項目なし)
+  * - 項番
+    - 説明
+    - デフォルト値
+  * - | (1)
+    - | \ ``Pageable``\ の引数に\ ``@PageableDefault``\ アノテーションを指定する。
+    - | -
+  * - | (2)
+    - | ページ位置のデフォルト値を変更する場合は、\ ``@PageableDefault``\ のpage属性に値を指定する。
+      | 通常変更する必要はない。
+    - | "\ ``0``\ "
+      | (1ページ目)
+  * - | (3)
+    - | 取得件数のデフォルト値を変更する場合は、\ ``@PageableDefault``\ のsize又はvalue属性に値を指定する。
+    - | \ ``10``\
+  * - | (4)
+    - | ソート条件のデフォルト値を変更する場合は、\ ``@PageableDefault``\ のdirection属性に値を指定する。
+    - | \ ``Direction.ASC``\
+      | (昇順)
+  * - | (5)
+    - | ソート条件のソート項目を指定する場合は、\ ``@PageableDefault``\ のsort属性にソート項目を指定する。
+      | 複数の項目でソートする場合は、ソートするプロパティ名を配列で指定する。
+      | 上記例のように設定した場合、\ ``ORDER BY publishedDate DESC, articleId DESC``\ のようなソート条件がQueryに追加される。
 
- 指定したソート条件のクエリへの反映法はO/RMapperにより異なる。
- 
- 上記例では、JPAの場合、 ``ORDER BY publishedDate DESC, articleId DESC`` というソート条件がQueryに追加される。
- Mybatisの場合、 ``ORDER BY publishedDate DESC, articleId DESC`` のようなOrder By句をQueryに追加することになる。
- 
- 詳細については
- 
- * :ref:`DataAccessMyBatis3HowToUsePageableObject`
- * :ref:`DataAccessJPAHowToUsePageableObject`
- 
- を参照されたい。
+      .. note::
+          
+        指定したソート条件のクエリへの反映法はO/RMapperにより異なる。
+          
+        詳細については以下を参照されたい。
 
- .. note:: **@PageableDefaultアノテーションで指定できるソート順について**
+        * \ :ref:`DataAccessMyBatis3HowToUsePageableObject`\
+        * \ :ref:`DataAccessJPAHowToUsePageableObject`\
 
-    ``@PageableDefault`` アノテーションで指定できるソート順は昇順か降順のどちらか一つなので、項目ごとに異なるソート順を指定したい場合は ``@org.springframework.data.web.SortDefaults`` アノテーションを使用する必要がある。
-    具体的には、 ``ORDER BY publishedDate DESC, articleId ASC`` というソート順にしたい場合である。
+    - | 空の配列
+      | (ソート項目なし)
 
- .. tip:: **取得件数のデフォルト値のみ変更する場合の指定方法**
+.. tip:: \ **@PageableDefaultアノテーションで指定できるソート順について**\
 
-    取得件数のデフォルト値のみ変更する場合は、 ``@PageableDefault(50)`` と指定することもできる。これは ``@PageableDefault(size = 50)`` と同じ動作となる。
+  \ ``@PageableDefault``\ アノテーションで指定できるソート順は昇順か降順のどちらか一つなので、項目ごとに異なるソート順を指定したい場合は\ ``@org.springframework.data.web.SortDefaults``\ アノテーションを使用する必要がある。
 
-|
+  具体的には、\ ``ORDER BY publishedDate DESC, articleId ASC``\ のようなソート順にしたい場合である。
 
-| ``@SortDefaults`` アノテーションを使用してデフォルト値を指定する方法について説明する。
-| ``@SortDefaults`` アノテーションは、ソート項目が複数あり、項目ごとに異なるソート順を指定したい場合に使用する。
+.. tip:: \ **取得件数のデフォルト値のみ変更する場合の指定方法**\
 
- .. code-block:: java
-
-    @RequestMapping("list")
-    public String list(
-            @Validated ArticleSearchCriteriaForm form,
-            BindingResult result,
-            @PageableDefault(size = 50)
-            @SortDefaults(  // (1)
-                    {
-                        @SortDefault(  // (2)
-                                     sort = "publishedDate",    // (3)
-                                     direction = Direction.DESC // (4)
-                                    ),
-                        @SortDefault(
-                                     sort = "articleId"
-                                    )
-                    }) Pageable pageable,
-            Model model) {
-        // ...
-        return "article/list";
-    }
-
-
- .. tabularcolumns:: |p{0.10\linewidth}|p{0.70\linewidth}|p{0.20\linewidth}|
- .. list-table::
-    :header-rows: 1
-    :widths: 10 70 20
-
-    * - 項番
-      - 説明
-      - デフォルト値
-    * - | (1)
-      - | ``Pageable`` の引数に ``@SortDefaults`` アノテーションを指定する。
-        | ``@SortDefaults`` アノテーションには、複数の ``@org.springframework.data.web.SortDefault`` アノテーションを配列として指定することができる。
-      - | -
-    * - | (2)
-      - | ``@SortDefaults`` アノテーションの value属性に、 ``@SortDefault`` アノテーションを指定する。
-        | 複数指定する場合は配列として指定する。
-      - | -
-    * - | (3)
-      - | ``@PageableDefault`` のsort又はvalue属性にソート項目を指定する。
-        | 複数の項目を指定する場合は配列として指定する。
-      - | 空の配列
-        | (ソート項目なし)
-    * - | (4)
-      - | ソート条件のデフォルト値を変更する場合は、``@PageableDefault`` のdirection属性に値を指定する。
-      - | ``Direction.ASC``
-        | (昇順)
-
- 指定したソート条件のクエリへの反映法はO/RMapperにより異なるため、詳細については、
- 
- * :ref:`DataAccessMyBatis3HowToUsePageableObject`
- * :ref:`DataAccessJPAHowToUsePageableObject`
- 
- を参照されたい。
-
- .. tip:: **ソート項目のデフォルト値のみ指定する場合の指定方法**
-
-    取得項目のみ指定する場合は、 ``@PageableDefault("articleId")`` と指定することもできる。
-    これは ``@PageableDefault(sort = "articleId")`` や ``@PageableDefault(sort = "articleId", direction = Direction.ASC)`` と同じ動作となる。
+  取得件数のデフォルト値のみ変更する場合は、\ ``@PageableDefault(50)``\ と指定することもできる。これは\ ``@PageableDefault(size = 50)``\ と同じ動作となる。
 
 |
 
-アプリケーション全体のデフォルト値を変更する必要がある場合は、 :file:`spring-mvc.xml` に定義した ``PageableHandlerMethodArgumentResolver``
-の ``fallbackPageable`` プロパティにデフォルト値を定義した ``Pageable`` オブジェクトを指定する。
+| \ ``@SortDefaults``\ アノテーションを使用してデフォルト値を指定する方法について説明する。
+| \ ``@SortDefaults``\ アノテーションは、ソート項目が複数あり、項目ごとに異なるソート順を指定したい場合に使用する。
 
-``fallbackPageable`` の説明や具体的な設定例については、「 :ref:`paginatin_appendix_pageableHandlerMethodArgumentResolver` 」を参照されたい。
+.. code-block:: java
+
+  @RequestMapping("list")
+  public String list(
+          @Validated ArticleSearchCriteriaForm form,
+          BindingResult result,
+          @PageableDefault(size = 50)
+          @SortDefaults(  // (1)
+                  {
+                      @SortDefault(  // (2)
+                                   sort = "publishedDate",    // (3)
+                                   direction = Direction.DESC // (4)
+                                  ),
+                      @SortDefault(
+                                   sort = "articleId"
+                                  )
+                  }) Pageable pageable,
+          Model model) {
+      // ...
+      return "article/list";
+  }
+
+.. tabularcolumns:: |p{0.10\linewidth}|p{0.70\linewidth}|p{0.20\linewidth}|
+.. list-table::
+  :header-rows: 1
+  :widths: 10 70 20
+
+  * - 項番
+    - 説明
+    - デフォルト値
+  * - | (1)
+    - | \ ``Pageable``\ の引数に\ ``@SortDefaults``\ アノテーションを指定する。
+      | \ ``@SortDefaults``\ アノテーションには、複数の\ ``@org.springframework.data.web.SortDefault``\ アノテーションを配列として指定することができる。
+    - | -
+  * - | (2)
+    - | \ ``@SortDefaults``\ アノテーションの value属性に、\ ``@SortDefault``\ アノテーションを指定する。
+      | 複数指定する場合は配列として指定する。
+    - | -
+  * - | (3)
+    - | \ ``@PageableDefault``\ のsort又はvalue属性にソート項目を指定する。
+      | 複数の項目を指定する場合は配列として指定する。
+
+      .. note::
+          
+        指定したソート条件のクエリへの反映法はO/RMapperにより異なる。
+          
+        詳細については以下を参照されたい。
+
+        * \ :ref:`DataAccessMyBatis3HowToUsePageableObject`\
+        * \ :ref:`DataAccessJPAHowToUsePageableObject`\
+
+    - | 空の配列
+      | (ソート項目なし)
+  * - | (4)
+    - | ソート条件のデフォルト値を変更する場合は、``@PageableDefault`` のdirection属性に値を指定する。
+    - | \ ``Direction.ASC``\
+      | (昇順)
+
+.. tip:: \ **ソート項目のデフォルト値のみ指定する場合の指定方法**\
+
+  取得項目のみ指定する場合は、\ ``@PageableDefault("articleId")``\ と指定することもできる。これは\ ``@PageableDefault(sort = "articleId")``\ や\ ``@PageableDefault(sort = "articleId", direction = Direction.ASC)``\ と同じ動作となる。
+
+|
+
+アプリケーション全体のデフォルト値を変更する必要がある場合は、\ :file:`spring-mvc.xml`\ に定義した\ ``PageableHandlerMethodArgumentResolver``\ の\ ``fallbackPageable``\ プロパティにデフォルト値を定義した\ ``Pageable``\ オブジェクトを指定する。
+
+\ ``fallbackPageable``\ の説明や具体的な設定例については、「\ :ref:`paginatin_appendix_pageableHandlerMethodArgumentResolver`\ 」を参照されたい。
 
 |
 
@@ -899,14 +1038,14 @@ Spring Dataのページネーション機能を有効化するための設定
 
 ドメイン層の実装(MyBatis3編)
 """"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
-| MyBatisを使用してデータベースにアクセスする場合は、Controllerから受け取った ``Pageable`` オブジェクトより、必要な情報を抜き出してRepositoryに引き渡す。
+| MyBatisを使用してデータベースにアクセスする場合は、Controllerから受け取った\ ``Pageable``\ オブジェクトより、必要な情報を抜き出してRepositoryに引き渡す。
 | 該当データを抽出するためのSQLやソート条件については、SQLマッピングで実装する必要がある。
 
 ドメイン層で実装するページ検索処理の詳細については、
 
-* :ref:`DataAccessMyBatis3HowToUseFindPageUsingMyBatisFunction`
-* :ref:`DataAccessMyBatis3HowToUseFindPageUsingSqlFilter`
-* :ref:`DataAccessMyBatis3HowToUseFindPageUsingSort`
+* \ :ref:`DataAccessMyBatis3HowToUseFindPageUsingMyBatisFunction`\
+* \ :ref:`DataAccessMyBatis3HowToUseFindPageUsingSqlFilter`\
+* \ :ref:`DataAccessMyBatis3HowToUseFindPageUsingSort`\
 
 を参照されたい。
 
@@ -916,28 +1055,32 @@ Spring Dataのページネーション機能を有効化するための設定
 
 ドメイン層の実装(JPA編)
 """"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
-JPA(Spring Data JPA)を使用してデータベースにアクセスする場合は、Controllerから受け取った ``Pageable`` オブジェクトをRepositoryに引き渡す。
+JPA(Spring Data JPA)を使用してデータベースにアクセスする場合は、Controllerから受け取った\ ``Pageable``\ オブジェクトをRepositoryに引き渡す。
 
 ドメイン層で実装するページ検索処理の詳細については、
 
-* :ref:`DataAccessJpaHowToUseFindPage`
-
+* \ :ref:`DataAccessJpaHowToUseFindPage`\
 
 を参照されたい。
 
 |
 
-JSPの実装(基本編)
+ページネーションの実装
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-ページ検索処理で取得した ``Page`` オブジェクトを一覧画面に表示し、ページネーションリンク及びページネーション情報(合計件数、合計ページ数、表示ページ数など)を表示する方法を以下に示す。
+ページ検索処理で取得した\ ``Page``\ オブジェクトを一覧画面に表示し、ページネーションリンク及びページネーション情報(合計件数、合計ページ数、表示ページ数など)を表示する方法を以下に示す。
+
+|
+
+基本実装(JSP)
+""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 
 取得データの表示
-""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
+''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
 ページ検索処理で取得したデータを表示するための実装例を以下に示す。
 
 - Controller
 
- .. code-block:: java
+  .. code-block:: java
 
     @GetMapping("list")
     public String list(@Validated ArticleSearchCriteriaForm form, BindingResult result,
@@ -956,21 +1099,20 @@ JSPの実装(基本編)
         return "article/list";
     }
 
- .. tabularcolumns:: |p{0.10\linewidth}|p{0.90\linewidth}|
- .. list-table::
+  .. tabularcolumns:: |p{0.10\linewidth}|p{0.90\linewidth}|
+  .. list-table::
     :header-rows: 1
     :widths: 10 90
 
     * - 項番
       - 説明
     * - | (1)
-      - | ``page`` という属性名で ``Page`` オブジェクトを ``Model`` に格納する。
-        | JSPでは ``page`` という属性名を指定して ``Page`` オブジェクトにアクセスすることになる。
-
+      - | \ ``page``\ という属性名で\ ``Page``\ オブジェクトを\ ``Model``\ に格納する。
+        | JSPでは\ ``page``\ という属性名を指定して\ ``Page``\ オブジェクトにアクセスすることになる。
 
 - JSP
 
- .. code-block:: jsp
+  .. code-block:: jsp
 
     <%-- ... --%>
 
@@ -1020,8 +1162,8 @@ JSPの実装(基本編)
 
     <%-- ... --%>
 
- .. tabularcolumns:: |p{0.10\linewidth}|p{0.90\linewidth}|
- .. list-table::
+  .. tabularcolumns:: |p{0.10\linewidth}|p{0.90\linewidth}|
+  .. list-table::
     :header-rows: 1
     :widths: 10 90
 
@@ -1031,38 +1173,37 @@ JSPの実装(基本編)
       - | 上記例では、条件に一致するデータが存在するかチェックを行い、一致するデータがない場合はヘッダ行も含めて表示していない。
         | 一致するデータがない場合でもヘッダ行は表示させる必要がある場合は、この分岐は不要となる。
     * - | (2)
-      - | JSTLの ``<c:forEach>`` タグを使用して、取得したデータの一覧を表示する。
-        | 取得したデータは、 ``Page`` オブジェクトの ``content`` プロパティにリスト形式で格納されている。
+      - | JSTLの\ ``<c:forEach>``\ タグを使用して、取得したデータの一覧を表示する。
+        | 取得したデータは、\ ``Page``\ オブジェクトの\ ``content``\ プロパティにリスト形式で格納されている。
 
 - 上記JSPで出力される画面例
 
- .. figure:: ./images/pagination-how_to_use_view_list_screen.png
-   :alt: Screen image of content table
-   :width: 100%
-   :align: center
-
+  .. figure:: ./images_Pagination/pagination-how_to_use_view_list_screen.png
+    :alt: Screen image of content table
+    :width: 100%
+    :align: center
 
 |
 
 .. _pagination_how_to_use_make_jsp_basic_paginationlink:
 
 ページネーションリンクの表示
-""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
+''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
 ページ移動するためのリンク(ページネーションリンク)を表示するための実装例を以下に示す。
 
 共通ライブラリより提供しているJSPタグライブラリを使用して、ページネーションリンクを出力する。
 
-- :file:`include.jsp`
+- \ :file:`include.jsp`\
 
- 共通ライブラリより提供しているJSPタグライブラリの宣言を行う。ブランクプロジェクトでは設定済みの状態となっている。
+  共通ライブラリより提供しているJSPタグライブラリの宣言を行う。ブランクプロジェクトでは設定済みの状態となっている。
 
- .. code-block:: jsp
+  .. code-block:: jsp
 
     <%@ taglib uri="http://terasoluna.org/tags" prefix="t"%>       <%-- (1) --%>
     <%@ taglib uri="http://terasoluna.org/functions" prefix="f"%>  <%-- (2) --%>
 
- .. tabularcolumns:: |p{0.10\linewidth}|p{0.90\linewidth}|
- .. list-table::
+  .. tabularcolumns:: |p{0.10\linewidth}|p{0.90\linewidth}|
+  .. list-table::
     :header-rows: 1
     :widths: 10 90
 
@@ -1075,43 +1216,43 @@ JSPの実装(基本編)
 
 - JSP
 
- .. code-block:: jsp
+  .. code-block:: jsp
 
     <t:pagination page="${page}" /> <%-- (3) --%>
 
- .. tabularcolumns:: |p{0.10\linewidth}|p{0.90\linewidth}|
- .. list-table::
+  .. tabularcolumns:: |p{0.10\linewidth}|p{0.90\linewidth}|
+  .. list-table::
     :header-rows: 1
     :widths: 10 90
 
     * - 項番
       - 説明
     * - | (3)
-      - | ``<t:pagination>`` タグを使用する。 page属性には、 Controllerで ``Model`` に格納した ``Page`` オブジェクトを指定する。
+      - | \ ``<t:pagination>``\ タグを使用する。 page属性には、Controllerで\ ``Model``\ に格納した\ ``Page``\ オブジェクトを指定する。
 
 |
 
 - 出力されるHTML
 
- 下記の出力例は、``?page=0&size=6`` を指定して検索した際の結果である。
+  下記の出力例は、\ ``?page=0&size=6``\ を指定して検索した際の結果である。
 
- .. code-block:: html
+  .. code-block:: html
 
-     <ul>
-         <li class="disabled"><a href="javascript:void(0)">&lt;&lt;</a></li>
-         <li class="disabled"><a href="javascript:void(0)">&lt;</a></li>
-         <li class="active"><a href="javascript:void(0)">1</a></li>
-         <li><a href="?page=1&size=6">2</a></li>
-         <li><a href="?page=2&size=6">3</a></li>
-         <li><a href="?page=3&size=6">4</a></li>
-         <li><a href="?page=4&size=6">5</a></li>
-         <li><a href="?page=5&size=6">6</a></li>
-         <li><a href="?page=6&size=6">7</a></li>
-         <li><a href="?page=7&size=6">8</a></li>
-         <li><a href="?page=8&size=6">9</a></li>
-         <li><a href="?page=9&size=6">10</a></li>
-         <li><a href="?page=1&size=6">&gt;</a></li>
-         <li><a href="?page=9&size=6">&gt;&gt;</a></li>
+    <ul>
+        <li class="disabled"><a href="javascript:void(0)">&lt;&lt;</a></li>
+        <li class="disabled"><a href="javascript:void(0)">&lt;</a></li>
+        <li class="active"><a href="javascript:void(0)">1</a></li>
+        <li><a href="?page=1&size=6">2</a></li>
+        <li><a href="?page=2&size=6">3</a></li>
+        <li><a href="?page=3&size=6">4</a></li>
+        <li><a href="?page=4&size=6">5</a></li>
+        <li><a href="?page=5&size=6">6</a></li>
+        <li><a href="?page=6&size=6">7</a></li>
+        <li><a href="?page=7&size=6">8</a></li>
+        <li><a href="?page=8&size=6">9</a></li>
+        <li><a href="?page=9&size=6">10</a></li>
+        <li><a href="?page=1&size=6">&gt;</a></li>
+        <li><a href="?page=9&size=6">&gt;&gt;</a></li>
     </ul>
 
 |
@@ -1119,10 +1260,10 @@ JSPの実装(基本編)
 | ページネーションリンク用のスタイルシートを用意しないと以下のような表示となる。
 | 見てわかる通り、ページネーションリンクとして成立していない。
 
- .. figure:: ./images/pagination-how_to_use_jsp_not_applied_css.png
-   :alt: Screen image that style sheet is not applied.
-   :width: 120px
-   :height: 290px
+.. figure:: ./images_Pagination/pagination-how_to_use_jsp_not_applied_css.png
+  :alt: Screen image that style sheet is not applied.
+  :width: 120px
+  :height: 290px
 
 |
 
@@ -1130,14 +1271,14 @@ JSPの実装(基本編)
 
 - 画面イメージ
 
- .. figure:: ./images/pagination-how_to_use_jsp_applied_simple_css.png
-   :alt: Screen image that simple style sheet applied.
-   :width: 290px
-   :height: 40px
+  .. figure:: ./images_Pagination/pagination-how_to_use_jsp_applied_simple_css.png
+    :alt: Screen image that simple style sheet applied.
+    :width: 290px
+    :height: 40px
 
 - JSP
 
- .. code-block:: jsp
+  .. code-block:: jsp
 
     <%-- ... --%>
 
@@ -1146,8 +1287,8 @@ JSPの実装(基本編)
 
     <%-- ... --%>
 
- .. tabularcolumns:: |p{0.10\linewidth}|p{0.90\linewidth}|
- .. list-table::
+  .. tabularcolumns:: |p{0.10\linewidth}|p{0.90\linewidth}|
+  .. list-table::
     :header-rows: 1
     :widths: 10 90
 
@@ -1159,7 +1300,7 @@ JSPの実装(基本編)
 
 - スタイルシート
 
- .. code-block:: css
+  .. code-block:: css
 
     .pagination li {
         display: inline;
@@ -1182,18 +1323,1086 @@ JSPの実装(基本編)
 
 - 画面イメージ
 
- .. figure:: ./images/pagination-how_to_use_jsp_applied_bootstrap_v3_0_0_css.png
-   :alt: Screen image that v3.0.0 of bootstrap is applied.
-   :width: 520px
-   :height: 70px
+  .. figure:: ./images_Pagination/pagination-how_to_use_jsp_applied_bootstrap_v3_0_0_css.png
+    :alt: Screen image that v3.0.0 of bootstrap is applied.
+    :width: 520px
+    :height: 70px
 
 - スタイルシート
 
- | bootstrap v3.0.0 の cssファイルを ``$WEB_APP_ROOT/resources/vendor/bootstrap-3.0.0/css/bootstrap.css`` に配置する。
- | 以下、ページネーション関連のスタイル定義の抜粋。
+  | bootstrap v3.0.0 の cssファイルを\ ``$WEB_APP_ROOT/resources/vendor/bootstrap-3.0.0/css/bootstrap.css``\ に配置する。
+  | 以下、ページネーション関連のスタイル定義の抜粋。
+
+  .. code-block:: css
+
+    .pagination {
+      display: inline-block;
+      padding-left: 0;
+      margin: 20px 0;
+      border-radius: 4px;
+    }
+
+    .pagination > li {
+      display: inline;
+    }
+
+    .pagination > li > a,
+    .pagination > li > span {
+      position: relative;
+      float: left;
+      padding: 6px 12px;
+      margin-left: -1px;
+      line-height: 1.428571429;
+      text-decoration: none;
+      background-color: #ffffff;
+      border: 1px solid #dddddd;
+    }
+
+    .pagination > li:first-child > a,
+    .pagination > li:first-child > span {
+      margin-left: 0;
+      border-bottom-left-radius: 4px;
+      border-top-left-radius: 4px;
+    }
+
+    .pagination > li:last-child > a,
+    .pagination > li:last-child > span {
+      border-top-right-radius: 4px;
+      border-bottom-right-radius: 4px;
+    }
+
+    .pagination > li > a:hover,
+    .pagination > li > span:hover,
+    .pagination > li > a:focus,
+    .pagination > li > span:focus {
+      background-color: #eeeeee;
+    }
+
+    .pagination > .active > a,
+    .pagination > .active > span,
+    .pagination > .active > a:hover,
+    .pagination > .active > span:hover,
+    .pagination > .active > a:focus,
+    .pagination > .active > span:focus {
+      z-index: 2;
+      color: #ffffff;
+      cursor: default;
+      background-color: #428bca;
+      border-color: #428bca;
+    }
+
+    .pagination > .disabled > span,
+    .pagination > .disabled > a,
+    .pagination > .disabled > a:hover,
+    .pagination > .disabled > a:focus {
+      color: #999999;
+      cursor: not-allowed;
+      background-color: #ffffff;
+      border-color: #dddddd;
+    }
+
+- JSP
+
+  JSPでは配置したcssファイルを読み込む定義を追加する。
+
+  .. code-block:: jsp
+
+    <link rel="stylesheet"
+        href="${pageContext.request.contextPath}/resources/vendor/bootstrap-3.0.0/css/bootstrap.css"
+        type="text/css" media="screen, projection">
+
+|
+
+ページネーション情報の表示
+''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
+ページネーションに関連する情報(合計件数、合計ページ数、表示ページ数など)を表示するための実装例を以下に示す。
+
+- 画面例
+
+  .. figure:: ./images_Pagination/pagination-how_to_use_view_pagination_info1.png
+    :alt: Screen image of pagination information(total results, current pages, total pages)
+    :width: 400px
+    :height: 250px
+
+- JSP
+
+  .. code-block:: jsp
+
+    <div>
+        <fmt:formatNumber value="${page.totalElements}" /> results <%-- (1) --%>
+    </div>
+    <div>
+        ${f:h(page.number + 1) } /       <%-- (2) --%>
+        ${f:h(page.totalPages)} Pages    <%-- (3) --%>
+    </div>
+
+  .. tabularcolumns:: |p{0.10\linewidth}|p{0.90\linewidth}|
+  .. list-table::
+    :header-rows: 1
+    :widths: 10 90
+
+    * - 項番
+      - 説明
+    * - | (1)
+      - | 検索条件に一致するデータの合計件数を表示する場合は、\ ``Page``\ オブジェクトの\ ``totalElements``\ プロパティから値を取得する。
+    * - | (2)
+      - | 表示しているページのページ数を表示する場合は、\ ``Page``\ オブジェクトの\ ``number``\ プロパティから値を取得し、\ ``+1``\ する。
+        | \ ``Page``\ オブジェクトの\ ``number``\ プロパティは"\ ``0``\ " 開始のため、ページ番号を表示する際は\ ``+1``\ が必要となる。
+    * - | (3)
+      - | 検索条件に一致するデータの合計ページ数を表示する場合は、\ ``Page``\ オブジェクトの\ ``totalPages``\ プロパティから値を取得する。
+
+|
+
+該当ページの表示データ範囲を表示するための実装例を以下に示す。
+
+- 画面例
+
+  .. figure:: ./images_Pagination/pagination-how_to_use_view_pagination_info2.png
+    :alt: Screen image of pagination information(begin position, end position)
+    :width: 400px
+    :height: 250px
+
+- JSP
+
+  .. code-block:: jsp
+
+    <div>
+        <%-- (4) --%>
+        <fmt:formatNumber value="${(page.number * page.size) + 1}" /> -
+        <%-- (5) --%>
+        <fmt:formatNumber value="${(page.number * page.size) + page.numberOfElements}" />
+    </div>
+
+  .. tabularcolumns:: |p{0.10\linewidth}|p{0.90\linewidth}|
+  .. list-table::
+    :header-rows: 1
+    :widths: 10 90
+
+    * - 項番
+      - 説明
+    * - | (4)
+      - | 開始位置を表示する場合は、\ ``Page``\ オブジェクトの\ ``number``\ プロパティと\ ``size``\ プロパティを使って計算する。
+        | \ ``Page``\ オブジェクトの\ ``number``\ プロパティは"\ ``0``\ "開始のため、データ開始位置を表示する際は\ ``+1``\ が必要となる。
+    * - | (5)
+      - | 終了位置を表示する場合は、\ ``Page``\ オブジェクトの\ ``number``\ プロパティ、\ ``size``\ プロパティ、\ ``numberOfElements``\ プロパティ を使って計算する。
+        | 最終ページは端数となる可能性があるので、\ ``numberOfElements``\ を加算する必要がある。
+
+  .. tip:: \ **数値のフォーマットについて**\
+
+    表示する数値をフォーマットする必要がある場合は、JSTLから提供されているタグライブラリ(\ ``<fmt:formatNumber>``\ )を使用する。
+
+|
+
+.. _pagination_how_to_use_make_jsp_basic_search_criteria:
+
+ページリンクで検索条件を引き継ぐ
+''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
+検索条件をページ移動時のリクエストに引き継ぐ方法を、以下に示す。
+
+.. figure:: ./images_Pagination/pagination-how_to_use_view_take_over_search_criteria.png
+  :alt: Processing image of take over search criteria
+  :width: 100%
+  :align: center
+
+- JSP
+
+  .. code-block:: jsp
+
+    <%-- (1) --%>
+    <div id="criteriaPart">
+        <form:form action="${pageContext.request.contextPath}/article/list" method="get"
+            modelAttribute="articleSearchCriteriaForm">
+            <form:input path="word" />
+            <form:button>Search</form:button>
+            <br>
+        </form:form>
+    </div>
+
+    <%-- ... --%>
+
+    <t:pagination page="${page}"
+        outerElementClass="pagination"
+        criteriaQuery="${f:query(articleSearchCriteriaForm)}" /> <%-- (2) --%>
+
+  .. tabularcolumns:: |p{0.10\linewidth}|p{0.90\linewidth}|
+  .. list-table::
+    :header-rows: 1
+    :widths: 10 90
+
+    * - 項番
+      - 説明
+    * - | (1)
+      - | 検索条件を指定するフォーム。
+        | 検索条件として\ ``word``\ が存在する。
+    * - | (2)
+      - | ページ移動時のリクエストに検索条件を引き継ぐ場合は、\ ``criteriaQuery``\ 属性に\ **URLエンコーディング済みのクエリ文字列**\ を指定する。
+        | 検索条件をフォームオブジェクトに格納する場合は、共通ライブラリから提供しているELファンクション(\ ``f:query(Object)``\ ) を使用すると、簡単に条件を引き継ぐことができる。
+        | 上記例の場合、\ ``?page=ページ位置&size=取得件数&word=入力値``\ という形式のクエリ文字列が生成される。
+
+  .. note:: \ **f:query(Object) の仕様について**\
+
+    \ ``f:query``\ の引数には、フォームオブジェクトなどのJavaBeanと\ ``Map``\ オブジェクトを指定することができる。JavaBeanの場合はプロパティ名がリクエストパラメータ名となり、\ ``Map``\ オブジェクトの場合はマップのキー名がリクエストパラメータとなる。生成されるクエリ文字列は、UTF-8のURLエンコーディングが行われる。
+
+    terasoluna-gfw-web 5.0.1.RELEASEより、ネスト構造をもつJavaBeanと\ ``Map``\ オブジェクトを指定できるように改善されている。
+
+    \ ``f:query``\ の詳細な仕様(URLエンコーディングの仕様など)については、「\ :ref:`TagLibAndELFunctionsHowToUseELFunctionQuery`\ 」を参照されたい。
+
+  .. warning:: \ **f:queryを使用して生成したクエリ文字列をqueryTmpl属性に指定した際の動作について**\
+
+    \ ``f:query``\ を使用して生成したクエリ文字列をqueryTmpl属性に指定すると、URLエンコーディングが重複してしまい、特殊文字の引き継ぎが正しく行われないことが判明している。
+    
+    URLエンコーディングが重複してしまう事象については、terasoluna-gfw-web 1.0.1.RELEASE以上で利用可能な\ ``criteriaQuery``\ 属性を使用することで回避する事が出来る。
+    
+|
+
+ページリンクでソート条件を引き継ぐ
+''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
+ソート条件をページ移動時のリクエストに引き継ぐ方法を、以下に示す。
+
+- JSP
+
+  .. code-block:: jsp
+
+    <t:pagination page="${page}"
+        outerElementClass="pagination"
+        queryTmpl="page={page}&size={size}&sort={sortOrderProperty},{sortOrderDirection}" />  <%-- (1) --%>
+
+  .. tabularcolumns:: |p{0.10\linewidth}|p{0.90\linewidth}|
+  .. list-table::
+    :header-rows: 1
+    :widths: 10 90
+
+    * - 項番
+      - 説明
+    * - | (1)
+      - | ページ移動時のリクエストにソート条件を引き継ぐ場合は、\ ``queryTmpl``\ を指定し、クエリ文字列にソート条件を追加する。
+        | ソート条件を指定するためのパラメータの仕様については、「\ :ref:`ページ検索用のリクエストパラメータについて <pagination_overview_pagesearch_requestparameter>`\ 」を参照されたい。
+        | 上記例の場合、\ ``?page=0&size=20&sort=ソート項目,ソート順(ASC or DESC)``\ がクエリ文字列となる。
+
+|
+
+.. _pagination_how_to_use_make_jsp_layout:
+
+レイアウト変更(JSP)
+""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
+
+先頭ページと最終ページに移動するリンクの削除
+''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
+「最初のページに移動するためのリンク」と「最後のページに移動するためのリンク」を削除するための実装例を、以下に示す。
+
+- 画面例
+
+  .. figure:: ./images_Pagination/pagination-how_to_use_view_remove_link1.png
+    :alt: Remove page link that move to first & last page
+    :width: 510px
+    :height: 140px
+
+- JSP
+
+  .. code-block:: jsp
+
+    <t:pagination page="${page}"
+        outerElementClass="pagination"
+        firstLinkText=""
+        lastLinkText="" /> <%-- (1) (2) --%>
+
+  .. tabularcolumns:: |p{0.10\linewidth}|p{0.90\linewidth}|
+  .. list-table::
+    :header-rows: 1
+    :widths: 10 90
+
+    * - 項番
+      - 説明
+    * - | (1)
+      - | 「最初のページに移動するためのリンク」を非表示にする場合は、\ ``<t:pagination>``\ タグの\ ``firstLinkText``\ 属性に\ ``""``\ を指定する。
+    * - | (2)
+      - | 「最後のページに移動するためのリンク」を非表示にする場合は、\ ``<t:pagination>``\ タグの\ ``lastLinkText``\ 属性に\ ``""``\ を指定する。
+
+|
+
+前ページと次ページに移動するリンクの削除
+''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
+「前のページに移動するためのリンク」と「次のページに移動するためのリンク」を削除するための実装例を、以下に示す。
+
+- 画面例
+
+  .. figure:: ./images_Pagination/pagination-how_to_use_view_remove_link2.png
+    :alt: Remove page link that move to previous & next page
+    :width: 470
+    :height: 220px
+
+- JSP
+
+  .. code-block:: jsp
+
+    <t:pagination page="${page}"
+        outerElementClass="pagination"
+        previousLinkText=""
+        nextLinkText="" /> <%-- (1) (2) --%>
+
+  .. tabularcolumns:: |p{0.10\linewidth}|p{0.90\linewidth}|
+  .. list-table::
+    :header-rows: 1
+    :widths: 10 90
+
+    * - 項番
+      - 説明
+    * - | (1)
+      - | 「前のページに移動するためのリンク」を非表示にする場合は、\ ``<t:pagination>``\ タグの previousLinkText属性に\ ``""``\ を指定する。
+    * - | (2)
+      - | 「次のページに移動するためのリンク」を非表示にする場合は、\ ``<t:pagination>``\ タグの nextLinkText属性に\ ``""``\ を指定する。
+
+|
+
+disabled状態のリンクの削除
+''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
+| \ ``disabled``\ 状態のリンクを削除するための実装例を、以下に示す。
+| \ ``disabled``\ 時のスタイルシートに、以下の定義を追加する。
+
+- 画面例
+
+  .. figure:: ./images_Pagination/pagination-how_to_use_view_remove_link3.png
+    :alt: Remove page link that move to previous & next page
+    :width: 530
+    :height: 200px
+
+- スタイルシート
+
+  .. code-block:: css
+
+    .pagination .disabled {
+        display: none;  /* (1) */
+    }
+
+  .. tabularcolumns:: |p{0.10\linewidth}|p{0.90\linewidth}|
+  .. list-table::
+    :header-rows: 1
+    :widths: 10 90
+
+    * - 項番
+      - 説明
+    * - | (1)
+      - | \ ``disabled``\ クラスの属性値として、\ ``display: none;``\ を指定する。
+
+|
+
+指定ページへ移動するリンクの最大表示数の変更
+''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
+指定したページに移動するためのリンクの最大表示数を変更するための実装例を、以下に示す。
+
+- 画面例
+
+  .. figure:: ./images_Pagination/pagination-how_to_use_view_change_maxsize.png
+    :alt: change max display count of page link that move to specified page
+    :width: 450
+    :height: 220px
+
+- JSP
+
+  .. code-block:: jsp
+
+    <t:pagination page="${page}"
+        outerElementClass="pagination"
+        maxDisplayCount="5" /> <%-- (1) --%>
+
+  .. tabularcolumns:: |p{0.10\linewidth}|p{0.90\linewidth}|
+  .. list-table::
+    :header-rows: 1
+    :widths: 10 90
+
+    * - 項番
+      - 説明
+    * - | (1)
+      - | 指定したページに移動するためのリンクの最大表示数を変更する場合は、\ ``<t:pagination>``\ タグの\ ``maxDisplayCount``\ 属性に値を指定する。
+
+|
+
+指定ページへ移動するリンクの削除
+''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
+| 指定したページに移動するためのリンクを削除するための実装例を、以下に示す。
+
+- 画面例
+
+  .. figure:: ./images_Pagination/pagination-how_to_use_view_remove_link4.png
+    :alt: Remove page link that move to specified page
+    :width: 410
+    :height: 220px
+
+- JSP
+
+  .. code-block:: jsp
+
+    <t:pagination page="${page}"
+        outerElementClass="pagination"
+        maxDisplayCount="0" /> <%-- (1) --%>
+
+  .. tabularcolumns:: |p{0.10\linewidth}|p{0.90\linewidth}|
+  .. list-table::
+    :header-rows: 1
+    :widths: 10 90
+
+    * - 項番
+      - 説明
+    * - | (1)
+      - | 指定したページに移動するためのリンクを非表示にする場合は、\ ``<t:pagination>``\ タグの\ ``maxDisplayCount``\ 属性に"\ ``0``\ "を指定する。
+
+|
+
+動作変更(JSP)
+""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
+
+ソート条件の指定
+''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
+クライアントからソート条件を指定するための実装例を、以下に示す。
+
+- 画面例
+
+  .. figure:: ./images_Pagination/pagination-how_to_use_view_sort.png
+    :alt: specify the sort condition
+    :width: 100%
+
+- JSP
+
+  .. code-block:: jsp
+
+    <div id="criteriaPart">
+        <form:form
+            action="${pageContext.request.contextPath}/article/search"
+            method="get" modelAttribute="articleSearchCriteriaForm">
+            <form:input path="word" />
+            <%-- (1) --%>
+            <form:select path="sort">
+                <form:option value="publishedDate,DESC">Newest</form:option>
+                <form:option value="publishedDate,ASC">Oldest</form:option>
+            </form:select>
+            <form:button>Search</form:button>
+            <br>
+        </form:form>
+    </div>
+
+  .. tabularcolumns:: |p{0.10\linewidth}|p{0.90\linewidth}|
+  .. list-table::
+    :header-rows: 1
+    :widths: 10 90
+
+    * - 項番
+      - 説明
+    * - | (1)
+      - | クライアントからソート条件を指定する場合は、ソート条件を指定するためのパラメータを追加する。
+        | ソート条件を指定するためのパラメータの仕様については、「\ :ref:`ページ検索用のリクエストパラメータについて <pagination_overview_pagesearch_requestparameter>`\ 」を参照されたい。
+        | 上記例では、publishedDateの昇順と降順をプルダウンで選択できるようにしている。
+
+|
+
+.. _PaginationHowToUseDisablePageLinkUsingJavaScript:
+
+JavaScriptを使用したページリンクの無効化
+''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
+デフォルトでは、\ ``disabled``\ 状態と\ ``active``\ 状態のページリンク押下時の動作を無効化するために、\ ``<t:pagination>``\ タグの\ ``disabledHref``\ 属性に\ ``javascript:void(0)``\ を設定している。
+この状態でページリンクにフォーカスを移動又はマウスオーバーすると、ブラウザのステータスバーに\ ``javascript:void(0)``\ が表示されることがある。
+この挙動を変えたい場合は、JavaScriptを使用してページリンク押下時の動作を無効化する必要がある。
+
+以下に実装例を示す。
+
+\ **JSP**\
+
+.. code-block:: jsp
+
+  <%-- (1) --%>
+  <script type="text/javascript"
+          src="${pageContext.request.contextPath}/resources/vendor/js/jquery.js"></script>
+
+  <%-- (2) --%>
+  <script type="text/javascript">
+      $(function(){
+          $(document).on("click", ".disabled a, .active a", function(){
+              return false;
+          });
+      });
+  </script>
+
+  <%-- ... --%>
+
+  <%-- (3) --%>
+  <t:pagination page="${page}" disabledHref="#" />
+
+.. tabularcolumns:: |p{0.10\linewidth}|p{0.90\linewidth}|
+.. list-table::
+  :header-rows: 1
+  :widths: 10 90
+
+  * - 項番
+    - 説明
+  * - | (1)
+    - jQueryのjsファイルを読み込む。
+
+      上記例では、JavaScriptを使用してページリンク押下時の動作を無効化するためにjQueryのAPIを利用する。
+  * - | (2)
+    - jQueryのAPIを使用して、\ ``disabled``\ 状態と\ ``active``\ 状態のページリンクのクリックイベントを無効化する。
+
+      ただし、\ ``<t:pagination>``\ タグの\ ``enableLinkOfCurrentPage``\ 属性に\ ``true``\ を指定している場合は、\ ``active``\ 状態のページリンクのクリックイベントを無効化してはいけない。
+  * - | (3)
+    - \ ``disabledHref``\ 属性に"\ ``#``\ "を指定する。
+
+|
+
+Thymeleafの実装
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+テンプレートHTMLの実装
+""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
+ページ検索処理で取得した\ ``Page``\ オブジェクトからデータを取得し、ページネーションを行う画面に取得したデータ、ページネーションリンク、ページネーションに関する情報(合計件数、合計ページ数、表示ページ数など)を表示する方法について説明する。
+
+| ページネーションリンクやページネーション情報の表示は、アプリケーション内で共通的に使用されるため部品化することを推奨する。
+| また、ページネーションリンクの出力範囲や該当ページの表示データ範囲の計算等の複雑な計算ロジックはテンプレートHTMLではなくJavaで実装することを推奨する。
+
+そのため、ここでは以下の構成でテンプレートHTMLの実装を行う例を示す。
+
+.. tabularcolumns:: |p{0.40\linewidth}|p{0.60\linewidth}|
+.. list-table::
+  :header-rows: 1
+  :widths: 40 60
+
+  * - 成果物の構成要素
+    - 説明
+  * - | テンプレートHTML（ページネーションを行う画面）
+    - | 取得したデータの一覧の表示を実装する
+  * - | テンプレートHTML（フラグメント）
+    - | すべてのテンプレートHTML（ページネーションを行う画面）で同様の、ページネーションリンクやページネーション情報の表示の実装を共通化する
+  * - | 式オブジェクト
+    - | ページネーションリンクの出力範囲や該当ページの表示データ範囲の計算ロジックを実装する
+
+| なお、「\ :ref:`アプリケーション層の実装<pagination_how_to_use_page_search_impl_app>`\ 」の例では、\ ``Page``\ オブジェクトを\ ``page``\ という名前で\ ``Model``\ に格納している。
+| そのため、テンプレートHTMLの実装では\ ``page``\ という名前を指定して\ ``Page``\ オブジェクトにアクセスすることができる。
+
+取得データの表示
+''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
+ページ検索処理で取得したデータを表示するための実装例を以下に示す。
+データの表示内容は画面ごとに異なるため、共通化せずテンプレートHTML（ページネーションを行う画面）に実装すると良い。
+
+- テンプレートHTML（ページネーションを行う画面）
+
+  .. code-block:: html
+
+    <!--/* ... */-->
+    
+    <!--/* (1) */-->
+    <div th:if="${page} != null" th:remove="tag">
+    
+      <table class="maintable">
+
+        <thead>
+          <tr>
+            <th>No</th>
+            <th>Class</th>
+            <th>Title</th>
+            <th>Overview</th>
+            <th>Published Date</th>
+          </tr>
+        </thead>
+
+        <!--/* (2) */-->
+        <tbody>
+          <tr th:each="article, status : ${page.content}" th:object="${article}">
+            <td class="no" th:text="*{articleId}"></td>
+            <td class="articleClass" th:text="*{articleClass.name}"></td>
+            <td class="title" th:text="*{title}"></td>
+            <td class="overview" th:text="*{overview}"></td>
+            <td class="date"
+              th:text="*{#dates.format(publishDate, 'yyyy/MM/dd HH:mm:ss')}"></td>
+          </tr>
+        </tbody>
+
+      </table>
+    
+    </div>
+    
+    <!--/* ... */-->
+
+  .. tabularcolumns:: |p{0.10\linewidth}|p{0.90\linewidth}|
+  .. list-table::
+    :header-rows: 1
+    :widths: 10 90
+
+    * - 項番
+      - 説明
+    * - | (1)
+      - | 上記例では、条件に一致するデータが存在するかチェックを行い、一致するデータがない場合はヘッダ行も含めて表示していない。
+        | 一致するデータがない場合でもヘッダ行は表示させる必要がある場合は、この分岐は不要となる
+    * - | (2)
+      - | \ ``th:each``\ 属性を使用して、取得したデータの一覧を表示する。
+        | 取得したデータは、\ ``Page``\ オブジェクトの\ ``content``\ プロパティにリスト形式で格納されている。
+
+- 上記テンプレートHTMLで出力される画面例
+
+  .. figure:: ./images_Pagination/pagination-how_to_use_view_list_screen.png
+    :alt: Screen image of content table
+    :width: 100%
+    :align: center
+
+|
+
+.. _pagination_how_to_use_make_thymeleaf_basic_paginationlink:
+
+ページネーションリンクの表示
+''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
+| ページ移動するためのリンク(ページネーションリンク)は、「\ :ref:`ページネーションリンクの構成<pagination_overview_page_display_paginationlink_structure>`\ 」にて説明した以下の5つのパーツに分けて出力を行う。
+
+* 最初のページに移動するためのリンク
+* 前のページに移動するためのリンク
+* 指定したページに移動するためのリンク
+* 次のページに移動するためのリンク
+* 最後のページに移動するためのリンク
+
+| 「指定したページに移動するためのリンク」の出力では、表示するリンクの範囲(開始位置、終了位置)を計算し出力数を制御する必要があり、複雑な計算ロジックを実装することになるため、テンプレートHTMLではなくJavaで実装することを推奨する。
+| ここでは、表示するリンクの範囲(開始位置、終了位置)の計算を式オブジェクトに実装する方法を実装例として採用する。
+|
+| また、ページネーションリンクはアプリケーション内で共通的に使用されるため、ページネーションリンクを生成するテンプレートHTMLをフラグメントとして定義する例を実装例として採用する。
+| そのため、以下の流れで「ページネーションリンクの表示」の実装例を説明する。
+
+#. \ :ref:`リンクの出力範囲を計算する式オブジェクトを実装する <pagination_how_to_use_make_thymeleaf_basic_paginationlink_link_expressionobject>`\
+#. \ :ref:`フラグメントにページネーションリンクのHTMLを実装する<pagination_how_to_use_make_thymeleaf_basic_paginationlink_impl_fragment>`\
+#. \ :ref:`ページネーションを行う画面にフラグメントを利用してページネーションリンクを表示する<pagination_how_to_use_make_thymeleaf_basic_paginationlink_impl_usefragment>`\
+
+|
+
+.. note:: \ **指定したページに移動するためのリンクの出力範囲の計算の実装方法について**\
+
+  この章で説明している式オブジェクトを使用した実装方法はあくまでも一例であり、実装方法を規定するものではない。他に以下のような実装方法があるため、プロジェクトの開発方針に則り実装していただきたい。
+
+  * \ ``Page``\ オブジェクトを拡張し、表示するリンクの範囲(開始位置、終了位置)を計算、保持する。
+  * ControllerのHelperクラスでリンクの範囲(開始位置、終了位置)を計算する。
+
+|
+
+.. _pagination_how_to_use_make_thymeleaf_basic_paginationlink_link_expressionobject:
+
+リンクの出力範囲を計算する式オブジェクトを実装する
+>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
+
+| 「指定したページに移動するためのリンク」の出力では、表示するリンクの範囲(開始位置、終了位置)を計算し出力数を制御する必要があり、複雑な計算ロジックを実装することになるため、テンプレートHTMLではなくJavaで実装することを推奨する。
+| ここでは、表示するリンクの範囲(開始位置、終了位置)を計算するメソッドを持つ式オブジェクトを実装し、カスタムダイアレクトを追加する方法について説明する。
+| カスタムダイアレクトの追加の詳細については、「\ :ref:`カスタムダイアレクトの追加 <thymeleaf_how_to_extend_add_custom_dialect>`\ 」を参照されたい。
+
+|
+
+| 追加するカスタムダイアレクトの使用例は以下の通りである。
+
+\ **テンプレート記述例**\
+
+| ここでは、Pageオブジェクトとリンクの最大表示数を入力として、ページ番号のリストを出力する\ ``#pageInfo.sequence( Pageオブジェクト, リンクの最大表示数)``\ メソッドを追加する。これを\ ``th:each``\ 属性の引数として利用することで、指定したページに移動するためのリンクを繰り返し出力する。
+| なお、以下に示す実装例では操作可否の制御(\ ``disabled``\ 及び\ ``active``\ )は行っていない。
+
+.. code-block:: html
+
+  <li th:each="i : ${#pageInfo.sequence(page, 5)}">
+    <a th:href="@{/sample(page=${i-1},size=${page.size})}" th:text="${i}"></a>
+  </li>
+
+\ **独自属性の処理結果**\
+
+ページサイズが10、ページリンクの出力範囲が1から5までの場合、以下のように出力される。
+
+.. code-block:: html
+
+  <li><a href="/sample?page=0&amp;size=10">1</a></li>
+  <li><a href="/sample?page=1&amp;size=10">2</a></li>
+  <li><a href="/sample?page=2&amp;size=10">3</a></li>
+  <li><a href="/sample?page=3&amp;size=10">4</a></li>
+  <li><a href="/sample?page=4&amp;size=10">5</a></li>
+
+| まず、式オブジェクトを実装する。実装例を以下に示す。
+
+\ **実装例**\
+
+.. code-block:: java
+
+  import org.apache.poi.ss.formula.functions.T;
+  import org.springframework.data.domain.Page;
+  import org.thymeleaf.util.NumberUtils;
+
+  public class PageInfo {
+
+      // (1)
+      public Integer[] sequence(Page<T> page, int pageLinkMaxDispNum) { 
+            
+          // (2)
+          int begin = Math.max(1, page.getNumber() + 1 - pageLinkMaxDispNum / 2);
+          int end = begin + (pageLinkMaxDispNum - 1);
+          if (end > page.getTotalPages() - 1) {
+              end = page.getTotalPages();
+              begin = Math.max(1, end - (pageLinkMaxDispNum - 1));
+          }
+            
+          // (3)
+          return NumberUtils.sequence(begin, end);
+      }
+   }
+
+.. tabularcolumns:: |p{0.10\linewidth}|p{0.90\linewidth}|
+.. list-table::
+  :header-rows: 1
+  :widths: 10 90
+  :class: longtable
+
+  * - 項番
+    - 説明
+  * - | (1)
+    - | \ ``Page``\ オブジェクトとリンクの最大表示数を引数に取り、\ ``Integer[]``\ 型を返すメソッドを定義する。
+  * - | (2)
+    - | 表示するリンクの範囲(開始位置、終了位置)を計算する。
+      | \ ``Page``\ オブジェクトの\ ``number``\ プロパティは\ ``0``\ 開始のため、ページ番号を表示する際は\ ``+1``\ が必要となる。
+  * - | (3)
+    - | 計算したリンクの範囲(開始位置、終了位置)のリストを生成し返却する。
+
+| 次に、実装した式オブジェクトをテンプレートに適用するためにダイアレクトを実装する。実装例を以下に示す。
+
+\ **実装例（式オブジェクトの登録）**\
+
+.. code-block:: java
+
+  public class PageInfoDialect implements IExpressionObjectDialect {
+
+      // (1)
+      private static final String PAGE_INFO_DIALECT_NAME = "pageInfo";
+      private static final Set<String> EXPRESSION_OBJECT_NAMES = Collections
+              .singleton(PAGE_INFO_DIALECT_NAME);
+
+      @Override
+      public IExpressionObjectFactory getExpressionObjectFactory() {
+          return new IExpressionObjectFactory() {
+
+              // (1)
+              @Override
+              public Set<String> getAllExpressionObjectNames() {
+                  return EXPRESSION_OBJECT_NAMES;
+              }
+
+              // (2)
+              @Override
+              public Object buildObject(IExpressionContext context,
+                      String expressionObjectName) {
+                  if (PAGE_INFO_DIALECT_NAME.equals(expressionObjectName)) {
+                      return new PageInfo();
+                  }
+                  return null;
+              }
+    
+              @Override
+              public boolean isCacheable(String expressionObjectName) {
+                  return true;
+              }
+
+          };
+      }
+
+      // omitted
+        
+  }
+
+.. tabularcolumns:: |p{0.10\linewidth}|p{0.90\linewidth}|
+.. list-table::
+  :header-rows: 1
+  :widths: 10 90
+  :class: longtable
+
+  * - 項番
+    - 説明
+  * - | (1)
+    - | \ ``pageInfo``\ という名前で式オブジェクトを登録する。
+  * - | (2)
+    - | 実装した式オブジェクトを登録する。
+
+最後に、作成したカスタムダイアレクトの設定を行う。設定例を以下に示す。
+
+\ **spring-mvc.xml**\
+
+.. code-block:: xml
+
+  <bean id="templateEngine" class="org.thymeleaf.spring6.SpringTemplateEngine">
+
+      <!-- omitted -->
+
+      <property name="additionalDialects">
+          <set>
+              <bean class="org.thymeleaf.extras.springsecurity6.dialect.SpringSecurityDialect" />
+              <bean class="com.example.sample.dialect.PageInfoDialect"/> <!-- (1) -->
+          </set>
+      </property>
+  </bean>
+
+.. tabularcolumns:: |p{0.10\linewidth}|p{0.90\linewidth}|
+.. list-table::
+  :header-rows: 1
+  :widths: 10 90
+  :class: longtable
+
+  * - 項番
+    - 説明
+  * - | (1)
+    - | テンプレートエンジンに作成したカスタムダイアレクトを追加する。
+
+以上でカスタムダイアレクトの実装及び設定は完了となる。
+
+|
+
+.. _pagination_how_to_use_make_thymeleaf_basic_paginationlink_impl_fragment:
+
+フラグメントにページネーションリンクのHTMLを実装する
+>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
+ページネーションリンクのテンプレートHTMLのフラグメントの実装例を以下に示す。
+
+| 以降で説明する実装例は、\ ``th:fragment``\ 属性を利用してページネーションリンクのHTMLを部品化している。
+| ページネーションリンクは、アプリケーション内で共通的に使用されるため部品化することを推奨する。HTMLの部品化については、「\ :ref:`Thymeleafのテンプレートレイアウト機能を使用したHTMLの部品化 <templatelayout_overview_fragment>`\ 」を参照されたい。
+| また、実装例のhtmlに記述している\ ``${requestURI}``\ は、Thymeleafから\ ``Model``\ を介して\ ``HttpServletRequest``\ 内の\ ``requestURI``\ を利用する実装の例である。
+| ページネーションにおける\ ``requestURI``\ の利用は、アプリケーション全体で共通的に必要になるケースが多いと考えられるため、ここでは各ハンドラメソッドで個別に\ ``Model``\ に配置するのではなく、\ ``@ControllerAdvice``\ を利用してController全体の共通処理として実装する例を示す。
+| Thymeleafから\ ``HttpServletRequest``\ の内容を利用する際の注意点については、「\ :ref:`Web オブジェクト（HttpServletRequest、HttpSession等）の利用<thymeleaf_how_to_extend_add_web_object>`\ 」を参照されたい。
+
+以降、以下のファイル構成を前提に実装例を示す。
+
+- File Path
+
+  .. code-block:: console
+
+    WEB-INF
+      └─ views
+            └─ pgnt
+                  ├─ fragment.html     (フラグメントを定義するテンプレートHTML)
+                  └─ serchResult.html  (ページネーションを行う画面を実装するテンプレートHTML)
+
+- ControllerAdvice
+
+  .. code-block:: java
+
+    @ControllerAdvice
+    public class ThymeleafCommonControllerAdvice {
+        @ModelAttribute("requestURI") // (1)
+        public String requestURI(HttpServletRequest request) {
+            return request.getRequestURI();
+        }
+    }
+
+  .. tabularcolumns:: |p{0.10\linewidth}|p{0.90\linewidth}|
+  .. list-table::
+    :header-rows: 1
+    :widths: 10 90
+    :class: longtable
+  
+    * - 項番
+      - 説明
+    * - | (1)
+      - | テンプレートHTML(フラグメント)の\ ``${requestURI}``\ がアクセスするための\ ``@ModelAttribute``\ 。
+
+- テンプレートHTML(フラグメント)
+
+  .. code-block:: html
+ 
+    <!--/* ... */-->
+
+    <!--/* (1), (2) */-->
+    <div th:fragment="pagination (page)" th:object="${page}" th:remove="tag">
+       
+      <!--/* (3), (4) */-->
+      <ul th:if="*{totalElements} != 0" class="pagination"
+        th:with="pageLinkMaxDispNum = 10, disabledHref = 'javascript:void(0)', currentUrl = ${requestURI}">
+        
+        <!--/* (5) */-->
+        <li th:class="*{isFirst()} ? 'disabled'">
+          <!--/* (6) */-->
+          <a th:href="*{isFirst()} ? ${disabledHref} : @{{currentUrl}(currentUrl=${currentUrl},page=0,size=*{size})}">&lt;&lt;</a>
+        </li>
+        
+        <!--/* (7) */-->
+        <li th:class="*{isFirst()} ? 'disabled'">
+          <a th:href="*{isFirst()} ? ${disabledHref} : @{{currentUrl}(currentUrl=${currentUrl},page=*{number - 1},size=*{size})}">&lt;</a>
+        </li>
+        
+        <!--/* (8) */-->
+        <li th:each="i : ${#pageInfo.sequence(page, pageLinkMaxDispNum)}"
+          th:with="isActive=${i} == *{number + 1}" th:class="${isActive} ? 'active'">
+          <a th:href="${isActive} ? ${disabledHref} : @{{currentUrl}(currentUrl=${currentUrl},page=${i - 1},size=*{size})}" th:text="${i}"></a>
+        </li>
+        
+        <!--/* (9) */-->
+        <li th:class="*{isLast()} ? 'disabled'">
+          <a th:href="*{isLast()} ? ${disabledHref} : @{{currentUrl}(currentUrl=${currentUrl},page=*{number + 1},size=*{size})}">&gt;</a>
+        </li>
+        
+        <!--/* (10) */-->
+        <li th:class="*{isLast()} ? 'disabled'">
+          <a th:href="*{isLast()} ? ${disabledHref} : @{{currentUrl}(currentUrl=${currentUrl},page=*{totalPages - 1},size=*{size})}">&gt;&gt;</a>
+        </li>
+       
+      </ul>
+     
+    </div>
+    
+    <!--/* ... */-->
+
+  .. tabularcolumns:: |p{0.10\linewidth}|p{0.90\linewidth}|
+  .. list-table::
+    :header-rows: 1
+    :widths: 10 90
+    :class: longtable
+  
+    * - 項番
+      - 説明
+    * - | (1)
+      - | \ ``th:fragment``\ 属性を使用し、\ ``pagination``\ という名前でフラグメント化する。
+        | \ ``Page``\ オブジェクトをパラメータとして受け取るための引数\ ``page``\ を定義する。
+    * - | (2)
+      - | \ ``th:object``\ 属性にフラグメントの引数で受け取った\ ``Page``\ オブジェクトを指定し、以降の処理でオブジェクト名を省略してプロパティを指定可能にする。
+    * - | (3)
+      - | \ ``<ul>``\ 要素を出力する。
+        | \ ``th:if``\ 属性を用いてページの要素数が0ではない場合のみ\ ``<ul>``\ 要素を出力するように制御している。
+        | ページネーションリンクであることを示すクラス名\ ``pagination``\ を指定している。
+    * - | (4)
+      - | \ ``th:with``\ 属性にてページネーションリンクを表示する際に使用するローカル変数を定義している。
+        | \ ``pageLinkMaxDispNum``\ には、「指定したページに移動するためのリンク」の最大表示数を指定する。
+        | \ ``disabledHref``\ には、ページリンク押下時の動作を無効化する場合(\ ``active``\ 状態、または\ ``disabled``\ 状態)に\ ``th:href``\ 属性に指定する値を指定する。
+        | \ ``currentUrl``\ には、各ページリンクの\ ``th:href``\ 属性の設定に使用するURLのパスを設定する。
+
+        .. note:: \ **disabledHrefの設定値について**\
+
+          実装例では、\ ``disabledHref``\ には\ ``javascript:void(0)``\ を設定している。ページリンク押下時の動作を無効化するだけであれば、実装例と同じ設定でよい。
+
+          ただし、実装例の設定でページリンクにフォーカスを移動又はマウスオーバーした場合、ブラウザのステータスバーに\ ``javascript:void(0)``\ が表示されることがある。この挙動を変えたい場合は、JavaScriptを使用してページリンク押下時の動作を無効化する必要がある。
+
+        .. note:: \ **currentUrlの設定値について**\
+
+          実装例では\ ``th:href``\ 属性に前回リクエストのURLを指定するため、\ ``currentUrl``\ に\ ``HttpServletRequest``\ オブジェクトから取得したリクエストURIを設定している。\ ``th:href``\ 属性に前回リクエストのURLを指定するのであれば、実装例と同じ設定でよい。
+          
+          \ ``th:href``\ 属性に前回リクエストのURL以外を設定する場合は、アプリケーションの要件に応じて\ ``th:href``\ 属性の指定方法を変更すること。\ ``th:href``\ 属性に設定する値はフラグメントのパラメータとして受け取ることで対応可能である。
+
+    * - | (5)
+      - | 最初のページに移動するためのリンクを出力する。
+        | リンク先が現在のページである場合は\ ``disabled``\ 状態としている。
+        | リンクが不要な場合は\ ``<li>``\ 要素ごと削除すること。
+    * - | (6)
+      - | ページ移動するためのリクエストを送信する\ ``<a>``\ 要素を出力する。
+        | \ ``th:href``\ 属性は、現在のページが最初のページである場合は、ページリンク押下時の動作を無効化するため\ ``disabledHref``\ を指定する。そうでない場合には、リンクURL式\ ``@{}``\ を使用してリクエストURLを生成して指定する。リンクURL式\ ``@{}``\ に指定するパスには(4)で定義した\ ``currentUrl``\ を、パラメータにはページ位置と取得件数を指定する。
+        | \ ``th:href``\ 属性に指定するリクエストURLの生成の詳細については、「\ :ref:`リクエストURLを生成する <view_thymeleaf_requesturl-label>`\ 」を参照されたい。
+        | リンクとして表示する文字列は直接記載するか\ ``th:text``\ 属性を用いて出力する。
+        |
+        | \ ``<a>``\ 要素の基本的な構造は、以降の\ ``<a>``\ 要素も同様であるため説明は省略する。
+    * - | (7)
+      - | 前のページに移動するためのリンクを出力する。
+        | リンク先が現在のページである場合は\ ``disabled``\ 状態としている。
+        | \ ``<a>``\ 要素の属性は、現在のページが最初のページであるかを判定し、\ ``th:href``\ 属性に値を設定している。
+        | リンクが不要な場合は\ ``<li>``\ 要素ごと削除すること。
+    * - | (8)
+      - | 指定したページに移動するためのリンクを\ ``th:each``\ 属性を利用し、繰り返し処理を行うことで出力する。
+        | \ ``th:each``\ 属性に指定する配列は、「\ :ref:`指定したページに移動するためのリンクの出力範囲の計算 <pagination_how_to_use_make_thymeleaf_basic_paginationlink_link_expressionobject>`\ 」で作成したカスタムダイアレクトを使用して取得する。
+        | リンクが不要な場合は\ ``<li>``\ 要素ごと削除すること。
+    * - | (9)
+      - | 次のページに移動するためのリンクを出力する。
+        | リンク先が現在のページである場合は\ ``disabled``\ 状態としている。
+        | リンクが不要な場合は\ ``<li>``\ 要素ごと削除すること。
+    * - | (10)
+      - | 最後のページに移動するためのリンクを出力する。
+        | リンク先が現在のページである場合は\ ``disabled``\ 状態としている。
+        | リンクが不要な場合は\ ``<li>``\ 要素ごと削除すること。
+
+|
+
+.. _pagination_how_to_use_make_thymeleaf_basic_paginationlink_impl_usefragment:
+
+フラグメントを利用してページネーションリンクを表示する
+>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
+
+「\ :ref:`テンプレートHTML（フラグメント）にページネーションリンクのHTMLを実装する<pagination_how_to_use_make_thymeleaf_basic_paginationlink_impl_fragment>`\ 」で実装したフラグメントを利用してページネーションリンクを表示するテンプレートHTML実装例を以下に示す。
+
+- テンプレートHTML(ページネーションを行う画面)
+
+  .. code-block:: html
+ 
+    <!--/* ... */-->
+
+    <!--/* (1) */-->
+    <div th:replace="~{pgnt/fragment :: pagination (${page})}"></div>
+    
+    <!--/* ... */-->
 
 
- .. code-block:: css
+  .. tabularcolumns:: |p{0.10\linewidth}|p{0.90\linewidth}|
+  .. list-table::
+   :header-rows: 1
+   :widths: 10 90
+ 
+   * - 項番
+     - 説明
+   * - | (1)
+     - | \ ``th:replace``\ 属性を使用して、テンプレートである\ ``pgnt/fragment.html``\ の\ ``pagination``\ フラグメントの内容で\ ``div``\ タグ以下の内容を置換している。
+       | パラメータとして\ ``Page``\ オブジェクトを指定している。
+
+- 出力されるHTML
+
+  下記の出力例は、\ ``?page=0&size=10``\ を指定して検索した際の結果である。
+
+  .. code-block:: html
+
+    <ul>
+        <li class="disabled"><a href="javascript:void(0)">&lt;&lt;</a></li>
+        <li class="disabled"><a href="javascript:void(0)">&lt;</a></li>
+        <li class="active"><a href="javascript:void(0)">1</a></li>
+        <li><a href="?page=1&size=10">2</a></li>
+        <li><a href="?page=2&size=10">3</a></li>
+        <li><a href="?page=3&size=10">4</a></li>
+        <li><a href="?page=4&size=10">5</a></li>
+        <li><a href="?page=5&size=10">6</a></li>
+        <li><a href="?page=6&size=10">7</a></li>
+        <li><a href="?page=7&size=10">8</a></li>
+        <li><a href="?page=8&size=10">9</a></li>
+        <li><a href="?page=9&size=10">10</a></li>
+        <li><a href="?page=1&size=10">&gt;</a></li>
+        <li><a href="?page=9&size=10">&gt;&gt;</a></li>
+    </ul>
+
+|
+
+| ページネーションリンク用のスタイルシートを用意しないと以下のような表示となる。
+| 見てわかる通り、ページネーションリンクとして成立していない。
+
+.. figure:: ./images_Pagination/pagination-how_to_use_jsp_not_applied_css.png
+  :alt: Screen image that style sheet is not applied.
+  :width: 120px
+  :height: 290px
+
+|
+
+| ページネーションリンクとして成立する最低限のスタイルシートの定義の追加を行うと、以下のような表示となる。
+
+- 画面イメージ
+
+  .. figure:: ./images_Pagination/pagination-how_to_use_jsp_applied_simple_css.png
+    :alt: Screen image that simple style sheet applied.
+    :width: 290px
+    :height: 40px
+
+|
+
+ページネーションリンクとして成立したが、以下2つの問題が残る。
+
+* 押下できるリンクと押下できないリンクの区別ができない。
+* 現在表示しているページ位置がわからない。
+
+|
+
+上記の問題を解決する手段として、Bootstrap v3.0.0のスタイルシートと適用すると、以下のような表示となる。
+
+- 画面イメージ
+
+  .. figure:: ./images_Pagination/pagination-how_to_use_jsp_applied_bootstrap_v3_0_0_css.png
+    :alt: Screen image that v3.0.0 of bootstrap is applied.
+    :width: 520px
+    :height: 70px
+
+- スタイルシート
+
+  | bootstrap v3.0.0 の cssファイルを\ ``$WEB_APP_ROOT/resources/vendor/bootstrap-3.0.0/css/bootstrap.css``\ に配置する。
+  | 以下、ページネーション関連のスタイル定義の抜粋。
+
+  .. code-block:: css
 
     .pagination {
       display: inline-block;
@@ -1262,454 +2471,165 @@ JSPの実装(基本編)
     }
 
 
-- JSP
+- テンプレートHTML
 
- JSPでは配置したcssファイルを読み込む定義を追加する。
+  テンプレートHTMLでは配置したcssファイルを読み込む定義を追加する。
 
- .. code-block:: jsp
+  .. code-block:: html
 
-    <link rel="stylesheet"
-        href="${pageContext.request.contextPath}/resources/vendor/bootstrap-3.0.0/css/bootstrap.css"
-        type="text/css" media="screen, projection">
+    <!--/* ... */-->
+    
+    <link rel="stylesheet" th:href="@{/resources/vendor/bootstrap/dist/css/bootstrap.min.css}">
+    
+    <!--/* ... */-->
 
 |
 
 ページネーション情報の表示
-""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
+''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
 ページネーションに関連する情報(合計件数、合計ページ数、表示ページ数など)を表示するための実装例を以下に示す。
+
+ここでは、どの画面でも共通のページネーション情報を表示するため、テンプレートHTML（フラグメント）に実装する。また、ページネーション情報に出力する「該当ページの表示データ範囲」については、計算ロジックを伴うため式オブジェクトに実装する。
 
 - 画面例
 
- .. figure:: ./images/pagination-how_to_use_view_pagination_info1.png
-   :alt: Screen image of pagination information(total results, current pages, total pages)
-   :width: 400px
-   :height: 250px
+  .. figure:: ./images_Pagination/pagination-how_to_use_view_pagination_info1.png
+    :alt: Screen image of pagination information(total results, current pages, total pages)
+    :width: 400px
+    :height: 250px
 
-- JSP
+- テンプレートHTML（フラグメント）
 
- .. code-block:: jsp
-
-    <div>
-        <fmt:formatNumber value="${page.totalElements}" /> results <%-- (1) --%>
+  .. code-block:: html
+ 
+    <!--/* ... */-->
+    
+    <div th:fragment="paginationInfo (page)" th:object="${page}" th:remove="tag">
+      
+      <!--/* (1) */-->
+      <div class="text-center"
+        th:text="|*{totalElements} results|"></div>
+      
+      <!--/* (2), (3) */-->
+      <div th:if="*{totalElements} != 0" class="text-center"
+        th:text="|*{number + 1} / *{totalPages} Pages|"></div>
+    
     </div>
-    <div>
-        ${f:h(page.number + 1) } /       <%-- (2) --%>
-        ${f:h(page.totalPages)} Pages    <%-- (3) --%>
-    </div>
+    
+    <!--/* ... */-->
 
- .. tabularcolumns:: |p{0.10\linewidth}|p{0.90\linewidth}|
- .. list-table::
+
+  .. tabularcolumns:: |p{0.10\linewidth}|p{0.90\linewidth}|
+  .. list-table::
     :header-rows: 1
     :widths: 10 90
 
     * - 項番
       - 説明
     * - | (1)
-      - | 検索条件に一致するデータの合計件数を表示する場合は、 ``Page`` オブジェクトの ``totalElements`` プロパティから値を取得する。
+      - | 検索条件に一致するデータの合計件数を表示する場合は、\ ``Page``\ オブジェクトの\ ``totalElements``\ プロパティから値を取得する。
     * - | (2)
-      - | 表示しているページのページ数を表示する場合は、 ``Page`` オブジェクトの ``number`` プロパティから値を取得し、``+1`` する。
-        | ``Page`` オブジェクトの ``number`` プロパティは "``0``" 開始のため、 ページ番号を表示する際は ``+1`` が必要となる。
+      - | 表示しているページのページ数を表示する場合は、\ ``Page``\ オブジェクトの\ ``number``\ プロパティから値を取得し、\ ``+1``\ する。
+        | \ ``Page``\ オブジェクトの\ ``number``\ プロパティは\ ``0``\ 開始のため、ページ番号を表示する際は\ ``+1``\ が必要となる。
     * - | (3)
-      - | 検索条件に一致するデータの合計ページ数を表示する場合は、 ``Page`` オブジェクトの ``totalPages`` プロパティから値を取得する。
+      - | 検索条件に一致するデータの合計ページ数を表示する場合は、\ ``Page``\ オブジェクトの\ ``totalPages``\ プロパティから値を取得する。
 
 |
 
-該当ページの表示データ範囲を表示するための実装例を以下に示す。
+| 該当ページの表示データ範囲を表示するための実装例を以下に示す。
+| 該当ページの表示データ範囲の表示では最大で3つの変数を用いた複雑な計算ロジックを実装することになるため式オブジェクトを用いた実装例を示す。
+|
+| ここでは、式オブジェクトへ追加するメソッドの実装例のみを示す。式オブジェクトの登録や作成したカスタムダイアレクトの設定等については、「:ref:`リンクの出力範囲を計算する式オブジェクトを実装する <pagination_how_to_use_make_thymeleaf_basic_paginationlink_link_expressionobject>`」を参照されたい。
 
 - 画面例
 
- .. figure:: ./images/pagination-how_to_use_view_pagination_info2.png
-   :alt: Screen image of pagination information(begin position, end position)
-   :width: 400px
-   :height: 250px
+  .. figure:: ./images_Pagination/pagination-how_to_use_view_pagination_info2.png
+    :alt: Screen image of pagination information(begin position, end position)
+    :width: 400px
+    :height: 250px
 
-- JSP
+「\ :ref:`リンクの出力範囲を計算する式オブジェクトを実装する <pagination_how_to_use_make_thymeleaf_basic_paginationlink_link_expressionobject>`\ 」で作成した式オブジェクトに新たにメソッドを実装する。実装例を以下に示す。
 
- .. code-block:: jsp
+- 式オブジェクト
 
-    <div>
-        <%-- (4) --%>
-        <fmt:formatNumber value="${(page.number * page.size) + 1}" /> -
-        <%-- (5) --%>
-        <fmt:formatNumber value="${(page.number * page.size) + page.numberOfElements}" />
+  .. code-block:: java
+
+    public class PageInfo {
+
+        // omitted
+        
+        // (1)
+        public int firstItemNumInPage(Page<T> page) {
+            return page.getNumber() * page.getSize() + 1;
+        }
+
+        // (2)
+        public int lastItemNumInPage(Page<T> page) {
+            return page.getNumber() * page.getSize() + page.getNumberOfElements();
+        }
+
+    }
+
+  .. tabularcolumns:: |p{0.10\linewidth}|p{0.90\linewidth}|
+  .. list-table::
+    :header-rows: 1
+    :widths: 10 90
+    :class: longtable
+
+    * - 項番
+      - 説明
+    * - | (1)
+      - | \ ``Page``\ オブジェクトを引数に取り、該当ページの表示データの開始位置を返すメソッドを定義する。
+        | \ ``Page``\ オブジェクトの\ ``number``\ プロパティは\ ``0``\ 開始のため、データ開始位置を表示する際は\ ``+1``\ が必要となる。
+    * - | (2)
+      - | \ ``Page``\ オブジェクトを引数に取り、該当ページの表示データの終了位置を返すメソッドを定義する。
+        | 最終ページは端数となる可能性があるので、\ ``numberOfElements``\ を加算する必要がある。
+
+- テンプレートHTML（フラグメント）
+
+  .. code-block:: html
+ 
+    <!--/* ... */-->
+ 
+    <div th:fragment="paginationInfo (page)" th:object="${page}" th:remove="tag">
+    
+      <!--/* (4), (5) */-->
+      <div class="text-center"
+        th:text="|${#pageInfo.firstItemNumInPage(page)} - ${#pageInfo.lastItemNumInPage(page)}|">
+      </div>
+    
     </div>
+    
+    <!--/* ... */-->
 
- .. tabularcolumns:: |p{0.10\linewidth}|p{0.90\linewidth}|
- .. list-table::
+  .. tabularcolumns:: |p{0.10\linewidth}|p{0.90\linewidth}|
+  .. list-table::
     :header-rows: 1
     :widths: 10 90
 
     * - 項番
       - 説明
     * - | (4)
-      - | 開始位置を表示する場合は、 ``Page`` オブジェクトの ``number`` プロパティと ``size`` プロパティを使って計算する。
-        | ``Page`` オブジェクトの ``number`` プロパティは "``0``" 開始のため、データ開始位置を表示する際は ``+1`` が必要となる。
+      - | 開始位置を式オブジェクトを使用して取得する。
     * - | (5)
-      - | 終了位置を表示する場合は、 ``Page`` オブジェクトの ``number`` プロパティ、 ``size`` プロパティ、 ``numberOfElements`` プロパティ を使って計算する。
-        | 最終ページは端数となる可能性があるので、 ``numberOfElements`` を加算する必要がある。
+      - | 終了位置を式オブジェクトを使用して取得する。
 
- .. tip:: **数値のフォーマットについて**
+  .. tip:: \ **数値のフォーマットについて**\
 
-    表示する数値をフォーマットする必要がある場合は、 JSTLから提供されているタグライブラリ( ``<fmt:formatNumber>`` )を使用する。
+    表示する数値をフォーマットする必要がある場合は、Thymeleafから提供されているユーティリティメソッド\ ``#numbers.formatInteger()``\ を使用する。
 
+上記で定義したフラグメントを使用してページネーション情報を表示するテンプレートHTML（ページネーションを行う画面）の実装例は以下の通りとなる。
 
-|
+- テンプレートHTML（ページネーションを行う画面）
 
-.. _pagination_how_to_use_make_jsp_basic_search_criteria:
+  .. code-block:: html
+ 
+    <!--/* ... */-->
 
-ページリンクで検索条件を引き継ぐ
-""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
-検索条件をページ移動時のリクエストに引き継ぐ方法を、以下に示す。
-
- .. figure:: ./images/pagination-how_to_use_view_take_over_search_criteria.png
-   :alt: Processing image of take over search criteria
-   :width: 100%
-   :align: center
-
-- JSP
-
- .. code-block:: jsp
-
-    <%-- (1) --%>
-    <div id="criteriaPart">
-        <form:form action="${pageContext.request.contextPath}/article/list" method="get"
-            modelAttribute="articleSearchCriteriaForm">
-            <form:input path="word" />
-            <form:button>Search</form:button>
-            <br>
-        </form:form>
-    </div>
-
-    <%-- ... --%>
-
-    <t:pagination page="${page}"
-        outerElementClass="pagination"
-        criteriaQuery="${f:query(articleSearchCriteriaForm)}" /> <%-- (2) --%>
-
- .. tabularcolumns:: |p{0.10\linewidth}|p{0.90\linewidth}|
- .. list-table::
-    :header-rows: 1
-    :widths: 10 90
-
-    * - 項番
-      - 説明
-    * - | (1)
-      - | 検索条件を指定するフォーム。
-        | 検索条件として ``word`` が存在する。
-    * - | (2)
-      - | ページ移動時のリクエストに検索条件を引き継ぐ場合は、 \ ``criteriaQuery``\属性に\ **URLエンコーディング済みのクエリ文字列**\を指定する。
-        | 検索条件をフォームオブジェクトに格納する場合は、共通ライブラリから提供しているELファンクション( ``f:query(Object)`` ) を使用すると、簡単に条件を引き継ぐことができる。
-        | 上記例の場合、 \ ``?page=ページ位置&size=取得件数&word=入力値``\という形式のクエリ文字列が生成される。
-
- .. note:: **f:query(Object) の仕様について**
-
-    ``f:query`` の引数には、 フォームオブジェクトなどのJavaBeanと ``Map`` オブジェクトを指定することができる。
-    JavaBeanの場合はプロパティ名がリクエストパラメータ名となり、 ``Map`` オブジェクトの場合はマップのキー名がリクエストパラメータとなる。
-    生成されるクエリ文字列は、UTF-8のURLエンコーディングが行われる。
-
-    terasoluna-gfw-web 5.0.1.RELEASEより、ネスト構造をもつJavaBeanと\ ``Map``\ オブジェクトを指定できるように改善されている。
-
-    \ ``f:query``\ の詳細な仕様(URLエンコーディングの仕様など)については、「:ref:`TagLibAndELFunctionsHowToUseELFunctionQuery`」を参照されたい。
-
- .. warning:: **f:queryを使用して生成したクエリ文字列をqueryTmpl属性に指定した際の動作について**
-
-    \ ``f:query``\を使用して生成したクエリ文字列をqueryTmpl属性に指定すると、URLエンコーディングが重複してしまい、特殊文字の引き継ぎが正しく行われないことが判明している。
+    <div th:replace="~{pgnt/fragment :: paginationInfo (${page})}"></div>
     
-    URLエンコーディングが重複してしまう事象については、terasoluna-gfw-web 1.0.1.RELEASE以上で利用可能な\ ``criteriaQuery``\属性を使用することで回避する事が出来る。
-    
-|
-
-ページリンクでソート条件を引き継ぐ
-""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
-ソート条件をページ移動時のリクエストに引き継ぐ方法を、以下に示す。
-
-- JSP
-
- .. code-block:: jsp
-
-    <t:pagination page="${page}"
-        outerElementClass="pagination"
-        queryTmpl="page={page}&size={size}&sort={sortOrderProperty},{sortOrderDirection}" />  <%-- (1) --%>
-
- .. tabularcolumns:: |p{0.10\linewidth}|p{0.90\linewidth}|
- .. list-table::
-    :header-rows: 1
-    :widths: 10 90
-
-    * - 項番
-      - 説明
-    * - | (1)
-      - | ページ移動時のリクエストにソート条件を引き継ぐ場合は、 ``queryTmpl`` を指定し、クエリ文字列にソート条件を追加する。
-        | ソート条件を指定するためのパラメータの仕様については、「 :ref:`ページ検索用のリクエストパラメータについて <pagination_overview_pagesearch_requestparameter>` 」を参照されたい。
-        | 上記例の場合、 ``?page=0&size=20&sort=ソート項目,ソート順(ASC or DESC)`` がクエリ文字列となる。
-
-|
-
-.. _pagination_how_to_use_make_jsp_layout:
-
-JSPの実装(レイアウト変更編)
-^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-
-先頭ページと最終ページに移動するリンクの削除
-""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
-「最初のページに移動するためのリンク」と「最後のページに移動するためのリンク」を削除するための実装例を、以下に示す。
-
-- 画面例
-
- .. figure:: ./images/pagination-how_to_use_view_remove_link1.png
-   :alt: Remove page link that move to first & last page
-   :width: 510px
-   :height: 140px
-
-- JSP
-
- .. code-block:: jsp
-
-    <t:pagination page="${page}"
-        outerElementClass="pagination"
-        firstLinkText=""
-        lastLinkText="" /> <%-- (1) (2) --%>
-
- .. tabularcolumns:: |p{0.10\linewidth}|p{0.90\linewidth}|
- .. list-table::
-    :header-rows: 1
-    :widths: 10 90
-
-    * - 項番
-      - 説明
-    * - | (1)
-      - | 「最初のページに移動するためのリンク」を非表示にする場合は、 ``<t:pagination>`` タグの firstLinkText属性に ``""`` を指定する。
-    * - | (2)
-      - | 「最後のページに移動するためのリンク」を非表示にする場合は、 ``<t:pagination>`` タグの lastLinkText属性に ``""`` を指定する。
-
-|
-
-
-前ページと次ページに移動するリンクの削除
-""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
-「前のページに移動するためのリンク」と「次のページに移動するためのリンク」を削除するための実装例を、以下に示す。
-
-- 画面例
-
- .. figure:: ./images/pagination-how_to_use_view_remove_link2.png
-   :alt: Remove page link that move to previous & next page
-   :width: 470
-   :height: 220px
-
-- JSP
-
- .. code-block:: jsp
-
-    <t:pagination page="${page}"
-        outerElementClass="pagination"
-        previousLinkText=""
-        nextLinkText="" /> <%-- (1) (2) --%>
-
- .. tabularcolumns:: |p{0.10\linewidth}|p{0.90\linewidth}|
- .. list-table::
-    :header-rows: 1
-    :widths: 10 90
-
-    * - 項番
-      - 説明
-    * - | (1)
-      - | 「前のページに移動するためのリンク」を非表示にする場合は、 ``<t:pagination>`` タグの previousLinkText属性に ``""`` を指定する。
-    * - | (2)
-      - | 「次のページに移動するためのリンク」を非表示にする場合は、 ``<t:pagination>`` タグの nextLinkText属性に ``""`` を指定する。
-
-|
-
-disabled状態のリンクの削除
-""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
-| ``disabled`` 状態のリンクを削除するための実装例を、以下に示す。
-| ``disabled`` 時のスタイルシートに、以下の定義を追加する。
-
-- 画面例
-
- .. figure:: ./images/pagination-how_to_use_view_remove_link3.png
-   :alt: Remove page link that move to previous & next page
-   :width: 530
-   :height: 200px
-
-- スタイルシート
-
- .. code-block:: css
-
-    .pagination .disabled {
-        display: none;  /* (1) */
-    }
-
- .. tabularcolumns:: |p{0.10\linewidth}|p{0.90\linewidth}|
- .. list-table::
-    :header-rows: 1
-    :widths: 10 90
-
-    * - 項番
-      - 説明
-    * - | (1)
-      - | ``disabled`` クラスの属性値として、 ``display: none;`` を指定する。
-
-|
-
-指定ページへ移動するリンクの最大表示数の変更
-""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
-指定したページに移動するためのリンクの最大表示数を変更するための実装例を、以下に示す。
-
-- 画面例
-
- .. figure:: ./images/pagination-how_to_use_view_change_maxsize.png
-   :alt: change max display count of page link that move to specified page
-   :width: 450
-   :height: 220px
-
-- JSP
-
- .. code-block:: jsp
-
-    <t:pagination page="${page}"
-        outerElementClass="pagination"
-        maxDisplayCount="5" /> <%-- (1) --%>
-
- .. tabularcolumns:: |p{0.10\linewidth}|p{0.90\linewidth}|
- .. list-table::
-    :header-rows: 1
-    :widths: 10 90
-
-    * - 項番
-      - 説明
-    * - | (1)
-      - | 指定したページに移動するためのリンクの最大表示数を変更する場合は、 ``<t:pagination>`` タグの maxDisplayCount属性に値を指定する。
-
-|
-
-指定ページへ移動するリンクの削除
-""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
-| 指定したページに移動するためのリンクを削除するための実装例を、以下に示す。
-
-- 画面例
-
- .. figure:: ./images/pagination-how_to_use_view_remove_link4.png
-   :alt: Remove page link that move to specified page
-   :width: 410
-   :height: 220px
-
-- JSP
-
- .. code-block:: jsp
-
-    <t:pagination page="${page}"
-        outerElementClass="pagination"
-        maxDisplayCount="0" /> <%-- (1) --%>
-
- .. tabularcolumns:: |p{0.10\linewidth}|p{0.90\linewidth}|
- .. list-table::
-    :header-rows: 1
-    :widths: 10 90
-
-    * - 項番
-      - 説明
-    * - | (1)
-      - | 指定したページに移動するためのリンクを非表示にする場合は、 ``<t:pagination>`` タグの maxDisplayCount属性に "``0``" を指定する。
-
-
-|
-
-JSPの実装(動作編)
-^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-
-ソート条件の指定
-""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
-クライアントからソート条件を指定するための実装例を、以下に示す。
-
-- 画面例
-
- .. figure:: ./images/pagination-how_to_use_view_sort.png
-   :alt: specify the sort condition
-   :width: 100%
-
-- JSP
-
- .. code-block:: jsp
-
-    <div id="criteriaPart">
-        <form:form
-            action="${pageContext.request.contextPath}/article/search"
-            method="get" modelAttribute="articleSearchCriteriaForm">
-            <form:input path="word" />
-            <%-- (1) --%>
-            <form:select path="sort">
-                <form:option value="publishedDate,DESC">Newest</form:option>
-                <form:option value="publishedDate,ASC">Oldest</form:option>
-            </form:select>
-            <form:button>Search</form:button>
-            <br>
-        </form:form>
-    </div>
-
- .. tabularcolumns:: |p{0.10\linewidth}|p{0.90\linewidth}|
- .. list-table::
-    :header-rows: 1
-    :widths: 10 90
-
-    * - 項番
-      - 説明
-    * - | (1)
-      - | クライアントからソート条件を指定する場合は、 ソート条件を指定するためのパラメータを追加する。
-        | ソート条件を指定するためのパラメータの仕様については、「 :ref:`ページ検索用のリクエストパラメータについて <pagination_overview_pagesearch_requestparameter>` 」を参照されたい。
-        | 上記例では、publishedDateの昇順と降順をプルダウンで選択できるようにしている。
-
-|
-
-.. _PaginationHowToUseDisablePageLinkUsingJavaScript:
-
-JavaScriptを使用したページリンクの無効化
-""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
-デフォルトでは、\ ``disabled``\ 状態と\ ``active``\ 状態のページリンク押下時の動作を無効化するために、\ ``<t:pagination>``\ タグの\ ``disabledHref``\ 属性に\ ``javascript:void(0)``\ を設定している。
-この状態でページリンクにフォーカスを移動又はマウスオーバーすると、 ブラウザのステータスバーに\ ``javascript:void(0)``\ が表示されることがある。
-この挙動を変えたい場合は、JavaScriptを使用してページリンク押下時の動作を無効化する必要がある。
-
-以下に実装例を示す。
-
-**JSP**
-
-.. code-block:: jsp
-
-    <%-- (1) --%>
-    <script type="text/javascript"
-            src="${pageContext.request.contextPath}/resources/vendor/js/jquery.js"></script>
-
-    <%-- (2) --%>
-    <script type="text/javascript">
-        $(function(){
-            $(document).on("click", ".disabled a, .active a", function(){
-                return false;
-            });
-        });
-    </script>
-
-    <%-- ... --%>
-
-    <%-- (3) --%>
-    <t:pagination page="${page}" disabledHref="#" />
-
-.. tabularcolumns:: |p{0.10\linewidth}|p{0.90\linewidth}|
-.. list-table::
-    :header-rows: 1
-    :widths: 10 90
-
-    * - 項番
-      - 説明
-    * - | (1)
-      - jQueryのjsファイルを読み込む。
-
-        上記例では、JavaScriptを使用してページリンク押下時の動作を無効化するためにjQueryのAPIを利用する。
-    * - | (2)
-      - jQueryのAPIを使用して、\ ``disabled``\ 状態と\ ``active``\ 状態のページリンクのクリックイベントを無効化する。
-
-        ただし、\ ``<t:pagination>``\ タグの\ ``enableLinkOfCurrentPage``\ 属性に\ ``true``\ を指定している場合は、\ ``active``\ 状態のページリンクのクリックイベントを無効化してはいけない。
-    * - | (3)
-      - \ ``disabledHref``\ 属性に"\ ``#``\" を指定する。
-
+    <!--/* ... */-->
+   
 |
 
 .. _paginatin_appendix:
@@ -1719,13 +2639,13 @@ Appendix
 
 .. _paginatin_appendix_pageableHandlerMethodArgumentResolver:
 
-``PageableHandlerMethodArgumentResolver`` のプロパティ値について
+\ ``PageableHandlerMethodArgumentResolver``\ のプロパティ値について
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-| ``PageableHandlerMethodArgumentResolver`` で指定できるプロパティは以下の通り。
+| \ ``PageableHandlerMethodArgumentResolver``\ で指定できるプロパティは以下の通り。
 | アプリケーションの要件に応じて、値を変更すること。
 
- .. tabularcolumns:: |p{0.10\linewidth}|p{0.20\linewidth}|p{0.55\linewidth}|p{0.15\linewidth}|
- .. list-table::
+  .. tabularcolumns:: |p{0.10\linewidth}|p{0.20\linewidth}|p{0.55\linewidth}|p{0.15\linewidth}|
+  .. list-table::
     :header-rows: 1
     :widths: 10 20 55 15
     :class: longtable
@@ -1737,185 +2657,285 @@ Appendix
     * - 1.
       - maxPageSize
       - | 取得件数として許可する最大値を指定する。
-        | 指定された取得件数が ``maxPageSize`` を超えていた場合は、 ``maxPageSize`` が取得件数となる。
-      - |  `2000`
+        | 指定された取得件数が\ ``maxPageSize``\ を超えていた場合は、\ ``maxPageSize``\ が取得件数となる。
+      - | \ ``2000``\
     * - 2.
       - fallbackPageable
       - | アプリケーション全体のページ位置、取得件数、ソート条件のデフォルト値を指定する。
         | ページ位置、取得件数、ソート条件が指定されていない場合は、fallbackPageableに設定されている値が適用される。
-      - | ページ位置 : `0`
-        | 取得件数 : `20`
-        | ソート条件 : `null`
+      - | ページ位置 : \ ``0``\
+        | 取得件数 : \ ``20``\
+        | ソート条件 : \ ``null``\
     * - 3.
       - oneIndexedParameters
       - | ページ位置の開始値を指定する。
-        | `false` を指定した場合はページ位置の開始値は `0` となり、 `true` を指定した場合はページ位置の開始値は `1` となる。
-      - | `false`
+        | \ ``false``\ を指定した場合はページ位置の開始値は\ ``0``\ となり、\ ``true``\ を指定した場合はページ位置の開始値は\ ``1``\ となる。
+      - | \ ``false``\
     * - 4.
       - pageParameterName
       - | ページ位置を指定するためのリクエストパラメータ名を指定する。
-      - | ``page``
+      - | \ ``page``\
     * - 5.
       - sizeParameterName
       - | 取得件数を指定するためのリクエストパラメータ名を指定する。
-      - | ``size``
+      - | \ ``size``\
     * - 6.
       - prefix
       - | ページ位置と取得件数を指定するためのリクエストパラメータの接頭辞(ネームスペース)を指定する。
         | デフォルトのパラメータ名がアプリケーションで使用するパラメータと衝突する場合は、ネームスペースを指定することでリクエストパラメータ名の衝突を防ぐことが出来る。
-        | prefixを指定すると、ページ位置を指定するためのリクエストパラメータ名は ``prefix + pageParameterName`` 、取得件数を指定するためのリクエストパラメータ名は ``prefix + sizeParameterName`` となる。
-      - | ``""``
+        | prefixを指定すると、ページ位置を指定するためのリクエストパラメータ名は\ ``prefix + pageParameterName``\ 、取得件数を指定するためのリクエストパラメータ名は\ ``prefix + sizeParameterName``\ となる。
+      - | \ ``""``\
         | (ネームスペースなし)
     * - 7.
       - qualifierDelimiter
-      - | 同一リクエストで複数のページ検索が必要になる場合、ページ検索に必要な情報(検索対象のページ位置、取得件数など)を区別するために、リクエストパラメータ名は ``qualifier + delimiter + 標準パラメータ名`` の形式で指定する。
-        | 本プロパティは、上記形式の中の ``delimiter`` の値を設定する。
-        | この設定を変更する場合は、 ``SortHandlerMethodArgumentResolver`` の ``qualifierDelimiter`` 設定も合わせて変更する必要がある。
-      - | "``_``"
+      - | 同一リクエストで複数のページ検索が必要になる場合、ページ検索に必要な情報(検索対象のページ位置、取得件数など)を区別するために、リクエストパラメータ名は\ ``qualifier + delimiter + 標準パラメータ名``\ の形式で指定する。
+        | 本プロパティは、上記形式の中の\ ``delimiter``\ の値を設定する。
+        | この設定を変更する場合は、\ ``SortHandlerMethodArgumentResolver``\ の\ ``qualifierDelimiter``\ 設定も合わせて変更する必要がある。
+      - | "\ ``_``\ "
 
- .. note:: **maxPageSizeの設定値について**
+  .. note:: \ **maxPageSizeの設定値について**\
 
-    デフォルト値は ``2000`` であるが、アプリケーションが許容する最大値に設定を変更することを推奨する。
-    アプリケーションが許可する最大値が `100` ならば、maxPageSizeも `100` に設定する。
+    デフォルト値は\ ``2000``\ であるが、アプリケーションが許容する最大値に設定を変更することを推奨する。
+    
+    アプリケーションが許可する最大値が\ ``100``\ ならば、\ ``maxPageSize``\ も\ ``100``\ に設定する。
 
- .. note:: **fallbackPageableの設定方法について**
+  .. note:: \ **fallbackPageableの設定方法について**\
 
-    アプリケーション全体に適用するデフォルト値を変更する場合は、 ``fallbackPageable`` プロパティにデフォルト値が定義されている ``Pageable`` ( ``org.springframework.data.domain.PageRequest`` ) オブジェクトを設定する。
-    ソート条件のデフォルト値を変更する場合は、 ``SortHandlerMethodArgumentResolver`` の ``fallbackSort`` プロパティにデフォルト値が定義されている  ``org.springframework.data.domain.Sort`` オブジェクトを設定する。
+    アプリケーション全体に適用するデフォルト値を変更する場合は、\ ``fallbackPageable``\ プロパティにデフォルト値が定義されている\ ``Pageable``\ (\ ``org.springframework.data.domain.PageRequest``\ ) オブジェクトを設定する。
+    
+    ソート条件のデフォルト値を変更する場合は、\ ``SortHandlerMethodArgumentResolver``\ の\ ``fallbackSort``\ プロパティにデフォルト値が定義されている\ ``org.springframework.data.domain.Sort``\ オブジェクトを設定する。
 
 |
 
 開発するアプリケーション毎に変更が想定される以下の項目について、デフォルト値を変更する際の設定例を以下に示す。
 
-* 取得件数として許可する最大値( ``maxPageSize`` )
-* アプリケーション全体のページ位置、取得件数のデフォルト値( ``fallbackPageable`` )
-* ソート条件のデフォルト値( ``fallbackSort`` )
+* 取得件数として許可する最大値(\ ``maxPageSize``\ )
+* アプリケーション全体のページ位置、取得件数のデフォルト値(\ ``fallbackPageable``\ )
+* ソート条件のデフォルト値(\ ``fallbackSort``\ )
 
- .. code-block:: xml
+.. tabs::
+  .. group-tab:: Java Config
 
-    <mvc:annotation-driven>
-        <mvc:argument-resolvers>
-            <bean
-                class="org.springframework.data.web.PageableHandlerMethodArgumentResolver">
-                <!-- (1) -->
-                <property name="maxPageSize" value="100" />
-                <!-- (2) -->
-                <property name="fallbackPageable">
-                    <bean class="org.springframework.data.domain.PageRequest" factory-method="of">
-                        <!-- (3) -->
-                        <constructor-arg index="0" value="0" />
-                        <!-- (4) -->
-                        <constructor-arg index="1" value="50" />
-                    </bean>
-                </property>
-                <!-- (5) -->
-                <constructor-arg index="0">
-                    <bean class="org.springframework.data.web.SortHandlerMethodArgumentResolver">
-                        <!-- (6) -->
-                        <property name="fallbackSort">
-                            <bean class="org.springframework.data.domain.Sort" factory-method="by">
-                                <!-- (7) -->
-                                <constructor-arg index="0">
-                                    <list>
-                                        <!-- (8) -->
-                                        <bean class="org.springframework.data.domain.Sort.Order">
-                                            <!-- (9) -->
-                                            <constructor-arg index="0" value="DESC" />
-                                            <!-- (10) -->
-                                            <constructor-arg index="1" value="lastModifiedDate" />
-                                        </bean>
-                                        <!-- (8) -->
-                                        <bean class="org.springframework.data.domain.Sort.Order">
-                                            <constructor-arg index="0" value="ASC" />
-                                            <constructor-arg index="1" value="id" />
-                                        </bean>
-                                    </list>
-                                </constructor-arg>
-                            </bean>
-                        </property>
-                    </bean>
-                </constructor-arg>
-            </bean>
-        </mvc:argument-resolvers>
-    </mvc:annotation-driven>
+    .. code-block:: java
 
+      @EnableAspectJAutoProxy
+      @EnableWebMvc
+      @Configuration
+      public class SpringMvcConfig implements WebMvcConfigurer {
 
- .. tabularcolumns:: |p{0.10\linewidth}|p{0.90\linewidth}|
- .. list-table::
-    :header-rows: 1
-    :widths: 10 90
-    :class: longtable
+          @Override
+          public void addArgumentResolvers(
+                  List<HandlerMethodArgumentResolver> argumentResolvers) {
+              argumentResolvers.add(pageableHandlerMethodArgumentResolver());
+          }
+    
+          @Bean
+          public PageableHandlerMethodArgumentResolver pageableHandlerMethodArgumentResolver() {
+              PageableHandlerMethodArgumentResolver bean = new PageableHandlerMethodArgumentResolver(sortHandlerMethodArgumentResolver()); // (5)
+              bean.setMaxPageSize(100); // (1)
+              bean.setFallbackPageable(pageRequest()); // (2)
+              return bean;
+          }
 
-    * - 項番
-      - 説明
-    * - | (1)
-      - | 上記例では取得件数の最大値を `100` に設定している。 取得件数(size)に `101` 以上が指定された場合は、 `100` に切り捨てて検索が行われる。
-    * - | (2)
-      - | ``org.springframework.data.domain.PageRequest`` のインスタンスを生成し、 ``fallbackPageable`` に設定する。
-        | spring-data-commons 2.2.0より ``PageRequest`` クラスからpublicなコンストラクタが削除されたため、factory-methodを利用してstaticな ``PageRequest#of`` メソッドによりBeanを生成する必要がある。
-    * - | (3)
-      - | ``PageRequest#of`` メソッドの第1引数に、ページ位置のデフォルト値を指定する。
-        | 上記例では `0` を指定しているため、デフォルト値は変更していない。
-    * - | (4)
-      - | ``PageRequest#of`` メソッドの第2引数に、取得件数のデフォルト値を指定する。
-        | 上記例ではリクエストパラメータに取得件数の指定がない場合の取得件数は `50` となる。
-    * - | (5)
-      - | ``PageableHandlerMethodArgumentResolver`` のコンストラクタとして、 ``SortHandlerMethodArgumentResolver`` のインスタンスを設定する。
-    * - | (6)
-      - | ``Sort`` のインスタンスを生成し、 ``fallbackSort`` に設定する。
-        | spring-data-commons 2.2.0より ``Sort`` クラスからpublicなコンストラクタが削除されたため、factory-methodを利用してstaticな ``Sort#by`` メソッドによりBeanを生成する必要がある。
-    * - | (7)
-      - | ``Sort#by`` メソッドの第1引数に、 デフォルト値として使用する ``Order`` オブジェクトのリストを設定する。
-    * - | (8)
-      - | ``Order`` のインスタンスを生成し、 デフォルト値として使用する ``Order`` オブジェクトのリストに追加する。
-        | ソート条件のクエリへの反映法はO/RMapperにより異なるため、詳細については
-        | :ref:`DataAccessMyBatis3HowToUsePageableObject`
-        | :ref:`DataAccessJPAHowToUsePageableObject`
-        | を参照されたい。
-    * - | (9)
-      - | ``Order`` のコンストラクタの第1引数に、ソート順(ASC/DESC)を指定する。
-    * - | (10)
-      - | ``Order`` のコンストラクタの第2引数に、ソート項目を指定する。
+          @Bean
+          public PageRequest pageRequest() {
+              return PageRequest.of(0, 50); // (3)(4)
+          }
+
+          @Bean
+          public SortHandlerMethodArgumentResolver sortHandlerMethodArgumentResolver() {
+              SortHandlerMethodArgumentResolver bean = new SortHandlerMethodArgumentResolver();
+              bean.setFallbackSort(sort()); // (6)
+              return bean;
+          }
+      
+          @Bean
+          public Sort sort() {
+              List<Order> list = new ArrayList<Order>();
+              list.add(order()); // (8)
+              return Sort.by(list); // (7)
+          }
+      
+          @Bean
+          public Order order() {
+              return new Order(Direction.DESC, "article_id"); // (9)(10)
+          }
+    
+    .. tabularcolumns:: |p{0.10\linewidth}|p{0.90\linewidth}|
+    .. list-table::
+      :header-rows: 1
+      :widths: 10 90
+      :class: longtable
+    
+      * - 項番
+        - 説明
+      * - | (1)
+        - | 上記例では取得件数の最大値を\ ``100``\ に設定している。取得件数(size)に\ ``101``\ 以上が指定された場合は、\ ``100``\ に切り捨てて検索が行われる。
+      * - | (2)
+        - | \ ``org.springframework.data.domain.PageRequest``\ のインスタンスを生成し、\ ``fallbackPageable``\ に設定する。
+          | spring-data-commons 2.2.0より\ ``PageRequest``\ クラスからpublicなコンストラクタが削除されたため、factory-methodを利用してstaticな\ ``PageRequest#of``\ メソッドによりBeanを生成する必要がある。
+      * - | (3)
+        - | \ ``PageRequest#of``\ メソッドの第1引数に、ページ位置のデフォルト値を指定する。
+          | 上記例では\ ``0``\ を指定しているため、デフォルト値は変更していない。
+      * - | (4)
+        - | \ ``PageRequest#of``\ メソッドの第2引数に、取得件数のデフォルト値を指定する。
+          | 上記例ではリクエストパラメータに取得件数の指定がない場合の取得件数は\ ``50``\ となる。
+      * - | (5)
+        - | \ ``PageableHandlerMethodArgumentResolver``\ のコンストラクタとして、\ ``SortHandlerMethodArgumentResolver``\ のインスタンスを設定する。
+      * - | (6)
+        - | \ ``Sort``\ のインスタンスを生成し、\ ``fallbackSort``\ に設定する。
+          | spring-data-commons 2.2.0より\ ``Sort``\ クラスからpublicなコンストラクタが削除されたため、factory-methodを利用してstaticな\ ``Sort#by``\ メソッドによりBeanを生成する必要がある。
+      * - | (7)
+        - | \ ``Sort#by``\ メソッドの第1引数に、デフォルト値として使用する\ ``Order``\ オブジェクトのリストを設定する。
+      * - | (8)
+        - | \ ``Order``\ のインスタンスを生成し、デフォルト値として使用する\ ``Order``\ オブジェクトのリストに追加する。
+    
+          .. note::
+              
+            指定したソート条件のクエリへの反映法はO/RMapperにより異なる。
+              
+            詳細については以下を参照されたい。
+    
+            * \ :ref:`DataAccessMyBatis3HowToUsePageableObject`\
+            * \ :ref:`DataAccessJPAHowToUsePageableObject`\
+    
+      * - | (9)
+        - | \ ``Order``\ のコンストラクタの第1引数に、ソート順(ASC/DESC)を指定する。
+      * - | (10)
+        - | \ ``Order``\ のコンストラクタの第2引数に、ソート項目を指定する。
+
+  .. group-tab:: XML Config
+
+    .. code-block:: xml
+    
+      <mvc:annotation-driven>
+          <mvc:argument-resolvers>
+              <bean
+                  class="org.springframework.data.web.PageableHandlerMethodArgumentResolver">
+                  <!-- (1) -->
+                  <property name="maxPageSize" value="100" />
+                  <!-- (2) -->
+                  <property name="fallbackPageable">
+                      <bean class="org.springframework.data.domain.PageRequest" factory-method="of">
+                          <!-- (3) -->
+                          <constructor-arg index="0" value="0" />
+                          <!-- (4) -->
+                          <constructor-arg index="1" value="50" />
+                      </bean>
+                  </property>
+                  <!-- (5) -->
+                  <constructor-arg index="0">
+                      <bean class="org.springframework.data.web.SortHandlerMethodArgumentResolver">
+                          <!-- (6) -->
+                          <property name="fallbackSort">
+                              <bean class="org.springframework.data.domain.Sort" factory-method="by">
+                                  <!-- (7) -->
+                                  <constructor-arg index="0">
+                                      <list>
+                                          <!-- (8) -->
+                                          <bean class="org.springframework.data.domain.Sort.Order">
+                                              <!-- (9) -->
+                                              <constructor-arg index="0" value="DESC" />
+                                              <!-- (10) -->
+                                              <constructor-arg index="1" value="lastModifiedDate" />
+                                          </bean>
+                                          <!-- (8) -->
+                                          <bean class="org.springframework.data.domain.Sort.Order">
+                                              <constructor-arg index="0" value="ASC" />
+                                              <constructor-arg index="1" value="id" />
+                                          </bean>
+                                      </list>
+                                  </constructor-arg>
+                              </bean>
+                          </property>
+                      </bean>
+                  </constructor-arg>
+              </bean>
+          </mvc:argument-resolvers>
+      </mvc:annotation-driven>
+    
+    .. tabularcolumns:: |p{0.10\linewidth}|p{0.90\linewidth}|
+    .. list-table::
+      :header-rows: 1
+      :widths: 10 90
+      :class: longtable
+    
+      * - 項番
+        - 説明
+      * - | (1)
+        - | 上記例では取得件数の最大値を\ ``100``\ に設定している。取得件数(size)に\ ``101``\ 以上が指定された場合は、\ ``100``\ に切り捨てて検索が行われる。
+      * - | (2)
+        - | \ ``org.springframework.data.domain.PageRequest``\ のインスタンスを生成し、\ ``fallbackPageable``\ に設定する。
+          | spring-data-commons 2.2.0より\ ``PageRequest``\ クラスからpublicなコンストラクタが削除されたため、factory-methodを利用してstaticな\ ``PageRequest#of``\ メソッドによりBeanを生成する必要がある。
+      * - | (3)
+        - | \ ``PageRequest#of``\ メソッドの第1引数に、ページ位置のデフォルト値を指定する。
+          | 上記例では\ ``0``\ を指定しているため、デフォルト値は変更していない。
+      * - | (4)
+        - | \ ``PageRequest#of``\ メソッドの第2引数に、取得件数のデフォルト値を指定する。
+          | 上記例ではリクエストパラメータに取得件数の指定がない場合の取得件数は\ ``50``\ となる。
+      * - | (5)
+        - | \ ``PageableHandlerMethodArgumentResolver``\ のコンストラクタとして、\ ``SortHandlerMethodArgumentResolver``\ のインスタンスを設定する。
+      * - | (6)
+        - | \ ``Sort``\ のインスタンスを生成し、\ ``fallbackSort``\ に設定する。
+          | spring-data-commons 2.2.0より\ ``Sort``\ クラスからpublicなコンストラクタが削除されたため、factory-methodを利用してstaticな\ ``Sort#by``\ メソッドによりBeanを生成する必要がある。
+      * - | (7)
+        - | \ ``Sort#by``\ メソッドの第1引数に、デフォルト値として使用する\ ``Order``\ オブジェクトのリストを設定する。
+      * - | (8)
+        - | \ ``Order``\ のインスタンスを生成し、デフォルト値として使用する\ ``Order``\ オブジェクトのリストに追加する。
+    
+          .. note::
+              
+            指定したソート条件のクエリへの反映法はO/RMapperにより異なる。
+              
+            詳細については以下を参照されたい。
+    
+            * \ :ref:`DataAccessMyBatis3HowToUsePageableObject`\
+            * \ :ref:`DataAccessJPAHowToUsePageableObject`\
+    
+      * - | (9)
+        - | \ ``Order``\ のコンストラクタの第1引数に、ソート順(ASC/DESC)を指定する。
+      * - | (10)
+        - | \ ``Order``\ のコンストラクタの第2引数に、ソート項目を指定する。
 
 |
 
 .. _paginatin_appendix_sortHandlerMethodArgumentResolver:
 
-``SortHandlerMethodArgumentResolver`` のプロパティ値について
+\ ``SortHandlerMethodArgumentResolver``\ のプロパティ値について
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-| ``SortHandlerMethodArgumentResolver`` で指定できるプロパティは以下の通り。
+| \ ``SortHandlerMethodArgumentResolver``\ で指定できるプロパティは以下の通り。
 | アプリケーションの要件に応じて、値を変更すること。
 
- .. tabularcolumns:: |p{0.10\linewidth}|p{0.20\linewidth}|p{0.55\linewidth}|p{0.15\linewidth}|
- .. list-table::
-    :header-rows: 1
-    :widths: 10 20 55 15
+.. tabularcolumns:: |p{0.10\linewidth}|p{0.20\linewidth}|p{0.55\linewidth}|p{0.15\linewidth}|
+.. list-table::
+  :header-rows: 1
+  :widths: 10 20 55 15
 
-    * - 項番
-      - プロパティ名
-      - 説明
-      - デフォルト値
-    * - 1.
-      - fallbackSort
-      - | アプリケーション全体のソート条件のデフォルト値を指定する。
-        | ソート条件が指定されていない場合は、fallbackSortに設定されている値が適用される。
-      - | `null`
-        | (ソート条件なし)
-    * - 2.
-      - sortParameter
-      - | ソート条件を指定するためのリクエストパラメータ名を指定する。
-        | デフォルトのパラメータ名がアプリケーションで使用するパラメータと衝突する場合は、リクエストパラメータ名を変更することで衝突を防ぐことができる。
-      - | ``sort``
-    * - 3.
-      - propertyDelimiter
-      - | ソート項目及びソート順(ASC,DESC)の区切り文字を指定する。
-      - | "``,``"
-    * - 4.
-      - qualifierDelimiter
-      - | 同一リクエストで複数のページ検索が必要になる場合、ページ検索に必要な情報(ソート条件)を区別するために、リクエストパラメータ名は ``qualifier + delimiter + sortParameter`` の形式で指定する。
-        | 本プロパティは、上記形式の中の ``delimiter`` の値を設定する。
-      - | "``_``"
+  * - 項番
+    - プロパティ名
+    - 説明
+    - デフォルト値
+  * - 1.
+    - fallbackSort
+    - | アプリケーション全体のソート条件のデフォルト値を指定する。
+      | ソート条件が指定されていない場合は、fallbackSortに設定されている値が適用される。
+    - | \ ``null``\
+      | (ソート条件なし)
+  * - 2.
+    - sortParameter
+    - | ソート条件を指定するためのリクエストパラメータ名を指定する。
+      | デフォルトのパラメータ名がアプリケーションで使用するパラメータと衝突する場合は、リクエストパラメータ名を変更することで衝突を防ぐことができる。
+    - | \ ``sort``\
+  * - 3.
+    - propertyDelimiter
+    - | ソート項目及びソート順(ASC,DESC)の区切り文字を指定する。
+    - | "\ ``,``\ "
+  * - 4.
+    - qualifierDelimiter
+    - | 同一リクエストで複数のページ検索が必要になる場合、ページ検索に必要な情報(ソート条件)を区別するために、リクエストパラメータ名は\ ``qualifier + delimiter + sortParameter``\ の形式で指定する。
+      | 本プロパティは、上記形式の中の\ ``delimiter``\ の値を設定する。
+    - | "\ ``_``\ "
 
 .. raw:: latex
 
-   \newpage
+  \newpage

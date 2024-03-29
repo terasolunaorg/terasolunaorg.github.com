@@ -10,7 +10,7 @@ Spring MVCアーキテクチャ概要
 
 Spring MVCとは、Servlet APIをベースに構築されたフレームワークであり、リクエストによって実行するアクションを決定し処理の結果をHTMLとして返却する\ **M**\ odel、\ **V**\ iew、\ **C**\ ontrolerを用いたアーキテクチャのことである。
 
-詳しくは、\ `Spring Framework Documentation <https://docs.spring.io/spring-framework/docs/6.0.3/reference/html/web.html#mvc>`_\ を参照されたい。
+詳しくは、\ `Spring Framework Documentation <https://docs.spring.io/spring-framework/docs/6.1.3/reference/html/web.html#mvc>`_\ を参照されたい。
 
 |
 
@@ -41,6 +41,8 @@ Implementations of each component
 
 これまで説明したコンポーネントのうち、拡張可能なコンポーネントを紹介する。
 
+|
+
 Implementation of HandlerMapping
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
@@ -49,14 +51,13 @@ Springから提供されている\ ``HandlerMapping``\ のクラス階層を、�
 .. figure:: ./images_SpringMVCOverview/HandlerMapping-Hierarchy.png
   :alt: HandlerMapping Hierarchy
 
-
 | 通常使用するのは、\ ``org.springframework.web.servlet.mvc.method.annotation.RequestMappingHandlerMapping``\ である。
 | このクラスは、Bean定義されている\ ``Contorller``\ から\ ``@RequestMapping``\ アノテーションを読み取り、
 | URLと合致する\ ``Controller``\ のメソッドをHandlerクラスとして扱うクラスである。
 
 | Spring Framework 3.1からは、\ ``RequestMappingHandlerMapping``\ は、\ ``DispatcherServlet``\ が読み込むBean定義ファイルに、
 | \ ``<mvc:annotation-driven>``\ の設定がある場合、デフォルトで設定される。
-| (\ ``<mvc:annotation-driven>``\ アノテーションで有効になる設定は、\ `Spring Framework Documentation -Enable MVC Configuration- <https://docs.spring.io/spring-framework/docs/6.0.3/reference/html/web.html#mvc-config-enable>`_\ を参照されたい。)
+| (\ ``<mvc:annotation-driven>``\ アノテーションで有効になる設定は、\ `Spring Framework Documentation -Enable MVC Configuration- <https://docs.spring.io/spring-framework/docs/6.1.3/reference/html/web.html#mvc-config-enable>`_\ を参照されたい。)
 
 |
 
@@ -83,9 +84,13 @@ Springおよび依存ライブラリから提供されている\ ``ViewResolver`
 .. figure:: ./images_SpringMVCOverview/ViewResolver-Hierarchy.png
   :alt: ViewResolver Hierarchy
 
-通常(JSPを使う場合)は、
+JSPを使う場合は、
 
-* \ ``org.springframework.web.servlet.view.InternalResourceViewResolver``\ を使用するが、
+* \ ``org.springframework.web.servlet.view.InternalResourceViewResolver``\
+
+Thymeleafを使う場合は、
+
+*  \ ``org.thymeleaf.spring6.view.ThymeleafViewResolver``\ 
 
 ファイルダウンロード用にストリームを返す場合は
 
@@ -96,6 +101,7 @@ Springおよび依存ライブラリから提供されている\ ``ViewResolver`
 | 複数の種類の\ ``View``\ を扱う場合、\ ``ViewResolver``\ の定義が複数必要となるケースがある。
 | 複数の\ ``ViewResolver``\ を使う代表的な例として、ファイルのダウンロード処理が存在する画面アプリケーションが挙げられる。
 | 画面(JSP)は、\ ``InternalResourceViewResolver``\ で\ ``View``\ を解決し、
+| 画面(Thymeleaf)は、\ ``ThymeleafViewResolver``\ で\ ``View``\ を解決し、
 | ファイルダウンロードは、\ ``BeanNameViewResolver``\ などを使って\ ``View``\ を解決する。
 | 詳細は\ :doc:`../ArchitectureInDetail/WebApplicationDetail/FileDownload`\ を参照されたい。
 
@@ -110,7 +116,14 @@ Springおよび依存ライブラリから提供されている\ ``View``\ の�
   :alt: View Hierarchy
 
 | \ ``View``\ は、返したいレスポンスの種類によって変わる。
-| JSPを返す場合、\ ``org.springframework.web.servlet.view.JstlView``\ が使用される。
+
+* JSPを返す場合
+  
+  \ ``org.springframework.web.servlet.view.JstlView``\ が使用される
+
+* Thymeleafにより生成されたHTMLを返す場合
+  
+  \ ``org.thymeleaf.spring6.view.ThymeleafView``\ が使用される。
 
 | Springおよび依存ライブラリから提供されていない\ ``View``\ を扱いたい場合、\ ``View``\ インタフェースを実装したクラスを拡張する必要がある。
 | 詳細は\ :doc:`../ArchitectureInDetail/WebApplicationDetail/FileDownload`\ を参照されたい。
@@ -118,4 +131,3 @@ Springおよび依存ライブラリから提供されている\ ``View``\ の�
 .. raw:: latex
 
   \newpage
-

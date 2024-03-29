@@ -98,9 +98,9 @@ How to use
 
 .. code-block:: java
 
-   String str = "𠮷田太郎";
-   int lenOfChar = str.length(); // => 5
-   int lenOfCodePoint = str.codePointCount(0, lenOfChar); // => 4
+  String str = "𠮷田太郎";
+  int lenOfChar = str.length(); // => 5
+  int lenOfCodePoint = str.codePointCount(0, lenOfChar); // => 4
 
 |
 | また、Unicodeでは結合文字が存在する。
@@ -180,7 +180,7 @@ How to use
 | 
 | \ ``FullHalfConverter``\ クラスは、変換対象にしたい全角文字と半角文字のペア定義(\ ``org.terasoluna.gfw.common.fullhalf.FullHalfPair``\ )を事前に登録しておくスタイルを採用している。
 | 共通ライブラリでは、デフォルトのペア定義が登録されている\ ``FullHalfConverter``\ オブジェクトを、\ ``org.terasoluna.gfw.common.fullhalf.DefaultFullHalf``\ クラスの\ ``INSTANCE``\ 定数として提供している。
-| デフォルトのペア定義については、\ `DefaultFullHalfのソース <https://github.com/terasolunaorg/terasoluna-gfw/tree/5.8.1.RELEASE/terasoluna-gfw-common-libraries/terasoluna-gfw-string/src/main/java/org/terasoluna/gfw/common/fullhalf/DefaultFullHalf.java>`_\ を参照されたい。
+| デフォルトのペア定義については、\ `DefaultFullHalfのソース <https://github.com/terasolunaorg/terasoluna-gfw/tree/5.9.0.RELEASE/terasoluna-gfw-common-libraries/terasoluna-gfw-string/src/main/java/org/terasoluna/gfw/common/fullhalf/DefaultFullHalf.java>`_\ を参照されたい。
 
 .. note::
 
@@ -250,13 +250,13 @@ How to use
     - 説明
   * - | (1)
     - | 全角文字が含まれる文字列を\ ``toHalfwidth``\ メソッドの引数に渡し、半角文字列へ変換する。
-      | 本例では、\ ``A!ｱｶﾞｻ``\ に変換される。なお、ペア定義されていない文字（本例の"\ ``ｻ``\"）はそのまま返却される。
+      | 本例では、\ ``A!ｱｶﾞｻ``\ に変換される。なお、ペア定義されていない文字（本例の"\ ``ｻ``\ "）はそのまま返却される。
 
 .. note::
 
-  \ ``FullHalfConverter``\ は、2文字以上で1文字を表現する結合文字（例：「"\ ``シ``\" (\ ``\u30b7``\ ) + 濁点(\ ``\u3099``\ )」）を半角文字（例："\ ``ｼﾞ``\" ）へ変換することが出来ない。
+  \ ``FullHalfConverter``\ は、2文字以上で1文字を表現する結合文字（例：「"\ ``シ``\ " (\ ``\u30b7``\ ) + 濁点(\ ``\u3099``\ )」）を半角文字（例："\ ``ｼﾞ``\ " ）へ変換することが出来ない。
 
-  結合文字を半角文字へ変換する場合は、テキスト正規化を行って合成文字（例："\ ``ジ``\" (\ ``\u30b8``\ )）に変換してから \ ``FullHalfConverter``\ を使用する必要がある。
+  結合文字を半角文字へ変換する場合は、テキスト正規化を行って合成文字（例："\ ``ジ``\ " (\ ``\u30b8``\ )）に変換してから \ ``FullHalfConverter``\ を使用する必要がある。
     
   テキスト正規化を行う場合は、\ ``java.text.Normalizer``\ を使用する。なお、結合文字を合成文字に変換する場合は、正規化形式としてNFCまたはNFKCを利用する。
 
@@ -368,10 +368,10 @@ How to use
   * - | (1)
     - | \ ``org.terasoluna.gfw.common.fullhalf.FullHalfPairsBuilder``\ を使用して、全角文字と半角文字のペア定義のセットを表現する\ ``org.terasoluna.gfw.common.fullhalf.FullHalfPairs``\ を作成する。
   * - | (2)
-    - | \ ``DefaultFullHalf``\ では、全角文字の"\ ``ー``\" に対する半角文字を"\ ``ｰ``\" (\ ``\uFF70``\ )に設定しているところを、本例では"\ ``-``\" (\ ``\u002D``\ )に変更している。
-      | なお、"\ ``-``\" (\ ``\u002D``\ )は、下記(3)の処理対象にも含まれているが、先に定義したペア定義が優先される仕組みになっている。
+    - | \ ``DefaultFullHalf``\ では、全角文字の"\ ``ー``\ " に対する半角文字を"\ ``ｰ``\ " (\ ``\uFF70``\ )に設定しているところを、本例では"\ ``-``\ " (\ ``\u002D``\ )に変更している。
+      | なお、"\ ``-``\ " (\ ``\u002D``\ )は、下記(3)の処理対象にも含まれているが、先に定義したペア定義が優先される仕組みになっている。
   * - | (3)
-    - | 本例では、Unicodeの全角の"\ ``！``\" から"\ ``～``\" までと半角の"\ ``!``\" から"\ ``~``\" までのコード値を、コード値の並び順が同じであるという特徴を利用して、ループ処理を使ってペア定義を行っている。
+    - | 本例では、Unicodeの全角の"\ ``！``\ " から"\ ``～``\ " までと半角の"\ ``!``\ " から"\ ``~``\ " までのコード値を、コード値の並び順が同じであるという特徴を利用して、ループ処理を使ってペア定義を行っている。
   * - | (4)
     - | 上記(3)以外の文字はコード値の並び順が全角文字と半角文字で一致しないため、それぞれ個別にペア定義を行う。
   * - | (5)
@@ -379,7 +379,7 @@ How to use
 
 .. note::
 
-  \ ``FullHalfPairsBuilder#pair``\ メソッドの引数に指定可能な値については、\ `FullHalfPairのコンストラクタのJavaDoc <https://github.com/terasolunaorg/terasoluna-gfw/tree/5.8.1.RELEASE/terasoluna-gfw-common-libraries/terasoluna-gfw-string/src/main/java/org/terasoluna/gfw/common/fullhalf/FullHalfPair.java>`_\ を参照されたい。
+  \ ``FullHalfPairsBuilder#pair``\ メソッドの引数に指定可能な値については、\ `FullHalfPairのコンストラクタのJavaDoc <https://github.com/terasolunaorg/terasoluna-gfw/tree/5.9.0.RELEASE/terasoluna-gfw-common-libraries/terasoluna-gfw-string/src/main/java/org/terasoluna/gfw/common/fullhalf/FullHalfPair.java>`_\ を参照されたい。
 
 |
 
@@ -398,7 +398,7 @@ How to use
     - 説明
   * - | (1)
     - | 独自のペア定義が登録された \ ``FullHalfConverter``\ オブジェクトの\ ``toHalfwidth``\ メソッドを使用して、全角文字が含まれる文字列を半角文字列へ変換する。
-      | 本例では、\ ``ﾊﾛ-ﾜ-ﾙﾄﾞ!``\ に変換される。（"\ ``-``\" は \ ``\u002D``\ ）
+      | 本例では、\ ``ﾊﾛ-ﾜ-ﾙﾄﾞ!``\ に変換される。（"\ ``-``\ " は \ ``\u002D``\ ）
 
 |
 
@@ -538,7 +538,7 @@ How to use
 
   .. code-block:: java
 
-    CodePoints codePoints = new CodePoints("ab");         // (1)
+    CodePoints codePoints = new CodePoints("ab");      // (1)
 
   .. code-block:: java
 
@@ -567,7 +567,6 @@ How to use
 | コードポイント集合に対して集合演算を行い、新規のコードポイント集合のインスタンスを作成することが出来る。
 | なお、集合演算によって元のコードポイント集合の状態が変更されることは無い。
 | 集合演算を使用してコードポイント集合のインスタンスを作成する方法を以下に示す。
-
 
 \ **和集合メソッドを使用してコードポイント集合のインスタンスを作成する場合**\
 
@@ -914,9 +913,9 @@ Bean Validationと連携した文字列チェック
 
 .. note::
 
-  \ ``<artifactId>``\ が \ ``terasoluna-gfw-codepoints-xxx``\ （\ ``terasoluna-gfw-codepoints-jisx0201``\など）のライブラリでは依存関係として \ ``terasoluna-gfw-codepoints``\ を取り込んでいる。
+  \ ``<artifactId>``\ が \ ``terasoluna-gfw-codepoints-xxx``\ （\ ``terasoluna-gfw-codepoints-jisx0201``\ など）のライブラリでは依存関係として \ ``terasoluna-gfw-codepoints``\ を取り込んでいる。
     
-  そのため、 \ ``terasoluna-gfw-codepoints-xxx``\ のアーティファクト情報を取り込むことにより、\ ``terasoluna-gfw-codepoints``\が提供するコードポイント集合クラスも利用することができる。
+  そのため、 \ ``terasoluna-gfw-codepoints-xxx``\ のアーティファクト情報を取り込むことにより、\ ``terasoluna-gfw-codepoints``\ が提供するコードポイント集合クラスも利用することができる。
 
 .. note::
 

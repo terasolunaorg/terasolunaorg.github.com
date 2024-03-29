@@ -28,7 +28,7 @@ Overview
 
 .. note::
 
-  ブランクプロジェクトではデフォルトで\ ``<sec:form-login/>``\ タグと\ ``<sec:logout/>``\ タグが設定されており、Spring Securityのフォーム認証が有効となっている。
+  ブランクプロジェクトではデフォルトで\ ``HttpSecurity#formLogin``\ (\ ``<sec:form-login/>``\ タグ)と\ ``HttpSecurity#logout``\ (\ ``<sec:logout/>``\ タグ)が設定されており、Spring Securityのフォーム認証が有効となっている。
 
   フォーム認証を使用しない場合は、これらのタグを削除する必要がある。削除しない場合、ユーザから/login /logoutに対するリクエストがあると、想定外の認証処理が実行される可能性がある。
 
@@ -173,48 +173,98 @@ Spring Securityは、以下のような流れでフォーム認証を行う。
 
 フォーム認証を使用する場合は、以下のようなbean定義を行う。
 
-* spring-security.xmlの定義例
+.. tabs::
+  .. group-tab:: Java Config
 
-.. code-block:: xml
+    * SpringSecurityConfig.javaの定義例
+    
+    .. code-block:: java
 
-  <sec:http request-matcher="ant">
-      <sec:form-login />    <!-- (1) -->
-      <!-- omitted -->
-  </sec:http>
+      @Bean
+      public SecurityFilterChain filterChain(HttpSecurity http) {
+          http.formLogin(Customizer.withDefaults()); // (1)
+          // omitted
+          return http.build();
+      }
 
-.. tabularcolumns:: |p{0.10\linewidth}|p{0.90\linewidth}|
-.. list-table::
-  :header-rows: 1
-  :widths: 10 90
-
-  * - 項番
-    - 説明
-  * - | (1)
-    - | \ ``<sec:form-login>``\ タグを定義することで、フォーム認証が有効になる。
-
-.. tip:: \ **auto-config属性について**\
-
-  \ ``<sec:http>``\ には、フォーム認証(\ ``<sec:form-login>``\ タグ)、Basic認証(\ ``<sec:http-basic>``\ タグ)、ログアウト(\ ``<sec:logout>``\ タグ)に対するコンフィギュレーションを自動で行うか否かを指定する\ ``auto-config``\ 属性が用意されている。デフォルト値は\ ``false``\ (自動でコンフィギュレーションしない)となっており、Spring Securityのリファレンスドキュメントでもデフォルト値の使用が推奨されている。
-
-  本ガイドラインでも、明示的にタグを指定するスタイルを推奨する。
-
-    .. tabularcolumns:: |p{0.25\linewidth}|p{0.75\linewidth}|
+    .. tabularcolumns:: |p{0.10\linewidth}|p{0.90\linewidth}|
     .. list-table::
       :header-rows: 1
-      :widths: 25 75
-
-      * - 要素名
+      :widths: 10 90
+    
+      * - 項番
         - 説明
-      * - | \ ``<form-login>``\
-        - | フォーム認証処理を行うSecurity Filter(\ ``UsernamePasswordAuthenticationFilter``\ )が適用される。
-      * - | \ ``<http-basic>``\
-        - | RFC1945に準拠したBasic認証を行うSecurity Filter(\ ``BasicAuthenticationFilter``\ )が適用される。
-          | 詳細な利用方法は、\ `BasicAuthenticationFilterのJavaDoc <https://docs.spring.io/spring-security/site/docs/6.0.1/api/org/springframework/security/web/authentication/www/BasicAuthenticationFilter.html>`_\ を参照されたい。
-      * - | \ ``<logout>``\
-        - | ログアウト処理を行うSecurity Filter(\ ``LogoutFilter``\ )が適用される。
-          | ログアウト処理の詳細については、「\ :ref:`SpringSecurityAuthenticationLogout`\ 」を参照されたい。
+      * - | (1)
+        - | \ ``HttpSecurity#formLogin``\ を呼び出すことで、フォーム認証が有効になる。
+    
+    .. tip:: \ **auto-config属性について**\
 
-  なお、\ ``auto-config``\ を定義しない場合は、フォーム認証(\ ``<sec:form-login>``\ タグ)、もしくはBasic認証(\ ``<sec:http-basic>``\ タグ)を定義する必要がある。これは、ひとつの\ ``SecurityFilterChain``\ (\ ``<sec:http>``\ )内には、ひとつ以上のAuthentication FilterのBean定義が必要であるという、Spring Securityの仕様を満たすためである。
+      Java Config には、XML Config で設定可能な\ ``auto-config=true``\ に対応する設定は存在していない。
+
+      \ ``auto-config=true``\ に対応する設定は、フォーム認証(\ ``HttpSecurity#formLogin``\ )、Basic認証(\ ``HttpSecurity#httpBasic``\ )、ログアウト(\ ``HttpSecurity#logout``\ )のデフォルト値の使用と同等となる。
+    
+        .. tabularcolumns:: |p{0.25\linewidth}|p{0.75\linewidth}|
+        .. list-table::
+          :header-rows: 1
+          :widths: 25 75
+    
+          * - 要素名
+            - 説明
+          * - | \ ``formLogin(Customizer.withDefaults())``\
+            - | フォーム認証処理を行うSecurity Filter(\ ``UsernamePasswordAuthenticationFilter``\ )が適用される。
+          * - | \ ``httpBasic(Customizer.withDefaults())``\
+            - | RFC1945に準拠したBasic認証を行うSecurity Filter(\ ``BasicAuthenticationFilter``\ )が適用される。
+              | 詳細な利用方法は、\ `BasicAuthenticationFilterのJavaDoc <https://docs.spring.io/spring-security/site/docs/6.2.1/api/org/springframework/security/web/authentication/www/BasicAuthenticationFilter.html>`_\ を参照されたい。
+          * - | \ ``logout(Customizer.withDefaults())``\
+            - | ログアウト処理を行うSecurity Filter(\ ``LogoutFilter``\ )が適用される。
+              | ログアウト処理の詳細については、「\ :ref:`SpringSecurityAuthenticationLogout`\ 」を参照されたい。
+    
+      なお、フォーム認証(\ ``HttpSecurity#formLogin``\ )、もしくはBasic認証(\ ``HttpSecurity#httpBasic``\ )は必ず定義する必要がある。これは、ひとつの\ ``SecurityFilterChain``\ 内には、ひとつ以上のAuthentication FilterのBean定義が必要であるという、Spring Securityの仕様を満たすためである。
+
+  .. group-tab:: XML Config
+
+    * spring-security.xmlの定義例
+    
+    .. code-block:: xml
+    
+      <sec:http request-matcher="ant">
+          <sec:form-login />    <!-- (1) -->
+          <!-- omitted -->
+      </sec:http>
+    
+    .. tabularcolumns:: |p{0.10\linewidth}|p{0.90\linewidth}|
+    .. list-table::
+      :header-rows: 1
+      :widths: 10 90
+    
+      * - 項番
+        - 説明
+      * - | (1)
+        - | \ ``<sec:form-login>``\ タグを定義することで、フォーム認証が有効になる。
+    
+    .. tip:: \ **auto-config属性について**\
+    
+      \ ``<sec:http>``\ には、フォーム認証(\ ``<sec:form-login>``\ タグ)、Basic認証(\ ``<sec:http-basic>``\ タグ)、ログアウト(\ ``<sec:logout>``\ タグ)に対するコンフィギュレーションを自動で行うか否かを指定する\ ``auto-config``\ 属性が用意されている。デフォルト値は\ ``false``\ (自動でコンフィギュレーションしない)となっており、Spring Securityのリファレンスドキュメントでもデフォルト値の使用が推奨されている。
+    
+      本ガイドラインでも、明示的にタグを指定するスタイルを推奨する。
+    
+        .. tabularcolumns:: |p{0.25\linewidth}|p{0.75\linewidth}|
+        .. list-table::
+          :header-rows: 1
+          :widths: 25 75
+    
+          * - 要素名
+            - 説明
+          * - | \ ``<form-login>``\
+            - | フォーム認証処理を行うSecurity Filter(\ ``UsernamePasswordAuthenticationFilter``\ )が適用される。
+          * - | \ ``<http-basic>``\
+            - | RFC1945に準拠したBasic認証を行うSecurity Filter(\ ``BasicAuthenticationFilter``\ )が適用される。
+              | 詳細な利用方法は、\ `BasicAuthenticationFilterのJavaDoc <https://docs.spring.io/spring-security/site/docs/6.2.1/api/org/springframework/security/web/authentication/www/BasicAuthenticationFilter.html>`_\ を参照されたい。
+          * - | \ ``<logout>``\
+            - | ログアウト処理を行うSecurity Filter(\ ``LogoutFilter``\ )が適用される。
+              | ログアウト処理の詳細については、「\ :ref:`SpringSecurityAuthenticationLogout`\ 」を参照されたい。
+    
+      なお、\ ``auto-config``\ を定義しない場合は、フォーム認証(\ ``<sec:form-login>``\ タグ)、もしくはBasic認証(\ ``<sec:http-basic>``\ タグ)を定義する必要がある。これは、ひとつの\ ``SecurityFilterChain``\ (\ ``<sec:http>``\ )内には、ひとつ以上のAuthentication FilterのBean定義が必要であるという、Spring Securityの仕様を満たすためである。
 
 |
 
@@ -234,101 +284,208 @@ Spring Securityのデフォルトの動作では、\ ``/login``\ に対してGET
 | Spring Securityはフォーム認証用のログインフォームをデフォルトで提供しているが、そのまま利用するケースは少ない。
 | ここでは、自身で作成したログインフォームをSpring Securityに適用する方法を説明する。
 
-| まず、ログインフォームを表示するためのJSPを作成する。
+| まず、ログインフォームを表示するためのViewを作成する。
 | ここでは、Spring MVCでリクエストをうけてログインフォームを表示する際の実装例になっている。
 
-* ログインフォームを表示するためのJSPの作成例(xxx-web/src/main/webapp/WEB-INF/views/login/loginForm.jsp)
+.. tabs::
+  .. group-tab:: JSP
 
-.. code-block:: jsp
+    * xxx-web/src/main/webapp/WEB-INF/views/login/loginForm.jsp
 
-  <%@ page contentType="text/html;charset=UTF-8" pageEncoding="UTF-8" %>
-  <%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
-  <%@ taglib prefix="sec" uri="http://www.springframework.org/security/tags" %>
-  <%-- omitted --%>
-  <div id="wrapper">
-      <h3>Login Screen</h3>
-      <%-- (1) --%>
-      <c:if test="${param.containsKey('error')}">
-          <t:messagesPanel messagesType="error"
-              messagesAttributeName="SPRING_SECURITY_LAST_EXCEPTION"/> <%-- (2) --%>
-      </c:if>
-      <form:form action="${pageContext.request.contextPath}/login" method="post"> <%-- (3) --%>
-          <table>
-              <tr>
-                  <td><label for="username">User Name</label></td>
-                  <td><input type="text" id="username" name="username"></td>
-              </tr>
-              <tr>
-                  <td><label for="password">Password</label></td>
-                  <td><input type="password" id="password" name="password"></td>
-              </tr>
-              <tr>
-                  <td>&nbsp;</td>
-                  <td><button>Login</button></td>
-              </tr>
-          </table>
-      </form:form>
-  </div>
-  <%-- omitted --%>
+    .. code-block:: jsp
 
-.. tabularcolumns:: |p{0.10\linewidth}|p{0.90\linewidth}|
-.. list-table::
-  :header-rows: 1
-  :widths: 10 90
+      <%@ page contentType="text/html;charset=UTF-8" pageEncoding="UTF-8" %>
+      <%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
+      <%@ taglib prefix="sec" uri="http://www.springframework.org/security/tags" %>
+      <%-- omitted --%>
+      <div id="wrapper">
+          <h3>Login Screen</h3>
+          <%-- (1) --%>
+          <c:if test="${param.containsKey('error')}">
+              <t:messagesPanel messagesType="error"
+                  messagesAttributeName="SPRING_SECURITY_LAST_EXCEPTION"/> <%-- (2) --%>
+          </c:if>
+          <form:form action="${pageContext.request.contextPath}/login" method="post"> <%-- (3) --%>
+              <table>
+                  <tr>
+                      <td><label for="username">User Name</label></td>
+                      <td><input type="text" id="username" name="username"></td>
+                  </tr>
+                  <tr>
+                      <td><label for="password">Password</label></td>
+                      <td><input type="password" id="password" name="password"></td>
+                  </tr>
+                  <tr>
+                      <td>&nbsp;</td>
+                      <td><button>Login</button></td>
+                  </tr>
+              </table>
+          </form:form>
+      </div>
+      <%-- omitted --%>
 
-  * - 項番
-    - 説明
-  * - | (1)
-    - | 認証エラーを表示するためのエリア。
-  * - | (2)
-    - | 認証エラー時に出力させる例外メッセージを出力する。
-      | 共通ライブラリで提供している\ ``<t:messagesPanel>``\ タグを使用して出力することを推奨する。
-      | \ ``<t:messagesPanel>``\ タグの使用方法については、「\ :doc:`../ArchitectureInDetail/WebApplicationDetail/MessageManagement`\ 」を参照されたい。
-      | なお、認証エラーが発生した場合、Spring Securityのデフォルトの設定で使用される、\ ``org.springframework.security.web.authentication.SimpleUrlAuthenticationFailureHandler``\ では、認証エラー時に発生した例外オブジェクトを\ ``SPRING_SECURITY_LAST_EXCEPTION``\ という属性名で、リダイレクト時はセッション、フォワード時はリクエストスコープに格納する。
-  * - | (3)
-    - | ユーザー名とパスワードを入力するためのログインフォーム。
-      | ここではユーザー名を\ ``username``\ 、パスワードを\ ``passowrd``\ というリクエストパラメータで送信する。
-      | また、\ ``<form:form>``\ を使用することで、CSRF対策用のトークン値がリクエストパラメータで送信される。
-      | CSRF対策については、「\ :ref:`SpringSecurityCsrf`\ 」で説明する。
+    .. tabularcolumns:: |p{0.10\linewidth}|p{0.90\linewidth}|
+    .. list-table::
+      :header-rows: 1
+      :widths: 10 90
+
+      * - 項番
+        - 説明
+      * - | (1)
+        - | 認証エラーを表示するためのエリア。
+      * - | (2)
+        - | 認証エラー時に出力させる例外メッセージを出力する。
+          | 共通ライブラリで提供している\ ``<t:messagesPanel>``\ タグを使用して出力することを推奨する。
+          | \ ``<t:messagesPanel>``\ タグの使用方法については、「\ :doc:`../ArchitectureInDetail/WebApplicationDetail/MessageManagement`\ 」を参照されたい。
+          | なお、認証エラーが発生した場合、Spring Securityのデフォルトの設定で使用される、\ ``org.springframework.security.web.authentication.SimpleUrlAuthenticationFailureHandler``\ では、認証エラー時に発生した例外オブジェクトを\ ``SPRING_SECURITY_LAST_EXCEPTION``\ という属性名で、リダイレクト時はセッション、フォワード時はリクエストスコープに格納する。
+      * - | (3)
+        - | ユーザー名とパスワードを入力するためのログインフォーム。
+          | ここではユーザー名を\ ``username``\ 、パスワードを\ ``passowrd``\ というリクエストパラメータで送信する。
+          | また、\ ``<form:form>``\ を使用することで、CSRF対策用のトークン値がリクエストパラメータで送信される。
+          | CSRF対策については、「\ :ref:`SpringSecurityCsrf`\ 」で説明する。
+
+  .. group-tab:: Thymeleaf
+
+    * xxx-web/src/main/webapp/WEB-INF/views/login/loginForm.html
+
+    .. code-block:: HTML
+
+        <html xmlns:th="http://www.thymeleaf.org">
+        <!--/* omitted */-->
+        <div id="wrapper">
+            <h3>Login Screen</h3>
+            <!--/* (1) */-->
+            <div th:if="${param.keySet().contains('error')}"
+                th:with="exception=${SPRING_SECURITY_LAST_EXCEPTION} ?: ${session[SPRING_SECURITY_LAST_EXCEPTION]}">
+                <div th:if="${exception != null}" class="alert alert-error">
+                    <span th:text="${exception.message}"></span><!--/* (2) */-->
+                </div>
+            </div>
+            <form th:action="@{/login}" method="post"> <!--/* (3) */-->
+                <table>
+                    <tr>
+                        <td><label for="username">User Name</label></td>
+                        <td><input type="text" id="username" name="username"></td>
+                    </tr>
+                    <tr>
+                        <td><label for="password">Password</label></td>
+                        <td><input type="password" id="password" name="password"></td>
+                    </tr>
+                    <tr>
+                        <td>&nbsp;</td>
+                        <td><button>Login</button></td>
+                    </tr>
+                </table>
+            </form>
+        </div>
+        <!--/* omitted */-->
+
+    .. tabularcolumns:: |p{0.10\linewidth}|p{0.90\linewidth}|
+    .. list-table::
+      :header-rows: 1
+      :widths: 10 90
+
+      * - 項番
+        - 説明
+      * - | (1)
+        - | 認証エラーを表示するためのエリア。
+      * - | (2)
+        - | 認証エラー時に出力させる例外メッセージを出力する。
+          | なお、認証エラーが発生した場合は、セッション又はリクエストスコープに\ ``SPRING_SECURITY_LAST_EXCEPTION``\ という属性名で例外オブジェクトが格納される。
+      * - | (3)
+        - | ユーザー名とパスワードを入力するためのログインフォーム。
+          | ここではユーザー名を\ ``username``\ 、パスワードを\ ``passowrd``\ というリクエストパラメータで送信する。
+          | また、\ ``th:action``\ 属性を使用することで、CSRF対策用のトークン値がリクエストパラメータで送信される。
+          | CSRF対策については、「\ :ref:`SpringSecurityCsrf`\ 」で説明する。
+
+    .. warning:: \ **リクエストパラメータの存在チェックについて**\
+
+      \ `Tutorial: Using Thymeleaf -Web context namespaces for request/session attributes, etc.- <https://www.thymeleaf.org/doc/tutorials/3.1/usingthymeleaf.html#web-context-namespaces-for-requestsession-attributes-etc.>`_\ では、リクエストパラメータの存在チェック方法について\ ``param.containsKey``\ が紹介されているが、\ ``org.thymeleaf.context.WebEngineContext.RequestParametersMap`` \ の実装により、\ ``param.containsKey``\  は\ `一律true <https://github.com/thymeleaf/thymeleaf/blob/thymeleaf-3.1.1.RELEASE/lib/thymeleaf/src/main/java/org/thymeleaf/context/WebEngineContext.java#L525-L532>`_\ が返却されるため、\ ``param.keySet().contains``\ を使用してパラメータの有無を判断する必要がある。なお、リクエストパラメータ以外にセッション(\ ``session.containsKey``\ )、サーブレットコンテキスト(\ ``application.containsKey``\ )についても同様である。
+
 
 |
 
 つぎに、作成したログインフォームをSpring Securityに適用する。
 
-* spring-security.xmlの定義例
+.. tabs::
+  .. group-tab:: Java Config
 
-.. code-block:: xml
+    * SpringSecurityConfig.javaの定義例
+    
+    .. code-block:: java
 
-  <sec:http request-matcher="ant">
-      <sec:form-login
-          login-page="/login/loginForm"
-          login-processing-url="/login"  /> <!-- (1)(2) -->
-      <sec:intercept-url pattern="/login/**" access="permitAll"/>  <!-- (3) -->
-      <sec:intercept-url pattern="/**" access="isAuthenticated()"/> <!-- (4) -->
-  </sec:http>
+      @Bean
+      public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
 
-.. tabularcolumns:: |p{0.10\linewidth}|p{0.90\linewidth}|
-.. list-table::
-  :header-rows: 1
-  :widths: 10 90
+          http.formLogin(login -> login.loginPage("/login/loginForm") // (1)
+                  .loginProcessingUrl("/login")); // (2)
+          http.authorizeHttpRequests(authz -> authz
+                  .requestMatchers(new AntPathRequestMatcher("/login/**")).permitAll() // (3)
+                  .requestMatchers(new AntPathRequestMatcher("/**")).authenticated()); // (4)
+  
+          return http.build();
+      }
 
-  * - 項番
-    - 説明
-  * - | (1)
-    - | \ ``login-page``\ 属性にログインフォームを表示するためのパスを指定する。
-      | 匿名ユーザーが認証を必要とするWebリソースにアクセスした場合は、この属性に指定したパスにリダイレクトしてログインフォームを表示する。
-      | ここでは、Spring MVCでリクエストを受けてログインフォームを表示している。
-      | 詳細は 「\ :ref:`spring-security-authentication-mvc`\ 」を参照されたい。
-  * - | (2)
-    - | \ ``login-processing-url``\ 属性に認証処理を行うためのパスを指定する。
-      | デフォルトのパスも\ ``/login``\ であるが、ここでは明示的に指定することとする。
-  * - | (3)
-    - | ログインフォームが格納されている\ ``/login``\ パス配下に対し、すべてのユーザーがアクセスできる権限を付与する。
-      | Webリソースに対してアクセスポリシーの指定方法については、「\ :ref:`SpringSecurityAuthorization`\ 」を参照されたい。
-  * - | (4)
-    - | アプリケーションで扱うWebリソースに対してアクセス権を付与する。
-      | 上記例では、Webアプリケーションのルートパスの配下に対して、認証済みユーザーのみがアクセスできる権限を付与している。
-      | Webリソースに対してアクセスポリシーの指定方法については、「\ :ref:`SpringSecurityAuthorization`\ 」を参照されたい。
+    .. tabularcolumns:: |p{0.10\linewidth}|p{0.90\linewidth}|
+    .. list-table::
+      :header-rows: 1
+      :widths: 10 90
+    
+      * - 項番
+        - 説明
+      * - | (1)
+        - | \ ``loginPage``\ にログインフォームを表示するためのパスを指定する。
+          | 匿名ユーザーが認証を必要とするWebリソースにアクセスした場合は、この属性に指定したパスにリダイレクトしてログインフォームを表示する。
+          | ここでは、Spring MVCでリクエストを受けてログインフォームを表示している。
+          | 詳細は 「\ :ref:`spring-security-authentication-mvc`\ 」を参照されたい。
+      * - | (2)
+        - | \ ``loginProcessingUrl``\ に認証処理を行うためのパスを指定する。
+          | デフォルトのパスも\ ``/login``\ であるが、ここでは明示的に指定することとする。
+      * - | (3)
+        - | ログインフォームが格納されている\ ``/login``\ パス配下に対し、すべてのユーザーがアクセスできる権限を付与する。
+          | Webリソースに対してアクセスポリシーの指定方法については、「\ :ref:`SpringSecurityAuthorization`\ 」を参照されたい。
+      * - | (4)
+        - | アプリケーションで扱うWebリソースに対してアクセス権を付与する。
+          | 上記例では、Webアプリケーションのルートパスの配下に対して、認証済みユーザーのみがアクセスできる権限を付与している。
+          | Webリソースに対してアクセスポリシーの指定方法については、「\ :ref:`SpringSecurityAuthorization`\ 」を参照されたい。
+
+  .. group-tab:: XML Config
+
+    * spring-security.xmlの定義例
+    
+    .. code-block:: xml
+    
+      <sec:http request-matcher="ant">
+          <sec:form-login
+              login-page="/login/loginForm"
+              login-processing-url="/login"  /> <!-- (1)(2) -->
+          <sec:intercept-url pattern="/login/**" access="permitAll"/>  <!-- (3) -->
+          <sec:intercept-url pattern="/**" access="isAuthenticated()"/> <!-- (4) -->
+      </sec:http>
+    
+    .. tabularcolumns:: |p{0.10\linewidth}|p{0.90\linewidth}|
+    .. list-table::
+      :header-rows: 1
+      :widths: 10 90
+    
+      * - 項番
+        - 説明
+      * - | (1)
+        - | \ ``login-page``\ 属性にログインフォームを表示するためのパスを指定する。
+          | 匿名ユーザーが認証を必要とするWebリソースにアクセスした場合は、この属性に指定したパスにリダイレクトしてログインフォームを表示する。
+          | ここでは、Spring MVCでリクエストを受けてログインフォームを表示している。
+          | 詳細は 「\ :ref:`spring-security-authentication-mvc`\ 」を参照されたい。
+      * - | (2)
+        - | \ ``login-processing-url``\ 属性に認証処理を行うためのパスを指定する。
+          | デフォルトのパスも\ ``/login``\ であるが、ここでは明示的に指定することとする。
+      * - | (3)
+        - | ログインフォームが格納されている\ ``/login``\ パス配下に対し、すべてのユーザーがアクセスできる権限を付与する。
+          | Webリソースに対してアクセスポリシーの指定方法については、「\ :ref:`SpringSecurityAuthorization`\ 」を参照されたい。
+      * - | (4)
+        - | アプリケーションで扱うWebリソースに対してアクセス権を付与する。
+          | 上記例では、Webアプリケーションのルートパスの配下に対して、認証済みユーザーのみがアクセスできる権限を付与している。
+          | Webリソースに対してアクセスポリシーの指定方法については、「\ :ref:`SpringSecurityAuthorization`\ 」を参照されたい。
+
 
 |
 
@@ -340,7 +497,7 @@ Spring Securityのデフォルトの動作では、\ ``/login``\ に対してGET
 Spring Securityは、認証成功時のレスポンスを制御するためのコンポーネントとして、\ ``AuthenticationSuccessHandler``\ というインタフェースと実装クラスを提供している。
 
 .. tabularcolumns:: |p{0.35\linewidth}|p{0.65\linewidth}|
-.. list-table:: **主なAuthenticationSuccessHandlerの実装クラス**
+.. list-table:: \ **主なAuthenticationSuccessHandlerの実装クラス**\
   :header-rows: 1
   :widths: 35 65
 
@@ -373,7 +530,7 @@ Spring Securityは、認証成功時のレスポンスを制御するための�
 Spring Securityは、認証失敗時のレスポンスを制御するためのコンポーネントとして、\ ``AuthenticationFailureHandler``\ というインタフェースと実装クラスを提供している。
 
 .. tabularcolumns:: |p{0.35\linewidth}|p{0.65\linewidth}|
-.. list-table:: **主なAuthenticationFailureHandlerの実装クラス**
+.. list-table:: \ **主なAuthenticationFailureHandlerの実装クラス**\
   :header-rows: 1
   :widths: 35 65
 
@@ -519,10 +676,9 @@ UserDetailsの作成
 
 * UserDetailsの実装クラスの作成例
 
-
 .. code-block:: java
 
-  public class AccountUserDetails implements UserDetails { // (1)
+  public class AccountUserDetails implements UserDetails, CredentialsContainer { // (1)
 
       private final Account account;
       private final Collection<GrantedAuthority> authorities;
@@ -564,6 +720,12 @@ UserDetailsの作成
           return account;
       }
 
+      // (6)
+      @Override
+      public void eraseCredentials() {
+         account.setPassword(null);
+      }
+
     }
 
 .. tabularcolumns:: |p{0.10\linewidth}|p{0.90\linewidth}|
@@ -574,7 +736,7 @@ UserDetailsの作成
   * - 項番
     - 説明
   * - | (1)
-    - | \ ``UserDetails``\ インタフェースを実装したクラスを作成する。
+    - | \ ``UserDetails``\ インタフェースと\ ``CredentialsContainer``\ インターフェースを実装したクラスを作成する。
   * - | (2)
     - | ユーザー情報と権限情報をプロパティに保持する。
   * - | (3)
@@ -583,8 +745,11 @@ UserDetailsの作成
     - | 本節の例では、「アカウントのロック」「アカウントの有効期限切れ」「資格情報の有効期限切れ」に対するチェックは未実装であるが、要件に合わせて実装されたい。
   * - | (5)
     - | 認証処理成功後の処理でアカウント情報にアクセスできるようにするために、getterメソッドを用意する。
+  * - | (6)
+    - | \ ``UserDetails``\ に保持されているパスワードの情報を削除する。
+      | \ ``CredentialsContainer``\ を実装することで、認証処理完了時に\ ``eraseCredentials()``\ メソッドが呼び出され機密データ（上記例ではパスワード）を削除することができる。
 
-.. note:: **UserDetails実装クラスのequalsメソッドについて**
+.. note:: \ **UserDetails実装クラスのequalsメソッドについて**\
 
   \ ``UserDetails``\ を実装する際に、\ ``equals``\ メソッドを実装しない場合は\ ``Object``\ の比較となる。
 
@@ -760,35 +925,76 @@ DB認証の適用
 
 作成した\ ``UserDetailsService``\ を使用して認証処理を行うためには、\ ``DaoAuthenticationProvider``\ を有効化して、作成した\ ``UserDetailsService``\ を適用する必要がある。
 
-* spring-security.xmlの定義例
+.. tabs::
+  .. group-tab:: Java Config
 
-.. code-block:: xml
+    * SpringSecurityConfig.javaの定義例
+    
+      .. code-block:: java
+  
+        // (1)
+        @Bean("dbUserLoginManager")
+        public AuthenticationManager dbUserLoginManager() throws Exception {
+            return new ProviderManager(authenticationProvider()); //(2)
+        }
+    
+        // (2)
+        @Bean("authenticationProvider")
+        public AuthenticationProvider authenticationProvider() {
+            DaoAuthenticationProvider authProvider = new DaoAuthenticationProvider();
+            authProvider.setUserDetailsService(accountUserDetailsService());
+            return authProvider;
+        }
+      
+      .. tabularcolumns:: |p{0.10\linewidth}|p{0.90\linewidth}|
+      .. list-table::
+        :header-rows: 1
+        :widths: 10 90
+      
+        * - 項番
+          - 説明
+        * - | (1)
+          - | \ ``AuthenticationManager``\ をbean定義する。
+        * - | (2)
+          - | \ ``ProviderManager``\ のコンストラクタ引数に\ ``AuthenticationProvider``\ を定義する。
+            | \ ``UserDetailsService``\ に「\ :ref:`SpringSecurityAuthenticationUserDetailsService`\ 」で作成した\ ``AccountUserDetailsService``\ のbeanを指定する。
+            | 本定義により、デフォルト設定の\ ``DaoAuthenticationProvider``\ が有効になる。
 
-  <sec:authentication-manager> <!-- (1) -->
-      <sec:authentication-provider user-service-ref="accountUserDetailsService" /> <!-- (2) -->
-  </sec:authentication-manager>
+     .. note::
+      
+        Spring Securityは、\ ``passwordEncoder``\ という名前のBeanを定義していると、\ ``sec:authentication-provider``\ 配下に\ ``sec:password-encoder``\ 要素を指定しない場合に自動的に参照する。これにより、\ ``sec:password-encoder``\ の指定を省略することが可能である。
+      
+        \ ``sec:password-encoder``\ 要素を省略し、かつ\ ``passwordEncoder``\ という名前のBeanが存在しない場合、\ ``org.springframework.security.crypto.factory.PasswordEncoderFactories``\ を利用して生成した\ ``DelegatingPasswordEncoder``\ が使用される。
 
-.. tabularcolumns:: |p{0.10\linewidth}|p{0.90\linewidth}|
-.. list-table::
-  :header-rows: 1
-  :widths: 10 90
+  .. group-tab:: XML Config
 
-  * - 項番
-    - 説明
-  * - | (1)
-    - | \ ``AuthenticationManager``\ をbean定義する。
-  * - | (2)
-    - | \ ``<sec:authentication-manager>``\ 要素内に\ ``<sec:authentication-provider>``\ 要素を定義する。
-      | \ ``user-service-ref``\ 属性に「\ :ref:`SpringSecurityAuthenticationUserDetailsService`\ 」で作成した\ ``AccountUserDetailsService``\ のbeanを指定する。
-      | 本定義により、デフォルト設定の\ ``DaoAuthenticationProvider``\ が有効になる。
+    * spring-security.xmlの定義例
+    
+      .. code-block:: xml
+      
+        <sec:authentication-manager> <!-- (1) -->
+            <sec:authentication-provider user-service-ref="accountUserDetailsService" /> <!-- (2) -->
+        </sec:authentication-manager>
+      
+      .. tabularcolumns:: |p{0.10\linewidth}|p{0.90\linewidth}|
+      .. list-table::
+        :header-rows: 1
+        :widths: 10 90
+      
+        * - 項番
+          - 説明
+        * - | (1)
+          - | \ ``AuthenticationManager``\ をbean定義する。
+        * - | (2)
+          - | \ ``<sec:authentication-manager>``\ 要素内に\ ``<sec:authentication-provider>``\ 要素を定義する。
+            | \ ``user-service-ref``\ 属性に「\ :ref:`SpringSecurityAuthenticationUserDetailsService`\ 」で作成した\ ``AccountUserDetailsService``\ のbeanを指定する。
+            | 本定義により、デフォルト設定の\ ``DaoAuthenticationProvider``\ が有効になる。
 
-|
-
-.. note::
-
-  Spring Securityは、\ ``passwordEncoder``\ という名前のBeanを定義していると、\ ``sec:authentication-provider``\ 配下に\ ``sec:password-encoder``\ 要素を指定しない場合に自動的に参照する。これにより、\ ``sec:password-encoder``\ の指定を省略することが可能である。
-
-  \ ``sec:password-encoder``\ 要素を省略し、かつ\ ``passwordEncoder``\ という名前のBeanが存在しない場合、\ ``org.springframework.security.crypto.factory.PasswordEncoderFactories``\ を利用して生成した\ ``DelegatingPasswordEncoder``\ が使用される。
+      .. note::
+      
+        Spring Securityは、\ ``passwordEncoder``\ という名前のBeanを定義していると、\ ``sec:authentication-provider``\ 配下に\ ``sec:password-encoder``\ 要素を指定しない場合に自動的に参照する。これにより、\ ``sec:password-encoder``\ の指定を省略することが可能である。
+      
+        \ ``sec:password-encoder``\ 要素を省略し、かつ\ ``passwordEncoder``\ という名前のBeanが存在しない場合、\ ``org.springframework.security.crypto.factory.PasswordEncoderFactories``\ を利用して生成した\ ``DelegatingPasswordEncoder``\ が使用される。
 
 |
 
@@ -851,16 +1057,16 @@ Spring Securityは以下のインタフェースを提供している。
   * - | \ ``Pbkdf2PasswordEncoder``\
     - | PBKDF2アルゴリズムを使用してパスワードのハッシュ化及び照合を行う実装クラス。
       | 本ガイドラインでは、このクラスを使用することを推奨している。
-      | 詳細は、\ `Pbkdf2PasswordEncoderのJavaDoc <https://docs.spring.io/spring-security/site/docs/6.0.1/api/org/springframework/security/crypto/password/Pbkdf2PasswordEncoder.html>`_\ を参照されたい。
+      | 詳細は、\ `Pbkdf2PasswordEncoderのJavaDoc <https://docs.spring.io/spring-security/site/docs/6.2.1/api/org/springframework/security/crypto/password/Pbkdf2PasswordEncoder.html>`_\ を参照されたい。
   * - | \ ``BCryptPasswordEncoder``\
     - | BCryptアルゴリズムを使用してパスワードのハッシュ化及び照合を行う実装クラス。
-      | 詳細は、\ `BCryptPasswordEncoderのJavaDoc <https://docs.spring.io/spring-security/site/docs/6.0.1/api/org/springframework/security/crypto/bcrypt/BCryptPasswordEncoder.html>`_\ を参照されたい。
+      | 詳細は、\ `BCryptPasswordEncoderのJavaDoc <https://docs.spring.io/spring-security/site/docs/6.2.1/api/org/springframework/security/crypto/bcrypt/BCryptPasswordEncoder.html>`_\ を参照されたい。
   * - | \ ``Argon2PasswordEncoder``\
     - | Argon2アルゴリズムを使用してパスワードのハッシュ化及び照合を行う実装クラス。
-      | 詳細は、\ `Argon2PasswordEncoderのJavaDoc <https://docs.spring.io/spring-security/site/docs/6.0.1/api/org/springframework/security/crypto/argon2/Argon2PasswordEncoder.html>`_\ を参照されたい。
+      | 詳細は、\ `Argon2PasswordEncoderのJavaDoc <https://docs.spring.io/spring-security/site/docs/6.2.1/api/org/springframework/security/crypto/argon2/Argon2PasswordEncoder.html>`_\ を参照されたい。
   * - | \ ``SCryptPasswordEncoder``\
     - | SCryptアルゴリズムを使用してパスワードのハッシュ化及び照合を行う実装クラス。
-      | 詳細は、\ `SCryptPasswordEncoderのJavaDoc <https://docs.spring.io/spring-security/site/docs/6.0.1/api/org/springframework/security/crypto/scrypt/SCryptPasswordEncoder.html>`_\ を参照されたい。
+      | 詳細は、\ `SCryptPasswordEncoderのJavaDoc <https://docs.spring.io/spring-security/site/docs/6.2.1/api/org/springframework/security/crypto/scrypt/SCryptPasswordEncoder.html>`_\ を参照されたい。
 
 .. note::
 
@@ -872,28 +1078,61 @@ Spring Securityは以下のインタフェースを提供している。
 
   \ ``Argon2PasswordEncoder``\ または\ ``SCryptPasswordEncoder``\ を使用する場合は、ブランクプロジェクトのデフォルト設定から変更する必要がある。
 
-  \ ``applicationContext.xml``\ のコメントアウトを外し、\ ``SCryptPasswordEncoder``\ の定義を有効化する。
-
-  \ **applicationContext.xml**\
-
-    .. code-block:: xml
-
-      <bean id="passwordEncoder" class="org.springframework.security.crypto.password.DelegatingPasswordEncoder">
-          <constructor-arg name="idForEncode" value="pbkdf2@SpringSecurity_v5_8" />
-          <constructor-arg name="idToPasswordEncoder">
-              <map>
-                  <!-- ommited -->
-                  <!-- When using commented out PasswordEncoders, you need to add bcprov-jdk18on.jar to the dependency.
-                  <entry key="argon2@SpringSecurity_v5_8">
-                      <bean class="org.springframework.security.crypto.argon2.Argon2PasswordEncoder" factory-method="defaultsForSpringSecurity_v5_8" />
-                  </entry>
-                  <entry key="scrypt@SpringSecurity_v5_8">
-                      <bean class="org.springframework.security.crypto.scrypt.SCryptPasswordEncoder" factory-method="defaultsForSpringSecurity_v5_8" />
-                  </entry>
-                  -->
-              </map>
-          </constructor-arg>
-      </bean>
+    .. tabs::
+      .. group-tab:: Java Config
+  
+        \ ``ApplicationContextConfig.java``\ のコメントアウトを外し、\ ``SCryptPasswordEncoder``\ の定義を有効化する。
+  
+        * \ **ApplicationContextConfig.java**\
+  
+          .. code-block:: java
+  
+            @Bean("passwordEncoder")
+            public PasswordEncoder passwordEncoder() {
+                Map<String, PasswordEncoder> idToPasswordEncoder = new HashMap<>();
+                // omitted
+                // When using commented out PasswordEncoders, you need to add bcprov-jdk18on.jar to the dependency.
+                // idToPasswordEncoder.put("argon2", argon2PasswordEncoder());
+                // idToPasswordEncoder.put("scrypt", sCryptPasswordEncoder());
+                return new DelegatingPasswordEncoder("pbkdf2", idToPasswordEncoder);
+            }
+  
+            // omitted
+  
+            // @Bean
+            // public Argon2PasswordEncoder argon2PasswordEncoder() {
+            //     return Argon2PasswordEncoder.defaultsForSpringSecurity_v5_8();
+            // }
+  
+            //@Bean
+            //public SCryptPasswordEncoder sCryptPasswordEncoder() {
+            //    return SCryptPasswordEncoder.defaultsForSpringSecurity_v5_8();
+            //}
+  
+      .. group-tab:: XML Config
+  
+        \ ``applicationContext.xml``\ のコメントアウトを外し、\ ``SCryptPasswordEncoder``\ の定義を有効化する。
+  
+        * \ **applicationContext.xml**\
+  
+          .. code-block:: xml
+      
+            <bean id="passwordEncoder" class="org.springframework.security.crypto.password.DelegatingPasswordEncoder">
+                <constructor-arg name="idForEncode" value="pbkdf2" />
+                <constructor-arg name="idToPasswordEncoder">
+                    <map>
+                        <!-- ommited -->
+                        <!-- When using commented out PasswordEncoders, you need to add bcprov-jdk18on.jar to the dependency.
+                        <entry key="argon2">
+                            <bean class="org.springframework.security.crypto.argon2.Argon2PasswordEncoder" factory-method="defaultsForSpringSecurity_v5_8" />
+                        </entry>
+                        <entry key="scrypt">
+                            <bean class="org.springframework.security.crypto.scrypt.SCryptPasswordEncoder" factory-method="defaultsForSpringSecurity_v5_8" />
+                        </entry>
+                        -->
+                    </map>
+                </constructor-arg>
+            </bean>
 
   依存ライブラリとして不足している\ ``bcprov-jdk18on``\ を追加する。
 
@@ -918,12 +1157,13 @@ Spring Securityは以下のインタフェースを提供している。
 
   「\ :ref:`AuthenticationHowToExtendUsingDeprecatedPasswordEncoder`\ 」では非推奨の実装クラスの一つである\ ``MessageDigestPasswordEncoder``\ を利用する方法について解説する。
 
+
 |
 
 DelegatingPasswordEncoder
 """"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 
-\ ``DelegatingPasswordEncoder``\ は、ハッシュ化されたパスワードの照合に複数の\ ``PasswordEncoder``\ から適切なものを選択するためのストラテジインタフェースである。これにより、データベース等に格納された様々なアルゴリズムでハッシュ化されたパスワードを、アプリケーションの変更無しに扱うことが可能となる。
+| \ ``DelegatingPasswordEncoder``\ は、ハッシュ化されたパスワードの照合に複数の\ ``PasswordEncoder``\ から適切なものを選択するためのストラテジインタフェースである。これにより、データベース等に格納された様々なアルゴリズムでハッシュ化されたパスワードを、アプリケーションの変更無しに扱うことが可能となる。
 | なお、\ ``DelegatingPasswordEncoder``\ がハッシュ化されたアルゴリズムを判定するには、ハッシュ化されたパスワードの先頭にアルゴリズムを示すキーを含む必要があり、\ ``DelegatingPasswordEncoder``\ がパスワードをハッシュ化する際には、このキーが自動的に付与される。
 
 .. figure:: ./images_Authentication/AuthenticationDelegatingPasswordEncoder.png
@@ -952,52 +1192,114 @@ DelegatingPasswordEncoder
 
 ここではブランクプロジェクトで定義されている\ ``PasswordEncoder``\ をもとに解説を行う。
 
-* applicationContext.xmlの定義
+.. tabs::
+  .. group-tab:: Java Config
 
-.. code-block:: xml
+    * ApplicationContextConfig.javaの定義
 
-  <bean id="passwordEncoder" class="org.springframework.security.crypto.password.DelegatingPasswordEncoder"> <!-- (1) -->
-      <constructor-arg name="idForEncode" value="pbkdf2@SpringSecurity_v5_8" /> <!-- (2) -->
-      <constructor-arg name="idToPasswordEncoder"> <!-- (3) -->
-          <map> <!-- (4) -->
-              <entry key="pbkdf2@SpringSecurity_v5_8">
-                  <bean class="org.springframework.security.crypto.password.Pbkdf2PasswordEncoder" factory-method="defaultsForSpringSecurity_v5_8" />
-              </entry>
-              <entry key="bcrypt">
-                  <bean class="org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder" />
-              </entry>
-              <!-- When using commented out PasswordEncoders, you need to add bcprov-jdk18on.jar to the dependency.
-              <entry key="argon2@SpringSecurity_v5_8">
-                  <bean class="org.springframework.security.crypto.argon2.Argon2PasswordEncoder" factory-method="defaultsForSpringSecurity_v5_8" />
-              </entry>
-              <entry key="scrypt@SpringSecurity_v5_8">
-                  <bean class="org.springframework.security.crypto.scrypt.SCryptPasswordEncoder" factory-method="defaultsForSpringSecurity_v5_8" />
-              </entry>
-              -->
-          </map>
-      </constructor-arg>
-  </bean>
+      .. code-block:: java
 
-|
+        // (1)
+        @Bean("passwordEncoder")
+        public PasswordEncoder passwordEncoder() {
+            Map<String, PasswordEncoder> idToPasswordEncoder = new HashMap<>();
+            idToPasswordEncoder.put("pbkdf2", pbkdf2PasswordEncoder()); // (4)
+            idToPasswordEncoder.put("bcrypt", bCryptPasswordEncoder()); // (4)
+            // When using commented out PasswordEncoders, you need to add bcprov-jdk18on.jar to the dependency.
+            // idToPasswordEncoder.put("argon2", argon2PasswordEncoder); // (4)
+            // idToPasswordEncoder.put("scrypt", sCryptPasswordEncoder); // (4)
+            return new DelegatingPasswordEncoder("pbkdf2", idToPasswordEncoder); // (2)(3)
+        }
+    
+        @Bean
+        public Pbkdf2PasswordEncoder pbkdf2PasswordEncoder() {
+            return Pbkdf2PasswordEncoder.defaultsForSpringSecurity_v5_8();
+        }
+    
+        @Bean
+        public BCryptPasswordEncoder bCryptPasswordEncoder() {
+            return new BCryptPasswordEncoder();
+        }
+    
+        // @Bean
+        // public Argon2PasswordEncoder argon2PasswordEncoder() {
+        //     return Argon2PasswordEncoder.defaultsForSpringSecurity_v5_8();
+        // }
+        
+        // @Bean
+        // public SCryptPasswordEncoder sCryptPasswordEncoder() {
+        //     return SCryptPasswordEncoder.defaultsForSpringSecurity_v5_8();
+        // }
 
-.. tabularcolumns:: |p{0.10\linewidth}|p{0.90\linewidth}|
-.. list-table::
-  :header-rows: 1
-  :widths: 10 90
+      |
+      
+      .. tabularcolumns:: |p{0.10\linewidth}|p{0.90\linewidth}|
+      .. list-table::
+        :header-rows: 1
+        :widths: 10 90
+      
+        * - 項番
+          - 説明
+        * - | (1)
+          - | \ ``DelegatingPasswordEncoder``\ をid \ ``passwordEncoder``\ で定義する。
+        * - | (2)
+          - | \ ``idToPasswordEncoder``\ で登録した\ ``PasswordEncoder``\ の内、ハッシュ化に使用するものの\ ``key``\ 値を\ ``idForEncode``\ に指定する。
+        * - | (3)
+          - | \ ``idToPasswordEncoder``\ に\ ``PasswordEncoder``\ の実装を格納した\ ``Map``\ を指定する。
+        * - | (4)
+          - | \ ``PasswordEncoder``\ の実装を\ ``Map``\ に格納する。
+            | ハッシュ化したパスワードのプレフィックスが\ ``Map``\ の\ ``key``\ と一致すると、その\ ``key``\ で格納された\ ``PasswordEncoder``\ を使用して照合が行われる。
+            | また、前述の\ ``idForEncode``\ と\ ``key``\ が一致する\ ``PasswordEncoder``\ を使用してハッシュ化が行われる。
+            | ハッシュ化の際には\ ``key``\ に指定した値がプレフィックスとして付与される。
 
-  * - 項番
-    - 説明
-  * - | (1)
-    - | \ ``DelegatingPasswordEncoder``\ をid \ ``passwordEncoder``\ で定義する。
-  * - | (2)
-    - | \ ``idToPasswordEncoder``\ で登録した\ ``PasswordEncoder``\ の内、ハッシュ化に使用するものの\ ``key``\ 値を\ ``idForEncode``\ に指定する。
-  * - | (3)
-    - | \ ``idToPasswordEncoder``\ に\ ``PasswordEncoder``\ の実装を格納した\ ``Map``\ を指定する。
-  * - | (4)
-    - | \ ``PasswordEncoder``\ の実装を\ ``Map``\ に格納する。
-      | ハッシュ化したパスワードのプレフィックスが\ ``Map``\ の\ ``key``\ と一致すると、その\ ``key``\ で格納された\ ``PasswordEncoder``\ を使用して照合が行われる。
-      | また、前述の\ ``idForEncode``\ と\ ``key``\ が一致する\ ``PasswordEncoder``\ を使用してハッシュ化が行われる。
-      | ハッシュ化の際には\ ``key``\ に指定した値がプレフィックスとして付与される。
+  .. group-tab:: XML Config
+
+    * applicationContext.xmlの定義
+
+      .. code-block:: xml
+      
+        <bean id="passwordEncoder" class="org.springframework.security.crypto.password.DelegatingPasswordEncoder"> <!-- (1) -->
+            <constructor-arg name="idForEncode" value="pbkdf2" /> <!-- (2) -->
+            <constructor-arg name="idToPasswordEncoder"> <!-- (3) -->
+                <map> <!-- (4) -->
+                    <entry key="pbkdf2">
+                        <bean class="org.springframework.security.crypto.password.Pbkdf2PasswordEncoder" factory-method="defaultsForSpringSecurity_v5_8" />
+                    </entry>
+                    <entry key="bcrypt">
+                        <bean class="org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder" />
+                    </entry>
+                    <!-- When using commented out PasswordEncoders, you need to add bcprov-jdk18on.jar to the dependency.
+                    <entry key="argon2">
+                        <bean class="org.springframework.security.crypto.argon2.Argon2PasswordEncoder" factory-method="defaultsForSpringSecurity_v5_8" />
+                    </entry>
+                    <entry key="scrypt">
+                        <bean class="org.springframework.security.crypto.scrypt.SCryptPasswordEncoder" factory-method="defaultsForSpringSecurity_v5_8" />
+                    </entry>
+                    -->
+                </map>
+            </constructor-arg>
+        </bean>
+      
+      |
+      
+      .. tabularcolumns:: |p{0.10\linewidth}|p{0.90\linewidth}|
+      .. list-table::
+        :header-rows: 1
+        :widths: 10 90
+      
+        * - 項番
+          - 説明
+        * - | (1)
+          - | \ ``DelegatingPasswordEncoder``\ をid \ ``passwordEncoder``\ で定義する。
+        * - | (2)
+          - | \ ``idToPasswordEncoder``\ で登録した\ ``PasswordEncoder``\ の内、ハッシュ化に使用するものの\ ``key``\ 値を\ ``idForEncode``\ に指定する。
+        * - | (3)
+          - | \ ``idToPasswordEncoder``\ に\ ``PasswordEncoder``\ の実装を格納した\ ``Map``\ を指定する。
+        * - | (4)
+          - | \ ``PasswordEncoder``\ の実装を\ ``Map``\ に格納する。
+            | ハッシュ化したパスワードのプレフィックスが\ ``Map``\ の\ ``key``\ と一致すると、その\ ``key``\ で格納された\ ``PasswordEncoder``\ を使用して照合が行われる。
+            | また、前述の\ ``idForEncode``\ と\ ``key``\ が一致する\ ``PasswordEncoder``\ を使用してハッシュ化が行われる。
+            | ハッシュ化の際には\ ``key``\ に指定した値がプレフィックスとして付与される。
 
 |
 
@@ -1058,9 +1360,9 @@ DelegatingPasswordEncoder
     - | インジェクションした\ ``PasswordEncoder``\ のメソッドを呼び出す。
       | ここでは、データストアに保存するパスワードをハッシュ化している。
 
-.. note:: \ **Pbkdf2以外のアルゴリズムを使用する場合**\
+.. note:: **Pbkdf2以外のアルゴリズムを使用する場合**
 
-  パスワードのハッシュ化に使用する\ ``PasswordEncoder``\ を変更するには、\ ``idForEncode``\ に使用したい\ ``PasswordEncoder``\ の\ ``key``\ 値（\ ``bcrypt``\ や\ ``scrypt@SpringSecurity_v5_8``\ ）に指定すれば良い。
+    パスワードのハッシュ化に使用する\ ``PasswordEncoder``\ を変更するには、\ ``idForEncode``\ に使用したい\ ``PasswordEncoder``\ の\ ``key``\ 値（\ ``bcrypt``\ や\ ``scrypt@SpringSecurity_v5_8``\ ）に指定すれば良い。
 
 |
 
@@ -1072,35 +1374,64 @@ DelegatingPasswordEncoder
 
   プレフィックスが付与されていないパスワードをそのまま照合に使用するには、以下で示すように\ ``defaultPasswordEncoderForMatches``\ プロパティで照合に使用するエンコーダを指定する必要がある。
 
-  * applicationContext.xmlの変更
+    .. tabs::
+      .. group-tab:: Java Config
 
-    .. code-block:: xml
+        * ApplicationContextConfig.javaの変更
+      
+          .. code-block:: java
 
-      <bean id="passwordEncoder" class="org.springframework.security.crypto.password.DelegatingPasswordEncoder">
-          <constructor-arg name="idForEncode" value="pbkdf2@SpringSecurity_v5_8" />
-          <constructor-arg name="idToPasswordEncoder">
-              <map>
-                  <entry key="pbkdf2@SpringSecurity_v5_8">
-                      <bean class="org.springframework.security.crypto.password.Pbkdf2PasswordEncoder" factory-method="defaultsForSpringSecurity_v5_8" />
-                  </entry>
-                  <!-- omitted -->
-              </map>
-          </constructor-arg>
-          <property name="defaultPasswordEncoderForMatches" ref="passwordEncoderUsedBefore" /> <!-- (1) -->
-      </bean>
+            @Bean("passwordEncoder")
+            public PasswordEncoder passwordEncoder() {
+                Map<String, PasswordEncoder> idToPasswordEncoder = new HashMap<>();
+                idToPasswordEncoder.put("pbkdf2", pbkdf2PasswordCustomEncoder);
+                DelegatingPasswordEncoder bean = new DelegatingPasswordEncoder("pbkdf2", idToPasswordEncoder);
+                bean.setDefaultPasswordEncoderForMatches(passwordEncoderUsedBefore()); // (1)
+                return bean;
+            }
+     
+          .. tabularcolumns:: |p{0.10\linewidth}|p{0.80\linewidth}|
+          .. list-table::
+            :header-rows: 1
+            :widths: 10 90
+      
+            * - 項番
+              - 説明
+            * - | (1)
+              - | \ ``defaultPasswordEncoderForMatches``\ に移行前に使用していた\ ``PasswordEncoder``\ を指定する。
+                | これにより、プレフィックスが付与されていないハッシュ値に対して、指定した\ ``PasswordEncoder``\ で照合が行われるようになる。
 
-    .. tabularcolumns:: |p{0.10\linewidth}|p{0.80\linewidth}|
-    .. list-table::
-      :header-rows: 1
-      :widths: 10 90
+      .. group-tab:: XML Config
 
-      * - 項番
-        - 説明
-      * - | (1)
-        - | \ ``defaultPasswordEncoderForMatches``\ に移行前に使用していた\ ``PasswordEncoder``\ を指定する。
-          | これにより、プレフィックスが付与されていないハッシュ値に対して、指定した\ ``PasswordEncoder``\ で照合が行われるようになる。
-
-    \ ``defaultPasswordEncoderForMatches``\ プロパティに照合に使用するエンコーダを指定せずに、\ ``DelegatingPasswordEncoder``\ を使用してプレフィックスが付与されていないハッシュ値を照合しようとすると、デフォルトで設定されている\ ``UnmappedIdPasswordEncoder``\ が使用され、\ ``IllegalArgumentException``\ が発生する。
+        * applicationContext.xmlの変更
+      
+          .. code-block:: xml
+      
+            <bean id="passwordEncoder" class="org.springframework.security.crypto.password.DelegatingPasswordEncoder">
+                <constructor-arg name="idForEncode" value="pbkdf2@SpringSecurity_v5_8" />
+                <constructor-arg name="idToPasswordEncoder">
+                    <map>
+                        <entry key="pbkdf2@SpringSecurity_v5_8">
+                            <bean class="org.springframework.security.crypto.password.Pbkdf2PasswordEncoder" factory-method="defaultsForSpringSecurity_v5_8" />
+                        </entry>
+                        <!-- omitted -->
+                    </map>
+                </constructor-arg>
+                <property name="defaultPasswordEncoderForMatches" ref="passwordEncoderUsedBefore" /> <!-- (1) -->
+            </bean>
+      
+          .. tabularcolumns:: |p{0.10\linewidth}|p{0.80\linewidth}|
+          .. list-table::
+            :header-rows: 1
+            :widths: 10 90
+      
+            * - 項番
+              - 説明
+            * - | (1)
+              - | \ ``defaultPasswordEncoderForMatches``\ に移行前に使用していた\ ``PasswordEncoder``\ を指定する。
+                | これにより、プレフィックスが付与されていないハッシュ値に対して、指定した\ ``PasswordEncoder``\ で照合が行われるようになる。
+      
+  \ ``defaultPasswordEncoderForMatches``\ プロパティに照合に使用するエンコーダを指定せずに、\ ``DelegatingPasswordEncoder``\ を使用してプレフィックスが付与されていないハッシュ値を照合しようとすると、デフォルトで設定されている\ ``UnmappedIdPasswordEncoder``\ が使用され、\ ``IllegalArgumentException``\ が発生する。
 
   |
 
@@ -1158,7 +1489,7 @@ Spring Securityは、Spring Frameworkが提供しているイベント通知の�
 | この3つのイベントは途中でエラーが発生しなければ、以下の順番ですべて通知される。
 
 .. tabularcolumns:: |p{0.35\linewidth}|p{0.65\linewidth}|
-.. list-table:: **認証が成功したことを通知するイベントクラス**
+.. list-table:: \ **認証が成功したことを通知するイベントクラス**\
   :header-rows: 1
   :widths: 35 65
 
@@ -1184,7 +1515,7 @@ Spring Securityは、Spring Frameworkが提供しているイベント通知の�
 認証に失敗した場合は、いずれか一つのイベントが通知される。
 
 .. tabularcolumns:: |p{0.35\linewidth}|p{0.65\linewidth}|
-.. list-table:: **認証が失敗したことを通知するイベントクラス**
+.. list-table:: \ **認証が失敗したことを通知するイベントクラス**\
   :header-rows: 1
   :widths: 35 65
 
@@ -1242,11 +1573,11 @@ Spring Securityは、Spring Frameworkが提供しているイベント通知の�
 
       .. warning:: \ **イベントリスナクラスの配置について**\
 
-        Spring Securityが参照するWebアプリケーション用のアプリケーションコンテキストに登録するため、アプリケーションの \ ``domain``\ パッケージ配下に置くこと。
+        Spring Securityが参照するWebアプリケーション用のアプリケーションコンテキストに登録するため、アプリケーションの\ ``domain``\ パッケージ配下に置くこと。
 
         ただし、\ ``SessionFixationProtectionEvent``\ はspring-security-webに定義されているため、ブランクプロジェクトのデフォルト設定ではdomainモジュールから参照することができない。
 
-        このイベントをハンドリングする場合はwebモジュール（ \ ``web``\ パッケージ配下）に置くことになるが、スキャン対象の定義が煩雑になるためコンポーネントスキャン機能を利用せずbean定義することを検討されたい。
+        このイベントをハンドリングする場合はwebモジュール（\ ``web``\ パッケージ配下）に置くことになるが、スキャン対象の定義が煩雑になるためコンポーネントスキャン機能を利用せずbean定義することを検討されたい。
 
   * - | (2)
     - | \ ``@EventListener``\ をメソッドに付与したメソッドを作成する。
@@ -1315,7 +1646,7 @@ Spring Securityは、以下のような流れでログアウト処理を行う�
 
 .. note:: \ **Clear-Site-Dataヘッダの付与**\
 
-  Spring Securityでは、Webサイトの閲覧用データ（クッキー、ストレージ、キャッシュ）を削除するための\ `Clear-Site-Dataヘッダ <https://docs.spring.io/spring-security/reference/6.0.1/reactive/exploits/headers.html#webflux-headers-clear-site-data>`_\ を付与する\ ``org.springframework.security.web.header.writers.ClearSiteDataHeaderWriter``\ を提供している。
+  Spring Securityでは、Webサイトの閲覧用データ（クッキー、ストレージ、キャッシュ）を削除するための\ `Clear-Site-Dataヘッダ <https://docs.spring.io/spring-security/reference/reactive/exploits/headers.html#webflux-headers-clear-site-data>`_\ を付与する\ ``org.springframework.security.web.header.writers.ClearSiteDataHeaderWriter``\ を提供している。
 
   本機能は\ ``LogoutHandler``\ の仕組みを用いて適用されるが、自動的には適用されない。
 
@@ -1328,33 +1659,52 @@ Spring Securityは、以下のような流れでログアウト処理を行う�
 
 ログアウト処理を適用するためには、以下のようなbean定義を行う。
 
-* spring-security.xmlの定義例
+.. tabs::
+  .. group-tab:: Java Config
 
-.. code-block:: xml
+    * SpringSecurityConfig.javaの定義例
+    
+      .. code-block:: java
 
-  <sec:http request-matcher="ant">
-      <!-- omitted -->
-      <sec:logout /> <!-- (1) -->
-      <!-- omitted -->
-  </sec:http>
+        @Bean
+        public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
+            // omitted
+            http.logout(Customizer.withDefaults()); // (1)
+            // omitted
+            return http.build();
+        }
+      
+      .. tabularcolumns:: |p{0.10\linewidth}|p{0.90\linewidth}|
+      .. list-table::
+        :header-rows: 1
+        :widths: 10 90
+      
+        * - 項番
+          - 説明
+        * - | (1)
+          - | \ ``HttpSecurity#logout``\ を呼び出すことで、ログアウト処理が有効となる。
 
-.. tabularcolumns:: |p{0.10\linewidth}|p{0.90\linewidth}|
-.. list-table::
-  :header-rows: 1
-  :widths: 10 90
+  .. group-tab:: XML Config
 
-  * - 項番
-    - 説明
-  * - | (1)
-    - | \ ``<sec:logout>``\ タグを定義することで、ログアウト処理が有効となる。
-
-.. tip:: \ **Cookieの削除**\
-
-  本ガイドラインでは説明を割愛するが、 \ ``<sec:logout>``\ タグには、ログアウト時に指定したCookieを削除するための\ ``delete-cookies``\ 属性が存在する。ただし、この属性を使用しても正常にCookieが削除できないケースが報告されている。
-
-  詳細はSpring Securityの以下のJIRAを参照されたい。
-
-  * https://jira.spring.io/browse/SEC-2091?redirect=false
+    * spring-security.xmlの定義例
+    
+      .. code-block:: xml
+      
+        <sec:http request-matcher="ant">
+            <!-- omitted -->
+            <sec:logout /> <!-- (1) -->
+            <!-- omitted -->
+        </sec:http>
+      
+      .. tabularcolumns:: |p{0.10\linewidth}|p{0.90\linewidth}|
+      .. list-table::
+        :header-rows: 1
+        :widths: 10 90
+      
+        * - 項番
+          - 説明
+        * - | (1)
+          - | \ ``<sec:logout>``\ タグを定義することで、ログアウト処理が有効となる。
 
 |
 
@@ -1373,28 +1723,55 @@ Spring Securityは、以下のような流れでログアウト処理を行う�
 
 .. _SpringSecurityAuthenticationLogoutForm:
 
-* ログアウト処理を呼び出すためのJSPの実装例
+.. tabs::
+  .. group-tab:: JSP
 
-.. code-block:: jsp
+    * ログアウト処理を呼び出すためのJSPの実装例
 
-  <%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
-  <%@ taglib prefix="sec" uri="http://www.springframework.org/security/tags" %>
-  <%-- omitted --%>
-  <form:form action="${pageContext.request.contextPath}/logout" method="post"> <%-- (1) --%>
-      <button>ログアウト</button>
-  </form:form>
+    .. code-block:: jsp
 
-.. tabularcolumns:: |p{0.10\linewidth}|p{0.90\linewidth}|
-.. list-table::
-  :header-rows: 1
-  :widths: 10 90
+      <%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
+      <%@ taglib prefix="sec" uri="http://www.springframework.org/security/tags" %>
+      <%-- omitted --%>
+      <form:form action="${pageContext.request.contextPath}/logout" method="post"> <%-- (1) --%>
+          <button>ログアウト</button>
+      </form:form>
 
-  * - 項番
-    - 説明
-  * - | (1)
-    - | ログアウト用のフォームを作成する。
-      | また、\ ``<form:form>``\ を使用することで、CSRF対策用のトークン値がリクエストパラメータで送信される。
-      | CSRF対策については、「\ :ref:`SpringSecurityCsrf`\ 」で説明する。
+    .. tabularcolumns:: |p{0.10\linewidth}|p{0.90\linewidth}|
+    .. list-table::
+      :header-rows: 1
+      :widths: 10 90
+
+      * - 項番
+        - 説明
+      * - | (1)
+        - | ログアウト用のフォームを作成する。
+          | また、\ ``<form:form>``\ を使用することで、CSRF対策用のトークン値がリクエストパラメータで送信される。
+          | CSRF対策については、「\ :ref:`SpringSecurityCsrf`\ 」で説明する。
+
+  .. group-tab:: Thymeleaf
+
+    * ログアウト処理を呼び出すためのThymeleafでの実装例
+
+    .. code-block:: HTML
+
+      <html xmlns:th="http://www.thymeleaf.org">
+      <!--/* omitted */-->
+      <form th:action="@{/logout}" method="post"> <!--/* (1) */-->
+          <button>ログアウト</button>
+      </form>
+
+    .. tabularcolumns:: |p{0.10\linewidth}|p{0.90\linewidth}|
+    .. list-table::
+      :header-rows: 1
+      :widths: 10 90
+
+      * - 項番
+        - 説明
+      * - | (1)
+        - | ログアウト用のフォームを作成する。
+          | また、\ ``th:action``\ 属性を使用することで、CSRF対策用のトークン値がリクエストパラメータで送信される。
+          | CSRF対策については、「\ :ref:`SpringSecurityCsrf`\ 」で説明する。
 
 .. note:: \ **CSRFトークンの送信**\
 
@@ -1407,8 +1784,7 @@ Spring Securityは、以下のような流れでログアウト処理を行う�
 ログアウト成功時のレスポンス
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-Spring Securityは、ログアウト成功時のレスポンスを制御するためのコンポーネントとして、
-\ ``LogoutSuccessHandler``\ というインタフェースと実装クラスを提供している。
+Spring Securityは、ログアウト成功時のレスポンスを制御するためのコンポーネントとして、\ ``LogoutSuccessHandler``\ というインタフェースと実装クラスを提供している。
 
 .. tabularcolumns:: |p{0.35\linewidth}|p{0.65\linewidth}|
 .. list-table:: \ **主なLogoutSuccessHandlerの実装クラス**\
@@ -1564,6 +1940,7 @@ JSPからのアクセス
 
 | 一般的なWebアプリケーションでは、ログインユーザーのユーザー情報などを画面に表示することがある。
 | このような要件を実現する際のログインユーザーのユーザー情報は、認証情報から取得することができる。
+| JSPでの認証情報へのアクセスの方法について説明する。
 
 * JSPから認証情報へアクセスする実装例
 
@@ -1609,6 +1986,62 @@ JSPからのアクセス
 
 |
 
+Thymeleafからのアクセス
+""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
+
+| JSPと同様にThymeleafでもログインユーザーのユーザー情報は、認証情報から取得することができる。
+
+* Thymeleafのテンプレートで認証情報へアクセスする実装例
+
+.. code-block:: HTML
+
+  <html xmlns:th="http://www.thymeleaf.org" xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
+  <!--/* omitted */-->
+  ようこそ、
+  <span sec:authentication="principal.account.lastName"></span> <!--/* (1) */-->
+  さん。
+
+.. tabularcolumns:: |p{0.10\linewidth}|p{0.90\linewidth}|
+.. list-table::
+  :header-rows: 1
+  :widths: 10 90
+
+  * - 項番
+    - 説明
+  * - | (1)
+    - | 属性値にSpring Security Dialectから提供されている\ ``sec:authentication``\ 属性を使用して、認証情報(\ ``Authentication``\ オブジェクト) を取得する。
+      | アクセスしたいプロパティへのパスを指定する。
+      | ネストしているオブジェクトへアクセスしたい場合は、プロパティ名を"\ ``.``\ " でつなげればよい。
+
+.. tip:: \ **#authenticationの紹介**\
+
+  ここでは、\ ``sec:authentication``\ 属性を用いて認証情報が保持するユーザー情報を表示する際の実装例を説明したが、Spring Security Dialectから提供されている\ ``#authentication``\ を用いても、ThymeleafのテンプレートHTMLから認証情報にアクセスする事が可能である。
+
+  \ ``#authentication``\ は、 変数式\ ``${}``\ 式にて使用できるため、条件判定やリテラル置換等\ ``sec:authentication``\ 属性より複雑な使い方が可能である。
+
+  上記の例は、以下のように記述できる
+
+    .. code-block:: HTML
+
+      <html xmlns:th="http://www.thymeleaf.org" xmlns:sec="http://www.thymeleaf.org/extras/spring-security"><!--/* (1) */-->
+      <!--/* omitted */-->
+      <p th:text="|ようこそ、${#authentication.principal.account.lastName}さん。|"></p><!--/* (2) */-->
+
+    .. tabularcolumns:: |p{0.25\linewidth}|p{0.75\linewidth}|
+    .. list-table::
+      :header-rows: 1
+      :widths: 25 75
+
+      * - 項番
+        - 説明
+      * - | (1)
+        - | \ ``sec:authentication``\ 属性を使用する際には\ ``<html>``\ タグに\ ``xmlns:sec``\ 属性を定義していたが、
+          | \ ``#authentication``\ を使用する際には、\ ``xmlns:sec``\ 属性の定義は不要である。
+      * - | (2)
+        - | \ ``#authentication``\ にて認証情報よりlastNameを取得し、lastNameの前後にリテラル置換を行っている。
+
+|
+
 .. _SpringSecurityAuthenticationIntegrationWithSpringMVC:
 
 認証処理とSpring MVCの連携
@@ -1626,30 +2059,68 @@ JSPからのアクセス
 
 | 認証情報(\ ``UserDetails``\ )をコントローラーの引数として受け取るためには、まず\ ``AuthenticationPrincipalArgumentResolver``\ をSpring MVCに適用する必要がある。
 | \ ``AuthenticationPrincipalArgumentResolver``\ を適用するためのbean定義は以下の通りである。
-| \ なお、\ `ブランクプロジェクト <https://github.com/terasolunaorg/terasoluna-gfw-web-multi-blank/tree/5.8.1.RELEASE>`_\ には\ ``AuthenticationPrincipalArgumentResolver``\ が設定済みである。
+| なお、\ `ブランクプロジェクト <https://github.com/terasolunaorg/terasoluna-gfw-web-multi-blank/tree/5.9.0.RELEASE>`_\ には\ ``AuthenticationPrincipalArgumentResolver``\ が設定済みである。
 
-* spring-mvc.xmlの定義例
+.. tabs::
+  .. group-tab:: Java Config
 
-.. code-block:: xml
+    * SpringMvcConfig.javaの定義例
+    
+    .. code-block:: java
 
-  <mvc:annotation-driven>
-      <mvc:argument-resolvers>
-          <!-- omitted -->
-          <!-- (1) -->
-          <bean class="org.springframework.security.web.method.annotation.AuthenticationPrincipalArgumentResolver" />
-          <!-- omitted -->
-      </mvc:argument-resolvers>
-  </mvc:annotation-driven>
+      @EnableAspectJAutoProxy
+      @EnableWebMvc
+      @Configuration
+      public class SpringMvcConfig implements WebMvcConfigurer {
+      
+          @Override
+          public void addArgumentResolvers(
+                  List<HandlerMethodArgumentResolver> argumentResolvers) {
+              // omitted
+              argumentResolvers.add(authenticationPrincipalArgumentResolver()); // (1)
+              // omitted
+          }
+      
+          // (1)
+          @Bean
+          public AuthenticationPrincipalArgumentResolver authenticationPrincipalArgumentResolver() {
+              return new AuthenticationPrincipalArgumentResolver();
+          }
 
-.. tabularcolumns:: |p{0.10\linewidth}|p{0.90\linewidth}|
-.. list-table::
-  :header-rows: 1
-  :widths: 10 90
+    .. tabularcolumns:: |p{0.10\linewidth}|p{0.90\linewidth}|
+    .. list-table::
+      :header-rows: 1
+      :widths: 10 90
+    
+      * - 項番
+        - 説明
+      * - | (1)
+        - | \ ``HandlerMethodArgumentResolver``\ の実装クラスとして、\ ``AuthenticationPrincipalArgumentResolver``\ をSpring MVCに適用する。
 
-  * - 項番
-    - 説明
-  * - | (1)
-    - | \ ``HandlerMethodArgumentResolver``\ の実装クラスとして、\ ``AuthenticationPrincipalArgumentResolver``\ をSpring MVCに適用する。
+  .. group-tab:: XML Config
+
+    * spring-mvc.xmlの定義例
+    
+    .. code-block:: xml
+    
+      <mvc:annotation-driven>
+          <mvc:argument-resolvers>
+              <!-- omitted -->
+              <!-- (1) -->
+              <bean class="org.springframework.security.web.method.annotation.AuthenticationPrincipalArgumentResolver" />
+              <!-- omitted -->
+          </mvc:argument-resolvers>
+      </mvc:annotation-driven>
+    
+    .. tabularcolumns:: |p{0.10\linewidth}|p{0.90\linewidth}|
+    .. list-table::
+      :header-rows: 1
+      :widths: 10 90
+    
+      * - 項番
+        - 説明
+      * - | (1)
+        - | \ ``HandlerMethodArgumentResolver``\ の実装クラスとして、\ ``AuthenticationPrincipalArgumentResolver``\ をSpring MVCに適用する。
 
 |
 
@@ -1710,24 +2181,50 @@ Spring Securityは、多くのカスタマイズポイントを提供してい�
 
 Spring Securityのデフォルトでは、認証処理を実行するためのパスは「\ ``/login``\ 」であるが、以下のようなbean定義を行うことで変更することが可能である。
 
-* spring-security.xmlの定義例
+.. tabs::
+  .. group-tab:: Java Config
 
-.. code-block:: xml
+    * SpringSecurityConfig.javaの定義例
+    
+    .. code-block:: java
 
-  <sec:http request-matcher="ant">
-      <sec:form-login login-processing-url="/authentication" /> <!-- (1) -->
-      <!-- omitted -->
-  </sec:http>
+      @Bean
+      public SecurityFilterChain filterChainJsp0102(HttpSecurity http) throws Exception {
+          http.formLogin(login -> login.loginProcessingUrl("/authentication")); // (1)
+          // omitted
+          return http.build();
+      }
+    
+    .. tabularcolumns:: |p{0.10\linewidth}|p{0.90\linewidth}|
+    .. list-table::
+      :header-rows: 1
+      :widths: 10 90
+    
+      * - 項番
+        - 説明
+      * - | (1)
+        - | \ ``loginProcessingUrl``\ に認証処理を行うためのパスを指定する。
 
-.. tabularcolumns:: |p{0.10\linewidth}|p{0.90\linewidth}|
-.. list-table::
-  :header-rows: 1
-  :widths: 10 90
+  .. group-tab:: XML Config
 
-  * - 項番
-    - 説明
-  * - | (1)
-    - | \ ``login-processing-url``\ 属性に認証処理を行うためのパスを指定する。
+    * spring-security.xmlの定義例
+    
+    .. code-block:: xml
+    
+      <sec:http request-matcher="ant">
+          <sec:form-login login-processing-url="/authentication" /> <!-- (1) -->
+          <!-- omitted -->
+      </sec:http>
+    
+    .. tabularcolumns:: |p{0.10\linewidth}|p{0.90\linewidth}|
+    .. list-table::
+      :header-rows: 1
+      :widths: 10 90
+    
+      * - 項番
+        - 説明
+      * - | (1)
+        - | \ ``login-processing-url``\ 属性に認証処理を行うためのパスを指定する。
 
 .. note::
 
@@ -1740,28 +2237,57 @@ Spring Securityのデフォルトでは、認証処理を実行するための�
 
 Spring Securityのデフォルトでは、資格情報(ユーザー名とパスワード)を送るためのリクエストパラメータは「\ ``username``\ 」と「\ ``password``\ 」であるが、以下のようなbean定義を行うことで変更することが可能である。
 
-* spring-security.xmlの定義例
+.. tabs::
+  .. group-tab:: Java Config
 
-.. code-block:: xml
+    * SpringSecurityConfig.javaの定義例
+    
+    .. code-block:: java
 
-  <sec:http request-matcher="ant">
-      <sec:form-login
-          username-parameter="uid"
-          password-parameter="pwd" /> <!-- (1) (2) -->
-      <!-- omitted -->
-  </sec:http>
+      @Bean
+      public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
+          http.formLogin(login -> login.usernameParameter("uid") // (1)
+                  .passwordParameter("pwd")); // (2)
+          // omitted
+          return http.build();
+      }
+    
+    .. tabularcolumns:: |p{0.10\linewidth}|p{0.90\linewidth}|
+    .. list-table::
+      :header-rows: 1
+      :widths: 10 90
+    
+      * - 項番
+        - 説明
+      * - | (1)
+        - | \ ``usernameParameter``\ にユーザー名のリクエストパラメータ名を指定する。
+      * - | (2)
+        - | \ ``passwordParameter``\ にパスワードのリクエストパラメータ名を指定する。
 
-.. tabularcolumns:: |p{0.10\linewidth}|p{0.90\linewidth}|
-.. list-table::
-  :header-rows: 1
-  :widths: 10 90
+  .. group-tab:: XML Config
 
-  * - 項番
-    - 説明
-  * - | (1)
-    - | \ ``username-parameter``\ 属性にユーザー名のリクエストパラメータ名を指定する。
-  * - | (2)
-    - | \ ``password-parameter``\ 属性にパスワードのリクエストパラメータ名を指定する。
+    * spring-security.xmlの定義例
+    
+    .. code-block:: xml
+    
+      <sec:http request-matcher="ant">
+          <sec:form-login
+              username-parameter="uid"
+              password-parameter="pwd" /> <!-- (1) (2) -->
+          <!-- omitted -->
+      </sec:http>
+    
+    .. tabularcolumns:: |p{0.10\linewidth}|p{0.90\linewidth}|
+    .. list-table::
+      :header-rows: 1
+      :widths: 10 90
+    
+      * - 項番
+        - 説明
+      * - | (1)
+        - | \ ``username-parameter``\ 属性にユーザー名のリクエストパラメータ名を指定する。
+      * - | (2)
+        - | \ ``password-parameter``\ 属性にパスワードのリクエストパラメータ名を指定する。
 
 .. note::
 
@@ -1781,22 +2307,47 @@ Spring Securityのデフォルトでは、資格情報(ユーザー名とパス�
 
 ログインフォームを自分で表示して認証処理を行った後の遷移先(デフォルトURL)は、Webアプリケーションのルートパス("\ ``/``\ " )だが、以下のようなbean定義を行うことで変更することが可能である。
 
-* spring-security.xmlの定義例
+.. tabs::
+  .. group-tab:: Java Config
 
-.. code-block:: xml
+    * SpringSecurityConfig.javaの定義例
+    
+    .. code-block:: java
 
-  <sec:http request-matcher="ant">
-      <sec:form-login default-target-url="/menu" /> <!-- (1) -->
-  </sec:http>
+      @Bean
+      public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
+          http.formLogin(login -> login.defaultSuccessUrl("/menu")); // (1)
+          // omitted
+          return http.build();
+      }
+    
+    .. list-table::
+      :header-rows: 1
+      :widths: 10 90
+    
+      * - 項番
+        - 説明
+      * - | (1)
+        - | \ ``defaultSuccessUrl``\ に認証成功時に遷移するデフォルトのパスを指定する。
 
-.. list-table::
-  :header-rows: 1
-  :widths: 10 90
+  .. group-tab:: XML Config
 
-  * - 項番
-    - 説明
-  * - | (1)
-    - | \ ``default-target-url``\ 属性に認証成功時に遷移するデフォルトのパスを指定する。
+    * spring-security.xmlの定義例
+    
+    .. code-block:: xml
+    
+      <sec:http request-matcher="ant">
+          <sec:form-login default-target-url="/menu" /> <!-- (1) -->
+      </sec:http>
+    
+    .. list-table::
+      :header-rows: 1
+      :widths: 10 90
+    
+      * - 項番
+        - 説明
+      * - | (1)
+        - | \ ``default-target-url``\ 属性に認証成功時に遷移するデフォルトのパスを指定する。
 
 |
 
@@ -1806,25 +2357,51 @@ Spring Securityのデフォルトでは、資格情報(ユーザー名とパス�
 | Spring Securityのデフォルトの動作では、未認証時に認証が必要なページへのリクエストを受信した場合は、受信したリクエストを一旦HTTPセッションに保存し、認証ページに遷移する。
 | 認証成功時にリクエストを復元してリダイレクトするが、以下のようなbean定義を行うことで常に同じ画面に遷移させることが可能である。
 
-* spring-security.xmlの定義例
+.. tabs::
+  .. group-tab:: Java Config
 
-.. code-block:: xml
+    * SpringSecurityConfig.javaの定義例
+    
+    .. code-block:: java
 
-  <sec:http request-matcher="ant">
-      <sec:form-login
-          default-target-url="/menu"
-          always-use-default-target="true" /> <!-- (1) -->
-  </sec:http>
+      @Bean
+      public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
+          http.formLogin(login -> login.defaultSuccessUrl("/menu"), true); // (1)
+          // omitted
+          return http.build();
+      }
+    
+    .. tabularcolumns:: |p{0.10\linewidth}|p{0.90\linewidth}|
+    .. list-table::
+      :header-rows: 1
+      :widths: 10 90
+    
+      * - 項番
+        - 説明
+      * - | (1)
+        - | \ ``defaultSuccessUrl``\ の第二引数に\ ``true``\ を指定する。 (第二引数を指定しない場合は\ ``false``\ となる。) 
 
-.. tabularcolumns:: |p{0.10\linewidth}|p{0.90\linewidth}|
-.. list-table::
-  :header-rows: 1
-  :widths: 10 90
+  .. group-tab:: XML Config
 
-  * - 項番
-    - 説明
-  * - | (1)
-    - | \ ``always-use-default-target``\ 属性に\ ``true``\ を指定する。
+    * spring-security.xmlの定義例
+    
+    .. code-block:: xml
+    
+      <sec:http request-matcher="ant">
+          <sec:form-login
+              default-target-url="/menu"
+              always-use-default-target="true" /> <!-- (1) -->
+      </sec:http>
+    
+    .. tabularcolumns:: |p{0.10\linewidth}|p{0.90\linewidth}|
+    .. list-table::
+      :header-rows: 1
+      :widths: 10 90
+    
+      * - 項番
+        - 説明
+      * - | (1)
+        - | \ ``always-use-default-target``\ 属性に\ ``true``\ を指定する。 (属性を指定しない場合は\ ``false``\ となる。) 
 
 |
 
@@ -1833,27 +2410,61 @@ AuthenticationSuccessHandlerの適用
 
 Spring Securityが提供しているデフォルトの動作をカスタマイズする仕組みだけでは要件をみたせない場合は、以下のようなbean定義を行うことで\ ``AuthenticationSuccessHandler``\ インタフェースの実装クラスを直接適用することができる。
 
-* spring-security.xmlの定義例
+.. tabs::
+  .. group-tab:: Java Config
 
-.. code-block:: xml
+    * SpringSecurityConfig.javaの定義例
+    
+    .. code-block:: java
 
-  <bean id="authenticationSuccessHandler" class="com.example.app.security.handler.MyAuthenticationSuccessHandler"> <!-- (1) -->
+      // (1)
+      @Bean("authenticationSuccessHandler")
+      public MyAuthenticationSuccessHandler authenticationSuccessHandler() {
+          return new MyAuthenticationSuccessHandler();
+      }
 
-  <sec:http request-matcher="ant">
-      <sec:form-login authentication-success-handler-ref="authenticationSuccessHandler" /> <!-- (2) -->
-  </sec:http>
+      @Bean
+      public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
+          http.formLogin(login -> login.successHandler(authenticationSuccessHandler())); // (2)
+          // omitted
+          return http.build();
+      }
+    
+    .. tabularcolumns:: |p{0.10\linewidth}|p{0.90\linewidth}|
+    .. list-table::
+      :header-rows: 1
+      :widths: 10 90
+    
+      * - 項番
+        - 説明
+      * - | (1)
+        - | \ ``AuthenticationSuccessHandler``\ インタフェースの実装クラスをbean定義する。
+      * - | (2)
+        - | ``authentication-success-handler-ref``\ 属性に定義した\ ``authenticationSuccessHandler``\ を指定する。
 
-.. tabularcolumns:: |p{0.10\linewidth}|p{0.90\linewidth}|
-.. list-table::
-  :header-rows: 1
-  :widths: 10 90
+  .. group-tab:: XML Config
 
-  * - 項番
-    - 説明
-  * - | (1)
-    - | \ ``AuthenticationSuccessHandler``\ インタフェースの実装クラスをbean定義する。
-  * - | (2)
-    - | ``authentication-success-handler-ref``\ 属性に定義した\ ``authenticationSuccessHandler``\ を指定する。
+    * spring-security.xmlの定義例
+    
+    .. code-block:: xml
+    
+      <bean id="authenticationSuccessHandler" class="com.example.app.security.handler.MyAuthenticationSuccessHandler"> <!-- (1) -->
+    
+      <sec:http request-matcher="ant">
+          <sec:form-login authentication-success-handler-ref="authenticationSuccessHandler" /> <!-- (2) -->
+      </sec:http>
+    
+    .. tabularcolumns:: |p{0.10\linewidth}|p{0.90\linewidth}|
+    .. list-table::
+      :header-rows: 1
+      :widths: 10 90
+    
+      * - 項番
+        - 説明
+      * - | (1)
+        - | \ ``AuthenticationSuccessHandler``\ インタフェースの実装クラスをbean定義する。
+      * - | (2)
+        - | ``authentication-success-handler-ref``\ 属性に定義した\ ``authenticationSuccessHandler``\ を指定する。
 
 .. warning:: \ **AuthenticationSuccessHandlerの責務**\
 
@@ -1879,23 +2490,49 @@ Spring Securityが提供しているデフォルトの動作をカスタマイ�
 
 Spring Securityのデフォルトの動作では、ログインフォームを表示するためのパスに\ ``error``\ というクエリパラメータが付与されたURLにリダイレクトするが、以下のようなbean定義を行うことで変更することが可能である。
 
-* spring-security.xmlの定義例
+.. tabs::
+  .. group-tab:: Java Config
 
-.. code-block:: xml
+    * SpringSecurityConfig.javaの定義例
+    
+    .. code-block:: java
 
-  <sec:http request-matcher="ant">
-      <sec:form-login authentication-failure-url="/loginFailure" /> <!-- (1) -->
-  </sec:http>
+      @Bean
+      public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
+          http.formLogin(login -> login.failureUrl("/loginFailure")); // (1)
+          // omitted
+             return http.build();
+      }
+    
+    .. tabularcolumns:: |p{0.10\linewidth}|p{0.90\linewidth}|
+    .. list-table::
+      :header-rows: 1
+      :widths: 10 90
+    
+      * - 項番
+        - 説明
+      * - |  (1)
+        - | \ ``failureUrl``\ に認証失敗時に遷移するパスを指定する。
 
-.. tabularcolumns:: |p{0.10\linewidth}|p{0.90\linewidth}|
-.. list-table::
-  :header-rows: 1
-  :widths: 10 90
+  .. group-tab:: XML Config
 
-  * - 項番
-    - 説明
-  * - |  (1)
-    - | \ ``authentication-failure-url``\ 属性に認証失敗時に遷移するパスを指定する。
+    * spring-security.xmlの定義例
+    
+    .. code-block:: xml
+    
+      <sec:http request-matcher="ant">
+          <sec:form-login authentication-failure-url="/loginFailure" /> <!-- (1) -->
+      </sec:http>
+    
+    .. tabularcolumns:: |p{0.10\linewidth}|p{0.90\linewidth}|
+    .. list-table::
+      :header-rows: 1
+      :widths: 10 90
+    
+      * - 項番
+        - 説明
+      * - |  (1)
+        - | \ ``authentication-failure-url``\ 属性に認証失敗時に遷移するパスを指定する。
 
 |
 
@@ -1904,63 +2541,123 @@ AuthenticationFailureHandlerの適用
 
 Spring Securityが提供しているデフォルトの動作をカスタマイズする仕組みだけでは要件をみたせない場合は、以下のようなbean定義を行うことで\ ``AuthenticationFailureHandler``\ インタフェースの実装クラスを直接適用することができる。
 
-* spring-security.xmlの定義例
+.. tabs::
+  .. group-tab:: Java Config
 
-.. code-block:: xml
+    * SpringSecurityConfig.javaの定義例
+    
+    .. code-block:: java
 
-  <!-- (1) -->
-  <bean id="authenticationFailureHandler"
-      class="org.springframework.security.web.authentication.ExceptionMappingAuthenticationFailureHandler" />
-      <property name="defaultFailureUrl" value="/login/systemError" /> <!-- (2) -->
-      <property name="exceptionMappings"> <!-- (3) -->
-          <props>
-              <prop key="org.springframework.security.authentication.BadCredentialsException"> <!-- (4) -->
-                  /login/badCredentials
-              </prop>
-              <prop key="org.springframework.security.core.userdetails.UsernameNotFoundException"> <!-- (5) -->
-                  /login/usernameNotFound
-              </prop>
-              <prop key="org.springframework.security.authentication.DisabledException"> <!-- (6) -->
-                  /login/disabled
-              </prop>
-              <!-- omitted -->
-          </props>
-      </property>
-  </bean>
+      // (1)
+      @Bean("authenticationFailureHandler")
+      public ExceptionMappingAuthenticationFailureHandler authenticationFailureHandler() {
+          ExceptionMappingAuthenticationFailureHandler bean = new ExceptionMappingAuthenticationFailureHandler();
+          bean.setDefaultFailureUrl("/login/systemError"); // (2)
+          Properties mappings = new Properties();
+          mappings.put("org.springframework.security.authentication.BadCredentialsException", "/login/badCredentials"); // (4)
+          mappings.put("org.springframework.security.core.userdetails.UsernameNotFoundException", "/login/usernameNotFound"); // (5)
+          mappings.put("org.springframework.security.authentication.DisabledException", "/login/disabled"); // (6)
+          // omitted
+          bean.setExceptionMappings(mappings); // (3)
+          return bean;
+      }
 
-  <sec:http request-matcher="ant">
-      <sec:form-login authentication-failure-handler-ref="authenticationFailureHandler" /> <!-- (7) -->
-  </sec:http>
+      @Bean
+      public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
+            http.formLogin(login -> login.failureHandler(jspAuthenticationFailureHandler)); // (7)
+          // omitted
+          return http.build();
+      }
+    
+    .. tabularcolumns:: |p{0.20\linewidth}|p{0.80\linewidth}|
+    .. list-table::
+      :header-rows: 1
+      :widths: 20 80
+      :class: longtable
+    
+      * - | 項番
+        - | 説明
+      * - | (1)
+        - | \ ``AuthenticationFailureHandler``\ インタフェースの実装クラスをbean定義する。
+      * - | (2)
+        - | \ ``defaultFailureUrl``\ 属性にデフォルトの遷移先のURLを指定する。
+          | 下記(4)-(6)の定義に合致しない例外が発生した際は、本設定の遷移先に遷移する。
+      * - | (3)
+        - | \ ``exceptionMappings``\ プロパティにハンドルする\ ``org.springframework.security.authentication.AuthenticationServiceException``\ の実装クラスと例外発生時の遷移先を \ ``Map``\ 形式で設定する。
+          | キーに\ ``org.springframework.security.authentication.AuthenticationServiceException``\ 実装クラスを設定し、値に遷移先URLを設定する。
+      * - | (4)
+        - | \ ``BadCredentialsException``\
+          | パスワード照合失敗による認証エラー時にスローされる。
+      * - | (5)
+        - | \ ``UsernameNotFoundException``\
+          | 不正ユーザーID（存在しないユーザーID）による認証エラー時にスローされる。
+          | ``org.springframework.security.authentication.dao.AbstractUserDetailsAuthenticationProvider``\ を
+          | 継承したクラスを認証プロバイダに指定している場合、\ ``hideUserNotFoundExceptions``\ プロパティを\ ``false``\ に変更しないと本例外は、\ ``BadCredentialsException``\ に変更される。
+      * - | (6)
+        - | \  ``DisabledException``\
+          | 無効ユーザーIDによる認証エラー時にスローされる。
+      * - | (7)
+        - | \ ``failureHandler``\ に\ ``authenticationFailureHandler``\ を設定する。
 
-.. tabularcolumns:: |p{0.20\linewidth}|p{0.80\linewidth}|
-.. list-table::
-  :header-rows: 1
-  :widths: 20 80
-  :class: longtable
+  .. group-tab:: XML Config
 
-  * - | 項番
-    - | 説明
-  * - | (1)
-    - | \ ``AuthenticationFailureHandler``\ インタフェースの実装クラスをbean定義する。
-  * - | (2)
-    - | \ ``defaultFailureUrl``\ 属性にデフォルトの遷移先のURLを指定する。
-      | 下記(4)-(6)の定義に合致しない例外が発生した際は、本設定の遷移先に遷移する。
-  * - | (3)
-    - | \ ``exceptionMappings``\ プロパティにハンドルする\ ``org.springframework.security.authentication.AuthenticationServiceException``\ の実装クラスと例外発生時の遷移先を \ ``Map``\ 形式で設定する。
-      | キーに\ ``org.springframework.security.authentication.AuthenticationServiceException``\ 実装クラスを設定し、値に遷移先URLを設定する。
-  * - | (4)
-    - | \ ``BadCredentialsException``\
-      | パスワード照合失敗による認証エラー時にスローされる。
-  * - | (5)
-    - | \ ``UsernameNotFoundException``\
-      | 不正ユーザーID（存在しないユーザーID）による認証エラー時にスローされる。
-      | ``org.springframework.security.authentication.dao.AbstractUserDetailsAuthenticationProvider``\ を
-      | 継承したクラスを認証プロバイダに指定している場合、``hideUserNotFoundExceptions``\ プロパティを\ ``false``\ に変更しないと本例外は、\ ``BadCredentialsException``\ に変更される。
-  * - | (6)
-    - | \  ``DisabledException``\
-      | 無効ユーザーIDによる認証エラー時にスローされる。
-  * - | (7)
-    - | \ ``authentication-failure-handler-ref``\ 属性に\ ``authenticationFailureHandler``\ を設定する。
+    * spring-security.xmlの定義例
+    
+    .. code-block:: xml
+
+      <!-- (1) -->
+      <bean id="authenticationFailureHandler"
+          class="org.springframework.security.web.authentication.ExceptionMappingAuthenticationFailureHandler" />
+          <property name="defaultFailureUrl" value="/login/systemError" /> <!-- (2) -->
+          <property name="exceptionMappings"> <!-- (3) -->
+              <props>
+                  <prop key="org.springframework.security.authentication.BadCredentialsException"> <!-- (4) -->
+                      /login/badCredentials
+                  </prop>
+                  <prop key="org.springframework.security.core.userdetails.UsernameNotFoundException"> <!-- (5) -->
+                      /login/usernameNotFound
+                  </prop>
+                  <prop key="org.springframework.security.authentication.DisabledException"> <!-- (6) -->
+                      /login/disabled
+                  </prop>
+                  <!-- omitted -->
+              </props>
+          </property>
+      </bean>
+    
+      <sec:http request-matcher="ant">
+          <sec:form-login authentication-failure-handler-ref="authenticationFailureHandler" /> <!-- (7) -->
+      </sec:http>
+    
+    .. tabularcolumns:: |p{0.20\linewidth}|p{0.80\linewidth}|
+    .. list-table::
+      :header-rows: 1
+      :widths: 20 80
+      :class: longtable
+    
+      * - | 項番
+        - | 説明
+      * - | (1)
+        - | \ ``AuthenticationFailureHandler``\ インタフェースの実装クラスをbean定義する。
+      * - | (2)
+        - | \ ``defaultFailureUrl``\ 属性にデフォルトの遷移先のURLを指定する。
+          | 下記(4)-(6)の定義に合致しない例外が発生した際は、本設定の遷移先に遷移する。
+      * - | (3)
+        - | \ ``exceptionMappings``\ プロパティにハンドルする\ ``org.springframework.security.authentication.AuthenticationServiceException``\ の実装クラスと例外発生時の遷移先を \ ``Map``\ 形式で設定する。
+          | キーに\ ``org.springframework.security.authentication.AuthenticationServiceException``\ 実装クラスを設定し、値に遷移先URLを設定する。
+      * - | (4)
+        - | \ ``BadCredentialsException``\
+          | パスワード照合失敗による認証エラー時にスローされる。
+      * - | (5)
+        - | \ ``UsernameNotFoundException``\
+          | 不正ユーザーID（存在しないユーザーID）による認証エラー時にスローされる。
+          | ``org.springframework.security.authentication.dao.AbstractUserDetailsAuthenticationProvider``\ を
+          | 継承したクラスを認証プロバイダに指定している場合、\ ``hideUserNotFoundExceptions``\ プロパティを\ ``false``\ に変更しないと本例外は、\ ``BadCredentialsException``\ に変更される。
+      * - | (6)
+        - | \  ``DisabledException``\
+          | 無効ユーザーIDによる認証エラー時にスローされる。
+      * - | (7)
+        - | \ ``authentication-failure-handler-ref``\ 属性に\ ``authenticationFailureHandler``\ を設定する。
 
 .. note:: \ **例外発生時の制御**\
 
@@ -1987,25 +2684,52 @@ Spring Securityが提供しているデフォルトの動作をカスタマイ�
 
 Spring Securityのデフォルトでは、ログアウト処理を実行するためのパスは「\ ``/logout``\ 」であるが、以下のようなbean定義を行うことで変更することが可能である。
 
-* spring-security.xmlの定義例
+.. tabs::
+  .. group-tab:: Java Config
 
-.. code-block:: xml
+    * SpringSecurityConfig.javaの定義例
+    
+    .. code-block:: java
+      
+      @Bean
+      public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
+          // omitted
+          http.logout(logout -> logout.logoutUrl("/auth/logout")); // (1)
+          // omitted
+          return http.build();
+      }
+    
+    .. tabularcolumns:: |p{0.10\linewidth}|p{0.90\linewidth}|
+    .. list-table::
+      :header-rows: 1
+      :widths: 10 90
+    
+      * - 項番
+        - 説明
+      * - | (1)
+        - | \ ``logoutUrl``\ を設定し、ログアウト処理を行うパスを指定する。
 
-  <sec:http request-matcher="ant">
-      <!-- omitted -->
-      <sec:logout logout-url="/auth/logout" /> <!-- (1) -->
-      <!-- omitted -->
-  </sec:http>
+  .. group-tab:: XML Config
 
-.. tabularcolumns:: |p{0.10\linewidth}|p{0.90\linewidth}|
-.. list-table::
-  :header-rows: 1
-  :widths: 10 90
-
-  * - 項番
-    - 説明
-  * - | (1)
-    - | \ ``logout-url``\ 属性を設定し、ログアウト処理を行うパスを指定する。
+    * spring-security.xmlの定義例
+    
+    .. code-block:: xml
+    
+      <sec:http request-matcher="ant">
+          <!-- omitted -->
+          <sec:logout logout-url="/auth/logout" /> <!-- (1) -->
+          <!-- omitted -->
+      </sec:http>
+    
+    .. tabularcolumns:: |p{0.10\linewidth}|p{0.90\linewidth}|
+    .. list-table::
+      :header-rows: 1
+      :widths: 10 90
+    
+      * - 項番
+        - 説明
+      * - | (1)
+        - | \ ``logout-url``\ 属性を設定し、ログアウト処理を行うパスを指定する。
 
 .. note::
 
@@ -2075,55 +2799,117 @@ Spring Securityのデフォルトでは、ログアウト処理を実行する�
 遷移先の変更
 """"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 
-* spring-security.xmlの定義例
+.. tabs::
+  .. group-tab:: Java Config
 
-.. code-block:: xml
+    * SpringSecurityConfig.javaの定義例
+    
+    .. code-block:: java
 
-  <sec:http request-matcher="ant">
-      <!-- omitted -->
-      <sec:logout logout-success-url="/logoutSuccess" /> <!-- (1) -->
-      <!-- omitted -->
-  </sec:http>
+      @Bean
+      public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
+          // omitted
+          http.logout(logout -> logout.logoutSuccessUrl("/logoutSuccess")); // (1)
+          // omitted
+          return http.build();
+      }
+    
+    .. tabularcolumns:: |p{0.10\linewidth}|p{0.90\linewidth}|
+    .. list-table::
+      :header-rows: 1
+      :widths: 10 90
+    
+      * - 項番
+        - 説明
+      * - | (1)
+        - | \ ``logout-success-url``\ 属性を設定し、ログアウト成功時に遷移するパスを指定する。
 
-.. tabularcolumns:: |p{0.10\linewidth}|p{0.90\linewidth}|
-.. list-table::
-  :header-rows: 1
-  :widths: 10 90
+  .. group-tab:: XML Config
 
-  * - 項番
-    - 説明
-  * - | (1)
-    - | \ ``logout-success-url``\ 属性を設定し、ログアウト成功時に遷移するパスを指定する。
+    * spring-security.xmlの定義例
+    
+    .. code-block:: xml
+    
+      <sec:http request-matcher="ant">
+          <!-- omitted -->
+          <sec:logout logout-success-url="/logoutSuccess" /> <!-- (1) -->
+          <!-- omitted -->
+      </sec:http>
+    
+    .. tabularcolumns:: |p{0.10\linewidth}|p{0.90\linewidth}|
+    .. list-table::
+      :header-rows: 1
+      :widths: 10 90
+    
+      * - 項番
+        - 説明
+      * - | (1)
+        - | \ ``logout-success-url``\ 属性を設定し、ログアウト成功時に遷移するパスを指定する。
 
 |
 
 LogoutSuccessHandlerの適用
 """"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 
-* spring-security.xmlの定義例
+.. tabs::
+  .. group-tab:: Java Config
 
-.. code-block:: xml
+    * SpringSecurityConfig.javaの定義例
+    
+    .. code-block:: java
+    
+      // (1)
+      @Bean("logoutSuccessHandler")
+      public MyLogoutSuccessHandler logoutSuccessHandler() {
+          return new MyLogoutSuccessHandler();
+      }
 
-  <!-- (1) -->
-  <bean id="logoutSuccessHandler" class="com.example.app.security.handler.MyLogoutSuccessHandler" />
+      @Bean
+      public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
+          // omitted
+          http.logout(logout -> logout.logoutSuccessHandler(logoutSuccessHandler())); // (2)
+          // omitted
+          return http.build();
+      }
+    
+    .. tabularcolumns:: |p{0.10\linewidth}|p{0.90\linewidth}|
+    .. list-table::
+      :header-rows: 1
+      :widths: 10 90
+    
+      * - 項番
+        - 説明
+      * - | (1)
+        - | \ ``LogoutSuccessHandler``\ インタフェースの実装クラスをbean定義する。
+      * - | (2)
+        - | ``success-handler-ref``\ 属性に\ ``LogoutSuccessHandler``\ を設定する。
 
-  <sec:http request-matcher="ant">
-      <!-- omitted -->
-      <sec:logout success-handler-ref="logoutSuccessHandler" /> <!-- (2) -->
-      <!-- omitted -->
-  </sec:http>
+  .. group-tab:: XML Config
 
-.. tabularcolumns:: |p{0.10\linewidth}|p{0.90\linewidth}|
-.. list-table::
-  :header-rows: 1
-  :widths: 10 90
-
-  * - 項番
-    - 説明
-  * - | (1)
-    - | \ ``LogoutSuccessHandler``\ インタフェースの実装クラスをbean定義する。
-  * - | (2)
-    - | ``success-handler-ref``\ 属性に\ ``LogoutSuccessHandler``\ を設定する。
+    * spring-security.xmlの定義例
+    
+    .. code-block:: xml
+    
+      <!-- (1) -->
+      <bean id="logoutSuccessHandler" class="com.example.app.security.handler.MyLogoutSuccessHandler" />
+    
+      <sec:http request-matcher="ant">
+          <!-- omitted -->
+          <sec:logout success-handler-ref="logoutSuccessHandler" /> <!-- (2) -->
+          <!-- omitted -->
+      </sec:http>
+    
+    .. tabularcolumns:: |p{0.10\linewidth}|p{0.90\linewidth}|
+    .. list-table::
+      :header-rows: 1
+      :widths: 10 90
+    
+      * - 項番
+        - 説明
+      * - | (1)
+        - | \ ``LogoutSuccessHandler``\ インタフェースの実装クラスをbean定義する。
+      * - | (2)
+        - | ``success-handler-ref``\ 属性に\ ``LogoutSuccessHandler``\ を設定する。
 
 |
 
@@ -2147,26 +2933,53 @@ LogoutSuccessHandlerの適用
 | 例えばユーザー情報をデーターベースから取得する時にDBアクセスエラーが発生した場合、\ ``SQLException``\ が保持する例外メッセージが画面に表示されることになる。
 | システムエラーの例外メッセージを画面に表示させないためには、\ ``ExceptionMappingAuthenticationFailureHandler``\ を使用して\ ``InternalAuthenticationServiceException``\ をハンドリングし、システムエラーが発生したことを通知するためのパスに遷移させるなどの対応が必要となる。
 
-* spring-security.xmlの定義例
+.. tabs::
+  .. group-tab:: Java Config
 
-.. code-block:: xml
+    * SpringSecurityConfig.javaの定義例
+    
+    .. code-block:: java
 
-  <bean id="authenticationFailureHandler"
-      class="org.springframework.security.web.authentication.ExceptionMappingAuthenticationFailureHandler">
-      <property name="defaultFailureUrl" value="/login?error" />
-      <property name="exceptionMappings">
-          <props>
-              <prop key="org.springframework.security.authentication.InternalAuthenticationServiceException">
-                  /login?systemError
-              </prop>
-              <!-- omitted -->
-          </props>
-      </property>
-  </bean>
+      @Bean("authenticationFailureHandler")
+      public ExceptionMappingAuthenticationFailureHandler authenticationFailureHandler() {
+          ExceptionMappingAuthenticationFailureHandler bean = new ExceptionMappingAuthenticationFailureHandler();
+          bean.setDefaultFailureUrl("/login?error");
+          Properties mappings = new Properties();
+          mappings.put("org.springframework.security.authentication.InternalAuthenticationServiceException", "/login?systemError");
+          // omitted
+          bean.setExceptionMappings(mappings);
+          return bean;
+      }
 
-  <sec:http request-matcher="ant">
-      <sec:form-login authentication-failure-handler-ref="authenticationFailureHandler" />
-  </sec:http>
+      @Bean
+      public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
+          http.formLogin(login -> login.failureHandler(jspAuthenticationFailureHandler));
+          // omitted
+          return http.build();
+      }
+
+  .. group-tab:: XML Config
+
+    * spring-security.xmlの定義例
+    
+    .. code-block:: xml
+    
+      <bean id="authenticationFailureHandler"
+          class="org.springframework.security.web.authentication.ExceptionMappingAuthenticationFailureHandler">
+          <property name="defaultFailureUrl" value="/login?error" />
+          <property name="exceptionMappings">
+              <props>
+                  <prop key="org.springframework.security.authentication.InternalAuthenticationServiceException">
+                      /login?systemError
+                  </prop>
+                  <!-- omitted -->
+              </props>
+          </property>
+      </bean>
+    
+      <sec:http request-matcher="ant">
+          <sec:form-login authentication-failure-handler-ref="authenticationFailureHandler" />
+      </sec:http>
 
 |
 
@@ -2175,20 +2988,33 @@ LogoutSuccessHandlerの適用
 
 * ログインフォームの実装例
 
-.. code-block:: jsp
+.. tabs::
+  .. group-tab:: JSP
 
-  <c:choose>
-      <c:when test="${param.containsKey('error')}">
-          <span style="color: red;">
-              <c:out value="${SPRING_SECURITY_LAST_EXCEPTION.message}"/>
-          </span>
-      </c:when>
-      <c:when test="${param.containsKey('systemError')}">
-          <span style="color: red;">
-              System Error occurred.
-          </span>
-      </c:when>
-  </c:choose>
+    .. code-block:: jsp
+
+      <c:choose>
+          <c:when test="${param.containsKey('error')}">
+              <span style="color: red;">
+                  <c:out value="${SPRING_SECURITY_LAST_EXCEPTION.message}"/>
+              </span>
+          </c:when>
+          <c:when test="${param.containsKey('systemError')}">
+              <span style="color: red;">
+                  System Error occurred.
+              </span>
+          </c:when>
+      </c:choose>
+
+  .. group-tab:: Thymeleaf
+
+    .. code-block:: HTML
+
+      <span th:if="${param.keySet().contains('error')}" style="color: red;"
+          th:text="${session[SPRING_SECURITY_LAST_EXCEPTION].message}"></span>
+      <span th:if="${param.keySet().contains('systemError')}" style="color: red;">
+          System Error occurred.
+      </span>
 
 .. note::
 
@@ -2308,7 +3134,7 @@ Bean Validationによる入力チェック
 認証処理の拡張
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-Spring Securityから提供されている\ `認証プロバイダ <https://docs.spring.io/spring-security/site/docs/6.0.1/api/org/springframework/security/authentication/AuthenticationProvider.html>`_\ で対応できない認証要件がある場合は、\ ``org.springframework.security.authentication.AuthenticationProvider``\ インタフェースを実装したクラスを作成する必要がある。
+Spring Securityから提供されている\ `認証プロバイダ <https://docs.spring.io/spring-security/site/docs/6.2.1/api/org/springframework/security/authentication/AuthenticationProvider.html>`_\ で対応できない認証要件がある場合は、\ ``org.springframework.security.authentication.AuthenticationProvider``\ インタフェースを実装したクラスを作成する必要がある。
 
 ここでは、ユーザー名、パスワード、\ **会社識別子(独自の認証パラメータ)**\ の3つのパラメータを使用してDB認証を行うための拡張例を示す。
 
@@ -2547,36 +3373,70 @@ Authentication Filterの作成
 ログインフォームの修正
 """"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 
-\ :ref:`SpringSecurityAuthenticationLoginForm`\ で作成したログインフォーム(JSP)に対して、会社識別子を追加する。
+\ :ref:`SpringSecurityAuthenticationLoginForm`\ で作成したログインフォームに対して、会社識別子を追加する。
 
-.. code-block:: jsp
+.. tabs::
+  .. group-tab:: JSP
 
-  <form:form action="${pageContext.request.contextPath}/login" method="post">
-      <!-- omitted -->
-          <tr>
-              <td><label for="username">User Name</label></td>
-              <td><input type="text" id="username" name="username"></td>
-          </tr>
-          <tr>
-              <td><label for="companyId">Company Id</label></td>
-              <td><input type="text" id="companyId" name="companyId"></td> <!-- (1) -->
-          </tr>
-          <tr>
-              <td><label for="password">Password</label></td>
-              <td><input type="password" id="password" name="password"></td>
-          </tr>
-      <!-- omitted -->
-  </form:form>
+    .. code-block:: jsp
 
-.. tabularcolumns:: |p{0.10\linewidth}|p{0.90\linewidth}|
-.. list-table::
-  :header-rows: 1
-  :widths: 10 90
+      <form:form action="${pageContext.request.contextPath}/login" method="post">
+          <!-- omitted -->
+              <tr>
+                  <td><label for="username">User Name</label></td>
+                  <td><input type="text" id="username" name="username"></td>
+              </tr>
+              <tr>
+                  <td><label for="companyId">Company Id</label></td>
+                  <td><input type="text" id="companyId" name="companyId"></td> <!-- (1) -->
+              </tr>
+              <tr>
+                  <td><label for="password">Password</label></td>
+                  <td><input type="password" id="password" name="password"></td>
+              </tr>
+          <!-- omitted -->
+      </form:form>
 
-  * - 項番
-    - 説明
-  * - | (1)
-    - | 会社識別子の入力フィールド名に\ ``companyId``\ を指定する。
+    .. tabularcolumns:: |p{0.10\linewidth}|p{0.90\linewidth}|
+    .. list-table::
+      :header-rows: 1
+      :widths: 10 90
+
+      * - 項番
+        - 説明
+      * - | (1)
+        - | 会社識別子の入力フィールド名に\ ``companyId``\ を指定する。
+
+  .. group-tab:: Thymeleaf
+
+    .. code-block:: HTML
+
+      <form th:action="@{/login}" method="post">
+          <!--/* omitted */-->
+              <tr>
+                  <td><label for="username">User Name</label></td>
+                  <td><input type="text" id="username" name="username"></td>
+              </tr>
+              <tr>
+                  <td><label for="companyId">Company Id</label></td>
+                  <td><input type="text" id="companyId" name="companyId"></td> <!--/* (1) */-->
+              </tr>
+              <tr>
+                  <td><label for="password">Password</label></td>
+                  <td><input type="password" id="password" name="password"></td>
+              </tr>
+          <!--/* omitted */-->
+      </form>
+
+    .. tabularcolumns:: |p{0.10\linewidth}|p{0.90\linewidth}|
+    .. list-table::
+      :header-rows: 1
+      :widths: 10 90
+
+      * - 項番
+        - 説明
+      * - | (1)
+        - | 会社識別子の入力フィールド名に\ ``companyId``\ を指定する。
 
 |
 
@@ -2585,158 +3445,313 @@ Authentication Filterの作成
 
 ユーザー名、パスワード、会社識別子(独自の認証パラメータ)を使用したDB認証機能をSpring Securityに適用する。
 
-* spring-security.xmlの定義例
+.. tabs::
+  .. group-tab:: Java Config
 
-.. code-block:: xml
+    * SpringSecurityConfig.javaの定義例
+    
+    .. code-block:: java
 
-  <!-- omitted -->
+      // (1)
+      @Bean
+      public SecurityFilterChain filterChain(HttpSecurity http,
+              CompanyIdUsernamePasswordAuthenticationFilter companyIdUsernamePasswordAuthenticationFilter) throws Exception {
+  
+          http.exceptionHandling(exception -> exception
+                  .authenticationEntryPoint(loginUrlAuthenticationEntryPoint())); // (1)
+          // omitted
+          http.addFilterAt(companyIdUsernamePasswordAuthenticationFilter, UsernamePasswordAuthenticationFilter.class); // (2)
+          http.csrf(csrf -> csrf.csrfTokenRepository(csrfTokenRepository()));
+          http.logout(logout -> logout.logoutUrl("/logout")
+                  .logoutSuccessUrl("/login"));
+          // omitted
+          http.authorizeHttpRequests(authz -> authz
+                  .requestMatchers(new AntPathRequestMatcher("/**")).permitAll());
+  
+          return http.build();
+      }
 
-  <!-- (1) -->
-  <sec:http request-matcher="ant"
-      entry-point-ref="loginUrlAuthenticationEntryPoint">
+      // (3)
+      @Bean("loginUrlAuthenticationEntryPoint")
+      public LoginUrlAuthenticationEntryPoint loginUrlAuthenticationEntryPoint() {
+          return new LoginUrlAuthenticationEntryPoint("/login");
+      }
 
+      // (4)
+      @Bean("companyIdUsernamePasswordAuthenticationFilter")
+      public CompanyIdUsernamePasswordAuthenticationFilter companyIdUsernamePasswordAuthenticationFilter(
+              @Qualifier("authenticationManager") AuthenticationManager authenticationManager) {
+  
+          CompanyIdUsernamePasswordAuthenticationFilter bean = new CompanyIdUsernamePasswordAuthenticationFilter();
+          bean.setRequiresAuthenticationRequestMatcher(antPathRequestMatcher()); // (5)
+          bean.setAuthenticationManager(authenticationManager); // (6)
+          bean.setSessionAuthenticationStrategy(sessionAuthenticationStrategy()); // (7)
+          bean.setAuthenticationFailureHandler(
+                  simpleUrlAuthenticationFailureHandler()); // (8)
+          bean.setAuthenticationSuccessHandler(
+                  jspSimpleUrlAuthenticationSuccessHandler()); // (9)
+          return bean;
+      }
+
+      // (5)
+      @Bean("antPathRequestMatcher")
+      public AntPathRequestMatcher antPathRequestMatcher() {
+          return new AntPathRequestMatcher("/authentication", "POST");
+      }
+
+      // (6')
+      @Bean("authenticationManager")
+      public AuthenticationManager authenticationManager(
+              AuthenticationProvider companyIdUsernamePasswordAuthenticationProvider) {
+          return new ProviderManager(companyIdUsernamePasswordAuthenticationProvider);
+      }   
+
+      // (6')
+      @Bean("companyIdUsernamePasswordAuthenticationProvider")
+      public AuthenticationProvider companyIdUsernamePasswordAuthenticationProvider(
+              PasswordEncoder passwordEncoder) {
+          CompanyIdUsernamePasswordAuthenticationProvider authProvider = new CompanyIdUsernamePasswordAuthenticationProvider();
+          authProvider.setUserDetailsService(customerService());
+          authProvider.setPasswordEncoder(passwordEncoder);
+          return authProvider;
+      }
+
+      // (7')
+      @Bean("sessionAuthenticationStrategy")
+      public CompositeSessionAuthenticationStrategy sessionAuthenticationStrategy() {
+          List<SessionAuthenticationStrategy> list = new ArrayList<SessionAuthenticationStrategy>();
+          list.add(csrfAuthenticationStrategy());
+          list.add(sessionFixationProtectionStrategy());
+          CompositeSessionAuthenticationStrategy bean = new CompositeSessionAuthenticationStrategy(list);
+          return bean;
+      }
+
+      // (8)
+      @Bean("simpleUrlAuthenticationFailureHandler")
+      public SimpleUrlAuthenticationFailureHandler simpleUrlAuthenticationFailureHandler() {
+          return new SimpleUrlAuthenticationFailureHandler("/login?error=true");
+      }
+
+      // (9)
+      @Bean("simpleUrlAuthenticationSuccessHandler")
+      public SimpleUrlAuthenticationSuccessHandler simpleUrlAuthenticationSuccessHandler() {
+          return new SimpleUrlAuthenticationSuccessHandler();
+      }
+
+      @Bean("csrfTokenRepository")
+      public HttpSessionCsrfTokenRepository csrfTokenRepository() {
+          return new HttpSessionCsrfTokenRepository();
+      }
+    
+    .. tabularcolumns:: |p{0.10\linewidth}|p{0.90\linewidth}|
+    .. list-table::
+      :header-rows: 1
+      :widths: 10 90
+      :class: longtable
+    
+      * - 項番
+        - 説明
+      * - | (1)
+        - | (2)の\ ``HttpSecurity#addFilterAt``\ タグを使用して\ ``FORM_LOGIN_FILTER``\ を差し替える場合は、\ ``SecurityFilterChain``\ に以下の設定を行う必要がある。
+    
+          * \ ``HttpSecurity#formLogin``\ は使用できないため、\ ``httpSecurity#exceptionHandling``\ を使用して\ ``AuthenticationEntryPoint``\ を明示的に指定する。
+    
+      * - | (2)
+        - | \ ``HttpSecurity#addFilterAt``\ を使用して\ ``FORM_LOGIN_FILTER``\ を差し替える。
+          |
+          | \ ``HttpSecurity#addFilterAt``\ の第一引数に拡張したAuthentication Filterのbeanを指定し、第二引数に登録済みのFilterクラスを指定する。
+          | 上記設定では\ ``FORM_LOGIN_FILTER``\ に該当する\ ``UsernamePasswordAuthenticationFilter.class``\ を指定している。
+      * - | (3)
+        - | \ ``SecurityFilterChain``\ の\ ``httpSecurity#exceptionHandling``\ に使用する\ ``AuthenticationEntryPoint``\ のbeanを指定する。
+          |
+          | ここでは、\ ``HttpSecurity#formLogin``\ を指定した際に使用される\ ``org.springframework.security.web.authentication.LoginUrlAuthenticationEntryPoint``\ クラスのbeanを指定している。
+      * - | (4)
+        - | \ ``FORM_LOGIN_FILTER``\ として使用するAuthentication Filterクラスのbeanを定義する。
+          |
+          | ここでは、拡張したAuthentication Filterクラス(\ ``CompanyIdUsernamePasswordAuthenticationFilter``\ )のbeanを定義している。
+      * - | (5)
+        - | \ ``requiresAuthenticationRequestMatcher``\ プロパティに、認証処理を行うリクエストを検出するための\ ``RequestMatcher``\ インスタンスを指定する。
+          |
+          | ここでは、\ ``/authentication``\ というパスにリクエストがあった場合に認証処理を行うように設定している。
+          | これは、\ ``HttpSecurity#formLogin``\ の\ ``loginProcessingUrl``\ に\ ``/authentication``\ を指定したのと同義である。
+      * - | (6)
+        - | \ ``authenticationManager``\ プロパティに、\ ``AuthenticationManager``\ のbeanを設定する。
+      * - | (6')
+        - | Spring Securityが生成する\ ``AuthenticationManager``\ に対して、拡張した\ ``AuthenticationProvider``\ (\ ``CompanyIdUsernamePasswordAuthenticationProvider``\ )を設定する。
+      * - | (7)
+        - | \ ``sessionAuthenticationStrategy``\ プロパティに、認証成功時のセッションの取り扱いを制御するコンポーネント(\ ``SessionAuthenticationStrategy``\ )のbeanを指定する。
+          |
+      * - | (7')
+        - | 認証成功時のセッションの取り扱いを制御するコンポーネント(\ ``SessionAuthenticationStrategy``\ )のbeanを定義する。
+          |
+          | ここでは、Spring Securityから提供されている、
+    
+          * CSRFトークンを作り直すコンポーネント(\ ``CsrfAuthenticationStrategy``\ )
+          * セッション・フィクセーション攻撃を防ぐために新しいセッションを生成するコンポーネント(\ ``SessionFixationProtectionStrategy``\ )
+    
+          | を有効化している。
+      * - | (8)
+        - | \ ``authenticationFailureHandler``\ プロパティに、認証失敗時に呼ばれるハンドラクラスを指定する。
+      * - | (9)
+        - | \ ``authenticationSuccessHandler``\ プロパティに、認証成功時に呼ばれるハンドラクラスを指定する。
+
+    .. note:: \ **auto-configについて**\
+    
+      \ ``auto-config="false"``\ を指定又は指定を省略した際にBasic認証処理とログアウト処理を有効化したい場合は、\ ``<sec:http-basic>``\ タグと\ ``<sec:logout>``\ タグを明示的に定義する必要がある。
+
+  .. group-tab:: XML Config
+
+    * spring-security.xmlの定義例
+    
+    .. code-block:: xml
+    
       <!-- omitted -->
-
-      <!-- (2) -->
-      <sec:custom-filter
-          position="FORM_LOGIN_FILTER" ref="companyIdUsernamePasswordAuthenticationFilter" />
-
-      <!-- omitted -->
-
-      <sec:csrf token-repository-ref="csrfTokenRepository" />
-
-      <sec:logout
-          logout-url="/logout"
-          logout-success-url="/login" />
-
-      <!-- omitted -->
-
-      <sec:intercept-url pattern="/login" access="permitAll" />
-      <sec:intercept-url pattern="/**" access="isAuthenticated()" />
-
-      <!-- omitted -->
-
-  </sec:http>
-
-  <!-- (3) -->
-  <bean id="loginUrlAuthenticationEntryPoint"
-      class="org.springframework.security.web.authentication.LoginUrlAuthenticationEntryPoint">
-      <constructor-arg value="/login" />
-  </bean>
-
-  <!-- (4) -->
-  <bean id="companyIdUsernamePasswordAuthenticationFilter"
-      class="com.example.app.common.security.CompanyIdUsernamePasswordAuthenticationFilter">
-      <!-- (5) -->
-      <property name="requiresAuthenticationRequestMatcher">
-          <bean class="org.springframework.security.web.util.matcher.AntPathRequestMatcher">
-              <constructor-arg index="0" value="/authentication" />
-              <constructor-arg index="1" value="POST" />
-          </bean>
-      </property>
-      <!-- (6) -->
-      <property name="authenticationManager" ref="authenticationManager" />
-      <!-- (7) -->
-      <property name="sessionAuthenticationStrategy" ref="sessionAuthenticationStrategy" />
-      <!-- (8) -->
-      <property name="authenticationFailureHandler">
-          <bean class="org.springframework.security.web.authentication.SimpleUrlAuthenticationFailureHandler">
-              <constructor-arg value="/login?error=true" />
-          </bean>
-      </property>
-      <!-- (9) -->
-      <property name="authenticationSuccessHandler">
-          <bean class="org.springframework.security.web.authentication.SimpleUrlAuthenticationSuccessHandler" />
-      </property>
-  </bean>
-
-  <!-- (6') -->
-  <sec:authentication-manager alias="authenticationManager">
-      <sec:authentication-provider ref="companyIdUsernamePasswordAuthenticationProvider" />
-  </sec:authentication-manager>
-  <bean id="companyIdUsernamePasswordAuthenticationProvider"
-      class="com.example.app.common.security.CompanyIdUsernamePasswordAuthenticationProvider">
-      <property name="userDetailsService" ref="sampleUserDetailsService" />
-      <property name="passwordEncoder" ref="passwordEncoder" />
-  </bean>
-
-  <!-- (7') -->
-  <bean id="sessionAuthenticationStrategy"
-      class="org.springframework.security.web.authentication.session.CompositeSessionAuthenticationStrategy">
-      <constructor-arg>
-          <util:list>
-              <bean class="org.springframework.security.web.csrf.CsrfAuthenticationStrategy">
-                  <constructor-arg ref="csrfTokenRepository" />
+    
+      <!-- (1) -->
+      <sec:http request-matcher="ant"
+          entry-point-ref="loginUrlAuthenticationEntryPoint">
+    
+          <!-- omitted -->
+    
+          <!-- (2) -->
+          <sec:custom-filter
+              position="FORM_LOGIN_FILTER" ref="companyIdUsernamePasswordAuthenticationFilter" />
+    
+          <!-- omitted -->
+    
+          <sec:csrf token-repository-ref="csrfTokenRepository" />
+    
+          <sec:logout
+              logout-url="/logout"
+              logout-success-url="/login" />
+    
+          <!-- omitted -->
+    
+          <sec:intercept-url pattern="/login" access="permitAll" />
+          <sec:intercept-url pattern="/**" access="isAuthenticated()" />
+    
+          <!-- omitted -->
+    
+      </sec:http>
+    
+      <!-- (3) -->
+      <bean id="loginUrlAuthenticationEntryPoint"
+          class="org.springframework.security.web.authentication.LoginUrlAuthenticationEntryPoint">
+          <constructor-arg value="/login" />
+      </bean>
+    
+      <!-- (4) -->
+      <bean id="companyIdUsernamePasswordAuthenticationFilter"
+          class="com.example.app.common.security.CompanyIdUsernamePasswordAuthenticationFilter">
+          <!-- (5) -->
+          <property name="requiresAuthenticationRequestMatcher">
+              <bean class="org.springframework.security.web.util.matcher.AntPathRequestMatcher">
+                  <constructor-arg index="0" value="/authentication" />
+                  <constructor-arg index="1" value="POST" />
               </bean>
-              <bean class="org.springframework.security.web.authentication.session.SessionFixationProtectionStrategy" />
-          </util:list>
-      </constructor-arg>
-  </bean>
+          </property>
+          <!-- (6) -->
+          <property name="authenticationManager" ref="authenticationManager" />
+          <!-- (7) -->
+          <property name="sessionAuthenticationStrategy" ref="sessionAuthenticationStrategy" />
+          <!-- (8) -->
+          <property name="authenticationFailureHandler">
+              <bean class="org.springframework.security.web.authentication.SimpleUrlAuthenticationFailureHandler">
+                  <constructor-arg value="/login?error=true" />
+              </bean>
+          </property>
+          <!-- (9) -->
+          <property name="authenticationSuccessHandler">
+              <bean class="org.springframework.security.web.authentication.SimpleUrlAuthenticationSuccessHandler" />
+          </property>
+      </bean>
+    
+      <!-- (6') -->
+      <sec:authentication-manager alias="authenticationManager">
+          <sec:authentication-provider ref="companyIdUsernamePasswordAuthenticationProvider" />
+      </sec:authentication-manager>
+      <bean id="companyIdUsernamePasswordAuthenticationProvider"
+          class="com.example.app.common.security.CompanyIdUsernamePasswordAuthenticationProvider">
+          <property name="userDetailsService" ref="sampleUserDetailsService" />
+          <property name="passwordEncoder" ref="passwordEncoder" />
+      </bean>
+    
+      <!-- (7') -->
+      <bean id="sessionAuthenticationStrategy"
+          class="org.springframework.security.web.authentication.session.CompositeSessionAuthenticationStrategy">
+          <constructor-arg>
+              <util:list>
+                  <bean class="org.springframework.security.web.csrf.CsrfAuthenticationStrategy">
+                      <constructor-arg ref="csrfTokenRepository" />
+                  </bean>
+                  <bean class="org.springframework.security.web.authentication.session.SessionFixationProtectionStrategy" />
+              </util:list>
+          </constructor-arg>
+      </bean>
+    
+      <bean id="csrfTokenRepository"
+          class="org.springframework.security.web.csrf.HttpSessionCsrfTokenRepository" />
+    
+      <!-- omitted -->
+    
+    .. tabularcolumns:: |p{0.10\linewidth}|p{0.90\linewidth}|
+    .. list-table::
+      :header-rows: 1
+      :widths: 10 90
+      :class: longtable
+    
+      * - 項番
+        - 説明
+      * - | (1)
+        - | (2)の\ ``<sec:custom-filter>``\ タグを使用して\ ``FORM_LOGIN_FILTER``\ を差し替える場合は、\ ``<sec:http>``\ タグの属性に以下の設定を行う必要がある。
+    
+          * 自動設定を使用することができないため、\ ``auto-config="false"``\ を指定するか、\ ``auto-config``\ 属性を削除する。
+          * \ ``<sec:form-login>``\ タグが使用できないため、\ ``entry-point-ref``\ 属性を使用して\ ``AuthenticationEntryPoint``\ を明示的に指定する。
+    
+      * - | (2)
+        - | \ ``<sec:custom-filter>``\ タグを使用して\ ``FORM_LOGIN_FILTER``\ を差し替える。
+          |
+          | \ ``<sec:custom-filter>``\ タグの\ ``position``\ 属性に\ ``FORM_LOGIN_FILTER``\ を指定し、\ ``ref``\ 属性に拡張したAuthentication Filterのbeanを指定する。
+      * - | (3)
+        - | \ ``<sec:http>``\ タグの\ ``entry-point-ref``\ 属性に使用する\ ``AuthenticationEntryPoint``\ のbeanを指定する。
+          |
+          | ここでは、\ ``<sec:form-login>``\ タグを指定した際に使用される\ ``org.springframework.security.web.authentication.LoginUrlAuthenticationEntryPoint``\ クラスのbeanを指定している。
+      * - | (4)
+        - | \ ``FORM_LOGIN_FILTER``\ として使用するAuthentication Filterクラスのbeanを定義する。
+          |
+          | ここでは、拡張したAuthentication Filterクラス(\ ``CompanyIdUsernamePasswordAuthenticationFilter``\ )のbeanを定義している。
+      * - | (5)
+        - | \ ``requiresAuthenticationRequestMatcher``\ プロパティに、認証処理を行うリクエストを検出するための\ ``RequestMatcher``\ インスタンスを指定する。
+          |
+          | ここでは、\ ``/authentication``\ というパスにリクエストがあった場合に認証処理を行うように設定している。
+          | これは、\ ``<sec:form-login>``\ タグの\ ``login-processing-url``\ 属性に\ ``/authentication``\ を指定したのと同義である。
+      * - | (6)
+        - | \ ``authenticationManager``\ プロパティに、\ ``<sec:authentication-manager>``\ タグの\ ``alias``\ 属性に設定した値を指定する。
+          |
+          | \ ``<sec:authentication-manager>``\ タグの\ ``alias``\ 属性を指定すると、
+          | Spring Securityが生成した\ ``AuthenticationManager``\ のbeanを、他のbeanへDIすることができる様になる。
+      * - | (6')
+        - | Spring Securityが生成する\ ``AuthenticationManager``\ に対して、拡張した\ ``AuthenticationProvider``\ (\ ``CompanyIdUsernamePasswordAuthenticationProvider``\ )を設定する。
+      * - | (7)
+        - | \ ``sessionAuthenticationStrategy``\ プロパティに、認証成功時のセッションの取り扱いを制御するコンポーネント(\ ``SessionAuthenticationStrategy``\ )のbeanを指定する。
+          |
+      * - | (7')
+        - | 認証成功時のセッションの取り扱いを制御するコンポーネント(\ ``SessionAuthenticationStrategy``\ )のbeanを定義する。
+          |
+          | ここでは、Spring Securityから提供されている、
+    
+          * CSRFトークンを作り直すコンポーネント(\ ``CsrfAuthenticationStrategy``\ )
+          * セッション・フィクセーション攻撃を防ぐために新しいセッションを生成するコンポーネント(\ ``SessionFixationProtectionStrategy``\ )
+    
+          | を有効化している。
+      * - | (8)
+        - | \ ``authenticationFailureHandler``\ プロパティに、認証失敗時に呼ばれるハンドラクラスを指定する。
+      * - | (9)
+        - | \ ``authenticationSuccessHandler``\ プロパティに、認証成功時に呼ばれるハンドラクラスを指定する。
 
-  <bean id="csrfTokenRepository"
-      class="org.springframework.security.web.csrf.HttpSessionCsrfTokenRepository" />
-
-
-  <!-- omitted -->
-
-.. tabularcolumns:: |p{0.10\linewidth}|p{0.90\linewidth}|
-.. list-table::
-  :header-rows: 1
-  :widths: 10 90
-  :class: longtable
-
-  * - 項番
-    - 説明
-  * - | (1)
-    - | (2)の\ ``<sec:custom-filter>``\ タグを使用して\ ``FORM_LOGIN_FILTER``\ を差し替える場合は、\ ``<sec:http>``\ タグの属性に以下の設定を行う必要がある。
-
-      * 自動設定を使用することができないため、\ ``auto-config="false"``\ を指定するか、\ ``auto-config``\ 属性を削除する。
-      * \ ``<sec:form-login>``\ タグが使用できないため、\ ``entry-point-ref``\ 属性を使用して\ ``AuthenticationEntryPoint``\ を明示的に指定する。
-
-  * - | (2)
-    - | \ ``<sec:custom-filter>``\ タグを使用して\ ``FORM_LOGIN_FILTER``\ を差し替える。
-      |
-      | \ ``<sec:custom-filter>``\ タグの\ ``position``\ 属性に\ ``FORM_LOGIN_FILTER``\ を指定し、\ ``ref``\ 属性に拡張したAuthentication Filterのbeanを指定する。
-  * - | (3)
-    - | \ ``<sec:http>``\ タグの\ ``entry-point-ref``\ 属性に使用する\ ``AuthenticationEntryPoint``\ のbeanを指定する。
-      |
-      | ここでは、\ ``<sec:form-login>``\ タグを指定した際に使用される\ ``org.springframework.security.web.authentication.LoginUrlAuthenticationEntryPoint``\ クラスのbeanを指定している。
-  * - | (4)
-    - | \ ``FORM_LOGIN_FILTER``\ として使用するAuthentication Filterクラスのbeanを定義する。
-      |
-      | ここでは、拡張したAuthentication Filterクラス(\ ``CompanyIdUsernamePasswordAuthenticationFilter``\ )のbeanを定義している。
-  * - | (5)
-    - | \ ``requiresAuthenticationRequestMatcher``\ プロパティに、認証処理を行うリクエストを検出するための\ ``RequestMatcher``\ インスタンスを指定する。
-      |
-      | ここでは、\ ``/authentication``\ というパスにリクエストがあった場合に認証処理を行うように設定している。
-      | これは、\ ``<sec:form-login>``\ タグの\ ``login-processing-url``\ 属性に\ ``/authentication``\ を指定したのと同義である。
-  * - | (6)
-    - | \ ``authenticationManager``\ プロパティに、\ ``<sec:authentication-manager>``\ タグの\ ``alias``\ 属性に設定した値を指定する。
-      |
-      | \ ``<sec:authentication-manager>``\ タグの\ ``alias``\ 属性を指定すると、
-      | Spring Securityが生成した\ ``AuthenticationManager``\ のbeanを、他のbeanへDIすることができる様になる。
-  * - | (6')
-    - | Spring Securityが生成する\ ``AuthenticationManager``\ に対して、拡張した\ ``AuthenticationProvider``\ (\ ``CompanyIdUsernamePasswordAuthenticationProvider``\ )を設定する。
-  * - | (7)
-    - | \ ``sessionAuthenticationStrategy``\ プロパティに、認証成功時のセッションの取り扱いを制御するコンポーネント(\ ``SessionAuthenticationStrategy``\ )のbeanを指定する。
-      |
-  * - | (7')
-    - | 認証成功時のセッションの取り扱いを制御するコンポーネント(\ ``SessionAuthenticationStrategy``\ )のbeanを定義する。
-      |
-      | ここでは、Spring Securityから提供されている、
-
-      * CSRFトークンを作り直すコンポーネント(\ ``CsrfAuthenticationStrategy``\ )
-      * セッション・フィクセーション攻撃を防ぐために新しいセッションを生成するコンポーネント(\ ``SessionFixationProtectionStrategy``\ )
-
-      | を有効化している。
-  * - | (8)
-    - | \ ``authenticationFailureHandler``\ プロパティに、認証失敗時に呼ばれるハンドラクラスを指定する。
-  * - | (9)
-    - | \ ``authenticationSuccessHandler``\ プロパティに、認証成功時に呼ばれるハンドラクラスを指定する。
-
-.. note:: \ **auto-configについて**\
-
-  \ ``auto-config="false"``\ を指定又は指定を省略した際にBasic認証処理とログアウト処理を有効化したい場合は、\ ``<sec:http-basic>``\ タグと\ ``<sec:logout>``\ タグを明示的に定義する必要がある。
+    .. note:: \ **auto-configについて**\
+    
+      \ ``auto-config="false"``\ を指定又は指定を省略した際にBasic認証処理とログアウト処理を有効化したい場合は、\ ``<sec:http-basic>``\ タグと\ ``<sec:logout>``\ タグを明示的に定義する必要がある。
 
 |
 
@@ -2781,52 +3796,97 @@ Pbkdf2PasswordEncoderのカスタマイズ
 
 ここではイテレーションカウントの変更方法を紹介する。
 
-\ ``applicationContext.xml``\ を以下のように変更する。
+.. tabs::
+  .. group-tab:: Java Config
 
-* applicationContext.xmlの変更
+    * ApplicationContextConfig.javaの変更
+    
+    .. code-block:: java
 
-.. code-block:: xml
+      @Bean("passwordEncoder")
+      public PasswordEncoder passwordEncoder() {
+          Map<String, PasswordEncoder> idToPasswordEncoder = new HashMap<>();
+          idToPasswordEncoder.put("pbkdf2", pbkdf2PasswordCustomEncode());
+          DelegatingPasswordEncoder bean = new DelegatingPasswordEncoder("pbkdf2", idToPasswordEncoder);
+          bean.setDefaultPasswordEncoderForMatches(athnPasswordEncoderBCrypt);
+          // omitted
+          return bean;
+      }
+  
+      // (1)
+      @Bean
+      public Pbkdf2PasswordEncoder pbkdf2PasswordCustomEncoder() {
+          return new Pbkdf2PasswordEncoder("", 16, 310000, SecretKeyFactoryAlgorithm.PBKDF2WithHmacSHA256); // (2)(3)(4)(5)
+      }
+    
+    .. tabularcolumns:: |p{0.10\linewidth}|p{0.90\linewidth}|
+    .. list-table::
+      :header-rows: 1
+      :widths: 10 90
+    
+      * - 項番
+        - 説明
+      * - | (1)
+        - | \ ``Pbkdf2PasswordEncoder``\ をカスタマイズするため、使用するコンストラクタをファクトリーメソッドから変更する
+          | コンストラクタに指定する引数については以下で解説を行う。
+      * - | (2)
+        - | 第一引数(\ ``secret``\) にはハッシュ化で使用する秘密鍵を指定する。
+          | デフォルトは空（""）である。
+      * - | (3)
+        - | 第二引数(\ ``saltLength``\) にはハッシュ化対象のデータに追加する文字列長を指定する。
+          | デフォルトは16である。
+      * - | (4)
+        - | 第三引数(\ ``iterations``\) にはハッシュ化のiterations(反復)回数を指定する。
+          | デフォルトでは310,000回が設定されている。
+      * - | (5)
+        - | 第四引数(\ ``secretKeyFactoryAlgorithm``\) にはハッシュ化アルゴリズムを指定する。
+          | デフォルトではSHA-256が設定されている。
 
-    <bean id="passwordEncoder" class="org.springframework.security.crypto.password.DelegatingPasswordEncoder">
-        <constructor-arg name="idForEncode" value="pbkdf2" />
-        <constructor-arg name="idToPasswordEncoder">
-            <map>
-                <entry key="pbkdf2">
-                    <bean class="org.springframework.security.crypto.password.Pbkdf2PasswordEncoder"> <!-- (1) -->
-                        <constructor-arg name="secret" value="" /> <!-- (2) -->
-                        <constructor-arg name="saltLength" value="16" /> <!-- (3) -->
-                        <constructor-arg name="iterations" value="310000" /> <!-- (4) -->
-                        <constructor-arg name="secretKeyFactoryAlgorithm"
-                            value="#{T(org.springframework.security.crypto.password.Pbkdf2PasswordEncoder.SecretKeyFactoryAlgorithm).PBKDF2WithHmacSHA256}" /> <!-- (5) -->
-                    </bean>
-                </entry>
-                <!-- omitted -->
-            </map>
-        </constructor-arg>
-    </bean>
+  .. group-tab:: XML Config
 
-.. tabularcolumns:: |p{0.10\linewidth}|p{0.90\linewidth}|
-.. list-table::
-  :header-rows: 1
-  :widths: 10 90
-
-  * - 項番
-    - 説明
-  * - | (1)
-    - | \ ``Pbkdf2PasswordEncoder``\ をカスタマイズするため、使用するコンストラクタをファクトリーメソッドから変更する
-      | コンストラクタに指定する引数については以下で解説を行う。
-  * - | (2)
-    - | \ ``secret``\ にはハッシュ化で使用する秘密鍵を指定する。
-      | デフォルトは空（""）である。
-  * - | (3)
-    - | \ ``saltLength``\ にはハッシュ化対象のデータに追加する文字列長を指定する。
-      | デフォルトは16である。
-  * - | (3)
-    - | \ ``iterations``\ にはハッシュ化のiterations(反復)回数を指定する。
-      | デフォルトでは310,000回が設定されている。
-  * - | (4)
-    - | \ ``secretKeyFactoryAlgorithm``\ にはハッシュ化アルゴリズムを指定する。
-      | デフォルトではSHA-256が設定されている。
+    * applicationContext.xmlの変更
+    
+    .. code-block:: xml
+    
+      <bean id="passwordEncoder" class="org.springframework.security.crypto.password.DelegatingPasswordEncoder">
+          <constructor-arg name="idForEncode" value="pbkdf2" />
+          <constructor-arg name="idToPasswordEncoder">
+              <map>
+                  <entry key="pbkdf2">
+                      <bean class="org.springframework.security.crypto.password.Pbkdf2PasswordEncoder"> <!-- (1) -->
+                          <constructor-arg name="secret" value="" /> <!-- (2) -->
+                          <constructor-arg name="saltLength" value="16" /> <!-- (3) -->
+                          <constructor-arg name="iterations" value="310000" /> <!-- (4) -->
+                          <constructor-arg name="secretKeyFactoryAlgorithm" value="PBKDF2WithHmacSHA256" /> <!-- (5) -->
+                      </bean>
+                  </entry>
+                  <!-- omitted -->
+              </map>
+          </constructor-arg>
+      </bean>
+    
+    .. tabularcolumns:: |p{0.10\linewidth}|p{0.90\linewidth}|
+    .. list-table::
+      :header-rows: 1
+      :widths: 10 90
+    
+      * - 項番
+        - 説明
+      * - | (1)
+        - | \ ``Pbkdf2PasswordEncoder``\ をカスタマイズするため、使用するコンストラクタをファクトリーメソッドから変更する
+          | コンストラクタに指定する引数については以下で解説を行う。
+      * - | (2)
+        - | \ ``secret``\ にはハッシュ化で使用する秘密鍵を指定する。
+          | デフォルトは空（""）である。
+      * - | (3)
+        - | \ ``saltLength``\ にはハッシュ化対象のデータに追加する文字列長を指定する。
+          | デフォルトは16である。
+      * - | (3)
+        - | \ ``iterations``\ にはハッシュ化のiterations(反復)回数を指定する。
+          | デフォルトでは310,000回が設定されている。
+      * - | (4)
+        - | \ ``secretKeyFactoryAlgorithm``\ にはハッシュ化アルゴリズムを指定する。
+          | デフォルトではSHA-256が設定されている。
 
 |
 
@@ -2839,9 +3899,221 @@ Pbkdf2PasswordEncoderのカスタマイズ
 
     本事象が発生する場合は、以下のいずれかの設定を追加することで回避することができる。
 
-    * Javaコマンド実行時に ``-Djava.security.egd=file:/dev/urandom`` を指定する。
+    * Javaコマンド実行時に\ ``-Djava.security.egd=file:/dev/urandom``\ を指定する。
 
-    * ``${JAVA_HOME}/jre/lib/security/java.security`` 内の ``securerandom.source=/dev/random`` を ``securerandom.source=/dev/urandom`` に変更する。
+    * \ ``${JAVA_HOME}/jre/lib/security/java.security``\ 内の\ ``securerandom.source=/dev/random``\ を\ ``securerandom.source=/dev/urandom``\ に変更する。
+
+|
+
+Appendix
+--------------------------------------------------------------------------------
+
+.. _spring-security-authentication-mvc:
+
+Spring MVCでリクエストを受けてログインフォームを表示する
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+Spring MVCでリクエストを受けてログインフォームを表示する方法を説明する。
+
+* ログインフォームを表示するControllerの定義例
+
+.. tabs::
+  .. group-tab:: JSP
+
+    .. code-block:: java
+
+      @Controller
+      @RequestMapping("/login")
+      public class LoginController { // (1)
+          @RequestMapping
+          public String index() {
+              return "login";
+          }
+
+      }
+
+    .. tabularcolumns:: |p{0.10\linewidth}|p{0.90\linewidth}|
+    .. list-table::
+      :header-rows: 1
+      :widths: 10 90
+
+      * - 項番
+        - 説明
+      * - | (1)
+        - | view名として"login"を返却する。\ ``InternalResourceViewResolver``\ によってsrc/main/webapp/WEB-INF/views/login.jspが出力される。
+
+  .. group-tab:: Thymeleaf
+
+    .. code-block:: java
+
+      @Controller
+      @RequestMapping("/login")
+      public class LoginController { // (1)
+          @RequestMapping
+          public String index() {
+              return "login";
+          }
+
+      }
+
+    .. tabularcolumns:: |p{0.10\linewidth}|p{0.90\linewidth}|
+    .. list-table::
+      :header-rows: 1
+      :widths: 10 90
+
+      * - 項番
+        - 説明
+      * - | (1)
+        - | view名として"login"を返却する。\ ``ThymeleafViewResolver``\ によってsrc/main/webapp/WEB-INF/views/login.htmlが出力される。
+
+
+本例のように、単純にview名を返すだけのメソッドが一つだけあるControllerであれば、\ ``<mvc:view-controller>``\ を使用して代用することも可能である。
+
+詳しくは、\ :ref:`controller_method_return-html-label`\ を参照されたい。
+
+|
+
+.. _SpringSecurityAuthenticationRememberMe:
+
+Remember Me認証の利用
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+| 「\ `Remember Me認証 <https://docs.spring.io/spring-security/reference/servlet/authentication/rememberme.html>`_\ 」とは、Webサイトに頻繁にアクセスするユーザーの利便性を高めるための機能の一つで、ログイン状態を通常のライフサイクルより長く保持するための機能である。
+| 本機能を使用すると、ブラウザを閉じた後やセッションタイムアウトが発生した後でも、Cookieに保持しているRemember Me認証用のTokenを使用して、ユーザ名とパスワードを再入力することなく自動でログインすることができる。なお、本機能は、ユーザーがログイン状態を保持することを許可した場合のみ有効となる。
+
+| Spring Securityは、「\ `Hash-Based Token <https://docs.spring.io/spring-security/reference/servlet/authentication/rememberme.html#remember-me-hash-token>`_\ 方式のRemember Me認証」と「\ `Persistent Token <https://docs.spring.io/spring-security/reference/servlet/authentication/rememberme.html#remember-me-persistent-token>`_\ 方式のRemember Me認証」をサポートしており、デフォルトではHash-Based Token方式が使用される。
+
+|
+
+.. tabs::
+  .. group-tab:: Java Config
+
+    Remember Me認証を利用する場合は、\ ``HttpSecurity#rememberMe``\ を追加する。
+
+    * SpringSecurityConfig.javaの定義例
+    
+    .. code-block:: java
+
+      @Bean
+      public SecurityFilterChain filterChainJsp2201(HttpSecurity http) throws Exception {
+  
+          // omitted
+          http.rememberMe(rememberMe -> rememberMe.key("spring-test-km/ylnHv") // (1)
+                  .tokenValiditySeconds(30 * 24 * 60 * 60)); // (2)
+          // omitted
+            return http.build();
+      }
+   
+    .. tabularcolumns:: |p{0.10\linewidth}|p{0.90\linewidth}|
+    .. list-table::
+      :header-rows: 1
+      :widths: 10 90
+    
+      * - 項番
+        - 説明
+      * - | (1)
+        - | \ ``key``\ 属性に、Remember Me認証用のTokenを生成したアプリケーションを識別するキー値を指定する。
+          | キー値の指定が無い場合、アプリケーションの起動毎にユニークな値が生成される。
+          | なお、Hash-Based Tokenが保持しているキー値とサーバーで保持しているキー値が異なる場合、無効なTokenとして扱われる。
+          | つまり、アプリケーションを再起動する前に生成したHash-Based Tokenを有効なTokenとして扱いたい場合は、\ ``key``\ 属性の指定は必須である。
+      * - | (2)
+        - | \ ``token-validity-seconds``\ 属性に、Remember Me認証用のTokenの有効時間を秒単位で指定する。
+          | 指定が無い場合、デフォルトで14日間が有効時間になる。
+          | 上記例では、有効時間として30日間を設定している。
+    
+          | 上記以外の属性については、\ `Spring Security Reference -The Security Namespace (<remember-me>) - <https://docs.spring.io/spring-security/reference/servlet/appendix/namespace/http.html#nsa-remember-me>`_\ を参照されたい。
+
+  .. group-tab:: XML Config
+
+    Remember Me認証を利用する場合は、\ ``<sec:remember-me>``\ タグを追加する。
+
+    * spring-security.xmlの定義例
+    
+    .. code-block:: xml
+    
+      <sec:http request-matcher="ant">
+          <!-- omitted -->
+          <sec:remember-me key="spring-test-km/ylnHv"
+              token-validity-seconds="#{30 * 24 * 60 * 60}" />  <!-- (1) (2) -->
+          <!-- omitted -->
+      </sec:http>
+    
+    .. tabularcolumns:: |p{0.10\linewidth}|p{0.90\linewidth}|
+    .. list-table::
+      :header-rows: 1
+      :widths: 10 90
+    
+      * - 項番
+        - 説明
+      * - | (1)
+        - | \ ``key``\ 属性に、Remember Me認証用のTokenを生成したアプリケーションを識別するキー値を指定する。
+          | キー値の指定が無い場合、アプリケーションの起動毎にユニークな値が生成される。
+          | なお、Hash-Based Tokenが保持しているキー値とサーバーで保持しているキー値が異なる場合、無効なTokenとして扱われる。
+          | つまり、アプリケーションを再起動する前に生成したHash-Based Tokenを有効なTokenとして扱いたい場合は、\ ``key``\ 属性の指定は必須である。
+      * - | (2)
+        - | \ ``token-validity-seconds``\ 属性に、Remember Me認証用のTokenの有効時間を秒単位で指定する。
+          | 指定が無い場合、デフォルトで14日間が有効時間になる。
+          | 上記例では、有効時間として30日間を設定している。
+    
+          | 上記以外の属性については、\ `Spring Security Reference -The Security Namespace (<remember-me>) - <https://docs.spring.io/spring-security/reference/servlet/appendix/namespace/http.html#nsa-remember-me>`_\ を参照されたい。
+
+|
+
+ログインフォームには、「Remember Me認証」機能の利用有無を指定するためのフラグ(チェックボックス項目)を用意する。
+
+.. tabs::
+  .. group-tab:: JSP
+
+    * ログインフォームのJSPの実装例
+
+    .. code-block:: jsp
+
+      <form:form action="${pageContext.request.contextPath}/login" method="post">
+              <!-- omitted -->
+              <tr>
+                  <td><label for="remember-me">Remember Me : </label></td>
+                  <td><input name="remember-me" id="remember-me" type="checkbox" checked="checked" value="true"></td> <!-- (1) -->
+              </tr>
+              <!-- omitted -->
+      </form:form>
+
+    .. tabularcolumns:: |p{0.10\linewidth}|p{0.90\linewidth}|
+    .. list-table::
+      :header-rows: 1
+      :widths: 10 90
+
+      * - 項番
+        - 説明
+      * - | (1)
+        - | 「Remember Me認証」機能の利用有無を指定するためのフラグ(チェックボックス項目)を追加し、フィールド名(リクエストパラメータ名)には、\ ``remember-me-parameter``\ のデフォルト値である\ ``remember-me``\ を指定する。
+          | チェックボックスの\ ``value``\ 属性には、\ ``true``\ を設定する。
+          | チェックボックスをチェック状態にしてから認証処理を実行すると、以降のリクエストから「Remember Me認証」機能が適用される。
+
+  .. group-tab:: Thymeleaf
+
+    * ログインフォームのThymeleafでの実装例
+
+    .. code-block:: HTML
+
+      <form th:action="@{/login}" method="post">
+              <!--/* omitted */-->
+              <tr>
+                  <td><label for="remember-me">Remember Me : </label></td>
+                  <td><input name="remember-me" id="remember-me" type="checkbox" checked="checked" value="true"></td> <!--/* (1) */-->
+              </tr>
+              <!--/* omitted */-->
+      </form>
+
+    .. tabularcolumns:: |p{0.10\linewidth}|p{0.90\linewidth}|
+    .. list-table::
+      :header-rows: 1
+      :widths: 10 90
+
+      * - 項番
+        - 説明
+      * - | (1)
+        - | 「Remember Me認証」機能の利用有無を指定するためのフラグ(チェックボックス項目)を追加し、フィールド名(リクエストパラメータ名)には、\ ``remember-me-parameter``\ のデフォルト値である\ ``remember-me``\ を指定する。
+          | チェックボックスの\ ``value``\ 属性には、\ ``true``\ を設定する。
+          | チェックボックスをチェック状態にしてから認証処理を実行すると、以降のリクエストから「Remember Me認証」機能が適用される。
 
 |
 
@@ -2860,6 +4132,12 @@ Pbkdf2PasswordEncoderのカスタマイズ
 
 このようなケースでは、\ ``PasswordEncoder``\ の実装クラスの一つである\ ``MessageDigestPasswordEncoder``\ を利用することで要件を満たすことができる。
 
+.. warning::
+
+  \ ``MessageDigestPasswordEncoder``\ は旧式の実装であり、セキュリティ上のリスクが想定されるため非推奨となっている。
+
+  Pbkdf2アルゴリズムやBCryptアルゴリズムを利用することを検討されたい。
+
 |
 
 MessageDigestPasswordEncoderの利用
@@ -2868,18 +4146,9 @@ MessageDigestPasswordEncoderの利用
 | \ ``MessageDigestPasswordEncoder``\ はJavaが提供する\ ``java.security.MessageDigest``\ クラスを利用してハッシュ化を行う。
 | \ ``MessageDigest``\ クラスはMD-5、SHA-1、SHA-256等のハッシュアルゴリズムを提供している。
 | 詳細については\ `Javadoc <https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/security/MessageDigest.html>`_\ を参照されたい。
-
-.. warning::
-
-  \ ``MessageDigestPasswordEncoder``\ は旧式の実装であることを示すため非推奨となっている。
-
-  このクラスが廃止される予定はないが、セキュリティ上のリスクが想定されるため、Pbkdf2アルゴリズムやBCryptアルゴリズムを利用することを検討されたい。
-
 |
-
-本ガイドラインでは、\ ``DelegatingPassowordEncoder``\ を通して\ ``MessageDigestPasswordEncoder``\ を利用する方法について説明する。
-
-ここでは以下のハッシュ化要件を満たす\ ``PasswordEncoder``\ を実装する。
+| 本ガイドラインでは、\ ``DelegatingPassowordEncoder``\ を通して\ ``MessageDigestPasswordEncoder``\ を利用する方法について説明する。
+| ここでは以下のハッシュ化要件を満たす\ ``PasswordEncoder``\ を実装する。
 
 * アルゴリズムがSHA-512である。
 * ハッシュ化回数が1000回である。
@@ -2896,13 +4165,11 @@ MessageDigestPasswordEncoderの利用
 
   ハッシュ化したパスワードに付与されたソルトは照合の際に使用される。
 
-  |
-
   \ **既に固定のソルトを用いてハッシュ化したパスワードについて**\
 
   先述の通り、Spring Security 5の\ ``MessageDigestPasswordEncoder``\ はソルトをランダムに生成するが、既に固定のソルトを用いてパスワードをハッシュ化していた場合も、パスワードにソルトを付与する移行処理を行うことで、照合することができるようになる。
 
-  パスワードデータの移行については、\ `MessageDigestPasswordEncoderのJavadoc <https://docs.spring.io/spring-security/site/docs/6.0.1/api/org/springframework/security/crypto/password/MessageDigestPasswordEncoder.html>`_\ を参照されたい。
+  パスワードデータの移行については、\ `MessageDigestPasswordEncoderのJavadoc <https://docs.spring.io/spring-security/site/docs/6.2.1/api/org/springframework/security/crypto/password/MessageDigestPasswordEncoder.html>`_\ を参照されたい。
 
   この場合、既存のパスワードは固定のソルトを用いて照合が行われるが、パスワードを新規に設定または変更した場合はランダムなソルトが用いられる。
 
@@ -2917,45 +4184,90 @@ MessageDigestPasswordEncoderの利用
 
 |
 
-まず、\ ``MessageDigestPasswordEncoder``\ でハッシュ化を行う\ ``DelegatingPasswordEncoder``\ のbeanを定義する。
+\ ``MessageDigestPasswordEncoder``\ でハッシュ化を行う\ ``DelegatingPasswordEncoder``\ のbeanを定義する。
 
-* applicationContext.xmlの定義例
+.. tabs::
+  .. group-tab:: Java Config
 
-.. code-block:: xml
+    * ApplicationContextConfig.javaの定義例
+    
+    .. code-block:: java
 
-  <bean id="passwordEncoder" class="org.springframework.security.crypto.password.DelegatingPasswordEncoder"> <!-- (1) -->
-      <constructor-arg name="idForEncode" value="MD" />
-      <constructor-arg name="idToPasswordEncoder">
-          <map>
-              <entry key="MD">
-                  <bean class="org.springframework.security.crypto.password.MessageDigestPasswordEncoder"> <!-- (2) -->
-                      <constructor-arg name="algorithm" value="SHA-512" /> <!-- (3) -->
-                      <property name="iterations" value="1000" /> <!-- (4) -->
-                  </bean>
-              </entry>
-              <!-- omitted -->
-          </map>
-      </constructor-arg>
-  </bean>
+      // (1)
+      @Bean("passwordEncoder")
+      public PasswordEncoder passwordEncoder() {
+          Map<String, PasswordEncoder> idToPasswordEncoder = new HashMap<>();
+          idToPasswordEncoder.put("MD", passwordEncoderMessageDigest());
+          // omitted
+          return new DelegatingPasswordEncoder("MD", idToPasswordEncoder);
+      }
 
-.. tabularcolumns:: |p{0.10\linewidth}|p{0.90\linewidth}|
-.. list-table::
-  :header-rows: 1
-  :widths: 10 90
+      // (2)
+      @Bean("passwordEncoderMessageDigest")
+      public MessageDigestPasswordEncoder passwordEncoderMessageDigest() {
+          MessageDigestPasswordEncoder bean = new MessageDigestPasswordEncoder("SHA-512"); // (3)
+          bean.setIterations(1000); // (4)
+          return bean;
+      }
+    
+    .. tabularcolumns:: |p{0.10\linewidth}|p{0.90\linewidth}|
+    .. list-table::
+      :header-rows: 1
+      :widths: 10 90
+    
+      * - 項番
+        - 説明
+      * - | (1)
+        - | ここではbeanのidに\ ``passwordEncoder``\ を指定し、\ ``sec:authentication-provider``\ 配下に自動的に参照されるように設定する。
+      * - | (2)
+        - | ハッシュ化に使用する\ ``PasswordEncoder``\ として\ ``MessageDigestPasswordEncoder``\ をbean定義する。
+      * - | (3)
+        - | \ ``MessageDigestPasswordEncoder``\ で使用するハッシュアルゴリズムを指定する。
+          | ここには\ ``MessageDigest``\ クラスが対応するアルゴリズムを指定することができる。
+          | 指定できる値については、\ `Java暗号化アーキテクチャ標準アルゴリズム名のドキュメント <https://docs.oracle.com/en/java/javase/17/docs/specs/security/standard-names.html#messagedigest-algorithms>`_\ を参照されたい。
+      * - | (4)
+        - | ハッシュ化のiterations(反復)回数を指定する。
+          | 設定を行わなかった場合、1回となる。
 
-  * - 項番
-    - 説明
-  * - | (1)
-    - | ここではbeanのidに\ ``passwordEncoder``\ を指定し、\ ``sec:authentication-provider``\ 配下に自動的に参照されるように設定する。
-  * - | (2)
-    - | ハッシュ化に使用する\ ``PasswordEncoder``\ として\ ``MessageDigestPasswordEncoder``\ をbean定義する。
-  * - | (3)
-    - | \ ``MessageDigestPasswordEncoder``\ で使用するハッシュアルゴリズムを指定する。
-      | ここには\ ``MessageDigest``\ クラスが対応するアルゴリズムを指定することができる。
-      | 指定できる値については、\ `Java暗号化アーキテクチャ標準アルゴリズム名のドキュメント <https://docs.oracle.com/en/java/javase/17/docs/specs/security/standard-names.html#messagedigest-algorithms>`_\ を参照されたい。
-  * - | (4)
-    - | ハッシュ化のiterations(反復)回数を指定する。
-      | 設定を行わなかった場合、1回となる。
+  .. group-tab:: XML Config
+
+    * applicationContext.xmlの定義例
+    
+    .. code-block:: xml
+    
+      <bean id="passwordEncoder" class="org.springframework.security.crypto.password.DelegatingPasswordEncoder"> <!-- (1) -->
+          <constructor-arg name="idForEncode" value="MD" />
+          <constructor-arg name="idToPasswordEncoder">
+              <map>
+                  <entry key="MD">
+                      <bean class="org.springframework.security.crypto.password.MessageDigestPasswordEncoder"> <!-- (2) -->
+                          <constructor-arg name="algorithm" value="SHA-512" /> <!-- (3) -->
+                          <property name="iterations" value="1000" /> <!-- (4) -->
+                      </bean>
+                  </entry>
+                  <!-- omitted -->
+              </map>
+          </constructor-arg>
+      </bean>
+    
+    .. tabularcolumns:: |p{0.10\linewidth}|p{0.90\linewidth}|
+    .. list-table::
+      :header-rows: 1
+      :widths: 10 90
+    
+      * - 項番
+        - 説明
+      * - | (1)
+        - | ここではbeanのidに\ ``passwordEncoder``\ を指定し、\ ``sec:authentication-provider``\ 配下に自動的に参照されるように設定する。
+      * - | (2)
+        - | ハッシュ化に使用する\ ``PasswordEncoder``\ として\ ``MessageDigestPasswordEncoder``\ をbean定義する。
+      * - | (3)
+        - | \ ``MessageDigestPasswordEncoder``\ で使用するハッシュアルゴリズムを指定する。
+          | ここには\ ``MessageDigest``\ クラスが対応するアルゴリズムを指定することができる。
+          | 指定できる値については、\ `Java暗号化アーキテクチャ標準アルゴリズム名のドキュメント <https://docs.oracle.com/en/java/javase/17/docs/specs/security/standard-names.html#messagedigest-algorithms>`_\ を参照されたい。
+      * - | (4)
+        - | ハッシュ化のiterations(反復)回数を指定する。
+          | 設定を行わなかった場合、1回となる。
 
 |
 
@@ -2963,121 +4275,6 @@ MessageDigestPasswordEncoderの利用
 
   実際のアプリケーション開発では、セキュリティ上のリスクを軽減するため\ ``idForEncode``\ と\ ``idToPasswordEncoder``\ の\ ``key``\ 値にアルゴリズム名を推測できないような値を指定することを推奨する。
 
-|
-
-Appendix
---------------------------------------------------------------------------------
-
-.. _spring-security-authentication-mvc:
-
-Spring MVCでリクエストを受けてログインフォームを表示する
-^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-Spring MVCでリクエストを受けてログインフォームを表示する方法を説明する。
-
-* ログインフォームを表示するControllerの定義例
-
-.. code-block:: java
-
-  @Controller
-  @RequestMapping("/login")
-  public class LoginController { // (1)
-      @RequestMapping
-      public String index() {
-          return "login";
-      }
-
-  }
-
-.. tabularcolumns:: |p{0.10\linewidth}|p{0.90\linewidth}|
-.. list-table::
-  :header-rows: 1
-  :widths: 10 90
-
-  * - 項番
-    - 説明
-  * - | (1)
-    - | view名として"login"を返却する。\ ``InternalResourceViewResolver``\ によってsrc/main/webapp/WEB-INF/views/login.jspが出力される。
-
-本例のように、単純にview名を返すだけのメソッドが一つだけあるControllerであれば、\ ``<mvc:view-controller>``\ を使用して代用することも可能である。
-
-詳しくは、\ :ref:`controller_method_return-html-label`\ を参照されたい。
-
-|
-
-.. _SpringSecurityAuthenticationRememberMe:
-
-Remember Me認証の利用
-^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-
-| 「\ `Remember Me認証 <https://docs.spring.io/spring-security/reference/6.0.1/servlet/authentication/rememberme.html>`_\ 」とは、Webサイトに頻繁にアクセスするユーザーの利便性を高めるための機能の一つで、ログイン状態を通常のライフサイクルより長く保持するための機能である。
-| 本機能を使用すると、ブラウザを閉じた後やセッションタイムアウトが発生した後でも、Cookieに保持しているRemember Me認証用のTokenを使用して、ユーザ名とパスワードを再入力することなく自動でログインすることができる。なお、本機能は、ユーザーがログイン状態を保持することを許可した場合のみ有効となる。
-
-| Spring Securityは、「\ `Hash-Based Token <https://docs.spring.io/spring-security/reference/6.0.1/servlet/authentication/rememberme.html#remember-me-hash-token>`_\ 方式のRemember Me認証」と「\ `Persistent Token <https://docs.spring.io/spring-security/reference/6.0.1/servlet/authentication/rememberme.html#remember-me-persistent-token>`_\ 方式のRemember Me認証」をサポートしており、デフォルトではHash-Based Token方式が使用される。
-
-|
-
-Remember Me認証を利用する場合は、\ ``<sec:remember-me>``\ タグを追加する。
-
-* spring-security.xmlの定義例
-
-.. code-block:: xml
-
-  <sec:http request-matcher="ant">
-      <!-- omitted -->
-      <sec:remember-me key="terasoluna-tourreservation-km/ylnHv"
-          token-validity-seconds="#{30 * 24 * 60 * 60}" />  <!-- (1) (2) -->
-      <!-- omitted -->
-  </sec:http>
-
-.. tabularcolumns:: |p{0.10\linewidth}|p{0.90\linewidth}|
-.. list-table::
-  :header-rows: 1
-  :widths: 10 90
-
-  * - 項番
-    - 説明
-  * - | (1)
-    - | \ ``key``\ 属性に、Remember Me認証用のTokenを生成したアプリケーションを識別するキー値を指定する。
-      | キー値の指定が無い場合、アプリケーションの起動毎にユニークな値が生成される。
-      | なお、Hash-Based Tokenが保持しているキー値とサーバーで保持しているキー値が異なる場合、無効なTokenとして扱われる。
-      | つまり、アプリケーションを再起動する前に生成したHash-Based Tokenを有効なTokenとして扱いたい場合は、\ ``key``\ 属性の指定は必須である。
-  * - | (2)
-    - | \ ``token-validity-seconds``\ 属性に、Remember Me認証用のTokenの有効時間を秒単位で指定する。
-      | 指定が無い場合、デフォルトで14日間が有効時間になる。
-      | 上記例では、有効時間として30日間を設定している。
-
-      | 上記以外の属性については、\ `Spring Security Reference -The Security Namespace (<remember-me>) - <https://docs.spring.io/spring-security/reference/6.0.1/servlet/appendix/namespace/http.html#nsa-remember-me>`_\ を参照されたい。
-
-|
-
-ログインフォームには、「Remember Me認証」機能の利用有無を指定するためのフラグ(チェックボックス項目)を用意する。
-
-* ログインフォームのJSPの実装例
-
-.. code-block:: jsp
-
-  <form:form action="${pageContext.request.contextPath}/login" method="post">
-          <!-- omitted -->
-          <tr>
-              <td><label for="remember-me">Remember Me : </label></td>
-              <td><input name="remember-me" id="remember-me" type="checkbox" checked="checked" value="true"></td> <!-- (1) -->
-          </tr>
-          <!-- omitted -->
-  </form:form>
-
-.. tabularcolumns:: |p{0.10\linewidth}|p{0.90\linewidth}|
-.. list-table::
-  :header-rows: 1
-  :widths: 10 90
-
-  * - 項番
-    - 説明
-  * - | (1)
-    - | 「Remember Me認証」機能の利用有無を指定するためのフラグ(チェックボックス項目)を追加し、フィールド名(リクエストパラメータ名)には、\ ``remember-me-parameter``\ のデフォルト値である\ ``remember-me``\ を指定する。
-      | チェックボックスの\ ``value``\ 属性には、\ ``true``\ を設定する。
-      | チェックボックスをチェック状態にしてから認証処理を実行すると、以降のリクエストから「Remember Me認証」機能が適用される。
-
 .. raw:: latex
 
   \ newpage
-

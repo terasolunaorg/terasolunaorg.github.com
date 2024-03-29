@@ -516,8 +516,8 @@ ER図
 ================================================================================
 
 | セキュリティ要件の分類ごとに、本アプリケーションにおける実装の方法とコードの説明を行う。
-| ここでは分類ごとで要件の実現のために必要最小限なコード片のみを掲載している。コード全体を確認したい場合は\ `GitHub <https://github.com/terasolunaorg/tutorial-apps/tree/5.8.1.RELEASE/secure-login-demo>`_\ を参照すること。
-| 本アプリケーションを動作させるための初期データ登録用SQLは\ `ここ <https://github.com/terasolunaorg/tutorial-apps/tree/5.8.1.RELEASE/secure-login-demo/secure-login/secure-login-env/src/main/resources/database>`_\ に配置されている。
+| ここでは分類ごとで要件の実現のために必要最小限なコード片のみを掲載している。コード全体を確認したい場合は\ `GitHub(JavaConfig) <https://github.com/terasolunaorg/tutorial-apps/tree/5.9.0.RELEASE/JavaConfig/secure-login-demo>`_\ /\ `GitHub(XMLConfig) <https://github.com/terasolunaorg/tutorial-apps/tree/5.9.0.RELEASE/XMLConfig/secure-login-demo>`_\ を参照すること。
+| 本アプリケーションを動作させるための初期データ登録用SQLはここ(\ `JavaConfig-JSP <https://github.com/terasolunaorg/tutorial-apps/tree/5.9.0.RELEASE/JavaConfig/secure-login-demo/secure-login-jsp/secure-login-env/src/main/resources/database>`_\ /\ `JavaConfig-Thymeleaf <https://github.com/terasolunaorg/tutorial-apps/tree/5.9.0.RELEASE/JavaConfig/secure-login-demo/secure-login-thymeleaf/secure-login-env/src/main/resources/database>`_\ /\ `XMLConfig-JSP <https://github.com/terasolunaorg/tutorial-apps/tree/5.9.0.RELEASE/XMLConfig/secure-login-demo/secure-login-jsp/secure-login-env/src/main/resources/database>`_\ /\ `XMLConfig-Thymeleaf <https://github.com/terasolunaorg/tutorial-apps/tree/5.9.0.RELEASE/XMLConfig/secure-login-demo/secure-login-thymeleaf/secure-login-env/src/main/resources/database>`_\ )に配置されている。
 
 .. note::
 
@@ -609,20 +609,20 @@ ER図
 
     .. code-block:: java
 
-       package com.example.securelogin.domain.model;
+      package com.example.securelogin.domain.model;
 
-       // omitted
+      // omitted
 
-       @Data
-       public class PasswordHistory {
+      @Data
+      public class PasswordHistory {
 
-           private String username; // (1)
+          private String username; // (1)
 
-           private String password; // (2)
+          private String password; // (2)
 
-           private LocalDateTime useFrom; // (3)
+          private LocalDateTime useFrom; // (3)
 
-       }
+      }
 
     .. tabularcolumns:: |p{0.10\linewidth}|p{0.90\linewidth}|
     .. list-table::
@@ -678,63 +678,63 @@ ER図
 
     .. code-block:: xml
 
-       <?xml version="1.0" encoding="UTF-8"?>
-       <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
-       "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+      <?xml version="1.0" encoding="UTF-8"?>
+      <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+      "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 
-       <mapper
-           namespace="com.example.securelogin.domain.repository.passwordhistory.PasswordHistoryRepository">
+      <mapper
+          namespace="com.example.securelogin.domain.repository.passwordhistory.PasswordHistoryRepository">
 
-           <resultMap id="PasswordHistoryResultMap" type="PasswordHistory">
-               <id property="username" column="username" />
-               <id property="password" column="password" />
-               <id property="useFrom" column="use_from" />
-           </resultMap>
+          <resultMap id="PasswordHistoryResultMap" type="PasswordHistory">
+              <id property="username" column="username" />
+              <id property="password" column="password" />
+              <id property="useFrom" column="use_from" />
+          </resultMap>
 
-           <select id="findByUseFrom" resultMap="PasswordHistoryResultMap">
-           <![CDATA[
-               SELECT
-                   username,
-                   password,
-                   use_from
-               FROM
-                   password_history
-               WHERE
-                   username = #{username} AND
-                   use_from >= #{useFrom}
-               ORDER BY use_from DESC
-           ]]>
-           </select>
+          <select id="findByUseFrom" resultMap="PasswordHistoryResultMap">
+          <![CDATA[
+              SELECT
+                  username,
+                  password,
+                  use_from
+              FROM
+                  password_history
+              WHERE
+                  username = #{username} AND
+                  use_from >= #{useFrom}
+              ORDER BY use_from DESC
+          ]]>
+          </select>
 
-           <select id="findLatest" resultMap="PasswordHistoryResultMap">
-           <![CDATA[
-               SELECT
-                   username,
-                   password,
-                   use_from
-               FROM
-                   password_history
-               WHERE
-                   username = #{username}
-               ORDER BY use_from DESC
-               LIMIT #{limit}
-           ]]>
-           </select>
+          <select id="findLatest" resultMap="PasswordHistoryResultMap">
+          <![CDATA[
+              SELECT
+                  username,
+                  password,
+                  use_from
+              FROM
+                  password_history
+              WHERE
+                  username = #{username}
+              ORDER BY use_from DESC
+              LIMIT #{limit}
+          ]]>
+          </select>
 
-           <insert id="create" parameterType="PasswordHistory">
-           <![CDATA[
-               INSERT INTO password_history (
-                   username,
-                   password,
-                   use_from
-               ) VALUES (
-                   #{username},
-                   #{password},
-                   #{useFrom}
-               )
-           ]]>
-           </insert>
-       </mapper>
+          <insert id="create" parameterType="PasswordHistory">
+          <![CDATA[
+              INSERT INTO password_history (
+                  username,
+                  password,
+                  use_from
+              ) VALUES (
+                  #{username},
+                  #{password},
+                  #{useFrom}
+              )
+          ]]>
+          </insert>
+      </mapper>
 
   * Serviceの実装
 
@@ -750,7 +750,7 @@ ER図
       @Service
       @Transactional
       public class PasswordHistorySharedServiceImpl implements
-              PasswordHistorySharedService {
+                                                    PasswordHistorySharedService {
 
           @Inject
           PasswordHistoryRepository passwordHistoryRepository;
@@ -833,7 +833,6 @@ ER図
         - | パスワード変更履歴エンティティを作成し、ユーザ名、変更後のパスワード、変更後のパスワードの使用開始日時を設定する。
       * - | (4)
         - | 作成したパスワード変更履歴エンティティをデータベースに登録する処理を呼び出す。
-
 
 * 初期パスワード、パスワード有効期限切れの判定
 
@@ -926,7 +925,7 @@ ER図
 
     \ ``@Cacheable``\ アノテーションを付与することで、メソッドの引数に対する結果をキャッシュすることができる。ここでは、キャッシュの使用により初期パスワード判定、パスワード期限切れ判定のたびにデータベースへのアクセスが発生することを防止し、パフォーマンスの低下を防いでいる。
 
-    Cache Abstraction については `Spring Framework Documentation -Cache Abstraction- <https://docs.spring.io/spring-framework/docs/6.0.3/reference/html/integration.html#cache>`_\ を参照すること。
+    Cache Abstraction については\ `Spring Framework Documentation -Cache Abstraction- <https://docs.spring.io/spring-framework/docs/6.1.3/reference/html/integration.html#cache>`_\ を参照すること。
 
     尚、キャッシュを使用する際には、必要なタイミングでキャッシュをクリアする必要があることに注意すること。
 
@@ -983,65 +982,113 @@ ER図
     * - 項番
       - 説明
     * - | (1)
-      - | Controllerのハンドラメソッド実行前に処理を挟み込むために、\ ``org.springframework.web.servlet.HandlerInterceptor``\を実装する。
+      - | Controllerのハンドラメソッド実行前に処理を挟み込むために、\ ``org.springframework.web.servlet.HandlerInterceptor``\ を実装する。
     * - | (2)
       - | Controllerのハンドラメソッド実行前に実行されるメソッド
     * - | (3)
-      - | 取得したユーザ情報が\ ``org.springframework.security.core.userdetails.UserDetails``\のオブジェクトであるかどうかを確認する。
+      - | 取得したユーザ情報が\ ``org.springframework.security.core.userdetails.UserDetails``\ のオブジェクトであるかどうかを確認する。
     * - | (4)
-      - | \ ``UserDetails``\のオブジェクトを取得する。本アプリケーションでは、\ ``UserDetails``\の実装として\ ``LoggedInUser``\というクラスを作成して用いている。
+      - | \ ``UserDetails``\ のオブジェクトを取得する。本アプリケーションでは、\ ``UserDetails``\ の実装として\ ``LoggedInUser``\ というクラスを作成して用いている。
     * - | (5)
-      - | \ ``UserDetails``\オブジェクトからロールを取得してユーザが管理ユーザであるかどうかを判定する。その後、パスワード有効期限が切れているかどうかを判定する処理を呼び出す。二つの判定結果の論理積(And)をとる。
+      - | \ ``UserDetails``\ オブジェクトからロールを取得してユーザが管理ユーザであるかどうかを判定する。その後、パスワード有効期限が切れているかどうかを判定する処理を呼び出す。二つの判定結果の論理積(And)をとる。
     * - | (6)
       - | 初回パスワードを使用しているかどうかを判定する処理を呼び出す。
     * - | (7)
-      - | (5)または(6)のいずれかが真である場合、\ ``jakarta.servlet.http.HttpServletResponse``\の\ ``sendRedirect``\ メソッドを使用して、パスワード変更画面へリダイレクトさせる。
+      - | (5)または(6)のいずれかが真である場合、\ ``jakarta.servlet.http.HttpServletResponse``\ の\ ``sendRedirect``\ メソッドを使用して、パスワード変更画面へリダイレクトさせる。
     * - | (8)
       - | 続けてControllerのハンドラメソッドが実行されることを防ぐために、falseを返す。
 
   上記のリダイレクト処理を有効にするための設定は以下の通り。
 
-  \ **spring-mvc.xml**\
+.. tabs::
+  .. group-tab:: Java Config
 
-  .. code-block:: xml
+    \ **SpringMvcConfig.java**\
 
-    <!-- omitted -->
+    .. code-block:: java
+     
+      package com.example.securelogin.config.web;
 
-    <mvc:interceptors>
+      // omitted
 
-        <!-- omitted -->
+      @ComponentScan(basePackages = { "com.example.securelogin.app" })
+      @EnableAspectJAutoProxy
+      @EnableWebMvc
+      @Configuration
+      public class SpringMvcConfig implements WebMvcConfigurer {
 
-        <mvc:interceptor>
-            <mvc:mapping path="/**" /> <!-- (1) -->
-            <mvc:exclude-mapping path="/password/**" /> <!-- (2) -->
-            <mvc:exclude-mapping path="/reissue/**" /> <!-- (3) -->
-            <mvc:exclude-mapping path="/resources/**" />
-            <mvc:exclude-mapping path="/*/*.html" />
-            <bean
-                class="com.example.securelogin.app.common.interceptor.PasswordExpirationCheckInterceptor" /> <!-- (4) -->
-        </mvc:interceptor>
+          // omitted
 
-        <!-- omitted -->
+          @Override
+          public void addInterceptors(InterceptorRegistry registry) {
+              addInterceptor(registry, traceLoggingInterceptor());
+              addInterceptor(registry, transactionTokenInterceptor());
+              addInterceptor(registry, codeListInterceptor());
+              addPasswordExpirationCheckInterceptor(registry, passwordExpirationCheckInterceptor()); //(4)
+              /* REMOVE THIS LINE IF YOU USE JPA
+              addWebRequestInterceptor(registry, openEntityManagerInViewInterceptor());
+                REMOVE THIS LINE IF YOU USE JPA */
+          }
 
-    </mvc:interceptors>
+          private void addPasswordExpirationCheckInterceptor(
+                  InterceptorRegistry registry, HandlerInterceptor interceptor) {
+              registry.addInterceptor(interceptor).addPathPatterns("/**") // (1)
+                      .excludePathPatterns("/password/**", "/reissue/**",
+                              "/resources/**", "/*/*.html"); // (2) (3)
+          }
 
-    <!-- omitted -->
+          @Bean
+          public PasswordExpirationCheckInterceptor passwordExpirationCheckInterceptor() {
+              return new PasswordExpirationCheckInterceptor(); //(4)
+          }
 
-  .. tabularcolumns:: |p{0.10\linewidth}|p{0.90\linewidth}|
-  .. list-table::
-    :header-rows: 1
-    :widths: 10 90
+          // ommited
 
-    * - 項番
-      - 説明
-    * - | (1)
-      - | "/"以下のすべてのパスに対するアクセスに\ ``HandlerInterceptor``\を適用する。
-    * - | (2)
-      - | パスワード変更画面からパスワード変更画面へのリダイレクトを防ぐため、 "/password" 以下のパスは適用対象外とする。
-    * - | (3)
-      - | パスワード再発行時にはパスワード有効期限のチェックを行う必要はないため、 "/reissue" 以下のパスは適用対象外とする。
-    * - | (4)
-      - | \ ``HandlerInterceptor``\のクラスを指定する。
+      }
+
+  .. group-tab:: XML Config
+
+    \ **spring-mvc.xml**\
+
+    .. code-block:: xml
+
+      <!-- omitted -->
+
+      <mvc:interceptors>
+
+          <!-- omitted -->
+
+          <mvc:interceptor>
+              <mvc:mapping path="/**" /> <!-- (1) -->
+              <mvc:exclude-mapping path="/password/**" /> <!-- (2) -->
+              <mvc:exclude-mapping path="/reissue/**" /> <!-- (3) -->
+              <mvc:exclude-mapping path="/resources/**" />
+              <mvc:exclude-mapping path="/*/*.html" />
+              <bean
+                  class="com.example.securelogin.app.common.interceptor.PasswordExpirationCheckInterceptor" /> <!-- (4) -->
+          </mvc:interceptor>
+
+          <!-- omitted -->
+
+      </mvc:interceptors>
+
+      <!-- omitted -->
+
+.. tabularcolumns:: |p{0.10\linewidth}|p{0.90\linewidth}|
+.. list-table::
+  :header-rows: 1
+  :widths: 10 90
+
+  * - 項番
+    - 説明
+  * - | (1)
+    - | "/"以下のすべてのパスに対するアクセスに\ ``HandlerInterceptor`` \ を適用する。
+  * - | (2)
+    - | パスワード変更画面からパスワード変更画面へのリダイレクトを防ぐため、 "/password" 以下のパスは適用対象外とする。
+  * - | (3)
+    - | パスワード再発行時にはパスワード有効期限のチェックを行う必要はないため、 "/reissue" 以下のパスは適用対象外とする。
+  * - | (4)
+    - | \ ``HandlerInterceptor`` \ のクラスを指定する。
 
 * パスワード変更を促すメッセージの表示
 
@@ -1090,42 +1137,79 @@ ER図
     * - 項番
       - 説明
     * - | (1)
-      - | \ ``AuthenticationPrincipal``\アノテーションを指定して、\ ``UserDetails``\を実装した\ ``LoggedInUser``\のオブジェクトを取得する。
+      - | \ ``AuthenticationPrincipal``\ アノテーションを指定して、\ ``UserDetails``\ を実装した\ ``LoggedInUser``\ のオブジェクトを取得する。
     * - | (2)
-      - | \ ``LoggedInUser``\が保持しているアカウント情報を取得する。
+      - | \ ``LoggedInUser``\ が保持しているアカウント情報を取得する。
     * - | (3)
       - | アカウント情報から取得したユーザ名を引数として、パスワードの有効期限切れ判定処理を呼び出す。判定結果がtrueの場合、プロパティファイルからメッセージを取得してModelに設定し、Viewに渡す。
 
   Viewの実装は以下の通り。
 
-  \ **トップ画面(home.jsp)**\
+  .. tabs::
+    .. group-tab:: JSP
 
-  .. code-block:: jsp
+      \ **トップ画面(home.jsp)**\
 
-    <!-- omitted -->
+      .. code-block:: jsp
 
-    <body>
-       <div id="wrapper">
-           <span id="expiredMessage">
-               <t:messagesPanel /> <!-- (1) -->
-           </span>
+        <!-- omitted -->
 
-           <!-- omitted -->
+        <body>
+            <div id="wrapper">
+                <span id="expiredMessage">
+                    <t:messagesPanel /> <!-- (1) -->
+                </span>
 
-       </div>
-    </body>
+                <!-- omitted -->
 
-    <!-- omitted -->
+            </div>
+        </body>
 
-  .. tabularcolumns:: |p{0.10\linewidth}|p{0.90\linewidth}|
-  .. list-table::
-    :header-rows: 1
-    :widths: 10 90
+        <!-- omitted -->
 
-    * - 項番
-      - 説明
-    * - | (1)
-      - | messagesPanelタグを用いて、Controllerから渡されたパスワード有効期限切れメッセージを表示する。
+      .. tabularcolumns:: |p{0.10\linewidth}|p{0.90\linewidth}|
+      .. list-table::
+        :header-rows: 1
+        :widths: 10 90
+
+        * - 項番
+          - 説明
+        * - | (1)
+          - | messagesPanelタグを用いて、Controllerから渡されたパスワード有効期限切れメッセージを表示する。
+
+    .. group-tab:: Thymeleaf
+
+      \ **トップ画面(home.html)**\
+
+      .. code-block:: html
+
+        <!--/* omitted */-->
+
+        <body>
+            <div id="wrapper">
+                <div th:if="${resultMessages} != null" id="expiredMessage"
+                    th:class="|alert alert-${resultMessages.type}|"> <!--/* (1) */-->
+                    <ul>
+                        <li th:each="message : ${resultMessages}"
+                            th:text="${#messages.msgWithParams(message.code, message.args)}"></li>
+                    </ul>
+                </div>
+                <!--/* omitted */-->
+            </div>
+        </body>
+
+        <!--/* omitted */-->
+
+      .. tabularcolumns:: |p{0.10\linewidth}|p{0.90\linewidth}|
+      .. list-table::
+        :header-rows: 1
+        :widths: 10 90
+
+        * - 項番
+          - 説明
+        * - | (1)
+          - | Controllerから渡された\ ``resultMessages`` \ から、パスワード有効期限切れメッセージを表示する。
+            | ここでは\ ``resultMessages`` \ はControllerで直接作成しているため、\ ``message.code`` \ に値は必ず格納される。そのため、\ ``message.code`` \ がnullだった場合のmessage.textでの表示処理は不要である。
 
 |
 
@@ -1133,6 +1217,7 @@ ER図
 
 パスワードの品質チェック
 --------------------------------------------------------------------------------
+
 実装する要件一覧
 """"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 * \ :ref:`パスワードの最小文字数指定 <sec-requirements>`\
@@ -1198,12 +1283,12 @@ ER図
 コード解説
 """"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 
-上記の実装方法に従って実装されたコードについて順に解説する。Passayを用いたパスワード入力チェックについては :ref:`password_validation` にて説明する。
+上記の実装方法に従って実装されたコードについて順に解説する。Passayを用いたパスワード入力チェックについては\ :ref:`password_validation`\ にて説明する。
 
 * Passayの検証規則の作成
 
   | 本アプリケーションで使用するほとんどの検証規則は、Passayにデフォルトで用意されたクラスを利用することで定義できる。
-  | しかしながら、Passayが提供するクラスでは、\ ``org.springframework.security.crypto.password.PasswordEncoder``\でハッシュ化された過去のパスワードと比較する検証規則を定義することができない。
+  | しかしながら、Passayが提供するクラスでは、\ ``org.springframework.security.crypto.password.PasswordEncoder``\ でハッシュ化された過去のパスワードと比較する検証規則を定義することができない。
   | そのため、Passayが提供するクラスを拡張し、独自の検証規則のクラスを以下のように作成する必要がある。
 
   .. code-block:: java
@@ -1245,61 +1330,145 @@ ER図
 
   Passayの検証規則を以下に示す通りBean定義する。
 
-  \ **applicationContext.xml**\
+  .. tabs::
+    .. group-tab:: Java Config
 
-  .. code-block:: xml
+      \ **ApplicationContextConfig.java**\
 
-    <bean id="lengthRule" class="org.passay.LengthRule"> <!-- (1) -->
-        <property name="minimumLength" value="${security.passwordMinimumLength}" />
-    </bean>
+      .. code-block:: java
 
-    <bean id="upperCaseRule" class="org.passay.CharacterRule"> <!-- (2) -->
-        <constructor-arg name="data">
-            <util:constant static-field="org.passay.EnglishCharacterData.UpperCase" />
-        </constructor-arg>
-        <constructor-arg name="num" value="1" />
-    </bean>
+        package com.example.securelogin.config.app;
 
-    <bean id="lowerCaseRule" class="org.passay.CharacterRule"> <!-- (3) -->
-        <constructor-arg name="data">
-            <util:constant static-field="org.passay.EnglishCharacterData.LowerCase" />
-        </constructor-arg>
-        <constructor-arg name="num" value="1" />
-    </bean>
+        // omitted
 
-    <bean id="digitRule" class="org.passay.CharacterRule"> <!-- (4) -->
-        <constructor-arg name="data">
-            <util:constant static-field="org.passay.EnglishCharacterData.Digit" />
-        </constructor-arg>
-        <constructor-arg name="num" value="1" />
-    </bean>
+        @Configuration
+        @EnableAspectJAutoProxy
+        @Import({ SecureLoginDomainConfig.class })
+        public class ApplicationContextConfig {
 
-    <bean id="specialCharacterRule" class="org.passay.CharacterRule"> <!-- (5) -->
-        <constructor-arg name="data">
-            <util:constant static-field="org.passay.EnglishCharacterData.Special" />
-        </constructor-arg>
-        <constructor-arg name="num" value="1" />
-    </bean>
+            // omitted
 
-    <bean id="characterCharacteristicsRule" class="org.passay.CharacterCharacteristicsRule"> <!-- (6) -->
-        <property name="rules">
-            <list>
-                <ref bean="upperCaseRule" />
-                <ref bean="lowerCaseRule" />
-                <ref bean="digitRule" />
-                <ref bean="specialCharacterRule" />
-            </list>
-        </property>
-        <property name="numberOfCharacteristics" value="3" />
-    </bean>
+            @Value("${security.passwordMinimumLength}")
+            private Integer passwordMinimumLength;
 
-    <bean id="usernameRule" class="org.passay.UsernameRule" /> <!-- (7) -->
+            // (1)
+            @Bean(name = "lengthRule")
+            public LengthRule lengthRule() {
+                LengthRule bean = new LengthRule();
+                bean.setMinimumLength(passwordMinimumLength);
+                return bean;
+            }
 
-    <bean id="encodedPasswordHistoryRule"
-        class="com.example.securelogin.app.common.validation.rule.EncodedPasswordHistoryRule"> <!-- (8) -->
-        <constructor-arg name="passwordEncoder" ref="passwordEncoder" />
-    </bean>
+            // (2)
+            @Bean(name = "upperCaseRule")
+            public CharacterRule upperCaseRule() {
+                return new CharacterRule(EnglishCharacterData.UpperCase, 1);
+            }
 
+            // (3)
+            @Bean(name = "lowerCaseRule")
+            public CharacterRule lowerCaseRule() {
+                return new CharacterRule(EnglishCharacterData.LowerCase, 1);
+            }
+
+            // (4)
+            @Bean(name = "digitRule")
+            public CharacterRule digitRule() {
+                return new CharacterRule(EnglishCharacterData.Digit, 1);
+            }
+
+            // (5)
+            @Bean(name = "specialCharacterRule")
+            public CharacterRule specialCharacterRule() {
+                return new CharacterRule(EnglishCharacterData.Special, 1);
+            }
+
+            // (6)
+            @Bean(name = "characterCharacteristicsRule")
+            public CharacterCharacteristicsRule characterCharacteristicsRule() {
+                CharacterCharacteristicsRule bean = new CharacterCharacteristicsRule();
+                List<CharacterRule> rules = new ArrayList<>();
+                rules.add(upperCaseRule());
+                rules.add(lowerCaseRule());
+                rules.add(digitRule());
+                rules.add(specialCharacterRule());
+                bean.setRules(rules);
+                bean.setNumberOfCharacteristics(3);
+                return bean;
+            }
+
+            // (7)
+            @Bean(name = "usernameRule")
+            public UsernameRule usernameRule() {
+                return new UsernameRule();
+            }
+
+            // (8)
+            @Bean(name = "encodedPasswordHistoryRule")
+            public EncodedPasswordHistoryRule encodedPasswordHistoryRule() {
+                return new EncodedPasswordHistoryRule(passwordEncoder());
+            }
+
+            // omitted
+        }
+  
+    .. group-tab:: XML Config
+  
+      \ **applicationContext.xml**\
+  
+      .. code-block:: xml
+  
+        <bean id="lengthRule" class="org.passay.LengthRule"> <!-- (1) -->
+            <property name="minimumLength" value="${security.passwordMinimumLength}" />
+        </bean>
+
+        <bean id="upperCaseRule" class="org.passay.CharacterRule"> <!-- (2) -->
+            <constructor-arg name="data">
+                <util:constant static-field="org.passay.EnglishCharacterData.UpperCase" />
+            </constructor-arg>
+            <constructor-arg name="num" value="1" />
+        </bean>
+
+        <bean id="lowerCaseRule" class="org.passay.CharacterRule"> <!-- (3) -->
+            <constructor-arg name="data">
+                <util:constant static-field="org.passay.EnglishCharacterData.LowerCase" />
+            </constructor-arg>
+            <constructor-arg name="num" value="1" />
+        </bean>
+
+        <bean id="digitRule" class="org.passay.CharacterRule"> <!-- (4) -->
+            <constructor-arg name="data">
+                <util:constant static-field="org.passay.EnglishCharacterData.Digit" />
+            </constructor-arg>
+            <constructor-arg name="num" value="1" />
+        </bean>
+
+        <bean id="specialCharacterRule" class="org.passay.CharacterRule"> <!-- (5) -->
+            <constructor-arg name="data">
+                <util:constant static-field="org.passay.EnglishCharacterData.Special" />
+            </constructor-arg>
+            <constructor-arg name="num" value="1" />
+        </bean>
+
+        <bean id="characterCharacteristicsRule" class="org.passay.CharacterCharacteristicsRule"> <!-- (6) -->
+            <property name="rules">
+                <list>
+                    <ref bean="upperCaseRule" />
+                    <ref bean="lowerCaseRule" />
+                    <ref bean="digitRule" />
+                    <ref bean="specialCharacterRule" />
+                </list>
+            </property>
+            <property name="numberOfCharacteristics" value="3" />
+        </bean>
+
+        <bean id="usernameRule" class="org.passay.UsernameRule" /> <!-- (7) -->
+
+        <bean id="encodedPasswordHistoryRule"
+            class="com.example.securelogin.app.common.validation.rule.EncodedPasswordHistoryRule"> <!-- (8) -->
+            <constructor-arg name="passwordEncoder" ref="passwordEncoder" />
+        </bean>
+  
   .. tabularcolumns:: |p{0.10\linewidth}|p{0.90\linewidth}|
   .. list-table::
     :header-rows: 1
@@ -1328,27 +1497,67 @@ ER図
 
   前述したPassayの検証規則を用いて、実際に検証を行う検証器のBean定義を以下に示す。
 
-  \ **applicationContext.xml**\
+  .. tabs::
+    .. group-tab:: Java Config
 
-  .. code-block:: xml
+      \ **ApplicationContextConfig.java**\
 
-    <bean id="characteristicPasswordValidator" class="org.passay.PasswordValidator"> <!-- (1) -->
-        <constructor-arg name="rules">
-            <list>
-                <ref bean="lengthRule" />
-                <ref bean="characterCharacteristicsRule" />
-                <ref bean="usernameRule" />
-            </list>
-        </constructor-arg>
-    </bean>
-    <bean id="encodedPasswordHistoryValidator" class="org.passay.PasswordValidator"> <!-- (2) -->
-        <constructor-arg name="rules">
-            <list>
-                <ref bean="encodedPasswordHistoryRule" />
-            </list>
-        </constructor-arg>
-    </bean>
+      .. code-block:: java
 
+        package com.example.securelogin.config.app;
+
+        // omitted
+
+        @Configuration
+        @EnableAspectJAutoProxy
+        @Import({ SecureLoginDomainConfig.class })
+        public class ApplicationContextConfig {
+
+            // omitted
+
+            // (1)
+            @Bean(name = "characteristicPasswordValidator")
+            public PasswordValidator characteristicPasswordValidator() {
+                List<Rule> rules = new ArrayList<>();
+                rules.add(lengthRule());
+                rules.add(characterCharacteristicsRule());
+                rules.add(usernameRule());
+                return new PasswordValidator(rules);
+            }
+
+            // (2)
+            @Bean(name = "encodedPasswordHistoryValidator")
+            public PasswordValidator encodedPasswordHistoryValidator() {
+                List<Rule> rules = new ArrayList<>();
+                rules.add(encodedPasswordHistoryRule());
+                return new PasswordValidator(rules);
+            }
+            // omitted
+        }
+
+    .. group-tab:: XML Config
+
+      \ **applicationContext.xml**\
+
+      .. code-block:: xml
+
+        <bean id="characteristicPasswordValidator" class="org.passay.PasswordValidator"> <!-- (1) -->
+            <constructor-arg name="rules">
+                <list>
+                    <ref bean="lengthRule" />
+                    <ref bean="characterCharacteristicsRule" />
+                    <ref bean="usernameRule" />
+                </list>
+            </constructor-arg>
+        </bean>
+        <bean id="encodedPasswordHistoryValidator" class="org.passay.PasswordValidator"> <!-- (2) -->
+            <constructor-arg name="rules">
+                <list>
+                    <ref bean="encodedPasswordHistoryRule" />
+                </list>
+            </constructor-arg>
+        </bean>
+  
   .. tabularcolumns:: |p{0.10\linewidth}|p{0.90\linewidth}|
   .. list-table::
     :header-rows: 1
@@ -1357,9 +1566,9 @@ ER図
     * - 項番
       - 説明
     * - | (1)
-      - | パスワード自体の性質を検証するための検証器。プロパティとして、\ ``LengthRule``\, \ ``CharacterCharacteristicsRule``\, \ ``UsernameRule``\のBeanを設定する。
+      - | パスワード自体の性質を検証するための検証器。プロパティとして、\ ``LengthRule``\ , \ ``CharacterCharacteristicsRule``\ , \ ``UsernameRule``\ のBeanを設定する。
     * - | (2)
-      - | 過去に使用したパスワードの履歴を使用したチェックを行うための検証器。プロパティとして\ ``EncodedPasswordHistoryRule``\のBeanを設定する。
+      - | 過去に使用したパスワードの履歴を使用したチェックを行うための検証器。プロパティとして\ ``EncodedPasswordHistoryRule``\ のBeanを設定する。
 
 * Bean Validationのアノテーションの作成
 
@@ -1480,7 +1689,7 @@ ER図
   * 過去のパスワードとの比較を行うアノテーション
 
     | 管理ユーザが、以前使用したパスワードを短期間のうちに再使用していないことをチェックするアノテーションの実装を以下に示す。
-    | 過去に使用したパスワードを取得するために、パスワード変更履歴エンティティを用いる。パスワード変更履歴エンティティについては :ref:`パスワード変更の強制・促進 <password-change>` を参照。
+    | 過去に使用したパスワードを取得するために、パスワード変更履歴エンティティを用いる。パスワード変更履歴エンティティについては\ :ref:`パスワード変更の強制・促進 <password-change>`\ を参照。
 
     .. note::
 
@@ -1524,7 +1733,7 @@ ER図
       * - 項番
         - 説明
       * - | (1)
-        - | アノテーション付与時に使用する\ ``ConstraintValidator``\を指定する。
+        - | アノテーション付与時に使用する\ ``ConstraintValidator``\ を指定する。
       * - | (2)
         - | ユーザ名のプロパティ名を指定するためのプロパティ。データベースから過去に使用したパスワードを検索するために必要となる。
       * - | (3)
@@ -1822,9 +2031,9 @@ ER図
 
 実装方法
 """"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
-| Spring Securityでは、\ ``org.springframework.security.core.userdetails.UserDetails``\に対してアカウントのロックアウト状態を設定することができる。
-| 「ロックアウト状態である」と設定した場合、Spring Securityがその設定を読み取って\ ``org.springframework.security.authentication.LockedException``\をthrowする。
-| この機能を用いることにより、アカウントがロックアウト状態であるか否かを判定して\ ``UserDetails``\に設定する処理のみを実装すれば、ロックアウト機能が実現できる。
+| Spring Securityでは、\ ``org.springframework.security.core.userdetails.UserDetails``\ に対してアカウントのロックアウト状態を設定することができる。
+| 「ロックアウト状態である」と設定した場合、Spring Securityがその設定を読み取って\ ``org.springframework.security.authentication.LockedException``\ をthrowする。
+| この機能を用いることにより、アカウントがロックアウト状態であるか否かを判定して\ ``UserDetails``\ に設定する処理のみを実装すれば、ロックアウト機能が実現できる。
 
 | 本アプリケーションでは、認証に失敗した履歴を「認証失敗イベント」エンティティとしてデータベースに保存し、この認証失敗イベントエンティティを使用してアカウントのロックアウト状態の判定を行う。
 | 具体的には以下の三つの処理を実装して用いることにより、アカウントのロックアウトに関する各要件を実現する。
@@ -1836,7 +2045,7 @@ ER図
 * ロックアウト状態の判定
 
   | あるアカウントについて、現在時刻から一定以上新しい認証失敗イベントエンティティが一定個数以上存在する場合、該当アカウントはロックアウト状態であると判定する。
-  | 認証時にこの判定処理を呼び出し、判定結果を\ ``UserDetails``\の実装クラスに設定する。
+  | 認証時にこの判定処理を呼び出し、判定結果を\ ``UserDetails``\ の実装クラスに設定する。
 
 * 認証失敗イベントエンティティの削除
 
@@ -2084,15 +2293,15 @@ ER図
       * - | (1)
         - | 認証失敗イベントエンティティを作成してデータベースに登録するメソッド。
           | 引数として受け取ったユーザ名のアカウントが存在しない場合、データベースの外部キー制約に違反するため、データベースへの登録処理をスキップする。
-          | 本メソッド実行後の例外により認証失敗イベントエンティティが登録されない可能性を考慮し、トランザクションの伝搬方法に\ ``REQUIRES_NEW``\を指定している。
+          | 本メソッド実行後の例外により認証失敗イベントエンティティが登録されない可能性を考慮し、トランザクションの伝搬方法に\ ``REQUIRES_NEW``\ を指定している。
 
 以下、実装方法に従って実装されたコードについて順に解説する。
 
 * 認証失敗イベントエンティティの保存
 
-  認証失敗時に発生するイベントをハンドリングして処理を行うために、\ ``@EventListener``\アノテーションを使用する。
+  認証失敗時に発生するイベントをハンドリングして処理を行うために、\ ``@EventListener``\ アノテーションを使用する。
 
-  \ ``@EventListener``\アノテーションによるイベントのハンドリングについては\ :ref:`SpringSecurityAuthenticationEvent`\ を参照すること。
+  \ ``@EventListener``\ アノテーションによるイベントのハンドリングについては\ :ref:`SpringSecurityAuthenticationEvent`\ を参照すること。
 
   .. code-block:: java
 
@@ -2202,7 +2411,7 @@ ER図
     * - | (5)
       - | 取得した認証失敗イベントエンティティのうち最も古い認証失敗時刻と現在時刻の差分が、ロックアウト継続時間よりも大きい場合には、ロックアウト状態ではないと判定する。
 
-  | \ ``UserDetails``\の実装クラスである\ ``org.springframework.security.core.userdetails.User``\ では、コンストラクタにロックアウト状態を渡すことができる。
+  | \ ``UserDetails``\ の実装クラスである\ ``org.springframework.security.core.userdetails.User``\ では、コンストラクタにロックアウト状態を渡すことができる。
   | 本アプリケーションでは以下のように\ ``User``\ を継承したクラスと、\ ``org.springframework.security.core.userdetails.UserDetailsService``\ を実装したクラスを用いる。
 
   .. code-block:: java
@@ -2290,17 +2499,52 @@ ER図
 
   作成した\ ``UserDetailsService``\ を使用するための設定は以下の通り。
 
-  \ **spring-security.xml**\
+  .. tabs::
+    .. group-tab:: Java Config
 
-  .. code-block:: xml
+      \ **SpringSecurityConfig.java**\
 
-    <!-- omitted -->
+      .. code-block:: java
+        
+        package com.example.securelogin.config.web;
 
-    <sec:authentication-manager>
-        <sec:authentication-provider user-service-ref="loggedInUserDetailsService" /> <!-- (1) -->
-    </sec:authentication-manager>
+        // omitted
 
-    <!-- omitted -->
+        @Configuration
+        @EnableWebSecurity
+        public class SpringSecurityConfig {
+
+            // omitted
+
+            @Bean
+            public AuthenticationProvider authProvider(
+                    UserDetailsService loggedInUserDetailsService,
+                    @Qualifier("passwordEncoder") PasswordEncoder passwordEncoder) {
+                DaoAuthenticationProvider authProvider = new DaoAuthenticationProvider();
+                authProvider.setUserDetailsService(loggedInUserDetailsService); // (1)
+                authProvider.setPasswordEncoder(passwordEncoder);
+                return authProvider;
+            }
+
+            // omitted
+        }
+
+    .. group-tab:: XML Config
+
+      \ **spring-security.xml**\
+
+      .. code-block:: xml
+
+        <!-- omitted -->
+
+        <sec:authentication-manager>
+            <sec:authentication-provider
+                user-service-ref="loggedInUserDetailsService"> <!-- (1) -->
+                <sec:password-encoder ref="passwordEncoder" />
+            </sec:authentication-provider>
+        </sec:authentication-manager>
+
+        <!-- omitted -->
 
   .. tabularcolumns:: |p{0.10\linewidth}|p{0.90\linewidth}|
   .. list-table::
@@ -2310,7 +2554,7 @@ ER図
     * - 項番
       - 説明
     * - | (1)
-      - | \ ``UserDetailsService``\ のBeanのidを指定する。
+      - | \ ``UserDetailsService`` \ のBeanのidを指定する。
 
 * 認証失敗イベントエンティティの削除
 
@@ -2355,7 +2599,7 @@ ER図
       * - | (1)
         - | 引数として渡されたユーザ名のアカウントに関する認証失敗イベントエンティティを削除する。
 
-    認証成功時に発生するイベントをハンドリングして処理を行うために、 \ ``@EventListener``\アノテーションを使用する。
+    認証成功時に発生するイベントをハンドリングして処理を行うために、 \ ``@EventListener``\ アノテーションを使用する。
 
     .. code-block:: java
 
@@ -2403,24 +2647,63 @@ ER図
 
       ロックアウトの解除を行うことができるユーザの権限を以下の通りに設定する。
 
-      \ **spring-security.xml**\
+      .. tabs::
+        .. group-tab:: Java Config
 
-      .. code-block:: xml
+          \ **SpringSecurityConfig.java**\
 
-        <!-- omitted -->
+          .. code-block:: java
+            
+            package com.example.securelogin.config.web;
 
-          <sec:http pattern="/resources/**" request-matcher="ant" security="none"/>
-          <sec:http request-matcher="ant">
+            // omitted
 
-              <!-- omitted -->
+            @Configuration
+            @EnableWebSecurity
+            public class SpringSecurityConfig {
 
-              <sec:intercept-url pattern="/unlock/**" access="hasRole('ADMIN')" /> <!-- (1) -->
+                // omitted
 
-              <!-- omitted -->
+                @Bean
+                public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
 
-          </sec:http>
+                    // omitted
 
-        <!-- omitted -->
+                    http.authorizeHttpRequests(authz -> authz
+                            .requestMatchers(new AntPathRequestMatcher("/login")).permitAll()
+                            .requestMatchers(new AntPathRequestMatcher("/accounts/create")).permitAll()
+                            .requestMatchers(new AntPathRequestMatcher("/reissue/**")).permitAll()
+                            .requestMatchers(new AntPathRequestMatcher("/api/receivedmail")).permitAll()
+                            .requestMatchers(new AntPathRequestMatcher("/unlock/**")).hasRole("ADMIN") // (1)
+                            .requestMatchers(new AntPathRequestMatcher("/**")).authenticated());
+
+                    return http.build();
+                }
+
+                // omitted
+
+            }
+
+        .. group-tab:: XML Config
+
+          \ **spring-security.xml**\
+
+          .. code-block:: xml
+
+            <!-- omitted -->
+
+              <sec:http pattern="/resources/**" request-matcher="ant" security="none"/>
+              <sec:http request-matcher="ant">
+
+                  <!-- omitted -->
+
+                  <sec:intercept-url pattern="/unlock/**" access="hasRole('ADMIN')" /> <!-- (1) -->
+
+                  <!-- omitted -->
+
+              </sec:http>
+
+            <!-- omitted -->
 
       .. tabularcolumns:: |p{0.10\linewidth}|p{0.90\linewidth}|
       .. list-table::
@@ -2483,86 +2766,175 @@ ER図
         }
 
     * Viewの実装
+    
+      .. tabs::
+        .. group-tab:: JSP
 
-      \ **トップ画面(home.jsp)**\
+          \ **トップ画面(home.jsp)**\
 
-      .. code-block:: jsp
+          .. code-block:: jsp
 
-        <!-- omitted -->
+            <!-- omitted -->
 
-        <body>
-            <div id="wrapper">
+            <body>
+                <div id="wrapper">
 
-                <!-- omitted -->
+                    <!-- omitted -->
 
-                <sec:authorize url="/unlock"> <!-- (1) -->
-                <div>
-                    <a id="unlock" href="${f:h(pageContext.request.contextPath)}/unlock?form">
-                        Unlock Account
-                    </a>
+                    <sec:authorize url="/unlock"> <!-- (1) -->
+                    <div>
+                        <a id="unlock" href="${f:h(pageContext.request.contextPath)}/unlock?form">
+                            Unlock Account
+                        </a>
+                    </div>
+                    </sec:authorize>
+
+                    <!-- omitted -->
+
                 </div>
-                </sec:authorize>
+            </body>
 
-                <!-- omitted -->
+            <!-- omitted -->
+              
+          .. tabularcolumns:: |p{0.10\linewidth}|p{0.90\linewidth}|
+          .. list-table::
+            :header-rows: 1
+            :widths: 10 90
 
-            </div>
-        </body>
+            * - 項番
+              - 説明
+            * - | (1)
+              - | /unlock 以下のアクセス権限を持つユーザに対してのみ表示する。
 
-        <!-- omitted -->
+          \ **ロックアウト解除フォーム(unlockForm.jsp)**\
 
-      .. tabularcolumns:: |p{0.10\linewidth}|p{0.90\linewidth}|
-      .. list-table::
-        :header-rows: 1
-        :widths: 10 90
+          .. code-block:: jsp
 
-        * - 項番
-          - 説明
-        * - | (1)
-          - | /unlock 以下のアクセス権限を持つユーザに対してのみ表示する。
+            <!-- omitted -->
 
-      \ **ロックアウト解除フォーム(unlockForm.jsp)**\
+            <body>
+                <div id="wrapper">
+                    <h1>Unlock Account</h1>
+                    <t:messagesPanel />
+                    <form:form action="${f:h(pageContext.request.contextPath)}/unlock"
+                        method="POST" modelAttribute="unlockForm">
+                        <table>
+                            <tr>
+                                <th><form:label path="username" cssErrorClass="error-label">Username</form:label>
+                                </th>
+                                <td><form:input path="username" cssErrorClass="error-input" /></td>
+                                <td><form:errors path="username" cssClass="error-messages" /></td>
+                            </tr>
+                        </table>
 
-      .. code-block:: jsp
+                        <input id="submit" type="submit" value="Unlock" />
+                    </form:form>
+                    <a href="${f:h(pageContext.request.contextPath)}/">go to Top</a>
+                </div>
+            </body>
 
-        <!-- omitted -->
+            <!-- omitted -->
 
-        <body>
-            <div id="wrapper">
-                <h1>Unlock Account</h1>
-                <t:messagesPanel />
-                <form:form action="${f:h(pageContext.request.contextPath)}/unlock"
-                    method="POST" modelAttribute="unlockForm">
-                    <table>
-                        <tr>
-                            <th><form:label path="username" cssErrorClass="error-label">Username</form:label>
-                            </th>
-                            <td><form:input path="username" cssErrorClass="error-input" /></td>
-                            <td><form:errors path="username" cssClass="error-messages" /></td>
-                        </tr>
-                    </table>
+          \ **ロックアウト解除完了画面(unlockComplete.jsp)**\
 
-                    <input id="submit" type="submit" value="Unlock" />
-                </form:form>
-                <a href="${f:h(pageContext.request.contextPath)}/">go to Top</a>
-            </div>
-        </body>
+          .. code-block:: jsp
 
-        <!-- omitted -->
+            <!-- omitted -->
 
-      \ **ロックアウト解除完了画面(unlockComplete.jsp)**\
+            <body>
+                <div id="wrapper">
+                    <h1>${f:h(username)}'s account was successfully unlocked.</h1>
+                    <a href="${f:h(pageContext.request.contextPath)}/">go to Top</a>
+                </div>
+            </body>
 
-      .. code-block:: jsp
+            <!-- omitted -->
 
-        <!-- omitted -->
+        .. group-tab:: Thymeleaf
 
-        <body>
-            <div id="wrapper">
-                <h1>${f:h(username)}'s account was successfully unlocked.</h1>
-                <a href="${f:h(pageContext.request.contextPath)}/">go to Top</a>
-            </div>
-        </body>
+          \ **トップ画面(home.html)**\
 
-        <!-- omitted -->
+          .. code-block:: html
+
+            <!--/* omitted */-->
+
+            <body>
+                <div id="wrapper">
+
+                    <!--/* omitted */-->
+
+                    <div sec:authorize="hasRole('ADMIN')"> <!--/* (1) */-->
+                        <a id="unlock" th:href="@{/unlock?form}">
+                            Unlock Account
+                        </a>
+                    </div>
+
+                    <!--/* omitted */-->
+
+                </div>
+            </body>
+
+            <!--/* omitted */-->
+
+          .. tabularcolumns:: |p{0.10\linewidth}|p{0.90\linewidth}|
+          .. list-table::
+            :header-rows: 1
+            :widths: 10 90
+
+            * - 項番
+              - 説明
+            * - | (1)
+              - | 管理ユーザのアクセス権限を持つユーザに対してのみ表示する。
+
+          \ **ロックアウト解除フォーム(unlockForm.html)**\
+
+          .. code-block:: html
+
+            <!--/* omitted */-->
+
+            <body>
+                <div id="wrapper">
+                    <h1>Unlock Account</h1>
+                    <div th:if="${resultMessages} != null" id="expiredMessage"
+                        th:class="|alert alert-${resultMessages.type}|">
+                        <ul>
+                            <li th:each="message : ${resultMessages}"
+                                th:text="${message.code} != null ? ${#messages.msgWithParams(message.code, message.args)} : ${message.text}"></li>
+                        </ul>
+                    </div>
+                    <form th:action="@{/unlock}"
+                        method="POST" th:object="${unlockForm}">
+                        <table>
+                            <tr>
+                                <th><label for="username" name="username" th:errorclass="error-label">Username</label>
+                                </th>
+                                <td><input th:field="*{username}" th:errorclass="error-input"/></td>
+                                <td th:errors="*{username}" class="error-messages"></td>
+                            </tr>
+                        </table>
+
+                        <input id="submit" type="submit" value="Unlock" />
+                    </form>
+                    <a th:href="@{/}">go to Top</a>
+                </div>
+            </body>
+
+            <!--/* omitted */-->
+
+          \ **ロックアウト解除完了画面(unlockComplete.html)**\
+
+          .. code-block:: html
+
+            <!--/* omitted */-->
+
+            <body>
+                <div id="wrapper">
+                    <h1 th:text ="|${username}'s account was successfully unlocked.|"></h1>
+                    <a th:href="@{/}">go to Top</a>
+                </div>
+            </body>
+
+            <!--/* omitted */-->
 
     * Controllerの実装
 
@@ -2638,9 +3010,9 @@ ER図
 """"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 
 .. figure:: ./images_SecureLoginDemo/SecureLogin_last_login.png
-   :alt: Last Login Date
-   :width: 80%
-   :align: center
+  :alt: Last Login Date
+  :width: 80%
+  :align: center
 
 |
 
@@ -2656,7 +3028,7 @@ ER図
 * 前回ログイン日時の取得と表示
 
   | 認証時に、アカウントにおける最新の認証成功イベントエンティティをデータベースから取得し、イベントエンティティから認証成功日時を取得して\ ``org.springframework.security.core.userdetails.UserDetails``\ に設定する。
-  | jspに\ ``UserDetails``\ が保持している認証成功日時をフォーマットして渡し、表示する。
+  | Viewに\ ``UserDetails``\ が保持している認証成功日時を渡し、表示する。
 
 |
 
@@ -2788,7 +3160,7 @@ ER図
       @Service
       @Transactional
       public class AuthenticationEventSharedServiceImpl implements
-           AuthenticationEventSharedService {
+          AuthenticationEventSharedService {
 
           // omitted
 
@@ -2807,14 +3179,14 @@ ER図
 
           @Transactional(propagation = Propagation.REQUIRES_NEW)
           @Override
-            public void authenticationSuccess(String username) {
-                SuccessfulAuthentication successEvent = new SuccessfulAuthentication();
-                successEvent.setUsername(username);
-                successEvent.setAuthenticationTimestamp(LocalDateTime.now(dateFactory.tick()));
+          public void authenticationSuccess(String username) {
+              SuccessfulAuthentication successEvent = new SuccessfulAuthentication();
+              successEvent.setUsername(username);
+              successEvent.setAuthenticationTimestamp(LocalDateTime.now(dateFactory.tick()));
 
-                successAuthenticationRepository.create(successEvent);
-                deleteFailureEventByUsername(username);
-            }
+              successAuthenticationRepository.create(successEvent);
+              deleteFailureEventByUsername(username);
+          }
 
       }
 
@@ -2822,7 +3194,86 @@ ER図
 
 * 認証成功イベントエンティティの保存
 
-  認証成功時に発生するイベントをハンドリングして処理を行うために、\ ``@EventListener``\アノテーションを使用する。
+  認証成功時に発生するイベントをハンドリングして処理を行うために、\ ``@EventListener`` \ アノテーションを使用する。
+
+  .. code-block:: java
+
+    package com.example.securelogin.domain.common.event;
+
+    // omitted
+
+    @Component
+    public class AccountAuthenticationSuccessEventListener{
+
+        @Inject
+        AuthenticationEventSharedService authenticationEventSharedService;
+
+        @EventListener(AuthenticationSuccessEvent.class) // (1)
+        public void onApplicationEvent(AuthenticationSuccessEvent event) {
+            LoggedInUser details = (LoggedInUser) event.getAuthentication()
+                    .getPrincipal(); // (2)
+
+            authenticationEventSharedService.authenticationSuccess(details
+                    .getUsername()); // (3)
+        }
+
+    }
+
+  .. tabularcolumns:: |p{0.10\linewidth}|p{0.90\linewidth}|
+  .. list-table::
+    :header-rows: 1
+    :widths: 10 90
+
+    * - 項番
+      - 説明
+    * - | (1)
+      - | \ ``@EventListener``\ アノテーションを付与することで、認証が成功した際に、\ ``onApplicationEvent``\ メソッドが実行される。
+    * - | (2)
+      - | \ ``AuthenticationSuccessEvent``\ オブジェクトから、\ ``UserDetails``\ の実装クラスを取得する。このクラスについては以降で説明する。
+    * - | (3)
+      - | 認証成功イベントエンティティを作成し、データベースに登録する処理を呼び出す。
+
+* 前回ログイン日時の取得と表示
+
+  認証成功イベントエンティティから前回ログイン日時を取得するためのServiceを以下に示す。
+
+  .. code-block:: java
+
+    package com.example.securelogin.domain.service.account;
+
+    // omitted
+
+    @Service
+    @Transactional
+    public class AccountSharedServiceImpl implements AccountSharedService {
+
+        // omitted
+
+        @Inject
+        AuthenticationEventSharedService authenticationEventSharedService;
+
+        @Transactional(readOnly = true)
+        @Override
+        public LocalDateTime getLastLoginDate(String username) {
+            List<SuccessfulAuthentication> events = authenticationEventSharedService
+                    .findLatestSuccessEvents(username, 1); // (1)
+
+            if (events.isEmpty()) {
+                return null; // (2)
+            } else {
+                return events.get(0).getAuthenticationTimestamp(); // (3)
+            }
+        }
+
+        // omitted
+
+    }
+
+以下、実装方法に従って実装されたコードについて順に解説する。
+
+* 認証成功イベントエンティティの保存
+
+  認証成功時に発生するイベントをハンドリングして処理を行うために、\ ``@EventListener``\ アノテーションを使用する。
 
   .. code-block:: java
 
@@ -2959,77 +3410,35 @@ ER図
 
   .. code-block:: java
 
-     package com.example.securelogin.domain.service.userdetails;
-
-     // omitted
-
-     @Service
-     public class LoggedInUserDetailsService implements UserDetailsService {
-
-         @Inject
-         AccountSharedService accountSharedService;
-
-         @Transactional(readOnly = true)
-         @Override
-         public UserDetails loadUserByUsername(String username)
-                 throws UsernameNotFoundException {
-             try {
-                 Account account = accountSharedService.findOne(username);
-                 List<SimpleGrantedAuthority> authorities = new ArrayList<>();
-                 for (Role role : account.getRoles()) {
-                         authorities.add(new SimpleGrantedAuthority("ROLE_"
-                                + role.getRoleValue()));
-                 }
-                 return new LoggedInUser(account,
-                         accountSharedService.isLocked(username),
-                         accountSharedService.getLastLoginDate(username), // (1)
-                         authorities);
-             } catch (ResourceNotFoundException e) {
-                 throw new UsernameNotFoundException("user not found", e);
-             }
-         }
-
-     }
-
-  .. tabularcolumns:: |p{0.10\linewidth}|p{0.90\linewidth}|
-  .. list-table::
-    :header-rows: 1
-    :widths: 10 90
-
-    * - 項番
-      - 説明
-    * - | (1)
-      - | Serviceのメソッドを呼び出して前回ログイン日時を取得し、\ ``LoggedInUser``\のコンストラクタに渡す。
-
-  トップ画面に前回ログイン日時を表示するためのアプリケーション層の実装を行う。
-
-  .. code-block:: java
-
-    package com.example.securelogin.app.welcome;
+    package com.example.securelogin.domain.service.userdetails;
 
     // omitted
 
-    @Controller
-    public class HomeController {
+    @Service
+    public class LoggedInUserDetailsService implements UserDetailsService {
 
-       @Inject
-       AccountSharedService accountSharedService;
+        @Inject
+        AccountSharedService accountSharedService;
 
-       @GetMapping(value = "/")
-       public String home(@AuthenticationPrincipal LoggedInUser userDetails, // (1)
-               Model model) {
-
-           // omitted
-
-           LocalDateTime lastLoginDate = userDetails.getLastLoginDate(); // (2)
-           if (lastLoginDate != null) {
-               model.addAttribute("lastLoginDate", lastLoginDate
-                       .format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss"))); // (3)
-           }
-
-           return "welcome/home";
-
-       }
+        @Transactional(readOnly = true)
+        @Override
+        public UserDetails loadUserByUsername(String username)
+                throws UsernameNotFoundException {
+            try {
+                Account account = accountSharedService.findOne(username);
+                List<SimpleGrantedAuthority> authorities = new ArrayList<>();
+                for (Role role : account.getRoles()) {
+                        authorities.add(new SimpleGrantedAuthority("ROLE_"
+                               + role.getRoleValue()));
+                }
+                return new LoggedInUser(account,
+                        accountSharedService.isLocked(username),
+                        accountSharedService.getLastLoginDate(username), // (1)
+                        authorities);
+            } catch (ResourceNotFoundException e) {
+                throw new UsernameNotFoundException("user not found", e);
+            }
+        }
 
     }
 
@@ -3041,43 +3450,164 @@ ER図
     * - 項番
       - 説明
     * - | (1)
-      - | \ ``@AuthenticationPrincipal``\を使用してUserDetailsオブジェクトを取得する。
-    * - | (2)
-      - | \ ``LoggedInUserDetails``\から最終ログイン日時を取得する。
-    * - | (3)
-      - | 最終ログイン日時をフォーマットしてModelに設定し、Viewに渡す。
+      - | Serviceのメソッドを呼び出して前回ログイン日時を取得し、\ ``LoggedInUser``\ のコンストラクタに渡す。
 
-  \ **トップ画面(home.jsp)**\
+  トップ画面に前回ログイン日時を表示するためのアプリケーション層の実装を行う。
 
-  .. code-block:: jsp
+  .. tabs::
 
-    <body>
-      <div id="wrapper">
+    .. group-tab:: JSP
 
-          <!-- omitted -->
+      .. code-block:: java
 
-          <c:if test="${!empty lastLoginDate}"> <!-- (1) -->
-              <p id="lastLogin">
-                  Last login date is ${f:h(lastLoginDate)}. <!-- (2) -->
-              </p>
-          </c:if>
+        package com.example.securelogin.app.welcome;
 
-          <!-- omitted -->
+        // omitted
 
-      </div>
-    </body>
+        @Controller
+        public class HomeController {
 
-  .. tabularcolumns:: |p{0.10\linewidth}|p{0.90\linewidth}|
-  .. list-table::
-    :header-rows: 1
-    :widths: 10 90
+            @Inject
+            AccountSharedService accountSharedService;
 
-    * - 項番
-      - 説明
-    * - | (1)
-      - | 前回ログイン日時がnullの場合は表示しない。
-    * - | (2)
-      - | Controllerから渡された前回ログイン日時を表示する。
+            @GetMapping(value = "/")
+            public String home(@AuthenticationPrincipal LoggedInUser userDetails, // (1)
+                    Model model) {
+
+                // omitted
+
+                LocalDateTime lastLoginDate = userDetails.getLastLoginDate(); // (2)
+                if (lastLoginDate != null) {
+                    model.addAttribute("lastLoginDate", lastLoginDate
+                            .format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss"))); // (3)
+                }
+
+                return "welcome/home";
+
+            }
+
+        }
+
+      .. tabularcolumns:: |p{0.10\linewidth}|p{0.90\linewidth}|
+      .. list-table::
+        :header-rows: 1
+        :widths: 10 90
+
+        * - 項番
+          - 説明
+        * - | (1)
+          - | \ ``@AuthenticationPrincipal``\ を使用してUserDetailsオブジェクトを取得する。
+        * - | (2)
+          - | \ ``LoggedInUserDetails``\ から最終ログイン日時を取得する。
+        * - | (3)
+          - | 最終ログイン日時をフォーマットしてModelに設定し、Viewに渡す。
+
+      \ **トップ画面(home.jsp)**\
+
+      .. code-block:: jsp
+
+        <body>
+          <div id="wrapper">
+
+              <!-- omitted -->
+
+              <c:if test="${!empty lastLoginDate}"> <!-- (1) -->
+                  <p id="lastLogin">
+                      Last login date is ${f:h(lastLoginDate)}. <!-- (2) -->
+                  </p>
+              </c:if>
+
+              <!-- omitted -->
+
+          </div>
+        </body>
+          
+      .. tabularcolumns:: |p{0.10\linewidth}|p{0.90\linewidth}|
+      .. list-table::
+        :header-rows: 1
+        :widths: 10 90
+
+        * - 項番
+          - 説明
+        * - | (1)
+          - | 前回ログイン日時がnullの場合は表示しない。
+        * - | (2)
+          - | Controllerから渡された前回ログイン日時を表示する。
+
+    .. group-tab:: Thymeleaf
+
+      .. code-block:: java
+
+        package com.example.securelogin.app.welcome;
+
+        // omitted
+
+        @Controller
+        public class HomeController {
+
+            @Inject
+            AccountSharedService accountSharedService;
+
+            @GetMapping(value = "/")
+            public String home(@AuthenticationPrincipal LoggedInUser userDetails, // (1)
+                    Model model) {
+
+                // omitted
+
+                LocalDateTime lastLoginDate = userDetails.getLastLoginDate(); // (2)
+                if (lastLoginDate != null) {
+                    model.addAttribute("lastLoginDate", lastLoginDate); // (3)
+                }
+
+                return "welcome/home";
+
+            }
+
+        }
+
+      .. tabularcolumns:: |p{0.10\linewidth}|p{0.90\linewidth}|
+      .. list-table::
+        :header-rows: 1
+        :widths: 10 90
+
+        * - 項番
+          - 説明
+        * - | (1)
+          - | \ ``@AuthenticationPrincipal``\ を使用してUserDetailsオブジェクトを取得する。
+        * - | (2)
+          - | \ ``LoggedInUserDetails``\ から最終ログイン日時を取得する。
+        * - | (3)
+          - | 最終ログイン日時をModelに設定し、Viewに渡す。
+
+      \ **トップ画面(home.html)**\
+
+      .. code-block:: html
+
+        <body>
+            <div id="wrapper">
+
+                <!--/* omitted */-->
+
+                <!--/* (1)(2) */-->
+                <p id="lastLogin" th:if="${lastLoginDate} !=null"
+                    th:text="|Last login date is ${lastLoginDate}.|" ></p>
+ 
+                <!--/* omitted */-->
+
+            </div>
+        </body>
+
+      .. tabularcolumns:: |p{0.10\linewidth}|p{0.90\linewidth}|
+      .. list-table::
+        :header-rows: 1
+        :widths: 10 90
+        
+        * - 項番
+          - 説明
+        * - | (1)
+          - | 前回ログイン日時がnullの場合は表示しない。
+        * - | (2)
+          - | Controllerから渡された前回ログイン日時を表示する。
 
 |
 
@@ -3205,80 +3735,80 @@ ER図
 
       }
 
-   .. tabularcolumns:: |p{0.10\linewidth}|p{0.90\linewidth}|
-   .. list-table::
-     :header-rows: 1
-     :widths: 10 90
+    .. tabularcolumns:: |p{0.10\linewidth}|p{0.90\linewidth}|
+    .. list-table::
+      :header-rows: 1
+      :widths: 10 90
 
-     * - 項番
-       - 説明
-     * - | (1)
-       - | 引数として与えられた\ ``PasswordReissueInfo``\ オブジェクトをデータベースのレコードとして登録するメソッド
-     * - | (2)
-       - | 引数として与えられたトークンをキーとして、\ ``PasswordReissueInfo``\ オブジェクトを検索し、取得するメソッド
-     * - | (3)
-       - | 引数として与えられたトークンをキーとして、\ ``PasswordReissueInfo``\ オブジェクトを削除するメソッド
+      * - 項番
+        - 説明
+      * - | (1)
+        - | 引数として与えられた\ ``PasswordReissueInfo``\ オブジェクトをデータベースのレコードとして登録するメソッド
+      * - | (2)
+        - | 引数として与えられたトークンをキーとして、\ ``PasswordReissueInfo``\ オブジェクトを検索し、取得するメソッド
+      * - | (3)
+        - | 引数として与えられたトークンをキーとして、\ ``PasswordReissueInfo``\ オブジェクトを削除するメソッド
 
-   マッピングファイルは以下の通り。
+    マッピングファイルは以下の通り。
 
-   .. code-block:: xml
+    .. code-block:: xml
 
-     <?xml version="1.0" encoding="UTF-8"?>
-     <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
-     "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+      <?xml version="1.0" encoding="UTF-8"?>
+      <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+      "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 
-     <mapper
-         namespace="com.example.securelogin.domain.repository.passwordreissue.PasswordReissueInfoRepository">
+      <mapper
+          namespace="com.example.securelogin.domain.repository.passwordreissue.PasswordReissueInfoRepository">
 
-         <resultMap id="PasswordReissueInfoResultMap" type="PasswordReissueInfo">
-             <id property="username" column="username" />
-             <id property="token" column="token" />
-             <id property="secret" column="secret" />
-             <id property="expiryDate" column="expiry_date" />
-         </resultMap>
+          <resultMap id="PasswordReissueInfoResultMap" type="PasswordReissueInfo">
+              <id property="username" column="username" />
+              <id property="token" column="token" />
+              <id property="secret" column="secret" />
+              <id property="expiryDate" column="expiry_date" />
+          </resultMap>
 
-         <select id="findById" resultMap="PasswordReissueInfoResultMap">
-         <![CDATA[
-             SELECT
-                 username,
-                 token,
-                 secret,
-                 expiry_date
-             FROM
-                 password_reissue_info
-             WHERE
-                 token = #{token}
-         ]]>
-         </select>
+          <select id="findById" resultMap="PasswordReissueInfoResultMap">
+          <![CDATA[
+              SELECT
+                  username,
+                  token,
+                  secret,
+                  expiry_date
+              FROM
+                  password_reissue_info
+              WHERE
+                  token = #{token}
+          ]]>
+          </select>
 
-         <insert id="create" parameterType="PasswordReissueInfo">
-         <![CDATA[
-             INSERT INTO password_reissue_info (
-                 username,
-                 token,
-                 secret,
-                 expiry_date
-             ) VALUES (
-                 #{username},
-                 #{token},
-                 #{secret},
-                 #{expiryDate}
-             )
-         ]]>
-         </insert>
+          <insert id="create" parameterType="PasswordReissueInfo">
+          <![CDATA[
+              INSERT INTO password_reissue_info (
+                  username,
+                  token,
+                  secret,
+                  expiry_date
+              ) VALUES (
+                  #{username},
+                  #{token},
+                  #{secret},
+                  #{expiryDate}
+              )
+          ]]>
+          </insert>
 
-         <delete id="deleteByToken">
-         <![CDATA[
-             DELETE FROM
-                 password_reissue_info
-             WHERE
-                 token = #{token}
-         ]]>
-         </delete>
+          <delete id="deleteByToken">
+          <![CDATA[
+              DELETE FROM
+                  password_reissue_info
+              WHERE
+                  token = #{token}
+          ]]>
+          </delete>
 
-         <!-- omitted -->
+          <!-- omitted -->
 
-     </mapper>
+      </mapper>
 
 以下、実装方法に従って実装されたコードについて順に解説する。
 
@@ -3289,16 +3819,53 @@ ER図
     | Passayのパスワード生成機能を使用するための、パスワード生成器と生成規則の定義を以下に示す。
     | パスワード生成器や生成規則に関しては\ :ref:`password_generation`\ を参照。
 
-    \ **applicationContext.xml**\
+    .. tabs::
+      .. group-tab:: Java Config
 
-    .. code-block:: xml
+        \ **ApplicationContextConfig.java**\
+          
+        .. code-block:: java
 
-      <bean id="passwordGenerator" class="org.passay.PasswordGenerator" /> <!-- (1) -->
-      <util:list id="passwordGenerationRules"> <!-- (2) -->
-          <ref bean="upperCaseRule" />
-          <ref bean="lowerCaseRule" />
-          <ref bean="digitRule" />
-      </util:list>
+          package com.example.securelogin.config.app;
+
+          // omitted
+
+          @Configuration
+          @EnableAspectJAutoProxy
+          @Import({ SecureLoginDomainConfig.class })
+          public class ApplicationContextConfig {
+
+              // omitted
+
+              @Bean(name = "passwordGenerator") // (1)
+              public PasswordGenerator passwordGenerator() {
+                  return new PasswordGenerator();
+              }
+
+              @Bean(name = "passwordGenerationRules") // (2)
+              public List<CharacterRule> passwordGenerationRules() {
+                  List<CharacterRule> rules = new ArrayList<>();
+                  rules.add(upperCaseRule());
+                  rules.add(lowerCaseRule());
+                  rules.add(digitRule());
+                  return rules;
+              }
+
+              // omitted
+          }
+
+      .. group-tab:: XML Config
+
+        \ **applicationContext.xml**\
+
+        .. code-block:: xml
+
+          <bean id="passwordGenerator" class="org.passay.PasswordGenerator" /> <!-- (1) -->
+          <util:list id="passwordGenerationRules"> <!-- (2) -->
+              <ref bean="upperCaseRule" />
+              <ref bean="lowerCaseRule" />
+              <ref bean="digitRule" />
+          </util:list>
 
     .. tabularcolumns:: |p{0.10\linewidth}|p{0.90\linewidth}|
     .. list-table::
@@ -3385,7 +3952,6 @@ ER図
 
       }
 
-
     .. tabularcolumns:: |p{0.10\linewidth}|p{0.90\linewidth}|
     .. list-table::
       :header-rows: 1
@@ -3438,34 +4004,72 @@ ER図
 
   * Viewの実装
 
-    \ **パスワード再発行のための認証情報生成画面(createReissueInfoForm.jsp)**\
+    .. tabs::
+      .. group-tab:: JSP
 
-    .. code-block:: jsp
+        \ **パスワード再発行のための認証情報生成画面(createReissueInfoForm.jsp)**\
 
-      <!-- omitted -->
+        .. code-block:: jsp
 
-      <body>
-          <div id="wrapper">
-              <h1>Reissue password</h1>
-              <t:messagesPanel />
-              <form:form
-                  action="${f:h(pageContext.request.contextPath)}/reissue/create"
-                  method="POST" modelAttribute="createReissueInfoForm">
-                  <table>
-                      <tr>
-                          <th><form:label path="username" cssErrorClass="error-label">Username</form:label>
-                          </th>
-                          <td><form:input path="username" cssErrorClass="error-input" /></td>
-                          <td><form:errors path="username" cssClass="error-messages" /></td>
-                      </tr>
-                  </table>
+          <!-- omitted -->
 
-                  <input id="submit" type="submit" value="Reissue password" />
-              </form:form>
-          </div>
-      </body>
+          <body>
+              <div id="wrapper">
+                  <h1>Reissue password</h1>
+                  <t:messagesPanel />
+                  <form:form
+                      action="${f:h(pageContext.request.contextPath)}/reissue/create"
+                      method="POST" modelAttribute="createReissueInfoForm">
+                      <table>
+                          <tr>
+                              <th><form:label path="username" cssErrorClass="error-label">Username</form:label>
+                              </th>
+                              <td><form:input path="username" cssErrorClass="error-input" /></td>
+                              <td><form:errors path="username" cssClass="error-messages" /></td>
+                          </tr>
+                      </table>
 
-      <!-- omitted -->
+                      <input id="submit" type="submit" value="Reissue password" />
+                  </form:form>
+              </div>
+          </body>
+
+          <!-- omitted -->
+
+      .. group-tab:: Thymeleaf
+
+        \ **パスワード再発行のための認証情報生成画面(createReissueInfoForm.html)**\
+
+        .. code-block:: jsp
+
+          <!--/* omitted */-->
+             
+          <body>
+              <div id="wrapper">
+                  <h1>Reissue password</h1>
+                  <div th:if="${resultMessages} != null" id="expiredMessage"
+                      th:class="|alert alert-${resultMessages.type}|">
+                  <ul>
+                      <li th:each="message : ${resultMessages}"
+                          th:text="${message.code} != null ? ${#messages.msgWithParams(message.code, message.args)} : ${message.text}"></li>
+                  </ul>
+                  </div>
+                  <form th:action="@{/reissue/create}"
+                      method="POST" th:object="${createReissueInfoForm}">
+                      <table>
+                          <tr>
+                              <th><label for="username" name="username" th:errorclass="error-label">Username</label>
+                              </th>
+                              <td><input th:field="*{username}" th:errorclass="error-input" /></td>
+                              <td th:errors="*{username}" class="error-messages" /></td>
+                          </tr>
+                      </table>
+                      <input id="submit" type="submit" value="Reissue password" />
+                  </form>
+              </div>
+          </body>
+
+          <!--/* omitted */-->
 
   * Controllerの実装
 
@@ -3508,7 +4112,6 @@ ER図
           // omitted
 
       }
-
 
     .. tabularcolumns:: |p{0.10\linewidth}|p{0.90\linewidth}|
     .. list-table::
@@ -3626,22 +4229,44 @@ ER図
     * - | (3)
       - | パスワード再発行用の認証情報完了画面にリダイレクトする。
 
-  \ **パスワード再発行用の認証情報生成完了画面(createReissueInfoComplete.jsp)**\
+  .. tabs::
+    .. group-tab:: JSP
 
-  .. code-block:: jsp
+      \ **パスワード再発行用の認証情報生成完了画面(createReissueInfoComplete.jsp)**\
 
-    <!-- omitted -->
+      .. code-block:: jsp
 
-    <body>
-        <div id="wrapper">
-            <h1>Your Password Reissue URL was successfully generated.</h1>
-            The URL was sent to your registered E-mail address.<br /> Please
-            access the URL and enter the secret shown below.
-            <h3>Secret : <span id=secret>${f:h(secret)}</span></h3> <!-- (1) -->
-        </div>
-    </body>
+        <!-- omitted -->
 
-    <!-- omitted -->
+        <body>
+            <div id="wrapper">
+                <h1>Your Password Reissue URL was successfully generated.</h1>
+                The URL was sent to your registered E-mail address.<br /> Please
+                access the URL and enter the secret shown below.
+                <h3>Secret : <span id=secret>${f:h(secret)}</span></h3> <!-- (1) -->
+            </div>
+        </body>
+
+        <!-- omitted -->
+
+    .. group-tab:: Thymeleaf
+
+      \ **パスワード再発行用の認証情報生成完了画面(createReissueInfoComplete.html)**\
+
+      .. code-block:: jsp
+
+        <!-- omitted -->
+
+        <body>
+            <div id="wrapper">
+                <h1>Your Password Reissue URL was successfully generated.</h1>
+                The URL was sent to your registered E-mail address.<br /> Please
+                access the URL and enter the secret shown below.
+                <h3>Secret : <span id=secret th:text="${secret}"></span></h3> <!--/* (1) */-->
+            </div>
+        </body>
+
+        <!-- omitted -->
 
   .. tabularcolumns:: |p{0.10\linewidth}|p{0.90\linewidth}|
   .. list-table::
@@ -3778,7 +4403,6 @@ ER図
                 String passwordResetUrl = uriBuilder.build().toString();
 
                 mailSharedService.send(account.getEmail(), passwordResetUrl); // (3)
-
             }
             return rowSecret;
         }
@@ -3786,7 +4410,6 @@ ER図
         // omitted
 
     }
-
 
   .. tabularcolumns:: |p{0.10\linewidth}|p{0.90\linewidth}|
   .. list-table::
@@ -3900,7 +4523,7 @@ ER図
               PasswordReissueInfo info = new PasswordReissueInfo(); // (3)
               info.setUsername(username);
               info.setToken(token);
-              info.setSecret(passwordEncoder.encode(rowSecret));
+              info.setSecret(encodeSecret);
               info.setExpiryDate(expiryDate);
 
               passwordReissueInfoRepository.create(info); // (4)
@@ -4179,83 +4802,157 @@ ER図
 
   * Viewの実装
 
-    \ **パスワード再発行画面(passwordResetForm.jsp)**\
+    .. tabs::
+      .. group-tab:: JSP
 
-    .. code-block:: jsp
+        \ **パスワード再発行画面(passwordResetForm.jsp)**\
 
-      <body>
-          <div class="container">
-          <jsp:include page="../layout/header.jsp" />
-          <div id="wrapper">
-              <h1>Reset Password</h1>
-              <t:messagesPanel />
-              <form:form
-                  action="${f:h(pageContext.request.contextPath)}/reissue/resetpassword"
-                  method="POST" modelAttribute="passwordResetForm">
-                  <table>
-                      <tr>
-                          <th><form:label path="username">Username</form:label></th>
-                          <td>${f:h(passwordResetForm.username)} <form:hidden
-                                  path="username" value="${f:h(passwordResetForm.username)}" />  <!-- (1) -->
-                          </td>
-                          <td></td>
-                      </tr>
-                      <form:hidden path="token" value="${f:h(passwordResetForm.token)}" /> <!-- (2) -->
-                      <tr>
-                          <th><form:label path="secret" cssErrorClass="error-label">Secret</form:label>
-                          </th>
-                          <td><form:password path="secret" cssErrorClass="error-input" /></td> <!-- (3) -->
-                          <td><form:errors path="secret" cssClass="error-messages" /></td>
-                      </tr>
-                      <tr>
-                          <th><form:label path="newPassword" cssErrorClass="error-label">New password</form:label>
-                          </th>
-                          <td><form:password path="newPassword"
-                                  cssErrorClass="error-input" /></td>
-                          <td><form:errors path="newPassword" cssClass="error-messages" /></td>
-                      </tr>
-                      <tr>
-                          <th><form:label path="confirmNewPassword"
-                                  cssErrorClass="error-label">New password(Confirm)</form:label></th>
-                          <td><form:password path="confirmNewPassword"
-                                  cssErrorClass="error-input" /></td>
-                          <td><form:errors path="confirmNewPassword"
-                                  cssClass="error-messages" /></td>
-                      </tr>
-                  </table>
+        .. code-block:: jsp
 
-                  <input id="submit" type="submit" value="Reset password" />
-              </form:form>
-          </div>
-              <hr>
-              <p style="text-align: center; background: #e5eCf9;">Copyright &copy; 20XX CompanyName</p>
-          </div>
-      </body>
+          <body>
+              <div class="container">
+              <jsp:include page="../layout/header.jsp" />
+              <div id="wrapper">
+                  <h1>Reset Password</h1>
+                  <t:messagesPanel />
+                  <form:form
+                      action="${f:h(pageContext.request.contextPath)}/reissue/resetpassword"
+                      method="POST" modelAttribute="passwordResetForm">
+                      <table>
+                          <tr>
+                              <th><form:label path="username">Username</form:label></th>
+                              <td>${f:h(passwordResetForm.username)} <form:hidden
+                                      path="username" value="${f:h(passwordResetForm.username)}" />  <!-- (1) -->
+                              </td>
+                              <td></td>
+                          </tr>
+                          <form:hidden path="token" value="${f:h(passwordResetForm.token)}" /> <!-- (2) -->
+                          <tr>
+                              <th><form:label path="secret" cssErrorClass="error-label">Secret</form:label>
+                              </th>
+                              <td><form:password path="secret" cssErrorClass="error-input" /></td> <!-- (3) -->
+                              <td><form:errors path="secret" cssClass="error-messages" /></td>
+                          </tr>
+                          <tr>
+                              <th><form:label path="newPassword" cssErrorClass="error-label">New password</form:label>
+                              </th>
+                              <td><form:password path="newPassword"
+                                      cssErrorClass="error-input" /></td>
+                              <td><form:errors path="newPassword" cssClass="error-messages" /></td>
+                          </tr>
+                          <tr>
+                              <th><form:label path="confirmNewPassword"
+                                      cssErrorClass="error-label">New password(Confirm)</form:label></th>
+                              <td><form:password path="confirmNewPassword"
+                                      cssErrorClass="error-input" /></td>
+                              <td><form:errors path="confirmNewPassword"
+                                      cssClass="error-messages" /></td>
+                          </tr>
+                      </table>
 
-    .. tabularcolumns:: |p{0.10\linewidth}|p{0.90\linewidth}|
-    .. list-table::
-      :header-rows: 1
-      :widths: 10 90
+                      <input id="submit" type="submit" value="Reset password" />
+                  </form:form>
+              </div>
+                  <hr>
+                  <p style="text-align: center; background: #e5eCf9;">Copyright &copy; 20XX CompanyName</p>
+              </div>
+          </body>
 
-      * - 項番
-        - 説明
-      * - | (1)
-        - | ユーザ名をhidden項目として保持する。
-      * - | (2)
-        - | トークンをhidden項目として保持する。
-      * - | (3)
-        - | ユーザの確認のために、秘密情報を入力させる。
+        .. tabularcolumns:: |p{0.10\linewidth}|p{0.90\linewidth}|
+        .. list-table::
+          :header-rows: 1
+          :widths: 10 90
 
-    \ **パスワード再発行画面(passwordResetComplete.jsp)**\
+          * - 項番
+            - 説明
+          * - | (1)
+            - | ユーザ名をhidden項目として保持する。
+          * - | (2)
+            - | トークンをhidden項目として保持する。
+          * - | (3)
+            - | ユーザの確認のために、秘密情報を入力させる。
 
-    .. code-block:: jsp
+        \ **パスワード再発行画面(passwordResetComplete.jsp)**\
 
-      <body>
-          <div id="wrapper">
-              <h1>Your password was successfully reset.</h1>
-              <a href="${f:h(pageContext.request.contextPath)}/">go to Top</a>
-          </div>
-      </body>
+        .. code-block:: jsp
+
+          <body>
+              <div id="wrapper">
+                  <h1>Your password was successfully reset.</h1>
+                  <a href="${f:h(pageContext.request.contextPath)}/">go to Top</a>
+              </div>
+          </body>
+
+      .. group-tab:: Thymeleaf
+
+        \ **パスワード再発行画面(passwordResetForm.html)**\
+
+        .. code-block:: html
+
+          <body>
+              <div id="wrapper">
+                  <h1>Reset Password</h1>
+                  <div th:if="${resultMessages} != null" id="expiredMessage"
+                      th:class="|alert alert-${resultMessages.type}|">
+                      <ul>
+                          <li th:each="message : ${resultMessages}"
+                              th:text="${message.code} != null ? ${#messages.msgWithParams(message.code, message.args)} : ${message.text}"></li>
+                      </ul>
+                  </div>
+                  <form th:action="@{/reissue/resetpassword}"
+                      method="POST" th:object="${passwordResetForm}">
+                      <input type="hidden" th:field="*{token}"/> <!--/* (1) */-->
+                      <table>
+                          <tr>
+                              <th><label for="username">Username</label></th>
+                              <td th:text="*{username}"></td>
+                              <td><input type="hidden" th:field="*{username}"/></td> <!--/* (2) */-->
+                          </tr>
+                          <tr>
+                              <th><label for="secret" name="secret" th:errorclass="error-label">Secret</label></th>
+                              <td><input type="password" th:field="*{secret}" th:errorclass="error-input"/></td> <!--/* (3) */-->
+                              <td th:errors="*{secret}" class="error-messages"></td>
+                          </tr>
+                          <tr>
+                              <th><label for="newPassword" name="newPassword" th:errorclass="error-label">New password</label></th>
+                              <td><input type="password" th:field="*{newPassword}" th:errorclass="error-input" /></td>
+                              <td th:errors="*{newPassword}" class="error-messages"></td>
+                          </tr>
+                          <tr>
+                              <th><label for="confirmNewPassword" name="confirmNewPassword" th:errorclass="error-label">New password(Confirm)</label></th>
+                              <td><input type="password" th:field="*{confirmNewPassword}" th:errorclass="error-input" /></td>
+                              <td th:errors="*{confirmNewPassword}" class="error-messages"></td>
+                          </tr>
+                      </table>
+                      <input id="submit" type="submit" value="Reset password" />
+                  </form>
+              </div>
+          </body>
+
+        .. tabularcolumns:: |p{0.10\linewidth}|p{0.90\linewidth}|
+        .. list-table::
+          :header-rows: 1
+          :widths: 10 90
+
+          * - 項番
+            - 説明
+          * - | (1)
+            - | トークンをhidden項目として保持する。
+          * - | (2)
+            - | ユーザ名をhidden項目として保持する。
+          * - | (3)
+            - | ユーザの確認のために、秘密情報を入力させる。
+
+        \ **パスワード再発行画面(passwordResetComplete.html)**\
+
+        .. code-block:: html
+
+          <body>
+              <div id="wrapper">
+                  <h1>Your password was successfully reset.</h1>
+                  <a th:href="@{/}">go to Top</a>
+              </div>
+          </body>
 
   * Controllerの実装
 
@@ -4728,7 +5425,7 @@ ER図
       - | アップロードファイル名
       - | 本アプリケーションではファイルアップロード機能を実装しているため、ユーザからの入力であるアップロードファイル名を入力チェックの対象とする
 
-  | 尚、以下のコードでは \ ``org.springframework.web.multipart.MultipartRequest``\を使用するため、\ ``org.springframework.web.multipart.support.MultipartFilter``\の使用を前提としている。\ ``MultipartFilter``\ については \ :doc:`../ArchitectureInDetail/WebApplicationDetail/FileUpload`\を参照のこと。
+  | 尚、以下のコードでは \ ``org.springframework.web.multipart.MultipartRequest``\ を使用するため、\ ``org.springframework.web.multipart.support.MultipartFilter``\ の使用を前提としている。\ ``MultipartFilter``\ については\ :doc:`../ArchitectureInDetail/WebApplicationDetail/FileUpload`\ を参照のこと。
 
   .. code-block:: java
 
@@ -4837,37 +5534,71 @@ ER図
 
 * Servlet Filterの設定
 
-  | 作成した\ ``InputValidationFilter``\を有効にするため、web.xmlに設定を行う。
+  | 作成した\ ``InputValidationFilter``\ を有効にするため、web.xmlに設定を行う。
   | 禁止文字をプロパティファイルから読み込み、\ ``InputValidationFilter``\ をBean定義した上で、\ ``org.springframework.web.filter.DelegatingFilterProxy``\ を使用して設定する。
 
-  \ **web.xml**\
+  .. tabs::
+    .. group-tab:: JSP
+          
+      \ **web.xml**\
 
-  .. code-block:: xml
+      .. code-block:: xml
 
-    <filter>
-        <filter-name>MultipartFilter</filter-name>
-        <filter-class>org.springframework.web.multipart.support.MultipartFilter</filter-class>  <!-- (1) -->
-    </filter>
-    <filter-mapping>
-        <filter-name>MultipartFilter</filter-name>
-        <url-pattern>/*</url-pattern>
-    </filter-mapping>
+        <filter>
+            <filter-name>MultipartFilter</filter-name>
+            <filter-class>org.springframework.web.multipart.support.MultipartFilter</filter-class>  <!-- (1) -->
+        </filter>
+        <filter-mapping>
+            <filter-name>MultipartFilter</filter-name>
+            <url-pattern>/*</url-pattern>
+        </filter-mapping>
 
-    <filter>
-        <filter-name>inputValidationFilter</filter-name>
-        <filter-class>org.springframework.web.filter.DelegatingFilterProxy</filter-class>  <!-- (2) -->
-    </filter>
-    <filter-mapping>
-        <filter-name>inputValidationFilter</filter-name>
-        <url-pattern>/*</url-pattern>
-    </filter-mapping>
+        <filter>
+            <filter-name>inputValidationFilter</filter-name>
+            <filter-class>org.springframework.web.filter.DelegatingFilterProxy</filter-class>  <!-- (2) -->
+        </filter>
+        <filter-mapping>
+            <filter-name>inputValidationFilter</filter-name>
+            <url-pattern>/*</url-pattern>
+        </filter-mapping>
 
-    <!-- omitted -->
+        <!-- omitted -->
 
-    <error-page>
-        <exception-type>com.example.securelogin.app.common.filter.exception.InvalidCharacterException</exception-type>  <!-- (3) -->
-        <location>/WEB-INF/views/common/error/invalidCharacterError.jsp</location>
-    </error-page>
+        <error-page>
+            <exception-type>com.example.securelogin.app.common.filter.exception.InvalidCharacterException</exception-type>  <!-- (3) -->
+            <location>/WEB-INF/views/common/error/invalidCharacterError.jsp</location>
+        </error-page>
+              
+    .. group-tab:: Thymeleaf
+
+      \ **web.xml**\
+
+      .. code-block:: xml
+
+        <filter>
+            <filter-name>MultipartFilter</filter-name>
+            <filter-class>org.springframework.web.multipart.support.MultipartFilter</filter-class>  <!-- (1) -->
+        </filter>
+        <filter-mapping>
+            <filter-name>MultipartFilter</filter-name>
+            <url-pattern>/*</url-pattern>
+        </filter-mapping>
+
+        <filter>
+            <filter-name>inputValidationFilter</filter-name>
+            <filter-class>org.springframework.web.filter.DelegatingFilterProxy</filter-class>  <!-- (2) -->
+        </filter>
+        <filter-mapping>
+            <filter-name>inputValidationFilter</filter-name>
+            <url-pattern>/*</url-pattern>
+        </filter-mapping>
+
+        <!-- omitted -->
+
+        <error-page>
+            <exception-type>com.example.securelogin.app.common.filter.exception.InvalidCharacterException</exception-type>  <!-- (3) -->
+            <location>/common/error/invalidCharacterError</location>
+        </error-page>
 
   .. tabularcolumns:: |p{0.10\linewidth}|p{0.90\linewidth}|
   .. list-table::
@@ -4878,48 +5609,99 @@ ER図
       - 説明
     * - | (1)
       - | \ ``InputValidationFilter``\ の使用の前提となっている \ ``MultipartFilter``\ を設定する
-        | \ ``MultipartFilter``\ を\ ``InputValidationFilter``\よりも前に定義する必要があることに注意すること
-    * - | (2)
+        | \ ``MultipartFilter``\ を\ ``InputValidationFilter``\ よりも前に定義する必要があることに注意すること
+    * - | (2) 
       - | \ ``DelegatingFilterProxy``\ を用いて、Bean定義した \ ``InputValidationFilter``\ を設定する
         | \ ``<filter-name>``\ にはBean名を指定すること
-    * - | (3)
+    * - | (3) 
       - | \ ``InvalidCharacterException``\ がスローされた際に表示するエラー画面を設定する
 
   .. note::
 
-    ファイル名の入力チェックのために\ ``MultipartFilter``\ を利用しているため、ここに記述した内容に加えて \ :ref:`file-upload_how_to_usr_application_settings`\ に記したServlet 3.0のアップロード機能を有効化するための設定が必要となる。
+    ファイル名の入力チェックのために\ ``MultipartFilter``\ を利用しているため、ここに記述した内容に加えて\ :ref:`file-upload_how_to_usr_application_settings`\ に記したServlet 3.0のアップロード機能を有効化するための設定が必要となる。
 
-  \ **invalidCharacterError.jsp**\
+  .. tabs::
+    .. group-tab:: JSP
 
-  .. code-block:: jsp
+      \ **invalidCharacterError.jsp**\
 
-    <% response.setStatus(HttpServletResponse.SC_BAD_REQUEST); %>  <!-- (1) -->
-    <!DOCTYPE html>
-    <html>
-    <head>
-    <meta charset="utf-8">
-    <title>Invalid Character Error!</title>
+      .. code-block:: jsp
 
-    <!-- omitted -->
+        <% response.setStatus(HttpServletResponse.SC_BAD_REQUEST); %>  <!-- (1) -->
+        <!DOCTYPE html>
+        <html>
+        <head>
+        <meta charset="utf-8">
+        <title>Invalid Character Error!</title>
 
-  .. tabularcolumns:: |p{0.10\linewidth}|p{0.90\linewidth}|
-  .. list-table::
-    :header-rows: 1
-    :widths: 10 90
+        <!-- omitted -->
 
-    * - 項番
-      - 説明
-    * - | (1)
-      - | \ ``InvalidCharacterException``\ はクライアントの入力に起因して発生する例外であるため、のHTTPステータスコードを\ ``400``\ (Bad Request)に設定する
+      .. tabularcolumns:: |p{0.10\linewidth}|p{0.90\linewidth}|
+      .. list-table::
+        :header-rows: 1
+        :widths: 10 90
 
-  \ **applicationContext.xml**\
+        * - 項番
+          - 説明
+        * - | (1)
+          - | \ ``InvalidCharacterException``\ はクライアントの入力に起因して発生する例外であるため、のHTTPステータスコードを\ ``400``\ (Bad Request)に設定する
 
-  .. code-block:: xml
+    .. group-tab:: Thymeleaf
 
-    <bean id="inputValidationFilter" class="com.example.securelogin.app.common.filter.InputValidationFilter">
-        <constructor-arg index="0" value="${app.security.prohibitedChars}"/>  <!-- (1) -->
-        <constructor-arg index="1" value="${app.security.prohibitedCharsForFileName}"/>  <!-- (2) -->
-    </bean>
+      \ **invalidCharacterError.html**\
+ 
+      .. code-block:: html
+
+        <!DOCTYPE html>
+        <html xmlns:th="http://www.thymeleaf.org">
+        <head>
+        <meta charset="utf-8">
+        <title>Invalid Character Error!</title>
+
+  .. tabs::
+    .. group-tab:: Java Config
+
+      \ **ApplicationContextConfig.java**\
+
+      .. code-block:: java
+
+        package com.example.securelogin.config.app;
+
+        // omitted
+
+        @Configuration
+        @EnableAspectJAutoProxy
+        @Import({ SecureLoginDomainConfig.class })
+        public class ApplicationContextConfig {
+
+            @Value("${app.security.prohibitedChars}")
+            private char[] prohibitedChars; // (1)
+
+            @Value("${app.security.prohibitedCharsForFileName}")
+            private char[] prohibitedCharsForFileName; // (2)
+
+            // omitted
+
+            @Bean(name = "inputValidationFilter")
+            public InputValidationFilter inputValidationFilter() {
+                InputValidationFilter bean = new InputValidationFilter(prohibitedChars, prohibitedCharsForFileName);
+                return bean;
+            }
+
+            // omitted
+
+        }
+
+    .. group-tab:: XML Config
+     
+      \ **applicationContext.xml**\
+
+      .. code-block:: xml
+
+        <bean id="inputValidationFilter" class="com.example.securelogin.app.common.filter.InputValidationFilter">
+            <constructor-arg index="0" value="${app.security.prohibitedChars}"/>  <!-- (1) -->
+            <constructor-arg index="1" value="${app.security.prohibitedCharsForFileName}"/>  <!-- (2) -->
+        </bean>
 
   .. tabularcolumns:: |p{0.10\linewidth}|p{0.90\linewidth}|
   .. list-table::
@@ -5301,7 +6083,7 @@ ER図
       // omitted
 
       public class DomainRestrictedURLValidator implements
-              ConstraintValidator<DomainRestrictedURL, String> {
+              ConstraintValidator<DomainRestrictedURL, CharSequence> {
 
           private static final Pattern URL_REGEX = Pattern  // (1)
               .compile( "(?i)^(?:[a-z](?:[-a-z0-9\\+\\.])*)" + // protocol
@@ -5319,7 +6101,7 @@ ER図
           }
 
           @Override
-          public boolean isValid(String value, ConstraintValidatorContext context) {
+          public boolean isValid(CharSequence value, ConstraintValidatorContext context) {
               Matcher urlMatcher = URL_REGEX.matcher(value);
               if (urlMatcher.matches()) {  // (3)
                   String host = urlMatcher.group(1);
@@ -5356,7 +6138,7 @@ ER図
   * 入力されたメールアドレスのドメインが許容されているものであることを検証するアノテーション
 
     | ユーザからメールアドレスの入力を受け付ける際、許容するドメインを制限したい場合がある。そのような場合に、許容するドメインの一覧を設定し、入力されたメールアドレスのドメインが一覧に含まれているかをチェックする。許容するドメインのサブドメインまで許すか否かを切り替えられる仕様とする。
-    | 同時にメールアドレス形式であることをチェックするため、\ ``jakarta.validation.constraints.Email``\ と組み合わせて実装する。
+    | 同時にメールアドレス形式であることをチェックするため、\ ``jakarta.validation.constraints.Email`` \ と組み合わせて実装する。
 
     .. code-block:: java
 
@@ -5593,7 +6375,7 @@ ER図
 * 操作結果：メソッドの処理を実行した結果例外が発生したか否か
 
 | すべてのサービスクラスのメソッド呼び出しに対してログ出力を行うといった、横断的な機能を実現するためには、Springが提供するAOP(Aspect Oriented Programming)の機能を利用することができる。
-| Springが提供しているAOPの実装方法は複数あるが、本アプリケーションでは\ `共通ライブラリ <https://github.com/terasolunaorg/terasoluna-gfw/tree/5.8.1.RELEASE>`_\ で提供しているロギング関連の部品の実装と合わせることを重視し、\ ``org.aopalliance.intercept.MethodInterceptor``\を実装する方式を採用する。
+| Springが提供しているAOPの実装方法は複数あるが、本アプリケーションでは\ `共通ライブラリ <https://github.com/terasolunaorg/terasoluna-gfw/tree/5.9.0.RELEASE>`_\ で提供しているロギング関連の部品の実装と合わせることを重視し、\ ``org.aopalliance.intercept.MethodInterceptor``\ を実装する方式を採用する。
 | 具体的には以下の実装・設定を行うことで要件を実現する。
 
 * \ ``UserIdMDCPutFilter``\ を設定する
@@ -5602,13 +6384,13 @@ ER図
 
 * 上記で定義したアドバイスを\ ``@Service``\ の付与されたクラスに対して適用するための設定を行う
 
- .. note::
+  .. note::
 
-  アドバイスとは、AOPにおいて指定されたタイミングで実行する処理のことを指す。
+    アドバイスとは、AOPにおいて指定されたタイミングで実行する処理のことを指す。
 
-  また、アドバイスを織り込むことのできる箇所のことをジョインポイントと呼び、どのジョインポイントにアドバイスを織り込むかを定義したものポイントカットと呼ぶ。
+    また、アドバイスを織り込むことのできる箇所のことをジョインポイントと呼び、どのジョインポイントにアドバイスを織り込むかを定義したものポイントカットと呼ぶ。
 
-  Springが提供するAOP機能に関しては、`Spring Framework Documentation -Aspect Oriented Programming with Spring- <https://docs.spring.io/spring-framework/docs/6.0.3/reference/html/core.html#aop>`_ を参照すること。
+    Springが提供するAOP機能に関しては、\ `Spring Framework Documentation -Aspect Oriented Programming with Spring- <https://docs.spring.io/spring-framework/docs/6.1.3/reference/html/core.html#aop>`_\ を参照すること。
 
 |
 
@@ -5621,21 +6403,64 @@ ER図
 
   ログにSpring Securityの認証ユーザ名を出力するための設定を以下に示す。
 
-  \ **spring-security.xml**\
+  .. tabs::
+    .. group-tab:: Java Config
 
-  .. code-block:: xml
+      \ **SpringSecurityConfig.java**\
 
-    <!-- omitted -->
+      .. code-block:: java
 
-    <sec:http request-matcher="ant">
+        package com.example.securelogin.config.web;
+
+        // omitted
+
+        @Configuration
+        @EnableWebSecurity
+        public class SpringSecurityConfig {
+
+            // omitted
+
+            @Bean
+            public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
+
+                // omitted
+
+                http.addFilterAfter(userIdMDCPutFilter(),
+                        AnonymousAuthenticationFilter.class); // (1)
+
+                // omitted
+
+                return http.build();
+            }
+
+            // omitted
+
+            @Bean("userIdMDCPutFilter")
+            public UserIdMDCPutFilter userIdMDCPutFilter() {
+                return new UserIdMDCPutFilter(); // (1)
+            }
+
+            // omitted
+
+        }
+
+    .. group-tab:: XML Config
+     
+      \ **spring-security.xml**\
+
+      .. code-block:: xml
+
         <!-- omitted -->
-        <sec:custom-filter ref="userIdMDCPutFilter" after="ANONYMOUS_FILTER" />
-        <!-- omitted -->
-    </sec:http>
 
-    <!-- omitted -->
-    <bean id="userIdMDCPutFilter" class="org.terasoluna.gfw.security.web.logging.UserIdMDCPutFilter">
-    </bean>
+        <sec:http request-matcher="ant">
+            <!-- omitted -->
+            <sec:custom-filter ref="userIdMDCPutFilter" after="ANONYMOUS_FILTER" /> <!-- (1) -->
+            <!-- omitted -->
+        </sec:http>
+
+        <!-- omitted -->
+        <bean id="userIdMDCPutFilter" class="org.terasoluna.gfw.security.web.logging.UserIdMDCPutFilter"> <!-- (1) -->
+        </bean>
 
   .. tabularcolumns:: |p{0.10\linewidth}|p{0.90\linewidth}|
   .. list-table::
@@ -5674,6 +6499,7 @@ ER図
        additivity="false">  <!-- (3) -->
        <level value="info" />
        <appender-ref ref="AUDIT_LOG_FILE" />
+       <appender-ref ref="DB" />
     </logger>
 
     <!-- omitted -->
@@ -5766,33 +6592,82 @@ ER図
 
   アドバイスに対するポイントカットの設定を以下に示す。
 
-  \ **secure-login-domain.xml**\
+  .. tabs::
+    .. group-tab:: Java Config
 
-  .. code-block:: xml
+      \ **SecureLoginDomainConfig.java**\
 
-    <!-- omitted -->
+      .. code-block:: java
 
-    <bean id="serviceCallLoggingInterceptor"
-        class="com.example.securelogin.domain.common.interceptor.ServiceCallLoggingInterceptor" />  <!-- (1) -->
-    <aop:config>
-        <aop:advisor advice-ref="serviceCallLoggingInterceptor"
-            pointcut="@within(org.springframework.stereotype.Service)" />  <!-- (2) -->
-    </aop:config>
+        package com.example.securelogin.config.app;
 
-    <!-- omitted -->
+        // omitted
 
-  .. tabularcolumns:: |p{0.10\linewidth}|p{0.90\linewidth}|
-  .. list-table::
-    :header-rows: 1
-    :widths: 10 90
+        @Configuration
+        @EnableTransactionManagement
+        @ComponentScan(basePackages = {"com.example.securelogin.domain"})
+        @Import({ SecureLoginInfraConfig.class,
+            SecureLoginCodeListConfig.class })
+        public class SecureLoginDomainConfig {
 
-    * - 項番
-      - 説明
-    * - | (1)
-      - | 上記で作成したアドバイスクラス(\ ``MethodInterceptor``\ の実装クラス)をBean定義する
-    * - | (2)
-      - | \ ``aop:advisor``\ タグの \ ``advice-ref``\ 属性にアドバイスが実装されているBeanを、 \ ``pointcut``\ 属性にポイントカットをそれぞれ設定する
-        | \ ``@within(org.springframework.stereotype.Service)``\ というポイントカットの定義により、 \ ``@Service``\ の付与されたクラスのメソッド呼び出しがアドバイスの対象となる
+            // omitted
+
+            @Bean(name = "serviceCallLoggingInterceptor")
+            public ServiceCallLoggingInterceptor serviceCallLoggingInterceptor() {
+                return new ServiceCallLoggingInterceptor(); // (1)
+            }
+
+            @Bean
+            public Advisor serviceCallLoggingInterceptorAdvisor() {
+                AspectJExpressionPointcut pointcut = new AspectJExpressionPointcut();
+                pointcut.setExpression(
+                        "@within(org.springframework.stereotype.Service)"); // (2)
+                return new DefaultPointcutAdvisor(pointcut, serviceCallLoggingInterceptor());
+            }
+        }
+
+      .. tabularcolumns:: |p{0.10\linewidth}|p{0.90\linewidth}|
+      .. list-table::
+        :header-rows: 1
+        :widths: 10 90
+
+        * - 項番
+          - 説明
+        * - | (1)
+          - | 上記で作成したアドバイスクラス(\ ``MethodInterceptor``\ の実装クラス)をBean定義する
+        * - | (2)
+          - | \ ``DefaultPointcutAdvisor``\ の コンストラクタにアドバイスが実装されているBean及びポイントカットをそれぞれ設定する
+            | \ ``@within(org.springframework.stereotype.Service)``\ というポイントカットの定義により、 \ ``@Service``\ の付与されたクラスのメソッド呼び出しがアドバイスの対象となる
+
+    .. group-tab:: XML Config
+
+      \ **secure-login-domain.xml**\
+
+      .. code-block:: xml
+
+        <!-- omitted -->
+
+        <bean id="serviceCallLoggingInterceptor"
+            class="com.example.securelogin.domain.common.interceptor.ServiceCallLoggingInterceptor" />  <!-- (1) -->
+        <aop:config>
+            <aop:advisor advice-ref="serviceCallLoggingInterceptor"
+                pointcut="@within(org.springframework.stereotype.Service)" />  <!-- (2) -->
+        </aop:config>
+
+        <!-- omitted -->
+
+      .. tabularcolumns:: |p{0.10\linewidth}|p{0.90\linewidth}|
+      .. list-table::
+        :header-rows: 1
+        :widths: 10 90
+
+        * - 項番
+          - 説明
+        * - | (1)
+          - | 上記で作成したアドバイスクラス(\ ``MethodInterceptor``\ の実装クラス)をBean定義する
+        * - | (2)
+          - | \ ``aop:advisor``\ タグの \ ``advice-ref``\ 属性にアドバイスが実装されているBeanを、\ ``pointcut``\ 属性にポイントカットをそれぞれ設定する
+            | \ ``@within(org.springframework.stereotype.Service)``\ というポイントカットの定義により、\ ``@Service``\ の付与されたクラスのメソッド呼び出しがアドバイスの対象となる
 
   .. note::
 
@@ -5800,7 +6675,7 @@ ER図
 
     プロキシ方式のAOPの制限として、可視性が\ ``public``\ 以外のメソッドの呼び出しや、同一クラス内のメソッド呼び出しの際にはアドバイスが実行されない点に注意する必要がある。
 
-    詳細は\ `Spring Framework Documentation -Understanding AOP Proxies- <https://docs.spring.io/spring-framework/docs/6.0.3/reference/html/core.html#aop-understanding-aop-proxies>`_\ を参照すること。
+    詳細は\ `Spring Framework Documentation -Understanding AOP Proxies- <https://docs.spring.io/spring-framework/docs/6.1.3/reference/html/core.html#aop-understanding-aop-proxies>`_\ を参照すること。
 
   ログの出力結果を以下に示す。
 
@@ -5859,7 +6734,7 @@ Passayの機能を使用する場合は、pom.xmlに以下の定義を追加す�
     <dependency>
         <groupId>org.passay</groupId>
         <artifactId>passay</artifactId>
-        <version>1.6.1</version>
+        <version>1.6.4</version>
     </dependency>
   <dependencies>
 
@@ -5942,36 +6817,36 @@ How to use
 
 .. code-block:: xml
 
-  <!-- Password Rules. -->
-  <bean id="upperCaseRule" class="org.passay.CharacterRule"> <!-- (1) -->
-      <constructor-arg name="data">
-          <util:constant static-field="org.passay.EnglishCharacterData.UpperCase" /> <!-- (2) -->
-      </constructor-arg>
-      <constructor-arg name="num" value="1" /> <!-- (3) -->
-  </bean>
-  <bean id="lowerCaseRule" class="org.passay.CharacterRule"> <!-- (4) -->
-      <constructor-arg name="data">
-          <util:constant static-field="org.passay.EnglishCharacterData.LowerCase" />
-      </constructor-arg>
-      <constructor-arg name="num" value="1" />
-  </bean>
-  <bean id="digitRule" class="org.passay.CharacterRule"> <!-- (5) -->
-      <constructor-arg name="data">
-          <util:constant static-field="org.passay.EnglishCharacterData.Digit" />
-      </constructor-arg>
-      <constructor-arg name="num" value="1" />
-  </bean>
+   <!-- Password Rules. -->
+   <bean id="upperCaseRule" class="org.passay.CharacterRule"> <!-- (1) -->
+       <constructor-arg name="data">
+           <util:constant static-field="org.passay.EnglishCharacterData.UpperCase" /> <!-- (2) -->
+       </constructor-arg>
+       <constructor-arg name="num" value="1" /> <!-- (3) -->
+   </bean>
+   <bean id="lowerCaseRule" class="org.passay.CharacterRule"> <!-- (4) -->
+       <constructor-arg name="data">
+           <util:constant static-field="org.passay.EnglishCharacterData.LowerCase" />
+       </constructor-arg>
+       <constructor-arg name="num" value="1" />
+   </bean>
+   <bean id="digitRule" class="org.passay.CharacterRule"> <!-- (5) -->
+       <constructor-arg name="data">
+           <util:constant static-field="org.passay.EnglishCharacterData.Digit" />
+       </constructor-arg>
+       <constructor-arg name="num" value="1" />
+   </bean>
 
-  <!-- Password Validator. -->
-  <bean id="characterPasswordValidator" class="org.passay.PasswordValidator"> <!-- (6) -->
-      <constructor-arg name="rules">
-          <list>
-              <ref bean="upperCaseRule" />
-              <ref bean="lowerCaseRule" />
-              <ref bean="digitRule" />
-          </list>
-      </constructor-arg>
-  </bean>
+   <!-- Password Validator. -->
+   <bean id="characterPasswordValidator" class="org.passay.PasswordValidator"> <!-- (6) -->
+       <constructor-arg name="rules">
+           <list>
+               <ref bean="upperCaseRule" />
+               <ref bean="lowerCaseRule" />
+               <ref bean="digitRule" />
+           </list>
+       </constructor-arg>
+   </bean>
 
 .. tabularcolumns:: |p{0.10\linewidth}|p{0.60\linewidth}|
 .. list-table::
@@ -6075,13 +6950,13 @@ How to use
       <constructor-arg name="num" value="1" />
   </bean>
 
-   <!-- Password Generator. -->
-   <bean id="passwordGenerator" class="org.passay.PasswordGenerator" /> <!-- (6) -->
-   <util:list id="passwordGenerationRules"> <!-- (7) -->
-       <ref bean="upperCaseRule" />
-       <ref bean="lowerCaseRule" />
-       <ref bean="digitRule" />
-   </util:list>
+  <!-- Password Generator. -->
+  <bean id="passwordGenerator" class="org.passay.PasswordGenerator" /> <!-- (6) -->
+  <util:list id="passwordGenerationRules"> <!-- (7) -->
+      <ref bean="upperCaseRule" />
+      <ref bean="lowerCaseRule" />
+      <ref bean="digitRule" />
+  </util:list>
 
 .. tabularcolumns:: |p{0.10\linewidth}|p{0.90\linewidth}|
 .. list-table::
@@ -6141,7 +7016,7 @@ How to use
 
 .. Warning:: \ **Java SE 17で@Resourceを使用する場合**\
 
-  \ ``@Resource``\はCommon Annotationsで提供されるアノテーションである。
+  \ ``@Resource``\ はCommon Annotationsで提供されるアノテーションである。
 
   Java SE 17環境にてCommon Annotationsを利用するには\ :ref:`remove-common-annotations-from-java11`\ を参照されたい。
 

@@ -43,38 +43,38 @@ terasoluna-gfw-common
 
 .. tabularcolumns:: |p{0.35\linewidth}|p{0.65\linewidth}|
 .. list-table::
-    :header-rows: 1
-    :widths: 35 65
+  :header-rows: 1
+  :widths: 35 65
 
-    * - インタフェース
-      - 説明
-    * - | org.terasoluna.gfw.common.date.
-        | ClassicDateFactory
-      - Javaから提供されている以下のクラスのインスタンスをシステム時刻として取得するためのインタフェース。
+  * - インタフェース
+    - 説明
+  * - | org.terasoluna.gfw.common.date.
+      | ClassicDateFactory
+    - Javaから提供されている以下のクラスのインスタンスをシステム時刻として取得するためのインタフェース。
 
-        * \ ``java.util.Date``\
-        * \ ``java.sql.Timestamp``\
-        * \ ``java.sql.Date``\
-        * \ ``java.sql.Time``\
+      * \ ``java.util.Date``\
+      * \ ``java.sql.Timestamp``\
+      * \ ``java.sql.Date``\
+      * \ ``java.sql.Time``\
 
-        共通ライブラリでは、本インタフェースの実装クラスとして以下のクラスを提供している。
+      共通ライブラリでは、本インタフェースの実装クラスとして以下のクラスを提供している。
 
-        * \ ``org.terasoluna.gfw.common.date.DefaultClassicDateFactory``\
-    * - | org.terasoluna.gfw.common.time.
-        | ClockFactory
-      - Javaから提供されている以下のクラスのインスタンスをシステム時刻として取得するためのインタフェース。
+      * \ ``org.terasoluna.gfw.common.date.DefaultClassicDateFactory``\
+  * - | org.terasoluna.gfw.common.time.
+      | ClockFactory
+    - Javaから提供されている以下のクラスのインスタンスをシステム時刻として取得するためのインタフェース。
 
-        * \ ``java.time.Clock``\
+      * \ ``java.time.Clock``\
 
-        共通ライブラリでは、本インタフェースの実装クラスとして以下のクラスを提供している。
+      共通ライブラリでは、本インタフェースの実装クラスとして以下のクラスを提供している。
 
-        * \ ``org.terasoluna.gfw.common.time.DefaultClockFactory``\
-        * \ ``org.terasoluna.gfw.common.time.ConfigurableClockFactory``\
-        * \ ``org.terasoluna.gfw.common.time.ConfigurableAdjustClockFactory``\
-        * \ ``org.terasoluna.gfw.common.time.JdbcClockFactory``\
-        * \ ``org.terasoluna.gfw.common.time.JdbcAdjustClockFactory``\
+      * \ ``org.terasoluna.gfw.common.time.DefaultClockFactory``\
+      * \ ``org.terasoluna.gfw.common.time.ConfigurableClockFactory``\
+      * \ ``org.terasoluna.gfw.common.time.ConfigurableAdjustClockFactory``\
+      * \ ``org.terasoluna.gfw.common.time.JdbcClockFactory``\
+      * \ ``org.terasoluna.gfw.common.time.JdbcAdjustClockFactory``\
 
-        \ **本ガイドラインでは、本インタフェースに対応する実装クラスを使用することを推奨する。**\
+      \ **本ガイドラインでは、本インタフェースに対応する実装クラスを使用することを推奨する。**\
 
 |
 
@@ -135,21 +135,48 @@ Clock Factoryインタフェースの実装クラスをbean定義ファイルに
 
 \ ``org.terasoluna.gfw.common.time.DefaultClockFactory``\ を使用する。
 
-\ **bean定義ファイル([projectname]-env.xml)**\
+\ **bean定義ファイル**\
 
-.. code-block:: xml
+.. tabs::
+  .. group-tab:: Java Config
 
-  <bean id="clockFactory" class="org.terasoluna.gfw.common.time.DefaultClockFactory" />  <!-- (1) -->
+    - \ ``[projectname]EnvConfig.java``\
 
-.. tabularcolumns:: |p{0.10\linewidth}|p{0.90\linewidth}|
-.. list-table::
-  :header-rows: 1
-  :widths: 10 90
+      .. code-block:: java
 
-  * - 項番
-    - 説明
-  * - | (1)
-    - | \ ``DefaultClockFactory``\ をbean定義する。
+        // (1)
+        @Bean("clockFactory")
+        public DefaultClockFactory dateFactory() {
+            return new DefaultClockFactory();
+        }
+
+      .. tabularcolumns:: |p{0.10\linewidth}|p{0.90\linewidth}|
+      .. list-table::
+        :header-rows: 1
+        :widths: 10 90
+      
+        * - 項番
+          - 説明
+        * - | (1)
+          - | \ ``DefaultClockFactory``\ をbean定義する。
+
+  .. group-tab:: XML Config
+
+    - \ ``[projectname]-env.xml``\
+
+      .. code-block:: xml
+      
+        <bean id="clockFactory" class="org.terasoluna.gfw.common.time.DefaultClockFactory" />  <!-- (1) -->
+      
+      .. tabularcolumns:: |p{0.10\linewidth}|p{0.90\linewidth}|
+      .. list-table::
+        :header-rows: 1
+        :widths: 10 90
+      
+        * - 項番
+          - 説明
+        * - | (1)
+          - | \ ``DefaultClockFactory``\ をbean定義する。
 
 |
 
@@ -218,49 +245,100 @@ Clock Factoryインタフェースの実装クラスをbean定義ファイルに
 
 \ ``org.terasoluna.gfw.common.time.ConfigurableClockFactory``\ を使用する。
 
-\ **bean定義ファイル([projectname]-env.xml)**\
+\ **bean定義ファイル**\
 
-.. code-block:: xml
+.. tabs::
+  .. group-tab:: Java Config
 
-  <!-- (1) -->
-  <bean id="defalutConfigurableClockFactory" class="org.terasoluna.gfw.common.time.ConfigurableClockFactory">
-      <!-- (2) -->
-      <constructor-arg name="localDateTimeString" value="2012-09-11T02:25:15" />
-  </bean>
+    - \ ``[projectname]EnvConfig.java``\
 
-  <bean id="patternConfigurableClockFactory" class="org.terasoluna.gfw.common.time.ConfigurableClockFactory">
-      <constructor-arg name="localDateTimeString" value="2012/09/11 02:25:15" />
-      <!-- (3) -->
-      <constructor-arg name="pattern" value="uuuu/MM/dd HH:mm:ss" />
-  </bean>
+      .. code-block:: java
 
-  <bean id="styleConfigurableClockFactory" class="org.terasoluna.gfw.common.time.ConfigurableClockFactory">
-      <constructor-arg name="localDateTimeString" value="2012/09/11 02:25:15" />
-      <!-- (4) -->
-      <constructor-arg name="dateStyle" value="#{T(java.time.format.FormatStyle).MEDIUM}" />
-      <constructor-arg name="timeStyle" value="#{T(java.time.format.FormatStyle).MEDIUM}" />
-  </bean>
+        // (1)
+        @Bean("defaultConfigurableClockFactory")
+        public ConfigurableClockFactory defaultConfigurableClockFactory() {
+            ConfigurableClockFactory factory = new ConfigurableClockFactory("2012-09-11T02:25:15"); // (2)
+            return factory;
+        }
 
-.. tabularcolumns:: |p{0.10\linewidth}|p{0.90\linewidth}|
-.. list-table::
-  :header-rows: 1
-  :widths: 10 90
+        @Bean("patternConfigurableClockFactory")
+        public ConfigurableClockFactory patternConfigurableClockFactory() {
+            ConfigurableClockFactory factory = new ConfigurableClockFactory("2012/09/11 02:25:15", "uuuu/MM/dd HH:mm:ss"); // (3)
+            return factory;
+        }
 
-  * - 項番
-    - 説明
-  * - | (1)
-    - | \ ``ConfigurableClockFactory``\ をbean定義する。
-  * - | (2)
-    - | \ ``localDateTimeString``\ プロパティに、固定日時を設定する。
-      | この例では日付フォーマットを設定していないため、日付フォーマットは\ `ISO_LOCAL_DATE_TIME <https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/time/format/DateTimeFormatter.html#ISO_LOCAL_DATE_TIME>`_\ が適用される。
-      | そのため、日付フォーマットに合わせ"\ ``2012-09-11T02:25:15``\ "を固定日時として設定している。
-  * - | (3)
-    - | \ ``localDateTimeString``\ プロパティに、日付フォーマットを設定する。
-      | この例では日付フォーマットを"\ ``uuuu/MM/dd HH:mm:ss``\ "で定義しているため、指定した日付フォーマットに合わせ"\ ``2012/09/11 02:25:15``\ "を固定日時として設定している。
-  * - | (4)
-    - | (3)のパターン文字列の代わりに、Styleを設定することも可能である。
-      | \ ``dateStyle``\ プロパティに日付のStyle、\ ``timeStyle``\ プロパティに時間のStyleを設定する。
-      | 入力可能な値は\ `FormatStyle <https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/time/format/FormatStyle.html#enum-constant-detail>`_\ を参照されたい。
+        @Bean("styleConfigurableClockFactory")
+        public ConfigurableClockFactory styleConfigurableClockFactory() {
+            ConfigurableClockFactory factory = new ConfigurableClockFactory("2012/09/11 02:25:15", FormatStyle.MEDIUM, FormatStyle.MEDIUM); // (4)
+            return factory;
+        }
+      
+      .. tabularcolumns:: |p{0.10\linewidth}|p{0.90\linewidth}|
+      .. list-table::
+        :header-rows: 1
+        :widths: 10 90
+      
+        * - 項番
+          - 説明
+        * - | (1)
+          - | \ ``ConfigurableClockFactory``\ をbean定義する。
+        * - | (2)
+          - | \ ``localDateTimeString``\ プロパティに、固定日時を設定する。
+            | この例では日付フォーマットを設定していないため、日付フォーマットは\ `ISO_LOCAL_DATE_TIME <https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/time/format/DateTimeFormatter.html#ISO_LOCAL_DATE_TIME>`_\ が適用される。
+            | そのため、日付フォーマットに合わせ"\ ``2012-09-11T02:25:15``\ "を固定日時として設定している。
+        * - | (3)
+          - | \ ``localDateTimeString``\ プロパティに、日付フォーマットを設定する。
+            | この例では日付フォーマットを"\ ``uuuu/MM/dd HH:mm:ss``\ "で定義しているため、指定した日付フォーマットに合わせ"\ ``2012/09/11 02:25:15``\ "を固定日時として設定している。
+        * - | (4)
+          - | (3)のパターン文字列の代わりに、Styleを設定することも可能である。
+            | \ ``dateStyle``\ プロパティに日付のStyle、\ ``timeStyle``\ プロパティに時間のStyleを設定する。
+            | 入力可能な値は\ `FormatStyle <https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/time/format/FormatStyle.html#enum-constant-detail>`_\ を参照されたい。
+
+  .. group-tab:: XML Config
+
+    - \ ``[projectname]-env.xml``\
+
+      .. code-block:: xml
+      
+        <!-- (1) -->
+        <bean id="defaultConfigurableClockFactory" class="org.terasoluna.gfw.common.time.ConfigurableClockFactory">
+            <!-- (2) -->
+            <constructor-arg name="localDateTimeString" value="2012-09-11T02:25:15" />
+        </bean>
+      
+        <bean id="patternConfigurableClockFactory" class="org.terasoluna.gfw.common.time.ConfigurableClockFactory">
+            <constructor-arg name="localDateTimeString" value="2012/09/11 02:25:15" />
+            <!-- (3) -->
+            <constructor-arg name="pattern" value="uuuu/MM/dd HH:mm:ss" />
+        </bean>
+      
+        <bean id="styleConfigurableClockFactory" class="org.terasoluna.gfw.common.time.ConfigurableClockFactory">
+            <constructor-arg name="localDateTimeString" value="2012/09/11 02:25:15" />
+            <!-- (4) -->
+            <constructor-arg name="dateStyle" value="#{T(java.time.format.FormatStyle).MEDIUM}" />
+            <constructor-arg name="timeStyle" value="#{T(java.time.format.FormatStyle).MEDIUM}" />
+        </bean>
+      
+      .. tabularcolumns:: |p{0.10\linewidth}|p{0.90\linewidth}|
+      .. list-table::
+        :header-rows: 1
+        :widths: 10 90
+      
+        * - 項番
+          - 説明
+        * - | (1)
+          - | \ ``ConfigurableClockFactory``\ をbean定義する。
+        * - | (2)
+          - | \ ``localDateTimeString``\ プロパティに、固定日時を設定する。
+            | この例では日付フォーマットを設定していないため、日付フォーマットは\ `ISO_LOCAL_DATE_TIME <https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/time/format/DateTimeFormatter.html#ISO_LOCAL_DATE_TIME>`_\ が適用される。
+            | そのため、日付フォーマットに合わせ"\ ``2012-09-11T02:25:15``\ "を固定日時として設定している。
+        * - | (3)
+          - | \ ``localDateTimeString``\ プロパティに、日付フォーマットを設定する。
+            | この例では日付フォーマットを"\ ``uuuu/MM/dd HH:mm:ss``\ "で定義しているため、指定した日付フォーマットに合わせ"\ ``2012/09/11 02:25:15``\ "を固定日時として設定している。
+        * - | (4)
+          - | (3)のパターン文字列の代わりに、Styleを設定することも可能である。
+            | \ ``dateStyle``\ プロパティに日付のStyle、\ ``timeStyle``\ プロパティに時間のStyleを設定する。
+            | 入力可能な値は\ `FormatStyle <https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/time/format/FormatStyle.html#enum-constant-detail>`_\ を参照されたい。
 
 |
 
@@ -274,45 +352,91 @@ Clock Factoryインタフェースの実装クラスをbean定義ファイルに
 
 \ ``org.terasoluna.gfw.common.time.ConfigurableAdjustClockFactory``\ を使用する。
 
-\ **bean定義ファイル([projectname]-env.xml)**\
+\ **bean定義ファイル**\
 
-.. code-block:: xml
+.. tabs::
+  .. group-tab:: Java Config
 
-  <!-- (1) -->
-  <bean id="configurableAdjustClockFactory" class="org.terasoluna.gfw.common.time.ConfigurableAdjustClockFactory">
-      <!-- (2) -->
-      <constructor-arg name="adjustedValue" value="1" />
-      <!-- (3) -->
-      <constructor-arg name="adjustedValueUnit" value="#{T(java.time.temporal.ChronoUnit).DAYS}" />
-  </bean>
+    - \ ``[projectname]EnvConfig.java``\
 
-.. tabularcolumns:: |p{0.10\linewidth}|p{0.90\linewidth}|
-.. list-table::
-  :header-rows: 1
-  :widths: 10 90
+      .. code-block:: java
 
-  * - 項番
-    - 説明
-  * - | (1)
-    - | \ ``ConfigurableAdjustClockFactory``\ をbean定義する。
-  * - | (2)
-    - | \ ``adjustedValue``\ プロパティに、差分値を設定する。日付時間単位は(3)で決定する。
-  * - | (3)
-    - | \ ``adjustedValueUnit``\ プロパティに、日付時間単位を設定する。
-      | この例では\ ``DAYS``\ を設定しているため、Factoryで生成されるClockはシステムのデフォルトClockに1日加算した日時となる。
-      | 設定できる日付時間単位については\ `ChronoUnit <https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/time/temporal/ChronoUnit.html>`_\ を参照されたい。
+        // (1)
+        @Bean("configurableAdjustClockFactory")
+        public ConfigurableAdjustClockFactory configurableAdjustClockFactory() {
+            ConfigurableAdjustClockFactory factory = new ConfigurableAdjustClockFactory(1, ChronoUnit.DAYS); // (2)(3)
+            return factory;
+        }
+      
+      .. tabularcolumns:: |p{0.10\linewidth}|p{0.90\linewidth}|
+      .. list-table::
+        :header-rows: 1
+        :widths: 10 90
+      
+        * - 項番
+          - 説明
+        * - | (1)
+          - | \ ``ConfigurableAdjustClockFactory``\ をbean定義する。
+        * - | (2)
+          - | \ ``adjustedValue``\ プロパティに、差分値を設定する。日付時間単位は(3)で決定する。
+        * - | (3)
+          - | \ ``adjustedValueUnit``\ プロパティに、日付時間単位を設定する。
+            | この例では\ ``DAYS``\ を設定しているため、Factoryで生成されるClockはシステムのデフォルトClockに1日加算した日時となる。
+            | 設定できる日付時間単位については\ `ChronoUnit <https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/time/temporal/ChronoUnit.html>`_\ を参照されたい。
+      
+            .. note:: 
+      
+              \ ``adjustedValueUnit``\ プロパティには推定期間を設定することはできない。（例えば、\ ``MONTH``\ や\ ``YEARS``\ などは設定できない。）
+      
+              推定期間を設定した場合、以下の様な例外が出力される。
+      
+                .. code-block:: console
+      
+                  java.time.temporal.UnsupportedTemporalTypeException: Unit must not have an estimated duration
+      
+              推定期間かどうかは\ `ChronoUnitのJavaDoc <https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/time/temporal/ChronoUnit.html>`_\ を参照されたい。
 
-      .. note:: 
+  .. group-tab:: XML Config
 
-        \ ``adjustedValueUnit``\ プロパティには推定期間を設定することはできない。（例えば、\ ``MONTH``\ や\ ``YEARS``\ などは設定できない。）
+    - \ ``[projectname]-env.xml``\
 
-        推定期間を設定した場合、以下の様な例外が出力される。
+      .. code-block:: xml
 
-          .. code-block:: console
-
-            java.time.temporal.UnsupportedTemporalTypeException: Unit must not have an estimated duration
-
-        推定期間かどうかは\ `ChronoUnitのJavaDoc <https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/time/temporal/ChronoUnit.html>`_\ を参照されたい。
+        <!-- (1) -->
+        <bean id="configurableAdjustClockFactory" class="org.terasoluna.gfw.common.time.ConfigurableAdjustClockFactory">
+            <!-- (2) -->
+            <constructor-arg name="adjustedValue" value="1" />
+            <!-- (3) -->
+            <constructor-arg name="adjustedValueUnit" value="#{T(java.time.temporal.ChronoUnit).DAYS}" />
+        </bean>
+      
+      .. tabularcolumns:: |p{0.10\linewidth}|p{0.90\linewidth}|
+      .. list-table::
+        :header-rows: 1
+        :widths: 10 90
+      
+        * - 項番
+          - 説明
+        * - | (1)
+          - | \ ``ConfigurableAdjustClockFactory``\ をbean定義する。
+        * - | (2)
+          - | \ ``adjustedValue``\ プロパティに、差分値を設定する。日付時間単位は(3)で決定する。
+        * - | (3)
+          - | \ ``adjustedValueUnit``\ プロパティに、日付時間単位を設定する。
+            | この例では\ ``DAYS``\ を設定しているため、Factoryで生成されるClockはシステムのデフォルトClockに1日加算した日時となる。
+            | 設定できる日付時間単位については\ `ChronoUnit <https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/time/temporal/ChronoUnit.html>`_\ を参照されたい。
+      
+            .. note:: 
+      
+              \ ``adjustedValueUnit``\ プロパティには推定期間を設定することはできない。（例えば、\ ``MONTH``\ や\ ``YEARS``\ などは設定できない。）
+      
+              推定期間を設定した場合、以下の様な例外が出力される。
+      
+                .. code-block:: console
+      
+                  java.time.temporal.UnsupportedTemporalTypeException: Unit must not have an estimated duration
+      
+              推定期間かどうかは\ `ChronoUnitのJavaDoc <https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/time/temporal/ChronoUnit.html>`_\ を参照されたい。
 
 |
 
@@ -326,31 +450,64 @@ DBに登録した固定の時刻から生成したClockを取得する
 
 \ ``org.terasoluna.gfw.common.time.JdbcClockFactory``\ を使用する。
 
-\ **bean定義ファイル([projectname]-env.xml)**\
+\ **bean定義ファイル**\
 
-.. code-block:: xml
+.. tabs::
+  .. group-tab:: Java Config
 
-  <!-- (1) -->
-  <bean id="jdbcClockFactory" class="org.terasoluna.gfw.common.time.JdbcClockFactory">
-      <!-- (2) -->
-      <constructor-arg name="dataSource" ref="dataSource" />
-      <!-- (3) -->
-      <constructor-arg name="currentTimestampQuery" value="SELECT now FROM system_date" />
-  </bean>
+    - \ ``[projectname]EnvConfig.java``\
 
-.. tabularcolumns:: |p{0.10\linewidth}|p{0.90\linewidth}|
-.. list-table::
-  :header-rows: 1
-  :widths: 10 90
+      .. code-block:: java
 
-  * - 項番
-    - 説明
-  * - | (1)
-    - | \ ``JdbcClockFactory``\ をbean定義する。
-  * - | (2)
-    - | \ ``dataSource``\ プロパティに、固定時刻を管理するためのテーブルが存在するデータソース(\ ``javax.sql.DataSource``\ )を指定する。
-  * - | (3)
-    - | \ ``dataSource``\ プロパティに、固定時刻を取得するためのSQLを設定する。
+        // (1)  
+        @Bean("defaultJdbcClockFactory")
+        public JdbcClockFactory defaultJdbcClockFactory(
+                @Qualifier("dataSource") DataSource dataSource) {
+            JdbcClockFactory factory = new JdbcClockFactory(dataSource, "SELECT now FROM system_date"); //(1)(2)
+            return factory;
+        }
+      
+      .. tabularcolumns:: |p{0.10\linewidth}|p{0.90\linewidth}|
+      .. list-table::
+        :header-rows: 1
+        :widths: 10 90
+      
+        * - 項番
+          - 説明
+        * - | (1)
+          - | \ ``JdbcClockFactory``\ をbean定義する。
+        * - | (2)
+          - | 固定時刻を管理するためのテーブルが存在するデータソース(\ ``javax.sql.DataSource``\ )を指定する。
+        * - | (3)
+          - | 固定時刻を取得するためのSQLを設定する。
+
+  .. group-tab:: XML Config
+
+    - \ ``[projectname]-env.xml``\
+
+      .. code-block:: xml
+      
+        <!-- (1) -->
+        <bean id="jdbcClockFactory" class="org.terasoluna.gfw.common.time.JdbcClockFactory">
+            <!-- (2) -->
+            <constructor-arg name="dataSource" ref="dataSource" />
+            <!-- (3) -->
+            <constructor-arg name="currentTimestampQuery" value="SELECT now FROM system_date" />
+        </bean>
+      
+      .. tabularcolumns:: |p{0.10\linewidth}|p{0.90\linewidth}|
+      .. list-table::
+        :header-rows: 1
+        :widths: 10 90
+      
+        * - 項番
+          - 説明
+        * - | (1)
+          - | \ ``JdbcClockFactory``\ をbean定義する。
+        * - | (2)
+          - | 固定時刻を管理するためのテーブルが存在するデータソース(\ ``javax.sql.DataSource``\ )を指定する。
+        * - | (3)
+          - | 固定時刻を取得するためのSQLを設定する。
 
 |
 
@@ -385,37 +542,86 @@ DBに登録した固定の時刻から生成したClockを取得する
 
 \ ``org.terasoluna.gfw.common.time.JdbcAdjustClockFactory``\ を使用する。
 
-\ **bean定義ファイル([projectname]-env.xml)**\
+\ **bean定義ファイル**\
 
-.. code-block:: xml
+.. tabs::
+  .. group-tab:: Java Config
 
-  <!-- (1) -->
-  <bean id="jdbcAdjustClockFactory" class="org.terasoluna.gfw.common.time.JdbcAdjustClockFactory">
-      <!-- (2) -->
-      <constructor-arg name="dataSource" ref="dataSource" />
-      <!-- (3) -->
-      <constructor-arg name="adjustedValueQuery" value="SELECT diff FROM operation_date" />
-      <!-- (4) -->
-      <constructor-arg name="adjustedValueUnit" value="#{T(java.time.temporal.ChronoUnit).MINUTES}" />
-  </bean>
-  
-.. tabularcolumns:: |p{0.10\linewidth}|p{0.90\linewidth}|
-.. list-table::
-  :header-rows: 1
-  :widths: 10 90
+    - \ ``[projectname]EnvConfig.java``\
 
-  * - 項番
-    - 説明
-  * - | (1)
-    - | \ ``JdbcAdjustClockFactory``\ をbean定義する。
-  * - | (2)
-    - | \ ``dataSource``\ プロパティに、差分値を管理するためのテーブルが存在するデータソース(\ ``javax.sql.DataSource``\ )を指定する。
-  * - | (3)
-    - | \ ``adjustedValueQuery``\ プロパティに、差分値を取得するためのSQLを設定する。
-  * - | (3)
-    - | \ ``adjustedValueUnit``\ プロパティに、プロパティに、日付時間単位を設定する。
-      | この例では\ ``SECONDS``\ を設定しているため、Factoryで生成されるClockはシステムのデフォルトClockに\ ``adjustedValueQuery``\ 秒加算した日時となる。
-      | 設定できる日付時間単位については\ `ChronoUnit <https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/time/temporal/ChronoUnit.html>`_\ を参照されたい。
+      .. code-block:: java
+
+        // (1)
+        @Bean("adjustJdbcClockFactory")
+        public JdbcAdjustClockFactory adjustJdbcClockFactory(
+                @Qualifier("dataSource") DataSource dataSource) {
+            JdbcAdjustClockFactory factory = new JdbcAdjustClockFactory(dataSource, "SELECT diff FROM operation_date where operation_date_id='2'", ChronoUnit.SECONDS); // (2)(3)(4)
+            return factory;
+        }
+        
+      .. tabularcolumns:: |p{0.10\linewidth}|p{0.90\linewidth}|
+      .. list-table::
+        :header-rows: 1
+        :widths: 10 90
+      
+        * - 項番
+          - 説明
+        * - | (1)
+          - | \ ``JdbcAdjustClockFactory``\ をbean定義する。
+        * - | (2)
+          - | 差分値を管理するためのテーブルが存在するデータソース(\ ``javax.sql.DataSource``\ )を指定する。
+        * - | (3)
+          - | 差分値を取得するためのSQLを設定する。
+        * - | (4)
+          - | 日付時間単位を設定する。
+            | この例では\ ``SECONDS``\ を設定しているため、Factoryで生成されるClockはシステムのデフォルトClockに\ ``adjustedValueQuery``\ 秒加算した日時となる。
+            | 設定できる日付時間単位については\ `ChronoUnit <https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/time/temporal/ChronoUnit.html>`_\ を参照されたい。
+
+      .. note:: 
+
+        \ ``adjustedValueUnit``\ プロパティには推定期間を設定することはできない。（例えば、\ ``MONTH``\ や\ ``YEARS``\ などは設定できない。）
+
+        推定期間を設定した場合、以下の様な例外が出力される。
+
+          .. code-block:: console
+
+            java.time.temporal.UnsupportedTemporalTypeException: Unit must not have an estimated duration
+
+        推定期間かどうかは\ `ChronoUnitのJavaDoc <https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/time/temporal/ChronoUnit.html>`_\ を参照されたい。
+
+  .. group-tab:: XML Config
+
+    - \ ``[projectname]-env.xml``\
+
+      .. code-block:: xml
+      
+        <!-- (1) -->
+        <bean id="jdbcAdjustClockFactory" class="org.terasoluna.gfw.common.time.JdbcAdjustClockFactory">
+            <!-- (2) -->
+            <constructor-arg name="dataSource" ref="dataSource" />
+            <!-- (3) -->
+            <constructor-arg name="adjustedValueQuery" value="SELECT diff FROM operation_date" />
+            <!-- (4) -->
+            <constructor-arg name="adjustedValueUnit" value="#{T(java.time.temporal.ChronoUnit).MINUTES}" />
+        </bean>
+        
+      .. tabularcolumns:: |p{0.10\linewidth}|p{0.90\linewidth}|
+      .. list-table::
+        :header-rows: 1
+        :widths: 10 90
+      
+        * - 項番
+          - 説明
+        * - | (1)
+          - | \ ``JdbcAdjustClockFactory``\ をbean定義する。
+        * - | (2)
+          - | 差分値を管理するためのテーブルが存在するデータソース(\ ``javax.sql.DataSource``\ )を指定する。
+        * - | (3)
+          - | 差分値を取得するためのSQLを設定する。
+        * - | (4)
+          - | 日付時間単位を設定する。
+            | この例では\ ``SECONDS``\ を設定しているため、Factoryで生成されるClockはシステムのデフォルトClockに\ ``adjustedValueQuery``\ 秒加算した日時となる。
+            | 設定できる日付時間単位については\ `ChronoUnit <https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/time/temporal/ChronoUnit.html>`_\ を参照されたい。
 
       .. note:: 
 
@@ -831,4 +1037,3 @@ Production
 .. raw:: latex
 
   \newpage
-

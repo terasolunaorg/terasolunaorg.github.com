@@ -52,21 +52,21 @@ Javaのテスティングフレームワークとして、\ `JUnit <https://juni
 DIコンテナ
 """"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 
-テスト用のDIコンテナとして\ `Spring TestのDI機能 <https://docs.spring.io/spring-framework/docs/6.0.1/reference/html/testing.html#testing-fixture-di>`_\ を使用する。
+テスト用のDIコンテナとして\ `Spring TestのDI機能 <https://docs.spring.io/spring-framework/docs/6.1.3/reference/html/testing.html#testing-fixture-di>`_\ を使用する。
 
 |
 
 MVCフレームワーク
 """"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 
-テスト用のMVCフレームワークとして\ `Spring MVC Test Framework <https://docs.spring.io/spring-framework/docs/6.0.1/reference/html/testing.html#spring-mvc-test-framework>`_\ を使用する。
+テスト用のMVCフレームワークとして\ `Spring MVC Test Framework <https://docs.spring.io/spring-framework/docs/6.1.3/reference/html/testing.html#spring-mvc-test-framework>`_\ を使用する。
 
 |
 
 トランザクション管理
 """"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 
-テスト用のトランザクション管理として\ `Spring Testのトランザクション管理機能 <https://docs.spring.io/spring-framework/docs/6.0.1/reference/html/testing.html#testing-tx>`_\ を使用する。
+テスト用のトランザクション管理として\ `Spring Testのトランザクション管理機能 <https://docs.spring.io/spring-framework/docs/6.1.3/reference/html/testing.html#testing-tx>`_\ を使用する。
 
 |
 
@@ -75,7 +75,7 @@ MVCフレームワーク
 
 テスト用のデータアクセスとして、Spring TestまたはDBUnitとSpring Test DBUnitを使用することを想定している。
 
-* \ `Spring Test <https://docs.spring.io/spring-framework/docs/6.0.1/reference/html/testing.html#testing-introduction>`_\
+* \ `Spring Test <https://docs.spring.io/spring-framework/docs/6.1.3/reference/html/testing.html#testing-introduction>`_\
 
   * Spring Testは\ ``@Sql``\ アノテーションや\ ``JdbcTemplate``\ などを使用してSQLを発行する機能を提供している。
 
@@ -119,12 +119,12 @@ MVCフレームワーク
   * - Mockito
     - org.mockito
     - mockito-core
-    - 4.8.1
+    - 5.7.0
     - \*
   * - Spring Test
     - org.springframework
     - spring-test
-    - 6.0.3
+    - 6.1.3
     - \*
   * - DBUnit
     - org.dbunit
@@ -139,9 +139,9 @@ MVCフレームワーク
 
 .. note::
 
-    Hamcrest 2.1より、\ ``hamcrest-core``\ と\ ``hamcrest-library``\ にあたるモジュールが\ ``hamcrest``\ に統合されたため、実施したいアサーションにより\ ``hamcrest-library``\ のような依存関係を追加する必要がなくなった。
+  Hamcrest 2.1より、\ ``hamcrest-core``\ と\ ``hamcrest-library``\ にあたるモジュールが\ ``hamcrest``\ に統合されたため、実施したいアサーションにより\ ``hamcrest-library``\ のような依存関係を追加する必要がなくなった。
 
-    なお、Maven依存関係としては\ ``hamcrest-core``\ と\ ``hamcrest-library``\ を引き続き利用することができるが、実態としてはすべて\ ``hamcrest``\ を参照する形となる。
+  なお、Maven依存関係としては\ ``hamcrest-core``\ と\ ``hamcrest-library``\ を引き続き利用することができるが、実態としてはすべて\ ``hamcrest``\ を参照する形となる。
 
 |
 
@@ -187,5 +187,8 @@ MVCフレームワーク
   * - Build Tool
     - \ `Apache Maven <https://maven.apache.org/download.cgi>`_\  3.8.6 (以降「Maven」と呼ぶ)
   * - RDBMS
-    - \ `PostgreSQL <https://www.postgresql.org/docs/14/sql-insert.html>`_\  14.6
+    - \ `PostgreSQL <https://www.postgresql.org/docs/15/sql-insert.html>`_\  15.4
 
+.. raw:: latex
+
+  \newpage
