@@ -1,0 +1,2098 @@
+Beanマッピング(MapStruct)
+================================================================================
+
+.. only:: html
+
+.. contents:: 目次
+  :depth: 4
+  :local:
+
+|
+
+Overview
+--------------------------------------------------------------------------------
+
+| Beanマッピングは、BeanからBeanへフィールド値をコピーすることである。
+| アプリケーションの異なるレイヤ間(アプリケーション層とドメイン層)で、データの受け渡しをする場合など、Beanマッピングが必要となるケースは多い。
+
+| 例として、アプリケーション層の\ ``AccountForm``\ オブジェクトを、ドメイン層の\ ``Account``\ オブジェクトに変換する場合を考える。
+| ドメイン層は、アプリケーション層に依存してはならないため、AccountFormオブジェクトをそのままドメイン層で使用できない。
+| そこで、\ ``AccountForm``\ オブジェクトを、\ ``Account``\ オブジェクトにBeanマッピングし、ドメイン層では、\ ``Account``\ オブジェクトを使用する。
+| これによって、アプリケーション層と、ドメイン層の依存関係を一方向に保つことができる。
+
+.. figure:: ./images_BeanMapper/beanmapping-overview.png
+  :width: 80%
+
+| このオブジェクト間のマッピングは、Beanのgetter/setterを呼び出して、データの受け渡しを行うことで実現できる。
+| しかしながら、SetterやGetterを利用したBeanマッピングを行うと実装が煩雑になり、プログラムの見通しが悪くなるため、本ガイドラインではOSSで利用可能なBeanマッピングライブラリとして `MapStruct <https://mapstruct.org/>`_ を使用することを推奨する。
+
+.. tip::
+
+  MapStructはJava コンパイラにプラグインするAnnotation Processorで、コードジェネレーターとして動作する。
+
+  ユーザが作成するインタフェースをインプットとして、コンパイル時にそのインタフェースに従ってBeanマッピングを行うコードを生成する。
+
+| MapStructを使用することで下図のように、コピー元クラスとコピー先クラスで型が異なるコピーや、ネストしたBean同士のコピーも容易に行うことができる。
+
+.. figure:: ./images_BeanMapper/beanMapper-functionality-overview.png
+  :width: 75%
+
+MapStructを使用した場合と使用しない場合のコード例を挙げる。
+
+* 煩雑になり、プログラムの見通しが悪くなる例
+
+  .. code-block:: java
+
+    Source source = userService.findById(userId);
+
+    Target target = new Target();
+
+    target.setId(source.getId());
+    target.setPerson(new Person(source.getPersonForm().getCode(), source.getPersonForm().getName()));
+    target.setOrders(new HashSet<>(source.getOrders()));
+
+* MapStructを使用した場合の例
+
+  .. code-block:: java
+
+    @Mapper
+    public interface BeanMapper {
+
+        Target map(Source source);
+
+    }
+
+  .. code-block:: java
+
+    Source source = userService.findById(userId);
+
+    Target target = beanMapper.map(source);
+
+|
+| 以降は、MapStructの利用方法について説明する。
+|
+
+How to use
+--------------------------------------------------------------------------------
+
+マッパーの作成方法
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+.. _mapstruct-setting:
+
+MapStructを使用するための設定
+""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
+| MavenでMapStructを使用するためには、maven-compiler-pluginに下記の設定を追加する必要がある。
+
+.. code-block:: xml
+
+  <plugin>
+      <groupId>org.apache.maven.plugins</groupId>
+      <artifactId>maven-compiler-plugin</artifactId>
+      <configuration>
+          <parameters>true</parameters>
+          <annotationProcessorPaths>
+              <path>
+                  <groupId>org.mapstruct</groupId>
+                  <artifactId>mapstruct-processor</artifactId>
+                  <version>${mapstruct.version}</version> <!-- (1) -->
+              </path>
+          </annotationProcessorPaths>
+          <compilerArgs>
+              <arg>-Amapstruct.defaultComponentModel=spring</arg> <!-- (2) -->
+          </compilerArgs>
+      </configuration>
+  </plugin>
+
+.. tabularcolumns:: |p{0.10\linewidth}|p{0.90\linewidth}|
+.. list-table::
+  :header-rows: 1
+  :widths: 10 90
+
+  * - 項番
+    - 説明
+  * - | (1)
+    - | \ ``mapstruct.version``\ は依存ライブラリのバージョンを親プロジェクトである terasoluna-gfw-parent で管理する前提であるため、pom.xmlでプロパティとして変数を定義する必要は無い。
+  * - | (2)
+    - | 生成されるマッパーインタフェースの実装クラスに\ ``org.springframework.stereotype.Component``\ アノテーションを付与する設定。
+      | この設定を行わない場合は、\ :ref:`bean-mapper-definition`\ で記載されているようにマッパーインタフェースに直接設定を記載することができる。
+      | 本ガイドラインでは上記のようにmaven-compiler-pluginに設定を追加している前提とする。
+
+.. note::
+
+  開発プロジェクトを\ `ブランクプロジェクト <https://github.com/terasolunaorg/terasoluna-gfw-web-multi-blank/tree/5.9.0.RELEASE>`_\ から作成すると、上記の設定はpom.xmlに記載されている。
+
+  開発プロジェクトの作成方法については、「\ :doc:`../../ImplementationAtEachLayer/CreateWebApplicationProject`\ 」を参照されたい。
+
+|
+
+マッパーインタフェースの作成
+""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
+| MapStructでは、マッピングの前後の関係を定義するために、インタフェースとそのインタフェースに記載されたメソッドを利用する。
+| 以降、前者をマッパーインタフェース、後者をマッピングメソッドと呼ぶ。マッパーインタフェースには\ ``@Mapper``\ アノテーションが付与されている必要がある。また、マッピング元をソース、マッピング先をターゲットと呼ぶ。
+| \ ``@Mapper``\ アノテーションを付与することにより、コンパイル時にマッパーインタフェースの実装クラスが自動で生成される。この際、サポートされていない型のマッピングを行おうとするとコンパイルエラーが発生する。
+
+.. code-block:: java
+
+  @Mapper // (1)
+  public interface BeanMapper {
+
+      Target map(Source source); // (2)
+
+  }
+
+.. tabularcolumns:: |p{0.10\linewidth}|p{0.90\linewidth}|
+.. list-table::
+  :header-rows: 1
+  :widths: 10 90
+
+  * - 項番
+    - 説明
+  * - | (1)
+    - | 対象のインタフェースに\ ``@Mapper``\ アノテーションを付与する。
+  * - | (2)
+    - | マッピングメソッドを定義する。ソースとなるクラスを引数に、ターゲットとなるクラスを返り値にする。
+
+.. note::
+
+  マッパーインタフェースはソースとターゲット両方のBeanを参照できる必要がある。
+  
+  本ガイドラインではマッパーを使用するクラスと同じパッケージにマッパーインタフェースを配置する前提とする。
+
+
+.. note::
+
+  マッピングメソッドを定義するファイルはインタフェースではなく抽象クラスにすることもできる。
+
+  抽象クラスにすることにより、インスタンスフィールドやprivateメソッドを活用することが可能となり、より柔軟なマッピング処理を記載することができる。
+
+    .. code-block:: java
+
+      @Mapper
+      public abstract class BeanMapper {
+
+          public abstract Target map(Source source);
+
+      }
+
+|
+
+.. _bean-mapper-definition:
+
+MapStructを使用するためのBean定義
+""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
+
+maven-compiler-pluginに\ :ref:`mapstruct-setting`\ の(2)の設定をしていない場合は、\ ``@Mapper``\ アノテーションに下記の設定を行う必要がある。
+
+.. code-block:: java
+
+  @Mapper(componentModel = MappingConstants.ComponentModel.SPRING) // (1)
+  public interface BeanMapper {
+
+  }
+
+.. tabularcolumns:: |p{0.10\linewidth}|p{0.90\linewidth}|
+.. list-table::
+  :header-rows: 1
+  :widths: 10 90
+
+  * - 項番
+    - 説明
+  * - | (1)
+    - | componentModelに\ ``MappingConstants.ComponentModel.SPRING``\ を指定することにより、生成されるクラスに\ ``org.springframework.stereotype.Component``\ アノテーションが付与され、component-scanの対象となる。
+
+.. note::
+
+  生成されるクラスは\ ``target/generated-sources/annotations``\ 配下のマッパーインタフェースと同じパッケージに配置される。そのため、マッパーインタフェースはcomponent-scanの対象となるパスに配置をする必要がある。
+
+    .. code-block:: console
+
+      artifactId-web
+          └── src
+          │   └── main
+          │       └── java
+          │           └── com
+          │               └── example
+          │                   └── project
+          │                       └── app
+          │                           └── welcome
+          │                               └── BeanMapper.java
+          └── target
+              └── generated-sources
+                  └── annotations
+                      └── com
+                          └── example
+                              └── project
+                                  └── app
+                                      └── welcome
+                                          └── BeanMapperImpl.java
+
+生成された実装クラスを呼び出すためには、フィールドにマッパーインタフェースをインジェクトすればよい。
+
+.. code-block:: java
+
+  @Inject
+  BeanMapper beanMapper;
+
+|
+
+マッピング方法
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+.. _beanconverter-basic-mapping-label:
+
+Bean間のフィールド名、型が同じ場合のマッピング
+""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
+
+対象のBean間のフィールド名及び型が同じ場合、マッパーインタフェースにマッピングメソッドを定義するだけでよい。
+
+* ソース
+
+  .. code-block:: java
+
+    public class Source {
+        private int id;
+        private String name;
+        // omitted setter/getter
+    }
+
+* ターゲット
+  
+  .. code-block:: java
+
+    public class Target {
+        private int id;
+        private String name;
+        // omitted setter/getter
+    }
+
+* マッパーインタフェース
+
+  .. code-block:: java
+
+    @Mapper
+    public interface BeanMapper {
+
+        Target map(Source source);
+
+    }
+
+| 以下のように、定義されたMappingメソッドを使ってBeanマッピングを行う。
+| 下記メソッドを実行した後、Targetオブジェクトが新たに作成され、sourceの各フィールドの値が作成されたTargetオブジェクトにコピーされる。
+
+  .. code-block:: java
+
+    Source source = new Source();
+    source.setId(1);
+    source.setName("SourceName");
+
+    Target target = beanMapper.map(source);
+
+    System.out.println(target.getId());
+    System.out.println(target.getName());
+
+| 上記のコードを実行すると以下のように出力される。
+
+  .. code-block:: console
+
+    1
+    SourceName
+
+作成されたオブジェクトにソースのオブジェクトの値が設定されていることが分かる。
+
+|
+
+.. _beanconverter-difference-type-mapping-label:
+
+Bean間のフィールドの型が異なる場合のマッピング
+""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
+
+ソースとターゲットでBeanのフィールドの型が異なる場合、MapStructでサポートされている型変換の場合は自動でマッピングできる。
+
+例えば、以下のような変換はMappingメソッドを定義するだけで変換できる。
+
+例 : String -> BigDecimal
+
+| サポートされている型変換については、\ `マニュアル -Implicit type conversions- <https://mapstruct.org/documentation/1.5/reference/html/#implicit-type-conversions>`_\ を参照されたい。
+| マニュアルに載っていない型変換を行いたい場合は\ :ref:`how-to-make-custom-mapping`\ を参照されたい。
+| なお、Stringから日付型や数値型の変換についてはフォーマット指定もできる。詳しくは\ :ref:`string-format`\ を参照されたい。
+
+* ソース
+
+  .. code-block:: java
+
+    public class Source {
+        private String amount;
+        // omitted setter/getter
+    }
+
+* ターゲット
+
+  .. code-block:: java
+
+    public class Target {
+        private BigDecimal amount;
+        // omitted setter/getter
+    }
+
+* マッピングメソッド
+
+  .. code-block:: java
+
+    @Mapper
+    public interface BeanMapper {
+
+        Target map(Source source);
+
+    }
+
+* マッピング例
+
+  .. code-block:: java
+
+    Source source = new Source();
+    source.setAmount("123.45");
+
+    Target target = beanMapper.map(source);
+
+    System.out.println(target.getAmount());
+
+
+上記のコードを実行すると以下のように出力される。
+
+  .. code-block:: console
+
+    123.45
+
+
+型が異なる場合でも値をコピーできていることが分かる。
+
+|
+
+.. _beanconverter-difference-item-xml-mapping-label:
+
+Bean間のフィールド名が異なる場合のマッピング
+""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
+
+| ソースとターゲットでフィールド名が異なる場合、マッピングメソッドに\ ``@Mapping``\ アノテーションを設定することで変換できる。
+| \ ``@Mapping``\ アノテーションにはマッピングするフィールド名を設定する。
+
+* ソース
+
+  .. code-block:: java
+
+    public class Source {
+        private int id;
+        private String name;
+        // omitted setter/getter
+    }
+
+
+* ターゲット
+
+  .. code-block:: java
+
+    public class Target {
+        private int targetId;
+        private String targetName;
+        // omitted setter/getter
+    }
+
+* マッパーインタフェース
+
+  .. code-block:: java
+
+    @Mapper
+    public interface BeanMapper {
+
+        @Mapping(target = "targetId", source = "id") // (1)
+        @Mapping(target = "targetName", source = "name") // (1)
+        Target map(Source source);
+
+    }
+
+
+  .. tabularcolumns:: |p{0.10\linewidth}|p{0.90\linewidth}|
+  .. list-table::
+    :header-rows: 1
+    :widths: 10 90
+
+    * - 項番
+      - 説明
+    * - | (1)
+      - | 対象のメソッドに\ ``@Mapping``\ を付与し、\ ``target``\ にターゲットのフィールドを、\ ``source``\ にソースのフィールドを指定する。
+        | \ ``@Mapping``\ は対象のフィールドの分だけ設定する。
+
+* マッピング例
+
+  .. code-block:: java
+
+    Source source = new Source();
+    source.setId(1);
+    source.setName("SourceName");
+
+    Target target = beanMapper.map(source);
+
+    System.out.println(target.getTargetId());
+    System.out.println(target.getTargetName());
+
+上記のコードを実行すると以下のように出力される。
+
+  .. code-block:: console
+
+    1
+    SourceName
+
+フィールド名が異なる場合でも値をコピーできていることが分かる。
+
+|
+
+Nestしたフィールドのマッピング
+""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
+| ソースのBeanまたはターゲットのBeanがフィールドにBeanを持つ場合、そのNestしたBeanに対してもマッピングすることができる。
+| 以下にSourceというBeanにNestしたBeanであるDeptSourceを持つ例を記載する。
+
+* ソース
+
+  .. code-block:: java
+
+    public class Source {
+        private int id;
+        private String name;
+        private DeptSource deptSource;
+        // omitted setter/getter
+    }
+
+* ソースにネストしたBean
+
+  .. code-block:: java
+
+    public class DeptSource {
+        private String deptId;
+        private String depetName
+        // omitted setter/getter and other fields
+    }
+
+* ターゲット
+
+  .. code-block:: java
+
+    public class Target {
+        private int id;
+        private String name;
+        private String deptId;
+        private String deptName;
+        // omitted setter/getter
+    }
+
+
+| \ ``Source``\ オブジェクトが持つ\ ``DeptSource``\ の\ ``deptId``\ と\ ``deptName``\ を、\ ``Target``\ オブジェクトが持つ\ ``deptId``\ と\ ``deptName``\ にマップしたい場合、以下のように定義する。
+| ターゲットのBeanがNestしたBeanのフィールドを持つ場合も同様に表現できる。
+
+* マッパーインタフェース
+
+  .. code-block:: java
+
+    @Mapper
+    public interface BeanMapper {
+
+        @Mapping(target = "deptId", source = "deptSource.deptId")
+        @Mapping(target = "deptName", source = "deptSource.deptName")
+        Target map(Source source);
+
+    }
+
+.. note::
+
+  \ ``Source``\ オブジェクトが持つ\ ``DeptSource``\ のフィールドを全てマッピングする場合は、以下のように\ ``"."``\ を設定することで全てのフィールドをマッピングすることができる。
+
+    .. code-block:: java
+
+      @Mapper
+      public interface BeanMapper {
+
+          @Mapping(target = ".", source = "deptSource") // (1)
+          Target map(Source source);
+
+      }
+
+    .. tabularcolumns:: |p{0.10\linewidth}|p{0.90\linewidth}|
+    .. list-table::
+      :header-rows: 1
+      :widths: 10 90
+
+      * - 項番
+        - 説明
+      * - | (1)
+        - | targetに\ ``"."``\ を指定すると、\ ``DeptSource``\ のフィールドを全てマッピングする。なお、\ ``"."``\ は\ **sourceには設定ができない。**\
+
+* マッピング例
+
+  .. code-block:: java
+
+    Source source = new Source();
+    source.setId(1);
+    source.setName("John");
+    source.setDeptId("D01");
+    source.setDeptName("Mike")
+
+    Target target = beanMapper.map(source);
+    System.out.println(target.getId());
+    System.out.println(target.getName());
+    System.out.println(target.getDepartment().getDeptId());
+    System.out.println(target.getDepartment().getDeptName());
+
+上記のコードを実行すると以下のように出力される。
+
+  .. code-block:: console
+
+    1
+    John
+    D01
+    Mike
+
+|
+
+.. _existing-bean-update:
+
+既存のBeanの更新
+""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
+
+ターゲットのBeanを新たに生成せずに、既存のBeanを更新したい場合はメソッドを以下のように定義する。
+
+  .. code-block:: java
+
+    @Mapper
+    public interface BeanMapper {
+
+        void map(Source source, @MappingTarget Target target); // (1)
+
+    }
+
+  .. tabularcolumns:: |p{0.10\linewidth}|p{0.90\linewidth}|
+  .. list-table::
+    :header-rows: 1
+    :widths: 10 90
+
+    * - 項番
+      - 説明
+    * - | (1)
+      - | 第2引数にターゲットのクラスを設定し、\ ``@MappingTarget``\ アノテーションを付与することにより既存のオブジェクトの更新ができる。
+
+以下のように、定義されたMappingメソッドを使って既存のBeanの更新を行う。
+
+  .. code-block:: java
+
+    Source source = new Source();
+    source.setId(1);
+    source.setName("SourceName");
+
+    Target target = new Target();
+
+    target.setId(2);
+    target.setName("TargetName");
+
+    beanMapper.map(source, target);
+
+    System.out.println(target.getId());
+    System.out.println(target.getName());
+
+上記のコードを実行すると以下のように出力される。
+
+  .. code-block:: console
+
+    1
+    SourceName
+
+ソースのオブジェクトの値がターゲットに反映されていることが分かる。
+
+.. note::
+
+  ターゲットにマッピングされないフィールドが存在する場合、該当するフィールドの値はコピー前後で変わらない。ただし、マッピングされないフィールドが存在する場合はコンパイル時に警告が発生する。
+
+  これを抑制するには、下記のようにunmappedTargetPolicyの値を\ ``ReportingPolicy.IGNORE``\ に設定するか、後述の\ :ref:`fieldexclude`\ で紹介するようにフィールドの除外設定を行う必要がある。
+
+    .. code-block:: java
+
+      @Mapper(unmappedTargetPolicy = ReportingPolicy.IGNORE)
+      public interface BeanMapper {
+
+          void map(Source source, @MappingTarget Target target);
+
+      }
+
+  ソースにマッピングしないフィールドが存在する場合も同様に警告が発生する。この場合はunmappedSourcePolicyの値を上記と同様に\ ``ReportingPolicy.IGNORE``\ に設定すればよい。
+
+|
+
+Collectionマッピング
+""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
+| Collectionタイプのマッピングもできる。
+| フィールド名が同じである場合、\ ``@Mapping``\ の設定は不要である。
+
+以下にEmailクラスのListをフィールドemailsとして持つクラスを例にとって説明する
+
+  .. code-block:: java
+
+    public class Email {
+        private String email;
+
+        public Email() {
+        }
+
+        public Email(String email) {
+            this.email = email;
+        }
+
+        public String getEmail() {
+            return email;
+        }
+
+        public void setEmail(String email) {
+            this.email = email;
+        }
+
+    }
+
+* ソース
+
+  .. code-block:: java
+
+
+    import java.util.List;
+
+    public class AccountForm {
+        private List<Email> emails;
+
+        public void setEmails(List<Email> emails) {
+            this.emails = emails;
+        }
+
+        public List<Email> getEmails() {
+            return emails;
+        }
+    }
+
+* ターゲット
+
+  .. code-block:: java
+
+    import java.util.List;
+
+    public class Account {
+        private List<Email> emails;
+
+        public void setEmails(List<Email> emails) {
+            this.emails = emails;
+        }
+
+        public void addEmail(Email emali) {
+
+            if (this.emails == null) {
+                this.emails = new ArrayList<EmailDto>();
+            }
+
+            this.emails.add(email);
+        }
+
+        public List<Email> getEmails() {
+            return emails;
+        }
+    }
+
+* マッパーインタフェース
+
+  .. code-block:: java
+
+    @Mapper
+    public interface BeanMapper {
+
+        Account map(AccountForm accountForm);
+
+    }
+
+* マッピング例
+
+  .. code-block:: java
+
+    AccountForm accountForm = new AccountForm();
+
+    List<Email> emailList = new ArrayList<Email>();
+
+    emailList.add(new Email("a@example.com"));
+    emailList.add(new Email("b@example.com"));
+    emailList.add(new Email("c@example.com"));
+
+    accountForm.setEmails(emailList);
+
+    Account account = beanMapper.map(accountForm);
+
+    System.out.println(account.getEmails());
+
+
+上記のコードを実行すると以下のように出力される。
+
+  .. code-block:: console
+
+    [a@example.com, b@example.com, c@example.com]
+
+ターゲットのBeanが持つCollectionフィールドに要素が存在しない場合は特に問題はないが、既に要素が存在する場合は注意が必要である。以下に既に要素が存在する場合の例を記載する。
+
+* マッパーインタフェース
+
+  .. code-block:: java
+
+    @Mapper
+    public interface BeanMapper {
+
+        void map(AccountForm accountForm, @MappingTarget Account account);
+
+    }
+
+* マッピング例
+
+  .. code-block:: java
+
+    AccountForm accountForm = new AccountForm();
+    Account account = new Account();
+
+    List<Email> emailList = new ArrayList<Email>();
+    List<Email> emailsDest = new ArrayList<Email>();
+
+    emailList.add(new Email("a@example.com"));
+    emailList.add(new Email("b@example.com"));
+    emailList.add(new Email("c@example.com"));
+
+    emailsDest.add(new Email("d@example.com"));
+    emailsDest.add(new Email("e@example.com"));
+    emailsDest.add(new Email("f@example.com"));
+
+    accountForm.setEmails(emailList);
+    account.setEmails(emailsDest);
+
+    beanMapper.map(accountForm, account);
+
+    System.out.println(account.getEmails());
+
+デフォルトでは、ソースのCollectionフィールドに上書きされる。
+
+  .. code-block:: console
+
+    [a@example.com, b@example.com, c@example.com]
+
+
+| Collectionフィールドに対するマッピングは、 @Mapperアノテーションに設定するcollectionMappingStrategyの値とsetter/adderの有無によって動作が変わる。
+| collectionMappingStrategyに設定できる値は下記のとおりである。
+| 詳しくは\ `CollectionMappingStrategyのjavadoc <https://mapstruct.org/documentation/1.5/api/org/mapstruct/CollectionMappingStrategy.html>`_ および `マニュアル -Collection mapping strategies- <https://mapstruct.org/documentation/1.5/reference/html/#collection-mapping-strategies>`_\ を参照されたい。
+
+  .. tabularcolumns:: |p{0.10\linewidth}|p{0.90\linewidth}|
+  .. list-table::
+    :header-rows: 1
+    :widths: 10 90
+
+    * - 設定値
+      - 説明
+    * - | \ ``CollectionMappingStrategy.ACCESSOR_ONLY``\
+      - | デフォルト。ターゲットにadderが存在しても使用されることは無い
+    * - | \ ``CollectionMappingStrategy.SETTER_PREFERRED``\
+      - | ターゲットにsetterとadderがある場合にはsetterが優先して使用される。
+    * - | \ ``CollectionMappingStrategy.ADDER_PREFERRED``\
+      - | ターゲットにsetterとadderがある場合にはadderが優先して使用される。
+    * - | \ ``CollectionMappingStrategy.TARGET_IMMUTABLE``\
+      - | 既存のBeanを更新する場合はターゲットのコレクションがクリアされない。
+
+以下に\ ``CollectionMappingStrategy.ADDER_PREFERRED``\ を設定した場合の例を示す。
+
+* マッパーインタフェース
+
+  .. code-block:: java
+
+    @Mapper(collectionMappingStrategy = CollectionMappingStrategy.ADDER_PREFERRED) // (1)
+    public interface BeanMapper {
+
+        void map(AccountForm accountForm, @MappingTarget Account account);
+
+    }
+
+  .. tabularcolumns:: |p{0.10\linewidth}|p{0.90\linewidth}|
+  .. list-table::
+    :header-rows: 1
+    :widths: 10 90
+
+    * - 項番
+      - 説明
+    * - | (1)
+      - | ターゲットのBeanにsetterとadderがあり、adderを優先して使用したい場合は\ ``CollectionMappingStrategy.ADDER_PREFERRED``\ を設定する
+
+先ほどのマッピング例に適用させると、下記のような結果になる。
+
+  .. code-block:: console
+
+    [d@example.com, e@example.com, f@example.com, a@example.com, b@example.com, c@example.com]
+
+ターゲットにadderが存在するため、ターゲットのリストにソースのリストの値が追加されている。
+
+|
+
+MapからBeanのマッピング
+""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
+
+| String型のキーを持つMapからBeanへマッピングが可能である。
+| MapのキーがBeanのフィールド名に、Mapの値がBeanのフィールドの値に該当するようにマッピングされる。
+
+* ターゲット
+
+  .. code-block:: java
+
+    public class Target {
+        private int id;
+        private String name;
+        // omitted setter/getter
+    }
+
+* マッパーインタフェース
+
+  .. code-block:: java
+
+    @Mapper
+    public interface BeanMapper {
+
+        @Mapping(target = "name", source = "mapName") // (1)
+        Target map(Map<String, String> map);
+
+    }
+
+  .. tabularcolumns:: |p{0.10\linewidth}|p{0.90\linewidth}|
+  .. list-table::
+    :header-rows: 1
+    :widths: 10 90
+
+    * - 項番
+      - 説明
+    * - | (1)
+      - | ソースとなるMapのキーとターゲットとなるBeanのフィールド名が違う場合は、\ :ref:`beanconverter-difference-item-xml-mapping-label`\ と同様に\ ``@Mapping``\ アノテーション内に設定を記載する。
+
+* マッピング例
+
+  .. code-block:: java
+
+    Map<String, String> map = new HashMap<>();
+    map.put("id", "1");
+    map.put("mapName", "sourceName");
+
+    Target target = beanMapper.map(map);
+
+    System.out.println(target.getId());
+    System.out.println(target.getName());
+
+| 上記のコードを実行すると以下のように出力される。
+
+  .. code-block:: console
+
+    1
+    SourceName
+
+|
+
+複数のBeanからのマッピング
+""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
+| マッピングメソッドの引数に複数のBeanを指定することにより、それらのパラメータを1つのBeanへマッピングすることができる。
+| 2つのソースから1つのターゲットへマッピングを行う例を記載する。
+
+* ソース
+
+  .. code-block:: java
+
+    public class Source1 {
+        private int id;
+        private String name;
+        // omitted setter/getter
+    }
+
+  .. code-block:: java
+
+    public class Source2 {
+        private int id;
+        private String title;
+        // omitted setter/getter
+    }
+
+* ターゲット
+
+  .. code-block:: java
+
+    public class Target {
+        private int id;
+        private String name;
+        private String title;
+        // omitted setter/getter
+    }
+
+* マッパーインタフェース
+
+  .. code-block:: java
+
+    @Mapper
+    public interface BeanMapper {
+
+        @Mapping(target = "id", source = "source1.id") // (1)
+        Target map(Source1 source1, Source2 source2); //(2)
+
+    }
+
+  .. tabularcolumns:: |p{0.10\linewidth}|p{0.90\linewidth}|
+  .. list-table::
+    :header-rows: 1
+    :widths: 10 90
+
+    * - 項番
+      - 説明
+    * - | (1)
+      - | ソースとなるBeanに同じ名前のフィールドがある場合は、ソースのBeanを明示的に指定する必要がある。
+        | 記載しない場合はコンパイルエラーが発生する。
+    * - | (2)
+      - | マッピングメソッドの引数を複数にすることで、複数のBeanからマッピングができる。
+
+|
+
+.. _subclass-mapping:
+
+マッピングメソッドにインタフェースを用いる場合
+""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
+
+| マッピングメソッドの引数には、インタフェースを指定することもできる。この場合、インタフェース内で定義されているメソッドのみが適用される。
+
+* ソースのインタフェース
+
+  .. code-block:: java
+
+    public class SourceInterface {
+
+        public int getId();
+
+    }
+
+* ソース
+
+  .. code-block:: java
+
+    public class SourceImpl1 implements SourceInterface {
+        private int id;
+        private String name;
+
+        @Override
+        public int getId(){
+            return this.id;
+        }
+
+        // omitted other setter/getter
+    }
+
+* ターゲット
+
+  .. code-block:: java
+
+    public class Target {
+        private int id;
+        private String name;
+        // omitted setter/getter
+    }
+
+* マッパーインタフェース
+
+  .. code-block:: java
+
+    @Mapper
+    public interface BeanMapper {
+
+        Target map(SourceInterface sourceInterface);
+
+    }
+
+\ ``SourceInterface``\ を引数にしたマッピングメソッドに、\ ``SourceInterface``\ を実装した\ ``SourceImpl``\ のオブジェクトを渡す。
+
+  .. code-block:: java
+
+    SourceImpl1 source1 = new SourceImpl1();
+    source1.setId(1);
+    source1.setName("SourceName");
+
+    Tatget target = beanMapper.map(source1);
+
+    System.out.println(target.getId());
+    System.out.println(target.getName());
+
+上記のコードを実行すると以下のように出力される。
+
+  .. code-block:: console
+
+    1
+
+| マッピングメソッドに指定した\ ``SourceInterface``\ にはgetNameが定義されていないため、\ ``SourceImple``\ で定義されていてもnameフィールドのマッピングは行われない。
+
+| 通常はマッピングメソッドにはインタフェースを指定せずに実装クラスのBeanをそのまま使用すればよい。
+| しかし、マッピングしたいインタフェースの実装クラスの型が複数あり、共通のマッピングメソッドを呼び出してマッピングしたい場合はこのままでは実現できない。
+| そのような場合は\ ``@SubclassMapping``\ アノテーションを使用することで実現できる。
+
+| 以下にインタフェースで複数の実装クラスをマッピングする方法を示す。
+
+* 2つ目のソース
+
+  .. code-block:: java
+
+    public class SourceImpl2 implements SourceInterface {
+        private int id;
+        private String title;
+
+        @Override
+        public int getId(){
+            return this.id;
+        }
+
+        // omitted other setter/getter
+    }
+
+* マッパーインタフェース
+
+  .. code-block:: java
+
+    @Mapper
+    public interface BeanMapper {
+
+        Target map1(SourceImpl1 source1); // (1)
+
+        Target map2(SourceImpl2 source2); // (1)
+
+        //(2)
+        @SubclassMapping(source = SourceImpl1.class, target = Target.class)
+        @SubclassMapping(source = SourceImpl2.class, target = Target.class)
+        Target map(SourceInterface sourceInterface);
+
+    }
+
+  .. tabularcolumns:: |p{0.10\linewidth}|p{0.90\linewidth}|
+  .. list-table::
+    :header-rows: 1
+    :widths: 10 90
+
+    * - 項番
+      - 説明
+    * - | (1)
+      - | マッピングに対応させたいSourceInterface実装クラスに対応したマッピングメソッドを定義する。
+    * - | (2)
+      - | \ ``@SubclassMapping``\ アノテーションを用いて\ ``source``\ と\ ``target``\ それぞれにマッピングしたい実装クラスを指定する。
+        | これにより、\ ``map``\ メソッドに\ ``SourceImpl1``\ が渡された場合は\ ``map1``\ メソッドが、\ ``SourceImpl2``\ が渡された場合は\ ``map2``\ メソッドが呼び出されるようになる。
+
+* マッピング例
+
+  .. code-block:: java
+
+    SourceImpl1 source1 = new Source1Impl();
+    source1.setId(1);
+    source1.setName("SourceName");
+
+    Source2Impl source2 = new Source2Impl();
+    source2.setId(2);
+    source2.setTitle("SourceTitle");
+
+    Target target1 = beanMapper.map(source1); //(1)
+    Target target2 = beanMapper.map(source2); //(1)
+
+    System.out.println(target1.getId());
+    System.out.println(target1.getName());
+
+    System.out.println(target2.getId());
+    System.out.println(target2.getTitle());
+
+  .. tabularcolumns:: |p{0.10\linewidth}|p{0.90\linewidth}|
+  .. list-table::
+    :header-rows: 1
+    :widths: 10 90
+
+    * - 項番
+      - 説明
+    * - | (1)
+      - | source1とsource2はインタフェースが共通で実装クラスが異なるが、同じマッピングメソッドを使用している。
+
+上記のコードを実行すると以下のように出力される。
+
+  .. code-block:: console
+
+    1
+    SourceName
+    2
+    SourceTitle
+
+インタフェースを引数に持つマッピングメソッドを呼び出し、実装クラスのみに定義されているgetter/setterを用いてマッピングされていることが分かる。
+
+|
+
+.. _fieldexclude:
+
+フィールド除外設定
+""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
+
+| Beanを変換する際に、マッピングをしたくないフィールドを除外することができる。
+| 以下の様なBeanを変換する場合に、フィールドがマッピングされないようにする例を記載する。
+
+* ソース
+
+  .. code-block:: java
+
+    public class Source {
+        private int id;
+        private String name;
+        // omitted setter/getter
+    }
+
+* ターゲット
+
+  .. code-block:: java
+
+    public class Target {
+        private int id;
+        private String name;
+        // omitted setter/getter
+    }
+
+任意のフィールドをマッピングから除外したい場合は、\ ``@Mapping``\ に次のような設定を入れる。
+
+  .. code-block:: java
+
+    @Mapper
+    public interface BeanMapper {
+
+        @Mapping(target = "name", ignore = true) // (1)
+        void map(Source source, @MappingTarget Target target);
+
+    }
+
+  .. tabularcolumns:: |p{0.10\linewidth}|p{0.90\linewidth}|
+  .. list-table::
+    :header-rows: 1
+    :widths: 10 90
+
+    * - 項番
+      - 説明
+    * - | (1)
+      - | 除外したいフィールドを\ ``target``\ に設定し、\ ``ignore``\ にtrueを設定する。この例の場合、SourceオブジェクトからTargetオブジェクトをコピーする際にtargetのnameの値が上書きされない。
+
+* マッピング例
+
+  .. code-block:: java
+
+    Source source = new Source();
+    source.setId(1);
+    source.setName("SourceName");
+
+    Target target = new Target();
+    target.setId(2);
+    target.setName("TargetName");
+
+    beanMapper.map(source, target);
+
+    System.out.println(target.getId());
+    System.out.println(target.getName());
+
+上記のコードを実行すると以下のように出力される。
+
+  .. code-block:: console
+
+    1
+    TargetName
+
+マッピング後、targetのnameフィールドは前の状態のままである。
+
+|
+
+How to extend
+--------------------------------------------------------------------------------
+
+.. _how-to-make-custom-mapping:
+
+独自のマッピングの定義方法
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+| MapStructで独自にマッピングする方法を説明する。
+| 独自マッピングを定義するには、下記の手段がある。
+
+* defaultメソッドを用いた方法
+
+* \ ``@Named``\ アノテーションを用いた方法
+
+| あるマッパーインタフェース内で定義するすべてのマッピングメソッドに対して、同一の独自マッピング処理を行いたい場合はdefaultメソッドで独自マッピングの処理を定義することを推奨する。
+
+|
+
+defaultメソッドを用いた方法
+""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
+
+| defaultメソッドを用いてマッピングの際に大文字に変換する例を記載する。
+
+* ソース
+
+  .. code-block:: java
+
+    public class Source {
+        private String name;
+        private Strint title
+        // omitted setter/getter
+    }
+
+* ターゲット
+
+  .. code-block:: java
+
+    public class Target {
+        private String name;
+        private String title
+        // omitted setter/getter
+    }
+
+* マッパーインタフェース
+
+  .. code-block:: java
+
+    @Mapper
+    public interface BeanMapper {
+
+        Target map(Source source);
+
+        default String stringToUpper(String string) {  // (1)
+
+            if (string == null) {
+                return null;
+            }
+
+            return string.toUpperCase();
+        }
+    }
+
+  .. tabularcolumns:: |p{0.10\linewidth}|p{0.90\linewidth}|
+  .. list-table::
+    :header-rows: 1
+    :widths: 10 90
+
+    * - 項番
+      - 説明
+    * - | (1)
+      - | defaultメソッドを定義し、独自のマッピングロジックを記載する。
+        | 引数、返り値の型が一致するフィールドのマッピング全てに適用される。
+
+* マッピング例
+
+  .. code-block:: java
+
+    Source source = new Source();
+    source.setName("SourceName");
+    source.setTitle("SourceTitle");
+
+    Target target = new Target();
+    target.setName("TargetName");
+    target.setTitle("TargetTitle");
+
+    beanMapper.map(source, target);
+
+    System.out.println(target.getName());
+    System.out.println(target.getTitle());
+
+上記のコードを実行すると以下のように出力される。
+
+  .. code-block:: console
+
+    SOURCENAME
+    SOURCETITLE
+
+nameフィールド、titleフィールドともに大文字にマッピングされる。
+
+|
+
+@Namedアノテーションを用いた方法
+""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
+
+特定のフィールドのみ、独自に定義したマッピングロジックを適用させたい場合は\ ``@Named``\ アノテーションを使用する。
+
+  .. code-block:: java
+
+    @Mapper
+    public interface BeanMapper {
+
+        @Mapping(target = "name", qualifiedByName = "toUpper") // (1)
+        Target map(Source source);
+
+        @Named("toUpper") // (2)
+        default String stringToUpper(String string) {
+
+            if (string == null) {
+                return null;
+            }
+
+            return string.toUpperCase();
+        }
+    }
+
+  .. tabularcolumns:: |p{0.10\linewidth}|p{0.90\linewidth}|
+  .. list-table::
+    :header-rows: 1
+    :widths: 10 90
+
+    * - 項番
+      - 説明
+    * - | (1)
+      - | targetにnameを指定し、qualifiedByNameに下記の\ ``@Named``\ アノテーションで設定した名前を指定することにより、このフィールドのみに下記のマッピングロジックを反映できる。
+        | titleフィールドには\ ``@Named``\ アノテーションの名前を指定していないので、(2)で設定するロジックは反映されない。
+    * - | (2)
+      - | マッピングロジックを定義するデフォルトメソッドに\ ``@Named``\ アノテーションを付与し、任意の名前を設定する。
+
+\ ``@Named``\ アノテーションを別のクラスに付与することで、独自マッピング定義をマッピングインタフェースの外で定義する事ができる。
+
+* ロジック定義用のクラス
+
+  .. code-block:: java
+
+    @Named("StringConverter") // (1)
+    public class StringLogic {
+
+        @Named("UpperConverter") // (2)
+        public String stringToUpper(String string) {
+
+            if (string == null) {
+                return null;
+            }
+
+            return string.toUpperCase();
+        }
+    }
+
+  .. tabularcolumns:: |p{0.10\linewidth}|p{0.90\linewidth}|
+  .. list-table::
+    :header-rows: 1
+    :widths: 10 90
+
+    * - 項番
+      - 説明
+    * - | (1)
+      - | クラスレベルに\ ``@Named``\ アノテーションを付与し、任意の名前を設定する。
+    * - | (2)
+      - | メソッドレベルに\ ``@Named``\ アノテーションを付与し、任意の名前を設定する。
+
+* マッパーインタフェース
+
+  .. code-block:: java
+
+    @Mapper(uses = StringLogic.class)  // (1)
+    public interface BeanMapper {
+
+        @Mapping(target = "name", qualifiedByName = {"StringConverter", "UpperConverter"}) // (2)
+        Target map(Source source);.
+
+    }
+
+  .. tabularcolumns:: |p{0.10\linewidth}|p{0.90\linewidth}|
+  .. list-table::
+    :header-rows: 1
+    :widths: 10 90
+
+    * - 項番
+      - 説明
+    * - | (1)
+      - | \ ``@Mapper``\ アノテーションの\ ``uses``\ にロジック定義用のクラスを指定する。
+    * - | (2)
+      - | qualifiedByNameに、マッピングロジックを定義したクラスの\ ``@Named``\ アノテーションで設定した名前を記載する。
+        | クラスレベルに設定した名前、メソッドレベルに設定した名前の順番で設定する。
+
+* マッピング例
+
+  .. code-block:: java
+
+    Source source = new Source();
+    source.setName("sourceName");
+    source.setTitle("sourceTitle");
+
+    Target target = beanMapper.map(source);
+
+    System.out.println(target.getName());
+    System.out.println(target.getTitle());
+
+上記のコードを実行すると以下のように出力される。
+
+  .. code-block:: console
+
+    SOURCENAME
+    sourceTitle
+
+ソースの\ ``name``\ フィールドのみ独自マッピングが適用されていることが分かる。
+
+この方法を使えばMapStructがサポートしていないデータ型のマッピングもできる。
+
+例 : \ ``java.lang.String``\ <=> \ ``java.sql.Date``\
+
+* マッパーインタフェース
+
+  .. code-block:: java
+
+    @Mapper
+    public interface BeanMapper {
+
+        Target map(Source source);
+
+        default Date stringToDate(String string) {
+            return Date.valueOf(string);
+        }
+    }
+
+|
+
+.. _null-property-config:
+
+ソースのnullフィールドの制御
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+| ソースのフィールドが\ ``null``\ の場合について、\ ``@Mapping``\ アノテーションで挙動を制御できる。
+
+以下にソースのフィールドが\ ``null``\ の場合にデフォルト値を設定する方法を記載する。
+
+* ソース
+
+  .. code-block:: java
+
+    public class Source {
+        private int id;
+        private String name;
+        // omitted setter/getter
+    }
+
+* ターゲット
+
+  .. code-block:: java
+
+    public class Target {
+        private int id;
+        private String name;
+        // omitted setter/getter
+    }
+
+* マッパーインタフェース
+
+  .. code-block:: java
+
+    @Mapper
+    public interface BeanMapper {
+
+        @Mapping(target = "name", defaultValue = "DefaultName") // (1)
+        void map(Source source, @MappingTarget Target target);
+
+    }
+
+  .. tabularcolumns:: |p{0.10\linewidth}|p{0.90\linewidth}|
+  .. list-table::
+    :header-rows: 1
+    :widths: 10 90
+
+    * - 項番
+      - 説明
+    * - | (1)
+      - | ソースのフィールドが\ ``null``\ の場合、あらかじめ設定した値にするには\ ``defaultValue``\ に値を設定する。
+        | 設定する値は文字列であり、ターゲットのフィールドの型に合わせて変換される。
+
+
+* マッピング例
+
+  .. code-block:: java
+
+    Source source = new Source();
+    source.setId(1);
+    source.setName(null);
+
+    Target target = new Target();
+    target.setId(2);
+    target.setName("TargetName");
+    beanMapper.map(source, target);
+    System.out.println(target.getId());
+    System.out.println(target.getName());
+
+上記のコードを実行すると以下のように出力される。
+
+  .. code-block:: console
+
+    1
+    DefaultName
+
+ソースの\ ``name``\ フィールドは\ ``null``\ のため、\ ``defaultValue``\ に設定された値がマッピングされている。
+
+また、\ ``nullValuePropertyMappingStrategy``\ の値を設定することで、ソースのフィールドが\ ``null``\ の場合の動作をカスタマイズできる。
+
+.. tabularcolumns:: |p{0.10\linewidth}|p{0.90\linewidth}|
+.. list-table::
+  :header-rows: 1
+  :widths: 10 90
+
+  * - 設定値
+    - 説明
+  * - | \ ``NullValuePropertyMappingStrategy.SET_TO_NULL``\
+    - | デフォルト値。nullをマッピングする。
+  * - | \ ``NullValuePropertyMappingStrategy.SET_TO_DEFAULT``\
+    - | プロパティの型に対応した、あらかじめ決められたデフォルト値をマッピングする。例えば、Stringの場合は\ ``""``\ （空文字）をマッピングする。
+      | その他の型については\ `NullValuePropertyMappingStrategyのJavadoc <https://mapstruct.org/documentation/1.5/api/org/mapstruct/NullValuePropertyMappingStrategy.html#SET_TO_DEFAULT>`_\ を参照されたい。
+  * - | \ ``NullValuePropertyMappingStrategy.IGNORE``\
+    - | ソースのフィールドが\ ``null``\ の場合はマッピングから除外される。
+
+以下にNullValuePropertyMappingStrategy.IGNOREを設定した場合の例を示す。
+
+  .. code-block:: java
+
+    @Mapper
+    public interface BeanMapper {
+
+        @Mapping(target = "name", nullValuePropertyMappingStrategy = NullValuePropertyMappingStrategy.IGNORE) // (1)
+        void map(Source source, @MappingTarget Target target);
+
+    }
+
+  .. tabularcolumns:: |p{0.10\linewidth}|p{0.90\linewidth}|
+  .. list-table::
+    :header-rows: 1
+    :widths: 10 90
+
+    * - 項番
+      - 説明
+    * - | (1)
+      - | ソースのフィールドが\ ``null``\ の場合にマッピングから除外したい場合は\ ``nullValuePropertyMappingStrategy``\ に\ ``NullValuePropertyMappingStrategy.IGNORE``\ を設定する。
+
+* ソース
+
+  .. code-block:: java
+
+    public class Source {
+        private int id;
+        private String name;
+        // omitted setter/getter
+    }
+
+* ターゲット
+
+  .. code-block:: java
+
+    public class Target {
+        private int id;
+        private String name;
+        // omitted setter/getter
+    }
+
+* マッピング例
+
+  .. code-block:: java
+
+    Source source = new Source();
+    source.setId(1);
+    source.setName(null);
+
+    Target target = new Target();
+    target.setId(2);
+    target.setName("TargetName");
+    beanMapper.map(source, target);
+    System.out.println(target.getId());
+    System.out.println(target.getName());
+
+上記のコードを実行すると以下のように出力される。
+
+  .. code-block:: console
+
+    1
+    TargetName
+
+
+ソースの\ ``name``\ フィールドは\ ``null``\ のため、マッピングから除外されている。
+
+|
+
+条件付きマッピング
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+| \ ``@Condition``\ アノテーションを使用して条件を定義することにより、その条件を満たすフィールドのみをマッピングするように設定できる。
+| 独自マッピングと定義方法と同様に、条件の定義方法にも下記の手段がある。
+
+* defaultメソッドを用いた方法
+
+* \ ``@Named``\ アノテーションを用いた方法
+
+あるマッパーインタフェース内で定義する、すべてのフィールドに対して、同一の条件を付与したい場合はdefaultメソッドで条件を定義することを推奨する。
+
+|
+
+defaultメソッドを用いた方法
+""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
+| defaultメソッドを用いて条件を定義する方法を説明する。
+| 以下ではソースBeanのあるフィールドが\ ``null``\ でない、かつ、空文字でない場合にマッピングの対象とする例を示す。
+
+* ソース
+
+  .. code-block:: java
+
+    public class Source {
+        private String name;
+        private String title;
+        // omitted setter/getter
+    }
+
+* ターゲット
+
+  .. code-block:: java
+
+    public class Target {
+        private String name;
+        private String title;
+        // omitted setter/getter
+    }
+
+* マッパーインタフェース
+
+  .. code-block:: java
+
+    @Mapper
+    public interface BeanMapper {
+
+        void map(Source source, @MappingTarget Target target);
+
+        @Condition // (1)
+        default boolean isNotEmpty(String string) {
+            return StringUtils.hasLength(string);
+        }
+    }
+
+  .. tabularcolumns:: |p{0.10\linewidth}|p{0.90\linewidth}|
+  .. list-table::
+    :header-rows: 1
+    :widths: 10 90
+
+    * - 項番
+      - 説明
+    * - | (1)
+      - | \ ``@Condition``\ アノテーションをbooleanを返すメソッドに付与することで条件付きのマッピングを設定できる。
+        | 返り値がtrueの場合は通常通りマッピングが行われ、falseの場合は\ ``null``\ がマッピングされる。
+
+* マッピング例
+
+  .. code-block:: java
+
+    Source source = new Source();
+    source.setName("");
+    source.setTitle("");
+
+    Target target = new Target();
+    target.setName("TargetName");
+    target.setTitle("TargetTitle");
+
+    beanMapper.map(source, target);
+
+    System.out.println(target.getName());
+    System.out.println(target.getTitle());
+
+
+上記のコードを実行すると以下のように出力される。
+
+  .. code-block:: console
+
+    null
+    null
+
+nameフィールド、titleフィールドともに定義した条件が適用される。
+
+|
+
+@Namedアノテーションを用いた方法
+""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
+| 特定のフィールドでのみチェックさせたい場合は、\ ``@Named``\ アノテーションを使用する。
+| この例では、nameフィールドでのみ条件判定が行われるようにしている。
+
+* マッパーインタフェース
+
+  .. code-block:: java
+
+    @Mapper
+    public interface BeanMapper {
+
+        @Mapping(target = "name", conditionQualifiedByName = "NotEmpty") // (1)
+        void map(Source source, @MappingTarget Target target);
+
+        @Named("NotEmpty") // (2)
+        @Condition
+        default boolean isNotEmpty(String value) {
+            return StringUtils.hasLength(string);
+        }
+    }
+
+  .. tabularcolumns:: |p{0.10\linewidth}|p{0.90\linewidth}|
+  .. list-table::
+    :header-rows: 1
+    :widths: 10 90
+
+    * - 項番
+      - 説明
+    * - | (1)
+      - | conditionQualifiedByNameに、(2)の\ ``@Named``\ アノテーションで設定した名前を指定する。
+        | これにより、特定のフィールドのみに下記の条件を反映できる。
+    * - | (2)
+      - | 条件を定義するデフォルトメソッドに\ ``@Named``\ アノテーションを付与し、任意の名前を設定する。
+
+.. note::
+
+  \ :ref:`how-to-make-custom-mapping`\ に記載してある内容と同様に、\ ``@Named``\ アノテーションを使用すれば別クラスに条件のロジックを記載できる。
+
+* マッピング例
+
+  .. code-block:: java
+
+    Source source = new Source();
+    source.setName("");
+    source.setTitle("");
+
+    Target target = new Target();
+    target.setName("TargetName");
+    target.setName("TargetTitle");
+
+    beanMapper.map(source, target);
+
+    System.out.println(target.getName());
+    System.out.println(target.getTitle());
+
+上記のコードを実行すると以下のように出力される。
+
+  .. code-block:: console
+
+    null
+    (空文字)
+
+| \ ``name``\ フィールドは\ ``null``\ がマッピングされているが、\ ``title``\ フィールドは条件が適用されていないため空文字がそのままマッピングされている。
+| \ ``null``\ をマッピングせずにマッピングから除外したい場合は\ :ref:`null-property-config`\ に記載してあるように、\ ``nullValuePropertyMappingStrategy``\ に\ ``NullValuePropertyMappingStrategy.IGNORE``\ を設定すればよい。
+
+|
+
+.. _string-format:
+
+文字列からの変換のフォーマット指定
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+| ソースの文字列型のフィールドをマッピングする際に、フォーマットを指定できる。
+| サポートしている型については\ `マニュアル <https://mapstruct.org/documentation/1.5/reference/html/#implicit-type-conversions>`_\ を参照されたい。
+
+| 例として、Stringから\ ``java.time.LocalDateTime``\ への変換と、\ ``java.math.BigDecimal``\ からStringの変換について説明する。
+
+* ソース
+
+  .. code-block:: java
+
+    public class Source {
+        private BigDecimal number
+        private String date;
+        // omitted setter/getter
+    }
+
+* ターゲット
+
+  .. code-block:: java
+
+    public class Target {
+        private String number;
+        private LocalDateTime date;
+        // omitted setter/getter
+    }
+
+* マッパーインタフェース
+
+  .. code-block:: java
+
+    @Mapper
+    public interface BeanMapper {
+
+        @Mapping(target = "number", numberFormat = "000,000") // (1)
+        @Mapping(target = "date", dateFormat = "uuuu-MM-dd HH:mm:ss") // (2)
+        Target map(Source source);
+
+    }
+
+  .. tabularcolumns:: |p{0.10\linewidth}|p{0.90\linewidth}|
+  .. list-table::
+    :header-rows: 1
+    :widths: 10 90
+
+    * - 項番
+      - 説明
+    * - | (1)
+      - | targetにターゲットのフィールド名を指定し、numberFormatに\ ``DecimalFormat``\ 形式のフォーマットを指定する。
+    * - | (2)
+      - | targetにターゲットのフィールド名を指定し、dateFormatに\ ``SimpleDateFormat``\ 形式のフォーマットを指定する。
+
+* マッピング
+
+  .. code-block:: java
+
+    Source source = new Source();
+
+    source.setNumber(new BigDecimal("123456"));
+    source.setDate("2022-10-10 11:11:11");
+
+    Target target = beanMapper.map(source);
+
+    System.out.println(target.getNumber());
+    System.out.println(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss").format(target.getDate()));
+
+上記のコードを実行すると以下のように出力される。
+
+  .. code-block:: console
+
+    123,456
+    2022-10-10 11:11:11
+
+マッピングメソッドで指定したフォーマットが適用されていることが分かる。
+
+|
+
+複数のマッパーインタフェースの共通設定
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+| \ :ref:`existing-bean-update`\ で紹介した、unmappedTargetPolicyやunmappedTargetPolicyなどの設定を、複数のマッパーインタフェース間で同一に設定したい場合がある。
+| このようなケースでは\ ``@MapperConfig``\ アノテーションを利用して、共通設定用のインタフェースを書くことで実現することができる。
+
+
+* 共通設定用のインタフェース
+
+  .. code-block:: java
+
+    // (1)
+    @MapperConfig(
+            unmappedTargetPolicy = ReportingPolicy.IGNORE,
+            unmappedSourcePolicy = ReportingPolicy.IGNORE,
+            //omitted
+    )
+    public interface BeanMapperConfig {
+
+    }
+
+  .. tabularcolumns:: |p{0.10\linewidth}|p{0.90\linewidth}|
+  .. list-table::
+    :header-rows: 1
+    :widths: 10 90
+
+    * - 項番
+      - 説明
+    * - | (1)
+      - | 共通設定用のインタフェースに\ ``@MapperConfig``\ アノテーションを付与する。\ ``@Mapper``\ アノテーションと同じ属性を設定できる。
+
+* マッパーインタフェース
+
+  .. code-block:: java
+
+    @Mapper(config = BeanMapperConfig.class) // (2)
+    public interface BeanMapper {
+
+    }
+
+
+  .. tabularcolumns:: |p{0.10\linewidth}|p{0.90\linewidth}|
+  .. list-table::
+    :header-rows: 1
+    :widths: 10 90
+
+    * - 項番
+      - 説明
+    * - | (2)
+      - | \ ``@Mapper``\ アノテーションのconfigに共通設定用のインタフェースのクラス型を指定する。これによりこのマッパーインタフェースに(1)の設定内容が反映される。
+
+|
+
+Appendix
+--------------------------------------------------------------------------------
+
+.. _constructor:
+
+ターゲットに使用されるコンストラクタ
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+| ターゲットのインスタンスの生成は、コンストラクタを定義していなければデフォルトコンストラクタが使用される。
+| しかし、Beanにコンストラクタを独自に定義している場合は、次の順番で使用されるコンストラクタが選ばれる。
+
+1. \ ``@Default``\ アノテーションが付与されている場合、そのコンストラクタが使用される。
+
+  .. code-block:: java
+
+    public class Target {
+        private int id;
+        private String name;
+
+        public Target() {
+
+        }
+
+        @Default // (1)
+        public Target(int id, String name) {
+            // omitted
+        }
+    }
+
+  .. tabularcolumns:: |p{0.10\linewidth}|p{0.90\linewidth}|
+  .. list-table::
+    :header-rows: 1
+    :widths: 10 90
+
+    * - 項番
+      - 説明
+    * - | (1)
+      - | \ ``@Default``\ アノテーションが付与されているコンストラクタが使用される。
+        | \ ``@Default``\ アノテーションはMapStructから提供されておらず、独自アノテーションを作成する必要がある。アノテーションの作成例は `マニュアル -Non-shipped annotations- <https://mapstruct.org/documentation/1.5/reference/html/#non-shipped-annotations>`_ を参照されたい。
+
+2. publicのコンストラクタが1つしか存在しない場合、そのコンストラクタが使用される。
+
+  .. code-block:: java
+
+    public class Target {
+        private int id;
+        private String name;
+
+        protected Target() {
+
+        }
+
+        // (1)
+        public Target(int id, String name) {
+            // omitted
+        }
+    }
+
+  .. tabularcolumns:: |p{0.10\linewidth}|p{0.90\linewidth}|
+  .. list-table::
+    :header-rows: 1
+    :widths: 10 90
+
+    * - 項番
+      - 説明
+    * - | (1)
+      - | publicのコンストラクタが1つしか存在しないため、このコンストラクタが使用される。
+
+3. 引数の無いコンストラクタが使用される。
+
+  .. code-block:: java
+
+    public class Target {
+        private int id;
+        private String name;
+
+        // (1)
+        public Target() {
+
+        }
+
+        public Target(int id, String name) {
+            // omitted
+        }
+    }
+
+  .. tabularcolumns:: |p{0.10\linewidth}|p{0.90\linewidth}|
+  .. list-table::
+    :header-rows: 1
+    :widths: 10 90
+
+    * - 項番
+      - 説明
+    * - | (1)
+      - | 引数が無いため、このコンストラクタが使用される。
+
+上記のどの条件にも該当しない場合はコンパイルエラーが発生する。
+
+  .. code-block:: java
+
+    public class Target {
+        private int id;
+        private String name;
+
+        // (1)
+        public Target(int id) {
+            // omitted
+        }
+
+        // (1)
+        public Target(int id, String name) {
+            // omitted
+        }
+    }
+
+  .. tabularcolumns:: |p{0.10\linewidth}|p{0.90\linewidth}|
+  .. list-table::
+    :header-rows: 1
+    :widths: 10 90
+
+    * - 項番
+      - 説明
+    * - | (1)
+      - | 独自にコンストラクタを定義しているが、上記3つのルールで使用するコンストラクタを決定できないためコンパイルエラーが発生する。
+
+|
+
+.. _mapstruct_lombok:
+
+Lombokを使用する際の設定
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+| \ :ref:`mapstruct-setting`\ に示したmaven-compiler-pluginの設定では、mavenはmapstructプロセッサのみを使用しLombokプロセッサを使用しない状態になり、Lombokが動作しなくなる。
+| Lombokを正常に機能させるためには、maven-compiler-pluginに以下の設定を追加する必要がある。
+
+.. code-block:: xml
+
+  <dependencies>
+      <dependency>
+          <groupId>org.projectlombok</groupId>
+          <artifactId>lombok</artifactId>
+          <version>${lombok.version}</version> <!-- (1) -->
+          <scope>provided</scope>
+      </dependency>
+  </dependencies>
+
+  <build>
+      <plugins>
+          <plugin>
+              <groupId>org.apache.maven.plugins</groupId>
+              <artifactId>maven-compiler-plugin</artifactId>
+              <configuration>
+                  <parameters>true</parameters>
+                  <annotationProcessorPaths>
+                      <path>
+                          <groupId>org.mapstruct</groupId>
+                          <artifactId>mapstruct-processor</artifactId>
+                          <version>${mapstruct.version}</version>
+                      </path>
+                      <path>
+                          <groupId>org.projectlombok</groupId>
+                          <artifactId>lombok</artifactId>
+                          <version>${lombok.version}</version> <!-- (1) -->
+                      </path>
+                      <path>
+                          <groupId>org.projectlombok</groupId>
+                          <artifactId>lombok-mapstruct-binding</artifactId>
+                          <version>${lombok-mapstruct-binding.version}</version> <!-- (2) -->
+                      </path>
+                  </annotationProcessorPaths>
+                  <compilerArgs>
+                      <arg>-Amapstruct.defaultComponentModel=spring</arg>
+                  </compilerArgs>
+              </configuration>
+          </plugin>
+      </plugins>
+  </build>
+
+.. tabularcolumns:: |p{0.10\linewidth}|p{0.90\linewidth}|
+.. list-table::
+  :header-rows: 1
+  :widths: 10 90
+
+  * - 項番
+    - 説明
+  * - | (1)
+    - | \ ``lombok.version``\ は依存ライブラリのバージョンを親プロジェクトである terasoluna-gfw-parent で管理する前提であるため、pom.xmlでプロパティとして変数を定義する必要は無い。
+  * - | (2)
+    - | \ ``lombok-mapstruct-binding.version``\ は依存ライブラリのバージョンを親プロジェクトである terasoluna-gfw-parent で管理する前提であるため、pom.xmlでプロパティとして変数を定義する必要は無い。
+
+.. note::
+
+  開発プロジェクトを\ `ブランクプロジェクト <https://github.com/terasolunaorg/terasoluna-gfw-web-multi-blank/tree/5.9.0.RELEASE>`_\ から作成すると、上記のLombokの設定はコメントアウトされた状態でpom.xmlに記載されている。
+
+.. raw:: latex
+
+  \ newpage
