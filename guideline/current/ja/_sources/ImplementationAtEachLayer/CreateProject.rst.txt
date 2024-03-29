@@ -34,7 +34,7 @@ Maven Archetypeで作成したプロジェクトでは、warファイルを作�
   1. 必ずマルチプロジェクト構成にする。
   2. 一つのプロジェクトに環境依存性のある設定ファイル（ex. logback.xml, jdbc.properties）をできるだけ集約する。\ **以降、このプロジェクトを \*-env と表現する。**\
     
-    * ex. terasoluna-tourreservation-env
+    * ex. secure-login-env
 
   3. \*-env以外のプロジェクトには環境依存性のある設定値を一切持たせない。
 
@@ -55,7 +55,7 @@ Maven Archetypeで作成したプロジェクトでは、warファイルを作�
   #. CIサーバ上ではビルドツール(maven)によるテストの実行とパッケージングを行い、必要に応じてパッケージリポジトリにartifactをdeployする。
   #. 試験サーバ、本番サーバでは、パッケージリポジトリにあらかじめ保管しているプロジェクト本体に、リリース先環境にあわせてビルドした\*-envプロジェクトを追加してリリースすることにより、アプリケーションの動作が可能になる。
 
-  詳細については\ `サンプルアプリケーション <https://github.com/terasolunaorg/terasoluna-tourreservation-mybatis3/tree/5.8.1.RELEASE>`_\ を参考にされたい。
+  詳細についてはチュートリアル(\ `JavaConfig <https://github.com/terasolunaorg/tutorial-apps/tree/release/5.9.0.RELEASE/JavaConfig/secure-login-demo>`_\ /\ `XMLConfig <https://github.com/terasolunaorg/tutorial-apps/tree/release/5.9.0.RELEASE/XMLConfig/secure-login-demo>`_\ )を参考にされたい。
 
 .. warning:: \ **ビルド環境について**\
 
@@ -123,7 +123,6 @@ warファイルの作成
   * Nexusなどのリモートリポジトリへデプロイする場合はゴールに\ ``deploy``\
 
   を指定すればよい。
-
 
 |
 
@@ -218,7 +217,7 @@ WebアプリケーションをTomcat上にリリースする場合は次のよ�
 4. Tomcatのリソース機能を使用して、 /etc/foo/bar/\*.jar をクラスパスに追加する。
 
   * | [CATALINA_HOME]/conf/Catalina/localhost/[contextPath].xmlファイルに下記の定義を追加する。
-    | 詳しくは、\ `The Resources Component <https://tomcat.apache.org/tomcat-10.1-doc/config/resources.html>`_\ と\ `terasoluna-tourreservation-envのconfigsフォルダ <https://github.com/terasolunaorg/terasoluna-tourreservation-mybatis3/tree/5.8.1.RELEASE/terasoluna-tourreservation-env/configs>`_\ を参考されたい。
+    | 詳しくは、\ `The Resources Component <https://tomcat.apache.org/tomcat-10.1-doc/config/resources.html>`_\ と\ `atrs-envのconfigsフォルダ <https://github.com/terasolunaorg/atrs/tree/release/1.10.0.RELEASE/XMLConfig-JSP/atrs/atrs-env/configs>`_\ を参考されたい。
   * リソースの設定例：
    
   .. code-block:: xml
@@ -233,85 +232,6 @@ WebアプリケーションをTomcat上にリリースする場合は次のよ�
   .. note::
 
     Catalina以外のエンジン、およびlocalhost以外のホストを利用する場合は、[contextPath].xmlを[CATALINA_HOME]/conf/[enginename]/[hostname]に配置する。
-
-|
-
-.. _CreateWebApplicationProjectBuildDeployToOtherServer:
-
-Tomcat以外のアプリケーションサーバへのデプロイ
-""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
-
-アプリケーションサーバとしてTomcat以外のサーバを使用する際のデプロイ方法(手順)を紹介する。
-
-TomcatのVirtualWebappLoaderのように、Webアプリケーションごとにクラスパスを追加する手段が提供されていないアプリケーションサーバ（例： WebSphere,WebLogic,JBoss）にリリースする場合には、\*-env-x.y.z.jarファイルをwarファイル内の WEB-INF/lib 配下に追加してからリリースする方法が最も簡単である。
-
-1. リリース対象のAPサーバ環境にあわせてmavenのprofileを指定し、 \*-env プロジェクトを ビルドする。
-2. あらかじめパッケージリポジトリにデプロイ済みの\*.warファイルを 作業ディレクトリにコピーする。
-3. 下のように、jarコマンドの追加オプションを利用して、warファイル内の WEB-INF/lib の配下に追加する。
-4. foo-x.y.z.warをAPサーバにリリースする。
-
-.. note::
-
-  warファイルをアプリケーションサーバへデプロイする方法は、使用するアプリケーションサーバのマニュアルを参照されたい。
-
-|
-
-ここでは、jarコマンドを使用して、envモジュールのjarファイルをwarファイルに組み込む方法(手順)を紹介する。
-
-| 作業ディレクトリへ移動する。
-| ここでは、envプロジェクトで作業を行う例になっている。
-
-.. code-block:: console
-
-  cd C:\work\todo\todo-env
-
-|
-
-| 作成したwarファイルを作業ディレクトリへコピーする。
-| ここでは、Mavenリポジトリからwarファイルを取得する例になっている。(warファイルを\ ``install``\ または\ ``deploy``\ している前提とする)
-
-.. code-block:: console
-
-  mvn org.apache.maven.plugins:maven-dependency-plugin:3.2.0:copy^
-   -Dartifact=com.example.todo:todo-web:1.0.0-SNAPSHOT:war^
-   -DoutputDirectory=target
-
-| コマンドの実行が成功すると、envモジュールのtargetディレクトリの中に、指定したwarファイルがコピーされる。
-| (例：\ ``C:\work\todo\todo-env\target\todo-web-1.0.0-SNAPSHOT.war``\ )
-
-.. note::
-
-  * \ ``-DgroupId``\ 、\ ``-DartifactId``\ 、\ ``-Dversion``\ 、\ ``-Ddest``\ には、適切な値を指定すること。
-  * Linux系で実行する場合は、行末の "\ ``^``\"  を "\ ``\``\"  に読み替えること。
-
-|
-
-作成したjarファイルを作業ディレクト(\ ``target\WEB-INF\lib``\ )へ一旦コピーし、warファイルの中に追加する。
-
-\ **[Windowsの場合]**\
-
-.. code-block:: console
-
-  mkdir target\WEB-INF\lib
-  copy target\todo-env-1.0.0-SNAPSHOT-test-server.jar target\WEB-INF\lib\.
-  cd target
-  jar -uvf todo-web-1.0.0-SNAPSHOT.war WEB-INF\lib
-
-\ **[Linux系の場合]**\
-
-.. code-block:: console
-
-  mkdir -p target/WEB-INF/lib
-  cp target/todo-env-1.0.0-SNAPSHOT-test-server.jar target/WEB-INF/lib/.
-  cd target
-  jar -uvf todo-web-1.0.0-SNAPSHOT.war WEB-INF/lib
-
-.. note:: \ **jarコマンドが見つからない場合の対処**\
-
-  jarコマンドが見つからない場合は、以下のいずれかの対処を行うことで解決することができる。
-
-  * \ ``JAVA_HOME/bin``\ を環境変数「PATH」に追加する。
-  * jarコマンドをフルパスで指定する。Windowの場合は\ ``%JAVA_HOME%\bin\jar``\ 、Linux系の場合は\ ``${JAVA_HOME}/bin/jar``\ を指定すればよい。
 
 |
 
@@ -334,8 +254,8 @@ TomcatのVirtualWebappLoaderのように、Webアプリケーションごとに�
 
   mavenの世界では、pom.xml上の<version>タグの内容によってそれがSNAPSHOTバージョンなのかRELEASEバージョンなのかが自動的に判別される。
 
-  * 末尾が -SNAPSHOT である場合にSNAPSHOTとみなされる。例：<version>1.0-SNAPSHOT</version>
-  * 末尾が -SNAPSHOT ではない場合はRELEASEとみなされる。例：<version>1.0</version>
+  * 末尾が -SNAPSHOT である場合にSNAPSHOTとみなされる。例 : <version>1.0-SNAPSHOT</version>
+  * 末尾が -SNAPSHOT ではない場合はRELEASEとみなされる。例 : <version>1.0</version>
 
   また、mavenパッケージリポジトリにはsnapshotsリポジトリとreleaseリポジトリの2種類があり、いくつかの制約があることに注意する。
 
@@ -372,10 +292,10 @@ RELEASEバージョンの運用
   :alt: Continuous delivery for RELEASE version.
   :width: 600px
 
-1. リリースに与えるバージョン番号を決定する。（例：1.0.1）
+1. リリースに与えるバージョン番号を決定する。（例 : 1.0.1）
 2. 開発用trunk(またはリリース用branch)からソースコードをチェックアウトする。
-3. pom.xml上の<version>タグを変更する。（例：<version>1.0.1</version>）
-4. VCS上にtagを付与する。（例： tags/1.0.1）
+3. pom.xml上の<version>タグを変更する。（例 : <version>1.0.1</version>）
+4. VCS上にtagを付与する。（例 : tags/1.0.1）
 5. コンパイル、コードメトリクスの測定、テストを実行する。
 
   * コンパイルエラー、コードメトリクスでの一定以上のviolationの発生、テストの失敗の場合、以降の作業を中止する。

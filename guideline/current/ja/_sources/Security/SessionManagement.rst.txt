@@ -85,13 +85,15 @@ Webアプリケーションでセッションを扱う場合、一般的には�
   * \ ``HttpServletResponse#encodeURL(String)``\
   * \ ``HttpServletResponse#encodeRedirectURL(String)``\
 
+  このうち、ThymeleafのリンクURL式\ ``@{}``\ も\ ``encodeURL``\ メソッドを呼び出している。
+
   URL Rewritingが行われるとURL内にセッションIDが露出してしまうため、セッションIDを盗まれるリスクが高くなる。そのため、Cookieを使うことができるクライアントのみをサポートする場合は、サーブレットコンテナのURL Rewriting機能を無効化することを推奨する。
 
   なお、Spring Security 5.0.1, 4.2.4, 4.1.5以降では、URLにセミコロンが含まれる場合、無効なリクエストと判断される。そのため、デフォルトの設定ではURL Rewritingによるセッションの共有は行えない。
 
   セミコロンが含まれるURLを許可するように変更することも可能であるが、認証認可のバイパスやReflected File Download(RFD)攻撃に対する脆弱性が発生する可能性があるため、推奨しない。
 
-  詳細は、\ `StrictHttpFirewall#setAllowSemicolon <https://docs.spring.io/spring-security/site/docs/6.0.1/api/org/springframework/security/web/firewall/StrictHttpFirewall.html#setAllowSemicolon-boolean->`_\ を参照されたい。
+  詳細は、\ `StrictHttpFirewall#setAllowSemicolon <https://docs.spring.io/spring-security/site/docs/6.2.1/api/org/springframework/security/web/firewall/StrictHttpFirewall.html#setAllowSemicolon-boolean->`_\ を参照されたい。
 
 |
 
@@ -122,7 +124,7 @@ Spring Securityが提供するセッション管理機能
 Spring Securityでは、セッションについて、主に以下の機能が提供されている。
 
 .. tabularcolumns:: |p{0.25\linewidth}|p{0.75\linewidth}|
-.. list-table:: **セッションに関する提供機能**
+.. list-table:: \ **セッションに関する提供機能**\
   :header-rows: 1
   :widths: 25 75
 
@@ -157,22 +159,50 @@ Spring SecurityによるURL Rewriting機能の無効化
 | Spring SecurityはURL Rewritingを無効化するための仕組みを提供しており、この機能はデフォルトで適用されている。
 | Cookieを使えないクライアントをサポートする必要がある場合は、URL Rewritingを許可するようにBean定義する。
 
-* spring-security.xmlの定義例
+.. tabs::
+  .. group-tab:: Java Config
 
-.. code-block:: xml
+    * SpringSecurityConfig.javaの定義例
+    
+    .. code-block:: java
 
-  <sec:http request-matcher="ant" disable-url-rewriting="false"> <!-- falseを指定してURL Rewritingを有効化 -->
+      @Bean
+      public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
+          // omitted
+          http.sessionManagement(sessionManagement -> sessionManagement.enableSessionUrlRewriting(true)); // (1)
+          // omitted
+          return http.build();
+      }
 
-.. tabularcolumns:: |p{0.10\linewidth}|p{0.90\linewidth}|
-.. list-table::
-  :header-rows: 1
-  :widths: 10 90
+    .. tabularcolumns:: |p{0.10\linewidth}|p{0.90\linewidth}|
+    .. list-table::
+      :header-rows: 1
+      :widths: 10 90
+    
+      * - 項番
+        - 説明
+      * - | (1)
+        - | Spring Securityのデフォルトでは、\ ``enableSessionUrlRewriting``\ の値は\ ``false``\ であるため、URL Rewritingは行われない。
+          | URL Rewritingを有効にする際は、\ ``HttpSecurity#sessionManagement``\ で\ ``SessionManagementConfigurer#enableSessionUrlRewriting``\ に\ ``true``\ を設定する。
 
-  * - 項番
-    - 説明
-  * - | (1)
-    - | Spring Securityのデフォルトでは、\ ``disable-url-rewriting``\ の値は \ ``true``\ であるため、URL Rewritingは行われない。
-      | URL Rewritingを有効にする際は、\ ``<sec:http>``\ 要素の \ ``disable-url-rewriting``\ 属性に\ ``false``\ を設定する。
+  .. group-tab:: XML Config
+
+    * spring-security.xmlの定義例
+    
+    .. code-block:: xml
+    
+      <sec:http request-matcher="ant" disable-url-rewriting="false"> <!-- falseを指定してURL Rewritingを有効化 -->
+    
+    .. tabularcolumns:: |p{0.10\linewidth}|p{0.90\linewidth}|
+    .. list-table::
+      :header-rows: 1
+      :widths: 10 90
+    
+      * - 項番
+        - 説明
+      * - | (1)
+        - | Spring Securityのデフォルトでは、\ ``disable-url-rewriting``\ の値は \ ``true``\ であるため、URL Rewritingは行われない。
+          | URL Rewritingを有効にする際は、\ ``<sec:http>``\ 要素の \ ``disable-url-rewriting``\ 属性に\ ``false``\ を設定する。
 
 |
 
@@ -206,7 +236,7 @@ Servletの標準仕様の仕組みを使ってセッションをセキュアに�
   * - | (3)
     - | URL Rewriting機能を無効化する場合は、\ ``<tracking-mode>``\ 要素に\ ``COOKIE``\ を指定する。
 
-| 上記の定義例からは省略しているが、\ ``<cookie-config>``\ に \ ``<secure>true</secure>``\を追加することで、 Cookieに\ ``Secure``\ 属性を付与することができる。
+| 上記の定義例からは省略しているが、\ ``<cookie-config>``\ に \ ``<secure>true</secure>``\ を追加することで、 Cookieに\ ``Secure``\ 属性を付与することができる。
 | ただし、cookieのsecure化は、\ ``web.xml``\ で指定するのではなく、クライアントとHTTPS通信を行うミドルウェア(SSLアクセラレータやWebサーバーなど)で付与する方法を検討されたい。
 
 | 実際のシステム開発の現場において、ローカルの開発環境でHTTPSを使うケースはほとんどない。
@@ -222,26 +252,54 @@ Servletの標準仕様の仕組みを使ってセッションをセキュアに�
 | Spring Securityのセッション管理機能を適用する方法を説明する。
 | Spring Securityのセッション管理機能の処理を使用する場合は、以下のようなbean定義を行う。
 
-* spring-security.xmlの定義例
+.. tabs::
+  .. group-tab:: Java Config
 
-.. code-block:: xml
+    * SpringSecurityConfig.javaの定義例
+    
+    .. code-block:: java
 
-  <sec:http request-matcher="ant">
-      <!-- ommited -->
-      <sec:session-management /> <!-- (1) -->
-      <!-- ommited -->
-  </sec:http>
+      @Bean
+      public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
+          // omitted
+          http.sessionManagement(Customizer.withDefaults()); // (1)
+          // omitted  
+          return http.build();
+      }
 
-.. tabularcolumns:: |p{0.10\linewidth}|p{0.90\linewidth}|
-.. list-table::
-  :header-rows: 1
-  :widths: 10 90
+    .. tabularcolumns:: |p{0.10\linewidth}|p{0.90\linewidth}|
+    .. list-table::
+      :header-rows: 1
+      :widths: 10 90
+    
+      * - 項番
+        - 説明
+      * - | (1)
+        - | \ ``HttpSecurity#sessionManagement``\ を指定する。
+          | \ ``HttpSecurity#sessionManagement``\ を指定すると、セッション管理機能が適用される。
 
-  * - 項番
-    - 説明
-  * - | (1)
-    - | \ ``<sec:http>``\ 要素の子要素として\ ``<sec:session-management>``\ 要素を指定する。
-      | \ ``<sec:session-management>``\ 要素を指定すると、セッション管理機能が適用される。
+  .. group-tab:: XML Config
+
+    * spring-security.xmlの定義例
+    
+    .. code-block:: xml
+    
+      <sec:http request-matcher="ant">
+          <!-- ommited -->
+          <sec:session-management /> <!-- (1) -->
+          <!-- ommited -->
+      </sec:http>
+    
+    .. tabularcolumns:: |p{0.10\linewidth}|p{0.90\linewidth}|
+    .. list-table::
+      :header-rows: 1
+      :widths: 10 90
+    
+      * - 項番
+        - 説明
+      * - | (1)
+        - | \ ``<sec:http>``\ 要素の子要素として\ ``<sec:session-management>``\ 要素を指定する。
+          | \ ``<sec:session-management>``\ 要素を指定すると、セッション管理機能が適用される。
 
 |
 
@@ -271,22 +329,50 @@ Spring Securityは、セッション固定攻撃対策として、ログイン�
 
 デフォルトの動作を変更したい場合は、以下のようなbean定義を行う。
 
-* spring-security.xmlの定義例
+.. tabs::
+  .. group-tab:: Java Config
 
-.. code-block:: xml
+    * SpringSecurityConfig.javaの定義例
+    
+    .. code-block:: java
 
-  <sec:session-management
-          session-fixation-protection="newSession"/> <!-- (1) -->
+      @Bean
+      public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
+          // omitted  
+          http.sessionManagement(sessionManagement -> sessionManagement
+                  .sessionFixation(fixation -> fixation.newSession())); // (1)
+          // omitted
+          return http.build();
+      }
+   
+    .. tabularcolumns:: |p{0.10\linewidth}|p{0.90\linewidth}|
+    .. list-table::
+      :header-rows: 1
+      :widths: 10 90
+    
+      * - 項番
+        - 説明
+      * - | (1)
+        - | \ ``SessionManagementConfigurer#sessionFixation``\ で\ ``SessionFixationConfigurer``\ にセッション固定攻撃の対策方法を指定する。
 
-.. tabularcolumns:: |p{0.10\linewidth}|p{0.90\linewidth}|
-.. list-table::
-  :header-rows: 1
-  :widths: 10 90
+  .. group-tab:: XML Config
 
-  * - 項番
-    - 説明
-  * - | (1)
-    - | \ ``<sec:session-management>``\ 要素の\ ``session-fixation-protection``\ 属性にセッション固定攻撃の対策方法を指定する。
+    * spring-security.xmlの定義例
+    
+    .. code-block:: xml
+    
+      <sec:session-management
+              session-fixation-protection="newSession"/> <!-- (1) -->
+    
+    .. tabularcolumns:: |p{0.10\linewidth}|p{0.90\linewidth}|
+    .. list-table::
+      :header-rows: 1
+      :widths: 10 90
+    
+      * - 項番
+        - 説明
+      * - | (1)
+        - | \ ``<sec:session-management>``\ 要素の\ ``session-fixation-protection``\ 属性にセッション固定攻撃の対策方法を指定する。
 
 |
 
@@ -328,23 +414,52 @@ Spring Securityの処理の中でどのような方針でセッションを作�
 
 デフォルトの振る舞いを変更したい場合は、以下のようなbean定義を行う。
 
-* spring-security.xmlの定義例
+.. tabs::
+  .. group-tab:: Java Config
 
-.. code-block:: xml
+    * SpringSecurityConfig.javaの定義例
+    
+    .. code-block:: java
 
-  <sec:http request-matcher="ant" create-session="stateless"> <!-- (1) -->
-      <!-- ommited -->
-  </sec:http>
+      @Bean
+      public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
+          // omitted  
+          http.sessionManagement(sessionManagement -> sessionManagement
+                  .sessionCreationPolicy(SessionCreationPolicy.STATELESS)); // (1)
+          // omitted
+  
+          return http.build();
+      }
+    
+    .. tabularcolumns:: |p{0.10\linewidth}|p{0.90\linewidth}|
+    .. list-table::
+      :header-rows: 1
+      :widths: 10 90
+    
+      * - 項番
+        - 説明
+      * - | \ (1)
+        - | \ ``SessionManagementConfigurer#sessionCreationPolicy``\ に、変更したいセッションの作成方針を指定する。
 
-.. tabularcolumns:: |p{0.10\linewidth}|p{0.90\linewidth}|
-.. list-table::
-  :header-rows: 1
-  :widths: 10 90
+  .. group-tab:: XML Config
 
-  * - 項番
-    - 説明
-  * - | \ (1)
-    - | \ ``<sec:http>``\ 要素の\ ``create-session``\ 属性に、変更したいセッションの作成方針を指定する。
+    * spring-security.xmlの定義例
+    
+    .. code-block:: xml
+    
+      <sec:http request-matcher="ant" create-session="stateless"> <!-- (1) -->
+          <!-- ommited -->
+      </sec:http>
+    
+    .. tabularcolumns:: |p{0.10\linewidth}|p{0.90\linewidth}|
+    .. list-table::
+      :header-rows: 1
+      :widths: 10 90
+    
+      * - 項番
+        - 説明
+      * - | \ (1)
+        - | \ ``<sec:http>``\ 要素の\ ``create-session``\ 属性に、変更したいセッションの作成方針を指定する。
 
 |
 
@@ -405,22 +520,51 @@ Spring Securityは、以下のタイミングでセッションを破棄する�
 | 無効なセッションとして扱われるリクエストの大部分は、セッションタイムアウト後のリクエストである。
 | デフォルトではこの機能は無効になっているが、以下のようなbean定義を行うことで有効化することができる。
 
-* spring-security.xmlの定義例
+.. tabs::
+  .. group-tab:: Java Config
 
-.. code-block:: xml
+    * SpringSecurityConfig.javaの定義例
+    
+    .. code-block:: java
 
-  <sec:session-management
-          invalid-session-url="/error/invalidSession"/>
+      @Bean
+      public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
+          // omitted  
+          http.sessionManagement(sessionManagement -> sessionManagement
+                  .invalidSessionUrl("/error/invalidSession")); // (1)
+          // omitted
+          return http.build();
+      }
+    
+    .. tabularcolumns:: |p{0.10\linewidth}|p{0.90\linewidth}|
+    .. list-table::
+      :header-rows: 1
+      :widths: 10 90
+    
+      * - 項番
+        - 説明
+      * - | (1)
+        - | \ ``SessionManagementConfigurer#invalidSessionUrl``\ に、無効なセッションを使ったリクエストを検知した際のリダイレクト先のパスを指定する。
 
-.. tabularcolumns:: |p{0.10\linewidth}|p{0.90\linewidth}|
-.. list-table::
-  :header-rows: 1
-  :widths: 10 90
+  .. group-tab:: XML Config
 
-  * - 項番
-    - 説明
-  * - | (1)
-    - | \ ``<sec:session-management>``\ 要素の\ ``invalid-session-url``\ 属性に、無効なセッションを使ったリクエストを検知した際のリダイレクト先のパスを指定する。
+    * spring-security.xmlの定義例
+    
+    .. code-block:: xml
+    
+      <!-- (1) -->
+      <sec:session-management
+              invalid-session-url="/error/invalidSession"/>
+    
+    .. tabularcolumns:: |p{0.10\linewidth}|p{0.90\linewidth}|
+    .. list-table::
+      :header-rows: 1
+      :widths: 10 90
+    
+      * - 項番
+        - 説明
+      * - | (1)
+        - | \ ``<sec:session-management>``\ 要素の\ ``invalid-session-url``\ 属性に、無効なセッションを使ったリクエストを検知した際のリダイレクト先のパスを指定する。
 
 |
 
@@ -431,38 +575,83 @@ Spring Securityは、以下のタイミングでセッションを破棄する�
 | そのため、セッションが無効な状態でアクセスしても問題がないページにアクセスした場合もチェックが行われる。
 
 | この動作を変更したい場合は、チェック対象から除外したいパスに対して個別にbean定義を行うことで実現することが可能である。
-| 例として、トップページを開くためのパス("\ ``/``\" )を除外パスに指定したい場合は、以下のようなbean定義を行う。
+| 例として、トップページを開くためのパス("\ ``/``\ ")を除外パスに指定したい場合は、以下のようなbean定義を行う。
 
-* spring-security.xmlの定義例
+.. tabs::
+  .. group-tab:: Java Config
 
-.. code-block:: xml
+    * SpringSecurityConfig.javaの定義例
+    
+    .. code-block:: java
 
-  <!-- (1) -->
-  <sec:http pattern="/" request-matcher="ant">
-      <sec:session-management />
-  </sec:http>
+      // (1)
+      @Order(1)
+      @Bean
+      public SecurityFilterChain filterChainTopPage(HttpSecurity http) throws Exception {
+          http.securityMatcher(new AntPathRequestMatcher("/"));
+          // omitted
+          http.sessionManagement(Customizer.withDefaults());
+          // omitted
+          return http.build();
+      }
 
-  <!-- (2) -->
-  <sec:http request-matcher="ant">
-      <!-- ommited -->
-      <sec:session-management
-              invalid-session-url="/error/invalidSession"/>
-      <!-- ommited -->
-  </sec:http>
+      // (2)
+      @Order(2)
+      @Bean
+      public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
+          // omitted
+          http.sessionManagement(sessionManagement -> sessionManagement
+                  .invalidSessionUrl("/error/invalidSession"));
+          // omitted
+          return http.build();
+      }
+    
+    .. tabularcolumns:: |p{0.10\linewidth}|p{0.90\linewidth}|
+    .. list-table::
+      :header-rows: 1
+      :widths: 10 90
+    
+      * - 項番
+        - 説明
+      * - | (1)
+        - | トップページを開くためのパス("\ ``/``\ ")に適用する\ ``SecurityFilterChain``\ を作成するための\ ``SecurityFilterChain``\ を新たに追加する。
+      * - | (2)
+        - | 個別定義していないパスに適用する\ ``SecurityFilterChain``\ を定義する。
+          | この定義は、(1)の定義より下に定義すること。上記例ではさらに\ ``@Order``\ により読み込み順を指定している。
+          | これは\ ``SecurityFilterChain``\ の定義順番が\ ``SecurityFilterChain``\ の優先順位となるためである。
 
-.. tabularcolumns:: |p{0.10\linewidth}|p{0.90\linewidth}|
-.. list-table::
-  :header-rows: 1
-  :widths: 10 90
+  .. group-tab:: XML Config
 
-  * - 項番
-    - 説明
-  * - | (1)
-    - | トップページを開くためのパス("\ ``/``\ ")に適用する\ ``SecurityFilterChain``\ を作成するための\ ``<sec:http>``\ 要素を新たに追加する。
-  * - | (2)
-    - | 個別定義していないパスに適用する\ ``SecurityFilterChain``\ を作成するための\ ``<sec:http>``\ 要素を定義する。
-      | この定義は、個別定義用の\ ``<sec:http>``\ 要素より下に定義すること。
-      | これは\ ``<sec:http>``\ 要素の定義順番が\ ``SecurityFilterChain``\ の優先順位となるためである。
+    * spring-security.xmlの定義例
+    
+    .. code-block:: xml
+    
+      <!-- (1) -->
+      <sec:http pattern="/" request-matcher="ant">
+          <sec:session-management />
+      </sec:http>
+    
+      <!-- (2) -->
+      <sec:http request-matcher="ant">
+          <!-- ommited -->
+          <sec:session-management
+                  invalid-session-url="/error/invalidSession"/>
+          <!-- ommited -->
+      </sec:http>
+    
+    .. tabularcolumns:: |p{0.10\linewidth}|p{0.90\linewidth}|
+    .. list-table::
+      :header-rows: 1
+      :widths: 10 90
+    
+      * - 項番
+        - 説明
+      * - | (1)
+        - | トップページを開くためのパス("\ ``/``\ ")に適用する\ ``SecurityFilterChain``\ を作成するための\ ``<sec:http>``\ 要素を新たに追加する。
+      * - | (2)
+        - | 個別定義していないパスに適用する\ ``SecurityFilterChain``\ を作成するための\ ``<sec:http>``\ 要素を定義する。
+          | この定義は、個別定義用の\ ``<sec:http>``\ 要素より下に定義すること。
+          | これは\ ``<sec:http>``\ 要素の定義順番が\ ``SecurityFilterChain``\ の優先順位となるためである。
 
 |
 
@@ -531,30 +720,59 @@ Spring Securityは、以下のタイミングでセッションを破棄する�
 
 * bean定義ファイルの定義例
 
-.. code-block:: xml
+.. tabs::
+  .. group-tab:: Java Config
 
-  <sec:session-management>
-      <sec:concurrency-control
-              max-sessions="1"
-              error-if-maximum-exceeded="true"/> <!-- (1) (2) -->
-  </sec:session-management>
+    .. code-block:: java
 
-.. tabularcolumns:: |p{0.10\linewidth}|p{0.90\linewidth}|
-.. list-table::
-  :header-rows: 1
-  :widths: 10 90
+      @Bean
+      public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
+          // omitted  
+          http.sessionManagement(sessionManagement -> sessionManagement
+                  .sessionConcurrency(sessionConcurrency -> sessionConcurrency
+                          .maximumSessions(2) // (1)
+                          .maxSessionsPreventsLogin(true))); // (2)
+            // omitted
+          return http.build();
+      }
+    
+    .. tabularcolumns:: |p{0.10\linewidth}|p{0.90\linewidth}|
+    .. list-table::
+      :header-rows: 1
+      :widths: 10 90
+    
+      * - 項番
+        - 説明
+      * - | \ (1)
+        - | \ ``ConcurrencyControlConfigurer#maximumSessions``\ に、同時にログインを許可するセッション数を指定する。
+          | 多重ログインを防ぎたい場合は"\ ``1``\ "を指定する。
+      * - | \ (2)
+        - | \ ``ConcurrencyControlConfigurer#maxSessionsPreventsLogin``\ に、同時にログインできるセッション数を超えた時の動作を指定する。
+          | 既にログインしているユーザーを有効なユーザーとして扱う場合は、\ ``true``\ を指定する。(デフォルト\ ``false``\ )
 
-  * - 項番
-    - 説明
-  * - \ (1)
-    - \ ``<sec:concurrency-control>``\ 要素の\ ``max-sessions``\ 属性に、同時にログイン
-      を許可するセッション数を指定する。
-      多重ログインを防ぎたい場合は、通常"\ ``1``\ " を指定する。
-  * - \ (2)
-    - \ ``<sec:concurrency-control>``\ 要素の\ ``error-if-maximum-exceeded``\ 属性に、
-      同時にログインできるセッション数を超えた時の動作を指定する。
-      既にログインしているユーザーを有効なユーザーとして扱う場合は、\ ``true``\
-      を指定する。
+  .. group-tab:: XML Config
+
+    .. code-block:: xml
+    
+      <sec:session-management>
+          <sec:concurrency-control
+                  max-sessions="1"
+                  error-if-maximum-exceeded="true"/> <!-- (1) (2) -->
+      </sec:session-management>
+    
+    .. tabularcolumns:: |p{0.10\linewidth}|p{0.90\linewidth}|
+    .. list-table::
+      :header-rows: 1
+      :widths: 10 90
+    
+      * - 項番
+        - 説明
+      * - | \ (1)
+        - | \ ``<sec:concurrency-control>``\ 要素の\ ``max-sessions``\ 属性に、同時にログインを許可するセッション数を指定する。
+          | 多重ログインを防ぎたい場合は"\ ``1``\ "を指定する。
+      * - | \ (2)
+        - | \ ``<sec:concurrency-control>``\ 要素の\ ``error-if-maximum-exceeded``\ 属性に、同時にログインできるセッション数を超えた時の動作を指定する。
+          | 既にログインしているユーザーを有効なユーザーとして扱う場合は、\ ``true``\ を指定する。(デフォルト\ ``false``\ )
 
 |
 
@@ -563,30 +781,59 @@ Spring Securityは、以下のタイミングでセッションを破棄する�
 
 同じユーザー名(ログインID)を使って既にログインしているユーザーがいる場合に、既にログインしているユーザーを無効化することで多重ログインを防ぐ場合は、以下のようなbean定義を行う。
 
-* spring-security.xmlの定義例
+.. tabs::
+  .. group-tab:: Java Config
 
-.. code-block:: xml
+    .. code-block:: java
 
-  <sec:session-management>
-      <sec:concurrency-control
-              max-sessions="1"
-              error-if-maximum-exceeded="false"
-              expired-url="/error/expire"/> <!-- (1) (2) -->
-  </sec:session-management>
+      @Bean
+      public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
+          // omitted  
+          http.sessionManagement(sessionManagement -> sessionManagement
+                  .sessionConcurrency(sessionConcurrency -> sessionConcurrency
+                          .maximumSessions(1)
+                          .maxSessionsPreventsLogin(false) // (1)
+                          .expiredUrl("/error/expire"))); // (2)
+            // omitted
+          return http.build();
+      }
+    
+    .. tabularcolumns:: |p{0.10\linewidth}|p{0.90\linewidth}|
+    .. list-table::
+      :header-rows: 1
+      :widths: 10 90
+    
+      * - 項番
+        - 説明
+      * - | \ (1)
+        - | \ ``ConcurrencyControlConfigurer#maxSessionsPreventsLogin``\ に、同時にログインできるセッション数を超えた時の動作を指定する。
+          | 新たにログインしたユーザーを有効なユーザーとして扱う場合は、\ ``false``\ を指定する。(デフォルト\ ``false``\ )
+      * - | (2)
+        - | \ ``ConcurrencyControlConfigurer#expiredUrl``\ に、無効化されたユーザーからのリクエストを検知した際のリダイレクト先のパスを指定する。
 
-.. tabularcolumns:: |p{0.10\linewidth}|p{0.90\linewidth}|
-.. list-table::
-  :header-rows: 1
-  :widths: 10 90
+  .. group-tab:: XML Config
 
-  * - 項番
-    - 説明
-  * - | (1)
-    - | \ ``<sec:concurrency-control>``\ 要素の\ ``error-if-maximum-exceeded``\ 属性に、同時にログインできるセッション数を超えた時の動作を指定する。
-      | 新たにログインしたユーザーを有効なユーザーとして扱う場合は、\ ``false``\ を指定する。
-  * - | (2)
-    - | \ ``<sec:concurrency-control>``\ 要素の\ ``expired-url``\ 属性に、無効化されたユーザーからのリクエストを検知した際のリダイレクト先のパスを指定する。
-      | これは\ ``<sec:http>``\ 要素の定義順番が\ ``SecurityFilterChain``\ の優先順位となるためである。
+    .. code-block:: xml
+    
+      <sec:session-management>
+          <sec:concurrency-control
+                  max-sessions="1"
+                  error-if-maximum-exceeded="false"
+                  expired-url="/error/expire"/> <!-- (1) (2) -->
+      </sec:session-management>
+    
+    .. tabularcolumns:: |p{0.10\linewidth}|p{0.90\linewidth}|
+    .. list-table::
+      :header-rows: 1
+      :widths: 10 90
+    
+      * - 項番
+        - 説明
+      * - | \ (1)
+        - | \ ``<sec:concurrency-control>``\ 要素の\ ``max-sessions``\ 属性に、同時にログインを許可するセッション数を指定する。
+          | 新たにログインしたユーザーを有効なユーザーとして扱う場合は、\ ``false``\ を指定する。(デフォルト\ ``false``\ )
+      * - | \ (2)
+        - | \ ``<sec:concurrency-control>``\ 要素の\ ``error-if-maximum-exceeded``\ 属性に、無効化されたユーザーからのリクエストを検知した際のリダイレクト先のパスを指定する。
 
 .. raw:: latex
 

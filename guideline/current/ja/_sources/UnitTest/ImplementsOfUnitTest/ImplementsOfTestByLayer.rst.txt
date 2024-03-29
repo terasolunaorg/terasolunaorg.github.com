@@ -99,8 +99,8 @@ Repositoryの単体テスト
 | ここでは、以下の成果物に対するテストを例に説明する。
 | なお、Repositoryの実装の詳細は、\ :ref:`repository-mybatis3-label`\ を参照されたい。
 
-* \ ``Repository``\ インタフェース（\ ``MemberRepository``\）の更新処理（\ ``updateMemberLogin``\ メソッド）
-* マッピングファイル（\ ``MemberRepository.xml``\）
+* \ ``Repository``\ インタフェース（\ ``MemberRepository``\ ）の更新処理（\ ``updateMemberLogin``\ メソッド）
+* マッピングファイル（\ ``MemberRepository.xml``\ ）
 
 以下に、テスト対象の実装例を示す。
 
@@ -140,179 +140,431 @@ Spring Test標準機能のみを利用したテスト
 | なお、データベースのセットアップ方法については\ :ref:`PreparationForTestDataSetupWithSpringTest` \ を参照されたい。
 | また、Spring Testを使用して単体テストを行う際に使用する設定ファイルは\ :ref:`PreparationForTestMakeSettingFileForSpringTest`\ を参照されたい。
 
-.. figure:: ./images_ImplementsOfTestByLayer/ImplementsOfTestByLayerRepositorySpringTestItems.png
+.. tabs::
+  .. group-tab:: Java Config
 
-.. tabularcolumns:: |p{0.35\linewidth}|p{0.65\linewidth}|
-.. list-table::
-  :header-rows: 1
-  :widths: 35 65
+    .. figure:: ./images_ImplementsOfTestByLayer/ImplementsOfTestByLayerRepositorySpringTestItems_JavaConfig.png
 
-  * - 作成するファイル名
-    - 説明
-  * - \ ``MemberRepositoryTest.java``\
-    - \ ``MemberRepository.java``\ のテストクラス。
-  * - \ ``test-context.xml``\ 
-    - Spring Testを使用して単体テストを行う際に必要な設定を補うための設定ファイル。
-  * - \ ``setupMemberLogin.sql``\
-    - 単体テストで利用するデータベースのデータをセットアップするためのSQLファイル。
+    .. tabularcolumns:: |p{0.35\linewidth}|p{0.65\linewidth}|
+    .. list-table::
+      :header-rows: 1
+      :widths: 35 65
 
-.. note:: \ **単体テストで利用するSQLファイルの作成単位**\
+      * - 作成するファイル名
+        - 説明
+      * - \ ``MemberRepositoryTest.java``\
+        - \ ``MemberRepository.java``\ のテストクラス。
+      * - \ ``TestContextConfig.java``\ 
+        - Spring Testを使用して単体テストを行う際に必要な設定を補うための設定ファイル。
+      * - \ ``setupMemberLogin.sql``\
+        - 単体テストで利用するデータベースのデータをセットアップするためのSQLファイル。
 
-  ここでは、1テストメソッドに1つのSQLを作成している。実際の作成単位については、テスト方針や内容に応じて適宜検討されたい。
+    .. note:: \ **単体テストで利用するSQLファイルの作成単位**\
 
-  なお、\ ``@Sql``\ にSQLファイルパスを省略した場合、\ ``@Sql``\ の指定場所に基づいてSQLファイルの検索が行われる。
+      ここでは、1テストメソッドに1つのSQLを作成している。実際の作成単位については、テスト方針や内容に応じて適宜検討されたい。なお、\ ``@Sql``\ にSQLファイルパスを省略した場合、\ ``@Sql``\ の指定場所に基づいてSQLファイルの検索が行われる。
 
-  詳細は、\ :ref:`@SqlのSQLファイルパスの省略<PreparationForTestNoteOmittedSqlFilePath>`\ を参照されたい。
+      詳細は、\ :ref:`@SqlのSQLファイルパスの省略<PreparationForTestNoteOmittedSqlFilePath>`\ を参照されたい。
 
-|
+    |
 
-Spring Testを使用する場合の\ ``Repository``\ のテストクラス作成方法を説明する。
+    Spring Testを使用する場合の\ ``Repository``\ のテストクラス作成方法を説明する。
 
-以下に、データアクセスを利用してテストするために使用する設定ファイルを示す。
+    以下に、データアクセスを利用してテストするために使用する設定ファイルを示す。
 
-* \ ``sample-infra.xml``\
+    * \ ``SampleInfraConfig.java``\
 
-.. code-block:: xml
+    .. code-block:: java
 
-  <import resource="classpath:/META-INF/spring/sample-env.xml" />
+      @Bean
+      public MapperScannerConfigurer mapperScannerConfigurer() {
+          MapperScannerConfigurer bean = new MapperScannerConfigurer();
+          bean.setBasePackage("com.example.domain.repository");
+          return bean;
+      }
 
-  <!-- define the SqlSessionFactory -->
-  <bean id="sqlSessionFactory" class="org.mybatis.spring.SqlSessionFactoryBean">
-    <property name="dataSource" ref="dataSource" />
-    <property name="configLocation" value="classpath:/META-INF/mybatis/mybatis-config.xml" />
-  </bean>
+      @Bean("sqlSessionFactory")
+      public SqlSessionFactoryBean sqlSessionFactory(DataSource dataSource) {
+          SqlSessionFactoryBean bean = new SqlSessionFactoryBean();
+          bean.setDataSource(dataSource);
+          bean.setConfiguration(MybatisConfig.configuration());
+          return bean;
+      }
 
-  <!-- scan for Mappers -->
-  <mybatis:scan base-package="com.example.domain.repository" />
+    * \ ``SampleEnvConfig.java``\
 
-* \ ``sample-env.xml``\
+    .. code-block:: java
 
-.. code-block:: xml
+      /**
+       * DataSource.driverClassName property.
+       */
+      @Value("${database.driverClassName}")
+      private String driverClassName;
 
-  <bean id="dataSource" class="org.apache.commons.dbcp2.BasicDataSource" destroy-method="close">
-    <property name="driverClassName" value="org.postgresql.Driver" />
-    <property name="url" value="jdbc:postgresql://localhost:5432/sample" />
-    <property name="username" value="sample" />
-    <property name="password" value="xxxx" />
-    <property name="defaultAutoCommit" value="false" />
-    <property name="maxTotal" value="96" />
-    <property name="maxIdle" value="16" />
-    <property name="minIdle" value="0" />
-    <property name="maxWaitMillis" value="60000" />
-  </bean>
+      /**
+       * DataSource.url property.
+       */
+      @Value("${database.url}")
+      private String url;
 
-  <bean id="transactionManager" class="org.springframework.jdbc.datasource.DataSourceTransactionManager">
-    <property name="dataSource" ref="dataSource" />
-  </bean>
+      /**
+       * DataSource.username property.
+       */
+      @Value("${database.username}")
+      private String username;
 
-  <bean id="dateFactory" class="org.terasoluna.gfw.common.time.DefaultClockFactory" />
+      /**
+       * DataSource.password property.
+       */
+      @Value("${database.password}")
+      private String password;
+
+      /**
+       * DataSource.maxTotal property.
+       */
+      @Value("${cp.maxActive}")
+      private Integer maxActive;
+
+      /**
+       * DataSource.maxIdle property.
+       */
+      @Value("${cp.maxIdle}")
+      private Integer maxIdle;
+
+      /**
+       * DataSource.minIdle property.
+       */
+      @Value("${cp.minIdle}")
+      private Integer minIdle;
+
+      /**
+       * DataSource.maxWaitMillis property.
+       */
+      @Value("${cp.maxWait}")
+      private Integer maxWait;
+
+      /**
+       * Property databaseName.
+       */
+      @Value("${database}")
+      private String database;
+
+      /**
+       * Configure {@link TransactionManager} bean.
+       * @param dataSource Bean defined by #dataSource()
+       * @see #dataSource()
+       * @return Bean of configured {@link DataSourceTransactionManager}
+       */
+      @Bean("transactionManager")
+      public TransactionManager transactionManager(DataSource dataSource) {
+          DataSourceTransactionManager bean = new DataSourceTransactionManager();
+          bean.setDataSource(dataSource);
+          return bean;
+      }
+
+      /**
+       * Configure {@link ClockFactory} bean.
+       * @return Bean of configured {@link DefaultClockFactory}
+       */
+      @Bean("dateFactory")
+      public ClockFactory dateFactory() {
+          return new DefaultClockFactory();
+      }
+
+      /**
+       * Configure {@link DataSource} bean.
+       * @return Bean of configured {@link BasicDataSource}
+       */
+      @Bean(name = "dataSource", destroyMethod = "close")
+      public DataSource dataSource() {
+          BasicDataSource bean = new BasicDataSource();
+          bean.setDriverClassName(driverClassName);
+          bean.setUrl(url);
+          bean.setUsername(username);
+          bean.setPassword(password);
+          bean.setDefaultAutoCommit(false);
+          bean.setMaxTotal(maxActive);
+          bean.setMaxIdle(maxIdle);
+          bean.setMinIdle(minIdle);
+          bean.setMaxWait(Duration.ofMillis(maxWait));
+          return bean;
+      }
+
+  .. group-tab:: XML Config
+   
+    .. figure:: ./images_ImplementsOfTestByLayer/ImplementsOfTestByLayerRepositorySpringTestItems.png
+
+    .. tabularcolumns:: |p{0.35\linewidth}|p{0.65\linewidth}|
+    .. list-table::
+      :header-rows: 1
+      :widths: 35 65
+
+      * - 作成するファイル名
+        - 説明
+      * - \ ``MemberRepositoryTest.java``\
+        - \ ``MemberRepository.java``\ のテストクラス。
+      * - \ ``test-context.xml``\ 
+        - Spring Testを使用して単体テストを行う際に必要な設定を補うための設定ファイル。
+      * - \ ``setupMemberLogin.sql``\
+        - 単体テストで利用するデータベースのデータをセットアップするためのSQLファイル。
+
+    .. note:: \ **単体テストで利用するSQLファイルの作成単位**\
+
+      ここでは、1テストメソッドに1つのSQLを作成している。実際の作成単位については、テスト方針や内容に応じて適宜検討されたい。なお、\ ``@Sql``\ にSQLファイルパスを省略した場合、\ ``@Sql``\ の指定場所に基づいてSQLファイルの検索が行われる。
+
+      詳細は、\ :ref:`@SqlのSQLファイルパスの省略<PreparationForTestNoteOmittedSqlFilePath>`\ を参照されたい。
+
+    |
+
+    Spring Testを使用する場合の\ ``Repository``\ のテストクラス作成方法を説明する。
+
+    以下に、データアクセスを利用してテストするために使用する設定ファイルを示す。
+
+    * \ ``sample-infra.xml``\
+
+    .. code-block:: xml
+
+      <import resource="classpath:/META-INF/spring/sample-env.xml" />
+
+      <!-- define the SqlSessionFactory -->
+      <bean id="sqlSessionFactory" class="org.mybatis.spring.SqlSessionFactoryBean">
+        <property name="dataSource" ref="dataSource" />
+        <property name="configLocation" value="classpath:/META-INF/mybatis/mybatis-config.xml" />
+      </bean>
+
+      <!-- scan for Mappers -->
+      <mybatis:scan base-package="com.example.domain.repository" />
+
+    * \ ``sample-env.xml``\
+
+    .. code-block:: xml
+
+      <bean id="dataSource" class="org.apache.commons.dbcp2.BasicDataSource" destroy-method="close">
+        <property name="driverClassName" value="org.postgresql.Driver" />
+        <property name="url" value="jdbc:postgresql://localhost:5432/sample" />
+        <property name="username" value="sample" />
+        <property name="password" value="xxxx" />
+        <property name="defaultAutoCommit" value="false" />
+        <property name="maxTotal" value="96" />
+        <property name="maxIdle" value="16" />
+        <property name="minIdle" value="0" />
+        <property name="maxWait" >
+          <bean class="java.time.Duration" factory-method="ofMillis">
+            <constructor-arg value="60000" />
+          </bean>
+        </property>
+      </bean>
+
+      <bean id="transactionManager" class="org.springframework.jdbc.datasource.DataSourceTransactionManager">
+        <property name="dataSource" ref="dataSource" />
+      </bean>
+
+      <bean id="dateFactory" class="org.terasoluna.gfw.common.time.DefaultClockFactory" />
 
 | 以下に、Spring Testを使用した\ ``Repository``\ のテスト作成方法について説明する。
 | ここでは、テスト用のスキーマは作成済みであることを前提に、\ ``@Sql``\ アノテーションを使用して\ ``MemberLogin``\ テーブルをセットアップし、\ ``MemberLogin``\ のパスワード「ABCDE」が新しいパスワード「FGHIJ」に更新されることを更新後の\ ``MemberLogin``\ テーブルを取得して確認している。
 
-* \ ``MemberRepositoryTest.java``\
+.. tabs::
+  .. group-tab:: Java Config
 
-.. code-block:: java
+    * \ ``MemberRepositoryTest.java``\
 
-  import static org.hamcrest.CoreMatchers.is;
-  import static org.hamcrest.MatcherAssert.assertThat;
+    .. code-block:: java
 
-  @RunWith(SpringJUnit4ClassRunner.class)
-  @ContextConfiguration(locations = {
-          "classpath:META-INF/spring/sample-infra.xml",   //(1)
-          "classpath:META-INF/spring/test-context.xml" }) //(1)
-  @Transactional // (2)
-  public class MemberRepositoryTest {
+      import static org.hamcrest.CoreMatchers.is;
+      import static org.hamcrest.MatcherAssert.assertThat;
 
-      @Inject
-      MemberRepository target; // (3)
+      @RunWith(SpringJUnit4ClassRunner.class)
+      @ContextConfiguration(classes = { TestContextConfig.class, SampleEnvConfig.class, SampleInfraConfig.class }) // (1)
+      @Transactional // (2)
+      public class MemberRepositoryTest {
 
-      @Inject
-      JdbcTemplate jdbctemplate; // (4)
+          @Inject
+          MemberRepository target; // (3)
 
-      @Test
-      @Sql(scripts = "classpath:META-INF/sql/setupMemberLogin.sql", config = @SqlConfig(encoding = "utf-8"))
-      public void testUpdateMemberLogin() {
+          @Inject
+          JdbcTemplate jdbctemplate; // (4)
 
-          // (5)
-          // setup test data
-          MemberLogin memberLogin = new MemberLogin();
-          memberLogin.setPassword("FGHIJ");
-          Member member = new Member();
-          member.setMembershipNumber("0000000001");
-          member.setMemberLogin(memberLogin);
+          @Test
+          @Sql(scripts = "classpath:META-INF/sql/setupMemberLogin.sql", config = @SqlConfig(encoding = "utf-8"))
+          public void testUpdateMemberLogin() {
 
-          // (6)
-          // run the test
-          int updateCounts = target.updateMemberLogin(member);
+              // (5)
+              // setup test data
+              MemberLogin memberLogin = new MemberLogin();
+              memberLogin.setPassword("FGHIJ");
+              Member member = new Member();
+              member.setMembershipNumber("0000000001");
+              member.setMemberLogin(memberLogin);
 
-          // (7)
-          MemberLogin updateMemberLogin = getMemberLogin("0000000001");
+              // (6)
+              // run the test
+              int updateCounts = target.updateMemberLogin(member);
 
-          // (8)
-          // assertion
-          assertThat(updateCounts, is(1));
-          assertThat(updateMemberLogin.getPassword(), is("FGHIJ"));
-          assertThat(updateMemberLogin.getLastPassword(), is("ABCDE"));
-      }
+              // (7)
+              MemberLogin updateMemberLogin = getMemberLogin("0000000001");
 
-      private Member getMemberLogin(String customerNo) {
+              // (8)
+              // assertion
+              assertThat(updateCounts, is(1));
+              assertThat(updateMemberLogin.getPassword(), is("FGHIJ"));
+              assertThat(updateMemberLogin.getLastPassword(), is("ABCDE"));
+          }
 
-          MemberLogin memberLogin = jdbctemplate.queryForObject(
-                  "SELECT * FROM member_login WHERE customer_no=?", 
-                  new RowMapper<MemberLogin>() {
+          private Member getMemberLogin(String customerNo) {
 
-                      public MemberLogin mapRow(ResultSet rs,
-                                  int rowNum) throws SQLException {
+              MemberLogin memberLogin = jdbctemplate.queryForObject(
+                      "SELECT * FROM member_login WHERE customer_no=?", 
+                      new RowMapper<MemberLogin>() {
 
-                              MemberLogin mapMemberLogin = new MemberLogin();
+                          public MemberLogin mapRow(ResultSet rs,
+                                      int rowNum) throws SQLException {
 
-                              mapMemberLogin.setPassword(rs.getString(
-                                      "password"));
-                              mapMemberLogin.setLastPassword(rs.getString(
-                                      "last_password"));
-                              mapMemberLogin.setLoginDateTime(rs.getDate(
-                                      "login_date_time"));
-                              mapMemberLogin.setLoginFlg(rs.getBoolean(
-                                      "login_flg"));
+                                  MemberLogin mapMemberLogin = new MemberLogin();
 
-                              return mapMemberLogin;
-                      }
-                  }, customerNo);
+                                  mapMemberLogin.setPassword(rs.getString(
+                                          "password"));
+                                  mapMemberLogin.setLastPassword(rs.getString(
+                                          "last_password"));
+                                  mapMemberLogin.setLoginDateTime(rs.getDate(
+                                          "login_date_time"));
+                                  mapMemberLogin.setLoginFlg(rs.getBoolean(
+                                          "login_flg"));
 
-          return memberLogin;
-      }
+                                  return mapMemberLogin;
+                          }
+                      }, customerNo);
 
-.. tabularcolumns:: |p{0.10\linewidth}|p{0.90\linewidth}|
-.. list-table::
-  :header-rows: 1
-  :widths: 10 90
+              return memberLogin;
+          }
 
-  * - 項番
-    - 説明
-  * - | (1)
-    - | \ ``MemberRepository``\ クラスを動作させるために必要なアプリケーションが保持する\ ``sample-infra.xml``\ と\ ``test-context.xml``\ を読み込む。
-  * - | (2)
-    - | \ ``@Transactional``\ アノテーションを付与すると、テスト実行開始から終了まで一トランザクションとなり、デフォルトではテスト終了後にロールバックされる。クラスレベルでアノテーションを定義すると、全テストメソッドに対して\ ``@Transactional``\ アノテーションが有効になる。
-  * - | (3)
-    - | テスト対象である\ ``MemberRepository``\ クラスをインジェクションする。
-  * - | (4)
-    - | \ ``JdbcTemplate``\ クラスをインジェクションする。
-  * - | (5)
-    - | テスト対象メソッドを実行するためのテストデータを作成する。
-  * - | (6)
-    - | テスト対象メソッドを実行する。
-  * - | (7)
-    - | 更新後のデータベースの情報を取得する。
-      | \ ``org.springframework.jdbc.core.RowMapper<T>``\ を使用することで、データベースから取得した\ ``ResultSet``\ を特定のPOJOクラスにマッピングすることができる。
-  * - | (8)
-    - | 更新件数、更新結果を確認する。
+    .. tabularcolumns:: |p{0.10\linewidth}|p{0.90\linewidth}|
+    .. list-table::
+      :header-rows: 1
+      :widths: 10 90
+
+      * - 項番
+        - 説明
+      * - | (1)
+        - | \ ``MemberRepository``\ クラスを動作させるために必要なアプリケーションが保持する\ ``TestContextConfig.class``\ 、\ ``SampleEnvConfig.class``\ と\ ``SampleInfraConfig.class``\ を読み込む。
+      * - | (2)
+        - | \ ``@Transactional``\ アノテーションを付与すると、テスト実行開始から終了まで一トランザクションとなり、デフォルトではテスト終了後にロールバックされる。クラスレベルでアノテーションを定義すると、全テストメソッドに対して\ ``@Transactional``\ アノテーションが有効になる。
+      * - | (3)
+        - | テスト対象である\ ``MemberRepository``\ クラスをインジェクションする。
+      * - | (4)
+        - | \ ``JdbcTemplate``\ クラスをインジェクションする。
+      * - | (5)
+        - | テスト対象メソッドを実行するためのテストデータを作成する。
+      * - | (6)
+        - | テスト対象メソッドを実行する。
+      * - | (7)
+        - | 更新後のデータベースの情報を取得する。\ ``org.springframework.jdbc.core.RowMapper<T>``\ を使用することで、データベースから取得した\ ``ResultSet``\ を特定のPOJOクラスにマッピングすることができる。
+      * - | (8)
+        - | 更新件数、更新結果を確認する。
+
+  .. group-tab:: XML Config
+
+    * \ ``MemberRepositoryTest.java``\
+
+    .. code-block:: java
+
+      import static org.hamcrest.CoreMatchers.is;
+      import static org.hamcrest.MatcherAssert.assertThat;
+
+      @RunWith(SpringJUnit4ClassRunner.class)
+      @ContextConfiguration(locations = {
+              "classpath:META-INF/spring/sample-infra.xml",   // (1)
+              "classpath:META-INF/spring/test-context.xml" }) // (1)
+      @Transactional // (2)
+      public class MemberRepositoryTest {
+
+          @Inject
+          MemberRepository target; // (3)
+
+          @Inject
+          JdbcTemplate jdbctemplate; // (4)
+
+          @Test
+          @Sql(scripts = "classpath:META-INF/sql/setupMemberLogin.sql", config = @SqlConfig(encoding = "utf-8"))
+          public void testUpdateMemberLogin() {
+
+              // (5)
+              // setup test data
+              MemberLogin memberLogin = new MemberLogin();
+              memberLogin.setPassword("FGHIJ");
+              Member member = new Member();
+              member.setMembershipNumber("0000000001");
+              member.setMemberLogin(memberLogin);
+
+              // (6)
+              // run the test
+              int updateCounts = target.updateMemberLogin(member);
+
+              // (7)
+              MemberLogin updateMemberLogin = getMemberLogin("0000000001");
+
+              // (8)
+              // assertion
+              assertThat(updateCounts, is(1));
+              assertThat(updateMemberLogin.getPassword(), is("FGHIJ"));
+              assertThat(updateMemberLogin.getLastPassword(), is("ABCDE"));
+          }
+
+          private Member getMemberLogin(String customerNo) {
+
+              MemberLogin memberLogin = jdbctemplate.queryForObject(
+                      "SELECT * FROM member_login WHERE customer_no=?", 
+                      new RowMapper<MemberLogin>() {
+
+                          public MemberLogin mapRow(ResultSet rs,
+                                      int rowNum) throws SQLException {
+
+                                  MemberLogin mapMemberLogin = new MemberLogin();
+
+                                  mapMemberLogin.setPassword(rs.getString(
+                                          "password"));
+                                  mapMemberLogin.setLastPassword(rs.getString(
+                                          "last_password"));
+                                  mapMemberLogin.setLoginDateTime(rs.getDate(
+                                          "login_date_time"));
+                                  mapMemberLogin.setLoginFlg(rs.getBoolean(
+                                          "login_flg"));
+
+                                  return mapMemberLogin;
+                          }
+                      }, customerNo);
+
+              return memberLogin;
+          }
+
+    .. tabularcolumns:: |p{0.10\linewidth}|p{0.90\linewidth}|
+    .. list-table::
+      :header-rows: 1
+      :widths: 10 90
+
+      * - 項番
+        - 説明
+      * - | (1)
+        - | \ ``MemberRepository``\ クラスを動作させるために必要なアプリケーションが保持する\ ``sample-infra.xml``\ と\ ``test-context.xml``\ を読み込む。
+      * - | (2)
+        - | \ ``@Transactional``\ アノテーションを付与すると、テスト実行開始から終了まで一トランザクションとなり、デフォルトではテスト終了後にロールバックされる。クラスレベルでアノテーションを定義すると、全テストメソッドに対して\ ``@Transactional``\ アノテーションが有効になる。
+      * - | (3)
+        - | テスト対象である\ ``MemberRepository``\ クラスをインジェクションする。
+      * - | (4)
+        - | \ ``JdbcTemplate``\ クラスをインジェクションする。
+      * - | (5)
+        - | テスト対象メソッドを実行するためのテストデータを作成する。
+      * - | (6)
+        - | テスト対象メソッドを実行する。
+      * - | (7)
+        - | 更新後のデータベースの情報を取得する。\ ``org.springframework.jdbc.core.RowMapper<T>``\ を使用することで、データベースから取得した\ ``ResultSet``\ を特定のPOJOクラスにマッピングすることができる。
+      * - | (8)
+        - | 更新件数、更新結果を確認する。
 
 .. note:: \ **テスト時のトランザクションをロールバックさせない方法**\
 
   \ ``@Transactional``\ アノテーションをテストケースに指定した場合、デフォルトでテストメソッド実行後にロールバックされる。
   
-  後続のテストでテストデータを使用するなどの目的でロールバックをさせたくない場合は、\ ``@Transactional``\アノテーションに加えて\ ``@Rollback(false)``\ アノテーションまたは\ ``@Commit``\ アノテーションを指定することで、テスト時のトランザクションをコミットすることができる。
+  後続のテストでテストデータを使用するなどの目的でロールバックをさせたくない場合は、\ ``@Transactional``\ アノテーションに加えて\ ``@Rollback(false)``\ アノテーションまたは\ ``@Commit``\ アノテーションを指定することで、テスト時のトランザクションをコミットすることができる。
 
 .. warning:: \ **Spring Framework 4.2 以降の@TransactionConfigurationについて**\
 
@@ -336,103 +588,202 @@ Spring Test DBUnitを利用したテスト
 
 DBUnitを利用した\ ``Repository``\ の単体テストにおいて、作成するファイルを以下に示す。
 
-.. figure:: ./images_ImplementsOfTestByLayer/ImplementsOfTestByLayerRepositoryDbunitItems.png
+.. tabs::
+  .. group-tab:: Java Config
 
-.. tabularcolumns:: |p{0.35\linewidth}|p{0.65\linewidth}|
-.. list-table::
-  :header-rows: 1
-  :widths: 35 65
+    .. figure:: ./images_ImplementsOfTestByLayer/ImplementsOfTestByLayerRepositoryDbunitItems_JavaConfig.png
 
-  * - 作成するファイル名
-    - 説明
-  * - \ ``MemberRepositoryDbunitTest.java``\
-    - \ ``MemberRepository.java``\ のテストクラス(DBUnitと連携する場合)
-  * - \ ``XlsDataSetLoader.java``\
-    - Excel形式に対応する\ ``DataSetLoader``\ インタフェースの実装クラス。
-      実装方法については、\ :ref:`PreparationForTestDataSetupWithDBUnit`\ を参照されたい。
-  * - \ ``expected_testUpdateMemberLogin.xlsx``\
-    - テストの期待結果検証用ファイル
-  * - \ ``setup_MemberLogin.xlsx``\
-    - テストデータセットアップ用ファイル
-  * - \ ``test-context.xml``\
-    - Spring Testを使用して単体テストを行う際に使用する設定ファイル。\ :ref:`ImplementsOfTestByLayerTestingRepositoryWithSpringTest`\ で作成した設定ファイルと同じものを使用する。
+    .. tabularcolumns:: |p{0.35\linewidth}|p{0.65\linewidth}|
+    .. list-table::
+      :header-rows: 1
+      :widths: 35 65
 
-.. note:: \ **単体テストで利用するExcelファイルの作成単位**\
+      * - 作成するファイル名
+        - 説明
+      * - \ ``MemberRepositoryDbunitTest.java``\
+        - \ ``MemberRepository.java``\ のテストクラス(DBUnitと連携する場合)
+      * - \ ``XlsDataSetLoader.java``\
+        - Excel形式に対応する\ ``DataSetLoader``\ インタフェースの実装クラス。
+          実装方法については、\ :ref:`PreparationForTestDataSetupWithDBUnit`\ を参照されたい。
+      * - \ ``expected_testUpdateMemberLogin.xlsx``\
+        - テストの期待結果検証用ファイル
+      * - \ ``setup_MemberLogin.xlsx``\
+        - テストデータセットアップ用ファイル
+      * - \ ``TestContextConfig.java``\
+        - Spring Testを使用して単体テストを行う際に使用する設定ファイル。\ :ref:`ImplementsOfTestByLayerTestingRepositoryWithSpringTest`\ で作成した設定ファイルと同じものを使用する。
 
-  ここでは、１テストメソッドにデータセットアップ用のファイルと期待結果検証用のファイルをそれぞれ１つずつ作成している。
+    .. note:: \ **単体テストで利用するExcelファイルの作成単位**\
 
-  実際の作成単位については、テスト方針や内容に応じて適宜検討されたい。
+      ここでは、１テストメソッドにデータセットアップ用のファイルと期待結果検証用のファイルをそれぞれ１つずつ作成している。
 
-|
+      実際の作成単位については、テスト方針や内容に応じて適宜検討されたい。
 
-DBUnitを使用する場合の\ ``Repository``\ のテストクラス作成方法を説明する。
+    |
 
-ここでは、テスト用のスキーマは作成済みであることを前提に、\ ``@DatabaseSetup``\ アノテーションを使用して\ ``MemberLogin``\ テーブルをセットアップし、\ ``MemberLogin``\ のパスワード「ABCDE」が新しいパスワード「FGHIJ」に更新されることを\ ``@ExpectedDatabase``\ アノテーションを使用して確認している。
+    DBUnitを使用する場合の\ ``Repository``\ のテストクラス作成方法を説明する。
 
-以下に、Spring TestとDBUnitを使用した\ ``Repository``\ のテスト作成方法を説明する。
+    ここでは、テスト用のスキーマは作成済みであることを前提に、\ ``@DatabaseSetup``\ アノテーションを使用して\ ``MemberLogin``\ テーブルをセットアップし、\ ``MemberLogin``\ のパスワード「ABCDE」が新しいパスワード「FGHIJ」に更新されることを\ ``@ExpectedDatabase``\ アノテーションを使用して確認している。
 
-* \ ``MemberRepositoryDbunitTest.java``\
+    以下に、Spring TestとDBUnitを使用した\ ``Repository``\ のテスト作成方法を説明する。
 
-.. code-block:: java
+    * \ ``MemberRepositoryDbunitTest.java``\
 
-  import static org.hamcrest.CoreMatchers.is;
-  import static org.hamcrest.MatcherAssert.assertThat;
+    .. code-block:: java
 
-  @RunWith(SpringJUnit4ClassRunner.class)
-  @ContextConfiguration(locations = {
-          "classpath:META-INF/spring/sample-infra.xml",   // (1)
-          "classpath:META-INF/spring/test-context.xml" }) // (1)
-  @TestExecutionListeners({
-          DirtiesContextBeforeModesTestExecutionListener.class,
-          DependencyInjectionTestExecutionListener.class,
-          DirtiesContextTestExecutionListener.class,
-          TransactionDbUnitTestExecutionListener.class})
-  @Transactional
-  @DbUnitConfiguration(dataSetLoader = XlsDataSetLoader.class)
-  public class MemberRepositoryDbunitTest {
+      import static org.hamcrest.CoreMatchers.is;
+      import static org.hamcrest.MatcherAssert.assertThat;
 
-      @Inject
-      MemberRepository target;
+      @RunWith(SpringJUnit4ClassRunner.class)
+      @ContextConfiguration(classes = { TestContextConfig.class, SampleEnvConfig.class, SampleInfraConfig.class }) // (1)
+      @TestExecutionListeners({
+              DirtiesContextBeforeModesTestExecutionListener.class,
+              DependencyInjectionTestExecutionListener.class,
+              DirtiesContextTestExecutionListener.class,
+              TransactionDbUnitTestExecutionListener.class})
+      @Transactional
+      @DbUnitConfiguration(dataSetLoader = XlsDataSetLoader.class)
+      public class MemberRepositoryDbunitTest {
 
-      @Test
-      @DatabaseSetup("classpath:META-INF/dbunit/setup_MemberLogin.xlsx")
-      @ExpectedDatabase( // (2)
-              value = "classpath:META-INF/dbunit/expected_testUpdateMemberLogin.xlsx",
-              assertionMode = DatabaseAssertionMode.NON_STRICT_UNORDERED)
-      public void testUpdate() {
+          @Inject
+          MemberRepository target;
 
-          // setup
-          MemberLogin memberLogin = new MemberLogin();
-          memberLogin.setPassword("FGHIJ");
-          Member member = new Member();
-          member.setMembershipNumber("0000000001");
-          member.setMemberLogin(memberLogin);
+          @Test
+          @DatabaseSetup("classpath:META-INF/dbunit/setup_MemberLogin.xlsx")
+          @ExpectedDatabase( // (2)
+                  value = "classpath:META-INF/dbunit/expected_testUpdateMemberLogin.xlsx",
+                  assertionMode = DatabaseAssertionMode.NON_STRICT_UNORDERED)
+          public void testUpdate() {
 
-          // run the test
-          int updateCounts = target.updateMemberLogin(member);
+              // setup
+              MemberLogin memberLogin = new MemberLogin();
+              memberLogin.setPassword("FGHIJ");
+              Member member = new Member();
+              member.setMembershipNumber("0000000001");
+              member.setMemberLogin(memberLogin);
 
-          // assertion
-          assertThat(updateCounts, is(1));
+              // run the test
+              int updateCounts = target.updateMemberLogin(member);
+
+              // assertion
+              assertThat(updateCounts, is(1));
+          }
       }
-  }
 
-.. tabularcolumns:: |p{0.10\linewidth}|p{0.90\linewidth}|
-.. list-table::
-  :header-rows: 1
-  :widths: 10 90
+    .. tabularcolumns:: |p{0.10\linewidth}|p{0.90\linewidth}|
+    .. list-table::
+      :header-rows: 1
+      :widths: 10 90
 
-  * - 項番
-    - 説明
-  * - | (1)
-    - | \ ``MemberRepository``\ クラスを動作させるために必要な設定ファイル（アプリケーションが保持する\ ``sample-infra.xml``\ とそれを補う\ ``test-context.xml``\）を読み込む。
-  * - | (2)
-    - | \ ``@ExpectedDatabase``\ アノテーションにテストの期待結果検証用ファイルを指定することでテストメソッド実行後にDBUnitによってテーブルと期待結果データファイルが自動で比較検証される。
-      | \ ``@DatabaseSetup``\ アノテーション同様に、クラスレベルとメソッドレベルで付与できる。
-      | ファイルフォーマットはテストセットアップ用データファイルと同じである。\ ``assertionMode``\ 属性には、以下の値が設定可能である。
+      * - 項番
+        - 説明
+      * - | (1)
+        - | \ ``MemberRepository``\ クラスを動作させるために必要な設定ファイル（アプリケーションが保持する\ ``SampleInfraConfig.class``\ とそれを補う\ ``TestContextConfig.class``\ ）を読み込む。
+      * - | (2)
+        - | \ ``@ExpectedDatabase``\ アノテーションにテストの期待結果検証用ファイルを指定することでテストメソッド実行後にDBUnitによってテーブルと期待結果データファイルが自動で比較検証される。
+          | \ ``@DatabaseSetup``\ アノテーション同様に、クラスレベルとメソッドレベルで付与できる。
+          | ファイルフォーマットはテストセットアップ用データファイルと同じである。\ ``assertionMode``\ 属性には、以下の値が設定可能である。
 
-      * \ ``DEFAULT``\（または指定なし）：全てのテーブルとカラムの一致を比較する。
-      * \ ``NON_STRICT``\ ：期待結果データファイルに存在しないテーブル、カラムが実際のデータベースに存在しても無視する。
-      * \ ``NON_STRICT_UNORDERED``\ ：\ ``NON_STRICT``\ モードに加え、行の順序についても無視する。
+          * \ ``DEFAULT``\ （または指定なし）：全てのテーブルとカラムの一致を比較する。
+          * \ ``NON_STRICT``\ ：期待結果データファイルに存在しないテーブル、カラムが実際のデータベースに存在しても無視する。
+          * \ ``NON_STRICT_UNORDERED``\ ：\ ``NON_STRICT``\ モードに加え、行の順序についても無視する。
+  .. group-tab:: XML Config
+
+    .. figure:: ./images_ImplementsOfTestByLayer/ImplementsOfTestByLayerRepositoryDbunitItems.png
+
+    .. tabularcolumns:: |p{0.35\linewidth}|p{0.65\linewidth}|
+    .. list-table::
+      :header-rows: 1
+      :widths: 35 65
+
+      * - 作成するファイル名
+        - 説明
+      * - \ ``MemberRepositoryDbunitTest.java``\
+        - \ ``MemberRepository.java``\ のテストクラス(DBUnitと連携する場合)
+      * - \ ``XlsDataSetLoader.java``\
+        - Excel形式に対応する\ ``DataSetLoader``\ インタフェースの実装クラス。実装方法については、\ :ref:`PreparationForTestDataSetupWithDBUnit`\ を参照されたい。
+      * - \ ``expected_testUpdateMemberLogin.xlsx``\
+        - テストの期待結果検証用ファイル
+      * - \ ``setup_MemberLogin.xlsx``\
+        - テストデータセットアップ用ファイル
+      * - \ ``test-context.xml``\
+        - Spring Testを使用して単体テストを行う際に使用する設定ファイル。\ :ref:`ImplementsOfTestByLayerTestingRepositoryWithSpringTest`\ で作成した設定ファイルと同じものを使用する。
+
+    .. note:: \ **単体テストで利用するExcelファイルの作成単位**\
+
+      ここでは、１テストメソッドにデータセットアップ用のファイルと期待結果検証用のファイルをそれぞれ１つずつ作成している。
+
+      実際の作成単位については、テスト方針や内容に応じて適宜検討されたい。
+
+    |
+
+    DBUnitを使用する場合の\ ``Repository``\ のテストクラス作成方法を説明する。
+
+    ここでは、テスト用のスキーマは作成済みであることを前提に、\ ``@DatabaseSetup``\ アノテーションを使用して\ ``MemberLogin``\ テーブルをセットアップし、\ ``MemberLogin``\ のパスワード「ABCDE」が新しいパスワード「FGHIJ」に更新されることを\ ``@ExpectedDatabase``\ アノテーションを使用して確認している。
+
+    以下に、Spring TestとDBUnitを使用した\ ``Repository``\ のテスト作成方法を説明する。
+
+    * \ ``MemberRepositoryDbunitTest.java``\
+
+    .. code-block:: java
+
+      import static org.hamcrest.CoreMatchers.is;
+      import static org.hamcrest.MatcherAssert.assertThat;
+
+      @RunWith(SpringJUnit4ClassRunner.class)
+      @ContextConfiguration(locations = {
+              "classpath:META-INF/spring/sample-infra.xml",   // (1)
+              "classpath:META-INF/spring/test-context.xml" }) // (1)
+      @TestExecutionListeners({
+              DirtiesContextBeforeModesTestExecutionListener.class,
+              DependencyInjectionTestExecutionListener.class,
+              DirtiesContextTestExecutionListener.class,
+              TransactionDbUnitTestExecutionListener.class})
+      @Transactional
+      @DbUnitConfiguration(dataSetLoader = XlsDataSetLoader.class)
+      public class MemberRepositoryDbunitTest {
+
+          @Inject
+          MemberRepository target;
+
+          @Test
+          @DatabaseSetup("classpath:META-INF/dbunit/setup_MemberLogin.xlsx")
+          @ExpectedDatabase( // (2)
+                  value = "classpath:META-INF/dbunit/expected_testUpdateMemberLogin.xlsx",
+                  assertionMode = DatabaseAssertionMode.NON_STRICT_UNORDERED)
+          public void testUpdate() {
+
+              // setup
+              MemberLogin memberLogin = new MemberLogin();
+              memberLogin.setPassword("FGHIJ");
+              Member member = new Member();
+              member.setMembershipNumber("0000000001");
+              member.setMemberLogin(memberLogin);
+
+              // run the test
+              int updateCounts = target.updateMemberLogin(member);
+
+              // assertion
+              assertThat(updateCounts, is(1));
+          }
+      }
+
+    .. tabularcolumns:: |p{0.10\linewidth}|p{0.90\linewidth}|
+    .. list-table::
+      :header-rows: 1
+      :widths: 10 90
+
+      * - 項番
+        - 説明
+      * - | (1)
+        - | \ ``MemberRepository``\ クラスを動作させるために必要な設定ファイル（アプリケーションが保持する\ ``sample-infra.xml``\ とそれを補う\ ``test-context.xml``\ ）を読み込む。
+      * - | (2)
+        - | \ ``@ExpectedDatabase``\ アノテーションにテストの期待結果検証用ファイルを指定することでテストメソッド。実行後にDBUnitによってテーブルと期待結果データファイルが自動で比較検証される。
+          | \ ``@DatabaseSetup``\ アノテーション同様に、クラスレベルとメソッドレベルで付与できる。
+          | ファイルフォーマットはテストセットアップ用データファイルと同じである。\ ``assertionMode``\ 属性には、以下の値が設定可能である。
+
+              * \ ``DEFAULT``\ （または指定なし）：全てのテーブルとカラムの一致を比較する。
+              * \ ``NON_STRICT``\ ：期待結果データファイルに存在しないテーブル、カラムが実際のデータベースに存在しても無視する。
+              * \ ``NON_STRICT_UNORDERED``\ ：\ ``NON_STRICT``\ モードに加え、行の順序についても無視する。
 
 .. warning:: \ **外部キー制約のあるテーブル**\
 
@@ -484,7 +835,7 @@ Serviceの単体テスト
 | ここでは、以下の成果物に対するテストを例に説明する。
 | なお、Serviceの実装の詳細は、\ :ref:`service-label`\ を参照されたい。
 
-* Serviceの実装クラス（\ ``TicketReserveServiceImpl``\）
+* Serviceの実装クラス（\ ``TicketReserveServiceImpl``\ ）
 
 以下に、テスト対象の実装例を示す。
 
@@ -569,110 +920,234 @@ Serviceの単体テスト
 
 \ ``Service``\ をインジェクションし、インフラストラクチャ層を結合して行う。\ ``Service``\ のテストにおいて、作成するファイルを以下に示す。
 
-.. figure:: ./images_ImplementsOfTestByLayer/ImplementsOfTestByLayerServiceSpringTestItems.png
+.. tabs::
+  .. group-tab:: Java Config
 
-.. tabularcolumns:: |p{0.30\linewidth}|p{0.70\linewidth}|
-.. list-table::
-  :header-rows: 1
-  :widths: 30 70
+    .. figure:: ./images_ImplementsOfTestByLayer/ImplementsOfTestByLayerServiceSpringTestItems_JavaConfig.png
 
-  * - 作成するファイル名
-    - 説明
-  * - \ ``TicketReserveServiceImplTest.java``\
-    - \ ``TicketReserveServiceImpl.java``\ のテストクラス
-  * - \ ``test-context.xml``\
-    - \ :ref:`PreparationForTestMakeSettingFileForSpringTest`\ で定義した設定ファイルを使用する。
+    .. tabularcolumns:: |p{0.30\linewidth}|p{0.70\linewidth}|
+    .. list-table::
+      :header-rows: 1
+      :widths: 30 70
 
-|
+      * - 作成するファイル名
+        - 説明
+      * - \ ``TicketReserveServiceImplTest.java``\
+        - \ ``TicketReserveServiceImpl.java``\ のテストクラス
+      * - \ ``TestContextConfig.java``\
+        - \ :ref:`PreparationForTestMakeSettingFileForSpringTest`\ で定義した設定ファイルを使用する。
 
-テスト対象のServiceの実装クラスをインジェクションしてインフラストラクチャ層と結合してテストを行う場合のテスト作成方法を説明する。
+    |
 
-以下に、テスト時に読み込む設定ファイルを示す。
+    テスト対象のServiceの実装クラスをインジェクションしてインフラストラクチャ層と結合してテストを行う場合のテスト作成方法を説明する。
 
-* \ ``sample-domain.xml``\
+    以下に、テスト時に読み込む設定ファイルを示す。
 
-.. code-block:: xml
+    * \ ``SampleDomainConfig.java``\
 
-  <context:component-scan base-package="com.example.domain" />
-  <tx:annotation-driven />
+    .. code-block:: java
 
-  <import resource="classpath:META-INF/spring/sample-infra.xml" />
-  <import resource="classpath:META-INF/spring/sample-codelist.xml" />
+      @Configuration
+      @EnableTransactionManagement
+      @ComponentScan(basePackages = {"com.example.domain"})
+      public class SampleDomainConfig {
 
-  <bean id="resultMessagesLoggingInterceptor" 
-    class="org.terasoluna.gfw.common.exception.ResultMessagesLoggingInterceptor">
-    <property name="exceptionLogger" ref="exceptionLogger" />
-  </bean>
+          /**
+           * Configure messages logging AOP.
+           * @param exceptionLogger Bean defined by ApplicationContextConfig#exceptionLogger
+           * @see com.example.config.app.ApplicationContextConfig#exceptionLogger(ExceptionCodeResolver)
+           * @return Bean of configured {@link ResultMessagesLoggingInterceptor}
+           */
+          @Bean
+          public ResultMessagesLoggingInterceptor resultMessagesLoggingInterceptor(ExceptionLogger exceptionLogger) {
+              ResultMessagesLoggingInterceptor bean = new ResultMessagesLoggingInterceptor();
+              bean.setExceptionLogger(exceptionLogger);
+              return bean;
+          }
 
-  <aop:config>
-    <aop:advisor advice-ref="resultMessagesLoggingInterceptor"
-      pointcut="@within(org.springframework.stereotype.Service)" />
-  </aop:config>
+          /**
+           * Configure messages logging AOP advisor.
+           * @param resultMessagesLoggingInterceptor Bean defined by #resultMessagesLoggingInterceptor
+           * @see #resultMessagesLoggingInterceptor(ExceptionLogger)
+           * @return Advisor configured for PointCut
+           */
+          @Bean
+          public Advisor resultMessagesLoggingInterceptorAdvisor(ResultMessagesLoggingInterceptor resultMessagesLoggingInterceptor) {
+             AspectJExpressionPointcut pointcut = new AspectJExpressionPointcut();
+             pointcut.setExpression("@within(org.springframework.stereotype.Service)");
+             return new DefaultPointcutAdvisor(pointcut, resultMessagesLoggingInterceptor);
+          }
 
-| 以下に、テスト実装例を示す。
-| テスト対象の\ ``TicketReserveServiceImpl#registerReservation()``\ メソッドを実行し、戻り値を確認している。
-| なお、データベースの状態の検証方法は\ :ref:`ImplementsOfTestByLayerUnitTestOfRepository`\ を参照されたい。
-
-* \ ``TicketReserveServiceImplTest.java``\
-
-.. code-block:: java
-
-  import static org.hamcrest.CoreMatchers.is;
-  import static org.hamcrest.MatcherAssert.assertThat;
-
-  @RunWith(SpringJUnit4ClassRunner.class)
-  @ContextConfiguration(locations = {
-          "classpath:META-INF/spring/sample-domain.xml", // (1)
-          "classpath:META-INF/spring/test-context.xml"}) // (1)
-  @Transactional
-  public class TicketReserveServiceImplTest {
-
-      @Inject
-      TicketReserveService target;
-
-      @Inject
-      private JdbcTemplate jdbcTemplate;
-
-      @Test
-      @Sql(statements = "ALTER SEQUENCE sq_reservation_1 RESTART WITH 1") // (2)
-      public void testRegisterReservation() {
-
-          // setup
-          Reservation inputReservation = new Reservation();
-          inputReservation.setTotalFare(39200);
-          inputReservation.setReserveNo("0000000001");
-          // omitted
-
-          // run the test
-          TicketReserveDto actTicketReserveDto = target.registerReservation(
-                  reservation);
-
-          // assertion
-          assertThat(actTicketReserveDto.getReserveNo(), is("0000000001"));
-          // omitted
       }
-  }
 
-.. tabularcolumns:: |p{0.10\linewidth}|p{0.90\linewidth}|
-.. list-table::
-  :header-rows: 1
-  :widths: 10 90
+    以下に、テスト実装例を示す。
 
-  * - 項番
-    - 説明
-  * - | (1)
-    - | \ ``TicketReserveServiceImpl``\ クラスを動作させるために必要な設定ファイル（アプリケーションが保持する\ ``sample-domain.xml``\ とそれを補う\ ``test-domain.xml``\）を読み込む。
-  * - | (2)
-    - | \ ``@Sql``\ の\ ``statements``\ 属性を使用することでSQL文を直接指定することもできる。
-      | ここではテストメソッド実行前にシーケンスの初期化を行っている。
+    テスト対象の\ ``TicketReserveServiceImpl#registerReservation()``\ メソッドを実行し、戻り値を確認している。なお、データベースの状態の検証方法は\ :ref:`ImplementsOfTestByLayerUnitTestOfRepository`\ を参照されたい。
 
-.. warning:: \ **テスト時のトランザクション管理**\
+    * \ ``TicketReserveServiceImplTest.java``\
 
-  テストケースに\ ``@Transactional``\ アノテーションを付与すると、テスト実行開始から終了まで一トランザクションとなる。そのため、テストケースから\ ``@Transactional``\ アノテーションを付与した\ ``Service``\ クラスを呼び出した場合、テストケースからトランザクションが引き継がれる点に注意すること。
+    .. code-block:: java
 
-  例えば、トランザクションの伝播方法がデフォルト（\ ``REQUIRED``\ ）の場合、テストケースで開始したトランザクションでテスト対象の処理が行われ、コミット/ロールバックのタイミングもテスト終了時になる。
+      import static org.hamcrest.CoreMatchers.is;
+      import static org.hamcrest.MatcherAssert.assertThat;
 
-  トランザクションの伝播方法については\ :ref:`transaction-management-declare-transaction-info-label`\ を参照されたい。
+      @RunWith(SpringJUnit4ClassRunner.class)
+      @ContextConfiguration(classes = { TestContextConfig.class, SampleEnvConfig.class, SampleInfraConfig.class,
+      		SampleDomainConfig.class }) // (1)
+      @Transactional
+      public class TicketReserveServiceImplTest {
+
+          @Inject
+          TicketReserveService target;
+
+          @Inject
+          private JdbcTemplate jdbcTemplate;
+
+          @Test
+          @Sql(statements = "ALTER SEQUENCE sq_reservation_1 RESTART WITH 1") // (2)
+          public void testRegisterReservation() {
+
+              // setup
+              Reservation inputReservation = new Reservation();
+              inputReservation.setTotalFare(39200);
+              inputReservation.setReserveNo("0000000001");
+              // omitted
+
+              // run the test
+              TicketReserveDto actTicketReserveDto = target.registerReservation(
+                      reservation);
+
+              // assertion
+              assertThat(actTicketReserveDto.getReserveNo(), is("0000000001"));
+              // omitted
+          }
+      }
+
+    .. tabularcolumns:: |p{0.10\linewidth}|p{0.90\linewidth}|
+    .. list-table::
+      :header-rows: 1
+      :widths: 10 90
+
+      * - 項番
+        - 説明
+      * - | (1)
+        - | \ ``TicketReserveServiceImpl``\ クラスを動作させるために必要な設定ファイル（アプリケーションが保持する\ ``SampleDomainConfig.class``\ とそれを補う\ ``TestContextConfig.class``\ ）を読み込む。
+      * - | (2)
+        - | \ ``@Sql``\ の\ ``statements``\ 属性を使用することでSQL文を直接指定することもできる。ここではテストメソッド実行前にシーケンスの初期化を行っている。
+
+    .. warning:: \ **テスト時のトランザクション管理**\
+
+      テストケースに\ ``@Transactional``\ アノテーションを付与すると、テスト実行開始から終了まで一トランザクションとなる。そのため、テストケースから\ ``@Transactional``\ アノテーションを付与した\ ``Service``\ クラスを呼び出した場合、テストケースからトランザクションが引き継がれる点に注意すること。
+
+      例えば、トランザクションの伝播方法がデフォルト（\ ``REQUIRED``\ ）の場合、テストケースで開始したトランザクションでテスト対象の処理が行われ、コミット/ロールバックのタイミングもテスト終了時になる。
+
+      トランザクションの伝播方法については\ :ref:`transaction-management-declare-transaction-info-label`\ を参照されたい。
+
+  .. group-tab:: XML Config
+
+    .. figure:: ./images_ImplementsOfTestByLayer/ImplementsOfTestByLayerServiceSpringTestItems.png
+
+    .. tabularcolumns:: |p{0.30\linewidth}|p{0.70\linewidth}|
+    .. list-table::
+      :header-rows: 1
+      :widths: 30 70
+
+      * - 作成するファイル名
+        - 説明
+      * - \ ``TicketReserveServiceImplTest.java``\
+        - \ ``TicketReserveServiceImpl.java``\ のテストクラス
+      * - \ ``test-context.xml``\
+        - \ :ref:`PreparationForTestMakeSettingFileForSpringTest`\ で定義した設定ファイルを使用する。
+
+    |
+
+    テスト対象のServiceの実装クラスをインジェクションしてインフラストラクチャ層と結合してテストを行う場合のテスト作成方法を説明する。
+
+    以下に、テスト時に読み込む設定ファイルを示す。
+
+    * \ ``sample-domain.xml``\
+
+    .. code-block:: xml
+
+      <context:component-scan base-package="com.example.domain" />
+      <tx:annotation-driven />
+
+      <import resource="classpath:META-INF/spring/sample-infra.xml" />
+      <import resource="classpath:META-INF/spring/sample-codelist.xml" />
+
+      <bean id="resultMessagesLoggingInterceptor" 
+        class="org.terasoluna.gfw.common.exception.ResultMessagesLoggingInterceptor">
+        <property name="exceptionLogger" ref="exceptionLogger" />
+      </bean>
+
+      <aop:config>
+        <aop:advisor advice-ref="resultMessagesLoggingInterceptor"
+          pointcut="@within(org.springframework.stereotype.Service)" />
+      </aop:config>
+
+    以下に、テスト実装例を示す。テスト対象の\ ``TicketReserveServiceImpl#registerReservation()``\ メソッドを実行し、戻り値を確認している。
+
+    なお、データベースの状態の検証方法は\ :ref:`ImplementsOfTestByLayerUnitTestOfRepository`\ を参照されたい。
+
+    * \ ``TicketReserveServiceImplTest.java``\
+
+    .. code-block:: java
+
+      import static org.hamcrest.CoreMatchers.is;
+      import static org.hamcrest.MatcherAssert.assertThat;
+
+      @RunWith(SpringJUnit4ClassRunner.class)
+      @ContextConfiguration(locations = {
+              "classpath:META-INF/spring/sample-domain.xml", // (1)
+              "classpath:META-INF/spring/test-context.xml"}) // (1)
+      @Transactional
+      public class TicketReserveServiceImplTest {
+
+          @Inject
+          TicketReserveService target;
+
+          @Inject
+          private JdbcTemplate jdbcTemplate;
+
+          @Test
+          @Sql(statements = "ALTER SEQUENCE sq_reservation_1 RESTART WITH 1") // (2)
+          public void testRegisterReservation() {
+
+              // setup
+              Reservation inputReservation = new Reservation();
+              inputReservation.setTotalFare(39200);
+              inputReservation.setReserveNo("0000000001");
+              // omitted
+
+              // run the test
+              TicketReserveDto actTicketReserveDto = target.registerReservation(
+                      reservation);
+
+              // assertion
+              assertThat(actTicketReserveDto.getReserveNo(), is("0000000001"));
+              // omitted
+          }
+      }
+
+    .. tabularcolumns:: |p{0.10\linewidth}|p{0.90\linewidth}|
+    .. list-table::
+      :header-rows: 1
+      :widths: 10 90
+
+      * - 項番
+        - 説明
+      * - | (1)
+        - | \ ``TicketReserveServiceImpl``\ クラスを動作させるために必要な設定ファイル（アプリケーションが保持する\ ``sample-domain.xml``\ とそれを補う\ ``test-context.xml``\ ）を読み込む。
+      * - | (2)
+        - | \ ``@Sql``\ の\ ``statements``\ 属性を使用することでSQL文を直接指定することもできる。ここではテストメソッド実行前にシーケンスの初期化を行っている。
+
+    .. warning:: \ **テスト時のトランザクション管理**\
+
+      テストケースに\ ``@Transactional``\ アノテーションを付与すると、テスト実行開始から終了まで一トランザクションとなる。そのため、テストケースから\ ``@Transactional``\ アノテーションを付与した\ ``Service``\ クラスを呼び出した場合、テストケースからトランザクションが引き継がれる点に注意すること。
+
+      例えば、トランザクションの伝播方法がデフォルト（\ ``REQUIRED``\ ）の場合、テストケースで開始したトランザクションでテスト対象の処理が行われ、コミット/ロールバックのタイミングもテスト終了時になる。
+
+      トランザクションの伝播方法については\ :ref:`transaction-management-declare-transaction-info-label`\ を参照されたい。
 
 |
 
@@ -680,10 +1155,14 @@ Serviceの単体テスト
 
 モックを利用したテスト
 ''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
-
 \ ``Service``\ の依存クラスをすべてモック化して行う\ ``Service``\ の単体テストにおいて、作成するファイルを以下に示す。
 
-.. figure:: ./images_ImplementsOfTestByLayer/ImplementsOfTestByLayerServiceMockItems.png
+.. tabs::
+  .. group-tab:: Java Config
+    .. figure:: ./images_ImplementsOfTestByLayer/ImplementsOfTestByLayerServiceMockItems_JavaConfig.png
+   
+  .. group-tab:: XML Config
+    .. figure:: ./images_ImplementsOfTestByLayer/ImplementsOfTestByLayerServiceMockItems.png
 
 .. tabularcolumns:: |p{0.30\linewidth}|p{0.70\linewidth}|
 .. list-table::
@@ -758,7 +1237,7 @@ Serviceの単体テスト
     - | \ ``@InjectMocks``\ アノテーションを付与することで、自動的にモックオブジェクトが代入される。
       | 詳細は\ :ref:`UsageOfLibraryForTestCreateMockObject`\ を参照されたい。
   * - | (4)
-    - | \ ``ReservationRepository``\ の\ ``insert``\ メソッドについて、引数が\ ``inputReservation``\ の場合、返り値として"\ ``1``\" を返すように設定する。
+    - | \ ``ReservationRepository``\ の\ ``insert``\ メソッドについて、引数が\ ``inputReservation``\ の場合、返り値として"\ ``1``\ "を返すように設定する。
       | メソッドのモック化については、\ :ref:`UsageOfLibraryForTestMockingMethods`\ を参照されたい。
   * - | (5)
     - | \ ``ReservationRepository``\ の\ ``insert``\ メソッドについて、引数に\ ``inputReservation``\ が渡されて1回呼び出されたことを検証する。
@@ -792,7 +1271,7 @@ Serviceの単体テスト
 
 .. note:: \ **Formのバリデーションテスト**\
 
-  \ ``Form``\ のテストは、本来\ ``Controller``\ と組み合わせて実際の動作に近い形で行う必要があるが、\ ``Validation``\ の全パターンを\ ``Controller``\ と組み合わせるとテストの負担が大きくなる。そのため、単純な\ ``Validation``\ の確認であれば、\ ``Controller``\ と切り離して \ ``Form``\ 単体で\ ``Validation``\の確認を行うこともできる。
+  \ ``Form``\ のテストは、本来\ ``Controller``\ と組み合わせて実際の動作に近い形で行う必要があるが、\ ``Validation``\ の全パターンを\ ``Controller``\ と組み合わせるとテストの負担が大きくなる。そのため、単純な\ ``Validation``\ の確認であれば、\ ``Controller``\ と切り離して \ ``Form``\ 単体で\ ``Validation``\ の確認を行うこともできる。
     
   テスト方法はテスト対象のFormを使用して\ :ref:`ImplementsOfTestByFunctionTestingBeanValidator`\ を実施すればよい。
 
@@ -833,160 +1312,312 @@ StandaloneSetupを利用したテスト
 
 \ ``Controller``\ の依存クラスが利用できモック化する必要がない場合の\ ``Controller``\ の単体テストにおいて、\ ``StandaloneSetup``\ で作成するファイルを以下に示す。
 
-.. figure:: ./images_ImplementsOfTestByLayer/ImplementsOfTestByLayerControllerStandaloneSetupItems.png
+.. tabs::
+  .. group-tab:: Java Config
 
-.. tabularcolumns:: |p{0.50\linewidth}|p{0.50\linewidth}|
-.. list-table::
-  :header-rows: 1
-  :widths: 50 50
+    .. figure:: ./images_ImplementsOfTestByLayer/ImplementsOfTestByLayerControllerStandaloneSetupItems_JavaConfig.png
 
-  * - 作成するファイル名
-    - 説明
-  * - \ ``MemberRegisterControllerStandaloneTest.java``\
-    - \ ``MemberRegisterController.java``\ のテストクラス
-  * - \ ``spring-mvc-test.xml``\
-    - アプリケーション層に依存するコンポーネントを読み込むための\ ``component-scan``\ をテスト用に抽出した設定ファイル。
-  * - \ ``test-context.xml``\
-    - \ ``Controller``\ をドメイン層、インフラストラクチャ層と結合してテストを行う場合に使用する設定ファイル。
+    .. tabularcolumns:: |p{0.50\linewidth}|p{0.50\linewidth}|
+    .. list-table::
+      :header-rows: 1
+      :widths: 50 50
 
-|
+      * - 作成するファイル名
+        - 説明
+      * - \ ``MemberRegisterControllerStandaloneTest.java``\
+        - \ ``MemberRegisterController.java``\ のテストクラス
+      * - \ ``SpringMvcTestConfig.java``\
+        - アプリケーション層に依存するコンポーネントを読み込むための\ ``component-scan``\ をテスト用に抽出した設定ファイル。
+      * - \ ``TestContextConfig.java``\
+        - \ ``Controller``\ をドメイン層、インフラストラクチャ層と結合してテストを行う場合に使用する設定ファイル。
 
-\ ``spring-mvc.xml``\ を使ってテストをすることが望ましいが、Spring Testが作成したコンテキストとSpring MVCが作成したコンテキストが衝突しテスト実行ができないことがある。そのため対応策として、テストに必要な設定のみ抽出し、テスト用の設定ファイルを用意する。
+    |
 
-以下に、必要な設定のみ抽出した設定ファイルを示す。
+    \ ``SpringMvcConfig.java``\ を使ってテストをすることが望ましいが、Spring Testが作成したコンテキストとSpring MVCが作成したコンテキストが衝突しテスト実行ができないことがある。そのため対応策として、テストに必要な設定のみ抽出し、テスト用の設定ファイルを用意する。
 
-* \ ``spring-mvc-test.xml``\
+    以下に、必要な設定のみ抽出した設定ファイルを示す。
 
-.. code-block:: xml
+    * \ ``SpringMvcTestConfig.java``\
 
-  <context:component-scan base-package="com.example.app" />
+    .. code-block:: java
 
-| \ ``ServiceImpl``\ クラスなどテスト対象の\ ``Controller``\ クラスが依存するクラスをインジェクションする場合のテスト作成方法を説明する。
-| なお、テストでデータアクセスする場合の検証方法は\ :ref:`ImplementsOfTestByLayerUnitTestOfRepository`\ を、呼び出すドメイン層のロジックを確認する方法は\ :ref:`ImplementsOfTestByLayerUnitTestOfService`\ を参照されたい。
+      @ComponentScan(basePackages = { "com.example.app"})
+      @Configuration
+      public class SpringMvcTestConfig{
 
-以下に、テスト対象となる\ ``Controller``\ の実装例を示す。
+      }
 
-* \ ``MemberRegisterController.java``\
+    \ ``ServiceImpl``\ クラスなどテスト対象の\ ``Controller``\ クラスが依存するクラスをインジェクションする場合のテスト作成方法を説明する。なお、テストでデータアクセスする場合の検証方法は\ :ref:`ImplementsOfTestByLayerUnitTestOfRepository`\ を、呼び出すドメイン層のロジックを確認する方法は\ :ref:`ImplementsOfTestByLayerUnitTestOfService`\ を参照されたい。
 
-.. code-block:: java
+    以下に、テスト対象となる\ ``Controller``\ の実装例を示す。
 
-  @Controller
-  @RequestMapping("member/register")
-  @TransactionTokenCheck("member/register")
-  public class MemberRegisterController {
+    * \ ``MemberRegisterController.java``\
 
-      @TransactionTokenCheck(type = TransactionTokenType.IN)
-      @PostMapping
-      public String register(@Validated MemberRegisterForm memberRegisterForm,
-          BindingResult result, Model model, RedirectAttributes redirectAttributes) {
+    .. code-block:: java
 
-          if (result.hasErrors()) {
-              throw new BadRequestException(result);
+      @Controller
+      @RequestMapping("member/register")
+      @TransactionTokenCheck("member/register")
+      public class MemberRegisterController {
+
+          @TransactionTokenCheck(type = TransactionTokenType.IN)
+          @PostMapping
+          public String register(@Validated MemberRegisterForm memberRegisterForm,
+              BindingResult result, Model model, RedirectAttributes redirectAttributes) {
+
+              if (result.hasErrors()) {
+                  throw new BadRequestException(result);
+              }
+
+              // omitted
+
+              return "redirect:/member/register?complete";
+          }
+      }
+
+    ここでは、テスト対象の\ ``MemberRegisterController``\ クラスの\ ``register``\ メソッドを呼び出し、リクエストマッピングと返却されるVIEWおよびリダイレクトされること（\ ``testRegisterConfirm01``\ ）、不正な入力値を送信したときに\ ``BadRequestException``\ がthrowされていること（\ ``testRegisterConfirm02``\ ）の確認を行う。
+
+    以下に、\ ``ServiceImpl``\ クラスなどテスト対象の\ ``Controller``\ クラスが依存するクラスをインジェクションする場合のテスト作成方法を説明する。なお、テストでデータアクセスする場合の検証方法は\ :ref:`ImplementsOfTestByLayerUnitTestOfRepository`\ を参照されたい。
+
+    * \ ``MemberRegisterControllerStandaloneTest.java``\
+
+    .. code-block:: java
+
+      import static org.hamcrest.CoreMatchers.is;
+      import static org.hamcrest.MatcherAssert.assertThat;
+      import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
+      import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.log;
+      import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.model;
+      import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
+      import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.view;
+
+      @RunWith(SpringJUnit4ClassRunner.class)
+      @ContextConfiguration(classes = { ApplicationContextConfig.class, TestContextConfig.class, SpringMvcTestConfig.class }) // (1)
+      public class MemberRegisterControllerStandaloneTest {
+
+          @Inject
+          MemberRegisterController target;
+
+          MockMvc mockMvc;
+
+          @Before
+          public void setUp() {
+
+              // setup
+              mockMvc = MockMvcBuilders.standaloneSetup(target).alwaysDo(log()).build(); // (2)
           }
 
-          // omitted
+          @Test
+          public void testRegisterConfirm01() throws Exception {
 
-          return "redirect:/member/register?complete";
-      }
-  }
-
-ここでは、テスト対象の\ ``MemberRegisterController``\ クラスの\ ``register``\ メソッドを呼び出し、リクエストマッピングと返却されるVIEWおよびリダイレクトされること（\ ``testRegisterConfirm01``\）、不正な入力値を送信したときに\ ``BadRequestException``\ がthrowされていること（\ ``testRegisterConfirm02``\）の確認を行う。
-
-以下に、\ ``ServiceImpl``\ クラスなどテスト対象の\ ``Controller``\ クラスが依存するクラスをインジェクションする場合のテスト作成方法を説明する。なお、テストでデータアクセスする場合の検証方法は\ :ref:`ImplementsOfTestByLayerUnitTestOfRepository`\ を参照されたい。
-
-* \ ``MemberRegisterControllerStandaloneTest.java``\
-
-.. code-block:: java
-
-  import static org.hamcrest.CoreMatchers.is;
-  import static org.hamcrest.MatcherAssert.assertThat;
-  import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
-  import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.log;
-  import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.model;
-  import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
-  import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.view;
-
-  @RunWith(SpringJUnit4ClassRunner.class)
-  @ContextConfiguration(locations = {
-          "classpath:META-INF/spring/applicationContext.xml", // (1)
-          "classpath:META-INF/spring/test-context.xml",       // (1)
-          "classpath:META-INF/spring/spring-mvc-test.xml"})   // (1)
-  public class MemberRegisterControllerStandaloneTest {
-
-      @Inject
-      MemberRegisterController target;
-
-      MockMvc mockMvc;
-
-      @Before
-      public void setUp() {
-
-          // setup
-          mockMvc = MockMvcBuilders.standaloneSetup(target).alwaysDo(log()).build(); // (2)
-      }
-
-      @Test
-      public void testRegisterConfirm01() throws Exception {
-
-          // setup and run the test
-          mockMvc.perform(post("/member/register")
-                      // omitted
-                      .param("password", "testpassword")          // (3)
-                      .param("reEnterPassword", "testpassword"))) // (3)
-                      // assert
-                      .andExpect(status().is(302))                                  // (4)
-                      .andExpect(view().name("redirect:/member/register?complete")) // (4)
-                      .andExpect(model().hasNoErrors());                            // (4)
-      }
-
-      @Test
-      public void testRegisterConfirm02() throws Exception {
-
-          try {
               // setup and run the test
               mockMvc.perform(post("/member/register")
-                      // omitted
-                      .param("password", "testpassword")
-                      .param("reEnterPassword", "")) // (5)
-                      // assert
-                      .andExpect(status().is(400))
-                      .andExpect(view().name("common/error/badRequest-error"))
-                      .andReturn();
+                          // omitted
+                          .param("password", "testpassword")          // (3)
+                          .param("reEnterPassword", "testpassword"))) // (3)
+                          // assert
+                          .andExpect(status().is(302))                                  // (4)
+                          .andExpect(view().name("redirect:/member/register?complete")) // (4)
+                          .andExpect(model().hasNoErrors());                            // (4)
+          }
 
-              fail("test failure!");
-          } catch (Exception e) {
+          @Test
+          public void testRegisterConfirm02() throws Exception {
 
-              // assert
-              assertThat(e, is(instanceOf(ServletException.class)));         // (6)
-              assertThat(e.getCause(), is(instanceOf(BadRequestException.class))); // (6)
+              try {
+                  // setup and run the test
+                  mockMvc.perform(post("/member/register")
+                          // omitted
+                          .param("password", "testpassword")
+                          .param("reEnterPassword", "")) // (5)
+                          // assert
+                          .andExpect(status().is(400))
+                          .andExpect(view().name("common/error/badRequest-error"))
+                          .andReturn();
+
+                  fail("test failure!");
+              } catch (Exception e) {
+
+                  // assert
+                  assertThat(e, is(instanceOf(ServletException.class)));         // (6)
+                  assertThat(e.getCause(), is(instanceOf(BadRequestException.class))); // (6)
+              }
           }
       }
-  }
 
-.. tabularcolumns:: |p{0.10\linewidth}|p{0.90\linewidth}|
-.. list-table::
-  :header-rows: 1
-  :widths: 10 90
-  :class: longtable
+    .. tabularcolumns:: |p{0.10\linewidth}|p{0.90\linewidth}|
+    .. list-table::
+      :header-rows: 1
+      :widths: 10 90
+      :class: longtable
 
-  * - 項番
-    - 説明
-  * - | (1)
-    - | \ ``MemberRegisterController``\ クラスが依存する\ ``Service``\ 、\ ``Repository``\ を動作させるために必要な設定ファイル（アプリケーションが保持する\ ``applicationContext.xml``\ とそれを補う\ ``test-context.xml``\、 \ ``spring-mvc-test.xml``\）を読み込む。\ ``test-context.xml``\ は、\ :ref:`PreparationForTestMakeSettingFileForSpringTest`\ を使用している。
-  * - | (2)
-    - | 読み込んだBean定義から生成した\ ``Controller``\ を使用して、\ ``MockMvc``\ をセットアップする。
-      | セットアップの詳細については\ :ref:`UsageOfLibraryForTestSettingMockMvc`\ を参照されたい。
-  * - | (3)
-    - | \ ``MemberRegisterController``\ クラスの\ ``registerConfirm``\ メソッドを呼び出すため、\ ``/member/register``\ に対してPOSTメソッドでリクエストを送信する。リクエストパラメータには\ ``Form``\ の情報を設定する。
-      | リクエストデータの設定方法については\ :ref:`UsageOfLibraryForTestSettingOfRequestData`\ を、リクエスト送信の実装方法については\ :ref:`UsageOfLibraryForTestExecutionOfRequest`\ を参照されたい。
-  * - | (4)
-    - | \ ``perform``\ メソッドから返却された\ ``ResultActions``\ の\ ``andExpect``\メソッドで取得した\ ``MvcResult``\ を使用して実行結果の妥当性を検証する。
-      | 検証方法の詳細については\ :ref:`UsageOfLibraryForTestImplementationOfExecutionResultVerification`\ を参照されたい。
-  * - | (5)
-    - | 不正な入力値を送信する。
-  * - | (6)
-    - | \ ``SystemExceptionResolver``\ を有効にしていないため、例外ハンドリングされずに\ ``ServletException``\ がサーブレットコンテナに通知される。
-      |  \ ``ServletException``\ の\ ``getCause``\ メソッドにより取得された例外から、\ ``Controller``\ で期待した例外がthrowされていることを検証する。
+      * - 項番
+        - 説明
+      * - | (1)
+        - | \ ``MemberRegisterController``\ クラスが依存する\ ``Service``\ 、\ ``Repository``\ を動作させるために必要な設定ファイル（アプリケーションが保持する\ ``ApplicationContextConfig.class``\ とそれを補う\ ``TestContextConfig.class``\ 、 \ ``SpringMvcTestConfig.class``\ ）を読み込む。\ ``TestContextConfig.class``\ は、\ :ref:`PreparationForTestMakeSettingFileForSpringTest`\ を使用している。
+      * - | (2)
+        - | 読み込んだBean定義から生成した\ ``Controller``\ を使用して、\ ``MockMvc``\ をセットアップする。セットアップの詳細については\ :ref:`UsageOfLibraryForTestSettingMockMvc`\ を参照されたい。
+      * - | (3)
+        - | \ ``MemberRegisterController``\ クラスの\ ``registerConfirm``\ メソッドを呼び出すため、\ ``/member/register``\ に対してPOSTメソッドでリクエストを送信する。リクエストパラメータには\ ``Form``\ の情報を設定する。リクエストデータの設定方法については\ :ref:`UsageOfLibraryForTestSettingOfRequestData`\ を、リクエスト送信の実装方法については\ :ref:`UsageOfLibraryForTestExecutionOfRequest`\ を参照されたい。
+      * - | (4)
+        - | \ ``perform``\ メソッドから返却された\ ``ResultActions``\ の\ ``andExpect``\ メソッドで取得した\ ``MvcResult``\ を使用して実行結果の妥当性を検証する。検証方法の詳細については\ :ref:`UsageOfLibraryForTestImplementationOfExecutionResultVerification`\ を参照されたい。
+      * - | (5)
+        - | 不正な入力値を送信する。
+      * - | (6)
+        - | \ ``SystemExceptionResolver``\ を有効にしていないため、例外ハンドリングされずに\ ``ServletException``\ がサーブレットコンテナに通知される。\ ``ServletException``\ の\ ``getCause``\ メソッドにより取得された例外から、\ ``Controller``\ で期待した例外がthrowされていることを検証する。
+
+  .. group-tab:: XML Config
+
+    .. figure:: ./images_ImplementsOfTestByLayer/ImplementsOfTestByLayerControllerStandaloneSetupItems.png
+
+    .. tabularcolumns:: |p{0.50\linewidth}|p{0.50\linewidth}|
+    .. list-table::
+      :header-rows: 1
+      :widths: 50 50
+
+      * - 作成するファイル名
+        - 説明
+      * - \ ``MemberRegisterControllerStandaloneTest.java``\
+        - \ ``MemberRegisterController.java``\ のテストクラス
+      * - \ ``spring-mvc-test.xml``\
+        - アプリケーション層に依存するコンポーネントを読み込むための\ ``component-scan``\ をテスト用に抽出した設定ファイル。
+      * - \ ``test-context.xml``\
+        - \ ``Controller``\ をドメイン層、インフラストラクチャ層と結合してテストを行う場合に使用する設定ファイル。
+
+    |
+
+    \ ``spring-mvc.xml``\ を使ってテストをすることが望ましいが、Spring Testが作成したコンテキストとSpring MVCが作成したコンテキストが衝突しテスト実行ができないことがある。そのため対応策として、テストに必要な設定のみ抽出し、テスト用の設定ファイルを用意する。
+
+    以下に、必要な設定のみ抽出した設定ファイルを示す。
+
+    * ``spring-mvc-test.xml``
+
+    .. code-block:: xml
+
+      <context:component-scan base-package="com.example.app" />
+
+    \ ``ServiceImpl``\ クラスなどテスト対象の\ ``Controller``\ クラスが依存するクラスをインジェクションする場合のテスト作成方法を説明する。なお、テストでデータアクセスする場合の検証方法は\ :ref:`ImplementsOfTestByLayerUnitTestOfRepository`\ を、呼び出すドメイン層のロジックを確認する方法は\ :ref:`ImplementsOfTestByLayerUnitTestOfService`\ を参照されたい。
+
+    以下に、テスト対象となる\ ``Controller``\ の実装例を示す。
+
+    * \ ``MemberRegisterController.java``\
+
+    .. code-block:: java
+
+      @Controller
+       @RequestMapping("member/register")
+       @TransactionTokenCheck("member/register")
+       public class MemberRegisterController {
+
+          @TransactionTokenCheck(type = TransactionTokenType.IN)
+          @PostMapping
+          public String register(@Validated MemberRegisterForm memberRegisterForm,
+              BindingResult result, Model model, RedirectAttributes redirectAttributes) {
+
+              if (result.hasErrors()) {
+                  throw new BadRequestException(result);
+              }
+
+              // omitted
+
+              return "redirect:/member/register?complete";
+          }
+      }
+
+    ここでは、テスト対象の\ ``MemberRegisterController``\ クラスの\ ``register``\ メソッドを呼び出し、リクエストマッピングと返却されるVIEWおよびリダイレクトされること（\ ``testRegisterConfirm01``\ ）、不正な入力値を送信したときに\ ``BadRequestException``\ がthrowされていること（\ ``testRegisterConfirm02``\ ）の確認を行う。
+
+    以下に、\ ``ServiceImpl``\ クラスなどテスト対象の\ ``Controller``\ クラスが依存するクラスをインジェクションする場合のテスト作成方法を説明する。なお、テストでデータアクセスする場合の検証方法は\ :ref:`ImplementsOfTestByLayerUnitTestOfRepository`\ を参照されたい。
+
+    * \ ``MemberRegisterControllerStandaloneTest.java``\
+
+    .. code-block:: java
+
+      import static org.hamcrest.CoreMatchers.is;
+      import static org.hamcrest.MatcherAssert.assertThat;
+      import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
+      import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.log;
+      import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.model;
+      import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
+      import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.view;
+
+      @RunWith(SpringJUnit4ClassRunner.class)
+      @ContextConfiguration(locations = {
+              "classpath:META-INF/spring/applicationContext.xml", // (1)
+              "classpath:META-INF/spring/test-context.xml",       // (1)
+              "classpath:META-INF/spring/spring-mvc-test.xml"})   // (1)
+      public class MemberRegisterControllerStandaloneTest {
+
+          @Inject
+          MemberRegisterController target;
+
+          MockMvc mockMvc;
+
+          @Before
+          public void setUp() {
+
+              // setup
+              mockMvc = MockMvcBuilders.standaloneSetup(target).alwaysDo(log()).build(); // (2)
+          }
+
+          @Test
+          public void testRegisterConfirm01() throws Exception {
+
+              // setup and run the test
+              mockMvc.perform(post("/member/register")
+                          // omitted
+                          .param("password", "testpassword")          // (3)
+                          .param("reEnterPassword", "testpassword"))) // (3)
+                          // assert
+                          .andExpect(status().is(302))                                  // (4)
+                          .andExpect(view().name("redirect:/member/register?complete")) // (4)
+                          .andExpect(model().hasNoErrors());                            // (4)
+          }
+
+          @Test
+          public void testRegisterConfirm02() throws Exception {
+
+              try {
+                  // setup and run the test
+                  mockMvc.perform(post("/member/register")
+                          // omitted
+                          .param("password", "testpassword")
+                          .param("reEnterPassword", "")) // (5)
+                          // assert
+                          .andExpect(status().is(400))
+                          .andExpect(view().name("common/error/badRequest-error"))
+                          .andReturn();
+
+                  fail("test failure!");
+              } catch (Exception e) {
+
+                  // assert
+                  assertThat(e, is(instanceOf(ServletException.class)));         // (6)
+                  assertThat(e.getCause(), is(instanceOf(BadRequestException.class))); // (6)
+              }
+          }
+      }
+
+    .. tabularcolumns:: |p{0.10\linewidth}|p{0.90\linewidth}|
+    .. list-table::
+      :header-rows: 1
+      :widths: 10 90
+      :class: longtable
+
+      * - 項番
+        - 説明
+      * - | (1)
+        - | \ ``MemberRegisterController``\ クラスが依存する\ ``Service``\ 、\ ``Repository``\ を動作させるために必要な設定ファイル（アプリケーションが保持する\ ``applicationContext.xml``\ とそれを補う\ ``test-context.xml``\ 、 \ ``spring-mvc-test.xml``\ ）を読み込む。\ ``test-context.xml``\ は、\ :ref:`PreparationForTestMakeSettingFileForSpringTest`\ を使用している。
+      * - | (2)
+        - | 読み込んだBean定義から生成した\ ``Controller``\ を使用して、\ ``MockMvc``\ をセットアップする。セットアップの詳細については\ :ref:`UsageOfLibraryForTestSettingMockMvc`\ を参照されたい。
+      * - | (3)
+        - | \ ``MemberRegisterController``\ クラスの\ ``registerConfirm``\ メソッドを呼び出すため、
+            \ ``/member/register``\ に対してPOSTメソッドでリクエストを送信する。リクエストパラメータには\ ``Form``\ の情報を設定する。リクエストデータの設定方法については\ :ref:`UsageOfLibraryForTestSettingOfRequestData`\ を、リクエスト送信の実装方法については\ :ref:`UsageOfLibraryForTestExecutionOfRequest`\ を参照されたい。
+      * - | (4)
+        - | \ ``perform``\ メソッドから返却された\ ``ResultActions``\ の\ ``andExpect``\ メソッドで取得した\ ``MvcResult``\ を使用して実行結果の妥当性を検証する。検証方法の詳細については\ :ref:`UsageOfLibraryForTestImplementationOfExecutionResultVerification`\ を参照されたい。
+      * - | (5)
+        - | 不正な入力値を送信する。
+      * - | (6)
+        - | \ ``SystemExceptionResolver``\ を有効にしていないため、例外ハンドリングされずに\ ``ServletException``\ がサーブレットコンテナに通知される。\ ``ServletException``\ の\ ``getCause``\ メソッドにより取得された例外から、\ ``Controller``\ で期待した例外がthrowされていることを検証する。
 
 |
 
@@ -997,7 +1628,12 @@ WebAppContextSetupを利用したテスト
 
 \ ``Controller``\ の依存クラスが利用できモック化する必要がない場合の\ ``Controller``\ の単体テストにおいて、\ ``WebAppContextSetup``\ で作成するファイルを以下に示す。
 
-.. figure:: ./images_ImplementsOfTestByLayer/ImplementsOfTestByLayerControllerWebAppContextSetupItems.png
+.. tabs::
+  .. group-tab:: Java Config
+    .. figure:: ./images_ImplementsOfTestByLayer/ImplementsOfTestByLayerControllerWebAppContextSetupItems_JavaConfig.png
+
+  .. group-tab:: XML Config
+    .. figure:: ./images_ImplementsOfTestByLayer/ImplementsOfTestByLayerControllerWebAppContextSetupItems.png
 
 .. tabularcolumns:: |p{0.30\linewidth}|p{0.70\linewidth}|
 .. list-table::
@@ -1069,199 +1705,392 @@ WebAppContextSetupを利用したテスト
 
 * \ ``MemberRegisterControllerWebAppContextTest.java``\
 
-.. code-block:: java
+.. tabs::
+  .. group-tab:: Java Config
 
-  import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
-  import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.log;
-  import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
-  import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.view;
+    .. code-block:: java
 
-  @RunWith(SpringJUnit4ClassRunner.class)
-  @ContextHierarchy({@ContextConfiguration(                                   // (1)
-          "classpath:META-INF/spring/applicationContext.xml"),                // (1)
-          @ContextConfiguration("classpath:META-INF/spring/spring-mvc.xml")}) // (1)
-  @WebAppConfiguration                                                        // (1)
-  public class MemberRegisterControllerWebAppContextTest {
+      import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
+      import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.log;
+      import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
+      import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.view;
 
-      @Inject
-      WebApplicationContext webApplicationContext; // (2)
+      @RunWith(SpringJUnit4ClassRunner.class)
+      @ContextHierarchy({ @ContextConfiguration(classes = { ApplicationContextConfig.class, SpringSecurityConfig.class }),
+            @ContextConfiguration(classes = { SpringMvcConfig.class }) }) // (1)
+      @WebAppConfiguration                                                        // (1)
+      public class MemberRegisterControllerWebAppContextTest {
 
-      MockMvc mockMvc;
+          @Inject
+          WebApplicationContext webApplicationContext; // (2)
 
-      @Before
-      public void setUp() {
+          MockMvc mockMvc;
 
-          // setup
-          mockMvc = MockMvcBuilders.webAppContextSetup(webApplicationContext) // (2)
-                  .alwaysDo(log()).build();
+          @Before
+          public void setUp() {
+
+              // setup
+              mockMvc = MockMvcBuilders.webAppContextSetup(webApplicationContext) // (2)
+                      .alwaysDo(log()).build();
+          }
+
+          @Test
+          public void testRegisterConfirm01() throws Exception {
+
+              // setup and run the test
+              MvcResult mvcResult = mockMvc.perform(post("/member/register") // (3)
+                          .param("confirm", "")                              // (3)
+                          // omitted
+                          .param("password", "testpassword")                 // (3)
+                          .param("reEnterPassword", "testpassword"))         // (3)
+                          // assert
+                          .andExpect(status().isOk())
+                          .andExpect(view().name("C1/memberRegisterConfirm"))
+                          .andReturn();
+
+              TransactionToken actTransactionToken = (TransactionToken) mvcResult.getRequest()
+                      .getAttribute(TransactionTokenInterceptor.NEXT_TOKEN_REQUEST_ATTRIBUTE_NAME); // (4)
+
+              MockHttpSession mockSession = (MockHttpSession) mvcResult.getRequest().getSession();  // (5)
+
+              // setup and run the test
+              mockMvc.perform(post("/member/register")              // (6)
+                          // omitted
+                          .param("password", "testpassword")        // (6)
+                          .param("reEnterPassword", "testpassword") // (6)
+                          .param(TransactionTokenInterceptor.TOKEN_REQUEST_PARAMETER, 
+                                  actTransactionToken.getTokenString()) // (6)
+                          .session(mockSession)) // (6)
+                          // assert
+                          .andExpect(status().isFound())                                   // (7)
+                          .andExpect(view().name("redirect:/member/register?complete")); // (7)
+          }
       }
 
-      @Test
-      public void testRegisterConfirm01() throws Exception {
+    .. tabularcolumns:: |p{0.10\linewidth}|p{0.90\linewidth}|
+    .. list-table::
+      :header-rows: 1
+      :widths: 10 90
+      :class: longtable
 
-          // setup and run the test
-          MvcResult mvcResult = mockMvc.perform(post("/member/register") // (3)
-                      .param("confirm", "")                              // (3)
-                      // omitted
-                      .param("password", "testpassword")                 // (3)
-                      .param("reEnterPassword", "testpassword"))         // (3)
-                      // assert
-                      .andExpect(status().isOk())
-                      .andExpect(view().name("C1/memberRegisterConfirm"))
-                      .andReturn();
+      * - 項番
+        - 説明
+      * - | (1)
+        - | 業務でカスタムした\ ``Interceptor``\ や\ ``ExceptionResolver``\ などを動作させるために\ ``SpringMvcConfig.class``\ を読み込む。
+      * - | (2)
+        - | 読み込んだBean定義から生成したWebアプリケーションコンテキストを使用して、\ ``MockMvc``\ をセットアップする。
+      * - | (3)
+        - | トランザクショントークンを生成するために、\ ``@TransactionTokenCheck(type = TransactionTokenType.BEGIN)``\ が設定されたメソッドに対してリクエストを送信する。
+      * - | (4)
+        - | BEGINしたリクエスト（\ ``registerConfirm``\ メソッド）からINのリクエスト（\ ``register``\ メソッド）にトランザクショントークンを引き継ぐため、リクエスト属性からトランザクショントークンを取得する。
+      * - | (5)
+        - | サーバ側は発行したトランザクショントークンをセッションに保持するため、次のリクエストでも同じセッションを参照する必要があるが、\ ``MockMvc``\ では１リクエストごとに新規セッションが使われてしまうため、明示的に同じセッションを使用するよう指定する。
+      * - | (6)
+        - | 再度、リクエストパス（\ ``/member/register``\ ）に対してPOSTメソッドでリクエストを送信する。リクエストパラメータには\ ``Form``\ の情報、(4)で取得したトランザクショントークンを設定し、セッションには(5)で取得したセッションを設定する。
+      * - | (7)
+        - | トランザクショントークンチェックの設定が正しいことを確認するために、トークンチェックエラーになっていないことを検証する。
 
-          TransactionToken actTransactionToken = (TransactionToken) mvcResult.getRequest()
-                  .getAttribute(TransactionTokenInterceptor.NEXT_TOKEN_REQUEST_ATTRIBUTE_NAME); // (4)
+  .. group-tab:: XML Config
 
-          MockHttpSession mockSession = (MockHttpSession) mvcResult.getRequest().getSession();  // (5)
+    .. code-block:: java
 
-          // setup and run the test
-          mockMvc.perform(post("/member/register")              // (6)
-                      // omitted
-                      .param("password", "testpassword")        // (6)
-                      .param("reEnterPassword", "testpassword") // (6)
-                      .param(TransactionTokenInterceptor.TOKEN_REQUEST_PARAMETER, 
-                              actTransactionToken.getTokenString()) // (6)
-                      .session(mockSession)) // (6)
-                      // assert
-                      .andExpect(status().isFound())                                   // (7)
-                      .andExpect(view().name("redirect:/member/register?complete")); // (7)
+      import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
+      import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.log;
+      import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
+      import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.view;
+
+      @RunWith(SpringJUnit4ClassRunner.class)
+      @ContextHierarchy({@ContextConfiguration(                                   // (1)
+              "classpath:META-INF/spring/applicationContext.xml"),                // (1)
+              @ContextConfiguration("classpath:META-INF/spring/spring-mvc.xml")}) // (1)
+      @WebAppConfiguration                                                        // (1)
+      public class MemberRegisterControllerWebAppContextTest {
+
+          @Inject
+          WebApplicationContext webApplicationContext; // (2)
+
+          MockMvc mockMvc;
+
+          @Before
+          public void setUp() {
+
+              // setup
+              mockMvc = MockMvcBuilders.webAppContextSetup(webApplicationContext) // (2)
+                      .alwaysDo(log()).build();
+          }
+
+          @Test
+          public void testRegisterConfirm01() throws Exception {
+
+              // setup and run the test
+              MvcResult mvcResult = mockMvc.perform(post("/member/register") // (3)
+                          .param("confirm", "")                              // (3)
+                          // omitted
+                          .param("password", "testpassword")                 // (3)
+                          .param("reEnterPassword", "testpassword"))         // (3)
+                          // assert
+                          .andExpect(status().isOk())
+                          .andExpect(view().name("C1/memberRegisterConfirm"))
+                          .andReturn();
+
+              TransactionToken actTransactionToken = (TransactionToken) mvcResult.getRequest()
+                      .getAttribute(TransactionTokenInterceptor.NEXT_TOKEN_REQUEST_ATTRIBUTE_NAME); // (4)
+
+              MockHttpSession mockSession = (MockHttpSession) mvcResult.getRequest().getSession();  // (5)
+
+              // setup and run the test
+              mockMvc.perform(post("/member/register")              // (6)
+                          // omitted
+                          .param("password", "testpassword")        // (6)
+                          .param("reEnterPassword", "testpassword") // (6)
+                          .param(TransactionTokenInterceptor.TOKEN_REQUEST_PARAMETER, 
+                                  actTransactionToken.getTokenString()) // (6)
+                          .session(mockSession)) // (6)
+                          // assert
+                          .andExpect(status().isFound())                                   // (7)
+                          .andExpect(view().name("redirect:/member/register?complete")); // (7)
+          }
       }
-  }
 
-.. tabularcolumns:: |p{0.10\linewidth}|p{0.90\linewidth}|
-.. list-table::
-  :header-rows: 1
-  :widths: 10 90
-  :class: longtable
+    .. tabularcolumns:: |p{0.10\linewidth}|p{0.90\linewidth}|
+    .. list-table::
+      :header-rows: 1
+      :widths: 10 90
+      :class: longtable
 
-  * - 項番
-    - 説明
-  * - | (1)
-    - | 業務でカスタムした\ ``Interceptor``\ や\ ``ExceptionResolver``\ などを動作させるために\ ``spring-mvc.xml``\ を読み込む。
-  * - | (2)
-    - | 読み込んだBean定義から生成したWebアプリケーションコンテキストを使用して、\ ``MockMvc``\ をセットアップする。
-  * - | (3)
-    - | トランザクショントークンを生成するために、\ ``@TransactionTokenCheck(type = TransactionTokenType.BEGIN)``\ が設定されたメソッドに対してリクエストを送信する。
-  * - | (4)
-    - | BEGINしたリクエスト（\ ``registerConfirm``\ メソッド）からINのリクエスト（\ ``register``\ メソッド）にトランザクショントークンを引き継ぐため、リクエスト属性からトランザクショントークンを取得する。
-  * - | (5)
-    - | サーバ側は発行したトランザクショントークンをセッションに保持するため、次のリクエストでも同じセッションを参照する必要があるが、\ ``MockMvc``\ では１リクエストごとに新規セッションが使われてしまうため、明示的に同じセッションを使用するよう指定する。
-  * - | (6)
-    - | 再度、リクエストパス（\ ``/member/register``\）に対してPOSTメソッドでリクエストを送信する。リクエストパラメータには\ ``Form``\ の情報、(4)で取得したトランザクショントークンを設定し、セッションには(5)で取得したセッションを設定する。
-  * - | (7)
-    - | トランザクショントークンチェックの設定が正しいことを確認するために、トークンチェックエラーになっていないことを検証する。
+      * - 項番
+        - 説明
+      * - | (1)
+        - | 業務でカスタムした\ ``Interceptor``\ や\ ``ExceptionResolver``\ などを動作させるために\ ``spring-mvc.xml``\ を読み込む。
+      * - | (2)
+        - | 読み込んだBean定義から生成したWebアプリケーションコンテキストを使用して、\ ``MockMvc``\ をセットアップする。
+      * - | (3)
+        - | トランザクショントークンを生成するために、\ ``@TransactionTokenCheck(type = TransactionTokenType.BEGIN)``\ が設定されたメソッドに対してリクエストを送信する。
+      * - | (4)
+        - | BEGINしたリクエスト（\ ``registerConfirm``\ メソッド）からINのリクエスト（\ ``register``\ メソッド）にトランザクショントークンを引き継ぐため、リクエスト属性からトランザクショントークンを取得する。
+      * - | (5)
+        - | サーバ側は発行したトランザクショントークンをセッションに保持するため、次のリクエストでも同じセッションを参照する必要があるが、\ ``MockMvc``\ では１リクエストごとに新規セッションが使われてしまうため、明示的に同じセッションを使用するよう指定する。
+      * - | (6)
+        - | 再度、リクエストパス（\ ``/member/register``\ ）に対してPOSTメソッドでリクエストを送信する。リクエストパラメータには\ ``Form``\ の情報、(4)で取得したトランザクショントークンを設定し、セッションには(5)で取得したセッションを設定する。
+      * - | (7)
+        - | トランザクショントークンチェックの設定が正しいことを確認するために、トークンチェックエラーになっていないことを検証する。
 
 |
 
 次に、\ ``SystemExceptionResolver``\ を有効にした場合におけるテスト作成方法の相違点を説明する。
 
-以下に、\ ``SystemExceptionResolver``\の定義例を示す。
+以下に、\ ``SystemExceptionResolver``\ の定義例を示す。
 
-* \ ``spring-mvc.xml``\
+.. tabs::
+  .. group-tab:: Java Config
 
-.. code-block:: xml
+    * \ ``SpringMvcConfig.java``\
 
-  <bean class="org.terasoluna.gfw.web.exception.SystemExceptionResolver">
-      <property name="order" value="3" />
-      <property name="exceptionMappings">
+    .. code-block:: java
+
+      @Bean
+      public SystemExceptionResolver systemExceptionResolver(ExceptionCodeResolver exceptionCodeResolver) {
+          SystemExceptionResolver bean = new SystemExceptionResolver();
+          bean.setOrder(3);
+
+          Properties exceptionMappings = new Properties();
+          exceptionMappings.setProperty("InvalidTransactionTokenException", "common/error/token-error");
+          exceptionMappings.setProperty("BadRequestException", "common/error/badRequest-error");
+          exceptionMappings.setProperty("Exception", "common/error/system-error");
+          bean.setExceptionMappings(exceptionMappings);
+
+          Properties statusCodes = new Properties();
+          statusCodes.setProperty("common/error/token-error", String.valueOf(HttpStatus.CONFLICT.value()));
+          statusCodes.setProperty("common/error/badRequest-error", String.valueOf(HttpStatus.BAD_REQUEST.value()));
+          bean.setStatusCodes(statusCodes);
+
+          bean.setDefaultStatusCode(HttpStatus.INTERNAL_SERVER_ERROR.value());
+          bean.setExceptionCodeResolver(exceptionCodeResolver);
+          bean.setPreventResponseCaching(true);
+
+          return bean;
+      }
+
+    以下に、テスト作成方法の相違点について説明する。
+
+    * \ ``MemberRegisterControllerWebAppContextTest.java``\
+
+    .. code-block:: java
+
+      import static org.hamcrest.CoreMatchers.is;
+      import static org.hamcrest.MatcherAssert.assertThat;
+      import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
+      import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.log;
+      import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
+      import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.view;
+
+      @RunWith(SpringJUnit4ClassRunner.class)
+      @ContextHierarchy({ @ContextConfiguration(classes = { ApplicationContextConfig.class, SpringSecurityConfig.class }),
+            @ContextConfiguration(classes = { SpringMvcConfig.class }) })
+      @WebAppConfiguration
+      public class MemberRegisterControllerWebAppContextTest {
+
+          @Inject
+          WebApplicationContext webApplicationContext;
+
+          MockMvc mockMvc;
+
+          @Before
+          public void setUp() {
+
+              // setup
+              mockMvc = MockMvcBuilders.webAppContextSetup(webApplicationContext)
+                      .alwaysDo(log()).build();
+          }
+
+          @Test
+          public void testRegisterConfirm02() throws Exception {
+
+              // omitted
+
+              // setup and run the test
+              mvcResult = mockMvc.perform(post("/member/register")
+                          .param("password", "testpassword")
+                          .param("reEnterPassword", "") // (1)
+                          .param(TransactionTokenInterceptor.TOKEN_REQUEST_PARAMETER, 
+                                  actTransactionToken.getTokenString()) // (2)
+                          .session(mockSession)) // (2)
+                          // assert
+                          .andExpect(status().isBadRequest())                      // (3)
+                          .andExpect(view().name("common/error/badRequest-error")) // (3)
+                          .andReturn();
+
+              // assert
+              Exception exception = mvcResult.getResolvedException();                   // (4)
+              assertThat(exception, is(instanceOf(BadRequestException.class)));         // (4)
+              assertThat(exception.getMessage(), is(
+                  "[e.ar.a0.L9001] 不正リクエスト(パラメータ改竄) org.springframework.validation.BeanPropertyBindingResult: 1 errors\n"
+                          + "Error in object 'memberRegisterForm': codes [e.ar.c1.5001.memberRegisterForm,e.ar.c1.5001]; arguments []; default message [null]")); // (4)
+          }
+      }
+
+    .. tabularcolumns:: |p{0.10\linewidth}|p{0.90\linewidth}|
+    .. list-table::
+      :header-rows: 1
+      :widths: 10 90
+      :class: longtable
+
+      * - 項番
+        - 説明
+      * - | (1)
+        - | \ ``Form``\ の情報を不正な値にすることで、\ ``register``\ メソッドの内でエラーをthrowさせている。
+      * - | (2)
+        - | 前述と同様に、生成したトランザクショントークン情報を設定する。
+      * - | (3)
+        - | ここでは\ ``SystemExceptionResolver``\ が有効になっているため、定義したエラーのステータスコード、エラーページの遷移先が正しく設定されていることを検証する。
+      * - | (4)
+        - | \ ``SystemExceptionResolver``\ で例外ハンドリングされたエラーから、期待したエラーがthrowされていることを検証する。
+
+  .. group-tab:: XML Config
+
+    * \ ``spring-mvc.xml``\
+
+    .. code-block:: xml
+
+      <bean class="org.terasoluna.gfw.web.exception.SystemExceptionResolver">
+        <property name="order" value="3" />
+        <property name="exceptionMappings">
           <map>
-              <entry key="InvalidTransactionTokenException" value="common/error/token-error" />
-              <entry key="BadRequestException" value="common/error/badRequest-error" />
-              <entry key="Exception" value="common/error/system-error" />
+            <entry key="InvalidTransactionTokenException" value="common/error/token-error" />
+            <entry key="BadRequestException" value="common/error/badRequest-error" />
+            <entry key="Exception" value="common/error/system-error" />
           </map>
-      </property>
-      <property name="statusCodes">
+        </property>
+        <property name="statusCodes">
           <map>
-              <entry key="common/error/token-error" value="409" />
-              <entry key="common/error/badRequest-error" value="400" />
+            <entry key="common/error/token-error" value="409" />
+            <entry key="common/error/badRequest-error" value="400" />
           </map>
-      </property>
-      <property name="excludedExceptions">
+        </property>
+        <property name="excludedExceptions">
           <array>
           </array>
-      </property>
-      <property name="defaultStatusCode" value="500" />
-      <property name="exceptionCodeResolver" ref="exceptionCodeResolver" />
-      <property name="preventResponseCaching" value="true" />
-  </bean>
+        </property>
+        <property name="defaultStatusCode" value="500" />
+        <property name="exceptionCodeResolver" ref="exceptionCodeResolver" />
+        <property name="preventResponseCaching" value="true" />
+      </bean>
 
-以下に、テスト作成方法の相違点について説明する。
+    以下に、テスト作成方法の相違点について説明する。
 
-* \ ``MemberRegisterControllerWebAppContextTest.java``\
+    * \ ``MemberRegisterControllerWebAppContextTest.java``\
 
-.. code-block:: java
+    .. code-block:: java
 
-  import static org.hamcrest.CoreMatchers.is;
-  import static org.hamcrest.MatcherAssert.assertThat;
-  import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
-  import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.log;
-  import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
-  import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.view;
+      import static org.hamcrest.CoreMatchers.is;
+      import static org.hamcrest.MatcherAssert.assertThat;
+      import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
+      import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.log;
+      import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
+      import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.view;
 
-  @RunWith(SpringJUnit4ClassRunner.class)
-  @ContextHierarchy({@ContextConfiguration(
-          "classpath:META-INF/spring/applicationContext.xml"),
-          @ContextConfiguration("classpath:META-INF/spring/spring-mvc.xml")})
-  @WebAppConfiguration
-  public class MemberRegisterControllerWebAppContextTest {
+      @RunWith(SpringJUnit4ClassRunner.class)
+      @ContextHierarchy({@ContextConfiguration(
+              "classpath:META-INF/spring/applicationContext.xml"),
+              @ContextConfiguration("classpath:META-INF/spring/spring-mvc.xml")})
+      @WebAppConfiguration
+      public class MemberRegisterControllerWebAppContextTest {
 
-      @Inject
-      WebApplicationContext webApplicationContext;
+          @Inject
+          WebApplicationContext webApplicationContext;
 
-      MockMvc mockMvc;
+          MockMvc mockMvc;
 
-      @Before
-      public void setUp() {
+          @Before
+          public void setUp() {
 
-          // setup
-          mockMvc = MockMvcBuilders.webAppContextSetup(webApplicationContext)
-                  .alwaysDo(log()).build();
+              // setup
+              mockMvc = MockMvcBuilders.webAppContextSetup(webApplicationContext)
+                      .alwaysDo(log()).build();
+          }
+
+          @Test
+          public void testRegisterConfirm02() throws Exception {
+
+              // omitted
+
+              // setup and run the test
+              mvcResult = mockMvc.perform(post("/member/register")
+                          .param("password", "testpassword")
+                          .param("reEnterPassword", "") // (1)
+                          .param(TransactionTokenInterceptor.TOKEN_REQUEST_PARAMETER, 
+                                  actTransactionToken.getTokenString()) // (2)
+                          .session(mockSession)) // (2)
+                          // assert
+                          .andExpect(status().isBadRequest())                      // (3)
+                          .andExpect(view().name("common/error/badRequest-error")) // (3)
+                          .andReturn();
+
+              // assert
+              Exception exception = mvcResult.getResolvedException();                   // (4)
+              assertThat(exception, is(instanceOf(BadRequestException.class)));         // (4)
+              assertThat(exception.getMessage(), is(
+                  "[e.ar.a0.L9001] 不正リクエスト(パラメータ改竄) org.springframework.validation.BeanPropertyBindingResult: 1 errors\n"
+                          + "Error in object 'memberRegisterForm': codes [e.ar.c1.5001.memberRegisterForm,e.ar.c1.5001]; arguments []; default message [null]")); // (4)
+          }
       }
 
-      @Test
-      public void testRegisterConfirm02() throws Exception {
+    .. tabularcolumns:: |p{0.10\linewidth}|p{0.90\linewidth}|
+    .. list-table::
+      :header-rows: 1
+      :widths: 10 90
+      :class: longtable
 
-          // omitted
-
-          // setup and run the test
-          mvcResult = mockMvc.perform(post("/member/register")
-                      .param("password", "testpassword")
-                      .param("reEnterPassword", "") // (1)
-                      .param(TransactionTokenInterceptor.TOKEN_REQUEST_PARAMETER, 
-                              actTransactionToken.getTokenString()) // (2)
-                      .session(mockSession)) // (2)
-                      // assert
-                      .andExpect(status().isBadRequest())                      // (3)
-                      .andExpect(view().name("common/error/badRequest-error")) // (3)
-                      .andReturn();
-
-          // assert
-          Exception exception = mvcResult.getResolvedException();                   // (4)
-          assertThat(exception, is(instanceOf(BadRequestException.class)));         // (4)
-          assertThat(exception.getMessage(), is(
-              "[e.ar.a0.L9001] 不正リクエスト(パラメータ改竄) org.springframework.validation.BeanPropertyBindingResult: 1 errors\n"
-                      + "Error in object 'memberRegisterForm': codes [e.ar.c1.5001.memberRegisterForm,e.ar.c1.5001]; arguments []; default message [null]")); // (4)
-      }
-  }
-
-.. tabularcolumns:: |p{0.10\linewidth}|p{0.90\linewidth}|
-.. list-table::
-  :header-rows: 1
-  :widths: 10 90
-  :class: longtable
-
-  * - 項番
-    - 説明
-  * - | (1)
-    - | \ ``Form``\ の情報を不正な値にすることで、\ ``register``\ メソッドの内でエラーをthrowさせている。
-  * - | (2)
-    - | 前述と同様に、生成したトランザクショントークン情報を設定する。
-  * - | (3)
-    - | ここでは\ ``SystemExceptionResolver``\ が有効になっているため、
-        定義したエラーのステータスコード、エラーページの遷移先が正しく設定されていることを検証する。
-  * - | (4)
-    - | \ ``SystemExceptionResolver``\ で例外ハンドリングされたエラーから、期待したエラーがthrowされていることを検証する。
+      * - 項番
+        - 説明
+      * - | (1)
+        - | \ ``Form``\ の情報を不正な値にすることで、\ ``register``\ メソッドの内でエラーをthrowさせている。
+      * - | (2)
+        - | 前述と同様に、生成したトランザクショントークン情報を設定する。
+      * - | (3)
+        - | ここでは\ ``SystemExceptionResolver``\ が有効になっているため、定義したエラーのステータスコード、エラーページの遷移先が正しく設定されていることを検証する。
+      * - | (4)
+        - | \ ``SystemExceptionResolver``\ で例外ハンドリングされたエラーから、期待したエラーがthrowされていることを検証する。
 
 .. note:: \ **Sessionを利用する場合**\
 
@@ -1320,7 +2149,7 @@ WebAppContextSetupを利用したテスト
       * - 項番
         - 説明
       * - | (1)
-        - | セッションのモックオブジェクトを生成する。クラスの詳細については、\ `MockHttpSession のJavadoc <https://docs.spring.io/spring-framework/docs/6.0.3/javadoc-api/org/springframework/mock/web/MockHttpSession.html>`_\ を参照されたい。
+        - | セッションのモックオブジェクトを生成する。クラスの詳細については、\ `MockHttpSession のJavadoc <https://docs.spring.io/spring-framework/docs/6.1.3/javadoc-api/org/springframework/mock/web/MockHttpSession.html>`_\ を参照されたい。
       * - | (2)
         - | 生成したセッションのモックオブジェクトに、格納したいオブジェクトをセットする。
       * - | (3)
@@ -1339,7 +2168,12 @@ WebAppContextSetupを利用したテスト
 
 \ ``Controller``\ の依存クラスをモック化する必要がある場合の\ ``Controller``\ の単体テストにおいて、作成するファイルを以下に示す。
 
-.. figure:: ./images_ImplementsOfTestByLayer/ImplementsOfTestByLayerControllerMockTest.png
+.. tabs::
+  .. group-tab:: Java Config
+    .. figure:: ./images_ImplementsOfTestByLayer/ImplementsOfTestByLayerControllerMockTest_JavaConfig.png
+
+  .. group-tab:: XML Config
+    .. figure:: ./images_ImplementsOfTestByLayer/ImplementsOfTestByLayerControllerMockTest.png
 
 .. tabularcolumns:: |p{0.30\linewidth}|p{0.70\linewidth}|
 .. list-table::
@@ -1473,4 +2307,3 @@ Helperの単体テスト
 .. raw:: latex
 
   \newpage
-

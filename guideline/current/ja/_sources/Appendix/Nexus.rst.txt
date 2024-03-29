@@ -6,6 +6,8 @@ NEXUSによるMavenリポジトリの管理
 
 本章ではOSS版のNEXUSの役割と設定方法などについて解決する。
 
+|
+
 Why NEXUS ?
 --------------------------------------------------------------------------------
 
@@ -122,9 +124,9 @@ Jenkinsサーバ内のJenkinsの実行ユーザーのホームディレクトリ
 
   <servers>
     <server>
-     <id>releases</id>
-     <username>deployment</username>
-     <password>deployment123</password>
+      <id>releases</id>
+      <username>deployment</username>
+      <password>deployment123</password>
     </server>
     <server>
       <id>snapshots</id>
@@ -175,7 +177,7 @@ Upload 3rd party artifact (ex. ojdbc6.jar)
 
 サードパーティ用リポジトリには、外部のリモートリポジトリでは公開されていないartifactを格納する。
 
-| 典型的な例が、oracleのJDBCドライバ(ojdbc\*.jar)である。
+| 典型的な例が、oracleのJDBCドライバ(\ ``ojdbc\*.jar``\ )である。
 | RDBMSとしてoracleを使用する場合に必須だが、セントラルリポジトリはもちろん、インターネット上の公開リポジトリに格納されていることはほとんどない。
 | そのため、組織内のパッケージリポジトリに格納しておく必要がある。
 
@@ -221,4 +223,3 @@ use artifact
 .. raw:: latex
 
   \newpage
-

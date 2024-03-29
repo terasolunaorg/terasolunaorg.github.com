@@ -125,7 +125,7 @@ Overview
       * メディアタイプが\ ``application/x-www-form-urlencoded``\ の場合、\ ``MultiValueMap<String, String>``\ として読込/書込される。
       * メディアタイプが\ ``multipart/form-data``\ の場合、\ ``MultiValueMap<String, Object>``\ として書込され、\ ``Object``\ は\ ``AllEncompassingFormHttpMessageConverter``\ 内に別途設定される\ ``HttpMessageConveter``\ で変換される。（注意： Note 参照）
 
-      | デフォルトで登録されるパートデータ変換用の\ ``HttpMessageConveter``\ は、\ `AllEncompassingFormHttpMessageConverter <https://github.com/spring-projects/spring-framework/blob/v6.0.3/spring-web/src/main/java/org/springframework/http/converter/support/AllEncompassingFormHttpMessageConverter.java>`_\と `FormHttpMessageConverter <https://github.com/spring-projects/spring-framework/blob/v6.0.3/spring-web/src/main/java/org/springframework/http/converter/FormHttpMessageConverter.java>`_\ のソースを参照されたい。なお、任意の\ ``HttpMessageConverter``\ を登録することもできる。
+      | デフォルトで登録されるパートデータ変換用の\ ``HttpMessageConveter``\ は、\ `AllEncompassingFormHttpMessageConverter <https://github.com/spring-projects/spring-framework/blob/v6.1.3/spring-web/src/main/java/org/springframework/http/converter/support/AllEncompassingFormHttpMessageConverter.java>`_\と `FormHttpMessageConverter <https://github.com/spring-projects/spring-framework/blob/v6.1.3/spring-web/src/main/java/org/springframework/http/converter/FormHttpMessageConverter.java>`_\ のソースを参照されたい。なお、任意の\ ``HttpMessageConverter``\ を登録することもできる。
     - | \ ``MultiValueMap``\ [#p3]_
 
 .. note:: \ **AllEncompassingFormHttpMessageConverterのメディアタイプがmultipart/form-dataの場合について**\
@@ -231,7 +231,7 @@ Overview
   * - | (2)
     - | \ ``org.springframework.http.client.``\
       | \ ``HttpComponentsClientHttpRequestFactory``\
-    - | \ `Apache HttpComponents HttpClient <https://hc.apache.org/httpcomponents-client-5.2.x/index.html>`_\ のAPIを使用して同期型の通信処理を行うための実装クラス。(HttpClient 5.2以上が必要)
+    - | \ `Apache HttpComponents HttpClient <https://hc.apache.org/httpcomponents-client-5.2.x/5.2.3/>`_\ のAPIを使用して同期型の通信処理を行うための実装クラス。(HttpClient 5.2以上が必要)
   * - | (3)
     - | \ ``org.springframework.http.client.``\
       | \ ``OkHttpClientHttpRequestFactory``\
@@ -240,6 +240,40 @@ Overview
 .. note:: \ **使用するClientHttpRequestFactoryの実装クラスについて**\
 
   \ ``RestTemplate``\ が使用するデフォルト実装は\ ``SimpleClientHttpRequestFactory``\ であり、本ガイドラインでも\ ``SimpleClientHttpRequestFactory``\ を使用した際の実装例となっている。Java SEの\ ``HttpURLConnection``\ で要件が満たせない場合は、Netty、Apache Http Componentsなどのライブラリの利用を検討されたい。
+
+.. note:: \ **Content-Lengthヘッダについて**\
+
+  Spring Framework 6.1より、\ ``RestTemplate``\ のメモリ使用量を減らすために、ほとんどの\ ``ClientHttpRequestFactory``\ 実装クラスはサーバーへ送信する前にリクエストボディをバッファリングしなくなった。これにより、Content-Lengthヘッダが設定されなくなったため、Content-Lengthヘッダを設定する必要がある場合は\ `BufferingClientHttpRequestFactory <https://docs.spring.io/spring-framework/docs/6.1.3/javadoc-api/org/springframework/http/client/BufferingClientHttpRequestFactory.html>`_\ で\ ``ClientHttpRequestFactory``\ をラップする必要がある。
+
+  - \ **bean定義ファイルの定義例**\
+
+    .. tabs::
+      .. group-tab:: Java Config
+  
+        - \ ``ApplicationContextConfig.java``\
+  
+          .. code-block:: java
+  
+            @Bean("restTemplate")
+            public RestTemplate restTemplate() {
+                return new RestTemplate(new BufferingClientHttpRequestFactory(new SimpleClientHttpRequestFactory()));
+            }
+  
+      .. group-tab:: XML Config
+  
+        - \ ``applicationContext.xml``\
+  
+          .. code-block:: xml
+  
+            <bean id="restTemplate" class="org.springframework.web.client.RestTemplate">
+                <constructor-arg>
+                    <bean class="org.springframework.http.client.BufferingClientHttpRequestFactory">
+                        <constructor-arg>
+                            <bean class="org.springframework.http.client.SimpleClientHttpRequestFactory" />
+                        </constructor-arg>
+                    </bean>
+                </constructor-arg>
+            </bean>
 
 |
 
@@ -308,7 +342,7 @@ How to use
 
   本ガイドラインでは、GETメソッドとPOSTメソッドを使用したクライアント処理の実装例のみを紹介するが、\ ``RestTemplate``\ は他のHTTPメソッド(PUT, PATCH, DELETE, HEAD, OPTIONSなど)もサポートしており、同じような要領で使用することができる。
 
-  詳細は\ `RestTemplateのJavadoc <https://docs.spring.io/spring-framework/docs/6.0.3/javadoc-api/org/springframework/web/client/RestTemplate.html>`_\ を参照されたい。
+  詳細は\ `RestTemplateのJavadoc <https://docs.spring.io/spring-framework/docs/6.1.3/javadoc-api/org/springframework/web/client/RestTemplate.html>`_\ を参照されたい。
 
 |
 
@@ -341,9 +375,9 @@ How to use
 
 .. note::
 
-    上記設定例は、依存ライブラリのバージョンを親プロジェクトである terasoluna-gfw-parent で管理する前提であるため、pom.xmlでのバージョンの指定は不要である。
+  上記設定例は、依存ライブラリのバージョンを親プロジェクトである terasoluna-gfw-parent で管理する前提であるため、pom.xmlでのバージョンの指定は不要である。
 
-    上記の依存ライブラリはterasoluna-gfw-parentが依存している\ `Spring Boot <https://docs.spring.io/spring-boot/docs/3.0.1/reference/htmlsingle/#dependency-versions>`_\ で管理されている。
+  上記の依存ライブラリはterasoluna-gfw-parentが依存している\ `Spring Boot <https://docs.spring.io/spring-boot/docs/3.2.2/reference/htmlsingle/#dependency-versions>`_\ で管理されている。
 
 .. tabularcolumns:: |p{0.10\linewidth}|p{0.90\linewidth}|
 .. list-table::
@@ -362,58 +396,118 @@ How to use
 
 \ ``RestTemplate``\ のbean定義を行い、DIコンテナに登録する。
 
-\ **bean定義ファイル(applicationContext.xml)の定義例**\
+\ **bean定義ファイルの定義例**\
 
-.. code-block:: xml
+.. tabs::
+  .. group-tab:: Java Config
 
-  <bean id="restTemplate" class="org.springframework.web.client.RestTemplate" /> <!-- (1) -->
+    - \ ``ApplicationContextConfig.java``\
 
-.. tabularcolumns:: |p{0.10\linewidth}|p{0.90\linewidth}|
-.. list-table::
-  :header-rows: 1
-  :widths: 10 90
+      .. code-block:: java
 
-  * - 項番
-    - 説明
-  * - | (1)
-    - | \ ``RestTemplate``\ をデフォルト設定のまま利用する場合は、デフォルトコンストラクタを使用してbeanを登録する。
+        @Bean("restTemplate")
+        public RestTemplate restTemplate() {
+            return new RestTemplate(); // (1)
+        }
+      
+      .. tabularcolumns:: |p{0.10\linewidth}|p{0.90\linewidth}|
+      .. list-table::
+        :header-rows: 1
+        :widths: 10 90
+      
+        * - 項番
+          - 説明
+        * - | (1)
+          - | \ ``RestTemplate``\ をデフォルト設定のまま利用する場合は、デフォルトコンストラクタを使用してbeanを登録する。
+
+  .. group-tab:: XML Config
+
+    - \ ``applicationContext.xml``\
+
+      .. code-block:: xml
+      
+        <bean id="restTemplate" class="org.springframework.web.client.RestTemplate" /> <!-- (1) -->
+      
+      .. tabularcolumns:: |p{0.10\linewidth}|p{0.90\linewidth}|
+      .. list-table::
+        :header-rows: 1
+        :widths: 10 90
+      
+        * - 項番
+          - 説明
+        * - | (1)
+          - | \ ``RestTemplate``\ をデフォルト設定のまま利用する場合は、デフォルトコンストラクタを使用してbeanを登録する。
 
 .. note:: \ **RestTemplateのカスタマイズ方法**\
-
+    
   HTTP通信処理をカスタマイズする場合は、以下のようなbean定義となる。
 
-    .. code-block:: xml
+    .. tabs::
+      .. group-tab:: Java Config
 
-      <bean id="clientHttpRequestFactory"
-          class="org.springframework.http.client.SimpleClientHttpRequestFactory"> <!-- (1) -->
-          <!-- Set properties for customize a http communication (omit on this sample) -->
-      </bean>
+        .. code-block:: java
+  
+          // (1)
+          @Bean("clientHttpRequestFactory")
+          public SimpleClientHttpRequestFactory clientHttpRequestFactory() {
+              SimpleClientHttpRequestFactory bean = new SimpleClientHttpRequestFactory();
+              // omitted
+              return bean;
+          }
+  
+          @Bean("restTemplate")
+          public RestTemplate restTemplate() {
+              return new RestTemplate(clientHttpRequestFactory()); // (2)
+          }
+      
+        .. tabularcolumns:: |p{0.10\linewidth}|p{0.90\linewidth}|
+        .. list-table::
+          :header-rows: 1
+          :widths: 10 90
+      
+          * - 項番
+            - 説明
+          * - | (1)
+            - | \ ``ClientHttpRequestFactory``\ のbean定義を行う。
+              | 本ガイドラインではタイムアウトの設定をカスタマイズする方法を紹介している。
+              | 詳細は\ :ref:`RestClientHowToUseTimeoutSettings`\ を参照されたい。
+          * - | (2)
+            - | \ ``ClientHttpRequestFactory``\ を引数に指定するコンストラクタを使用してbeanを登録する。
+    
+      .. group-tab:: XML Config
 
-      <bean id="restTemplate" class="org.springframework.web.client.RestTemplate">
-          <constructor-arg ref="clientHttpRequestFactory" /> <!-- (2) -->
-      </bean>
+        .. code-block:: xml
+    
+          <bean id="clientHttpRequestFactory"
+              class="org.springframework.http.client.SimpleClientHttpRequestFactory"> <!-- (1) -->
+              <!-- Set properties for customize a http communication (omit on this sample) -->
+          </bean>
+    
+          <bean id="restTemplate" class="org.springframework.web.client.RestTemplate">
+              <constructor-arg ref="clientHttpRequestFactory" /> <!-- (2) -->
+          </bean>
+    
+        .. tabularcolumns:: |p{0.10\linewidth}|p{0.90\linewidth}|
+        .. list-table::
+          :header-rows: 1
+          :widths: 10 90
+    
+          * - 項番
+            - 説明
+          * - | (1)
+            - | \ ``ClientHttpRequestFactory``\ のbean定義を行う。
+              | 本ガイドラインではタイムアウトの設定をカスタマイズする方法を紹介している。
+              | 詳細は\ :ref:`RestClientHowToUseTimeoutSettings`\ を参照されたい。
+          * - | (2)
+            - | \ ``ClientHttpRequestFactory``\ を引数に指定するコンストラクタを使用してbeanを登録する。
 
-    .. tabularcolumns:: |p{0.10\linewidth}|p{0.90\linewidth}|
-    .. list-table::
-      :header-rows: 1
-      :widths: 10 90
-
-      * - 項番
-        - 説明
-      * - | (1)
-        - | \ ``ClientHttpRequestFactory``\ のbean定義を行う。
-          | 本ガイドラインではタイムアウトの設定をカスタマイズする方法を紹介している。
-          | 詳細は\ :ref:`RestClientHowToUseTimeoutSettings`\ を参照されたい。
-      * - | (2)
-        - | \ ``ClientHttpRequestFactory``\ を引数に指定するコンストラクタを使用してbeanを登録する。
-
-  なお、\ ``HttpMessageConverter``\ 、\ ``ResponseErrorHandler``\ 、\ ``ClientHttpRequestInterceptor``\ のカスタマイズ方法については、
-
-  * \ :ref:`RestClientHowToExtendHttpMessageConverter`\
-  * \ :ref:`RestClientHowToUseErrorHandlingResponseEntity`\
-  * \ :ref:`RestClientHowToExtendClientHttpRequestInterceptor`\
-
-  を参照されたい。
+    なお、\ ``HttpMessageConverter``\ 、\ ``ResponseErrorHandler``\ 、\ ``ClientHttpRequestInterceptor``\ のカスタマイズ方法については、
+    
+    * \ :ref:`RestClientHowToExtendHttpMessageConverter`\
+    * \ :ref:`RestClientHowToUseErrorHandlingResponseEntity`\
+    * \ :ref:`RestClientHowToExtendClientHttpRequestInterceptor`\
+    
+    を参照されたい。
 
 |
 
@@ -463,7 +557,6 @@ GETリクエストの送信
 
   @Value("${api.url:http://localhost:8080/api}")
   URI uri;
-
 
 メソッド内部
 
@@ -515,11 +608,11 @@ HTTPステータスコード、レスポンスヘッダ、レスポンスボデ�
   * - | (4)
     - | レスポンスボディは\ ``getBody``\ メソッドを用いて取得する。
 
-.. note:: **ResponseEntityとは**
+.. note:: \ **ResponseEntityとは**\
 
   \ ``ResponseEntity``\ はHTTPレスポンスを表すクラスで、HTTPステータスコード、レスポンスヘッダ、レスポンスボディの情報を取得することができる。
 
-  詳細は\ `ResponseEntityのJavadoc <https://docs.spring.io/spring-framework/docs/6.0.3/javadoc-api/org/springframework/http/ResponseEntity.html>`_\ を参照されたい。
+  詳細は\ `ResponseEntityのJavadoc <https://docs.spring.io/spring-framework/docs/6.1.3/javadoc-api/org/springframework/http/ResponseEntity.html>`_\ を参照されたい。
 
 |
 
@@ -565,10 +658,10 @@ import部
   * - 項番
     - 説明
   * - | (1)
-    - | \ ``RequestEntity``\ の\ ``get``\メソッドを使用し、GETリクエスト用のリクエストビルダを生成する。
+    - | \ ``RequestEntity``\ の\ ``get``\ メソッドを使用し、GETリクエスト用のリクエストビルダを生成する。
       | パラメータにURIを設定する。
   * - | (2)
-    - | \ ``RequestEntity.HeadersBuilder``\ の\ ``build``\メソッドを使用し、\ ``RequestEntity``\ オブジェクトを作成する。
+    - | \ ``RequestEntity.HeadersBuilder``\ の\ ``build``\ メソッドを使用し、\ ``RequestEntity``\ オブジェクトを作成する。
   * - | (3)
     - | \ ``exchange``\ メソッドを使用し、リクエストを送信する。第二引数に、レスポンスデータの型を指定する。
       | レスポンスは、\ ``ResponseEntity<T>``\ になる。型パラメータに、レスポンスデータの型を設定する。
@@ -579,7 +672,7 @@ import部
 
   \ ``RequestEntity``\ はHTTPリクエストを表すクラスで、接続URI、HTTPメソッド、リクエストヘッダ、リクエストボディを設定することができる。
 
-  詳細は\ `RequestEntityのJavadoc <https://docs.spring.io/spring-framework/docs/6.0.3/javadoc-api/org/springframework/http/RequestEntity.html>`_\ を参照されたい。
+  詳細は\ `RequestEntityのJavadoc <https://docs.spring.io/spring-framework/docs/6.1.3/javadoc-api/org/springframework/http/RequestEntity.html>`_\ を参照されたい。
 
   なお、リクエストヘッダの設定方法については、\ :ref:`RestClientHowToUseRequestHeader`\ を参照されたい。
 
@@ -753,7 +846,7 @@ import部
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 | \ ``RequestEntity``\ と\ ``exchange``\ メソッドを使用すると、\ ``RequestEntity``\ のメソッドを使用して特定のヘッダ及び任意のヘッダを設定することができる。
-| 詳細は\ `RequestEntityのJavadoc <https://docs.spring.io/spring-framework/docs/6.0.3/javadoc-api/org/springframework/http/RequestEntity.html>`_\ を参照されたい。
+| 詳細は\ `RequestEntityのJavadoc <https://docs.spring.io/spring-framework/docs/6.1.3/javadoc-api/org/springframework/http/RequestEntity.html>`_\ を参照されたい。
 
 | 本ガイドラインでは、
 
@@ -990,27 +1083,63 @@ Acceptヘッダの設定
       | 上記の作成例では、デフォルトのエラーハンドラの実装クラスである\ ``DefaultResponseErrorHandler``\ を拡張し、
       | サーバエラー及びクライアントエラーが発生した際に例外を発生させずに\ ``ResponseEntity``\ が返るようにしている。
 
-\ **bean定義ファイル(applicationContext.xml)の定義例**\
+\ **bean定義ファイルの定義例**\
 
-.. code-block:: xml
+.. tabs::
+  .. group-tab:: Java Config
 
-  <bean id="customErrorHandler" class="com.example.restclient.CustomErrorHandler" /> <!-- (1) -->
+    - \ ``ApplicationContextConfig.java``\
 
-  <bean id="restTemplate" class="org.springframework.web.client.RestTemplate">
-      <property name="errorHandler" ref="customErrorHandler" /><!-- (2) -->
-  </bean>
+      .. code-block:: java
 
-.. tabularcolumns:: |p{0.10\linewidth}|p{0.90\linewidth}|
-.. list-table::
-  :header-rows: 1
-  :widths: 10 90
+        // (1)
+        @Bean("customErrorHandler")
+        public CustomErrorHandler customErrorHandler() {
+            return new CustomErrorHandler();
+        }
 
-  * - 項番
-    - 説明
-  * - | (1)
-    - | \ ``ResponseErrorHandler``\ の実装クラスのbean定義を行う。
-  * - | (2)
-    - | \ ``errorHandler``\ プロパティに\ ``ResponseErrorHandler``\ のbeanをインジェクションする。
+        @Bean("restTemplate")
+        public RestTemplate restTemplate() {
+            RestTemplate bean = new RestTemplate();
+            bean.setErrorHandler(customErrorHandler()); // (2)
+            return bean;
+        }
+      
+      .. tabularcolumns:: |p{0.10\linewidth}|p{0.90\linewidth}|
+      .. list-table::
+        :header-rows: 1
+        :widths: 10 90
+      
+        * - 項番
+          - 説明
+        * - | (1)
+          - | \ ``ResponseErrorHandler``\ の実装クラスのbean定義を行う。
+        * - | (2)
+          - | \ ``errorHandler``\ プロパティに\ ``ResponseErrorHandler``\ のbeanを設定する。
+
+  .. group-tab:: XML Config
+
+    - \ ``applicationContext.xml``\
+
+      .. code-block:: xml
+      
+        <bean id="customErrorHandler" class="com.example.restclient.CustomErrorHandler" /> <!-- (1) -->
+      
+        <bean id="restTemplate" class="org.springframework.web.client.RestTemplate">
+            <property name="errorHandler" ref="customErrorHandler" /><!-- (2) -->
+        </bean>
+      
+      .. tabularcolumns:: |p{0.10\linewidth}|p{0.90\linewidth}|
+      .. list-table::
+        :header-rows: 1
+        :widths: 10 90
+      
+        * - 項番
+          - 説明
+        * - | (1)
+          - | \ ``ResponseErrorHandler``\ の実装クラスのbean定義を行う。
+        * - | (2)
+          - | \ ``errorHandler``\ プロパティに\ ``ResponseErrorHandler``\ のbeanをインジェクションする。
 
 \ **クライアント処理の実装例**\
 
@@ -1069,33 +1198,129 @@ Acceptヘッダの設定
 
 サーバとの通信に対してタイムアウト時間を指定したい場合は、以下のようなbean定義を行う。
 
-\ **bean定義ファイル(applicationContext.xml)の定義例**\
+\ **bean定義ファイルの定義例**\
 
-.. code-block:: xml
+.. tabs::
+  .. group-tab:: Java Config
 
-  <bean id="clientHttpRequestFactory"
-        class="org.springframework.http.client.SimpleClientHttpRequestFactory">
-      <property name="connectTimeout" value="${api.connectTimeout: 2000}" /><!-- (1) -->
-      <property name="readTimeout" value="${api.readTimeout: 2000}" /><!-- (2) -->
-  </bean>
+    - \ ``ApplicationContextConfig.java``\
 
-  <bean id="restTemplate" class="org.springframework.web.client.RestTemplate">
-      <constructor-arg ref="clientHttpRequestFactory" />
-  </bean>
+      .. code-block:: java
 
-.. tabularcolumns:: |p{0.10\linewidth}|p{0.90\linewidth}|
-.. list-table::
-  :header-rows: 1
-  :widths: 10 90
+        // (1)
+        @Value("${api.connectTimeout:2000}")
+        private int connectTimeout;
 
-  * - 項番
-    - 説明
-  * - | (1)
-    - | \ ``connectTimeout``\ プロパティにサーバとの接続タイムアウト時間(ミリ秒)を設定する。
-      | タイムアウト発生時は\ ``org.springframework.web.client.ResourceAccessException``\ が発生する。
-  * - | (2)
-    - | \ ``readTimeout``\ プロパティにレスポンスデータの読み込みタイムアウト時間(ミリ秒)を設定する。
-      | タイムアウト発生時は\ ``ResourceAccessException``\ が発生する。
+        // (2)
+        @Value("${api.readTimeout:2000}")
+        private int readTimeout;
+
+        // omitted
+
+        @Bean("clientHttpRequestFactory")
+        public SimpleClientHttpRequestFactory clientHttpRequestFactory() {
+            SimpleClientHttpRequestFactory bean = new SimpleClientHttpRequestFactory();
+            bean.setConnectTimeout(connectTimeout); // (1)
+            bean.setReadTimeout(readTimeout); // (2)
+            return bean;
+        }
+
+        @Bean("timeoutRestTemplate")
+        public RestTemplate timeoutRestTemplate() {
+            return new RestTemplate(clientHttpRequestFactory());
+        }
+      
+      .. tabularcolumns:: |p{0.10\linewidth}|p{0.90\linewidth}|
+      .. list-table::
+        :header-rows: 1
+        :widths: 10 90
+      
+        * - 項番
+          - 説明
+        * - | (1)
+          - | \ ``connectTimeout``\ プロパティにサーバとの接続タイムアウト時間(ミリ秒)を設定する。
+            | タイムアウト発生時は\ ``org.springframework.web.client.ResourceAccessException``\ が発生する。
+        * - | (2)
+          - | \ ``readTimeout``\ プロパティにレスポンスデータの読み込みタイムアウト時間(ミリ秒)を設定する。
+            | タイムアウト発生時は\ ``ResourceAccessException``\ が発生する。
+
+  .. group-tab:: XML Config
+
+    .. warning:: \ **プロパティが別の型にマッピングされる**\
+
+        .. TODO 本件に関しては次版リリースのタイミングでは直っている可能性が高いため、当WARNINGは必ず見直すこと
+
+      \ ``SimpleClientHttpRequestFactory``\ のタイムアウト時間の設定に関して、以下の様にXMLConfigで以下の様に定義した場合、誤った型にマッピングされてしまう事象が確認されている。（\ `Spring#31872 <https://github.com/spring-projects/spring-framework/issues/31872>`_\, \ `Spring#32159 <https://github.com/spring-projects/spring-framework/issues/32159>`_\）
+
+      - \ ``applicationContext.xml``\
+    
+        .. code-block:: xml
+        
+          <bean id="clientHttpRequestFactory"
+                class="org.springframework.http.client.SimpleClientHttpRequestFactory">
+              <property name="connectTimeout" value="${api.connectTimeout: 2000}" />
+              <property name="readTimeout" value="${api.readTimeout: 2000}" />
+          </bean>
+
+      Spring Framework 6.1.3 では解決されておらず、XMLConfigではタイムアウト時間を設定することができないため、\ ``SimpleClientHttpRequestFactory``\ にタイムアウト時間を設定したい場合はFactoryBeanで定義すること。
+
+    サーバとの通信に対してタイムアウト時間を指定したい場合は、以下のようなbean定義を行う。
+
+    - \ ``SimpleClientHttpRequestFactoryBean.java``\
+
+      .. code-block:: java
+  
+        package com.example.restclient;
+  
+        // omitted
+  
+        public class SimpleClientHttpRequestFactoryBean implements
+                                                        FactoryBean<SimpleClientHttpRequestFactory> {
+        
+            @Value("${api.connectTimeout:2000}")
+            private int connectTimeout;
+        
+            @Value("${api.readTimeout:2000}")
+            private int readTimeout;
+        
+            @Override
+            public SimpleClientHttpRequestFactory getObject() throws Exception {
+                SimpleClientHttpRequestFactory bean = new SimpleClientHttpRequestFactory();
+                bean.setConnectTimeout(this.connectTimeout); // (1)
+                bean.setReadTimeout(this.readTimeout); // (2)
+                return bean;
+            }
+        
+            @Override
+            public Class<?> getObjectType() {
+                return SimpleClientHttpRequestFactory.class;
+            }
+        
+        }
+
+      .. tabularcolumns:: |p{0.10\linewidth}|p{0.90\linewidth}|
+      .. list-table::
+        :header-rows: 1
+        :widths: 10 90
+      
+        * - 項番
+          - 説明
+        * - | (1)
+          - | \ ``connectTimeout``\ プロパティにサーバとの接続タイムアウト時間(ミリ秒)を設定する。
+            | タイムアウト発生時は\ ``org.springframework.web.client.ResourceAccessException``\ が発生する。
+        * - | (2)
+          - | \ ``readTimeout``\ プロパティにレスポンスデータの読み込みタイムアウト時間(ミリ秒)を設定する。
+            | タイムアウト発生時は\ ``ResourceAccessException``\ が発生する。
+
+    - \ ``applicationContext.xml``\
+
+      .. code-block:: xml
+
+        <bean id="clientHttpRequestFactory" class="com.example.restclient.SimpleClientHttpRequestFactoryBean" />
+          
+        <bean id="restTemplate" class="org.springframework.web.client.RestTemplate">
+            <constructor-arg ref="clientHttpRequestFactory" />
+        </bean>
 
 .. note:: \ **タイムアウト発生時の起因例外**\
 
@@ -1147,13 +1372,13 @@ SSL自己署名証明書の使用
 
   public class RequestFactoryBean implements
                                   FactoryBean<ClientHttpRequestFactory>,
-                                  DisposableBean { // (16)
+                                  DisposableBean { // (17)
 
       private String keyStoreFileName;
 
       private char[] keyStorePassword;
 
-      private HttpComponentsClientHttpRequestFactory factory; // (16)
+      private HttpComponentsClientHttpRequestFactory factory; // (17)
 
       @Override
       public ClientHttpRequestFactory getObject() throws Exception {
@@ -1190,23 +1415,26 @@ SSL自己署名証明書の使用
                   .setMaxConnPerRoute(1) // (6)
                   .setPoolConcurrencyPolicy(PoolConcurrencyPolicy.STRICT) // (7)
                   .setConnPoolPolicy(PoolReusePolicy.LIFO) // (8)
-                  .setConnectionTimeToLive(TimeValue.ofMinutes(1L)) // (9)
-                  .build();
-          // @formatter:on
-
-          // @formatter:off
-          CloseableHttpClient httpClient = HttpClients.custom() // (10)
-                  .setConnectionManager(connectionManager) // (11)
-                  .setDefaultRequestConfig(
-                          RequestConfig.custom()
-                          .setConnectTimeout(Timeout.ofSeconds(5L)) // (12)
-                          .setResponseTimeout(Timeout.ofSeconds(10L)) // (13)
-                          .setCookieSpec(StandardCookieSpec.STRICT) // (14)
+                  .setDefaultConnectionConfig( // (9)
+                          ConnectionConfig.custom()
+                          .setTimeToLive(TimeValue.ofMinutes(1L)) // (10)
+                          .setConnectTimeout(Timeout.ofSeconds(5L)) // (11)
                           .build())
                   .build();
           // @formatter:on
 
-          // (15)
+          // @formatter:off
+          CloseableHttpClient httpClient = HttpClients.custom() // (12)
+                  .setConnectionManager(connectionManager) // (13)
+                  .setDefaultRequestConfig(
+                          RequestConfig.custom()
+                          .setResponseTimeout(Timeout.ofSeconds(10L)) // (14)
+                          .setCookieSpec(StandardCookieSpec.STRICT) // (15)
+                          .build())
+                  .build();
+          // @formatter:on
+
+          // (16)
           this.factory = new HttpComponentsClientHttpRequestFactory(httpClient);
 
           return this.factory;
@@ -1230,7 +1458,7 @@ SSL自己署名証明書の使用
           this.keyStorePassword = keyStorePassword;
       }
 
-      // (16)
+      // (17)
       @Override
       public void destroy() throws Exception {
           if (this.factory != null) {
@@ -1250,13 +1478,13 @@ SSL自己署名証明書の使用
     - | 後述のbean定義で指定されたキーストアファイルのファイル名とパスワードを元に、SSLコンテキストを作成する。
       | 使用するSSL自己署名証明書のキーストアファイルは、クラスパス上に配置する。
   * - | (2)
-    - | (1)で作成したSSLコンテキストを設定するための\ `HttpClientConnectionManager <https://javadoc.io/static/org.apache.httpcomponents.client5/httpclient5/5.1.4/org/apache/hc/client5/http/io/HttpClientConnectionManager.html>`_\ を作成する。
+    - | (1)で作成したSSLコンテキストを設定するための\ `HttpClientConnectionManager <https://javadoc.io/static/org.apache.httpcomponents.client5/httpclient5/5.2.3/org/apache/hc/client5/http/io/HttpClientConnectionManager.html>`_\ を作成する。
       | ここでは、実装クラスとして\ ``org.apache.hc.client5.http.impl.io.PoolingHttpClientConnectionManager``\ を指定している。 
   * - | (3)
     - | (1)で作成したSSLコンテキストを設定する。
   * - | (4)
     - | Socket Configのデフォルト値を設定する。
-      | \ ``Socket``\ から提供される\ ``InputStream``\ の\ ``read()``\ のブロック時間が\ `SoTimeout <https://hc.apache.org/httpcomponents-core-5.1.x/5.1.4/httpcore5/apidocs/org/apache/hc/core5/http/io/SocketConfig.Builder.html#setSoTimeout(org.apache.hc.core5.util.Timeout)>`_\ を越えた場合、通常、\ ``java.net.SocketTimeoutException``\ が発生するが、TCPコネクション確立後、SSLハンドシェイクを行っている間にこのタイムアウトが起きた場合には、\ ``org.apache.hc.client5.http.ConnectTimeoutException``\ が発生する。
+      | \ ``Socket``\ から提供される\ ``InputStream``\ の\ ``read()``\ のブロック時間が\ `SoTimeout <https://hc.apache.org/httpcomponents-core-5.2.x/5.2.3/httpcore5/apidocs/org/apache/hc/core5/http/io/SocketConfig.Builder.html#setSoTimeout(org.apache.hc.core5.util.Timeout)>`_\ を越えた場合、通常、\ ``java.net.SocketTimeoutException``\ が発生するが、TCPコネクション確立後、SSLハンドシェイクを行っている間にこのタイムアウトが起きた場合には、\ ``org.apache.hc.client5.http.ConnectTimeoutException``\ が発生する。
 
       .. note:: \ **SoTimeoutはSSLハンドシェイクが完了する十分な長さを確保すること。**\
 
@@ -1278,27 +1506,29 @@ SSL自己署名証明書の使用
     - | 宛先（ホスト名 + ポート番号 及び スキーマ定義）ごとの最大接続数を設定する。
       | 最大接続数を超える場合、後続処理はコネクションの取得を待機する。
   * - | (7)
-    - | \ `プール同時実行ポリシー <https://hc.apache.org/httpcomponents-core-5.1.x/5.1.4/httpcore5/apidocs/org/apache/hc/core5/pool/PoolConcurrencyPolicy.html>`_\ を設定する。
+    - | \ `プール同時実行ポリシー <https://hc.apache.org/httpcomponents-core-5.2.x/5.2.3/httpcore5/apidocs/org/apache/hc/core5/pool/PoolConcurrencyPolicy.html>`_\ を設定する。
   * - | (8)
-    - | \ `プールされたコネクションの再利用ポリシー <https://hc.apache.org/httpcomponents-core-5.1.x/5.1.4/httpcore5/apidocs/org/apache/hc/core5/pool/PoolReusePolicy.html>`_\ を設定する。
+    - | \ `プールされたコネクションの再利用ポリシー <https://hc.apache.org/httpcomponents-core-5.2.x/5.2.3/httpcore5/apidocs/org/apache/hc/core5/pool/PoolReusePolicy.html>`_\ を設定する。
   * - | (9)
-    - | コネクションが接続されてから切断されるまでの最大生存時間を設定する。
-      | 使用状況にかかわらず、\ `ConnectionTimeToLive <https://javadoc.io/static/org.apache.httpcomponents.client5/httpclient5/5.1.4/org/apache/hc/client5/http/impl/io/PoolingHttpClientConnectionManagerBuilder.html#setConnectionTimeToLive(org.apache.hc.core5.util.TimeValue)>`_\ を越えた場合にコネクションを破棄する。
+    - | コネクションに関連するデフォルト値を設定する。  
   * - | (10)
-    - | 作成したSSLコンテキストを利用する \ ``org.apache.hc.client5.http.impl.classic.CloseableHttpClient``\ を作成する。
+    - | コネクションが接続されてから切断されるまでの最大生存時間を設定する。
+      | 使用状況にかかわらず、\ `ConnectionTimeToLive <https://javadoc.io/static/org.apache.httpcomponents.client5/httpclient5/5.2.3/org/apache/hc/client5/http/impl/io/PoolingHttpClientConnectionManagerBuilder.html#setConnectionTimeToLive(org.apache.hc.core5.util.TimeValue)>`_\ を越えた場合にコネクションを破棄する。
   * - | (11)
-    - | (2)で作成した\ ``HttpClientConnectionManager``\ を設定する。
-  * - | (12)
     - | 新しい接続が確立されるまでのタイムアウトのデフォルト値を設定する。
-      | 接続の確立に\ `ConnectTimeout <https://javadoc.io/static/org.apache.httpcomponents.client5/httpclient5/5.1.4/org/apache/hc/client5/http/config/RequestConfig.Builder.html#setConnectTimeout(org.apache.hc.core5.util.Timeout)>`_\ 以上かかった場合、\ ``org.apache.hc.client5.http.HttpHostConnectException``\ が発生する。
+      | 接続の確立に\ `ConnectTimeout <https://javadoc.io/static/org.apache.httpcomponents.client5/httpclient5/5.2.3/org/apache/hc/client5/http/config/RequestConfig.Builder.html#setConnectTimeout(org.apache.hc.core5.util.Timeout)>`_\ 以上かかった場合、\ ``org.apache.hc.client5.http.HttpHostConnectException``\ が発生する。
+  * - | (12)
+    - | 作成したSSLコンテキストを利用する \ ``org.apache.hc.client5.http.impl.classic.CloseableHttpClient``\ を作成する。
   * - | (13)
-    - | レスポンスタイムアウトのデフォルト値を設定する。
-      | レスポンス返却に\ `ResponseTimeout <https://javadoc.io/static/org.apache.httpcomponents.client5/httpclient5/5.1.4/org/apache/hc/client5/http/config/RequestConfig.Builder.html#setResponseTimeout(org.apache.hc.core5.util.Timeout)>`_\ 以上かかった場合、\ ``java.net.SocketTimeoutException``\ が発生する。
+    - | (2)で作成した\ ``HttpClientConnectionManager``\ を設定する。
   * - | (14)
-    - | \ `HttpClientがサポートするCookieの仕様 <https://javadoc.io/static/org.apache.httpcomponents.client5/httpclient5/5.1/org/apache/hc/client5/http/cookie/StandardCookieSpec.html>`_\ を設定する。
+    - | レスポンスタイムアウトのデフォルト値を設定する。
+      | レスポンス返却に\ `ResponseTimeout <https://javadoc.io/static/org.apache.httpcomponents.client5/httpclient5/5.2.3/org/apache/hc/client5/http/config/RequestConfig.Builder.html#setResponseTimeout(org.apache.hc.core5.util.Timeout)>`_\ 以上かかった場合、\ ``java.net.SocketTimeoutException``\ が発生する。
   * - | (15)
-    - | 作成した\ ``HttpClient``\ を利用する\ ``ClientHttpRequestFactory``\ を作成する。
+    - | \ `HttpClientがサポートするCookieの仕様 <https://javadoc.io/static/org.apache.httpcomponents.client5/httpclient5/5.2/org/apache/hc/client5/http/cookie/StandardCookieSpec.html>`_\ を設定する。
   * - | (16)
+    - | 作成した\ ``HttpClient``\ を利用する\ ``ClientHttpRequestFactory``\ を作成する。
+  * - | (17)
     - | \ ``FactoryBean``\ で生成したオブジェクトのライフサイクルはDIコンテナで管理されないため、破棄時に特定の処理を実行するには\ ``FactoryBean``\ に\ ``DisposableBean``\ インタフェースの\ ``destroy``\ メソッドを実装する必要がある。
       | ここでは、\ ``getObject``\ メソッドで生成した \ ``HttpComponentsClientHttpRequestFactory``\ の\ ``destroy``\ メソッドを呼び出し、\ ``HttpClient``\ をクローズしている。このため、生成したオブジェクトを変数に保持している。
 
@@ -1324,33 +1554,77 @@ SSL自己署名証明書の使用
 
     上記設定例は、依存ライブラリのバージョンを親プロジェクトである terasoluna-gfw-parent で管理する前提であるため、pom.xmlでのバージョンの指定は不要である。
 
-    上記の依存ライブラリはterasoluna-gfw-parentが依存している\ `Spring Boot <https://docs.spring.io/spring-boot/docs/3.0.1/reference/htmlsingle/#dependency-versions>`_\ で管理されている。
+    上記の依存ライブラリはterasoluna-gfw-parentが依存している\ `Spring Boot <https://docs.spring.io/spring-boot/docs/3.2.2/reference/htmlsingle/#dependency-versions>`_\ で管理されている。
 
-\ **bean定義ファイル(applicationContext.xml)の定義例**\
+\ **bean定義ファイルの定義例**\
 
 SSL自己署名証明書を使用したSSL通信を行う \ ``RestTemplate``\ を定義する。
 
-.. code-block:: xml
+.. tabs::
+  .. group-tab:: Java Config
 
-  <bean id="httpsRestTemplate" class="org.springframework.web.client.RestTemplate">
-      <constructor-arg>
-          <bean class="com.example.restclient.RequestFactoryBean"> <!-- (1) -->
-              <property name="keyStoreFileName" value="${rscl.keystore.filename}" />
-              <property name="keyStorePassword" value="${rscl.keystore.password}" />
-          </bean>
-      </constructor-arg>
-  </bean>
+    - \ ``ApplicationContextConfig.java``\
 
-.. tabularcolumns:: |p{0.10\linewidth}|p{0.90\linewidth}|
-.. list-table::
-  :header-rows: 1
-  :widths: 10 90
+      .. code-block:: java
 
-  * - 項番
-    - 説明
-  * - | (1)
-    - | 作成した \ ``RequestFactoryBean``\ を \ ``RestTemplate``\ のコンストラクタに指定する。
-      | \ ``RequestFactoryBean``\ には、キーストアファイルのファイル名とパスワードを渡す。
+        @Value("${rscl.keystore.filename}")
+        private String keystoreFilename;
+
+        @Value("${rscl.keystore.password}")
+        private String keystorePassword;
+
+        // omitted
+
+        @Bean("httpsRestTemplate")
+        public RestTemplate httpsRestTemplate() throws Exception {
+            return new RestTemplate(httpsRequestFactoryBean().getObject()); // (1)
+        }
+
+        // (1)
+        @Bean("httpsRequestFactoryBean")
+        public RequestFactoryBean httpsRequestFactoryBean() {
+            RequestFactoryBean factory = new RequestFactoryBean();
+            factory.setKeyStoreFileName(keystoreFilename);
+            factory.setKeyStorePassword(keystorePassword.toCharArray());
+            return factory;
+        }
+      
+      .. tabularcolumns:: |p{0.10\linewidth}|p{0.90\linewidth}|
+      .. list-table::
+        :header-rows: 1
+        :widths: 10 90
+      
+        * - 項番
+          - 説明
+        * - | (1)
+          - | 作成した \ ``RequestFactoryBean``\ を \ ``RestTemplate``\ のコンストラクタに指定する。
+            | \ ``RequestFactoryBean``\ には、キーストアファイルのファイル名とパスワードを渡す。
+
+  .. group-tab:: XML Config
+
+    - \ ``applicationContext.xml``\
+
+      .. code-block:: xml
+      
+        <bean id="httpsRestTemplate" class="org.springframework.web.client.RestTemplate">
+            <constructor-arg>
+                <bean class="com.example.restclient.RequestFactoryBean"> <!-- (1) -->
+                    <property name="keyStoreFileName" value="${rscl.keystore.filename}" />
+                    <property name="keyStorePassword" value="${rscl.keystore.password}" />
+                </bean>
+            </constructor-arg>
+        </bean>
+      
+      .. tabularcolumns:: |p{0.10\linewidth}|p{0.90\linewidth}|
+      .. list-table::
+        :header-rows: 1
+        :widths: 10 90
+      
+        * - 項番
+          - 説明
+        * - | (1)
+          - | 作成した \ ``RequestFactoryBean``\ を \ ``RestTemplate``\ のコンストラクタに指定する。
+            | \ ``RequestFactoryBean``\ には、キーストアファイルのファイル名とパスワードを渡す。
 
 \ **RestTemplateの使用方法**\
 
@@ -1466,7 +1740,7 @@ Basic認証
 ファイルダウンロード
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-\ ``RestTeamplate``\を使用してファイルダウンロードを行う場合は、以下のように実装する。
+\ ``RestTeamplate``\ を使用してファイルダウンロードを行う場合は、以下のように実装する。
 
 \ **ファイルダウンロードの実装例（ファイルサイズが小さい場合）**\
 
@@ -1616,7 +1890,6 @@ RESTfulなURLを扱うには、URIテンプレートを使用して実装を行�
   @Value("${api.serverUrl}/api/users/{action}") // (1)
   String uriStr;
 
-
 メソッド内部
 
 .. code-block:: java
@@ -1642,10 +1915,10 @@ RESTfulなURLを扱うには、URIテンプレートを使用して実装を行�
   * - 項番
     - 説明
   * - | (1)
-    - | URIテンプレートの変数{action}は、\ ``RestTeamplate``\の使用時に指定の値に変換される。
+    - | URIテンプレートの変数{action}は、\ ``RestTeamplate``\ の使用時に指定の値に変換される。
   * - | (2)
     - | \ ``UriComponentsBuilder``\ を使用することで、URIテンプレートの変数1つ目が\ ``buildAndExpand``\ の引数で指定した値に置換され、『\ ``http://localhost:8080/api/users/create``\ 』のURIが作成される。
-      | 詳細は\ `UriComponentsBuilderのJavadoc <https://docs.spring.io/spring-framework/docs/6.0.3/javadoc-api/org/springframework/web/util/UriComponentsBuilder.html>`_\ を参照されたい。
+      | 詳細は\ `UriComponentsBuilderのJavadoc <https://docs.spring.io/spring-framework/docs/6.1.3/javadoc-api/org/springframework/web/util/UriComponentsBuilder.html>`_\ を参照されたい。
 
 |
 
@@ -1665,38 +1938,76 @@ How to extend
 
 デフォルトで登録されている \ ``HttpMessageConverter``\ で電文変換の要件を満たせない場合は、任意の\ ``HttpMessageConverter``\ を登録することができる。ただし、デフォルトで登録されていた\ ``HttpMessageConverter``\ は削除されるので、必要な\ ``HttpMessageConverter``\ をすべて個別に登録する必要がある。
 
-\ **bean定義ファイル(applicationContext.xml)の定義例**\
+\ **bean定義ファイルの定義例**\
 
-.. code-block:: xml
+.. tabs::
+  .. group-tab:: Java Config
 
-  <bean id="jaxb2CollectionHttpMessageConverter"
-        class="org.springframework.http.converter.xml.Jaxb2CollectionHttpMessageConverter" /> <!-- (1) -->
+    - \ ``ApplicationContextConfig.java``\
 
-  <bean id="restTemplate" class="org.springframework.web.client.RestTemplate">
-      <property name="messageConverters"> <!-- (2) -->
-          <list>
-              <ref bean="jaxb2CollectionHttpMessageConverter" />
-          </list>
-      </property>
-  </bean>
+      .. code-block:: java
 
-.. tabularcolumns:: |p{0.10\linewidth}|p{0.90\linewidth}|
-.. list-table::
-  :header-rows: 1
-  :widths: 10 90
+        // (1)
+        @Bean("jaxb2CollectionHttpMessageConverter")
+        public Jaxb2CollectionHttpMessageConverter<?> jaxb2CollectionHttpMessageConverter() {
+            return new Jaxb2CollectionHttpMessageConverter<>();
+        }
+    
+        @Bean("collectionRestTemplate")
+        public RestTemplate collectionRestTemplate() {
+            RestTemplate bean = new RestTemplate();
+            List<HttpMessageConverter<?>> messageConverters = new ArrayList<>();
+            messageConverters.add(jaxb2CollectionHttpMessageConverter()); // (2)
+            bean.setMessageConverters(messageConverters);
+            return bean;
+        }
+      
+      .. tabularcolumns:: |p{0.10\linewidth}|p{0.90\linewidth}|
+      .. list-table::
+        :header-rows: 1
+        :widths: 10 90
+      
+        * - 項番
+          - 説明
+        * - | (1)
+          - | 登録する\ ``HttpMessageConverter``\ の実装クラスをbean定義する。
+        * - | (2)
+          - | \ ``messageConverters``\ プロパティに登録する\ ``HttpMessageConverter``\ のbeanを設定する。
 
-  * - 項番
-    - 説明
-  * - | (1)
-    - | 登録する\ ``HttpMessageConverter``\ の実装クラスをbean定義する。
-  * - | (2)
-    - | \ ``messageConverters``\ プロパティに登録する\ ``HttpMessageConverter``\ のbeanをインジェクションする。
+  .. group-tab:: XML Config
+
+    - \ ``applicationContext.xml``\
+
+      .. code-block:: xml
+      
+        <bean id="jaxb2CollectionHttpMessageConverter"
+              class="org.springframework.http.converter.xml.Jaxb2CollectionHttpMessageConverter" /> <!-- (1) -->
+      
+        <bean id="restTemplate" class="org.springframework.web.client.RestTemplate">
+            <property name="messageConverters"> <!-- (2) -->
+                <list>
+                    <ref bean="jaxb2CollectionHttpMessageConverter" />
+                </list>
+            </property>
+        </bean>
+      
+      .. tabularcolumns:: |p{0.10\linewidth}|p{0.90\linewidth}|
+      .. list-table::
+        :header-rows: 1
+        :widths: 10 90
+      
+        * - 項番
+          - 説明
+        * - | (1)
+          - | 登録する\ ``HttpMessageConverter``\ の実装クラスをbean定義する。
+        * - | (2)
+          - | \ ``messageConverters``\ プロパティに登録する\ ``HttpMessageConverter``\ のbeanをインジェクションする。
 
 |
 
 .. _RestClientHowToExtendClientHttpRequestInterceptor:
 
-共通処理の適用（\ ``ClientHttpRequestInterceptor``\）
+共通処理の適用（\ ``ClientHttpRequestInterceptor``\ ）
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 | \ ``ClientHttpRequestInterceptor``\ を使用することで、サーバとの通信処理の前後に任意の処理を実行させることができる。
@@ -1776,22 +2087,49 @@ How to extend
   * - | (6)
     - | (3)で受信したレスポンスをリターンする。
 
-\ **bean定義ファイル(applicationContext.xml)の定義例**\
+\ **bean定義ファイルの定義例**\
 
-.. code-block:: xml
+.. tabs::
+  .. group-tab:: Java Config
 
-  <!-- (1) -->
-  <bean id="loggingInterceptor" class="com.example.restclient.LoggingInterceptor" />
+    - \ ``ApplicationContextConfig.java``\
 
-.. tabularcolumns:: |p{0.10\linewidth}|p{0.90\linewidth}|
-.. list-table::
-  :header-rows: 1
-  :widths: 10 90
+      .. code-block:: java
 
-  * - 項番
-    - 説明
-  * - | (1)
-    - | \ ``ClientHttpRequestInterceptor``\ の実装クラスのbean定義を行う。
+        // (1)
+        @Bean("loggingInterceptor")
+        public LoggingInterceptor loggingInterceptor() {
+            return new LoggingInterceptor();
+        }
+
+      .. tabularcolumns:: |p{0.10\linewidth}|p{0.90\linewidth}|
+      .. list-table::
+        :header-rows: 1
+        :widths: 10 90
+      
+        * - 項番
+          - 説明
+        * - | (1)
+          - | \ ``ClientHttpRequestInterceptor``\ の実装クラスのbean定義を行う。
+
+  .. group-tab:: XML Config
+
+    - \ ``applicationContext.xml``\
+
+      .. code-block:: xml
+      
+        <!-- (1) -->
+        <bean id="loggingInterceptor" class="com.example.restclient.LoggingInterceptor" />
+      
+      .. tabularcolumns:: |p{0.10\linewidth}|p{0.90\linewidth}|
+      .. list-table::
+        :header-rows: 1
+        :widths: 10 90
+      
+        * - 項番
+          - 説明
+        * - | (1)
+          - | \ ``ClientHttpRequestInterceptor``\ の実装クラスのbean定義を行う。
 
 |
 
@@ -1802,29 +2140,68 @@ Basic認証用のリクエストヘッダ設定処理
 
 サーバにアクセスするためにBasic認証用のリクエストヘッダを設定する必要がある場合は、以下のようなbean定義を行う。
 
-\ **bean定義ファイル(applicationContext.xml)の定義例**\
+\ **bean定義ファイルの定義例**\
 
-.. code-block:: xml
+.. tabs::
+  .. group-tab:: Java Config
 
-  <!-- (1) -->
-  <bean id="basicAuthInterceptor" class="org.springframework.http.client.support.BasicAuthorizationInterceptor">
-      <constructor-arg name="username" value="${api.auth.username}" /><!-- (2) -->
-      <constructor-arg name="password" value="${api.auth.password}" /><!-- (3) -->
-  </bean>
+    - \ ``ApplicationContextConfig.java``\
 
-.. tabularcolumns:: |p{0.10\linewidth}|p{0.90\linewidth}|
-.. list-table::
-  :header-rows: 1
-  :widths: 10 90
+      .. code-block:: java
 
-  * - 項番
-    - 説明
-  * - | (1)
-    - | \ ``ClientHttpRequestInterceptor``\ インタフェースを実装した\ ``BasicAuthorizationInterceptor``\ のbean定義を行う。
-  * - | (2)
-    - | コンストラクタ引数の\ ``username``\ にユーザ名を設定する。
-  * - | (3)
-    - | コンストラクタ引数の\ ``password``\ にパスワードを設定する。
+        // (2)
+        @Value("${api.auth.username}")
+        private String basicAuthUsername;
+    
+        // (3)
+        @Value("${api.auth.password}")
+        private String basicAuthPassword;
+
+        // (1)
+        @Bean("basicAuthInterceptor")
+        public BasicAuthenticationInterceptor basicAuthInterceptor() {
+            return new BasicAuthenticationInterceptor(basicAuthUsername, basicAuthPassword); // (2)(3)
+        }
+      
+      .. tabularcolumns:: |p{0.10\linewidth}|p{0.90\linewidth}|
+      .. list-table::
+        :header-rows: 1
+        :widths: 10 90
+      
+        * - 項番
+          - 説明
+        * - | (1)
+          - | \ ``ClientHttpRequestInterceptor``\ インタフェースを実装した\ ``BasicAuthorizationInterceptor``\ のbean定義を行う。
+        * - | (2)
+          - | コンストラクタ引数の\ ``username``\ にユーザ名を設定する。
+        * - | (3)
+          - | コンストラクタ引数の\ ``password``\ にパスワードを設定する。
+
+  .. group-tab:: XML Config
+
+    - \ ``applicationContext.xml``\
+
+      .. code-block:: xml
+      
+        <!-- (1) -->
+        <bean id="basicAuthInterceptor" class="org.springframework.http.client.support.BasicAuthorizationInterceptor">
+            <constructor-arg name="username" value="${api.auth.username}" /><!-- (2) -->
+            <constructor-arg name="password" value="${api.auth.password}" /><!-- (3) -->
+        </bean>
+      
+      .. tabularcolumns:: |p{0.10\linewidth}|p{0.90\linewidth}|
+      .. list-table::
+        :header-rows: 1
+        :widths: 10 90
+      
+        * - 項番
+          - 説明
+        * - | (1)
+          - | \ ``ClientHttpRequestInterceptor``\ インタフェースを実装した\ ``BasicAuthorizationInterceptor``\ のbean定義を行う。
+        * - | (2)
+          - | コンストラクタ引数の\ ``username``\ にユーザ名を設定する。
+        * - | (3)
+          - | コンストラクタ引数の\ ``password``\ にパスワードを設定する。
 
 |
 
@@ -1833,30 +2210,73 @@ Basic認証用のリクエストヘッダ設定処理
 
 \ ``RestTemplate``\ に作成した\ ``ClientHttpRequestInterceptor``\ を適用する場合は、以下のようなbean定義を行う。
 
-\ **bean定義ファイル(applicationContext.xml)の定義例**\
+\ **bean定義ファイルの定義例**\
 
-.. code-block:: xml
+.. tabs::
+  .. group-tab:: Java Config
 
-  <bean id="restTemplate" class="org.springframework.web.client.RestTemplate">
-      <property name="interceptors"><!-- (1) -->
-          <list>
-              <ref bean="basicAuthInterceptor" />
-              <ref bean="loggingInterceptor" />
-          </list>
-      </property>
-  </bean>
+    - \ ``ApplicationContextConfig.java``\
 
-.. tabularcolumns:: |p{0.10\linewidth}|p{0.90\linewidth}|
-.. list-table::
-  :header-rows: 1
-  :widths: 10 90
+      .. code-block:: java
 
-  * - 項番
-    - 説明
-  * - | (1)
-    - | \ ``interceptors``\ プロパティに\ ``ClientHttpRequestInterceptor``\ のbeanをインジェクションする。
-      | 複数のbeanをインジェクションした場合は、リストの先頭から順にチェーン実行される。
-      | 上記の例だと、\ ``BasicAuthorizationInterceptor``\  -> \ ``LoggingInterceptor``\  -> \ ``ClientHttpRequest``\  の順番でリクエスト前の処理が実行される。(レスポンス後の処理は順番が逆転する)
+        @Bean("basicAuthInterceptor")
+        public BasicAuthenticationInterceptor basicAuthInterceptor() {
+            // omitted
+        }
+
+        @Bean("loggingInterceptor")
+        public LoggingInterceptor loggingInterceptor() {
+            // omitted
+        }
+
+        @Bean("restTemplate")
+        public RestTemplate restTemplate() {
+            RestTemplate bean = new RestTemplate();
+            List<ClientHttpRequestInterceptor> list = new ArrayList<>(); // (1)
+            list.add(basicAuthInterceptor()); // (1)
+            list.add(loggingInterceptor()); // (1)
+            bean.setInterceptors(list); // (1)
+            return bean;
+        }
+
+      .. tabularcolumns:: |p{0.10\linewidth}|p{0.90\linewidth}|
+      .. list-table::
+        :header-rows: 1
+        :widths: 10 90
+      
+        * - 項番
+          - 説明
+        * - | (1)
+          - | \ ``interceptors``\ プロパティに\ ``ClientHttpRequestInterceptor``\ のListを設定する。
+            | 複数のbeanを設定した場合は、リストの先頭から順にチェーン実行される。
+            | 上記の例だと、\ ``BasicAuthorizationInterceptor``\  -> \ ``LoggingInterceptor``\  -> \ ``ClientHttpRequest``\  の順番でリクエスト前の処理が実行される。(レスポンス後の処理は順番が逆転する)
+
+  .. group-tab:: XML Config
+
+    - \ ``applicationContext.xml``\
+
+      .. code-block:: xml
+      
+        <bean id="restTemplate" class="org.springframework.web.client.RestTemplate">
+            <property name="interceptors"><!-- (1) -->
+                <list>
+                    <ref bean="basicAuthInterceptor" />
+                    <ref bean="loggingInterceptor" />
+                </list>
+            </property>
+        </bean>
+      
+      .. tabularcolumns:: |p{0.10\linewidth}|p{0.90\linewidth}|
+      .. list-table::
+        :header-rows: 1
+        :widths: 10 90
+      
+        * - 項番
+          - 説明
+        * - | (1)
+          - | \ ``interceptors``\ プロパティに\ ``ClientHttpRequestInterceptor``\ のListをインジェクションする。
+            | 複数のbeanをインジェクションした場合は、リストの先頭から順にチェーン実行される。
+            | 上記の例だと、\ ``BasicAuthorizationInterceptor``\  -> \ ``LoggingInterceptor``\  -> \ ``ClientHttpRequest``\  の順番でリクエスト前の処理が実行される。(レスポンス後の処理は順番が逆転する)
 
 |
 
@@ -1869,7 +2289,7 @@ Basic認証用のリクエストヘッダ設定処理
 
 .. note::
 
-  Spring Framework 6.0から\ ``AsyncRestTemplate``\ は削除されており、非同期リクエストはSpring Web Reactive APIの\ `WebClient <https://docs.spring.io/spring-framework/docs/6.0.3/reference/html/integration.html#rest-webclient>`_\ を使用するように案内されている。
+  Spring Framework 6.0から\ ``AsyncRestTemplate``\ は削除されており、非同期リクエストはSpring Web Reactive APIの\ `WebClient <https://docs.spring.io/spring-framework/docs/6.1.3/reference/html/integration.html#rest-webclient>`_\ を使用するように案内されている。
 
   TERASOLUNA Server Framework for Java (5.x)では\ ``AsyncRestTemplate``\ の代替機能として\ ``WebClient``\ を案内しているだけであり、Spring Web Reactiveをサポートしているわけではない点に注意されたい。
 
@@ -1920,7 +2340,7 @@ Basic認証用のリクエストヘッダ設定処理
 
   上記設定例は、依存ライブラリのバージョンを親プロジェクトである terasoluna-gfw-parent で管理する前提であるため、pom.xmlでのバージョンの指定は不要である。
 
-  上記の依存ライブラリはterasoluna-gfw-parentが依存している\ `Spring Boot <https://docs.spring.io/spring-boot/docs/3.0.1/reference/htmlsingle/#dependency-versions>`_\ で管理されている。
+  上記の依存ライブラリはterasoluna-gfw-parentが依存している\ `Spring Boot <https://docs.spring.io/spring-boot/docs/3.2.2/reference/htmlsingle/#dependency-versions>`_\ で管理されている。
 
 |
 
@@ -1929,12 +2349,6 @@ Basic認証用のリクエストヘッダ設定処理
 \ ``WebClient``\ のbean定義
 """"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 \ ``WebClient``\ のbean定義を行い、DIコンテナに登録する。
-
-.. note::
-
-  本ガイドラインのBean定義は基本的にXML-based configurationを用いているが、\ ``WebClient``\ のBean定義に関してはJava-based configurationを用いている。
-
-  \ ``WebClient``\ がBuilderパターンを使用していることに加え、Spring Frameworkが有用なXML DLSを提供していないためJava-based configurationで実装している。Java-based configurationで定義するクラスは、コンポーネントスキャンが有効となるパッケージ配下に配置されたい。詳しくは\ `Java-based configuration <https://docs.spring.io/spring-framework/docs/6.0.3/reference/html/core.html#beans-java>`_\ を参照されたい。
 
 \ **Bean定義の実装例(WebClientConfig.java)**\
 
@@ -1950,7 +2364,6 @@ Basic認証用のリクエストヘッダ設定処理
       }
 
   }
-
 
 .. tabularcolumns:: |p{0.10\linewidth}|p{0.90\linewidth}|
 .. list-table::
@@ -2031,7 +2444,7 @@ Basic認証用のリクエストヘッダ設定処理
   * - | (1)
     - | \ ``WebClient``\ の各メソッドを使用して、非同期リクエストを送信する。
       | 上記の実装例では、\ ``uri``\ に対しGETメソッドでHTTPリクエストを送信している。
-      | 使用できるメソッドについては\ `WebClientのJavadoc <https://docs.spring.io/spring-framework/docs/6.0.3/javadoc-api/org/springframework/web/reactive/function/client/WebClient.html#method-summary>`_\ を参照されたい。
+      | 使用できるメソッドについては\ `WebClientのJavadoc <https://docs.spring.io/spring-framework/docs/6.1.3/javadoc-api/org/springframework/web/reactive/function/client/WebClient.html#method-summary>`_\ を参照されたい。
   * - | (2)
     - | 処理結果の取得方法を定義する。
       | この例では、\ ``User.class``\ でレスポンスを受け取れるよう定義している。
@@ -2043,7 +2456,7 @@ Basic認証用のリクエストヘッダ設定処理
 
       .. Note:: \ **WebClientの返却値について**\
 
-        Reactive APIが使用する戻り値の型は、単数の場合は\ `reactor.core.publisher.Mono <https://javadoc.io/static/io.projectreactor/reactor-core/3.5.1/reactor/core/publisher/Mono.html>`_\ 、複数の場合は\ `reactor.core.publisher.Flux <https://javadoc.io/static/io.projectreactor/reactor-core/3.5.1/reactor/core/publisher/Flux.html>`_\ が一般的に用いられるが、この例では\ ``CompletableFuture``\ を返却するようにしている。
+        Reactive APIが使用する戻り値の型は、単数の場合は\ `reactor.core.publisher.Mono <https://javadoc.io/static/io.projectreactor/reactor-core/3.6.2/reactor/core/publisher/Mono.html>`_\ 、複数の場合は\ `reactor.core.publisher.Flux <https://javadoc.io/static/io.projectreactor/reactor-core/3.6.2/reactor/core/publisher/Flux.html>`_\ が一般的に用いられるが、この例では\ ``CompletableFuture``\ を返却するようにしている。
 
       .. Tip::
 
@@ -2246,59 +2659,124 @@ SimpleClientHttpRequestFactoryを使用したHTTP Proxyサーバの設定方法
 
 \ **Bean定義ファイル**\
 
-.. code-block:: xml
+.. tabs::
+  .. group-tab:: Java Config
 
-  <!-- (1) -->
-  <bean id="inetSocketAddress" class="java.net.InetSocketAddress" >
-      <constructor-arg name="hostname" value="${rscl.http.proxyHost}" />    <!-- (2) -->
-      <constructor-arg name="port" value="${rscl.http.proxyPort}" />    <!-- (3) -->
-  </bean>
+    .. code-block:: java
 
-  <!-- (4) -->
-  <bean id="simpleClientRestTemplate" class="org.springframework.web.client.RestTemplate" >
-      <constructor-arg>
-          <!-- (5) -->
-          <bean class="org.springframework.http.client.SimpleClientHttpRequestFactory">
-              <!-- (6) -->
-              <property name="proxy">
-                  <bean class="java.net.Proxy" >
-                      <!-- (7) -->
-                      <constructor-arg name="type">
-                          <util:constant static-field="java.net.Proxy.Type.HTTP"/>
-                      </constructor-arg>
-                      <constructor-arg name="sa" ref="inetSocketAddress"/>
-                  </bean>
-              </property>
-          </bean>
-      </constructor-arg>
-  </bean>
+      // (2)
+      @Value("${rscl.http.proxyHost}")
+      private String httpProxyHost;
+  
+      // (3)
+      @Value("${rscl.http.proxyPort}")
+      private int httpProxyPort;
+  
+      // (1)
+      @Bean("inetSocketAddress")
+      public InetSocketAddress inetSocketAddress() {
+          return new InetSocketAddress(httpProxyHost, httpProxyPort); // (2)(3)
+      }
+  
+      // (4)
+      @Bean("simpleClientRestTemplate")
+      public RestTemplate simpleClientRestTemplate() {
+          return new RestTemplate(simpleClientHttpRequestFactory()); // (5)
+      }
+  
+      // (5)
+      @Bean
+      public SimpleClientHttpRequestFactory simpleClientHttpRequestFactory() {
+          SimpleClientHttpRequestFactory bean = new SimpleClientHttpRequestFactory();
+          bean.setProxy(proxy()); // (6)
+          return bean;
+      }
+  
+      // (6)
+      @Bean
+      public Proxy proxy() {
+          return new Proxy(Proxy.Type.HTTP, inetSocketAddress()); // (7)
+      }
+    
+    .. tabularcolumns:: |p{0.10\linewidth}|p{0.90\linewidth}|
+    .. list-table::
+      :header-rows: 1
+      :widths: 10 90
+    
+      * - 項番
+        - 説明
+      * - | (1)
+        - | \ ``java.net.InetSocketAddress``\ にHTTP Proxyサーバの設定を行う。
+      * - | (2)
+        - | \ ``InetSocketAddress``\ のコンストラクタ引数の\ ``hostname``\ に、プロパティファイルに設定されたキー\ ``rscl.http.proxyHost``\ の値をHTTP Proxyサーバのホスト名として設定する。
+      * - | (3)
+        - | \ ``InetSocketAddress``\ のコンストラクタ引数の\ ``port``\ に、プロパティファイルに設定されたキー\ ``rscl.http.proxyPort``\ の値をHTTP Proxyサーバのポート番号として設定する。
+      * - | (4)
+        - | \ ``RestTemplate``\ のBean定義を行う。
+      * - | (5)
+        - | \ ``RestTemplate``\ のコンストラクタの引数に、\ ``SimpleClientHttpRequestFactory``\ を設定する。
+      * - | (6)
+        - | \ ``SimpleClientHttpRequestFactory``\ の\ ``proxy``\ プロパティに\ ``java.net.Proxy``\ を設定する。
+      * - | (7)
+        - | \ ``Proxy``\ のコンストラクタの引数に、\ ``java.net.Proxy.Type.HTTP``\ と生成した\ ``InetSocketAddress``\ を設定する。
 
-.. tabularcolumns:: |p{0.10\linewidth}|p{0.90\linewidth}|
-.. list-table::
-  :header-rows: 1
-  :widths: 10 90
+  .. group-tab:: XML Config
 
-  * - 項番
-    - 説明
-  * - | (1)
-    - | \ ``java.net.InetSocketAddress``\ にHTTP Proxyサーバの設定を行う。
-  * - | (2)
-    - | \ ``InetSocketAddress``\ のコンストラクタ引数の\ ``hostname``\ に、プロパティファイルに設定されたキー\ ``rscl.http.proxyHost``\ の値をHTTP Proxyサーバのホスト名として設定する。
-  * - | (3)
-    - | \ ``InetSocketAddress``\ のコンストラクタ引数の\ ``port``\ に、プロパティファイルに設定されたキー\ ``rscl.http.proxyPort``\ の値をHTTP Proxyサーバのポート番号として設定する。
-  * - | (4)
-    - | \ ``RestTemplate``\ のBean定義を行う。
-  * - | (5)
-    - | \ ``RestTemplate``\ のコンストラクタの引数に、\ ``SimpleClientHttpRequestFactory``\ を設定する。
-  * - | (6)
-    - | \ ``SimpleClientHttpRequestFactory``\ の\ ``proxy``\ プロパティに\ ``java.net.Proxy``\ を設定する。
-  * - | (7)
-    - | \ ``Proxy``\ のコンストラクタの引数に、\ ``java.net.Proxy.Type.HTTP``\ と生成した\ ``InetSocketAddress``\ を設定する。
+    .. code-block:: xml
+    
+      <!-- (1) -->
+      <bean id="inetSocketAddress" class="java.net.InetSocketAddress" >
+          <constructor-arg name="hostname" value="${rscl.http.proxyHost}" />    <!-- (2) -->
+          <constructor-arg name="port" value="${rscl.http.proxyPort}" />    <!-- (3) -->
+      </bean>
+    
+      <!-- (4) -->
+      <bean id="simpleClientRestTemplate" class="org.springframework.web.client.RestTemplate" >
+          <constructor-arg>
+              <!-- (5) -->
+              <bean class="org.springframework.http.client.SimpleClientHttpRequestFactory">
+                  <!-- (6) -->
+                  <property name="proxy">
+                      <bean class="java.net.Proxy" >
+                          <!-- (7) -->
+                          <constructor-arg name="type">
+                              <util:constant static-field="java.net.Proxy.Type.HTTP"/>
+                          </constructor-arg>
+                          <constructor-arg name="sa" ref="inetSocketAddress"/>
+                      </bean>
+                  </property>
+              </bean>
+          </constructor-arg>
+      </bean>
+    
+    .. tabularcolumns:: |p{0.10\linewidth}|p{0.90\linewidth}|
+    .. list-table::
+      :header-rows: 1
+      :widths: 10 90
+    
+      * - 項番
+        - 説明
+      * - | (1)
+        - | \ ``java.net.InetSocketAddress``\ にHTTP Proxyサーバの設定を行う。
+      * - | (2)
+        - | \ ``InetSocketAddress``\ のコンストラクタ引数の\ ``hostname``\ に、プロパティファイルに設定されたキー\ ``rscl.http.proxyHost``\ の値をHTTP Proxyサーバのホスト名として設定する。
+      * - | (3)
+        - | \ ``InetSocketAddress``\ のコンストラクタ引数の\ ``port``\ に、プロパティファイルに設定されたキー\ ``rscl.http.proxyPort``\ の値をHTTP Proxyサーバのポート番号として設定する。
+      * - | (4)
+        - | \ ``RestTemplate``\ のBean定義を行う。
+      * - | (5)
+        - | \ ``RestTemplate``\ のコンストラクタの引数に、\ ``SimpleClientHttpRequestFactory``\ を設定する。
+      * - | (6)
+        - | \ ``SimpleClientHttpRequestFactory``\ の\ ``proxy``\ プロパティに\ ``java.net.Proxy``\ を設定する。
+      * - | (7)
+        - | \ ``Proxy``\ のコンストラクタの引数に、\ ``java.net.Proxy.Type.HTTP``\ と生成した\ ``InetSocketAddress``\ を設定する。
 
 |
 
 HttpComponentsClientHttpRequestFactoryを使用したHTTP Proxyサーバの設定方法
 """"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
+
+.. _RestClientHttpProxcy:
 
 HTTP Proxyサーバの指定方法
 ''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
@@ -2329,57 +2807,133 @@ HTTP Proxyサーバの指定方法
 
   上記設定例は、依存ライブラリのバージョンを親プロジェクトである terasoluna-gfw-parent で管理する前提であるため、pom.xmlでのバージョンの指定は不要である。
 
-  上記の依存ライブラリはterasoluna-gfw-parentが依存している\ `Spring Boot <https://docs.spring.io/spring-boot/docs/3.0.1/reference/htmlsingle/#dependency-versions>`_\ で管理されている。
+  上記の依存ライブラリはterasoluna-gfw-parentが依存している\ `Spring Boot <https://docs.spring.io/spring-boot/docs/3.2.2/reference/htmlsingle/#dependency-versions>`_\ で管理されている。
 
 \ **Bean定義ファイル**\
 
-.. code-block:: xml
+.. tabs::
+  .. group-tab:: Java Config
 
-  <!-- (1) -->
-  <bean id="proxyHttpClientBuilder" class="org.apache.hc.client5.http.impl.classic.HttpClientBuilder" factory-method="create">
-      <!-- (2) -->
-      <property name="proxy">
-          <bean class="org.apache.hc.core5.http.HttpHost">
-              <constructor-arg name="hostname" value="${rscl.http.proxyHost}" />
-              <constructor-arg name="port" value="${rscl.http.proxyPort}" />
-          </bean>
-      </property>
-  </bean>
+    .. code-block:: java
 
-  <!-- (5) -->
-  <bean id="proxyRestTemplate" class="org.springframework.web.client.RestTemplate" >
-      <constructor-arg>
-          <!-- (6) -->
-          <bean class="org.springframework.http.client.HttpComponentsClientHttpRequestFactory">
-              <!-- (7) -->
-              <constructor-arg>
-                  <bean factory-bean="proxyHttpClientBuilder" factory-method="build" />
-              </constructor-arg>
-          </bean>
-      </constructor-arg>
-  </bean>
+      // (1)
+      @Bean("proxyHttpClientBuilder")
+      public HttpClientBuilder proxyHttpClientBuilder() {
+          HttpClientBuilder bean = HttpClientBuilder.create();
+          bean.setProxy(httpHost()); // (2)
+          return bean;
+      }
+  
+      // (2)
+      @Bean
+      public HttpHost httpHost() {
+          return new HttpHost(httpProxyHost, httpProxyPort); // (3) (4)
+      }
+  
+      // (5)
+      @Bean("proxyRestTemplate")
+      public RestTemplate proxyRestTemplate() {
+          return new RestTemplate(httpComponentsClientHttpRequestFactory()); // (6)
+      }
+  
+      // (6)
+      @Bean("httpComponentsClientHttpRequestFactory")
+      public HttpComponentsClientHttpRequestFactory httpComponentsClientHttpRequestFactory() {
+          return new HttpComponentsClientHttpRequestFactory(proxyHttpClientBuilder()
+                  .build()); // (7)
+      }
+    
+    .. tabularcolumns:: |p{0.10\linewidth}|p{0.90\linewidth}|
+    .. list-table::
+      :header-rows: 1
+      :widths: 10 90
+    
+      * - 項番
+        - 説明
+      * - | (1)
+        - | \ ``org.apache.hc.client5.http.impl.classic.HttpClientBuilder``\ を使用し、\ ``org.apache.http.client5.HttpClient``\ の設定を行う。
+      * - | (2)
+        - | \ ``HttpClientBuilder``\ の\ ``proxy``\ プロパティに、\ HTTP Proxyサーバの設定を行った\ ``org.apache.http.HttpHost``\ を設定する。
+      * - | (3)
+        - | \ ``HttpHost``\ のコンストラクタ引数の\ ``hostname``\ に、プロパティファイルに設定されたキー\ ``rscl.http.proxyHost``\ の値をHTTP Proxyサーバのホスト名として設定する。
+      * - | (4)
+        - | \ ``HttpHost``\ のコンストラクタ引数の\ ``port``\ に、プロパティファイルに設定されたキー\ ``rscl.http.proxyPort``\ の値をHTTP Proxyサーバのポート番号として設定する。
+      * - | (5)
+        - | \ ``RestTemplate``\ のBean定義を行う。
+      * - | (6)
+        - | \ ``RestTemplate``\ のコンストラクタの引数に、\ ``HttpComponentsClientHttpRequestFactory``\ を設定する。
+      * - | (7)
+        - | \ ``HttpComponentsClientHttpRequestFactory``\ のコンストラクタの引数に、\ ``HttpClientBuilder``\ から生成した\ ``HttpClient``\ を設定する。
 
-.. tabularcolumns:: |p{0.10\linewidth}|p{0.90\linewidth}|
-.. list-table::
-  :header-rows: 1
-  :widths: 10 90
+  .. group-tab:: XML Config
 
-  * - 項番
-    - 説明
-  * - | (1)
-    - | \ ``org.apache.hc.client5.http.impl.classic.HttpClientBuilder``\ を使用し、\ ``org.apache.http.client5.HttpClient``\ の設定を行う。
-  * - | (2)
-    - | \ ``HttpClientBuilder``\ の\ ``proxy``\ プロパティに、\ HTTP Proxyサーバの設定を行った\ ``org.apache.http.HttpHost``\ を設定する。
-  * - | (3)
-    - | \ ``HttpHost``\ のコンストラクタ引数の\ ``hostname``\ に、プロパティファイルに設定されたキー\ ``rscl.http.proxyHost``\ の値をHTTP Proxyサーバのホスト名として設定する。
-  * - | (4)
-    - | \ ``HttpHost``\ のコンストラクタ引数の\ ``port``\ に、プロパティファイルに設定されたキー\ ``rscl.http.proxyPort``\ の値をHTTP Proxyサーバのポート番号として設定する。
-  * - | (5)
-    - | \ ``RestTemplate``\ のBean定義を行う。
-  * - | (6)
-    - | \ ``RestTemplate``\ のコンストラクタの引数に、\ ``HttpComponentsClientHttpRequestFactory``\ を設定する。
-  * - | (7)
-    - | \ ``HttpComponentsClientHttpRequestFactory``\ のコンストラクタの引数に、\ ``HttpClientBuilder``\ から生成した\ ``HttpClient``\ を設定する。
+    .. code-block:: xml
+    
+      <!-- (1) -->
+      <bean id="proxyHttpClientBuilder" class="org.apache.hc.client5.http.impl.classic.HttpClientBuilder" factory-method="create">
+          <!-- (2) -->
+          <property name="proxy">
+              <bean class="org.apache.hc.core5.http.HttpHost">
+                  <!-- (3) -->
+                  <constructor-arg type="java.lang.String" name="hostname" value="${rscl.http.proxyHost}" />
+                  <!-- (4) -->
+                  <constructor-arg type="int" name="port" value="${rscl.http.proxyPort}" />
+              </bean>
+          </property>
+      </bean>
+    
+      <!-- (5) -->
+      <bean id="proxyRestTemplate" class="org.springframework.web.client.RestTemplate" >
+          <constructor-arg>
+              <!-- (6) -->
+              <bean class="org.springframework.http.client.HttpComponentsClientHttpRequestFactory">
+                  <!-- (7) -->
+                  <constructor-arg>
+                      <bean factory-bean="proxyHttpClientBuilder" factory-method="build" />
+                  </constructor-arg>
+              </bean>
+          </constructor-arg>
+      </bean>
+    
+    .. tabularcolumns:: |p{0.10\linewidth}|p{0.90\linewidth}|
+    .. list-table::
+      :header-rows: 1
+      :widths: 10 90
+    
+      * - 項番
+        - 説明
+      * - | (1)
+        - | \ ``org.apache.hc.client5.http.impl.classic.HttpClientBuilder``\ を使用し、\ ``org.apache.http.client5.HttpClient``\ の設定を行う。
+      * - | (2)
+        - | \ ``HttpClientBuilder``\ の\ ``proxy``\ プロパティに、\ HTTP Proxyサーバの設定を行った\ ``org.apache.http.HttpHost``\ を設定する。
+          
+          .. warning:: \ **オーバーロードされている場合に誤ったコンストラクタが使用されることがある**\
+
+              .. TODO : 当問題に関しては https://github.com/spring-projects/spring-framework/issues/31871 で問題提起しており、Springの回答次第では記載内容を見直す必要がある
+
+            当実装例は、本来であれば以下の様に記述することが可能である。
+
+              .. code-block:: xml
+
+                <bean class="org.apache.hc.core5.http.HttpHost">
+                    <constructor-arg name="hostname" value="${rscl.http.proxyHost}" />
+                    <constructor-arg name="port" value="${rscl.http.proxyPort}" />
+                </bean>
+            
+            ただし、\ `Spring#31871 <https://github.com/spring-projects/spring-framework/issues/31871>`_\ で報告されているように、コンストラクタがオーバーロードされている場合に想定とは異なるコンストラクタが使用されてしまう可能性がある。
+
+            そのためtype属性を設定し、明示的に使用するコンストラクタを決定している。
+
+      * - | (3)
+        - | \ ``HttpHost``\ のコンストラクタ引数の\ ``hostname``\ に、プロパティファイルに設定されたキー\ ``rscl.http.proxyHost``\ の値をHTTP Proxyサーバのホスト名として設定する。
+      * - | (4)
+        - | \ ``HttpHost``\ のコンストラクタ引数の\ ``port``\ に、プロパティファイルに設定されたキー\ ``rscl.http.proxyPort``\ の値をHTTP Proxyサーバのポート番号として設定する。
+      * - | (5)
+        - | \ ``RestTemplate``\ のBean定義を行う。
+      * - | (6)
+        - | \ ``RestTemplate``\ のコンストラクタの引数に、\ ``HttpComponentsClientHttpRequestFactory``\ を設定する。
+      * - | (7)
+        - | \ ``HttpComponentsClientHttpRequestFactory``\ のコンストラクタの引数に、\ ``HttpClientBuilder``\ から生成した\ ``HttpClient``\ を設定する。
 
 |
 
@@ -2477,41 +3031,89 @@ HTTP Proxyサーバにアクセスする際に資格情報(ユーザ名とパス
 
 \ **Bean定義ファイル**\
 
-.. code-block:: xml
+.. tabs::
+  .. group-tab:: Java Config
 
-  <bean id="proxyHttpClientBuilder" class="org.apache.hc.client5.http.impl.classic.HttpClientBuilder" factory-method="create">
-      <!-- (1) -->
-      <property name="defaultCredentialsProvider">
-          <bean class="com.example.restclient.BasicCredentialsProviderFactoryBean" />
-      </property>
-      <property name="proxy">
-          <bean id="proxyHost" class="org.apache.hc.core5.http.HttpHost">
-              <constructor-arg name="hostname" value="${rscl.http.proxyHost}" />
-              <constructor-arg name="port" value="${rscl.http.proxyPort}" />
-          </bean>
-      </property>
-  </bean>
+    .. code-block:: java
 
-  <bean id="proxyRestTemplate" class="org.springframework.web.client.RestTemplate">
-      <constructor-arg>
-          <bean class="org.springframework.http.client.HttpComponentsClientHttpRequestFactory">
-              <constructor-arg>
-                  <bean factory-bean="proxyHttpClientBuilder" factory-method="build" />
-              </constructor-arg>
-          </bean>
-      </constructor-arg>
-  </bean>
+      @Bean("proxyHttpClientBuilder")
+      public HttpClientBuilder proxyAuthHttpClientBuilder() throws Exception {
+          HttpClientBuilder bean = HttpClientBuilder.create();
+          bean.setDefaultCredentialsProvider(basicCredentialsProviderFactoryBean()
+                  .getObject()); // (1)
+          bean.setProxy(httpHost);
+          return bean;
+      }
+  
+      // (1)
+      @Bean
+      public BasicCredentialsProviderFactoryBean basicCredentialsProviderFactoryBean() {
+          return new BasicCredentialsProviderFactoryBean();
+      }
 
-.. tabularcolumns:: |p{0.10\linewidth}|p{0.90\linewidth}|
-.. list-table::
-  :header-rows: 1
-  :widths: 10 90
+      @Bean
+      public HttpHost httpHost() {
+          return new HttpHost(httpProxyHost, httpProxyPort);
+      }
 
-  * - 項番
-    - 説明
-  * - | (1)
-    - | \ ``HttpClientBuilder``\ の\ ``defaultCredentialsProvider``\ プロパティに、\ ``BasicCredentialsProvider``\ を設定する。
-      | \ ``BasicCredentialsProvider``\ は、\ ``FactoryBean``\ を実装した\ ``BasicCredentialsProviderFactoryBean``\ を使用しBeanを作成する。
+      @Bean("proxyRestTemplate")
+      public RestTemplate proxyRestTemplate() {
+          return new RestTemplate(httpComponentsClientHttpRequestFactory());
+      }
+
+      @Bean("httpComponentsClientHttpRequestFactory")
+      public HttpComponentsClientHttpRequestFactory httpComponentsClientHttpRequestFactory() {
+          return new HttpComponentsClientHttpRequestFactory(proxyHttpClientBuilder()
+                  .build());
+    
+    .. tabularcolumns:: |p{0.10\linewidth}|p{0.90\linewidth}|
+    .. list-table::
+      :header-rows: 1
+      :widths: 10 90
+    
+      * - 項番
+        - 説明
+      * - | (1)
+        - | \ ``HttpClientBuilder``\ の\ ``defaultCredentialsProvider``\ プロパティに、\ ``BasicCredentialsProvider``\ を設定する。
+          | \ ``BasicCredentialsProvider``\ は、\ ``FactoryBean``\ を実装した\ ``BasicCredentialsProviderFactoryBean``\ を使用しBeanを作成する。
+
+  .. group-tab:: XML Config
+
+    .. code-block:: xml
+    
+      <bean id="proxyHttpClientBuilder" class="org.apache.hc.client5.http.impl.classic.HttpClientBuilder" factory-method="create">
+          <!-- (1) -->
+          <property name="defaultCredentialsProvider">
+              <bean class="com.example.restclient.BasicCredentialsProviderFactoryBean" />
+          </property>
+          <property name="proxy">
+              <bean id="proxyHost" class="org.apache.hc.core5.http.HttpHost">
+                  <constructor-arg name="hostname" value="${rscl.http.proxyHost}" />
+                  <constructor-arg name="port" value="${rscl.http.proxyPort}" />
+              </bean>
+          </property>
+      </bean>
+    
+      <bean id="proxyRestTemplate" class="org.springframework.web.client.RestTemplate">
+          <constructor-arg>
+              <bean class="org.springframework.http.client.HttpComponentsClientHttpRequestFactory">
+                  <constructor-arg>
+                      <bean factory-bean="proxyHttpClientBuilder" factory-method="build" />
+                  </constructor-arg>
+              </bean>
+          </constructor-arg>
+      </bean>
+    
+    .. tabularcolumns:: |p{0.10\linewidth}|p{0.90\linewidth}|
+    .. list-table::
+      :header-rows: 1
+      :widths: 10 90
+    
+      * - 項番
+        - 説明
+      * - | (1)
+        - | \ ``HttpClientBuilder``\ の\ ``defaultCredentialsProvider``\ プロパティに、\ ``BasicCredentialsProvider``\ を設定する。
+          | \ ``BasicCredentialsProvider``\ は、\ ``FactoryBean``\ を実装した\ ``BasicCredentialsProviderFactoryBean``\ を使用しBeanを作成する。
 
 .. raw:: latex
 

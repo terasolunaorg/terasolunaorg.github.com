@@ -212,13 +212,13 @@ Logbackの設定
 
 .. note::
 
-  Logbackの設定は、以下のルールによる自動で読み込まれる。
+  Logbackの設定は、以下のルールにより自動で読み込まれる。
 
-  #. クラスパス上のlogback.grovy
-  #. 「1」のファイルが見つからない場合、クラスパス上のlogback-test.xml
-  #. 「2」のファイルが見つからない場合、クラスパス上のlogback.xml
-  #. 「3」のファイルが見つからない場合、\ ``com.qos.logback.classic.spi.Configurator``\ インタフェースの実装クラスの設定内容 (\ `ServiceLoader <https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/util/ServiceLoader.html>`_\ の仕組みを使用して実装クラスを指定)
-  #. \ ``Configurator``\ インタフェースの実装クラスが見つからない場合、BasicConfiguratorクラスの設定内容(コンソール出力)
+  #. \ ``com.qos.logback.classic.spi.Configurator``\ インタフェースの実装クラスの設定内容 (\ `ServiceLoader <https://docs.oracle.com/javase/8/docs/api/java/util/ServiceLoader.html>`_\ の仕組みを使用して実装クラスを指定)
+  #.  \ ``Configurator``\ インタフェースの実装クラスが見つからない場合、\ ``ch.qos.logback.classic.util.DefaultJoranConfigurator``\ を使用し、クラスパス上の\ ``META-INF/services/ch.qos.logback.classic.spi.Configurator``\ を検索することにより\ ``Configurator``\ インタフェースの実装を解決する。\ ``META-INF/services/ch.qos.logback.classic.spi.Configurator``\ には、期待する\ ``Configurator``\ インタフェースの実装クラスの完全修飾クラス名を指定する必要がある。
+  #. 「2」のファイルが見つからない場合、クラスパス上のlogback-test.xml
+  #. 「3」のファイルが見つからない場合、クラスパス上のlogback.xml
+  #. 「4」のファイルが見つからない場合、BasicConfiguratorクラスの設定内容(コンソール出力)
 
   本ガイドラインでは、logback.xmlをクラスパス上に配置することを推奨する。
 
@@ -364,10 +364,11 @@ Logbackの設定
   * - | (10)
     - | 監視ログの設定を行う。\ :doc:`../WebApplicationDetail/ExceptionHandling`\ の\ :ref:`exception-handling-how-to-use-application-configuration-common-label`\ を参照されたい。
 
-       .. warning:: \ **additivityの設定値について**\
+        .. warning:: \ **additivityの設定値について**\
 
-           \ ``false``\ を指定すること。\ ``true``\ (デフォルト値)を指定すると、上位のロガー(例えば、root)によって、同じログが出力されてしまう。
-           具体的には、監視ログは3つのアペンダー(\ ``MONITORING_LOG_FILE``\、\ ``STDOUT``\、\ ``APPLICATION_LOG_FILE``\)によって出力される。
+          \ ``false``\ を指定すること。\ ``true``\ (デフォルト値)を指定すると、上位のロガー(例えば、root)によって、同じログが出力されてしまう。
+
+          具体的には、監視ログは3つのアペンダー(\ ``MONITORING_LOG_FILE``\ 、\ ``STDOUT``\ 、\ ``APPLICATION_LOG_FILE``\ )によって出力される。
 
   * - | (11)
     - | <logger>の指定が無いロガーが、warnレベル以上のログを出力するように設定する。
@@ -616,7 +617,6 @@ SLF4JのLoggerは、内部でログレベルのチェックを行い、必要な
 
   ログメッセージの引数が3以上の場合、SLF4JのAPIでは引数の配列を渡す必要がある。配列生成のコストを避けるため、ログレベルのチェックを行い、必要なときのみ、配列が生成されるようにすること。
 
-
   .. code-block:: java
 
       if (logger.isDebugEnabled()) {
@@ -775,14 +775,14 @@ How to extend
       | このような実装をすることでDIコンテナへのアクセス可否に依存しなくなるため、Loggerラッパークラスをいつでも使用することができるようになる。
   * - | (3)
     - | staticイニシャライザにて\ ``MessageSource``\ を生成する。
-      | 本実装では\ ``i18n``\に配置した\ ``log-messages.properties``\ を読み込む。
+      | 本実装では\ ``i18n``\ に配置した\ ``log-messages.properties``\ を読み込む。
   * - | (4)
     - | プロパティファイルをパースする際に使用する文字コードを設定する。
       | 本実装ではプロパティファイルはUTF-8エンコードとしたのでUTF-8を指定する。
       | 詳細は、\ :doc:`../../ArchitectureInDetail/WebApplicationDetail/MessageManagement`\ の\ :ref:`properties-display`\ を参照されたい。
   * - | (5)
     - | 国際化を考慮し\ ``setBasenames``\ メソッドを使用してプロパティファイルを指定する。
-      | \ ``setBasenames``\ の詳細は\ ``ResourceBundleMessageSource``\ が継承する\ ``AbstractResourceBasedMessageSource``\ クラスの\ `JavaDoc <https://docs.spring.io/spring-framework/docs/6.0.3/javadoc-api/org/springframework/context/support/AbstractResourceBasedMessageSource.html#setBasenames-java.lang.String...->`_\を参照されたい。
+      | \ ``setBasenames``\ の詳細は\ ``ResourceBundleMessageSource``\ が継承する\ ``AbstractResourceBasedMessageSource``\ クラスの\ `JavaDoc <https://docs.spring.io/spring-framework/docs/6.1.3/javadoc-api/org/springframework/context/support/AbstractResourceBasedMessageSource.html#setBasenames-java.lang.String...->`_\を参照されたい。
   * - | (6)
     - | Loggerラッパークラスにおいても、SLF4Jを使用する。ロギングライブラリの実装を直接使用しない。
   * - | (7)
@@ -843,7 +843,6 @@ How to extend
             return "welcome/home";
         }
     }
-
 
 - ログ出力例
 
@@ -953,7 +952,7 @@ How to extend
 >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
 
 | 業務ロジックで出力するログを前述のフォーマットで出力する例を示す。
-| 本ガイドラインではLoggerラッパークラス(\ ``LogIdBasedLogger`` \)に、フォーマットを行う処理を追加して実現する。
+| 本ガイドラインではLoggerラッパークラス(\ ``LogIdBasedLogger`` \ )に、フォーマットを行う処理を追加して実現する。
 
 .. code-block:: java
 
@@ -977,7 +976,6 @@ How to extend
       // omitted
 
   }
-
 
 .. tabularcolumns:: |p{0.10\linewidth}|p{0.90\linewidth}|
 .. list-table::
@@ -1012,27 +1010,59 @@ How to extend
 | 業務エラーログやシステムエラーログのフォーマットを変更するには、\ ``applicationContext.xml``\ の\ ``ExceptionLogger``\ のbean定義を変更する。
 | 以下に、\ ``ExceptionLogger``\ の定義の例を挙げる。
 
-- \ **applicationContext.xml**\
+.. tabs::
+  .. group-tab:: Java Config
 
-  .. code-block:: xml
+    - \ **ApplicationContextConfig.java**\
+    
+      .. code-block:: java
 
-    <!-- Exception Logger. -->
-    <bean id="exceptionLogger"
-        class="org.terasoluna.gfw.common.exception.ExceptionLogger">
-        <property name="exceptionCodeResolver" ref="exceptionCodeResolver" />
-        <property name="logMessageFormat" value="[{0}], {1}" />    <!-- (1) -->
-    </bean>
+        @Bean("exceptionLogger")
+        public ExceptionLogger exceptionLogger(
+                ExceptionCodeResolver exceptionCodeResolver) {
+            ExceptionLogger bean = new ExceptionLogger();
 
-  .. tabularcolumns:: |p{0.10\linewidth}|p{0.90\linewidth}|
-  .. list-table::
-    :header-rows: 1
-    :widths: 10 90
+            // omitted
 
-    * - 項番
-      - 説明
-    * - | (1)
-      - | \ ``logMessageFormat``\ にフォーマットを定義する。
-        | \ ``{0}``\ は例外コード(メッセージID)、\ ``{1}``\ はメッセージがリプレースされる。
+            bean.setLogMessageFormat("[{0}], {1}"); // (1)
+
+            return bean;
+        }
+    
+      .. tabularcolumns:: |p{0.10\linewidth}|p{0.90\linewidth}|
+      .. list-table::
+        :header-rows: 1
+        :widths: 10 90
+    
+        * - 項番
+          - 説明
+        * - | (1)
+          - | \ ``logMessageFormat``\ にフォーマットを定義する。
+            | \ ``{0}``\ は例外コード(メッセージID)、\ ``{1}``\ はメッセージがリプレースされる。
+
+  .. group-tab:: XML Config
+
+    - \ **applicationContext.xml**\
+    
+      .. code-block:: xml
+    
+        <!-- Exception Logger. -->
+        <bean id="exceptionLogger"
+            class="org.terasoluna.gfw.common.exception.ExceptionLogger">
+            <!-- omitted -->
+            <property name="logMessageFormat" value="[{0}], {1}" />    <!-- (1) -->
+        </bean>
+    
+      .. tabularcolumns:: |p{0.10\linewidth}|p{0.90\linewidth}|
+      .. list-table::
+        :header-rows: 1
+        :widths: 10 90
+    
+        * - 項番
+          - 説明
+        * - | (1)
+          - | \ ``logMessageFormat``\ にフォーマットを定義する。
+            | \ ``{0}``\ は例外コード(メッセージID)、\ ``{1}``\ はメッセージがリプレースされる。
 
 実行結果は、以下のようになる。
 
@@ -1176,7 +1206,6 @@ web.xmlのfilter定義にMDCFilterの定義を追加する。
   :header-rows: 1
   :widths: 10 90
 
-
   * - 項番
     - 説明
   * - | (1)
@@ -1227,32 +1256,73 @@ logback.xmlの\ ``<pattern>``\ に\ ``%X{X-Track}``\ および、\ ``%X{USER}``\
 
   前述のように\ ``UserIdMDCPutFilter``\ をweb.xmlに定義した場合、ユーザーIDがログに出力されるのはSpring Securityの一連の処理が終わった後になる。ユーザー情報が生成された後、すぐにログに出力したい場合は、web.xmlの定義は削除して、以下のようにSpring SecurityのFilterに組み込む必要がある。
 
-  spring-security.xmlには以下のような定義を追加する。
+    .. tabs::
+      .. group-tab:: Java Config
 
-    .. code-block:: xml
+        - \ ``SpringSecurityConfig.java``\ 
 
-      <sec:http request-matcher="ant" >
-          <!-- omitted -->
-          <sec:custom-filter ref="userIdMDCPutFilter" after="ANONYMOUS_FILTER"/> <!-- (1) -->
-          <!-- omitted -->
-      </sec:http>
+          .. code-block:: java
 
-      <!-- (2) -->
-      <bean id="userIdMDCPutFilter" class="org.terasoluna.gfw.security.web.logging.UserIdMDCPutFilter" />
+            @Bean
+            public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
+                
+                // omitted
 
-    .. tabularcolumns:: |p{0.10\linewidth}|p{0.90\linewidth}|
-    .. list-table::
-      :header-rows: 1
-      :widths: 10 90
+                http.addFilterAfter(userIdMDCPutFilter(), AnonymousAuthenticationFilter.class); // (1)
 
-      * - 項番
-        - 説明
-      * - | (1)
-        - | Bean定義した\ ``UserIdMDCPutFilter`` \ を"ANONYMOUS_FILTER"の後に追加する。
-      * - | (2)
-        - | \ ``UserIdMDCPutFilter`` \ を定義する。
+                // omitted
+        
+                return http.build();
+            }
 
-  blankプロジェクトでは\ ``UserIdMDCPutFilter``\ をspring-security.xmlに定義している。
+            // (2)
+            @Bean("userIdMDCPutFilter")
+            public UserIdMDCPutFilter userIdMDCPutFilter() {
+                return new UserIdMDCPutFilter();
+            }
+      
+          .. tabularcolumns:: |p{0.10\linewidth}|p{0.90\linewidth}|
+          .. list-table::
+            :header-rows: 1
+            :widths: 10 90
+      
+            * - 項番
+              - 説明
+            * - | (1)
+              - | Bean定義した\ ``UserIdMDCPutFilter``\ を"AnonymousAuthenticationFilter"の後に追加する。
+            * - | (2)
+              - | \ ``UserIdMDCPutFilter``\ を定義する。
+      
+        blankプロジェクトでは\ ``UserIdMDCPutFilter``\ をSpringSecurityConfig.javaに定義している。
+
+      .. group-tab:: XML Config
+
+        - \ ``spring-security.xml``\ 
+
+          .. code-block:: xml
+      
+            <sec:http request-matcher="ant" >
+                <!-- omitted -->
+                <sec:custom-filter ref="userIdMDCPutFilter" after="ANONYMOUS_FILTER"/> <!-- (1) -->
+                <!-- omitted -->
+            </sec:http>
+      
+            <!-- (2) -->
+            <bean id="userIdMDCPutFilter" class="org.terasoluna.gfw.security.web.logging.UserIdMDCPutFilter" />
+      
+          .. tabularcolumns:: |p{0.10\linewidth}|p{0.90\linewidth}|
+          .. list-table::
+            :header-rows: 1
+            :widths: 10 90
+      
+            * - 項番
+              - 説明
+            * - | (1)
+              - | Bean定義した\ ``UserIdMDCPutFilter``\ を"ANONYMOUS_FILTER"の後に追加する。
+            * - | (2)
+              - | \ ``UserIdMDCPutFilter``\ を定義する。
+      
+        blankプロジェクトでは\ ``UserIdMDCPutFilter``\ をspring-security.xmlに定義している。
 
 |
 
@@ -1264,16 +1334,18 @@ logback.xmlの\ ``<pattern>``\ に\ ``%X{X-Track}``\ および、\ ``%X{USER}``\
 HttpSessionEventLoggingListener
 """"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 
-\  ``org.terasoluna.gfw.web.logging.HttpSessionEventLoggingListener``\ は、セッションの生成・破棄・活性・非活性、セッションへの属性の追加・削除のタイミングでdebugログを出力するためのリスナークラスである。
+\ ``org.terasoluna.gfw.web.logging.HttpSessionEventLoggingListener``\ は、セッションの生成・破棄・活性・非活性、セッションへの属性の追加・削除のタイミングでdebugログを出力するためのリスナークラスである。
 
 web.xmlに、以下を追加すればよい。
 
 .. code-block:: xml
 
   <?xml version="1.0" encoding="UTF-8"?>
-  <web-app xmlns="http://java.sun.com/xml/ns/javaee" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-      xsi:schemaLocation="http://java.sun.com/xml/ns/javaee http://java.sun.com/xml/ns/javaee/web-app_3_0.xsd"
-      version="3.0">
+  <web-app xmlns="https://jakarta.ee/xml/ns/jakartaee"
+      xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+      xsi:schemaLocation="https://jakarta.ee/xml/ns/jakartaee https://jakarta.ee/xml/ns/jakartaee/web-app_6_0.xsd"
+      version="6.0">
+
       <listener>
           <listener-class>org.terasoluna.gfw.web.logging.HttpSessionEventLoggingListener</listener-class>
       </listener>
@@ -1293,7 +1365,7 @@ logback.xmlには、以下のように\ ``org.terasoluna.gfw.web.logging.HttpSes
 
 以下のようなデバッグログが出力される。
 
-.. code-block:: xml
+.. code-block:: console
 
   date:2013-09-06 16:41:33	thread:tomcat-http--3	USER:	X-Track:c004ddb56a3642d5bc5f6b5d884e5db2	level:DEBUG	logger:o.t.g.w.logging.HttpSessionEventLoggingListener 	message:SESSIONID#EDC3C240A7A1CCE87146A6BA1321AD0F sessionCreated : org.apache.catalina.session.StandardSessionFacade@f00e0f
 
@@ -1306,43 +1378,105 @@ TraceLoggingInterceptor
 | \  ``org.terasoluna.gfw.web.logging.TraceLoggingInterceptor``\ は、Controllerの処理開始、終了をログ出力する\ ``HandlerInterceptor``\ である。
 | 終了時にはControllerが返却したView名とModelに追加された属性、およびControllerの処理に要した時間も出力する。
 
-spring-mvc.xmlの\ ``<mvc:interceptors>``\ 内に以下のように\ ``TraceLoggingInterceptor``\ を追加する。
+.. tabs::
+  .. group-tab:: Java Config
 
-.. code-block:: xml
+    SpringMvcConfig.javaの\ ``addInterceptors``\ 内に以下のように\ ``TraceLoggingInterceptor``\ を追加する。
+    
+    .. code-block:: java
 
-  <mvc:interceptors>
-      <!-- omitted -->
-      <mvc:interceptor>
-          <mvc:mapping path="/**" />
-          <mvc:exclude-mapping path="/resources/**" />
-          <bean
-              class="org.terasoluna.gfw.web.logging.TraceLoggingInterceptor">
-          </bean>
-      </mvc:interceptor>
-      <!-- omitted -->
-  </mvc:interceptors>
+      @EnableAspectJAutoProxy
+      @EnableWebMvc
+      @Configuration
+      public class SpringMvcConfig implements WebMvcConfigurer {
+
+          // omitted
+
+          @Override
+          protected void addInterceptors(InterceptorRegistry registry) {
+
+              // omitted
+
+              registry.addInterceptor(traceLoggingInterceptor()).addPathPatterns("/**")
+                      .excludePathPatterns("/resources/**");
+          }
+    
+          @Bean
+          public TraceLoggingInterceptor traceLoggingInterceptor() {
+              return new TraceLoggingInterceptor();
+          }
+
+  .. group-tab:: XML Config
+
+    spring-mvc.xmlの\ ``<mvc:interceptors>``\ 内に以下のように\ ``TraceLoggingInterceptor``\ を追加する。
+    
+    .. code-block:: xml
+    
+      <mvc:interceptors>
+          <!-- omitted -->
+          <mvc:interceptor>
+              <mvc:mapping path="/**" />
+              <mvc:exclude-mapping path="/resources/**" />
+              <bean
+                  class="org.terasoluna.gfw.web.logging.TraceLoggingInterceptor">
+              </bean>
+          </mvc:interceptor>
+          <!-- omitted -->
+      </mvc:interceptors>
 
 | デフォルトでは、Controllerの処理に3秒以上かかった場合にWARNログを出力する。
 | この閾値を変える場合は、\ ``warnHandlingNanos``\ プロパティにナノ秒単位で指定する。
 
-| 閾値を10秒(10 * 1000 * 1000 * 1000 ナノ秒)に変更したい場合は以下のように設定すればよい。
-| このとき、10秒（10000000000ナノ秒）のようにint型の範囲を超える閾値を設定する場合は、long型で値を設定する点に留意されたい。
+| 閾値を10秒に変更したい場合は以下のように設定すればよい。
 
-.. code-block:: xml
-  :emphasize-lines: 8
+.. tabs::
+  .. group-tab:: Java Config
 
-  <mvc:interceptors>
-      <!-- omitted -->
-      <mvc:interceptor>
-          <mvc:mapping path="/**" />
-          <mvc:exclude-mapping path="/resources/**" />
-          <bean
-              class="org.terasoluna.gfw.web.logging.TraceLoggingInterceptor">
-              <property name="warnHandlingNanos" value="#{10L * 1000L * 1000L * 1000L}" />
-          </bean>
-      </mvc:interceptor>
-      <!-- omitted -->
-  </mvc:interceptors>
+    SpringMvcConfig.javaの\ ``addInterceptors``\ 内に以下のように\ ``TraceLoggingInterceptor``\ を追加する。
+    
+    .. code-block:: java
+
+      @EnableAspectJAutoProxy
+      @EnableWebMvc
+      @Configuration
+      public class SpringMvcConfig implements WebMvcConfigurer {
+
+          // omitted
+
+          @Override
+          protected void addInterceptors(InterceptorRegistry registry) {
+
+              // omitted
+
+              registry.addInterceptor(traceLoggingInterceptor()).addPathPatterns("/**")
+                      .excludePathPatterns("/resources/**");
+          }
+    
+          @Bean
+          public TraceLoggingInterceptor traceLoggingInterceptor() {
+              TraceLoggingInterceptor bean = new TraceLoggingInterceptor();
+              bean.setWarnHandlingNanos(TimeUnit.SECONDS.toNanos(10L));
+              return bean;
+          }
+
+  .. group-tab:: XML Config
+
+    spring-mvc.xmlの\ ``<mvc:interceptors>``\ 内に以下のように\ ``TraceLoggingInterceptor``\ を追加する。
+    
+    .. code-block:: xml
+    
+      <mvc:interceptors>
+          <!-- omitted -->
+          <mvc:interceptor>
+              <mvc:mapping path="/**" />
+              <mvc:exclude-mapping path="/resources/**" />
+              <bean
+                  class="org.terasoluna.gfw.web.logging.TraceLoggingInterceptor">
+                  <property name="warnHandlingNanos" value="#{T(java.util.concurrent.TimeUnit).SECONDS.toNanos(10L)}" />
+              </bean>
+          </mvc:interceptor>
+          <!-- omitted -->
+      </mvc:interceptors>
 
 logback.xmlには、以下のように、\ ``org.terasoluna.gfw.web.logging.TraceLoggingInterceptor``\ をtraceレベルで設定する。
 

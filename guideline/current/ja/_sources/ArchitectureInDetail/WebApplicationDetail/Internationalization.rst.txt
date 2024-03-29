@@ -35,7 +35,7 @@ Localeの切り替えイメージを以下に示す。
 
 .. note::
 
-  Codelistの国際化方法については、\ :doc:`../WebApplicationDetail/Codelist` を参照されたい。
+  Codelistの国際化方法については、\ :doc:`../WebApplicationDetail/Codelist`\ を参照されたい。
 
 .. note::
 
@@ -74,31 +74,60 @@ How to use
 
 ここでは、\ ``ResourceBundleMessageSource``\ を使用する場合の設定例を紹介する。
 
-\ **applicationContext.xml**\
+.. tabs::
+  .. group-tab:: Java Config
 
-.. code-block:: xml
+    \ **ApplicationContextConfig.java**\
+    
+    .. code-block:: java
 
-  <bean id="messageSource"
-      class="org.springframework.context.support.ResourceBundleMessageSource">
-      <property name="basenames">
-          <list>
-              <value>i18n/application-messages</value>  <!-- (1) -->
-          </list>
-      </property>
-  </bean>
+      @Bean("messageSource")
+      public MessageSource messageSource() {
+          ResourceBundleMessageSource bean = new ResourceBundleMessageSource();
+          bean.setBasenames("i18n/application-messages"); // (1)
+          return bean;
+      }
+    
+    .. tabularcolumns:: |p{0.10\linewidth}|p{0.90\linewidth}|
+    .. list-table::
+      :header-rows: 1
+      :widths: 10 90
+    
+      * - | 項番
+        - | 説明
+      * - | (1)
+        - | プロパティファイルの基底名として、\ ``i18n/application-messages``\ を指定する。
+          | 国際化対応を行う場合、i18nディレクトリ配下にメッセージプロパティファイルを格納することを推奨する。
+          |
+          | \ ``MessageSource``\ の詳細や定義方法は、\ :doc:`../WebApplicationDetail/MessageManagement`\ を参照されたい。
 
-.. tabularcolumns:: |p{0.10\linewidth}|p{0.90\linewidth}|
-.. list-table::
-  :header-rows: 1
-  :widths: 10 90
+  .. group-tab:: XML Config
 
-  * - | 項番
-    - | 説明
-  * - | (1)
-    - | プロパティファイルの基底名として、\ ``i18n/application-messages``\ を指定する。
-      | 国際化対応を行う場合、i18nディレクトリ配下にメッセージプロパティファイルを格納することを推奨する。
-      |
-      | \ ``MessageSource``\ の詳細や定義方法は、\ :doc:`../WebApplicationDetail/MessageManagement`\ を参照されたい。
+    \ **applicationContext.xml**\
+    
+    .. code-block:: xml
+    
+      <bean id="messageSource"
+          class="org.springframework.context.support.ResourceBundleMessageSource">
+          <property name="basenames">
+              <list>
+                  <value>i18n/application-messages</value>  <!-- (1) -->
+              </list>
+          </property>
+      </bean>
+    
+    .. tabularcolumns:: |p{0.10\linewidth}|p{0.90\linewidth}|
+    .. list-table::
+      :header-rows: 1
+      :widths: 10 90
+    
+      * - | 項番
+        - | 説明
+      * - | (1)
+        - | プロパティファイルの基底名として、\ ``i18n/application-messages``\ を指定する。
+          | 国際化対応を行う場合、i18nディレクトリ配下にメッセージプロパティファイルを格納することを推奨する。
+          |
+          | \ ``MessageSource``\ の詳細や定義方法は、\ :doc:`../WebApplicationDetail/MessageManagement`\ を参照されたい。
 
 |
 
@@ -111,7 +140,11 @@ How to use
 プロパティファイルは、以下のルールに則って作成する。
 
 * Locale毎のファイル名は、\ :file:`application-messages_XX.properties`\ という形式で作成する。(XX部分はLocaleを指定)
-* \ :file:`application-messages.properties`\ は\ **必ず作成する**\ 。もし存在しない場合、\ ``MessageSource``\ からメッセージを取得できず、JSPにメッセージを設定する際に、\ ``JspTagException``\ が発生する。
+* \ :file:`application-messages.properties`\ は\ **必ず作成する**\ 。もし存在しない場合、\ ``MessageSource``\ からメッセージを取得できず以下の様な状態となる。
+
+  * JSPにメッセージを設定する際に\ ``JspTagException``\ が発生する。
+  * Thymeleafでは、\ ``MessageSource``\ からメッセージを取得できず、\ ``??メッセージID??``\ という形式でメッセージIDが出力される。
+
 * \ :file:`application-messages.properties`\ に定義するメッセージは、デフォルトで使用する言語で作成する。
 
 上記ルールに則ってプロパティファイルを作成すると、以下のような動作になる。
@@ -146,43 +179,83 @@ AcceptHeaderLocaleResolverの設定
 
 ブラウザの設定を使用してLocaleを切り替える場合は、\ ``AcceptHeaderLocaleResolver``\ を使用する。
 
-\ **spring-mvc.xml**\
+.. tabs::
+  .. group-tab:: Java Config
 
-.. code-block:: xml
+    \ **SpringMvcConfig.java**\
+    
+    .. code-block:: java
+    
+      // (1)
+      @Bean("localeResolver")
+      public AcceptHeaderLocaleResolver localeResolver() {
+          AcceptHeaderLocaleResolver bean = new AcceptHeaderLocaleResolver();
+          bean.setDefaultLocale(Locale.ENGLISH); // (2)
+          List<Locale> locales = new ArrayList<Locale>();
+          locales.add(Locale.ENGLISH);
+          locales.add(Locale.JAPANESE);
+          bean.setSupportedLocales(locales); // (3)
+          return bean;
+      }
+    
+    .. tabularcolumns:: |p{0.10\linewidth}|p{0.90\linewidth}|
+    .. list-table::
+      :header-rows: 1
+      :widths: 10 90
+    
+      * - | 項番
+        - | 説明
+      * - | (1)
+        - | \ ``org.springframework.web.servlet.i18n.AcceptHeaderLocaleResolver``\ をbean定義する。
+          | この\ ``LocaleResolver``\ を使用すると、リクエスト毎に設定されるHTTPヘッダー(”accept-language”)に指定されているLocaleが使用される。
+      * - | (2)
+        - | デフォルトのLocaleを設定するため、\ ``defaultLocale``\ プロパティを設定する。
+          | 上記の例では、アプリケーションがサポートしていないLocaleがリクエストされた場合、Localeは"en"に設定される。
+      * - | (3)
+        - | アプリケーションがサポートするLocaleを設定するため、\ ``supportedLocales``\ プロパティを設定する。
+          | リクエストが要求するLocaleと、サポートするLocaleが一致する場合はそのLocaleが使用される。
+          | 国と言語を組み合わせたLocale（例：ja_JP）が要求され、サポートするLocaleと一致しない場合、対応する言語のみのLocale（例：ja）で一致を確認する。
+          | 上記の例では、アプリケーションがサポートするLocaleとして、"en"と"ja"を指定している。
 
-  <bean id="localeResolver"
-      class="org.springframework.web.servlet.i18n.AcceptHeaderLocaleResolver"> <!-- (1) -->
-      <property name="defaultLocale" value="en" /> <!-- (2) -->
-      <property name="supportedLocales"> <!-- (3) -->
-          <list value-type="java.util.Locale">
-              <value>en</value>
-              <value>ja</value>
-          </list>
-      </property>
-  </bean>
+  .. group-tab:: XML Config
 
-.. tabularcolumns:: |p{0.10\linewidth}|p{0.90\linewidth}|
-.. list-table::
-  :header-rows: 1
-  :widths: 10 90
-
-  * - | 項番
-    - | 説明
-  * - | (1)
-    - | beanタグのid属性"localeResolver"に\ ``org.springframework.web.servlet.i18n.AcceptHeaderLocaleResolver``\ を指定する。
-      | この\ ``LocaleResolver``\ を使用すると、リクエスト毎に設定されるHTTPヘッダー(”accept-language”)に指定されているLocaleが使用される。
-  * - | (2)
-    - | デフォルトのLocaleを設定するため、\ ``defaultLocale``\ プロパティを設定する。
-      | 上記の例では、アプリケーションがサポートしていないLocaleがリクエストされた場合、Localeは"en"に設定される。
-  * - | (3)
-    - | アプリケーションがサポートするLocaleを設定するため、\ ``supportedLocales``\ プロパティを設定する。
-      | リクエストが要求するLocaleと、サポートするLocaleが一致する場合はそのLocaleが使用される。
-      | 国と言語を組み合わせたLocale（例：ja_JP）が要求され、サポートするLocaleと一致しない場合、対応する言語のみのLocale（例：ja）で一致を確認する。
-      | 上記の例では、アプリケーションがサポートするLocaleとして、"en"と"ja"を指定している。
+    \ **spring-mvc.xml**\
+    
+    .. code-block:: xml
+    
+      <bean id="localeResolver"
+          class="org.springframework.web.servlet.i18n.AcceptHeaderLocaleResolver"> <!-- (1) -->
+          <property name="defaultLocale" value="en" /> <!-- (2) -->
+          <property name="supportedLocales"> <!-- (3) -->
+              <list value-type="java.util.Locale">
+                  <value>en</value>
+                  <value>ja</value>
+              </list>
+          </property>
+      </bean>
+    
+    .. tabularcolumns:: |p{0.10\linewidth}|p{0.90\linewidth}|
+    .. list-table::
+      :header-rows: 1
+      :widths: 10 90
+    
+      * - | 項番
+        - | 説明
+      * - | (1)
+        - | beanタグのid属性"localeResolver"に\ ``org.springframework.web.servlet.i18n.AcceptHeaderLocaleResolver``\ を指定する。
+          | この\ ``LocaleResolver``\ を使用すると、リクエスト毎に設定されるHTTPヘッダー(”accept-language”)に指定されているLocaleが使用される。
+      * - | (2)
+        - | デフォルトのLocaleを設定するため、\ ``defaultLocale``\ プロパティを設定する。
+          | 上記の例では、アプリケーションがサポートしていないLocaleがリクエストされた場合、Localeは"en"に設定される。
+      * - | (3)
+        - | アプリケーションがサポートするLocaleを設定するため、\ ``supportedLocales``\ プロパティを設定する。
+          | リクエストが要求するLocaleと、サポートするLocaleが一致する場合はそのLocaleが使用される。
+          | 国と言語を組み合わせたLocale（例：ja_JP）が要求され、サポートするLocaleと一致しない場合、対応する言語のみのLocale（例：ja）で一致を確認する。
+          | 上記の例では、アプリケーションがサポートするLocaleとして、"en"と"ja"を指定している。
 
 .. note::
 
-  \ ``LocaleResolver``\ が設定されていない場合、デフォルトで ``org.springframework.web.servlet.i18n.AcceptHeaderLocaleResolver`` が使用されるため、\ ``LocaleResolver``\ の設定は、省略することもできる。
+  \ ``LocaleResolver``\ が設定されていない場合、デフォルトで\ ``org.springframework.web.servlet.i18n.AcceptHeaderLocaleResolver``\ が使用されるため、\ ``LocaleResolver``\ の設定は、省略することもできる。
 
 |
 
@@ -205,58 +278,78 @@ AcceptHeaderLocaleResolverの設定
 
 |
 
-JSPの実装
+実装
 """"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 
-以下に、JSPの実装例を示す。
+.. tabs::
+  .. group-tab:: JSP
 
-\ **include.jsp(インクルード用の共通jspファイル)**\
+    \ **include.jsp(インクルード用の共通jspファイル)**\
+    
+    .. code-block:: jsp
+    
+      <%@ page session="false"%>
+      <%@ taglib uri="http://java.sun.com/jsp/jstl/core" prefix="c"%>
+      <%@ taglib uri="http://java.sun.com/jsp/jstl/fmt" prefix="fmt"%>
+      <%@ taglib uri="http://www.springframework.org/tags" prefix="spring"%>  <!-- (1) -->
+      <%@ taglib uri="http://www.springframework.org/tags/form" prefix="form"%>
+      <%@ taglib uri="http://www.springframework.org/security/tags" prefix="sec"%>
+      <%@ taglib uri="http://terasoluna.org/functions" prefix="f"%>
+      <%@ taglib uri="http://terasoluna.org/tags" prefix="t"%>
+    
+    .. tabularcolumns:: |p{0.10\linewidth}|p{0.90\linewidth}|
+    .. list-table::
+      :header-rows: 1
+      :widths: 10 90
+    
+      * - | 項番
+        - | 説明
+      * - | (1)
+        - | JSPで出力する場合、Springのタグライブラリを用いてメッセージ出力を行うため、カスタムタグを定義する必要がある。
+          | \ ``<%@taglib uri="http://www.springframework.org/tags" prefix="spring"%>``\ を定義すること。
+    
+    .. note::
+    
+      インクルード用の共通jspファイルの詳細は\ :ref:`view_jsp_include-label`\ を参照されたい。
+    
+    |
+    
+    \ **画面表示用JSPファイル**\
+    
+    .. code-block:: jsp
+    
+      <spring:message code="title.admin.top" />  <!-- (2) -->
+    
+    .. tabularcolumns:: |p{0.10\linewidth}|p{0.90\linewidth}|
+    .. list-table::
+      :header-rows: 1
+      :widths: 10 90
+    
+      * - | 項番
+        - | 説明
+      * - | (2)
+        - | JSPでは、Springのタグライブラリである、\ ``<spring:message>``\ を用いてメッセージ出力を行う。
+          | code属性に、プロパティで指定したキーを設定する。
+          | 本例では、Localeがjaの場合"管理画面 Top"、それ以外のLocaleの場合"Admin Top"が出力される。
 
-.. code-block:: jsp
+  .. group-tab:: Thymeleaf
 
-  <%@ page session="false"%>
-  <%@ taglib uri="http://java.sun.com/jsp/jstl/core" prefix="c"%>
-  <%@ taglib uri="http://java.sun.com/jsp/jstl/fmt" prefix="fmt"%>
-  <%@ taglib uri="http://www.springframework.org/tags" prefix="spring"%>  <!-- (1) -->
-  <%@ taglib uri="http://www.springframework.org/tags/form" prefix="form"%>
-  <%@ taglib uri="http://www.springframework.org/security/tags" prefix="sec"%>
-  <%@ taglib uri="http://terasoluna.org/functions" prefix="f"%>
-  <%@ taglib uri="http://terasoluna.org/tags" prefix="t"%>
-
-.. tabularcolumns:: |p{0.10\linewidth}|p{0.90\linewidth}|
-.. list-table::
-  :header-rows: 1
-  :widths: 10 90
-
-  * - | 項番
-    - | 説明
-  * - | (1)
-    - | JSPで出力する場合、Springのタグライブラリを用いてメッセージ出力を行うため、カスタムタグを定義する必要がある。
-      | \ ``<%@taglib uri="http://www.springframework.org/tags" prefix="spring"%>``\ を定義すること。
-
-.. note::
-
-  インクルード用の共通jspファイルの詳細は\ :ref:`view_jsp_include-label`\ を参照されたい。
-
-|
-
-\ **画面表示用JSPファイル**\
-
-.. code-block:: jsp
-
-  <spring:message code="title.admin.top" />  <!-- (2) -->
-
-.. tabularcolumns:: |p{0.10\linewidth}|p{0.90\linewidth}|
-.. list-table::
-  :header-rows: 1
-  :widths: 10 90
-
-  * - | 項番
-    - | 説明
-  * - | (2)
-    - | JSPでは、Springのタグライブラリである、\ ``<spring:message>``\ を用いてメッセージ出力を行う。
-      | code属性に、プロパティで指定したキーを設定する。
-      | 本例では、Localeが、jaの場合、"管理画面 Top"、それ以外のLocaleの場合、"Admin Top"が出力される。
+    \ **テンプレートHTMLファイル**\
+    
+    .. code-block:: html
+    
+      <span th:text="#{title.admin.top}"></span>  <!-- (1) -->
+    
+    .. tabularcolumns:: |p{0.10\linewidth}|p{0.90\linewidth}|
+    .. list-table::
+      :header-rows: 1
+      :widths: 10 90
+    
+      * - | 項番
+        - | 説明
+      * - | (1)
+        - | メッセージ式\ ``#{}``\ を用いてメッセージ出力を行う。
+          | 本例では、Localeがjaの場合"管理画面 Top"、それ以外のLocaleの場合"Admin Top"が出力される。
 
 |
 
@@ -278,7 +371,7 @@ Localeを画面操作等で動的に変更する方法は、ユーザ端末（�
 使用する\ ``LocaleResolver``\ の実装クラスを、以下の表から選択する。
 
 .. tabularcolumns:: |p{0.05\linewidth}|p{0.60\linewidth}|p{0.35\linewidth}|
-.. list-table:: **LocaleResolverの種類**
+.. list-table:: \ **LocaleResolverの種類**\
   :header-rows: 1
   :widths: 5 60 35
 
@@ -304,63 +397,136 @@ LocaleChangeInterceptorの設定
 
 リクエストパラメータを使用してLocaleを切り替える場合は、\ ``LocaleChangeInterceptor``\ を使用する。
 
-\ **spring-mvc.xml**\
+.. tabs::
+  .. group-tab:: Java Config
 
-.. code-block:: xml
+    \ **SpringMvcConfig.java**\
+    
+    .. code-block:: java
 
-  <mvc:interceptors>
-    <mvc:interceptor>
-      <mvc:mapping path="/**" />
-      <mvc:exclude-mapping path="/resources/**" />
-      <bean
-        class="org.springframework.web.servlet.i18n.LocaleChangeInterceptor">  <!-- (1) -->
-      </bean>
-      <!-- omitted -->
-    </mvc:interceptor>
-  </mvc:interceptors>
+      @EnableAspectJAutoProxy
+      @EnableWebMvc
+      @Configuration
+      public class SpringMvcConfig implements WebMvcConfigurer {
 
-.. tabularcolumns:: |p{0.10\linewidth}|p{0.90\linewidth}|
-.. list-table::
-  :header-rows: 1
-  :widths: 10 90
+          @Override
+          public void addInterceptors(InterceptorRegistry registry) {
 
-  * - | 項番
-    - | 説明
-  * - | (1)
-    - | Spring MVCのインタセプターに、\ ``org.springframework.web.servlet.i18n.LocaleChangeInterceptor``\ を定義する。
-      | この設定により、"リクエストURL?locale=xx"で\ :ref:`使用可能<i18n_set_locale_view>`\ となる。
+              // omitted
+
+              registry.addInterceptor(localeChangeInterceptor()).addPathPatterns("/**") // (1)
+                    .excludePathPatterns("/resources/**");
+          }
+
+          // (1)
+          @Bean("localeChangeInterceptor")
+          public LocaleChangeInterceptor localeChangeInterceptor() {
+              return new LocaleChangeInterceptor();
+          }
+    
+    .. tabularcolumns:: |p{0.10\linewidth}|p{0.90\linewidth}|
+    .. list-table::
+      :header-rows: 1
+      :widths: 10 90
+    
+      * - | 項番
+        - | 説明
+      * - | (1)
+        - | Spring MVCのインタセプターに、\ ``org.springframework.web.servlet.i18n.LocaleChangeInterceptor``\ を定義する。
+          | この設定により、"リクエストURL?locale=xx"で\ :ref:`使用可能<i18n_set_locale_view>`\ となる。
+
+  .. group-tab:: XML Config
+
+    \ **spring-mvc.xml**\
+    
+    .. code-block:: xml
+    
+      <mvc:interceptors>
+        <mvc:interceptor>
+          <mvc:mapping path="/**" />
+          <mvc:exclude-mapping path="/resources/**" />
+          <bean
+            class="org.springframework.web.servlet.i18n.LocaleChangeInterceptor">  <!-- (1) -->
+          </bean>
+          <!-- omitted -->
+        </mvc:interceptor>
+      </mvc:interceptors>
+    
+    .. tabularcolumns:: |p{0.10\linewidth}|p{0.90\linewidth}|
+    .. list-table::
+      :header-rows: 1
+      :widths: 10 90
+    
+      * - | 項番
+        - | 説明
+      * - | (1)
+        - | Spring MVCのインタセプターに、\ ``org.springframework.web.servlet.i18n.LocaleChangeInterceptor``\ を定義する。
+          | この設定により、"リクエストURL?locale=xx"で\ :ref:`使用可能<i18n_set_locale_view>`\ となる。
 
 .. note::
 
   \ **Localeを指定するリクエストパラメータ名の変更方法**\
 
-    .. code-block:: xml
+    .. tabs::
+      .. group-tab:: Java Config
 
-      <bean
-          class="org.springframework.web.servlet.i18n.LocaleChangeInterceptor">
-          <property name="paramName" value="lang"/>  <!-- (2) -->
-      </bean>
+        .. code-block:: java
 
-    .. tabularcolumns:: |p{0.10\linewidth}|p{0.90\linewidth}|
-    .. list-table::
-      :header-rows: 1
-      :widths: 10 90
-      :class: longtable
+          @Bean("localeChangeInterceptor")
+          public LocaleChangeInterceptor localeChangeInterceptor() {
+              LocaleChangeInterceptor bean = new LocaleChangeInterceptor();
+              bean.setParamName("lang"); // (2)
+              return bean;
+          }
+    
+        .. tabularcolumns:: |p{0.10\linewidth}|p{0.90\linewidth}|
+        .. list-table::
+          :header-rows: 1
+          :widths: 10 90
+          :class: longtable
+    
+          * - | 項番
+            - | 説明
+          * - | (2)
+            - | \ ``paramName``\ プロパティにリクエストパラメータ名を指定する。上記例では、"リクエストURL?lang=xx"となる。
 
-      * - | 項番
-        - | 説明
-      * - | (2)
-        - | \ ``paramName``\ プロパティにリクエストパラメータ名を指定する。上記例では、"リクエストURL?lang=xx"となる。
+      .. group-tab:: XML Config
+
+        .. code-block:: xml
+    
+          <bean
+              class="org.springframework.web.servlet.i18n.LocaleChangeInterceptor">
+              <property name="paramName" value="lang"/>  <!-- (2) -->
+          </bean>
+    
+        .. tabularcolumns:: |p{0.10\linewidth}|p{0.90\linewidth}|
+        .. list-table::
+          :header-rows: 1
+          :widths: 10 90
+          :class: longtable
+    
+          * - | 項番
+            - | 説明
+          * - | (2)
+            - | \ ``paramName``\ プロパティにリクエストパラメータ名を指定する。上記例では、"リクエストURL?lang=xx"となる。
 
 .. note::
 
-  リクエストパラメータにLocaleとして使用できない文字（半角スペース、ハイフン、アンダースコア、英数字 **以外** ）を含む値が指定された場合、例外がスローされる。この時、前回のリクエストまでのLocaleが継続して有効になる。例外については、\ ``ignoreInvalidLocale``\プロパティに\ ``true``\を指定することでスローされなくなる。
+  \ ``LocaleChangeInterceptor``\ はSpring MVCのControllerの処理実行時に呼ばれるインターセプタであるため、Controllerを経由しない遷移の場合は適用されないことに注意されたい。
 
-  リクエストパラメータにLocaleとして指定された値はJDKでサポートされないLocaleでも、そのままLocaleとして有効になる。\ ``LocaleChangeInterceptor``\には\ ``AcceptHeaderLocaleResolver``\の\ ``supportedLocales``\のように、サポートするLocaleを限定する仕組みはないため、注意されたい。
+  なお、\ ``LocaleChangeInterceptor``\ だけでなくViewResolver(\ ``ThymeleafViewResolver``\ など)も同様にControllerを経由しない遷移の場合は適用されない。
 
-  空文字が指定された場合は\ ``LocaleResolver``\に予め設定された\ ``defaultLocale``\が有効になる。\ ``defaultLocale``\が設定されていない場合はユーザ端末（ブラウザ）に設定されたLocaleが有効になる。
+  詳細は「\ :ref:`configuration-of-blank-project-label`\ 」を参照されたい。
 
-  このため、\ ``defaultLocale``\を設定することを推奨する。
+.. note::
+
+  リクエストパラメータにLocaleとして使用できない文字（半角スペース、ハイフン、アンダースコア、英数字\ **以外**\ ）を含む値が指定された場合、例外がスローされる。この時、前回のリクエストまでのLocaleが継続して有効になる。例外については、\ ``ignoreInvalidLocale``\ プロパティに\ ``true``\ を指定することでスローされなくなる。
+
+  リクエストパラメータにLocaleとして指定された値はJDKでサポートされないLocaleでも、そのままLocaleとして有効になる。\ ``LocaleChangeInterceptor``\ には\ ``AcceptHeaderLocaleResolver``\ の\ ``supportedLocales``\ のように、サポートするLocaleを限定する仕組みはないため、注意されたい。
+
+  空文字が指定された場合は\ ``LocaleResolver``\ に予め設定された\ ``defaultLocale``\ が有効になる。\ ``defaultLocale``\ が設定されていない場合はユーザ端末（ブラウザ）に設定されたLocaleが有効になる。
+
+  このため、\ ``defaultLocale``\ を設定することを推奨する。
 
 |
 
@@ -369,32 +535,68 @@ SessionLocaleResolverの設定
 
 Localeをサーバに保存する場合は、\ ``SessionLocaleResolver``\ を使用する。
 
-\ **spring-mvc.xml**\
+.. tabs::
+  .. group-tab:: Java Config
 
-.. code-block:: xml
+    \ **SpringMvcConfig.java**\
+    
+    .. code-block:: java
 
-  <bean id="localeResolver" class="org.springframework.web.servlet.i18n.SessionLocaleResolver">  <!-- (1) -->
-      <property name="defaultLocale" value="en"/>  <!-- (2) -->
-  </bean>
+      // (1)
+      @Bean("localeResolver")
+      public SessionLocaleResolver localeResolver() {
+          SessionLocaleResolver bean = new SessionLocaleResolver();
+          bean.setDefaultLocale(Locale.ENGLISH); // (2)
+          return bean;
+      }
 
-.. tabularcolumns:: |p{0.10\linewidth}|p{0.90\linewidth}|
-.. list-table::
-  :header-rows: 1
-  :widths: 10 90
+    .. tabularcolumns:: |p{0.10\linewidth}|p{0.90\linewidth}|
+    .. list-table::
+      :header-rows: 1
+      :widths: 10 90
+    
+      * - | 項番
+        - | 説明
+      * - | (1)
+        - | \ ``org.springframework.web.servlet.LocaleResolver``\ をBean定義する。
+          | 本例では、セッションにLocaleを保存する\ ``org.springframework.web.servlet.i18n.SessionLocaleResolver``\ を指定している。
+          | bean名は"localeResolver"と設定すること。
+          | この設定により、\ ``LocaleChangeInterceptor``\ 内の処理で\ ``SessionLocaleResolver``\ が使用される。
+      * - | (2)
+        - | \ ``defaultLocale``\ プロパティにLocaleを指定する。セッションからLocaleが取得できない場合、\ ``value``\ の設定値が有効になる。
+    
+          .. note::
+    
+            \ ``defaultLocale``\ プロパティを省略した場合、ユーザ端末（ブラウザ）に設定されたLocaleが有効になる。
 
-  * - | 項番
-    - | 説明
-  * - | (1)
-    - | beanタグのid属性を"localeResolver"で定義し、\ ``org.springframework.web.servlet.LocaleResolver``\ を実装したクラスを指定する。
-      | 本例では、セッションにLocaleを保存する\ ``org.springframework.web.servlet.i18n.SessionLocaleResolver``\ を指定している。
-      | beanタグのid属性は"localeResolver"と設定すること。
-      | この設定により、\ ``LocaleChangeInterceptor``\ 内の処理で\ ``SessionLocaleResolver``\ が使用される。
-  * - | (2)
-    - | \ ``defaultLocale``\ プロパティにLocaleを指定する。セッションからLocaleが取得できない場合、\ ``value``\ の設定値が有効になる。
+  .. group-tab:: XML Config
 
-      .. note::
-
-        \ ``defaultLocale``\ プロパティを省略した場合、ユーザ端末（ブラウザ）に設定されたLocaleが有効になる。
+    \ **spring-mvc.xml**\
+    
+    .. code-block:: xml
+    
+      <bean id="localeResolver" class="org.springframework.web.servlet.i18n.SessionLocaleResolver">  <!-- (1) -->
+          <property name="defaultLocale" value="en"/>  <!-- (2) -->
+      </bean>
+    
+    .. tabularcolumns:: |p{0.10\linewidth}|p{0.90\linewidth}|
+    .. list-table::
+      :header-rows: 1
+      :widths: 10 90
+    
+      * - | 項番
+        - | 説明
+      * - | (1)
+        - | beanタグのid属性を"localeResolver"で定義し、\ ``org.springframework.web.servlet.LocaleResolver``\ を実装したクラスを指定する。
+          | 本例では、セッションにLocaleを保存する\ ``org.springframework.web.servlet.i18n.SessionLocaleResolver``\ を指定している。
+          | beanタグのid属性は"localeResolver"と設定すること。
+          | この設定により、\ ``LocaleChangeInterceptor``\ 内の処理で\ ``SessionLocaleResolver``\ が使用される。
+      * - | (2)
+        - | \ ``defaultLocale``\ プロパティにLocaleを指定する。セッションからLocaleが取得できない場合、\ ``value``\ の設定値が有効になる。
+    
+          .. note::
+    
+            \ ``defaultLocale``\ プロパティを省略した場合、ユーザ端末（ブラウザ）に設定されたLocaleが有効になる。
 
 |
 
@@ -403,35 +605,73 @@ CookieLocaleResolverの設定
 
 Localeをクライアントに保存する場合は、\ ``CookieLocaleResolver``\ を使用する。
 
-\ **spring-mvc.xml**\
+.. tabs::
+  .. group-tab:: Java Config
 
-.. code-block:: xml
+    \ **SpringMvcConfig.java**\
+    
+    .. code-block:: java
 
-  <bean id="localeResolver" class="org.springframework.web.servlet.i18n.CookieLocaleResolver">  <!-- (1) -->
-      <property name="defaultLocale" value="en"/>  <!-- (2) -->
-      <property name="cookieName" value="localeCookie"/>  <!-- (3) -->
-  </bean>
+      // (1)
+      @Bean("localeResolver")
+      public CookieLocaleResolver localeResolver() {
+          CookieLocaleResolver bean = new CookieLocaleResolver("localeCookie"); // (2)
+          bean.setDefaultLocale(Locale.ENGLISH); // (3)
+          return bean;
+      }
+    
+    .. tabularcolumns:: |p{0.10\linewidth}|p{0.90\linewidth}|
+    .. list-table::
+      :header-rows: 1
+      :widths: 10 90
+    
+      * - | 項番
+        - | 説明
+      * - | (1)
+        - | \ ``org.springframework.web.servlet.LocaleResolver``\ をBean定義する。
+          | 本例では、CookieにLocaleを保存する\ ``org.springframework.web.servlet.i18n.CookieLocaleResolver``\ を指定している。
+          | beanタグのid属性は"localeResolver"と設定すること。
+          | この設定により、\ ``LocaleChangeInterceptor``\ 内の処理で\ ``CookieLocaleResolver``\ が使用される。
+      * - | (2)
+        - | コンストラクタ引数に指定した値が、cookie名となる。指定しない場合、\ ``org.springframework.web.servlet.i18n.CookieLocaleResolver.LOCALE``\ となる。\ **Spring Frameworkを使用していることがわかるため、変更することを推奨する。**\
+      * - | (3)
+        - | \ ``defaultLocale``\ プロパティにLocaleを指定する。CookieからLocaleが取得できない場合、\ ``value``\ の設定値が有効になる。
 
-.. tabularcolumns:: |p{0.10\linewidth}|p{0.90\linewidth}|
-.. list-table::
-  :header-rows: 1
-  :widths: 10 90
+          .. note::
 
-  * - | 項番
-    - | 説明
-  * - | (1)
-    - | beanタグのid属性"localeResolver"に\ ``org.springframework.web.servlet.i18n.CookieLocaleResolver``\ を指定する。
-      | beanタグのid属性は"localeResolver"と設定すること。
-      | この設定により、\ ``LocaleChangeInterceptor``\ 内の処理で\ ``CookieLocaleResolver``\ が使用される。
-  * - | (2)
-    - | \ ``defaultLocale``\ プロパティにLocaleを指定する。CookieからLocaleが取得できない場合、\ ``value``\ の設定値が有効になる。
+            \ ``defaultLocale``\ プロパティを省略した場合、ユーザ端末（ブラウザ）に設定されたLocaleが有効になる。
 
-      .. note::
+  .. group-tab:: XML Config
 
-        \ ``defaultLocale``\ プロパティを省略した場合、ユーザ端末（ブラウザ）に設定されたLocaleが有効になる。
+    \ **spring-mvc.xml**\
+    
+    .. code-block:: xml
+    
+      <bean id="localeResolver" class="org.springframework.web.servlet.i18n.CookieLocaleResolver">  <!-- (1) -->
+          <constructor-arg name="cookieName" value="localeCookie" />  <!-- (2) -->
+          <property name="defaultLocale" value="en"/>  <!-- (3) -->
+      </bean>
+    
+    .. tabularcolumns:: |p{0.10\linewidth}|p{0.90\linewidth}|
+    .. list-table::
+      :header-rows: 1
+      :widths: 10 90
+    
+      * - | 項番
+        - | 説明
+      * - | (1)
+        - | beanタグのid属性を"localeResolver"で定義し、\ ``org.springframework.web.servlet.LocaleResolver``\ を実装したクラスを指定する。
+          | 本例では、セッションにLocaleを保存する\ ``org.springframework.web.servlet.i18n.CookieLocaleResolver``\ を指定している。
+          | beanタグのid属性は"localeResolver"と設定すること。
+          | この設定により、\ ``LocaleChangeInterceptor``\ 内の処理で\ ``CookieLocaleResolver``\ が使用される。
+      * - | (2)
+        - | コンストラクタ引数に指定した値が、cookie名となる。指定しない場合、\ ``org.springframework.web.servlet.i18n.CookieLocaleResolver.LOCALE``\ となる。\ **Spring Frameworkを使用していることがわかるため、変更することを推奨する。**\
+      * - | (3)
+        - | \ ``defaultLocale``\ プロパティにLocaleを指定する。CookieからLocaleが取得できない場合、\ ``value``\ の設定値が有効になる。
 
-  * - | (3)
-    - | \ ``cookieName``\ プロパティに指定した値が、cookie名となる。指定しない場合、\ ``org.springframework.web.servlet.i18n.CookieLocaleResolver.LOCALE``\ となる。\ **Spring Frameworkを使用していることがわかるため、変更することを推奨する。**\
+          .. note::
+
+            \ ``defaultLocale``\ プロパティを省略した場合、ユーザ端末（ブラウザ）に設定されたLocaleが有効になる。
 
 |
 
@@ -458,37 +698,62 @@ Localeをクライアントに保存する場合は、\ ``CookieLocaleResolver``
 
 .. _i18n_set_locale_view:
 
-JSPの実装
+実装
 """"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 
-以下に、JSPの実装例を示す。
+.. tabs::
+  .. group-tab:: JSP
 
-\ **画面表示用JSPファイル**\
+    \ **画面表示用JSPファイル**\
+    
+    .. code-block:: jsp
+    
+      <a href='${pageContext.request.contextPath}?locale=en'>English</a>  <!-- (1) -->
+      <a href='${pageContext.request.contextPath}?locale=ja'>Japanese</a>
+      <spring:message code="i.xx.yy.0001" />
+    
+    .. tabularcolumns:: |p{0.10\linewidth}|p{0.90\linewidth}|
+    .. list-table::
+      :header-rows: 1
+      :widths: 10 90
+    
+      * - | 項番
+        - | 説明
+      * - | (1)
+        - | Localeを切り替えるためのパラメータを送信する。
+          | リクエストパラメータ名は、\ ``LocaleChangeInterceptor``\ の\ ``paramName``\ プロパティに指定した値となる。（上記例では、デフォルトのパラメータ名を使用している）
+          | 上記例の場合、Englishリンクで英語Locale、Japaneseリンクで日本語Localeに変更している。
+          | 以降は、選択したLocaleが有効になる。
+          | 英語Localeは"en"用のプロパティファイルが存在しないため、デフォルトのプロパティファイルから読み込まれる。
+    
+    .. tip::
+    
+      * インクルード用の共通jspにSpringのタグライブラリを定義する必要がある。
+      * インクルード用の共通jspファイルの詳細は\ :ref:`view_jsp_include-label`\ を参照されたい。
 
-.. code-block:: jsp
+  .. group-tab:: Thymeleaf
 
-  <a href='${pageContext.request.contextPath}?locale=en'>English</a>  <!-- (1) -->
-  <a href='${pageContext.request.contextPath}?locale=ja'>Japanese</a>
-  <spring:message code="i.xx.yy.0001" />
-
-.. tabularcolumns:: |p{0.10\linewidth}|p{0.90\linewidth}|
-.. list-table::
-  :header-rows: 1
-  :widths: 10 90
-
-  * - | 項番
-    - | 説明
-  * - | (1)
-    - | Localeを切り替えるためのパラメータを送信する。
-      | リクエストパラメータ名は、\ ``LocaleChangeInterceptor``\ の\ ``paramName``\ プロパティに指定した値となる。（上記例では、デフォルトのパラメータ名を使用している）
-      | 上記例の場合、Englishリンクで英語Locale、Japaneseリンクで日本語Localeに変更している。
-      | 以降は、選択したLocaleが有効になる。
-      | 英語Localeは"en"用のプロパティファイルが存在しないため、デフォルトのプロパティファイルから読み込まれる。
-
-.. tip::
-
-  * インクルード用の共通jspにSpringのタグライブラリを定義する必要がある。
-  * インクルード用の共通jspファイルの詳細は\ :ref:`view_jsp_include-label`\ を参照されたい。
+    \ **テンプレートHTMLファイル**\
+    
+    .. code-block:: html
+    
+      <a th:href="@{/(locale='en')}">English</a>  <!-- (1) -->
+      <a th:href="@{/(locale='ja')}">Japanese</a>
+      <span th:text="#{i.xx.yy.0001}"></span>
+    
+    .. tabularcolumns:: |p{0.10\linewidth}|p{0.90\linewidth}|
+    .. list-table::
+      :header-rows: 1
+      :widths: 10 90
+    
+      * - | 項番
+        - | 説明
+      * - | (1)
+        - | Localeを切り替えるためのパラメータを送信する。
+          | リクエストパラメータ名は、\ ``LocaleChangeInterceptor``\ の\ ``paramName``\ プロパティに指定した値となる。（上記例では、デフォルトのパラメータ名を使用している）
+          | 上記例の場合、Englishリンクで英語Locale、Japaneseリンクで日本語Localeに変更している。
+          | 以降は、選択したLocaleが有効になる。
+          | 英語Localeは"en"用のプロパティファイルが存在しないため、デフォルトのプロパティファイルから読み込まれる。
 
 |
 
@@ -509,51 +774,137 @@ JSPの実装
 
 \ **LocaleChangeInterceptorが適用されないエラー画面への遷移例**\
 
-* spring-security.xml
+.. tabs::
+  .. group-tab:: Java Config
 
-.. code-block:: xml
+    * SpringSecurityConfig.java
+    
+    .. code-block:: java
 
-  <sec:http request-matcher="ant">
-      <!-- omitted -->
-      <sec:access-denied-handler
-          error-page="/WEB-INF/views/common/error/accessDeniedError.jsp" /> <!-- (1) -->
-      <!-- omitted -->
-  </sec:http>
+      @Bean
+      public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
+  
+          // omitted
+  
+          http.exceptionHandling(ex -> ex.accessDeniedHandler(
+                  accessDeniedHandler()));
+  
+          return http.build();
+      }
+  
+      @Bean("accessDeniedHandler")
+      public AccessDeniedHandler accessDeniedHandler() {
+          LinkedHashMap<Class<? extends AccessDeniedException>, AccessDeniedHandler> errorHandlers = new LinkedHashMap<>();
+  
+          // omitted
+  
+          AccessDeniedHandlerImpl accessDeniedHandler = new AccessDeniedHandlerImpl();
+          accessDeniedHandler.setErrorPage(
+                  "/WEB-INF/views/common/error/accessDeniedError.jsp"); // (1)
+  
+          return new DelegatingAccessDeniedHandler(errorHandlers, accessDeniedHandler);
+      }
+    
+    .. tabularcolumns:: |p{0.10\linewidth}|p{0.90\linewidth}|
+    .. list-table::
+      :header-rows: 1
+      :widths: 10 90
+    
+      * - 項番
+        - 説明
+      * - | (1)
+        - | \ ``AccessDeniedHandlerImpl``\ クラスに認可エラー用のエラー画面をJSPで指定する。
 
-.. tabularcolumns:: |p{0.10\linewidth}|p{0.90\linewidth}|
-.. list-table::
-  :header-rows: 1
-  :widths: 10 90
+  .. group-tab:: XML Config
 
-  * - 項番
-    - 説明
-  * - | (1)
-    - | \ ``<sec:access-denied-handler>``\ タグの\ ``error-page``\ 属性に認可エラー用のエラー画面をJSPで指定する。
+    * spring-security.xml
+    
+    .. code-block:: xml
+    
+      <sec:http request-matcher="ant">
+          <!-- omitted -->
+          <sec:access-denied-handler
+              error-page="/WEB-INF/views/common/error/accessDeniedError.jsp" /> <!-- (1) -->
+          <!-- omitted -->
+      </sec:http>
+    
+    .. tabularcolumns:: |p{0.10\linewidth}|p{0.90\linewidth}|
+    .. list-table::
+      :header-rows: 1
+      :widths: 10 90
+    
+      * - 項番
+        - 説明
+      * - | (1)
+        - | \ ``<sec:access-denied-handler>``\ タグの\ ``error-page``\ 属性に認可エラー用のエラー画面をJSPで指定する。
 
 |
 
 \ **LocaleChangeInterceptorが適用されるエラー画面への遷移例**\
 
-* spring-security.xml
+.. tabs::
+  .. group-tab:: Java Config
 
-.. code-block:: xml
+    * SpringSecurityConfig.java
+    
+    .. code-block:: java
 
-  <sec:http request-matcher="ant">
-      <!-- omitted -->
-      <sec:access-denied-handler
-          error-page="/common/error/accessDeniedError" /> <!-- (1) -->
-      <!-- omitted -->
-  </sec:http>
+      @Bean
+      public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
+  
+          // omitted
+  
+          http.exceptionHandling(ex -> ex.accessDeniedHandler(
+                  accessDeniedHandler()));
+  
+          return http.build();
+      }
+  
+      @Bean("accessDeniedHandler")
+      public AccessDeniedHandler accessDeniedHandler() {
+          LinkedHashMap<Class<? extends AccessDeniedException>, AccessDeniedHandler> errorHandlers = new LinkedHashMap<>();
+  
+          // omitted
+  
+          AccessDeniedHandlerImpl accessDeniedHandler = new AccessDeniedHandlerImpl();
+          accessDeniedHandler.setErrorPage(
+                  "/common/error/accessDeniedError"); // (1)
+  
+          return new DelegatingAccessDeniedHandler(errorHandlers, accessDeniedHandler);
+      }
+    
+    .. tabularcolumns:: |p{0.10\linewidth}|p{0.90\linewidth}|
+    .. list-table::
+      :header-rows: 1
+      :widths: 10 90
+    
+      * - 項番
+        - 説明
+      * - | (1)
+        - | \ ``AccessDeniedHandlerImpl``\ クラスに認可エラー用のエラー画面のパスを設定する。
 
-.. tabularcolumns:: |p{0.10\linewidth}|p{0.90\linewidth}|
-.. list-table::
-  :header-rows: 1
-  :widths: 10 90
+  .. group-tab:: XML Config
 
-  * - 項番
-    - 説明
-  * - | (1)
-    - | \ ``<sec:access-denied-handler>``\ タグの\ ``error-page``\ 属性に認可エラー用のエラー画面へ遷移するためのパスを設定する。
+    * spring-security.xml
+    
+    .. code-block:: xml
+    
+      <sec:http request-matcher="ant">
+          <!-- omitted -->
+          <sec:access-denied-handler
+              error-page="/common/error/accessDeniedError" /> <!-- (1) -->
+          <!-- omitted -->
+      </sec:http>
+    
+    .. tabularcolumns:: |p{0.10\linewidth}|p{0.90\linewidth}|
+    .. list-table::
+      :header-rows: 1
+      :widths: 10 90
+    
+      * - 項番
+        - 説明
+      * - | (1)
+        - | \ ``<sec:access-denied-handler>``\ タグの\ ``error-page``\ 属性に認可エラー用のパスを設定する。
 
 * Controllerクラス
 

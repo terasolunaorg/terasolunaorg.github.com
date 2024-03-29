@@ -43,31 +43,56 @@ Spring MVCのAjax関連の機能を有効化するための設定
 """"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 Ajax通信時で使用されるContent-Type(\ ``application/xml``\ や\ ``application/json``\ など)を、Controllerのハンドラメソッドでハンドリングできるようにする。
 
-- \ :file:`spring-mvc.xml`\
+.. tabs::
+  .. group-tab:: Java Config
 
-  .. code-block:: xml
+    - \ :file:`SpringMvcConfig.java`\
 
-    <mvc:annotation-driven /> <!-- (1) -->
+      .. code-block:: java
 
-  .. tabularcolumns:: |p{0.10\linewidth}|p{0.90\linewidth}|
-  .. list-table::
-    :header-rows: 1
-    :widths: 10 90
+        @EnableAspectJAutoProxy
+        @EnableWebMvc // (1)
+        @Configuration
+        public class SpringMvcConfig implements WebMvcConfigurer {
 
-    * - | 項番
-      - | 説明
-    * - | (1)
-      - | \ ``<mvc:annotation-driven>``\ 要素が指定されていると、Ajax通信時で必要となる機能が有効化されている。
-        | そのため、Ajax通信用に特別な設定を行う必要はない。
+      .. tabularcolumns:: |p{0.10\linewidth}|p{0.90\linewidth}|
+      .. list-table::
+        :header-rows: 1
+        :widths: 10 90
+    
+        * - | 項番
+          - | 説明
+        * - | (1)
+          - | \ ``@EnableWebMvc``\ アノテーションが指定されていると、Ajax通信時で必要となる機能が有効化されている。
+            | そのため、Ajax通信用に特別な設定を行う必要はない。
 
-  .. note::
+  .. group-tab:: XML Config
 
-    Ajax通信時で必要となる機能とは、具体的には\ ``org.springframework.http.converter.HttpMessageConverter``\ クラスで提供される機能の事をさす。
+    - \ :file:`spring-mvc.xml`\
 
-    \ ``HttpMessageConverter``\ は、以下の役割をもつ。
+      .. code-block:: xml
+    
+        <mvc:annotation-driven /> <!-- (1) -->
+    
+      .. tabularcolumns:: |p{0.10\linewidth}|p{0.90\linewidth}|
+      .. list-table::
+        :header-rows: 1
+        :widths: 10 90
+    
+        * - | 項番
+          - | 説明
+        * - | (1)
+          - | \ ``<mvc:annotation-driven>``\ 要素が指定されていると、Ajax通信時で必要となる機能が有効化されている。
+            | そのため、Ajax通信用に特別な設定を行う必要はない。
 
-    * リクエストBodyに格納されているデータからJavaオブジェクトを生成する。
-    * JavaオブジェクトからレスポンスBodyに書き込むデータを生成する。
+.. note::
+
+  Ajax通信時で必要となる機能とは、具体的には\ ``org.springframework.http.converter.HttpMessageConverter``\ クラスで提供される機能の事をさす。
+
+  \ ``HttpMessageConverter``\ は、以下の役割をもつ。
+
+  * リクエストBodyに格納されているデータからJavaオブジェクトを生成する。
+  * JavaオブジェクトからレスポンスBodyに書き込むデータを生成する。
 
 \ ``<mvc:annotation-driven>``\ 指定時にデフォルトで有効化される\ ``HttpMessageConverter``\ は以下の通りである。
 
@@ -259,139 +284,341 @@ Ajaxを使ってデータを取得する方法について説明する。
 
 |
 
-- HTML(JSP)
+- HTML
 
-  .. code-block:: jsp
+.. tabs::
+  .. group-tab:: JSP
 
-    <!-- omitted -->
-
-    <meta name="contextPath" content="${pageContext.request.contextPath}" />
-
-    <!-- omitted -->
-
-    <!-- (10)  -->
-    <form id="searchForm">
-      <input name="freeWord" type="text">
-      <button onclick="return searchByFreeWord()">Search</button>
-    </form>
-
-  .. tabularcolumns:: |p{0.10\linewidth}|p{0.90\linewidth}|
-  .. list-table::
-    :header-rows: 1
-    :widths: 10 90
-
-    * - | 項番
-      - | 説明
-    * - | (10)
-      - | 検索条件を入力するためのフォーム。
-        | 上記例では、検索条件を入力するためのテキストボックスと検索ボタンをもっている。
-
-  .. code-block:: jsp
-
-    <!-- (11) -->
-    <script type="text/javascript"
-        src="${pageContext.request.contextPath}/resources/vendor/jquery/jquery-1.10.2.js">
-    </script>
-
-  .. tabularcolumns:: |p{0.10\linewidth}|p{0.90\linewidth}|
-  .. list-table::
-    :header-rows: 1
-    :widths: 10 90
-
-    * - | 項番
-      - | 説明
-    * - | (11)
-      - | JQueryのJavaScriptファイルを読み込む。
-        | 上記例では、JQueryのJavaScriptファイルを読み込むために、\ ``/resources/vendor/jquery/jquery-1.10.2.js``\ というパスに対してリクエストが送信される。
-
-  .. note::
-
-    JQueryのJavaScriptファイルを読み込みための設定は、以下の通り。
- 
-    以下はブランクプロジェクトで提供されている設定値である。
-
-    * \ :file:`spring-mvc.xml`\
-
-      .. code-block:: xml
-
-        <!-- (12) -->
-        <mvc:resources mapping="/resources/**"
-            location="/resources/,classpath:META-INF/resources/"
-            cache-period="#{60 * 60}" />
-
+    - JSP
+    
+      .. code-block:: jsp
+    
+        <!-- omitted -->
+    
+        <meta name="contextPath" content="${pageContext.request.contextPath}" />
+    
+        <!-- omitted -->
+    
+        <!-- (10)  -->
+        <form id="searchForm">
+          <input name="freeWord" type="text">
+          <button onclick="return searchByFreeWord()">Search</button>
+        </form>
+    
       .. tabularcolumns:: |p{0.10\linewidth}|p{0.90\linewidth}|
       .. list-table::
         :header-rows: 1
         :widths: 10 90
-
+    
         * - | 項番
           - | 説明
-        * - | (12)
-          - | リソースファイル(JavaScriptファイル, Stylesheetファイル, 画像ファイルなど)を公開するための設定。
-            | 上記設定例では、\ ``/resources/``\ から始まるパスに対してリクエストがあった場合に、warファイル内の\ ``/resources/``\ ディレクトリ又はクラスパス内の\ ``/META-INF/resources/``\ ディレクトリに格納されているファイルが応答される。
+        * - | (10)
+          - | 検索条件を入力するためのフォーム。
+            | 上記例では、検索条件を入力するためのテキストボックスと検索ボタンをもっている。
+    
+      .. code-block:: jsp
+    
+        <!-- (11) -->
+        <script type="text/javascript"
+            src="${pageContext.request.contextPath}/resources/vendor/jquery/jquery-1.10.2.js">
+        </script>
+    
+      .. tabularcolumns:: |p{0.10\linewidth}|p{0.90\linewidth}|
+      .. list-table::
+        :header-rows: 1
+        :widths: 10 90
+    
+        * - | 項番
+          - | 説明
+        * - | (11)
+          - | JQueryのJavaScriptファイルを読み込む。
+            | 上記例では、JQueryのJavaScriptファイルを読み込むために、\ ``/resources/vendor/jquery/jquery-1.10.2.js``\ というパスに対してリクエストが送信される。
+    
+      .. note::
+    
+        JQueryのJavaScriptファイルを読み込みための設定は、以下の通り。
+     
+        以下はブランクプロジェクトで提供されている設定値である。
 
-    |
+          .. tabs::
+            .. group-tab:: Java Config
+      
+              * \ :file:`SpringMvcConfig.java`\
+          
+                .. code-block:: java
+  
+                  @EnableAspectJAutoProxy
+                  @EnableWebMvc
+                  @Configuration
+                  public class SpringMvcConfig implements WebMvcConfigurer {
+  
+                      // (12)
+                      @Override
+                      public void addResourceHandlers(final ResourceHandlerRegistry registry) {
+                          registry.addResourceHandler("/resources/**").addResourceLocations(
+                                  "/resources/", "classpath:META-INF/resources/").setCachePeriod(
+                                          60 * 60);
+                      }
+          
+                .. tabularcolumns:: |p{0.10\linewidth}|p{0.90\linewidth}|
+                .. list-table::
+                  :header-rows: 1
+                  :widths: 10 90
+          
+                  * - | 項番
+                    - | 説明
+                  * - | (12)
+                    - | リソースファイル(JavaScriptファイル, Stylesheetファイル, 画像ファイルなど)を公開するための設定。
+                      | 上記設定例では、\ ``/resources/``\ から始まるパスに対してリクエストがあった場合に、warファイル内の\ ``/resources/``\ ディレクトリ又はクラスパス内の\ ``/META-INF/resources/``\ ディレクトリに格納されているファイルが応答される。
+  
+            .. group-tab:: XML Config
+      
+              * \ :file:`spring-mvc.xml`\
+          
+                .. code-block:: xml
+          
+                  <!-- (12) -->
+                  <mvc:resources mapping="/resources/**"
+                      location="/resources/,classpath:META-INF/resources/"
+                      cache-period="#{60 * 60}" />
+          
+                .. tabularcolumns:: |p{0.10\linewidth}|p{0.90\linewidth}|
+                .. list-table::
+                  :header-rows: 1
+                  :widths: 10 90
+          
+                  * - | 項番
+                    - | 説明
+                  * - | (12)
+                    - | リソースファイル(JavaScriptファイル, Stylesheetファイル, 画像ファイルなど)を公開するための設定。
+                      | 上記設定例では、\ ``/resources/``\ から始まるパスに対してリクエストがあった場合に、warファイル内の\ ``/resources/``\ ディレクトリ又はクラスパス内の\ ``/META-INF/resources/``\ ディレクトリに格納されているファイルが応答される。
 
-    上記設定の場合、JQueryのJavaScriptファイルは以下の何れかのパスに配置する必要がある。
+        |
+    
+        上記設定の場合、JQueryのJavaScriptファイルは以下の何れかのパスに配置する必要がある。
+    
+        * | warファイル内の\ ``/resources/vendor/jquery/jquery-1.10.2.js``\
+          | プロジェクト内のパスで表現すると、\ ``src/main/webapp/resources/vendor/jquery/jquery-1.10.2.js``\ となる。
+        * | クラスパス内の\ ``/META-INF/resources/vendor/jquery/jquery-1.10.2.js``\
+          | プロジェクト内のパスで表現すると、\ ``src/main/resources/META-INF/resources/vendor/jquery/jquery-1.10.2.js``\ となる。
 
-    * | warファイル内の\ ``/resources/vendor/jquery/jquery-1.10.2.js``\
-      | プロジェクト内のパスで表現すると、\ ``src/main/webapp/resources/vendor/jquery/jquery-1.10.2.js``\ となる。
-    * | クラスパス内の\ ``/META-INF/resources/vendor/jquery/jquery-1.10.2.js``\
-      | プロジェクト内のパスで表現すると、\ ``src/main/resources/META-INF/resources/vendor/jquery/jquery-1.10.2.js``\ となる。
+  .. group-tab:: Thymeleaf
+
+    - テンプレートHTML
+    
+      .. code-block:: html
+    
+        <!--/* (10)  */-->
+        <form id="searchForm">
+          <input name="freeWord" type="text">
+          <button onclick="return searchByFreeWord()">Search</button>
+        </form>
+    
+      .. tabularcolumns:: |p{0.10\linewidth}|p{0.90\linewidth}|
+      .. list-table::
+        :header-rows: 1
+        :widths: 10 90
+    
+        * - | 項番
+          - | 説明
+        * - | (10)
+          - | 検索条件を入力するためのフォーム。
+            | 上記例では、検索条件を入力するためのテキストボックスと検索ボタンをもっている。
+    
+      .. code-block:: html
+    
+        <!--/* (11) */-->
+        <script type="text/javascript"
+            th:src="@{/resources/vendor/jquery/jquery-1.10.2.js}">
+        </script>
+    
+      .. tabularcolumns:: |p{0.10\linewidth}|p{0.90\linewidth}|
+      .. list-table::
+        :header-rows: 1
+        :widths: 10 90
+    
+        * - | 項番
+          - | 説明
+        * - | (11)
+          - | JQueryのJavaScriptファイルを読み込む。
+            | 上記例では、JQueryのJavaScriptファイルを読み込むために、\ ``/resources/vendor/jquery/jquery-1.10.2.js``\ というパスに対してリクエストが送信される。
+    
+      .. note::
+    
+        JQueryのJavaScriptファイルを読み込みための設定は、以下の通り。
+     
+        以下はブランクプロジェクトで提供されている設定値である。
+    
+          .. tabs::
+            .. group-tab:: Java Config
+      
+              * \ :file:`SpringMvcConfig.java`\
+          
+                .. code-block:: java
+  
+                  @EnableAspectJAutoProxy
+                  @EnableWebMvc
+                  @Configuration
+                  public class SpringMvcConfig implements WebMvcConfigurer {
+  
+                      // (12)
+                      @Override
+                      public void addResourceHandlers(final ResourceHandlerRegistry registry) {
+                          registry.addResourceHandler("/resources/**").addResourceLocations(
+                                  "/resources/", "classpath:META-INF/resources/").setCachePeriod(
+                                          60 * 60);
+                      }
+          
+                .. tabularcolumns:: |p{0.10\linewidth}|p{0.90\linewidth}|
+                .. list-table::
+                  :header-rows: 1
+                  :widths: 10 90
+          
+                  * - | 項番
+                    - | 説明
+                  * - | (12)
+                    - | リソースファイル(JavaScriptファイル, Stylesheetファイル, 画像ファイルなど)を公開するための設定。
+                      | 上記設定例では、\ ``/resources/``\ から始まるパスに対してリクエストがあった場合に、warファイル内の\ ``/resources/``\ ディレクトリ又はクラスパス内の\ ``/META-INF/resources/``\ ディレクトリに格納されているファイルが応答される。
+  
+            .. group-tab:: XML Config
+      
+              * \ :file:`spring-mvc.xml`\
+          
+                .. code-block:: xml
+          
+                  <!-- (12) -->
+                  <mvc:resources mapping="/resources/**"
+                      location="/resources/,classpath:META-INF/resources/"
+                      cache-period="#{60 * 60}" />
+          
+                .. tabularcolumns:: |p{0.10\linewidth}|p{0.90\linewidth}|
+                .. list-table::
+                  :header-rows: 1
+                  :widths: 10 90
+          
+                  * - | 項番
+                    - | 説明
+                  * - | (12)
+                    - | リソースファイル(JavaScriptファイル, Stylesheetファイル, 画像ファイルなど)を公開するための設定。
+                      | 上記設定例では、\ ``/resources/``\ から始まるパスに対してリクエストがあった場合に、warファイル内の\ ``/resources/``\ ディレクトリ又はクラスパス内の\ ``/META-INF/resources/``\ ディレクトリに格納されているファイルが応答される。
+    
+        上記設定の場合、JQueryのJavaScriptファイルは以下の何れかのパスに配置する必要がある。
+    
+        * | warファイル内の\ ``/resources/vendor/jquery/jquery-1.10.2.js``\
+          | プロジェクト内のパスで表現すると、\ ``src/main/webapp/resources/vendor/jquery/jquery-1.10.2.js``\ となる。
+        * | クラスパス内の\ ``/META-INF/resources/vendor/jquery/jquery-1.10.2.js``\
+          | プロジェクト内のパスで表現すると、\ ``src/main/resources/META-INF/resources/vendor/jquery/jquery-1.10.2.js``\ となる。
 
 |
 
 - JavaScript
 
-  .. code-block:: javascript
+.. tabs::
+  .. group-tab:: JSP
 
-    var contextPath = $("meta[name='contextPath']").attr("content");
+      .. code-block:: text
+    
+        var contextPath = $("meta[name='contextPath']").attr("content");
+    
+        // (13)
+        function searchByFreeWord() {
+            $.ajax(contextPath + "/ajax/search", {
+                type : "GET",
+                data : $("#searchForm").serialize(),
+                dataType : "json", // (14)
+    
+            }).done(function(json) {
+                // (15)
+                // render search result
+                // omitted
+    
+            }).fail(function(xhr) {
+                // (16)
+                // render error message
+                // omitted
+    
+            });
+            return false;
+        }
+    
+      .. tabularcolumns:: |p{0.10\linewidth}|p{0.90\linewidth}|
+      .. list-table::
+        :header-rows: 1
+        :widths: 10 90
+    
+        * - | 項番
+          - | 説明
+        * - | (13)
+          - | フォームに指定された検索条件をリクエストパラメータに変換し、GETメソッドで\ ``/ajax/search``\ に対してリクエストを送信するAjax関数。
+            | 上記例では、ボタンの押下をAjax通信のトリガーとしているが、テキストボックスのキーダウンやキーアップをトリガーとすることでリアルタイム検索などを実現することができる。
+        * - | (14)
+          - | レスポンスとして受け取るデータ形式を指定する。
+            | 上記例では\ ``json``\ を指定しているため、Acceptヘッダーに\ ``application/json``\ が設定される。
+        * - | (15)
+          - | Ajax通信が正常終了した時(Httpステータスコードが\ ``200``\ の時)の処理を実装する。
+            | 上記例では、実装は省略している。
+        * - | (16)
+          - | Ajax通信が正常終了しなかった時(Httpステータスコードが\ ``4xx``\ や\ ``5xx``\ の時)の処理を実装する。
+            | 上記例では、実装は省略している。
+            | エラー処理の実装例は、\ :ref:`ajax_post_formdata`\ を参照されたい。
+    
+      .. tip::
+    
+        上記例ではWebアプリケーションのコンテキストパス(\ ``${pageContext.request.contextPath}``\ ) をHTMLの\ ``<meta>``\ 要素に設定しておくことで、JavaScriptのコードからJSPのコードを排除している。
 
-    // (13)
-    function searchByFreeWord() {
-        $.ajax(contextPath + "/ajax/search", {
-            type : "GET",
-            data : $("#searchForm").serialize(),
-            dataType : "json", // (14)
+  .. group-tab:: Thymeleaf
 
-        }).done(function(json) {
-            // (15)
-            // render search result
-            // omitted
-
-        }).fail(function(xhr) {
-            // (16)
-            // render error message
-            // omitted
-
-        });
-        return false;
-    }
-
-  .. tabularcolumns:: |p{0.10\linewidth}|p{0.90\linewidth}|
-  .. list-table::
-    :header-rows: 1
-    :widths: 10 90
-
-    * - | 項番
-      - | 説明
-    * - | (13)
-      - | フォームに指定された検索条件をリクエストパラメータに変換し、GETメソッドで\ ``/ajax/search``\ に対してリクエストを送信するAjax関数。
-        | 上記例では、ボタンの押下をAjax通信のトリガーとしているが、テキストボックスのキーダウンやキーアップをトリガーとすることでリアルタイム検索などを実現することができる。
-    * - | (14)
-      - | レスポンスとして受け取るデータ形式を指定する。
-        | 上記例では\ ``json``\ を指定しているため、Acceptヘッダーに\ ``application/json``\ が設定される。
-    * - | (15)
-      - | Ajax通信が正常終了した時(Httpステータスコードが\ ``200``\ の時)の処理を実装する。
-        | 上記例では、実装は省略している。
-    * - | (16)
-      - | Ajax通信が正常終了しなかった時(Httpステータスコードが\ ``4xx``\ や\ ``5xx``\ の時)の処理を実装する。
-        | 上記例では、実装は省略している。
-        | エラー処理の実装例は、\ :ref:`ajax_post_formdata`\ を参照されたい。
-
-  .. tip::
-
-    上記例ではWebアプリケーションのコンテキストパス(\ ``${pageContext.request.contextPath}``\ ) をHTMLの\ ``<meta>``\ 要素に設定しておくことで、JavaScriptのコードからJSPのコードを排除している。
+    .. code-block:: text
+  
+      var contextPath = $("meta[name='contextPath']").attr("content");
+  
+      // (13)
+      function searchByFreeWord() {
+          $.ajax([[@{/ajax/search}]], {
+              type : "GET",
+              data : $("#searchForm").serialize(),
+              dataType : "json", // (14)
+  
+          }).done(function(json) {
+              // (15)
+              // render search result
+              // omitted
+  
+          }).fail(function(xhr) {
+              // (16)
+              // render error message
+              // omitted
+  
+          });
+          return false;
+      }
+  
+    .. tabularcolumns:: |p{0.10\linewidth}|p{0.90\linewidth}|
+    .. list-table::
+      :header-rows: 1
+      :widths: 10 90
+  
+      * - | 項番
+        - | 説明
+      * - | (13)
+        - | フォームに指定された検索条件をリクエストパラメータに変換し、GETメソッドで\ ``/ajax/search``\ に対してリクエストを送信するAjax関数。
+          | 上記例では、ボタンの押下をAjax通信のトリガーとしているが、テキストボックスのキーダウンやキーアップをトリガーとすることでリアルタイム検索などを実現することができる。
+      * - | (14)
+        - | レスポンスとして受け取るデータ形式を指定する。
+          | 上記例では\ ``json``\ を指定しているため、Acceptヘッダーに\ ``application/json``\ が設定される。
+      * - | (15)
+        - | Ajax通信が正常終了した時(Httpステータスコードが\ ``200``\ の時)の処理を実装する。
+          | 上記例では、実装は省略している。
+      * - | (16)
+        - | Ajax通信が正常終了しなかった時(Httpステータスコードが\ ``4xx``\ や\ ``5xx``\ の時)の処理を実装する。
+          | 上記例では、実装は省略している。
+          | エラー処理の実装例は、\ :ref:`ajax_post_formdata`\ を参照されたい。
+  
+    .. tip::
+  
+      上記例ではインライン記法を用いることで、指定されたパスにWebアプリケーションのコンテキストパスを付与した値を取得している。
+  
+      JavaScriptにおけるインライン記法の詳細は\ :doc:`Thymeleaf`\ のJavaScriptのテンプレート化を参照されたい。
 
 |
 
@@ -413,8 +640,6 @@ Ajaxを使ってデータを取得する方法について説明する。
     Accept-Encoding: gzip,deflate,sdch
     Accept-Language: en-US,en;q=0.8,ja;q=0.6
     Cookie: JSESSIONID=3A486604D7DEE62032BA6C073FC6BE9F
-
-|
 
 - レスポンスデータ
 
@@ -456,7 +681,6 @@ Ajaxを使ってフォームのデータをPOSTし、処理結果を取得する
         // omitted setter/getter
 
     }
-
 
   .. tabularcolumns:: |p{0.10\linewidth}|p{0.90\linewidth}|
   .. list-table::
@@ -539,7 +763,7 @@ Ajaxを使ってフォームのデータをPOSTし、処理結果を取得する
     * - | (4)
       - | フォームデータを受け取るためのJavaBeanを引数に指定する。
         | 入力チェックが必要な場合は、\ ``@Validated``\ を指定する。入力チェックのエラーハンドリングについては、「\ :ref:`ajax_how_to_use_input_error`\ 」を参照されたい。
-        | 入力チェックの詳細については、「 :doc:`../WebApplicationDetail/Validation` 」を参照されたい。
+        | 入力チェックの詳細については、「\ :doc:`../WebApplicationDetail/Validation`\ 」を参照されたい。
     * - | (5)
       - | 処理結果を格納するオブジェクトに処理結果を格納する。
         | 上記例では、フォームオブジェクトから取得した２つの数値を加算した結果を格納している。
@@ -548,142 +772,263 @@ Ajaxを使ってフォームのデータをPOSTし、処理結果を取得する
 
 |
 
-- HTML(JSP)
+- HTML
 
-  .. code-block:: jsp
+.. tabs::
+  .. group-tab:: JSP
 
-    <!-- omitted -->
+    - JSP
 
-    <meta name="contextPath" content="${pageContext.request.contextPath}" />
+      .. code-block:: jsp
+    
+        <!-- omitted -->
+    
+        <meta name="contextPath" content="${pageContext.request.contextPath}" />
+    
+        <sec:csrfMetaTags />
+    
+        <!-- omitted -->
+    
+        <!-- (7)  -->
+        <form id="calculationForm">
+            <input name="number1" type="text">+
+            <input name="number2" type="text">
+            <button onclick="return plus()">=</button>
+            <span id="calculationResult"></span> <!-- (8) -->
+        </form>
+    
+      .. tabularcolumns:: |p{0.10\linewidth}|p{0.90\linewidth}|
+      .. list-table::
+        :header-rows: 1
+        :widths: 10 90
+    
+        * - | 項番
+          - | 説明
+        * - | (7)
+          - | 計算対象の数値を入力するためのフォーム。
+        * - | (8)
+          - | 計算結果を表示するための領域。
+            | 上記例では、通信成功時には計算結果が表示され、通信失敗時には計算結果がクリアされる。
 
-    <sec:csrfMetaTags />
+  .. group-tab:: Thymeleaf
 
-    <!-- omitted -->
-
-    <!-- (7)  -->
-    <form id="calculationForm">
-        <input name="number1" type="text">+
-        <input name="number2" type="text">
-        <button onclick="return plus()">=</button>
-        <span id="calculationResult"></span> <!-- (8) -->
-    </form>
-
-  .. tabularcolumns:: |p{0.10\linewidth}|p{0.90\linewidth}|
-  .. list-table::
-    :header-rows: 1
-    :widths: 10 90
-
-    * - | 項番
-      - | 説明
-    * - | (7)
-      - | 計算対象の数値を入力するためのフォーム。
-    * - | (8)
-      - | 計算結果を表示するための領域。
-        | 上記例では、通信成功時には計算結果が表示され、通信失敗時には計算結果がクリアされる。
+    - テンプレートHTML
+    
+      .. code-block:: html
+    
+        <!--/* (7)  */-->
+        <form id="calculationForm">
+            <input name="number1" type="text">+
+            <input name="number2" type="text">
+            <button onclick="return plus()">=</button>
+            <span id="calculationResult"></span> <!--/* (8) */-->
+        </form>
+    
+      .. tabularcolumns:: |p{0.10\linewidth}|p{0.90\linewidth}|
+      .. list-table::
+        :header-rows: 1
+        :widths: 10 90
+    
+        * - | 項番
+          - | 説明
+        * - | (7)
+          - | 計算対象の数値を入力するためのフォーム。
+        * - | (8)
+          - | 計算結果を表示するための領域。
+            | 上記例では、通信成功時には計算結果が表示され、通信失敗時には計算結果がクリアされる。
 
 |
 
 - JavaScript
 
-  .. code-block:: javascript
+.. tabs::
+  .. group-tab:: JSP
 
-    var contextPath = $("meta[name='contextPath']").attr("content");
+    .. code-block:: text
+    
+      var contextPath = $("meta[name='contextPath']").attr("content");
+    
+      // (9)
+      var csrfToken = $("meta[name='_csrf']").attr("content");
+      var csrfHeaderName = $("meta[name='_csrf_header']").attr("content");
+      $(document).ajaxSend(function(event, xhr, options) {
+          xhr.setRequestHeader(csrfHeaderName, csrfToken);
+      });
+    
+      // (10)
+      function plus() {
+          $.ajax(contextPath + "/ajax/plusForForm", {
+              type : "POST",
+              data : $("#calculationForm").serialize(),
+              dataType : "json"
+          }).done(function(json) {
+              $("#calculationResult").text(json.resultNumber);
+    
+          }).fail(function(xhr) {
+              // (11)
+              var messages = "";
+              // (12)
+              if(400 <= xhr.status && xhr.status <= 499){
+                  // (13)
+                  var contentType = xhr.getResponseHeader('Content-Type');
+                  if (contentType != null && contentType.indexOf("json") != -1) {
+                      // (14)
+                      json = $.parseJSON(xhr.responseText);
+                      $(json.errorResults).each(function(i, errorResult) {
+                          messages += ("<div>" + errorResult.message + "</div>");
+                      });
+                  } else {
+                      // (15)
+                      messages = ("<div>" + xhr.statusText + "</div>");
+                  }
+              }else{
+                  // (16)
+                  messages = ("<div>" + "System error occurred." + "</div>");
+              }
+              // (17)
+              $("#calculationResult").html(messages);
+          });
+  
+          return false;
+      }
+    
+    .. tabularcolumns:: |p{0.10\linewidth}|p{0.90\linewidth}|
+    .. list-table::
+      :header-rows: 1
+      :widths: 10 90
+      :class: longtable
+  
+      * - | 項番
+        - | 説明
+      * - | (9)
+        - | POSTメソッドでリクエストを行う場合、CSRFトークンをHTTPヘッダに設定して送信する必要がある。
+          | 上記例では、\ ``<sec:csrfMetaTags />``\ を利用して\ ``<meta>``\ 要素にCSRFトークンヘッダー名とCSRFトークン値を設定し、JavaScriptで値を取得するようにしている。
+          | CSRF対策の詳細については、「\ :doc:`../../Security/CSRF`\ 」を参照されたい。
+      * - | (10)
+        - | フォームに指定された数値をリクエストパラメータに変換し、POSTメソッドで\ ``/ajax/plusForForm``\ に対してリクエストを送信するAjax関数。
+          | 上記例では、ボタンの押下をAjax通信のトリガーとしているが、テキストボックスのロストフォーカスをトリガーとすることでリアルタイム計算を実現することができる。
+      * - | (11)
+        - | エラー処理の実装例を以下に示す。
+          | サーバ側のエラーハンドリング処理の実装例については、\ :ref:`ajax_how_to_use_input_error`\ を参照されたい。
+      * - | (12)
+        - | HTTPのステータスコードを判定し、どのようなエラーが発生したか判定する。
+          | HTTPのステータスコードは、 XMLHttpRequestオブジェクトの\ ``status``\ フィールドに格納されている。
+      * - | (13)
+        - | レスポンスされたデータがJSON形式か判定を行う。
+          | 上記例では、レスポンスヘッダの Content-Typeに設定されている値を参照して、レスポンスされたデータの形式をチェックしている。
+          | 形式をチェックしておかないと、JSON以外の形式で応答された際に、JSONオブジェクトにデシリアライズする処理でエラーが発生することになる。
+          | サーバ側のエラーハンドリングを簡易的に行っていると、HTML形式のページが返却されることがある。
+      * - | (14)
+        - | レスポンスデータをJSONオブジェクトにデシリアライズする。
+          | レスポンスデータは、 XMLHttpRequestオブジェクトの\ ``responseText``\ フィールドに格納されている。
+          | 上記例では、デシリアライズしたJSONオブジェクトからエラー情報を取得し、エラーメッセージを組み立てている。
+      * - | (15)
+        - | レスポンスされたデータがJSON形式以外だった場合の処理を行う。
+          | 上記例では、HTTPのステータステキストをエラーメッセージに格納している。
+          | HTTPのステータステキストは、 XMLHttpRequestオブジェクトの\ ``statusText``\ フィールドに格納されている。
+      * - | (16)
+        - | サーバエラー時の処理を行う。
+          | 上記例では、システムエラーが発生したことを通知するメッセージをエラーメッセージに格納している。
+      * - | (17)
+        - | エラー時の描画処理を行う。
+          | 上記例では、計算結果を表示するための領域に、エラーメッセージを表示している。
 
-    // (9)
-    var csrfToken = $("meta[name='_csrf']").attr("content");
-    var csrfHeaderName = $("meta[name='_csrf_header']").attr("content");
-    $(document).ajaxSend(function(event, xhr, options) {
-        xhr.setRequestHeader(csrfHeaderName, csrfToken);
-    });
+    .. tip::
 
-    // (10)
-    function plus() {
-        $.ajax(contextPath + "/ajax/plusForForm", {
-            type : "POST",
-            data : $("#calculationForm").serialize(),
-            dataType : "json"
-        }).done(function(json) {
-            $("#calculationResult").text(json.resultNumber);
+      \ ``<sec:csrfMetaTags />``\ を利用して、CSRFトークン値とCSRFトークンヘッダー名をHTMLの\ ``<meta>``\ 要素に設定しておくことで、JavaScriptのコードからJSPのコードを排除している。\ :ref:`csrf_ajax-token-setting`\ を参照されたい。
 
-        }).fail(function(xhr) {
-            // (11)
-            var messages = "";
-            // (12)
-            if(400 <= xhr.status && xhr.status <= 499){
-                // (13)
-                var contentType = xhr.getResponseHeader('Content-Type');
-                if (contentType != null && contentType.indexOf("json") != -1) {
-                    // (14)
-                    json = $.parseJSON(xhr.responseText);
-                    $(json.errorResults).each(function(i, errorResult) {
-                        messages += ("<div>" + errorResult.message + "</div>");
-                    });
-                } else {
-                    // (15)
-                    messages = ("<div>" + xhr.statusText + "</div>");
-                }
-            }else{
-                // (16)
-                messages = ("<div>" + "System error occurred." + "</div>");
-            }
-            // (17)
-            $("#calculationResult").html(messages);
-        });
+      尚、CSRFトークン値とCSRFトークンヘッダー名はそれぞれ\ ``${_csrf.token}``\ と\ ``${_csrf.headerName}``\ を用いても取得可能である。
 
-        return false;
-    }
+  .. group-tab:: Thymeleaf
 
-  .. tabularcolumns:: |p{0.10\linewidth}|p{0.90\linewidth}|
-  .. list-table::
-    :header-rows: 1
-    :widths: 10 90
-    :class: longtable
+    .. code-block:: text
+  
+      $(document).ajaxSend(function(event, xhr, options) {
+          // (9)
+          xhr.setRequestHeader([[${_csrf.headerName}]], [[${_csrf.token}]]);
+      });
+  
+      // (10)
+      function plus() {
+          $.ajax([[@{/ajax/plusForForm}]], {
+              type : "POST",
+              data : $("#calculationForm").serialize(),
+              dataType : "json"
+          }).done(function(json) {
+              $("#calculationResult").text(json.resultNumber);
+  
+          }).fail(function(xhr) {
+              // (11)
+              var messages = "";
+              // (12)
+              if(400 <= xhr.status && xhr.status <= 499){
+                  // (13)
+                  var contentType = xhr.getResponseHeader('Content-Type');
+                  if (contentType != null && contentType.indexOf("json") != -1) {
+                      // (14)
+                      json = $.parseJSON(xhr.responseText);
+                      $(json.errorResults).each(function(i, errorResult) {
+                          messages += ("<div>" + errorResult.message + "</div>");
+                      });
+                  } else {
+                      // (15)
+                      messages = ("<div>" + xhr.statusText + "</div>");
+                  }
+              }else{
+                  // (16)
+                  messages = ("<div>" + "System error occurred." + "</div>");
+              }
+              // (17)
+              $("#calculationResult").html(messages);
+          });
+  
+          return false;
+      }
+  
+    .. tabularcolumns:: |p{0.10\linewidth}|p{0.90\linewidth}|
+    .. list-table::
+      :header-rows: 1
+      :widths: 10 90
+      :class: longtable
+  
+      * - | 項番
+        - | 説明
+      * - | (9)
+        - | POSTメソッドでリクエストを行う場合、CSRFトークンをHTTPヘッダに設定して送信する必要がある。
+          | 上記例では、インライン記法を用いることでCSRFトークンヘッダー名とCSRFトークン値をJavaScriptで取得している。
+          | CSRF対策の詳細については、 「\ :doc:`../../Security/CSRF`\ 」を参照されたい。
+      * - | (10)
+        - | フォームに指定された数値をリクエストパラメータに変換し、POSTメソッドで\ ``/ajax/plusForForm``\ に対してリクエストを送信するAjax関数。
+          | 上記例では、ボタンの押下をAjax通信のトリガーとしているが、テキストボックスのロストフォーカスをトリガーとすることでリアルタイム計算を実現することができる。
+      * - | (11)
+        - | エラー処理の実装例を以下に示す。
+          | サーバ側のエラーハンドリング処理の実装例については、\ :ref:`ajax_how_to_use_input_error`\ を参照されたい。
+      * - | (12)
+        - | HTTPのステータスコードを判定し、どのようなエラーが発生したか判定する。
+          | HTTPのステータスコードは、 XMLHttpRequestオブジェクトの\ ``status``\ フィールドに格納されている。
+      * - | (13)
+        - | レスポンスされたデータがJSON形式か判定を行う。
+          | 上記例では、レスポンスヘッダの Content-Typeに設定されている値を参照して、レスポンスされたデータの形式をチェックしている。
+          | 形式をチェックしておかないと、JSON以外の形式で応答された際に、JSONオブジェクトにデシリアライズする処理でエラーが発生することになる。
+          | サーバ側のエラーハンドリングを簡易的に行っていると、HTML形式のページが返却されることがある。
+      * - | (14)
+        - | レスポンスデータをJSONオブジェクトにデシリアライズする。
+          | レスポンスデータは、 XMLHttpRequestオブジェクトの\ ``responseText``\ フィールドに格納されている。
+          | 上記例では、デシリアライズしたJSONオブジェクトからエラー情報を取得し、エラーメッセージを組み立てている。
+      * - | (15)
+        - | レスポンスされたデータがJSON形式以外だった場合の処理を行う。
+          | 上記例では、HTTPのステータステキストをエラーメッセージに格納している。
+          | HTTPのステータステキストは、 XMLHttpRequestオブジェクトの\ ``statusText``\ フィールドに格納されている。
+      * - | (16)
+        - | サーバエラー時の処理を行う。
+          | 上記例では、システムエラーが発生したことを通知するメッセージをエラーメッセージに格納している。
+      * - | (17)
+        - | エラー時の描画処理を行う。
+          | 上記例では、計算結果を表示するための領域に、エラーメッセージを表示している。
 
-    * - | 項番
-      - | 説明
-    * - | (9)
-      - | POSTメソッドでリクエストを行う場合、CSRFトークンをHTTPヘッダに設定して送信する必要がある。
-        | 上記例では、\ ``<sec:csrfMetaTags />``\ を利用して\ ``<meta>``\ 要素にCSRFトークンヘッダー名とCSRFトークン値を設定し、JavaScriptで値を取得するようにしている。
-        | CSRF対策の詳細については、「\ :doc:`../../Security/CSRF`\ 」を参照されたい。
-    * - | (10)
-      - | フォームに指定された数値をリクエストパラメータに変換し、POSTメソッドで\ ``/ajax/plusForForm``\ に対してリクエストを送信するAjax関数。
-        | 上記例では、ボタンの押下をAjax通信のトリガーとしているが、テキストボックスのロストフォーカスをトリガーとすることでリアルタイム計算を実現することができる。
-    * - | (11)
-      - | エラー処理の実装例を以下に示す。
-        | サーバ側のエラーハンドリング処理の実装例については、\ :ref:`ajax_how_to_use_input_error`\ を参照されたい。
-    * - | (12)
-      - | HTTPのステータスコードを判定し、どのようなエラーが発生したか判定する。
-        | HTTPのステータスコードは、 XMLHttpRequestオブジェクトの\ ``status``\ フィールドに格納されている。
-    * - | (13)
-      - | レスポンスされたデータがJSON形式か判定を行う。
-        | 上記例では、レスポンスヘッダの Content-Typeに設定されている値を参照して、レスポンスされたデータの形式をチェックしている。
-        | 形式をチェックしておかないと、JSON以外の形式で応答された際に、JSONオブジェクトにデシリアライズする処理でエラーが発生することになる。
-        | サーバ側のエラーハンドリングを簡易的に行っていると、HTML形式のページが返却されることがある。
-    * - | (14)
-      - | レスポンスデータをJSONオブジェクトにデシリアライズする。
-        | レスポンスデータは、 XMLHttpRequestオブジェクトの\ ``responseText``\ フィールドに格納されている。
-        | 上記例では、デシリアライズしたJSONオブジェクトからエラー情報を取得し、エラーメッセージを組み立てている。
-    * - | (15)
-      - | レスポンスされたデータがJSON形式以外だった場合の処理を行う。
-        | 上記例では、HTTPのステータステキストをエラーメッセージに格納している。
-        | HTTPのステータステキストは、 XMLHttpRequestオブジェクトの\ ``statusText``\ フィールドに格納されている。
-    * - | (16)
-      - | サーバエラー時の処理を行う。
-        | 上記例では、システムエラーが発生したことを通知するメッセージをエラーメッセージに格納している。
-    * - | (17)
-      - | エラー時の描画処理を行う。
-        | 上記例では、計算結果を表示するための領域に、エラーメッセージを表示している。
+.. warning::
 
-  .. warning::
-
-    上記例では、Ajaxの通信処理、DOM操作処理(描画処理)、エラー処理を同じfunction内で行っているが、これらの処理は分離して実装することを推奨する。
-
-
-  .. tip::
-
-    上記例では\ ``<sec:csrfMetaTags />``\ を利用して、CSRFトークン値とCSRFトークンヘッダー名をHTMLの\ ``<meta>``\ 要素に設定しておくことで、JavaScriptのコードからJSPのコードを排除している。\ :ref:`csrf_ajax-token-setting`\ を参照されたい。
-
-    尚、CSRFトークン値とCSRFトークンヘッダー名はそれぞれ\ ``${_csrf.token}``\ と\ ``${_csrf.headerName}``\ を用いても取得可能である。
+  上記例では、Ajaxの通信処理、DOM操作処理(描画処理)、エラー処理を同じfunction内で行っているが、これらの処理は分離して実装することを推奨する。
 
 |
 
@@ -734,7 +1079,6 @@ Ajaxを使ってフォームのデータをPOSTし、処理結果を取得する
   下記のレスポンスデータは、入力エラーが発生時のものである。
 
   .. code-block:: http
-    :emphasize-lines: 1, 4, 9
 
     HTTP/1.1 400 Bad Request
     Server: Apache-Coyote/1.1
@@ -791,7 +1135,7 @@ Ajaxを使ってフォームのデータをJSON形式に変換してからPOST�
 
 |
 
-- JavaScript/HTML(JSP)
+- JavaScript/HTML
 
   .. code-block:: javascript
 
@@ -837,7 +1181,6 @@ Ajaxを使ってフォームのデータをJSON形式に変換してからPOST�
     * - | (3)
       - | リクエストBodyにJSONを格納するので、Content-Typeのメディアタイプを\ ``application/json``\ にする。
 
-
 |
 
 | 上記検索フォームの「=」ボタンを押下した際には、以下のような通信が発生する。
@@ -882,10 +1225,10 @@ Ajaxを使ってフォームのデータをJSON形式に変換してからPOST�
 
 |
 
-BindException のハンドリング
+MethodArgumentNotValidException のハンドリング
 """"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
-| \ ``org.springframework.validation.BindException``\ は、 リクエストパラメータとして送信したデータをJavaBeanにバインドする際に、入力値に不正な値が指定された場合に発生する例外クラスである。
-| GET時のリクエストパラメータや、フォームデータを\ ``application/x-www-form-urlencoded``\ の形式として受け取る場合は、\ ``BindException``\ の例外ハンドリングが必要となる。
+| \ ``org.springframework.web.bind.MethodArgumentNotValidException``\ は、リクエストパラメータとして送信したデータ又は\ ``@RequestBody``\ アノテーションを使用してリクエストBodyに格納されているデータをJavaBeanにバインドする際に、入力値に不正な値が指定された場合に発生する例外クラスである。
+| \ ``application/json``\ や\ ``application/xml``\ などの形式として受け取る場合又はGET時のリクエストパラメータや、フォームデータを\ ``application/x-www-form-urlencoded``\ の形式として受け取る場合は、\ ``MethodArgumentNotValidException``\ の例外ハンドリングが必要となる。
 
 - Controller
 
@@ -897,10 +1240,11 @@ BindException のハンドリング
 
         // omitted
 
-        @ExceptionHandler(BindException.class) // (1)
+        @ExceptionHandler(MethodArgumentNotValidException.class) // (1)
         @ResponseStatus(value = HttpStatus.BAD_REQUEST) // (2)
         @ResponseBody // (3)
-        public ErrorResults handleBindException(BindException e, Locale locale) { // (4)
+        public ErrorResults handleMethodArgumentNotValidException(
+            MethodArgumentNotValidException e, Locale locale) { // (4)
             // (5)
             ErrorResults errorResults = new ErrorResults();
             for (FieldError fieldError : e.getBindingResult().getFieldErrors()) {
@@ -929,8 +1273,8 @@ BindException のハンドリング
       - | 説明
     * - | (1)
       - | Controllerにエラーハンドリング用メソッドを定義する。
-        | エラーハンドリング用のメソッドには、``@org.springframework.web.bind.annotation.ExceptionHandler``\ アノテーションを付与し、 value属性にハンドリングする例外の型を指定する。
-        | 上記例では、 ハンドリング対象の例外として\ ``BindException.class``\ を指定している。
+        | エラーハンドリング用のメソッドには、\ ``@org.springframework.web.bind.annotation.ExceptionHandler``\ アノテーションを付与し、 value属性にハンドリングする例外の型を指定する。
+        | 上記例では、 ハンドリング対象の例外として\ ``MethodArgumentNotValidException.class``\ を指定している。
     * - | (2)
       - | 応答するHTTPステータス情報を指定する。
         | 上記例では、\ ``400``\ (Bad Request) を指定している。
@@ -1040,42 +1384,6 @@ BindException のハンドリング
 
 |
 
-MethodArgumentNotValidException のハンドリング
-""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
-| \ ``org.springframework.web.bind.MethodArgumentNotValidException``\ は、\ ``@RequestBody``\ アノテーションを使用してリクエストBodyに格納されているデータをJavaBeanにバインドする際に、入力値に不正な値が指定された場合に発生する例外クラスである。
-| \ ``application/json``\ や\ ``application/xml``\ などの形式として受け取る場合は、\ ``MethodArgumentNotValidException``\ の例外ハンドリングが必要となる。
-
-- Controller
-
-  .. code-block:: java
-
-    @ExceptionHandler(MethodArgumentNotValidException.class) // (1)
-    @ResponseStatus(value = HttpStatus.BAD_REQUEST)
-    @ResponseBody
-    public ErrorResults handleMethodArgumentNotValidException(
-            MethodArgumentNotValidException e, Locale locale) { // (1)
-        ErrorResults errorResults = new ErrorResults();
-
-        // implement error handling.
-        // omitted
-
-        return errorResults;
-    }
-
-
-  .. tabularcolumns:: |p{0.10\linewidth}|p{0.90\linewidth}|
-  .. list-table::
-    :header-rows: 1
-    :widths: 10 90
-
-    * - | 項番
-      - | 説明
-    * - | (1)
-      - | エラーハンドリング対象の例外として\ ``MethodArgumentNotValidException.class``\ を指定する。
-        | 上記以外は\ ``BindException``\ と同様。
-
-|
-
 HttpMessageNotReadableException のハンドリング
 """"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 | \ ``org.springframework.http.converter.HttpMessageNotReadableException``\ は、\ ``@RequestBody``\ アノテーションを使用してリクエストBodyに格納されているデータをJavaBeanにバインドする際に、Bodyに格納されているデータからJavaBeanを生成できなかった場合に発生する例外クラスである。
@@ -1114,7 +1422,7 @@ HttpMessageNotReadableException のハンドリング
       - | 説明
     * - | (1)
       - | エラーハンドリング対象の例外として\ ``HttpMessageNotReadableException.class``\ を指定する。
-        | 上記以外は\ ``BindException``\ と同様。
+        | 上記以外は\ ``MethodArgumentNotValidException``\ と同様。
 
 |
 
@@ -1253,7 +1561,7 @@ BindingResult を使用したハンドリング
       - | 説明
     * - | (1)
       - | エラーハンドリング対象の例外として\ ``BusinessException.class``\ を指定する。
-        | 上記以外は入力エラーの\ ``BindException``\ のハンドリング方法と同様。
+        | 上記以外は入力エラーの\ ``MethodArgumentNotValidException``\ のハンドリング方法と同様。
     * - | (2)
       - | 応答するHTTPステータス情報を指定する。
         | 上記例では、\ ``409``\ (Conflict) を指定している。

@@ -106,8 +106,8 @@ Overview
     - | RepositoryからSQLを発行し、データベースが稼働していることを確認する。
       | これは、データベースアクセスを伴うアプリケーションの場合、アプリケーションが稼働していても、データベースに異常がある場合は正常に業務を行うことができないためである。
   * - | (3)
-    - | レスポンスを返すViewとしてJSPを使用する。
-      | 本ガイドラインではJSPを例にとって説明するが、RESTやSOAPを用いる場合など、アプリケーションの特性に合わせて通信方式やレスポンス形式は適宜変更すること。詳細は、\ :doc:`../WebServiceDetail/REST`\や、\ :doc:`../../Appendix/SOAP`\を参照されたい。
+    - | レスポンスを返すViewとしてJSP/Thymeleafを使用する。
+      | 本ガイドラインではJSP/Thymeleafを例にとって説明するが、RESTやSOAPを用いる場合など、アプリケーションの特性に合わせて通信方式やレスポンス形式は適宜変更すること。詳細は、\ :doc:`../WebServiceDetail/REST`\や、\ :doc:`../../Appendix/SOAP`\を参照されたい。
 
 | 本ガイドラインの実装例で返却されるステータスコードおよびレスポンスは以下の通りである。
 
@@ -142,8 +142,9 @@ How to use
 Repositoryインタフェース
 """"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 
-| まず、\ ``HealthCheckRepository``\ を作成する。\ ``HealthCheckRepository``\ はヘルスチェック用のSQLを実行し、データベースの稼働を確認する
-| なお、ここではMyBatis3を用いてデータベースにアクセスする例を示す。他の方式を採用する場合は\ :doc:`../../../ArchitectureInDetail/DataAccessDetail/index`\ を参照されたい。
+| \ ``HealthCheckRepository``\ を作成する。\ ``HealthCheckRepository``\ はヘルスチェック用のSQLを実行し、データベースの稼働を確認する
+| なお、ここではMyBatis3を用いてデータベースにアクセスする例を示す。
+| 他の方式を採用する場合は\ :doc:`../../../ArchitectureInDetail/DataAccessDetail/index`\ を参照されたい。
 
 \ **HealthCheckRepository.java**\
 
@@ -204,7 +205,7 @@ Repositoryインタフェース
 Serviceクラス
 """"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 
-| 次に、\ ``HealthCheckService``\ インタフェースと、\ ``HealthCheckService``\ インタフェースを実装した\ ``HealthCheckServiceImpl``\ クラスを作成する。
+| \ ``HealthCheckService``\ インタフェースと、\ ``HealthCheckService``\ インタフェースを実装した\ ``HealthCheckServiceImpl``\ クラスを作成する。
 | \ ``HealthCheckServiceImpl``\ は、\ ``healthcheckRepository``\ の\ ``healthcheck``\ メソッドを呼び出し、データベースのヘルスチェックを行う。
 
 \ **HealthCheckService.java**\
@@ -250,7 +251,7 @@ Serviceクラス
 Controllerクラス
 """"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 
-| 次に、\ ``HealthCheckController``\を作成する。
+| \ ``HealthCheckController``\ を作成する。
 | \ ``HealthcheckService``\ の\ ``healthcheck``\ メソッドを呼び出し、実行結果によって指定されたパスに遷移する。データベースの稼働が確認できた場合は、\ ``OK.``\ を表示するためのビューを返す。
 
 \ **HealthCheckController.java**\
@@ -293,22 +294,43 @@ Controllerクラス
 
 |
 
+.. note::
+
+   本ガイドラインでは、ヘルスチェック機能は共通機能の扱いとして\ ``common``\ 配下のディレクトリに配置している。しかし、共通的な画面を全て\ ``common``\ 配下のディレクトリに配置してしまうと、ディレクトリが肥大化して管理が難しくなる。そのため、極力グルーピングを行い、適切なディレクトリ構成にすることを推奨する。
+
+|
+
 .. _HealthCheckHowToUseView:
 
-JSPファイル
+Viewの実装
 """"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 
-| 最後に、ヘルスチェック成功時に遷移するJSPファイルを作成する。
-| JSPファイル作成時、以下に示すように\ ``<%@page>``\ ディレクティブと\ ``OK.``\ の間に改行文字などを挟まないようにする。
-| これは、レスポンスのデータ量を最低限にするためである。
+.. tabs::
+  .. group-tab:: JSP
 
-\ **ok.jsp**\
+    | ヘルスチェック成功時に遷移するJSPファイルを作成する。
+    | レスポンスのデータ量を最低限にするため、以下に示すように\ ``<%@page>``\ ディレクティブと\ ``OK.``\ の間に改行文字などを挟まないようにする。
+    
+    \ **ok.jsp**\
+    
+    .. code-block:: jsp
+    
+       <%@page contentType="text/plain; charset=utf-8" language="java" pageEncoding="utf-8" %>OK.
+    
+    | レスポンスのデータ量を最低限にするにあたり、他にも注意するべき点が存在する。詳細は\ :ref:`HealthCheckAppendixMinResponce`\ を参照されたい。
 
-.. code-block:: jsp
+  .. group-tab:: Thymeleaf
 
-   <%@page contentType="text/plain; charset=utf-8" language="java" pageEncoding="utf-8" %>OK.
+    | ヘルスチェック成功時に遷移するHTMLファイルを作成する。
+    | レスポンスのデータ量を最低限にするため、\ ``<html>``\ タグ等を記述しないようにする。
+    
+    \ **ok.html**\
+    
+    .. code-block:: html
+    
+      OK.
 
-| レスポンスのデータ量を最低限にするにあたり、他にも注意するべき点が存在する。詳細は\ :ref:`HealthCheckAppendixMinResponce`\ を参照されたい。
+|
 
 .. _HealthCheckHowToUseSecurity:
 
@@ -316,18 +338,37 @@ JSPファイル
 """"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 
 | ヘルスチェック処理を使用する際は、認証・認可機能などによりヘルスチェック用のURLがアクセス不可にならないように注意する必要がある。
-| 例えば、どのロールでもアクセスできるようにするには、spring-security.xmlの\ ``<sec:intercept-url>``\ を設定する。
-| \ ``/healthcheck``\ 配下の除外設定を行う例を以下に示す。
+| 例として、どのロールでもアクセスできるようにするため、\ ``/healthcheck``\ 配下の除外設定例を以下に示す。
 | 詳細は\ :doc:`../../../Security/Authorization`\ を参照されたい。
 
-\ **spring-security.xml**\
+.. tabs::
+  .. group-tab:: Java Config
 
-.. code-block:: xml
+    \ **SpringSecurityConfig.java**\
+    
+    .. code-block:: java
 
-  <sec:http request-matcher="ant">
-      <sec:intercept-url pattern="/healthcheck/**" access="permitAll"/>
-      <!-- omitted -->
-   </sec:http>
+      @Bean
+      public SecurityFilterChain filterChain(HttpSecurity http) {
+          // omitted
+          http.authorizeHttpRequests(authz -> authz.requestMatchers(
+                  new AntPathRequestMatcher("/healthcheck/**")).permitAll()
+                  // omitted
+                  );
+          // omitted
+          return http.build();
+      }
+
+  .. group-tab:: XML Config
+
+    \ **spring-security.xml**\
+    
+    .. code-block:: xml
+    
+      <sec:http request-matcher="ant">
+          <sec:intercept-url pattern="/healthcheck/**" access="permitAll"/>
+          <!-- omitted -->
+      </sec:http>
 
 .. note::
 

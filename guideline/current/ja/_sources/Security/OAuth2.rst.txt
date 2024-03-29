@@ -18,7 +18,7 @@ Overview
 
 .. tip:: \ **Spring Security が提供するOAuth 2.0のリファレンス**\
 
-  Spring Security が提供するOAuth 2.0は、本ガイドラインで紹介していない機能も提供している。Spring Security が提供するOAuth 2.0について詳しく知りたい場合は、\ `OAuth2 <https://docs.spring.io/spring-security/reference/6.0.1/servlet/oauth2/index.html>`__\ を参照されたい。
+  Spring Security が提供するOAuth 2.0は、本ガイドラインで紹介していない機能も提供している。Spring Security が提供するOAuth 2.0について詳しく知りたい場合は、\ `OAuth2 <https://docs.spring.io/spring-security/reference/servlet/oauth2/index.html>`__\ を参照されたい。
 
 |
 
@@ -71,7 +71,6 @@ OAuth 2.0はRFCとして仕様化されており、関連する複数の技術�
 
 .. figure:: ./images_OAuth2/OAuth2_TraditionalAuthenticationModel.png
   :width: 100%
-
 
 これに対し、OAuth 2.0ではHTTPサービスとの認証はユーザが直接行い、サードパーティ製アプリケーションには「アクセストークン」と呼ばれる認証済みリクエストを行うための情報を払い出すことで、サードパーティに認証情報を共有することなくリソースへアクセスすることが可能となる。
 
@@ -490,7 +489,7 @@ Spring Security を使用してリソースサーバ、クライアントを構�
   * - | (1)
     - | リソースオーナはユーザエージェントを介してクライアントへアクセスする。
   * - | (2)
-    - | クライアントは\ ``OAuth2AuthorizedClientManager``\ を介して\ ``OAuth2AuthorizedClient``\を要求する。
+    - | クライアントは\ ``OAuth2AuthorizedClientManager``\ を介して\ ``OAuth2AuthorizedClient``\ を要求する。
   * - | (3)
     - | 要求された\ ``OAuth2AuthorizedClient``\ が認可サーバで許可されていない場合、ユーザエージェントへ認可サーバの認可エンドポイントへリダイレクトさせるよう指示する。
   * - | (4)
@@ -602,7 +601,7 @@ Spring Securityでは、アクセストークンが付与されていないリ�
           
         \ ``AuthenticationManager``\ はリソースサーバの構成によって、JWT認証、Opaqueトークン認証のどちらかの処理が行われる。本ガイドラインではJWT認証を用いた認証方法で説明を行う。
              
-        それぞれの認証方法の詳細は\ `JWT <https://docs.spring.io/spring-security/reference/6.0.1/servlet/oauth2/resource-server/jwt.html>`_\ 及び\ `Opaqueトークン <https://docs.spring.io/spring-security/reference/6.0.1/servlet/oauth2/resource-server/opaque-token.html>`_\ を参照されたい。
+        それぞれの認証方法の詳細は\ `JWT <https://docs.spring.io/spring-security/reference/servlet/oauth2/resource-server/jwt.html>`_\ 及び\ `Opaqueトークン <https://docs.spring.io/spring-security/reference/servlet/oauth2/resource-server/opaque-token.html>`_\ を参照されたい。
         
   * - | (4)
     - | (3)の検証結果より、クライアントから受け取ったアクセストークンでの認証が成功した場合、認証情報を\ ``SecurityContextHolder``\ に保存する。
@@ -643,7 +642,7 @@ Spring Securityは、アクセストークンを取得してリソースサー�
   * - 項番
     - 説明
   * - | (1)
-    - | ユーザエージェントがクライアントのServiceの呼び出しが行われるよう、\ `Security Filter <https://docs.spring.io/spring-security/reference/6.0.1/servlet/architecture.html#servlet-security-filters>`_\ の処理を実施後にControllerへアクセスする。
+    - | ユーザエージェントがクライアントのServiceの呼び出しが行われるよう、\ `Security Filter <https://docs.spring.io/spring-security/reference/servlet/architecture.html#servlet-security-filters>`_\ の処理を実施後にControllerへアクセスする。
   * - | (2)
     - | Serviceより\ ``OAuth2AuthorizedClientManager``\ を呼び出し、\ ``OAuth2AuthorizedClient``\ を要求する。
   * - | (3)
@@ -682,7 +681,7 @@ Spring Securityは、アクセストークンを取得してリソースサー�
   * - 項番
     - 説明
   * - | (1)
-    - | ユーザエージェントがクライアントのServiceの呼び出しが行われるよう、\ `Security Filter <https://docs.spring.io/spring-security/reference/6.0.1/servlet/architecture.html#servlet-security-filters>`_\ の処理を実施後にControllerへアクセスする。
+    - | ユーザエージェントがクライアントのServiceの呼び出しが行われるよう、\ `Security Filter <https://docs.spring.io/spring-security/reference/servlet/architecture.html#servlet-security-filters>`_\ の処理を実施後にControllerへアクセスする。
   * - | (2)
     - | Serviceより\ ``OAuth2AuthorizedClientManager``\ を呼び出し、\ ``OAuth2AuthorizedClient``\ を要求する。
   * - | (3)
@@ -759,73 +758,133 @@ How to Useの構成
 ''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
 リソースサーバを実装する際には新たにOAuth 2.0用のBean定義ファイルを作成する。
 
-ここでは \ ``oauth2-resource.xml``\ とする。
+ここでは\ ``OAuth2ResourceConfig.java``\ (\ ``oauth2-resource.xml``\ )とする。
 
-\ ``oauth2-resource.xml``\ には以下の設定を追加する。
+\ ``OAuth2ResourceConfig.java``\ (\ ``oauth2-resource.xml``\ )には以下の設定を追加する。
 
-* \ ``oauth2-resource.xml``\
+.. tabs::
+  .. group-tab:: Java Config
 
-  .. code-block:: xml
+    * \ ``OAuth2ResourceConfig.java``\
+    
+      .. code-block:: java
 
-    <?xml version="1.0" encoding="UTF-8"?>
-    <beans xmlns="http://www.springframework.org/schema/beans"
-        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-        xmlns:sec="http://www.springframework.org/schema/security"
-        xsi:schemaLocation="
-            http://www.springframework.org/schema/security https://www.springframework.org/schema/security/spring-security.xsd
-            http://www.springframework.org/schema/beans https://www.springframework.org/schema/beans/spring-beans.xsd
-        ">
+        @Bean
+        public SecurityFilterChain authFilterChain(HttpSecurity http) throws Exception {
+            http.securityMatcher(new AntPathRequestMatcher("/api/v1/todos/**")); // (1)
+            http.oauth2ResourceServer(oauth2 -> oauth2
+                  .jwt(jwt -> jwt.jwkSetUri("https://idp.example.org/.well-known/jwks.json"))); // (2)
+            return http.build();
+        }
 
-        <sec:http pattern="/api/v1/todos/**" request-matcher="ant">  <!-- (1) -->
-            <!-- omitted -->
-            <sec:oauth2-resource-server>
-                <sec:jwt jwk-set-uri="https://idp.example.org/.well-known/jwks.json" /> <!-- (2) -->
-            </sec:oauth2-resource-server>
-        </sec:http>
+      .. tabularcolumns:: |p{0.10\linewidth}|p{0.90\linewidth}|
+      .. list-table::
+        :header-rows: 1
+        :widths: 10 90
+        :class: longtable
+    
+        * - 項番
+          - 説明
+        * - | (1)
+          - | \ ``HttpSecurity#securityMatcher``\ には認可制御の対象とするパスパターンを指定した\ ``RequestMatcher``\ を指定する。
+        * - | (2)
+          - | \ ``jwk-set-uri``\ を指定することでリソースサーバーは自動的にJWTエンコードされたアクセストークンを検証するように構成される。
+            | 設定するJWK Set uriは使用する認可サーバのアーキテクチャ仕様を確認されたい。
 
-    </beans>
+  .. group-tab:: XML Config
 
-  .. tabularcolumns:: |p{0.10\linewidth}|p{0.90\linewidth}|
-  .. list-table::
-    :header-rows: 1
-    :widths: 10 90
-    :class: longtable
-
-    * - 項番
-      - 説明
-    * - | (1)
-      - | \ ``pattern``\ 属性には認可制御の対象とするパスのパターンを指定する。
-    * - | (2)
-      - | \ ``jwk-set-uri``\ を指定することでリソースサーバーは自動的にJWTエンコードされたアクセストークンを検証するように構成される。
-        | 設定するJWK Set uriは使用する認可サーバのアーキテクチャ仕様を確認されたい。
+    * \ ``oauth2-resource.xml``\
+    
+      .. code-block:: xml
+    
+        <?xml version="1.0" encoding="UTF-8"?>
+        <beans xmlns="http://www.springframework.org/schema/beans"
+            xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+            xmlns:sec="http://www.springframework.org/schema/security"
+            xsi:schemaLocation="
+                http://www.springframework.org/schema/security https://www.springframework.org/schema/security/spring-security.xsd
+                http://www.springframework.org/schema/beans https://www.springframework.org/schema/beans/spring-beans.xsd
+            ">
+    
+            <sec:http pattern="/api/v1/todos/**" request-matcher="ant">  <!-- (1) -->
+                <!-- omitted -->
+                <sec:oauth2-resource-server>
+                    <sec:jwt jwk-set-uri="https://idp.example.org/.well-known/jwks.json" /> <!-- (2) -->
+                </sec:oauth2-resource-server>
+            </sec:http>
+    
+        </beans>
+    
+      .. tabularcolumns:: |p{0.10\linewidth}|p{0.90\linewidth}|
+      .. list-table::
+        :header-rows: 1
+        :widths: 10 90
+        :class: longtable
+    
+        * - 項番
+          - 説明
+        * - | (1)
+          - | \ ``pattern``\ 属性には認可制御の対象とするパスのパターンを指定する。
+        * - | (2)
+          - | \ ``jwk-set-uri``\ を指定することでリソースサーバーは自動的にJWTエンコードされたアクセストークンを検証するように構成される。
+            | 設定するJWK Set uriは使用する認可サーバのアーキテクチャ仕様を確認されたい。
 
 |
 
-作成した\ ``oauth2-resource.xml``\を読み込むように\ ``web.xml``\ に設定を追加する。
+作成したBean定義ファイルを読み込むように\ ``web.xml``\ に設定を追加する。
 
-* \ ``web.xml``\
+.. tabs::
+  .. group-tab:: Java Config
 
-  .. code-block:: xml
+    * \ ``web.xml``\
 
-    <context-param>
-        <param-name>contextConfigLocation</param-name>
-        <param-value>
-            classpath*:META-INF/spring/applicationContext.xml
-            classpath*:META-INF/spring/oauth2-resource.xml <!-- (1) -->
-            classpath*:META-INF/spring/spring-security.xml
-        </param-value>
-    </context-param>
+      .. code-block:: xml
+    
+        <context-param>
+            <param-name>contextConfigLocation</param-name>
+            <param-value>
+                xxxx.yyyy.zzzz.config.app.ApplicationContextConfig
+                xxxx.yyyy.zzzz.config.web.OAuth2ResourceConfig // (1)
+                xxxx.yyyy.zzzz.config.web.SpringSecurityConfig
+            </param-value>
+        </context-param>
+    
+      .. tabularcolumns:: |p{0.10\linewidth}|p{0.90\linewidth}|
+      .. list-table::
+        :header-rows: 1
+        :widths: 10 90
+        :class: longtable
+    
+        * - 項番
+          - 説明
+        * - | (1)
+          - | \ ``OAuth2ResourceConfig.java``\ で設定したパスのパターンを内包するようなパスが\ ``SpringSecurityConfig.java``\ にアクセス制御対象として設定されている場合を考慮し、先に\ ``OAuth2ResourceConfig.java``\ を読み込むようにする。
 
-  .. tabularcolumns:: |p{0.10\linewidth}|p{0.90\linewidth}|
-  .. list-table::
-    :header-rows: 1
-    :widths: 10 90
-    :class: longtable
+  .. group-tab:: XML Config
 
-    * - 項番
-      - 説明
-    * - | (1)
-      - | \ ``oauth2-resource.xml``\ で設定したパスのパターンを内包するようなパスが\ ``spring-security.xml``\ にアクセス制御対象として設定されている場合を考慮し、先に\ ``oauth2-resource.xml``\ を読み込むようにする。
+    * \ ``web.xml``\
+
+      .. code-block:: xml
+      
+        <context-param>
+            <param-name>contextConfigLocation</param-name>
+            <param-value>
+                classpath*:META-INF/spring/applicationContext.xml
+                classpath*:META-INF/spring/oauth2-resource.xml <!-- (1) -->
+                classpath*:META-INF/spring/spring-security.xml
+            </param-value>
+        </context-param>
+      
+      .. tabularcolumns:: |p{0.10\linewidth}|p{0.90\linewidth}|
+      .. list-table::
+        :header-rows: 1
+        :widths: 10 90
+        :class: longtable
+      
+        * - 項番
+          - 説明
+        * - | (1)
+          - | \ ``oauth2-resource.xml``\ で設定したパスのパターンを内包するようなパスが\ ``spring-security.xml``\ にアクセス制御対象として設定されている場合を考慮し、先に\ ``oauth2-resource.xml``\ を読み込むようにする。
 
 |
 
@@ -836,52 +895,97 @@ How to Useの構成
 
 実装例は以下の通りである。
 
-* \ ``oauth2-resource.xml``\
+.. tabs::
+  .. group-tab:: Java Config
 
-  .. code-block:: xml
+    * \ ``OAuth2ResourceConfig.java``\
+    
+      .. code-block:: java
 
-    <?xml version="1.0" encoding="UTF-8"?>
-    <beans xmlns="http://www.springframework.org/schema/beans"
-        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-        xmlns:sec="http://www.springframework.org/schema/security"
-        xsi:schemaLocation="
-            http://www.springframework.org/schema/security https://www.springframework.org/schema/security/spring-security.xsd
-            http://www.springframework.org/schema/beans https://www.springframework.org/schema/beans/spring-beans.xsd
-        ">
-
-        <sec:http pattern="/api/v1/todos/**" request-matcher="ant">
-            <!-- omitted -->
-            <sec:intercept-url pattern="/api/v1/todos/**" method="GET" access="hasAuthority('SCOPE_READ')" />  <!-- (1) -->
-            <sec:intercept-url pattern="/api/v1/todos/**" method="POST" access="hasAuthority('SCOPE_CREATE')" />  <!-- (1) -->
-            <sec:intercept-url pattern="/api/v1/todos/**" method="PUT" access="hasAuthority('SCOPE_UPDATE')" />  <!-- (1) -->
-            <sec:intercept-url pattern="/api/v1/todos/**" method="DELETE" access="hasAuthority('SCOPE_DELETE')" />  <!-- (1) -->
-            <sec:oauth2-resource-server>
-                <sec:jwt jwk-set-uri="https://idp.example.org/.well-known/jwks.json" />
-            </sec:oauth2-resource-server>
-        </sec:http>
-
-    </beans>
-
-  .. tabularcolumns:: |p{0.10\linewidth}|p{0.90\linewidth}|
-  .. list-table::
-    :header-rows: 1
-    :widths: 10 90
-    :class: longtable
-
-    * - 項番
-      - 説明
-    * - | (1)
-      - | \ ``intercept-url``\ を使用してリソースに対してスコープによるアクセスポリシーを定義する。
-      
-        * \ ``pattern``\ 属性には保護したいリソースのパスのパターンを指定する。本実装例では\ ``/api/v1/todos/``\ 配下のリソースが保護される。
-        * \ ``method``\ 属性にはリソースのHTTPメソッドを指定する。
-        * \ ``access``\ 属性にはリソースへのアクセスを認可するscopeを指定する。設定値は大文字、小文字を区別し、スコープの前に\ ``SCOPE_``\ を付ける。
- 
-        .. note::
+        @Bean
+        public SecurityFilterChain authFilterChain(HttpSecurity http) throws Exception {
+            http.securityMatcher(new AntPathRequestMatcher("/api/v1/todos/**"));
+            // @formatter:off
+            http.authorizeHttpRequests(authorize -> authorize
+                    .requestMatchers(new AntPathRequestMatcher("/api/v1/todos/**", HttpMethod.GET.name())).hasAuthority("SCOPE_READ") // (1)
+                    .requestMatchers(new AntPathRequestMatcher("/api/v1/todos/**", HttpMethod.POST.name())).hasAuthority("SCOPE_CREATE") // (1)
+                    .requestMatchers(new AntPathRequestMatcher("/api/v1/todos/**", HttpMethod.PUT.name())).hasAuthority("SCOPE_UPDATE") // (1)
+                    .requestMatchers(new AntPathRequestMatcher("/api/v1/todos/**", HttpMethod.DELETE.name())).hasAuthority("SCOPE_DELETE") // (1)
+                    );
+            http.oauth2ResourceServer(oauth2 -> oauth2.jwt(jwt -> jwt.jwkSetUri("https://idp.example.org/.well-known/jwks.json")));
+            // @formatter:on
+            return http.build();
+        }
+    
+      .. tabularcolumns:: |p{0.10\linewidth}|p{0.90\linewidth}|
+      .. list-table::
+        :header-rows: 1
+        :widths: 10 90
+        :class: longtable
+    
+        * - 項番
+          - 説明
+        * - | (1)
+          - | \ ``AuthorizedUrl``\ を使用してリソースに対してスコープによるアクセスポリシーを定義する。
           
-          OAuth 2.0認可サーバーから発行されるJWTは\ ``scope``\ 属性または\ ``scp``\ 属性のいずれかを持ち、付与されたスコープや権限を示す。
+            * \ ``AntPathRequestMatcher``\ の第一引数には保護したいリソースのパスのパターンを指定する。本実装例では\ ``/api/v1/todos/``\ 配下のリソースが保護される。
+            * \ ``AntPathRequestMatcher``\ の第二引数にはリソースのHTTPメソッドを指定する。
+            * \ ``hasAuthority``\ メソッドを使用しリソースへのアクセスを認可するscopeを指定する。設定値は大文字、小文字を区別し、スコープの前に\ ``SCOPE_``\ を付ける。
+     
+            .. note::
+              
+              OAuth 2.0認可サーバーから発行されるJWTは\ ``scope``\ 属性または\ ``scp``\ 属性のいずれかを持ち、付与されたスコープや権限を示す。
+    
+              リソースサーバは、これらの属性で受け取った各スコープの前に自動的に\ ``SCOPE_``\ を付けるため、スコープによる制御を行うためには、\ ``SCOPE_``\ を付ける必要がある。
 
-          リソースサーバは、これらの属性で受け取った各スコープの前に自動的に\ ``SCOPE_``\ を付けるため、スコープによる制御を行うためには、\ ``SCOPE_``\ を付ける必要がある。
+  .. group-tab:: XML Config
+
+    * \ ``oauth2-resource.xml``\
+    
+      .. code-block:: xml
+    
+        <?xml version="1.0" encoding="UTF-8"?>
+        <beans xmlns="http://www.springframework.org/schema/beans"
+            xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+            xmlns:sec="http://www.springframework.org/schema/security"
+            xsi:schemaLocation="
+                http://www.springframework.org/schema/security https://www.springframework.org/schema/security/spring-security.xsd
+                http://www.springframework.org/schema/beans https://www.springframework.org/schema/beans/spring-beans.xsd
+            ">
+    
+            <sec:http pattern="/api/v1/todos/**" request-matcher="ant">
+                <!-- omitted -->
+                <sec:intercept-url pattern="/api/v1/todos/**" method="GET" access="hasAuthority('SCOPE_READ')" />  <!-- (1) -->
+                <sec:intercept-url pattern="/api/v1/todos/**" method="POST" access="hasAuthority('SCOPE_CREATE')" />  <!-- (1) -->
+                <sec:intercept-url pattern="/api/v1/todos/**" method="PUT" access="hasAuthority('SCOPE_UPDATE')" />  <!-- (1) -->
+                <sec:intercept-url pattern="/api/v1/todos/**" method="DELETE" access="hasAuthority('SCOPE_DELETE')" />  <!-- (1) -->
+                <sec:oauth2-resource-server>
+                    <sec:jwt jwk-set-uri="https://idp.example.org/.well-known/jwks.json" />
+                </sec:oauth2-resource-server>
+            </sec:http>
+    
+        </beans>
+    
+      .. tabularcolumns:: |p{0.10\linewidth}|p{0.90\linewidth}|
+      .. list-table::
+        :header-rows: 1
+        :widths: 10 90
+        :class: longtable
+    
+        * - 項番
+          - 説明
+        * - | (1)
+          - | \ ``intercept-url``\ を使用してリソースに対してスコープによるアクセスポリシーを定義する。
+          
+            * \ ``pattern``\ 属性には保護したいリソースのパスのパターンを指定する。本実装例では\ ``/api/v1/todos/``\ 配下のリソースが保護される。
+            * \ ``method``\ 属性にはリソースのHTTPメソッドを指定する。
+            * \ ``access``\ 属性にはリソースへのアクセスを認可するscopeを指定する。設定値は大文字、小文字を区別し、スコープの前に\ ``SCOPE_``\ を付ける。
+     
+            .. note::
+              
+              OAuth 2.0認可サーバーから発行されるJWTは\ ``scope``\ 属性または\ ``scp``\ 属性のいずれかを持ち、付与されたスコープや権限を示す。
+    
+              リソースサーバは、これらの属性で受け取った各スコープの前に自動的に\ ``SCOPE_``\ を付けるため、スコープによる制御を行うためには、\ ``SCOPE_``\ を付ける必要がある。
 
 |
 
@@ -950,75 +1054,134 @@ Spring Security のOAuth2.0クライアント機能を使用するため、\ ``p
 ''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
 
 | クライアントを実装する際には新たにOAuth 2.0用のBean定義ファイルを作成する。
-| ここでは\ ``oauth2-client.xml``\ とする。
+| ここでは\ ``OAuth2ClientConfig.java``\ (\ ``oauth2-client.xml``\ )とする。
 
-| \ ``oauth2-client.xml``\ には以下の設定を追加する。
+| \ ``OAuth2ClientConfig.java``\ (\ ``oauth2-client.xml``\ ) には以下の設定を追加する。
 
-* \ ``oauth2-client.xml``\
+.. tabs::
+  .. group-tab:: Java Config
 
-  .. code-block:: xml
-
-    <?xml version="1.0" encoding="UTF-8"?>
-    <beans xmlns="http://www.springframework.org/schema/beans"
-        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-        xmlns:sec="http://www.springframework.org/schema/security"
-        xmlns:context="http://www.springframework.org/schema/context"
-        xsi:schemaLocation="http://www.springframework.org/schema/security https://www.springframework.org/schema/security/spring-security.xsd
-            http://www.springframework.org/schema/beans https://www.springframework.org/schema/beans/spring-beans.xsd
-            http://www.springframework.org/schema/context https://www.springframework.org/schema/context/spring-context.xsd">
-
-        <sec:http pattern="/api/v1/todos/**" request-matcher="ant">
-          <!-- omitted -->
-          <sec:oauth2-client /> <!-- (1) -->
-        </sec:http>
+    * \ ``OAuth2ClientConfig.java``\
     
-    </beans>
+      .. code-block:: java
 
-  .. tabularcolumns:: |p{0.10\linewidth}|p{0.90\linewidth}|
-  .. list-table::
-    :header-rows: 1
-    :widths: 10 90
-    :class: longtable
+        @Bean
+        public SecurityFilterChain filterChainOAtuh2(HttpSecurity http) throws Exception {
+            http.securityMatcher(new AntPathRequestMatcher("/api/v1/todos/**"));
+            // omitted
+            http.oauth2Client(Customizer.withDefaults()); // (1)
+            // omitted    
+            return http.build();
+        }
+    
+      .. tabularcolumns:: |p{0.10\linewidth}|p{0.90\linewidth}|
+      .. list-table::
+        :header-rows: 1
+        :widths: 10 90
+        :class: longtable
+    
+        * - 項番
+          - 説明
+        * - | (1)
+          - | \ ``HttpSecurity#oauth2Client``\ を指定する。
+            | \ ``HttpSecurity#oauth2Client``\ を指定すると、OAuth 2.0 クライアント機能が適用される。
 
-    * - 項番
-      - 説明
-    * - | (1)
-      - | <sec:http>要素の子要素として<sec:oauth2-client>要素を指定する。
-        | <sec:oauth2-client>要素を指定すると、OAuth 2.0 クライアント機能が適用される。
+  .. group-tab:: XML Config
 
-  .. note::
+    * \ ``oauth2-client.xml``\
+    
+      .. code-block:: xml
+    
+        <?xml version="1.0" encoding="UTF-8"?>
+        <beans xmlns="http://www.springframework.org/schema/beans"
+            xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+            xmlns:sec="http://www.springframework.org/schema/security"
+            xmlns:context="http://www.springframework.org/schema/context"
+            xsi:schemaLocation="http://www.springframework.org/schema/security https://www.springframework.org/schema/security/spring-security.xsd
+                http://www.springframework.org/schema/beans https://www.springframework.org/schema/beans/spring-beans.xsd
+                http://www.springframework.org/schema/context https://www.springframework.org/schema/context/spring-context.xsd">
+    
+            <sec:http pattern="/api/v1/todos/**" request-matcher="ant">
+              <!-- omitted -->
+              <sec:oauth2-client /> <!-- (1) -->
+            </sec:http>
+        
+        </beans>
+    
+      .. tabularcolumns:: |p{0.10\linewidth}|p{0.90\linewidth}|
+      .. list-table::
+        :header-rows: 1
+        :widths: 10 90
+        :class: longtable
+    
+        * - 項番
+          - 説明
+        * - | (1)
+          - | \ ``<sec:http>``\ 要素の子要素として\ ``<sec:oauth2-client>``\ 要素を指定する。
+            | \ ``<sec:oauth2-client>``\ 要素を指定すると、OAuth 2.0 クライアント機能が適用される。
 
-    本ガイドラインではOAuth 2.0 クライアント機能をデフォルトの状態で使用している。\ ``OAuth2AuthorizedClient``\ を管理するための\ ``ClientRegistrationRepository``\ 及び\ ``OAuth2AuthorizedClientRepository``\ が自動的にBean定義されるが、要件に応じ適切にカスタマイズされたい。
+.. note::
+
+  本ガイドラインではOAuth 2.0 クライアント機能をデフォルトの状態で使用している。\ ``OAuth2AuthorizedClient``\ を管理するための\ ``ClientRegistrationRepository``\ 及び\ ``OAuth2AuthorizedClientRepository``\ が自動的にBean定義されるが、要件に応じ適切にカスタマイズされたい。
   
-    カスタマイズ可能な構成オプションについては\ `OAuth 2.0 Client <https://docs.spring.io/spring-security/reference/6.0.1/servlet/oauth2/client/index.html>`_\ を参照されたい。
+  カスタマイズ可能な構成オプションについては\ `OAuth 2.0 Client <https://docs.spring.io/spring-security/reference/servlet/oauth2/client/index.html>`_\ を参照されたい。
 
 |
 
-作成した\ ``oauth2-client.xml``\ を読み込むように\ ``web.xml``\ に設定を追加する。
+作成したBean定義ファイルを読み込むように\ ``web.xml``\ に設定を追加する。
 
-* \ ``web.xml``\
+.. tabs::
+  .. group-tab:: Java Config
 
-  .. code-block:: xml
+    * \ ``web.xml``\
 
-    <context-param>
-        <param-name>contextConfigLocation</param-name>
-        <param-value>
-            classpath*:META-INF/spring/applicationContext.xml
-            classpath*:META-INF/spring/oauth2-client.xml <!-- (1) -->
-            classpath*:META-INF/spring/spring-security.xml
-        </param-value>
-    </context-param>
+      .. code-block:: xml
+    
+        <context-param>
+            <param-name>contextConfigLocation</param-name>
+            <param-value>
+                xxxx.yyyy.zzzz.config.app.ApplicationContextConfig
+                xxxx.yyyy.zzzz.config.web.OAuth2ClientConfig // (1)
+                xxxx.yyyy.zzzz.config.web.SpringSecurityConfig
+            </param-value>
+        </context-param>
+    
+      .. tabularcolumns:: |p{0.10\linewidth}|p{0.90\linewidth}|
+      .. list-table::
+        :header-rows: 1
+        :widths: 10 90
+        :class: longtable
+    
+        * - 項番
+          - 説明
+        * - | (1)
+          - | \ ``OAuth2ClientConfig.java``\ で設定したパスのパターンを内包するようなパスが\ ``SpringSecurityConfig.java``\ にアクセス制御対象として設定されている場合を考慮し、先に\ ``OAuth2ClientConfig.java``\ を読み込むようにする。
 
-  .. tabularcolumns:: |p{0.10\linewidth}|p{0.90\linewidth}|
-  .. list-table::
-    :header-rows: 1
-    :widths: 10 90
-    :class: longtable
+  .. group-tab:: XML Config
 
-    * - 項番
-      - 説明
-    * - | (1)
-      - | \ ``oauth2-client.xml``\ で設定したパスのパターンを内包するようなパスが\ ``spring-security.xml``\ にアクセス制御対象として設定されている場合を考慮し、先に\ ``oauth2-client.xml``\ を読み込むようにする。
+    * \ ``web.xml``\
+
+      .. code-block:: xml
+      
+        <context-param>
+            <param-name>contextConfigLocation</param-name>
+            <param-value>
+                classpath*:META-INF/spring/applicationContext.xml
+                classpath*:META-INF/spring/oauth2-client.xml <!-- (1) -->
+                classpath*:META-INF/spring/spring-security.xml
+            </param-value>
+        </context-param>
+      
+      .. tabularcolumns:: |p{0.10\linewidth}|p{0.90\linewidth}|
+      .. list-table::
+        :header-rows: 1
+        :widths: 10 90
+        :class: longtable
+      
+        * - 項番
+          - 説明
+        * - | (1)
+          - | \ ``oauth2-client.xml``\ で設定したパスのパターンを内包するようなパスが\ ``spring-security.xml``\ にアクセス制御対象として設定されている場合を考慮し、先に\ ``oauth2-client.xml``\ を読み込むようにする。
 
 |
 
@@ -1028,32 +1191,62 @@ Spring Security のOAuth2.0クライアント機能を使用するため、\ ``p
 | \ ``OAuth2AuthorizationRequestRedirectFilter``\ はSecurity Filterとして提供されており、ブランクプロジェクトで予め設定している\ ``SystemExceptionResolver``\ が先に\ ``ClientAuthorizationRequiredException``\ をハンドリングしてしまうと期待した動作にならない。そのため、\ ``spring-mvc.xml``\ の設定を変更し、\ ``SystemExceptionResolver``\ が\ ``ClientAuthorizationRequiredException``\ をハンドリングしないようにする必要がある。
 | \ ``SystemExceptionResolver``\ の詳しい解説については\ :doc:`../ArchitectureInDetail/WebApplicationDetail/ExceptionHandling`\ を参照されたい。
 
-* \ ``spring-mvc.xml``\
+.. tabs::
+  .. group-tab:: Java Config
 
-  .. code-block:: xml
+    * \ ``SpringMvcConfig.java``\
+    
+      .. code-block:: java
 
-    <bean class="org.terasoluna.gfw.web.exception.SystemExceptionResolver">
-      
-      <!-- omitted -->
-      
-      <property name="excludedExceptions">
-        <array>
-          <!-- (1) -->
-          <value>org.springframework.security.oauth2.client.ClientAuthorizationRequiredException</value>
-        </array>
-      </property>
-    </bean>
+        @Bean("systemExceptionResolver")
+        public SystemExceptionResolver systemExceptionResolver(
+                ExceptionCodeResolver exceptionCodeResolver) {
+            SystemExceptionResolver bean = new SystemExceptionResolver();
+            // omitted
+            bean.setExcludedExceptions(ClientAuthorizationRequiredException.class); // (1)
+            // omitted
+            return bean;
+        }
+    
+      .. tabularcolumns:: |p{0.10\linewidth}|p{0.90\linewidth}|
+      .. list-table::
+        :header-rows: 1
+        :widths: 10 90
+        :class: longtable
+    
+        * - 項番
+          - 説明
+        * - | (1)
+          - | \ ``ClientAuthorizationRequiredException``\ を\ ``SystemExceptionResolver``\ のハンドリング対象から除外する。
 
-  .. tabularcolumns:: |p{0.10\linewidth}|p{0.90\linewidth}|
-  .. list-table::
-    :header-rows: 1
-    :widths: 10 90
-    :class: longtable
+  .. group-tab:: XML Config
 
-    * - 項番
-      - 説明
-    * - | (1)
-      - | \ ``ClientAuthorizationRequiredException``\ を\ ``SystemExceptionResolver``\ のハンドリング対象から除外する。
+    * \ ``spring-mvc.xml``\
+    
+      .. code-block:: xml
+    
+        <bean class="org.terasoluna.gfw.web.exception.SystemExceptionResolver">
+          
+          <!-- omitted -->
+          
+          <property name="excludedExceptions">
+            <array>
+              <!-- (1) -->
+              <value>org.springframework.security.oauth2.client.ClientAuthorizationRequiredException</value>
+            </array>
+          </property>
+        </bean>
+    
+      .. tabularcolumns:: |p{0.10\linewidth}|p{0.90\linewidth}|
+      .. list-table::
+        :header-rows: 1
+        :widths: 10 90
+        :class: longtable
+    
+        * - 項番
+          - 説明
+        * - | (1)
+          - | \ ``ClientAuthorizationRequiredException``\ を\ ``SystemExceptionResolver``\ のハンドリング対象から除外する。
 
 |
 
@@ -1062,82 +1255,170 @@ Spring Security のOAuth2.0クライアント機能を使用するため、\ ``p
 | \ ``ClientRegistration``\ を使用し、認可サーバに登録されたクライアントを定義する。
 | クライアントの定義情報は\ ``ClientRegistrationRepository``\ に保持される。
 
-* \ ``oauth2-client.xml``\
+.. tabs::
+  .. group-tab:: Java Config
 
-  .. code-block:: xml
+    * \ ``OAuth2ClientConfig.java``\
+    
+      .. code-block:: java
 
-    <sec:client-registrations>
-        <sec:client-registration
-            registration-id="okta-client-id"
-            client-id="readClient"
-            client-secret="okta-client-secret"
-            authorization-grant-type="authorization_code"
-            redirect-uri="{baseUrl}/authorized/okta"
-            scope="READ,CREATE"
-            provider-id="okta" /> <!-- (1)～(7) -->
-        <sec:provider provider-id="okta"
-            authorization-uri="https://dev-1234.oktapreview.com/oauth2/v1/authorize"
-            token-uri="https://dev-1234.oktapreview.com/oauth2/v1/token"
-            /> <!-- (8)～(9) -->
-    </sec:client-registrations>
-
-  .. tabularcolumns:: |p{0.10\linewidth}|p{0.90\linewidth}|
-  .. list-table::
-    :header-rows: 1
-    :widths: 10 90
-    :class: longtable
-
-    * - 項番
-      - 説明
-    * - | (1)
-      - | \ ``registration-id``\ 属性に、ClientRegistrationを一意に識別するBean IDを設定する。
-    * - | (2)
-      - | \ ``client-id``\ 属性に、認可サーバに登録されたクライアントIDを設定する。
-    * - | (3)
-      - | \ ``client-secret``\ 属性に、認可サーバに登録されたクライアントの認可に用いるパスワードを設定する。
-    * - | (4)
-      - | \ ``authorization-grant-type``\ 属性に、グラントタイプを設定する。認可コードグラントの場合\ ``authorization_code``\ を指定する。
-    * - | (5)
-      - | \ ``redirect-uri``\ 属性に、認可サーバが認可コード発行後にユーザエージェントからクライアントへリダイレクトさせるためのリダイレクトURIを設定する。このURIへリダイレクト後、Spring Securityは\ ``ClientAuthorizationRequiredException``\ を発生させたリクエストの再処理を行う。リダイレクトURIは認可サーバに登録されているリダイレクトURIと一致させる必要がある。
-        | 詳しくは\ `RFC6749#section-3.1.2 <https://datatracker.ietf.org/doc/html/rfc6749#section-3.1.2>`_\ を参照されたい。
-
-        .. note::
-
-          \ ``{baseUrl}``\ はURIテンプレート変数であり、\ ``{baseScheme}://{baseHost}{basePort}{basePath}``\ のことを指す。
-
-          URIテンプレートを使用することで、展開時に\ ``X-Forwarded-*``\ ヘッダが使用される。これにより、User agentとクライアントがProxy Serverを経由して通信している場合であっても、クライアント側のURIを取得することが可能となる。
-
-          詳しくは、\ `Initiating the Authorization Request <https://docs.spring.io/spring-security/reference/6.0.1/reactive/oauth2/client/authorization-grants.html#_initiating_the_authorization_request>`_\ を参照されたい。
-            
-        .. note::
-
-          元のリクエストが再処理されるのは、CSRF対策が無効またはGETメソッドで処理された場合であり、CSRF対策が有効（ブランクのデフォルト設定）かつGETメソッド以外で処理された場合は、リダイレクトURIにリダイレクトされた後元のリクエストが再処理されずにリダイレクトURIでそのまま処理される。
-            
-          リダイレクトURIに対応したControllerを作成する場合、そのままでは元のリクエスト情報は取得できない。必要に応じて元のリクエストをセッションに保存する等の対処が必要があるため、注意すること。本ガイドラインでは、具体的な対処方法の説明については割愛する。
-            
-          CSRF対策を無効化する場合、URLパターンを設けるなどセキュリティリスクが小さくなるように実装すること。なお、元のリクエストパスにはGETメソッドでリダイレクトするため、ControllerはGETメソッドを許容するようにする必要がある。
-            
-          CSRF対策については\ :ref:`SpringSecurityCsrf`\ を参照されたい。
-            
-    * - | (6)
-      - | \ ``scope``\属性には、認可リクエストとしてクライアントにリクエストするスコープをカンマ区切りで設定する。
-      
-        .. note::
+        @Bean
+        public ClientRegistrationRepository clientRegistrationRepository() {
+            return new InMemoryClientRegistrationRepository(
+                    registration(),
+                    // omitted
+                    );
+        }
+    
+        private ClientRegistration registration() {
+            // @formatter:off
+            return ClientRegistration
+                    .withRegistrationId("okta-client-id") // (1)
+                    .clientId("readClient") // (2)
+                    .clientSecret("okta-client-secret") // (3)
+                    .authorizationGrantType(AuthorizationGrantType.AUTHORIZATION_CODE) // (4)
+                    .redirectUri("{baseUrl}/authorized/okta") // (5)
+                    .scope("READ", "CREATE") // (6)
+                    .authorizationUri("https://dev-1234.oktapreview.com/oauth2/v1/authorize") // (8)
+                    .tokenUri("https://dev-1234.oktapreview.com/oauth2/v1/token") // (9)
+                    .build();
+            // @formatter:on
+        }
+    
+      .. tabularcolumns:: |p{0.10\linewidth}|p{0.90\linewidth}|
+      .. list-table::
+        :header-rows: 1
+        :widths: 10 90
+        :class: longtable
+    
+        * - 項番
+          - 説明
+        * - | (1)
+          - | \ ``withRegistrationId``\ に、ClientRegistrationを一意に識別するBean IDを設定する。
+        * - | (2)
+          - | \ ``clientId``\ に、認可サーバに登録されたクライアントIDを設定する。
+        * - | (3)
+          - | \ ``clientSecret``\ に、認可サーバに登録されたクライアントの認可に用いるパスワードを設定する。
+        * - | (4)
+          - | \ ``authorizationGrantType``\ に、グラントタイプを設定する。認可コードグラントの場合\ ``AuthorizationGrantType.AUTHORIZATION_CODE``\ を指定する。
+        * - | (5)
+          - | \ ``redirectUri``\ 属性に、認可サーバが認可コード発行後にユーザエージェントからクライアントへリダイレクトさせるためのリダイレクトURIを設定する。このURIへリダイレクト後、Spring Securityは\ ``ClientAuthorizationRequiredException``\ を発生させたリクエストの再処理を行う。リダイレクトURIは認可サーバに登録されているリダイレクトURIと一致させる必要がある。
+            | 詳しくは\ `RFC6749#section-3.1.2 <https://datatracker.ietf.org/doc/html/rfc6749#section-3.1.2>`_\ を参照されたい。
+    
+            .. note::
+    
+              \ ``{baseUrl}``\ はURIテンプレート変数であり、\ ``{baseScheme}://{baseHost}{basePort}{basePath}``\ のことを指す。
+    
+              URIテンプレートを使用することで、展開時に\ ``X-Forwarded-*``\ ヘッダが使用される。これにより、User agentとクライアントがProxy Serverを経由して通信している場合であっても、クライアント側のURIを取得することが可能となる。
+    
+              詳しくは、\ `Initiating the Authorization Request <https://docs.spring.io/spring-security/reference/reactive/oauth2/client/authorization-grants.html#_initiating_the_authorization_request>`_\ を参照されたい。
+                
+            .. note::
+    
+              元のリクエストが再処理されるのは、CSRF対策が無効またはGETメソッドで処理された場合であり、CSRF対策が有効（ブランクのデフォルト設定）かつGETメソッド以外で処理された場合は、リダイレクトURIにリダイレクトされた後元のリクエストが再処理されずにリダイレクトURIでそのまま処理される。
+                
+              リダイレクトURIに対応したControllerを作成する場合、そのままでは元のリクエスト情報は取得できない。必要に応じて元のリクエストをセッションに保存する等の対処が必要があるため、注意すること。本ガイドラインでは、具体的な対処方法の説明については割愛する。
+                
+              CSRF対策を無効化する場合、URLパターンを設けるなどセキュリティリスクが小さくなるように実装すること。なお、元のリクエストパスにはGETメソッドでリダイレクトするため、ControllerはGETメソッドを許容するようにする必要がある。
+                
+              CSRF対策については\ :ref:`SpringSecurityCsrf`\ を参照されたい。
+                
+        * - | (6)
+          - | \ ``scope``\ には、認可リクエストとしてクライアントにリクエストするスコープをカンマ区切りで設定する。
           
-          問い合わせの対象となるスコープは、認可サーバに事前に登録されているスコープと、クライアントが認可リクエスト時にリクエストパラメータで指定したスコープの積となる。
-            
-          例として、認可サーバでREADとCREATEとDELETEのスコープが割り当てられているクライアントに対してREADとCREATEのスコープをリクエストパラメータで指定した場合は、（READ,CREATE,DELETE）と（READ,CREATE）の積であるスコープ（READ,CREATE）が割り当てられる。
+            .. note::
+              
+              問い合わせの対象となるスコープは、認可サーバに事前に登録されているスコープと、クライアントが認可リクエスト時にリクエストパラメータで指定したスコープの積となる。
+                
+              例として、認可サーバでREADとCREATEとDELETEのスコープが割り当てられているクライアントに対してREADとCREATEのスコープをリクエストパラメータで指定した場合は、（READ,CREATE,DELETE）と（READ,CREATE）の積であるスコープ（READ,CREATE）が割り当てられる。
+              
+              認可サーバでクライアントに割り当てられていないスコープをリクエストパラメータで指定した場合はエラーとなり、アクセスが拒否される。
+                 
+        * - | (8)
+          - | \ ``authorizationUri``\ 属性には、認可サーバーの認可エンドポイントURIを設定する。クライアントが認可前の場合は当認可エンドポイントURIに対しリクエストを送信する。
+            | 認可エンドポイントURIは使用する認可サーバにより異なるため、認可サーバのアーキテクチャ仕様を確認されたい。
+        * - | (9)
+          - | \ ``tokenUri``\ 属性には、認可サーバーのトークンエンドポイントURIを設定する。アクセストークンの取得やアクセストークンのリフレッシュを行う際に当トークンエンドポイントURIに対しリクエストを送信する。
+            | トークンエンドポイントURIは使用する認可サーバにより異なるため、認可サーバのアーキテクチャ仕様を確認されたい。
+
+  .. group-tab:: XML Config
+
+    * \ ``oauth2-client.xml``\
+    
+      .. code-block:: xml
+    
+        <sec:client-registrations>
+            <sec:client-registration
+                registration-id="okta-client-id"
+                client-id="readClient"
+                client-secret="okta-client-secret"
+                authorization-grant-type="authorization_code"
+                redirect-uri="{baseUrl}/authorized/okta"
+                scope="READ,CREATE"
+                provider-id="okta" /> <!-- (1)～(7) -->
+            <sec:provider provider-id="okta"
+                authorization-uri="https://dev-1234.oktapreview.com/oauth2/v1/authorize"
+                token-uri="https://dev-1234.oktapreview.com/oauth2/v1/token"
+                /> <!-- (8)～(9) -->
+        </sec:client-registrations>
+    
+      .. tabularcolumns:: |p{0.10\linewidth}|p{0.90\linewidth}|
+      .. list-table::
+        :header-rows: 1
+        :widths: 10 90
+        :class: longtable
+    
+        * - 項番
+          - 説明
+        * - | (1)
+          - | \ ``registration-id``\ 属性に、ClientRegistrationを一意に識別するBean IDを設定する。
+        * - | (2)
+          - | \ ``client-id``\ 属性に、認可サーバに登録されたクライアントIDを設定する。
+        * - | (3)
+          - | \ ``client-secret``\ 属性に、認可サーバに登録されたクライアントの認可に用いるパスワードを設定する。
+        * - | (4)
+          - | \ ``authorization-grant-type``\ 属性に、グラントタイプを設定する。認可コードグラントの場合\ ``authorization_code``\ を指定する。
+        * - | (5)
+          - | \ ``redirect-uri``\ 属性に、認可サーバが認可コード発行後にユーザエージェントからクライアントへリダイレクトさせるためのリダイレクトURIを設定する。このURIへリダイレクト後、Spring Securityは\ ``ClientAuthorizationRequiredException``\ を発生させたリクエストの再処理を行う。リダイレクトURIは認可サーバに登録されているリダイレクトURIと一致させる必要がある。
+            | 詳しくは\ `RFC6749#section-3.1.2 <https://datatracker.ietf.org/doc/html/rfc6749#section-3.1.2>`_\ を参照されたい。
+    
+            .. note::
+    
+              \ ``{baseUrl}``\ はURIテンプレート変数であり、\ ``{baseScheme}://{baseHost}{basePort}{basePath}``\ のことを指す。
+    
+              URIテンプレートを使用することで、展開時に\ ``X-Forwarded-*``\ ヘッダが使用される。これにより、User agentとクライアントがProxy Serverを経由して通信している場合であっても、クライアント側のURIを取得することが可能となる。
+    
+              詳しくは、\ `Initiating the Authorization Request <https://docs.spring.io/spring-security/reference/reactive/oauth2/client/authorization-grants.html#_initiating_the_authorization_request>`_\ を参照されたい。
+                
+            .. note::
+    
+              元のリクエストが再処理されるのは、CSRF対策が無効またはGETメソッドで処理された場合であり、CSRF対策が有効（ブランクのデフォルト設定）かつGETメソッド以外で処理された場合は、リダイレクトURIにリダイレクトされた後元のリクエストが再処理されずにリダイレクトURIでそのまま処理される。
+                
+              リダイレクトURIに対応したControllerを作成する場合、そのままでは元のリクエスト情報は取得できない。必要に応じて元のリクエストをセッションに保存する等の対処が必要があるため、注意すること。本ガイドラインでは、具体的な対処方法の説明については割愛する。
+                
+              CSRF対策を無効化する場合、URLパターンを設けるなどセキュリティリスクが小さくなるように実装すること。なお、元のリクエストパスにはGETメソッドでリダイレクトするため、ControllerはGETメソッドを許容するようにする必要がある。
+                
+              CSRF対策については\ :ref:`SpringSecurityCsrf`\ を参照されたい。
+                
+        * - | (6)
+          - | \ ``scope``\ 属性には、認可リクエストとしてクライアントにリクエストするスコープをカンマ区切りで設定する。
           
-          認可サーバでクライアントに割り当てられていないスコープをリクエストパラメータで指定した場合はエラーとなり、アクセスが拒否される。
-             
-    * - | (7)
-      - | \ ``provider-id``\ 属性には、エンドポイントを設定したプロバイダのIDを設定する。
-    * - | (8)
-      - | \ ``authorization-uri``\ 属性には、認可サーバーの認可エンドポイントURIを設定する。クライアントが認可前の場合は当認可エンドポイントURIに対しリクエストを送信する。
-        | 認可エンドポイントURIは使用する認可サーバにより異なるため、認可サーバのアーキテクチャ仕様を確認されたい。
-    * - | (9)
-      - | \ ``token-uri``\ 属性には、認可サーバーのトークンエンドポイントURIを設定する。アクセストークンの取得やアクセストークンのリフレッシュを行う際に当トークンエンドポイントURIに対しリクエストを送信する。
-        | トークンエンドポイントURIは使用する認可サーバにより異なるため、認可サーバのアーキテクチャ仕様を確認されたい。
+            .. note::
+              
+              問い合わせの対象となるスコープは、認可サーバに事前に登録されているスコープと、クライアントが認可リクエスト時にリクエストパラメータで指定したスコープの積となる。
+                
+              例として、認可サーバでREADとCREATEとDELETEのスコープが割り当てられているクライアントに対してREADとCREATEのスコープをリクエストパラメータで指定した場合は、（READ,CREATE,DELETE）と（READ,CREATE）の積であるスコープ（READ,CREATE）が割り当てられる。
+              
+              認可サーバでクライアントに割り当てられていないスコープをリクエストパラメータで指定した場合はエラーとなり、アクセスが拒否される。
+                 
+        * - | (7)
+          - | \ ``provider-id``\ 属性には、エンドポイントを設定したプロバイダのIDを設定する。
+        * - | (8)
+          - | \ ``authorization-uri``\ 属性には、認可サーバーの認可エンドポイントURIを設定する。クライアントが認可前の場合は当認可エンドポイントURIに対しリクエストを送信する。
+            | 認可エンドポイントURIは使用する認可サーバにより異なるため、認可サーバのアーキテクチャ仕様を確認されたい。
+        * - | (9)
+          - | \ ``token-uri``\ 属性には、認可サーバーのトークンエンドポイントURIを設定する。アクセストークンの取得やアクセストークンのリフレッシュを行う際に当トークンエンドポイントURIに対しリクエストを送信する。
+            | トークンエンドポイントURIは使用する認可サーバにより異なるため、認可サーバのアーキテクチャ仕様を確認されたい。
 
 |
 
@@ -1145,15 +1426,15 @@ OAuth2AuthorizedClientManagerの実装
 ''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
 
 | \ ``OAuth2AuthorizedClient``\ を管理するための、\ ``OAuth2AuthorizedClientManager``\ をBean定義する。
-| \ ``OAuth2AuthorizedClientManager``\ が管理する内容及び処理については\ `OAuth2AuthorizedClientManager/OAuth2AuthorizedClientProvider <https://docs.spring.io/spring-security/reference/6.0.1/servlet/oauth2/client/core.html#oauth2Client-authorized-manager-provider>`_\ を参照されたい。
+| \ ``OAuth2AuthorizedClientManager``\ が管理する内容及び処理については\ `OAuth2AuthorizedClientManager/OAuth2AuthorizedClientProvider <https://docs.spring.io/spring-security/reference/servlet/oauth2/client/core.html#oauth2Client-authorized-manager-provider>`_\ を参照されたい。
 
 以下にJavaConfigクラスを用いたBean定義の実装例を示す。
 
 .. note::
 
-  本ガイドラインのBean定義は基本的にXML-based configurationを用いているが、\ ``OAuth2AuthorizedClientManager``\ のBean定義に関してはJava-based configurationを用いている。
+  \ ``OAuth2AuthorizedClientManager``\ のBean定義に関してはJava-based configurationを用いている。
   
-  \ ``OAuth2AuthorizedClientManager``\ に設定する\ ``OAuth2AuthorizedClientProvider``\ がBuilderパターンを使用していることに加え、Spring Securityが\ ``OAuth2AuthorizedClientManager``\ に対するXML DLSを提供していないため、\ `OAuth2AuthorizedClientManager/OAuth2AuthorizedClientProvider <https://docs.spring.io/spring-security/reference/6.0.1/servlet/oauth2/client/core.html#oauth2Client-authorized-manager-provider>`_\ の実装例に従いJava-based configurationで実装している。Java-based configurationで定義するクラスは、コンポーネントスキャンが有効となるパッケージ配下に配置されたい。詳しくは\ `Java-based configuration <https://docs.spring.io/spring-framework/docs/6.0.3/reference/html/core.html#beans-java>`_\ を参照されたい。
+  \ ``OAuth2AuthorizedClientManager``\ に設定する\ ``OAuth2AuthorizedClientProvider``\ がBuilderパターンを使用していることに加え、Spring Securityが\ ``OAuth2AuthorizedClientManager``\ に対するXML DLSを提供していないため、\ `OAuth2AuthorizedClientManager/OAuth2AuthorizedClientProvider <https://docs.spring.io/spring-security/reference/servlet/oauth2/client/core.html#oauth2Client-authorized-manager-provider>`_\ の実装例に従いJava-based configurationで実装している。Java-based configurationで定義するクラスは、コンポーネントスキャンが有効となるパッケージ配下に配置されたい。詳しくは\ `Java-based configuration <https://docs.spring.io/spring-framework/docs/6.1.3/reference/html/core.html#beans-java>`_\ を参照されたい。
 
 * \ ``SecurityConfig.java``\
 
@@ -1354,30 +1635,76 @@ OAuth2AuthorizedClientManagerの実装
 
 | InterceptorをRestTemplateに設定する。
 
-* \ ``applicationContext.xml``\
+.. tabs::
+  .. group-tab:: Java Config
 
-  .. code:: xml
+    * \ ``ApplicationContextConfig.java``\
+    
+      .. code:: java
 
-    <bean id="restTemplate" class="org.springframework.web.client.RestTemplate">
-        <!-- omitted -->
-        <property name="interceptors">
-            <!-- (1) -->
-            <bean class="com.example.todo.app.interceptor.RestTemplateAccessTokenInterceptor">
-                <property name="registrationId" value="${registrationId}" />
-            </bean>
-        </property>
-    </bean>
+        @Value("${registrationId}")
+        public String registrationId;
 
-  .. tabularcolumns:: |p{0.10\linewidth}|p{0.90\linewidth}|
-  .. list-table::
-    :header-rows: 1
-    :widths: 10 90
-    :class: longtable
+        @Bean("restTemplate")
+        public RestTemplate restTemplate() {
+            RestTemplate bean = new RestTemplate();
+            // omitted
+            bean.setInterceptors(tokenInterceptors()); // (1)
+            return bean;
+        }
+        
+        // (1)
+        @Bean
+        public List<ClientHttpRequestInterceptor> tokenInterceptors() {
+            return new ArrayList<ClientHttpRequestInterceptor>(Arrays.asList(
+                    tokenInterceptor()));
+        }
+    
+        // (1)
+        @Bean
+        public ClientHttpRequestInterceptor tokenInterceptor() {
+            RestTemplateAccessTokenInterceptor bean = new RestTemplateAccessTokenInterceptor();
+            bean.setRegistrationId(registrationId);
+            return bean;
+        }
+    
+      .. tabularcolumns:: |p{0.10\linewidth}|p{0.90\linewidth}|
+      .. list-table::
+        :header-rows: 1
+        :widths: 10 90
+        :class: longtable
+    
+        * - 項番
+          - 説明
+        * - | (1)
+          - | \ ``RestTemplateAccessTokenInterceptor``\ をInterceptorとして設定する。
 
-    * - 項番
-      - 説明
-    * - | (1)
-      - | \ ``RestTemplateAccessTokenInterceptor``\ をInterceptorとして設定する。
+  .. group-tab:: XML Config
+
+    * \ ``applicationContext.xml``\
+    
+      .. code:: xml
+    
+        <bean id="restTemplate" class="org.springframework.web.client.RestTemplate">
+            <!-- omitted -->
+            <property name="interceptors">
+                <!-- (1) -->
+                <bean class="com.example.todo.app.interceptor.RestTemplateAccessTokenInterceptor">
+                    <property name="registrationId" value="${registrationId}" />
+                </bean>
+            </property>
+        </bean>
+    
+      .. tabularcolumns:: |p{0.10\linewidth}|p{0.90\linewidth}|
+      .. list-table::
+        :header-rows: 1
+        :widths: 10 90
+        :class: longtable
+    
+        * - 項番
+          - 説明
+        * - | (1)
+          - | \ ``RestTemplateAccessTokenInterceptor``\ をInterceptorとして設定する。
 
 |
 

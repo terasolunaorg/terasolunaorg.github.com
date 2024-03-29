@@ -9,6 +9,8 @@
   :depth: 3
   :local:
 
+|
+
 本ガイドラインでは、アプリケーションを、次の3レイヤに分割する。
 
 * アプリケーション層
@@ -36,8 +38,9 @@
 レイヤの定義
 ================================================================================
 
-入力から出力までのデータの流れは、アプリケーション層→ドメイン層→インフラストラクチャ層であるため、
-この順に説明する。
+入力から出力までのデータの流れは、アプリケーション層→ドメイン層→インフラストラクチャ層であるため、この順に説明する。
+
+|
 
 .. _LayerOfApplication:
 
@@ -71,8 +74,7 @@ Spring MVCでは、\ ``@Controller``\ アノテーションが付与されてい
 
 .. note::
 
-  クライアントとの入出力データをセッションに格納する場合は、
-  セッションに格納するデータのライフサイクルを制御する役割も担う。
+  クライアントとの入出力データをセッションに格納する場合は、セッションに格納するデータのライフサイクルを制御する役割も担う。
 
 |
 
@@ -111,8 +113,7 @@ Spring MVCでは、Formオブジェクトは、リクエストパラメータを
   これらの変換処理をController内で行うと、ソースコードが長くなり、
   本来のControllerの処理(画面遷移など)の見通しが、悪くなりがちである。
 
-  変換処理のコードが多くなる場合は、以下のいずれか又は両方の対策を行い、
-  Controller内のソースコードをシンプルな状態に保つこと推奨する。
+  変換処理のコードが多くなる場合は、以下のいずれか又は両方の対策を行い、Controller内のソースコードをシンプルな状態に保つこと推奨する。
 
   * Helperクラスを作成して変換処理を委譲する
   * \ :doc:`MapStruct <../ArchitectureInDetail/GeneralFuncDetail/BeanMapping>`\ を使用する
@@ -218,13 +219,14 @@ Service
 
 データストア(RDBMSや、NoSQLなどのデータを格納する場所)への永続化や、メッセージの送信などを担う。
 
+|
+
 RepositoryImpl
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 RepositoryImplは、Repositoryインタフェースの実装として、Domain Objectのライフサイクル管理を行う処理を提供する。
 
-RepositoryImplの実装はRepositoryインタフェースによって隠蔽されるため、
-ドメイン層のコンポーネント(Serviceなど)では、どのようにデータアクセスされているか意識しなくて済む。
+RepositoryImplの実装はRepositoryインタフェースによって隠蔽されるため、ドメイン層のコンポーネント(Serviceなど)では、どのようにデータアクセスされているか意識しなくて済む。
 
 要件によっては、この処理もトランザクション境界となりうる。
 
@@ -275,7 +277,7 @@ Integration System Connectorは、Repositoryインタフェースの実装に用
 
 本ガイドラインでは、実装技術として、
 
-* アプリケーション層にSpring MVC
+* アプリケーション層にSpring MVC, JSP/Thymeleaf
 * インフラストラクチャ層にMyBatis, Spring Data JPA
 
 | を使用することを想定しているが、本質的には、実装技術が変わっても、それぞれの層で違いが吸収され、ドメイン層には影響を与えない。
@@ -339,7 +341,7 @@ Repositoryを使用する時の処理の流れ
 各コンポーネント間の呼び出し可否を、以下にまとめる。
 
 .. tabularcolumns:: |p{0.20\linewidth}|p{0.20\linewidth}|p{0.20\linewidth}|p{0.20\linewidth}|p{0.20\linewidth}|
-.. list-table:: **コンポーネント間の呼び出し可否**
+.. list-table:: \ **コンポーネント間の呼び出し可否**\
   :header-rows: 1
   :stub-columns: 1
   :widths: 20 20 20 20 20
@@ -376,7 +378,6 @@ Repositoryを使用する時の処理の流れ
          :align: center
     - .. image:: images_ApplicationLayering/tick.png
          :align: center
-
 
 | 注意するべきことは、\ **基本的にServiceからServiceの呼び出しは、禁止している**\ 点である。
 
@@ -477,7 +478,7 @@ Repositoryを使用しない時の処理の流れ
 
 .. tip::
 
-  マルチプロジェクト構成の例として、\ `サンプルアプリケーション <https://github.com/terasolunaorg/terasoluna-tourreservation-mybatis3/tree/5.8.1.RELEASE>`_\ や\ `共通ライブラリのテストアプリケーション <https://github.com/terasolunaorg/terasoluna-gfw-functionaltest/tree/5.8.1.RELEASE>`_\ を参照されたい。
+  マルチプロジェクト構成の例として、\ `サンプルアプリケーション <https://github.com/terasolunaorg/atrs/tree/1.10.0.RELEASE>`_\ や\ `共通ライブラリのテストアプリケーション <https://github.com/terasolunaorg/terasoluna-gfw-functionaltest/tree/5.9.0.RELEASE>`_\ を参照されたい。
 
 |
 
@@ -486,71 +487,141 @@ Repositoryを使用しない時の処理の流れ
 
 [projectName]-domainのプロジェクト推奨構成を、以下に示す。
 
-.. code-block:: console
+.. tabs::
+  .. group-tab:: Java Config
 
-  [projectName]-domain
-    └src
-        └main
-            ├java
-            │  └com
-            │      └example
-            │          └domain ...(1)
-            │              ├model ...(2)
-            │              │  ├Xxx.java
-            │              │  ├Yyy.java
-            │              │  └Zzz.java
-            │              ├repository ...(3)
-            │              │  ├xxx
-            │              │  │  └XxxRepository.java
-            │              │  ├yyy
-            │              │  │  └YyyRepository.java
-            │              │  └zzz
-            │              │      ├ZzzRepository.java
-            │              │      └ZzzRepositoryImpl.java
-            │              └service ...(4)
-            │                  ├aaa
-            │                  │  ├AaaService.java
-            │                  │  └AaaServiceImpl.java
-            │                  └bbb
-            │                      ├BbbService.java
-            │                      └BbbServiceImpl.java
-            └resources
-                └META-INF
-                    └spring
-                        ├[projectName]-codelist.xml ...(5)
-                        ├[projectName]-domain.xml ...(6)
-                        └[projectName]-infra.xml ...(7)
+    .. code-block:: console
+    
+      [projectName]-domain
+        └src
+            └main
+                └java
+                    └com
+                        └example
+                            ├domain ...(1)
+                            │  ├model ...(2)
+                            │  │  ├Xxx.java
+                            │  │  ├Yyy.java
+                            │  │  └Zzz.java
+                            │  ├repository ...(3)
+                            │  │  ├xxx
+                            │  │  │  └XxxRepository.java
+                            │  │  ├yyy
+                            │  │  │  └YyyRepository.java
+                            │  │  └zzz
+                            │  │      ├ZzzRepository.java
+                            │  │      └ZzzRepositoryImpl.java
+                            │  └service ...(4)
+                            │      ├aaa
+                            │      │  ├AaaService.java
+                            │      │  └AaaServiceImpl.java
+                            │      └bbb
+                            │          ├BbbService.java
+                            │          └BbbServiceImpl.java
+                            └config
+                                └app
+                                   ├[projectName]CodeListConfig.java ...(5)
+                                   ├[projectName]DomainConfig.java ...(6)
+                                   └[projectName]InfraConfig.java ...(7)
+    
+    .. tabularcolumns:: |p{0.10\linewidth}|p{0.90\linewidth}|
+    .. list-table::
+      :header-rows: 1
+      :widths: 10 90
+    
+      * - 項番
+        - 説明
+      * - | (1)
+        - ドメイン層の構成要素を格納するパッケージ。
+      * - | (2)
+        - Domain Objectを格納するパッケージ。
+      * - | (3)
+        - | リポジトリを格納するパッケージ。
+          |
+          | エンティティごとにパッケージを作成する。
+          | 関連するエンティティがあれば、主となるエンティティのパッケージに、従となるエンティティ(OrderとOrderLineの関係であればOrderLine)のRepositoryも配置する。
+          | また、検索条件などを保持するDTOなどが必要な場合は、このパッケージに配置する。
+          |
+          | RepositoryImplは、インフラストラクチャ層に属するが、通常、このプロジェクトに含めても問題ない。
+          | 異なるデータストアを使うなど、複数の永続化先があり、実装を隠蔽したい場合は、別プロジェクト(またはパッケージ)に、RepositoryImplを実装するようにする。
+      * - | (4)
+        - サービスを格納するパッケージ。
+    
+          業務(またはエンティティ)ごとに、パッケージインタフェースと実装を、同じ階層に配置する。入出力クラスが必要な場合は、このパッケージに配置する。
+      * - | (5)
+        - コードリストのBean定義を行う。
+      * - | (6)
+        - ドメイン層に関するBean定義を行う。
+      * - | (7)
+        - インフラストラクチャ層に関するBean定義を行う。
 
-.. tabularcolumns:: |p{0.10\linewidth}|p{0.90\linewidth}|
-.. list-table::
-  :header-rows: 1
-  :widths: 10 90
+  .. group-tab:: XML Config
 
-  * - 項番
-    - 説明
-  * - | (1)
-    - ドメイン層の構成要素を格納するパッケージ。
-  * - | (2)
-    - Domain Objectを格納するパッケージ。
-  * - | (3)
-    - | リポジトリを格納するパッケージ。
-      |
-      | エンティティごとにパッケージを作成する。
-      | 関連するエンティティがあれば、主となるエンティティのパッケージに、従となるエンティティ(OrderとOrderLineの関係であればOrderLine)のRepositoryも配置する。
-      | また、検索条件などを保持するDTOなどが必要な場合は、このパッケージに配置する。
-      |
-      | RepositoryImplは、インフラストラクチャ層に属するが、通常、このプロジェクトに含めても問題ない。
-      | 異なるデータストアを使うなど、複数の永続化先があり、実装を隠蔽したい場合は、別プロジェクト(またはパッケージ)に、RepositoryImplを実装するようにする。
-  * - | (4)
-    - サービスを格納するパッケージ。
-
-      業務(またはエンティティ)ごとに、パッケージインタフェースと実装を、同じ階層に配置する。入出力クラスが必要な場合は、このパッケージに配置する。
-  * - | (5)
-    - コードリストのBean定義を行う。
-  * - | (6)
-    - ドメイン層に関するBean定義を行う。
-  * - | (7)
-    - インフラストラクチャ層に関するBean定義を行う。
+    .. code-block:: console
+    
+      [projectName]-domain
+        └src
+            └main
+                ├java
+                │  └com
+                │      └example
+                │          └domain ...(1)
+                │              ├model ...(2)
+                │              │  ├Xxx.java
+                │              │  ├Yyy.java
+                │              │  └Zzz.java
+                │              ├repository ...(3)
+                │              │  ├xxx
+                │              │  │  └XxxRepository.java
+                │              │  ├yyy
+                │              │  │  └YyyRepository.java
+                │              │  └zzz
+                │              │      ├ZzzRepository.java
+                │              │      └ZzzRepositoryImpl.java
+                │              └service ...(4)
+                │                  ├aaa
+                │                  │  ├AaaService.java
+                │                  │  └AaaServiceImpl.java
+                │                  └bbb
+                │                      ├BbbService.java
+                │                      └BbbServiceImpl.java
+                └resources
+                    └META-INF
+                        └spring
+                            ├[projectName]-codelist.xml ...(5)
+                            ├[projectName]-domain.xml ...(6)
+                            └[projectName]-infra.xml ...(7)
+    
+    .. tabularcolumns:: |p{0.10\linewidth}|p{0.90\linewidth}|
+    .. list-table::
+      :header-rows: 1
+      :widths: 10 90
+    
+      * - 項番
+        - 説明
+      * - | (1)
+        - ドメイン層の構成要素を格納するパッケージ。
+      * - | (2)
+        - Domain Objectを格納するパッケージ。
+      * - | (3)
+        - | リポジトリを格納するパッケージ。
+          |
+          | エンティティごとにパッケージを作成する。
+          | 関連するエンティティがあれば、主となるエンティティのパッケージに、従となるエンティティ(OrderとOrderLineの関係であればOrderLine)のRepositoryも配置する。
+          | また、検索条件などを保持するDTOなどが必要な場合は、このパッケージに配置する。
+          |
+          | RepositoryImplは、インフラストラクチャ層に属するが、通常、このプロジェクトに含めても問題ない。
+          | 異なるデータストアを使うなど、複数の永続化先があり、実装を隠蔽したい場合は、別プロジェクト(またはパッケージ)に、RepositoryImplを実装するようにする。
+      * - | (4)
+        - サービスを格納するパッケージ。
+    
+          業務(またはエンティティ)ごとに、パッケージインタフェースと実装を、同じ階層に配置する。入出力クラスが必要な場合は、このパッケージに配置する。
+      * - | (5)
+        - コードリストのBean定義を行う。
+      * - | (6)
+        - ドメイン層に関するBean定義を行う。
+      * - | (7)
+        - インフラストラクチャ層に関するBean定義を行う。
 
 |
 
@@ -559,69 +630,286 @@ Repositoryを使用しない時の処理の流れ
 
 [projectName]-webのプロジェクト推奨構成を、以下に示す。
 
-.. code-block:: console
+.. tabs::
+  .. group-tab:: Java Config
 
-  [projectName]-web
-    └src
-        └main
-            ├java
-            │  └com
-            │      └example
-            │          └app ...(1)
-            │              ├abc
-            │              │  ├AbcController.java
-            │              │  ├AbcForm.java
-            │              │  └AbcHelper.java
-            │              └def
-            │                  ├DefController.java
-            │                  ├DefForm.java
-            │                  └DefOutput.java
-            ├resources
-            │  ├META-INF
-            │  │  └spring
-            │  │      ├applicationContext.xml ...(2)
-            │  │      ├application.properties ...(3)
-            │  │      ├spring-mvc.xml ...(4)
-            │  │      └spring-security.xml ...(5)
-            │  └i18n
-            │      └application-messages.properties ...(6)
-            └webapp
-                ├resources ...(7)
-                └WEB-INF
-                    ├views ...(8)
-                    │  ├abc
-                    │  │ ├list.jsp
-                    │  │ └createForm.jsp
-                    │  └def
-                    │     ├list.jsp
-                    │     └createForm.jsp
-                    └web.xml ...(9)
+    .. tabs::
+      .. group-tab:: JSP
+    
+        .. code-block:: console
+        
+          [projectName]-web
+            └src
+                └main
+                    ├java
+                    │  └com
+                    │      └example
+                    │          ├app ...(1)
+                    │          │  ├abc
+                    │          │  │  ├AbcController.java
+                    │          │  │  ├AbcForm.java
+                    │          │  │  └AbcHelper.java
+                    │          │  └def
+                    │          │      ├DefController.java
+                    │          │      ├DefForm.java
+                    │          │      └DefOutput.java
+                    │          └config
+                    │              ├app
+                    │              │  └ApplicationContextConfig.java ...(2)
+                    │              └web
+                    │                 ├SpringMvcConfig.java ...(4)
+                    │                 └SpringSecurityConfig.java ...(5)
+                    ├resources
+                    │  ├META-INF
+                    │  │  └spring
+                    │  │      └application.properties ...(3)
+                    │  ├i18n
+                    │  │   └application-messages.properties ...(6)
+                    │  └ValidationMessages.properties
+                    └webapp
+                        ├resources ...(7)
+                        └WEB-INF
+                            ├views ...(8)
+                            │  ├abc
+                            │  │ ├list.jsp
+                            │  │ └createForm.jsp
+                            │  └def
+                            │     ├list.jsp
+                            │     └createForm.jsp
+                            └web.xml ...(9)
+        
+        .. tabularcolumns:: |p{0.10\linewidth}|p{0.90\linewidth}|
+        .. list-table::
+          :header-rows: 1
+          :widths: 10 90
+        
+          * - 項番
+            - 説明
+          * - | (1)
+            - アプリケーション層の構成要素を格納するパッケージ。
+          * - | (2)
+            - アプリケーション全体に関するBean定義を行う。
+          * - | (3)
+            - アプリケーションで使用するプロパティを定義する。
+          * - | (4)
+            - Spring MVCの設定を行うBean定義を行う。
+          * - | (5)
+            - SpringSecurityの設定を行うBean定義を行う。
+          * - | (6)
+            - 画面表示用のメッセージ(国際化対応)定義を行う。
+          * - | (7)
+            - 静的リソース(css、js、画像など)を格納する。
+          * - | (8)
+            - View(jsp)を格納する。
+          * - | (9)
+            - Servletのデプロイメント定義を行う。
+    
+      .. group-tab:: Thymeleaf
+    
+        .. code-block:: console
+        
+          [projectName]-web
+            └src
+                └main
+                    ├java
+                    │  └com
+                    │      └example
+                    │          ├app ...(1)
+                    │          │  ├abc
+                    │          │  │  ├AbcController.java
+                    │          │  │  ├AbcForm.java
+                    │          │  │  └AbcHelper.java
+                    │          │  └def
+                    │          │      ├DefController.java
+                    │          │      ├DefForm.java
+                    │          │      └DefOutput.java
+                    │          └config
+                    │              ├app
+                    │              │  └ApplicationContextConfig.java ...(2)
+                    │              └web
+                    │                 ├SpringMvcConfig.java ...(4)
+                    │                 └SpringSecurityConfig.java ...(5)
+                    ├resources
+                    │  ├META-INF
+                    │  │  └spring
+                    │  │      └application.properties ...(3)
+                    │  ├i18n
+                    │  │   └application-messages.properties ...(6)
+                    │  └ValidationMessages.properties
+                    └webapp
+                        ├resources ...(7)
+                        └WEB-INF
+                            ├views ...(8)
+                            │  ├abc
+                            │  │ ├list.html
+                            │  │ └createForm.html
+                            │  └def
+                            │     ├list.html
+                            │     └createForm.html
+                            └web.xml ...(9)
+        
+        .. tabularcolumns:: |p{0.10\linewidth}|p{0.90\linewidth}|
+        .. list-table::
+          :header-rows: 1
+          :widths: 10 90
+        
+          * - 項番
+            - 説明
+          * - | (1)
+            - アプリケーション層の構成要素を格納するパッケージ。
+          * - | (2)
+            - アプリケーション全体に関するBean定義を行う。
+          * - | (3)
+            - アプリケーションで使用するプロパティを定義する。
+          * - | (4)
+            - Spring MVCの設定を行うBean定義を行う。
+          * - | (5)
+            - SpringSecurityの設定を行うBean定義を行う。
+          * - | (6)
+            - 画面表示用のメッセージ(国際化対応)定義を行う。
+          * - | (7)
+            - 静的リソース(css、js、画像など)を格納する。
+          * - | (8)
+            - View(ThymeleafのテンプレートHTML)を格納する。
+          * - | (9)
+            - Servletのデプロイメント定義を行う。
 
-.. tabularcolumns:: |p{0.10\linewidth}|p{0.90\linewidth}|
-.. list-table::
-  :header-rows: 1
-  :widths: 10 90
+  .. group-tab:: XML Config
 
-  * - 項番
-    - 説明
-  * - | (1)
-    - アプリケーション層の構成要素を格納するパッケージ。
-  * - | (2)
-    - アプリケーション全体に関するBean定義を行う。
-  * - | (3)
-    - アプリケーションで使用するプロパティを定義する。
-  * - | (4)
-    - Spring MVCの設定を行うBean定義を行う。
-  * - | (5)
-    - SpringSecurityの設定を行うBean定義を行う。
-  * - | (6)
-    - 画面表示用のメッセージ(国際化対応)定義を行う。
-  * - | (7)
-    - 静的リソース(css、js、画像など)を格納する。
-  * - | (8)
-    - View(jsp)を格納する。
-  * - | (9)
-    - Servletのデプロイメント定義を行う。
+    .. tabs::
+      .. group-tab:: JSP
+    
+        .. code-block:: console
+        
+          [projectName]-web
+            └src
+                └main
+                    ├java
+                    │  └com
+                    │      └example
+                    │          └app ...(1)
+                    │              ├abc
+                    │              │  ├AbcController.java
+                    │              │  ├AbcForm.java
+                    │              │  └AbcHelper.java
+                    │              └def
+                    │                  ├DefController.java
+                    │                  ├DefForm.java
+                    │                  └DefOutput.java
+                    ├resources
+                    │  ├META-INF
+                    │  │  └spring
+                    │  │      ├applicationContext.xml ...(2)
+                    │  │      ├application.properties ...(3)
+                    │  │      ├spring-mvc.xml ...(4)
+                    │  │      └spring-security.xml ...(5)
+                    │  ├i18n
+                    │  │   └application-messages.properties ...(6)
+                    │  └ValidationMessages.properties
+                    └webapp
+                        ├resources ...(7)
+                        └WEB-INF
+                            ├views ...(8)
+                            │  ├abc
+                            │  │ ├list.jsp
+                            │  │ └createForm.jsp
+                            │  └def
+                            │     ├list.jsp
+                            │     └createForm.jsp
+                            └web.xml ...(9)
+        
+        .. tabularcolumns:: |p{0.10\linewidth}|p{0.90\linewidth}|
+        .. list-table::
+          :header-rows: 1
+          :widths: 10 90
+        
+          * - 項番
+            - 説明
+          * - | (1)
+            - アプリケーション層の構成要素を格納するパッケージ。
+          * - | (2)
+            - アプリケーション全体に関するBean定義を行う。
+          * - | (3)
+            - アプリケーションで使用するプロパティを定義する。
+          * - | (4)
+            - Spring MVCの設定を行うBean定義を行う。
+          * - | (5)
+            - SpringSecurityの設定を行うBean定義を行う。
+          * - | (6)
+            - 画面表示用のメッセージ(国際化対応)定義を行う。
+          * - | (7)
+            - 静的リソース(css、js、画像など)を格納する。
+          * - | (8)
+            - View(jsp)を格納する。
+          * - | (9)
+            - Servletのデプロイメント定義を行う。
+    
+      .. group-tab:: Thymeleaf
+    
+        .. code-block:: console
+        
+          [projectName]-web
+            └src
+                └main
+                    ├java
+                    │  └com
+                    │      └example
+                    │          └app ...(1)
+                    │              ├abc
+                    │              │  ├AbcController.java
+                    │              │  ├AbcForm.java
+                    │              │  └AbcHelper.java
+                    │              └def
+                    │                  ├DefController.java
+                    │                  ├DefForm.java
+                    │                  └DefOutput.java
+                    ├resources
+                    │  ├META-INF
+                    │  │  └spring
+                    │  │      ├applicationContext.xml ...(2)
+                    │  │      ├application.properties ...(3)
+                    │  │      ├spring-mvc.xml ...(4)
+                    │  │      └spring-security.xml ...(5)
+                    │  ├i18n
+                    │  │   └application-messages.properties ...(6)
+                    │  └ValidationMessages.properties
+                    └webapp
+                        ├resources ...(7)
+                        └WEB-INF
+                            ├views ...(8)
+                            │  ├abc
+                            │  │ ├list.html
+                            │  │ └createForm.html
+                            │  └def
+                            │     ├list.html
+                            │     └createForm.html
+                            └web.xml ...(9)
+        
+        .. tabularcolumns:: |p{0.10\linewidth}|p{0.90\linewidth}|
+        .. list-table::
+          :header-rows: 1
+          :widths: 10 90
+        
+          * - 項番
+            - 説明
+          * - | (1)
+            - アプリケーション層の構成要素を格納するパッケージ。
+          * - | (2)
+            - アプリケーション全体に関するBean定義を行う。
+          * - | (3)
+            - アプリケーションで使用するプロパティを定義する。
+          * - | (4)
+            - Spring MVCの設定を行うBean定義を行う。
+          * - | (5)
+            - SpringSecurityの設定を行うBean定義を行う。
+          * - | (6)
+            - 画面表示用のメッセージ(国際化対応)定義を行う。
+          * - | (7)
+            - 静的リソース(css、js、画像など)を格納する。
+          * - | (8)
+            - View(ThymeleafのテンプレートHTML)を格納する。
+          * - | (9)
+            - Servletのデプロイメント定義を行う。
 
 |
 
@@ -630,46 +918,99 @@ Repositoryを使用しない時の処理の流れ
 
 [projectName]-envのプロジェクト推奨構成を、以下に示す。
 
-.. code-block:: console
+.. tabs::
+  .. group-tab:: Java Config
 
-  [projectName]-env
-    ├configs ...(1)
-    │   └[envName] ...(2)
-    │       └resources ...(3)
-    └src
-        └main
-            └resources ...(4)
-               ├META-INF
-               │  └spring
-               │      ├[projectName]-env.xml ...(5)
-               │      └[projectName]-infra.properties ...(6)
-               └logback.xml ...(7)
+    .. code-block:: console
+    
+      [projectName]-env
+        ├configs ...(1)
+        │   └[envName] ...(2)
+        │       ├java ...(3)
+        │       └resources ...(3)
+        └src
+            └main
+                ├java ...(4)
+                │   └com
+                │       └example
+                │           └config
+                │               └app
+                │                   └[projectName]EnvConfig.java ...(5)
+                │                
+                └resources ...(4)
+                   ├META-INF
+                   │  └spring
+                   │      └[projectName]-infra.properties ...(6)
+                   └logback.xml ...(7)
+    
+    .. tabularcolumns:: |p{0.10\linewidth}|p{0.90\linewidth}|
+    .. list-table::
+      :header-rows: 1
+      :widths: 10 90
+    
+      * - 項番
+        - 説明
+      * - | (1)
+        - 全環境の環境依存ファイルを管理するためのディレクトリ。
+      * - | (2)
+        - 環境毎の環境依存ファイルを管理するためのディレクトリ。
+    
+          ディレクトリ名は、環境を識別する名前を指定する。
+      * - | (3)
+        - 環境毎の設定ファイルを管理するためのディレクトリ。
+    
+          サブディレクトリの構成や管理する設定ファイルは、(4)と同様。
+      * - | (4)
+        - ローカル開発環境用の設定ファイルを管理するためのディレクトリ。
+      * - | (5)
+        - ローカル開発環境用のBean定義(DataSource等)を行う。
+      * - | (6)
+        - ローカル開発環境用のプロパティを定義する。
+      * - | (7)
+        - ローカル開発環境用のログ出力定義を行う。
 
-.. tabularcolumns:: |p{0.10\linewidth}|p{0.90\linewidth}|
-.. list-table::
-  :header-rows: 1
-  :widths: 10 90
+  .. group-tab:: XML Config
 
-  * - 項番
-    - 説明
-  * - | (1)
-    - 全環境の環境依存ファイルを管理するためのディレクトリ。
-  * - | (2)
-    - 環境毎の環境依存ファイルを管理するためのディレクトリ。
-
-      ディレクトリ名は、環境を識別する名前を指定する。
-  * - | (3)
-    - 環境毎の設定ファイルを管理するためのディレクトリ。
-
-      サブディレクトリの構成や管理する設定ファイルは、(4)と同様。
-  * - | (4)
-    - ローカル開発環境用の設定ファイルを管理するためのディレクトリ。
-  * - | (5)
-    - ローカル開発環境用のBean定義(DataSource等)を行う。
-  * - | (6)
-    - ローカル開発環境用のプロパティを定義する。
-  * - | (7)
-    - ローカル開発環境用のログ出力定義を行う。
+    .. code-block:: console
+    
+      [projectName]-env
+        ├configs ...(1)
+        │   └[envName] ...(2)
+        │       └resources ...(3)
+        └src
+            └main
+                └resources ...(4)
+                   ├META-INF
+                   │  └spring
+                   │      ├[projectName]-env.xml ...(5)
+                   │      └[projectName]-infra.properties ...(6)
+                   └logback.xml ...(7)
+    
+    .. tabularcolumns:: |p{0.10\linewidth}|p{0.90\linewidth}|
+    .. list-table::
+      :header-rows: 1
+      :widths: 10 90
+    
+      * - 項番
+        - 説明
+      * - | (1)
+        - 全環境の環境依存ファイルを管理するためのディレクトリ。
+      * - | (2)
+        - 環境毎の環境依存ファイルを管理するためのディレクトリ。
+    
+          ディレクトリ名は、環境を識別する名前を指定する。
+      * - | (3)
+        - 環境毎の設定ファイルを管理するためのディレクトリ。
+    
+          サブディレクトリの構成や管理する設定ファイルは、(4)と同様。
+      * - | (4)
+        - ローカル開発環境用の設定ファイルを管理するためのディレクトリ。
+      * - | (5)
+        - ローカル開発環境用のBean定義(DataSource等)を行う。
+      * - | (6)
+        - ローカル開発環境用のプロパティを定義する。
+      * - | (7)
+        - ローカル開発環境用のログ出力定義を行う。
 
 .. note::
 
@@ -694,4 +1035,3 @@ Repositoryを使用しない時の処理の流れ
 .. raw:: latex
 
   \newpage
-

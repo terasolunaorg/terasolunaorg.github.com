@@ -19,7 +19,7 @@ Overview
 共通ライブラリでは、
 
 * xmlファイルやDBに定義されたコードリストをアプリケーション起動時に読み込みキャッシュする機能
-* JSPやJavaクラスからコードリストを参照する機能
+* JSPやThymeleafのテンプレートHTML、Javaクラスからコードリストを参照する機能
 * コードリストを用いて入力チェックする機能
 
 を提供している。
@@ -114,109 +114,212 @@ xmlファイルに定義したコード値をアプリケーション起動時�
 コードリスト設定例
 """"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 
-\ **bean定義ファイル(xxx-codelist.xml)の定義**\
+\ **bean定義ファイルの定義**\
 
 bean定義ファイルは、コードリスト用に作成することを推奨する。
 
-.. code-block:: xml
-  :emphasize-lines: 1,4
+.. tabs::
+  .. group-tab:: Java Config
+    
+    - \ ``XxxCodelistConfig.java``\
+    
+      .. code-block:: java
+      
+        @Bean("CL_ORDERSTATUS") // (1)
+        public SimpleMapCodeList clOrderstatus() {
+            Map<String, String> codeMap = new LinkedHashMap<>();
+            codeMap.put("1", "Received"); // (2)
+            codeMap.put("2", "Sent"); // (2)
+            codeMap.put("3", "Cancelled"); // (2)
+            SimpleMapCodeList bean = new SimpleMapCodeList();
+            bean.setMap(codeMap);
+            return bean;
+        }
+      
+      .. tabularcolumns:: |p{0.10\linewidth}|p{0.90\linewidth}|
+      .. list-table::
+        :header-rows: 1
+        :widths: 10 90
+      
+        * - 項番
+          - 説明
+        * - | (1)
+          - | SimpleMapCodeListクラスをbean定義する。
+            | beanIDは、後述する\ ``org.terasoluna.gfw.web.codelist.CodeListInterceptor``\ のIDパターンに合致する名称にすること。
+        * - | (2)
+          - | Mapの Key、Valueを定義する。
+            | 上記例では\ ``java.util.LinkedHashMap``\ で登録しているため、「名前と値」が登録順にMapへ保持される。
+    
+    |
 
-  <bean id="CL_ORDERSTATUS" class="org.terasoluna.gfw.common.codelist.SimpleMapCodeList"> <!-- (1) -->
-      <property name="map">
-          <util:map>
-              <entry key="1" value="Received" /> <!-- (2) -->
-              <entry key="2" value="Sent" />
-              <entry key="3" value="Cancelled" />
-          </util:map>
-      </property>
-  </bean>
+    コードリスト用bean定義ファイルを作成後、既存bean定義ファイルにimportを行う必要がある。
 
-.. tabularcolumns:: |p{0.10\linewidth}|p{0.90\linewidth}|
-.. list-table::
-  :header-rows: 1
-  :widths: 10 90
+    - \ ``XxxDomainConfig.java``\
+    
+      .. code-block:: java
+      
+        @Configuration
+        @ComponentScan(basePackages = { "com.example.domain" })
+        @Import({ XxxCodelistConfig.class }) // (3)
+        public class XxxDomainConfig {
+      
+      .. tabularcolumns:: |p{0.10\linewidth}|p{0.90\linewidth}|
+      .. list-table::
+        :header-rows: 1
+        :widths: 10 90
+      
+        * - 項番
+          - 説明
+        * - | (3)
+          - | コードリスト用bean定義ファイルをimportする。
 
-  * - 項番
-    - 説明
-  * - | (1)
-    - | SimpleMapCodeListクラスをbean定義する。
-      | beanIDは、後述する\ ``org.terasoluna.gfw.web.codelist.CodeListInterceptor``\ のIDパターンに合致する名称にすること。
-  * - | (2)
-    - | Mapの Key、Valueを定義する。
-      | map-class属性を省略した場合、\ ``java.util.LinkedHashMap``\ で登録されるため、上記例では、「名前と値」が、登録順にMapへ保持される。
+  .. group-tab:: XML Config
 
-|
+    - \ ``xxx-codelist.xml``\
+    
+      .. code-block:: xml
+      
+        <bean id="CL_ORDERSTATUS" class="org.terasoluna.gfw.common.codelist.SimpleMapCodeList"> <!-- (1) -->
+            <property name="map">
+                <util:map>
+                    <entry key="1" value="Received" /> <!-- (2) -->
+                    <entry key="2" value="Sent" /> <!-- (2) -->
+                    <entry key="3" value="Cancelled" /> <!-- (2) -->
+                </util:map>
+            </property>
+        </bean>
+      
+      .. tabularcolumns:: |p{0.10\linewidth}|p{0.90\linewidth}|
+      .. list-table::
+        :header-rows: 1
+        :widths: 10 90
+      
+        * - 項番
+          - 説明
+        * - | (1)
+          - | SimpleMapCodeListクラスをbean定義する。
+            | beanIDは、後述する\ ``org.terasoluna.gfw.web.codelist.CodeListInterceptor``\ のIDパターンに合致する名称にすること。
+        * - | (2)
+          - | Mapの Key、Valueを定義する。
+            | map-class属性を省略した場合\ ``java.util.LinkedHashMap``\ で登録されるため、上記例では「名前と値」が登録順にMapへ保持される。
 
-\ **bean定義ファイル(xxx-domain.xml)の定義**\
+    |
 
-コードリスト用bean定義ファイルを作成後、既存bean定義ファイルにimportを行う必要がある。
+    コードリスト用bean定義ファイルを作成後、既存bean定義ファイルにimportを行う必要がある。
 
-.. code-block:: xml
-  :emphasize-lines: 1
-
-   <import resource="classpath:META-INF/spring/projectName-codelist.xml" /> <!-- (3) -->
-   <context:component-scan base-package="com.example.domain" />
-
-   <!-- omitted -->
-
-.. tabularcolumns:: |p{0.10\linewidth}|p{0.90\linewidth}|
-.. list-table::
-  :header-rows: 1
-  :widths: 10 90
-
-  * - 項番
-    - 説明
-  * - | (3)
-    - | コードリスト用bean定義ファイルをimportする。
-      | component-scanしている間にimport先の情報が必要な場合があるため、
-      | importは\ ``<context:component-scan base-package="com.example.domain" />``\ より上で設定する必要がある。
+    - \ ``xxx-domain.xml``\
+    
+      .. code-block:: xml
+      
+        <import resource="classpath:META-INF/spring/projectName-codelist.xml" /> <!-- (3) -->
+        <context:component-scan base-package="com.example.domain" />
+      
+      .. tabularcolumns:: |p{0.10\linewidth}|p{0.90\linewidth}|
+      .. list-table::
+        :header-rows: 1
+        :widths: 10 90
+      
+        * - 項番
+          - 説明
+        * - | (3)
+          - | コードリスト用bean定義ファイルをimportする。
+            | component-scanしている間にimport先の情報が必要な場合があるため、importは\ ``<context:component-scan base-package="com.example.domain" />``\ より上で設定する必要がある。
 
 |
 
 .. _clientSide:
 
-JSPでのコードリスト使用
+共通ライブラリから提供しているインタセプターの使用
 """"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 
-共通ライブラリから提供しているインタセプターを用いることで、リクエストスコープに自動的に設定し、JSPからコードリストを容易に参照できる。
+共通ライブラリから提供しているインタセプターを用いることで、リクエストスコープに自動的に設定し、JSP/テンプレートHTMLからコードリストを容易に参照できる。
 
-\ **bean定義ファイル(spring-mvc.xml)の定義**\
+\ **bean定義ファイルの定義**\
 
-.. code-block:: xml
-  :emphasize-lines: 3-6
+.. tabs::
+  .. group-tab:: Java Config
 
-  <mvc:interceptors>
-    <mvc:interceptor>
-      <mvc:mapping path="/**" /> <!-- (1) -->
-      <bean
-        class="org.terasoluna.gfw.web.codelist.CodeListInterceptor"> <!-- (2) -->
-        <property name="codeListIdPattern" value="CL_.+" /> <!-- (3) -->
-      </bean>
-    </mvc:interceptor>
+    - \ ``SpringMvc.java``\
 
-    <!-- omitted -->
+      .. code-block:: java
+      
+        @EnableAspectJAutoProxy
+        @EnableWebMvc
+        @Configuration
+        public class SpringMvcConfig implements WebMvcConfigurer {
 
-  </mvc:interceptors>
+            @Override
+            public void addInterceptors(InterceptorRegistry registry) {
+                registry.addInterceptor(codeListInterceptor())
+                        .addPathPatterns("/**"); // (1)
+            }
 
-.. tabularcolumns:: |p{0.10\linewidth}|p{0.90\linewidth}|
-.. list-table::
-  :header-rows: 1
-  :widths: 10 90
+            // (2)
+            @Bean
+            public CodeListInterceptor codeListInterceptor() {
+                CodeListInterceptor codeListInterceptor = new CodeListInterceptor();
+                codeListInterceptor.setCodeListIdPattern(Pattern.compile("CL_.+")); // (3)
+                return codeListInterceptor;
+            }
+      
+      .. tabularcolumns:: |p{0.10\linewidth}|p{0.90\linewidth}|
+      .. list-table::
+        :header-rows: 1
+        :widths: 10 90
+      
+        * - 項番
+          - 説明
+        * - | (1)
+          - | 適用対象のパスを設定する。
+        * - | (2)
+          - | CodeListInterceptor クラスをbean定義する。
+        * - | (3)
+          - | 自動でリクエストスコープに設定する、コードリストのbeanIDのパターンを設定する。
+            | パターンには\ ``java.util.regex.Pattern``\ で使用する正規表現を設定すること。
+            | 上記例では、idが"CL\_XXX"形式で定義されているデータのみを対象とする。その場合、idが"CL\_"で始まらないbean定義は取り込まれない。
+            | "CL\_"で定義したbeanIDは、リクエストスコープに設定されるため、JSPで容易に参照できる。
+            |
+            | \ ``codeListIdPattern``\ プロパティは省略可能である。
+            | \ ``codeListIdPattern``\ を省略した場合は、すべてのコードリスト(\ ``org.terasoluna.gfw.common.codelist.CodeList``\ インタフェースを実装しているbean)がリクエストスコープに設定される。
 
-  * - 項番
-    - 説明
-  * - | (1)
-    - | 適用対象のパスを設定する。
-  * - | (2)
-    - | CodeListInterceptor クラスをbean定義する。
-  * - | (3)
-    - | 自動でリクエストスコープに設定する、コードリストのbeanIDのパターンを設定する。
-      | パターンには\ ``java.util.regex.Pattern``\ で使用する正規表現を設定すること。
-      | 上記例では、idが"CL\_XXX"形式で定義されているデータのみを対象とする。その場合、idが"CL\_"で始まらないbean定義は取り込まれない。
-      | "CL\_"で定義したbeanIDは、リクエストスコープに設定されるため、JSPで容易に参照できる。
-      |
-      | \ ``codeListIdPattern``\ プロパティは省略可能である。
-      | \ ``codeListIdPattern``\ を省略した場合は、すべてのコードリスト(\ ``org.terasoluna.gfw.common.codelist.CodeList``\ インタフェースを実装しているbean)がリクエストスコープに設定される。
+  .. group-tab:: XML Config
+
+    - \ ``spring-mvc.xml``\
+
+      .. code-block:: xml
+      
+        <mvc:interceptors>
+          <mvc:interceptor>
+            <mvc:mapping path="/**" /> <!-- (1) -->
+            <bean
+              class="org.terasoluna.gfw.web.codelist.CodeListInterceptor"> <!-- (2) -->
+              <property name="codeListIdPattern" value="CL_.+" /> <!-- (3) -->
+            </bean>
+          </mvc:interceptor>
+      
+          <!-- omitted -->
+      
+        </mvc:interceptors>
+      
+      .. tabularcolumns:: |p{0.10\linewidth}|p{0.90\linewidth}|
+      .. list-table::
+        :header-rows: 1
+        :widths: 10 90
+      
+        * - 項番
+          - 説明
+        * - | (1)
+          - | 適用対象のパスを設定する。
+        * - | (2)
+          - | CodeListInterceptor クラスをbean定義する。
+        * - | (3)
+          - | 自動でリクエストスコープに設定する、コードリストのbeanIDのパターンを設定する。
+            | パターンには\ ``java.util.regex.Pattern``\ で使用する正規表現を設定すること。
+            | 上記例では、idが"CL\_XXX"形式で定義されているデータのみを対象とする。その場合、idが"CL\_"で始まらないbean定義は取り込まれない。
+            | "CL\_"で定義したbeanIDは、リクエストスコープに設定されるため、JSPで容易に参照できる。
+            |
+            | \ ``codeListIdPattern``\ プロパティは省略可能である。
+            | \ ``codeListIdPattern``\ を省略した場合は、すべてのコードリスト(\ ``org.terasoluna.gfw.common.codelist.CodeList``\ インタフェースを実装しているbean)がリクエストスコープに設定される。
 
 .. warning:: \ **例外発生時のコードリスト利用について**\
 
@@ -230,26 +333,52 @@ JSPでのコードリスト使用
 
 |
 
-\ **jspの実装例**\
+.. tabs::
+  .. group-tab:: JSP
 
-.. code-block:: jsp
+    \ **jspの実装例**\
+    
+    .. code-block:: jsp
+    
+      <form:select path="orderStatus">
+          <form:option value="" label="--Select--" /> <!-- (4) -->
+          <form:options items="${CL_ORDERSTATUS}" /> <!-- (5) -->
+      </form:select>
+    
+    .. tabularcolumns:: |p{0.10\linewidth}|p{0.90\linewidth}|
+    .. list-table::
+      :header-rows: 1
+      :widths: 10 90
+    
+      * - 項番
+        - 説明
+      * - | (4)
+        - | セレクトボックスの先頭にダミーの値を設定する場合、valueに空文字を指定すること。
+      * - | (5)
+        - | コードリストを定義したbeanIDを指定する。
 
-  <form:select path="orderStatus">
-      <form:option value="" label="--Select--" /> <!-- (4) -->
-      <form:options items="${CL_ORDERSTATUS}" /> <!-- (5) -->
-  </form:select>
+  .. group-tab:: Thymeleaf
 
-.. tabularcolumns:: |p{0.10\linewidth}|p{0.90\linewidth}|
-.. list-table::
-  :header-rows: 1
-  :widths: 10 90
+    \ **テンプレートHTML実装例**\
+    
+    .. code-block:: html
+    
+      <select th:field="*{orderStatus}">
+          <option value="">--Select--</option> <!--/* (4) */-->
+          <option th:each="order : ${CL_ORDERSTATUS}" th:value="${order.key}" th:text="${order.value}"></option> <!--/* (5) */-->
+      </select>
 
-  * - 項番
-    - 説明
-  * - | (4)
-    - | セレクトボックスの先頭にダミーの値を設定する場合、valueに空文字を指定すること。
-  * - | (5)
-    - | コードリストを定義したbeanIDを指定する。
+    .. tabularcolumns:: |p{0.10\linewidth}|p{0.90\linewidth}|
+    .. list-table::
+      :header-rows: 1
+      :widths: 10 90
+    
+      * - 項番
+        - 説明
+      * - | (4)
+        - | セレクトボックスの先頭にダミーの値を設定する場合、valueに空文字を指定すること。
+      * - | (5)
+        - | コードリストを定義したbeanIDを指定する。
 
 \ **出力HTML**\
 
@@ -343,7 +472,7 @@ NumberRangeCodeListには、以下の特徴がある。
 |
 
 ここでは、昇順の\ ``NumberRangeCodeList``\ について説明をする。
-降順の\ ``NumberRangeCodeList``\とインターバルの変更方法については、「\ :ref:`CodeListAppendixNumberRangeCodeListVariation`\ 」を参照されたい。
+降順の\ ``NumberRangeCodeList``\ とインターバルの変更方法については、「\ :ref:`CodeListAppendixNumberRangeCodeListVariation`\ 」を参照されたい。
 
 |
 
@@ -352,53 +481,110 @@ NumberRangeCodeListには、以下の特徴がある。
 
 Fromの値をToの値より小さくする(From < To)場合の実装例を、以下に示す。
 
-\ **bean定義ファイル(xxx-codelist.xml)の定義**\
+\ **bean定義ファイルの定義**\
 
-.. code-block:: xml
+.. tabs::
+  .. group-tab:: Java Config
 
-  <bean id="CL_MONTH"
-      class="org.terasoluna.gfw.common.codelist.NumberRangeCodeList"> <!-- (1) -->
-      <property name="from" value="1" /> <!-- (2) -->
-      <property name="to" value="12" /> <!-- (3) -->
-      <property name="valueFormat" value="%d" /> <!-- (4) -->
-      <property name="labelFormat" value="%02d" /> <!-- (5) -->
-      <property name="interval" value="1" /> <!-- (6) -->
-  </bean>
+    - \ ``XxxCodelistConfig.java``\
 
-.. tabularcolumns:: |p{0.10\linewidth}|p{0.90\linewidth}|
-.. list-table::
-  :header-rows: 1
-  :widths: 10 90
+      .. code-block:: java
 
-  * - 項番
-    - 説明
-  * - | (1)
-    - | NumberRangeCodeListをbean定義する。
-  * - | (2)
-    - | 範囲開始の値を指定する。省略した場合、"0"が設定される。
-  * - | (3)
-    - | 範囲終了の値を設定する。指定必須。
-  * - | (4)
-    - | コード値のフォーマット形式を設定する。フォーマット形式は\ ``java.lang.String.format``\ の形式が使用される。
-      | 省略した場合、"%s"が設定される。
-  * - | (5)
-    - | コード名のフォーマット形式を設定する。フォーマット形式は\ ``java.lang.String.format``\ の形式が使用される。
-      | 省略した場合、"%s"が設定される。
-  * - | (6)
-    - | 増加する値を設定する。省略した場合、"1"が設定される。
+        @Bean("CL_MONTH")
+        public NumberRangeCodeList clMonthAsc() {
+            NumberRangeCodeList bean = new NumberRangeCodeList(); // (1)
+            bean.setFrom(1); // (2)
+            bean.setTo(12); // (3)
+            bean.setValueFormat("%d"); // (4)
+            bean.setLabelFormat("%02d"); // (5)
+            bean.setInterval(1); // (6)
+            return bean;
+        }
+      
+      .. tabularcolumns:: |p{0.10\linewidth}|p{0.90\linewidth}|
+      .. list-table::
+        :header-rows: 1
+        :widths: 10 90
+      
+        * - 項番
+          - 説明
+        * - | (1)
+          - | NumberRangeCodeListをbean定義する。
+        * - | (2)
+          - | 範囲開始の値を指定する。省略した場合、"0"が設定される。
+        * - | (3)
+          - | 範囲終了の値を設定する。指定必須。
+        * - | (4)
+          - | コード値のフォーマット形式を設定する。フォーマット形式は\ ``java.lang.String.format``\ の形式が使用される。
+            | 省略した場合、"%s"が設定される。
+        * - | (5)
+          - | コード名のフォーマット形式を設定する。フォーマット形式は\ ``java.lang.String.format``\ の形式が使用される。
+            | 省略した場合、"%s"が設定される。
+        * - | (6)
+          - | 増加する値を設定する。省略した場合、"1"が設定される。
+
+  .. group-tab:: XML Config
+
+    - \ ``xxx-codelist.xml``\
+
+      .. code-block:: xml
+      
+        <bean id="CL_MONTH"
+            class="org.terasoluna.gfw.common.codelist.NumberRangeCodeList"> <!-- (1) -->
+            <property name="from" value="1" /> <!-- (2) -->
+            <property name="to" value="12" /> <!-- (3) -->
+            <property name="valueFormat" value="%d" /> <!-- (4) -->
+            <property name="labelFormat" value="%02d" /> <!-- (5) -->
+            <property name="interval" value="1" /> <!-- (6) -->
+        </bean>
+      
+      .. tabularcolumns:: |p{0.10\linewidth}|p{0.90\linewidth}|
+      .. list-table::
+        :header-rows: 1
+        :widths: 10 90
+      
+        * - 項番
+          - 説明
+        * - | (1)
+          - | NumberRangeCodeListをbean定義する。
+        * - | (2)
+          - | 範囲開始の値を指定する。省略した場合、"0"が設定される。
+        * - | (3)
+          - | 範囲終了の値を設定する。指定必須。
+        * - | (4)
+          - | コード値のフォーマット形式を設定する。フォーマット形式は\ ``java.lang.String.format``\ の形式が使用される。
+            | 省略した場合、"%s"が設定される。
+        * - | (5)
+          - | コード名のフォーマット形式を設定する。フォーマット形式は\ ``java.lang.String.format``\ の形式が使用される。
+            | 省略した場合、"%s"が設定される。
+        * - | (6)
+          - | 増加する値を設定する。省略した場合、"1"が設定される。
 
 |
 
-JSPでのコードリスト使用
+コードリストの使用
 """"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 
-設定例の詳細は、前述した\ :ref:`JSPでのコードリスト使用<clientSide>`\ を参照されたい。
+設定例の詳細は、前述した\ :ref:`clientSide`\ を参照されたい。
 
-\ **jspの実装例**\
+.. tabs::
+  .. group-tab:: JSP
 
-.. code-block:: jsp
+    \ **jspの実装例**\
+    
+    .. code-block:: jsp
+    
+      <form:select path="depMonth" items="${CL_MONTH}" />
 
-  <form:select path="depMonth" items="${CL_MONTH}" />
+  .. group-tab:: Thymeleaf
+
+    \ **テンプレートHTML実装例**\
+    
+    .. code-block:: html
+    
+      <select th:field="*{depMonth}">
+          <option th:each="month : ${CL_MONTH}" th:value="${month.key}" th:text="${month.value}"></option>
+      </select>
 
 \ **出力HTML**\
 
@@ -450,7 +636,7 @@ JdbcCodeListの使用方法
 \ **JdbcCodeListのイメージ**\
 
 .. figure:: ./images_CodeList/codelist-jdbc.png
- :alt: codelist simple
+  :alt: codelist simple
   :width: 100%
 
 |
@@ -480,72 +666,168 @@ JdbcCodeListの使用方法
 
 |
 
-\ **bean定義ファイル(xxx-codelist.xml)の定義**\
+\ **bean定義ファイルの定義**\
 
-.. code-block:: xml
+.. tabs::
+  .. group-tab:: Java Config
 
-  <bean id="jdbcTemplateForCodeList" class="org.springframework.jdbc.core.JdbcTemplate" > <!-- (1) -->
-      <property name="dataSource" ref="dataSource" />
-      <property name="fetchSize" value="${codelist.jdbc.fetchSize:1000}" /> <!-- (2) -->
-  </bean>
+    - \ ``XxxCodelistConfig.java``\
 
-  <bean id="AbstractJdbcCodeList"
-      class="org.terasoluna.gfw.common.codelist.JdbcCodeList" abstract="true"> <!-- (3) -->
-      <property name="jdbcTemplate" ref="jdbcTemplateForCodeList" /> <!-- (4) -->
-  </bean>
+      .. code-block:: java
 
-  <bean id="CL_AUTHORITIES" parent="AbstractJdbcCodeList" > <!-- (5) -->
-      <property name="querySql"
-          value="SELECT authority_id, authority_name FROM authority ORDER BY authority_id" /> <!-- (6) -->
-      <property name="valueColumn" value="authority_id" /> <!-- (7) -->
-      <property name="labelColumn" value="authority_name" /> <!-- (8) -->
-  </bean>
+        @Value("${codelist.jdbc.fetchSize:1000}")
+        private Integer fetchSize;
 
-.. tabularcolumns:: |p{0.10\linewidth}|p{0.90\linewidth}|
-.. list-table::
-  :header-rows: 1
-  :widths: 10 90
-  :class: longtable
+        @Bean("jdbcTemplateForCodeList")
+        public JdbcTemplate jdbcTemplateForCodeList() {
+            JdbcTemplate bean = new JdbcTemplate(); // (1)
+            bean.setDataSource(dataSource);
+            bean.setFetchSize(fetchSize); // (2)
+            return bean;
+        }
+    
+        // (3)
+        private JdbcCodeList abstractJdbcCodeList() {
+            JdbcCodeList bean = new JdbcCodeList();
+            bean.setJdbcTemplate(jdbcTemplateForCodeList()); // (4)
+            return bean;
+        }
+    
+        @Bean("CL_AUTHORITIES")
+        public JdbcCodeList clAuthorities() {
+            JdbcCodeList jdbcCodeList = abstractJdbcCodeList(); // (5)
+            jdbcCodeList.setQuerySql("SELECT authority_id, authority_name FROM t_authority ORDER BY authority_id"); // (6)
+            jdbcCodeList.setValueColumn("authority_id"); // (7)
+            jdbcCodeList.setLabelColumn("authority_name"); // (8)
+            return jdbcCodeList;
+        }
+      
+      .. tabularcolumns:: |p{0.10\linewidth}|p{0.90\linewidth}|
+      .. list-table::
+        :header-rows: 1
+        :widths: 10 90
+        :class: longtable
+      
+        * - 項番
+          - 説明
+        * - | (1)
+          - | \ ``org.springframework.jdbc.core.JdbcTemplate``\ クラスをbean定義する。
+            | 独自に\ ``fetchSize``\ を設定するために必要となる。
+        * - | (2)
+          - | \ ``fetchSize``\ を設定する。
+            | \ ``fetchSize``\ のデフォルト設定が、全件取得になっている場合があるため適切な値を設定すること。
+            | \ ``fetchSize``\ の設定が全件取得のままだと、\ ``JdbcCodeList``\ の読み込む件数が大きい場合に、DBからリストを取得する際の処理性能が落ちてしまい、アプリケーションの起動時間が長期化する可能性がある。
+        * - | (3)
+          - | \ ``JdbcCodeList``\ の共通bean定義。
+            | 他の\ ``JdbcCodeList``\ の共通部分を設定している。そのため、基本\ ``JdbcCodeList``\ のbean定義は当メソッドを呼び出す。
+        * - | (4)
+          - | (1)で設定した\ ``jdbcTemplate``\ を設定。
+            | \ ``fetchSize``\ を設定した\ ``JdbcTemplate``\ を、\ ``JdbcCodeList``\ に格納している。
+        * - | (5)
+          - | \ ``JdbcCodeList``\ のbean定義。
+            | parent属性を(3)のbean定義を親クラスとして設定することで、\ ``fetchSize``\ を設定した\ ``JdbcCodeList``\ が設定される。
+            | このbean定義では、クエリに関する設定のみを行い、必要なCodeList分作成する。
+        * - | (6) 
+          - | querySqlプロパティに取得するSQLを記述する。その際、\ **必ず「ORDER BY」を指定し、順序を確定させること。**\
+            | 「ORDER BY」を指定しないと、取得する度に順序が変わってしまう。
+        * - | (7)
+          - | valueColumnプロパティに、MapのKeyに該当する値を設定する。この例ではauthority_idを設定している。
+        * - | (8)
+          - | labelColumnプロパティに、MapのValueに該当する値を設定する。この例ではauthority_nameを設定している。 
 
-  * - 項番
-    - 説明
-  * - | (1)
-    - | \ ``org.springframework.jdbc.core.JdbcTemplate``\ クラスをbean定義する。
-      | 独自に\ ``fetchSize``\ を設定するために必要となる。
-  * - | (2)
-    - | \ ``fetchSize``\ を設定する。
-      | \ ``fetchSize``\ のデフォルト設定が、全件取得になっている場合があるため適切な値を設定すること。
-      | \ ``fetchSize``\ の設定が全件取得のままだと、\ ``JdbcCodeList``\ の読み込む件数が大きい場合に、DBからリストを取得する際の処理性能が落ちてしまい、アプリケーションの起動時間が長期化する可能性がある。
-  * - | (3)
-    - | \ ``JdbcCodeList``\ の共通bean定義。
-      | 他の\ ``JdbcCodeList``\ の共通部分を設定している。そのため、基本\ ``JdbcCodeList``\ のbean定義はこのbean定義を親クラスに設定する。
-      | abstract属性をtrueにすることで、このbeanはインスタンス化されない。
-  * - | (4)
-    - | (1)で設定した\ ``jdbcTemplate``\ を設定。
-      | \ ``fetchSize``\ を設定した\ ``JdbcTemplate``\ を、\ ``JdbcCodeList``\ に格納している。
-  * - | (5)
-    - | \ ``JdbcCodeList``\ のbean定義。
-      | parent属性を(3)のbean定義を親クラスとして設定することで、\ ``fetchSize``\ を設定した\ ``JdbcCodeList``\ が設定される。
-      | このbean定義では、クエリに関する設定のみを行い、必要なCodeList分作成する。
-  * - | (6) 
-    - | querySqlプロパティに取得するSQLを記述する。その際、\ **必ず「ORDER BY」を指定し、順序を確定させること。**\
-      | 「ORDER BY」を指定しないと、取得する度に順序が変わってしまう。
-  * - | (7)
-    - | valueColumnプロパティに、MapのKeyに該当する値を設定する。この例ではauthority_idを設定している。
-  * - | (8)
-    - | labelColumnプロパティに、MapのValueに該当する値を設定する。この例ではauthority_nameを設定している。      
+  .. group-tab:: XML Config
+
+    - \ ``xxx-codelist.xml``\
+
+      .. code-block:: xml
+      
+        <bean id="jdbcTemplateForCodeList" class="org.springframework.jdbc.core.JdbcTemplate" > <!-- (1) -->
+            <property name="dataSource" ref="dataSource" />
+            <property name="fetchSize" value="${codelist.jdbc.fetchSize:1000}" /> <!-- (2) -->
+        </bean>
+      
+        <bean id="AbstractJdbcCodeList"
+            class="org.terasoluna.gfw.common.codelist.JdbcCodeList" abstract="true"> <!-- (3) -->
+            <property name="jdbcTemplate" ref="jdbcTemplateForCodeList" /> <!-- (4) -->
+        </bean>
+      
+        <bean id="CL_AUTHORITIES" parent="AbstractJdbcCodeList" > <!-- (5) -->
+            <property name="querySql"
+                value="SELECT authority_id, authority_name FROM authority ORDER BY authority_id" /> <!-- (6) -->
+            <property name="valueColumn" value="authority_id" /> <!-- (7) -->
+            <property name="labelColumn" value="authority_name" /> <!-- (8) -->
+        </bean>
+      
+      .. tabularcolumns:: |p{0.10\linewidth}|p{0.90\linewidth}|
+      .. list-table::
+        :header-rows: 1
+        :widths: 10 90
+        :class: longtable
+      
+        * - 項番
+          - 説明
+        * - | (1)
+          - | \ ``org.springframework.jdbc.core.JdbcTemplate``\ クラスをbean定義する。
+            | 独自に\ ``fetchSize``\ を設定するために必要となる。
+        * - | (2)
+          - | \ ``fetchSize``\ を設定する。
+            | \ ``fetchSize``\ のデフォルト設定が、全件取得になっている場合があるため適切な値を設定すること。
+            | \ ``fetchSize``\ の設定が全件取得のままだと、\ ``JdbcCodeList``\ の読み込む件数が大きい場合に、DBからリストを取得する際の処理性能が落ちてしまい、アプリケーションの起動時間が長期化する可能性がある。
+        * - | (3)
+          - | \ ``JdbcCodeList``\ の共通bean定義。
+            | 他の\ ``JdbcCodeList``\ の共通部分を設定している。そのため、基本\ ``JdbcCodeList``\ のbean定義はこのbean定義を親クラスに設定する。
+            | abstract属性をtrueにすることで、このbeanはインスタンス化されない。
+        * - | (4)
+          - | (1)で設定した\ ``jdbcTemplate``\ を設定。
+            | \ ``fetchSize``\ を設定した\ ``JdbcTemplate``\ を、\ ``JdbcCodeList``\ に格納している。
+        * - | (5)
+          - | \ ``JdbcCodeList``\ のbean定義。
+            | parent属性を(3)のbean定義を親クラスとして設定することで、\ ``fetchSize``\ を設定した\ ``JdbcCodeList``\ が設定される。
+            | このbean定義では、クエリに関する設定のみを行い、必要なCodeList分作成する。
+        * - | (6) 
+          - | querySqlプロパティに取得するSQLを記述する。その際、\ **必ず「ORDER BY」を指定し、順序を確定させること。**\
+            | 「ORDER BY」を指定しないと、取得する度に順序が変わってしまう。
+        * - | (7)
+          - | valueColumnプロパティに、MapのKeyに該当する値を設定する。この例ではauthority_idを設定している。
+        * - | (8)
+          - | labelColumnプロパティに、MapのValueに該当する値を設定する。この例ではauthority_nameを設定している。
 
 |
 
-JSPでのコードリスト使用
+コードリストの使用
 """"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
-| 下記に示す設定の詳細について、前述した\ :ref:`JSPでのコードリスト使用<clientSide>`\ を参照されたい。
+| 下記に示す設定の詳細について、前述した\ :ref:`clientSide`\ を参照されたい。
 
-\ **jspの実装例**\
+.. tabs::
+  .. group-tab:: JSP
 
-.. code-block:: jsp
+    \ **jspの実装例**\
+    
+    .. code-block:: jsp
+    
+      <form:checkboxes items="${CL_AUTHORITIES}"/>
 
-  <form:checkboxes items="${CL_AUTHORITIES}"/>
+  .. group-tab:: Thymeleaf
+
+    \ **テンプレートHTML実装例**\
+    
+    .. code-block:: html
+    
+      <span th:each="authority : ${CL_AUTHORITIES}">
+          <input type="checkbox" th:field="*{authorities}" th:value="${authority.key}">
+          <label th:for="${#ids.prev('authorities')}" th:text="${authority.value}"></label> <!--/* (9) */-->
+      </span>
+    
+    .. tabularcolumns:: |p{0.10\linewidth}|p{0.90\linewidth}|
+    .. list-table::
+       :header-rows: 1
+       :widths: 10 90
+       :class: longtable
+    
+       * - 項番
+         - 説明
+       * - | (9)
+         - | \ ``#ids.prev``\ メソッドを使用して、\ ``input``\ タグの\ ``id``\ 名と対応付けることができる。詳細は、\ :ref:`#ids.prevメソッドについて<Validation_ids_prev_method>`\ を参照されたい。
 
 \ **出力HTML**\
 
@@ -575,8 +857,8 @@ JSPでのコードリスト使用
 \ **出力画面**\
 
 .. figure:: ./images_CodeList/codelist_checkbox.png
-   :alt: codelist checkbox
-   :width: 50%
+  :alt: codelist checkbox
+  :width: 50%
 
 |
 
@@ -690,9 +972,9 @@ EnumCodeListの使用方法
 
       上記例では、以下の3つの定数を定義している。
 
-      * \ ``RECEIVED``\ (コード値="\ ``1``\" , ラベル=\ ``Received``\ )
-      * \ ``SENT``\  (コード値="\ ``2``\" , ラベル=\ ``Sent``\ )
-      * \ ``CANCELLED``\  (コード値="\ ``3``\" , ラベル=\ ``Cancelled``\ )
+      * \ ``RECEIVED``\ (コード値="\ ``1``\ ", ラベル=\ ``Received``\ )
+      * \ ``SENT``\  (コード値="\ ``2``\ ", ラベル=\ ``Sent``\ )
+      * \ ``CANCELLED``\  (コード値="\ ``3``\ ", ラベル=\ ``Cancelled``\ )
 
       .. note::
 
@@ -715,36 +997,64 @@ EnumCodeListの使用方法
 
 |
 
-\ **bean定義ファイル(xxx-codelist.xml)の定義**\
+\ **bean定義ファイルの定義**\
 
 | コードリスト用のbean定義ファイルに、\ ``EnumCodeList``\ を定義する。
 | 以下に定義例を示す。
 
-.. code-block:: xml
+.. tabs::
+  .. group-tab:: Java Config
 
-  <bean id="CL_ORDERSTATUS"
-        class="org.terasoluna.gfw.common.codelist.EnumCodeList"> <!-- (7) -->
-      <constructor-arg value="com.example.domain.model.OrderStatus" /> <!-- (8) -->
-  </bean>
+    - \ ``XxxCodelist.java``\
+      
+      .. code-block:: java
 
-.. tabularcolumns:: |p{0.10\linewidth}|p{0.90\linewidth}|
-.. list-table::
-  :header-rows: 1
-  :widths: 10 90
+        @Bean("CL_ORDERSTATUS")
+        public EnumCodeList clEnumOrderstatus() {
+            return new EnumCodeList(OrderStatus.class); // (7)(8)
+        }
+      
+      .. tabularcolumns:: |p{0.10\linewidth}|p{0.90\linewidth}|
+      .. list-table::
+        :header-rows: 1
+        :widths: 10 90
+      
+        * - 項番
+          - 説明
+        * - | (7)
+          - コードリストの実装クラスとして、\ ``EnumCodeList``\ クラスを指定する。
+        * - | (8)
+          - \ ``EnumCodeList``\ クラスのコンストラクタに、\ ``EnumCodeList.CodeListItem``\ インタフェースを実装した\ ``Enum``\ クラスを指定する。
 
-  * - 項番
-    - 説明
-  * - | (7)
-    - コードリストの実装クラスとして、\ ``EnumCodeList``\ クラスを指定する。
-  * - | (8)
-    - \ ``EnumCodeList``\ クラスのコンストラクタに、\ ``EnumCodeList.CodeListItem``\ インタフェースを実装した\ ``Enum``\ クラスのFQCNを指定する。
+  .. group-tab:: XML Config
+
+    - \ ``xxx-codelist.xml``\
+      
+      .. code-block:: xml
+      
+        <bean id="CL_ORDERSTATUS"
+              class="org.terasoluna.gfw.common.codelist.EnumCodeList"> <!-- (7) -->
+            <constructor-arg value="com.example.domain.model.OrderStatus" /> <!-- (8) -->
+        </bean>
+      
+      .. tabularcolumns:: |p{0.10\linewidth}|p{0.90\linewidth}|
+      .. list-table::
+        :header-rows: 1
+        :widths: 10 90
+      
+        * - 項番
+          - 説明
+        * - | (7)
+          - コードリストの実装クラスとして、\ ``EnumCodeList``\ クラスを指定する。
+        * - | (8)
+          - \ ``EnumCodeList``\ クラスのコンストラクタに、\ ``EnumCodeList.CodeListItem``\ インタフェースを実装した\ ``Enum``\ クラスのFQCNを指定する。
 
 |
 
-JSPでのコードリスト使用
+コードリストの使用
 """"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 
-JSPでコードリストを使用する方法については、前述した\ :ref:`clientSide`\ を参照されたい。
+JSP/テンプレートHTMLでコードリストを使用する方法については、前述した\ :ref:`clientSide`\ を参照されたい。
 
 |
 
@@ -831,130 +1141,279 @@ I18nCodeListの使用方法
 
 |
 
-\ **Bean定義ファイル(xxx-codelist.xml)の定義**\
+\ **Bean定義ファイルの定義**\
 
-.. code-block:: xml
-  
-  <bean id="CL_I18N_PRICE"
-      class="org.terasoluna.gfw.common.codelist.i18n.SimpleI18nCodeList">
-      <property name="rowsByCodeList"> <!-- (1) -->
-          <util:map>
-              <entry key="en" value-ref="CL_PRICE_EN" />
-              <entry key="ja" value-ref="CL_PRICE_JA" />
-          </util:map>
-      </property>
-  </bean>
-  
-.. tabularcolumns:: |p{0.10\linewidth}|p{0.90\linewidth}|
-.. list-table::
-  :header-rows: 1
-  :widths: 10 90
-  
-  * - 項番
-    - 説明
-  * - | (1)
-    - | rowsByCodeListプロパティにkeyが\ ``java.lang.Locale``\ のMapを設定する。
-      | Mapには、keyにロケール、value-refにロケールに対応したコードリストクラスの参照先を指定する。
-      | Mapのvalueは各ロケールに対応したコードリストクラスを参照する。
+.. tabs::
+  .. group-tab:: Java Config
 
-|
+    - \ ``XxxCodelistConfig.java``\
 
-\ **Locale毎にSimpleMapCodeListを用意する場合のBean定義ファイル(xxx-codelist.xml)の定義**\
+      .. code-block:: java
 
-.. code-block:: xml
-  
-  <bean id="CL_I18N_PRICE"
-      class="org.terasoluna.gfw.common.codelist.i18n.SimpleI18nCodeList">
-      <property name="rowsByCodeList">
-          <util:map>
-              <entry key="en" value-ref="CL_PRICE_EN" />
-              <entry key="ja" value-ref="CL_PRICE_JA" />
-          </util:map>
-      </property>
-  </bean>
-  
-  <bean id="CL_PRICE_EN" class="org.terasoluna.gfw.common.codelist.SimpleMapCodeList">  <!-- (2) -->
-      <property name="map">
-          <util:map>
-              <entry key="0" value="unlimited" />
-              <entry key="10000" value="Less than \\10,000" />
-              <entry key="20000" value="Less than \\20,000" />
-              <entry key="30000" value="Less than \\30,000" />
-              <entry key="40000" value="Less than \\40,000" />
-              <entry key="50000" value="Less than \\50,000" />
-          </util:map>
-      </property>
-  </bean>
-  
-  <bean id="CL_PRICE_JA" class="org.terasoluna.gfw.common.codelist.SimpleMapCodeList">  <!-- (3) -->
-      <property name="map">
-          <util:map>
-              <entry key="0" value="上限なし" />
-              <entry key="10000" value="10,000円以下" />
-              <entry key="20000" value="20,000円以下" />
-              <entry key="30000" value="30,000円以下" />
-              <entry key="40000" value="40,000円以下" />
-              <entry key="50000" value="50,000円以下" />
-          </util:map>
-      </property>
-  </bean>
-  
-.. tabularcolumns:: |p{0.10\linewidth}|p{0.90\linewidth}|
-.. list-table::
-  :header-rows: 1
-  :widths: 10 90
-  
-  * - 項番
-    - 説明
-  * - | (2)
-    - | ロケールが"en"であるbean定義\ ``CL_PRICE_EN``\ について、コードリストクラスを\ ``SimpleMapCodeList``\ で設定している。
-  * - | (3)
-    - | ロケールが"ja"であるbean定義\ ``CL_PRICE_JA``\ について、コードリストクラスを\ ``SimpleMapCodeList``\ で設定している。
+        @Bean("CL_I18N_PRICE")
+        public SimpleI18nCodeList clI18nPrice() {
+            Map<Locale, CodeList> rows =  new LinkedHashMap<>(); // (1)
+            rows.put(Locale.ENGLISH, clPriceEn());
+            rows.put(Locale.JAPANESE, clPriceJa());
+            SimpleI18nCodeList bean = new SimpleI18nCodeList();
+            bean.setRowsByCodeList(rows);
+            return bean;
+        }
+        
+      .. tabularcolumns:: |p{0.10\linewidth}|p{0.90\linewidth}|
+      .. list-table::
+        :header-rows: 1
+        :widths: 10 90
+        
+        * - 項番
+          - 説明
+        * - | (1)
+          - | rowsByCodeListプロパティにkeyが\ ``java.lang.Locale``\ のMapを設定する。
+            | Mapには、keyにロケール、value-refにロケールに対応したコードリストクラスの参照先を指定する。
+            | Mapのvalueは各ロケールに対応したコードリストクラスを参照する。
+
+  .. group-tab:: XML Config
+
+    - \ ``xxx-codelist.xml``\
+
+      .. code-block:: xml
+        
+        <bean id="CL_I18N_PRICE"
+            class="org.terasoluna.gfw.common.codelist.i18n.SimpleI18nCodeList">
+            <property name="rowsByCodeList"> <!-- (1) -->
+                <util:map>
+                    <entry key="en" value-ref="CL_PRICE_EN" />
+                    <entry key="ja" value-ref="CL_PRICE_JA" />
+                </util:map>
+            </property>
+        </bean>
+        
+      .. tabularcolumns:: |p{0.10\linewidth}|p{0.90\linewidth}|
+      .. list-table::
+        :header-rows: 1
+        :widths: 10 90
+        
+        * - 項番
+          - 説明
+        * - | (1)
+          - | rowsByCodeListプロパティにkeyが\ ``java.lang.Locale``\ のMapを設定する。
+            | Mapには、keyにロケール、value-refにロケールに対応したコードリストクラスの参照先を指定する。
+            | Mapのvalueは各ロケールに対応したコードリストクラスを参照する。
 
 |
 
-\ **Locale毎にJdbcCodeListを用意する場合のBean定義ファイル(xxx-codelist.xml)の定義**\
+\ **Locale毎にSimpleMapCodeListを用意する場合のBean定義ファイルの定義**\
 
-.. code-block:: xml
-  
-  <bean id="CL_I18N_PRICE"
-      class="org.terasoluna.gfw.common.codelist.i18n.SimpleReloadableI18nCodeList">  <!-- (4) -->
-      <property name="rowsByCodeList">
-          <util:map>
-              <entry key="en" value-ref="CL_PRICE_EN" />
-              <entry key="ja" value-ref="CL_PRICE_JA" />
-          </util:map>
-      </property>
-  </bean>
-  
-  <bean id="CL_PRICE_EN" parent="AbstractJdbcCodeList">  <!-- (5) -->
-      <property name="querySql"
-          value="SELECT code, label FROM price WHERE locale = 'en' ORDER BY code" />
-      <property name="valueColumn" value="code" />
-      <property name="labelColumn" value="label" />
-  </bean>
-  
-  <bean id="CL_PRICE_JA" parent="AbstractJdbcCodeList">  <!-- (6) -->
-      <property name="querySql"
-          value="SELECT code, label FROM price WHERE locale = 'ja' ORDER BY code" />
-      <property name="valueColumn" value="code" />
-      <property name="labelColumn" value="label" />
-  </bean>
-  
-.. tabularcolumns:: |p{0.10\linewidth}|p{0.90\linewidth}|
-.. list-table::
-  :header-rows: 1
-  :widths: 10 90
-  
-  * - 項番
-    - 説明
-  * - | (4)
-    - | 更新可能なコードリストを行に持つ場合は、``SimpleReloadableI18nCodeList``\ を利用する。
-  * - | (5)
-    - | ロケールが"en"であるbean定義\ ``CL_PRICE_EN``\ について、コードリストクラスを\ ``JdbcCodeList``\ で設定している。
-  * - | (6)
-    - | ロケールが"ja"であるbean定義\ ``CL_PRICE_JA``\ について、コードリストクラスを\ ``JdbcCodeList``\ で設定している。
-  
+.. tabs::
+  .. group-tab:: Java Config
+
+    - \ ``XxxCodelistConfig.java``\
+
+      .. code-block:: java
+        
+        @Bean("CL_I18N_PRICE")
+        public SimpleI18nCodeList clI18nPrice() {
+            Map<Locale, CodeList> rows =  new LinkedHashMap<>();
+            rows.put(Locale.ENGLISH, clPriceEn());
+            rows.put(Locale.JAPANESE, clPriceJa());
+            SimpleI18nCodeList bean = new SimpleI18nCodeList();
+            bean.setRowsByCodeList(rows);
+            return bean;
+        }
+
+        // (2)
+        @Bean("CL_PRICE_EN")
+        public SimpleMapCodeList clPriceEn() {
+            Map<String, String> enMap = new LinkedHashMap<>();
+            enMap.put("0", "unlimited");
+            enMap.put("10000", "Less than \\10,000");
+            enMap.put("20000", "Less than \\20,000");
+            enMap.put("30000", "Less than \\30,000");
+            enMap.put("40000", "Less than \\40,000");
+            enMap.put("50000", "Less than \\50,000");
+            SimpleMapCodeList bean = new SimpleMapCodeList();
+            bean.setMap(enMap);
+            return bean;
+        }
+    
+        // (3)
+        @Bean("CL_PRICE_JA")
+        public SimpleMapCodeList clPriceJa() {
+            Map<String, String> jaMap = new LinkedHashMap<>();
+            jaMap.put("0", "上限なし");
+            jaMap.put("10000", "10,000円以下");
+            jaMap.put("20000", "20,000円以下");
+            jaMap.put("30000", "30,000円以下");
+            jaMap.put("40000", "40,000円以下");
+            jaMap.put("50000", "50,000円以下");
+            SimpleMapCodeList bean = new SimpleMapCodeList();
+            bean.setMap(jaMap);
+            return bean;
+        }
+        
+      .. tabularcolumns:: |p{0.10\linewidth}|p{0.90\linewidth}|
+      .. list-table::
+        :header-rows: 1
+        :widths: 10 90
+        
+        * - 項番
+          - 説明
+        * - | (2)
+          - | ロケールが"en"であるbean定義\ ``CL_PRICE_EN``\ について、コードリストクラスを\ ``SimpleMapCodeList``\ で設定している。
+        * - | (3)
+          - | ロケールが"ja"であるbean定義\ ``CL_PRICE_JA``\ について、コードリストクラスを\ ``SimpleMapCodeList``\ で設定している。
+
+  .. group-tab:: XML Config
+
+    - \ ``xxx-codelist.xml``\
+
+      .. code-block:: xml
+        
+        <bean id="CL_I18N_PRICE"
+            class="org.terasoluna.gfw.common.codelist.i18n.SimpleI18nCodeList">
+            <property name="rowsByCodeList">
+                <util:map>
+                    <entry key="en" value-ref="CL_PRICE_EN" />
+                    <entry key="ja" value-ref="CL_PRICE_JA" />
+                </util:map>
+            </property>
+        </bean>
+        
+        <bean id="CL_PRICE_EN" class="org.terasoluna.gfw.common.codelist.SimpleMapCodeList">  <!-- (2) -->
+            <property name="map">
+                <util:map>
+                    <entry key="0" value="unlimited" />
+                    <entry key="10000" value="Less than \10,000" />
+                    <entry key="20000" value="Less than \20,000" />
+                    <entry key="30000" value="Less than \30,000" />
+                    <entry key="40000" value="Less than \40,000" />
+                    <entry key="50000" value="Less than \50,000" />
+                </util:map>
+            </property>
+        </bean>
+        
+        <bean id="CL_PRICE_JA" class="org.terasoluna.gfw.common.codelist.SimpleMapCodeList">  <!-- (3) -->
+            <property name="map">
+                <util:map>
+                    <entry key="0" value="上限なし" />
+                    <entry key="10000" value="10,000円以下" />
+                    <entry key="20000" value="20,000円以下" />
+                    <entry key="30000" value="30,000円以下" />
+                    <entry key="40000" value="40,000円以下" />
+                    <entry key="50000" value="50,000円以下" />
+                </util:map>
+            </property>
+        </bean>
+        
+      .. tabularcolumns:: |p{0.10\linewidth}|p{0.90\linewidth}|
+      .. list-table::
+        :header-rows: 1
+        :widths: 10 90
+        
+        * - 項番
+          - 説明
+        * - | (2)
+          - | ロケールが"en"であるbean定義\ ``CL_PRICE_EN``\ について、コードリストクラスを\ ``SimpleMapCodeList``\ で設定している。
+        * - | (3)
+          - | ロケールが"ja"であるbean定義\ ``CL_PRICE_JA``\ について、コードリストクラスを\ ``SimpleMapCodeList``\ で設定している。
+
+|
+
+\ **Locale毎にJdbcCodeListを用意する場合のBean定義ファイルの定義**\
+
+.. tabs::
+  .. group-tab:: Java Config
+
+    - \ ``XxxCodelistConfig.java``\
+
+      .. code-block:: java
+        
+        @Bean("CL_I18N_PRICE")
+        public SimpleReloadableI18nCodeList clI18nPrice() {
+            Map<Locale, CodeList> rows =  new LinkedHashMap<>();
+            rows.put(Locale.ENGLISH, clPriceEn());
+            rows.put(Locale.JAPANESE, clPriceJa());
+            SimpleReloadableI18nCodeList bean = new SimpleReloadableI18nCodeList(); // (4)
+            bean.setRowsByCodeList(rows);
+            return bean;
+        }
+
+        @Bean("CL_PRICE_EN")
+        public JdbcCodeList clPriceEn() {
+            JdbcCodeList jdbcCodeList = abstractJdbcCodeList(); // (5)
+            jdbcCodeList.setQuerySql("SELECT code, label FROM price WHERE locale = 'en' ORDER BY code");
+            jdbcCodeList.setValueColumn("code");
+            jdbcCodeList.setLabelColumn("label");
+            return jdbcCodeList;
+        }
+
+        @Bean("CL_PRICE_JA")
+        public JdbcCodeList clPriceJa() {
+            JdbcCodeList jdbcCodeList = abstractJdbcCodeList(); // (6)
+            jdbcCodeList.setQuerySql("SELECT code, label FROM price WHERE locale = 'ja' ORDER BY code");
+            jdbcCodeList.setValueColumn("code");
+            jdbcCodeList.setLabelColumn("label");
+            return jdbcCodeList;
+        }
+        
+      .. tabularcolumns:: |p{0.10\linewidth}|p{0.90\linewidth}|
+      .. list-table::
+        :header-rows: 1
+        :widths: 10 90
+        
+        * - 項番
+          - 説明
+        * - | (4)
+          - | 更新可能なコードリストを行に持つ場合は、``SimpleReloadableI18nCodeList``\ を利用する。
+        * - | (5)
+          - | ロケールが"en"であるbean定義\ ``CL_PRICE_EN``\ について、コードリストクラスを\ ``JdbcCodeList``\ で設定している。
+        * - | (6)
+          - | ロケールが"ja"であるbean定義\ ``CL_PRICE_JA``\ について、コードリストクラスを\ ``JdbcCodeList``\ で設定している。
+
+  .. group-tab:: XML Config
+
+    - \ ``xxx-codelist.xml``\
+
+      .. code-block:: xml
+        
+        <bean id="CL_I18N_PRICE"
+            class="org.terasoluna.gfw.common.codelist.i18n.SimpleReloadableI18nCodeList">  <!-- (4) -->
+            <property name="rowsByCodeList">
+                <util:map>
+                    <entry key="en" value-ref="CL_PRICE_EN" />
+                    <entry key="ja" value-ref="CL_PRICE_JA" />
+                </util:map>
+            </property>
+        </bean>
+        
+        <bean id="CL_PRICE_EN" parent="AbstractJdbcCodeList">  <!-- (5) -->
+            <property name="querySql"
+                value="SELECT code, label FROM price WHERE locale = 'en' ORDER BY code" />
+            <property name="valueColumn" value="code" />
+            <property name="labelColumn" value="label" />
+        </bean>
+        
+        <bean id="CL_PRICE_JA" parent="AbstractJdbcCodeList">  <!-- (6) -->
+            <property name="querySql"
+                value="SELECT code, label FROM price WHERE locale = 'ja' ORDER BY code" />
+            <property name="valueColumn" value="code" />
+            <property name="labelColumn" value="label" />
+        </bean>
+        
+      .. tabularcolumns:: |p{0.10\linewidth}|p{0.90\linewidth}|
+      .. list-table::
+        :header-rows: 1
+        :widths: 10 90
+        
+        * - 項番
+          - 説明
+        * - | (4)
+          - | 更新可能なコードリストを行に持つ場合は、``SimpleReloadableI18nCodeList``\ を利用する。
+        * - | (5)
+          - | ロケールが"en"であるbean定義\ ``CL_PRICE_EN``\ について、コードリストクラスを\ ``JdbcCodeList``\ で設定している。
+        * - | (6)
+          - | ロケールが"ja"であるbean定義\ ``CL_PRICE_JA``\ について、コードリストクラスを\ ``JdbcCodeList``\ で設定している。
+
 
 テーブル定義(priceテーブル)には以下のデータを投入する。
 
@@ -1031,36 +1490,67 @@ I18nCodeListにおけるロケール解決
 
 \ **fallbackToプロパティの設定**\
 
-.. code-block:: xml
-  
-  <bean id="CL_I18N_PRICE"
-      class="org.terasoluna.gfw.common.codelist.i18n.SimpleI18nCodeList">
-      <property name="rowsByCodeList">
-          <util:map>
-              <entry key="en" value-ref="CL_PRICE_EN" />
-              <entry key="ja" value-ref="CL_PRICE_JA" />
-          </util:map>
-      </property>
-      <property name="fallbackTo" value="en" />  <!-- (1) -->
-  </bean>
-  
-.. tabularcolumns:: |p{0.10\linewidth}|p{0.90\linewidth}|
-.. list-table::
-  :header-rows: 1
-  :widths: 10 90
-  
-  * - 項番
-    - 説明
-  * - | (1)
-    - | \ ``fallbackTo``\ プロパティにロケール"en"を設定する。
-      | これにより、要求されたロケールの言語ロケールが"en"、"ja"以外の場合、ロケール"en"が使用される。
+.. tabs::
+  .. group-tab:: Java Config
+
+    .. code-block:: java
+
+      @Bean("CL_I18N_PRICE")
+      public SimpleI18nCodeList clI18nPrice() {
+          Map<Locale, CodeList> rows =  new LinkedHashMap<>(); // (1)
+          rows.put(Locale.ENGLISH, clPriceEn());
+          rows.put(Locale.JAPANESE, clPriceJa());
+          SimpleI18nCodeList bean = new SimpleI18nCodeList();
+          bean.setRowsByCodeList(rows);
+          bean.setFallbackTo(Locale.ENGLISH);
+          return bean;
+      }
+
+    .. tabularcolumns:: |p{0.10\linewidth}|p{0.90\linewidth}|
+    .. list-table::
+      :header-rows: 1
+      :widths: 10 90
+        
+      * - 項番
+        - 説明
+      * - | (1)
+        - | \ ``fallbackTo``\ プロパティにロケール"en"を設定する。
+          | これにより、要求されたロケールの言語ロケールが"en"、"ja"以外の場合、ロケール"en"が使用される。
+
+  .. group-tab:: XML Config
+
+    .. code-block:: xml
+      
+      <bean id="CL_I18N_PRICE"
+          class="org.terasoluna.gfw.common.codelist.i18n.SimpleI18nCodeList">
+          <property name="rowsByCodeList">
+              <util:map>
+                  <entry key="en" value-ref="CL_PRICE_EN" />
+                  <entry key="ja" value-ref="CL_PRICE_JA" />
+              </util:map>
+          </property>
+          <property name="fallbackTo" value="en" />  <!-- (1) -->
+      </bean>
+      
+    .. tabularcolumns:: |p{0.10\linewidth}|p{0.90\linewidth}|
+    .. list-table::
+      :header-rows: 1
+      :widths: 10 90
+      
+      * - 項番
+        - 説明
+      * - | (1)
+        - | \ ``fallbackTo``\ プロパティにロケール"en"を設定する。
+          | これにより、要求されたロケールの言語ロケールが"en"、"ja"以外の場合、ロケール"en"が使用される。
 
 |
 
-JSPでのコードリスト使用
+.. _codelisti18n_failBackTo:
+
+コードリストの使用
 """"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 
-JSPでコードリストを使用する方法については、前述した\ :ref:`clientSide`\ を参照されたい。
+JPS/テンプレートHTMLでコードリストを使用する方法については、前述した\ :ref:`clientSide`\ を参照されたい。
 
 .. note::
 
@@ -1068,11 +1558,24 @@ JSPでコードリストを使用する方法については、前述した\ :re
 
   \ ``asMap()``\ メソッドについては\ :ref:`codelist-i18nCodeLst-java-implement`\ を参照されたい。
 
-\ **jspの実装例**\
+.. tabs::
+  .. group-tab:: JSP
 
-.. code-block:: jsp
+    \ **jspの実装例**\
+    
+    .. code-block:: jsp
+    
+      <form:select path="basePrice" items="${CL_I18N_PRICE}" />
 
-  <form:select path="basePrice" items="${CL_I18N_PRICE}" />
+  .. group-tab:: Thymeleaf
+
+    \ **テンプレートHTML実装例**\
+    
+      .. code-block:: html
+      
+        <select th:field="*{basePrice}">
+            <option th:each="price : ${CL_I18N_PRICE}" th:value="${price.key}" th:text="${price.value}"></option>
+        </select>
 
 \ **出力HTML lang=en**\
 
@@ -1080,11 +1583,11 @@ JSPでコードリストを使用する方法については、前述した\ :re
 
   <select id="basePrice" name="basePrice">
       <option value="0">unlimited</option>
-      <option value="1">Less than \\10,000</option>
-      <option value="2">Less than \\20,000</option>
-      <option value="3">Less than \\30,000</option>
-      <option value="4">Less than \\40,000</option>
-      <option value="5">Less than \\50,000</option>
+      <option value="1">Less than \10,000</option>
+      <option value="2">Less than \20,000</option>
+      <option value="3">Less than \30,000</option>
+      <option value="4">Less than \40,000</option>
+      <option value="5">Less than \50,000</option>
   </select>
 
 \ **出力HTML lang=ja**\
@@ -1122,7 +1625,7 @@ Javaクラスでのコードリスト使用
 \ ``I18nCodeList``\ からコードリストを取得するには、以下のいずれかのメソッドを使用する。
 
 - | \ ``asMap()``\ メソッド
-  | \ ``org.springframework.context.i18n.LocaleContextHolder``\ を利用して適切なロケールのコードリストを取得する。``LocaleContextHolder``\ は\ ``org.springframework.web.servlet.LocaleResolver``\ を利用してクライアントから指定されたロケールを取得する。
+  | \ ``org.springframework.context.i18n.LocaleContextHolder``\ を利用して適切なロケールのコードリストを取得する。\ ``LocaleContextHolder``\ は\ ``org.springframework.web.servlet.LocaleResolver``\ を利用してクライアントから指定されたロケールを取得する。
 - | \ ``asMap(Locale)``\ メソッド
   | 指定されたロケールのコードリストを取得する。
 
@@ -1201,7 +1704,7 @@ Javaクラスでのコードリスト使用
     - 説明
   * - | (1)
     - | \ ``I18nCodeList#asMap(Locale)``\ メソッドで、指定したロケールのコードリストを\ ``java.util.Map``\ 形式で取得する。
-      | ここでは \ ``Locale.ENGLISH``\（"en"）を指定している。
+      | ここでは \ ``Locale.ENGLISH``\ （"en"）を指定している。
 
 |
 
@@ -1210,26 +1713,49 @@ Javaクラスでのコードリスト使用
 特定のコード値からコード名を表示する
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-JSPからコードリストを参照する場合は、\ ``CodeListInterceptor``\ がリクエストスコープにコードリストを \ ``java.util.Map``\ で格納しているため、``Map``\ インターフェースと同じ方法で参照することができる。 
+JSP/テンプレートHTMLからコードリストを参照する場合は、\ ``CodeListInterceptor``\ がリクエストスコープにコードリストを \ ``java.util.Map``\ で格納しているため、\ ``Map``\ インターフェースと同じ方法で参照することができる。 
 
 コードリストを用いて特定のコード値からコード名を表示する方法について、以下に実装例を示す。
 
-\ **jspの実装例**\
+.. tabs::
+  .. group-tab:: JSP
 
-.. code-block:: jsp
+    \ **jspの実装例**\
+    
+    .. code-block:: jsp
+    
+        Order Status : ${f:h(CL_ORDERSTATUS[orderForm.orderStatus])} // (1)
+    
+    .. tabularcolumns:: |p{0.10\linewidth}|p{0.90\linewidth}|
+    .. list-table::
+      :header-rows: 1
+      :widths: 10 90
+    
+      * - 項番
+        - 説明
+      * - | (1)
+        - コードリストを定義したbeanID(この例では\ ``CL_ORDERSTATUS``\ ) を属性名として、コードリスト(\ ``java.util.Map``\ インタフェース)を取得する。
+          取得した\ ``Map``\ インタフェースのキーとしてコード値(この例では\ ``orderStatus``\ に格納された値) を指定することで、対応するコード名を表示することができる。
 
-    Order Status : ${f:h(CL_ORDERSTATUS[orderForm.orderStatus])}
+  .. group-tab:: Thymeleaf
 
-.. tabularcolumns:: |p{0.10\linewidth}|p{0.90\linewidth}|
-.. list-table::
-  :header-rows: 1
-  :widths: 10 90
-
-  * - 項番
-    - 説明
-  * - | (1)
-    - コードリストを定義したbeanID(この例では\ ``CL_ORDERSTATUS``\ ) を属性名として、コードリスト(\ ``java.util.Map``\ インタフェース)を取得する。
-      取得した\ ``Map``\ インタフェースのキーとしてコード値(この例では\ ``orderStatus``\ に格納された値) を指定することで、対応するコード名を表示することができる。
+    \ **テンプレートHTML実装例**\
+    
+    .. code-block:: html
+    
+      <span th:text="${orderForm.orderStatus} != null ? |Order Status : ${CL_ORDERSTATUS.get(orderForm.orderStatus)}|"></span> <!--/* (1) */-->
+    
+    .. tabularcolumns:: |p{0.10\linewidth}|p{0.90\linewidth}|
+    .. list-table::
+      :header-rows: 1
+      :widths: 10 90
+    
+      * - 項番
+        - 説明
+      * - | (1)
+        - コードリストを定義したbeanID(この例では\ ``CL_ORDERSTATUS``\ ) を属性名として、コードリスト(\ ``java.util.Map``\ インタフェース)を取得する。
+          取得した\ ``Map``\ インタフェースのキーとしてコード値(この例では\ ``orderStatus``\ に格納された値) を指定することで、対応するコード名を表示することができる。
+          キーとして利用する変数値は必ず\ ``null``\ チェックを行うことを推奨する。詳細は、\ :doc:`../WebApplicationDetail/Thymeleaf`\ の\ :ref:`SpEL評価時におけるnull-safetyの影響について <ThymeleafOverviewNullSafetyAtSpEL>`\ を参照されたい。
 
 |
 
@@ -1250,18 +1776,39 @@ BeanValidationや、メッセージ出力方法の詳細については、\ :doc
 
 コードリストを用いた入力チェック方法について、以下に実装例を示す。
 
-\ **bean定義ファイル(xxx-codelist.xml)の定義**\
+\ **bean定義ファイルの定義**\
 
-.. code-block:: xml
+.. tabs::
+  .. group-tab:: Java Config
 
-  <bean id="CL_GENDER" class="org.terasoluna.gfw.common.codelist.SimpleMapCodeList">
-      <property name="map">
-          <map>
-              <entry key="M" value="Male" />
-              <entry key="F" value="Female" />
-          </map>
-      </property>
-  </bean>
+    - \ ``XxxCodelistConfig.java``\
+
+      .. code-block:: java
+      
+        @Bean("CL_GENDER")
+        public SimpleMapCodeList clGender() {
+            SimpleMapCodeList bean = new SimpleMapCodeList();
+            Map<String, String> map = new LinkedHashMap<>();
+            map.put("M", "Male");
+            map.put("F", "Femal");
+            bean.setMap(map);
+            return bean;
+        }
+
+  .. group-tab:: XML Config
+
+    - \ ``xxx-codelist.xml``\
+
+      .. code-block:: xml
+      
+        <bean id="CL_GENDER" class="org.terasoluna.gfw.common.codelist.SimpleMapCodeList">
+            <property name="map">
+                <map>
+                    <entry key="M" value="Male" />
+                    <entry key="F" value="Female" />
+                </map>
+            </property>
+        </bean>
 
 \ **Formオブジェクト**\
 
@@ -1289,13 +1836,11 @@ BeanValidationや、メッセージ出力方法の詳細については、\ :doc
 
 .. note::
 
-  terasoluna-gfw-common 5.4.2.RELEASEから、``@ExistInCodeList``\ の入力チェックの対象として、 \ ``CharSequence``\ インタフェースの実装クラス(\ ``String``\ など) または \ ``Character``\ に加え、\ ``Number``\ 継承クラス（\ ``Integer``\ など）をサポートするよう変更された。
+  terasoluna-gfw-common 5.4.2.RELEASEから、\ ``@ExistInCodeList``\ の入力チェックの対象として、 \ ``CharSequence``\ インタフェースの実装クラス(\ ``String``\ など) または \ ``Character``\ に加え、\ ``Number``\ 継承クラス（\ ``Integer``\ など）をサポートするよう変更された。
 
   \ ``NumberRangeCodeList``\ の \ ``valueFormat``\ プロパティを指定している場合、 \ ``Number``\ 型フィールドの値を当該プロパティを利用してフォーマットした値がコードリストに存在することをチェックする。
 
-
 |
-
 
 How to extend
 --------------------------------------------------------------------------------
@@ -1320,7 +1865,7 @@ How to extend
 #. Task Schedulerで実現する方法
 #. Controller(Service)クラスでrefreshメソッドを呼び出す方法
 
-本ガイドラインでは、\ `Springから提供されているTask Scheduler <https://docs.spring.io/spring-framework/docs/6.0.3/reference/html/integration.html#scheduling>`_\ を使用して、コードリストを定期的にリロードする方式を基本的に推奨する。
+本ガイドラインでは、\ `Springから提供されているTask Scheduler <https://docs.spring.io/spring-framework/docs/6.1.3/reference/html/integration.html#scheduling>`_\ を使用して、コードリストを定期的にリロードする方式を基本的に推奨する。
 
 ただし、任意のタイミングでコードリストをリフレッシュする必要がある場合はControllerクラスでrefreshメソッドを呼び出す方法で実現すればよい。
 
@@ -1335,66 +1880,149 @@ Task Schedulerで実現する方法
 
 Task Schedulerの設定例について、以下に示す。
 
-\ **bean定義ファイル(xxx-codelist.xml)の定義**\
+\ **bean定義ファイルの定義**\
 
-.. code-block:: xml
+.. tabs::
+  .. group-tab:: Java Config
 
-  <task:scheduler id="taskScheduler" pool-size="10"/>  <!-- (1) -->
+    - \ ``XxxCodelistConfig.java``\
 
-  <task:scheduled-tasks scheduler="taskScheduler">  <!-- (2) -->
-      <task:scheduled ref="CL_AUTHORITIES" method="refresh" cron="${cron.codelist.refreshTime}"/>  <!-- (3) -->
-  </task:scheduled-tasks>
+      .. code-block:: java
 
-  <bean id="CL_AUTHORITIES" parent="AbstractJdbcCodeList">
-      <property name="querySql"
-          value="SELECT authority_id, authority_name FROM authority ORDER BY authority_id" />
-      <property name="valueColumn" value="authority_id" />
-      <property name="labelColumn" value="authority_name" />
-  </bean>
+        public class XxxCodelistConfig implements SchedulingConfigurer { // (2)
 
-.. tabularcolumns:: |p{0.10\linewidth}|p{0.90\linewidth}|
-.. list-table::
-  :header-rows: 1
-  :widths: 10 90
+            @Value("${cron.codelist.refreshTime}")
+            private String codelistRefreshTime;
+        
+            @Override
+            public void configureTasks(ScheduledTaskRegistrar taskRegistrar) {
+                taskRegistrar.setScheduler(taskScheduler()); // (2)
+                taskRegistrar.addTriggerTask(() -> clCronRefreshCodelist().refresh(), // (3)
+                        new CronTrigger(codelistRefreshTime)); // (3)
+            }
 
-  * - 項番
-    - 説明
-  * - | (1)
-    - | \ ``<task:scheduler>``\ の要素を定義する。pool-size属性にスレッドのプールサイズを指定する。
-      | pool-size属性を指定しない場合、"1" が設定される。
-  * - | (2)
-    - | \ ``<task:scheduled-tasks>``\ の要素を定義し、scheduler属性に、\ ``<task:scheduler>``\ のIDを設定する。
-  * - | (3)
-    - | \ ``<task:scheduled>``\ 要素を定義する。method属性に、refreshメソッドを指定する。
-      | cron属性に、``org.springframework.scheduling.support.CronExpression``\ でサポートされた形式で記述すること。
-      | cron属性は開発環境、商用環境など環境によってリロードするタイミングが変わることが想定されるため、プロパティファイルや、環境変数等から取得することを推奨する。
-      |
-      | \ **cron属性の設定例**\
-      | 「秒 分 時 月 年 曜日」で指定する。
-      | 毎秒実行               「\* \* \* \* \* \*」
-      | 毎時実行               「0 0 \* \* \* \*」
-      | 平日の9-17時の毎時実行 「0 0 9-17 \* \* MON-FRI」
-      |
-      | cronの指定値の詳細については、\ `CronExpressionのJavaDoc <https://docs.spring.io/spring-framework/docs/6.0.3/javadoc-api/org/springframework/scheduling/support/CronExpression.html#parse(java.lang.String)>`_\ を参照されたい。
+            // (1)
+            @Bean("taskScheduler")
+            public Executor taskScheduler() {
+                return Executors.newScheduledThreadPool(10);
+            }
+
+            @Bean("CL_CRON_REFRESH_CODELIST")
+            public JdbcCodeList clCronRefreshCodelist() {
+                JdbcCodeList jdbcCodeList = abstractJdbcCodeList();
+                jdbcCodeList.setQuerySql(
+                        "SELECT authority_id, authority_name FROM t_authority ORDER BY authority_id");
+                jdbcCodeList.setValueColumn("authority_id");
+                jdbcCodeList.setLabelColumn("authority_name");
+                return jdbcCodeList;
+            }
+     
+      .. tabularcolumns:: |p{0.10\linewidth}|p{0.90\linewidth}|
+      .. list-table::
+        :header-rows: 1
+        :widths: 10 90
+      
+        * - 項番
+          - 説明
+        * - | (1)
+          - | TaskSchedulerを定義する。引数にはスレッドのプールサイズを指定する。
+        * - | (2)
+          - | \ ``SchedulingConfigurer``\ の\ ``configureTasks``\ メソッドを実装し、schedulerに、(1)で定義したTaskSchedulerを設定する。
+        * - | (3)
+          - | 実行するTaskを定義する。
+            | ここでは\ ``JdbcCodeList#refresh``\ を定義している。
+            | cron属性に、\ ``org.springframework.scheduling.support.CronExpression``\ でサポートされた形式で記述すること。
+            | cron属性は開発環境、商用環境など環境によってリロードするタイミングが変わることが想定されるため、プロパティファイルや、環境変数等から取得することを推奨する。
+            |
+            | \ **cron属性の設定例**\
+            | 「秒 分 時 月 年 曜日」で指定する。
+            | 毎秒実行               「\* \* \* \* \* \*」
+            | 毎時実行               「0 0 \* \* \* \*」
+            | 平日の9-17時の毎時実行 「0 0 9-17 \* \* MON-FRI」
+            |
+            | cronの指定値の詳細については、\ `CronExpressionのJavaDoc <https://docs.spring.io/spring-framework/docs/6.1.3/javadoc-api/org/springframework/scheduling/support/CronExpression.html#parse(java.lang.String)>`_\ を参照されたい。
+
+  .. group-tab:: XML Config
+
+    - \ ``xxx-codelist.xml``\
+
+      .. code-block:: xml
+      
+        <task:scheduler id="taskScheduler" pool-size="10"/>  <!-- (1) -->
+      
+        <task:scheduled-tasks scheduler="taskScheduler">  <!-- (2) -->
+            <task:scheduled ref="CL_AUTHORITIES" method="refresh" cron="${cron.codelist.refreshTime}"/>  <!-- (3) -->
+        </task:scheduled-tasks>
+      
+        <bean id="CL_AUTHORITIES" parent="AbstractJdbcCodeList">
+            <property name="querySql"
+                value="SELECT authority_id, authority_name FROM authority ORDER BY authority_id" />
+            <property name="valueColumn" value="authority_id" />
+            <property name="labelColumn" value="authority_name" />
+        </bean>
+      
+      .. tabularcolumns:: |p{0.10\linewidth}|p{0.90\linewidth}|
+      .. list-table::
+        :header-rows: 1
+        :widths: 10 90
+      
+        * - 項番
+          - 説明
+        * - | (1)
+          - | \ ``<task:scheduler>``\ の要素を定義する。pool-size属性にスレッドのプールサイズを指定する。
+            | pool-size属性を指定しない場合、"1" が設定される。
+        * - | (2)
+          - | \ ``<task:scheduled-tasks>``\ の要素を定義し、scheduler属性に、\ ``<task:scheduler>``\ のIDを設定する。
+        * - | (3)
+          - | \ ``<task:scheduled>``\ 要素を定義する。method属性に、refreshメソッドを指定する。
+            | cron属性に、``org.springframework.scheduling.support.CronExpression``\ でサポートされた形式で記述すること。
+            | cron属性は開発環境、商用環境など環境によってリロードするタイミングが変わることが想定されるため、プロパティファイルや、環境変数等から取得することを推奨する。
+            |
+            | \ **cron属性の設定例**\
+            | 「秒 分 時 月 年 曜日」で指定する。
+            | 毎秒実行               「\* \* \* \* \* \*」
+            | 毎時実行               「0 0 \* \* \* \*」
+            | 平日の9-17時の毎時実行 「0 0 9-17 \* \* MON-FRI」
+            |
+            | cronの指定値の詳細については、\ `CronExpressionのJavaDoc <https://docs.spring.io/spring-framework/docs/6.1.3/javadoc-api/org/springframework/scheduling/support/CronExpression.html#parse(java.lang.String)>`_\ を参照されたい。
 
 |
 
 Controller(Service)クラスでrefreshメソッドを呼び出す方法
 """"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 
-refreshメソッドを直接呼び出す場合について、
-JdbcCodeListのrefreshメソッドをServiceクラスで呼び出す場合の実装例を、以下に示す。
+refreshメソッドを直接呼び出す場合について、JdbcCodeListのrefreshメソッドをServiceクラスで呼び出す場合の実装例を、以下に示す。
 
-\ **bean定義ファイル(xxx-codelist.xml)の定義**\
+\ **bean定義ファイルの定義**\
 
-.. code-block:: xml
+.. tabs::
+  .. group-tab:: Java Config
 
-  <bean id="CL_AUTHORITIES" parent="AbstractJdbcCodeList">
-      <property name="querySql"
-          value="SELECT authority_id, authority_name FROM authority ORDER BY authority_id" />
-      <property name="valueColumn" value="authority_id" />
-      <property name="labelColumn" value="authority_name" />
-  </bean>
+    - \ ``XxxCodelistConfig.java``\
+
+      .. code-block:: java
+
+        @Bean("CL_AUTHORITIES")
+        public JdbcCodeList clAuthorities() {
+            JdbcCodeList jdbcCodeList = abstractJdbcCodeList();
+            jdbcCodeList.setQuerySql("SELECT authority_id, authority_name FROM t_authority ORDER BY authority_id");
+            jdbcCodeList.setValueColumn("authority_id");
+            jdbcCodeList.setLabelColumn("authority_name");
+            return jdbcCodeList;
+        }
+
+  .. group-tab:: XML Config
+
+    - \ ``xxx-codelist.xml``\
+
+      .. code-block:: xml
+      
+        <bean id="CL_AUTHORITIES" parent="AbstractJdbcCodeList">
+            <property name="querySql"
+                value="SELECT authority_id, authority_name FROM authority ORDER BY authority_id" />
+            <property name="valueColumn" value="authority_id" />
+            <property name="labelColumn" value="authority_name" />
+        </bean>
 
 \ **Controllerクラス**\
 
@@ -1532,7 +2160,7 @@ JdbcCodeListのrefreshメソッドをServiceクラスで呼び出す場合の実
           LocalDateTime localDateTime = LocalDateTime.now(clock);
           LocalDateTime nextYearDateTime = localDateTime.plusYears(1);
 
-          Map<String, String> depYearMap = new LinkedHashMap<String, String>();
+          Map<String, String> depYearMap = new LinkedHashMap<>();
 
           String thisYear = String.valueOf(localDateTime.getYear());
           String nextYear = String.valueOf(nextYearDateTime.getYear());
@@ -1561,45 +2189,101 @@ JdbcCodeListのrefreshメソッドをServiceクラスで呼び出す場合の実
     - | \ ``asMap``\ メソッドをオーバライドして、今年と来年の年のリストを作成する。
       | 作成したいコードリスト毎に実装が異なる。
 
-\ **bean定義ファイル(xxx-codelist.xml)の定義**\
+\ **bean定義ファイルの定義**\
 
-.. code-block:: xml
+.. tabs::
+  .. group-tab:: Java Config
 
-  <bean id="CL_YEAR" class="com.example.sample.domain.codelist.DepYearCodeList"> <!-- (1) -->
-      <property name="clockFactory" ref="clockFactory" /> <!-- (2) -->
-  </bean>
+    - \ ``XxxCodelistConfig.java``\
 
-.. tabularcolumns:: |p{0.10\linewidth}|p{0.90\linewidth}|
-.. list-table::
-  :header-rows: 1
-  :widths: 10 90
+      .. code-block:: java
+      
+        // (1)
+        @Bean("CL_YEAR")
+        public DepYearCodeList clYearCodelist(ClockFactory clockFactory) {
+            DepYearCodeList bean = new DepYearCodeList(); // (1)
+            bean.setClockFactory(clockFactory); // (2)
+            return bean;
+        }
+      
+      .. tabularcolumns:: |p{0.10\linewidth}|p{0.90\linewidth}|
+      .. list-table::
+        :header-rows: 1
+        :widths: 10 90
+      
+        * - 項番
+          - 説明
+        * - | (1)
+          - | 作成したコードリストクラスをbean定義する。
+            | id に\ ``CL_YEAR``\ を指定することで、bean定義で設定した\ ``CodeListInterceptor``\ によりコードリストをコンポーネント登録する。
+        * - | (2)
+          - | システム日付のDateクラスを作成する\ ``ClockFactory``\ を設定する。
+            | 事前に、bean定義ファイルにDataFactory実装クラスを設定する必要がある。
 
-  * - 項番
-    - 説明
-  * - | (1)
-    - | 作成したコードリストクラスをbean定義する。
-      | id に\ ``CL_YEAR``\ を指定することで、bean定義で設定した\ ``CodeListInterceptor``\ によりコードリストをコンポーネント登録する。
-  * - | (2)
-    - | システム日付のDateクラスを作成する\ ``ClockFactory``\ を設定する。
-      | 事前に、bean定義ファイルにDataFactory実装クラスを設定する必要がある。
+  .. group-tab:: XML Config
+
+    - \ ``xxx-codelist.xml``\
+
+      .. code-block:: xml
+      
+        <bean id="CL_YEAR" class="com.example.sample.domain.codelist.DepYearCodeList"> <!-- (1) -->
+            <property name="clockFactory" ref="clockFactory" /> <!-- (2) -->
+        </bean>
+      
+      .. tabularcolumns:: |p{0.10\linewidth}|p{0.90\linewidth}|
+      .. list-table::
+        :header-rows: 1
+        :widths: 10 90
+      
+        * - 項番
+          - 説明
+        * - | (1)
+          - | 作成したコードリストクラスをbean定義する。
+            | id に\ ``CL_YEAR``\ を指定することで、bean定義で設定した\ ``CodeListInterceptor``\ によりコードリストをコンポーネント登録する。
+        * - | (2)
+          - | システム日付のDateクラスを作成する\ ``ClockFactory``\ を設定する。
+            | 事前に、bean定義ファイルにDataFactory実装クラスを設定する必要がある。
 
 |
 
-\ **jspの実装例**\
+.. tabs::
+  .. group-tab:: JSP
 
-.. code-block:: jsp
+    \ **jspの実装例**\
+    
+    .. code-block:: jsp
+    
+      <form:select path="mostRecentYear" items="${CL_YEAR}" /> <!-- (1) -->
+    
+    .. tabularcolumns:: |p{0.10\linewidth}|p{0.90\linewidth}|
+    .. list-table::
+      :header-rows: 1
+      :widths: 10 90
+    
+      * - 項番
+        - 説明
+      * - | (1)
+        - | items属性にコンポーネント登録した\ ``CL_YEAR``\ を\ ``${}``\ プレースホルダー で指定することで、該当のコードリストを取得することができる。
 
-  <form:select path="mostRecentYear" items="${CL_YEAR}" /> <!-- (1) -->
+  .. group-tab:: Thymeleaf
 
-.. tabularcolumns:: |p{0.10\linewidth}|p{0.90\linewidth}|
-.. list-table::
-  :header-rows: 1
-  :widths: 10 90
-
-  * - 項番
-    - 説明
-  * - | (1)
-    - | items属性にコンポーネント登録した\ ``CL_YEAR``\ を\ ``${}``\ プレースホルダー で指定することで、該当のコードリストを取得することができる。
+    \ **テンプレートHTML実装例**\
+    
+    .. code-block:: html
+    
+      <select th:field="*{mostRecentYear}">
+          <option th:each="recentYear : ${CL_YEAR}" th:value="${recentYear.key}" th:text="${recentYear.value}"></option> <!--/* (1) */-->
+      </select>
+    
+    .. tabularcolumns:: |p{0.10\linewidth}|p{0.90\linewidth}|
+    .. list-table::
+      :header-rows: 1
+      :widths: 10 90
+    
+      * - 項番
+        - 説明
+      * - | (1)
+        - | コンポーネント登録した\ ``CL_YEAR``\ を 変数式\ ``${}``\ で指定することで、該当のコードリストを取得することができる。
 
 \ **出力HTML**\
 
@@ -1637,112 +2321,215 @@ SimpleI18nCodeListのコードリスト設定方法
 行単位でLocale毎の\ ``java.util.Map``\ (key=コード値, value=ラベル)を設定する
 """"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 
-\ **bean定義ファイル(xxx-codelist.xml)の定義**\
+\ **bean定義ファイルの定義**\
 
-.. code-block:: xml
+.. tabs::
+  .. group-tab:: Java Config
 
-  <bean id="CL_I18N_PRICE"
-      class="org.terasoluna.gfw.common.codelist.i18n.SimpleI18nCodeList">
-      <property name="rows"> <!-- (1) -->
-          <util:map>
-              <entry key="en">
-                  <util:map>
-                      <entry key="0" value="unlimited" />
-                      <entry key="10000" value="Less than \\10,000" />
-                      <entry key="20000" value="Less than \\20,000" />
-                      <entry key="30000" value="Less than \\30,000" />
-                      <entry key="40000" value="Less than \\40,000" />
-                      <entry key="50000" value="Less than \\50,000" />
-                  </util:map>
-              </entry>
-              <entry key="ja">
-                  <util:map>
-                      <entry key="0" value="上限なし" />
-                      <entry key="10000" value="10,000円以下" />
-                      <entry key="20000" value="20,000円以下" />
-                      <entry key="30000" value="30,000円以下" />
-                      <entry key="40000" value="40,000円以下" />
-                      <entry key="50000" value="50,000円以下" />
-                  </util:map>
-              </entry>
-          </util:map>
-      </property>
-  </bean>
+    - \ ``XxxCodelistConfig.java``\
 
-.. tabularcolumns:: |p{0.10\linewidth}|p{0.90\linewidth}|
-.. list-table::
-  :header-rows: 1
-  :widths: 10 90
+      .. code-block:: java
 
-  * - 項番
-    - 説明
-  * - | (1)
-    - | rowsプロパティに対して、"MapのMap"を設定する。外側のMapのkeyは\ ``java.lang.Locale``\ である。
-      | 内側のMapのkeyはコード値、valueはロケールに対応したラベルである。
+        @Bean("CL_I18N_PRICE")
+        public SimpleI18nCodeList clI18nPriceMapLocale() {
+            Map<Locale, Map<String, String>> rowsMap = new LinkedHashMap<>();
+            Map<String, String> enMap = new LinkedHashMap<>();
+            enMap.put("0", "unlimited");
+            enMap.put("10000", "Less than \\10,000");
+            enMap.put("20000", "Less than \\20,000");
+            enMap.put("30000", "Less than \\30,000");
+            enMap.put("40000", "Less than \\40,000");
+            enMap.put("50000", "Less than \\50,000");
+            Map<String, String> jaMap = new LinkedHashMap<>();
+            jaMap.put("0", "上限なし");
+            jaMap.put("10000", "10,000円以下");
+            jaMap.put("20000", "20,000円以下");
+            jaMap.put("30000", "30,000円以下");
+            jaMap.put("40000", "40,000円以下");
+            jaMap.put("50000", "50,000円以下");
+            rowsMap.put(Locale.ENGLISH, enMap);
+            rowsMap.put(Locale.JAPANESE, jaMap);
+            SimpleI18nCodeList bean = new SimpleI18nCodeList();
+            bean.setRows(rowsMap); // (1)
+            bean.setFallbackTo(Locale.ENGLISH);
+            return bean;
+        }
+      
+      .. tabularcolumns:: |p{0.10\linewidth}|p{0.90\linewidth}|
+      .. list-table::
+        :header-rows: 1
+        :widths: 10 90
+      
+        * - 項番
+          - 説明
+        * - | (1)
+          - | rowsプロパティに対して、"MapのMap"を設定する。外側のMapのkeyは\ ``java.lang.Locale``\ である。
+            | 内側のMapのkeyはコード値、valueはロケールに対応したラベルである。
+
+  .. group-tab:: XML Config
+
+    - \ ``xxx-codelist.xml``\
+
+      .. code-block:: xml
+      
+        <bean id="CL_I18N_PRICE"
+            class="org.terasoluna.gfw.common.codelist.i18n.SimpleI18nCodeList">
+            <property name="rows"> <!-- (1) -->
+                <util:map>
+                    <entry key="en">
+                        <util:map>
+                            <entry key="0" value="unlimited" />
+                            <entry key="10000" value="Less than \10,000" />
+                            <entry key="20000" value="Less than \20,000" />
+                            <entry key="30000" value="Less than \30,000" />
+                            <entry key="40000" value="Less than \40,000" />
+                            <entry key="50000" value="Less than \50,000" />
+                        </util:map>
+                    </entry>
+                    <entry key="ja">
+                        <util:map>
+                            <entry key="0" value="上限なし" />
+                            <entry key="10000" value="10,000円以下" />
+                            <entry key="20000" value="20,000円以下" />
+                            <entry key="30000" value="30,000円以下" />
+                            <entry key="40000" value="40,000円以下" />
+                            <entry key="50000" value="50,000円以下" />
+                        </util:map>
+                    </entry>
+                </util:map>
+            </property>
+        </bean>
+      
+      .. tabularcolumns:: |p{0.10\linewidth}|p{0.90\linewidth}|
+      .. list-table::
+        :header-rows: 1
+        :widths: 10 90
+      
+        * - 項番
+          - 説明
+        * - | (1)
+          - | rowsプロパティに対して、"MapのMap"を設定する。外側のMapのkeyは\ ``java.lang.Locale``\ である。
+            | 内側のMapのkeyはコード値、valueはロケールに対応したラベルである。
 
 |
 
 列単位でコード値毎の\ ``java.util.Map``\ (key=Locale, value=ラベル)を設定する
 """"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 
-\ **bean定義ファイル(xxx-codelist.xml)の定義**\
+\ **bean定義ファイルの定義**\
 
-.. code-block:: xml
+.. tabs::
+  .. group-tab:: Java Config
 
-  <bean id="CL_I18N_PRICE"
-      class="org.terasoluna.gfw.common.codelist.i18n.SimpleI18nCodeList">
-      <property name="columns"> <!-- (1) -->
-          <util:map>
-              <entry key="0">
-                  <util:map>
-                      <entry key="en" value="unlimited" />
-                      <entry key="ja" value="上限なし" />
-                  </util:map>
-              </entry>
-              <entry key="10000">
-                  <util:map>
-                      <entry key="en" value="Less than \\10,000" />
-                      <entry key="ja" value="10,000円以下" />
-                  </util:map>
-              </entry>
-              <entry key="20000">
-                  <util:map>
-                      <entry key="en" value="Less than \\20,000" />
-                      <entry key="ja" value="20,000円以下" />
-                  </util:map>
-              </entry>
-              <entry key="30000">
-                  <util:map>
-                      <entry key="en" value="Less than \\30,000" />
-                      <entry key="ja" value="30,000円以下" />
-                  </util:map>
-              </entry>
-              <entry key="40000">
-                  <util:map>
-                      <entry key="en" value="Less than \\40,000" />
-                      <entry key="ja" value="40,000円以下" />
-                  </util:map>
-              </entry>
-              <entry key="50000">
-                  <util:map>
-                      <entry key="en" value="Less than \\50,000" />
-                      <entry key="ja" value="50,000円以下" />
-                  </util:map>
-              </entry>
-          </util:map>
-      </property>
-  </bean>
+    - \ ``XxxCodelistConfig.java``\
 
-.. tabularcolumns:: |p{0.10\linewidth}|p{0.90\linewidth}|
-.. list-table::
-  :header-rows: 1
-  :widths: 10 90
+      .. code-block:: java
 
-  * - 項番
-    - 説明
-  * - | (1)
-    - | columnsプロパティに対して、"MapのMap"を設定する。外側のMapのkeyはコード値である。
-      | 内側のMapのkeyは\ ``java.lang.Locale``\、valueはロケールに対応したラベルである。
+        @Bean("CL_I18N_PRCL_I18N_PRICEICE_MAP_CODE")
+        public SimpleI18nCodeList clI18nPriceMapCode() {
+            Map<String, Map<Locale, String>> columnsMap = new LinkedHashMap<>();
+            Map<Locale, String> key1Map = new LinkedHashMap<>();
+            key1Map.put(Locale.ENGLISH, "unlimited");
+            key1Map.put(Locale.JAPANESE, "上限なし");
+            Map<Locale, String> key2Map = new LinkedHashMap<>();
+            key2Map.put(Locale.ENGLISH, "Less than \\10,000");
+            key2Map.put(Locale.JAPANESE, "10,000円以下");
+            Map<Locale, String> key3Map = new LinkedHashMap<>();
+            key3Map.put(Locale.ENGLISH, "Less than \\20,000");
+            key3Map.put(Locale.JAPANESE, "20,000円以下");
+            Map<Locale, String> key4Map = new LinkedHashMap<>();
+            key4Map.put(Locale.ENGLISH, "Less than \\30,000");
+            key4Map.put(Locale.JAPANESE, "30,000円以下");
+            Map<Locale, String> key5Map = new LinkedHashMap<>();
+            key5Map.put(Locale.ENGLISH, "Less than \\50,000");
+            key5Map.put(Locale.JAPANESE, "40,000円以下");
+            Map<Locale, String> key6Map = new LinkedHashMap<>();
+            key6Map.put(Locale.ENGLISH, "Less than \\50,000");
+            key6Map.put(Locale.JAPANESE, "50,000円以下");
+    
+            columnsMap.put("0", key1Map);
+            columnsMap.put("10000", key2Map);
+            columnsMap.put("20000", key3Map);
+            columnsMap.put("30000", key4Map);
+            columnsMap.put("40000", key5Map);
+            columnsMap.put("50000", key6Map);
+            SimpleI18nCodeList bean = new SimpleI18nCodeList();
+            bean.setColumns(columnsMap); // (1)
+            bean.setFallbackTo(Locale.ENGLISH);
+            return bean;
+        }
+      
+      .. tabularcolumns:: |p{0.10\linewidth}|p{0.90\linewidth}|
+      .. list-table::
+        :header-rows: 1
+        :widths: 10 90
+      
+        * - 項番
+          - 説明
+        * - | (1)
+          - | columnsプロパティに対して、"MapのMap"を設定する。外側のMapのkeyはコード値である。
+            | 内側のMapのkeyは\ ``java.lang.Locale``\ 、valueはロケールに対応したラベルである。
+
+  .. group-tab:: XML Config
+
+    - \ ``xxx-codelist.xml``\
+
+      .. code-block:: xml
+      
+        <bean id="CL_I18N_PRICE"
+            class="org.terasoluna.gfw.common.codelist.i18n.SimpleI18nCodeList">
+            <property name="columns"> <!-- (1) -->
+                <util:map>
+                    <entry key="0">
+                        <util:map>
+                            <entry key="en" value="unlimited" />
+                            <entry key="ja" value="上限なし" />
+                        </util:map>
+                    </entry>
+                    <entry key="10000">
+                        <util:map>
+                            <entry key="en" value="Less than \10,000" />
+                            <entry key="ja" value="10,000円以下" />
+                        </util:map>
+                    </entry>
+                    <entry key="20000">
+                        <util:map>
+                            <entry key="en" value="Less than \20,000" />
+                            <entry key="ja" value="20,000円以下" />
+                        </util:map>
+                    </entry>
+                    <entry key="30000">
+                        <util:map>
+                            <entry key="en" value="Less than \30,000" />
+                            <entry key="ja" value="30,000円以下" />
+                        </util:map>
+                    </entry>
+                    <entry key="40000">
+                        <util:map>
+                            <entry key="en" value="Less than \40,000" />
+                            <entry key="ja" value="40,000円以下" />
+                        </util:map>
+                    </entry>
+                    <entry key="50000">
+                        <util:map>
+                            <entry key="en" value="Less than \50,000" />
+                            <entry key="ja" value="50,000円以下" />
+                        </util:map>
+                    </entry>
+                </util:map>
+            </property>
+        </bean>
+      
+      .. tabularcolumns:: |p{0.10\linewidth}|p{0.90\linewidth}|
+      .. list-table::
+        :header-rows: 1
+        :widths: 10 90
+      
+        * - 項番
+          - 説明
+        * - | (1)
+          - | columnsプロパティに対して、"MapのMap"を設定する。外側のMapのkeyはコード値である。
+            | 内側のMapのkeyは\ ``java.lang.Locale``\ 、valueはロケールに対応したラベルである。
 
 |
 
@@ -1756,38 +2543,85 @@ NumberRangeCodeListのバリエーション
 
 次に、Toの値をFromの値より小さくする(To < From)場合の実装例を、以下に示す。
 
-\ **bean定義ファイル(xxx-codelist.xml)の定義**\
+\ **bean定義ファイルの定義**\
 
-.. code-block:: xml
+.. tabs::
+  .. group-tab:: Java Config
 
-  <bean id="CL_BIRTH_YEAR"
-      class="org.terasoluna.gfw.common.codelist.NumberRangeCodeList">
-      <property name="from" value="2013" /> <!-- (1) -->
-      <property name="to" value="2000" /> <!-- (2) -->
-  </bean>
+    - \ ``XxxCodelistConfig.java``\
 
-.. tabularcolumns:: |p{0.10\linewidth}|p{0.90\linewidth}|
-.. list-table::
-  :header-rows: 1
-  :widths: 10 90
+      .. code-block:: java
 
-  * - 項番
-    - 説明
-  * - | (1)
-    - | 範囲開始の値を指定する。name属性"to"のvalue属性の値より大きい値を指定する。
-      | この指定によって、interval分減少した値を、To～Fromの範囲分のリストとして、降順に表示する。
-      | intervalは設定していないため、デフォルトの値1が適用される。
-  * - | (2)
-    - | 範囲終了の値を設定する。
-      | 本例では、2000を指定することにより、リストには2013～2000までの範囲で1ずつ減少して格納される。
+        @Bean("CL_BIRTH_YEAR")
+        public NumberRangeCodeList clBirthYear() {
+            NumberRangeCodeList bean = new NumberRangeCodNumberRangeCodeListeList();
+            bean.setFrom(2013); // (1)
+            bean.setTo(2000); // (2)
+            return bean;
+        }
+      
+      .. tabularcolumns:: |p{0.10\linewidth}|p{0.90\linewidth}|
+      .. list-table::
+        :header-rows: 1
+        :widths: 10 90
+      
+        * - 項番
+          - 説明
+        * - | (1)
+          - | 範囲開始の値を指定する。name属性"to"のvalue属性の値より大きい値を指定する。
+            | この指定によって、interval分減少した値を、To～Fromの範囲分のリストとして、降順に表示する。
+            | intervalは設定していないため、デフォルトの値1が適用される。
+        * - | (2)
+          - | 範囲終了の値を設定する。
+            | 本例では、2000を指定することにより、リストには2013～2000までの範囲で1ずつ減少して格納される。
+
+  .. group-tab:: XML Config
+
+    - \ ``xxx-codelist.xml``\
+
+      .. code-block:: xml
+      
+        <bean id="CL_BIRTH_YEAR"
+            class="org.terasoluna.gfw.common.codelist.NumberRangeCodeList">
+            <property name="from" value="2013" /> <!-- (1) -->
+            <property name="to" value="2000" /> <!-- (2) -->
+        </bean>
+      
+      .. tabularcolumns:: |p{0.10\linewidth}|p{0.90\linewidth}|
+      .. list-table::
+        :header-rows: 1
+        :widths: 10 90
+      
+        * - 項番
+          - 説明
+        * - | (1)
+          - | 範囲開始の値を指定する。name属性"to"のvalue属性の値より大きい値を指定する。
+            | この指定によって、interval分減少した値を、To～Fromの範囲分のリストとして、降順に表示する。
+            | intervalは設定していないため、デフォルトの値1が適用される。
+        * - | (2)
+          - | 範囲終了の値を設定する。
+            | 本例では、2000を指定することにより、リストには2013～2000までの範囲で1ずつ減少して格納される。
 
 |
 
-\ **jspの実装例**\
+.. tabs::
+  .. group-tab:: JSP
 
-.. code-block:: jsp
+    \ **jspの実装例**\
+    
+    .. code-block:: jsp
+    
+      <form:select path="birthYear" items="${CL_BIRTH_YEAR}" />
 
-  <form:select path="birthYear" items="${CL_BIRTH_YEAR}" />
+  .. group-tab:: Thymeleaf
+
+    \ **テンプレートHTML実装例**\
+
+    .. code-block:: html
+    
+      <select th:field="*{birthYear}">
+        <option th:each="birthYear : ${CL_BIRTH_YEAR}" th:value="${birthYear.key}" th:text="${birthYear.value}"></option>
+      </select>
 
 \ **出力HTML**\
 
@@ -1822,35 +2656,79 @@ NumberRangeCodeListのインターバルの変更
 
 次に、interval値を設定する場合の実装例を、以下に示す。
 
-\ **bean定義ファイル(xxx-codelist.xml)の定義**\
+\ **bean定義ファイルの定義**\
 
-.. code-block:: xml
+.. tabs::
+  .. group-tab:: Java Config
 
-  <bean id="CL_BULK_ORDER_QUANTITY_UNIT"
-      class="org.terasoluna.gfw.common.codelist.NumberRangeCodeList">
-      <property name="from" value="10" />
-      <property name="to" value="50" />
-      <property name="interval" value="10" /> <!-- (1) -->
-  </bean>
+    - \ ``XxxCodelistConfig.java``\
 
-.. tabularcolumns:: |p{0.10\linewidth}|p{0.90\linewidth}|
-.. list-table::
-  :header-rows: 1
-  :widths: 10 90
+      .. code-block:: java
 
-  * - 項番
-    - 説明
-  * - | (1)
-    - | 増加(減少)値を指定する。この指定によって、interval値を増加(減少)した値を、From～Toの範囲内でコードリストとして格納する。
-      | 上記の例だと、コードリストには\ ``10``\,\ ``20``\,\ ``30``\,\ ``40``\,\ ``50``\の順で格納される。
+        @Bean("CL_BULK_ORDER_QUANTITY_UNIT")
+        public NumberRangeCodeList clBulkOrderQuantityUnit() {
+            NumberRangeCodeList bean = new NumberRangeCodeList();
+            bean.setFrom(10);
+            bean.setTo(50);
+            bean.setInterval(10); // (1)
+            return bean;
+        }
+
+      .. tabularcolumns:: |p{0.10\linewidth}|p{0.90\linewidth}|
+      .. list-table::
+        :header-rows: 1
+        :widths: 10 90
+      
+        * - 項番
+          - 説明
+        * - | (1)
+          - | 増加(減少)値を指定する。この指定によって、interval値を増加(減少)した値を、From～Toの範囲内でコードリストとして格納する。
+            | 上記の例だと、コードリストには\ ``10``\ ,\ ``20``\ ,\ ``30``\ ,\ ``40``\ ,\ ``50``\ の順で格納される。
+
+  .. group-tab:: XML Config
+
+    - \ ``xxx-codelist.xml``\
+
+      .. code-block:: xml
+    
+        <bean id="CL_BULK_ORDER_QUANTITY_UNIT"
+            class="org.terasoluna.gfw.common.codelist.NumberRangeCodeList">
+            <property name="from" value="10" />
+            <property name="to" value="50" />
+            <property name="interval" value="10" /> <!-- (1) -->
+        </bean>
+    
+      .. tabularcolumns:: |p{0.10\linewidth}|p{0.90\linewidth}|
+      .. list-table::
+        :header-rows: 1
+        :widths: 10 90
+    
+        * - 項番
+          - 説明
+        * - | (1)
+          - | 増加(減少)値を指定する。この指定によって、interval値を増加(減少)した値を、From～Toの範囲内でコードリストとして格納する。
+            | 上記の例だと、コードリストには\ ``10``\ ,\ ``20``\ ,\ ``30``\ ,\ ``40``\ ,\ ``50``\ の順で格納される。
 
 |
 
-\ **jspの実装例**\
+.. tabs::
+  .. group-tab:: JSP
 
-.. code-block:: jsp
+    \ **jspの実装例**\
+    
+    .. code-block:: jsp
+    
+      <form:select path="quantity" items="${CL_BULK_ORDER_QUANTITY_UNIT}" />
 
-  <form:select path="quantity" items="${CL_BULK_ORDER_QUANTITY_UNIT}" />
+  .. group-tab:: Thymeleaf
+
+    \ **テンプレートHTML実装例**\
+    
+    .. code-block:: html
+    
+      <select th:field="*{quantity}">
+        <option th:each="quantity : ${CL_BULK_ORDER_QUANTITY_UNIT}" th:value="${quantity.key}" th:text="${quantity.value}"></option>
+      </select>
 
 \ **出力HTML**\
 
@@ -1875,94 +2753,194 @@ NumberRangeCodeListのインターバルの変更
 
   具体的には、
 
-    .. code-block:: xml
+    .. tabs::
+      .. group-tab:: Java Config
 
-      <bean id="CL_BULK_ORDER_QUANTITY_UNIT"
-          class="org.terasoluna.gfw.common.codelist.NumberRangeCodeList">
-          <property name="from" value="10" />
-          <property name="to" value="55" />
-          <property name="interval" value="10" />
-      </bean>
+        .. code-block:: java
+
+          @Bean("CL_BULK_ORDER_QUANTITY_UNIT")
+          public NumberRangeCodeList clBulkOrderQuantityUnit() {
+              NumberRangeCodeList bean = new NumberRangeCodeList();
+              bean.setFrom(10);
+              bean.setTo(55);
+              bean.setInterval(10);
+              return bean;
+          }
+
+      .. group-tab:: XML Config
+
+        .. code-block:: xml
+    
+          <bean id="CL_BULK_ORDER_QUANTITY_UNIT"
+              class="org.terasoluna.gfw.common.codelist.NumberRangeCodeList">
+              <property name="from" value="10" />
+              <property name="to" value="55" />
+              <property name="interval" value="10" />
+          </bean>
 
   という定義を行った場合、
 
-  コードリストには\ ``10``\,\ ``20``\,\ ``30``\,\ ``40``\,\ ``50``\の計5つが格納される。
+  コードリストには\ ``10``\ ,\ ``20``\ ,\ ``30``\ ,\ ``40``\ ,\ ``50``\ の計5つが格納される。
 
-  次のintervalである\ ``60``\及び範囲の閾値である\ ``55``\はコードリストに格納されない。
+  次のintervalである\ ``60``\ 及び範囲の閾値である\ ``55``\ はコードリストに格納されない。
 
 |
    
 .. _directRefCodeList:
 
-JSPから直接コードリストBeanを参照する
+JSP/テンプレートHTMLから直接コードリストBeanを参照する
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 \ :ref:`clientSide`\ では、Spring MVCを経由する全てのリクエストに対して、\ ``CodeListIntercepter``\ がコードリストのBeanをリクエスト属性として登録するため、コードリストの数が多くなるとリクエスト毎のオーバーヘッドの増加が懸念される。
 
 | ここでは、リクエスト毎のオーバーヘッドの増加を防ぐ方法の一つとして、コードリストBeanをJSPから直接参照する方法を紹介する。
-| JSPではSpELを利用して直接Beanを参照することができるが、こちらを利用することでオーバーヘッドの増加を防止することができる。
+| JSP/ThymeleafではSpELを利用して直接Beanを参照することができるが、こちらを利用することでオーバーヘッドの増加を防止することができる。
 | いずれの方法を利用するかは、プロジェクトの要件によって適切に検討されたい。
 
 .. _codeListDirectRefCodeListSpringMvc:
 
-\ **bean定義ファイル(spring-mvc.xml)の定義**\
+\ **bean定義ファイルの定義**\
 
-.. code-block:: xml
-  :emphasize-lines: 3,4,5,6,7
+.. tabs::
+  .. group-tab:: Java Config
 
-  <mvc:interceptors>
-      <mvc:interceptor>
-          <mvc:mapping path="/**" />
-          <bean class="org.terasoluna.gfw.web.codelist.CodeListInterceptor"> <!-- (1) -->
-              <property name="codeListIdPattern" value="CL_.+" />
-          </bean>
-      </mvc:interceptor>
+    - \ ``SpringMvcConfig.java``\
 
-  <!-- omitted -->
+      .. code-block:: java
 
-  </mvc:interceptors>
+        @EnableAspectJAutoProxy
+        @EnableWebMvc
+        @Configuration
+        public class SpringMvcConfig implements WebMvcConfigurer {
 
-.. tabularcolumns:: |p{0.10\linewidth}|p{0.90\linewidth}|
-.. list-table::
-  :header-rows: 1
-  :widths: 10 90
+          @Override
+          public void addInterceptors(InterceptorRegistry registry) {
+              registry.addInterceptor(codeListInterceptor()).addPathPatterns("/**"); // (1)
+          }
+      
+          // (1)
+          @Bean
+          public CodeListInterceptor codeListInterceptor() {
+              CodeListInterceptor codeListInterceptor = new CodeListInterceptor();
+              codeListInterceptor.setCodeListIdPattern(Pattern.compile("CL_.+"));
+              return codeListInterceptor;
+          }
+      
+      .. tabularcolumns:: |p{0.10\linewidth}|p{0.90\linewidth}|
+      .. list-table::
+        :header-rows: 1
+        :widths: 10 90
+      
+        * - 項番
+          - 説明
+        * - | (1)
+          - | \ ``CodeListInterceptor``\ の設定があれば、削除する。
 
-  * - 項番
-    - 説明
-  * - | (1)
-    - | \ ``CodeListInterceptor``\ の設定があれば、削除する。
+  .. group-tab:: XML Config
+
+    - \ ``spring-mvc.xml``\
+
+      .. code-block:: xml
+      
+        <mvc:interceptors>
+            <mvc:interceptor>
+                <mvc:mapping path="/**" />
+                <bean class="org.terasoluna.gfw.web.codelist.CodeListInterceptor"> <!-- (1) -->
+                    <property name="codeListIdPattern" value="CL_.+" />
+                </bean>
+            </mvc:interceptor>
+      
+        <!-- omitted -->
+      
+        </mvc:interceptors>
+      
+      .. tabularcolumns:: |p{0.10\linewidth}|p{0.90\linewidth}|
+      .. list-table::
+        :header-rows: 1
+        :widths: 10 90
+      
+        * - 項番
+          - 説明
+        * - | (1)
+          - | \ ``CodeListInterceptor``\ の設定があれば、削除する。
 
 
-\ **bean定義ファイル(xxx-codelist.xml)の定義**\
+\ **bean定義ファイルの定義**\
 
-.. code-block:: xml
+.. tabs::
+  .. group-tab:: Java Config
 
-  <bean id="CL_ORDERSTATUS" class="org.terasoluna.gfw.common.codelist.SimpleMapCodeList">
-      <property name="map">
-          <util:map>
-              <entry key="1" value="Received" />
-              <entry key="2" value="Sent" />
-              <entry key="3" value="Cancelled" />
-          </util:map>
-      </property>
-  </bean>
+    - \ ``XxxCodelistConfig.java``\
 
-\ **jspの実装例**\
+      .. code-block:: java
 
-.. code-block:: jsp
+        @Bean("CL_ORDERSTATUS")
+        public SimpleMapCodeList clOrderstatus() {
+            Map<String, String> codeMap = new LinkedHashMap<>();
+            codeMap.put("1", "Received");
+            codeMap.put("2", "Sent");
+            codeMap.put("3", "Cancelled");
+            SimpleMapCodeList bean = new SimpleMapCodeList();
+            bean.setMap(codeMap);
+            return bean;
+        }
 
-  <spring:eval var="statuses" expression="@CL_ORDERSTATUS.asMap()"/> <!-- (1) -->
-  <form:select items="${statuses}" path="orderStatus" />
+  .. group-tab:: XML Config
 
-.. tabularcolumns:: |p{0.10\linewidth}|p{0.90\linewidth}|
-.. list-table::
-  :header-rows: 1
-  :widths: 10 90
+    - \ ``xxx-codelist.xml``\
 
-  * - 項番
-    - 説明
-  * - | (1)
-    - | SpELにより取得した\ ``CodeList``\ 型Beanの\ ``asMap``\ メソッドにより、``Map``\ 形式で取得することができる。
+      .. code-block:: xml
+      
+        <bean id="CL_ORDERSTATUS" class="org.terasoluna.gfw.common.codelist.SimpleMapCodeList">
+            <property name="map">
+                <util:map>
+                    <entry key="1" value="Received" />
+                    <entry key="2" value="Sent" />
+                    <entry key="3" value="Cancelled" />
+                </util:map>
+            </property>
+        </bean>
+
+.. tabs::
+  .. group-tab:: JSP
+
+    \ **jspの実装例**\
+    
+    .. code-block:: jsp
+    
+      <spring:eval var="statuses" expression="@CL_ORDERSTATUS.asMap()"/> <!-- (1) -->
+      <form:select items="${statuses}" path="orderStatus" />
+    
+    .. tabularcolumns:: |p{0.10\linewidth}|p{0.90\linewidth}|
+    .. list-table::
+      :header-rows: 1
+      :widths: 10 90
+    
+      * - 項番
+        - 説明
+      * - | (1)
+        - | SpELにより取得した\ ``CodeList``\ 型Beanの\ ``asMap``\ メソッドにより、\ ``Map``\ 形式で取得することができる。
+
+  .. group-tab:: Thymeleaf
+
+    \ **テンプレートHTML実装例**\
+    
+    .. code-block:: html
+     
+      <select th:field="*{orderStatus}">
+          <option th:each="order : ${@CL_ORDERSTATUS.asMap()}" th:value="${order.key}" th:text="${order.value}"></option> <!--/* (1) */-->
+      </select>
+    
+    .. tabularcolumns:: |p{0.10\linewidth}|p{0.90\linewidth}|
+    .. list-table::
+      :header-rows: 1
+      :widths: 10 90
+    
+      * - 項番
+        - 説明
+      * - | (1)
+        - | 変数式により取得したコードリストBeanのasMapメソッドにより、Map形式で参照することができる。
+          | なお、``SimpleI18nCodeList`` の場合は、\ ``asMap``\ メソッドの引数として\ ``Locale``\ を渡す必要がある。
 
 \ **出力HTML**\
 
@@ -1974,6 +2952,217 @@ JSPから直接コードリストBeanを参照する
       <option value="3">Cancelled</option>
   </select>
 
+|
+
+.. _CodeListAppendixDirectReferenceSimpleI18nCodeList:
+
+SimpleI18nCodeListをテンプレートHTMLから直接参照する方法
+""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
+
+ここでは、\ ``CodeListInterceptor``\ の実装と同様に、リクエストのロケールに対するコードリストに定義されていなかった場合、デフォルトで設定したロケールに対するコードリストを表示する例を紹介する。
+
+\ **bean定義ファイルの定義**\
+
+\ ``SpringMvcConfig.java``\ /\ ``spring-mvc.xml``\ は\ :ref:`bean定義ファイルの定義<codeListDirectRefCodeListSpringMvc>`\ と同様なため割愛する。
+
+|
+
+.. tabs::
+  .. group-tab:: Java Config
+
+    .. code-block:: java
+    
+      @Bean("CL_I18N_PRICE")
+      public SimpleI18nCodeList clI18nPrice() {
+          Map<Locale, CodeList> rows =  new LinkedHashMap<>();
+          rows.put(Locale.ENGLISH, clPriceEn());
+          rows.put(Locale.JAPANESE, clPriceJa());
+          SimpleI18nCodeList bean = new SimpleI18nCodeList();
+          bean.setRowsByCodeList(rows);
+          return bean;
+      }
+
+      @Bean("CL_PRICE_EN")
+      public SimpleMapCodeList clPriceEn() {
+          Map<String, String> enMap = new LinkedHashMap<>();
+          enMap.put("0", "unlimited");
+          enMap.put("10000", "Less than \\10,000");
+          enMap.put("20000", "Less than \\20,000");
+          enMap.put("30000", "Less than \\30,000");
+          enMap.put("40000", "Less than \\40,000");
+          enMap.put("50000", "Less than \\50,000");
+          SimpleMapCodeList bean = new SimpleMapCodeList();
+          bean.setMap(enMap);
+          return bean;
+      }
+    
+      @Bean("CL_PRICE_JA")
+      public SimpleMapCodeList clPriceJa() {
+          Map<String, String> jaMap = new LinkedHashMap<>();
+          jaMap.put("0", "上限なし");
+          jaMap.put("10000", "10,000円以下");
+          jaMap.put("20000", "20,000円以下");
+          jaMap.put("30000", "30,000円以下");
+          jaMap.put("40000", "40,000円以下");
+          jaMap.put("50000", "50,000円以下");
+          SimpleMapCodeList bean = new SimpleMapCodeList();
+          bean.setMap(jaMap);
+          return bean;
+      }
+
+  .. group-tab:: XML Config
+
+    .. code-block:: xml
+    
+        <bean id="CL_I18N_PRICE"
+            class="org.terasoluna.gfw.common.codelist.i18n.SimpleI18nCodeList">
+            <property name="rowsByCodeList">
+                <util:map>
+                    <entry key="en" value-ref="CL_PRICE_EN" />
+                    <entry key="ja" value-ref="CL_PRICE_JA" />
+                </util:map>
+            </property>
+        </bean>
+     
+        <bean id="CL_PRICE_EN" class="org.terasoluna.gfw.common.codelist.SimpleMapCodeList">
+            <property name="map">
+                <util:map>
+                    <entry key="0" value="unlimited" />
+                    <entry key="10000" value="Less than \10,000" />
+                    <entry key="20000" value="Less than \20,000" />
+                    <entry key="30000" value="Less than \30,000" />
+                    <entry key="40000" value="Less than \40,000" />
+                    <entry key="50000" value="Less than \50,000" />
+                </util:map>
+            </property>
+        </bean>
+     
+        <bean id="CL_PRICE_JA" class="org.terasoluna.gfw.common.codelist.SimpleMapCodeList">
+            <property name="map">
+                <util:map>
+                    <entry key="0" value="上限なし" />
+                    <entry key="10000" value="10,000円以下" />
+                    <entry key="20000" value="20,000円以下" />
+                    <entry key="30000" value="30,000円以下" />
+                    <entry key="40000" value="40,000円以下" />
+                    <entry key="50000" value="50,000円以下" />
+                </util:map>
+            </property>
+        </bean>
+
+\ **プロパティファイル**\
+
+.. code-block:: properties
+
+  simpleI18nCodeList.fallback.locale = en
+
+\ **Controllerクラス**\
+
+.. code-block:: java
+
+  ...
+    
+  @Controller
+  public class OrderController {
+        
+      @Value("${simpleI18nCodeList.fallback.locale}") // (1)
+      private Locale fallBackLocale;
+
+      @RequestMapping(value = "price", method = RequestMethod.GET) 
+      public String price(Model model, HttpServletRequest request) {
+          model.addAttribute("requestLocale", RequestContextUtils
+              .getLocale(request)); // (2)
+          model.addAttribute("fallBackLocale",fallBackLocale); // (3)
+
+          return "order/price";
+      }
+  }
+
+.. tabularcolumns:: |p{0.10\linewidth}|p{0.90\linewidth}|
+.. list-table::
+  :header-rows: 1
+  :widths: 10 90
+
+  * - 項番
+    - 説明
+  * - | (1)
+    - | リクエストで指定したロケールがコードリストに定義されていなかった場合に、どのロケールのコードリストを取得するかをプロパティファイルから取得し、\ ``fallBackLocale``\ 変数に設定する。
+  * - | (2)
+    - | \ ``org.springframework.web.servlet.support.RequestContextUtils``\ 利用してリクエストで指定されたロケールを取得し、Modelに登録する。
+      | \ ``RequestContextUtils``\ の\ ``getLocale``\ メソッドは、引数に\ ``jakarta.servlet.http.HttpServletRequest``\ を取るため、この場合は\ ``HttpServletRequest``\ をハンドラメソッドの引数にとっても良い。
+  * - | (3)
+    - | (1) で取得した\ ``fallBackLocale``\ をModelに登録する。
+
+\ **テンプレートHTML実装例**\
+
+.. code-block:: html
+
+  <select th:field="*{basePrice}">
+      <option th:each="price : ${@CL_I18N_PRICE.asMap(requestLocale).isEmpty()} ? 
+      ${@CL_I18N_PRICE.asMap(fallBackLocale)} : ${@CL_I18N_PRICE.asMap(requestLocale)}"
+      th:value="${price.key}" th:text="${price.value}"></option> <!--/* (1) */-->
+  </select>
+
+.. tabularcolumns:: |p{0.10\linewidth}|p{0.90\linewidth}|
+.. list-table::
+  :header-rows: 1
+  :widths: 10 90
+
+  * - 項番
+    - 説明
+  * - | (1)
+    - | リクエストで指定したロケールに対応するコードリストを\ ``Map``\ 形式で取得する。
+      | リクエストで指定したロケールがコードリストに定義されていなかった場合、\ ``fallbackLocale``\ 変数に設定したロケールで対応するコードリストを\ ``Map``\ 形式で取得する。
+
+\ **出力HTML lang=en**\
+
+.. code-block:: html
+
+  <select id="basePrice" name="basePrice">
+      <option value="0">unlimited</option>
+      <option value="1">Less than \10,000</option>
+      <option value="2">Less than \20,000</option>
+      <option value="3">Less than \30,000</option>
+      <option value="4">Less than \40,000</option>
+      <option value="5">Less than \50,000</option>
+  </select>
+
+\ **出力HTML lang=ja**\
+
+.. code-block:: html
+
+  <select id="basePrice" name="basePrice">
+      <option value="0">上限なし</option>
+      <option value="1">10,000円以下</option>
+      <option value="2">20,000円以下</option>
+      <option value="3">30,000円以下</option>
+      <option value="4">40,000円以下</option>
+      <option value="5">50,000円以下</option>
+  </select>
+   
+\ **出力HTML lang=undefined**\
+
+.. code-block:: html
+
+  <select id="basePrice" name="basePrice">
+      <option value="0">unlimited</option> <!--/* (1) */-->
+      <option value="1">Less than \10,000</option>
+      <option value="2">Less than \20,000</option>
+      <option value="3">Less than \30,000</option>
+      <option value="4">Less than \40,000</option>
+      <option value="5">Less than \50,000</option>
+  </select>
+
+.. tabularcolumns:: |p{0.10\linewidth}|p{0.90\linewidth}|
+.. list-table::
+  :header-rows: 1
+  :widths: 10 90
+
+  * - 項番
+    - 説明
+  * - | (1)
+    - | リクエストで指定したロケールがコードリストに定義されていなかった場合に、\ ``fallbackLocale``\ 変数で指定した"en" が設定されるため、ロケールが"en"である\ ``CL_PRICE_EN``\ コードリストが表示される。
+
 .. raw:: latex
 
-   \newpage
+  \newpage

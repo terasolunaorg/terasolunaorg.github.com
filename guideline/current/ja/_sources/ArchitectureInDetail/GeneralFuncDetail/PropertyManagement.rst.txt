@@ -86,30 +86,66 @@ How to use
 
 \ **bean定義ファイル**\
 
-- applicationContext.xml
-- spring-mvc.xml
+.. tabs::
+  .. group-tab:: Java Config
 
-  .. code-block:: xml
+    - ApplicationContextConfig.java
+    - SpringMvcConfig.java
+    
+      .. code-block:: java
 
-    <context:property-placeholder location="classpath*:META-INF/spring/*.properties"/>  <!-- (1) -->
+        // (1)
+        @Bean
+        public static PropertySourcesPlaceholderConfigurer propertySourcesPlaceholderConfigurer(
+                @Value("classpath*:/META-INF/spring/*.properties") Resource... properties) {
+            PropertySourcesPlaceholderConfigurer bean = new PropertySourcesPlaceholderConfigurer();
+            bean.setLocations(properties);
+            return bean;
+        }
 
-  .. tabularcolumns:: |p{0.10\linewidth}|p{0.90\linewidth}|
-  .. list-table::
-    :header-rows: 1
-    :widths: 10 90
+      .. tabularcolumns:: |p{0.10\linewidth}|p{0.90\linewidth}|
+      .. list-table::
+        :header-rows: 1
+        :widths: 10 90
+    
+        * - 項番
+          - 説明
+        * - | (1)
+          - | locationに設定する値は、リソースのロケーションパスを設定すること。
+            | 上記設定により、クラスパス中のMETA-INF/springディレクトリ配下のpropertiesファイルを読み込む。
+            | 一度設定すれば、あとはMETA-INF/spring以下にpropertiesファイルを追加するだけで良い。
+            | locationの設定値の詳細は、\ `Spring Framework Documentation -Resources- <https://docs.spring.io/spring-framework/docs/6.1.3/reference/html/core.html#resources>`_\ を参照されたい。
+    
+      .. note::
+    
+        \ ``PropertySourcesPlaceholderConfigurer``\ の定義は、\ ``ApplicationContextConfig.java``\ と\ ``SpringMvcConfig.java``\ の両方に定義が必要である。
 
-    * - 項番
-      - 説明
-    * - | (1)
-      - | locationに設定する値は、リソースのロケーションパスを設定すること。
-        | location属性には、カンマ区切りで複数のパスを指定することができる。
-        | 上記設定により、クラスパス中のMETA-INF/springディレクトリ配下のpropertiesファイルを読み込む。
-        | 一度設定すれば、あとはMETA-INF/spring以下にpropertiesファイルを追加するだけで良い。
-        | locationの設定値の詳細は、\ `Spring Framework Documentation -Resources- <https://docs.spring.io/spring-framework/docs/6.0.3/reference/html/core.html#resources>`_\ を参照されたい。
+  .. group-tab:: XML Config
 
-  .. note::
-
-    \ ``<context:property-placeholder>``\ の定義は、\ ``applicationContext.xml``\ と\ ``spring-mvc.xml``\ の両方に定義が必要である。
+    - applicationContext.xml
+    - spring-mvc.xml
+    
+      .. code-block:: xml
+    
+        <context:property-placeholder location="classpath*:META-INF/spring/*.properties"/>  <!-- (1) -->
+    
+      .. tabularcolumns:: |p{0.10\linewidth}|p{0.90\linewidth}|
+      .. list-table::
+        :header-rows: 1
+        :widths: 10 90
+    
+        * - 項番
+          - 説明
+        * - | (1)
+          - | locationに設定する値は、リソースのロケーションパスを設定すること。
+            | location属性には、カンマ区切りで複数のパスを指定することができる。
+            | 上記設定により、クラスパス中のMETA-INF/springディレクトリ配下のpropertiesファイルを読み込む。
+            | 一度設定すれば、あとはMETA-INF/spring以下にpropertiesファイルを追加するだけで良い。
+            | locationの設定値の詳細は、\ `Spring Framework Documentation -Resources- <https://docs.spring.io/spring-framework/docs/6.1.3/reference/html/core.html#resources>`_\ を参照されたい。
+    
+      .. note::
+    
+        \ ``<context:property-placeholder>``\ の定義は、\ ``applicationContext.xml``\ と\ ``spring-mvc.xml``\ の両方に定義が必要である。
 
 |
 
@@ -120,63 +156,137 @@ How to use
 #. アプリケーション定義のプロパティファイル
 
 | デフォルトでは、すべての環境関連のプロパティ(JVMのシステムプロパティと環境変数)を読み込んだ後に、アプリケーションに定義されたプロパティファイルが検索され、読み込まれる。
-| 読み込み順番を変更するには、\ ``<context:property-placeholder/>``\ タグのlocal-override属性をtrueに設定する。
+| 読み込み順番を変更するには、\ ``PropertySourcesPlaceholderConfigurer``\ の\ ``LocalOverride``\ (または\ ``<context:property-placeholder/>``\ タグのlocal-override属性)をtrueに設定する。
 | このように設定することで、アプリケーションに定義されたプロパティが、優先的に有効になる。
 
 \ **bean定義ファイル**\
 
-  .. code-block:: xml
+.. tabs::
+  .. group-tab:: Java Config
 
-    <context:property-placeholder
-        location="classpath*:META-INF/spring/*.properties" 
-        local-override="true" /> <!-- (1) -->
+    .. code-block:: java
+  
+      @Bean
+      public static PropertySourcesPlaceholderConfigurer propertySourcesPlaceholderConfigurerOrder1(
+              @Value("classpath*:META-INF/spring/*.properties") Resource... properties) {
+          PropertySourcesPlaceholderConfigurer bean = new PropertySourcesPlaceholderConfigurer();
+          bean.setLocations(properties);
+          bean.setLocalOverride(true); // (1)
+          return bean;
+      }
 
-  .. tabularcolumns:: |p{0.10\linewidth}|p{0.90\linewidth}|
-  .. list-table::
-    :header-rows: 1
-    :widths: 10 90
 
-    * - 項番
-      - 説明
-    * - | (1)
-      - | local-override属性をtrueに設定すると、以下の順番でプロパティにアクセスする。
-        | 1. アプリケーション定義のプロパティ
-        | 2. 実行中のJVMのシステムプロパティ
-        | 3. 環境変数
+    .. tabularcolumns:: |p{0.10\linewidth}|p{0.90\linewidth}|
+    .. list-table::
+      :header-rows: 1
+      :widths: 10 90
+  
+      * - 項番
+        - 説明
+      * - | (1)
+        - | local-override属性をtrueに設定すると、以下の順番でプロパティにアクセスする。
+          | 1. アプリケーション定義のプロパティ
+          | 2. 実行中のJVMのシステムプロパティ
+          | 3. 環境変数
 
-  .. note::
+  .. group-tab:: XML Config
 
-    通常は上記の設定で十分である。
+    .. code-block:: xml
+  
+      <context:property-placeholder
+          location="classpath*:META-INF/spring/*.properties" 
+          local-override="true" /> <!-- (1) -->
+  
+    .. tabularcolumns:: |p{0.10\linewidth}|p{0.90\linewidth}|
+    .. list-table::
+      :header-rows: 1
+      :widths: 10 90
+  
+      * - 項番
+        - 説明
+      * - | (1)
+        - | local-override属性をtrueに設定すると、以下の順番でプロパティにアクセスする。
+          | 1. アプリケーション定義のプロパティ
+          | 2. 実行中のJVMのシステムプロパティ
+          | 3. 環境変数
 
-    複数の\ ``<context:property-placeholder/>``\ タグを指定する場合、order属性の値を設定することで、読み込みの順位付けをすることができる。
+.. note::
 
-    **bean定義ファイル**
+  通常は上記の設定で十分である。
 
-      .. code-block:: xml
+  複数の\ ``<context:property-placeholder/>``\ タグを指定する場合、order属性の値を設定することで、読み込みの順位付けをすることができる。
 
-        <context:property-placeholder
-            location="classpath:/META-INF/property/extendPropertySources.properties"
-            order="1" ignore-unresolvable="true" /> <!-- (1) -->
-        <context:property-placeholder
-            location="classpath*:/META-INF/spring/*.properties"
-            order="2" ignore-unresolvable="true" /> <!-- (2) -->
+  \ **bean定義ファイル**\
 
-      .. tabularcolumns:: |p{0.10\linewidth}|p{0.90\linewidth}|
-      .. list-table::
-        :header-rows: 1
-        :widths: 10 90
-        :class: longtable
-
-        * - 項番
-          - 説明
-        * - | (1)
-          - | order属性を(2)より低い値を設定することにより、(2)より先にlocation属性に該当するプロパティファイルが読み込まれる。
-            | (2)で読み込んだプロパティファイル内のキーと重複するキーが存在する場合、(1)で取得した値が優先される。
-            | ignore-unresolvable属性をtrueにすることで、(2)のプロパティファイルのみにキーが存在する場合にエラーが発生するのを防ぐ。
-        * - | (2)
-          - | order属性を(1)より高い値を設定することにより、(1)の次にlocation属性に該当するプロパティファイルが読み込まれる。
-            | (1)で読み込んだプロパティファイル内のキーと重複するキーが存在する場合、(1)で取得した値が設定される。
-            | ignore-unresolvable属性をtrueにすることで、(1)のプロパティファイルのみにキーが存在する場合にエラーが発生するのを防ぐ。
+    .. tabs::
+      .. group-tab:: Java Config
+        .. code-block:: java
+  
+          // (1)
+          @Bean
+          public static PropertySourcesPlaceholderConfigurer propertySourcesPlaceholderConfigurerOrder1(
+                  @Value("classpath:/META-INF/property/extendPropertySources.properties") Resource... properties) {
+              PropertySourcesPlaceholderConfigurer bean = new PropertySourcesPlaceholderConfigurer();
+              bean.setLocations(properties);
+              bean.setOrder(1); 
+              bean.setIgnoreUnresolvablePlaceholders(true); 
+              return bean;
+          }
+      
+          // (2)
+          @Bean
+          public static PropertySourcesPlaceholderConfigurer propertySourcesPlaceholderConfigurerOrde2(
+                  @Value("/META-INF/spring/*.properties") Resource... properties) {
+              PropertySourcesPlaceholderConfigurer bean = new PropertySourcesPlaceholderConfigurer();
+              bean.setLocations(properties);
+              bean.setOrder(2); 
+              bean.setIgnoreUnresolvablePlaceholders(true); 
+              return bean;
+          }
+  
+        .. tabularcolumns:: |p{0.10\linewidth}|p{0.90\linewidth}|
+        .. list-table::
+          :header-rows: 1
+          :widths: 10 90
+          :class: longtable
+  
+          * - 項番
+            - 説明
+          * - | (1)
+            - | order属性を(2)より低い値を設定することにより、(2)より先にlocation属性に該当するプロパティファイルが読み込まれる。
+              | (2)で読み込んだプロパティファイル内のキーと重複するキーが存在する場合、(1)で取得した値が優先される。
+              | ignore-unresolvable属性をtrueにすることで、(2)のプロパティファイルのみにキーが存在する場合にエラーが発生するのを防ぐ。
+          * - | (2)
+            - | order属性を(1)より高い値を設定することにより、(1)の次にlocation属性に該当するプロパティファイルが読み込まれる。
+              | (1)で読み込んだプロパティファイル内のキーと重複するキーが存在する場合、(1)で取得した値が設定される。
+              | ignore-unresolvable属性をtrueにすることで、(1)のプロパティファイルのみにキーが存在する場合にエラーが発生するのを防ぐ。
+              
+      .. group-tab:: XML Config
+        .. code-block:: xml
+  
+          <context:property-placeholder
+              location="classpath:/META-INF/property/extendPropertySources.properties"
+              order="1" ignore-unresolvable="true" /> <!-- (1) -->
+          <context:property-placeholder
+              location="classpath*:/META-INF/spring/*.properties"
+              order="2" ignore-unresolvable="true" /> <!-- (2) -->
+  
+        .. tabularcolumns:: |p{0.10\linewidth}|p{0.90\linewidth}|
+        .. list-table::
+          :header-rows: 1
+          :widths: 10 90
+          :class: longtable
+  
+          * - 項番
+            - 説明
+          * - | (1)
+            - | order属性を(2)より低い値を設定することにより、(2)より先にlocation属性に該当するプロパティファイルが読み込まれる。
+              | (2)で読み込んだプロパティファイル内のキーと重複するキーが存在する場合、(1)で取得した値が優先される。
+              | ignore-unresolvable属性をtrueにすることで、(2)のプロパティファイルのみにキーが存在する場合にエラーが発生するのを防ぐ。
+          * - | (2)
+            - | order属性を(1)より高い値を設定することにより、(1)の次にlocation属性に該当するプロパティファイルが読み込まれる。
+              | (1)で読み込んだプロパティファイル内のキーと重複するキーが存在する場合、(1)で取得した値が設定される。
+              | ignore-unresolvable属性をtrueにすることで、(1)のプロパティファイルのみにキーが存在する場合にエラーが発生するのを防ぐ。
 
 |
 
@@ -201,51 +311,120 @@ bean定義ファイル内でプロパティを使用する
 
 \ **bean定義ファイル**\
 
-  .. code-block:: xml
+.. tabs::
+  .. group-tab:: Java Config
 
-    <bean id="dataSource" 
-        destroy-method="close" 
-        class="org.apache.commons.dbcp2.BasicDataSource">
-        <property name="driverClassName" 
-                  value="${database.driverClassName}"/>  <!-- (1) -->
-        <property name="url" value="${database.url}"/>  <!-- (2) -->
-        <property name="username" value="${database.username}"/>  <!-- (3) -->
-        <property name="password" value="${database.password}"/>  <!-- (4) -->
-        <!-- omitted -->
-    </bean>
+      .. code-block:: java
 
-  .. tabularcolumns:: |p{0.10\linewidth}|p{0.90\linewidth}|
-  .. list-table::
-    :header-rows: 1
-    :widths: 10 90
+        @Value("${database.driverClassName}") // (1)
+        private String driverClassName;
+    
+        @Value("${database.url}") // (2)
+        private String url;
+    
+        @Value("${database.username}") // (3)
+        private String username;
+    
+        @Value("${database.password}") // (4)
+        private String password;
 
-    * - 項番
-      - 説明
-    * - | (1)
-      - | \ ``${database.driverClassName}``\ を設定することで、読み込まれたプロパティファイルのキー\ ``database.driverClassName``\ に対する値が代入される。
-    * - | (2)
-      - | \ ``${database.url}``\ を設定することで、読み込まれたプロパティファイルのキー\ ``database.url``\ に対する値が代入される。
-    * - | (3)
-      - | \ ``${database.username}``\ を設定することで、読み込まれたプロパティファイルのキー\ ``database.username``\ に対する値が代入される。
-    * - | (4)
-      - | \ ``${database.password}``\ を設定することで、読み込まれたプロパティファイルのキー\ ``database.password``\ に対する値が代入される。
+        // omitted
 
-|
+        @Bean(name = "dataSource", destroyMethod = "close")
+        public DataSource dataSource() {
+            BasicDataSource bean = new BasicDataSource();
+            bean.setDriverClassName(driverClassName); // (1)
+            bean.setUrl(url); // (2)
+            bean.setUsername(username); // (3)
+            bean.setPassword(password); // (4)
 
-propertiesファイルのキーが読み込まれた結果、以下のように置換される。
+            // omitted
 
-  .. code-block:: xml
+            return bean;
+        }
+    
+      .. tabularcolumns:: |p{0.10\linewidth}|p{0.90\linewidth}|
+      .. list-table::
+        :header-rows: 1
+        :widths: 10 90
+    
+        * - 項番
+          - 説明
+        * - | (1)
+          - | \ ``${database.driverClassName}``\ を設定することで、読み込まれたプロパティファイルのキー\ ``database.driverClassName``\ に対する値が代入される。
+        * - | (2)
+          - | \ ``${database.url}``\ を設定することで、読み込まれたプロパティファイルのキー\ ``database.url``\ に対する値が代入される。
+        * - | (3)
+          - | \ ``${database.username}``\ を設定することで、読み込まれたプロパティファイルのキー\ ``database.username``\ に対する値が代入される。
+        * - | (4)
+          - | \ ``${database.password}``\ を設定することで、読み込まれたプロパティファイルのキー\ ``database.password``\ に対する値が代入される。
 
-    <bean id="dataSource" 
-        destroy-method="close" 
-        class="org.apache.commons.dbcp2.BasicDataSource">
-        <property name="driverClassName" value="org.postgresql.Driver"/>
-        <property name="url" 
-                  value="jdbc:postgresql://localhost:5432/shopping"/>
-        <property name="username" value="postgres"/>
-        <property name="password" value="postgres"/>
-        <!-- omitted -->
-    </bean>
+    |
+
+    propertiesファイルのキーが読み込まれた結果、以下のように置換される。
+
+      .. code-block:: java
+
+        @Bean(name = "dataSource", destroyMethod = "close")
+        public DataSource dataSource() {
+            BasicDataSource bean = new BasicDataSource();
+            bean.setDriverClassName("org.postgresql.Driver");
+            bean.setUrl("jdbc:postgresql://localhost:5432/shopping");
+            bean.setUsername("postgres");
+            bean.setPassword("postgres");
+
+            // omitted
+
+            return bean;
+        }
+
+  .. group-tab:: XML Config
+
+      .. code-block:: xml
+    
+        <bean id="dataSource" 
+            destroy-method="close" 
+            class="org.apache.commons.dbcp2.BasicDataSource">
+            <property name="driverClassName" 
+                      value="${database.driverClassName}"/>  <!-- (1) -->
+            <property name="url" value="${database.url}"/>  <!-- (2) -->
+            <property name="username" value="${database.username}"/>  <!-- (3) -->
+            <property name="password" value="${database.password}"/>  <!-- (4) -->
+            <!-- omitted -->
+        </bean>
+    
+      .. tabularcolumns:: |p{0.10\linewidth}|p{0.90\linewidth}|
+      .. list-table::
+        :header-rows: 1
+        :widths: 10 90
+    
+        * - 項番
+          - 説明
+        * - | (1)
+          - | \ ``${database.driverClassName}``\ を設定することで、読み込まれたプロパティファイルのキー\ ``database.driverClassName``\ に対する値が代入される。
+        * - | (2)
+          - | \ ``${database.url}``\ を設定することで、読み込まれたプロパティファイルのキー\ ``database.url``\ に対する値が代入される。
+        * - | (3)
+          - | \ ``${database.username}``\ を設定することで、読み込まれたプロパティファイルのキー\ ``database.username``\ に対する値が代入される。
+        * - | (4)
+          - | \ ``${database.password}``\ を設定することで、読み込まれたプロパティファイルのキー\ ``database.password``\ に対する値が代入される。
+
+    |
+
+    propertiesファイルのキーが読み込まれた結果、以下のように置換される。
+
+      .. code-block:: xml
+    
+        <bean id="dataSource" 
+            destroy-method="close" 
+            class="org.apache.commons.dbcp2.BasicDataSource">
+            <property name="driverClassName" value="org.postgresql.Driver"/>
+            <property name="url" 
+                      value="jdbc:postgresql://localhost:5432/shopping"/>
+            <property name="username" value="postgres"/>
+            <property name="password" value="postgres"/>
+            <!-- omitted -->
+        </bean>
 
 |
 
@@ -326,30 +505,62 @@ How to extend
 
 \ **Bean定義ファイル**\
 
-- applicationContext.xml
-- spring-mvc.xml
+.. tabs::
+  .. group-tab:: Java Config
 
-  .. code-block:: xml
+    - ApplicationContextConfig.java
+    - SpringMvcConfig.java
+    
+      .. code-block:: java
 
-    <!-- (1) -->
-    <bean class="com.example.common.property.EncryptedPropertySourcesPlaceholderConfigurer">
-        <!-- (2) -->
-        <property name="locations" 
-                  value="classpath*:/META-INF/spring/*.properties" />
-    </bean>
+        // (1)
+        @Bean
+        public EncryptedPropertySourcesPlaceholderConfigurer encryptedPropertySourcesPlaceholderConfigurer() {
+            EncryptedPropertySourcesPlaceholderConfigurer bean = new EncryptedPropertySourcesPlaceholderConfigurer();
+            Resource resource = new ClassPathResource("classpath*:/META-INF/spring/*.properties");
+            bean.setLocations(resource); // (2)
+            return bean;
+        }
+    
+      .. tabularcolumns:: |p{0.10\linewidth}|p{0.90\linewidth}|
+      .. list-table::
+        :header-rows: 1
+        :widths: 10 90
+    
+        * - 項番
+          - 説明
+        * - | (1)
+          - | \ ``PropertySourcesPlaceholderConfigurer``\ の代わりに拡張した\ ``EncryptedPropertySourcesPlaceholderConfigurer``\ を定義する。\ ``PropertySourcesPlaceholderConfigurer``\ を削除しておくこと。
+        * - | (2)
+          - | \ ``locations``\ に読み込むプロパティファイルパスを指定した\ ``Resource``\ を設定する。
+            | 読み込むプロパティファイルパスの指定方法は\ :ref:`technical-details_label`\ と同じ。
 
-  .. tabularcolumns:: |p{0.10\linewidth}|p{0.90\linewidth}|
-  .. list-table::
-    :header-rows: 1
-    :widths: 10 90
+  .. group-tab:: XML Config
 
-    * - 項番
-      - 説明
-    * - | (1)
-      - | \ ``<context:property-placeholder/>``\ の代わりに拡張したPropertySourcesPlaceholderConfigurerを定義する。\ ``<context:property-placeholder/>``\ タグを削除しておくこと。
-    * - | (2)
-      - | propertyタグのname属性に"locations"を設定し、value属性に読み込むプロパティファイルパスを指定する。
-        | 読み込むプロパティファイルパスの指定方法は\ :ref:`technical-details_label`\ と同じ。
+    - applicationContext.xml
+    - spring-mvc.xml
+    
+      .. code-block:: xml
+    
+        <!-- (1) -->
+        <bean class="com.example.common.property.EncryptedPropertySourcesPlaceholderConfigurer">
+            <!-- (2) -->
+            <property name="locations" 
+                      value="classpath*:/META-INF/spring/*.properties" />
+        </bean>
+    
+      .. tabularcolumns:: |p{0.10\linewidth}|p{0.90\linewidth}|
+      .. list-table::
+        :header-rows: 1
+        :widths: 10 90
+    
+        * - 項番
+          - 説明
+        * - | (1)
+          - | \ ``<context:property-placeholder/>``\ の代わりに拡張した\ ``EncryptedPropertySourcesPlaceholderConfigurer``\ を定義する。\ ``<context:property-placeholder/>``\ タグを削除しておくこと。
+        * - | (2)
+          - | propertyタグのname属性に"locations"を設定し、value属性に読み込むプロパティファイルパスを指定する。
+            | 読み込むプロパティファイルパスの指定方法は\ :ref:`technical-details_label`\ と同じ。
 
 \ **Javaクラス**\
 

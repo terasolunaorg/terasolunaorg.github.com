@@ -8,6 +8,8 @@ CSRF対策
 .. contents:: 目次
   :local:
 
+|
+
 Overview
 --------------------------------------------------------------------------------
 
@@ -113,50 +115,104 @@ How to use
 CSRF対策機能の適用
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-CSRFトークン用の\ ``RequestDataValueProcessor``\ 実装クラスを利用し、Springのタグライブラリの\ ``<form:form>``\ タグを使うことで、自動的にCSRFトークンを、hidden項目に埋め込むことができる。
+CSRFトークン用の\ ``RequestDataValueProcessor``\ 実装クラスを利用し、JSPではSpringのタグライブラリの\ ``<form:form>``\ タグを、Thymeleafでは\ ``th:action``\ 属性を使うことで、自動的にCSRFトークンをhidden項目に埋め込むことができる。
 
-* spring-mvc.xmlの設定例
+.. tabs::
+  .. group-tab:: Java Config
 
-.. code-block:: xml
+    * SpringMvcConfig.javaの設定例
+    
+    .. code-block:: java
+    
+      @Bean("requestDataValueProcessor")
+      public RequestDataValueProcessor requestDataValueProcessor() {
+          return new CompositeRequestDataValueProcessor(csrfRequestDataValueProcessor(), transactionTokenRequestDataValueProcessor()); // (1)
+      }
 
-  <bean id="requestDataValueProcessor"
-      class="org.terasoluna.gfw.web.mvc.support.CompositeRequestDataValueProcessor"> <!-- (1)  -->
-      <constructor-arg>
-          <util:list>
-              <bean
-                  class="org.springframework.security.web.servlet.support.csrf.CsrfRequestDataValueProcessor" /> <!-- (2)  -->
-              <bean
-                  class="org.terasoluna.gfw.web.token.transaction.TransactionTokenRequestDataValueProcessor" />
-          </util:list>
-      </constructor-arg>
-  </bean>
+      @Bean
+      public CsrfRequestDataValueProcessor csrfRequestDataValueProcessor() {
+          return new CsrfRequestDataValueProcessor(); // (2)
+      }
+  
+      @Bean
+      public TransactionTokenRequestDataValueProcessor transactionTokenRequestDataValueProcessor() {
+          return new TransactionTokenRequestDataValueProcessor();
+      }
+    
+    .. tabularcolumns:: |p{0.10\linewidth}|p{0.90\linewidth}|
+    .. list-table::
+      :header-rows: 1
+      :widths: 10 90
+    
+      * - 項番
+        - 説明
+      * - | (1)
+        - | \ 共通ライブラリから提供されている、\ ``org.springframework.web.servlet.support.RequestDataValueProcessor``\ を複数定義可能な
+          | \ ``org.terasoluna.gfw.web.mvc.support.CompositeRequestDataValueProcessor``\ をbean定義する。
+      * - | (2)
+        - | コンストラクタの第1引数に、\ ``org.springframework.security.web.servlet.support.csrf.CsrfRequestDataValueProcessor``\ のbean定義を設定する。
 
-.. tabularcolumns:: |p{0.10\linewidth}|p{0.90\linewidth}|
-.. list-table::
-  :header-rows: 1
-  :widths: 10 90
+  .. group-tab:: XML Config
 
-  * - 項番
-    - 説明
-  * - | (1)
-    - | \ 共通ライブラリから提供されている、\ ``org.springframework.web.servlet.support.RequestDataValueProcessor``\ を複数定義可能な
-      | \ ``org.terasoluna.gfw.web.mvc.support.CompositeRequestDataValueProcessor``\ をbean定義する。
-  * - | (2)
-    - | コンストラクタの第1引数に、\ ``org.springframework.security.web.servlet.support.csrf.CsrfRequestDataValueProcessor``\ のbean定義を設定する。
+    * spring-mvc.xmlの設定例
+    
+    .. code-block:: xml
+    
+      <bean id="requestDataValueProcessor"
+          class="org.terasoluna.gfw.web.mvc.support.CompositeRequestDataValueProcessor"> <!-- (1)  -->
+          <constructor-arg>
+              <util:list>
+                  <bean
+                      class="org.springframework.security.web.servlet.support.csrf.CsrfRequestDataValueProcessor" /> <!-- (2)  -->
+                  <bean
+                      class="org.terasoluna.gfw.web.token.transaction.TransactionTokenRequestDataValueProcessor" />
+              </util:list>
+          </constructor-arg>
+      </bean>
+    
+    .. tabularcolumns:: |p{0.10\linewidth}|p{0.90\linewidth}|
+    .. list-table::
+      :header-rows: 1
+      :widths: 10 90
+    
+      * - 項番
+        - 説明
+      * - | (1)
+        - | \ 共通ライブラリから提供されている、\ ``org.springframework.web.servlet.support.RequestDataValueProcessor``\ を複数定義可能な
+          | \ ``org.terasoluna.gfw.web.mvc.support.CompositeRequestDataValueProcessor``\ をbean定義する。
+      * - | (2)
+        - | コンストラクタの第1引数に、\ ``org.springframework.security.web.servlet.support.csrf.CsrfRequestDataValueProcessor``\ のbean定義を設定する。
 
 上記設定により、デフォルトでCSRF対策機能が有効となる。このため、CSRF対策機能を適用したくない場合は、明示的に無効化する必要がある。 
 
 CSRF対策機能を使用しない場合は、以下のようなbean定義を行う。
 
-* spring-security.xmlの定義例
+.. tabs::
+  .. group-tab:: Java Config
 
-.. code-block:: xml
+    * SpringSecurityConfig.javaの定義例
+    
+    .. code-block:: java
 
-  <sec:http request-matcher="ant">
-      <!-- omitted -->
-      <sec:csrf disabled="true"/> <!-- disabled属性にtrueを設定して無効化 -->
-      <!-- omitted -->
-  </sec:http>
+      @Bean
+      public SecurityFilterChain filterChainJspDisabledcspr(HttpSecurity http) {
+          // omitted
+          http.csrf(csrf -> csrf.disable());
+          // omitted
+          return http.build();
+      }
+
+  .. group-tab:: XML Config
+
+    * spring-security.xmlの定義例
+    
+    .. code-block:: xml
+    
+      <sec:http request-matcher="ant">
+          <!-- omitted -->
+          <sec:csrf disabled="true"/> <!-- disabled属性にtrueを設定して無効化 -->
+          <!-- omitted -->
+      </sec:http>
 
 |
 
@@ -179,7 +235,7 @@ Spring MVCを使用した連携
 | ここでは、CSRF対策機能と連携するためのコンポーネントの使い方を説明する。
 |
 
-hidden項目の自動出力
+JSPにおけるhidden項目の自動出力
 ''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
 
 HTMLフォームを作成する際は、以下のようなJSPの実装を行う。
@@ -236,24 +292,17 @@ Spring MVCから提供されている\ ``<form:form>``\ 要素を使うと、以
 
 |
 
-.. _csrf_htmlformtag-use:
+Thymeleafにおけるhidden項目の自動出力
+''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
 
-HTMLフォーム使用時の連携
-""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
+HTMLフォームを作成する際は、以下のようにThymeleafのテンプレートHTMLを実装する。
 
-| \ :ref:`Spring MVCと連携<csrf_formtag-use>`\ せずに、HTMLフォームを使用してCSRFトークン値を連携することも可能である。
-| HTMLフォームを使ってリクエストを送信する場合は、HTMLフォームのhidden項目としてCSRFトークン値を出力し、リクエストパラメータとして連携する。
+* テンプレートHTMLの実装例
 
-* JSPの実装例
+.. code-block:: html
 
-.. code-block:: text
-
-  <%@ taglib prefix="sec" uri="http://www.springframework.org/security/tags" %>
-
-  <form action="<c:url value="/login" />" method="post">
-      <!-- omitted -->
-      <sec:csrfInput /> <!-- (1) -->
-      <!-- omitted -->
+  <form th:action="@{/login}" method="post"> <!--/* (1) */-->
+      <!--/* omitted */-->
   </form>
 
 .. tabularcolumns:: |p{0.10\linewidth}|p{0.90\linewidth}|
@@ -264,24 +313,109 @@ HTMLフォーム使用時の連携
   * - 項番
     - 説明
   * - | (1)
-    - | HTMLの\ ``<form>``\ 要素の中に\ ``<sec:csrfInput>``\ 要素を指定する。
+    - | HTMLフォームを作成する際は、Thymeleafの\ ``th:action``\ 属性を使用する。
 
-| Spring Securityから提供されている\ ``<sec:csrfInput>``\ 要素を指定すると、以下のようなhidden項目が出力される。
-| HTMLフォーム内にhidden項目を出力することで、CSRFトークン値がリクエストパラメータとして連携される。
-| デフォルトでは、CSRFトークン値を連携するためのリクエストパラメータ名は\ ``_csrf``\ になる。
+Thymeleafの\ ``th:action``\ 属性を使うと、以下のようなHTMLフォームが作成される。
 
 * HTMLの出力例
 
 .. code-block:: html
 
   <form action="/login" method="post">
-      <!-- omitted -->
-      <!-- CSRFトークン値のhidden項目 -->
+      <!-- Spring MVCの機能と連携して出力されたCSRFトークン値のhidden項目 -->
       <input type="hidden"
-             name="_csrf"
-             value="63845086-6b57-4261-8440-97a3c6fa6b99" />
+          name="_csrf" value="63845086-6b57-4261-8440-97a3c6fa6b99" />
       <!-- omitted -->
   </form>
+
+.. tip:: \ **出力されるCSRFトークンチェック値**\
+
+  \ ``CsrfRequestDataValueProcessor``\ を使用すると、\ ``th:action``\ 属性が付与された\ ``<form>``\ タグの\ ``method``\ 属性に指定した値がCSRFトークンチェック対象のHTTPメソッド(Spring Securityのデフォルト実装ではGET,HEAD,TRACE,OPTIONS以外のHTTPメソッド)と一致する場合に限り、CSRFトークンが埋め込まれた\ ``<input type="hidden">``\ タグが出力される。
+
+  例えば、以下の例のように \ ``method``\ 属性にGETメソッドを指定した場合は、CSRFトークンが埋め込まれた\ ``<input type="hidden">``\ タグは出力されない。
+
+    .. code-block:: html
+
+      <form method="GET" th:object="${xxxForm}" th:action="@{...}">
+          <!-- omitted -->
+      </form>
+
+  これは、\ `Cross-Site Request Forgery (CSRF) Prevention Cheat Sheet <https://cheatsheetseries.owasp.org/cheatsheets/Cross-Site_Request_Forgery_Prevention_Cheat_Sheet.html#synchronizer-token-pattern>`_\ で説明されている内容に対応している事を意味しており、セキュアなWebアプリケーション構築の手助けとなる。
+
+  \ **なお、<form>要素にmethod属性が指定されていない場合、HTML5標準ではGETメソッドとして処理される。このため、CSRF対策機能を使用する場合、明示的にmethod属性にpostを指定する必要がある。**\
+
+.. note:: \ **自動的にCSRFトークンを埋め込みたいが、action属性を付与したくない場合**\
+
+  「\ :ref:`view_thymeleaf_requesturl-label`\ 」で解説する「現在のパスからの相対パス」を利用することで、リクエストマッピングのパスが異なる複数のコントローラで同じテンプレートHTMLを使いまわすことが可能である。
+
+  「現在のパスからの相対パス」を使用すると、必ずページを取得したパスから派生する別のパスを指定する必要があるように見えるが、\ ``th:action``\ 属性の値を指定しないことで、出力される\ ``action``\ 属性の値が空になり、ページを取得したのと同じパスに対してリクエストを送信することが可能となる。（一般的なブラウザでは、\ ``action``\ 属性の値を空にすると、\ ``action``\ 属性を付与していないのと同じ動作となる。）
+    
+  これを利用して、自動的にCSRトークンを\ ``hidden``\ 要素に埋め込みたいが、\ ``action``\ 属性を付与したくない（＝ページを取得したのと同じパスに対してリクエストを送信したい）という要件を実現することが可能である。
+    
+  以下に、\ ``th:action``\ 属性の値を指定しない例を示す。
+
+    .. code-block:: html
+
+      <form th:action method="post">
+          <!--/* omitted */-->
+      </form>
+
+|
+
+.. _csrf_htmlformtag-use:
+
+HTMLフォーム使用時の連携
+""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
+
+| JSPでは\ :ref:`Spring MVCと連携<csrf_formtag-use>`\ せずに、HTMLフォームを使用してCSRFトークン値を連携することも可能である。
+| HTMLフォームを使ってリクエストを送信する場合は、HTMLフォームのhidden項目としてCSRFトークン値を出力し、リクエストパラメータとして連携する。
+
+.. tabs::
+  .. group-tab:: JSP
+
+    * JSPの実装例
+
+      .. actionの中にタグが入っているためjspと認識できない。そのため、code-blockをtextとしている。
+
+    .. code-block:: text
+
+      <%@ taglib prefix="sec" uri="http://www.springframework.org/security/tags" %>
+
+      <form action="<c:url value="/login" />" method="post">
+          <!-- omitted -->
+          <sec:csrfInput /> <!-- (1) -->
+          <!-- omitted -->
+      </form>
+
+    .. tabularcolumns:: |p{0.10\linewidth}|p{0.90\linewidth}|
+    .. list-table::
+      :header-rows: 1
+      :widths: 10 90
+
+      * - 項番
+        - 説明
+      * - | (1)
+        - | HTMLの\ ``<form>``\ 要素の中に\ ``<sec:csrfInput>``\ 要素を指定する。
+
+| Spring Securityから提供されている\ ``<sec:csrfInput>``\ 要素を指定すると、以下のようなhidden項目が出力される。
+| HTMLフォーム内にhidden項目を出力することで、CSRFトークン値がリクエストパラメータとして連携される。
+| デフォルトでは、CSRFトークン値を連携するためのリクエストパラメータ名は\ ``_csrf``\ になる。
+
+.. tabs::
+  .. group-tab:: JSP
+
+    * HTMLの出力例
+
+    .. code-block:: html
+
+      <form action="/login" method="post">
+          <!-- omitted -->
+          <!-- CSRFトークン値のhidden項目 -->
+          <input type="hidden"
+                name="_csrf"
+                value="63845086-6b57-4261-8440-97a3c6fa6b99" />
+          <!-- omitted -->
+      </form>
 
 .. warning:: **GETメソッド使用時の注意点**
 
@@ -296,75 +430,120 @@ HTMLフォーム使用時の連携
 Ajax使用時の連携
 """"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 
-Ajaxを使ってリクエストを送信する場合は、HTMLのmetaタグとしてCSRFトークンの情報を出力し、metaタグから取得したトークン値をAjax通信時のリクエストヘッダに設定して連携する。
+JSPにおけるAjax使用時の連携
+''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
+
+ViewにJSPを使用しAjaxを使ってリクエストを送信する場合は、HTMLのmetaタグとしてCSRFトークンの情報を出力し、metaタグから取得したトークン値をAjax通信時のリクエストヘッダに設定して連携する。
 
 まず、Spring Securityから提供されているJSPタグライブラリを使用して、HTMLのmetaタグにCSRFトークンの情報を出力する。
 
-* JSPの実装例
+.. tabs::
+  .. group-tab:: JSP
 
-.. code-block:: jsp
+    * JSPの実装例
 
-  <%@ taglib prefix="sec" uri="http://www.springframework.org/security/tags" %>
+    .. code-block:: jsp
 
-  <head>
-      <!-- omitted -->
-      <sec:csrfMetaTags /> <!-- (1) -->
-      <!-- omitted -->
-  </head>
+      <%@ taglib prefix="sec" uri="http://www.springframework.org/security/tags" %>
 
-.. tabularcolumns:: |p{0.10\linewidth}|p{0.90\linewidth}|
-.. list-table::
-  :header-rows: 1
-  :widths: 10 90
+      <head>
+          <!-- omitted -->
+          <sec:csrfMetaTags /> <!-- (1) -->
+          <!-- omitted -->
+      </head>
 
-  * - 項番
-    - 説明
-  * - | (1)
-    - | HTMLの\ ``<head>``\ 要素内に\ ``<sec:csrfMetaTags>``\ 要素を指定する。
+    .. tabularcolumns:: |p{0.10\linewidth}|p{0.90\linewidth}|
+    .. list-table::
+      :header-rows: 1
+      :widths: 10 90
+
+      * - 項番
+        - 説明
+      * - | (1)
+        - | HTMLの\ ``<head>``\ 要素内に\ ``<sec:csrfMetaTags>``\ 要素を指定する。
 
 | \ ``<sec:csrfMetaTags>``\ 要素を指定すると、以下のようなmetaタグが出力される。
 | デフォルトでは、CSRFトークン値を連携するためのリクエストヘッダ名は\ ``X-CSRF-TOKEN``\ となる。
 
-* HTMLの出力例
+.. tabs::
+  .. group-tab:: JSP
 
-.. code-block:: html
+    * HTMLの出力例
 
-  <head>
-      <!-- omitted -->
-      <meta name="_csrf_parameter" content="_csrf" />
-      <meta name="_csrf_header" content="X-CSRF-TOKEN" /> <!-- ヘッダ名 -->
-      <meta name="_csrf"
-            content="63845086-6b57-4261-8440-97a3c6fa6b99" /> <!-- トークン値 -->
-      <!-- omitted -->
-  </head>
+    .. code-block:: html
+
+      <head>
+          <!-- omitted -->
+          <meta name="_csrf_parameter" content="_csrf" />
+          <meta name="_csrf_header" content="X-CSRF-TOKEN" /> <!-- ヘッダ名 -->
+          <meta name="_csrf"
+                content="63845086-6b57-4261-8440-97a3c6fa6b99" /> <!-- トークン値 -->
+          <!-- omitted -->
+      </head>
 
 つぎに、JavaScriptを使ってmetaタグからCSRFトークンの情報を取得し、Ajax通信時のリクエストヘッダにCSRFトークン値を設定する。(ここではjQueryを使った実装例となっている)
 
-* JavaScriptの実装例
+.. tabs::
+  .. group-tab:: JSP
 
-.. code-block:: javascript
+    * JavaScriptの実装例
 
-  $(function () {
-      var headerName = $("meta[name='_csrf_header']").attr("content"); // (1)
-      var tokenValue = $("meta[name='_csrf']").attr("content"); // (2)
-      $(document).ajaxSend(function(e, xhr, options) {
-          xhr.setRequestHeader(headerName, tokenValue); // (3)
+    .. code-block:: javascript
+
+      $(function () {
+          var headerName = $("meta[name='_csrf_header']").attr("content"); // (1)
+          var tokenValue = $("meta[name='_csrf']").attr("content"); // (2)
+          $(document).ajaxSend(function(e, xhr, options) {
+              xhr.setRequestHeader(headerName, tokenValue); // (3)
+          });
       });
-  });
 
-.. tabularcolumns:: |p{0.10\linewidth}|p{0.90\linewidth}|
-.. list-table::
-  :header-rows: 1
-  :widths: 10 90
+    .. tabularcolumns:: |p{0.10\linewidth}|p{0.90\linewidth}|
+    .. list-table::
+      :header-rows: 1
+      :widths: 10 90
 
-  * - 項番
-    - 説明
-  * - | (1)
-    - | CSRFトークン値を連携するためのリクエストヘッダ名を取得する。
-  * - | (2)
-    - | CSRFトークン値を取得する。
-  * - | (3)
-    - | リクエストヘッダにCSRFトークン値を設定する。
+      * - 項番
+        - 説明
+      * - | (1)
+        - | CSRFトークン値を連携するためのリクエストヘッダ名を取得する。
+      * - | (2)
+        - | CSRFトークン値を取得する。
+      * - | (3)
+        - | リクエストヘッダにCSRFトークン値を設定する。
+
+|
+
+ThymeleafにおけるAjax使用時の連携
+''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
+
+ViewにThymeleafを使用し、Ajaxを使ってリクエストを送信する場合は、CSRFトークンの情報をリクエストヘッダに設定して連携する。
+
+JavaScriptの実装例を以下に示す。(ここではjQueryを使った実装例となっている)
+
+.. tabs::
+  .. group-tab:: Thymeleaf
+
+    * JavaScriptの実装例
+
+    .. code-block:: javascript
+
+      $(function () {
+          $(document).ajaxSend(function(e, xhr, options) {
+              xhr.setRequestHeader([[${_csrf.headerName}]], [[${_csrf.token}]]); // (1)
+          });
+      });
+
+    .. tabularcolumns:: |p{0.10\linewidth}|p{0.90\linewidth}|
+    .. list-table::
+      :header-rows: 1
+      :widths: 10 90
+
+      * - 項番
+        - 説明
+      * - | (1)
+        - | JavaScriptのインライン記法を用いることでリクエストヘッダ名とCSRFトークン値を取得する。デフォルトでは、リクエストヘッダ名は\ ``X-CSRF-TOKEN``\ となる。
+          | JavaScriptにおけるインライン記法の詳細は\ :doc:`../ArchitectureInDetail/WebApplicationDetail/Thymeleaf`\ のJavaScriptのテンプレート化を参照されたい。
 
 |
 
@@ -391,81 +570,296 @@ CSRFのトークンチェックエラー時に発生する例外は以下の通�
 
 \ ``DelegatingAccessDeniedHandler``\ クラスを使用して上記の例外をハンドリングし、それぞれに \ ``AccessDeniedHandler``\ インタフェースの実装クラスを割り当てることで、例外毎の遷移先を設定することが可能である。
 
-CSRFトークンチェックエラー時に専用のエラー画面（JSP）に遷移させたい場合は、以下のようなBean定義を行う。(以下の定義例は、`ブランクプロジェクト <https://github.com/terasolunaorg/terasoluna-gfw-web-multi-blank/tree/5.8.1.RELEASE>`_\ からの抜粋である)
+CSRFトークンチェックエラー時に専用のエラー画面に遷移させたい場合は、以下のようなBean定義を行う。(以下の定義例は、\ `ブランクプロジェクト <https://github.com/terasolunaorg/terasoluna-gfw-web-multi-blank/tree/5.9.0.RELEASE>`_\ からの抜粋である)
 
-* spring-security.xmlの定義例
+.. tabs::
+  .. group-tab:: Java Config
 
-.. code-block:: xml
+    .. tabs::
+      .. group-tab:: JSP
+    
+        * SpringSecurityConfig.javaの定義例
+    
+        .. code-block:: java
 
-  <sec:http request-matcher="ant">
-      <!-- omitted -->
-      <sec:access-denied-handler ref="accessDeniedHandler"/>  <!-- (1) -->
-      <!-- omitted -->
-  </sec:http>
+          @Bean
+          public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
+              // omitted
+              http.exceptionHandling(ex -> ex.accessDeniedHandler(
+                      accessDeniedHandler())); // (1)
+              // omitted      
+              return http.build();
+          }
 
-  <bean id="accessDeniedHandler"
-      class="org.springframework.security.web.access.DelegatingAccessDeniedHandler">  <!-- (2) -->
-      <constructor-arg index="0">  <!-- (3) -->
-          <map>
-              <!-- (4) -->
-              <entry
-                  key="org.springframework.security.web.csrf.InvalidCsrfTokenException">
+          @Bean("accessDeniedHandler")
+          public AccessDeniedHandler accessDeniedHandler() {
+              LinkedHashMap<Class<? extends AccessDeniedException>, AccessDeniedHandler> errorHandlers = new LinkedHashMap<>();
+      
+              // Invalid CSRF authenticator error handler
+              AccessDeniedHandlerImpl invalidCsrfTokenErrorHandler = new AccessDeniedHandlerImpl();
+              invalidCsrfTokenErrorHandler.setErrorPage(
+                      "/WEB-INF/views/common/error/invalidCsrfTokenError.jsp");
+              errorHandlers.put(InvalidCsrfTokenException.class,
+                      invalidCsrfTokenErrorHandler); // (4)
+      
+              // Missing CSRF authenticator error handler
+              AccessDeniedHandlerImpl missingCsrfTokenErrorHandler = new AccessDeniedHandlerImpl();
+              missingCsrfTokenErrorHandler.setErrorPage(
+                      "/WEB-INF/views/common/error/missingCsrfTokenError.jsp");
+              errorHandlers.put(MissingCsrfTokenException.class,
+                      missingCsrfTokenErrorHandler); // (5)
+       
+              // Default error handler
+              AccessDeniedHandlerImpl defaultErrorHandler = new AccessDeniedHandlerImpl();
+              defaultErrorHandler.setErrorPage(
+                      "/WEB-INF/views/common/error/accessDeniedError.jsp"); // (6)
+      
+              return new DelegatingAccessDeniedHandler(errorHandlers, defaultErrorHandler); // (2)(3)
+          }
+    
+        .. tabularcolumns:: |p{0.10\linewidth}|p{0.90\linewidth}|
+        .. list-table::
+          :header-rows: 1
+          :widths: 10 90
+    
+          * - 項番
+            - 説明
+          * - | (1)
+            - | \ ``HttpSecurity#exceptionHandling``\ の\ ``ExceptionHandlingConfigurer#accessDeniedHandler``\ に、Exception毎の制御を行うための\ ``AccessDeniedHandler``\ のBean名を指定する。
+              | エラー時遷移先が全て同じ画面である場合は\ ``error-page``\ 属性に遷移先を指定すればよい。
+              | \ ``ExceptionHandlingConfigurer#accessDeniedHandler``\ でハンドリングしない場合は、\ :ref:`SpringSecurityAuthorizationOnError`\ を参照されたい。
+          * - | (2)
+            - | \ ``DelegatingAccessDeniedHandler``\ を使用して、発生した例外（\ ``AccessDeniedException``\ サブクラス） と例外ハンドラ（\ ``AccessDeniedHandler``\ 実装クラス）を定義する。
+          * - | (3)
+            - | コンストラクタの第1引数で、個別に遷移先を指定したい例外（\ ``AccessDeniedException``\ サブクラス）と、対応する例外ハンドラ（\ ``AccessDeniedHandler``\ 実装クラス）をMap形式で定義する。
+          * - | (4)
+            - | \ ``key``\ に\ ``AccessDeniedException``\ のサブクラスを指定する。
+              | \ ``value``\ として\ ``AccessDeniedHandler``\ の実装クラスである\ ``org.springframework.security.web.access.AccessDeniedHandlerImpl``\ を指定する。
+              | \ ``errorPage``\ に\ ``value``\ に表示するviewを指定する。
+              | マッピングするExceptionに関しては、\ :ref:`csrf_token-error-response`\ を参照されたい。
+          * - | (5)
+            - | (4)のExceptionと異なるExceptionを制御したい場合に定義する。
+              | 本例では \ ``InvalidCsrfTokenException``\ 、\ ``MissingCsrfTokenException``\ それぞれに異なる遷移先を設定している。
+          * - | (6)
+            - | コンストラクタの第2引数で、デフォルト例外（(4)(5)で指定していない\ ``AccessDeniedException``\ のサブクラス）時の例外ハンドラ（\ ``AccessDeniedHandler``\ 実装クラス）と遷移先を指定する。
+    
+      .. group-tab:: Thymeleaf
+    
+        * SpringSecurityConfig.javaの定義例
+    
+        .. code-block:: java
+
+          @Bean
+          public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
+              // omitted
+              http.exceptionHandling(ex -> ex.accessDeniedHandler(
+                      accessDeniedHandler())); // (1)
+              // omitted      
+              return http.build();
+          }
+
+          @Bean("accessDeniedHandler")
+          public AccessDeniedHandler accessDeniedHandler() {
+              LinkedHashMap<Class<? extends AccessDeniedException>, AccessDeniedHandler> errorHandlers = new LinkedHashMap<>();
+      
+              // Invalid CSRF authenticator error handler
+              AccessDeniedHandlerImpl invalidCsrfTokenErrorHandler = new AccessDeniedHandlerImpl();
+              invalidCsrfTokenErrorHandler.setErrorPage(
+                      "/common/error/invalidCsrfTokenError");
+              errorHandlers.put(InvalidCsrfTokenException.class,
+                      invalidCsrfTokenErrorHandler); // (4)
+      
+              // Missing CSRF authenticator error handler
+              AccessDeniedHandlerImpl missingCsrfTokenErrorHandler = new AccessDeniedHandlerImpl();
+              missingCsrfTokenErrorHandler.setErrorPage(
+                      "/common/error/missingCsrfTokenError");
+              errorHandlers.put(MissingCsrfTokenException.class,
+                      missingCsrfTokenErrorHandler); // (5)
+       
+              // Default error handler
+              AccessDeniedHandlerImpl defaultErrorHandler = new AccessDeniedHandlerImpl();
+              defaultErrorHandler.setErrorPage(
+                      "/common/error/accessDeniedError"); // (6)
+      
+              return new DelegatingAccessDeniedHandler(errorHandlers, defaultErrorHandler); // (2)(3)
+          }
+    
+        .. tabularcolumns:: |p{0.10\linewidth}|p{0.90\linewidth}|
+        .. list-table::
+          :header-rows: 1
+          :widths: 10 90
+    
+          * - 項番
+            - 説明
+          * - | (1)
+            - | \ ``HttpSecurity#exceptionHandling``\ の\ ``ExceptionHandlingConfigurer#accessDeniedHandler``\ に、Exception毎の制御を行うための\ ``AccessDeniedHandler``\ のBean名を指定する。
+              | エラー時遷移先が全て同じ画面である場合は\ ``error-page``\ 属性に遷移先を指定すればよい。
+              | \ ``ExceptionHandlingConfigurer#accessDeniedHandler``\ でハンドリングしない場合は、\ :ref:`SpringSecurityAuthorizationOnError`\ を参照されたい。
+          * - | (2)
+            - | \ ``DelegatingAccessDeniedHandler``\ を使用して、発生した例外（\ ``AccessDeniedException``\ サブクラス） と例外ハンドラ（\ ``AccessDeniedHandler``\ 実装クラス）を定義する。
+          * - | (3)
+            - | コンストラクタの第1引数で、個別に遷移先を指定したい例外（\ ``AccessDeniedException``\ サブクラス）と、対応する例外ハンドラ（\ ``AccessDeniedHandler``\ 実装クラス）をMap形式で定義する。
+          * - | (4)
+            - | \ ``key``\ に\ ``AccessDeniedException``\ のサブクラスを指定する。
+              | \ ``value``\ として\ ``AccessDeniedHandler``\ の実装クラスである\ ``org.springframework.security.web.access.AccessDeniedHandlerImpl``\ を指定する。
+              | \ ``errorPage``\ に\ ``value``\ に表示するviewを指定する。
+              | マッピングするExceptionに関しては、\ :ref:`csrf_token-error-response`\ を参照されたい。
+          * - | (5)
+            - | (4)のExceptionと異なるExceptionを制御したい場合に定義する。
+              | 本例では \ ``InvalidCsrfTokenException``\ 、\ ``MissingCsrfTokenException``\ それぞれに異なる遷移先を設定している。
+          * - | (6)
+            - | コンストラクタの第2引数で、デフォルト例外（(4)(5)で指定していない\ ``AccessDeniedException``\ のサブクラス）時の例外ハンドラ（\ ``AccessDeniedHandler``\ 実装クラス）と遷移先を指定する。
+
+  .. group-tab:: XML Config
+
+    .. tabs::
+      .. group-tab:: JSP
+    
+        * spring-security.xmlの定義例
+    
+        .. code-block:: xml
+    
+          <sec:http request-matcher="ant">
+              <!-- omitted -->
+              <sec:access-denied-handler ref="accessDeniedHandler"/>  <!-- (1) -->
+              <!-- omitted -->
+          </sec:http>
+    
+          <bean id="accessDeniedHandler"
+              class="org.springframework.security.web.access.DelegatingAccessDeniedHandler">  <!-- (2) -->
+              <constructor-arg index="0">  <!-- (3) -->
+                  <map>
+                      <!-- (4) -->
+                      <entry
+                          key="org.springframework.security.web.csrf.InvalidCsrfTokenException">
+                          <bean
+                              class="org.springframework.security.web.access.AccessDeniedHandlerImpl">
+                              <property name="errorPage"
+                                  value="/WEB-INF/views/common/error/invalidCsrfTokenError.jsp" />
+                          </bean>
+                      </entry>
+                      <!-- (5) -->
+                      <entry
+                          key="org.springframework.security.web.csrf.MissingCsrfTokenException">
+                          <bean
+                              class="org.springframework.security.web.access.AccessDeniedHandlerImpl">
+                              <property name="errorPage"
+                                  value="/WEB-INF/views/common/error/missingCsrfTokenError.jsp" />
+                          </bean>
+                      </entry>
+                  </map>
+              </constructor-arg>
+              <!-- (6) -->
+              <constructor-arg index="1">
                   <bean
                       class="org.springframework.security.web.access.AccessDeniedHandlerImpl">
                       <property name="errorPage"
-                          value="/WEB-INF/views/common/error/invalidCsrfTokenError.jsp" />
+                          value="/WEB-INF/views/common/error/accessDeniedError.jsp" />
                   </bean>
-              </entry>
-              <!-- (5) -->
-              <entry
-                  key="org.springframework.security.web.csrf.MissingCsrfTokenException">
-                  <bean
-                      class="org.springframework.security.web.access.AccessDeniedHandlerImpl">
-                      <property name="errorPage"
-                          value="/WEB-INF/views/common/error/missingCsrfTokenError.jsp" />
-                  </bean>
-              </entry>
-          </map>
-      </constructor-arg>
-      <!-- (6) -->
-      <constructor-arg index="1">
-          <bean
-              class="org.springframework.security.web.access.AccessDeniedHandlerImpl">
-              <property name="errorPage"
-                  value="/WEB-INF/views/common/error/accessDeniedError.jsp" />
+              </constructor-arg>
           </bean>
-      </constructor-arg>
-  </bean>
-
-.. tabularcolumns:: |p{0.10\linewidth}|p{0.90\linewidth}|
-.. list-table::
-  :header-rows: 1
-  :widths: 10 90
-
-  * - 項番
-    - 説明
-  * - | (1)
-    - | \ ``<sec:access-denied-handler>``\ タグのref属性に、Exception毎の制御を行うための\ ``AccessDeniedHandler``\ のBean名を指定する。
-      | エラー時遷移先が全て同じ画面である場合は ``error-page`` 属性に遷移先を指定すればよい。
-      | \ ``<sec:access-denied-handler>``\でハンドリングしない場合は、\ :ref:`SpringSecurityAuthorizationOnError`\ を参照されたい。
-  * - | (2)
-    - | \ ``DelegatingAccessDeniedHandler``\ を使用して、発生した例外（\ ``AccessDeniedException``\ サブクラス） と例外ハンドラ（\ ``AccessDeniedHandler``\ 実装クラス）を定義する。
-  * - | (3)
-    - | コンストラクタの第1引数で、個別に遷移先を指定したい例外（\ ``AccessDeniedException``\ サブクラス）と、対応する例外ハンドラ（\ ``AccessDeniedHandler``\ 実装クラス）をMap形式で定義する。
-  * - | (4)
-    - | \ ``key``\ に \ ``AccessDeniedException``\ のサブクラスを指定する。
-      | \ ``value`` として、\ ``AccessDeniedHandler``\ の実装クラスである、 \ ``org.springframework.security.web.access.AccessDeniedHandlerImpl`` を指定する。
-      | \ ``property``\ の \ ``name``\ に \ ``errorPage``\ を指定し、\ ``value``\ に表示するviewを指定する。
-      | マッピングするExceptionに関しては、\ :ref:`csrf_token-error-response`\ を参照されたい。
-  * - | (5)
-    - | (4)のExceptionと異なるExceptionを制御したい場合に定義する。
-      | 本例では \ ``InvalidCsrfTokenException``\ 、\ ``MissingCsrfTokenException``\ それぞれに異なる遷移先を設定している。
-  * - | (6)
-    - | コンストラクタの第2引数で、デフォルト例外（(4)(5)で指定していない\ ``AccessDeniedException``\ のサブクラス）時の例外ハンドラ（\ ``AccessDeniedHandler``\ 実装クラス）と遷移先を指定する。
+    
+        .. tabularcolumns:: |p{0.10\linewidth}|p{0.90\linewidth}|
+        .. list-table::
+          :header-rows: 1
+          :widths: 10 90
+    
+          * - 項番
+            - 説明
+          * - | (1)
+            - | \ ``<sec:access-denied-handler>``\ タグのref属性に、Exception毎の制御を行うための\ ``AccessDeniedHandler``\ のBean名を指定する。
+              | エラー時遷移先が全て同じ画面である場合は\ ``error-page``\ 属性に遷移先を指定すればよい。
+              | \ ``<sec:access-denied-handler>``\ でハンドリングしない場合は、\ :ref:`SpringSecurityAuthorizationOnError`\ を参照されたい。
+          * - | (2)
+            - | \ ``DelegatingAccessDeniedHandler``\ を使用して、発生した例外（\ ``AccessDeniedException``\ サブクラス） と例外ハンドラ（\ ``AccessDeniedHandler``\ 実装クラス）を定義する。
+          * - | (3)
+            - | コンストラクタの第1引数で、個別に遷移先を指定したい例外（\ ``AccessDeniedException``\ サブクラス）と、対応する例外ハンドラ（\ ``AccessDeniedHandler``\ 実装クラス）をMap形式で定義する。
+          * - | (4)
+            - | \ ``key``\ に \ ``AccessDeniedException``\ のサブクラスを指定する。
+              | \ ``value`` として、\ ``AccessDeniedHandler``\ の実装クラスである、\ ``org.springframework.security.web.access.AccessDeniedHandlerImpl``\ を指定する。
+              | \ ``property``\ の \ ``name``\ に \ ``errorPage``\ を指定し、\ ``value``\ に表示するviewを指定する。
+              | マッピングするExceptionに関しては、\ :ref:`csrf_token-error-response`\ を参照されたい。
+          * - | (5)
+            - | (4)のExceptionと異なるExceptionを制御したい場合に定義する。
+              | 本例では \ ``InvalidCsrfTokenException``\ 、\ ``MissingCsrfTokenException``\ それぞれに異なる遷移先を設定している。
+          * - | (6)
+            - | コンストラクタの第2引数で、デフォルト例外（(4)(5)で指定していない\ ``AccessDeniedException``\ のサブクラス）時の例外ハンドラ（\ ``AccessDeniedHandler``\ 実装クラス）と遷移先を指定する。
+    
+      .. group-tab:: Thymeleaf
+    
+        * spring-security.xmlの定義例
+    
+        .. code-block:: xml
+    
+          <sec:http request-matcher="ant">
+              <!-- omitted -->
+              <sec:access-denied-handler ref="accessDeniedHandler"/>  <!-- (1) -->
+              <!-- omitted -->
+          </sec:http>
+    
+          <bean id="accessDeniedHandler"
+              class="org.springframework.security.web.access.DelegatingAccessDeniedHandler">  <!-- (2) -->
+              <constructor-arg index="0">  <!-- (3) -->
+                  <map>
+                      <!-- (4) -->
+                      <entry
+                          key="org.springframework.security.web.csrf.InvalidCsrfTokenException">
+                          <bean
+                              class="org.springframework.security.web.access.AccessDeniedHandlerImpl">
+                              <property name="errorPage"
+                                  value="/common/error/invalidCsrfTokenError" />
+                          </bean>
+                      </entry>
+                      <!-- (5) -->
+                      <entry
+                          key="org.springframework.security.web.csrf.MissingCsrfTokenException">
+                          <bean
+                              class="org.springframework.security.web.access.AccessDeniedHandlerImpl">
+                              <property name="errorPage"
+                                  value="/common/error/missingCsrfTokenError" />
+                          </bean>
+                      </entry>
+                  </map>
+              </constructor-arg>
+              <!-- (6) -->
+              <constructor-arg index="1">
+                  <bean
+                      class="org.springframework.security.web.access.AccessDeniedHandlerImpl">
+                      <property name="errorPage"
+                          value="/common/error/accessDeniedError" />
+                  </bean>
+              </constructor-arg>
+          </bean>
+    
+        .. tabularcolumns:: |p{0.10\linewidth}|p{0.90\linewidth}|
+        .. list-table::
+          :header-rows: 1
+          :widths: 10 90
+    
+          * - 項番
+            - 説明
+          * - | (1)
+            - | \ ``<sec:access-denied-handler>``\ タグのref属性に、Exception毎の制御を行うための\ ``AccessDeniedHandler``\ のBean名を指定する。
+              | エラー時遷移先が全て同じ画面である場合は\ ``error-page``\ 属性に遷移先を指定すればよい。
+              | \ ``<sec:access-denied-handler>``\ でハンドリングしない場合は、\ :ref:`SpringSecurityAuthorizationOnError`\ を参照されたい。
+          * - | (2)
+            - | \ ``DelegatingAccessDeniedHandler``\ を使用して、発生した例外（\ ``AccessDeniedException``\ サブクラス） と例外ハンドラ（\ ``AccessDeniedHandler``\ 実装クラス）を定義する。
+          * - | (3)
+            - | コンストラクタの第1引数で、個別に遷移先を指定したい例外（\ ``AccessDeniedException``\ サブクラス）と、対応する例外ハンドラ（\ ``AccessDeniedHandler``\ 実装クラス）をMap形式で定義する。
+          * - | (4)
+            - | \ ``key``\ に \ ``AccessDeniedException``\ のサブクラスを指定する。
+              | \ ``value``\ として、\ ``AccessDeniedHandler``\ の実装クラスである、\ ``org.springframework.security.web.access.AccessDeniedHandlerImpl``\ を指定する。
+              | \ ``property``\ の\ ``name``\ に \ ``errorPage``\ を指定し、\ ``value``\ に表示するviewへ遷移するパスを指定する。
+              | マッピングするExceptionに関しては、\ :ref:`csrf_token-error-response`\ を参照されたい。
+          * - | (5)
+            - | (4)のExceptionと異なるExceptionを制御したい場合に定義する。
+              | 本例では \ ``InvalidCsrfTokenException``\ 、\ ``MissingCsrfTokenException``\ それぞれに異なる遷移先を設定している。
+          * - | (6)
+            - | コンストラクタの第2引数で、デフォルト例外（(4)(5)で指定していない\ ``AccessDeniedException``\ のサブクラス）時の例外ハンドラ（\ ``AccessDeniedHandler``\ 実装クラス ）と遷移先を指定する。
 
 .. note:: \ **無効なセッションを使ったリクエストの検知**\
 
-  セッション管理機能の「\ :ref:`SpringSecuritySessionDetectInvalidSession`\ 」処理を有効にしている場合は、\ ``MissingCsrfTokenException``\ に対して「:ref:`SpringSecuritySessionDetectInvalidSession`」処理と連動する\ ``AccessDeniedHandler``\ インタフェースの実装クラスが適用される。
+  セッション管理機能の「\ :ref:`SpringSecuritySessionDetectInvalidSession`\ 」処理を有効にしている場合は、\ ``MissingCsrfTokenException``\ に対して「\ :ref:`SpringSecuritySessionDetectInvalidSession`\ 」処理と連動する\ ``AccessDeniedHandler``\ インタフェースの実装クラスが適用される。
 
   そのため、\ ``MissingCsrfTokenException``\ が発生すると、「\ :ref:`SpringSecuritySessionDetectInvalidSession`\ 」処理を有効化する際に指定したパス(\ ``invalid-session-url``\ )にリダイレクトする。
 
@@ -477,4 +871,4 @@ CSRFトークンチェックエラー時に専用のエラー画面（JSP）に�
 
 .. raw:: latex
 
-  \ newpage
+  \newpage

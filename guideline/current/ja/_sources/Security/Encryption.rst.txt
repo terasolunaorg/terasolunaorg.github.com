@@ -28,7 +28,7 @@ Overview
 * JCA (Java Cryptography Architecture) を利用した公開鍵暗号化方式の暗号化と復号
 * JCAを利用したハイブリッド暗号化方式の暗号化と復号
 
-Spring Securityの暗号化機能の詳細については、\ `Spring Security Reference -Spring Security Crypto Module- <https://docs.spring.io/spring-security/reference/6.0.1/features/integrations/cryptography.html>`_\ を参照されたい。
+Spring Securityの暗号化機能の詳細については、\ `Spring Security Reference -Spring Security Crypto Module- <https://docs.spring.io/spring-security/reference/features/integrations/cryptography.html>`_\ を参照されたい。
 
 |
 
@@ -37,6 +37,8 @@ Spring Securityの暗号化機能の詳細については、\ `Spring Security R
 暗号化方式
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 暗号化方式について説明する。
+
+|
 
 共通鍵暗号化方式
 """"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
@@ -271,11 +273,11 @@ How to use
     * - | (2)
       - | 平文を\ ``encrypt``\ メソッドで暗号化する。
 
-  .. note:: **GCMを用いたAESに対するJavaの対応状況**
+  .. note:: \ **GCMを用いたAESに対するJavaの対応状況**\
 
     GCMを用いたAESはJava SE8以降で使用可能である。
     
-    詳細については、\ `JDK 8セキュリティの拡張機能 <https://docs.oracle.com/javase/jp/8/docs/technotes/guides/security/enhancements-8.html>`_\を参照されたい。
+    詳細については、\ `JDK 8セキュリティの拡張機能 <https://docs.oracle.com/javase/jp/8/docs/technotes/guides/security/enhancements-8.html>`_\ を参照されたい。
 
 |
 
@@ -444,6 +446,7 @@ How to use
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 | Spring Securityでは公開鍵暗号化方式に関する機能は提供されていないため、JCAおよびOpenSSLを利用した方法についてサンプルコードを用いて説明する。
+|
 
 事前準備（JCAによるキーペアの生成）
 """"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
@@ -537,7 +540,7 @@ How to use
   .. list-table::
     :header-rows: 1
     :widths: 10 90
-  
+
     * - 項番
       - 説明
     * - | (1)
@@ -575,7 +578,7 @@ How to use
   .. list-table::
     :header-rows: 1
     :widths: 10 90
-  
+
     * - 項番
       - 説明
     * - | (1)
@@ -798,7 +801,7 @@ OpenSSL
   .. list-table::
     :header-rows: 1
     :widths: 10 90
-  
+
     * - 項番
       - 説明
     * - | (1)
@@ -862,7 +865,7 @@ OpenSSL
   .. list-table::
     :header-rows: 1
     :widths: 10 90
-  
+
     * - 項番
       - 説明
     * - | (1)

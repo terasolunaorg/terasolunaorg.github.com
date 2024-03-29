@@ -480,7 +480,7 @@ PRG(Post-Redirect-Get)パターンについて
 ネームスペースがない場合の問題点について
 """"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 | まず、ネームスペースがない場合の問題点について説明する。
-| 以下の図では、clientが左右にわかれているが、実際は同一マシン上に２つのWindowを立ち上げた際の例となる。
+| 以下の図では、clientが左右にわかれているが、実際は同一マシン上に2つのWindowを立ち上げた際の例となる。
 
   .. figure:: ./images_DoubleSubmitProtection/token-only-one.png
     :alt: token only one
@@ -553,7 +553,6 @@ PRG(Post-Redirect-Get)パターンの適用
 - Controller
 
   .. code-block:: java
-    :emphasize-lines: 31,42-44,47,49
 
     @Controller
     @RequestMapping("prgExample")
@@ -626,85 +625,154 @@ PRG(Post-Redirect-Get)パターンの適用
       - | 完了画面を表示するためのハンドラメソッド。
         | \ **GETメソッドでリクエストを受け取る。**\
     * - | (8)
-      - | 完了画面を表示するView(JSP)を呼び出し、完了画面を応答する。
-        | JSPの拡張子は\ :file:`spring-mvc.xml`\ に定義されている \ ``ViewResolver``\ によって付与されるため、ハンドラメソッドの返却値からは省略している。
+      - | 完了画面を表示するView(JSP/テンプレートHTML)を呼び出し、完了画面を応答する。
+        | \ ``.jsp``\ や\ ``.html``\ 等の拡張子は\ ``SpringMvcConfig.java``\ (もしくは\ :file:`spring-mvc.xml`\ )に定義されている \ ``ViewResolver``\ や\ ``TemplateResolver``\ によって付与されるため、ハンドラメソッドの返却値からは省略している。
 
   .. note::
 
     * リダイレクトする際は、ハンドラメソッドの返り値として返却する遷移情報のプレフィックスとして「redirect:」を付与する。
     * リダイレクト先の処理にデータを引き渡したい場合は、\ ``RedirectAttributes``\ のaddFlashAttributeメソッドを呼び出し、引き渡すデータを追加する。
 
-- \ :file:`createForm.jsp`\
+.. tabs::
+  .. group-tab:: JSP
 
- .. code-block:: jsp
+    - \ :file:`createForm.jsp`\
+    
+      .. code-block:: jsp
+    
+        <h1>Create User</h1>
+        <div id="prgForm">
+          <form:form 
+            action="${pageContext.request.contextPath}/prgExample/create"
+            method="post" modelAttribute="postRedirectGetForm">
+            <form:label path="firstName">FirstName</form:label>
+            <form:input path="firstName" /><br>
+            <form:label path="lastName">LastName:</form:label>
+            <form:input path="lastName" /><br>
+            <form:button name="confirm">Confirm Create User</form:button>
+          </form:form>
+        </div>
+    
+    - \ :file:`createConfirm.jsp`\
+    
+      .. code-block:: jsp
+    
+        <h1>Confirm Create User</h1>
+        <div id="prgForm">
+          <form:form
+            action="${pageContext.request.contextPath}/prgExample/create"
+            method="post"
+            modelAttribute="postRedirectGetForm">
+            FirstName:${f:h(postRedirectGetForm.firstName)}<br>
+            <form:hidden path="firstName" />
+            LastName:${f:h(postRedirectGetForm.lastName)}<br>
+            <form:hidden path="lastName" />
+            <form:button>Create User</form:button> <%-- (6) --%>
+          </form:form>
+        </div>
+    
+      .. tabularcolumns:: |p{0.10\linewidth}|p{0.90\linewidth}|
+      .. list-table::
+        :header-rows: 1
+        :widths: 10 90
+    
+        * - 項番
+          - 説明
+        * - | (6)
+          - | 更新処理を行うためのボタンが押下された場合は、\ **POSTメソッドでリクエストを送る。**\
+    
+    - \ :file:`createComplete.jsp`\
+    
+      .. code-block:: jsp
+    
+        <h1>Successful Create User Completion</h1>
+        <div id="prgForm">
+          <form:form
+            action="${pageContext.request.contextPath}/prgExample/create"
+            method="get" modelAttribute="postRedirectGetForm">
+            output:${f:h(output)}<br> <%-- (7) --%>
+            <form:button name="backToTop">Top</form:button>
+          </form:form>
+        </div>
+    
+      .. tabularcolumns:: |p{0.10\linewidth}|p{0.90\linewidth}|
+      .. list-table::
+        :header-rows: 1
+        :widths: 10 90
+    
+        * - 項番
+          - 説明
+        * - | (7)
+          - | リダイレクト先にて、更新処理から引き渡したデータを参照する場合は、\ ``RedirectAttributes``\ の\ **addFlashAttributeメソッドで追加したデータの属性名を指定する。**\
+            | 上記例では、 \ ``output``\ が引き渡したデータを参照するための属性名となる。
 
-    <h1>Create User</h1>
-    <div id="prgForm">
-      <form:form 
-        action="${pageContext.request.contextPath}/prgExample/create"
-        method="post" modelAttribute="postRedirectGetForm">
-        <form:label path="firstName">FirstName</form:label>
-        <form:input path="firstName" /><br>
-        <form:label path="lastName">LastName:</form:label>
-        <form:input path="lastName" /><br>
-        <form:button name="confirm">Confirm Create User</form:button>
-      </form:form>
-    </div>
+  .. group-tab:: Thymeleaf
 
-- \ :file:`createConfirm.jsp`\
-
-  .. code-block:: jsp
-    :emphasize-lines: 5,11
-
-    <h1>Confirm Create User</h1>
-    <div id="prgForm">
-      <form:form
-        action="${pageContext.request.contextPath}/prgExample/create"
-        method="post"
-        modelAttribute="postRedirectGetForm">
-        FirstName:${f:h(postRedirectGetForm.firstName)}<br>
-        <form:hidden path="firstName" />
-        LastName:${f:h(postRedirectGetForm.lastName)}<br>
-        <form:hidden path="lastName" />
-        <form:button>Create User</form:button> <%-- (6) --%>
-      </form:form>
-    </div>
-
-  .. tabularcolumns:: |p{0.10\linewidth}|p{0.90\linewidth}|
-  .. list-table::
-    :header-rows: 1
-    :widths: 10 90
-
-    * - 項番
-      - 説明
-    * - | (6)
-      - | 更新処理を行うためのボタンが押下された場合は、\ **POSTメソッドでリクエストを送る。**\
-
-- \ :file:`createComplete.jsp`\
-
-  .. code-block:: jsp
-    :emphasize-lines: 6
-
-    <h1>Successful Create User Completion</h1>
-    <div id="prgForm">
-      <form:form
-        action="${pageContext.request.contextPath}/prgExample/create"
-        method="get" modelAttribute="postRedirectGetForm">
-        output:${f:h(output)}<br> <%-- (7) --%>
-        <form:button name="backToTop">Top</form:button>
-      </form:form>
-    </div>
-
-  .. tabularcolumns:: |p{0.10\linewidth}|p{0.90\linewidth}|
-  .. list-table::
-    :header-rows: 1
-    :widths: 10 90
-
-    * - 項番
-      - 説明
-    * - | (7)
-      - | リダイレクト先にて、更新処理から引き渡したデータを参照する場合は、\ ``RedirectAttributes``\ の\ **addFlashAttributeメソッドで追加したデータの属性名を指定する。**\
-        | 上記例では、 \ ``output``\が引き渡したデータを参照するための属性名となる。
+    - \ :file:`createForm.html`\
+    
+      .. code-block:: html
+    
+        <h1>Create User</h1>
+        <div id="prgForm">
+          <form th:action="@{/prgExample/create}"
+            method="post" th:object="${postRedirectGetForm}">
+            <label for="firstName">FirstName</label>
+            <input th:field="*{firstName}"><br>
+            <label for="lastName">LastName:</label>
+            <input th:field="*{lastName}"><br>
+            <button name="confirm">Confirm Create User</button>
+          </form>
+        </div>
+    
+    - \ :file:`createConfirm.html`\
+    
+      .. code-block:: html
+    
+        <h1>Confirm Create User</h1>
+        <div id="prgForm">
+          <form th:action="@{/prgExample/create}"
+            method="post" th:object="${postRedirectGetForm}">
+            <span th:text="|FirstName: *{firstName}|"></span><br>
+            <input type="hidden" th:field="*{firstName}">
+            <span th:text="|LastName: *{lastName}|"></span><br>
+            <input type="hidden" th:field="*{lastName}">
+            <button type="submit">Create User</button> <!-- (6) -->
+          </form>
+        </div>
+    
+      .. tabularcolumns:: |p{0.10\linewidth}|p{0.90\linewidth}|
+      .. list-table::
+        :header-rows: 1
+        :widths: 10 90
+    
+        * - 項番
+          - 説明
+        * - | (6)
+          - | 更新処理を行うためのボタンが押下された場合は、\ **POSTメソッドでリクエストを送る。**\
+    
+    - \ :file:`createComplete.html`\
+    
+      .. code-block:: html
+    
+        <h1>Successful Create User Completion</h1>
+        <div id="prgForm">
+          <form th:action="@{/prgExample/create}"
+            method="get" th:object="${postRedirectGetForm}">
+            <span th:text="|output: ${output}|"></span><br> <!-- (7) -->
+            <button name="backToTop" type="submit">Top</button>
+          </form>
+        </div>
+    
+      .. tabularcolumns:: |p{0.10\linewidth}|p{0.90\linewidth}|
+      .. list-table::
+        :header-rows: 1
+        :widths: 10 90
+    
+        * - 項番
+          - 説明
+        * - | (7)
+          - | リダイレクト先にて、更新処理から引き渡したデータを参照する場合は、\ ``RedirectAttributes``\ の\ **addFlashAttributeメソッドで追加したデータの属性名を指定する。**\
+            | 上記例では、 \ ``output``\ が引き渡したデータを参照するための属性名となる。
 
 |
 
@@ -727,9 +795,9 @@ PRG(Post-Redirect-Get)パターンの適用
 * トランザクション内のトークン値チェック
 * トランザクションの終了
 
-を行うために、 \ ``@org.terasoluna.gfw.web.token.transaction.TransactionTokenCheck``\アノテーションを提供している。
+を行うために、 \ ``@org.terasoluna.gfw.web.token.transaction.TransactionTokenCheck``\ アノテーションを提供している。
 
-トランザクショントークンチェックを行う場合は、Controllerクラス及びControllerクラスのハンドラメソッドに対して、 \ ``@TransactionTokenCheck``\アノテーションを付与することで、宣言的にトランザクショントークンチェックを行うことが出来る。
+トランザクショントークンチェックを行う場合は、Controllerクラス及びControllerクラスのハンドラメソッドに対して、 \ ``@TransactionTokenCheck``\ アノテーションを付与することで、宣言的にトランザクショントークンチェックを行うことが出来る。
 
 |
 
@@ -776,7 +844,7 @@ PRG(Post-Redirect-Get)パターンの適用
         | \ **CHECK**\
         | トランザクショントークンの妥当性チェックを実施する。
         | リクエストされたトークン値とサーバ上で管理しているトークン値が一致している場合でも、トランザクショントークンのトークン値を更新しない。
-        | 利用ケースは「\ :ref:`usecase_of_transaction_token_type_CHECK`\」を参照。
+        | 利用ケースは「\ :ref:`usecase_of_transaction_token_type_CHECK`\ 」を参照。
         |
       - IN
       - | \ ``type = TransactionTokenType.BEGIN``\ 
@@ -950,48 +1018,101 @@ PRG(Post-Redirect-Get)パターンの適用
 
 共通ライブラリから提供しているトランザクショントークンチェックを使用するための設定を、以下に示す。
 
-- \ :file:`spring-mvc.xml`\
+.. tabs::
+  .. group-tab:: Java Config
 
-  .. code-block:: xml
-    :emphasize-lines: 2-8,15,16
+    - \ :file:`SpringMvcConfig.java`\
+    
+      .. code-block:: java
 
-    <mvc:interceptors>
-        <mvc:interceptor> <!-- (1) -->
-            <mvc:mapping path="/**" /> <!-- (2) -->
-            <mvc:exclude-mapping path="/resources/**" /> <!-- (2) -->
-            <!-- (3) -->
-            <bean
-                class="org.terasoluna.gfw.web.token.transaction.TransactionTokenInterceptor" />
-        </mvc:interceptor>
-    </mvc:interceptors>
+        @EnableAspectJAutoProxy
+        @EnableWebMvc
+        @Configuration
+        public class SpringMvcConfig implements WebMvcConfigurer {
 
-    <bean id="requestDataValueProcessor"
-        class="org.terasoluna.gfw.web.mvc.support.CompositeRequestDataValueProcessor">
-        <constructor-arg>
-            <util:list>
-                <!-- (4) -->
-                <bean class="org.terasoluna.gfw.web.token.transaction.TransactionTokenRequestDataValueProcessor" />
-                <!-- omitted -->
-            </util:list>
-        </constructor-arg>
-    </bean>
+            // (1)
+            @Override
+            public void addInterceptors(InterceptorRegistry registry) {
+                registry.addInterceptor(transactionTokenInterceptor()) // (3)
+                      .addPathPatterns("/**") // (2)
+                      .excludePathPatterns("/resources/**"); // (2)
+            }
 
-  .. tabularcolumns:: |p{0.10\linewidth}|p{0.90\linewidth}|
-  .. list-table::
-    :header-rows: 1
-    :widths: 10 90
+            // (3)
+            @Bean
+            public TransactionTokenInterceptor transactionTokenInterceptor(){
+                return new TransactionTokenInterceptor();
+            }
 
-    * - 項番
-      - 説明
-    * - | (1)
-      - | トランザクショントークンの生成及びチェックを行うための \ ``HandlerInterceptor``\ を設定する。
-    * - | (2)
-      - | \ ``HandlerInterceptor``\ を適用するリクエストパスを指定する。
-        | 上記例では、 /resources配下へのリクエストを除く、全てのリクエストに対して適用している。
-    * - | (3)
-      - | \ ``@TransactionTokenCheck``\ アノテーションを使用して、トランザクショントークンの生成及びチェックを実施するためのクラス(\ ``TransactionTokenInterceptor``\ )を指定する。
-    * - | (4)
-      - | トランザクショントークンを、Spring MVCの\ ``<form:form>``\ タグを使用してHidden領域に自動的に埋め込むためのクラス(\ ``TransactionTokenRequestDataValueProcessor``\ )を設定する。
+            // (4)
+            @Bean("requestDataValueProcessor")
+            public RequestDataValueProcessor requestDataValueProcessor() {
+                return new CompositeRequestDataValueProcessor(
+                      new CsrfRequestDataValueProcessor(), new TransactionTokenRequestDataValueProcessor());
+            }
+    
+      .. tabularcolumns:: |p{0.10\linewidth}|p{0.90\linewidth}|
+      .. list-table::
+        :header-rows: 1
+        :widths: 10 90
+    
+        * - 項番
+          - 説明
+        * - | (1)
+          - | トランザクショントークンの生成及びチェックを行うための \ ``HandlerInterceptor``\ を設定する。
+        * - | (2)
+          - | \ ``HandlerInterceptor``\ を適用するリクエストパスを指定する。
+            | 上記例では、\ ``/resources``\ 配下へのリクエストを除く、全てのリクエストに対して適用している。
+        * - | (3)
+          - | \ ``@TransactionTokenCheck``\ アノテーションを使用して、トランザクショントークンの生成及びチェックを実施するためのクラス(\ ``TransactionTokenInterceptor``\ )を指定する。
+        * - | (4)
+          - | トランザクショントークンをHidden領域に自動的に埋め込むためのクラス(\ ``TransactionTokenRequestDataValueProcessor``\ )を設定する。
+            | JSPはSpring MVCの\ ``<form:form>``\ タグ、Thymeleafは\ ``th:action``\ 属性を使用して設定する。
+
+  .. group-tab:: XML Config
+
+    - \ :file:`spring-mvc.xml`\
+    
+      .. code-block:: xml
+    
+        <mvc:interceptors>
+            <mvc:interceptor> <!-- (1) -->
+                <mvc:mapping path="/**" /> <!-- (2) -->
+                <mvc:exclude-mapping path="/resources/**" /> <!-- (2) -->
+                <!-- (3) -->
+                <bean
+                    class="org.terasoluna.gfw.web.token.transaction.TransactionTokenInterceptor" />
+            </mvc:interceptor>
+        </mvc:interceptors>
+    
+        <bean id="requestDataValueProcessor"
+            class="org.terasoluna.gfw.web.mvc.support.CompositeRequestDataValueProcessor">
+            <constructor-arg>
+                <util:list>
+                    <!-- (4) -->
+                    <bean class="org.terasoluna.gfw.web.token.transaction.TransactionTokenRequestDataValueProcessor" />
+                    <!-- omitted -->
+                </util:list>
+            </constructor-arg>
+        </bean>
+    
+      .. tabularcolumns:: |p{0.10\linewidth}|p{0.90\linewidth}|
+      .. list-table::
+        :header-rows: 1
+        :widths: 10 90
+    
+        * - 項番
+          - 説明
+        * - | (1)
+          - | トランザクショントークンの生成及びチェックを行うための \ ``HandlerInterceptor``\ を設定する。
+        * - | (2)
+          - | \ ``HandlerInterceptor``\ を適用するリクエストパスを指定する。
+            | 上記例では、\ ``/resources``\ 配下へのリクエストを除く、全てのリクエストに対して適用している。
+        * - | (3)
+          - | \ ``@TransactionTokenCheck``\ アノテーションを使用して、トランザクショントークンの生成及びチェックを実施するためのクラス(\ ``TransactionTokenInterceptor``\ )を指定する。
+        * - | (4)
+          - | トランザクショントークンをHidden領域に自動的に埋め込むためのクラス(\ ``TransactionTokenRequestDataValueProcessor``\ )を設定する。
+            | JSPはSpring MVCの\ ``<form:form>``\ タグ、Thymeleafは\ ``th:action``\ 属性を使用して設定する。
 
 |
 
@@ -1002,8 +1123,8 @@ PRG(Post-Redirect-Get)パターンの適用
 
 | そのため、トランザクショントークンエラーをハンドリングするためには、 
 
-* \ :file:`applicationContext.xml`\ に定義されている \ ``ExceptionCodeResolver``\
-* \ :file:`spring-mvc.xml`\ に定義されている \ ``SystemExceptionResolver``\
+* \ ``ApplicationContextConfig.java``\ (または\ :file:`applicationContext.xml`\ )に定義されている \ ``ExceptionCodeResolver``\
+* \ ``SpringMvcConfig.java``\ (または\ :file:`spring-mvc.xml`\ )に定義されている \ ``SystemExceptionResolver``\
 
 の設定に対して、 \ ``InvalidTransactionTokenException``\ のハンドリング定義を追加する必要がある。
 
@@ -1025,7 +1146,6 @@ PRG(Post-Redirect-Get)パターンの適用
 - Controller
 
   .. code-block:: java
-    :emphasize-lines: 3,12,18,24,30,36
 
     @Controller
     @RequestMapping("transactionTokenCheckExample")
@@ -1096,102 +1216,180 @@ PRG(Post-Redirect-Get)パターンの適用
 
 .. _doubleSubmit_how_to_use_transaction_token_check_jsp:
 
-トランザクショントークンチェックのView(JSP)での利用方法
+トランザクショントークンチェックのView(JSP/テンプレートHTML)での利用方法
 """"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 
-| トランザクショントークンチェックを行う場合、払い出されたトランザクショントークンが、リクエストパラメータとして送信されるようにView(JSP)を実装する必要がある。
-| リクエストパラメータとして送信されるようにする方法としては、\ :ref:`setting`\ を行った上で、\ ``<form:form>``\ タグを使用して自動的にトランザクショントークンをhidden要素に埋め込む方法を推奨する。
+| トランザクショントークンチェックを行う場合、払い出されたトランザクショントークンが、リクエストパラメータとして送信されるようにView(JSP/テンプレートHTML)を実装する必要がある。
+| リクエストパラメータとして送信されるようにする方法としては、\ :ref:`setting`\ を行った上で、\ ``<form:form>``\ タグまたは\ ``th:action``\ 属性を使用して自動的にトランザクショントークンをhidden要素に埋め込む方法を推奨する。
 
-- \ :file:`firstView.jsp`\
+.. tabs::
+  .. group-tab:: JSP
 
-  .. code-block:: jsp
-
-    <h1>First</h1>
-    <form:form method="post" action="transactionTokenCheckExample">
-      <input type="submit" name="second" value="second" />
-    </form:form>
-
-- \ :file:`secondView.jsp`\
-
-  .. code-block:: jsp
-    :emphasize-lines: 2
-
-    <h1>Second</h1>
-    <form:form method="post" action="transactionTokenCheckExample"><!-- (1) -->
-      <input type="submit" name="third" value="third" />
-    </form:form>
-
-- \ :file:`thirdView.jsp`\
-
-  .. code-block:: jsp
-    :emphasize-lines: 2
-
-    <h1>Third</h1>
-    <form:form method="post" action="transactionTokenCheckExample"><!-- (1) -->
-      <input type="submit" name="fourth" value="fourth" />
-    </form:form>
-
-- \ :file:`fourthView.jsp`\
-
-  \ ``<form:form>``\タグを使用する場合
-
-  .. code-block:: jsp
-    :emphasize-lines: 2
-
-    <h1>Fourth</h1>
-    <form:form method="post" action="transactionTokenCheckExample"><!-- (1) -->
-      <input type="submit" name="fifth" value="fifth" />
-    </form:form>
-
-.. _fourthView:
-
-  \ HTMLの\ ``<form>``\タグを使用する場合
-
-  .. code-block:: jsp
-    :emphasize-lines: 3,4-6
-
-    <h1>Fourth</h1>
-    <form method="post" action="transactionTokenCheckExample">
-      <t:transaction /><!-- (2) -->
-      <!-- (3) -->
-      <input type="hidden" name="${f:h(_csrf.parameterName)}"
-                           value="${f:h(_csrf.token)}"/>
-      <input type="submit" name="fifth" value="fifth" />
-    </form>
-
-- \ :file:`fifthView.jsp`\
-
-  .. code-block:: jsp
-
-    <h1>Fifth</h1>
-    <form:form method="get" action="transactionTokenCheckExample">
-      <input type="submit" name="first" value="first" />
-    </form:form>
-
-  .. tabularcolumns:: |p{0.10\linewidth}|p{0.90\linewidth}|
-  .. list-table::
-    :header-rows: 1
-    :widths: 10 90
-
-    * - 項番
-      - 説明
-    * - | (1)
-      - | JSPで、\ ``<form:form>``\タグを使用した場合は、\ ``@TransactionTokenCheck``\ アノテーションのtype属性にBEGINかINを指定すると、\ ``name="_TRANSACTION_TOKEN"``\に対するValueが、hiddenタグとして自動的に埋め込まれる。
-    * - | (2)
-      - | HTMLの\ ``<form>``\タグを使用する場合は、\ ``<t:transaction />`` を使用することで、(1)と同様のhiddenタグが埋め込まれる。
-    * - | (3)
-      - | HTMLの\ ``<form>``\タグを使用する場合は、Spring Securityから提供されているCSRFトークンチェックで必要となるCSRFトークンをhidden項目として埋め込む必要がある。
-        | CSRFトークンチェックで必要となるCSRFトークンについては、\ :ref:`csrf_formtag-use`\ を参照されたい。
-
-  .. note::
+    - \ :file:`firstView.jsp`\
     
-    \ ``<form:form>``\ タグを使用すると、CSRFトークンチェックで必要となるパラメータも自動的に埋め込まれる。 CSRFトークンチェックで必要となるパラメータについては、\ :ref:`csrf_htmlformtag-use`\ を参照されたい。
-
-  .. note::
+      .. code-block:: jsp
     
-    \ ``<t:transaction />``\ は、共通ライブラリから提供しているJSPタグライブラリである。
+        <h1>First</h1>
+        <form:form method="post" action="transactionTokenCheckExample">
+          <input type="submit" name="second" value="second" />
+        </form:form>
+    
+    - \ :file:`secondView.jsp`\
+    
+      .. code-block:: jsp
+    
+        <h1>Second</h1>
+        <form:form method="post" action="transactionTokenCheckExample"><!-- (1) -->
+          <input type="submit" name="third" value="third" />
+        </form:form>
+    
+    - \ :file:`thirdView.jsp`\
+    
+      .. code-block:: jsp
+    
+        <h1>Third</h1>
+        <form:form method="post" action="transactionTokenCheckExample"><!-- (1) -->
+          <input type="submit" name="fourth" value="fourth" />
+        </form:form>
+    
+    - \ :file:`fourthView.jsp`\
+    
+      \ ``<form:form>``\ タグを使用する場合
+    
+      .. code-block:: jsp
+    
+        <h1>Fourth</h1>
+        <form:form method="post" action="transactionTokenCheckExample"><!-- (1) -->
+          <input type="submit" name="fifth" value="fifth" />
+        </form:form>
+    
+    .. _fourthView:
+    
+      \ HTMLの\ ``<form>``\ タグを使用する場合
+    
+      .. code-block:: jsp
+    
+        <h1>Fourth</h1>
+        <form method="post" action="transactionTokenCheckExample">
+          <t:transaction /><!-- (2) -->
+          <!-- (3) -->
+          <input type="hidden" name="${f:h(_csrf.parameterName)}"
+                               value="${f:h(_csrf.token)}"/>
+          <input type="submit" name="fifth" value="fifth" />
+        </form>
+    
+    - \ :file:`fifthView.jsp`\
+    
+      .. code-block:: jsp
+    
+        <h1>Fifth</h1>
+        <form:form method="get" action="transactionTokenCheckExample">
+          <input type="submit" name="first" value="first" />
+        </form:form>
+    
+      .. tabularcolumns:: |p{0.10\linewidth}|p{0.90\linewidth}|
+      .. list-table::
+        :header-rows: 1
+        :widths: 10 90
+    
+        * - 項番
+          - 説明
+        * - | (1)
+          - | JSPで、\ ``<form:form>``\ タグを使用した場合は、\ ``@TransactionTokenCheck``\ アノテーションのtype属性にBEGINかINを指定すると、\ ``name="_TRANSACTION_TOKEN"``\ に対するValueが、hiddenタグとして自動的に埋め込まれる。
+        * - | (2)
+          - | HTMLの\ ``<form>``\ タグを使用する場合は、\ ``<t:transaction />``\ を使用することで、(1)と同様のhiddenタグが埋め込まれる。
+        * - | (3)
+          - | HTMLの\ ``<form>``\ タグを使用する場合は、Spring Securityから提供されているCSRFトークンチェックで必要となるCSRFトークンをhidden項目として埋め込む必要がある。
+            | CSRFトークンチェックで必要となるCSRFトークンについては、\ :ref:`csrf_formtag-use`\ を参照されたい。
+    
+      .. note::
+        
+        \ ``<form:form>``\ タグを使用すると、CSRFトークンチェックで必要となるパラメータも自動的に埋め込まれる。 CSRFトークンチェックで必要となるパラメータについては、\ :ref:`csrf_htmlformtag-use`\ を参照されたい。
+    
+      .. note::
+        
+        \ ``<t:transaction />``\ は、共通ライブラリから提供しているJSPタグライブラリである。
+    
+        (2)で使用している「t:」については、\ :ref:`view_jsp_include-label`\ を参照されたい。
 
-    (2)で使用している「t:」については、\ :ref:`view_jsp_include-label`\ を参照されたい。
+  .. group-tab:: Thymeleaf
+
+    - \ :file:`firstView.html`\
+    
+      .. code-block:: html
+    
+        <h1>First</h1>
+        <form method="post" th:action="@{/transactionTokenCheckExample}">
+          <input type="submit" name="second" value="second">
+        </form>
+    
+    - \ :file:`secondView.html`\
+    
+      .. code-block:: html
+    
+        <h1>Second</h1>
+        <form method="post" th:action="@{/transactionTokenCheckExample}"><!-- (1) -->
+          <input type="submit" name="third" value="third">
+        </form>
+    
+    - \ :file:`thirdView.html`\
+    
+      .. code-block:: html
+    
+        <h1>Third</h1>
+        <form method="post" th:action="@{/transactionTokenCheckExample}"><!-- (1) -->
+          <input type="submit" name="fourth" value="fourth">
+        </form>
+    
+    - \ :file:`fourthView.html`\
+    
+      .. code-block:: html
+    
+        <h1>Fourth</h1>
+        <form method="post" th:action="@{/transactionTokenCheckExample}"><!-- (1) -->
+          <input type="submit" name="fifth" value="fifth">
+        </form>
+    
+    - \ :file:`fifthView.html`\
+    
+      .. code-block:: html
+    
+        <h1>Fifth</h1>
+        <form method="get" th:action="@{/transactionTokenCheckExample}">
+          <input type="submit" name="first" value="first">
+        </form>
+    
+      .. tabularcolumns:: |p{0.10\linewidth}|p{0.90\linewidth}|
+      .. list-table::
+        :header-rows: 1
+        :widths: 10 90
+    
+        * - 項番
+          - 説明
+        * - | (1)
+          - | テンプレートHTMLで\ ``th:action``\ 属性を使用した場合は、\ ``@TransactionTokenCheck``\ アノテーションのtype属性にBEGINかINを指定すると、\ ``name="_TRANSACTION_TOKEN"``\ に対するValueが、hiddenタグとして自動的に埋め込まれる。
+    
+    .. note:: \ **自動的にトランザクショントークンを埋め込みたいが、action属性を付与したくない場合**\
+    
+      「\ :ref:`view_thymeleaf_requesturl-label`\ 」で解説する「現在のパスからの相対パス」を利用することで、リクエストマッピングのパスが異なる複数のコントローラで同じテンプレートHTMLを使いまわすことが可能である。
+    
+      「現在のパスからの相対パス」を使用すると、必ずページを取得したパスから派生する別のパスを指定する必要があるように見えるが、\ ``th:action``\ 属性の値を指定しないことで、出力される\ ``action``\ 属性の値が空になり、ページを取得したのと同じパスに対してリクエストを送信することが可能となる。
+    
+      （一般的なブラウザでは、\ ``action``\ 属性の値を空にすると、\ ``action``\ 属性を付与していないのと同じ動作となる。）
+        
+      これを利用して、自動的にトランザクショントークンを\ ``hidden``\ 要素に埋め込みたいが、\ ``action``\ 属性を付与したくない（＝ページを取得したのと同じパスに対してリクエストを送信したい）という要件を実現することが可能である。
+        
+      以下に、\ ``th:action``\ 属性の値を指定しない例を示す。
+    
+        .. code-block:: html
+    
+          <form th:action method="post">
+              <!--/* ... */--!>
+          </form>
+    
+    .. note::
+        
+      \ ``th:action``\ 属性を使用すると、CSRFトークンチェックで必要となるパラメータも自動的に埋め込まれる。 CSRFトークンチェックで必要となるパラメータについては、\ :ref:`csrf_formtag-use`\ を参照されたい。
 
 * HTMLの出力例
 
@@ -1199,17 +1397,15 @@ PRG(Post-Redirect-Get)パターンの適用
     :alt: transaction token html
     :width: 100%
 
-出力されたHTMLを確認すると、
+出力されたHTMLを確認すると、以下となっていることがわかる。
 
 * | NameSpaceは、クラスアノテーションのvalue属性で指定した値が設定される。
   | 上記例だと、 \ ``transactionTokenCheckExample``\ (橙色の下線)がNameSpaceとなる。
 * | TokenKeyは、トランザクション開始時に払い出された値が引き回されて設定される。
   | 上記例だと、 \ ``c0123252d531d7baf730cd49fe0422ef``\ (青色の下線)がTokenKeyとなる。
 * | TokenValueは、リクエスト毎に値が変化している。
-  | 上記例だと、 \ ``3f610684e1cb546a13b79b9df30a7523``\ 、\ ``da770ed81dbca9a694b232e84247a13b``\、
+  | 上記例だと、 \ ``3f610684e1cb546a13b79b9df30a7523``\ 、\ ``da770ed81dbca9a694b232e84247a13b``\ 、
   | \ ``bd5a2d88ec446b27c06f6d4f486d4428``\ (緑色の下線)がTokenValueとなる。
-
-ことが、わかる。
 
 |
 
@@ -1222,7 +1418,6 @@ PRG(Post-Redirect-Get)パターンの適用
 - Controller
 
   .. code-block:: java
-    :emphasize-lines: 3,12-13,19-20,31-32,38-39,50-51,57-58
 
     @Controller
     @RequestMapping("transactionTokenChecFlowkExample")
@@ -1357,8 +1552,8 @@ PRG(Post-Redirect-Get)パターンの適用
       - | サーバは、サーバ上で保持しているトークン(token001)と、クライアントから送信されたトークン(token002)が同一かチェックする。
         | \ **値が不一致なので、不正なリクエストと判断される。**\
 
-| 上記のように、ファイルダウンロード処理を行うことができる画面（screen2）から次画面（screen3）への遷移の処理に対してトランザクショントークンを適用したい場合にファイルダウンロード処理の\ ``TransactionTokenType``\に\ ``IN``\を使用すると通常オペレーションの範囲でトークンの不一致を引き起こす。
-| このようなケースにおいては\ ``TransactionTokenType``\に\ ``CHECK``\を使用する。
+| 上記のように、ファイルダウンロード処理を行うことができる画面（screen2）から次画面（screen3）への遷移の処理に対してトランザクショントークンを適用したい場合にファイルダウンロード処理の\ ``TransactionTokenType``\ に\ ``IN``\ を使用すると通常オペレーションの範囲でトークンの不一致を引き起こす。
+| このようなケースにおいては\ ``TransactionTokenType``\ に\ ``CHECK``\ を使用する。
 
   .. figure:: ./images_DoubleSubmitProtection/transaction-token-file-donwload-ok.png
     :alt: transaction token file download ok
@@ -1410,7 +1605,6 @@ PRG(Post-Redirect-Get)パターンの適用
 - Controller
 
   .. code-block:: java
-    :emphasize-lines: 3,9,14-15,25,35
 
     @Controller
     @RequestMapping("user")
@@ -1471,20 +1665,20 @@ PRG(Post-Redirect-Get)パターンの適用
     * - | (3)
       - | 入力チェックを行い、確認画面を表示するためのハンドラメソッド。
         | 確認画面には更新処理を実行するためのボタンが配置されているため、このタイミングでトランザクションを開始する。
-        | 遷移先には、View（JSP）を指定する。
+        | 遷移先には、View（JSP/テンプレートHTML）を指定する。
     * - | (4)
       - | 更新処理を実行するためのハンドラメソッド。
         | \ **更新処理を行うメソッドなので、トランザクショントークンのチェックを行う。**\
-    * - | (4)
+    * - | (5)
       - | 完了画面を表示するためのハンドラメソッド。
         | \ **完了画面を表示するだけなので、トランザクショントークンのチェックは不要である。**\
         | そのため、上記例では \ ``@TransactionTokenCheck``\ アノテーションを指定していない。
 
   .. warning::
 
-    \ ``@TransactionTokenCheck``\ アノテーションを定義したハンドラメソッドの遷移先は、View(JSP)を指定する必要がある。
+    \ ``@TransactionTokenCheck``\ アノテーションを定義したハンドラメソッドの遷移先は、View(JSP/テンプレートHTML)を指定する必要がある。
  
-    リダイレクト先などのView（JSP）以外を遷移先に指定すると、次の処理でTransactionTokenの値が変わっており、必ずTransactionTokenエラーが発生する。
+    リダイレクト先などのView（JSP/テンプレートHTML）以外を遷移先に指定すると、次の処理でTransactionTokenの値が変わっており、必ずTransactionTokenエラーが発生する。
 
 |
 
@@ -1496,33 +1690,68 @@ PRG(Post-Redirect-Get)パターンの適用
 
 NameSpaceごとに保持できるトランザクショントークンの上限数に1を設定する。
 
-- \ :file:`spring-mvc.xml`\
+.. tabs::
+  .. group-tab:: Java Config
 
-  .. code-block:: xml
-    :emphasize-lines: 6
+    - \ :file:`SpringMvcConfig.java`\
+    
+      .. code-block:: java
+    
+        @EnableAspectJAutoProxy
+        @EnableWebMvc
+        @Configuration
+        public class SpringMvcConfig implements WebMvcConfigurer {
 
-    <mvc:interceptor>
-        <mvc:mapping path="/**" />
-        <!-- omitted -->
-        <bean
-            class="org.terasoluna.gfw.web.token.transaction.TransactionTokenInterceptor">
-            <constructor-arg value="1"/> <!-- (1) -->
-        </bean>
-    </mvc:interceptor>
+            @Override
+            public void addInterceptors(InterceptorRegistry registry) {
+                registry.addInterceptor(transactionTokenInterceptor())
+                      .addPathPatterns("/**")
+                      .excludePathPatterns("/resources/**");
+            }
 
-  .. tabularcolumns:: |p{0.10\linewidth}|p{0.90\linewidth}|
-  .. list-table::
-    :header-rows: 1
-    :widths: 10 90
+            @Bean
+            public TransactionTokenInterceptor transactionTokenInterceptor(){
+                return new TransactionTokenInterceptor(1); // (1)
+            }
+    
+      .. tabularcolumns:: |p{0.10\linewidth}|p{0.90\linewidth}|
+      .. list-table::
+        :header-rows: 1
+        :widths: 10 90
+    
+        * - 項番
+          - 説明
+        * - | (1)
+          - | NameSpaceごとのトランザクショントークンの保持数を、"1"に設定する。
 
-    * - 項番
-      - 説明
-    * - | (1)
-      - | NameSpaceごとのトランザクショントークンの保持数を、"1"に設定する。
+  .. group-tab:: XML Config
 
-  .. note::
+    - \ :file:`spring-mvc.xml`\
+    
+      .. code-block:: xml
+    
+        <mvc:interceptor>
+            <mvc:mapping path="/**" />
+            <!-- omitted -->
+            <bean
+                class="org.terasoluna.gfw.web.token.transaction.TransactionTokenInterceptor">
+                <constructor-arg value="1"/> <!-- (1) -->
+            </bean>
+        </mvc:interceptor>
+    
+      .. tabularcolumns:: |p{0.10\linewidth}|p{0.90\linewidth}|
+      .. list-table::
+        :header-rows: 1
+        :widths: 10 90
+    
+        * - 項番
+          - 説明
+        * - | (1)
+          - | NameSpaceごとのトランザクショントークンの保持数を、"1"に設定する。
+
+.. note::
  
-    \ ``@SessionAttributes``\ アノテーションを使用してフォームオブジェクトなどをセッションに格納した場合は、 NameSpaceごとのトランザクショントークンの保持数を"1"に設定するとこで、古いデータを表示している画面からのリクエストを不正なリクエストとして防ぐことが可能となる。
+  \ ``@SessionAttributes``\ アノテーションを使用してフォームオブジェクトなどをセッションに格納した場合は、 NameSpaceごとのトランザクショントークンの保持数を"1"に設定するとこで、古いデータを表示している画面からのリクエストを不正なリクエストとして防ぐことが可能となる。
 
 |
 
@@ -1536,32 +1765,68 @@ How to extend
 
 以下の設定を行うことで、1つのNameSpace上で保持する事ができるトランザクショントークンの上限数を変更することができる。
 
-- \ :file:`spring-mvc.xml`\
+.. tabs::
+  .. group-tab:: Java Config
 
-  .. code-block:: xml
-    :emphasize-lines: 7
+    - \ :file:`SpringMvcConfig.java`\
+    
+      .. code-block:: java
+    
+        @EnableAspectJAutoProxy
+        @EnableWebMvc
+        @Configuration
+        public class SpringMvcConfig implements WebMvcConfigurer {
 
-    <mvc:interceptors>
+            @Override
+            public void addInterceptors(InterceptorRegistry registry) {
+                registry.addInterceptor(transactionTokenInterceptor())
+                      .addPathPatterns("/**")
+                      .excludePathPatterns("/resources/**");
+            }
+
+            @Bean
+            public TransactionTokenInterceptor transactionTokenInterceptor(){
+                return new TransactionTokenInterceptor(5); // (1)
+            }
+    
+      .. tabularcolumns:: |p{0.10\linewidth}|p{0.90\linewidth}|
+      .. list-table::
+        :header-rows: 1
+        :widths: 10 90
+    
+        * - 項番
+          - 説明
+        * - | (1)
+          - | \ ``TransactionTokenInterceptor``\ のコンストラクタの値として、1つのNameSpace上で保持する事ができるトランザクショントークンの上限数を指定する。
+            | デフォルト値(デフォルトコンストラクタ使用時に設定される値)は、10となっている。
+            | 上記例では、 デフォルト値(10)から5に変更している。
+
+  .. group-tab:: XML Config
+
+    - \ :file:`spring-mvc.xml`\
+    
+      .. code-block:: xml
+    
         <mvc:interceptor>
             <mvc:mapping path="/**" />
-            <mvc:exclude-mapping path="/resources/**" />
+            <!-- omitted -->
             <bean
-                class="org.terasoluna.gfw.web.token.transaction.TransactionTokenInterceptor" />
-            <constructor-arg value="5"/> <!-- (1) -->
+                class="org.terasoluna.gfw.web.token.transaction.TransactionTokenInterceptor">
+                <constructor-arg value="5"/> <!-- (1) -->
+            </bean>
         </mvc:interceptor>
-    </mvc:interceptors>
-
-  .. tabularcolumns:: |p{0.10\linewidth}|p{0.90\linewidth}|
-  .. list-table::
-    :header-rows: 1
-    :widths: 10 90
-
-    * - 項番
-      - 説明
-    * - | (1)
-      - | \ ``TransactionTokenInterceptor``\ のコンストラクタの値として、1つのNameSpace上で保持する事ができるトランザクショントークンの上限数を指定する。
-        | デフォルト値(デフォルトコンストラクタ使用時に設定される値)は、10となっている。
-        | 上記例では、 デフォルト値(10)から5に変更している。
+    
+      .. tabularcolumns:: |p{0.10\linewidth}|p{0.90\linewidth}|
+      .. list-table::
+        :header-rows: 1
+        :widths: 10 90
+    
+        * - 項番
+          - 説明
+        * - | (1)
+          - | \ ``TransactionTokenInterceptor``\ のコンストラクタの値として、1つのNameSpace上で保持する事ができるトランザクショントークンの上限数を指定する。
+            | デフォルト値(デフォルトコンストラクタ使用時に設定される値)は、10となっている。
+            | 上記例では、 デフォルト値(10)から5に変更している。
 
 |
 
@@ -1580,7 +1845,7 @@ HTTPレスポンスヘッダの\ ``Cache-Control``\ の設定により、ブラ�
     :width: 60%
 
 | この場合でも二重送信自体は防止されているため、問題はない。
-| バージョン5.0.0.RELEASE以降の\ :doc:`雛形プロジェクト <../../ImplementationAtEachLayer/CreateWebApplicationProject>`\ では、\ :ref:`Spring Securityの機能 <SpringSecurityLinkageWithBrowser>`\ でキャッシュが無効になる設定が行われている。
+| \ :doc:`Webアプリケーション向け開発プロジェクトの作成 <../../ImplementationAtEachLayer/CreateWebApplicationProject>`\ では、\ :ref:`Spring Securityの機能 <SpringSecurityLinkageWithBrowser>`\ でキャッシュが無効になる設定が行われている。
 
 もしこの画面の表示が出る代わりにトランザクショントークンエラー画面を表示したい場合は、\ ``<sec:cache-control />``\ の設定を除外する必要があるが、セキュリティ観点では\ ``<sec:cache-control />``\ を設定しておくことを推奨する。
 
@@ -1591,8 +1856,8 @@ HTTPレスポンスヘッダの\ ``Cache-Control``\ の設定により、ブラ�
 グローバルトークン
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-| \ ``@TransactionTokenCheck``\アノテーションのvalue属性の指定を省略すると、グローバルなトランザクショントークンとして扱われる。
-| グローバルなトランザクショントークンのNameSpaceには、\ ``globalToken``\(固定値)が使用される。
+| \ ``@TransactionTokenCheck``\ アノテーションのvalue属性の指定を省略すると、グローバルなトランザクショントークンとして扱われる。
+| グローバルなトランザクショントークンのNameSpaceには、\ ``globalToken``\ (固定値)が使用される。
 
   .. note::
 
@@ -1607,29 +1872,65 @@ NameSpaceごとに保持できるトランザクショントークンの上限�
 
 NameSpaceごとに保持できるトランザクショントークンの上限数に1を設定する。
 
-- \ :file:`spring-mvc.xml`\
+.. tabs::
+  .. group-tab:: Java Config
 
-  .. code-block:: xml
-    :emphasize-lines: 6
+    - \ :file:`SpringMvcConfig.java`\
+    
+      .. code-block:: java
+    
+        @EnableAspectJAutoProxy
+        @EnableWebMvc
+        @Configuration
+        public class SpringMvcConfig implements WebMvcConfigurer {
 
-    <mvc:interceptor>
-        <mvc:mapping path="/**" />
-        <!-- omitted -->
-        <bean
-            class="org.terasoluna.gfw.web.token.transaction.TransactionTokenInterceptor">
-            <constructor-arg value="1"/> <!-- (1) -->
-        </bean>
-    </mvc:interceptor>
+            @Override
+            public void addInterceptors(InterceptorRegistry registry) {
+                registry.addInterceptor(transactionTokenInterceptor())
+                      .addPathPatterns("/**")
+                      .excludePathPatterns("/resources/**");
+            }
 
-  .. tabularcolumns:: |p{0.10\linewidth}|p{0.90\linewidth}|
-  .. list-table::
-    :header-rows: 1
-    :widths: 10 90
+            @Bean
+            public TransactionTokenInterceptor transactionTokenInterceptor(){
+                return new TransactionTokenInterceptor(1); // (1)
+            }
+    
+      .. tabularcolumns:: |p{0.10\linewidth}|p{0.90\linewidth}|
+      .. list-table::
+        :header-rows: 1
+        :widths: 10 90
+    
+        * - 項番
+          - 説明
+        * - | (1)
+          - | NameSpaceごとのトランザクショントークンの保持数を、"1"に設定する。
 
-    * - 項番
-      - 説明
-    * - | (1)
-      - | NameSpaceごとのトランザクショントークンの保持数を、"1"に設定する。
+  .. group-tab:: XML Config
+
+    - \ :file:`spring-mvc.xml`\
+    
+      .. code-block:: xml
+    
+        <mvc:interceptor>
+            <mvc:mapping path="/**" />
+            <!-- omitted -->
+            <bean
+                class="org.terasoluna.gfw.web.token.transaction.TransactionTokenInterceptor">
+                <constructor-arg value="1"/> <!-- (1) -->
+            </bean>
+        </mvc:interceptor>
+    
+      .. tabularcolumns:: |p{0.10\linewidth}|p{0.90\linewidth}|
+      .. list-table::
+        :header-rows: 1
+        :widths: 10 90
+    
+        * - 項番
+          - 説明
+        * - | (1)
+          - | NameSpaceごとのトランザクショントークンの保持数を、"1"に設定する。
+
 
 |
 
@@ -1641,7 +1942,6 @@ Controllerの実装
 - Controller
 
   .. code-block:: java
-    :emphasize-lines: 3,11,17,23
 
     @Controller
     @RequestMapping("globalTokenCheckExample")
@@ -1691,8 +1991,16 @@ Controllerの実装
 
 * HTMLの出力例
 
-  | JSPは、\ :ref:`doubleSubmit_how_to_use_transaction_token_check_jsp`\ で用意したJSPと同等のものを用意する。
-  | actionを、\ ``transactionTokenCheckExample``\ から\ ``globalTokenCheckExample``\ に変更したのみで、他は同じである。
+  | JSP/テンプレートHTMLは、\ :ref:`doubleSubmit_how_to_use_transaction_token_check_jsp`\ で用意したJSPと同等のものを用意する。
+  | 変更点は以下の通り。
+
+  * JSP
+
+    actionを、\ ``transactionTokenCheckExample``\ から\ ``globalTokenCheckExample``\ に変更
+
+  * Thymeleaf
+
+    \ ``th:action``\ 属性を、\ ``@{/transactionTokenCheckExample}``\ から\ ``@{/globalTokenCheckExample}``\ に変更
 
   .. figure:: ./images_DoubleSubmitProtection/transaction-token-global-html.png
     :alt: transaction token global html
@@ -1758,7 +2066,7 @@ Quick Reference
   .. tabularcolumns:: |p{0.10\linewidth}|p{0.20\linewidth}|p{0.15\linewidth}|p{0.15\linewidth}|p{0.15\linewidth}|p{0.20\linewidth}|
   .. list-table::
     :header-rows: 1
-    :widths: 10 20 15 20 15 20
+    :widths: 10 15 15 15 15 30
     :class: longtable
 
     * - 番号

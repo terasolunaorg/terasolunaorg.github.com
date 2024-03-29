@@ -35,8 +35,8 @@ STS4の導入手順
 
 STS4の導入
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-| STS本体は\ `STSの公式ページ <https://spring.io/tools>`_\から取得することができる。
-| 過去のバージョンのSTSを使用したい場合は\ `STSのGitHub <https://github.com/spring-projects/sts4/wiki/Previous-Versions>`_\からダウンロードされたい。
+| STS本体は\ `STSの公式ページ <https://spring.io/tools>`_\ から取得することができる。
+| 過去のバージョンのSTSを使用したい場合は\ `STSのGitHub <https://github.com/spring-projects/sts4/wiki/Previous-Versions>`_\ からダウンロードされたい。
 
 なお、以下で紹介する導入手順はWindowsを前提としているため注意されたい。
 
@@ -170,6 +170,15 @@ JavaScriptのエディタ設定
 
 |
 
+.. _SpringToolSuite4Perspective:
+
+Perspective設定
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+| STS4はデフォルトではSpringでの開発に適した画面レイアウトになっていない。
+| STSのメニューから、Window > Perspective > Open Perspective > Other を選択し、PerspectiveをSpringに切り替えることでSpringでのアプリケーション開発に適した画面レイアウトにすることが出来る。
+
+|
+
 .. _SpringToolSuite4JavaSettings:
 
 Java設定
@@ -219,3 +228,6 @@ Server設定
   :align: center
   :width: 50%
 
+.. raw:: latex
+
+  \newpage

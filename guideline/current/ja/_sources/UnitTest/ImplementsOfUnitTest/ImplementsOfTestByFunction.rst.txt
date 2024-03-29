@@ -58,7 +58,16 @@ Hibernate validatorを使用した\ ``Bean Validation``\ のテスト
 
 Hibernate validatorを使用した\ ``Bean Validation``\ の単体テストにおいて、作成するファイルを以下に示す。
 
-.. figure:: ./images_ImplementsOfTestByFunction/ImplementsOfTestByFunctionBeanValidationItems.png
+
+.. tabs::
+   .. group-tab:: Java Config
+
+      .. figure:: ./images_ImplementsOfTestByFunction/ImplementsOfTestByFunctionBeanValidationItems_JavaConfig.png
+
+   .. group-tab:: XML Config
+
+      .. figure:: ./images_ImplementsOfTestByFunction/ImplementsOfTestByFunctionBeanValidationItems.png
+
 
 .. tabularcolumns:: |p{0.30\linewidth}|p{0.70\linewidth}|
 .. list-table::
@@ -74,7 +83,9 @@ Hibernate validatorを使用した\ ``Bean Validation``\ の単体テストに�
 
 |
 
-ここでは、テスト対象の\ ``@FullWidthKatakana``\ を使用したBeanクラス（\ ``FullWidthKatakanaTestBean``\）を作成し、\ ``jakarta.validation.ValidatorFactory``\ から生成した\ ``jakarta.validation.Validator``\ の実装クラスによりバリデーションチェックを行っている。
+ここでは、テスト対象の\ ``@FullWidthKatakana``\ を使用したBeanクラス（\ ``FullWidthKatakanaTestBean``\ ）を作成し、
+\ ``jakarta.validation.ValidatorFactory``\ から生成した\ ``jakarta.validation.Validator``\ の実装クラスにより
+バリデーションチェックを行っている。
 
 以下に、\ ``@FullWidthKatakana``\ アノテーションをフィールドに付与したBeanクラスの作成例を示す。
 
@@ -245,19 +256,39 @@ Spring のDIコンテナを使用した\ ``Bean Validation``\ のテスト
 
 Spring のDIコンテナを使用した\ ``Bean Validation``\ の単体テストにおいて、作成するファイルを以下に示す。
 
-.. figure:: ./images_ImplementsOfTestByFunction/ImplementsOfTestByFunctionExistInCodeListItems.png
+.. tabs::
+   .. group-tab:: Java Config
 
-.. tabularcolumns:: |p{0.30\linewidth}|p{0.70\linewidth}|
-.. list-table::
-  :header-rows: 1
-  :widths: 30 70
+      .. figure:: ./images_ImplementsOfTestByFunction/ImplementsOfTestByFunctionExistInCodeListItems_JavaConfig.png
 
-  * - 作成するファイル名
-    - 説明
-  * - \ ``ExistInCodeListTest.java``\
-    - Spring のDIコンテナを使用した\ ``Bean Validation``\ のテストクラス
-  * - \ ``test-context.xml``\
-    - Spring Testを使用して単体テストを行う際に必要な設定を補うための設定ファイル。
+      .. tabularcolumns:: |p{0.30\linewidth}|p{0.70\linewidth}|
+      .. list-table::
+          :header-rows: 1
+          :widths: 30 70
+
+          * - 作成するファイル名
+            - 説明
+          * - \ ``ExistInCodeListTest.java``\
+            - Spring のDIコンテナを使用した\ ``Bean Validation``\ のテストクラス
+          * - \ ``TestContextConfig.java``\
+            - Spring Testを使用して単体テストを行う際に必要な設定を補うための設定ファイル。
+
+
+   .. group-tab:: XML Config
+
+      .. figure:: ./images_ImplementsOfTestByFunction/ImplementsOfTestByFunctionExistInCodeListItems.png
+
+      .. tabularcolumns:: |p{0.30\linewidth}|p{0.70\linewidth}|
+      .. list-table::
+          :header-rows: 1
+          :widths: 30 70
+
+          * - 作成するファイル名
+            - 説明
+          * - \ ``ExistInCodeListTest.java``\
+            - Spring のDIコンテナを使用した\ ``Bean Validation``\ のテストクラス
+          * - \ ``test-context.xml``\
+            - Spring Testを使用して単体テストを行う際に必要な設定を補うための設定ファイル。
 
 |
 
@@ -268,22 +299,54 @@ Spring のDIコンテナを利用した\ ``Bean Validation``\ は、\ ``org.spri
 
 テストで使用する設定ファイルに、\ ``Validator``\ オブジェクトを生成するための\ ``LocalValidatorFactoryBean``\ をBean定義する。
 
-* \ ``test-context.xml``\
+.. tabs::
+   .. group-tab:: Java Config
 
-.. code-block:: xml
+      * ``TestContextConfig.java``
 
-  <!-- (1) -->
-  <bean id="validator" class="org.springframework.validation.beanvalidation.LocalValidatorFactoryBean" />
+      .. code-block:: java
 
-.. tabularcolumns:: |p{0.10\linewidth}|p{0.90\linewidth}|
-.. list-table::
-  :header-rows: 1
-  :widths: 10 90
+          // (1)
+          /**
+           * Configure {@link LocalValidatorFactoryBean} bean.
+           * @return Bean of configured {@link LocalValidatorFactoryBean}
+           */
+          @Bean("validator")
+          public LocalValidatorFactoryBean localValidatorFactoryBean() {
+              return new LocalValidatorFactoryBean();
+          }
 
-  * - 項番
-    - 説明
-  * - | (1)
-    - | \ ``@ExistInCodeList``\ でDIコンテナからコードリストBeanを取得するため、\ ``test-context.xml``\ でBean定義した\ ``LocalValidatorFactoryBean``\ から生成した\ ``Validator``\ を使う必要がある。
+      .. tabularcolumns:: |p{0.10\linewidth}|p{0.90\linewidth}|
+      .. list-table::
+          :header-rows: 1
+          :widths: 10 90
+
+          * - 項番
+            - 説明
+          * - | (1)
+            - | \ ``@ExistInCodeList``\ でDIコンテナからコードリストBeanを取得するため、
+                \ ``TestContextConfig.java``\ でBean定義した\ ``LocalValidatorFactoryBean``\ から生成した\ ``Validator``\ を使う必要がある。
+
+
+   .. group-tab:: XML Config
+
+      * ``test-context.xml``
+
+      .. code-block:: xml
+
+          <!-- (1) -->
+          <bean id="validator" class="org.springframework.validation.beanvalidation.LocalValidatorFactoryBean" />
+
+      .. tabularcolumns:: |p{0.10\linewidth}|p{0.90\linewidth}|
+      .. list-table::
+          :header-rows: 1
+          :widths: 10 90
+
+          * - 項番
+            - 説明
+          * - | (1)
+            - | \ ``@ExistInCodeList``\ でDIコンテナからコードリストBeanを取得するため、
+                \ ``test-context.xml``\ でBean定義した\ ``LocalValidatorFactoryBean``\ から生成した\ ``Validator``\ を使う必要がある。
 
 以下に、\ ``@ExistInCodeList``\ が使われている\ ``Form``\ クラスの実装例を示す。
 
@@ -311,50 +374,96 @@ Spring のDIコンテナを利用した\ ``Bean Validation``\ は、\ ``org.spri
       - | \ ``depAirportCd``\ フィールドに対して、コードリストに存在する値かどうか検証する。
 
 
-| 以下に、\ ``@ExistInCodeList``\ のテストクラス作成方法を説明する。
-| ここでは、\ ``sample-codelist.xml``\ に定義したコードリスト（\ ``CL_AIRPORT``\）に定義していない値を設定し、インジェクションした\ ``jakarta.validation.Validator``\ の実装クラスによりバリデーションチェックエラーになることを確認している。
+以下に、\ ``@ExistInCodeList``\ のテストクラス作成方法を説明する。
+ここでは、\ ``SampleCodeListConfig.java``\ または\ ``sample-codelist.xml``\ に定義したコードリスト（\ ``CL_AIRPORT``\ ）に定義していない値を設定し、
+インジェクションした\ ``jakarta.validation.Validator``\ の実装クラスによりバリデーションチェックエラーになることを確認している。
 
-* \ ``ExistInCodeListTest.java``\
+.. tabs::
+   .. group-tab:: Java Config
 
-.. code-block:: java
+      * \ ``ExistInCodeListTest.java``\
 
-  @RunWith(SpringJUnit4ClassRunner.class)
-  @ContextConfiguration(locations = {
-          "classpath:META-INF/spring/sample-infra.xml",
-          "classpath:META-INF/spring/sample-codelist.xml",
-          "classpath:META-INF/spring/test-context.xml" })
-  public class ExistInCodeListTest {
+      .. code-block:: java
 
-      // (1)
-      @Inject
-      private Validator validator;
+          @RunWith(SpringJUnit4ClassRunner.class)
+          @ContextConfiguration(classes = { SampleEnvConfig.class, SampleInfraConfig.class, SampleCodeListConfig.class,
+		          TestContextConfig.class })
+          public class ExistInCodeListTest {
 
-      @Test
-      public void testExistInCodeList() {
+              // (1)
+              @Inject
+              private Validator validator;
 
-          // setup
-          TicketSearchForm ticketSearchForm = new TicketSearchForm();
-          // (2)
-          ticketSearchForm.setDepAirportCd("AAA");
+              @Test
+              public void testExistInCodeList() {
 
-          // omitted
+                  // setup
+                  TicketSearchForm ticketSearchForm = new TicketSearchForm();
+                  // (2)
+                  ticketSearchForm.setDepAirportCd("AAA");
 
-          // run the test
-          Set<ConstraintViolation<TicketSearchForm>> violations = validator
-                  .validate(ticketSearchForm);
+                  // omitted
 
-          // assert
-          // (3)
-          assertThat(violations.size(), is(1));
-          ConstraintViolation<TicketSearchForm> violation = violations.iterator().next();
-          // (4)
-          assertThat(violation.getPropertyPath().toString(), is("depAirportCd"));
-          // (5)
-          assertThat((String) violation.getInvalidValue(), is("AAA"));
-          // (6)
-          assertThat(violation.getMessage(), is("Does not exist in CL_AIRPORT"));
-      }
-  }
+                  // run the test
+                  Set<ConstraintViolation<TicketSearchForm>> violations = validator
+                          .validate(ticketSearchForm);
+
+                  // assert
+                  // (3)
+                  assertThat(violations.size(), is(1));
+                  ConstraintViolation<TicketSearchForm> violation = violations.iterator().next();
+                  // (4)
+                  assertThat(violation.getPropertyPath().toString(), is("depAirportCd"));
+                  // (5)
+                  assertThat((String) violation.getInvalidValue(), is("AAA"));
+                  // (6)
+                  assertThat(violation.getMessage(), is("Does not exist in CL_AIRPORT"));
+              }
+          }
+
+   .. group-tab:: XML Config
+
+      * \ ``ExistInCodeListTest.java``\
+
+      .. code-block:: java
+
+          @RunWith(SpringJUnit4ClassRunner.class)
+          @ContextConfiguration(locations = {
+                  "classpath:META-INF/spring/sample-infra.xml",
+                  "classpath:META-INF/spring/sample-codelist.xml",
+                  "classpath:META-INF/spring/test-context.xml" })
+          public class ExistInCodeListTest {
+
+              // (1)
+              @Inject
+              private Validator validator;
+
+              @Test
+              public void testExistInCodeList() {
+
+                  // setup
+                  TicketSearchForm ticketSearchForm = new TicketSearchForm();
+                  // (2)
+                  ticketSearchForm.setDepAirportCd("AAA");
+
+                  // omitted
+
+                  // run the test
+                  Set<ConstraintViolation<TicketSearchForm>> violations = validator
+                          .validate(ticketSearchForm);
+
+                  // assert
+                  // (3)
+                  assertThat(violations.size(), is(1));
+                  ConstraintViolation<TicketSearchForm> violation = violations.iterator().next();
+                  // (4)
+                  assertThat(violation.getPropertyPath().toString(), is("depAirportCd"));
+                  // (5)
+                  assertThat((String) violation.getInvalidValue(), is("AAA"));
+                  // (6)
+                  assertThat(violation.getMessage(), is("Does not exist in CL_AIRPORT"));
+              }
+          }
 
 .. tabularcolumns:: |p{0.10\linewidth}|p{0.90\linewidth}|
 .. list-table::
@@ -509,7 +618,7 @@ Spring Validatorで実装したValidatorの単体テスト
     - | \ ``getGlobalError``\ メソッドで、エラー内容を取得する。
   * - | (4)
     - | エラーメッセージの内容を確認するために、\ ``MessageSource``\ の実装クラスである\ ``org.springframework.context.support.ResourceBundleMessageSource``\ のオブジェクトを生成する。
-      | クラスの詳細については、\ `ResourceBundleMessageSourceのJavadoc <https://docs.spring.io/spring-framework/docs/6.0.3/javadoc-api/org/springframework/context/support/ResourceBundleMessageSource.html>`_\ を参照されたい。
+      | クラスの詳細については、\ `ResourceBundleMessageSourceのJavadoc <https://docs.spring.io/spring-framework/docs/6.1.3/javadoc-api/org/springframework/context/support/ResourceBundleMessageSource.html>`_\ を参照されたい。
   * - | (5)
     - | \ ``setBasename``\ メソッドに、メッセージが定義されたプロパティファイルを指定して読み込ませる。
   * - | (6)
@@ -522,4 +631,3 @@ Spring Validatorで実装したValidatorの単体テスト
 .. raw:: latex
 
   \newpage
-

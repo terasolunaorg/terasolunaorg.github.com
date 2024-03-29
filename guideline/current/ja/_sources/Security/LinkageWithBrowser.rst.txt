@@ -34,40 +34,33 @@ Spring Securityは、セキュリティ関連のレスポンスヘッダを出�
 
 |
 
-デフォルトでサポートしているセキュリティヘッダ
+Springがサポートしているセキュリティヘッダ
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-Spring Securityがデフォルトでサポートしているレスポンスヘッダは以下の9つである。
+Spring Securityがサポートしているレスポンスヘッダは以下である。
 
 * Cache-Control (Pragma, Expires)
 * X-Frame-Options
 * X-Content-Type-Options
-* X-XSS-Protection
 * Strict-Transport-Security
-* Content-Security-Policy(Content-Security-Policy-Report-Only)
-* Public-Key-Pins(Public-Key-Pins-Report-Only)
+* Content-Security-Policy(Content-Security-Policy-Report-Only) 
 * Referrer-Policy
+* Permissions-Policy
+* Clear-Site-Data
+
+また、以下のセキュリティヘッダもサポートしているが、OWASPで非推奨とされている。
+
+* X-XSS-Protection
+* Public-Key-Pins(Public-Key-Pins-Report-Only)
 * Feature-Policy
+
+詳しくは\ `Response Headers <https://owasp.org/www-project-secure-headers/#div-headers>`_\ を参照されたい。
 
 .. tip:: \ **ブラウザのサポート状況**\
 
-  これらのヘッダに対する処理は、一部のブラウザではサポートされていない。ブラウザの公式サイトまたは以下のページを参照されたい。
-
-  * https://cheatsheetseries.owasp.org/cheatsheets/HTTP_Strict_Transport_Security_Cheat_Sheet.html (Strict-Transport-Security)
-  * https://cheatsheetseries.owasp.org/cheatsheets/Clickjacking_Defense_Cheat_Sheet.html (X-Frame-Options)
-  * https://owasp.org/www-project-secure-headers/#div-headers (X-Content-Type-Options, X-XSS-Protection, Content-Security-Policy, Public-Key-Pins)
-
-.. note::
-
-  * | \ **Referrer-Policyヘッダ**\
-    | Spring Security 4.2より、ブラウザに\ `Referrer Policy <https://www.w3.org/TR/referrer-policy/>`_\ を指示するためのヘッダである\ `Referrer-Policyヘッダ <https://docs.spring.io/spring-security/reference/6.0.1/servlet/exploits/headers.html#servlet-headers-referrer>`_\ がサポートされた。
-    | 詳細については次版以降の開発ガイドラインで記載する予定である。
-  * | \ **Feature-Policyヘッダ**\
-    | Spring Security 5.1より、ブラウザに\ `Feature-Policy <https://w3c.github.io/webappsec-feature-policy/>`_\ を指示するためのヘッダである\ `Feature-Policyヘッダ <https://docs.spring.io/spring-security/reference/6.0.1/servlet/exploits/headers.html#servlet-headers-feature>`_\ がサポートされた。
-    | 詳細については次版以降の開発ガイドラインで記載する予定である。
-  * | \ **Clear-Site-Dataヘッダ**\
-    | Spring Security 5.2より、ブラウザに\ `Clear-Site-Data <https://w3c.github.io/webappsec-clear-site-data/>`_\ を指示するためのヘッダである\ `Clear-Site-Dataヘッダ <https://docs.spring.io/spring-security/reference/6.0.1/reactive/exploits/headers.html#webflux-headers-clear-site-data>`_\ がサポート可能となった。
-    | 詳細は \ :ref:`SpringSecurityAuthenticationLogout`\ を参照されたい。
+  これらのヘッダに対する処理は、一部のブラウザではサポートされていない。
+  
+  ブラウザの公式サイトまたは\ `Browser Support <https://owasp.org/www-project-secure-headers/#div-browsersupport>`_\ を参照されたい。
 
 |
 
@@ -79,7 +72,7 @@ Cache-Control
 
 コンテンツがキャッシュされないようにするためには、以下のようなヘッダを出力する。
 
-* レスポンスヘッダの出力例
+* レスポンスヘッダの出力例\ **(Spring Securityのデフォルト出力)**\
 
 .. code-block:: text
 
@@ -89,7 +82,7 @@ Cache-Control
 
 .. note:: \ **Cache-Controlヘッダの上書き**\
 
-  Spring MVCのControllerクラスが \ ``@SessionAttributes`` \のフォームクラスを定義している、もしくは、リクエストハンドラで \ ``@SessionAttributes`` \属性のModelを使用している場合は、 Cache-Controlヘッダが上書きされる。
+  Spring MVCのControllerクラスが \ ``@SessionAttributes`` \ のフォームクラスを定義している、もしくは、リクエストハンドラで \ ``@SessionAttributes`` \ 属性のModelを使用している場合は、 Cache-Controlヘッダが上書きされる。
 
 .. note:: \ **HTTP1.0互換のブラウザ**\
 
@@ -105,15 +98,17 @@ X-Frame-Options
 
 フレーム内での表示を拒否するためには、以下のようなヘッダを出力する。
 
-* レスポンスヘッダの出力例(Spring Securityのデフォルト出力)
+* レスポンスヘッダの出力例\ **(Spring Securityのデフォルト出力)**\
 
 .. code-block:: text
 
   X-Frame-Options: DENY
 
-なお、X-Frame-Optionsヘッダには、出力例以外のオプションを指定することができる。
+出力例以外の設定については\ `Response Headers <https://owasp.org/www-project-secure-headers/#div-headers>`_\ のX-Frame-Optionsを参照されたい。
 
 |
+
+.. _LinkageWithBrowserXContentTypeOtions:
 
 X-Content-Type-Options
 """"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
@@ -124,7 +119,7 @@ X-Content-Type-Options
 
 コンテンツの種類の決定する際にコンテンツの内容を見ないようにするためには、以下のヘッダを出力する。
 
-* レスポンスヘッダの出力例
+* レスポンスヘッダの出力例\ **(Spring Securityのデフォルト出力)**\
 
 .. code-block:: text
 
@@ -132,39 +127,21 @@ X-Content-Type-Options
 
 |
 
-.. _LinkageWithBrowserXXSSProtection:
-
-X-XSS-Protection
-""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
-
-| X-XSS-Protectionヘッダは、ブラウザのXSSフィルター機能を使って有害スクリプトを検出する方法を指示するためのヘッダである。
-| XSSフィルター機能を有効にして有害なスクリプトを検知するとこで、クロスサイトスクリプティングを使った攻撃を受けるリスクを減らすことができる。
-
-XSSフィルター機能を有効にして有害なスクリプトを検知するためには、以下のようなヘッダを出力する。
-
-* レスポンスヘッダの出力例(Spring Securityのデフォルト出力)
-
-.. code-block:: text
-
-  X-XSS-Protection: 1; mode=block
-
-なお、X-XSS-Protectionヘッダには、出力例以外のオプションを指定することができる。
-
-|
-
 Strict-Transport-Security
 """"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 
-| Strict-Transport-Securityヘッダーは、HTTPSを使ってアクセスした後にHTTPを使ってアクセスしようとした際に、HTTPSに置き換えてからアクセスすることを指示するためヘッダである。
+| Strict-Transport-Securityヘッダは、HTTPSを使ってアクセスした後にHTTPを使ってアクセスしようとした際に、HTTPSに置き換えてからアクセスすることを指示するためヘッダである。
 | HTTPSでアクセスした後にHTTPが使われないようにすることで、中間者攻撃と呼ばれる攻撃手法を使って悪意のあるサイトに誘導されるリスクを減らすことができる。
 
 HTTPSでアクセスした後にHTTPが使われないようにするためには、以下のようなヘッダを出力する。
 
-* レスポンスヘッダの出力例(Spring Securityのデフォルト出力)
+* レスポンスヘッダの出力例\ **(Spring Securityのデフォルト出力)**\
 
 .. code-block:: text
 
   Strict-Transport-Security: max-age=31536000 ; includeSubDomains
+
+出力例以外の設定については\ `Response Headers <https://owasp.org/www-project-secure-headers/#div-headers>`_\ のStrict-Transport-Securityを参照されたい。
 
 .. note:: \ **Strict-Transport-Security**\
 
@@ -178,18 +155,20 @@ HTTPSでアクセスした後にHTTPが使われないようにするために�
 
   Googleはこのリスクを回避出来るようにHSTS preload listを運営している。このリストにドメインを登録すると、ブラウザからのアクセスで自動的にHTTPSが使用される。
 
-  主要なブラウザ(Chrome, Edge, IE11, Firefox, Opera, Safari)は全て、HSTS preload listに対応している。
+  \ `主要なブラウザ <https://caniuse.com/stricttransportsecurity>`__\ は全て、HSTS preload listに対応している。
 
-  HSTS preload listへのドメインの登録方法は\ `HSTS Preload List Submission <https://hstspreload.org/>`_\を参照されたい。
+  HSTS preload listへのドメインの登録方法は\ `HSTS Preload List Submission <https://hstspreload.org/>`_\ を参照されたい。
 
   Spring SecurityではHSTS preload listへの登録に必要となるpreloadディレクティブをサポートしており、オプションを指定することで出力することが出来る。
 
 |
 
+.. _LinkageWithBrowserContentSecurityPolicy:
+
 Content-Security-Policy
 """"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 
-| Content-Security-Policyヘッダはブラウザに読み込みを許可するコンテンツを指示するためのヘッダである。
+| Content-Security-Policyヘッダは、ブラウザに読み込みを許可するコンテンツを指示するためのヘッダである。
 | ブラウザはContent-Security-Policyヘッダに指定したホワイトリストのコンテンツのみを読み込むため、悪意のあるコンテンツを読み込むことで実行される攻撃（クロスサイトスクリプティング攻撃など）を受けるリスクを減らすことができる。
 
 Content-Security-Policyヘッダを送信しない場合、ブラウザは標準の同一オリジンポリシーを適用する。
@@ -201,6 +180,8 @@ Content-Security-Policyヘッダを送信しない場合、ブラウザは標準
 .. code-block:: text
 
   Content-Security-Policy: default-src 'self'
+
+出力例以外の設定については\ `Response Headers <https://owasp.org/www-project-secure-headers/#div-headers>`_\ のContent-Security-Policyを参照されたい。
 
 .. note:: \ **ポリシー違反時のレポート送信について**\
 
@@ -232,7 +213,7 @@ Content-Security-Policyヘッダを送信しない場合、ブラウザは標準
 
   Google Chrome 81以降では混在コンテンツに対してHTTPSアクセスを強制し、HTTPSでアクセスできない場合はブロックを行う。
 
-  IE以外のブラウザでは、upgrade-insecure-requestsディレクティブを指定することでChromeと同等の動作をブラウザに指示することが出来る。
+  upgrade-insecure-requestsディレクティブを指定することでChromeと同等の動作をブラウザに指示することが出来る。
 
   * レスポンスヘッダの出力例
 
@@ -240,20 +221,102 @@ Content-Security-Policyヘッダを送信しない場合、ブラウザは標準
 
       Content-Security-Policy: upgrade-insecure-requests; default-src 'self';
 
-.. warning:: \ **サポート対象外のブラウザについて**\
+|
 
-  IEではヘッダ名が異なり、Content-Security-Policyヘッダの代わりにX-Content-Security-Policyヘッダを指定する必要がある。また、sandbox以外のディレクティブは対応しておらず動作しない。
+Referrer-Policy
+""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 
-  上記出力例のようにコンテンツの取得元を同一オリジンのみに制限する方法は存在しないため注意されたい。
+| Referrer-Policyヘッダは、Refererヘッダーで送信されるリファラー情報をリクエストに含めるかどうかを指定するためのヘッダである。
+| リファラー情報の送信範囲や送信内容を制限することができる。
 
-  ブラウザごとの対応状況については\ `Content-Security-Policy - Browser compatibility <https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/Content-Security-Policy#Browser_compatibility>`_\を参照されたい。
+| リファラー情報を送信しないようにするには、以下のようなヘッダを出力する。
+
+* レスポンスヘッダの出力例
+
+.. code-block:: text
+
+  Referrer-Policy: no-referrer
+
+出力例以外の設定については\ `Response Headers <https://owasp.org/www-project-secure-headers/#div-headers>`_\ のReferrer-Policyを参照されたい。
+
+|
+
+.. _LinkageWithBrowserPermissionsPolicy:
+
+Permissions-Policy
+""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
+
+| Permissions-Policyヘッダは、権限の委譲や強力な機能の制御を行うためのヘッダである。
+| ブラウザ内の特定のAPIやWeb機能を部分的に有効、無効、および変更することができる。
+
+| 同じオリジンのフレーム(同じプロトコル、ホスト、ポート番号を持つフレーム)でのみGeolocationのAPIを使用できるようにするには、以下のようなヘッダを出力する。
+
+
+* レスポンスヘッダの出力例
+
+.. code-block:: text
+
+  Permissions-Policy: geolocation=(self)
+
+出力例以外の設定については\ `Response Headers <https://owasp.org/www-project-secure-headers/#div-headers>`_\ のPermissions-Policyを参照されたい。
+
+|
+
+Clear-Site-Data
+""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
+
+| Clear-Site-Dataヘッダは、要求元の Webサイトに関連付けられた閲覧データ(Cookie、ストレージ、キャッシュ)をクリアするためのヘッダである。
+| ログアウトやセキュリティ上の理由でWebサイトに関するデータをクリアしたい場合に使用する。
+
+| ローカルにキャッシュされたデータを削除するには、以下のようなヘッダを出力する。
+
+* レスポンスヘッダの出力例
+
+.. code-block:: text
+
+  Clear-Site-Data: "cache"
+
+出力例以外の設定については\ `Response Headers <https://owasp.org/www-project-secure-headers/#div-headers>`_\ のClear-Site-Dataを参照されたい。
+
+.. note::
+
+  本機能はLogoutHandlerの仕組みを用いて適用されるが、自動的には適用されない。
+
+  詳しくは \ :ref:`SpringSecurityAuthenticationLogout`\ を参照されたい。
+
+|
+
+X-XSS-Protection
+""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
+
+.. warning::
+
+  X-XSS-Protectionヘッダは\ `OWASP <https://owasp.org/www-project-secure-headers/#div-headers>`_\ で非推奨となっている。
+
+  Spring Securityのデフォルト設定ではX-XSS-Protectionヘッダを出力しているが、XSS Auditorを無効にし、レスポンスを処理するブラウザのデフォルトの挙動を取らせないようにするために、ヘッダの値を"\ ``0``\ "としている。
+
+  \ `OWASP <https://owasp.org/www-project-secure-headers/#div-headers>`_\ ではX-XSS-Protectionヘッダの代わりに\ :ref:`Content-Security-Policyヘッダ<LinkageWithBrowserContentSecurityPolicy>`\ を使用することを推奨している。
+
+| X-XSS-Protectionヘッダは、ブラウザのXSSフィルター機能を使って有害スクリプトを検出する方法を指示するためのヘッダである。
+| XSSフィルター機能を有効にして有害なスクリプトを検知するとこで、クロスサイトスクリプティングを使った攻撃を受けるリスクを減らすことができる。
+| XSSフィルター機能を有効にして有害なスクリプトを検知するためには、以下のようなヘッダを出力する。
+
+* レスポンスヘッダの出力例\ **(Spring Securityのデフォルト出力)**\
+
+.. code-block:: text
+
+  X-XSS-Protection: 0
 
 |
 
 Public-Key-Pins
 """"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 
-| Public-Key-Pinsヘッダはサイトの証明書の真正性を担保するために、サイトに紐づく証明書の公開鍵をブラウザに提示するヘッダである。
+.. warning::
+
+  Public-Key-Pinsヘッダは\ `OWASP <https://owasp.org/www-project-secure-headers/#div-headers>`_\ で非推奨となっている。
+
+| Public-Key-Pinsヘッダは、サイトの証明書の真正性を担保するために、サイトに紐づく証明書の公開鍵をブラウザに提示するヘッダである。
 | サイトへの再訪問時に中間者攻撃と呼ばれる攻撃手法を使って悪意のあるサイトに誘導された場合でも、
 | ブラウザが保持する真性のサイト証明書の公開鍵と悪意あるサイトが提示する証明書の公開鍵の不一致を検知して、アクセスをブロックすることができる。
 
@@ -273,9 +336,30 @@ Public-Key-Pins
 
 .. note:: \ **Public-Key-Pinsヘッダの設定について**\
 
-  Public-Key-Pinsヘッダの設定に誤りがあった場合、ユーザが長期間サイトにアクセスできなくなる可能性があるため、
+  Public-Key-Pinsヘッダの設定に誤りがあった場合、ユーザが長期間サイトにアクセスできなくなる可能性がある。
 
-  Public-Key-Pins-Report-Onlyヘッダで十分に試験を実施した上でPublic-Key-Pinsヘッダに切り替えることを推奨する。
+|
+
+Feature-Policy
+""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
+
+.. warning::
+
+  Feature-Policyヘッダは\ `OWASP <https://owasp.org/www-project-secure-headers/#div-headers>`_\ で非推奨となっている。
+
+  \ `OWASP <https://owasp.org/www-project-secure-headers/#div-headers>`_\ ではFeature-Policyヘッダの代わりに\ :ref:`Permissions-Policyヘッダ<LinkageWithBrowserPermissionsPolicy>`\ を使用することを推奨している。
+
+| Feature-Policyヘッダは、機能の制御を行うためのヘッダである。
+| ブラウザ内の特定のAPIやWeb機能を部分的に有効、無効、および変更することができる。
+| ブラウザが保持する真性のサイト証明書の公開鍵と悪意あるサイトが提示する証明書の公開鍵の不一致を検知して、アクセスをブロックすることができる。
+
+ブラウザが保持する情報と一致しない証明書を検出した場合にアクセスをブロックさせるためには、以下のようなヘッダを出力する。
+
+* レスポンスヘッダの出力例
+
+.. code-block:: text
+
+  Feature-Policy: geolocation 'self'
 
 |
 
@@ -300,15 +384,33 @@ How to use
 
 セキュリティヘッダ出力機能を無効化する場合は、以下のようなbean定義を行う。
 
-* spring-security.xmlの定義例
+.. tabs::
+  .. group-tab:: Java Config
 
-.. code-block:: xml
+    * SpringSecurityConfig.javaの定義例
+    
+    .. code-block:: java
+    
+      @Bean
+      public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
+          // omitted
+          http.headers(headers -> headers.disable()); // headers.disable()を呼び出して無効化
+          // omitted
+  
+          return http.build();
+      }
 
-  <sec:http request-matcher="ant">
-      <!-- omitted -->
-      <sec:headers disabled="true"/> <!-- disabled属性にtrueを設定して無効化 -->
-      <!-- omitted -->
-  </sec:http>
+  .. group-tab:: XML Config
+
+    * spring-security.xmlの定義例
+    
+    .. code-block:: xml
+    
+      <sec:http request-matcher="ant">
+          <!-- omitted -->
+          <sec:headers disabled="true"/> <!-- disabled属性にtrueを設定して無効化 -->
+          <!-- omitted -->
+      </sec:http>
 
 |
 
@@ -316,98 +418,172 @@ How to use
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 | 出力するセキュリティヘッダを選択したい場合は、以下のようなbean定義を行う。
-| ここではSpring Securityが提供しているすべてのセキュリティヘッダを出力する例になっているが、実際には必要なものだけ指定すること。
+| ここでは、Spring Securityが提供している非推奨以外のすべてのセキュリティヘッダを出力する例になっているが、実際には必要なものだけ指定すること。
 
-* spring-security.xmlの定義例
+.. tabs::
+  .. group-tab:: Java Config
 
-.. code-block:: xml
+    * SpringSecurityConfig.javaの定義例
+    
+    .. code-block:: java
 
-  <sec:headers defaults-disabled="true"> <!-- (1) -->
-      <sec:cache-control/> <!-- (2) -->
-      <sec:frame-options/> <!-- (3) -->
-      <sec:content-type-options/> <!-- (4) -->
-      <sec:xss-protection/> <!-- (5) -->
-      <sec:hsts/> <!-- (6) -->
-      <sec:content-security-policy policy-directives="default-src 'self'" /> <!-- (7) -->
-      <sec:hpkp report-uri="https://www.example.net/hpkp-report"> <!-- (8) -->
-          <sec:pins>
-              <sec:pin algorithm="sha256">d6qzRu9zOECb90Uez27xWltNsj0e1Md7GkYYkVoZWmM=</sec:pin>
-              <sec:pin algorithm="sha256">E9CZ9INDbd+2eRQozYqqbQ2yXLVKB9+xcprMF+44U1g=</sec:pin>
-          </sec:pins>
-      </sec:hpkp>
-  </sec:headers>
+      @Bean
+      public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
+          // omitted
+          http.headers(headers -> headers.defaultsDisabled() // (1)
+                  .cacheControl(Customizer.withDefaults()) // (2)
+                  .frameOptions(Customizer.withDefaults()) // (3)
+                  .contentTypeOptions(Customizer.withDefaults()) // (4)
+                  .httpStrictTransportSecurity(Customizer.withDefaults()) // (5)
+                  .contentSecurityPolicy(csp -> csp.policyDirectives("default-src 'self'")) // (6)
+                  .referrerPolicy(Customizer.withDefaults()) // (7)
+                  .permissionsPolicy(permissions -> permissions.policy("geolocation=(self)")) // (8)
+          ); 
+          // omitted
+  
+          return http.build();
+      }
 
-.. tabularcolumns:: |p{0.10\linewidth}|p{0.90\linewidth}|
-.. list-table::
-  :header-rows: 1
-  :widths: 10 90
+      @Bean
+      public ClearSiteDataHeaderWriter clearSiteDataHeaderWriter() {
+          return new ClearSiteDataHeaderWriter(Directive.CACHE);
+      }
+    
+    .. tabularcolumns:: |p{0.10\linewidth}|p{0.90\linewidth}|
+    .. list-table::
+      :header-rows: 1
+      :widths: 10 90
+    
+      * - 項番
+        - 説明
+      * - | (1)
+        - | デフォルトで適用されるヘッダ出力を行うコンポーネント登録を無効化する。
+      * - | (2)
+        - | Cache-Control(Pragma, Expires)ヘッダを出力するコンポーネントを登録する。
+      * - | (3)
+        - | Frame-Optionsヘッダを出力するコンポーネントを登録する。
+      * - | (4)
+        - | X-Content-Type-Optionsヘッダを出力するコンポーネントを登録する。
+      * - | (5)
+        - | Strict-Transport-Securityヘッダを出力するコンポーネントを登録する。
+      * - | (6)
+        - | Content-Security-PolicyヘッダまたはContent-Security-Policy-Report-Onlyヘッダを出力するコンポーネントを登録する。
+      * - | (7)
+        - | Referrer-Policyヘッダを出力するコンポーネントを登録する。
+      * - | (8)
+        - | Permissions-Policyヘッダを出力するコンポーネントを登録する。
 
-  * - 項番
-    - 説明
-  * - | (1)
-    - | まずデフォルトで適用されるヘッダ出力を行うコンポーネント登録を無効化する。
-  * - | (2)
-    - | Cache-Control(Pragma, Expires)ヘッダを出力するコンポーネントを登録する。
-  * - | (3)
-    - | Frame-Optionsヘッダを出力するコンポーネントを登録する。
-  * - | (4)
-    - | X-Content-Type-Optionsヘッダを出力するコンポーネントを登録する。
-  * - | (5)
-    - | X-XSS-Protectionヘッダを出力するコンポーネントを登録する。
-  * - | (6)
-    - | Strict-Transport-Securityヘッダを出力するコンポーネントを登録する。
-  * - | (7)
-    - | Content-Security-PolicyヘッダまたはContent-Security-Policy-Report-Onlyヘッダを出力するコンポーネントを登録する。
-  * - | (8)
-    - | Public-Key-PinsヘッダまたはPublic-Key-Pins-Report-Onlyヘッダを出力するコンポーネントを登録する。
+  .. group-tab:: XML Config
 
-      * サイトの提示する証明書の公開鍵が一致しなかった場合、アクセスをブロックせず\ ``https://www.example.net/hpkp-report``\ に違反レポートの送信を行う。
-      * 証明書の危殆化や期限切れなどの理由で証明書を更新した際に公開鍵の不一致が発生しないようにするために、バックアップ用の公開鍵の情報も設定している。
+    * spring-security.xmlの定義例
+    
+    .. code-block:: xml
+    
+      <sec:http request-matcher="ant">
+          <!-- omitted -->
+          <sec:headers defaults-disabled="true"> <!-- (1) -->
+              <sec:cache-control /> <!-- (2) -->
+              <sec:frame-options /> <!-- (3) -->
+              <sec:content-type-options /> <!-- (4) -->
+              <sec:hsts /> <!-- (5) -->
+              <sec:content-security-policy policy-directives="default-src 'self'"/> <!-- (6) -->
+              <sec:referrer-policy /> <!-- (7) -->
+              <sec:permissions-policy policy="geolocation=(self)"/> <!-- (8) -->
+          </sec:headers>
+          <!-- omitted -->
+      </sec:http>
 
-.. note:: \ **Public-Key-Pinsヘッダの出力について**\
-
-  Spring Securityのデフォルトの設定では、Public-Key-Pinsヘッダではなく、Public-Key-Pins-Report-Onlyヘッダが出力される。
-
-  また、Spring Securityのデフォルト実装では、Public-Key-Pinsヘッダは、アプリケーションサーバに対してHTTPSを使ってアクセスがあった場合のみ出力される。
+    .. tabularcolumns:: |p{0.10\linewidth}|p{0.90\linewidth}|
+    .. list-table::
+      :header-rows: 1
+      :widths: 10 90
+    
+      * - 項番
+        - 説明
+      * - | (1)
+        - | デフォルトで適用されるヘッダ出力を行うコンポーネント登録を無効化する。
+      * - | (2)
+        - | Cache-Control(Pragma, Expires)ヘッダを出力するコンポーネントを登録する。
+      * - | (3)
+        - | Frame-Optionsヘッダを出力するコンポーネントを登録する。
+      * - | (4)
+        - | X-Content-Type-Optionsヘッダを出力するコンポーネントを登録する。
+      * - | (5)
+        - | Strict-Transport-Securityヘッダを出力するコンポーネントを登録する。
+      * - | (6)
+        - | Content-Security-PolicyヘッダまたはContent-Security-Policy-Report-Onlyヘッダを出力するコンポーネントを登録する。
+      * - | (7)
+        - | Referrer-Policyヘッダを出力するコンポーネントを登録する。
+      * - | (8)
+        - | Permissions-Policyヘッダを出力するコンポーネントを登録する。
 
 また、不要なものだけ無効化する方法も存在する。 
 
-* spring-security.xmlの定義例
-    
-.. code-block:: xml 
+.. tabs::
+  .. group-tab:: Java Config
 
-  <sec:headers>
-      <sec:cache-control disabled="true"/> <!-- disabled属性にtrueを設定して無効化 --> 
-  </sec:headers>
+    * SpringSecurityConfig.javaの定義例
+        
+    .. code-block:: java
+
+      @Bean
+      public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
+          // omitted
+          http.headers(headers -> headers.cacheControl(cacheControl -> cacheControl.disable())); // cacheControl.disable()を呼び出して無効化
+          // omitted
+  
+          return http.build();
+      }
+
+  .. group-tab:: XML Config
+
+    * spring-security.xmlの定義例
+        
+    .. code-block:: xml 
+    
+      <sec:http request-matcher="ant">
+          <!-- omitted -->
+          <sec:headers>
+              <sec:cache-control disabled="true"/> <!-- disabled属性にtrueを設定して無効化 --> 
+          </sec:headers>
+          <!-- omitted -->
+      </sec:http>
 
 上記の例だと、Cache-Control関連のヘッダだけが出力されなくなる。 
 
-セキュリティヘッダの詳細については\ `Spring Security Reference -Default Security Headers- <https://docs.spring.io/spring-security/reference/6.0.1/servlet/exploits/headers.html#servlet-headers-default>`_\ を参照されたい。
+セキュリティヘッダの詳細については\ `Spring Security Reference -Default Security Headers- <https://docs.spring.io/spring-security/reference/servlet/exploits/headers.html#servlet-headers-default>`_\ を参照されたい。
 
 |
 
 セキュリティヘッダのオプション指定
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-以下のヘッダでは、Spring Securityがデフォルトで出力する内容を変更することができる。
-
-* X-Frame-Options
-* X-XSS-Protection
-* Strict-Transport-Security
-* Content-Security-Policy(Content-Security-Policy-Report-Only)
-* Public-Key-Pins(Public-Key-Pins-Report-Only)
-* Referrer-Policy
-* Feature-Policy
-
 Spring Securityのbean定義を変更することで、各要素の属性にオプション\ [#fSpringSecurityLinkageWithBrowser2]_\ を指定することができる。
 
-* spring-security.xmlの定義例
+.. tabs::
+  .. group-tab:: Java Config
 
-.. code-block:: xml
+    * SpringSecurityConfig.javaの定義例
 
-  <sec:frame-options policy="SAMEORIGIN" />
+    .. code-block:: java
 
-.. [#fSpringSecurityLinkageWithBrowser2] 各要素で指定できるオプションは\ `Spring Security Reference -The Security Namespace (<headers>)- <https://docs.spring.io/spring-security/reference/6.0.1/servlet/appendix/namespace/http.html#nsa-headers>`_\ を参照されたい。
+      @Bean
+      public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
+          // omitted
+          http.headers(headers -> headers.addHeaderWriter(
+                new XFrameOptionsHeaderWriter(XFrameOptionsMode.SAMEORIGIN)));
+          return http.build();
+      }
+
+  .. group-tab:: XML Config
+
+    * spring-security.xmlの定義例
+    
+    .. code-block:: xml
+    
+      <sec:frame-options policy="SAMEORIGIN" />
+
+.. [#fSpringSecurityLinkageWithBrowser2] 各要素で指定できるオプションは\ `Spring Security Reference -The Security Namespace (<headers>)- <https://docs.spring.io/spring-security/reference/servlet/appendix/namespace/http.html#nsa-headers>`_\ を参照されたい。
 
 |
 
@@ -424,23 +600,56 @@ Spring Securityがデフォルトで用意していないヘッダを出力す�
 
 上記のヘッダを出力する場合は、以下のようなbean定義を行う。
 
-* spring-security.xmlの定義例
+.. tabs::
+  .. group-tab:: Java Config
 
-.. code-block:: xml
+    * SpringSecurityConfig.javaの定義例
 
-  <sec:headers>
-      <sec:header name="X-WebKit-CSP" value="default-src 'self'"/>
-  </sec:headers>
+    .. code-block:: java
 
-.. tabularcolumns:: |p{0.10\linewidth}|p{0.90\linewidth}|
-.. list-table::
-  :header-rows: 1
-  :widths: 10 90
+      @Bean
+      public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
+          // omitted
+          http.headers(headers -> headers.addHeaderWriter(
+                  new StaticHeadersWriter("X-WebKit-CSP", "default-src 'self'")));
+          // omitted
+  
+          return http.build();
+      }
+    
+    .. tabularcolumns:: |p{0.10\linewidth}|p{0.90\linewidth}|
+    .. list-table::
+      :header-rows: 1
+      :widths: 10 90
+    
+      * - 項番
+        - 説明
+      * - | (1)
+        - | \ ``HeadersConfigurer#addHeaderWriter``\ の引数に\ ``StaticHeadersWriter``\ を設定し、第一引数にヘッダ名を、第二引数にヘッダ値を指定する。
 
-  * - 項番
-    - 説明
-  * - | (1)
-    - | \ ``<sec:headers>``\ 要素の子要素として\ ``<sec:header>`` を追加し、\ ``name``\ 属性にヘッダ名を\ ``value``\ 属性にヘッダ値を指定する。
+  .. group-tab:: XML Config
+
+    * spring-security.xmlの定義例
+
+    .. code-block:: xml
+    
+      <sec:http request-matcher="ant">
+          <!-- omitted -->
+          <sec:headers>
+              <sec:header name="X-WebKit-CSP" value="default-src 'self'"/>
+          </sec:headers>
+          <!-- omitted -->
+      </sec:http>
+    
+    .. tabularcolumns:: |p{0.10\linewidth}|p{0.90\linewidth}|
+    .. list-table::
+      :header-rows: 1
+      :widths: 10 90
+    
+      * - 項番
+        - 説明
+      * - | (1)
+        - | \ ``<sec:headers>``\ 要素の子要素として\ ``<sec:header>``\ を追加し、\ ``name``\ 属性にヘッダ名を\ ``value``\ 属性にヘッダ値を指定する。
 
 |
 
@@ -453,42 +662,83 @@ Spring Securityは、\ ``RequestMatcher``\ インタフェースの仕組みを�
 
 例えば、保護対象のコンテンツが\ ``/secure/``\ というパスの配下に格納されていて、保護対象のコンテンツへアクセスした時だけCache-Controlヘッダを出力する場合は、以下のようなbean定義を行う。
 
-* spring-security.xmlの定義例
+.. tabs::
+  .. group-tab:: Java Config
 
-.. code-block:: xml
+    * SpringSecurityConfig.javaの定義例
+    
+    .. code-block:: java
 
-  <!-- (1) -->
-  <bean id="secureCacheControlHeadersWriter"
-        class="org.springframework.security.web.header.writers.DelegatingRequestMatcherHeaderWriter">
-      <constructor-arg>
-          <bean class="org.springframework.security.web.util.matcher.AntPathRequestMatcher">
-              <constructor-arg value="/secure/**"/>
-          </bean>
-      </constructor-arg>
-      <constructor-arg>
-          <bean class="org.springframework.security.web.header.writers.CacheControlHeadersWriter"/>
-      </constructor-arg>
-  </bean>
+      // (1)
+      @Bean("secureCacheControlHeadersWriter")
+      public DelegatingRequestMatcherHeaderWriter secureCacheControlHeadersWriter() {
+  
+          AntPathRequestMatcher antPathRequestMatcher = new AntPathRequestMatcher("/secure/**");
+          CacheControlHeadersWriter cacheControlHeadersWriter = new CacheControlHeadersWriter();
+  
+          return new DelegatingRequestMatcherHeaderWriter(antPathRequestMatcher, cacheControlHeadersWriter);
+      }
+  
+      @Bean
+      public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
+          // omitted
+          http.headers(headers -> headers.defaultsDisabled().addHeaderWriter(
+                  secureCacheControlHeadersWriter())); // (2)
+          // omitted
+  
+          return http.build();
+      }
+    
+    .. tabularcolumns:: |p{0.10\linewidth}|p{0.90\linewidth}|
+    .. list-table::
+      :header-rows: 1
+      :widths: 10 90
+    
+      * - 項番
+        - 説明
+      * - | (1)
+        - | \ ``RequestMatcher``\ と\ ``HeadersWriter``\ インタフェースの実装クラスを指定して\ ``DelegatingRequestMatcherHeaderWriter``\ クラスのbeanを定義する。
+      * - | (2)
+        - | \ ``HeadersConfigurer#addHeaderWriter``\ の引数に(1)で定義した\ ``HeaderWriter``\ のbeanを指定する。
 
-  <sec:http request-matcher="ant">
-      <!-- omitted -->
-      <sec:headers>
-          <sec:header ref="secureCacheControlHeadersWriter"/> <!-- (2) -->
-      </sec:headers>
-      <!-- omitted -->
-  </sec:http>
+  .. group-tab:: XML Config
 
-.. tabularcolumns:: |p{0.10\linewidth}|p{0.90\linewidth}|
-.. list-table::
-  :header-rows: 1
-  :widths: 10 90
-
-  * - 項番
-    - 説明
-  * - | (1)
-    - | \ ``RequestMatcher``\ と\ ``HeadersWriter``\ インタフェースの実装クラスを指定して\ ``DelegatingRequestMatcherHeaderWriter``\ クラスのbeanを定義する。
-  * - | (2)
-    - | \ ``<sec:headers>``\ 要素の子要素として\ ``<sec:header>`` を追加し、\ ``ref``\ 属性に(1)で定義した\ ``HeaderWriter``\ のbeanを指定する。
+    * spring-security.xmlの定義例
+    
+    .. code-block:: xml
+    
+      <!-- (1) -->
+      <bean id="secureCacheControlHeadersWriter"
+            class="org.springframework.security.web.header.writers.DelegatingRequestMatcherHeaderWriter">
+          <constructor-arg>
+              <bean class="org.springframework.security.web.util.matcher.AntPathRequestMatcher">
+                  <constructor-arg value="/secure/**"/>
+              </bean>
+          </constructor-arg>
+          <constructor-arg>
+              <bean class="org.springframework.security.web.header.writers.CacheControlHeadersWriter"/>
+          </constructor-arg>
+      </bean>
+    
+      <sec:http request-matcher="ant">
+          <!-- omitted -->
+          <sec:headers>
+              <sec:header ref="secureCacheControlHeadersWriter"/> <!-- (2) -->
+          </sec:headers>
+          <!-- omitted -->
+      </sec:http>
+    
+    .. tabularcolumns:: |p{0.10\linewidth}|p{0.90\linewidth}|
+    .. list-table::
+      :header-rows: 1
+      :widths: 10 90
+    
+      * - 項番
+        - 説明
+      * - | (1)
+        - | \ ``RequestMatcher``\ と\ ``HeadersWriter``\ インタフェースの実装クラスを指定して\ ``DelegatingRequestMatcherHeaderWriter``\ クラスのbeanを定義する。
+      * - | (2)
+        - | \ ``<sec:headers>``\ 要素の子要素として\ ``<sec:header>`` を追加し、\ ``ref``\ 属性に(1)で定義した\ ``HeaderWriter``\ のbeanを指定する。
 
 .. raw:: latex
 

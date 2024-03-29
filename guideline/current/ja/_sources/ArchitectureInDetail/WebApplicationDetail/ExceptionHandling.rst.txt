@@ -97,7 +97,7 @@ Overview
   * - | (3)
     - | フレームワークから提供されているHandlerExceptionResolverの仕組みを使い、例外ハンドリングを行う。
     - | サーブレット単位に、例外をハンドリングする場合に使用する。
-      | HandlerExceptionResolverは、\ ``<mvc:annotation-driven>``\ を指定した際に、自動的に、\ :ref:`登録されるクラス<ExceptionHandling-annotation-driven>`\ と、共通ライブラリから提供している\ ``SystemExceptionResolver``\ を使用する。
+      | HandlerExceptionResolverは、\ ``WebMvcConfigurer``\ インタフェースを実装（もしくは\ ``<mvc:annotation-driven>``\ を指定）した際に、自動的に\ :ref:`登録されるクラス<ExceptionHandling-annotation-driven>`\ と共通ライブラリから提供している\ ``SystemExceptionResolver``\ を使用する。
       | 詳細は、\ :ref:`exception-handling-basic-flow-resolver-label`\ を参照されたい。
     - | 1. \ :ref:`exception-handling-class-systemerror-label`\
       |
@@ -115,19 +115,18 @@ Overview
 
   \ **図-例外のハンドリング方法**\
 
-
 .. note:: \ **誰が例外ハンドリングを行うのか？**\
 
   - (1)と(2)はアプリケーション開発者が設計・実装する。
   - (3)と(4)はアプリケーションアーキテクトが設計・設定する。
 
+.. _ExceptionHandling-annotation-driven:
+
 .. note:: \ **自動的に登録されるHandlerExceptionResolverについて**\
 
-  <mvc:annotation-driven> を指定した際に、自動的に登録されるHandlerExceptionResolverの役割は、以下の通りである。
+  \ ``WebMvcConfigurer``\ インタフェースを実装（もしくは\ ``<mvc:annotation-driven>``\ を指定）した際に、自動的に登録されるHandlerExceptionResolverの役割は、以下の通りである。
 
   優先順は、以下の並び順の通りとなる。
-
-.. _ExceptionHandling-annotation-driven:
 
     .. tabularcolumns:: |p{0.10\linewidth}|p{0.30\linewidth}|p{0.55\linewidth}|
     .. list-table::
@@ -156,7 +155,7 @@ Overview
 
 .. note:: \ **共通ライブラリから提供している SystemExceptionResolver の役割は？**\
 
-  <mvc:annotation-driven> を指定した際に、自動的に登録されるHandlerExceptionResolverによって、ハンドリングされない例外をハンドリングするためのクラスである。
+  \ ``WebMvcConfigurer``\ インタフェースを実装（もしくは\ ``<mvc:annotation-driven>``\ を指定）した際に、自動的に登録されるHandlerExceptionResolverによって、ハンドリングされない例外をハンドリングするためのクラスである。
 
   そのため優先順は、DefaultHandlerExceptionResolverの後になるように設定する。
 
@@ -178,7 +177,7 @@ Overview
 
   #. | サーブレット単位で行う例外ハンドリングに対して、View名と、HTTPレスポンスコードの解決以外の処理が必要な場合。
      | （View名とHTTPレスポンスコードの解決のみでよい場合は、\ ``SystemExceptionResolver``\ で対応できる ）
-  #. | サーブレット単位で行う例外ハンドリングに対して、エラー応答用のレスポンスデータをJSPなどのテンプレートエンジンを使わずに、エラー用のモデル（JavaBeans）を、JSONやXML形式にシリアライズして生成したい場合
+  #. | サーブレット単位で行う例外ハンドリングに対して、エラー応答用のレスポンスデータをJSPやThymeleafなどのテンプレートエンジンを使わずに、エラー用のモデル（JavaBeans）を、JSONやXML形式にシリアライズして生成したい場合
      | （AJAXや、REST用のControllerを作成する際の、エラーハンドリングとして使用する）。
 
 |
@@ -268,7 +267,7 @@ Detail
   - \ ``org.springframework.dao.DuplicateKeyException``\  (一意制約違反となった場合に発生する例外)。
   - etc ...
 
-.. todo::
+.. note::
 
   \ **JPA(Hibernate)を使用すると、現状意図しないエラーとなることが発覚している。**\
 
@@ -483,7 +482,7 @@ java.lang.Errorを継承しているエラー
 
   SystemExceptionResolverのexcludedExceptionsに例外クラスを設定することで、SystemExceptionResolverで捕捉させたくない例外を除外することができる。
   
-  この設定により、サーブレットコンテナに例外を通知できるようになるが、サーブレットで発生した例外は\ ``ServletException``\ 、\ ``IOException``\（もしくはそのサブクラス）のみが通知可能であり、それ以外の例外については\ ``ServletException``\ にネストされて通知さてしまう。
+  この設定により、サーブレットコンテナに例外を通知できるようになるが、サーブレットで発生した例外は\ ``ServletException``\ 、\ ``IOException``\ （もしくはそのサブクラス）のみが通知可能であり、それ以外の例外については\ ``ServletException``\ にネストされて通知さてしまう。
 
   SystemExceptionResolverではネストされている例外を見ていないため、SystemExceptionResolverの除外対象としたい場合は、発生した例外を\ ``ServletException``\ を継承した別クラスにラッピングして再スローする必要がある点に注意されたい。
 
@@ -514,16 +513,16 @@ java.lang.Errorを継承しているエラー
 
 .. _exception-handling-class-viewerror-label:
 
-プレゼンテーション層(JSPなど)で、例外が発生したことを通知する場合
+プレゼンテーション層(JSP/Thymeleafなど)で、例外が発生したことを通知する場合
 ''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
-プレゼンテーション層(JSPなど)で、例外が発生したことを通知する場合、サーブレットコンテナで捕捉し、Webアプリケーション単位で例外処理を行う。
+プレゼンテーション層(JSP/Thymeleafなど)で、例外が発生したことを通知する場合、サーブレットコンテナで捕捉し、Webアプリケーション単位で例外処理を行う。
 
 .. figure:: ./images_ExceptionHandling/exception-handling-class-jsperror.png
   :alt: class of exception handling for fatal error
   :width: 80%
   :align: center
 
-  \ **図-プレゼンテーション層(JSPなど)で例外が発生した事を通知する場合のハンドリング方法**\
+  \ **図-プレゼンテーション層(JSP/Thymeleafなど)で例外が発生した事を通知する場合のハンドリング方法**\
 
 |
 
@@ -554,21 +553,42 @@ java.lang.Errorを継承しているエラー
 | 下記の図は、 共通ライブラリから提供しているビジネス例外(\ ``org.terasoluna.gfw.common.exception.BusinessException``\ )をハンドリングする場合の基本フローである。
 | ログは、結果メッセージを保持している例外が発生したことを記録するインタセプタ(\ ``org.terasoluna.gfw.common.exception.ResultMessagesLoggingInterceptor``\ )を使用して、出力する。
 
-.. figure:: ./images_ExceptionHandling/exception-handling-flow-catch.png
-  :alt: flow of exception handling using catch
-  :width: 80%
-  :align: center
+.. tabs::
+  .. group-tab:: JSP
 
-  \ **図-リクエスト単位でControllerクラスがハンドリングする場合の基本フロー**\
+    .. figure:: ./images_ExceptionHandling/exception-handling-flow-catch-jsp.png
+      :alt: flow of exception handling using catch
+      :width: 80%
+      :align: center
+    
+      \ **図-リクエスト単位でControllerクラスがハンドリングする場合の基本フロー**\
+    
+    4. Serviceクラスにて、 BusinessExceptionを生成し、スローする。
+    #. | ResultMessagesLoggingInterceptorは、 ExceptionLoggerを呼び出し、warnレベルのログ(監視ログとアプリケーションログ)を出力する。
+       | ResultMessagesLoggingInterceptorはResultMessagesNotificationExceptionのサブ例外(BusinessException/ResourceNotFoundException)が発生した場合のみ、ログを出力するクラスである。
+    #. \ **Controllerクラスは、 BusinessExceptionを捕捉し、 BusinessExceptionに設定されているメッセージ情報(ResultMessage)を画面表示用にModelに設定する(6')。**\
+    #. \ **Controllerクラスは、遷移先のView名を返却する。**\
+    #. DispatcherServletは、返却されたView名に対応するJSPを呼び出す。
+    #. \ **JSPは、MessagesPanelTagを使用して、メッセージ情報(ResultMessage)を取得し、メッセージ表示用のHTMLコードを生成する。**\
+    #. JSPで生成されたレスポンスが表示される。
 
-4. Serviceクラスにて、 BusinessExceptionを生成し、スローする。
-#. | ResultMessagesLoggingInterceptorは、 ExceptionLoggerを呼び出し、warnレベルのログ(監視ログとアプリケーションログ)を出力する。
-   | ResultMessagesLoggingInterceptorはResultMessagesNotificationExceptionのサブ例外(BusinessException/ResourceNotFoundException)が発生した場合のみ、ログを出力するクラスである。
-#. \ **Controllerクラスは、 BusinessExceptionを捕捉し、 BusinessExceptionに設定されているメッセージ情報(ResultMessage)を画面表示用にModelに設定する(6')。**\
-#. \ **Controllerクラスは、遷移先のView名を返却する。**\
-#. DispatcherServletは、返却されたView名に対応するJSPを呼び出す。
-#. \ **JSPは、MessagesPanelTagを使用して、メッセージ情報(ResultMessage)を取得し、メッセージ表示用のHTMLコードを生成する。**\
-#. JSPで生成されたレスポンスが表示される。
+  .. group-tab:: Thymeleaf
+
+    .. figure:: ./images_ExceptionHandling/exception-handling-flow-catch-thymeleaf.png
+      :alt: flow of exception handling using catch
+      :width: 80%
+      :align: center
+    
+      \ **図-リクエスト単位でControllerクラスがハンドリングする場合の基本フロー**\
+    
+    4. Serviceクラスにて、 BusinessExceptionを生成し、スローする。
+    #. | ResultMessagesLoggingInterceptorは、 ExceptionLoggerを呼び出し、warnレベルのログ(監視ログとアプリケーションログ)を出力する。
+       | ResultMessagesLoggingInterceptorはResultMessagesNotificationExceptionのサブ例外(BusinessException/ResourceNotFoundException)が発生した場合のみ、ログを出力するクラスである。
+    #. \ **Controllerクラスは、 BusinessExceptionを捕捉し、 BusinessExceptionに設定されているメッセージ情報(ResultMessage)を画面表示用にModelに設定する(6')。**\
+    #. \ **Controllerクラスは、遷移先のView名を返却する。**\
+    #. DispatcherServletは、返却されたView名に対応するThymeleafテンプレートを呼び出す。
+    #. \ **Thymeleafは、プロセッサを使用して、メッセージ情報(ResultMessage)を取得し、メッセージ表示用のHTMLコードを生成する。**\
+    #. Thymeleafで生成されたレスポンスが表示される。
 
 |
 
@@ -581,24 +601,48 @@ java.lang.Errorを継承しているエラー
 | 下記の図は、 任意の例外(\ ``XxxException``\ )をハンドリングする場合の、基本フローである。
 | ログは、HandlerExceptionResolverによって、例外ハンドリングすることを記録するインタセプタ(\ ``org.terasoluna.gfw.web.exception.HandlerExceptionResolverLoggingInterceptor``\ )を使用して、出力する。
 
-.. figure:: ./images_ExceptionHandling/exception-handling-flow-annotation.png
-  :alt: flow of exception handling using annotation
-  :width: 80%
-  :align: center
+.. tabs::
+  .. group-tab:: JSP
 
-  \ **図-ユースケース単位で、Controllerクラスがハンドリングする場合の基本フロー**\
+    .. figure:: ./images_ExceptionHandling/exception-handling-flow-annotation-jsp.png
+      :alt: flow of exception handling using annotation
+      :width: 80%
+      :align: center
+    
+      \ **図-ユースケース単位で、Controllerクラスがハンドリングする場合の基本フロー**\
+    
+    3. Controllerクラスから呼び出されたServiceクラスにて、例外(XxxException)が発生する。
+    #. DispatcherServletは、XxxExceptionを捕捉し、ExceptionHandlerExceptionResolverを呼び出す。
+    #. ExceptionHandlerExceptionResolverは、Controllerクラスに用意されている例外ハンドリングメソッドを呼び出す。
+    #. \ **Controllerクラスは、メッセージ情報(ResultMessage)を生成し、画面表示用としてModelに設定する。**\
+    #. \ **Controllerクラスは、遷移先のView名を返却する。**\
+    #. ExceptionHandlerExceptionResolverは、Controllerより返却されたView名を返却する。
+    #. HandlerExceptionResolverLoggingInterceptorは、ExceptionLoggerを呼び出し、HTTPステータスコードに対応するレベル(info, warn, error)のログ(監視ログとアプリケーションログ)を出力する。
+    #. HandlerExceptionResolverLoggingInterceptorは、ExceptionHandlerExceptionResolverより返却されたView名を返却する。
+    #. DispatcherServletは、返却されたView名に対応するJSPを呼び出す。
+    #. \ **JSPは、MessagesPanelTagを使用して、メッセージ情報(ResultMessage)を取得し、メッセージ表示用のHTMLコードを生成する。**\
+    #. JSPで生成されたレスポンスが表示される。
 
-3. Controllerクラスから呼び出されたServiceクラスにて、例外(XxxException)が発生する。
-#. DispatcherServletは、XxxExceptionを捕捉し、ExceptionHandlerExceptionResolverを呼び出す。
-#. ExceptionHandlerExceptionResolverは、Controllerクラスに用意されている例外ハンドリングメソッドを呼び出す。
-#. \ **Controllerクラスは、メッセージ情報(ResultMessage)を生成し、画面表示用としてModelに設定する。**\
-#. \ **Controllerクラスは、遷移先のView名を返却する。**\
-#. ExceptionHandlerExceptionResolverは、Controllerより返却されたView名を返却する。
-#. HandlerExceptionResolverLoggingInterceptorは、ExceptionLoggerを呼び出し、HTTPステータスコードに対応するレベル(info, warn, error)のログ(監視ログとアプリケーションログ)を出力する。
-#. HandlerExceptionResolverLoggingInterceptorは、ExceptionHandlerExceptionResolverより返却されたView名を返却する。
-#. DispatcherServletは、返却されたView名に対応するJSPを呼び出す。
-#. \ **JSPは、MessagesPanelTagを使用して、メッセージ情報(ResultMessage)を取得し、メッセージ表示用のHTMLコードを生成する。**\
-#. JSPで生成されたレスポンスが表示される。
+  .. group-tab:: Thymeleaf
+
+    .. figure:: ./images_ExceptionHandling/exception-handling-flow-annotation-thymeleaf.png
+      :alt: flow of exception handling using annotation
+      :width: 80%
+      :align: center
+    
+      \ **図-ユースケース単位で、Controllerクラスがハンドリングする場合の基本フロー**\
+    
+    3. Controllerクラスから呼び出されたServiceクラスにて、例外(XxxException)が発生する。
+    #. DispatcherServletは、XxxExceptionを捕捉し、ExceptionHandlerExceptionResolverを呼び出す。
+    #. ExceptionHandlerExceptionResolverは、Controllerクラスに用意されている例外ハンドリングメソッドを呼び出す。
+    #. \ **Controllerクラスは、メッセージ情報(ResultMessage)を生成し、画面表示用としてModelに設定する。**\
+    #. \ **Controllerクラスは、遷移先のView名を返却する。**\
+    #. ExceptionHandlerExceptionResolverは、Controllerより返却されたView名を返却する。
+    #. HandlerExceptionResolverLoggingInterceptorは、ExceptionLoggerを呼び出し、HTTPステータスコードに対応するレベル(info, warn, error)のログ(監視ログとアプリケーションログ)を出力する。
+    #. HandlerExceptionResolverLoggingInterceptorは、ExceptionHandlerExceptionResolverより返却されたView名を返却する。
+    #. DispatcherServletは、返却されたView名に対応するThymeleafテンプレートを呼び出す。
+    #. \ **Thymeleafは、プロセッサを使用して、メッセージ情報(ResultMessage)を取得し、メッセージ表示用のHTMLコードを生成する。**\
+    #. Thymeleafで生成されたレスポンスが表示される。
 
 |
 
@@ -611,22 +655,44 @@ java.lang.Errorを継承しているエラー
 | 下記の図は、 共通ライブラリから提供しているシステム例外(\ ``org.terasoluna.gfw.common.exception.SystemException``\ )を、\ ``org.terasoluna.gfw.web.exception.SystemExceptionResolver``\ を使ってハンドリングする場合の基本フローである。
 | ログは、例外ハンドリングメソッドの引数に指定された例外を記録するインタセプタ(\ ``org.terasoluna.gfw.web.exception.HandlerExceptionResolverLoggingInterceptor``\ )を使用して、出力する。
 
-.. figure:: ./images_ExceptionHandling/exception-handling-flow-resolver.png
-  :alt: flow of exception handling using resolver
-  :width: 80%
-  :align: center
+.. tabs::
+  .. group-tab:: JSP
 
-  \ **図-サーブレット単位でフレームワークがハンドリングする場合の基本フロー**\
+    .. figure:: ./images_ExceptionHandling/exception-handling-flow-resolver-jsp.png
+      :alt: flow of exception handling using resolver
+      :width: 80%
+      :align: center
+    
+      \ **図-サーブレット単位でフレームワークがハンドリングする場合の基本フロー**\
+    
+    4. Serviceクラスにて、システム例外に該当する状態を検知したため、SystemExceptionを発生させる。
+    #. DispatcherServletは、SystemExceptionを捕捉し、SystemExceptionResolverを呼び出す。
+    #. SystemExceptionResolverは、SystemExceptionから例外コードを取得し、画面表示用にHttpServletRequestに設定する(6')。
+    #. SystemExceptionResolverは、SystemException発生時の遷移先のView名を返却する。
+    #. HandlerExceptionResolverLoggingInterceptorは、ExceptionLoggerを呼び出し、HTTPステータスコードに対応するレベル(info, warn, error)のログ(監視ログとアプリケーションログ)を出力する。
+    #. HandlerExceptionResolverLoggingInterceptorは、SystemExceptionResolverより返却されたView名を返却する。
+    #. DispatcherServletは、返却されたView名に対応するJSPを呼び出す。
+    #. \ **JSPは、HttpServletRequestより例外コードを取得し、メッセージ表示用のHTMLコードに埋め込む。**\
+    #. JSPで生成されたレスポンスが表示される。
 
-4. Serviceクラスにて、システム例外に該当する状態を検知したため、SystemExceptionを発生させる。
-#. DispatcherServletは、SystemExceptionを捕捉し、SystemExceptionResolverを呼び出す。
-#. SystemExceptionResolverは、SystemExceptionから例外コードを取得し、画面表示用にHttpServletRequestに設定する(6')。
-#. SystemExceptionResolverは、SystemException発生時の遷移先のView名を返却する。
-#. HandlerExceptionResolverLoggingInterceptorは、ExceptionLoggerを呼び出し、HTTPステータスコードに対応するレベル(info, warn, error)のログ(監視ログとアプリケーションログ)を出力する。
-#. HandlerExceptionResolverLoggingInterceptorは、SystemExceptionResolverより返却されたView名を返却する。
-#. DispatcherServletは、返却されたView名に対応するJSPを呼び出す。
-#. \ **JSPは、HttpServletRequestより例外コードを取得し、メッセージ表示用のHTMLコードに埋め込む。**\
-#. JSPで生成されたレスポンスが表示される。
+  .. group-tab:: Thymeleaf
+
+    .. figure:: ./images_ExceptionHandling/exception-handling-flow-resolver-thymeleaf.png
+      :alt: flow of exception handling using resolver
+      :width: 80%
+      :align: center
+    
+      \ **図-サーブレット単位でフレームワークがハンドリングする場合の基本フロー**\
+    
+    4. Serviceクラスにて、システム例外に該当する状態を検知したため、SystemExceptionを発生させる。
+    #. DispatcherServletは、SystemExceptionを捕捉し、SystemExceptionResolverを呼び出す。
+    #. SystemExceptionResolverは、SystemExceptionから例外コードを取得し、画面表示用にHttpServletRequestに設定する(6')。
+    #. SystemExceptionResolverは、SystemException発生時の遷移先のView名を返却する。
+    #. HandlerExceptionResolverLoggingInterceptorは、ExceptionLoggerを呼び出し、HTTPステータスコードに対応するレベル(info, warn, error)のログ(監視ログとアプリケーションログ)を出力する。
+    #. HandlerExceptionResolverLoggingInterceptorは、SystemExceptionResolverより返却されたView名を返却する。
+    #. DispatcherServletは、返却されたView名に対応するThymeleafテンプレートを呼び出す。
+    #. \ **Thymeleafは、プロセッサを使用して、HttpServletRequestより例外コードを取得し、メッセージ表示用のHTMLコードに埋め込む。**\
+    #. Thymeleafで生成されたレスポンスが表示される。
 
 |
 
@@ -635,7 +701,7 @@ java.lang.Errorを継承しているエラー
 Webアプリケーション単位でサーブレットコンテナがハンドリングする場合の基本フロー
 ''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
 | 例外をWebアプリケーション単位でハンドリングする場合、サーブレットコンテナで捕捉し、例外処理を行う。
-| 致命的なエラー、フレームワークでハンドリング対象となっていない例外(JSP内で発生した例外など)、Filterで発生した例外をハンドリングする。
+| 致命的なエラー、フレームワークでハンドリング対象となっていない例外(JSP/Thymeleaf内で発生した例外など)、Filterで発生した例外をハンドリングする。
 | 基本フローは以下の通りである。
 | 下記フローは、java.lang.Exceptionを、"error page"でハンドリングする場合のフローである。
 | ログ出力は、ハンドリングされていない例外が発生したことを記録するサーブレットフィルタ(\ ``org.terasoluna.gfw.web.exception.ExceptionLoggingFilter``\ )を使用して、出力する。
@@ -691,77 +757,142 @@ How to use
 
 1. 例外のログ出力を行うロガークラス（\ ``ExceptionLogger``\ ）を、bean定義に追加する。
 
-- \ **applicationContext.xml**\
+.. tabs::
+  .. group-tab:: Java Config
 
-  .. code-block:: xml
-    :emphasize-lines: 3,5,11,16-17
+    - \ **ApplicationContextConfig.java**\
+    
+      .. code-block:: java
 
-    <!-- Exception Code Resolver. -->
-    <bean id="exceptionCodeResolver"
-        class="org.terasoluna.gfw.common.exception.SimpleMappingExceptionCodeResolver"> <!-- (1) -->
-        <!-- Setting and Customization by project. -->
-        <property name="exceptionMappings"> <!-- (2) -->
-            <map>
-                <entry key="ResourceNotFoundException" value="e.xx.fw.5001" />
-                <entry key="BusinessException" value="e.xx.fw.8001" />
-            </map>
-        </property>
-        <property name="defaultExceptionCode" value="e.xx.fw.9001" /> <!-- (3) -->
-    </bean>
+        // (1)
+        @Bean("exceptionCodeResolver")
+        public ExceptionCodeResolver exceptionCodeResolver() {
+            LinkedHashMap<String, String> map = new LinkedHashMap<>();
+            map.put("ResourceNotFoundException", "e.xx.fw.5001");
+            map.put("BusinessException", "e.xx.fw.8001");
+            bean.setExceptionMappings(map); //(2)
+            bean.setDefaultExceptionCode("e.xx.fw.9001"); // (3)
+            return bean;
+        }
 
-    <!-- Exception Logger. -->
-    <bean id="exceptionLogger"
-        class="org.terasoluna.gfw.common.exception.ExceptionLogger"> <!-- (4) -->
-        <property name="exceptionCodeResolver" ref="exceptionCodeResolver" /> <!-- (5) -->
-    </bean>
+        // (4)
+        @Bean("exceptionLogger")
+        public ExceptionLogger exceptionLogger() {
+            ExceptionLogger bean = new ExceptionLogger();
+            bean.setExceptionCodeResolver(exceptionCodeResolver()); // (5)
+            return bean;
+        }
+    
+      .. tabularcolumns:: |p{0.10\linewidth}|p{0.90\linewidth}|
+      .. list-table::
+        :header-rows: 1
+        :widths: 10 90
+        :class: longtable
+    
+        * - 項番
+          - 説明
+        * - | (1)
+          - | \ ``ExceptionCodeResolver``\ を、bean定義に追加する。
+        * - | (2)
+          - | ハンドリング対象とする例外名と、適用する「例外コード(メッセージID)」のマッピングを指定する。
+            | 上記の設定例では、例外クラス(又は親クラス)のクラス名に、\ ``BusinessException``\ が含まれている場合は、"e.xx.fw.8001"、 \ ``ResourceNotFoundException``\ が含まれている場合は、"e.xx.fw.5001"が「例外コード(メッセージID)」となる。
+    
+            .. note:: \ **例外コード(メッセージID)について**\
+    
+              ここでは、\ ``BusinessException``\ に、メッセージIDが指定されなかった場合の対応で定義をしているが、後述の\ ``BusinessException``\ を発生させる実装側で、メッセージIDを指定することを推奨する。
+    
+              \ ``BusinessException``\ に対する「例外コード(メッセージID)」の指定は、\ ``BusinessException``\ 発生時に指定されなかった場合の救済策である。
+    
+            | \ **【プロジェクト毎にカスタマイズする箇所】**\
+        * - | (3)
+          - | デフォルトの「例外コード(メッセージID)」を指定する。
+            | 上記の設定例では、例外クラス(または親クラス)のクラス名に\ ``BusinessException``\ 、または\ ``ResourceNotFoundException``\ が含まれない場合、"e.xx.fw.9001"が例外コード(メッセージID)」となる。
+            | \ **【プロジェクト毎にカスタマイズする箇所】**\
+    
+            .. note:: \ **例外コード(メッセージID)について**\
+    
+              例外コードは、ExceptionLoggerによりログに出力される。（画面での取得も可能である。View(JSP/テンプレートHTML)から例外コードを参照する方法については、\ :ref:`exception-handling-how-to-use-codingpoint-view-exceptioncode-label`\ を参照されたい。）
+    
+              またコード体系については、プロパティに定義している形式でなくともよい。
+    
+              例えば、MA7001等。
+    
+        * - | (4)
+          - | \ ``ExceptionLogger``\ を、bean定義に追加する。
+        * - | (5)
+          - | \ ``ExceptionCodeResolver``\ をDIする。
 
-  .. tabularcolumns:: |p{0.10\linewidth}|p{0.90\linewidth}|
-  .. list-table::
-    :header-rows: 1
-    :widths: 10 90
-    :class: longtable
+  .. group-tab:: XML Config
 
-    * - 項番
-      - 説明
-    * - | (1)
-      - | \ ``ExceptionCodeResolver``\ を、bean定義に追加する。
-    * - | (2)
-      - | ハンドリング対象とする例外名と、適用する「例外コード(メッセージID)」のマッピングを指定する。
-        | 上記の設定例では、例外クラス(又は親クラス)のクラス名に、"BusinessException"が含まれている場合は、"e.xx.fw.8001"、 "ResourceNotFoundException"が含まれている場合は、"e.xx.fw.5001"が「例外コード(メッセージID)」となる。
+    - \ **applicationContext.xml**\
+    
+      .. code-block:: xml
+    
+        <!-- Exception Code Resolver. -->
+        <bean id="exceptionCodeResolver"
+            class="org.terasoluna.gfw.common.exception.SimpleMappingExceptionCodeResolver"> <!-- (1) -->
+            <!-- Setting and Customization by project. -->
+            <property name="exceptionMappings"> <!-- (2) -->
+                <map>
+                    <entry key="ResourceNotFoundException" value="e.xx.fw.5001" />
+                    <entry key="BusinessException" value="e.xx.fw.8001" />
+                </map>
+            </property>
+            <property name="defaultExceptionCode" value="e.xx.fw.9001" /> <!-- (3) -->
+        </bean>
+    
+        <!-- Exception Logger. -->
+        <bean id="exceptionLogger"
+            class="org.terasoluna.gfw.common.exception.ExceptionLogger"> <!-- (4) -->
+            <property name="exceptionCodeResolver" ref="exceptionCodeResolver" /> <!-- (5) -->
+        </bean>
+    
+      .. tabularcolumns:: |p{0.10\linewidth}|p{0.90\linewidth}|
+      .. list-table::
+        :header-rows: 1
+        :widths: 10 90
+        :class: longtable
+    
+        * - 項番
+          - 説明
+        * - | (1)
+          - | \ ``ExceptionCodeResolver``\ を、bean定義に追加する。
+        * - | (2)
+          - | ハンドリング対象とする例外名と、適用する「例外コード(メッセージID)」のマッピングを指定する。
+            | 上記の設定例では、例外クラス(又は親クラス)のクラス名に、\ ``BusinessException``\ が含まれている場合は、"e.xx.fw.8001"、 \ ``ResourceNotFoundException``\ が含まれている場合は、"e.xx.fw.5001"が「例外コード(メッセージID)」となる。
+    
+            .. note:: \ **例外コード(メッセージID)について**\
+    
+              ここでは、\ ``BusinessException``\ に、メッセージIDが指定されなかった場合の対応で定義をしているが、後述の\ ``BusinessException``\ を発生させる実装側で、メッセージIDを指定することを推奨する。
+    
+              \ ``BusinessException``\ に対する「例外コード(メッセージID)」の指定は、\ ``BusinessException``\ 発生時に指定されなかった場合の救済策である。
+    
+            | \ **【プロジェクト毎にカスタマイズする箇所】**\
+        * - | (3)
+          - | デフォルトの「例外コード(メッセージID)」を指定する。
+            | 上記の設定例では、例外クラス(または親クラス)のクラス名に\ ``BusinessException``\ 、または\ ``ResourceNotFoundException``\ が含まれない場合、"e.xx.fw.9001"が例外コード(メッセージID)」となる。
+            | \ **【プロジェクト毎にカスタマイズする箇所】**\
+    
+            .. note:: \ **例外コード(メッセージID)について**\
+    
+              例外コードは、ExceptionLoggerによりログに出力される。（画面での取得も可能である。View(JSP/テンプレートHTML)から例外コードを参照する方法については、\ :ref:`exception-handling-how-to-use-codingpoint-view-exceptioncode-label`\ を参照されたい。）
+    
+              またコード体系については、プロパティに定義している形式でなくともよい。
+    
+              例えば、MA7001等。
+    
+        * - | (4)
+          - | \ ``ExceptionLogger``\ を、bean定義に追加する。
+        * - | (5)
+          - | \ ``ExceptionCodeResolver``\ をDIする。
 
-        .. note:: \ **例外コード(メッセージID)について**\
-
-          ここでは、"BusinessException"に、メッセージIDが指定されなかった場合の対応で定義をしているが、後述の"BusinessException"を発生させる実装側で、メッセージIDを指定することを推奨する。
-
-          "BusinessException"に対する「例外コード(メッセージID)」の指定は、"BusinessException"発生時に指定されなかった場合の救済策である。
-
-        | \ **【プロジェクト毎にカスタマイズする箇所】**\
-    * - | (3)
-      - | デフォルトの「例外コード(メッセージID)」を指定する。
-        | 上記の設定例では、例外クラス(または親クラス)のクラス名に"BusinessException"、または"ResourceNotFoundException"が含まれない場合、"e.xx.fw.9001"が例外コード(メッセージID)」となる。
-        | \ **【プロジェクト毎にカスタマイズする箇所】**\
-
-        .. note:: \ **例外コード(メッセージID)について**\
-
-          例外コードは、ExceptionLoggerによりログに出力される。（画面での取得も可能である。View(JSP)から例外コードを参照する方法については、\ :ref:`exception-handling-how-to-use-codingpoint-view-exceptioncode-label`\ を参照されたい。）
-
-          またコード体系については、プロパティに定義している形式でなくともよい。
-
-          例えば、MA7001等。
-
-    * - | (4)
-      - | \ ``ExceptionLogger``\ を、bean定義に追加する。
-    * - | (5)
-      - | \ ``ExceptionCodeResolver``\ をDIする。
-
-2. ログ定義を追加する。
+1. ログ定義を追加する。
 
 - \ **logback.xml**\
 
  監視ログ用のログ定義を追加する。
 
   .. code-block:: xml
-    :emphasize-lines: 1,13-15
 
     <appender name="MONITORING_LOG_FILE" class="ch.qos.logback.core.rolling.RollingFileAppender"> <!-- (1) -->
         <file>${app.log.dir:-log}/projectName-monitoring.log</file>
@@ -807,7 +938,6 @@ How to use
   アプリケーションログ用のログ定義を追加する。
 
   .. code-block:: xml
-    :emphasize-lines: 1,13
 
     <appender name="APPLICATION_LOG_FILE" class="ch.qos.logback.core.rolling.RollingFileAppender"> <!-- (1) -->
         <file>${app.log.dir:-log}/projectName-application.log</file>
@@ -864,38 +994,78 @@ How to use
 ''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
 ResultMessagesを保持する例外(BisinessException,ResourceNotFoundException)が発生した際に、ログを出力するためのインタセプタクラス（\ ``ResultMessagesLoggingInterceptor``\ ）と、AOPの設定を、bean定義に追加する。
 
-- \ **xxx-domain.xml**\
-
 .. _exception-handling-how-to-use-service-pointcut-aop-label:
 
-  .. code-block:: xml
-    :emphasize-lines: 3,4,10
+.. tabs::
+  .. group-tab:: Java Config
 
-    <!-- interceptor bean. -->
-    <bean id="resultMessagesLoggingInterceptor"
-          class="org.terasoluna.gfw.common.exception.ResultMessagesLoggingInterceptor"> <!-- (1) -->
-          <property name="exceptionLogger" ref="exceptionLogger" /> <!-- (2) -->
-    </bean>
+    - \ **XxxDomainConfig.java**\
+    
+      .. code-block:: java
 
-    <!-- setting AOP. -->
-    <aop:config>
-        <aop:advisor advice-ref="resultMessagesLoggingInterceptor"
-                     pointcut="@within(org.springframework.stereotype.Service)" /> <!-- (3) -->
-    </aop:config>
+        // (1)
+        @Bean("resultMessagesLoggingInterceptor")
+        public ResultMessagesLoggingInterceptor resultMessagesLoggingInterceptor(
+                ExceptionLogger exceptionLogger) {
+            ResultMessagesLoggingInterceptor bean = new ResultMessagesLoggingInterceptor();
+            bean.setExceptionLogger(exceptionLogger); // (2)
+            return bean;
+        }
 
-  .. tabularcolumns:: |p{0.10\linewidth}|p{0.90\linewidth}|
-  .. list-table::
-    :header-rows: 1
-    :widths: 10 90
+        @Bean
+        public Advisor resultMessagesLoggingInterceptorAdvisor(
+                ResultMessagesLoggingInterceptor resultMessagesLoggingInterceptor) {
+            AspectJExpressionPointcut pointcut = new AspectJExpressionPointcut();
+            pointcut.setExpression(
+                    "@within(org.springframework.stereotype.Service)"); // (3)
+            return new DefaultPointcutAdvisor(pointcut, resultMessagesLoggingInterceptor);
+        }
 
-    * - 項番
-      - 説明
-    * - | (1)
-      - | \ ``ResultMessagesLoggingInterceptor``\ を、bean定義に追加する。
-    * - | (2)
-      - | 例外のログ出力を行うロガーオブジェクトをDIする。\ ``applicationContext.xml``\ に定義している "exceptionLogger" を指定する。
-    * - | (3)
-      - | Serviceクラス(\ ``@Service``\ アノテーションが付いているクラス)のメソッドに対して、ResultMessagesLoggingInterceptorを適用する。
+      .. tabularcolumns:: |p{0.10\linewidth}|p{0.90\linewidth}|
+      .. list-table::
+        :header-rows: 1
+        :widths: 10 90
+    
+        * - 項番
+          - 説明
+        * - | (1)
+          - | \ ``ResultMessagesLoggingInterceptor``\ を、bean定義に追加する。
+        * - | (2)
+          - | 例外のログ出力を行うロガーオブジェクトをDIする。\ ``ApplicationContextConfig.java``\ に定義している\ ``exceptionLogger``\ を指定する。
+        * - | (3)
+          - | Serviceクラス(\ ``@Service``\ アノテーションが付いているクラス)のメソッドに対して、ResultMessagesLoggingInterceptorを適用する。
+
+  .. group-tab:: XML Config
+
+    - \ **xxx-domain.xml**\
+    
+      .. code-block:: xml
+    
+        <!-- interceptor bean. -->
+        <bean id="resultMessagesLoggingInterceptor"
+              class="org.terasoluna.gfw.common.exception.ResultMessagesLoggingInterceptor"> <!-- (1) -->
+              <property name="exceptionLogger" ref="exceptionLogger" /> <!-- (2) -->
+        </bean>
+    
+        <!-- setting AOP. -->
+        <aop:config>
+            <aop:advisor advice-ref="resultMessagesLoggingInterceptor"
+                         pointcut="@within(org.springframework.stereotype.Service)" /> <!-- (3) -->
+        </aop:config>
+    
+      .. tabularcolumns:: |p{0.10\linewidth}|p{0.90\linewidth}|
+      .. list-table::
+        :header-rows: 1
+        :widths: 10 90
+    
+        * - 項番
+          - 説明
+        * - | (1)
+          - | \ ``ResultMessagesLoggingInterceptor``\ を、bean定義に追加する。
+        * - | (2)
+          - | 例外のログ出力を行うロガーオブジェクトをDIする。\ ``applicationContext.xml``\ に定義している\ ``exceptionLogger``\ を指定する。
+        * - | (3)
+          - | Serviceクラス(\ ``@Service``\ アノテーションが付いているクラス)のメソッドに対して、ResultMessagesLoggingInterceptorを適用する。
 
 |
 
@@ -903,170 +1073,644 @@ ResultMessagesを保持する例外(BisinessException,ResourceNotFoundException)
 
 アプリケーション層の設定
 ''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
-<mvc:annotation-driven> を指定した際に、自動的に登録されるHandlerExceptionResolverによって、ハンドリングされない例外をハンドリングするためのクラス（\ ``SystemExceptionResolver``\ ）を、bean定義に追加する。
+\ ``WebMvcConfigurer``\ インタフェースを実装（もしくは\ ``<mvc:annotation-driven>``\ を指定）した際に、自動的に登録されるHandlerExceptionResolverによって、ハンドリングされない例外をハンドリングするためのクラス（\ ``SystemExceptionResolver``\ ）を、bean定義に追加する。
 
-- \ **spring-mvc.xml**\
+.. tabs::
+  .. group-tab:: Java Config
 
-  .. code-block:: xml
-    :emphasize-lines: 3-4,6-7,15,23,28-29,34
+    .. tabs::
+      .. group-tab:: JSP
+    
+        - \ **SpringMvcConfig.java**\
+        
+          .. code-block:: java
 
-    <!-- Setting Exception Handling. -->
-    <!-- Exception Resolver. -->
-    <bean class="org.terasoluna.gfw.web.exception.SystemExceptionResolver"> <!-- (1) -->
-        <property name="exceptionCodeResolver" ref="exceptionCodeResolver" /> <!-- (2) -->
-        <!-- Setting and Customization by project. -->
-        <property name="order" value="3" /> <!-- (3) -->
-        <property name="exceptionMappings"> <!-- (4) -->
-            <map>
-                <entry key="ResourceNotFoundException" value="common/error/resourceNotFoundError" />
-                <entry key="BusinessException" value="common/error/businessError" />
-                <entry key="InvalidTransactionTokenException" value="common/error/transactionTokenError" />
-                <entry key=".DataAccessException" value="common/error/dataAccessError" />
-            </map>
-        </property>
-        <property name="statusCodes"> <!-- (5) -->
-            <map>
-                <entry key="common/error/resourceNotFoundError" value="404" />
-                <entry key="common/error/businessError" value="409" />
-                <entry key="common/error/transactionTokenError" value="409" />
-                <entry key="common/error/dataAccessError" value="500" />
-            </map>
-        </property>
-        <property name="excludedExceptions"> <!-- (6) -->
-            <array>
-            </array>
-        </property>
-        <property name="defaultErrorView" value="common/error/systemError" /> <!-- (7) -->
-        <property name="defaultStatusCode" value="500" /> <!-- (8) -->
-    </bean>
+            @EnableAspectJAutoProxy
+            @EnableWebMvc
+            @Configuration
+            public class SpringMvcConfig implements WebMvcConfigurer {
 
-    <!-- Settings View Resolver. -->
-    <mvc:view-resolvers>
-        <mvc:jsp prefix="/WEB-INF/views/" /> <!-- (9) -->
-    </mvc:view-resolvers>
+                // (1)
+                @Bean("systemExceptionResolver")
+                public SystemExceptionResolver systemExceptionResolver(
+                        ExceptionCodeResolver exceptionCodeResolver) {
+                    SystemExceptionResolver bean = new SystemExceptionResolver();
+                    bean.setExceptionCodeResolver(exceptionCodeResolver); // (2)
+                    bean.setOrder(3); // (3)
+    
+                    Properties exceptionMappings = new Properties();
+                    exceptionMappings.setProperty("ResourceNotFoundException",
+                            "common/error/resourceNotFoundError");
+                    exceptionMappings.setProperty("BusinessException",
+                            "common/error/businessError");
+                    exceptionMappings.setProperty("InvalidTransactionTokenException",
+                            "common/error/transactionTokenError");
+                    exceptionMappings.setProperty(".DataAccessException",
+                            "common/error/dataAccessError");
+                    bean.setExceptionMappings(exceptionMappings); // (4)
+            
+                    Properties statusCodes = new Properties();
+                    statusCodes.setProperty("common/error/resourceNotFoundError", String
+                            .valueOf(HttpStatus.NOT_FOUND.value()));
+                    statusCodes.setProperty("common/error/businessError", String
+                            .valueOf(HttpStatus.CONFLICT.value()));
+                    statusCodes.setProperty("common/error/transactionTokenError", String
+                            .valueOf(HttpStatus.CONFLICT.value()));
+                    statusCodes.setProperty("common/error/dataAccessError", String
+                            .valueOf(HttpStatus.INTERNAL_SERVER_ERROR.value()));
+                    bean.setStatusCodes(statusCodes); // (5)
+            
+                    // bean.setExcludedExceptions(); // (6)
+            
+                    bean.setDefaultErrorView("common/error/systemError"); // (7)
+                    bean.setDefaultStatusCode(HttpStatus.INTERNAL_SERVER_ERROR.value()); // (8)
+                    return bean;
+                }
+    
+                @Override
+                public void configureViewResolvers(ViewResolverRegistry registry) {
+                    registry.jsp("/WEB-INF/views/", ".jsp"); // (9)
+                }
+        
+          .. tabularcolumns:: |p{0.10\linewidth}|p{0.90\linewidth}|
+          .. list-table::
+            :header-rows: 1
+            :widths: 10 90
+            :class: longtable
+        
+            * - 項番
+              - 説明
+            * - | (1)
+              - | \ ``SystemExceptionResolver``\ を、bean定義に追加する。
+            * - | (2)
+              - | 例外コード(メッセージID)を解決するオブジェクトをDIする。\ ``ApplicationContextConfig.java``\ に定義している、\ ``exceptionCodeResolver``\ を指定する。
+            * - | (3)
+              - | ハンドリングの優先順位を指定する。値は、基本的に「3」で良い。\ ``WebMvcConfigurer``\ インタフェースを実装した際に、自動的に、\ :ref:`登録されるクラス<ExceptionHandling-annotation-driven>`\ の方が、優先順位が上となる。
+        
+                .. hint:: \ **DefaultHandlerExceptionResolverで行われる例外ハンドリングを無効化する方法**\
+        
+                    \ ``DefaultHandlerExceptionResolver``\ で例外ハンドリングされた場合、HTTPレスポンスコードは設定されるが、Viewの解決がされないため、Viewの解決は、\ ``web.xml``\ のError Pageで行う必要がある。
+        
+                    Viewの解決を\ ``web.xml``\ ではなく、\ ``HandlerExceptionResolver``\ で行いたい場合は、\ ``SystemExceptionResolver``\ の優先順位を「1」にすると、\ ``DefaultHandlerExceptionResolver``\ より前にハンドリング処理を実行することができる。
+        
+                    \ ``DefaultHandlerExceptionResolver``\ でハンドリングされた場合の、HTTPレスポンスコードのマッピングについては、\ :ref:`exception-handling-appendix-defaulthandlerexceptionresolver-label`\ を参照されたい。
+        
+            * - | (4)
+              - | ハンドリング対象とする例外名と、遷移先となるView名のマッピングを指定する。
+                | 上記の設定では、例外クラス(または親クラス)のクラス名に\ ``.DataAccessException``\ が含まれている場合、\ ``common/error/dataAccessError``\ が、遷移先のView名となる。
+                | 例外クラスが\ ``ResourceNotFoundException``\ の場合、\ ``common/error/resourceNotFoundError``\ が、遷移先のView名となる。
+                | \ **【プロジェクト毎にカスタマイズする箇所】**\
+            * - | (5)
+              - | 遷移先となるView名と、HTTPステータスコードのマッピングを指定する。
+                | 上記の設定では、View名が\ ``common/error/resourceNotFoundError``\ の場合に、"404(Not Found)"がHTTPステータスコードとなる。
+                | \ **【プロジェクト毎にカスタマイズする箇所】**\
+            * - | (6)
+              - | ハンドリング対象外とする例外クラスを指定する。
+                | ブランクプロジェクトでは空にしている。
+            * - | (7)
+              - | 遷移するデフォルトのView名を、指定する。
+                | 上記の設定では、例外クラスに\ ``ResourceNotFoundException``\ 、\ ``BusinessException``\ 、\ ``InvalidTransactionTokenException``\ や例外クラス(または親クラス)のクラス名に、\ ``.DataAccessException``\ が含まれない場合、\ ``common/error/systemError``\ が、遷移先のView名となる。
+                | \ **【プロジェクト毎にカスタマイズする箇所】**\
+            * - | (8)
+              - | レスポンスヘッダに設定するHTTPステータスコードのデフォルト値を指定する。\ **"500"(Internal Server Error)**\ を設定することを推奨する。
+        
+                .. warning:: \ **指定を省略した場合の挙動**\
+        
+                  \ **"200"(OK)**\ 扱いになるので、注意すること。
+            * - | (9)
+              - 実際に遷移する\ ``View``\ は、\ ``ViewResolver``\ の設定に依存する。
+        
+                上記の設定では、
+        
+                * \ ``/WEB-INF/views/common/error/systemError.jsp``\
+                * \ ``/WEB-INF/views/common/error/resourceNotFoundError.jsp``\
+                * \ ``/WEB-INF/views/common/error/businessError.jsp``\
+                * \ ``/WEB-INF/views/common/error/transactionTokenError.jsp``\
+                * \ ``/WEB-INF/views/common/error/dataAccessError.jsp``\
+        
+                が遷移先となる。
+    
+      .. group-tab:: Thymeleaf
+    
+        - \ **SpringMvcConfig.java**\
+        
+          .. code-block:: java
 
-  .. tabularcolumns:: |p{0.10\linewidth}|p{0.90\linewidth}|
-  .. list-table::
-    :header-rows: 1
-    :widths: 10 90
-    :class: longtable
+            @EnableAspectJAutoProxy
+            @EnableWebMvc
+            @Configuration
+            public class SpringMvcConfig implements WebMvcConfigurer {
 
-    * - 項番
-      - 説明
-    * - | (1)
-      - | \ ``SystemExceptionResolver``\ を、bean定義に追加する。
-    * - | (2)
-      - | 例外コード(メッセージID)を解決するオブジェクトをDIする。\ ``applicationContext.xml``\ に定義している、\ "exceptionCodeResolver"\ を指定する。
-    * - | (3)
-      - | ハンドリングの優先順位を指定する。値は、基本的に「3」で良い。\ ``<mvc:annotation-driven>``\ を指定した際に、自動的に、\ :ref:`登録されるクラス<ExceptionHandling-annotation-driven>`\ の方が、優先順位が上となる。
+                // (1)
+                @Bean("systemExceptionResolver")
+                public SystemExceptionResolver systemExceptionResolver(
+                        ExceptionCodeResolver exceptionCodeResolver) {
+                    SystemExceptionResolver bean = new SystemExceptionResolver();
+                    bean.setExceptionCodeResolver(exceptionCodeResolver); // (2)
+                    bean.setOrder(3); // (3)
+    
+                    Properties exceptionMappings = new Properties();
+                    exceptionMappings.setProperty("ResourceNotFoundException",
+                            "common/error/resourceNotFoundError");
+                    exceptionMappings.setProperty("BusinessException",
+                            "common/error/businessError");
+                    exceptionMappings.setProperty("InvalidTransactionTokenException",
+                            "common/error/transactionTokenError");
+                    exceptionMappings.setProperty(".DataAccessException",
+                            "common/error/dataAccessError");
+                    bean.setExceptionMappings(exceptionMappings); // (4)
+            
+                    Properties statusCodes = new Properties();
+                    statusCodes.setProperty("common/error/resourceNotFoundError", String
+                            .valueOf(HttpStatus.NOT_FOUND.value()));
+                    statusCodes.setProperty("common/error/businessError", String
+                            .valueOf(HttpStatus.CONFLICT.value()));
+                    statusCodes.setProperty("common/error/transactionTokenError", String
+                            .valueOf(HttpStatus.CONFLICT.value()));
+                    statusCodes.setProperty("common/error/dataAccessError", String
+                            .valueOf(HttpStatus.INTERNAL_SERVER_ERROR.value()));
+                    bean.setStatusCodes(statusCodes); // (5)
+            
+                    // bean.setExcludedExceptions(); // (6)
+            
+                    bean.setDefaultErrorView("common/error/systemError"); // (7)
+                    bean.setDefaultStatusCode(HttpStatus.INTERNAL_SERVER_ERROR.value()); // (8)
+                    return bean;
+                }
+    
+                @Override
+                public void configureViewResolvers(ViewResolverRegistry registry) {
+                    registry.viewResolver(thymeleafViewResolver()); // (9)
+                }        
 
-        .. hint:: \ **DefaultHandlerExceptionResolverで行われる例外ハンドリングを無効化する方法**\
+                @Bean
+                public ThymeleafViewResolver thymeleafViewResolver() {
+                    ThymeleafViewResolver bean = new ThymeleafViewResolver();
+                    bean.setTemplateEngine(templateEngine());
+                    
+                    // omitted
+            
+                    return bean;
+                }
+            
+                @Bean("templateResolver")
+                public ITemplateResolver templateResolver() {
+                    SpringResourceTemplateResolver bean = new SpringResourceTemplateResolver();
+                    bean.setPrefix("/WEB-INF/views/");
+                    bean.setSuffix(".html");
+                    
+                    // omitted
+            
+                    return bean;
+                }
+            
+                @Bean("templateEngine")
+                public SpringTemplateEngine templateEngine() {
+                    SpringTemplateEngine bean = new SpringTemplateEngine();
+                    bean.setTemplateResolver(templateResolver());
+                    
+                    // omitted
+            
+                    return bean;
+                }
+        
+          .. tabularcolumns:: |p{0.10\linewidth}|p{0.90\linewidth}|
+          .. list-table::
+            :header-rows: 1
+            :widths: 10 90
+            :class: longtable
+        
+            * - 項番
+              - 説明
+            * - | (1)
+              - | \ ``SystemExceptionResolver``\ を、bean定義に追加する。
+            * - | (2)
+              - | 例外コード(メッセージID)を解決するオブジェクトをDIする。\ ``ApplicationContextConfig.java``\ に定義している、\ ``exceptionCodeResolver``\ を指定する。
+            * - | (3)
+              - | ハンドリングの優先順位を指定する。値は、基本的に「3」で良い。\ ``WebMvcConfigurer``\ インタフェースを実装した際に、自動的に、\ :ref:`登録されるクラス<ExceptionHandling-annotation-driven>`\ の方が、優先順位が上となる。
+        
+                .. hint:: \ **DefaultHandlerExceptionResolverで行われる例外ハンドリングを無効化する方法**\
+        
+                    \ ``DefaultHandlerExceptionResolver``\ で例外ハンドリングされた場合、HTTPレスポンスコードは設定されるが、Viewの解決がされないため、Viewの解決は、\ ``web.xml``\ のError Pageで行う必要がある。
+        
+                    Viewの解決を\ ``web.xml``\ ではなく、\ ``HandlerExceptionResolver``\ で行いたい場合は、\ ``SystemExceptionResolver``\ の優先順位を「1」にすると、\ ``DefaultHandlerExceptionResolver``\ より前にハンドリング処理を実行することができる。
+        
+                    \ ``DefaultHandlerExceptionResolver``\ でハンドリングされた場合の、HTTPレスポンスコードのマッピングについては、\ :ref:`exception-handling-appendix-defaulthandlerexceptionresolver-label`\ を参照されたい。
+        
+            * - | (4)
+              - | ハンドリング対象とする例外名と、遷移先となるView名のマッピングを指定する。
+                | 上記の設定では、例外クラス(または親クラス)のクラス名に\ ``.DataAccessException``\ が含まれている場合、\ ``common/error/dataAccessError``\ が、遷移先のView名となる。
+                | 例外クラスが\ ``ResourceNotFoundException``\ の場合、\ ``common/error/resourceNotFoundError``\ が、遷移先のView名となる。
+                | \ **【プロジェクト毎にカスタマイズする箇所】**\
+            * - | (5)
+              - | 遷移先となるView名と、HTTPステータスコードのマッピングを指定する。
+                | 上記の設定では、View名が\ ``common/error/resourceNotFoundError``\ の場合に、"404(Not Found)"がHTTPステータスコードとなる。
+                | \ **【プロジェクト毎にカスタマイズする箇所】**\
+            * - | (6)
+              - | ハンドリング対象外とする例外クラスを指定する。
+                | ブランクプロジェクトでは空にしている。
+            * - | (7)
+              - | 遷移するデフォルトのView名を、指定する。
+                | 上記の設定では、例外クラスに\ ``ResourceNotFoundException``\ 、\ ``BusinessException``\ 、\ ``InvalidTransactionTokenException``\ や例外クラス(または親クラス)のクラス名に、\ ``.DataAccessException``\ が含まれない場合、"common/error/systemError"が、遷移先のView名となる。
+                | \ **【プロジェクト毎にカスタマイズする箇所】**\
+            * - | (8)
+              - | レスポンスヘッダに設定するHTTPステータスコードのデフォルト値を指定する。\ **"500"(Internal Server Error)**\ を設定することを推奨する。
+        
+                .. warning:: \ **指定を省略した場合の挙動**\
+        
+                  \ **"200"(OK)**\ 扱いになるので、注意すること。
+            * - | (9)
+              - 実際に遷移する\ ``View``\ は、\ ``ViewResolver``\ の設定に依存する。
+        
+                上記の設定では、
+        
+                * \ ``/WEB-INF/views/common/error/systemError.html``\
+                * \ ``/WEB-INF/views/common/error/resourceNotFoundError.html``\
+                * \ ``/WEB-INF/views/common/error/businessError.html``\
+                * \ ``/WEB-INF/views/common/error/transactionTokenError.html``\
+                * \ ``/WEB-INF/views/common/error/dataAccessError.html``\
+        
+                が遷移先となる。
 
-            \ ``DefaultHandlerExceptionResolver``\ で例外ハンドリングされた場合、HTTPレスポンスコードは設定されるが、Viewの解決がされないため、Viewの解決は、\ ``web.xml``\ のError Pageで行う必要がある。
+  .. group-tab:: XML Config
 
-            Viewの解決を\ ``web.xml``\ ではなく、\ ``HandlerExceptionResolver``\ で行いたい場合は、\ ``SystemExceptionResolver``\ の優先順位を「1」にすると、\ ``DefaultHandlerExceptionResolver``\ より前にハンドリング処理を実行することができる。
-
-            \ ``DefaultHandlerExceptionResolver``\ でハンドリングされた場合の、HTTPレスポンスコードのマッピングについては、\ :ref:`exception-handling-appendix-defaulthandlerexceptionresolver-label`\ を参照されたい。
-
-    * - | (4)
-      - | ハンドリング対象とする例外名と、遷移先となるView名のマッピングを指定する。
-        | 上記の設定では、例外クラス(または親クラス)のクラス名に".DataAccessException"が含まれている場合、"common/error/dataAccessError"が、遷移先のView名となる。
-        | 例外クラスが"ResourceNotFoundException"の場合、"common/error/resourceNotFoundError"が、遷移先のView名となる。
-        | \ **【プロジェクト毎にカスタマイズする箇所】**\
-    * - | (5)
-      - | 遷移先となるView名と、HTTPステータスコードのマッピングを指定する。
-        | 上記の設定では、View名が"common/error/resourceNotFoundError"の場合に、"404(Not Found)"がHTTPステータスコードとなる。
-        | \ **【プロジェクト毎にカスタマイズする箇所】**\
-    * - | (6)
-      - | ハンドリング対象外とする例外クラスを指定する。
-        | ブランクプロジェクトでは空にしている。
-    * - | (7)
-      - | 遷移するデフォルトのView名を、指定する。
-        | 上記の設定では、例外クラスに"ResourceNotFoundException"、"BusinessException"、"InvalidTransactionTokenException"や例外クラス(または親クラス)のクラス名に、".DataAccessException"が含まれない場合、"common/error/systemError"が、遷移先のView名となる。
-        | \ **【プロジェクト毎にカスタマイズする箇所】**\
-    * - | (8)
-      - | レスポンスヘッダに設定するHTTPステータスコードのデフォルト値を指定する。\ **"500"(Internal Server Error)**\ を設定することを推奨する。
-
-        .. warning:: \ **指定を省略した場合の挙動**\
-
-          \ **"200"(OK)**\ 扱いになるので、注意すること。
-    * - | (9)
-      - 実際に遷移する\ ``View``\ は、\ ``ViewResolver``\ の設定に依存する。
-
-        上記の設定では、
-
-        * \ ``/WEB-INF/views/common/error/systemError.jsp``\
-        * \ ``/WEB-INF/views/common/error/resourceNotFoundError.jsp``\
-        * \ ``/WEB-INF/views/common/error/businessError.jsp``\
-        * \ ``/WEB-INF/views/common/error/transactionTokenError.jsp``\
-        * \ ``/WEB-INF/views/common/error/dataAccessError.jsp``\
-
-        が遷移先となる。
+    .. tabs::
+      .. group-tab:: JSP
+    
+        - \ **spring-mvc.xml**\
+        
+          .. code-block:: xml
+        
+            <!-- Setting Exception Handling. -->
+            <!-- Exception Resolver. -->
+            <bean class="org.terasoluna.gfw.web.exception.SystemExceptionResolver"> <!-- (1) -->
+                <property name="exceptionCodeResolver" ref="exceptionCodeResolver" /> <!-- (2) -->
+                <!-- Setting and Customization by project. -->
+                <property name="order" value="3" /> <!-- (3) -->
+                <property name="exceptionMappings"> <!-- (4) -->
+                    <map>
+                        <entry key="ResourceNotFoundException" value="common/error/resourceNotFoundError" />
+                        <entry key="BusinessException" value="common/error/businessError" />
+                        <entry key="InvalidTransactionTokenException" value="common/error/transactionTokenError" />
+                        <entry key=".DataAccessException" value="common/error/dataAccessError" />
+                    </map>
+                </property>
+                <property name="statusCodes"> <!-- (5) -->
+                    <map>
+                        <entry key="common/error/resourceNotFoundError" value="404" />
+                        <entry key="common/error/businessError" value="409" />
+                        <entry key="common/error/transactionTokenError" value="409" />
+                        <entry key="common/error/dataAccessError" value="500" />
+                    </map>
+                </property>
+                <property name="excludedExceptions"> <!-- (6) -->
+                    <array>
+                    </array>
+                </property>
+                <property name="defaultErrorView" value="common/error/systemError" /> <!-- (7) -->
+                <property name="defaultStatusCode" value="500" /> <!-- (8) -->
+            </bean>
+        
+            <!-- Settings View Resolver. -->
+            <mvc:view-resolvers>
+                <mvc:jsp prefix="/WEB-INF/views/" /> <!-- (9) -->
+            </mvc:view-resolvers>
+        
+          .. tabularcolumns:: |p{0.10\linewidth}|p{0.90\linewidth}|
+          .. list-table::
+            :header-rows: 1
+            :widths: 10 90
+            :class: longtable
+        
+            * - 項番
+              - 説明
+            * - | (1)
+              - | \ ``SystemExceptionResolver``\ を、bean定義に追加する。
+            * - | (2)
+              - | 例外コード(メッセージID)を解決するオブジェクトをDIする。\ ``applicationContext.xml``\ に定義している、\ "exceptionCodeResolver"\ を指定する。
+            * - | (3)
+              - | ハンドリングの優先順位を指定する。値は、基本的に「3」で良い。\ ``<mvc:annotation-driven>``\ を指定した際に、自動的に、\ :ref:`登録されるクラス<ExceptionHandling-annotation-driven>`\ の方が、優先順位が上となる。
+        
+                .. hint:: \ **DefaultHandlerExceptionResolverで行われる例外ハンドリングを無効化する方法**\
+        
+                    \ ``DefaultHandlerExceptionResolver``\ で例外ハンドリングされた場合、HTTPレスポンスコードは設定されるが、Viewの解決がされないため、Viewの解決は、\ ``web.xml``\ のError Pageで行う必要がある。
+        
+                    Viewの解決を\ ``web.xml``\ ではなく、\ ``HandlerExceptionResolver``\ で行いたい場合は、\ ``SystemExceptionResolver``\ の優先順位を「1」にすると、\ ``DefaultHandlerExceptionResolver``\ より前にハンドリング処理を実行することができる。
+        
+                    \ ``DefaultHandlerExceptionResolver``\ でハンドリングされた場合の、HTTPレスポンスコードのマッピングについては、\ :ref:`exception-handling-appendix-defaulthandlerexceptionresolver-label`\ を参照されたい。
+        
+            * - | (4)
+              - | ハンドリング対象とする例外名と、遷移先となるView名のマッピングを指定する。
+                | 上記の設定では、例外クラス(または親クラス)のクラス名に\ ``.DataAccessException``\ が含まれている場合、\ ``common/error/dataAccessError``\ が、遷移先のView名となる。
+                | 例外クラスが\ ``ResourceNotFoundException``\ の場合、\ ``common/error/resourceNotFoundError``\ が、遷移先のView名となる。
+                | \ **【プロジェクト毎にカスタマイズする箇所】**\
+            * - | (5)
+              - | 遷移先となるView名と、HTTPステータスコードのマッピングを指定する。
+                | 上記の設定では、View名が\ ``common/error/resourceNotFoundError``\ の場合に、"404(Not Found)"がHTTPステータスコードとなる。
+                | \ **【プロジェクト毎にカスタマイズする箇所】**\
+            * - | (6)
+              - | ハンドリング対象外とする例外クラスを指定する。
+                | ブランクプロジェクトでは空にしている。
+            * - | (7)
+              - | 遷移するデフォルトのView名を、指定する。
+                | 上記の設定では、例外クラスに\ ``ResourceNotFoundException``\ 、\ ``BusinessException``\ 、\ ``InvalidTransactionTokenException``\ や例外クラス(または親クラス)のクラス名に、\ ``.DataAccessException``\ が含まれない場合、"common/error/systemError"が、遷移先のView名となる。
+                | \ **【プロジェクト毎にカスタマイズする箇所】**\
+            * - | (8)
+              - | レスポンスヘッダに設定するHTTPステータスコードのデフォルト値を指定する。\ **"500"(Internal Server Error)**\ を設定することを推奨する。
+        
+                .. warning:: \ **指定を省略した場合の挙動**\
+        
+                  \ **"200"(OK)**\ 扱いになるので、注意すること。
+            * - | (9)
+              - 実際に遷移する\ ``View``\ は、\ ``ViewResolver``\ の設定に依存する。
+        
+                上記の設定では、
+        
+                * \ ``/WEB-INF/views/common/error/systemError.jsp``\
+                * \ ``/WEB-INF/views/common/error/resourceNotFoundError.jsp``\
+                * \ ``/WEB-INF/views/common/error/businessError.jsp``\
+                * \ ``/WEB-INF/views/common/error/transactionTokenError.jsp``\
+                * \ ``/WEB-INF/views/common/error/dataAccessError.jsp``\
+        
+                が遷移先となる。
+    
+      .. group-tab:: Thymeleaf
+    
+        - \ **spring-mvc.xml**\
+        
+          .. code-block:: xml
+        
+            <!-- Setting Exception Handling. -->
+            <!-- Exception Resolver. -->
+            <bean class="org.terasoluna.gfw.web.exception.SystemExceptionResolver"> <!-- (1) -->
+                <property name="exceptionCodeResolver" ref="exceptionCodeResolver" /> <!-- (2) -->
+                <!-- Setting and Customization by project. -->
+                <property name="order" value="3" /> <!-- (3) -->
+                <property name="exceptionMappings"> <!-- (4) -->
+                    <map>
+                        <entry key="ResourceNotFoundException" value="common/error/resourceNotFoundError" />
+                        <entry key="BusinessException" value="common/error/businessError" />
+                        <entry key="InvalidTransactionTokenException" value="common/error/transactionTokenError" />
+                        <entry key=".DataAccessException" value="common/error/dataAccessError" />
+                    </map>
+                </property>
+                <property name="statusCodes"> <!-- (5) -->
+                    <map>
+                        <entry key="common/error/resourceNotFoundError" value="404" />
+                        <entry key="common/error/businessError" value="409" />
+                        <entry key="common/error/transactionTokenError" value="409" />
+                        <entry key="common/error/dataAccessError" value="500" />
+                    </map>
+                </property>
+                <property name="excludedExceptions"> <!-- (6) -->
+                    <array>
+                    </array>
+                </property>
+                <property name="defaultErrorView" value="common/error/systemError" /> <!-- (7) -->
+                <property name="defaultStatusCode" value="500" /> <!-- (8) -->
+            </bean>
+        
+            <!-- Settings View Resolver. -->
+            <mvc:view-resolvers>
+                <bean class="org.thymeleaf.spring6.view.ThymeleafViewResolver"> <!-- (9) -->
+                    <property name="templateEngine" ref="templateEngine" />
+                    <!-- omitted -->
+                </bean>
+            </mvc:view-resolvers>
+        
+            <bean id="templateResolver" class="org.thymeleaf.spring6.templateresolver.SpringResourceTemplateResolver">
+                <property name="prefix" value="/WEB-INF/views/" />
+                <property name="suffix" value=".html" />
+                <!-- omitted -->
+            </bean>
+        
+            <bean id="templateEngine" class="org.thymeleaf.spring6.SpringTemplateEngine">
+                <property name="templateResolver" ref="templateResolver" />
+                <!-- omitted -->
+            </bean>
+        
+          .. tabularcolumns:: |p{0.10\linewidth}|p{0.90\linewidth}|
+          .. list-table::
+            :header-rows: 1
+            :widths: 10 90
+            :class: longtable
+        
+            * - 項番
+              - 説明
+            * - | (1)
+              - | \ ``SystemExceptionResolver``\ を、bean定義に追加する。
+            * - | (2)
+              - | 例外コード(メッセージID)を解決するオブジェクトをDIする。\ ``applicationContext.xml``\ に定義している、\ "exceptionCodeResolver"\ を指定する。
+            * - | (3)
+              - | ハンドリングの優先順位を指定する。値は、基本的に「3」で良い。\ ``<mvc:annotation-driven>``\ を指定した際に、自動的に、\ :ref:`登録されるクラス<ExceptionHandling-annotation-driven>`\ の方が、優先順位が上となる。
+        
+                .. hint:: \ **DefaultHandlerExceptionResolverで行われる例外ハンドリングを無効化する方法**\
+        
+                    \ ``DefaultHandlerExceptionResolver``\ で例外ハンドリングされた場合、HTTPレスポンスコードは設定されるが、Viewの解決がされないため、Viewの解決は、\ ``web.xml``\ のError Pageで行う必要がある。
+        
+                    Viewの解決を\ ``web.xml``\ ではなく、\ ``HandlerExceptionResolver``\ で行いたい場合は、\ ``SystemExceptionResolver``\ の優先順位を「1」にすると、\ ``DefaultHandlerExceptionResolver``\ より前にハンドリング処理を実行することができる。
+        
+                    \ ``DefaultHandlerExceptionResolver``\ でハンドリングされた場合の、HTTPレスポンスコードのマッピングについては、\ :ref:`exception-handling-appendix-defaulthandlerexceptionresolver-label`\ を参照されたい。
+        
+            * - | (4)
+              - | ハンドリング対象とする例外名と、遷移先となるView名のマッピングを指定する。
+                | 上記の設定では、例外クラス(または親クラス)のクラス名に\ ``.DataAccessException``\ が含まれている場合、\ ``common/error/dataAccessError``\ が、遷移先のView名となる。
+                | 例外クラスが\ ``ResourceNotFoundException``\ の場合、\ ``common/error/resourceNotFoundError``\ が、遷移先のView名となる。
+                | \ **【プロジェクト毎にカスタマイズする箇所】**\
+            * - | (5)
+              - | 遷移先となるView名と、HTTPステータスコードのマッピングを指定する。
+                | 上記の設定では、View名が\ ``common/error/resourceNotFoundError``\ の場合に、"404(Not Found)"がHTTPステータスコードとなる。
+                | \ **【プロジェクト毎にカスタマイズする箇所】**\
+            * - | (6)
+              - | ハンドリング対象外とする例外クラスを指定する。
+                | ブランクプロジェクトでは空にしている。
+            * - | (7)
+              - | 遷移するデフォルトのView名を、指定する。
+                | 上記の設定では、例外クラスに\ ``ResourceNotFoundException``\ 、\ ``BusinessException``\ 、\ ``InvalidTransactionTokenException``\ や例外クラス(または親クラス)のクラス名に、\ ``.DataAccessException``\ が含まれない場合、"common/error/systemError"が、遷移先のView名となる。
+                | \ **【プロジェクト毎にカスタマイズする箇所】**\
+            * - | (8)
+              - | レスポンスヘッダに設定するHTTPステータスコードのデフォルト値を指定する。\ **"500"(Internal Server Error)**\ を設定することを推奨する。
+        
+                .. warning:: \ **指定を省略した場合の挙動**\
+        
+                  \ **"200"(OK)**\ 扱いになるので、注意すること。
+            * - | (9)
+              - 実際に遷移する\ ``View``\ は、\ ``ViewResolver``\ の設定に依存する。
+        
+                上記の設定では、
+        
+                * \ ``/WEB-INF/views/common/error/systemError.html``\
+                * \ ``/WEB-INF/views/common/error/resourceNotFoundError.html``\
+                * \ ``/WEB-INF/views/common/error/businessError.html``\
+                * \ ``/WEB-INF/views/common/error/transactionTokenError.html``\
+                * \ ``/WEB-INF/views/common/error/dataAccessError.html``\
+        
+                が遷移先となる。
 
 \ ``HandlerExceptionResolver``\ でハンドリングされた例外を、ログに出力するためのインタセプタクラス（\ ``HandlerExceptionResolverLoggingInterceptor``\ ）と、AOPの設定を、bean定義に追加する。
 
-- \ **spring-mvc.xml**\
+.. tabs::
+  .. group-tab:: Java Config
 
-  .. code-block:: xml
-    :emphasize-lines: 3,4,8
+    - \ **SpringMvcConfig.java**\
+    
+      .. code-block:: java
 
-    <!-- Setting AOP. -->
-    <bean id="handlerExceptionResolverLoggingInterceptor"
-        class="org.terasoluna.gfw.web.exception.HandlerExceptionResolverLoggingInterceptor"> <!-- (1) -->
-        <property name="exceptionLogger" ref="exceptionLogger" /> <!-- (2) -->
-    </bean>
-    <aop:config>
-        <aop:advisor advice-ref="handlerExceptionResolverLoggingInterceptor"
-            pointcut="execution(* org.springframework.web.servlet.HandlerExceptionResolver.resolveException(..))" /> <!-- (3) -->
-    </aop:config>
+        @EnableAspectJAutoProxy // (1)
+        @EnableWebMvc
+        @Configuration
+        public class SpringMvcConfig implements WebMvcConfigurer {
 
-  .. tabularcolumns:: |p{0.10\linewidth}|p{0.90\linewidth}|
-  .. list-table::
-    :header-rows: 1
-    :widths: 10 90
+            // (2)
+            @Bean("handlerExceptionResolverLoggingInterceptor")
+            public HandlerExceptionResolverLoggingInterceptor handlerExceptionResolverLoggingInterceptor(
+                    ExceptionLogger exceptionLogger) {
+                HandlerExceptionResolverLoggingInterceptor bean = new HandlerExceptionResolverLoggingInterceptor();
+                bean.setExceptionLogger(exceptionLogger); // (3)
+                return bean;
+            }
+        
+            @Bean
+            public Advisor handlerExceptionResolverLoggingInterceptorAdvisor(
+                    HandlerExceptionResolverLoggingInterceptor handlerExceptionResolverLoggingInterceptor) {
+                AspectJExpressionPointcut pointcut = new AspectJExpressionPointcut();
+                pointcut.setExpression(
+                        "execution(* org.springframework.web.servlet.HandlerExceptionResolver.resolveException(..))"); // (4)
+                return new DefaultPointcutAdvisor(pointcut, handlerExceptionResolverLoggingInterceptor);
+            }
+    
+      .. tabularcolumns:: |p{0.10\linewidth}|p{0.90\linewidth}|
+      .. list-table::
+        :header-rows: 1
+        :widths: 10 90
+    
+        * - 項番
+          - 説明
+        * - | (1)
+          - | \ ``@EnableAspectJAutoProxy``\ アノテーションを定義することにより、AspectJサポートを有効化する。
+    
+            .. Note:: \ **AspectJサポートの有効化について**\
+    
+              アノテーションベースのAOP設定を有効化する設定となるので、Java-based configurationで定義する場合や、AspectJが提供しているアノテーションを利用したインターセプタクラスを追加する場合は必要となる。
+    
+              Java-based configurationでは任意設定となるが、冗長で定義していてもアノテーションベースのAOP設定が有効化されるだけで、AOP自体の動作には影響はない。
+    
+              なお、AspectJサポートを有効化する場合は、アプリケーションコンテキスト単位で設定する必要があるため、\ ``ApplicationContextConfig.java``\ 、\ ``SpringMvcConfig.java``\ それぞれに定義する必要がある。
+    
+        * - | (2)
+          - | \ ``HandlerExceptionResolverLoggingInterceptor``\ を、bean定義に追加する。
+        * - | (3)
+          - | 例外のログ出力を行うロガーオブジェクトを、DIする。\ ``ApplicationContextConfig.java``\ に定義している\ ``exceptionLogger``\ を指定する。
+        * - | (4)
+          - | \ ``HandlerExceptionResolver``\ インタフェースのresolveExceptionメソッドに対して、\ ``HandlerExceptionResolverLoggingInterceptor``\ を適用する。
+            |
+            | デフォルトの設定では、共通ライブラリから提供している\ ``org.terasoluna.gfw.common.exception.ResultMessagesNotificationException``\ のサブクラスの例外は、このクラスで行われるログ出力の対象外となっている。
+            | \ ``ResultMessagesNotificationException``\ のサブクラスの例外をログ出力対象外としている理由は、 ``org.terasoluna.gfw.common.exception.ResultMessagesLoggingInterceptor``\ によってログ出力されるためである。
+            | デフォルトの設定を変更する必要がある場合は、 :ref:`exception-handling-about-handlerexceptionresolverlogginginterceptor`\ を参照されたい。
 
-    * - 項番
-      - 説明
-    * - | (1)
-      - | \ ``HandlerExceptionResolverLoggingInterceptor``\ を、bean定義に追加する。
-    * - | (2)
-      - | 例外のログ出力を行うロガーオブジェクトを、DIする。\ ``applicationContext.xml``\ に定義している\ "exceptionLogger"\ を指定する。
-    * - | (3)
-      - | \ ``HandlerExceptionResolver``\ インタフェースのresolveExceptionメソッドに対して、\ ``HandlerExceptionResolverLoggingInterceptor``\ を適用する。
-        |
-        | デフォルトの設定では、共通ライブラリから提供している\ ``org.terasoluna.gfw.common.exception.ResultMessagesNotificationException``\ のサブクラスの例外は、このクラスで行われるログ出力の対象外となっている。
-        | \ ``ResultMessagesNotificationException``\ のサブクラスの例外をログ出力対象外としている理由は、 ``org.terasoluna.gfw.common.exception.ResultMessagesLoggingInterceptor``\ によってログ出力されるためである。
-        | デフォルトの設定を変更する必要がある場合は、 :ref:`exception-handling-about-handlerexceptionresolverlogginginterceptor`\ を参照されたい。
+  .. group-tab:: XML Config
+
+    - \ **spring-mvc.xml**\
+    
+      .. code-block:: xml
+    
+        <!-- Setting AOP. -->
+        <aop:aspectj-autoproxy /> <!-- (1) -->
+        <bean id="handlerExceptionResolverLoggingInterceptor"
+            class="org.terasoluna.gfw.web.exception.HandlerExceptionResolverLoggingInterceptor"> <!-- (2) -->
+            <property name="exceptionLogger" ref="exceptionLogger" /> <!-- (3) -->
+        </bean>
+        <aop:config>
+            <aop:advisor advice-ref="handlerExceptionResolverLoggingInterceptor"
+                pointcut="execution(* org.springframework.web.servlet.HandlerExceptionResolver.resolveException(..))" /> <!-- (4) -->
+        </aop:config>
+    
+      .. tabularcolumns:: |p{0.10\linewidth}|p{0.90\linewidth}|
+      .. list-table::
+        :header-rows: 1
+        :widths: 10 90
+    
+        * - 項番
+          - 説明
+        * - | (1)
+          - | \ ``<aop:aspectj-autoproxy />``\ 要素を定義することにより、AspectJサポートを有効化する。
+    
+            .. Note:: \ **AspectJサポートの有効化について**\
+    
+              アノテーションベースのAOP設定を有効化する設定となるので、Java-based configurationで定義する場合や、AspectJが提供しているアノテーションを利用したインターセプタクラスを追加する場合は必要となる。
+    
+              XML-based configurationでは任意設定となるが、冗長で定義していてもアノテーションベースのAOP設定が有効化されるだけで、AOP自体の動作には影響はない。
+    
+              なお、AspectJサポートを有効化する場合は、アプリケーションコンテキスト単位で設定する必要があるため、\ ``applicationContext.xml``\ 、\ ``spring-mvc.xml``\ それぞれに定義する必要がある。
+    
+        * - | (2)
+          - | \ ``HandlerExceptionResolverLoggingInterceptor``\ を、bean定義に追加する。
+        * - | (3)
+          - | 例外のログ出力を行うロガーオブジェクトを、DIする。\ ``applicationContext.xml``\ に定義している\ ``exceptionLogger``\ を指定する。
+        * - | (4)
+          - | \ ``HandlerExceptionResolver``\ インタフェースのresolveExceptionメソッドに対して、\ ``HandlerExceptionResolverLoggingInterceptor``\ を適用する。
+            |
+            | デフォルトの設定では、共通ライブラリから提供している\ ``org.terasoluna.gfw.common.exception.ResultMessagesNotificationException``\ のサブクラスの例外は、このクラスで行われるログ出力の対象外となっている。
+            | \ ``ResultMessagesNotificationException``\ のサブクラスの例外をログ出力対象外としている理由は、 ``org.terasoluna.gfw.common.exception.ResultMessagesLoggingInterceptor``\ によってログ出力されるためである。
+            | デフォルトの設定を変更する必要がある場合は、 :ref:`exception-handling-about-handlerexceptionresolverlogginginterceptor`\ を参照されたい。
 
 致命的なエラー、Spring MVC管理外で発生する例外を、ログに出力するためのFilterクラス（\ ``ExceptionLoggingFilter``\ ）を、bean定義と\ ``web.xml``\ に追加する。
 
-- \ **applicationContext.xml**\
+.. tabs::
+  .. group-tab:: Java Config
 
-  .. code-block:: xml
-    :emphasize-lines: 3,4
+    - \ **ApplicationContextConfig.java**\
+    
+      .. code-block:: java
 
-    <!-- Filter. -->
-    <bean id="exceptionLoggingFilter"
-        class="org.terasoluna.gfw.web.exception.ExceptionLoggingFilter" > <!-- (1) -->
-        <property name="exceptionLogger" ref="exceptionLogger" /> <!-- (2) -->
-    </bean>
+        // (1)
+        @Bean("exceptionLoggingFilter")
+        public ExceptionLoggingFilter exceptionLoggingFilter(
+                ExceptionLogger exceptionLogger) {
+            ExceptionLoggingFilter bean = new ExceptionLoggingFilter();
+            bean.setExceptionLogger(exceptionLogger); // (2)
+            return bean;
+        }
 
-  .. tabularcolumns:: |p{0.10\linewidth}|p{0.90\linewidth}|
-  .. list-table::
-    :header-rows: 1
-    :widths: 10 90
+      .. tabularcolumns:: |p{0.10\linewidth}|p{0.90\linewidth}|
+      .. list-table::
+        :header-rows: 1
+        :widths: 10 90
+    
+        * - 項番
+          - 説明
+        * - | (1)
+          - | \ ``ExceptionLoggingFilter``\ を、bean定義に追加する。
+        * - | (2)
+          - | 例外のログ出力を行うロガーオブジェクトを、DIする。\ ``ApplicationContextConfig.java``\ に定義している\ ``exceptionLogger``\ を指定する。
 
-    * - 項番
-      - 説明
-    * - | (1)
-      - | \ ``ExceptionLoggingFilter``\ を、bean定義に追加する。
-    * - | (2)
-      - | 例外のログ出力を行うロガーオブジェクトを、DIする。\ ``applicationContext.xml``\ に定義している"exceptionLogger"を指定する。
+  .. group-tab:: XML Config
+
+    - \ **applicationContext.xml**\
+    
+      .. code-block:: xml
+    
+        <!-- Filter. -->
+        <bean id="exceptionLoggingFilter"
+            class="org.terasoluna.gfw.web.exception.ExceptionLoggingFilter" > <!-- (1) -->
+            <property name="exceptionLogger" ref="exceptionLogger" /> <!-- (2) -->
+        </bean>
+    
+      .. tabularcolumns:: |p{0.10\linewidth}|p{0.90\linewidth}|
+      .. list-table::
+        :header-rows: 1
+        :widths: 10 90
+    
+        * - 項番
+          - 説明
+        * - | (1)
+          - | \ ``ExceptionLoggingFilter``\ を、bean定義に追加する。
+        * - | (2)
+          - | 例外のログ出力を行うロガーオブジェクトを、DIする。\ ``applicationContext.xml``\ に定義している\ ``exceptionLogger``\ を指定する。
 
 - \ **web.xml**\
 
   .. code-block:: xml
-    :emphasize-lines: 2,3,6,7
 
     <filter>
         <filter-name>exceptionLoggingFilter</filter-name> <!-- (1) -->
@@ -1097,7 +1741,11 @@ ResultMessagesを保持する例外(BisinessException,ResourceNotFoundException)
 
   .. code-block:: text
 
+    (JSP)
     date:2013-09-25 19:51:52	thread:tomcat-http--3	X-Track:f94de92148f1489b9ceeac3b2f17c969	level:ERROR	logger:o.t.gfw.common.exception.ExceptionLogger        	message:[e.xx.fw.9001] An exception occurred processing JSP page /WEB-INF/views/exampleJSPException.jsp at line 13
+
+    (Thymeleaf)
+    date:2013-09-25 19:51:52	thread:tomcat-http--3	X-Track:f94de92148f1489b9ceeac3b2f17c969	level:ERROR	logger:o.t.gfw.common.exception.ExceptionLogger        	message:[e.xx.fw.9001] Request processing failed; nested exception is org.thymeleaf.exceptions.TemplateProcessingException: Exception evaluating SpringEL expression: "#messages.msgWithParams(message.code, message.args)" (template: "staff/register" - line 32, col 11)
 
 |
 
@@ -1107,58 +1755,114 @@ ResultMessagesを保持する例外(BisinessException,ResourceNotFoundException)
 ''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
 Spring MVCの、デフォルトの例外ハンドリング機能によって行われるエラー応答（HttpServletResponse#sendError）、致命的なエラー、Spring MVC管理外で発生する例外をハンドリングするために、サーブレットコンテナのError Page定義を追加する。
 
-- \ **web.xml**\
+.. tabs::
+  .. group-tab:: JSP
 
-  Spring MVCの、デフォルトの例外ハンドリング機能によって行われるエラー応答（HttpServletResponse#sendError）を、ハンドリングするための定義を追加する。
+    - \ **web.xml**\
+    
+      Spring MVCの、デフォルトの例外ハンドリング機能によって行われるエラー応答（HttpServletResponse#sendError）を、ハンドリングするための定義を追加する。
+    
+      .. code-block:: xml
+    
+        <error-page>
+            <!-- (1) -->
+            <error-code>404</error-code>
+            <!-- (2) -->
+            <location>/WEB-INF/views/common/error/resourceNotFoundError.jsp</location>
+        </error-page>
+    
+      .. tabularcolumns:: |p{0.10\linewidth}|p{0.90\linewidth}|
+      .. list-table::
+        :header-rows: 1
+        :widths: 10 90
+    
+        * - 項番
+          - 説明
+        * - | (1)
+          - | ハンドリング対象とする\ **HTTPレスポンスコード**\ を指定する。
+            | \ **【プロジェクト毎にカスタマイズする箇所】**\
+            | Spring MVCの、デフォルトの例外ハンドリング機能で応答されるHTTPレスポンスコードについては、\ :ref:`exception-handling-appendix-defaulthandlerexceptionresolver-label`\ を参照されたい。
+        * - | (2)
+          - | 遷移するファイル名を指定する。Webアプリケーションルートからのパスで、指定する。上記の設定では、"${WebAppRoot}/WEB-INF/views/common/error/resourceNotFoundError.jsp"が、遷移先のファイルとなる。
+            | \ **【プロジェクト毎にカスタマイズする箇所】**\
+    
+      |
 
-  .. code-block:: xml
+      致命的なエラー、Spring MVC管理外で発生する例外をハンドリングするための定義を追加する。
+    
+      .. code-block:: xml
+    
+        <error-page>
+            <!-- (3) -->
+            <location>/WEB-INF/views/common/error/unhandledSystemError.html</location>
+        </error-page>
+    
+      .. tabularcolumns:: |p{0.10\linewidth}|p{0.90\linewidth}|
+      .. list-table::
+        :header-rows: 1
+        :widths: 10 90
+    
+        * - 項番
+          - 説明
+        * - | (3)
+          - | 遷移するファイル名を指定する。Webアプリケーションルートからのパスで指定する。上記の設定では、"${WebAppRoot}/WEB-INF/views/common/error/unhandledSystemError.html"が、遷移先のファイルとなる。
+            | \ **【プロジェクト毎にカスタマイズする箇所】**\
 
-    <error-page>
-        <!-- (1) -->
-        <error-code>404</error-code>
-        <!-- (2) -->
-        <location>/WEB-INF/views/common/error/resourceNotFoundError.jsp</location>
-    </error-page>
+  .. group-tab:: Thymeleaf
 
-  .. tabularcolumns:: |p{0.10\linewidth}|p{0.90\linewidth}|
-  .. list-table::
-    :header-rows: 1
-    :widths: 10 90
+    - \ **web.xml**\
+    
+      Spring MVCの、デフォルトの例外ハンドリング機能によって行われるエラー応答（HttpServletResponse#sendError）を、ハンドリングするための定義を追加する。
+    
+      .. code-block:: xml
+    
+        <error-page>
+            <!-- (1) -->
+            <error-code>404</error-code>
+            <!-- (2) -->
+            <location>/common/error/resourceNotFoundError</location>
+        </error-page>
+    
+      .. tabularcolumns:: |p{0.10\linewidth}|p{0.90\linewidth}|
+      .. list-table::
+        :header-rows: 1
+        :widths: 10 90
+    
+        * - 項番
+          - 説明
+        * - | (1)
+          - | ハンドリング対象とする\ **HTTPレスポンスコード**\ を指定する。
+            | \ **【プロジェクト毎にカスタマイズする箇所】**\
+            | Spring MVCの、デフォルトの例外ハンドリング機能で応答されるHTTPレスポンスコードについては、\ :ref:`exception-handling-appendix-defaulthandlerexceptionresolver-label`\ を参照されたい。
+        * - | (2)
+          - | 遷移するパスを指定する。エラー画面を\ ``ThymeleafView``\ でレンダリングさせるため、直接HTMLファイルのパスを指定せず、エラー画面に遷移させるためのController（※ブランクプロジェクトで提供）でハンドリングされるようにしている。
+            | \ **【プロジェクト毎にカスタマイズする箇所】**\
+    
+      |
 
-    * - 項番
-      - 説明
-    * - | (1)
-      - | ハンドリング対象とする\ **HTTPレスポンスコード**\ を指定する。
-        | \ **【プロジェクト毎にカスタマイズする箇所】**\
-        | Spring MVCの、デフォルトの例外ハンドリング機能で応答されるHTTPレスポンスコードについては、\ :ref:`exception-handling-appendix-defaulthandlerexceptionresolver-label`\ を参照されたい。
-    * - | (2)
-      - | 遷移するファイル名を指定する。Webアプリケーションルートからのパスで、指定する。上記の設定では、"${WebAppRoot}/WEB-INF/views/common/error/resourceNotFoundError.jsp"が、遷移先のファイルとなる。
-        | \ **【プロジェクト毎にカスタマイズする箇所】**\
-
-  致命的なエラー、Spring MVC管理外で発生する例外をハンドリングするための定義を追加する。
-
-  .. code-block:: xml
-
-    <error-page>
-        <!-- (3) -->
-        <location>/WEB-INF/views/common/error/unhandledSystemError.html</location>
-    </error-page>
-
-  .. tabularcolumns:: |p{0.10\linewidth}|p{0.90\linewidth}|
-  .. list-table::
-   :header-rows: 1
-   :widths: 10 90
-
-   * - 項番
-     - 説明
-   * - | (3)
-     - | 遷移するファイル名を指定する。Webアプリケーションルートからのパスで指定する。上記の設定では、"${WebAppRoot}/WEB-INF/views/common/error/unhandledSystemError.html"が、遷移先のファイルとなる。
-       | \ **【プロジェクト毎にカスタマイズする箇所】**\
+      致命的なエラー、Spring MVC管理外で発生する例外をハンドリングするための定義を追加する。
+    
+      .. code-block:: xml
+    
+        <error-page>
+            <!-- (3) -->
+            <location>/WEB-INF/views/common/error/unhandledSystemError.html</location>
+        </error-page>
+    
+      .. tabularcolumns:: |p{0.10\linewidth}|p{0.90\linewidth}|
+      .. list-table::
+        :header-rows: 1
+        :widths: 10 90
+    
+        * - 項番
+          - 説明
+        * - | (3)
+          - | 遷移するファイル名を指定する。Webアプリケーションルートからのパスで指定する。上記の設定では、"${WebAppRoot}/WEB-INF/views/common/error/unhandledSystemError.html"が、遷移先のファイルとなる。
+            | \ **【プロジェクト毎にカスタマイズする箇所】**\
 
 .. note:: \ **locationに指定するパスについて**\
 
-  動的コンテンツのパスを指定した場合、致命的なエラーが発生していた場合に、別のエラーが発生する可能性が高くなるため、
-  locationには、JSPなどの動的コンテンツでなく、\ **HTMLなどの静的コンテンツへのパスを指定することを推奨する。**\
+  動的コンテンツのパスを指定した場合、致命的なエラーが発生していた場合に、別のエラーが発生する可能性が高くなるため、locationには、JSP/Thymeleafなどの動的コンテンツでなく、\ **HTMLなどの静的コンテンツへのパスを指定することを推奨する。**\
 
 .. note:: \ **開発中に原因が特定できないエラーが発生した場合**\
 
@@ -1168,27 +1872,54 @@ Spring MVCの、デフォルトの例外ハンドリング機能によって行�
 
   Spring MVC管理外で発生する例外を、個別にハンドリングする必要がある場合は、例外毎の定義を追加する。
 
-    .. code-block:: xml
-
-      <error-page>
-          <!-- (4) -->
-          <exception-type>java.io.IOException</exception-type>
-          <!-- (5) -->
-          <location>/WEB-INF/views/common/error/systemError.jsp</location>
-      </error-page>
-
-    .. tabularcolumns:: |p{0.10\linewidth}|p{0.90\linewidth}|
-    .. list-table::
-      :header-rows: 1
-      :widths: 10 90
-
-      * - 項番
-        - 説明
-      * - | (4)
-        - | ハンドリング対象とする\ **例外クラス名(FQCN)**\ を指定する。
-      * - | (5)
-        - | 遷移するファイル名を指定する。Webアプリケーションルートからのパスで指定する。上記の設定では、"${WebAppRoot}/WEB-INF/views/common/error/systemError.jsp"が遷移先のファイルとなる。
-          | \ **【プロジェクト毎にカスタマイズする箇所】**\
+    .. tabs::
+      .. group-tab:: JSP
+    
+        .. code-block:: xml
+    
+          <error-page>
+              <!-- (4) -->
+              <exception-type>java.io.IOException</exception-type>
+              <!-- (5) -->
+              <location>/WEB-INF/views/common/error/systemError.jsp</location>
+          </error-page>
+    
+        .. tabularcolumns:: |p{0.10\linewidth}|p{0.90\linewidth}|
+        .. list-table::
+          :header-rows: 1
+          :widths: 10 90
+    
+          * - 項番
+            - 説明
+          * - | (4)
+            - | ハンドリング対象とする\ **例外クラス名(FQCN)**\ を指定する。
+          * - | (5)
+            - | 遷移するファイル名を指定する。Webアプリケーションルートからのパスで指定する。上記の設定では、"${WebAppRoot}/WEB-INF/views/common/error/systemError.jsp"が遷移先のファイルとなる。
+              | \ **【プロジェクト毎にカスタマイズする箇所】**\
+  
+      .. group-tab:: Thymeleaf
+  
+        .. code-block:: xml
+    
+          <error-page>
+              <!-- (4) -->
+              <exception-type>java.io.IOException</exception-type>
+              <!-- (5) -->
+              <location>/common/error/systemError</location>
+          </error-page>
+    
+        .. tabularcolumns:: |p{0.10\linewidth}|p{0.90\linewidth}|
+        .. list-table::
+          :header-rows: 1
+          :widths: 10 90
+    
+          * - 項番
+            - 説明
+          * - | (4)
+            - | ハンドリング対象とする\ **例外クラス名(FQCN)**\ を指定する。
+          * - | (5)
+            - | 遷移するパスを指定する。エラー画面を\ ``ThymeleafView``\ でレンダリングさせるため、直接HTMLファイルのパスを指定せず、エラー画面に遷移させるためのController（※ブランクプロジェクトで提供）でハンドリングされるようにしている。
+              | \ **【プロジェクト毎にカスタマイズする箇所】**\
 
 |
 
@@ -1223,7 +1954,7 @@ Spring MVCの、デフォルトの例外ハンドリング機能によって行�
   - | デフォルトでは、ビジネス例外は、Serviceで発生させることを想定している。\ :ref:`AOPの設定<exception-handling-how-to-use-service-pointcut-aop-label>`\ で、\ ``@Service``\ アノテーションを付与したクラスで発生したビジネス例外のログを出力としている。
     | Controllerなどでビジネス例外は、ログを出力しない。プロジェクトでの考えがある場合は変更すること。
 
-- xxxService.java
+- XxxService.java
 
   .. code-block:: java
 
@@ -1263,9 +1994,9 @@ Spring MVCの、デフォルトの例外ハンドリング機能によって行�
 
   .. tip::
 
-    上記の\ ``xxxService.java``\ は説明用に(2)-(4)に分けて処理をしているが、1ステップで実装することができる。
+    上記の\ ``XxxService.java``\ は説明用に(2)-(4)に分けて処理をしているが、1ステップで実装することができる。
 
-     .. code-block:: java
+      .. code-block:: java
 
         throw new BusinessException(ResultMessages.error().add(
              "e.ad.od.5001", stockQuantity));
@@ -1431,7 +2162,7 @@ Spring MVCの、デフォルトの例外ハンドリング機能によって行�
 
     共通ライブラリでは、アプリケーションログと監視ログを同時に出力する機能を持つ\ ``org.terasoluna.gfw.common.exception.ExceptionLogger``\ を提供している。
 
-    アプリケーションログと合わせて、監視ログの出力も必要となる場合には、\ ``ExceptionLogger``\を使用する事を推奨する。
+    アプリケーションログと合わせて、監視ログの出力も必要となる場合には、\ ``ExceptionLogger``\ を使用する事を推奨する。
 
 | 下記は、外部システムから、顧客対応履歴の取得に失敗した場合に、顧客対応履歴以外の情報を取得する処理を、継続する場合の例である。
 | この例では、顧客対応履歴の情報が取得できなくても、業務は継続できるため、処理を継続している。
@@ -1618,9 +2349,9 @@ Spring MVCの、デフォルトの例外ハンドリング機能によって行�
 
 .. _exception-handling-how-to-use-codingpoint-jsp-label:
 
-コーディングポイント（JSP編）
+コーディングポイント（JSP/Thymeleaf編）
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-例外ハンドリングを行う際の、JSPでのコーディングポイントを、以下に示す。
+例外ハンドリングを行う際の、JSP/テンプレートHTMLでのコーディングポイントを、以下に示す。
 
 #. \ :ref:`exception-handling-how-to-use-codingpoint-jsp-panel-label`\
 #. \ :ref:`exception-handling-how-to-use-codingpoint-view-exceptioncode-label`\
@@ -1637,54 +2368,111 @@ Spring MVCの、デフォルトの例外ハンドリング機能によって行�
 
 .. _exception-handling-how-to-use-codingpoint-jsp-panel-label:
 
-MessagesPanelTagを使用して、メッセージを画面表示する方法
+メッセージを画面表示する方法
 '''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
 任意の場所に、ResultMessagesを出力する際の実装例を、以下に示す。
 
-  .. code-block:: xml
+.. tabs::
+  .. group-tab:: JSP
 
-    <t:messagesPanel /> <!-- (1) -->
+    .. code-block:: jsp
+  
+      <t:messagesPanel /> <!-- (1) -->
+  
+    .. tabularcolumns:: |p{0.10\linewidth}|p{0.90\linewidth}|
+    .. list-table::
+      :header-rows: 1
+      :widths: 10 90
+  
+      * - 項番
+        - 説明
+      * - | (1)
+        -  メッセージを出力したい場所に、<t:messagesPanel>タグを指定する。 <t:messagesPanel>タグの使用方法の詳細については、\ :doc:`../WebApplicationDetail/MessageManagement`\ を参照されたい。
 
-  .. tabularcolumns:: |p{0.10\linewidth}|p{0.90\linewidth}|
-  .. list-table::
-    :header-rows: 1
-    :widths: 10 90
+  .. group-tab:: Thymeleaf
 
-    * - 項番
-      - 説明
-    * - | (1)
-      -  メッセージを出力したい場所に、<t:messagesPanel>タグを指定する。 <t:messagesPanel>タグの使用方法の詳細については、\ :doc:`../WebApplicationDetail/MessageManagement`\ を参照されたい。
+    .. code-block:: html
+  
+      <div th:if="${resultMessages} != null" class="alert"
+          th:classappend="|alert-${resultMessages.type}|"> <!--/* (1) */-->
+          <ul>
+              <!--/* (2) */-->
+              <li th:each="message : ${resultMessages}"
+                  th:text="${message.code} != null ? ${#messages.msgWithParams(message.code, message.args)} : ${message.text}">
+              </li>
+          </ul>
+      </div>
+  
+    .. tabularcolumns:: |p{0.10\linewidth}|p{0.90\linewidth}|
+    .. list-table::
+      :header-rows: 1
+      :widths: 10 90
+  
+      * - 項番
+        - 説明
+      * - | (1)
+        - 属性名が"resultMessages"のオブジェクトがnullでないとき、\ ``<div>``\ とその配下の要素が実行される。
+      * - | (2)
+        - 属性名が"resultMessages"のオブジェクトに格納された\ ``message``\ 変数を、Thymeleafのメッセージ式\ ``#messages``\ を使用して繰り返し取得し、出力する。
+
+    .. note::
+
+      JSPタグである\ ``<t:messagesPanel>``\ のデフォルト設定で出力するHTMLを生成するソースコードを記述している。
+
+      詳細は、\ :doc:`../WebApplicationDetail/MessageManagement`\ を参照されたい。
 
 |
 
 .. _exception-handling-how-to-use-codingpoint-view-exceptioncode-label:
 
-システム例外の例外コードを、画面表示する方法
+例外コードを画面表示する方法
 '''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
 任意の場所に、例外コード(メッセージID)と、固定メッセージを表示する際の実装例を、以下に示す。
 
-  .. code-block:: xml
+.. tabs::
+  .. group-tab:: JSP
 
-    <p>
-        <c:if test="${!empty exceptionCode}">  <!-- (1) -->
-            [${f:h(exceptionCode)}]            <!-- (2) -->
-        </c:if>
-        <spring:message code="e.cm.fw.9999" /> <!-- (3) -->
-    </p>
+    .. code-block:: jsp
+  
+      <p>
+          <c:if test="${!empty exceptionCode}">  <!-- (1) -->
+              [${f:h(exceptionCode)}]            <!-- (2) -->
+          </c:if>
+          <spring:message code="e.cm.fw.9999" /> <!-- (3) -->
+      </p>
+  
+    .. tabularcolumns:: |p{0.10\linewidth}|p{0.90\linewidth}|
+    .. list-table::
+      :header-rows: 1
+      :widths: 10 90
+  
+      * - 項番
+        - 説明
+      * - | (1)
+        - | 例外コード(メッセージID)の存在チェックを行う。上記の実装例のように、記号などで例外コード(メッセージID)を囲む場合は、存在チェックを行うこと。
+      * - | (2)
+        - | 例外コード(メッセージID)を出力する。
+      * - | (3)
+        - | メッセージ定義より取得した、固定メッセージを出力する。
 
-  .. tabularcolumns:: |p{0.10\linewidth}|p{0.90\linewidth}|
-  .. list-table::
-    :header-rows: 1
-    :widths: 10 90
+  .. group-tab:: Thymeleaf
 
-    * - 項番
-      - 説明
-    * - | (1)
-      - | 例外コード(メッセージID)の存在チェックを行う。上記の実装例のように、記号などで例外コード(メッセージID)を囲む場合は、存在チェックを行うこと。
-    * - | (2)
-      - | 例外コード(メッセージID)を出力する。
-    * - | (3)
-      - | メッセージ定義より取得した、固定メッセージを出力する。
+    .. code-block:: html
+  
+      <p th:text="${#strings.isEmpty(exceptionCode)} ? #{e.cm.fw.9999} : |[${exceptionCode}] #{${e.cm.fw.9999}}|"></p> <!--/* (1) */-->
+  
+    .. tabularcolumns:: |p{0.10\linewidth}|p{0.90\linewidth}|
+    .. list-table::
+      :header-rows: 1
+      :widths: 10 90
+  
+      * - 項番
+        - 説明
+      * - | (1)
+        - | Thymeleafのユーティリティオブジェクトを利用して例外コード(メッセージID)の存在チェックを行う。上記の実装例では、3項演算子を用いて存在チェック結果により出力内容を変えている。
+          | 存在しない場合、メッセージ定義より取得した固定メッセージを出力する。
+          | 存在する場合、例外コード(メッセージID)と、メッセージ定義より取得した固定メッセージを合わせて出力する。
+          | 上記の実装例のように、記号などで例外コード(メッセージID)を囲む場合は、存在チェックを行うこと。
 
 - 出力画面（exceptionCode有り）
 
@@ -1735,7 +2523,7 @@ Appendix
 | クラスの役割は、以下の通りである。
 
 .. tabularcolumns:: |p{0.10\linewidth}|p{0.20\linewidth}|p{0.65\linewidth}|
-.. list-table:: **表- org.terasoluna.gfw.common.exception パッケージ配下のクラス**
+.. list-table:: \ **表- org.terasoluna.gfw.common.exception パッケージ配下のクラス**\
   :header-rows: 1
   :widths: 10 20 65
   :class: longtable
@@ -1822,8 +2610,10 @@ Appendix
     - | 例外コードを保持する役割があることを示すインタフェースで、共通ライブラリでは、\ ``SystemException``\ が実装している。
       | 本インタフェースを実装した例外クラスを作成すると、共通ライブラリから提供している例外ハンドリング処理にて、例外で保持している例外コードで、そのまま使われる。
 
+|
+
 .. tabularcolumns:: |p{0.10\linewidth}|p{0.20\linewidth}|p{0.65\linewidth}|
-.. list-table:: **表- org.terasoluna.gfw.web.exception パッケージ配下のクラス**
+.. list-table:: \ **表- org.terasoluna.gfw.web.exception パッケージ配下のクラス**\
   :header-rows: 1
   :widths: 10 20 65
 
@@ -1833,7 +2623,7 @@ Appendix
   * - | (13)
     - | SystemException
       | Resolver
-    - | \ ``<mvc:annotation-driven>``\ を指定した際に、自動的に登録される\ ``HandlerExceptionResolver``\ によって、ハンドリングされない例外をハンドリングするためのクラス。
+    - | \ ``WebMvcConfigurer``\ インタフェースを実装（もしくは\ ``<mvc:annotation-driven>``\ を指定）した際に、自動的に登録される\ ``HandlerExceptionResolver``\ によって、ハンドリングされない例外をハンドリングするためのクラス。
       | Spring MVCより提供されている\ ``SimpleMappingExceptionResolver``\ を継承し、例外コード及びResultMessagesを、Viewから参照できるように機能追加を行っている。
   * - | (14)
     - | HandlerException
@@ -1847,7 +2637,7 @@ Appendix
       |   4. "-99"の場合は ログ出力しない。
       | 本Interceptorを使用することで、Spring MVC管理下で発生する全ての例外を、ログに出力することができる。
       | ログは、\ ``ExceptionLogger``\ を使用して出力している。
-      | プロジェクトの要件に応じて\ ``log``\メソッドを拡張することで、デフォルトの挙動を変更してログ出力することが可能である。
+      | プロジェクトの要件に応じて\ ``log``\ メソッドを拡張することで、デフォルトの挙動を変更してログ出力することが可能である。
   * - | (15)
     - | ExceptionLogging
       | Filter
@@ -1880,14 +2670,14 @@ SystemExceptionResolverの設定項目について
     - | 結果メッセージの属性名
     - | resultMessagesAttribute
     - | ビジネス例外に設定されているメッセージ情報として、モデルに設定する際の属性名(String)を指定する。
-      | View(JSP)から結果メッセージにアクセスする際の、属性名となる。
+      | View(JSP/テンプレートHTML)から結果メッセージにアクセスする際の、属性名となる。
     - resultMessages
   * - | (2)
     - | 例外コード(メッセージID)の属性名
     - | exceptionCode
       | Attribute
     - | 例外コード(メッセージID)として、HttpServletRequestに設定する際の属性名(String)を指定する。
-      | View(JSP)から例外コード(メッセージID)にアクセスする際の属性名となる。
+      | View(JSP/テンプレートHTML)から例外コード(メッセージID)にアクセスする際の属性名となる。
     - exceptionCode
   * - | (3)
     - | 例外コード(メッセージID)のヘッダ名
@@ -1899,7 +2689,7 @@ SystemExceptionResolverの設定項目について
     - | 例外オブジェクトの属性名
     - | exceptionAttribute
     - | ハンドリングした例外オブジェクトとして、モデルに設定する際の属性名(String)を指定する。
-      | View(JSP)から例外オブジェクトにアクセスする際の属性名となる。
+      | View(JSP/テンプレートHTML)から例外オブジェクトにアクセスする際の属性名となる。
     - exception
   * - | (5)
     - | 本ExceptionResolverとして、使用するハンドラー(Controller)のオブジェクト一覧
@@ -1934,39 +2724,87 @@ SystemExceptionResolverの設定項目について
 
 結果メッセージの属性名
 '''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
-| SystemExceptionResolverでハンドリングして設定したメッセージと、アプリケーションコードでハンドリングして設定したメッセージを、View(JSP)で別のmessagesPanelとして出力したい場合は、SystemExceptionResolver専用の属性名を指定する。
+| SystemExceptionResolverでハンドリングして設定したメッセージと、アプリケーションコードでハンドリングして設定したメッセージを、View(JSP/テンプレートHTML)で別のmessagesPanelとして出力したい場合は、SystemExceptionResolver専用の属性名を指定する。
 | 下記に示す例は、デフォルト値から「resultMessagesForExceptionResolver」に変更する場合の、設定&実装例である。
 
-- \ **spring-mvc.xml**\
+.. tabs::
+  .. group-tab:: Java Config
 
-  .. code-block:: xml
+    - \ **SpringMvcConfig.java**\
+    
+      .. code-block:: java
 
-    <bean class="org.terasoluna.gfw.web.exception.SystemExceptionResolver">
+        @Bean("systemExceptionResolver")
+        public SystemExceptionResolver systemExceptionResolver(
+                ExceptionCodeResolver exceptionCodeResolver) {
+    
+            // omitted
 
-        <!-- omitted -->
+            bean.setResultMessagesAttribute(resultMessagesForExceptionResolver()); // (1)
 
-        <property name="resultMessagesAttribute" value="resultMessagesForExceptionResolver" /> <!-- (1) -->
+  .. group-tab:: XML Config
 
-        <!-- omitted -->
-    </bean>
+    - \ **spring-mvc.xml**\
+    
+      .. code-block:: xml
+    
+        <bean class="org.terasoluna.gfw.web.exception.SystemExceptionResolver">
+    
+            <!-- omitted -->
+    
+            <property name="resultMessagesAttribute" value="resultMessagesForExceptionResolver" /> <!-- (1) -->
+    
+            <!-- omitted -->
+        </bean>
 
-- \ **jsp**\
+- \ **View**\
 
-  .. code-block:: xml
+.. tabs::
+  .. group-tab:: JSP
 
-    <t:messagesPanel messagesAttributeName="resultMessagesForExceptionResolver"/> <!-- (2) -->
+    .. code-block:: jsp
+  
+      <t:messagesPanel messagesAttributeName="resultMessagesForExceptionResolver"/> <!-- (2) -->
+  
+    .. tabularcolumns:: |p{0.10\linewidth}|p{0.90\linewidth}|
+    .. list-table::
+      :header-rows: 1
+      :widths: 10 90
+  
+      * - 項番
+        - 説明
+      * - | (1)
+        - | 結果メッセージの属性名(resultMessagesAttribute)に、\ ``resultMessagesForExceptionResolver``\ を指定する。
+      * - | (2)
+        - | メッセージ属性名(messagesAttributeName)に、SystemExceptionResolverで設定した属性名を指定する。
 
-  .. tabularcolumns:: |p{0.10\linewidth}|p{0.90\linewidth}|
-  .. list-table::
-    :header-rows: 1
-    :widths: 10 90
+  .. group-tab:: Thymeleaf
 
-    * - 項番
-      - 説明
-    * - | (1)
-      - | 結果メッセージの属性名(resultMessagesAttribute)に、"resultMessagesForExceptionResolver"を指定する。
-    * - | (2)
-      - | メッセージ属性名(messagesAttributeName)に、SystemExceptionResolverで設定した属性名を指定する。
+    .. code-block:: html
+  
+      <div th:if="${resultMessagesForExceptionResolver} != null" class="alert"
+          th:classappend="|alert-${resultMessagesForExceptionResolver.type}|"> <!--/* (2) */-->
+          <ul>
+              <!--/* (3) */-->
+              <li th:each="message : ${resultMessagesForExceptionResolver}"
+                  th:text="${message.code} != null ? ${#messages.msgWithParams(message.code, message.args)} : ${message.text}">
+              </li>
+          </ul>
+      </div>
+  
+    .. tabularcolumns:: |p{0.10\linewidth}|p{0.90\linewidth}|
+    .. list-table::
+      :header-rows: 1
+      :widths: 10 90
+  
+      * - 項番
+        - 説明
+      * - | (1)
+        - | 結果メッセージの属性名(resultMessagesAttribute)に、\ ``resultMessagesForExceptionResolver``\ を指定する。
+      * - | (2)
+        - | SystemExceptionResolverで設定した属性名のオブジェクトがnullでないとき、\ ``<div>``\ とその配下の要素が実行される。
+      * - | (3)
+        - | SystemExceptionResolverで設定した属性名のオブジェクトに格納された\ ``message``\ 変数を、Thymeleafのメッセージ式\ ``#messages``\ を使用して繰り返し取得し、出力する。
 
 |
 
@@ -1975,43 +2813,98 @@ SystemExceptionResolverの設定項目について
 | デフォルトの属性名をアプリケーションコードで使用している場合は、重複を避けるために、別の値を設定すること。重複がない場合は、デフォルト値を変更する必要はない。
 | 下記は、デフォルト値から、「exceptionCodeForExceptionResolver」に変更する場合の、設定&実装例である。
 
-- \ **spring-mvc.xml**\
+.. tabs::
+  .. group-tab:: Java Config
 
-  .. code-block:: xml
+    - \ **SpringMvcConfig.java**\
+    
+      .. code-block:: java
 
-    <bean class="org.terasoluna.gfw.web.exception.SystemExceptionResolver">
+        @Bean("systemExceptionResolver")
+        public SystemExceptionResolver systemExceptionResolver(
+                ExceptionCodeResolver exceptionCodeResolver) {
+    
+            // omitted
 
-        <!-- omitted -->
+            bean.setExceptionCodeAttribute(exceptionCodeForExceptionResolver()); // (1)    
+    
+      .. tabularcolumns:: |p{0.10\linewidth}|p{0.90\linewidth}|
+      .. list-table::
+        :header-rows: 1
+        :widths: 10 90
+      
+        * - 項番
+          - 説明
+        * - | (1)
+          - | 例外コード(メッセージID)の属性名(exceptionCodeAttribute)に、\ ``exceptionCodeForExceptionResolver``\ を指定する。
 
-        <property name="exceptionCodeAttribute" value="exceptionCodeForExceptionResolver" /> <!-- (1) -->
+  .. group-tab:: XML Config
 
-        <!-- omitted -->
-    </bean>
+    - \ **spring-mvc.xml**\
+    
+      .. code-block:: xml
+    
+        <bean class="org.terasoluna.gfw.web.exception.SystemExceptionResolver">
+    
+            <!-- omitted -->
+    
+            <property name="exceptionCodeAttribute" value="exceptionCodeForExceptionResolver" /> <!-- (1) -->
+    
+            <!-- omitted -->
+        </bean>
+    
+      .. tabularcolumns:: |p{0.10\linewidth}|p{0.90\linewidth}|
+      .. list-table::
+        :header-rows: 1
+        :widths: 10 90
+      
+        * - 項番
+          - 説明
+        * - | (1)
+          - | 例外コード(メッセージID)の属性名(exceptionCodeAttribute)に、\ ``exceptionCodeForExceptionResolver``\ を指定する。
 
-- \ **jsp**\
+- \ **View**\
 
-  .. code-block:: xml
+.. tabs::
+  .. group-tab:: JSP
 
-    <p>
-        <c:if test="${!empty exceptionCodeForExceptionResolver}">  <!-- (2) -->
-            [${f:h(exceptionCodeForExceptionResolver)}]            <!-- (3) -->
-        </c:if>
-        <spring:message code="e.cm.fw.9999" />
-    </p>
+    .. code-block:: jsp
+  
+      <p>
+          <c:if test="${!empty exceptionCodeForExceptionResolver}">  <!-- (2) -->
+              [${f:h(exceptionCodeForExceptionResolver)}]            <!-- (3) -->
+          </c:if>
+          <spring:message code="e.cm.fw.9999" />
+      </p>
+  
+    .. tabularcolumns:: |p{0.10\linewidth}|p{0.90\linewidth}|
+    .. list-table::
+      :header-rows: 1
+      :widths: 10 90
+  
+      * - 項番
+        - 説明
+      * - | (2)
+        - | SystemExceptionResolverに設定した値(exceptionCodeForExceptionResolver)を、テスト対象(空チェック対応)の変数名として指定する。
+      * - | (3)
+        - | SystemExceptionResolverに設定した値(exceptionCodeForExceptionResolver)を、出力対象の変数名として指定する。
 
-  .. tabularcolumns:: |p{0.10\linewidth}|p{0.90\linewidth}|
-  .. list-table::
-    :header-rows: 1
-    :widths: 10 90
+  .. group-tab:: Thymeleaf
 
-    * - 項番
-      - 説明
-    * - | (1)
-      - | 例外コード(メッセージID)の属性名(exceptionCodeAttribute)に、"exceptionCodeForExceptionResolver"を指定する。
-    * - | (2)
-      - | SystemExceptionResolverに設定した値(exceptionCodeForExceptionResolver)を、テスト対象(空チェック対応)の変数名として指定する。
-    * - | (3)
-      - | SystemExceptionResolverに設定した値(exceptionCodeForExceptionResolver)を、出力対象の変数名として指定する。
+    .. code-block:: html
+  
+      <p th:text="${#strings.isEmpty(exceptionCodeForExceptionResolver)} ? #{e.cm.fw.9999} : |[${exceptionCodeForExceptionResolver}] #{${e.cm.fw.9999}}|"></p> <!--/* (2) */-->
+  
+    .. tabularcolumns:: |p{0.10\linewidth}|p{0.90\linewidth}|
+    .. list-table::
+      :header-rows: 1
+      :widths: 10 90
+  
+      * - 項番
+        - 説明
+      * - | (2)
+        - | SystemExceptionResolverに設定した値(exceptionCodeForExceptionResolver)を、テスト対象(空チェック対応)の変数名として指定する。
+          | 例外コード(メッセージID)が存在する場合の出力時に、SystemExceptionResolverに設定した値(exceptionCodeForExceptionResolver)を、出力対象の変数名として指定する。
 
 |
 
@@ -2020,28 +2913,55 @@ SystemExceptionResolverの設定項目について
 | デフォルトのヘッダ名が使用されている場合、重複を避けるために、別の値を設定すること。重複がない場合は、デフォルト値を変更する必要はない。
 | 下記は、デフォルト値から「X-Exception-Code-ForExceptionResolver」に変更する場合の、設定&実装例である。
 
-- \ **spring-mvc.xml**\
+.. tabs::
+  .. group-tab:: Java Config
 
-  .. code-block:: xml
+    - \ **SpringMvcConfig.java**\
+    
+      .. code-block:: java
 
-    <bean class="org.terasoluna.gfw.web.exception.SystemExceptionResolver">
+        @Bean("systemExceptionResolver")
+        public SystemExceptionResolver systemExceptionResolver(
+                ExceptionCodeResolver exceptionCodeResolver) {
+    
+            // omitted
 
-        <!-- omitted -->
+            bean.setExceptionCodeHeader("X-Exception-Code-ForExceptionResolver); // (1)
+    
+      .. tabularcolumns:: |p{0.10\linewidth}|p{0.90\linewidth}|
+      .. list-table::
+        :header-rows: 1
+        :widths: 10 90
+    
+        * - 項番
+          - 説明
+        * - | (1)
+          - | 例外コード(メッセージID)のヘッダ名(exceptionCodeHeader)に、\ ``X-Exception-Code-ForExceptionResolver``\ を指定する。
 
-        <property name="exceptionCodeHeader" value="X-Exception-Code-ForExceptionResolver" /> <!-- (1) -->
+  .. group-tab:: XML Config
 
-        <!-- omitted -->
-    </bean>
-
-  .. tabularcolumns:: |p{0.10\linewidth}|p{0.90\linewidth}|
-  .. list-table::
-    :header-rows: 1
-    :widths: 10 90
-
-    * - 項番
-      - 説明
-    * - | (1)
-      - | 例外コード(メッセージID)のヘッダ名(exceptionCodeHeader)に、"X-Exception-Code-ForExceptionResolver"を指定する。
+    - \ **spring-mvc.xml**\
+    
+      .. code-block:: xml
+    
+        <bean class="org.terasoluna.gfw.web.exception.SystemExceptionResolver">
+    
+            <!-- omitted -->
+    
+            <property name="exceptionCodeHeader" value="X-Exception-Code-ForExceptionResolver" /> <!-- (1) -->
+    
+            <!-- omitted -->
+        </bean>
+    
+      .. tabularcolumns:: |p{0.10\linewidth}|p{0.90\linewidth}|
+      .. list-table::
+        :header-rows: 1
+        :widths: 10 90
+    
+        * - 項番
+          - 説明
+        * - | (1)
+          - | 例外コード(メッセージID)のヘッダ名(exceptionCodeHeader)に、\ ``X-Exception-Code-ForExceptionResolver``\ を指定する。
 
 |
 
@@ -2050,37 +2970,92 @@ SystemExceptionResolverの設定項目について
 | デフォルトの属性名をアプリケーションコードで使用している場合は、重複を避けるために、別の値を設定すること。重複がない場合は、デフォルト値を変更する必要はない。
 | 下記は、デフォルト値から「exceptionForExceptionResolver」に変更する場合の、設定&実装例である。
 
-- \ **spring-mvc.xml**\
+.. tabs::
+  .. group-tab:: Java Config
 
-  .. code-block:: xml
+    - \ **SpringMvcConfig.java**\
+    
+      .. code-block:: java
 
-    <bean class="org.terasoluna.gfw.web.exception.SystemExceptionResolver">
+        @Bean("systemExceptionResolver")
+        public SystemExceptionResolver systemExceptionResolver(
+                ExceptionCodeResolver exceptionCodeResolver) {
+    
+            // omitted
 
-        <!-- omitted -->
+            bean.setExceptionAttribute(exceptionForExceptionResolver()); // (1)
 
-        <property name="exceptionAttribute" value="exceptionForExceptionResolver" /> <!-- (1) -->
+      .. tabularcolumns:: |p{0.10\linewidth}|p{0.90\linewidth}|
+      .. list-table::
+        :header-rows: 1
+        :widths: 10 90
+    
+        * - 項番
+          - 説明
+        * - | (1)
+          - | 例外オブジェクトの属性名(exceptionAttribute)に、\ ``exceptionForExceptionResolver``\ を指定する。
 
-        <!-- omitted -->
-    </bean>
+  .. group-tab:: XML Config
 
-- \ **jsp**\
+    - \ **spring-mvc.xml**\
+    
+      .. code-block:: xml
+    
+        <bean class="org.terasoluna.gfw.web.exception.SystemExceptionResolver">
+    
+            <!-- omitted -->
+    
+            <property name="exceptionAttribute" value="exceptionForExceptionResolver" /> <!-- (1) -->
+    
+            <!-- omitted -->
+        </bean>
+    
+      .. tabularcolumns:: |p{0.10\linewidth}|p{0.90\linewidth}|
+      .. list-table::
+        :header-rows: 1
+        :widths: 10 90
+    
+        * - 項番
+          - 説明
+        * - | (1)
+          - | 例外オブジェクトの属性名(exceptionAttribute)に、\ ``exceptionForExceptionResolver``\ を指定する。
 
-  .. code-block:: xml
+- \ **View**\
 
-    <p>[Exception Message]</p>
-    <p>${f:h(exceptionForExceptionResolver.message)}</p> <!-- (2) -->
+.. tabs::
+  .. group-tab:: JSP
 
-  .. tabularcolumns:: |p{0.10\linewidth}|p{0.90\linewidth}|
-  .. list-table::
-    :header-rows: 1
-    :widths: 10 90
+    .. code-block:: xml
+  
+      <p>[Exception Message]</p>
+      <p>${f:h(exceptionForExceptionResolver.message)}</p> <!-- (2) -->
+  
+    .. tabularcolumns:: |p{0.10\linewidth}|p{0.90\linewidth}|
+    .. list-table::
+      :header-rows: 1
+      :widths: 10 90
+  
+      * - 項番
+        - 説明
+      * - | (2)
+        - | SystemExceptionResolverに設定した値(exceptionForExceptionResolver)を、例外オブジェクトからメッセージを取得するための変数名として、指定する。
 
-    * - 項番
-      - 説明
-    * - | (1)
-      - | 例外オブジェクトの属性名(exceptionAttribute)に、"exceptionForExceptionResolver"を指定する。
-    * - | (2)
-      - | SystemExceptionResolverに設定した値(exceptionForExceptionResolver)を、例外オブジェクトからメッセージを取得するための変数名として、指定する。
+  .. group-tab:: Thymeleaf
+
+    .. code-block:: html
+  
+      <p>[Exception Message]</p>
+      <p th:text="${exceptionForExceptionResolver.message}"></p> <!-- (2) -->
+  
+    .. tabularcolumns:: |p{0.10\linewidth}|p{0.90\linewidth}|
+    .. list-table::
+      :header-rows: 1
+      :widths: 10 90
+  
+      * - 項番
+        - 説明
+      * - | (2)
+        - | SystemExceptionResolverに設定した値(exceptionForExceptionResolver)を、例外オブジェクトからメッセージを取得するための変数名として、指定する。
 
 |
 
@@ -2090,44 +3065,73 @@ HTTPレスポンスのキャッシュ制御有無
 '''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
 | HTTPレスポンスに、キャッシュ制御用のヘッダを追加したい場合は、true:有を指定する。
 
-- \ **spring-mvc.xml**\
+.. tabs::
+  .. group-tab:: Java Config
 
-  .. code-block:: xml
+    - \ **SpringMvcConfig.java**\
+    
+      .. code-block:: java
 
-    <bean class="org.terasoluna.gfw.web.exception.SystemExceptionResolver">
+        @Bean("systemExceptionResolver")
+        public SystemExceptionResolver systemExceptionResolver(
+                ExceptionCodeResolver exceptionCodeResolver) {
+    
+            // omitted
 
-        <!-- omitted -->
+            bean.setPreventResponseCaching(true); // (1)
+    
+      .. tabularcolumns:: |p{0.10\linewidth}|p{0.90\linewidth}|
+      .. list-table::
+        :header-rows: 1
+        :widths: 10 90
+    
+        * - 項番
+          - 説明
+        * - | (1)
+          - | HTTPレスポンスのキャッシュ制御有無(preventResponseCaching)に、true:有を指定する。
 
-        <property name="preventResponseCaching" value="true" /> <!-- (1) -->
+  .. group-tab:: XML Config
 
-        <!-- omitted -->
-    </bean>
+    - \ **spring-mvc.xml**\
+    
+      .. code-block:: xml
+    
+        <bean class="org.terasoluna.gfw.web.exception.SystemExceptionResolver">
+    
+            <!-- omitted -->
+    
+            <property name="preventResponseCaching" value="true" /> <!-- (1) -->
+    
+            <!-- omitted -->
+        </bean>
+    
+      .. tabularcolumns:: |p{0.10\linewidth}|p{0.90\linewidth}|
+      .. list-table::
+        :header-rows: 1
+        :widths: 10 90
+    
+        * - 項番
+          - 説明
+        * - | (1)
+          - | HTTPレスポンスのキャッシュ制御有無(preventResponseCaching)に、true:有を指定する。
 
-  .. tabularcolumns:: |p{0.10\linewidth}|p{0.90\linewidth}|
-  .. list-table::
-    :header-rows: 1
-    :widths: 10 90
+.. note:: \ **有を指定した場合のHTTPレスポンスヘッダ**\
 
-    * - 項番
-      - 説明
-    * - | (1)
-      - | HTTPレスポンスのキャッシュ制御有無(preventResponseCaching)に、true:有を指定する。
+  HTTPレスポンスのキャッシュ制御有無を有にすると、以下のHTTPレスポンスヘッダが出力される。
 
-  .. note:: \ **有を指定した場合のHTTPレスポンスヘッダ**\
+    .. code-block:: console
+    
+      Cache-Control:no-store
 
-    HTTPレスポンスのキャッシュ制御有無を有にすると、以下のHTTPレスポンスヘッダが出力される。
+  \ ``SystemExceptionResolver``\ によるキャッシュ制御用のヘッダ追加はブラウザキャッシュによる意図しないエラー画面の表示を抑止するためのオプションであるが、Spring Securityの機能を使用してセキュリティの観点からキャッシュ制御用のヘッダを追加することも可能である。
 
-     | Cache-Control:no-store
+  Spring Securityの機能については、\ :ref:`SpringSecurityLinkageWithBrowser`\ を参照されたい。
 
-    \ ``SystemExceptionResolver``\によるキャッシュ制御用のヘッダ追加はブラウザキャッシュによる意図しないエラー画面の表示を抑止するためのオプションであるが、Spring Securityの機能を使用してセキュリティの観点からキャッシュ制御用のヘッダを追加することも可能である。
+.. warning:: \ **SpringSecurityのCache-Controlヘッダを利用する場合の注意点**\
 
-    Spring Securityの機能については、\ :ref:`SpringSecurityLinkageWithBrowser`\ を参照されたい。
+  \ ``SystemExceptionResolver``\ のキャッシュ制御とSpring SecurityのCache-Controlヘッダを有効にした場合、\ ``SystemExceptionResolver``\ のキャッシュ制御が優先される。
 
-  .. warning:: \ **SpringSecurityのCache-Controlヘッダを利用する場合の注意点**\
-
-    \ ``SystemExceptionResolver``\ のキャッシュ制御とSpring SecurityのCache-Controlヘッダを有効にした場合、\ ``SystemExceptionResolver``\ のキャッシュ制御が優先される。
-
-    これにより、正常時はSpring Securityでは\ ``no-store``\ 以外も付与されるが、例外時は\ ``no-store``\ のみ付与されるため、意図したとおりにキャッシュを制御できない恐れがあることに注意されたい。
+  これにより、正常時はSpring Securityでは\ ``no-store``\ 以外も付与されるが、例外時は\ ``no-store``\ のみ付与されるため、意図したとおりにキャッシュを制御できない恐れがあることに注意されたい。
 
 |
 
@@ -2164,60 +3168,122 @@ HandlerExceptionResolverLoggingInterceptorの設定項目について
 '''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
 プロジェクトで用意した例外クラスをログ出力対象から除外したい場合は、以下のような設定となる。
 
-- \ **spring-mvc.xml**\
+.. tabs::
+  .. group-tab:: Java Config
 
-  .. code-block:: xml
+    - \ **SpringMvcConfig.java**\
+    
+      .. code-block:: java
 
-    <bean id="handlerExceptionResolverLoggingInterceptor"
-        class="org.terasoluna.gfw.web.exception.HandlerExceptionResolverLoggingInterceptor">
-        <property name="exceptionLogger" ref="exceptionLogger" />
-        <property name="ignoreExceptions">
-            <set>
-                <!-- (1) -->
-                <value>org.terasoluna.gfw.common.exception.ResultMessagesNotificationException</value>
-                <!-- (2) -->
-                <value>com.example.common.XxxException</value>
-            </set>
-        </property>
-    </bean>
+        @Bean("handlerExceptionResolverLoggingInterceptor")
+        public HandlerExceptionResolverLoggingInterceptor handlerExceptionResolverLoggingInterceptor(
+                ExceptionLogger exceptionLogger) {
+            HandlerExceptionResolverLoggingInterceptor bean = new HandlerExceptionResolverLoggingInterceptor();
+            bean.setExceptionLogger(exceptionLogger);
+            Set<Exception> ignoreExceptions = new HashSet<>();
+            ignoreExceptions.add(ResultMessagesNotificationException.class); // (1)
+            ignoreExceptions.add(XxxException.class); // (2)
+            bean.setIgnoreExceptions(ignoreExceptions);
+            return bean;
+        }
 
-  .. tabularcolumns:: |p{0.10\linewidth}|p{0.90\linewidth}|
-  .. list-table::
-    :header-rows: 1
-    :widths: 10 90
+      .. tabularcolumns:: |p{0.10\linewidth}|p{0.90\linewidth}|
+      .. list-table::
+        :header-rows: 1
+        :widths: 10 90
+    
+        * - 項番
+          - 説明
+        * - | (1)
+          - | 共通ライブラリのデフォルト設定で指定されている\ ``ResultMessagesNotificationException``\ を除外対象に指定する。
+        * - | (2)
+          - | プロジェクトで用意した例外クラスを除外対象に指定する。
 
-    * - 項番
-      - 説明
-    * - | (1)
-      - | 共通ライブラリのデフォルト設定で指定されている\ ``ResultMessagesNotificationException``\ を除外対象に指定する。
-    * - | (2)
-      - | プロジェクトで用意した例外クラスを除外対象に指定する。
+  .. group-tab:: XML Config
+
+    - \ **spring-mvc.xml**\
+    
+      .. code-block:: xml
+    
+        <bean id="handlerExceptionResolverLoggingInterceptor"
+            class="org.terasoluna.gfw.web.exception.HandlerExceptionResolverLoggingInterceptor">
+            <property name="exceptionLogger" ref="exceptionLogger" />
+            <property name="ignoreExceptions">
+                <set>
+                    <!-- (1) -->
+                    <value>org.terasoluna.gfw.common.exception.ResultMessagesNotificationException</value>
+                    <!-- (2) -->
+                    <value>com.example.common.XxxException</value>
+                </set>
+            </property>
+        </bean>
+    
+      .. tabularcolumns:: |p{0.10\linewidth}|p{0.90\linewidth}|
+      .. list-table::
+        :header-rows: 1
+        :widths: 10 90
+    
+        * - 項番
+          - 説明
+        * - | (1)
+          - | 共通ライブラリのデフォルト設定で指定されている\ ``ResultMessagesNotificationException``\ を除外対象に指定する。
+        * - | (2)
+          - | プロジェクトで用意した例外クラスを除外対象に指定する。
 
 |
 
 全ての例外クラスをログ出力対象とする場合は、以下のような設定となる。
 
-- \ **spring-mvc.xml**\
+.. tabs::
+  .. group-tab:: Java Config
 
-  .. code-block:: xml
+    - \ **SpringMvcConfig.java**\
+    
+      .. code-block:: java
 
-    <bean id="handlerExceptionResolverLoggingInterceptor"
-        class="org.terasoluna.gfw.web.exception.HandlerExceptionResolverLoggingInterceptor">
-        <property name="exceptionLogger" ref="exceptionLogger" />
-        <!-- (3) -->
-        <property name="ignoreExceptions"><null /></property>
-    </bean>
+        @Bean("handlerExceptionResolverLoggingInterceptor")
+        public HandlerExceptionResolverLoggingInterceptor handlerExceptionResolverLoggingInterceptor(
+                ExceptionLogger exceptionLogger) {
+            HandlerExceptionResolverLoggingInterceptor bean = new HandlerExceptionResolverLoggingInterceptor();
+            bean.setExceptionLogger(exceptionLogger);
+            bean.setIgnoreExceptions(null); // (3)
+            return bean;
+        }
+    
+      .. tabularcolumns:: |p{0.10\linewidth}|p{0.90\linewidth}|
+      .. list-table::
+        :header-rows: 1
+        :widths: 10 90
+    
+        * - 項番
+          - 説明
+        * - | (3)
+          - | ignoreExceptionsプロパティに\ ``null``\ を指定する。
+            | \ ``null``\ を指定すると、全ての例外クラスがログ出力対象となる。
 
-  .. tabularcolumns:: |p{0.10\linewidth}|p{0.90\linewidth}|
-  .. list-table::
-    :header-rows: 1
-    :widths: 10 90
+  .. group-tab:: XML Config
 
-    * - 項番
-      - 説明
-    * - | (3)
-      - | ignoreExceptionsプロパティに\ ``null``\ を指定する。
-        | \ ``null``\ を指定すると、全ての例外クラスがログ出力対象となる。
+    - \ **spring-mvc.xml**\
+    
+      .. code-block:: xml
+    
+        <bean id="handlerExceptionResolverLoggingInterceptor"
+            class="org.terasoluna.gfw.web.exception.HandlerExceptionResolverLoggingInterceptor">
+            <property name="exceptionLogger" ref="exceptionLogger" />
+            <!-- (3) -->
+            <property name="ignoreExceptions"><null /></property>
+        </bean>
+    
+      .. tabularcolumns:: |p{0.10\linewidth}|p{0.90\linewidth}|
+      .. list-table::
+        :header-rows: 1
+        :widths: 10 90
+    
+        * - 項番
+          - 説明
+        * - | (3)
+          - | ignoreExceptionsプロパティに\ ``null``\ を指定する。
+            | \ ``null``\ を指定すると、全ての例外クラスがログ出力対象となる。
 
 |
 
@@ -2285,4 +3351,3 @@ DefaultHandlerExceptionResolverでハンドリングされるフレームワー�
 .. raw:: latex
 
   \newpage
-
