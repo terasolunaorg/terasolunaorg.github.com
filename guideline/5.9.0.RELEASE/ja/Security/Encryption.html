@@ -1,0 +1,1832 @@
+<!DOCTYPE html>
+
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+    <title>9.8. 暗号化 &#8212; TERASOLUNA Server Framework for Java (5.x) Development Guideline 5.9.0.RELEASE documentation</title>
+    <link rel="stylesheet" type="text/css" href="../_static/pygments.css" />
+    <link rel="stylesheet" type="text/css" href="../_static/solar.css" />
+    <link rel="stylesheet" type="text/css" href="../_static/tabs.css" />
+    <script data-url_root="../" id="documentation_options" src="../_static/documentation_options.js"></script>
+    <script src="../_static/doctools.js"></script>
+    <script src="../_static/sphinx_highlight.js"></script>
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="next" title="9.9. OAuth 2.0" href="OAuth2.html" />
+    <link rel="prev" title="9.7. XSS対策" href="XSS.html" /><script src="../_static/jquery.js" type="text/javascript"></script>
+<script src="../_static/jquery.treeview.js" type="text/javascript"></script>
+<!-- <link href='http://fonts.googleapis.com/css?family=Source+Code+Pro|Open+Sans:300italic,400italic,700italic,400,300,700' rel='stylesheet' type='text/css'> -->
+<link href="../_static/solarized-dark.css" rel="stylesheet">
+<link href="../_static/jquery.treeview.css" rel="stylesheet">
+  </head><body>
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="OAuth2.html" title="9.9. OAuth 2.0"
+             accesskey="N">next</a> |</li>
+        <li class="right" >
+          <a href="XSS.html" title="9.7. XSS対策"
+             accesskey="P">previous</a> |</li>
+        <li class="nav-item nav-item-0"><a href="../index.html">TERASOLUNA Server Framework for Java (5.x) Development Guideline 5.9.0.RELEASE documentation</a> &#187;</li>
+          <li class="nav-item nav-item-1"><a href="index.html" accesskey="U"><span class="section-number">9. </span>セキュリティ対策</a> &#187;</li>
+        <li class="nav-item nav-item-this"><a href=""><span class="section-number">9.8. </span>暗号化</a></li> 
+      </ul>
+    </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper"><label><input id="scroll" type="checkbox"> scroll sidebar</label>
+  <div>
+    <h3><a href="../index.html">Table of Contents</a></h3>
+    <ul>
+<li><a class="reference internal" href="#">9.8. 暗号化</a><ul>
+<li><a class="reference internal" href="#overview">9.8.1. Overview</a><ul>
+<li><a class="reference internal" href="#encryptionoverviewencryptionscheme">9.8.1.1. 暗号化方式</a><ul>
+<li><a class="reference internal" href="#id4">9.8.1.1.1. 共通鍵暗号化方式</a></li>
+<li><a class="reference internal" href="#id5">9.8.1.1.2. 公開鍵暗号化方式</a></li>
+<li><a class="reference internal" href="#id6">9.8.1.1.3. ハイブリッド暗号化方式</a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#encryptionoverviewencryptionalgorithm">9.8.1.2. 暗号化アルゴリズム</a><ul>
+<li><a class="reference internal" href="#des-3des">9.8.1.2.1. DES / 3DES</a></li>
+<li><a class="reference internal" href="#aes">9.8.1.2.2. AES</a></li>
+<li><a class="reference internal" href="#rsa">9.8.1.2.3. RSA</a></li>
+<li><a class="reference internal" href="#dsa-ecdsa">9.8.1.2.4. DSA / ECDSA</a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#encryptionoverviewpseudorandomnumber">9.8.1.3. 疑似乱数 (生成器)</a></li>
+<li><a class="reference internal" href="#javax-crypto-cipher">9.8.1.4. javax.crypto.Cipherクラス</a></li>
+<li><a class="reference internal" href="#spring-security">9.8.1.5. Spring Securityにおける暗号化機能</a><ul>
+<li><a class="reference internal" href="#id9">9.8.1.5.1. 暗号化・復号用のコンポーネント</a></li>
+<li><a class="reference internal" href="#id10">9.8.1.5.2. 乱数生成用のコンポーネント</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li><a class="reference internal" href="#how-to-use">9.8.2. How to use</a><ul>
+<li><a class="reference internal" href="#encryptionhowtousecommonkey">9.8.2.1. 共通鍵暗号化方式</a><ul>
+<li><a class="reference internal" href="#encryptionencrypttext">9.8.2.1.1. 文字列の暗号化</a></li>
+<li><a class="reference internal" href="#id13">9.8.2.1.2. 文字列の復号</a></li>
+<li><a class="reference internal" href="#id14">9.8.2.1.3. バイト配列の暗号化</a></li>
+<li><a class="reference internal" href="#id15">9.8.2.1.4. バイト配列の復号</a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#encryptionhowtousepublickey">9.8.2.2. 公開鍵暗号化方式</a><ul>
+<li><a class="reference internal" href="#jca">9.8.2.2.1. 事前準備（JCAによるキーペアの生成）</a></li>
+<li><a class="reference internal" href="#id17">9.8.2.2.2. 暗号化</a></li>
+<li><a class="reference internal" href="#id18">9.8.2.2.3. 復号</a></li>
+<li><a class="reference internal" href="#openssl">9.8.2.2.4. OpenSSL</a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#encryptionhowtousehybrid">9.8.2.3. ハイブリッド暗号化方式</a><ul>
+<li><a class="reference internal" href="#id20">9.8.2.3.1. 暗号化</a></li>
+<li><a class="reference internal" href="#id21">9.8.2.3.2. 復号</a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#encryptionhowtousepseudorandomnumber">9.8.2.4. 乱数生成</a><ul>
+<li><a class="reference internal" href="#id23">9.8.2.4.1. 文字列型の疑似乱数生成</a></li>
+<li><a class="reference internal" href="#id24">9.8.2.4.2. バイト配列型の疑似乱数生成</a></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+
+  </div>
+  <div>
+    <h4>Previous topic</h4>
+    <p class="topless"><a href="XSS.html"
+                          title="previous chapter"><span class="section-number">9.7. </span>XSS対策</a></p>
+  </div>
+  <div>
+    <h4>Next topic</h4>
+    <p class="topless"><a href="OAuth2.html"
+                          title="next chapter"><span class="section-number">9.9. </span>OAuth 2.0</a></p>
+  </div>
+  <div role="note" aria-label="source link">
+    <h3>This Page</h3>
+    <ul class="this-page-menu">
+      <li><a href="../_sources/Security/Encryption.rst.txt"
+            rel="nofollow">Show Source</a></li>
+    </ul>
+   </div>
+<div id="searchbox" style="display: none" role="search">
+  <h3 id="searchlabel">Quick search</h3>
+    <div class="searchformwrapper">
+    <form class="search" action="../search.html" method="get">
+      <input type="text" name="q" aria-labelledby="searchlabel" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false"/>
+      <input type="submit" value="Go" />
+    </form>
+    </div>
+</div>
+<script>document.getElementById('searchbox').style.display = "block"</script>
+        </div>
+      </div>
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <section id="id1">
+<h1><span class="section-number">9.8. </span>暗号化<a class="headerlink" href="#id1" title="Permalink to this heading">¶</a></h1>
+<nav class="contents local" id="id2">
+<p class="topic-title">目次</p>
+<ul class="simple">
+<li><p><a class="reference internal" href="#overview" id="id25">Overview</a></p>
+<ul>
+<li><p><a class="reference internal" href="#encryptionoverviewencryptionscheme" id="id26">暗号化方式</a></p>
+<ul>
+<li><p><a class="reference internal" href="#id4" id="id27">共通鍵暗号化方式</a></p></li>
+<li><p><a class="reference internal" href="#id5" id="id28">公開鍵暗号化方式</a></p></li>
+<li><p><a class="reference internal" href="#id6" id="id29">ハイブリッド暗号化方式</a></p></li>
+</ul>
+</li>
+<li><p><a class="reference internal" href="#encryptionoverviewencryptionalgorithm" id="id30">暗号化アルゴリズム</a></p>
+<ul>
+<li><p><a class="reference internal" href="#des-3des" id="id31">DES / 3DES</a></p></li>
+<li><p><a class="reference internal" href="#aes" id="id32">AES</a></p></li>
+<li><p><a class="reference internal" href="#rsa" id="id33">RSA</a></p></li>
+<li><p><a class="reference internal" href="#dsa-ecdsa" id="id34">DSA / ECDSA</a></p></li>
+</ul>
+</li>
+<li><p><a class="reference internal" href="#encryptionoverviewpseudorandomnumber" id="id35">疑似乱数 (生成器)</a></p></li>
+<li><p><a class="reference internal" href="#javax-crypto-cipher" id="id36">javax.crypto.Cipherクラス</a></p></li>
+<li><p><a class="reference internal" href="#spring-security" id="id37">Spring Securityにおける暗号化機能</a></p>
+<ul>
+<li><p><a class="reference internal" href="#id9" id="id38">暗号化・復号用のコンポーネント</a></p></li>
+<li><p><a class="reference internal" href="#id10" id="id39">乱数生成用のコンポーネント</a></p></li>
+</ul>
+</li>
+</ul>
+</li>
+<li><p><a class="reference internal" href="#how-to-use" id="id40">How to use</a></p>
+<ul>
+<li><p><a class="reference internal" href="#encryptionhowtousecommonkey" id="id41">共通鍵暗号化方式</a></p>
+<ul>
+<li><p><a class="reference internal" href="#encryptionencrypttext" id="id42">文字列の暗号化</a></p></li>
+<li><p><a class="reference internal" href="#id13" id="id43">文字列の復号</a></p></li>
+<li><p><a class="reference internal" href="#id14" id="id44">バイト配列の暗号化</a></p></li>
+<li><p><a class="reference internal" href="#id15" id="id45">バイト配列の復号</a></p></li>
+</ul>
+</li>
+<li><p><a class="reference internal" href="#encryptionhowtousepublickey" id="id46">公開鍵暗号化方式</a></p>
+<ul>
+<li><p><a class="reference internal" href="#jca" id="id47">事前準備（JCAによるキーペアの生成）</a></p></li>
+<li><p><a class="reference internal" href="#id17" id="id48">暗号化</a></p></li>
+<li><p><a class="reference internal" href="#id18" id="id49">復号</a></p></li>
+<li><p><a class="reference internal" href="#openssl" id="id50">OpenSSL</a></p></li>
+</ul>
+</li>
+<li><p><a class="reference internal" href="#encryptionhowtousehybrid" id="id51">ハイブリッド暗号化方式</a></p>
+<ul>
+<li><p><a class="reference internal" href="#id20" id="id52">暗号化</a></p></li>
+<li><p><a class="reference internal" href="#id21" id="id53">復号</a></p></li>
+</ul>
+</li>
+<li><p><a class="reference internal" href="#encryptionhowtousepseudorandomnumber" id="id54">乱数生成</a></p>
+<ul>
+<li><p><a class="reference internal" href="#id23" id="id55">文字列型の疑似乱数生成</a></p></li>
+<li><p><a class="reference internal" href="#id24" id="id56">バイト配列型の疑似乱数生成</a></p></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+</nav>
+<div class="line-block">
+<div class="line"><br /></div>
+</div>
+<section id="overview">
+<span id="encryptionoverview"></span><h2><a class="toc-backref" href="#id25" role="doc-backlink"><span class="section-number">9.8.1. </span>Overview</a><a class="headerlink" href="#overview" title="Permalink to this heading">¶</a></h2>
+<p>個人情報やパスワードなどの機密情報は、以下のようなケースで暗号化が求められる。</p>
+<ul class="simple">
+<li><p>インターネットなどのネットワークを介して機密情報の送受信を行う</p></li>
+<li><p>データベースやファイルなどの外部リソースに機密情報を保存する</p></li>
+</ul>
+<div class="line-block">
+<div class="line">Spring Securityの主機能は「認証」と「認可」であるが、暗号化に関する機能も提供している。</div>
+<div class="line">ただし、提供される機能は限定的なものであるため、Spring Securityがサポートしていない暗号化方式については、個別に実装する必要がある。</div>
+</div>
+<p>本ガイドラインでは、以下の処理について説明を行う。</p>
+<ul class="simple">
+<li><p>Spring Securityが提供しているクラスを利用した共通鍵暗号化方式の暗号化と復号</p></li>
+<li><p>Spring Securityが提供しているクラスを利用した疑似乱数の生成</p></li>
+<li><p>JCA (Java Cryptography Architecture) を利用した公開鍵暗号化方式の暗号化と復号</p></li>
+<li><p>JCAを利用したハイブリッド暗号化方式の暗号化と復号</p></li>
+</ul>
+<p>Spring Securityの暗号化機能の詳細については、<a class="reference external" href="https://docs.spring.io/spring-security/reference/features/integrations/cryptography.html">Spring Security Reference -Spring Security Crypto Module-</a>を参照されたい。</p>
+<div class="line-block">
+<div class="line"><br /></div>
+</div>
+<section id="encryptionoverviewencryptionscheme">
+<span id="id3"></span><h3><a class="toc-backref" href="#id26" role="doc-backlink"><span class="section-number">9.8.1.1. </span>暗号化方式</a><a class="headerlink" href="#encryptionoverviewencryptionscheme" title="Permalink to this heading">¶</a></h3>
+<p>暗号化方式について説明する。</p>
+<div class="line-block">
+<div class="line"><br /></div>
+</div>
+<section id="id4">
+<h4><a class="toc-backref" href="#id27" role="doc-backlink"><span class="section-number">9.8.1.1.1. </span>共通鍵暗号化方式</a><a class="headerlink" href="#id4" title="Permalink to this heading">¶</a></h4>
+<div class="line-block">
+<div class="line">暗号化と復号を行う際に同じ鍵を使用する方式である。</div>
+<div class="line">復号に使用する鍵を暗号化側へ共有しておく方式であるため、鍵を暗号化側へ安全に受け渡す経路が別途必要となる。</div>
+<div class="line"><br /></div>
+</div>
+</section>
+<section id="id5">
+<h4><a class="toc-backref" href="#id28" role="doc-backlink"><span class="section-number">9.8.1.1.2. </span>公開鍵暗号化方式</a><a class="headerlink" href="#id5" title="Permalink to this heading">¶</a></h4>
+<div class="line-block">
+<div class="line">復号側が用意した公開鍵を使用して暗号化し、公開鍵とペアとなる秘密鍵を使用して復号する方式である。</div>
+<div class="line">暗号文を復号する際に使用する秘密鍵は公開されないためセキュリティの強度は高いが、暗号化と復号処理のコストは高い。</div>
+<div class="line"><br /></div>
+</div>
+</section>
+<section id="id6">
+<h4><a class="toc-backref" href="#id29" role="doc-backlink"><span class="section-number">9.8.1.1.3. </span>ハイブリッド暗号化方式</a><a class="headerlink" href="#id6" title="Permalink to this heading">¶</a></h4>
+<div class="line-block">
+<div class="line">共通鍵暗号化方式の処理コストが低いという利点と、公開鍵暗号化方式の鍵の管理・配布が容易でセキュリティ強度が高いという利点の両方を組み合わせた方式である。</div>
+<div class="line">この方式はSSL/TLSなどで利用されている。</div>
+</div>
+<div class="line-block">
+<div class="line">たとえば、HTTPS通信では、クライアント側で生成した共通鍵をサーバ側の公開鍵で暗号化したうえで送信し、サーバ側は公開鍵とペアとなる秘密鍵を利用して共通鍵を復号する。</div>
+<div class="line">その後の通信は、共有された共通鍵を使用した共通鍵暗号化方式で通信を行う。</div>
+</div>
+<p>この方式では、</p>
+<ul class="simple">
+<li><p>サイズが大きくなる可能性がある機密情報自体を、処理コストの低い共通鍵暗号化方式で暗号化</p></li>
+<li><p>サイズが小さく配布を安全に行う必要のある共通鍵を、セキュリティ強度の高い公開鍵暗号化方式で暗号化</p></li>
+</ul>
+<div class="line-block">
+<div class="line">するのがポイントである。</div>
+<div class="line">機密情報を復号する際に使用する共通鍵は秘密鍵によって守られているため、公開鍵暗号化方式のセキュリティ強度を保ちつつ、公開鍵暗号化方式より高速な暗号化と復号処理を実現できる。</div>
+</div>
+<p>ハイブリッド暗号化方式における、暗号化から復号までの処理フローを以下の図に示す。</p>
+<figure class="align-default">
+<a class="reference internal image-reference" href="../_images/EncryptionHybrid.png"><img alt="Hybrid Encryption" src="../_images/EncryptionHybrid.png" style="width: 100%;" /></a>
+</figure>
+<ol class="arabic simple">
+<li><p>送信側が平文を暗号化するための共通鍵を生成する。</p></li>
+<li><p>送信側が生成した共通鍵で平文を暗号化する。</p></li>
+<li><p>送信側が受信側の公開鍵で共通鍵を暗号化する。</p></li>
+<li><p>送信側が暗号化した共通鍵とともに暗号文を送信する。</p></li>
+<li><p>受信側が暗号化された共通鍵を受信側の秘密鍵で復号する。</p></li>
+<li><p>受信側が復号した共通鍵で暗号文を復号する。</p></li>
+</ol>
+<div class="line-block">
+<div class="line"><br /></div>
+</div>
+</section>
+</section>
+<section id="encryptionoverviewencryptionalgorithm">
+<span id="id7"></span><h3><a class="toc-backref" href="#id30" role="doc-backlink"><span class="section-number">9.8.1.2. </span>暗号化アルゴリズム</a><a class="headerlink" href="#encryptionoverviewencryptionalgorithm" title="Permalink to this heading">¶</a></h3>
+<p>暗号化アルゴリズムについて説明する。</p>
+<div class="line-block">
+<div class="line"><br /></div>
+</div>
+<section id="des-3des">
+<h4><a class="toc-backref" href="#id31" role="doc-backlink"><span class="section-number">9.8.1.2.1. </span>DES / 3DES</a><a class="headerlink" href="#des-3des" title="Permalink to this heading">¶</a></h4>
+<div class="line-block">
+<div class="line">DES (Data Encryption Standard) は共通暗号化方式のアルゴリズムとして、アメリカ合衆国の標準規格として規格化されたものである。鍵長が56ビットと短いため現在では推奨されていない。</div>
+<div class="line">3DES (トリプルDES) は、鍵を変えながらDESを繰り返す暗号化アルゴリズムである。</div>
+<div class="line"><br /></div>
+</div>
+</section>
+<section id="aes">
+<span id="encryptionoverviewencryptionalgorithmaes"></span><h4><a class="toc-backref" href="#id32" role="doc-backlink"><span class="section-number">9.8.1.2.2. </span>AES</a><a class="headerlink" href="#aes" title="Permalink to this heading">¶</a></h4>
+<div class="line-block">
+<div class="line">AES (Advanced Encryption Standard) は共通鍵暗号化方式のアルゴリズムである。DESの後継として制定された暗号化規格であり、暗号化における現在のデファクトスタンダードとして利用されている。</div>
+<div class="line">また、ブロック長より長いメッセージを暗号化するメカニズムである暗号利用モードとしてECB (Electronic Codebook) 、CBC (Cipher Block Chaining) 、OFB (Output Feedback) など存在する。その中で、最も広く利用されているものはCBCである。</div>
+</div>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p><strong>AES with GCM</strong></p>
+<p>GCM (Galois/Counter Mode) という、並列処理が可能でありCBCより処理効率が優れていると一般的にいわれている暗号利用モードをAESで利用することも可能である。</p>
+</div>
+<div class="line-block">
+<div class="line"><br /></div>
+</div>
+</section>
+<section id="rsa">
+<h4><a class="toc-backref" href="#id33" role="doc-backlink"><span class="section-number">9.8.1.2.3. </span>RSA</a><a class="headerlink" href="#rsa" title="Permalink to this heading">¶</a></h4>
+<div class="line-block">
+<div class="line">RSAは公開鍵暗号化方式のアルゴリズムである。素因数分解の困難性に基づいているため、計算機の能力向上により危殆化することとなる。いわゆる「暗号化アルゴリズムの2010年問題」として指摘されているように充分な鍵長が必要であり、現時点では2048ビットが標準的に利用されている。</div>
+<div class="line"><br /></div>
+</div>
+</section>
+<section id="dsa-ecdsa">
+<h4><a class="toc-backref" href="#id34" role="doc-backlink"><span class="section-number">9.8.1.2.4. </span>DSA / ECDSA</a><a class="headerlink" href="#dsa-ecdsa" title="Permalink to this heading">¶</a></h4>
+<div class="line-block">
+<div class="line">DSA (Digital Signature Algorithm) は、デジタル署名のための標準規格である。離散対数問題の困難性に基づいている。</div>
+<div class="line">ECDSA (Elliptic Curve Digital Signature Algorithm : 楕円曲線DSA) は、楕円曲線暗号を用いたDSAの変種である。楕円曲線暗号においては、セキュリティレベルを確保するために必要となる鍵長が短くなるというメリットがある。</div>
+<div class="line"><br /></div>
+</div>
+</section>
+</section>
+<section id="encryptionoverviewpseudorandomnumber">
+<span id="id8"></span><h3><a class="toc-backref" href="#id35" role="doc-backlink"><span class="section-number">9.8.1.3. </span>疑似乱数 (生成器)</a><a class="headerlink" href="#encryptionoverviewpseudorandomnumber" title="Permalink to this heading">¶</a></h3>
+<div class="line-block">
+<div class="line">鍵の生成などで乱数が用いられる。</div>
+<div class="line">このとき、乱数として生成される値が予測可能だと暗号化の安全性が保てなくなるため、結果の予測が困難な乱数 (疑似乱数) を利用する必要がある。</div>
+<div class="line">疑似乱数の生成に用いられるのが疑似乱数生成器である。</div>
+<div class="line"><br /></div>
+</div>
+</section>
+<section id="javax-crypto-cipher">
+<span id="encryptionoverviewcipher"></span><h3><a class="toc-backref" href="#id36" role="doc-backlink"><span class="section-number">9.8.1.4. </span>javax.crypto.Cipherクラス</a><a class="headerlink" href="#javax-crypto-cipher" title="Permalink to this heading">¶</a></h3>
+<div class="line-block">
+<div class="line"><code class="docutils literal notranslate"><span class="pre">Cipher</span></code>クラスは、暗号化および復号の機能を提供する。AESやRSAなどの暗号化アルゴリズム、ECBやCBCなどの暗号利用モード、OAEPWithSHA-256AndMGF1などのパディング方式の組み合わせを指定する。</div>
+<div class="line"><br /></div>
+<div class="line">暗号利用モードとは、<a class="reference internal" href="#encryptionoverviewencryptionalgorithmaes"><span class="std std-ref">AES</span></a>で説明したとおり、ブロック長より長いメッセージを暗号化するメカニズムである。</div>
+<div class="line">また、パディング方式とは、ブロック長に満たない暗号化対象を暗号化する場合の保管方式である。</div>
+<div class="line"><br /></div>
+<div class="line">Javaアプリケーションでは、<code class="docutils literal notranslate"><span class="pre">&lt;暗号化アルゴリズム&gt;/&lt;暗号利用モード&gt;/&lt;パディング方式&gt;</span></code>または、<code class="docutils literal notranslate"><span class="pre">&lt;暗号化アルゴリズム&gt;</span></code>という形で組み合わせを指定する。たとえば、<code class="docutils literal notranslate"><span class="pre">AES/GCM/NoPadding</span></code>または、<code class="docutils literal notranslate"><span class="pre">AES</span></code>となる。</div>
+<div class="line">詳細は、<a class="reference external" href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/javax/crypto/Cipher.html">CipherクラスのJavaDoc</a>を参照されたい。</div>
+</div>
+<div class="line-block">
+<div class="line"><br /></div>
+</div>
+</section>
+<section id="spring-security">
+<span id="encryptionoverviewspringsecurity"></span><h3><a class="toc-backref" href="#id37" role="doc-backlink"><span class="section-number">9.8.1.5. </span>Spring Securityにおける暗号化機能</a><a class="headerlink" href="#spring-security" title="Permalink to this heading">¶</a></h3>
+<div class="line-block">
+<div class="line">Spring Securityでは、共通鍵暗号化方式を使用した暗号化および復号の機能を提供している。</div>
+<div class="line">暗号化アルゴリズムは256-bit AES using PKCS #5’s PBKDF2 (Password-Based Key Derivation Function #2) である。</div>
+<div class="line">暗号利用モードはCBC、パディング方式はPKCS5Paddingである。</div>
+<div class="line"><br /></div>
+</div>
+<section id="id9">
+<h4><a class="toc-backref" href="#id38" role="doc-backlink"><span class="section-number">9.8.1.5.1. </span>暗号化・復号用のコンポーネント</a><a class="headerlink" href="#id9" title="Permalink to this heading">¶</a></h4>
+<p>Spring Securityは、共通鍵暗号化方式での暗号化および復号の機能として以下のインターフェイスを提供している。</p>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">org.springframework.security.crypto.encrypt.TextEncryptor</span></code> (テキスト用)</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">org.springframework.security.crypto.encrypt.BytesEncryptor</span></code> (バイト配列用)</p></li>
+</ul>
+<p>また、これらのインターフェイスの実装クラスとして以下のクラスを提供しており、内部では<code class="docutils literal notranslate"><span class="pre">Cipher</span></code>クラスを利用している。</p>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">org.springframework.security.crypto.encrypt.HexEncodingTextEncryptor</span></code> (テキスト用)</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">org.springframework.security.crypto.encrypt.AesBytesEncryptor</span></code> (バイト配列用)</p></li>
+</ul>
+<div class="line-block">
+<div class="line"><br /></div>
+</div>
+</section>
+<section id="id10">
+<h4><a class="toc-backref" href="#id39" role="doc-backlink"><span class="section-number">9.8.1.5.2. </span>乱数生成用のコンポーネント</a><a class="headerlink" href="#id10" title="Permalink to this heading">¶</a></h4>
+<p>Spring Securityは、乱数(鍵)生成の機能として以下のインターフェイスを提供している。</p>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">org.springframework.security.crypto.keygen.StringKeyGenerator</span></code> (テキスト用)</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">org.springframework.security.crypto.keygen.BytesKeyGenerator</span></code> (バイト配列用)</p></li>
+</ul>
+<p>また、これらのインターフェイスの実装クラスとして以下のクラスを提供している。</p>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">org.springframework.security.crypto.keygen.HexEncodingStringKeyGenerator</span></code> (テキスト用)</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">org.springframework.security.crypto.keygen.SecureRandomBytesKeyGenerator</span></code> (バイト配列用。<code class="docutils literal notranslate"><span class="pre">generateKey</span></code>メソッドで、異なる鍵長を生成して返却)</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">org.springframework.security.crypto.keygen.SharedKeyGenerator</span></code> (バイト配列用。<code class="docutils literal notranslate"><span class="pre">generateKey</span></code>メソッドで、コンストラクタで設定した同一の鍵長を返却)</p></li>
+</ul>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p><strong>Spring Security RSA</strong></p>
+<p><a class="reference external" href="https://github.com/dsyer/spring-security-rsa">spring-security-rsa</a>は、暗号化アルゴリズムとしてRSAを使用した公開鍵暗号化方式とハイブリッド暗号化方式用のAPIを提供している。</p>
+<p>spring-security-rsaは現在、<a class="reference external" href="https://github.com/spring-projects">Springの公式リポジトリ</a>として管理されていない。今後、Springの公式リポジトリ配下に移動した際は、本ガイドラインで利用方法を説明する予定である。</p>
+<p>spring-security-rsaでは以下2つのクラスを提供している。</p>
+<ul>
+<li><p><code class="docutils literal notranslate"><span class="pre">org.springframework.security.crypto.encrypt.RsaRawEncryptor</span></code></p>
+<p>公開鍵暗号化方式を使用した暗号化および復号の機能を提供するクラス。</p>
+</li>
+<li><p><code class="docutils literal notranslate"><span class="pre">org.springframework.security.crypto.encrypt.RsaSecretEncryptor</span></code></p>
+<p>ハイブリッド暗号化方式を使用した暗号化および復号の機能を提供するクラス。</p>
+</li>
+</ul>
+</div>
+<div class="line-block">
+<div class="line"><br /></div>
+</div>
+</section>
+</section>
+</section>
+<section id="how-to-use">
+<span id="encryptionhowtouse"></span><h2><a class="toc-backref" href="#id40" role="doc-backlink"><span class="section-number">9.8.2. </span>How to use</a><a class="headerlink" href="#how-to-use" title="Permalink to this heading">¶</a></h2>
+<section id="encryptionhowtousecommonkey">
+<span id="id11"></span><h3><a class="toc-backref" href="#id41" role="doc-backlink"><span class="section-number">9.8.2.1. </span>共通鍵暗号化方式</a><a class="headerlink" href="#encryptionhowtousecommonkey" title="Permalink to this heading">¶</a></h3>
+<div class="line-block">
+<div class="line">暗号化アルゴリズムとしてAESを利用した方法について説明する。</div>
+<div class="line"><br /></div>
+</div>
+<section id="encryptionencrypttext">
+<span id="id12"></span><h4><a class="toc-backref" href="#id42" role="doc-backlink"><span class="section-number">9.8.2.1.1. </span>文字列の暗号化</a><a class="headerlink" href="#encryptionencrypttext" title="Permalink to this heading">¶</a></h4>
+<ul>
+<li><p>テキスト（文字列）を暗号化する。</p>
+<div class="highlight-java notranslate"><div class="highlight"><pre><span></span><span class="kd">public</span><span class="w"> </span><span class="kd">static</span><span class="w"> </span><span class="n">String</span><span class="w"> </span><span class="nf">encryptText</span><span class="p">(</span>
+<span class="w">    </span><span class="n">String</span><span class="w"> </span><span class="n">secret</span><span class="p">,</span><span class="w"> </span><span class="n">String</span><span class="w"> </span><span class="n">salt</span><span class="p">,</span><span class="w"> </span><span class="n">String</span><span class="w"> </span><span class="n">plainText</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="n">TextEncryptor</span><span class="w"> </span><span class="n">encryptor</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">Encryptors</span><span class="p">.</span><span class="na">text</span><span class="p">(</span><span class="n">secret</span><span class="p">,</span><span class="w"> </span><span class="n">salt</span><span class="p">);</span><span class="w"> </span><span class="c1">// (1)</span>
+
+<span class="w">    </span><span class="k">return</span><span class="w"> </span><span class="n">encryptor</span><span class="p">.</span><span class="na">encrypt</span><span class="p">(</span><span class="n">plainText</span><span class="p">);</span><span class="w"> </span><span class="c1">// (2)</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+<table class="docutils align-default">
+<colgroup>
+<col style="width: 10.0%" />
+<col style="width: 90.0%" />
+</colgroup>
+<thead>
+<tr class="row-odd"><th class="head"><p>項番</p></th>
+<th class="head"><p>説明</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><div class="line-block">
+<div class="line">(1)</div>
+</div>
+</td>
+<td><div class="line-block">
+<div class="line">共通鍵とソルトを指定して<code class="docutils literal notranslate"><span class="pre">Encryptors#text</span></code>メソッドを呼び出し、<code class="docutils literal notranslate"><span class="pre">TextEncryptor</span></code>クラスのインスタンスを生成する。</div>
+<div class="line">生成したインスタンスの初期化ベクトルがランダムであるため、暗号化の際に異なる結果を返す。なお、暗号利用モードはCBCとなる。</div>
+<div class="line">このときに指定した共通鍵とソルトは、復号時にも同じものを利用する。</div>
+</div>
+</td>
+</tr>
+<tr class="row-odd"><td><div class="line-block">
+<div class="line">(2)</div>
+</div>
+</td>
+<td><div class="line-block">
+<div class="line">平文を<code class="docutils literal notranslate"><span class="pre">encrypt</span></code>メソッドで暗号化する。</div>
+</div>
+</td>
+</tr>
+</tbody>
+</table>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p><strong>暗号化の結果について</strong></p>
+<p><code class="docutils literal notranslate"><span class="pre">encrypt</span></code>メソッドの返り値 (暗号化の結果) は実行毎に異なる値を返すが、鍵とソルトが同一であれば復号処理の結果は同一になる (正しく復号できる) 。</p>
+</div>
+</li>
+</ul>
+<div class="line-block">
+<div class="line"><br /></div>
+</div>
+<ul>
+<li><p>GCMを用いたAESを使用してテキスト（文字列）を暗号化する。</p>
+<p>GCMを用いたAESはSpring Security4.0.2以降で利用可能である。<a class="reference internal" href="#encryptionoverviewencryptionalgorithmaes"><span class="std std-ref">AES</span></a>で説明したとおり、CBCより処理効率が良い。</p>
+<div class="highlight-java notranslate"><div class="highlight"><pre><span></span><span class="kd">public</span><span class="w"> </span><span class="kd">static</span><span class="w"> </span><span class="n">String</span><span class="w"> </span><span class="nf">encryptTextByAesWithGcm</span><span class="p">(</span><span class="n">String</span><span class="w"> </span><span class="n">secret</span><span class="p">,</span><span class="w"> </span><span class="n">String</span><span class="w"> </span><span class="n">salt</span><span class="p">,</span><span class="w"> </span><span class="n">String</span><span class="w"> </span><span class="n">plainText</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="n">TextEncryptor</span><span class="w"> </span><span class="n">aesTextEncryptor</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">Encryptors</span><span class="p">.</span><span class="na">delux</span><span class="p">(</span><span class="n">secret</span><span class="p">,</span><span class="w"> </span><span class="n">salt</span><span class="p">);</span><span class="w"> </span><span class="c1">// (1)</span>
+
+<span class="w">    </span><span class="k">return</span><span class="w"> </span><span class="n">aesTextEncryptor</span><span class="p">.</span><span class="na">encrypt</span><span class="p">(</span><span class="n">plainText</span><span class="p">);</span><span class="w"> </span><span class="c1">// (2)</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+<table class="docutils align-default">
+<colgroup>
+<col style="width: 10.0%" />
+<col style="width: 90.0%" />
+</colgroup>
+<thead>
+<tr class="row-odd"><th class="head"><p>項番</p></th>
+<th class="head"><p>説明</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><div class="line-block">
+<div class="line">(1)</div>
+</div>
+</td>
+<td><div class="line-block">
+<div class="line">共通鍵とソルトを指定して<code class="docutils literal notranslate"><span class="pre">Encryptors#delux</span></code>メソッドを呼び出し、<code class="docutils literal notranslate"><span class="pre">TextEncryptor</span></code>クラスのインスタンスを生成する。</div>
+<div class="line">このときに指定する共通鍵とソルトは、復号時にも同じものを利用する。</div>
+</div>
+</td>
+</tr>
+<tr class="row-odd"><td><div class="line-block">
+<div class="line">(2)</div>
+</div>
+</td>
+<td><div class="line-block">
+<div class="line">平文を<code class="docutils literal notranslate"><span class="pre">encrypt</span></code>メソッドで暗号化する。</div>
+</div>
+</td>
+</tr>
+</tbody>
+</table>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p><strong>GCMを用いたAESに対するJavaの対応状況</strong></p>
+<p>GCMを用いたAESはJava SE8以降で使用可能である。</p>
+<p>詳細については、<a class="reference external" href="https://docs.oracle.com/javase/jp/8/docs/technotes/guides/security/enhancements-8.html">JDK 8セキュリティの拡張機能</a>を参照されたい。</p>
+</div>
+</li>
+</ul>
+<div class="line-block">
+<div class="line"><br /></div>
+</div>
+</section>
+<section id="id13">
+<h4><a class="toc-backref" href="#id43" role="doc-backlink"><span class="section-number">9.8.2.1.2. </span>文字列の復号</a><a class="headerlink" href="#id13" title="Permalink to this heading">¶</a></h4>
+<ul>
+<li><p>テキスト（文字列）の暗号文を復号する。</p>
+<div class="highlight-java notranslate"><div class="highlight"><pre><span></span><span class="kd">public</span><span class="w"> </span><span class="kd">static</span><span class="w"> </span><span class="n">String</span><span class="w"> </span><span class="nf">decryptText</span><span class="p">(</span><span class="n">String</span><span class="w"> </span><span class="n">secret</span><span class="p">,</span><span class="w"> </span><span class="n">String</span><span class="w"> </span><span class="n">salt</span><span class="p">,</span><span class="w"> </span><span class="n">String</span><span class="w"> </span><span class="n">cipherText</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="n">TextEncryptor</span><span class="w"> </span><span class="n">decryptor</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">Encryptors</span><span class="p">.</span><span class="na">text</span><span class="p">(</span><span class="n">secret</span><span class="p">,</span><span class="w"> </span><span class="n">salt</span><span class="p">);</span><span class="w"> </span><span class="c1">// (1)</span>
+
+<span class="w">    </span><span class="k">return</span><span class="w"> </span><span class="n">decryptor</span><span class="p">.</span><span class="na">decrypt</span><span class="p">(</span><span class="n">cipherText</span><span class="p">);</span><span class="w"> </span><span class="c1">// (2)</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+<table class="docutils align-default">
+<colgroup>
+<col style="width: 10.0%" />
+<col style="width: 90.0%" />
+</colgroup>
+<thead>
+<tr class="row-odd"><th class="head"><p>項番</p></th>
+<th class="head"><p>説明</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><div class="line-block">
+<div class="line">(1)</div>
+</div>
+</td>
+<td><div class="line-block">
+<div class="line">共通鍵とソルトを指定して<code class="docutils literal notranslate"><span class="pre">Encryptors#text</span></code>メソッドを呼び出し、<code class="docutils literal notranslate"><span class="pre">TextEncryptor</span></code>クラスのインスタンスを生成する。</div>
+<div class="line">共通鍵とソルトは、暗号化した際に利用したものを指定する。</div>
+</div>
+</td>
+</tr>
+<tr class="row-odd"><td><div class="line-block">
+<div class="line">(2)</div>
+</div>
+</td>
+<td><div class="line-block">
+<div class="line">暗号文を<code class="docutils literal notranslate"><span class="pre">decrypt</span></code>メソッドで復号する。</div>
+</div>
+</td>
+</tr>
+</tbody>
+</table>
+</li>
+</ul>
+<div class="line-block">
+<div class="line"><br /></div>
+</div>
+<ul>
+<li><p>GCMを用いたAESを使用してテキスト（文字列）の暗号文を復号する。</p>
+<div class="highlight-java notranslate"><div class="highlight"><pre><span></span><span class="kd">public</span><span class="w"> </span><span class="kd">static</span><span class="w"> </span><span class="n">String</span><span class="w"> </span><span class="nf">decryptTextByAesWithGcm</span><span class="p">(</span><span class="n">String</span><span class="w"> </span><span class="n">secret</span><span class="p">,</span><span class="w"> </span><span class="n">String</span><span class="w"> </span><span class="n">salt</span><span class="p">,</span><span class="w"> </span><span class="n">String</span><span class="w"> </span><span class="n">cipherText</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="n">TextEncryptor</span><span class="w"> </span><span class="n">aesTextEncryptor</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">Encryptors</span><span class="p">.</span><span class="na">delux</span><span class="p">(</span><span class="n">secret</span><span class="p">,</span><span class="w"> </span><span class="n">salt</span><span class="p">);</span><span class="w"> </span><span class="c1">// (1)</span>
+
+<span class="w">    </span><span class="k">return</span><span class="w"> </span><span class="n">aesTextEncryptor</span><span class="p">.</span><span class="na">decrypt</span><span class="p">(</span><span class="n">cipherText</span><span class="p">);</span><span class="w"> </span><span class="c1">// (2)</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+<table class="docutils align-default">
+<colgroup>
+<col style="width: 10.0%" />
+<col style="width: 90.0%" />
+</colgroup>
+<thead>
+<tr class="row-odd"><th class="head"><p>項番</p></th>
+<th class="head"><p>説明</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><div class="line-block">
+<div class="line">(1)</div>
+</div>
+</td>
+<td><div class="line-block">
+<div class="line">共通鍵とソルトを指定して<code class="docutils literal notranslate"><span class="pre">Encryptors#delux</span></code>メソッドを呼び出し、<code class="docutils literal notranslate"><span class="pre">TextEncryptor</span></code>クラスのインスタンスを生成する。</div>
+<div class="line">共通鍵とソルトは、暗号化した際に利用したものを指定する。</div>
+</div>
+</td>
+</tr>
+<tr class="row-odd"><td><div class="line-block">
+<div class="line">(2)</div>
+</div>
+</td>
+<td><div class="line-block">
+<div class="line">暗号文を<code class="docutils literal notranslate"><span class="pre">decrypt</span></code>メソッドで復号する。</div>
+</div>
+</td>
+</tr>
+</tbody>
+</table>
+</li>
+</ul>
+<div class="line-block">
+<div class="line"><br /></div>
+</div>
+</section>
+<section id="id14">
+<h4><a class="toc-backref" href="#id44" role="doc-backlink"><span class="section-number">9.8.2.1.3. </span>バイト配列の暗号化</a><a class="headerlink" href="#id14" title="Permalink to this heading">¶</a></h4>
+<ul>
+<li><p>バイト配列を暗号化する。</p>
+<div class="highlight-java notranslate"><div class="highlight"><pre><span></span><span class="kd">public</span><span class="w"> </span><span class="kd">static</span><span class="w"> </span><span class="kt">byte</span><span class="o">[]</span><span class="w"> </span><span class="nf">encryptBytes</span><span class="p">(</span><span class="n">String</span><span class="w"> </span><span class="n">secret</span><span class="p">,</span><span class="w"> </span><span class="n">String</span><span class="w"> </span><span class="n">salt</span><span class="p">,</span><span class="w"> </span><span class="kt">byte</span><span class="o">[]</span><span class="w"> </span><span class="n">plainBytes</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="n">BytesEncryptor</span><span class="w"> </span><span class="n">encryptor</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">Encryptors</span><span class="p">.</span><span class="na">standard</span><span class="p">(</span><span class="n">secret</span><span class="p">,</span><span class="w"> </span><span class="n">salt</span><span class="p">);</span><span class="w"> </span><span class="c1">// (1)</span>
+
+<span class="w">    </span><span class="k">return</span><span class="w"> </span><span class="n">encryptor</span><span class="p">.</span><span class="na">encrypt</span><span class="p">(</span><span class="n">plainBytes</span><span class="p">);</span><span class="w"> </span><span class="c1">// (2)</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+<table class="docutils align-default">
+<colgroup>
+<col style="width: 10.0%" />
+<col style="width: 90.0%" />
+</colgroup>
+<thead>
+<tr class="row-odd"><th class="head"><p>項番</p></th>
+<th class="head"><p>説明</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><div class="line-block">
+<div class="line">(1)</div>
+</div>
+</td>
+<td><div class="line-block">
+<div class="line">共通鍵とソルトを指定して<code class="docutils literal notranslate"><span class="pre">Encryptors#standard</span></code>メソッドを呼び出し、<code class="docutils literal notranslate"><span class="pre">BytesEncryptor</span></code>クラスのインスタンスを生成する。</div>
+<div class="line">このときに指定した共通鍵とソルトは、復号時にも同じものを利用する。</div>
+</div>
+</td>
+</tr>
+<tr class="row-odd"><td><div class="line-block">
+<div class="line">(2)</div>
+</div>
+</td>
+<td><div class="line-block">
+<div class="line">バイト配列の平文を<code class="docutils literal notranslate"><span class="pre">encrypt</span></code>メソッドで暗号化する。</div>
+</div>
+</td>
+</tr>
+</tbody>
+</table>
+</li>
+</ul>
+<div class="line-block">
+<div class="line"><br /></div>
+</div>
+<ul>
+<li><p>GCMを用いたAESを使用してバイト配列を暗号化する。</p>
+<div class="highlight-java notranslate"><div class="highlight"><pre><span></span><span class="kd">public</span><span class="w"> </span><span class="kd">static</span><span class="w"> </span><span class="kt">byte</span><span class="o">[]</span><span class="w"> </span><span class="nf">encryptBytesByAesWithGcm</span><span class="p">(</span><span class="n">String</span><span class="w"> </span><span class="n">secret</span><span class="p">,</span><span class="w"> </span><span class="n">String</span><span class="w"> </span><span class="n">salt</span><span class="p">,</span><span class="w"> </span><span class="kt">byte</span><span class="o">[]</span><span class="w"> </span><span class="n">plainBytes</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="n">BytesEncryptor</span><span class="w"> </span><span class="n">aesBytesEncryptor</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">Encryptors</span><span class="p">.</span><span class="na">stronger</span><span class="p">(</span><span class="n">secret</span><span class="p">,</span><span class="w"> </span><span class="n">salt</span><span class="p">);</span><span class="w"> </span><span class="c1">// (1)</span>
+
+<span class="w">    </span><span class="k">return</span><span class="w"> </span><span class="n">aesBytesEncryptor</span><span class="p">.</span><span class="na">encrypt</span><span class="p">(</span><span class="n">plainBytes</span><span class="p">);</span><span class="w"> </span><span class="c1">// (2)</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+<table class="docutils align-default">
+<colgroup>
+<col style="width: 10.0%" />
+<col style="width: 90.0%" />
+</colgroup>
+<thead>
+<tr class="row-odd"><th class="head"><p>項番</p></th>
+<th class="head"><p>説明</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><div class="line-block">
+<div class="line">(1)</div>
+</div>
+</td>
+<td><div class="line-block">
+<div class="line">共通鍵とソルトを指定して<code class="docutils literal notranslate"><span class="pre">Encryptors#stronger</span></code>メソッドを呼び出し、<code class="docutils literal notranslate"><span class="pre">BytesEncryptor</span></code>クラスのインスタンスを生成する。</div>
+<div class="line">このときに指定した共通鍵とソルトは、復号時にも同じものを利用する。</div>
+</div>
+</td>
+</tr>
+<tr class="row-odd"><td><div class="line-block">
+<div class="line">(2)</div>
+</div>
+</td>
+<td><div class="line-block">
+<div class="line">バイト配列の平文を<code class="docutils literal notranslate"><span class="pre">encrypt</span></code>メソッドで暗号化する。</div>
+</div>
+</td>
+</tr>
+</tbody>
+</table>
+</li>
+</ul>
+<div class="line-block">
+<div class="line"><br /></div>
+</div>
+</section>
+<section id="id15">
+<h4><a class="toc-backref" href="#id45" role="doc-backlink"><span class="section-number">9.8.2.1.4. </span>バイト配列の復号</a><a class="headerlink" href="#id15" title="Permalink to this heading">¶</a></h4>
+<ul>
+<li><p>バイト配列の暗号文を復号する。</p>
+<div class="highlight-java notranslate"><div class="highlight"><pre><span></span><span class="kd">public</span><span class="w"> </span><span class="kd">static</span><span class="w"> </span><span class="kt">byte</span><span class="o">[]</span><span class="w"> </span><span class="nf">decryptBytes</span><span class="p">(</span><span class="n">String</span><span class="w"> </span><span class="n">secret</span><span class="p">,</span><span class="w"> </span><span class="n">String</span><span class="w"> </span><span class="n">salt</span><span class="p">,</span><span class="w"> </span><span class="kt">byte</span><span class="o">[]</span><span class="w"> </span><span class="n">cipherBytes</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="n">BytesEncryptor</span><span class="w"> </span><span class="n">decryptor</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">Encryptors</span><span class="p">.</span><span class="na">standard</span><span class="p">(</span><span class="n">secret</span><span class="p">,</span><span class="w"> </span><span class="n">salt</span><span class="p">);</span><span class="w"> </span><span class="c1">// (1)</span>
+
+<span class="w">    </span><span class="k">return</span><span class="w"> </span><span class="n">decryptor</span><span class="p">.</span><span class="na">decrypt</span><span class="p">(</span><span class="n">cipherBytes</span><span class="p">);</span><span class="w"> </span><span class="c1">// (2)</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+<table class="docutils align-default">
+<colgroup>
+<col style="width: 10.0%" />
+<col style="width: 90.0%" />
+</colgroup>
+<thead>
+<tr class="row-odd"><th class="head"><p>項番</p></th>
+<th class="head"><p>説明</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><div class="line-block">
+<div class="line">(1)</div>
+</div>
+</td>
+<td><div class="line-block">
+<div class="line">共通鍵とソルトを指定して<code class="docutils literal notranslate"><span class="pre">Encryptors#standard</span></code>メソッドを呼び出し、<code class="docutils literal notranslate"><span class="pre">BytesEncryptor</span></code>クラスのインスタンスを生成する。</div>
+<div class="line">共通鍵とソルトは、暗号化した際に利用したものを指定する。</div>
+</div>
+</td>
+</tr>
+<tr class="row-odd"><td><div class="line-block">
+<div class="line">(2)</div>
+</div>
+</td>
+<td><div class="line-block">
+<div class="line">バイト配列の暗号文を<code class="docutils literal notranslate"><span class="pre">decrypt</span></code>メソッドで復号する。</div>
+</div>
+</td>
+</tr>
+</tbody>
+</table>
+</li>
+</ul>
+<div class="line-block">
+<div class="line"><br /></div>
+</div>
+<ul>
+<li><p>GCMを用いたAESによりバイト配列を復号する。</p>
+<div class="highlight-java notranslate"><div class="highlight"><pre><span></span><span class="kd">public</span><span class="w"> </span><span class="kd">static</span><span class="w"> </span><span class="kt">byte</span><span class="o">[]</span><span class="w"> </span><span class="nf">decryptBytesByAesWithGcm</span><span class="p">(</span><span class="n">String</span><span class="w"> </span><span class="n">secret</span><span class="p">,</span><span class="w"> </span><span class="n">String</span><span class="w"> </span><span class="n">salt</span><span class="p">,</span><span class="w"> </span><span class="kt">byte</span><span class="o">[]</span><span class="w"> </span><span class="n">cipherBytes</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="n">BytesEncryptor</span><span class="w"> </span><span class="n">aesBytesEncryptor</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">Encryptors</span><span class="p">.</span><span class="na">stronger</span><span class="p">(</span><span class="n">secret</span><span class="p">,</span><span class="w"> </span><span class="n">salt</span><span class="p">);</span><span class="w"> </span><span class="c1">// (1)</span>
+
+<span class="w">    </span><span class="k">return</span><span class="w"> </span><span class="n">aesBytesEncryptor</span><span class="p">.</span><span class="na">decrypt</span><span class="p">(</span><span class="n">cipherBytes</span><span class="p">);</span><span class="w"> </span><span class="c1">// (2)</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+<table class="docutils align-default">
+<colgroup>
+<col style="width: 10.0%" />
+<col style="width: 90.0%" />
+</colgroup>
+<thead>
+<tr class="row-odd"><th class="head"><p>項番</p></th>
+<th class="head"><p>説明</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><div class="line-block">
+<div class="line">(1)</div>
+</div>
+</td>
+<td><div class="line-block">
+<div class="line">共通鍵とソルトを指定して<code class="docutils literal notranslate"><span class="pre">Encryptors#stronger</span></code>メソッドを呼び出し、<code class="docutils literal notranslate"><span class="pre">BytesEncryptor</span></code>クラスのインスタンスを生成する。</div>
+<div class="line">共通鍵とソルトは、暗号化した際に利用したものを指定する。</div>
+</div>
+</td>
+</tr>
+<tr class="row-odd"><td><div class="line-block">
+<div class="line">(2)</div>
+</div>
+</td>
+<td><div class="line-block">
+<div class="line">バイト配列の暗号文を<code class="docutils literal notranslate"><span class="pre">decrypt</span></code>メソッドで復号する。</div>
+</div>
+</td>
+</tr>
+</tbody>
+</table>
+</li>
+</ul>
+<div class="line-block">
+<div class="line"><br /></div>
+</div>
+</section>
+</section>
+<section id="encryptionhowtousepublickey">
+<span id="id16"></span><h3><a class="toc-backref" href="#id46" role="doc-backlink"><span class="section-number">9.8.2.2. </span>公開鍵暗号化方式</a><a class="headerlink" href="#encryptionhowtousepublickey" title="Permalink to this heading">¶</a></h3>
+<div class="line-block">
+<div class="line">Spring Securityでは公開鍵暗号化方式に関する機能は提供されていないため、JCAおよびOpenSSLを利用した方法についてサンプルコードを用いて説明する。</div>
+<div class="line"><br /></div>
+</div>
+<section id="jca">
+<h4><a class="toc-backref" href="#id47" role="doc-backlink"><span class="section-number">9.8.2.2.1. </span>事前準備（JCAによるキーペアの生成）</a><a class="headerlink" href="#jca" title="Permalink to this heading">¶</a></h4>
+<ul>
+<li><p>JCAでキーペア(公開鍵 / 秘密鍵の組み合わせ)を生成し、公開鍵で暗号化、秘密鍵で復号処理を行う。</p>
+<div class="highlight-java notranslate"><div class="highlight"><pre><span></span><span class="kd">public</span><span class="w"> </span><span class="kt">void</span><span class="w"> </span><span class="nf">generateKeysByJCA</span><span class="p">()</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="k">try</span><span class="w"> </span><span class="p">{</span>
+<span class="w">        </span><span class="n">KeyPairGenerator</span><span class="w"> </span><span class="n">generator</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">KeyPairGenerator</span><span class="p">.</span><span class="na">getInstance</span><span class="p">(</span><span class="s">&quot;RSA&quot;</span><span class="p">);</span><span class="w"> </span><span class="c1">// (1)</span>
+<span class="w">        </span><span class="n">generator</span><span class="p">.</span><span class="na">initialize</span><span class="p">(</span><span class="mi">2048</span><span class="p">);</span><span class="w"> </span><span class="c1">// (2)</span>
+<span class="w">        </span><span class="n">KeyPair</span><span class="w"> </span><span class="n">keyPair</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">generator</span><span class="p">.</span><span class="na">generateKeyPair</span><span class="p">();</span><span class="w"> </span><span class="c1">// (3)</span>
+<span class="w">        </span><span class="n">PublicKey</span><span class="w"> </span><span class="n">publicKey</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">keyPair</span><span class="p">.</span><span class="na">getPublic</span><span class="p">();</span>
+<span class="w">        </span><span class="n">PrivateKey</span><span class="w"> </span><span class="n">privateKey</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">keyPair</span><span class="p">.</span><span class="na">getPrivate</span><span class="p">();</span>
+
+<span class="w">        </span><span class="kt">byte</span><span class="o">[]</span><span class="w"> </span><span class="n">cipherBytes</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">encryptByPublicKey</span><span class="p">(</span><span class="s">&quot;Hello World!&quot;</span><span class="p">,</span><span class="w"> </span><span class="n">publicKey</span><span class="p">);</span><span class="w">  </span><span class="c1">// (4)</span>
+<span class="w">        </span><span class="n">String</span><span class="w"> </span><span class="n">plainText</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">decryptByPrivateKey</span><span class="p">(</span><span class="n">cipherBytes</span><span class="p">,</span><span class="w"> </span><span class="n">privateKey</span><span class="p">);</span><span class="w"> </span><span class="c1">// (5)</span>
+<span class="w">        </span><span class="n">System</span><span class="p">.</span><span class="na">out</span><span class="p">.</span><span class="na">println</span><span class="p">(</span><span class="n">plainText</span><span class="p">);</span>
+<span class="w">    </span><span class="p">}</span><span class="w"> </span><span class="k">catch</span><span class="w"> </span><span class="p">(</span><span class="n">NoSuchAlgorithmException</span><span class="w"> </span><span class="n">e</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">        </span><span class="k">throw</span><span class="w"> </span><span class="k">new</span><span class="w"> </span><span class="n">SystemException</span><span class="p">(</span><span class="s">&quot;e.xx.xx.9002&quot;</span><span class="p">,</span><span class="w"> </span><span class="s">&quot;No Such setting error.&quot;</span><span class="p">,</span><span class="w"> </span><span class="n">e</span><span class="p">);</span>
+<span class="w">    </span><span class="p">}</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+<table class="docutils align-default">
+<colgroup>
+<col style="width: 10.0%" />
+<col style="width: 90.0%" />
+</colgroup>
+<thead>
+<tr class="row-odd"><th class="head"><p>項番</p></th>
+<th class="head"><p>説明</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><div class="line-block">
+<div class="line">(1)</div>
+</div>
+</td>
+<td><div class="line-block">
+<div class="line">RSAアルゴリズムを指定して<code class="docutils literal notranslate"><span class="pre">KeyPairGenerator</span></code>クラスのインスタンスを生成する。</div>
+</div>
+</td>
+</tr>
+<tr class="row-odd"><td><div class="line-block">
+<div class="line">(2)</div>
+</div>
+</td>
+<td><div class="line-block">
+<div class="line">鍵長として2048ビットを指定する。</div>
+</div>
+</td>
+</tr>
+<tr class="row-even"><td><div class="line-block">
+<div class="line">(3)</div>
+</div>
+</td>
+<td><div class="line-block">
+<div class="line">キーペアを生成する。</div>
+</div>
+</td>
+</tr>
+<tr class="row-odd"><td><div class="line-block">
+<div class="line">(4)</div>
+</div>
+</td>
+<td><div class="line-block">
+<div class="line">公開鍵を利用して暗号化処理を行う。処理内容は後述する。</div>
+</div>
+</td>
+</tr>
+<tr class="row-even"><td><div class="line-block">
+<div class="line">(5)</div>
+</div>
+</td>
+<td><div class="line-block">
+<div class="line">秘密鍵を利用して復号処理を行う。処理内容は後述する。</div>
+</div>
+</td>
+</tr>
+</tbody>
+</table>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p><strong>暗号化したデータを文字列として扱いたい場合</strong></p>
+<p>外部システム連携等、暗号化したデータを文字列でやり取りしたい場合は、1つの手段としてBase64エンコードが挙げられる。Base64エンコードではJava標準の<code class="docutils literal notranslate"><span class="pre">java.util.Base64</span></code>を使用する。</p>
+<p>Base64エンコードおよびデコードする方法を<code class="docutils literal notranslate"><span class="pre">java.util.Base64</span></code>を使用して説明する。</p>
+<ul>
+<li><p>Base64エンコード</p>
+<div class="highlight-java notranslate"><div class="highlight"><pre><span></span><span class="c1">// omitted</span>
+<span class="kt">byte</span><span class="o">[]</span><span class="w"> </span><span class="n">cipherBytes</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">encryptByPublicKey</span><span class="p">(</span><span class="s">&quot;Hello World!&quot;</span><span class="p">,</span><span class="w"> </span><span class="n">publicKey</span><span class="p">);</span><span class="w">  </span><span class="c1">// 暗号化処理</span>
+<span class="n">String</span><span class="w"> </span><span class="n">cipherString</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">Base64</span><span class="p">.</span><span class="na">getEncoder</span><span class="p">().</span><span class="na">encodeToString</span><span class="p">(</span><span class="n">cipherBytes</span><span class="p">);</span><span class="w">  </span><span class="c1">// バイト配列の暗号文を文字列に変換</span>
+<span class="c1">// omitted</span>
+</pre></div>
+</div>
+</li>
+<li><p>Base64デコード</p>
+<div class="highlight-java notranslate"><div class="highlight"><pre><span></span><span class="c1">// omitted</span>
+<span class="kt">byte</span><span class="o">[]</span><span class="w"> </span><span class="n">cipherBytes</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">Base64</span><span class="p">.</span><span class="na">getDecoder</span><span class="p">().</span><span class="na">decode</span><span class="p">(</span><span class="n">cipherString</span><span class="p">);</span><span class="w"> </span><span class="c1">// 文字列の暗号文をバイト配列に変換</span>
+<span class="n">String</span><span class="w"> </span><span class="n">plainText</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">decryptByPrivateKey</span><span class="p">(</span><span class="n">cipherBytes</span><span class="p">,</span><span class="w"> </span><span class="n">privateKey</span><span class="p">);</span><span class="w"> </span><span class="c1">// 復号処理</span>
+<span class="c1">// omitted</span>
+</pre></div>
+</div>
+</li>
+</ul>
+</div>
+</li>
+</ul>
+<div class="line-block">
+<div class="line"><br /></div>
+</div>
+</section>
+<section id="id17">
+<h4><a class="toc-backref" href="#id48" role="doc-backlink"><span class="section-number">9.8.2.2.2. </span>暗号化</a><a class="headerlink" href="#id17" title="Permalink to this heading">¶</a></h4>
+<ul>
+<li><p>公開鍵を利用して文字列を暗号化する。</p>
+<div class="highlight-java notranslate"><div class="highlight"><pre><span></span><span class="kd">public</span><span class="w"> </span><span class="kt">byte</span><span class="o">[]</span><span class="w"> </span><span class="nf">encryptByPublicKey</span><span class="p">(</span><span class="n">String</span><span class="w"> </span><span class="n">plainText</span><span class="p">,</span><span class="w"> </span><span class="n">PublicKey</span><span class="w"> </span><span class="n">publicKey</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="k">try</span><span class="w"> </span><span class="p">{</span>
+<span class="w">        </span><span class="n">Cipher</span><span class="w"> </span><span class="n">cipher</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">Cipher</span><span class="p">.</span><span class="na">getInstance</span><span class="p">(</span><span class="s">&quot;RSA/ECB/OAEPWithSHA-256AndMGF1Padding&quot;</span><span class="p">);</span><span class="w"> </span><span class="c1">// (1)</span>
+<span class="w">        </span><span class="n">cipher</span><span class="p">.</span><span class="na">init</span><span class="p">(</span><span class="n">Cipher</span><span class="p">.</span><span class="na">ENCRYPT_MODE</span><span class="p">,</span><span class="w"> </span><span class="n">publicKey</span><span class="p">,</span><span class="w"> </span><span class="k">new</span><span class="w"> </span><span class="n">OAEPParameterSpec</span><span class="p">(</span><span class="s">&quot;SHA-256&quot;</span><span class="p">,</span><span class="w"> </span><span class="s">&quot;MGF1&quot;</span><span class="p">,</span><span class="w"> </span><span class="n">MGF1ParameterSpec</span><span class="p">.</span><span class="na">SHA256</span><span class="p">,</span><span class="w"> </span><span class="n">PSource</span><span class="p">.</span><span class="na">PSpecified</span><span class="p">.</span><span class="na">DEFAULT</span><span class="p">));</span><span class="w"> </span><span class="c1">// (2)</span>
+<span class="w">        </span><span class="k">return</span><span class="w"> </span><span class="n">cipher</span><span class="p">.</span><span class="na">doFinal</span><span class="p">(</span><span class="n">plainText</span><span class="p">.</span><span class="na">getBytes</span><span class="p">(</span><span class="n">StandardCharsets</span><span class="p">.</span><span class="na">UTF_8</span><span class="p">));</span><span class="w"> </span><span class="c1">// (3)</span>
+<span class="w">    </span><span class="p">}</span><span class="w"> </span><span class="k">catch</span><span class="w"> </span><span class="p">(</span><span class="n">NoSuchAlgorithmException</span><span class="w"> </span><span class="o">|</span><span class="w"> </span><span class="n">NoSuchPaddingException</span><span class="w"> </span><span class="n">e</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">        </span><span class="k">throw</span><span class="w"> </span><span class="k">new</span><span class="w"> </span><span class="n">SystemException</span><span class="p">(</span><span class="s">&quot;e.xx.xx.9002&quot;</span><span class="p">,</span><span class="w"> </span><span class="s">&quot;No Such setting error.&quot;</span><span class="p">,</span><span class="w"> </span><span class="n">e</span><span class="p">);</span>
+<span class="w">    </span><span class="p">}</span><span class="w"> </span><span class="k">catch</span><span class="w"> </span><span class="p">(</span><span class="n">InvalidKeyException</span><span class="w"> </span><span class="o">|</span>
+<span class="w">             </span><span class="n">IllegalBlockSizeException</span><span class="w"> </span><span class="o">|</span>
+<span class="w">             </span><span class="n">BadPaddingException</span><span class="w"> </span><span class="n">e</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">        </span><span class="k">throw</span><span class="w"> </span><span class="k">new</span><span class="w"> </span><span class="n">SystemException</span><span class="p">(</span><span class="s">&quot;e.xx.xx.9003&quot;</span><span class="p">,</span><span class="w"> </span><span class="s">&quot;Invalid setting error.&quot;</span><span class="p">,</span><span class="w"> </span><span class="n">e</span><span class="p">);</span>
+<span class="w">    </span><span class="p">}</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+<table class="docutils align-default">
+<colgroup>
+<col style="width: 10.0%" />
+<col style="width: 90.0%" />
+</colgroup>
+<thead>
+<tr class="row-odd"><th class="head"><p>項番</p></th>
+<th class="head"><p>説明</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><div class="line-block">
+<div class="line">(1)</div>
+</div>
+</td>
+<td><div class="line-block">
+<div class="line">暗号化アルゴリズム、暗号利用モード、パディング方式を指定して、<code class="docutils literal notranslate"><span class="pre">Cipher</span></code>クラスのインスタンスを生成する。</div>
+</div>
+</td>
+</tr>
+<tr class="row-odd"><td><div class="line-block">
+<div class="line">(2)</div>
+</div>
+</td>
+<td><div class="line-block">
+<div class="line">暗号化モード定数と公開鍵を指定してCipherクラスのインスタンスを初期化する。</div>
+</div>
+</td>
+</tr>
+<tr class="row-even"><td><div class="line-block">
+<div class="line">(3)</div>
+</div>
+</td>
+<td><div class="line-block">
+<div class="line">文字列の暗号化処理を実行する。</div>
+</div>
+</td>
+</tr>
+</tbody>
+</table>
+</li>
+</ul>
+<div class="line-block">
+<div class="line"><br /></div>
+</div>
+</section>
+<section id="id18">
+<h4><a class="toc-backref" href="#id49" role="doc-backlink"><span class="section-number">9.8.2.2.3. </span>復号</a><a class="headerlink" href="#id18" title="Permalink to this heading">¶</a></h4>
+<ul>
+<li><p>秘密鍵を利用してバイト配列を復号する。</p>
+<div class="highlight-java notranslate"><div class="highlight"><pre><span></span><span class="kd">public</span><span class="w"> </span><span class="n">String</span><span class="w"> </span><span class="nf">decryptByPrivateKey</span><span class="p">(</span><span class="kt">byte</span><span class="o">[]</span><span class="w"> </span><span class="n">cipherBytes</span><span class="p">,</span><span class="w"> </span><span class="n">PrivateKey</span><span class="w"> </span><span class="n">privateKey</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="k">try</span><span class="w"> </span><span class="p">{</span>
+<span class="w">        </span><span class="n">Cipher</span><span class="w"> </span><span class="n">cipher</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">Cipher</span><span class="p">.</span><span class="na">getInstance</span><span class="p">(</span><span class="s">&quot;RSA/ECB/OAEPWithSHA-256AndMGF1Padding&quot;</span><span class="p">);</span><span class="w"> </span><span class="c1">// (1)</span>
+<span class="w">        </span><span class="n">cipher</span><span class="p">.</span><span class="na">init</span><span class="p">(</span><span class="n">Cipher</span><span class="p">.</span><span class="na">DECRYPT_MODE</span><span class="p">,</span><span class="w"> </span><span class="n">privateKey</span><span class="p">,</span><span class="w"> </span><span class="k">new</span><span class="w"> </span><span class="n">OAEPParameterSpec</span><span class="p">(</span><span class="s">&quot;SHA-256&quot;</span><span class="p">,</span><span class="w"> </span><span class="s">&quot;MGF1&quot;</span><span class="p">,</span><span class="w"> </span><span class="n">MGF1ParameterSpec</span><span class="p">.</span><span class="na">SHA256</span><span class="p">,</span><span class="w"> </span><span class="n">PSource</span><span class="p">.</span><span class="na">PSpecified</span><span class="p">.</span><span class="na">DEFAULT</span><span class="p">));</span><span class="w"> </span><span class="c1">// (2)</span>
+<span class="w">        </span><span class="kt">byte</span><span class="o">[]</span><span class="w"> </span><span class="n">plainBytes</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">cipher</span><span class="p">.</span><span class="na">doFinal</span><span class="p">(</span><span class="n">cipherBytes</span><span class="p">);</span><span class="w"> </span><span class="c1">// (3)</span>
+<span class="w">        </span><span class="k">return</span><span class="w"> </span><span class="k">new</span><span class="w"> </span><span class="n">String</span><span class="p">(</span><span class="n">plainBytes</span><span class="p">,</span><span class="w"> </span><span class="n">StandardCharsets</span><span class="p">.</span><span class="na">UTF_8</span><span class="p">);</span>
+<span class="w">    </span><span class="p">}</span><span class="w"> </span><span class="k">catch</span><span class="w"> </span><span class="p">(</span><span class="n">NoSuchAlgorithmException</span><span class="w"> </span><span class="o">|</span><span class="w"> </span><span class="n">NoSuchPaddingException</span><span class="w"> </span><span class="n">e</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">        </span><span class="k">throw</span><span class="w"> </span><span class="k">new</span><span class="w"> </span><span class="n">SystemException</span><span class="p">(</span><span class="s">&quot;e.xx.xx.9002&quot;</span><span class="p">,</span><span class="w"> </span><span class="s">&quot;No Such setting error.&quot;</span><span class="p">,</span><span class="w"> </span><span class="n">e</span><span class="p">);</span>
+<span class="w">    </span><span class="p">}</span><span class="w"> </span><span class="k">catch</span><span class="w"> </span><span class="p">(</span><span class="n">InvalidKeyException</span><span class="w"> </span><span class="o">|</span>
+<span class="w">             </span><span class="n">IllegalBlockSizeException</span><span class="w"> </span><span class="o">|</span>
+<span class="w">             </span><span class="n">BadPaddingException</span><span class="w"> </span><span class="n">e</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">        </span><span class="k">throw</span><span class="w"> </span><span class="k">new</span><span class="w"> </span><span class="n">SystemException</span><span class="p">(</span><span class="s">&quot;e.xx.xx.9003&quot;</span><span class="p">,</span><span class="w"> </span><span class="s">&quot;Invalid setting error.&quot;</span><span class="p">,</span><span class="w"> </span><span class="n">e</span><span class="p">);</span>
+<span class="w">    </span><span class="p">}</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+<table class="docutils align-default">
+<colgroup>
+<col style="width: 10.0%" />
+<col style="width: 90.0%" />
+</colgroup>
+<thead>
+<tr class="row-odd"><th class="head"><p>項番</p></th>
+<th class="head"><p>説明</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><div class="line-block">
+<div class="line">(1)</div>
+</div>
+</td>
+<td><div class="line-block">
+<div class="line">暗号化アルゴリズム、暗号利用モード、パディング方式を指定して、<code class="docutils literal notranslate"><span class="pre">Cipher</span></code>クラスのインスタンスを生成する。</div>
+</div>
+</td>
+</tr>
+<tr class="row-odd"><td><div class="line-block">
+<div class="line">(2)</div>
+</div>
+</td>
+<td><div class="line-block">
+<div class="line">復号モード定数と秘密鍵を指定してCipherクラスのインスタンスを初期化する。</div>
+</div>
+</td>
+</tr>
+<tr class="row-even"><td><div class="line-block">
+<div class="line">(3)</div>
+</div>
+</td>
+<td><div class="line-block">
+<div class="line">バイト配列の復号処理を実行する。</div>
+</div>
+</td>
+</tr>
+</tbody>
+</table>
+</li>
+</ul>
+<div class="line-block">
+<div class="line"><br /></div>
+</div>
+</section>
+<section id="openssl">
+<h4><a class="toc-backref" href="#id50" role="doc-backlink"><span class="section-number">9.8.2.2.4. </span>OpenSSL</a><a class="headerlink" href="#openssl" title="Permalink to this heading">¶</a></h4>
+<div class="line-block">
+<div class="line">Cipherが同一であれば、公開鍵暗号化方式は別の方法で暗号化および復号を行うことが可能である。</div>
+<div class="line">ここでは、OpenSSLを利用してあらかじめキーペアを作成しておき、その公開鍵を利用してJCAによる暗号化を行う。</div>
+<div class="line">以下に、その秘密鍵を利用してOpenSSLで復号処理を行う方法を説明する。</div>
+</div>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p><strong>OpenSSL</strong></p>
+<p>OpenSSLでキーペアを作成する際はソフトウェアをインストールしておく必要がある。下記サイトよりダウンロードできる。</p>
+<p>OpenSSLのダウンロード先</p>
+<ul class="simple">
+<li><p><a class="reference external" href="https://www.openssl.org/source/">Linux 用</a></p></li>
+<li><p><a class="reference external" href="https://slproweb.com/products/Win32OpenSSL.html">Windows 用</a></p></li>
+</ul>
+</div>
+<div class="line-block">
+<div class="line"><br /></div>
+</div>
+<ul>
+<li><p>事前準備として、OpenSSLでキーペアを作成する。</p>
+<div class="highlight-console notranslate"><div class="highlight"><pre><span></span><span class="gp">$ </span>openssl<span class="w"> </span>genrsa<span class="w"> </span>-out<span class="w"> </span>private.pem<span class="w"> </span><span class="m">2048</span><span class="w">  </span><span class="c1"># (1)</span>
+
+<span class="gp">$ </span>openssl<span class="w"> </span>pkcs8<span class="w"> </span>-topk8<span class="w"> </span>-nocrypt<span class="w"> </span>-in<span class="w"> </span>private.pem<span class="w"> </span>-out<span class="w"> </span>private.pk8<span class="w"> </span>-outform<span class="w"> </span>DER<span class="w">  </span><span class="c1"># (2)</span>
+
+<span class="gp">$ </span>openssl<span class="w"> </span>rsa<span class="w"> </span>-pubout<span class="w"> </span>-in<span class="w"> </span>private.pem<span class="w"> </span>-out<span class="w"> </span>public.der<span class="w"> </span>-outform<span class="w"> </span>DER<span class="w">  </span><span class="c1"># (3)</span>
+</pre></div>
+</div>
+<table class="docutils align-default">
+<colgroup>
+<col style="width: 10.0%" />
+<col style="width: 90.0%" />
+</colgroup>
+<thead>
+<tr class="row-odd"><th class="head"><p>項番</p></th>
+<th class="head"><p>説明</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><div class="line-block">
+<div class="line">(1)</div>
+</div>
+</td>
+<td><div class="line-block">
+<div class="line">OpenSSLで2048ビットの秘密鍵 (DER形式) を生成する。</div>
+</div>
+</td>
+</tr>
+<tr class="row-odd"><td><div class="line-block">
+<div class="line">(2)</div>
+</div>
+</td>
+<td><div class="line-block">
+<div class="line">Javaアプリケーションから読み込むために、秘密鍵をPKCS #8形式に変換する。</div>
+</div>
+</td>
+</tr>
+<tr class="row-even"><td><div class="line-block">
+<div class="line">(3)</div>
+</div>
+</td>
+<td><div class="line-block">
+<div class="line">秘密鍵から公開鍵 (DER形式) を生成する。</div>
+</div>
+</td>
+</tr>
+</tbody>
+</table>
+</li>
+</ul>
+<div class="line-block">
+<div class="line"><br /></div>
+</div>
+<ul>
+<li><p>アプリケーションではOpenSSLで作成した公開鍵を読み込み、読み込んだ公開鍵を利用して暗号化処理を行う。</p>
+<div class="highlight-java notranslate"><div class="highlight"><pre><span></span><span class="kd">public</span><span class="w"> </span><span class="kt">void</span><span class="w"> </span><span class="nf">useOpenSSLDecryption</span><span class="p">()</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="k">try</span><span class="w"> </span><span class="p">{</span>
+<span class="w">        </span><span class="n">KeySpec</span><span class="w"> </span><span class="n">publicKeySpec</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="k">new</span><span class="w"> </span><span class="n">X509EncodedKeySpec</span><span class="p">(</span>
+<span class="w">                </span><span class="n">Files</span><span class="p">.</span><span class="na">readAllBytes</span><span class="p">(</span><span class="n">Paths</span><span class="p">.</span><span class="na">get</span><span class="p">(</span><span class="s">&quot;public.der&quot;</span><span class="p">)));</span><span class="w"> </span><span class="c1">// (1)</span>
+<span class="w">        </span><span class="n">KeyFactory</span><span class="w"> </span><span class="n">keyFactory</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">KeyFactory</span><span class="p">.</span><span class="na">getInstance</span><span class="p">(</span><span class="s">&quot;RSA&quot;</span><span class="p">);</span>
+<span class="w">        </span><span class="n">PublicKey</span><span class="w"> </span><span class="n">publicKey</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">keyFactory</span><span class="p">.</span><span class="na">generatePublic</span><span class="p">(</span><span class="n">publicKeySpec</span><span class="p">);</span><span class="w"> </span><span class="c1">// (2)</span>
+
+<span class="w">        </span><span class="kt">byte</span><span class="o">[]</span><span class="w"> </span><span class="n">cipherBytes</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">encryptByPublicKey</span><span class="p">(</span><span class="s">&quot;Hello World!&quot;</span><span class="p">,</span><span class="w"> </span><span class="n">publicKey</span><span class="p">);</span><span class="w"> </span><span class="c1">// (3)</span>
+
+<span class="w">        </span><span class="n">Files</span><span class="p">.</span><span class="na">write</span><span class="p">(</span><span class="n">Paths</span><span class="p">.</span><span class="na">get</span><span class="p">(</span><span class="s">&quot;encryptedByJCA.txt&quot;</span><span class="p">),</span><span class="w"> </span><span class="n">cipherBytes</span><span class="p">);</span>
+<span class="w">        </span><span class="n">System</span><span class="p">.</span><span class="na">out</span><span class="p">.</span><span class="na">println</span><span class="p">(</span><span class="s">&quot;Please execute the following command:&quot;</span><span class="p">);</span>
+<span class="w">        </span><span class="n">System</span><span class="p">.</span><span class="na">out</span>
+<span class="w">                </span><span class="p">.</span><span class="na">println</span><span class="p">(</span><span class="s">&quot;openssl pkeyutl -decrypt -pkeyopt rsa_padding_mode:oaep -pkeyopt rsa_oaep_md:sha256 -inkey hoge.pem -in encryptedByJCA.txt&quot;</span><span class="p">);</span>
+<span class="w">    </span><span class="p">}</span><span class="w"> </span><span class="k">catch</span><span class="w"> </span><span class="p">(</span><span class="n">IOException</span><span class="w"> </span><span class="n">e</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">        </span><span class="k">throw</span><span class="w"> </span><span class="k">new</span><span class="w"> </span><span class="n">SystemException</span><span class="p">(</span><span class="s">&quot;e.xx.xx.9001&quot;</span><span class="p">,</span><span class="w"> </span><span class="s">&quot;input/output error.&quot;</span><span class="p">,</span><span class="w"> </span><span class="n">e</span><span class="p">);</span>
+<span class="w">    </span><span class="p">}</span><span class="w"> </span><span class="k">catch</span><span class="w"> </span><span class="p">(</span><span class="n">NoSuchAlgorithmException</span><span class="w"> </span><span class="n">e</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">        </span><span class="k">throw</span><span class="w"> </span><span class="k">new</span><span class="w"> </span><span class="n">SystemException</span><span class="p">(</span><span class="s">&quot;e.xx.xx.9002&quot;</span><span class="p">,</span><span class="w"> </span><span class="s">&quot;No Such setting error.&quot;</span><span class="p">,</span><span class="w"> </span><span class="n">e</span><span class="p">);</span>
+<span class="w">    </span><span class="p">}</span><span class="w"> </span><span class="k">catch</span><span class="w"> </span><span class="p">(</span><span class="n">InvalidKeySpecException</span><span class="w"> </span><span class="n">e</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">        </span><span class="k">throw</span><span class="w"> </span><span class="k">new</span><span class="w"> </span><span class="n">SystemException</span><span class="p">(</span><span class="s">&quot;e.xx.xx.9003&quot;</span><span class="p">,</span><span class="w"> </span><span class="s">&quot;Invalid setting error.&quot;</span><span class="p">,</span><span class="w"> </span><span class="n">e</span><span class="p">);</span>
+<span class="w">    </span><span class="p">}</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+<table class="docutils align-default">
+<colgroup>
+<col style="width: 10.0%" />
+<col style="width: 90.0%" />
+</colgroup>
+<thead>
+<tr class="row-odd"><th class="head"><p>項番</p></th>
+<th class="head"><p>説明</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><div class="line-block">
+<div class="line">(1)</div>
+</div>
+</td>
+<td><div class="line-block">
+<div class="line">公開鍵ファイルからバイナリデータを読み込む。</div>
+</div>
+</td>
+</tr>
+<tr class="row-odd"><td><div class="line-block">
+<div class="line">(2)</div>
+</div>
+</td>
+<td><div class="line-block">
+<div class="line">バイナリデータから<code class="docutils literal notranslate"><span class="pre">PublicKey</span></code>クラスのインスタンスを生成する。</div>
+</div>
+</td>
+</tr>
+<tr class="row-even"><td><div class="line-block">
+<div class="line">(3)</div>
+</div>
+</td>
+<td><div class="line-block">
+<div class="line">公開鍵を利用して暗号化処理を行う。</div>
+</div>
+</td>
+</tr>
+</tbody>
+</table>
+</li>
+</ul>
+<div class="line-block">
+<div class="line"><br /></div>
+</div>
+<ul>
+<li><p>JCAで暗号化した内容がOpenSSLで復号できることを確認する。</p>
+<div class="highlight-console notranslate"><div class="highlight"><pre><span></span><span class="gp">$ </span>openssl<span class="w"> </span>pkeyutl<span class="w"> </span>-decrypt<span class="w"> </span>-pkeyopt<span class="w"> </span>rsa_padding_mode:oaep<span class="w"> </span>-pkeyopt<span class="w"> </span>rsa_oaep_md:sha256<span class="w"> </span>-inkey<span class="w"> </span>private.pem<span class="w"> </span>-in<span class="w"> </span>encryptedByJCA.txt<span class="w">  </span><span class="c1"># (1)</span>
+</pre></div>
+</div>
+<table class="docutils align-default">
+<colgroup>
+<col style="width: 10.0%" />
+<col style="width: 90.0%" />
+</colgroup>
+<thead>
+<tr class="row-odd"><th class="head"><p>項番</p></th>
+<th class="head"><p>説明</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><div class="line-block">
+<div class="line">(1)</div>
+</div>
+</td>
+<td><div class="line-block">
+<div class="line">秘密鍵を利用してOpenSSLで復号する。</div>
+</div>
+</td>
+</tr>
+</tbody>
+</table>
+</li>
+</ul>
+<div class="line-block">
+<div class="line"><br /></div>
+</div>
+<div class="line-block">
+<div class="line">続いて、OpenSSLで作成したキーペアを利用してOpenSSLで暗号化、JCAで復号する方法を説明する。</div>
+</div>
+<ul>
+<li><p>OpenSSLのコマンドを使用して暗号化処理を行う。</p>
+<div class="highlight-console notranslate"><div class="highlight"><pre><span></span><span class="gp">$ </span><span class="nb">echo</span><span class="w"> </span>Hello<span class="w"> </span><span class="p">|</span><span class="w"> </span>openssl<span class="w"> </span>pkeyutl<span class="w"> </span>-encrypt<span class="w"> </span>-pkeyopt<span class="w"> </span>rsa_padding_mode:oaep<span class="w"> </span>-pkeyopt<span class="w"> </span>rsa_oaep_md:sha256<span class="w"> </span>-keyform<span class="w"> </span>DER<span class="w"> </span>-pubin<span class="w"> </span>-inkey<span class="w"> </span>public.der<span class="w"> </span>-out<span class="w"> </span>encryptedByOpenSSL.txt<span class="w">  </span><span class="c1"># (1)</span>
+</pre></div>
+</div>
+<table class="docutils align-default">
+<colgroup>
+<col style="width: 10.0%" />
+<col style="width: 90.0%" />
+</colgroup>
+<thead>
+<tr class="row-odd"><th class="head"><p>項番</p></th>
+<th class="head"><p>説明</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><div class="line-block">
+<div class="line">(1)</div>
+</div>
+</td>
+<td><div class="line-block">
+<div class="line">公開鍵を利用してOpenSSLで暗号化する。</div>
+</div>
+</td>
+</tr>
+</tbody>
+</table>
+</li>
+</ul>
+<div class="line-block">
+<div class="line"><br /></div>
+</div>
+<ul>
+<li><p>アプリケーションではOpenSSLで作成した秘密鍵を読み込み、読み込んだ秘密鍵を利用して復号処理を行う。</p>
+<div class="highlight-java notranslate"><div class="highlight"><pre><span></span><span class="kd">public</span><span class="w"> </span><span class="kt">void</span><span class="w"> </span><span class="nf">useOpenSSLEncryption</span><span class="p">()</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="k">try</span><span class="w"> </span><span class="p">{</span>
+<span class="w">        </span><span class="n">KeySpec</span><span class="w"> </span><span class="n">privateKeySpec</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="k">new</span><span class="w"> </span><span class="n">PKCS8EncodedKeySpec</span><span class="p">(</span>
+<span class="w">                </span><span class="n">Files</span><span class="p">.</span><span class="na">readAllBytes</span><span class="p">(</span><span class="n">Paths</span><span class="p">.</span><span class="na">get</span><span class="p">(</span><span class="s">&quot;private.pk8&quot;</span><span class="p">)));</span><span class="w"> </span><span class="c1">// (1)</span>
+<span class="w">        </span><span class="n">KeyFactory</span><span class="w"> </span><span class="n">keyFactory</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">KeyFactory</span><span class="p">.</span><span class="na">getInstance</span><span class="p">(</span><span class="s">&quot;RSA&quot;</span><span class="p">);</span>
+<span class="w">        </span><span class="n">PrivateKey</span><span class="w"> </span><span class="n">privateKey</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">keyFactory</span><span class="p">.</span><span class="na">generatePrivate</span><span class="p">(</span><span class="n">privateKeySpec</span><span class="p">);</span><span class="w"> </span><span class="c1">// (2)</span>
+
+<span class="w">        </span><span class="n">String</span><span class="w"> </span><span class="n">plainText</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">decryptByPrivateKey</span><span class="p">(</span>
+<span class="w">               </span><span class="n">Files</span><span class="p">.</span><span class="na">readAllBytes</span><span class="p">(</span><span class="n">Paths</span><span class="p">.</span><span class="na">get</span><span class="p">(</span><span class="s">&quot;encryptedByOpenSSL.txt&quot;</span><span class="p">)),</span>
+<span class="w">               </span><span class="n">privateKey</span><span class="p">);</span><span class="w"> </span><span class="c1">// (3)</span>
+<span class="w">        </span><span class="n">System</span><span class="p">.</span><span class="na">out</span><span class="p">.</span><span class="na">println</span><span class="p">(</span><span class="n">plainText</span><span class="p">);</span>
+<span class="w">    </span><span class="p">}</span><span class="w"> </span><span class="k">catch</span><span class="w"> </span><span class="p">(</span><span class="n">IOException</span><span class="w"> </span><span class="n">e</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">        </span><span class="k">throw</span><span class="w"> </span><span class="k">new</span><span class="w"> </span><span class="n">SystemException</span><span class="p">(</span><span class="s">&quot;e.xx.xx.9001&quot;</span><span class="p">,</span><span class="w"> </span><span class="s">&quot;input/output error.&quot;</span><span class="p">,</span><span class="w"> </span><span class="n">e</span><span class="p">);</span>
+<span class="w">    </span><span class="p">}</span><span class="w"> </span><span class="k">catch</span><span class="w"> </span><span class="p">(</span><span class="n">NoSuchAlgorithmException</span><span class="w"> </span><span class="n">e</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">        </span><span class="k">throw</span><span class="w"> </span><span class="k">new</span><span class="w"> </span><span class="n">SystemException</span><span class="p">(</span><span class="s">&quot;e.xx.xx.9002&quot;</span><span class="p">,</span><span class="w"> </span><span class="s">&quot;No Such setting error.&quot;</span><span class="p">,</span><span class="w"> </span><span class="n">e</span><span class="p">);</span>
+<span class="w">    </span><span class="p">}</span><span class="w"> </span><span class="k">catch</span><span class="w"> </span><span class="p">(</span><span class="n">InvalidKeySpecException</span><span class="w"> </span><span class="n">e</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">        </span><span class="k">throw</span><span class="w"> </span><span class="k">new</span><span class="w"> </span><span class="n">SystemException</span><span class="p">(</span><span class="s">&quot;e.xx.xx.9003&quot;</span><span class="p">,</span><span class="w"> </span><span class="s">&quot;Invalid setting error.&quot;</span><span class="p">,</span><span class="w"> </span><span class="n">e</span><span class="p">);</span>
+<span class="w">    </span><span class="p">}</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+<table class="docutils align-default">
+<colgroup>
+<col style="width: 10.0%" />
+<col style="width: 90.0%" />
+</colgroup>
+<thead>
+<tr class="row-odd"><th class="head"><p>項番</p></th>
+<th class="head"><p>説明</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><div class="line-block">
+<div class="line">(1)</div>
+</div>
+</td>
+<td><div class="line-block">
+<div class="line">PKCS #8形式の秘密鍵ファイルからバイナリデータを読み込み<code class="docutils literal notranslate"><span class="pre">PKCS8EncodedKeySpec</span></code>クラスのインスタンスを生成する。</div>
+</div>
+</td>
+</tr>
+<tr class="row-odd"><td><div class="line-block">
+<div class="line">(2)</div>
+</div>
+</td>
+<td><div class="line-block">
+<div class="line"><code class="docutils literal notranslate"><span class="pre">KeyFactory</span></code>クラスから<code class="docutils literal notranslate"><span class="pre">PrivateKey</span></code>クラスのインスタンスを生成する。</div>
+</div>
+</td>
+</tr>
+<tr class="row-even"><td><div class="line-block">
+<div class="line">(3)</div>
+</div>
+</td>
+<td><div class="line-block">
+<div class="line">秘密鍵を利用して復号処理を行う。</div>
+</div>
+</td>
+</tr>
+</tbody>
+</table>
+</li>
+</ul>
+<div class="line-block">
+<div class="line"><br /></div>
+</div>
+</section>
+</section>
+<section id="encryptionhowtousehybrid">
+<span id="id19"></span><h3><a class="toc-backref" href="#id51" role="doc-backlink"><span class="section-number">9.8.2.3. </span>ハイブリッド暗号化方式</a><a class="headerlink" href="#encryptionhowtousehybrid" title="Permalink to this heading">¶</a></h3>
+<div class="line-block">
+<div class="line">公開鍵暗号化方式と同様、Spring Securityではハイブリッド暗号化方式に関する機能は提供されていないため、サンプルコードを用いて説明する。</div>
+<div class="line">このサンプルコードは、spring-security-rsaの<a class="reference external" href="https://github.com/dsyer/spring-security-rsa/blob/1.0.1.RELEASE/src/main/java/org/springframework/security/rsa/crypto/RsaSecretEncryptor.java">RsaSecretEncryptorクラス</a>を参考にしている。</div>
+<div class="line"><br /></div>
+</div>
+<section id="id20">
+<h4><a class="toc-backref" href="#id52" role="doc-backlink"><span class="section-number">9.8.2.3.1. </span>暗号化</a><a class="headerlink" href="#id20" title="Permalink to this heading">¶</a></h4>
+<blockquote>
+<div><div class="highlight-java notranslate"><div class="highlight"><pre><span></span><span class="kd">public</span><span class="w"> </span><span class="kt">byte</span><span class="o">[]</span><span class="w"> </span><span class="nf">encrypt</span><span class="p">(</span><span class="kt">byte</span><span class="o">[]</span><span class="w"> </span><span class="n">plainBytes</span><span class="p">,</span><span class="w"> </span><span class="n">PublicKey</span><span class="w"> </span><span class="n">publicKey</span><span class="p">,</span><span class="w"> </span><span class="n">String</span><span class="w"> </span><span class="n">salt</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="kt">byte</span><span class="o">[]</span><span class="w"> </span><span class="n">random</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">KeyGenerators</span><span class="p">.</span><span class="na">secureRandom</span><span class="p">(</span><span class="mi">32</span><span class="p">).</span><span class="na">generateKey</span><span class="p">();</span><span class="w"> </span><span class="c1">// (1)</span>
+<span class="w">    </span><span class="n">BytesEncryptor</span><span class="w"> </span><span class="n">aes</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">Encryptors</span><span class="p">.</span><span class="na">standard</span><span class="p">(</span>
+<span class="w">            </span><span class="k">new</span><span class="w"> </span><span class="n">String</span><span class="p">(</span><span class="n">Hex</span><span class="p">.</span><span class="na">encode</span><span class="p">(</span><span class="n">random</span><span class="p">)),</span><span class="w"> </span><span class="n">salt</span><span class="p">);</span><span class="w"> </span><span class="c1">// (2)</span>
+
+<span class="w">    </span><span class="k">try</span><span class="w"> </span><span class="p">(</span><span class="n">ByteArrayOutputStream</span><span class="w"> </span><span class="n">result</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="k">new</span><span class="w"> </span><span class="n">ByteArrayOutputStream</span><span class="p">())</span><span class="w"> </span><span class="p">{</span>
+<span class="w">        </span><span class="kd">final</span><span class="w"> </span><span class="n">Cipher</span><span class="w"> </span><span class="n">cipher</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">Cipher</span><span class="p">.</span><span class="na">getInstance</span><span class="p">(</span>
+<span class="w">                </span><span class="s">&quot;RSA/ECB/OAEPWithSHA-256AndMGF1Padding&quot;</span><span class="p">);</span><span class="w"> </span><span class="c1">// (3)</span>
+<span class="w">        </span><span class="n">cipher</span><span class="p">.</span><span class="na">init</span><span class="p">(</span><span class="n">Cipher</span><span class="p">.</span><span class="na">ENCRYPT_MODE</span><span class="p">,</span><span class="w"> </span><span class="n">publicKey</span><span class="p">,</span><span class="w"> </span><span class="k">new</span><span class="w"> </span><span class="n">OAEPParameterSpec</span><span class="p">(</span><span class="s">&quot;SHA-256&quot;</span><span class="p">,</span><span class="w"> </span><span class="s">&quot;MGF1&quot;</span><span class="p">,</span><span class="w"> </span><span class="n">MGF1ParameterSpec</span><span class="p">.</span><span class="na">SHA256</span><span class="p">,</span><span class="w"> </span><span class="n">PSource</span><span class="p">.</span><span class="na">PSpecified</span><span class="p">.</span><span class="na">DEFAULT</span><span class="p">));</span><span class="w"> </span><span class="c1">// (4)</span>
+<span class="w">        </span><span class="kt">byte</span><span class="o">[]</span><span class="w"> </span><span class="n">secret</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">cipher</span><span class="p">.</span><span class="na">doFinal</span><span class="p">(</span><span class="n">random</span><span class="p">);</span><span class="w"> </span><span class="c1">// (5)</span>
+
+<span class="w">        </span><span class="kt">byte</span><span class="o">[]</span><span class="w"> </span><span class="n">data</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="k">new</span><span class="w"> </span><span class="kt">byte</span><span class="o">[</span><span class="mi">2</span><span class="o">]</span><span class="p">;</span><span class="w"> </span><span class="c1">// (6)</span>
+<span class="w">        </span><span class="n">data</span><span class="o">[</span><span class="mi">0</span><span class="o">]</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">(</span><span class="kt">byte</span><span class="p">)</span><span class="w"> </span><span class="p">((</span><span class="n">secret</span><span class="p">.</span><span class="na">length</span><span class="w"> </span><span class="o">&gt;&gt;</span><span class="w"> </span><span class="mi">8</span><span class="p">)</span><span class="w"> </span><span class="o">&amp;</span><span class="w"> </span><span class="mh">0xFF</span><span class="p">);</span><span class="w"> </span><span class="c1">//</span>
+<span class="w">        </span><span class="n">data</span><span class="o">[</span><span class="mi">1</span><span class="o">]</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">(</span><span class="kt">byte</span><span class="p">)</span><span class="w"> </span><span class="p">(</span><span class="n">secret</span><span class="p">.</span><span class="na">length</span><span class="w"> </span><span class="o">&amp;</span><span class="w"> </span><span class="mh">0xFF</span><span class="p">);</span><span class="w"> </span><span class="c1">//</span>
+<span class="w">        </span><span class="n">result</span><span class="p">.</span><span class="na">write</span><span class="p">(</span><span class="n">data</span><span class="p">);</span><span class="w"> </span><span class="c1">//</span>
+
+<span class="w">        </span><span class="n">result</span><span class="p">.</span><span class="na">write</span><span class="p">(</span><span class="n">secret</span><span class="p">);</span><span class="w"> </span><span class="c1">// (7)</span>
+<span class="w">        </span><span class="n">result</span><span class="p">.</span><span class="na">write</span><span class="p">(</span><span class="n">aes</span><span class="p">.</span><span class="na">encrypt</span><span class="p">(</span><span class="n">plainBytes</span><span class="p">));</span><span class="w"> </span><span class="c1">// (8)</span>
+
+<span class="w">        </span><span class="k">return</span><span class="w"> </span><span class="n">result</span><span class="p">.</span><span class="na">toByteArray</span><span class="p">();</span><span class="w"> </span><span class="c1">// (9)</span>
+<span class="w">    </span><span class="p">}</span><span class="w"> </span><span class="k">catch</span><span class="w"> </span><span class="p">(</span><span class="n">IOException</span><span class="w"> </span><span class="n">e</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">        </span><span class="k">throw</span><span class="w"> </span><span class="k">new</span><span class="w"> </span><span class="n">SystemException</span><span class="p">(</span><span class="s">&quot;e.xx.xx.9001&quot;</span><span class="p">,</span><span class="w"> </span><span class="s">&quot;input/output error.&quot;</span><span class="p">,</span><span class="w"> </span><span class="n">e</span><span class="p">);</span>
+<span class="w">    </span><span class="p">}</span><span class="w"> </span><span class="k">catch</span><span class="w"> </span><span class="p">(</span><span class="n">NoSuchAlgorithmException</span><span class="w"> </span><span class="o">|</span><span class="w"> </span><span class="n">NoSuchPaddingException</span><span class="w"> </span><span class="n">e</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">        </span><span class="k">throw</span><span class="w"> </span><span class="k">new</span><span class="w"> </span><span class="n">SystemException</span><span class="p">(</span><span class="s">&quot;e.xx.xx.9002&quot;</span><span class="p">,</span><span class="w"> </span><span class="s">&quot;No Such setting error.&quot;</span><span class="p">,</span><span class="w"> </span><span class="n">e</span><span class="p">);</span>
+<span class="w">    </span><span class="p">}</span><span class="w"> </span><span class="k">catch</span><span class="w"> </span><span class="p">(</span><span class="n">InvalidKeyException</span><span class="w"> </span><span class="o">|</span><span class="w"> </span><span class="n">IllegalBlockSizeException</span><span class="w"> </span><span class="o">|</span><span class="w"> </span><span class="n">BadPaddingException</span><span class="w"> </span><span class="n">e</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">        </span><span class="k">throw</span><span class="w"> </span><span class="k">new</span><span class="w"> </span><span class="n">SystemException</span><span class="p">(</span><span class="s">&quot;e.xx.xx.9003&quot;</span><span class="p">,</span><span class="w"> </span><span class="s">&quot;Invalid setting error.&quot;</span><span class="p">,</span><span class="w"> </span><span class="n">e</span><span class="p">);</span>
+<span class="w">    </span><span class="p">}</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+<table class="docutils align-default">
+<colgroup>
+<col style="width: 10.0%" />
+<col style="width: 90.0%" />
+</colgroup>
+<thead>
+<tr class="row-odd"><th class="head"><p>項番</p></th>
+<th class="head"><p>説明</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><div class="line-block">
+<div class="line">(1)</div>
+</div>
+</td>
+<td><div class="line-block">
+<div class="line">鍵長として32バイトを指定して<code class="docutils literal notranslate"><span class="pre">KeyGenerators#secureRandom</span></code>メソッドを呼び出し、<code class="docutils literal notranslate"><span class="pre">BytesKeyGenerator</span></code>クラスのインスタンスを生成する。</div>
+<div class="line"><code class="docutils literal notranslate"><span class="pre">BytesKeyGenerator#generateKey</span></code>メソッドを呼び出し、共通鍵を生成する。</div>
+<div class="line">詳細については、<a class="reference internal" href="#encryptionhowtousepseudorandomnumber"><span class="std std-ref">乱数生成</span></a>を参照されたい。</div>
+</div>
+</td>
+</tr>
+<tr class="row-odd"><td><div class="line-block">
+<div class="line">(2)</div>
+</div>
+</td>
+<td><div class="line-block">
+<div class="line">生成した共通鍵とソルトを指定して<code class="docutils literal notranslate"><span class="pre">BytesEncryptor</span></code>クラスのインスタンスを生成する。</div>
+</div>
+</td>
+</tr>
+<tr class="row-even"><td><div class="line-block">
+<div class="line">(3)</div>
+</div>
+</td>
+<td><div class="line-block">
+<div class="line">暗号化アルゴリズム、暗号利用モード、パディング方式を指定して、<code class="docutils literal notranslate"><span class="pre">Cipher</span></code>クラスのインスタンスを生成する。</div>
+</div>
+</td>
+</tr>
+<tr class="row-odd"><td><div class="line-block">
+<div class="line">(4)</div>
+</div>
+</td>
+<td><div class="line-block">
+<div class="line">暗号化モード定数と公開鍵を指定して<code class="docutils literal notranslate"><span class="pre">Cipher</span></code>クラスのインスタンスを初期化する。</div>
+</div>
+</td>
+</tr>
+<tr class="row-even"><td><div class="line-block">
+<div class="line">(5)</div>
+</div>
+</td>
+<td><div class="line-block">
+<div class="line">共通鍵の暗号化処理を実行する。この暗号化処理は公開鍵暗号化方式となる。</div>
+</div>
+</td>
+</tr>
+<tr class="row-odd"><td><div class="line-block">
+<div class="line">(6)</div>
+</div>
+</td>
+<td><div class="line-block">
+<div class="line">暗号化した共通鍵の長さをバイト配列の暗号文に格納する。格納された共通鍵の長さは復号時に使用される。</div>
+</div>
+</td>
+</tr>
+<tr class="row-even"><td><div class="line-block">
+<div class="line">(7)</div>
+</div>
+</td>
+<td><div class="line-block">
+<div class="line">暗号化した共通鍵をバイト配列の暗号文に格納する。</div>
+</div>
+</td>
+</tr>
+<tr class="row-odd"><td><div class="line-block">
+<div class="line">(8)</div>
+</div>
+</td>
+<td><div class="line-block">
+<div class="line">平文を暗号化してバイト配列の暗号文に格納する。この暗号化処理は共通鍵暗号化方式となる。</div>
+</div>
+</td>
+</tr>
+<tr class="row-even"><td><div class="line-block">
+<div class="line">(9)</div>
+</div>
+</td>
+<td><div class="line-block">
+<div class="line">バイト配列の暗号文を返却する。</div>
+</div>
+</td>
+</tr>
+</tbody>
+</table>
+</div></blockquote>
+<div class="line-block">
+<div class="line"><br /></div>
+</div>
+</section>
+<section id="id21">
+<h4><a class="toc-backref" href="#id53" role="doc-backlink"><span class="section-number">9.8.2.3.2. </span>復号</a><a class="headerlink" href="#id21" title="Permalink to this heading">¶</a></h4>
+<blockquote>
+<div><div class="highlight-java notranslate"><div class="highlight"><pre><span></span><span class="kd">public</span><span class="w"> </span><span class="kt">byte</span><span class="o">[]</span><span class="w"> </span><span class="nf">decrypt</span><span class="p">(</span><span class="kt">byte</span><span class="o">[]</span><span class="w"> </span><span class="n">cipherBytes</span><span class="p">,</span><span class="w"> </span><span class="n">PrivateKey</span><span class="w"> </span><span class="n">privateKey</span><span class="p">,</span><span class="w"> </span><span class="n">String</span><span class="w"> </span><span class="n">salt</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+
+<span class="w">    </span><span class="k">try</span><span class="w"> </span><span class="p">(</span><span class="n">ByteArrayInputStream</span><span class="w"> </span><span class="n">input</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="k">new</span><span class="w"> </span><span class="n">ByteArrayInputStream</span><span class="p">(</span><span class="n">cipherBytes</span><span class="p">);</span>
+<span class="w">            </span><span class="n">ByteArrayOutputStream</span><span class="w"> </span><span class="n">output</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="k">new</span><span class="w"> </span><span class="n">ByteArrayOutputStream</span><span class="p">())</span><span class="w"> </span><span class="p">{</span>
+<span class="w">        </span><span class="kt">byte</span><span class="o">[]</span><span class="w"> </span><span class="n">b</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="k">new</span><span class="w"> </span><span class="kt">byte</span><span class="o">[</span><span class="mi">2</span><span class="o">]</span><span class="p">;</span><span class="w"> </span><span class="c1">// (1)</span>
+<span class="w">        </span><span class="n">input</span><span class="p">.</span><span class="na">read</span><span class="p">(</span><span class="n">b</span><span class="p">);</span><span class="w"> </span><span class="c1">//</span>
+<span class="w">        </span><span class="kt">int</span><span class="w"> </span><span class="n">length</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">((</span><span class="n">b</span><span class="o">[</span><span class="mi">0</span><span class="o">]</span><span class="w"> </span><span class="o">&amp;</span><span class="w"> </span><span class="mh">0xFF</span><span class="p">)</span><span class="w"> </span><span class="o">&lt;&lt;</span><span class="w"> </span><span class="mi">8</span><span class="p">)</span><span class="w"> </span><span class="o">|</span><span class="w"> </span><span class="p">(</span><span class="n">b</span><span class="o">[</span><span class="mi">1</span><span class="o">]</span><span class="w"> </span><span class="o">&amp;</span><span class="w"> </span><span class="mh">0xFF</span><span class="p">);</span><span class="w"> </span><span class="c1">//</span>
+
+<span class="w">        </span><span class="kt">byte</span><span class="o">[]</span><span class="w"> </span><span class="n">random</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="k">new</span><span class="w"> </span><span class="kt">byte</span><span class="o">[</span><span class="n">length</span><span class="o">]</span><span class="p">;</span><span class="w"> </span><span class="c1">// (2)</span>
+<span class="w">        </span><span class="n">input</span><span class="p">.</span><span class="na">read</span><span class="p">(</span><span class="n">random</span><span class="p">);</span>
+<span class="w">        </span><span class="kd">final</span><span class="w"> </span><span class="n">Cipher</span><span class="w"> </span><span class="n">cipher</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">Cipher</span><span class="p">.</span><span class="na">getInstance</span><span class="p">(</span>
+<span class="w">                </span><span class="s">&quot;RSA/ECB/OAEPWithSHA-256AndMGF1Padding&quot;</span><span class="p">);</span><span class="w"> </span><span class="c1">// (3)</span>
+<span class="w">        </span><span class="n">cipher</span><span class="p">.</span><span class="na">init</span><span class="p">(</span><span class="n">Cipher</span><span class="p">.</span><span class="na">DECRYPT_MODE</span><span class="p">,</span><span class="w"> </span><span class="n">privateKey</span><span class="p">,</span><span class="w"> </span><span class="k">new</span><span class="w"> </span><span class="n">OAEPParameterSpec</span><span class="p">(</span><span class="s">&quot;SHA-256&quot;</span><span class="p">,</span><span class="w"> </span><span class="s">&quot;MGF1&quot;</span><span class="p">,</span><span class="w"> </span><span class="n">MGF1ParameterSpec</span><span class="p">.</span><span class="na">SHA256</span><span class="p">,</span><span class="w"> </span><span class="n">PSource</span><span class="p">.</span><span class="na">PSpecified</span><span class="p">.</span><span class="na">DEFAULT</span><span class="p">));</span><span class="w"> </span><span class="c1">// (4)</span>
+<span class="w">        </span><span class="n">String</span><span class="w"> </span><span class="n">secret</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="k">new</span><span class="w"> </span><span class="n">String</span><span class="p">(</span><span class="n">Hex</span><span class="p">.</span><span class="na">encode</span><span class="p">(</span><span class="n">cipher</span><span class="p">.</span><span class="na">doFinal</span><span class="p">(</span><span class="n">random</span><span class="p">)));</span><span class="w"> </span><span class="c1">// (5)</span>
+<span class="w">        </span><span class="kt">byte</span><span class="o">[]</span><span class="w"> </span><span class="n">buffer</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="k">new</span><span class="w"> </span><span class="kt">byte</span><span class="o">[</span><span class="n">cipherBytes</span><span class="p">.</span><span class="na">length</span><span class="w"> </span><span class="o">-</span><span class="w"> </span><span class="n">random</span><span class="p">.</span><span class="na">length</span><span class="w"> </span><span class="o">-</span><span class="w"> </span><span class="mi">2</span><span class="o">]</span><span class="p">;</span><span class="w"> </span><span class="c1">// (6)</span>
+<span class="w">        </span><span class="n">input</span><span class="p">.</span><span class="na">read</span><span class="p">(</span><span class="n">buffer</span><span class="p">);</span><span class="w"> </span><span class="c1">//</span>
+<span class="w">        </span><span class="n">BytesEncryptor</span><span class="w"> </span><span class="n">aes</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">Encryptors</span><span class="p">.</span><span class="na">standard</span><span class="p">(</span><span class="n">secret</span><span class="p">,</span><span class="w"> </span><span class="n">salt</span><span class="p">);</span><span class="w"> </span><span class="c1">// (7)</span>
+<span class="w">        </span><span class="n">output</span><span class="p">.</span><span class="na">write</span><span class="p">(</span><span class="n">aes</span><span class="p">.</span><span class="na">decrypt</span><span class="p">(</span><span class="n">buffer</span><span class="p">));</span><span class="w"> </span><span class="c1">// (8)</span>
+
+<span class="w">        </span><span class="k">return</span><span class="w"> </span><span class="n">output</span><span class="p">.</span><span class="na">toByteArray</span><span class="p">();</span><span class="w"> </span><span class="c1">// (9)</span>
+<span class="w">    </span><span class="p">}</span><span class="w"> </span><span class="k">catch</span><span class="w"> </span><span class="p">(</span><span class="n">IOException</span><span class="w"> </span><span class="n">e</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">        </span><span class="k">throw</span><span class="w"> </span><span class="k">new</span><span class="w"> </span><span class="n">SystemException</span><span class="p">(</span><span class="s">&quot;e.xx.xx.9001&quot;</span><span class="p">,</span><span class="w"> </span><span class="s">&quot;input/output error.&quot;</span><span class="p">,</span><span class="w"> </span><span class="n">e</span><span class="p">);</span>
+<span class="w">    </span><span class="p">}</span><span class="w"> </span><span class="k">catch</span><span class="w"> </span><span class="p">(</span><span class="n">NoSuchAlgorithmException</span><span class="w"> </span><span class="o">|</span><span class="w"> </span><span class="n">NoSuchPaddingException</span><span class="w"> </span><span class="n">e</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">        </span><span class="k">throw</span><span class="w"> </span><span class="k">new</span><span class="w"> </span><span class="n">SystemException</span><span class="p">(</span><span class="s">&quot;e.xx.xx.9002&quot;</span><span class="p">,</span><span class="w"> </span><span class="s">&quot;No Such setting error.&quot;</span><span class="p">,</span><span class="w"> </span><span class="n">e</span><span class="p">);</span>
+<span class="w">    </span><span class="p">}</span><span class="w"> </span><span class="k">catch</span><span class="w"> </span><span class="p">(</span><span class="n">InvalidKeyException</span><span class="w"> </span><span class="o">|</span><span class="w"> </span><span class="n">IllegalBlockSizeException</span><span class="w"> </span><span class="o">|</span><span class="w"> </span><span class="n">BadPaddingException</span><span class="w"> </span><span class="n">e</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">        </span><span class="k">throw</span><span class="w"> </span><span class="k">new</span><span class="w"> </span><span class="n">SystemException</span><span class="p">(</span><span class="s">&quot;e.xx.xx.9003&quot;</span><span class="p">,</span><span class="w"> </span><span class="s">&quot;Invalid setting error.&quot;</span><span class="p">,</span><span class="w"> </span><span class="n">e</span><span class="p">);</span>
+<span class="w">    </span><span class="p">}</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+<table class="docutils align-default">
+<colgroup>
+<col style="width: 10.0%" />
+<col style="width: 90.0%" />
+</colgroup>
+<thead>
+<tr class="row-odd"><th class="head"><p>項番</p></th>
+<th class="head"><p>説明</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><div class="line-block">
+<div class="line">(1)</div>
+</div>
+</td>
+<td><div class="line-block">
+<div class="line">暗号化された共通鍵の長さを取得する。</div>
+</div>
+</td>
+</tr>
+<tr class="row-odd"><td><div class="line-block">
+<div class="line">(2)</div>
+</div>
+</td>
+<td><div class="line-block">
+<div class="line">暗号化された共通鍵を取得する。</div>
+</div>
+</td>
+</tr>
+<tr class="row-even"><td><div class="line-block">
+<div class="line">(3)</div>
+</div>
+</td>
+<td><div class="line-block">
+<div class="line">暗号化アルゴリズム、暗号利用モード、パディング方式を指定して、<code class="docutils literal notranslate"><span class="pre">Cipher</span></code>クラスのインスタンスを生成する。</div>
+</div>
+</td>
+</tr>
+<tr class="row-odd"><td><div class="line-block">
+<div class="line">(4)</div>
+</div>
+</td>
+<td><div class="line-block">
+<div class="line">復号モード定数と秘密鍵を指定して<code class="docutils literal notranslate"><span class="pre">Cipher</span></code>クラスのインスタンスを初期化する。</div>
+</div>
+</td>
+</tr>
+<tr class="row-even"><td><div class="line-block">
+<div class="line">(5)</div>
+</div>
+</td>
+<td><div class="line-block">
+<div class="line">共通鍵の復号処理を実行する。この復号処理は公開鍵暗号化方式となる。</div>
+</div>
+</td>
+</tr>
+<tr class="row-odd"><td><div class="line-block">
+<div class="line">(6)</div>
+</div>
+</td>
+<td><div class="line-block">
+<div class="line">復号対象を取得する。</div>
+</div>
+</td>
+</tr>
+<tr class="row-even"><td><div class="line-block">
+<div class="line">(7)</div>
+</div>
+</td>
+<td><div class="line-block">
+<div class="line">復号した共通鍵とソルトを指定して<code class="docutils literal notranslate"><span class="pre">BytesEncryptor</span></code>クラスのインスタンスを生成する。</div>
+</div>
+</td>
+</tr>
+<tr class="row-odd"><td><div class="line-block">
+<div class="line">(8)</div>
+</div>
+</td>
+<td><div class="line-block">
+<div class="line">復号処理を実行する。この復号処理は共通鍵暗号化方式となる。</div>
+</div>
+</td>
+</tr>
+<tr class="row-even"><td><div class="line-block">
+<div class="line">(9)</div>
+</div>
+</td>
+<td><div class="line-block">
+<div class="line">復号したバイト配列の平文を返却する。</div>
+</div>
+</td>
+</tr>
+</tbody>
+</table>
+</div></blockquote>
+<div class="line-block">
+<div class="line"><br /></div>
+</div>
+</section>
+</section>
+<section id="encryptionhowtousepseudorandomnumber">
+<span id="id22"></span><h3><a class="toc-backref" href="#id54" role="doc-backlink"><span class="section-number">9.8.2.4. </span>乱数生成</a><a class="headerlink" href="#encryptionhowtousepseudorandomnumber" title="Permalink to this heading">¶</a></h3>
+<section id="id23">
+<h4><a class="toc-backref" href="#id55" role="doc-backlink"><span class="section-number">9.8.2.4.1. </span>文字列型の疑似乱数生成</a><a class="headerlink" href="#id23" title="Permalink to this heading">¶</a></h4>
+<blockquote>
+<div><div class="highlight-java notranslate"><div class="highlight"><pre><span></span><span class="kd">public</span><span class="w"> </span><span class="kd">static</span><span class="w"> </span><span class="kt">void</span><span class="w"> </span><span class="nf">createStringKey</span><span class="p">()</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="n">StringKeyGenerator</span><span class="w"> </span><span class="n">generator</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">KeyGenerators</span><span class="p">.</span><span class="na">string</span><span class="p">();</span><span class="w"> </span><span class="c1">// (1)</span>
+<span class="w">    </span><span class="n">System</span><span class="p">.</span><span class="na">out</span><span class="p">.</span><span class="na">println</span><span class="p">(</span><span class="n">generator</span><span class="p">.</span><span class="na">generateKey</span><span class="p">());</span><span class="w"> </span><span class="c1">// (2)</span>
+<span class="w">    </span><span class="n">System</span><span class="p">.</span><span class="na">out</span><span class="p">.</span><span class="na">println</span><span class="p">(</span><span class="n">generator</span><span class="p">.</span><span class="na">generateKey</span><span class="p">());</span><span class="w"> </span><span class="c1">//</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+<table class="docutils align-default">
+<colgroup>
+<col style="width: 10.0%" />
+<col style="width: 90.0%" />
+</colgroup>
+<thead>
+<tr class="row-odd"><th class="head"><p>項番</p></th>
+<th class="head"><p>説明</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><div class="line-block">
+<div class="line">(1)</div>
+</div>
+</td>
+<td><div class="line-block">
+<div class="line">鍵 (疑似乱数) 生成器<code class="docutils literal notranslate"><span class="pre">StringKeyGenerator</span></code>クラスのインスタンスを生成する。</div>
+<div class="line">この生成器で鍵を生成すると、毎回異なる値となる。</div>
+<div class="line"><br /></div>
+<div class="line">鍵長は指定できず、常に8バイトの鍵が生成される。</div>
+</div>
+</td>
+</tr>
+<tr class="row-odd"><td><div class="line-block">
+<div class="line">(2)</div>
+</div>
+</td>
+<td><div class="line-block">
+<div class="line"><code class="docutils literal notranslate"><span class="pre">generateKey</span></code>メソッドで鍵 (疑似乱数) を生成する。</div>
+</div>
+</td>
+</tr>
+</tbody>
+</table>
+</div></blockquote>
+<div class="line-block">
+<div class="line"><br /></div>
+</div>
+</section>
+<section id="id24">
+<h4><a class="toc-backref" href="#id56" role="doc-backlink"><span class="section-number">9.8.2.4.2. </span>バイト配列型の疑似乱数生成</a><a class="headerlink" href="#id24" title="Permalink to this heading">¶</a></h4>
+<ul>
+<li><p>異なる鍵を生成する。</p>
+<div class="highlight-java notranslate"><div class="highlight"><pre><span></span><span class="kd">public</span><span class="w"> </span><span class="kd">static</span><span class="w"> </span><span class="kt">void</span><span class="w"> </span><span class="nf">createDifferentBytesKey</span><span class="p">()</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="n">BytesKeyGenerator</span><span class="w"> </span><span class="n">generator</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">KeyGenerators</span><span class="p">.</span><span class="na">secureRandom</span><span class="p">();</span><span class="w"> </span><span class="c1">// (1)</span>
+<span class="w">    </span><span class="n">System</span><span class="p">.</span><span class="na">out</span><span class="p">.</span><span class="na">println</span><span class="p">(</span><span class="n">Arrays</span><span class="p">.</span><span class="na">toString</span><span class="p">(</span><span class="n">generator</span><span class="p">.</span><span class="na">generateKey</span><span class="p">()));</span><span class="w"> </span><span class="c1">// (2)</span>
+<span class="w">    </span><span class="n">System</span><span class="p">.</span><span class="na">out</span><span class="p">.</span><span class="na">println</span><span class="p">(</span><span class="n">Arrays</span><span class="p">.</span><span class="na">toString</span><span class="p">(</span><span class="n">generator</span><span class="p">.</span><span class="na">generateKey</span><span class="p">()));</span><span class="w"> </span><span class="c1">//</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+<table class="docutils align-default">
+<colgroup>
+<col style="width: 10.0%" />
+<col style="width: 90.0%" />
+</colgroup>
+<thead>
+<tr class="row-odd"><th class="head"><p>項番</p></th>
+<th class="head"><p>説明</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><div class="line-block">
+<div class="line">(1)</div>
+</div>
+</td>
+<td><div class="line-block">
+<div class="line"><code class="docutils literal notranslate"><span class="pre">KeyGenerators#secureRandom</span></code>メソッドを呼び出し、鍵 (疑似乱数) 生成器<code class="docutils literal notranslate"><span class="pre">BytesKeyGenerator</span></code>クラスのインスタンスを生成する。</div>
+<div class="line">この生成器で鍵を生成すると、毎回異なる値となる。</div>
+<div class="line"><br /></div>
+<div class="line">鍵長を指定しない場合、デフォルトで8バイトの鍵が生成される。</div>
+</div>
+</td>
+</tr>
+<tr class="row-odd"><td><div class="line-block">
+<div class="line">(2)</div>
+</div>
+</td>
+<td><div class="line-block">
+<div class="line"><code class="docutils literal notranslate"><span class="pre">generateKey</span></code>メソッドで鍵を生成する。</div>
+</div>
+</td>
+</tr>
+</tbody>
+</table>
+</li>
+</ul>
+<div class="line-block">
+<div class="line"><br /></div>
+</div>
+<ul>
+<li><p>同一の鍵を生成する。</p>
+<div class="highlight-java notranslate"><div class="highlight"><pre><span></span><span class="kd">public</span><span class="w"> </span><span class="kd">static</span><span class="w"> </span><span class="kt">void</span><span class="w"> </span><span class="nf">createSameBytesKey</span><span class="p">()</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="n">BytesKeyGenerator</span><span class="w"> </span><span class="n">generator</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">KeyGenerators</span><span class="p">.</span><span class="na">shared</span><span class="p">(</span><span class="mi">32</span><span class="p">);</span><span class="w"> </span><span class="c1">// (1)</span>
+<span class="w">    </span><span class="n">System</span><span class="p">.</span><span class="na">out</span><span class="p">.</span><span class="na">println</span><span class="p">(</span><span class="n">Arrays</span><span class="p">.</span><span class="na">toString</span><span class="p">(</span><span class="n">generator</span><span class="p">.</span><span class="na">generateKey</span><span class="p">()));</span><span class="w"> </span><span class="c1">// (2)</span>
+<span class="w">    </span><span class="n">System</span><span class="p">.</span><span class="na">out</span><span class="p">.</span><span class="na">println</span><span class="p">(</span><span class="n">Arrays</span><span class="p">.</span><span class="na">toString</span><span class="p">(</span><span class="n">generator</span><span class="p">.</span><span class="na">generateKey</span><span class="p">()));</span><span class="w"> </span><span class="c1">//</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+<table class="docutils align-default">
+<colgroup>
+<col style="width: 10.0%" />
+<col style="width: 90.0%" />
+</colgroup>
+<thead>
+<tr class="row-odd"><th class="head"><p>項番</p></th>
+<th class="head"><p>説明</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><div class="line-block">
+<div class="line">(1)</div>
+</div>
+</td>
+<td><div class="line-block">
+<div class="line">鍵長として32バイトを指定して<code class="docutils literal notranslate"><span class="pre">KeyGenerators#shared</span></code>メソッドを呼び出し、鍵 (疑似乱数) 生成器<code class="docutils literal notranslate"><span class="pre">BytesKeyGenerator</span></code>クラスのインスタンスを生成する。</div>
+<div class="line">この生成器で鍵を生成すると、毎回同じ値となる。</div>
+<div class="line"><br /></div>
+<div class="line">鍵長の指定は必須である。</div>
+</div>
+</td>
+</tr>
+<tr class="row-odd"><td><div class="line-block">
+<div class="line">(2)</div>
+</div>
+</td>
+<td><div class="line-block">
+<div class="line"><code class="docutils literal notranslate"><span class="pre">generateKey</span></code>メソッドで鍵を生成する。</div>
+</div>
+</td>
+</tr>
+</tbody>
+</table>
+</li>
+</ul>
+</section>
+</section>
+</section>
+</section>
+
+
+            <div class="clearer"></div>
+          </div>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="OAuth2.html" title="9.9. OAuth 2.0"
+             >next</a> |</li>
+        <li class="right" >
+          <a href="XSS.html" title="9.7. XSS対策"
+             >previous</a> |</li>
+        <li class="nav-item nav-item-0"><a href="../index.html">TERASOLUNA Server Framework for Java (5.x) Development Guideline 5.9.0.RELEASE documentation</a> &#187;</li>
+          <li class="nav-item nav-item-1"><a href="index.html" ><span class="section-number">9. </span>セキュリティ対策</a> &#187;</li>
+        <li class="nav-item nav-item-this"><a href=""><span class="section-number">9.8. </span>暗号化</a></li> 
+      </ul>
+    </div>
+    <div class="footer">
+      © Copyright 2024, NTT DATA Group Corporation. © Copyright 2013, NTT Corporation.
+      Created using <a href="https://www.sphinx-doc.org/en/master/">Sphinx</a> 7.0.1.Theme is <a href="https://pypi.org/project/solar-theme/">Solar</a>
+    </div>
+    
+    <script>
+    
+    $(function() {
+    	var $sidebar	= $('.sphinxsidebar'),
+    		$window		= $(window),
+    		offset		= $sidebar.offset(),
+    		topPadding	= 3,
+    		$scroll		= $('#scroll');
+    	
+    	$window.scroll(function() {
+    		if ($scroll.is(':checked')) {
+				if ($window.scrollTop() > offset.top) {
+					$sidebar.stop().animate({
+						marginTop:$window.scrollTop() - offset.top + topPadding
+					});
+				} else {
+					$sidebar.stop().animate({
+						marginTop:0
+					});
+				}
+			}
+		});
+    	
+    	var $navList = $('ul:first', $sidebar);
+    	$('li:first', $navList).addClass('open');
+    	
+    	$navList.treeview({
+    		persist: "location",
+    		collapsed: true,
+    		unique: false
+    	});
+    	
+	});
+    </script>
+  </body>
+</html>
