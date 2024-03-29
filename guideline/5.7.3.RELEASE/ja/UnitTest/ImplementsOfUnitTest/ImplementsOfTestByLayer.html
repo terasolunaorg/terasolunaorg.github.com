@@ -1,0 +1,2144 @@
+<!DOCTYPE html>
+
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+    <title>10.2.2. レイヤごとのテスト実装 &#8212; TERASOLUNA Server Framework for Java (5.x) Development Guideline 5.7.3.RELEASE documentation</title>
+    <link rel="stylesheet" type="text/css" href="../../_static/pygments.css" />
+    <link rel="stylesheet" type="text/css" href="../../_static/solar.css" />
+    <script data-url_root="../../" id="documentation_options" src="../../_static/documentation_options.js"></script>
+    <script src="../../_static/doctools.js"></script>
+    <script src="../../_static/sphinx_highlight.js"></script>
+    <link rel="index" title="Index" href="../../genindex.html" />
+    <link rel="search" title="Search" href="../../search.html" />
+    <link rel="next" title="10.2.3. 機能ごとのテスト実装" href="ImplementsOfTestByFunction.html" />
+    <link rel="prev" title="10.2.1. テストの事前準備" href="PreparationForTest.html" /><script src="../../_static/jquery.js" type="text/javascript"></script>
+<script src="../../_static/jquery.treeview.js" type="text/javascript"></script>
+<!-- <link href='http://fonts.googleapis.com/css?family=Source+Code+Pro|Open+Sans:300italic,400italic,700italic,400,300,700' rel='stylesheet' type='text/css'> -->
+<link href="../../_static/solarized-dark.css" rel="stylesheet">
+<link href="../../_static/jquery.treeview.css" rel="stylesheet">
+  </head><body>
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../../genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="ImplementsOfTestByFunction.html" title="10.2.3. 機能ごとのテスト実装"
+             accesskey="N">next</a> |</li>
+        <li class="right" >
+          <a href="PreparationForTest.html" title="10.2.1. テストの事前準備"
+             accesskey="P">previous</a> |</li>
+        <li class="nav-item nav-item-0"><a href="../../index.html">TERASOLUNA Server Framework for Java (5.x) Development Guideline 5.7.3.RELEASE documentation</a> &#187;</li>
+          <li class="nav-item nav-item-1"><a href="../index.html" ><span class="section-number">10. </span>単体テスト</a> &#187;</li>
+          <li class="nav-item nav-item-2"><a href="index.html" accesskey="U"><span class="section-number">10.2. </span>単体テストの実装</a> &#187;</li>
+        <li class="nav-item nav-item-this"><a href=""><span class="section-number">10.2.2. </span>レイヤごとのテスト実装</a></li> 
+      </ul>
+    </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper"><label><input id="scroll" type="checkbox" checked> scroll sidebar</label>
+  <div>
+    <h3><a href="../../index.html">Table of Contents</a></h3>
+    <ul>
+<li><a class="reference internal" href="#">10.2.2. レイヤごとのテスト実装</a><ul>
+<li><a class="reference internal" href="#id3">10.2.2.1. インフラストラクチャ層の単体テスト</a><ul>
+<li><a class="reference internal" href="#repository">10.2.2.1.1. Repositoryの単体テスト</a><ul>
+<li><a class="reference internal" href="#spring-test">10.2.2.1.1.1. Spring Test標準機能のみを利用したテスト</a></li>
+<li><a class="reference internal" href="#spring-test-dbunit">10.2.2.1.1.2. Spring Test DBUnitを利用したテスト</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li><a class="reference internal" href="#id4">10.2.2.2. ドメイン層の単体テスト</a><ul>
+<li><a class="reference internal" href="#service">10.2.2.2.1. Serviceの単体テスト</a><ul>
+<li><a class="reference internal" href="#implementsoftestbylayertestingservicewithspringtest">10.2.2.2.1.1. 依存クラスを利用したテスト</a></li>
+<li><a class="reference internal" href="#implementsoftestbylayertestingservicewithmockito">10.2.2.2.1.2. モックを利用したテスト</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li><a class="reference internal" href="#id7">10.2.2.3. アプリケーション層の単体テスト</a><ul>
+<li><a class="reference internal" href="#id8">10.2.2.3.1. アプリケーション層の単体テスト対象</a></li>
+<li><a class="reference internal" href="#controller">10.2.2.3.2. Controllerの単体テスト</a><ul>
+<li><a class="reference internal" href="#standalonesetup">10.2.2.3.2.1. StandaloneSetupを利用したテスト</a></li>
+<li><a class="reference internal" href="#webappcontextsetup">10.2.2.3.2.2. WebAppContextSetupを利用したテスト</a></li>
+<li><a class="reference internal" href="#implementsoftestbylayertestingcontrollerwithmockito">10.2.2.3.2.3. モックを利用したテスト</a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#helper">10.2.2.3.3. Helperの単体テスト</a></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+
+  </div>
+  <div>
+    <h4>Previous topic</h4>
+    <p class="topless"><a href="PreparationForTest.html"
+                          title="previous chapter"><span class="section-number">10.2.1. </span>テストの事前準備</a></p>
+  </div>
+  <div>
+    <h4>Next topic</h4>
+    <p class="topless"><a href="ImplementsOfTestByFunction.html"
+                          title="next chapter"><span class="section-number">10.2.3. </span>機能ごとのテスト実装</a></p>
+  </div>
+  <div role="note" aria-label="source link">
+    <h3>This Page</h3>
+    <ul class="this-page-menu">
+      <li><a href="../../_sources/UnitTest/ImplementsOfUnitTest/ImplementsOfTestByLayer.rst.txt"
+            rel="nofollow">Show Source</a></li>
+    </ul>
+   </div>
+<div id="searchbox" style="display: none" role="search">
+  <h3 id="searchlabel">Quick search</h3>
+    <div class="searchformwrapper">
+    <form class="search" action="../../search.html" method="get">
+      <input type="text" name="q" aria-labelledby="searchlabel" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false"/>
+      <input type="submit" value="Go" />
+    </form>
+    </div>
+</div>
+<script>document.getElementById('searchbox').style.display = "block"</script>
+        </div>
+      </div>
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <section id="implementsoftestbylayer">
+<span id="id1"></span><h1><span class="section-number">10.2.2. </span>レイヤごとのテスト実装<a class="headerlink" href="#implementsoftestbylayer" title="Permalink to this heading">¶</a></h1>
+<nav class="contents local" id="id2">
+<p class="topic-title">目次</p>
+<ul class="simple">
+<li><p><a class="reference internal" href="#id3" id="id10">インフラストラクチャ層の単体テスト</a></p>
+<ul>
+<li><p><a class="reference internal" href="#repository" id="id11">Repositoryの単体テスト</a></p>
+<ul>
+<li><p><a class="reference internal" href="#spring-test" id="id12">Spring Test標準機能のみを利用したテスト</a></p></li>
+<li><p><a class="reference internal" href="#spring-test-dbunit" id="id13">Spring Test DBUnitを利用したテスト</a></p></li>
+</ul>
+</li>
+</ul>
+</li>
+<li><p><a class="reference internal" href="#id4" id="id14">ドメイン層の単体テスト</a></p>
+<ul>
+<li><p><a class="reference internal" href="#service" id="id15">Serviceの単体テスト</a></p>
+<ul>
+<li><p><a class="reference internal" href="#implementsoftestbylayertestingservicewithspringtest" id="id16">依存クラスを利用したテスト</a></p></li>
+<li><p><a class="reference internal" href="#implementsoftestbylayertestingservicewithmockito" id="id17">モックを利用したテスト</a></p></li>
+</ul>
+</li>
+</ul>
+</li>
+<li><p><a class="reference internal" href="#id7" id="id18">アプリケーション層の単体テスト</a></p>
+<ul>
+<li><p><a class="reference internal" href="#id8" id="id19">アプリケーション層の単体テスト対象</a></p></li>
+<li><p><a class="reference internal" href="#controller" id="id20">Controllerの単体テスト</a></p>
+<ul>
+<li><p><a class="reference internal" href="#standalonesetup" id="id21">StandaloneSetupを利用したテスト</a></p></li>
+<li><p><a class="reference internal" href="#webappcontextsetup" id="id22">WebAppContextSetupを利用したテスト</a></p></li>
+<li><p><a class="reference internal" href="#implementsoftestbylayertestingcontrollerwithmockito" id="id23">モックを利用したテスト</a></p></li>
+</ul>
+</li>
+<li><p><a class="reference internal" href="#helper" id="id24">Helperの単体テスト</a></p></li>
+</ul>
+</li>
+</ul>
+</nav>
+<p>レイヤごとの単体テスト対象クラス、テスト方法およびその概要の一覧を以下に示す。</p>
+<p>なお、本章で提示するテスト方法および実装はあくまで一例であり、実際はテスト方針に合わせたテスト方法および実装を検討いただきたい。</p>
+<table class="docutils align-default">
+<colgroup>
+<col style="width: 15.0%" />
+<col style="width: 25.0%" />
+<col style="width: 60.0%" />
+</colgroup>
+<thead>
+<tr class="row-odd"><th class="head"><p>レイヤ</p></th>
+<th class="head"><p>テスト方法</p></th>
+<th class="head"><p>概要</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p>インフラストラクチャ層</p></td>
+<td><p><a class="reference internal" href="#implementsoftestbylayertestingrepositorywithspringtest"><span class="std std-ref">Spring Test標準機能のみを利用したテスト</span></a></p></td>
+<td><p>Spring Testの標準的な機能を使用してデータアクセスのテストを行う。</p></td>
+</tr>
+<tr class="row-odd"><td><p>インフラストラクチャ層</p></td>
+<td><p><a class="reference internal" href="#implementsoftestbylayertestingrepositorywithspringtestdbunit"><span class="std std-ref">Spring Test DBUnitを利用したテスト</span></a></p></td>
+<td><p>DBUnitとSpring Test DBUnitの機能を使用してデータアクセスのテストを行う。</p></td>
+</tr>
+<tr class="row-even"><td><p>ドメイン層</p></td>
+<td><p><a class="reference internal" href="#implementsoftestbylayertestingservicewithspringtest"><span class="std std-ref">依存クラスを利用したテスト</span></a></p></td>
+<td><p>Spring TestのDI機能を使用して<code class="docutils literal notranslate"><span class="pre">Service</span></code>をインジェクションし、インフラストラクチャ層と結合し<code class="docutils literal notranslate"><span class="pre">Service</span></code>のテストを行う。</p></td>
+</tr>
+<tr class="row-odd"><td><p>ドメイン層</p></td>
+<td><p><a class="reference internal" href="#implementsoftestbylayertestingservicewithmockito"><span class="std std-ref">モックを利用したテスト</span></a></p></td>
+<td><p>Mockitoを使用して依存するクラスをモック化し<code class="docutils literal notranslate"><span class="pre">Service</span></code>のテストを行う。</p></td>
+</tr>
+<tr class="row-even"><td><p>アプリケーション層</p></td>
+<td><p><a class="reference internal" href="#implementsoftestbylayertestingcontrollerwithstandalonesetup"><span class="std std-ref">StandaloneSetupを利用したテスト</span></a></p></td>
+<td><p>Spring TestのDI機能を使用して<code class="docutils literal notranslate"><span class="pre">Controller</span></code>をインジェクションし、ドメイン層、インフラストラクチャ層と結合した状態で<code class="docutils literal notranslate"><span class="pre">Controller</span></code>のテストを行う。</p></td>
+</tr>
+<tr class="row-odd"><td><p>アプリケーション層</p></td>
+<td><p><a class="reference internal" href="#implementsoftestbylayertestingcontrollerwithwebappcontextsetup"><span class="std std-ref">WebAppContextSetupを利用したテスト</span></a></p></td>
+<td><p>Spring TestのMockMvcを使用して業務で作成した<code class="docutils literal notranslate"><span class="pre">spring-mvc.xml</span></code>と<code class="docutils literal notranslate"><span class="pre">applicationContext.xml</span></code>を適用し、<code class="docutils literal notranslate"><span class="pre">Controller</span></code>のテストを行う。</p></td>
+</tr>
+<tr class="row-even"><td><p>アプリケーション層</p></td>
+<td><p><a class="reference internal" href="#implementsoftestbylayertestingcontrollerwithmockito"><span class="std std-ref">モックを利用したテスト</span></a></p></td>
+<td><p>Mockitoを使用して依存するクラスをモック化し<code class="docutils literal notranslate"><span class="pre">Controller</span></code>のテストを行う。</p></td>
+</tr>
+<tr class="row-odd"><td><p>アプリケーション層</p></td>
+<td><p><a class="reference internal" href="#implementsoftestbylayerunittestofhelper"><span class="std std-ref">Helperの単体テスト</span></a></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">Helper</span></code>のテストを行う。テスト方法の詳細は<code class="docutils literal notranslate"><span class="pre">Service</span></code>のテスト方法を参照。</p></td>
+</tr>
+</tbody>
+</table>
+<section id="id3">
+<h2><a class="toc-backref" href="#id10" role="doc-backlink"><span class="section-number">10.2.2.1. </span>インフラストラクチャ層の単体テスト</a><a class="headerlink" href="#id3" title="Permalink to this heading">¶</a></h2>
+<p>本節では、開発ガイドラインの<a class="reference internal" href="../../Overview/ApplicationLayering.html#layerofinfrastructure"><span class="std std-ref">インフラストラクチャ層</span></a>の単体テストについて説明する。</p>
+<figure class="align-default">
+<a class="reference internal image-reference" href="../../_images/ImplementsOfTestByLayerLayerOfTestTargetRepository.png"><img alt="../../_images/ImplementsOfTestByLayerLayerOfTestTargetRepository.png" src="../../_images/ImplementsOfTestByLayerLayerOfTestTargetRepository.png" style="width: 95%;" /></a>
+</figure>
+<p>インフラストラクチャ層では、RepositoryからMyBatis（O/R Mapper）を利用したデータアクセスのテストを行う。
+MyBatis3の使用方法の詳細については、<a class="reference internal" href="../../ImplementationAtEachLayer/InfrastructureLayer.html#repository-mybatis3-label"><span class="std std-ref">MyBatis3を使ってRepositoryを実装</span></a>を参照されたい。</p>
+<p>MyBatisにより自動生成される<code class="docutils literal notranslate"><span class="pre">RepositoryImpl</span></code>はSpringのDIコンテナ上で実行されるため、テストには、
+本番同様のBean定義と、SpringのDI機能を提供するSpring Testの<code class="docutils literal notranslate"><span class="pre">SpringJUnit4ClassRunner</span></code>を使用する。
+Spring Testの詳細は<a class="reference internal" href="UsageOfLibraryForTest.html#usageoflibraryfortestspringtestoverview"><span class="std std-ref">Spring Test</span></a>を参照されたい。</p>
+<p>テスト実行後のデータ検証方法には以下の2通りある。
+どちらを使用するかは別途業務要件に合わせて検討いただきたい。</p>
+<ul class="simple">
+<li><p>テスト実行後のデータベースの状態をSELECT文を使用して取得し検証する。</p></li>
+<li><p>DBUnitとSpring Test DBUnitを使用して検証する。</p></li>
+</ul>
+<p>本節では、SELECT文を使用した検証方法として<code class="docutils literal notranslate"><span class="pre">JdbcTemplate</span></code>を使用した場合を例に説明する。
+<code class="docutils literal notranslate"><span class="pre">JdbcTemplate</span></code>とはSpring JDBCサポートのコアクラスである。JDBC APIではデータソースからコネクションの取得、
+<code class="docutils literal notranslate"><span class="pre">PreparedStatement</span></code>の作成、<code class="docutils literal notranslate"><span class="pre">ResultSet</span></code>の解析、コネクションの解放などを行う必要があるが、
+<code class="docutils literal notranslate"><span class="pre">JdbcTemplate</span></code>を使用することでこれらの処理の多くが隠蔽され、より簡単にデータアクセスを行うことができる。</p>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p><a class="reference internal" href="../../Overview/ApplicationLayering.html#applicationlayering"><span class="std std-ref">アプリケーションのレイヤ化</span></a>では、<code class="docutils literal notranslate"><span class="pre">Repository</span></code>インターフェイスはドメイン層の成果物であるが、
+インフラストラクチャ層の単体テスト対象として紹介している。<code class="docutils literal notranslate"><span class="pre">Service</span></code>とのインターフェイスが正しいことは、
+ドメイン層の単体テストでも確認することを推奨する。</p>
+</div>
+<div class="line-block">
+<div class="line"><br /></div>
+</div>
+<section id="repository">
+<span id="implementsoftestbylayerunittestofrepository"></span><h3><a class="toc-backref" href="#id11" role="doc-backlink"><span class="section-number">10.2.2.1.1. </span>Repositoryの単体テスト</a><a class="headerlink" href="#repository" title="Permalink to this heading">¶</a></h3>
+<p>本節では、以下の<code class="docutils literal notranslate"><span class="pre">Repository</span></code>の単体テスト実装方法を説明する。</p>
+<table class="docutils align-default">
+<colgroup>
+<col style="width: 30.0%" />
+<col style="width: 70.0%" />
+</colgroup>
+<thead>
+<tr class="row-odd"><th class="head"><p>テスト方法</p></th>
+<th class="head"><p>説明</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p><a class="reference internal" href="#implementsoftestbylayertestingrepositorywithspringtest"><span class="std std-ref">Spring Test標準機能のみを利用したテスト</span></a></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">JdbcTemplate</span></code>を使用してテスト結果の検証を行う。</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#implementsoftestbylayertestingrepositorywithspringtestdbunit"><span class="std std-ref">Spring Test DBUnitを利用したテスト</span></a></p></td>
+<td><p>DBUnit、Spring Test DBUnitの機能を使用してテスト結果の検証を行う。</p></td>
+</tr>
+</tbody>
+</table>
+<p>ここでは、以下の成果物に対するテストを例に説明する。
+なお、Repositoryの実装の詳細は、<a class="reference internal" href="../../ImplementationAtEachLayer/InfrastructureLayer.html#repository-mybatis3-label"><span class="std std-ref">MyBatis3を使ってRepositoryを実装</span></a>を参照されたい。</p>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">Repository</span></code>インタフェース（<code class="docutils literal notranslate"><span class="pre">MemberRepository</span></code>）の更新処理（<code class="docutils literal notranslate"><span class="pre">updateMemberLogin</span></code>メソッド）</p></li>
+<li><p>マッピングファイル（<code class="docutils literal notranslate"><span class="pre">MemberRepository.xml</span></code>）</p></li>
+</ul>
+<p>以下に、テスト対象の実装例を示す。</p>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">MemberRepository.java</span></code></p></li>
+</ul>
+<div class="highlight-java notranslate"><div class="highlight"><pre><span></span><span class="kd">public</span><span class="w"> </span><span class="kd">interface</span> <span class="nc">MemberRepository</span><span class="w"> </span><span class="p">{</span>
+
+<span class="w">    </span><span class="kt">int</span><span class="w"> </span><span class="nf">updateMemberLogin</span><span class="p">(</span><span class="n">Member</span><span class="w"> </span><span class="n">member</span><span class="p">);</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">MemberRepository.xml</span></code></p></li>
+</ul>
+<div class="highlight-xml notranslate"><div class="highlight"><pre><span></span><span class="nt">&lt;mapper</span><span class="w"> </span><span class="na">namespace=</span><span class="s">&quot;com.example.domain.repository.member.MemberRepository&quot;</span><span class="nt">&gt;</span>
+
+<span class="w">  </span><span class="nt">&lt;update</span><span class="w"> </span><span class="na">id=</span><span class="s">&quot;updateMemberLogin&quot;</span><span class="w"> </span><span class="na">parameterType=</span><span class="s">&quot;Member&quot;</span><span class="nt">&gt;</span>
+<span class="w">    </span>UPDATE<span class="w"> </span>member_login<span class="w"> </span>SET
+<span class="w">        </span>last_password<span class="w"> </span>=<span class="w"> </span>password,
+<span class="w">        </span>password<span class="w"> </span>=<span class="w"> </span>#{memberLogin.password}
+<span class="w">    </span>WHERE
+<span class="w">        </span>customer_no<span class="w"> </span>=<span class="w"> </span>#{membershipNumber}
+<span class="w">  </span><span class="nt">&lt;/update&gt;</span>
+
+<span class="nt">&lt;/mapper&gt;</span>
+</pre></div>
+</div>
+<div class="line-block">
+<div class="line"><br /></div>
+</div>
+<section id="spring-test">
+<span id="implementsoftestbylayertestingrepositorywithspringtest"></span><h4><a class="toc-backref" href="#id12" role="doc-backlink"><span class="section-number">10.2.2.1.1.1. </span>Spring Test標準機能のみを利用したテスト</a><a class="headerlink" href="#spring-test" title="Permalink to this heading">¶</a></h4>
+<p>Spring Testを使用した<code class="docutils literal notranslate"><span class="pre">Repository</span></code>の単体テストにおいて、作成するファイルを以下に示す。
+なお、データベースのセットアップ方法については<a class="reference internal" href="PreparationForTest.html#preparationfortestdatasetupwithspringtest"><span class="std std-ref">スキーマとテストデータのセットアップ（Spring Test標準機能のみを利用したテストの場合）</span></a> を参照されたい。
+また、Spring Testを使用して単体テストを行う際に使用する設定ファイルは<a class="reference internal" href="PreparationForTest.html#preparationfortestmakesettingfileforspringtest"><span class="std std-ref">テスト実装例で使用する設定ファイル</span></a>を参照されたい。</p>
+<figure class="align-default">
+<img alt="../../_images/ImplementsOfTestByLayerRepositorySpringTestItems.png" src="../../_images/ImplementsOfTestByLayerRepositorySpringTestItems.png" />
+</figure>
+<table class="docutils align-default">
+<colgroup>
+<col style="width: 35.0%" />
+<col style="width: 65.0%" />
+</colgroup>
+<thead>
+<tr class="row-odd"><th class="head"><p>作成するファイル名</p></th>
+<th class="head"><p>説明</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">MemberRepositoryTest.java</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">MemberRepository.java</span></code>のテストクラス。</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">test-context.xml</span></code></p></td>
+<td><p>Spring Testを使用して単体テストを行う際に必要な設定を補うための設定ファイル。</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">setupMemberLogin.sql</span></code></p></td>
+<td><p>単体テストで利用するデータベースのデータをセットアップするためのSQLファイル。</p></td>
+</tr>
+</tbody>
+</table>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p><strong>単体テストで利用するSQLファイルの作成単位</strong></p>
+<p>ここでは、１テストメソッドに１つのSQLを作成している。実際の作成単位については、テスト方針や内容に応じて
+適宜検討されたい。
+なお、<code class="docutils literal notranslate"><span class="pre">&#64;Sql</span></code>にSQLファイルパスを省略した場合、<code class="docutils literal notranslate"><span class="pre">&#64;Sql</span></code>の指定場所に基づいてSQLファイルの検索が行われる。
+詳細は、<a class="reference internal" href="PreparationForTest.html#preparationfortestnoteomittedsqlfilepath"><span class="std std-ref">&#64;SqlのSQLファイルパスの省略</span></a>を参照されたい。</p>
+</div>
+<div class="line-block">
+<div class="line"><br /></div>
+</div>
+<p>Spring Testを使用する場合の<code class="docutils literal notranslate"><span class="pre">Repository</span></code>のテストクラス作成方法を説明する。</p>
+<p>以下に、データアクセスを利用してテストするために使用する設定ファイルを示す。</p>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">sample-infra.xml</span></code></p></li>
+</ul>
+<div class="highlight-xml notranslate"><div class="highlight"><pre><span></span><span class="nt">&lt;import</span><span class="w"> </span><span class="na">resource=</span><span class="s">&quot;classpath:/META-INF/spring/sample-env.xml&quot;</span><span class="w"> </span><span class="nt">/&gt;</span>
+
+<span class="cm">&lt;!-- define the SqlSessionFactory --&gt;</span>
+<span class="nt">&lt;bean</span><span class="w"> </span><span class="na">id=</span><span class="s">&quot;sqlSessionFactory&quot;</span><span class="w"> </span><span class="na">class=</span><span class="s">&quot;org.mybatis.spring.SqlSessionFactoryBean&quot;</span><span class="nt">&gt;</span>
+<span class="w">  </span><span class="nt">&lt;property</span><span class="w"> </span><span class="na">name=</span><span class="s">&quot;dataSource&quot;</span><span class="w"> </span><span class="na">ref=</span><span class="s">&quot;dataSource&quot;</span><span class="w"> </span><span class="nt">/&gt;</span>
+<span class="w">  </span><span class="nt">&lt;property</span><span class="w"> </span><span class="na">name=</span><span class="s">&quot;configLocation&quot;</span><span class="w"> </span><span class="na">value=</span><span class="s">&quot;classpath:/META-INF/mybatis/mybatis-config.xml&quot;</span><span class="w"> </span><span class="nt">/&gt;</span>
+<span class="nt">&lt;/bean&gt;</span>
+
+<span class="cm">&lt;!-- scan for Mappers --&gt;</span>
+<span class="nt">&lt;mybatis:scan</span><span class="w"> </span><span class="na">base-package=</span><span class="s">&quot;com.example.domain.repository&quot;</span><span class="w"> </span><span class="nt">/&gt;</span>
+</pre></div>
+</div>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">sample-env.xml</span></code></p></li>
+</ul>
+<div class="highlight-xml notranslate"><div class="highlight"><pre><span></span><span class="w">  </span><span class="nt">&lt;bean</span><span class="w"> </span><span class="na">id=</span><span class="s">&quot;dataSource&quot;</span><span class="w"> </span><span class="na">class=</span><span class="s">&quot;org.apache.commons.dbcp2.BasicDataSource&quot;</span><span class="w"> </span><span class="na">destroy-method=</span><span class="s">&quot;close&quot;</span><span class="nt">&gt;</span>
+<span class="w">    </span><span class="nt">&lt;property</span><span class="w"> </span><span class="na">name=</span><span class="s">&quot;driverClassName&quot;</span><span class="w"> </span><span class="na">value=</span><span class="s">&quot;org.postgresql.Driver&quot;</span><span class="w"> </span><span class="nt">/&gt;</span>
+<span class="w">    </span><span class="nt">&lt;property</span><span class="w"> </span><span class="na">name=</span><span class="s">&quot;url&quot;</span><span class="w"> </span><span class="na">value=</span><span class="s">&quot;jdbc:postgresql://localhost:5432/sample&quot;</span><span class="w"> </span><span class="nt">/&gt;</span>
+<span class="w">    </span><span class="nt">&lt;property</span><span class="w"> </span><span class="na">name=</span><span class="s">&quot;username&quot;</span><span class="w"> </span><span class="na">value=</span><span class="s">&quot;sample&quot;</span><span class="w"> </span><span class="nt">/&gt;</span>
+<span class="w">    </span><span class="nt">&lt;property</span><span class="w"> </span><span class="na">name=</span><span class="s">&quot;password&quot;</span><span class="w"> </span><span class="na">value=</span><span class="s">&quot;xxxx&quot;</span><span class="w"> </span><span class="nt">/&gt;</span>
+<span class="w">    </span><span class="nt">&lt;property</span><span class="w"> </span><span class="na">name=</span><span class="s">&quot;defaultAutoCommit&quot;</span><span class="w"> </span><span class="na">value=</span><span class="s">&quot;false&quot;</span><span class="w"> </span><span class="nt">/&gt;</span>
+<span class="w">    </span><span class="nt">&lt;property</span><span class="w"> </span><span class="na">name=</span><span class="s">&quot;maxTotal&quot;</span><span class="w"> </span><span class="na">value=</span><span class="s">&quot;96&quot;</span><span class="w"> </span><span class="nt">/&gt;</span>
+<span class="w">    </span><span class="nt">&lt;property</span><span class="w"> </span><span class="na">name=</span><span class="s">&quot;maxIdle&quot;</span><span class="w"> </span><span class="na">value=</span><span class="s">&quot;16&quot;</span><span class="w"> </span><span class="nt">/&gt;</span>
+<span class="w">    </span><span class="nt">&lt;property</span><span class="w"> </span><span class="na">name=</span><span class="s">&quot;minIdle&quot;</span><span class="w"> </span><span class="na">value=</span><span class="s">&quot;0&quot;</span><span class="w"> </span><span class="nt">/&gt;</span>
+<span class="w">    </span><span class="nt">&lt;property</span><span class="w"> </span><span class="na">name=</span><span class="s">&quot;maxWaitMillis&quot;</span><span class="w"> </span><span class="na">value=</span><span class="s">&quot;60000&quot;</span><span class="w"> </span><span class="nt">/&gt;</span>
+<span class="w">  </span><span class="nt">&lt;/bean&gt;</span>
+
+<span class="w">  </span><span class="nt">&lt;bean</span><span class="w"> </span><span class="na">id=</span><span class="s">&quot;transactionManager&quot;</span><span class="w"> </span><span class="na">class=</span><span class="s">&quot;org.springframework.jdbc.datasource.DataSourceTransactionManager&quot;</span><span class="nt">&gt;</span>
+<span class="w">    </span><span class="nt">&lt;property</span><span class="w"> </span><span class="na">name=</span><span class="s">&quot;dataSource&quot;</span><span class="w"> </span><span class="na">ref=</span><span class="s">&quot;dataSource&quot;</span><span class="w"> </span><span class="nt">/&gt;</span>
+<span class="w">  </span><span class="nt">&lt;/bean&gt;</span>
+
+<span class="nt">&lt;bean</span><span class="w"> </span><span class="na">id=</span><span class="s">&quot;dateFactory&quot;</span><span class="w"> </span><span class="na">class=</span><span class="s">&quot;org.terasoluna.gfw.common.date.jodatime.DefaultJodaTimeDateFactory&quot;</span><span class="w"> </span><span class="nt">/&gt;</span>
+</pre></div>
+</div>
+<p>以下に、Spring Testを使用した<code class="docutils literal notranslate"><span class="pre">Repository</span></code>のテスト作成方法について説明する。
+ここでは、テスト用のスキーマは作成済みであることを前提に、<code class="docutils literal notranslate"><span class="pre">&#64;Sql</span></code>アノテーションを使用して<code class="docutils literal notranslate"><span class="pre">MemberLogin</span></code>テーブル
+をセットアップし、<code class="docutils literal notranslate"><span class="pre">MemberLogin</span></code>のパスワード「ABCDE」が新しいパスワード「FGHIJ」に更新されることを更新後の
+<code class="docutils literal notranslate"><span class="pre">MemberLogin</span></code>テーブルを取得して確認している。</p>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">MemberRepositoryTest.java</span></code></p></li>
+</ul>
+<div class="highlight-java notranslate"><div class="highlight"><pre><span></span><span class="kn">import static</span><span class="w"> </span><span class="nn">org.hamcrest.CoreMatchers.is</span><span class="p">;</span>
+<span class="kn">import static</span><span class="w"> </span><span class="nn">org.hamcrest.MatcherAssert.assertThat</span><span class="p">;</span>
+
+<span class="nd">@RunWith</span><span class="p">(</span><span class="n">SpringJUnit4ClassRunner</span><span class="p">.</span><span class="na">class</span><span class="p">)</span>
+<span class="nd">@ContextConfiguration</span><span class="p">(</span><span class="n">locations</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">{</span>
+<span class="w">        </span><span class="s">&quot;classpath:META-INF/spring/sample-infra.xml&quot;</span><span class="p">,</span><span class="w">   </span><span class="c1">//(1)</span>
+<span class="w">        </span><span class="s">&quot;classpath:META-INF/spring/test-context.xml&quot;</span><span class="w"> </span><span class="p">})</span><span class="w"> </span><span class="c1">//(1)</span>
+<span class="nd">@Transactional</span><span class="w"> </span><span class="c1">// (2)</span>
+<span class="kd">public</span><span class="w"> </span><span class="kd">class</span> <span class="nc">MemberRepositoryTest</span><span class="w"> </span><span class="p">{</span>
+
+<span class="w">    </span><span class="nd">@Inject</span>
+<span class="w">    </span><span class="n">MemberRepository</span><span class="w"> </span><span class="n">target</span><span class="p">;</span><span class="w"> </span><span class="c1">// (3)</span>
+
+<span class="w">    </span><span class="nd">@Inject</span>
+<span class="w">    </span><span class="n">JdbcTemplate</span><span class="w"> </span><span class="n">jdbctemplate</span><span class="p">;</span><span class="w"> </span><span class="c1">// (4)</span>
+
+<span class="w">    </span><span class="nd">@Test</span>
+<span class="w">    </span><span class="nd">@Sql</span><span class="p">(</span><span class="n">scripts</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">&quot;classpath:META-INF/sql/setupMemberLogin.sql&quot;</span><span class="p">,</span><span class="w"> </span><span class="n">config</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nd">@SqlConfig</span><span class="p">(</span><span class="n">encoding</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">&quot;utf-8&quot;</span><span class="p">))</span>
+<span class="w">    </span><span class="kd">public</span><span class="w"> </span><span class="kt">void</span><span class="w"> </span><span class="nf">testUpdateMemberLogin</span><span class="p">()</span><span class="w"> </span><span class="p">{</span>
+
+<span class="w">        </span><span class="c1">// (5)</span>
+<span class="w">        </span><span class="c1">// setup test data</span>
+<span class="w">        </span><span class="n">MemberLogin</span><span class="w"> </span><span class="n">memberLogin</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="k">new</span><span class="w"> </span><span class="n">MemberLogin</span><span class="p">();</span>
+<span class="w">        </span><span class="n">memberLogin</span><span class="p">.</span><span class="na">setPassword</span><span class="p">(</span><span class="s">&quot;FGHIJ&quot;</span><span class="p">);</span>
+<span class="w">        </span><span class="n">Member</span><span class="w"> </span><span class="n">member</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="k">new</span><span class="w"> </span><span class="n">Member</span><span class="p">();</span>
+<span class="w">        </span><span class="n">member</span><span class="p">.</span><span class="na">setMembershipNumber</span><span class="p">(</span><span class="s">&quot;0000000001&quot;</span><span class="p">);</span>
+<span class="w">        </span><span class="n">member</span><span class="p">.</span><span class="na">setMemberLogin</span><span class="p">(</span><span class="n">memberLogin</span><span class="p">);</span>
+
+<span class="w">        </span><span class="c1">// (6)</span>
+<span class="w">        </span><span class="c1">// run the test</span>
+<span class="w">        </span><span class="kt">int</span><span class="w"> </span><span class="n">updateCounts</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">target</span><span class="p">.</span><span class="na">updateMemberLogin</span><span class="p">(</span><span class="n">member</span><span class="p">);</span>
+
+<span class="w">        </span><span class="c1">// (7)</span>
+<span class="w">        </span><span class="n">MemberLogin</span><span class="w"> </span><span class="n">updateMemberLogin</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">getMemberLogin</span><span class="p">(</span><span class="s">&quot;0000000001&quot;</span><span class="p">);</span>
+
+<span class="w">        </span><span class="c1">// (8)</span>
+<span class="w">        </span><span class="c1">// assertion</span>
+<span class="w">        </span><span class="n">assertThat</span><span class="p">(</span><span class="n">updateCounts</span><span class="p">,</span><span class="w"> </span><span class="n">is</span><span class="p">(</span><span class="mi">1</span><span class="p">));</span>
+<span class="w">        </span><span class="n">assertThat</span><span class="p">(</span><span class="n">updateMemberLogin</span><span class="p">.</span><span class="na">getPassword</span><span class="p">(),</span><span class="w"> </span><span class="n">is</span><span class="p">(</span><span class="s">&quot;FGHIJ&quot;</span><span class="p">));</span>
+<span class="w">        </span><span class="n">assertThat</span><span class="p">(</span><span class="n">updateMemberLogin</span><span class="p">.</span><span class="na">getLastPassword</span><span class="p">(),</span><span class="w"> </span><span class="n">is</span><span class="p">(</span><span class="s">&quot;ABCDE&quot;</span><span class="p">));</span>
+<span class="w">    </span><span class="p">}</span>
+
+<span class="w">    </span><span class="kd">private</span><span class="w"> </span><span class="n">Member</span><span class="w"> </span><span class="nf">getMemberLogin</span><span class="p">(</span><span class="n">String</span><span class="w"> </span><span class="n">customerNo</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+
+<span class="w">        </span><span class="n">MemberLogin</span><span class="w"> </span><span class="n">memberLogin</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">jdbctemplate</span><span class="p">.</span><span class="na">queryForObject</span><span class="p">(</span>
+<span class="w">                </span><span class="s">&quot;SELECT * FROM member_login WHERE customer_no=?&quot;</span><span class="p">,</span>
+<span class="w">                </span><span class="k">new</span><span class="w"> </span><span class="n">RowMapper</span><span class="o">&lt;</span><span class="n">MemberLogin</span><span class="o">&gt;</span><span class="p">()</span><span class="w"> </span><span class="p">{</span>
+
+<span class="w">                    </span><span class="kd">public</span><span class="w"> </span><span class="n">MemberLogin</span><span class="w"> </span><span class="nf">mapRow</span><span class="p">(</span><span class="n">ResultSet</span><span class="w"> </span><span class="n">rs</span><span class="p">,</span>
+<span class="w">                                </span><span class="kt">int</span><span class="w"> </span><span class="n">rowNum</span><span class="p">)</span><span class="w"> </span><span class="kd">throws</span><span class="w"> </span><span class="n">SQLException</span><span class="w"> </span><span class="p">{</span>
+
+<span class="w">                            </span><span class="n">MemberLogin</span><span class="w"> </span><span class="n">mapMemberLogin</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="k">new</span><span class="w"> </span><span class="n">MemberLogin</span><span class="p">();</span>
+
+<span class="w">                            </span><span class="n">mapMemberLogin</span><span class="p">.</span><span class="na">setPassword</span><span class="p">(</span><span class="n">rs</span><span class="p">.</span><span class="na">getString</span><span class="p">(</span>
+<span class="w">                                    </span><span class="s">&quot;password&quot;</span><span class="p">));</span>
+<span class="w">                            </span><span class="n">mapMemberLogin</span><span class="p">.</span><span class="na">setLastPassword</span><span class="p">(</span><span class="n">rs</span><span class="p">.</span><span class="na">getString</span><span class="p">(</span>
+<span class="w">                                    </span><span class="s">&quot;last_password&quot;</span><span class="p">));</span>
+<span class="w">                            </span><span class="n">mapMemberLogin</span><span class="p">.</span><span class="na">setLoginDateTime</span><span class="p">(</span><span class="n">rs</span><span class="p">.</span><span class="na">getDate</span><span class="p">(</span>
+<span class="w">                                    </span><span class="s">&quot;login_date_time&quot;</span><span class="p">));</span>
+<span class="w">                            </span><span class="n">mapMemberLogin</span><span class="p">.</span><span class="na">setLoginFlg</span><span class="p">(</span><span class="n">rs</span><span class="p">.</span><span class="na">getBoolean</span><span class="p">(</span>
+<span class="w">                                    </span><span class="s">&quot;login_flg&quot;</span><span class="p">));</span>
+
+<span class="w">                            </span><span class="k">return</span><span class="w"> </span><span class="n">mapMemberLogin</span><span class="p">;</span>
+<span class="w">                    </span><span class="p">}</span>
+<span class="w">                </span><span class="p">},</span><span class="w"> </span><span class="n">customerNo</span><span class="p">);</span>
+
+<span class="w">        </span><span class="k">return</span><span class="w"> </span><span class="n">memberLogin</span><span class="p">;</span>
+<span class="w">    </span><span class="p">}</span>
+</pre></div>
+</div>
+<table class="docutils align-default">
+<colgroup>
+<col style="width: 10.0%" />
+<col style="width: 90.0%" />
+</colgroup>
+<thead>
+<tr class="row-odd"><th class="head"><p>項番</p></th>
+<th class="head"><p>説明</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><div class="line-block">
+<div class="line">(1)</div>
+</div>
+</td>
+<td><div class="line-block">
+<div class="line"><code class="docutils literal notranslate"><span class="pre">MemberRepository</span></code>クラスを動作させるために必要なアプリケーションが保持する<code class="docutils literal notranslate"><span class="pre">sample-infra.xml</span></code>と
+<code class="docutils literal notranslate"><span class="pre">test-context.xml</span></code>を読み込む。</div>
+</div>
+</td>
+</tr>
+<tr class="row-odd"><td><div class="line-block">
+<div class="line">(2)</div>
+</div>
+</td>
+<td><div class="line-block">
+<div class="line"><code class="docutils literal notranslate"><span class="pre">&#64;Transactional</span></code>アノテーションを付与すると、テスト実行開始から終了まで一トランザクションとなり、デフォルト
+ではテスト終了後にロールバックされる。クラスレベルでアノテーションを定義すると、全テストメソッドに対して
+<code class="docutils literal notranslate"><span class="pre">&#64;Transactional</span></code>アノテーションが有効になる。</div>
+</div>
+</td>
+</tr>
+<tr class="row-even"><td><div class="line-block">
+<div class="line">(3)</div>
+</div>
+</td>
+<td><div class="line-block">
+<div class="line">テスト対象である<code class="docutils literal notranslate"><span class="pre">MemberRepository</span></code>クラスをインジェクションする。</div>
+</div>
+</td>
+</tr>
+<tr class="row-odd"><td><div class="line-block">
+<div class="line">(4)</div>
+</div>
+</td>
+<td><div class="line-block">
+<div class="line"><code class="docutils literal notranslate"><span class="pre">JdbcTemplate</span></code>クラスをインジェクションする。</div>
+</div>
+</td>
+</tr>
+<tr class="row-even"><td><div class="line-block">
+<div class="line">(5)</div>
+</div>
+</td>
+<td><div class="line-block">
+<div class="line">テスト対象メソッドを実行するためのテストデータを作成する。</div>
+</div>
+</td>
+</tr>
+<tr class="row-odd"><td><div class="line-block">
+<div class="line">(6)</div>
+</div>
+</td>
+<td><div class="line-block">
+<div class="line">テスト対象メソッドを実行する。</div>
+</div>
+</td>
+</tr>
+<tr class="row-even"><td><div class="line-block">
+<div class="line">(7)</div>
+</div>
+</td>
+<td><div class="line-block">
+<div class="line">更新後のデータベースの情報を取得する。
+<code class="docutils literal notranslate"><span class="pre">org.springframework.jdbc.core.RowMapper&lt;T&gt;</span></code>を使用することで、データベースから取得した<code class="docutils literal notranslate"><span class="pre">ResultSet</span></code>を
+特定のPOJOクラスにマッピングすることができる。</div>
+</div>
+</td>
+</tr>
+<tr class="row-odd"><td><div class="line-block">
+<div class="line">(8)</div>
+</div>
+</td>
+<td><div class="line-block">
+<div class="line">更新件数、更新結果を確認する。</div>
+</div>
+</td>
+</tr>
+</tbody>
+</table>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p><strong>テスト時のトランザクションをロールバックさせない方法</strong></p>
+<p><code class="docutils literal notranslate"><span class="pre">&#64;Transactional</span></code>アノテーションをテストケースに指定した場合、デフォルトでテストメソッド実行後にロールバック
+される。後続のテストでテストデータを使用するなどの目的でロールバックをさせたくない場合は、<code class="docutils literal notranslate"><span class="pre">&#64;Transactional</span></code>アノテーションに加えて<code class="docutils literal notranslate"><span class="pre">&#64;Rollback(false)</span></code>アノテーションまたは<code class="docutils literal notranslate"><span class="pre">&#64;Commit</span></code>アノテーションを指定することで、
+テスト時のトランザクションをコミットすることができる。</p>
+</div>
+<div class="admonition warning">
+<p class="admonition-title">Warning</p>
+<p><strong>Spring Framework 4.2 以降の&#64;TransactionConfigurationについて</strong></p>
+<p>Spring Framework 4.2 以降、クラスレベルで<code class="docutils literal notranslate"><span class="pre">&#64;Rollback</span></code>または<code class="docutils literal notranslate"><span class="pre">&#64;Commit</span></code>の設定が可能となった。
+これに伴い<code class="docutils literal notranslate"><span class="pre">&#64;TransactionConfiguration</span></code>が非推奨となった。但し、Spring Framework 4.2 より前のバージョンで
+クラスレベルでロールバックをする場合は<code class="docutils literal notranslate"><span class="pre">&#64;TransactionConfiguration(defaultRollback</span> <span class="pre">=</span> <span class="pre">true)</span></code>を設定すること。</p>
+</div>
+<div class="line-block">
+<div class="line"><br /></div>
+</div>
+</section>
+<section id="spring-test-dbunit">
+<span id="implementsoftestbylayertestingrepositorywithspringtestdbunit"></span><h4><a class="toc-backref" href="#id13" role="doc-backlink"><span class="section-number">10.2.2.1.1.2. </span>Spring Test DBUnitを利用したテスト</a><a class="headerlink" href="#spring-test-dbunit" title="Permalink to this heading">¶</a></h4>
+<p>データアクセスにDBUnitを使用する場合の<code class="docutils literal notranslate"><span class="pre">Repository</span></code>の単体テスト実装方法について説明する。
+なお、ここではDBUnitのデータ定義ファイルにExcel形式（.xlsx）のファイルを使用した場合を例に説明する。
+データ定義ファイルとデータベースのセットアップ方法については、<a class="reference internal" href="PreparationForTest.html#preparationfortestdatasetupwithdbunit"><span class="std std-ref">テストデータのセットアップ（Spring Test DBUnitを利用したテスト場合）</span></a>を参照されたい。</p>
+<p>また、DBUnitにSpring Test DBUnitの機能を組み合わせて使用するには、<code class="docutils literal notranslate"><span class="pre">&#64;TestExecutionListeners</span></code>アノテーションを使って、
+<code class="docutils literal notranslate"><span class="pre">com.github.springtestdbunit.TransactionDbUnitTestExecutionListener</span></code>を登録する必要がある。
+登録方法ついては、<a class="reference internal" href="UsageOfLibraryForTest.html#usageoflibraryfortestregistrationoftestexecutionlistener"><span class="std std-ref">TestExecutionListenerの登録</span></a>を参照されたい。</p>
+<p>DBUnitを利用した<code class="docutils literal notranslate"><span class="pre">Repository</span></code>の単体テストにおいて、作成するファイルを以下に示す。</p>
+<figure class="align-default">
+<img alt="../../_images/ImplementsOfTestByLayerRepositoryDbunitItems.png" src="../../_images/ImplementsOfTestByLayerRepositoryDbunitItems.png" />
+</figure>
+<table class="docutils align-default">
+<colgroup>
+<col style="width: 35.0%" />
+<col style="width: 65.0%" />
+</colgroup>
+<thead>
+<tr class="row-odd"><th class="head"><p>作成するファイル名</p></th>
+<th class="head"><p>説明</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">MemberRepositoryDbunitTest.java</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">MemberRepository.java</span></code>のテストクラス(DBUnitと連携する場合)</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">XlsDataSetLoader.java</span></code></p></td>
+<td><p>Excel形式に対応する<code class="docutils literal notranslate"><span class="pre">DataSetLoader</span></code>インタフェースの実装クラス。
+実装方法については、<a class="reference internal" href="PreparationForTest.html#preparationfortestdatasetupwithdbunit"><span class="std std-ref">テストデータのセットアップ（Spring Test DBUnitを利用したテスト場合）</span></a>を参照されたい。</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">expected_testUpdateMemberLogin.xlsx</span></code></p></td>
+<td><p>テストの期待結果検証用ファイル</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">setup_MemberLogin.xlsx</span></code></p></td>
+<td><p>テストデータセットアップ用ファイル</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">test-context.xml</span></code></p></td>
+<td><p>Spring Testを使用して単体テストを行う際に使用する設定ファイル。<a class="reference internal" href="#implementsoftestbylayertestingrepositorywithspringtest"><span class="std std-ref">Spring Test標準機能のみを利用したテスト</span></a>で
+作成した設定ファイルと同じものを使用する。</p></td>
+</tr>
+</tbody>
+</table>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p><strong>単体テストで利用するExcelファイルの作成単位</strong></p>
+<p>ここでは、１テストメソッドにデータセットアップ用のファイルと期待結果検証用のファイルをそれぞれ１つずつ作成している。
+実際の作成単位については、テスト方針や内容に応じて適宜検討されたい。</p>
+</div>
+<div class="line-block">
+<div class="line"><br /></div>
+</div>
+<p>DBUnitを使用する場合の<code class="docutils literal notranslate"><span class="pre">Repository</span></code>のテストクラス作成方法を説明する。</p>
+<p>ここでは、テスト用のスキーマは作成済みであることを前提に、<code class="docutils literal notranslate"><span class="pre">&#64;DatabaseSetup</span></code>アノテーションを使用して
+<code class="docutils literal notranslate"><span class="pre">MemberLogin</span></code>テーブルをセットアップし、<code class="docutils literal notranslate"><span class="pre">MemberLogin</span></code>のパスワード「ABCDE」が新しいパスワード「FGHIJ」
+に更新されることを<code class="docutils literal notranslate"><span class="pre">&#64;ExpectedDatabase</span></code>アノテーションを使用して確認している。</p>
+<p>以下に、Spring TestとDBUnitを使用した<code class="docutils literal notranslate"><span class="pre">Repository</span></code>のテスト作成方法を説明する。</p>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">MemberRepositoryDbunitTest.java</span></code></p></li>
+</ul>
+<div class="highlight-java notranslate"><div class="highlight"><pre><span></span><span class="kn">import static</span><span class="w"> </span><span class="nn">org.hamcrest.CoreMatchers.is</span><span class="p">;</span>
+<span class="kn">import static</span><span class="w"> </span><span class="nn">org.hamcrest.MatcherAssert.assertThat</span><span class="p">;</span>
+
+<span class="nd">@RunWith</span><span class="p">(</span><span class="n">SpringJUnit4ClassRunner</span><span class="p">.</span><span class="na">class</span><span class="p">)</span>
+<span class="nd">@ContextConfiguration</span><span class="p">(</span><span class="n">locations</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">{</span>
+<span class="w">        </span><span class="s">&quot;classpath:META-INF/spring/sample-infra.xml&quot;</span><span class="p">,</span><span class="w">   </span><span class="c1">// (1)</span>
+<span class="w">        </span><span class="s">&quot;classpath:META-INF/spring/test-context.xml&quot;</span><span class="w"> </span><span class="p">})</span><span class="w"> </span><span class="c1">// (1)</span>
+<span class="nd">@TestExecutionListeners</span><span class="p">({</span>
+<span class="w">        </span><span class="n">DirtiesContextBeforeModesTestExecutionListener</span><span class="p">.</span><span class="na">class</span><span class="p">,</span>
+<span class="w">        </span><span class="n">DependencyInjectionTestExecutionListener</span><span class="p">.</span><span class="na">class</span><span class="p">,</span>
+<span class="w">        </span><span class="n">DirtiesContextTestExecutionListener</span><span class="p">.</span><span class="na">class</span><span class="p">,</span>
+<span class="w">        </span><span class="n">TransactionDbUnitTestExecutionListener</span><span class="p">.</span><span class="na">class</span><span class="p">})</span>
+<span class="nd">@Transactional</span>
+<span class="nd">@DbUnitConfiguration</span><span class="p">(</span><span class="n">dataSetLoader</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">XlsDataSetLoader</span><span class="p">.</span><span class="na">class</span><span class="p">)</span>
+<span class="kd">public</span><span class="w"> </span><span class="kd">class</span> <span class="nc">MemberRepositoryDbunitTest</span><span class="w"> </span><span class="p">{</span>
+
+<span class="w">    </span><span class="nd">@Inject</span>
+<span class="w">    </span><span class="n">MemberRepository</span><span class="w"> </span><span class="n">target</span><span class="p">;</span>
+
+<span class="w">    </span><span class="nd">@Test</span>
+<span class="w">    </span><span class="nd">@DatabaseSetup</span><span class="p">(</span><span class="s">&quot;classpath:META-INF/dbunit/setup_MemberLogin.xlsx&quot;</span><span class="p">)</span>
+<span class="w">    </span><span class="nd">@ExpectedDatabase</span><span class="p">(</span><span class="w"> </span><span class="c1">// (2)</span>
+<span class="w">            </span><span class="n">value</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">&quot;classpath:META-INF/dbunit/expected_testUpdateMemberLogin.xlsx&quot;</span><span class="p">,</span>
+<span class="w">            </span><span class="n">assertionMode</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">DatabaseAssertionMode</span><span class="p">.</span><span class="na">NON_STRICT_UNORDERED</span><span class="p">)</span>
+<span class="w">    </span><span class="kd">public</span><span class="w"> </span><span class="kt">void</span><span class="w"> </span><span class="nf">testUpdate</span><span class="p">()</span><span class="w"> </span><span class="p">{</span>
+
+<span class="w">        </span><span class="c1">// setup</span>
+<span class="w">        </span><span class="n">MemberLogin</span><span class="w"> </span><span class="n">memberLogin</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="k">new</span><span class="w"> </span><span class="n">MemberLogin</span><span class="p">();</span>
+<span class="w">        </span><span class="n">memberLogin</span><span class="p">.</span><span class="na">setPassword</span><span class="p">(</span><span class="s">&quot;FGHIJ&quot;</span><span class="p">);</span>
+<span class="w">        </span><span class="n">Member</span><span class="w"> </span><span class="n">member</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="k">new</span><span class="w"> </span><span class="n">Member</span><span class="p">();</span>
+<span class="w">        </span><span class="n">member</span><span class="p">.</span><span class="na">setMembershipNumber</span><span class="p">(</span><span class="s">&quot;0000000001&quot;</span><span class="p">);</span>
+<span class="w">        </span><span class="n">member</span><span class="p">.</span><span class="na">setMemberLogin</span><span class="p">(</span><span class="n">memberLogin</span><span class="p">);</span>
+
+<span class="w">        </span><span class="c1">// run the test</span>
+<span class="w">        </span><span class="kt">int</span><span class="w"> </span><span class="n">updateCounts</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">target</span><span class="p">.</span><span class="na">updateMemberLogin</span><span class="p">(</span><span class="n">member</span><span class="p">);</span>
+
+<span class="w">        </span><span class="c1">// assertion</span>
+<span class="w">        </span><span class="n">assertThat</span><span class="p">(</span><span class="n">updateCounts</span><span class="p">,</span><span class="w"> </span><span class="n">is</span><span class="p">(</span><span class="mi">1</span><span class="p">));</span>
+<span class="w">    </span><span class="p">}</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+<table class="docutils align-default">
+<colgroup>
+<col style="width: 10.0%" />
+<col style="width: 90.0%" />
+</colgroup>
+<thead>
+<tr class="row-odd"><th class="head"><p>項番</p></th>
+<th class="head"><p>説明</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><div class="line-block">
+<div class="line">(1)</div>
+</div>
+</td>
+<td><div class="line-block">
+<div class="line"><code class="docutils literal notranslate"><span class="pre">MemberRepository</span></code>クラスを動作させるために必要な設定ファイル（アプリケーションが保持する
+<code class="docutils literal notranslate"><span class="pre">sample-infra.xml</span></code>とそれを補う<code class="docutils literal notranslate"><span class="pre">test-context.xml</span></code>）を読み込む。</div>
+</div>
+</td>
+</tr>
+<tr class="row-odd"><td><div class="line-block">
+<div class="line">(2)</div>
+</div>
+</td>
+<td><div class="line-block">
+<div class="line"><code class="docutils literal notranslate"><span class="pre">&#64;ExpectedDatabase</span></code>アノテーションにテストの期待結果検証用ファイルを指定することでテストメソッド
+実行後にDBUnitによってテーブルと期待結果データファイルが自動で比較検証される。</div>
+<div class="line"><code class="docutils literal notranslate"><span class="pre">&#64;DatabaseSetup</span></code>アノテーション同様に、クラスレベルとメソッドレベルで付与できる。</div>
+<div class="line">ファイルフォーマットはテストセットアップ用データファイルと同じである。<code class="docutils literal notranslate"><span class="pre">assertionMode</span></code>属性には、
+以下の値が設定可能である。</div>
+</div>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">DEFAULT</span></code>（または指定なし）：全てのテーブルとカラムの一致を比較する。</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">NON_STRICT</span></code>：期待結果データファイルに存在しないテーブル、カラムが実際のデータベースに存在しても無視する。</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">NON_STRICT_UNORDERED</span></code>：<code class="docutils literal notranslate"><span class="pre">NON_STRICT</span></code>モードに加え、行の順序についても無視する。</p></li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+<div class="admonition warning">
+<p class="admonition-title">Warning</p>
+<p><strong>外部キー制約のあるテーブル</strong></p>
+<p>外部キー制約のあるテーブルに対し、DBUnitを用いてデータベースを初期化すると、参照条件によってはエラーが発生するため、
+参照整合性を保つようにデータセットの順序を指定する必要があることに注意されたい。</p>
+</div>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p><strong>シーケンスの検証方法</strong></p>
+<p>シーケンスは、トランザクションをロールバックしても進んだ値は戻らないという特徴を持つ。
+そのため、シーケンスから採番したカラムを持つレコードをDBUnitで検証する場合、以下のいずれかの対応を行う必要がある。</p>
+<ul class="simple">
+<li><p>シーケンスから採番したカラムは検証対象外とする</p></li>
+<li><p>明示的にシーケンスの初期化を行うSQLを実行し、テストの実施前に初期化する</p></li>
+<li><p>テスト実行時にシーケンスの値を確認し、確認した値を基準値として検証を行う</p></li>
+</ul>
+</div>
+<div class="line-block">
+<div class="line"><br /></div>
+</div>
+</section>
+</section>
+</section>
+<section id="id4">
+<h2><a class="toc-backref" href="#id14" role="doc-backlink"><span class="section-number">10.2.2.2. </span>ドメイン層の単体テスト</a><a class="headerlink" href="#id4" title="Permalink to this heading">¶</a></h2>
+<p>本節では、開発ガイドラインの<a class="reference internal" href="../../Overview/ApplicationLayering.html#layerofdomain"><span class="std std-ref">ドメイン層</span></a>の単体テストについて説明する。</p>
+<figure class="align-default">
+<a class="reference internal image-reference" href="../../_images/ImplementsOfTestByLayerLayerOfTestTargetDomain.png"><img alt="../../_images/ImplementsOfTestByLayerLayerOfTestTargetDomain.png" src="../../_images/ImplementsOfTestByLayerLayerOfTestTargetDomain.png" style="width: 95%;" /></a>
+</figure>
+<p>ドメイン層では、<code class="docutils literal notranslate"><span class="pre">Service</span></code>の業務ロジックと<code class="docutils literal notranslate"><span class="pre">&#64;Transactional</span></code>のテストを行う。
+<code class="docutils literal notranslate"><span class="pre">Service</span></code>をインジェクションし、インフラストラクチャ層を結合してテストを行う場合は、<code class="docutils literal notranslate"><span class="pre">Repository</span></code>の
+テスト実装方法と同様にBean定義と、Spring Testの<code class="docutils literal notranslate"><span class="pre">SpringJUnit4ClassRunner</span></code>を使用してテストを行う。
+Spring Testの詳細は<a class="reference internal" href="UsageOfLibraryForTest.html#usageoflibraryfortestspringtestoverview"><span class="std std-ref">Spring Test</span></a>を参照されたい。</p>
+<div class="line-block">
+<div class="line"><br /></div>
+</div>
+<section id="service">
+<span id="implementsoftestbylayerunittestofservice"></span><h3><a class="toc-backref" href="#id15" role="doc-backlink"><span class="section-number">10.2.2.2.1. </span>Serviceの単体テスト</a><a class="headerlink" href="#service" title="Permalink to this heading">¶</a></h3>
+<p>本節では、以下の<code class="docutils literal notranslate"><span class="pre">Service</span></code>のテスト実装方法を説明する。</p>
+<table class="docutils align-default">
+<colgroup>
+<col style="width: 30.0%" />
+<col style="width: 70.0%" />
+</colgroup>
+<thead>
+<tr class="row-odd"><th class="head"><p>テスト方法</p></th>
+<th class="head"><p>説明</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p><a class="reference internal" href="#implementsoftestbylayertestingservicewithspringtest"><span class="std std-ref">依存クラスを利用したテスト</span></a></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">Service</span></code>をインジェクションし、インフラストラクチャ層と結合してテストを行う。</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#implementsoftestbylayertestingservicewithmockito"><span class="std std-ref">モックを利用したテスト</span></a></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">Service</span></code>の実装クラスが依存するクラスをすべてモック化してテストを行う。</p></td>
+</tr>
+</tbody>
+</table>
+<p>ここでは、以下の成果物に対するテストを例に説明する。
+なお、Serviceの実装の詳細は、<a class="reference internal" href="../../ImplementationAtEachLayer/DomainLayer.html#service-label"><span class="std std-ref">Serviceの実装</span></a>を参照されたい。</p>
+<ul class="simple">
+<li><p>Serviceの実装クラス（<code class="docutils literal notranslate"><span class="pre">TicketReserveServiceImpl</span></code>）</p></li>
+</ul>
+<p>以下に、テスト対象の実装例を示す。</p>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">TicketReserveServiceImpl.java</span></code></p></li>
+</ul>
+<div class="highlight-java notranslate"><div class="highlight"><pre><span></span><span class="nd">@Service</span>
+<span class="nd">@Transactional</span>
+<span class="kd">public</span><span class="w"> </span><span class="kd">class</span> <span class="nc">TicketReserveServiceImpl</span><span class="w"> </span><span class="kd">implements</span><span class="w"> </span><span class="n">TicketReserveService</span><span class="w"> </span><span class="p">{</span>
+
+<span class="w">    </span><span class="nd">@Inject</span>
+<span class="w">    </span><span class="n">ReservationRepository</span><span class="w"> </span><span class="n">reservationRepository</span><span class="p">;</span>
+
+<span class="w">    </span><span class="nd">@Override</span>
+<span class="w">    </span><span class="kd">public</span><span class="w"> </span><span class="n">TicketReserveDto</span><span class="w"> </span><span class="nf">registerReservation</span><span class="p">(</span><span class="n">Reservation</span><span class="w"> </span><span class="n">reservation</span><span class="p">)</span>
+<span class="w">            </span><span class="kd">throws</span><span class="w"> </span><span class="n">BusinessException</span><span class="w"> </span><span class="p">{</span>
+
+<span class="w">        </span><span class="n">List</span><span class="o">&lt;</span><span class="n">ReserveFlight</span><span class="o">&gt;</span><span class="w"> </span><span class="n">reserveFlightList</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">reservation</span><span class="p">.</span><span class="na">getReserveFlightList</span><span class="p">();</span>
+
+<span class="w">        </span><span class="c1">// repository access</span>
+<span class="w">        </span><span class="kt">int</span><span class="w"> </span><span class="n">reservationInsertCount</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">reservationRepository</span><span class="p">.</span><span class="na">insert</span><span class="p">(</span><span class="n">reservation</span><span class="p">);</span>
+<span class="w">        </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">reservationInsertCount</span><span class="w"> </span><span class="o">!=</span><span class="w"> </span><span class="mi">1</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">            </span><span class="k">throw</span><span class="w"> </span><span class="k">new</span><span class="w"> </span><span class="n">SystemException</span><span class="p">(</span><span class="n">LogMessages</span><span class="p">.</span><span class="na">E_AR_A0_L9002</span><span class="p">.</span><span class="na">getCode</span><span class="p">(),</span>
+<span class="w">                    </span><span class="n">LogMessages</span><span class="p">.</span><span class="na">E_AR_A0_L9002</span><span class="p">.</span><span class="na">getMessage</span><span class="p">(</span><span class="n">reservationInsertCount</span><span class="p">,</span><span class="w"> </span><span class="mi">1</span><span class="p">));</span>
+<span class="w">        </span><span class="p">}</span>
+
+<span class="w">        </span><span class="n">String</span><span class="w"> </span><span class="n">reserveNo</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">reservation</span><span class="p">.</span><span class="na">getReserveNo</span><span class="p">();</span>
+
+<span class="w">        </span><span class="n">Date</span><span class="w"> </span><span class="n">paymentDate</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">reserveFlightList</span><span class="p">.</span><span class="na">get</span><span class="p">(</span><span class="mi">0</span><span class="p">).</span><span class="na">getFlight</span><span class="p">().</span><span class="na">getDepartureDate</span><span class="p">();</span>
+
+<span class="w">        </span><span class="k">return</span><span class="w"> </span><span class="k">new</span><span class="w"> </span><span class="n">TicketReserveDto</span><span class="p">(</span><span class="n">reserveNo</span><span class="p">,</span><span class="w"> </span><span class="n">paymentDate</span><span class="p">);</span>
+<span class="w">    </span><span class="p">}</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+<p>以下に、テスト対象が使用するマッピングファイルを示す。</p>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">ReservationRepository.xml</span></code></p></li>
+</ul>
+<div class="highlight-xml notranslate"><div class="highlight"><pre><span></span><span class="nt">&lt;mapper</span><span class="w"> </span><span class="na">namespace=</span><span class="s">&quot;com.example.domain.repository.reservation.ReservationRepository&quot;</span><span class="nt">&gt;</span>
+
+<span class="w">  </span><span class="nt">&lt;insert</span><span class="w"> </span><span class="na">id=</span><span class="s">&quot;insert&quot;</span><span class="w"> </span><span class="na">parameterType=</span><span class="s">&quot;Reservation&quot;</span><span class="nt">&gt;</span>
+<span class="w">    </span><span class="nt">&lt;selectKey</span><span class="w"> </span><span class="na">keyProperty=</span><span class="s">&quot;reserveNo&quot;</span><span class="w"> </span><span class="na">resultType=</span><span class="s">&quot;String&quot;</span><span class="w"> </span><span class="na">order=</span><span class="s">&quot;BEFORE&quot;</span><span class="nt">&gt;</span>
+<span class="w">      </span>SELECT<span class="w"> </span>TO_CHAR(NEXTVAL(&#39;sq_reservation_1&#39;),<span class="w"> </span>&#39;FM0999999999&#39;)
+<span class="w">    </span><span class="nt">&lt;/selectKey&gt;</span>
+<span class="w">    </span>INSERT<span class="w"> </span>INTO<span class="w"> </span>reservation
+<span class="w">    </span>(
+<span class="w">        </span>reserve_no,
+<span class="w">        </span>reserve_date,
+<span class="w">        </span>total_fare,
+<span class="w">        </span>rep_family_name,
+<span class="w">        </span>rep_given_name,
+<span class="w">        </span>rep_age,
+<span class="w">        </span>rep_gender,
+<span class="w">        </span>rep_tel,
+<span class="w">        </span>rep_mail,
+<span class="w">        </span>rep_customer_no
+<span class="w">    </span>)
+<span class="w">    </span>VALUES
+<span class="w">    </span>(
+<span class="w">        </span>#{reserveNo},
+<span class="w">        </span>#{reserveDate},
+<span class="w">        </span>#{totalFare},
+<span class="w">        </span>#{repFamilyName},
+<span class="w">        </span>#{repGivenName},
+<span class="w">        </span>#{repAge},
+<span class="w">        </span>#{repGender.code},
+<span class="w">        </span>#{repTel},
+<span class="w">        </span>#{repMail},
+<span class="w">        </span>NULLIF(#{repMember.membershipNumber},<span class="w"> </span>&#39;&#39;)
+<span class="w">    </span>)
+<span class="w">  </span><span class="nt">&lt;/insert&gt;</span>
+</pre></div>
+</div>
+<section id="implementsoftestbylayertestingservicewithspringtest">
+<span id="id5"></span><h4><a class="toc-backref" href="#id16" role="doc-backlink"><span class="section-number">10.2.2.2.1.1. </span>依存クラスを利用したテスト</a><a class="headerlink" href="#implementsoftestbylayertestingservicewithspringtest" title="Permalink to this heading">¶</a></h4>
+<p><code class="docutils literal notranslate"><span class="pre">Service</span></code>をインジェクションし、インフラストラクチャ層を結合して行う。<code class="docutils literal notranslate"><span class="pre">Service</span></code>のテストにおいて、
+作成するファイルを以下に示す。</p>
+<figure class="align-default">
+<img alt="../../_images/ImplementsOfTestByLayerServiceSpringTestItems.png" src="../../_images/ImplementsOfTestByLayerServiceSpringTestItems.png" />
+</figure>
+<table class="docutils align-default">
+<colgroup>
+<col style="width: 30.0%" />
+<col style="width: 70.0%" />
+</colgroup>
+<thead>
+<tr class="row-odd"><th class="head"><p>作成するファイル名</p></th>
+<th class="head"><p>説明</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">TicketReserveServiceImplTest.java</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">TicketReserveServiceImpl.java</span></code>のテストクラス</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">test-context.xml</span></code></p></td>
+<td><p><a class="reference internal" href="PreparationForTest.html#preparationfortestmakesettingfileforspringtest"><span class="std std-ref">テスト実装例で使用する設定ファイル</span></a>で定義した設定ファイルを使用する。</p></td>
+</tr>
+</tbody>
+</table>
+<div class="line-block">
+<div class="line"><br /></div>
+</div>
+<p>テスト対象のServiceの実装クラスをインジェクションしてインフラストラクチャ層と結合してテストを行う場合のテスト作成方法を説明する。</p>
+<p>以下に、テスト時に読み込む設定ファイルを示す。</p>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">sample-domain.xml</span></code></p></li>
+</ul>
+<div class="highlight-xml notranslate"><div class="highlight"><pre><span></span><span class="nt">&lt;context:component-scan</span><span class="w"> </span><span class="na">base-package=</span><span class="s">&quot;com.example.domain&quot;</span><span class="w"> </span><span class="nt">/&gt;</span>
+<span class="nt">&lt;tx:annotation-driven</span><span class="w"> </span><span class="nt">/&gt;</span>
+
+<span class="nt">&lt;import</span><span class="w"> </span><span class="na">resource=</span><span class="s">&quot;classpath:META-INF/spring/sample-infra.xml&quot;</span><span class="w"> </span><span class="nt">/&gt;</span>
+<span class="nt">&lt;import</span><span class="w"> </span><span class="na">resource=</span><span class="s">&quot;classpath:META-INF/spring/sample-codelist.xml&quot;</span><span class="w"> </span><span class="nt">/&gt;</span>
+
+<span class="nt">&lt;bean</span><span class="w"> </span><span class="na">id=</span><span class="s">&quot;resultMessagesLoggingInterceptor&quot;</span>
+<span class="w">  </span><span class="na">class=</span><span class="s">&quot;org.terasoluna.gfw.common.exception.ResultMessagesLoggingInterceptor&quot;</span><span class="nt">&gt;</span>
+<span class="w">  </span><span class="nt">&lt;property</span><span class="w"> </span><span class="na">name=</span><span class="s">&quot;exceptionLogger&quot;</span><span class="w"> </span><span class="na">ref=</span><span class="s">&quot;exceptionLogger&quot;</span><span class="w"> </span><span class="nt">/&gt;</span>
+<span class="nt">&lt;/bean&gt;</span>
+
+<span class="nt">&lt;aop:config&gt;</span>
+<span class="w">  </span><span class="nt">&lt;aop:advisor</span><span class="w"> </span><span class="na">advice-ref=</span><span class="s">&quot;resultMessagesLoggingInterceptor&quot;</span>
+<span class="w">    </span><span class="na">pointcut=</span><span class="s">&quot;@within(org.springframework.stereotype.Service)&quot;</span><span class="w"> </span><span class="nt">/&gt;</span>
+<span class="nt">&lt;/aop:config&gt;</span>
+</pre></div>
+</div>
+<p>以下に、テスト実装例を示す。
+テスト対象の<code class="docutils literal notranslate"><span class="pre">TicketReserveServiceImpl#registerReservation()</span></code>メソッドを実行し、戻り値を確認している。
+なお、データベースの状態の検証方法は<a class="reference internal" href="#implementsoftestbylayerunittestofrepository"><span class="std std-ref">Repositoryの単体テスト</span></a>を参照されたい。</p>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">TicketReserveServiceImplTest.java</span></code></p></li>
+</ul>
+<div class="highlight-java notranslate"><div class="highlight"><pre><span></span><span class="kn">import static</span><span class="w"> </span><span class="nn">org.hamcrest.CoreMatchers.is</span><span class="p">;</span>
+<span class="kn">import static</span><span class="w"> </span><span class="nn">org.hamcrest.MatcherAssert.assertThat</span><span class="p">;</span>
+
+<span class="nd">@RunWith</span><span class="p">(</span><span class="n">SpringJUnit4ClassRunner</span><span class="p">.</span><span class="na">class</span><span class="p">)</span>
+<span class="nd">@ContextConfiguration</span><span class="p">(</span><span class="n">locations</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">{</span>
+<span class="w">        </span><span class="s">&quot;classpath:META-INF/spring/sample-domain.xml&quot;</span><span class="p">,</span><span class="w"> </span><span class="c1">// (1)</span>
+<span class="w">        </span><span class="s">&quot;classpath:META-INF/spring/test-context.xml&quot;</span><span class="p">})</span><span class="w"> </span><span class="c1">// (1)</span>
+<span class="nd">@Transactional</span>
+<span class="kd">public</span><span class="w"> </span><span class="kd">class</span> <span class="nc">TicketReserveServiceImplTest</span><span class="w"> </span><span class="p">{</span>
+
+<span class="w">    </span><span class="nd">@Inject</span>
+<span class="w">    </span><span class="n">TicketReserveService</span><span class="w"> </span><span class="n">target</span><span class="p">;</span>
+
+<span class="w">    </span><span class="nd">@Inject</span>
+<span class="w">    </span><span class="kd">private</span><span class="w"> </span><span class="n">JdbcTemplate</span><span class="w"> </span><span class="n">jdbcTemplate</span><span class="p">;</span>
+
+<span class="w">    </span><span class="nd">@Test</span>
+<span class="w">    </span><span class="nd">@Sql</span><span class="p">(</span><span class="n">statements</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">&quot;ALTER SEQUENCE sq_reservation_1 RESTART WITH 1&quot;</span><span class="p">)</span><span class="w"> </span><span class="c1">// (2)</span>
+<span class="w">    </span><span class="kd">public</span><span class="w"> </span><span class="kt">void</span><span class="w"> </span><span class="nf">testRegisterReservation</span><span class="p">()</span><span class="w"> </span><span class="p">{</span>
+
+<span class="w">        </span><span class="c1">// setup</span>
+<span class="w">        </span><span class="n">Reservation</span><span class="w"> </span><span class="n">inputReservation</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="k">new</span><span class="w"> </span><span class="n">Reservation</span><span class="p">();</span>
+<span class="w">        </span><span class="n">inputReservation</span><span class="p">.</span><span class="na">setTotalFare</span><span class="p">(</span><span class="mi">39200</span><span class="p">);</span>
+<span class="w">        </span><span class="n">inputReservation</span><span class="p">.</span><span class="na">setReserveNo</span><span class="p">(</span><span class="s">&quot;0000000001&quot;</span><span class="p">);</span>
+<span class="w">        </span><span class="c1">// omitted</span>
+
+<span class="w">        </span><span class="c1">// run the test</span>
+<span class="w">        </span><span class="n">TicketReserveDto</span><span class="w"> </span><span class="n">actTicketReserveDto</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">target</span><span class="p">.</span><span class="na">registerReservation</span><span class="p">(</span>
+<span class="w">                </span><span class="n">reservation</span><span class="p">);</span>
+
+<span class="w">        </span><span class="c1">// assertion</span>
+<span class="w">        </span><span class="n">assertThat</span><span class="p">(</span><span class="n">actTicketReserveDto</span><span class="p">.</span><span class="na">getReserveNo</span><span class="p">(),</span><span class="w"> </span><span class="n">is</span><span class="p">(</span><span class="s">&quot;0000000001&quot;</span><span class="p">));</span>
+<span class="w">        </span><span class="c1">// omitted</span>
+<span class="w">    </span><span class="p">}</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+<table class="docutils align-default">
+<colgroup>
+<col style="width: 10.0%" />
+<col style="width: 90.0%" />
+</colgroup>
+<thead>
+<tr class="row-odd"><th class="head"><p>項番</p></th>
+<th class="head"><p>説明</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><div class="line-block">
+<div class="line">(1)</div>
+</div>
+</td>
+<td><div class="line-block">
+<div class="line"><code class="docutils literal notranslate"><span class="pre">TicketReserveServiceImpl</span></code>クラスを動作させるために必要な設定ファイル（アプリケーションが保持する
+<code class="docutils literal notranslate"><span class="pre">sample-domain.xml</span></code>とそれを補う<code class="docutils literal notranslate"><span class="pre">test-domain.xml</span></code>）を読み込む。</div>
+</div>
+</td>
+</tr>
+<tr class="row-odd"><td><div class="line-block">
+<div class="line">(2)</div>
+</div>
+</td>
+<td><div class="line-block">
+<div class="line"><code class="docutils literal notranslate"><span class="pre">&#64;Sql</span></code>の<code class="docutils literal notranslate"><span class="pre">statements</span></code>属性を使用することでSQL文を直接指定することもできる。
+ここではテストメソッド実行前にシーケンスの初期化を行っている。</div>
+</div>
+</td>
+</tr>
+</tbody>
+</table>
+<div class="admonition warning">
+<p class="admonition-title">Warning</p>
+<p><strong>テスト時のトランザクション管理</strong></p>
+<p>テストケースに<code class="docutils literal notranslate"><span class="pre">&#64;Transactional</span></code>アノテーションを付与すると、テスト実行開始から終了まで一トランザクションとなる。
+そのため、テストケースから<code class="docutils literal notranslate"><span class="pre">&#64;Transactional</span></code>アノテーションを付与した<code class="docutils literal notranslate"><span class="pre">Service</span></code>クラスを呼び出した場合、
+テストケースからトランザクションが引き継がれる点に注意すること。
+例えば、トランザクションの伝播方法がデフォルト（<code class="docutils literal notranslate"><span class="pre">REQUIRED</span></code>）の場合、テストケースで開始した
+トランザクションでテスト対象の処理が行われ、コミット/ロールバックのタイミングもテスト終了時になる。
+トランザクションの伝播方法については<a class="reference internal" href="../../ImplementationAtEachLayer/DomainLayer.html#transaction-management-declare-transaction-info-label"><span class="std std-ref">「宣言型トランザクション管理」で必要となる情報</span></a>を参照されたい。</p>
+</div>
+</section>
+<section id="implementsoftestbylayertestingservicewithmockito">
+<span id="id6"></span><h4><a class="toc-backref" href="#id17" role="doc-backlink"><span class="section-number">10.2.2.2.1.2. </span>モックを利用したテスト</a><a class="headerlink" href="#implementsoftestbylayertestingservicewithmockito" title="Permalink to this heading">¶</a></h4>
+<p><code class="docutils literal notranslate"><span class="pre">Service</span></code>の依存クラスをすべてモック化して行う<code class="docutils literal notranslate"><span class="pre">Service</span></code>の単体テストにおいて、作成するファイルを以下に示す。</p>
+<figure class="align-default">
+<img alt="../../_images/ImplementsOfTestByLayerServiceMockItems.png" src="../../_images/ImplementsOfTestByLayerServiceMockItems.png" />
+</figure>
+<table class="docutils align-default">
+<colgroup>
+<col style="width: 30.0%" />
+<col style="width: 70.0%" />
+</colgroup>
+<thead>
+<tr class="row-odd"><th class="head"><p>作成するファイル名</p></th>
+<th class="head"><p>説明</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">TicketReserveServiceImplMockTest.java</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">TicketReserveServiceImpl.java</span></code>のテストクラス（モックを使用する場合）</p></td>
+</tr>
+</tbody>
+</table>
+<div class="line-block">
+<div class="line"><br /></div>
+</div>
+<p>テスト対象の<code class="docutils literal notranslate"><span class="pre">Service</span></code>の実装クラスが依存するクラスをモック化する場合のテスト作成方法を説明する。
+ここでは、<code class="docutils literal notranslate"><span class="pre">ReservationRepository#insert()</span></code>メソッドをモック化し、テスト対象の
+<code class="docutils literal notranslate"><span class="pre">TicketReserveServiceImpl#registerReservation()</span></code>メソッドでモック化したメソッドが呼び出されることとテスト対象の
+戻り値を確認している。</p>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">TicketReserveServiceImplMockTest.java</span></code></p></li>
+</ul>
+<div class="highlight-java notranslate"><div class="highlight"><pre><span></span><span class="kn">import static</span><span class="w"> </span><span class="nn">org.hamcrest.CoreMatchers.is</span><span class="p">;</span>
+<span class="kn">import static</span><span class="w"> </span><span class="nn">org.hamcrest.MatcherAssert.assertThat</span><span class="p">;</span>
+<span class="kn">import static</span><span class="w"> </span><span class="nn">org.mockito.Mockito.verify</span><span class="p">;</span>
+<span class="kn">import static</span><span class="w"> </span><span class="nn">org.mockito.Mockito.when</span><span class="p">;</span>
+
+<span class="kd">public</span><span class="w"> </span><span class="kd">class</span> <span class="nc">TicketReserveServiceImplMockTest</span><span class="w"> </span><span class="p">{</span>
+
+<span class="w">    </span><span class="nd">@Rule</span><span class="w"> </span><span class="c1">// (1)</span>
+<span class="w">    </span><span class="kd">public</span><span class="w"> </span><span class="n">MockitoRule</span><span class="w"> </span><span class="n">mockito</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">MockitoJUnit</span><span class="p">.</span><span class="na">rule</span><span class="p">();</span>
+
+<span class="w">    </span><span class="nd">@Mock</span><span class="w"> </span><span class="c1">// (2)</span>
+<span class="w">    </span><span class="n">ReservationRepository</span><span class="w"> </span><span class="n">reservationRepository</span><span class="p">;</span>
+
+<span class="w">    </span><span class="nd">@InjectMocks</span><span class="w"> </span><span class="c1">// (3)</span>
+<span class="w">    </span><span class="kd">private</span><span class="w"> </span><span class="n">TicketReserveServiceImpl</span><span class="w"> </span><span class="n">target</span><span class="p">;</span>
+
+<span class="w">    </span><span class="nd">@Test</span>
+<span class="w">    </span><span class="kd">public</span><span class="w"> </span><span class="kt">void</span><span class="w"> </span><span class="nf">testRegisterReservation</span><span class="p">()</span><span class="w"> </span><span class="p">{</span>
+
+<span class="w">        </span><span class="c1">// setup</span>
+<span class="w">        </span><span class="n">Reservation</span><span class="w"> </span><span class="n">inputReservation</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="k">new</span><span class="w"> </span><span class="n">Reservation</span><span class="p">();</span>
+<span class="w">        </span><span class="n">inputReservation</span><span class="p">.</span><span class="na">setTotalFare</span><span class="p">(</span><span class="mi">39200</span><span class="p">);</span>
+<span class="w">        </span><span class="n">inputReservation</span><span class="p">.</span><span class="na">setReserveNo</span><span class="p">(</span><span class="s">&quot;0000000001&quot;</span><span class="p">);</span>
+<span class="w">        </span><span class="c1">// omitted</span>
+
+<span class="w">        </span><span class="n">when</span><span class="p">(</span><span class="n">reservationRepository</span><span class="p">.</span><span class="na">insert</span><span class="p">(</span><span class="n">inputReservation</span><span class="p">)).</span><span class="na">thenReturn</span><span class="p">(</span><span class="mi">1</span><span class="p">);</span><span class="w"> </span><span class="c1">// (4)</span>
+
+<span class="w">        </span><span class="c1">// run the test</span>
+<span class="w">        </span><span class="n">TicketReserveDto</span><span class="w"> </span><span class="n">ticketReserveDto</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">target</span><span class="p">.</span><span class="na">registerReservation</span><span class="p">(</span><span class="n">inputReservation</span><span class="p">);</span>
+
+<span class="w">        </span><span class="c1">// assertion</span>
+<span class="w">        </span><span class="n">verify</span><span class="p">(</span><span class="n">reservationRepository</span><span class="p">).</span><span class="na">insert</span><span class="p">(</span><span class="n">inputReservation</span><span class="p">);</span><span class="w"> </span><span class="c1">// (5)</span>
+<span class="w">        </span><span class="n">assertThat</span><span class="p">(</span><span class="n">ticketReserveDto</span><span class="p">.</span><span class="na">getReserveNo</span><span class="p">(),</span><span class="w"> </span><span class="n">is</span><span class="p">(</span><span class="s">&quot;0000000001&quot;</span><span class="p">));</span>
+<span class="w">        </span><span class="c1">// omitted</span>
+<span class="w">    </span><span class="p">}</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+<table class="docutils align-default">
+<colgroup>
+<col style="width: 10.0%" />
+<col style="width: 90.0%" />
+</colgroup>
+<thead>
+<tr class="row-odd"><th class="head"><p>項番</p></th>
+<th class="head"><p>説明</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><div class="line-block">
+<div class="line">(1)</div>
+</div>
+</td>
+<td><div class="line-block">
+<div class="line">モックの初期化とインジェクションをアノテーションベースで行うための宣言。
+詳細は<a class="reference internal" href="UsageOfLibraryForTest.html#usageoflibraryfortestcreatemockobject"><span class="std std-ref">モックの生成</span></a>を参照されたい。</div>
+</div>
+</td>
+</tr>
+<tr class="row-odd"><td><div class="line-block">
+<div class="line">(2)</div>
+</div>
+</td>
+<td><div class="line-block">
+<div class="line"><code class="docutils literal notranslate"><span class="pre">&#64;Mock</span></code>アノテーションを付与することで、<code class="docutils literal notranslate"><span class="pre">TicketReserveServiceImpl</span></code>が依存している
+<code class="docutils literal notranslate"><span class="pre">MemberRepository</span></code>をモック化している。
+詳細は<a class="reference internal" href="UsageOfLibraryForTest.html#usageoflibraryfortestcreatemockobject"><span class="std std-ref">モックの生成</span></a>を参照されたい。</div>
+</div>
+</td>
+</tr>
+<tr class="row-even"><td><div class="line-block">
+<div class="line">(3)</div>
+</div>
+</td>
+<td><div class="line-block">
+<div class="line"><code class="docutils literal notranslate"><span class="pre">&#64;InjectMocks</span></code>アノテーションを付与することで、自動的にモックオブジェクトが代入される。
+詳細は<a class="reference internal" href="UsageOfLibraryForTest.html#usageoflibraryfortestcreatemockobject"><span class="std std-ref">モックの生成</span></a>を参照されたい。</div>
+</div>
+</td>
+</tr>
+<tr class="row-odd"><td><div class="line-block">
+<div class="line">(4)</div>
+</div>
+</td>
+<td><div class="line-block">
+<div class="line"><code class="docutils literal notranslate"><span class="pre">ReservationRepository</span></code>の<code class="docutils literal notranslate"><span class="pre">insert</span></code>メソッドについて、
+引数が<code class="docutils literal notranslate"><span class="pre">inputReservation</span></code>の場合、返り値として”<code class="docutils literal notranslate"><span class="pre">1</span></code>&quot; を返すように設定する。
+メソッドのモック化については、<a class="reference internal" href="UsageOfLibraryForTest.html#usageoflibraryfortestmockingmethods"><span class="std std-ref">メソッドのモック化</span></a>を参照されたい。</div>
+</div>
+</td>
+</tr>
+<tr class="row-even"><td><div class="line-block">
+<div class="line">(5)</div>
+</div>
+</td>
+<td><div class="line-block">
+<div class="line"><code class="docutils literal notranslate"><span class="pre">ReservationRepository</span></code>の<code class="docutils literal notranslate"><span class="pre">insert</span></code>メソッドについて、
+引数に<code class="docutils literal notranslate"><span class="pre">inputReservation</span></code>が渡されて1回呼び出されたことを検証する。
+モック化したメソッドの検証については、<a class="reference internal" href="UsageOfLibraryForTest.html#usageoflibraryfortestvalidationofmockmethod"><span class="std std-ref">モック化したメソッドの検証</span></a>を参照されたい。</div>
+</div>
+</td>
+</tr>
+</tbody>
+</table>
+<div class="line-block">
+<div class="line"><br /></div>
+</div>
+</section>
+</section>
+</section>
+<section id="id7">
+<h2><a class="toc-backref" href="#id18" role="doc-backlink"><span class="section-number">10.2.2.3. </span>アプリケーション層の単体テスト</a><a class="headerlink" href="#id7" title="Permalink to this heading">¶</a></h2>
+<section id="id8">
+<h3><a class="toc-backref" href="#id19" role="doc-backlink"><span class="section-number">10.2.2.3.1. </span>アプリケーション層の単体テスト対象</a><a class="headerlink" href="#id8" title="Permalink to this heading">¶</a></h3>
+<p>本節では、開発ガイドラインの<a class="reference internal" href="../../Overview/ApplicationLayering.html#layerofapplication"><span class="std std-ref">アプリケーション層</span></a>の単体テストについて説明する。</p>
+<figure class="align-default">
+<a class="reference internal image-reference" href="../../_images/ImplementsOfTestByLayerLayerOfTestTargetApplication.png"><img alt="../../_images/ImplementsOfTestByLayerLayerOfTestTargetApplication.png" src="../../_images/ImplementsOfTestByLayerLayerOfTestTargetApplication.png" style="width: 95%;" /></a>
+</figure>
+<p>アプリケーション層では、<code class="docutils literal notranslate"><span class="pre">Controller</span></code>と<code class="docutils literal notranslate"><span class="pre">Helper</span></code>のロジックを確認するためのテストを行う。
+<code class="docutils literal notranslate"><span class="pre">Controller</span></code>については以下の項目を確認する。</p>
+<ul class="simple">
+<li><p>&#64;RequestMapping(リクエストパス、HTTPメソッド、リクエストパラメータ)</p></li>
+<li><p>返却されるVIEW名</p></li>
+</ul>
+<p><code class="docutils literal notranslate"><span class="pre">View</span></code>については、本来アプリケーション層に含まれるが、本ガイドラインでは対象外とする。</p>
+<p>Spring Testは<code class="docutils literal notranslate"><span class="pre">Controller</span></code>クラスをテストするためのサポートクラス(<code class="docutils literal notranslate"><span class="pre">org.springframework.test.web.servlet.MockMvc</span></code>など)を用意している。
+<code class="docutils literal notranslate"><span class="pre">Controller</span></code>は<code class="docutils literal notranslate"><span class="pre">MockMVC</span></code>を使用して疑似リクエストを送信してテストをするため、<code class="docutils literal notranslate"><span class="pre">MockMVC</span></code>を提供する
+Spring Testの<code class="docutils literal notranslate"><span class="pre">SpringJUnit4ClassRunner</span></code>を使用する。
+<code class="docutils literal notranslate"><span class="pre">MockMvc</span></code>は<code class="docutils literal notranslate"><span class="pre">Controller</span></code>に疑似リクエストを送信する仕組みを持ち、デプロイしたアプリケーションを模したテストを
+行うことができる。<code class="docutils literal notranslate"><span class="pre">MockMVC</span></code>の詳細は<a class="reference internal" href="UsageOfLibraryForTest.html#usageoflibraryfortestmockmvcoverview"><span class="std std-ref">MockMvcとは</span></a>を参照されたい。</p>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p><strong>Formのバリデーションテスト</strong></p>
+<p><code class="docutils literal notranslate"><span class="pre">Form</span></code>のテストは、本来<code class="docutils literal notranslate"><span class="pre">Controller</span></code>と組み合わせて実際の動作に近い形で行う必要があるが、
+<code class="docutils literal notranslate"><span class="pre">Validation</span></code>の全パターンを<code class="docutils literal notranslate"><span class="pre">Controller</span></code>と組み合わせるとテストの負担が大きくなる。
+そのため、単純な<code class="docutils literal notranslate"><span class="pre">Validation</span></code>の確認であれば、<code class="docutils literal notranslate"><span class="pre">Controller</span></code>と切り離して <code class="docutils literal notranslate"><span class="pre">Form</span></code>単体で<code class="docutils literal notranslate"><span class="pre">Validation</span></code>の確認を行うこともできる。テスト方法はテスト対象のFormを使用して<a class="reference internal" href="ImplementsOfTestByFunction.html#implementsoftestbyfunctiontestingbeanvalidator"><span class="std std-ref">Bean Validationで実装したValidatorの単体テスト</span></a>を実施すればよい。</p>
+</div>
+<div class="line-block">
+<div class="line"><br /></div>
+</div>
+</section>
+<section id="controller">
+<h3><a class="toc-backref" href="#id20" role="doc-backlink"><span class="section-number">10.2.2.3.2. </span>Controllerの単体テスト</a><a class="headerlink" href="#controller" title="Permalink to this heading">¶</a></h3>
+<p>ここでは、以下の<code class="docutils literal notranslate"><span class="pre">Controller</span></code>の単体テスト実装方法を説明する。</p>
+<table class="docutils align-default">
+<colgroup>
+<col style="width: 30.0%" />
+<col style="width: 70.0%" />
+</colgroup>
+<thead>
+<tr class="row-odd"><th class="head"><p>テスト方法</p></th>
+<th class="head"><p>説明</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p><a class="reference internal" href="#implementsoftestbylayertestingcontrollerwithstandalonesetup"><span class="std std-ref">StandaloneSetupを利用したテスト</span></a></p></td>
+<td><p>Spring Testが提供するデフォルトのコンテキストを使用し指定した設定ファイルを読み込むことでテストを行う。</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#implementsoftestbylayertestingcontrollerwithwebappcontextsetup"><span class="std std-ref">WebAppContextSetupを利用したテスト</span></a></p></td>
+<td><p>実際に使用する<code class="docutils literal notranslate"><span class="pre">applicationContext.xml</span></code>と<code class="docutils literal notranslate"><span class="pre">spring-mvc.xml</span></code>を使用してテストを行う。</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#implementsoftestbylayertestingcontrollerwithmockito"><span class="std std-ref">モックを利用したテスト</span></a></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">Controller</span></code>が依存するクラスをすべてモック化してテストを行う。</p></td>
+</tr>
+</tbody>
+</table>
+<p>ここでは、以下の成果物に対するテストを例に説明する。<code class="docutils literal notranslate"><span class="pre">Controller</span></code>の実装の詳細は、<a class="reference internal" href="../../ImplementationAtEachLayer/ApplicationLayer.html#controller-label"><span class="std std-ref">Controllerの実装</span></a>を参照されたい。</p>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">Controller</span></code>クラス（TicketSearchController）</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">Controller</span></code>クラス（MemberRegisterController）</p></li>
+</ul>
+<p>なお、インジェクションとモック化を組み合わせてテストを行いたい場合は、適宜以下に説明する実装方法を組み合わせて
+実装されたい。</p>
+<section id="standalonesetup">
+<span id="implementsoftestbylayertestingcontrollerwithstandalonesetup"></span><h4><a class="toc-backref" href="#id21" role="doc-backlink"><span class="section-number">10.2.2.3.2.1. </span>StandaloneSetupを利用したテスト</a><a class="headerlink" href="#standalonesetup" title="Permalink to this heading">¶</a></h4>
+<p><code class="docutils literal notranslate"><span class="pre">Controller</span></code>の依存クラスが利用できモック化する必要がない場合の<code class="docutils literal notranslate"><span class="pre">Controller</span></code>の単体テストにおいて、<code class="docutils literal notranslate"><span class="pre">StandaloneSetup</span></code>で作成するファイルを以下に示す。</p>
+<figure class="align-default">
+<img alt="../../_images/ImplementsOfTestByLayerControllerStandaloneSetupItems.png" src="../../_images/ImplementsOfTestByLayerControllerStandaloneSetupItems.png" />
+</figure>
+<table class="docutils align-default">
+<colgroup>
+<col style="width: 50.0%" />
+<col style="width: 50.0%" />
+</colgroup>
+<thead>
+<tr class="row-odd"><th class="head"><p>作成するファイル名</p></th>
+<th class="head"><p>説明</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">MemberRegisterControllerStandaloneTest.java</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">MemberRegisterController.java</span></code>のテストクラス</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">spring-mvc-test.xml</span></code></p></td>
+<td><p>アプリケーション層に依存するコンポーネントを読み込むための<code class="docutils literal notranslate"><span class="pre">component-scan</span></code>をテスト用に抽出した設定ファイル。</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">test-context.xml</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">Controller</span></code>をドメイン層、インフラストラクチャ層と結合してテストを行う場合に使用する設定ファイル。</p></td>
+</tr>
+</tbody>
+</table>
+<div class="line-block">
+<div class="line"><br /></div>
+</div>
+<p><code class="docutils literal notranslate"><span class="pre">spring-mvc.xml</span></code>を使ってテストをすることが望ましいが、Spring Testが作成したコンテキストと
+Spring MVCが作成したコンテキストが衝突しテスト実行ができないことがある。
+そのため対応策として、テストに必要な設定のみ抽出し、テスト用の設定ファイルを用意する。</p>
+<p>以下に、必要な設定のみ抽出した設定ファイルを示す。</p>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">spring-mvc-test.xml</span></code></p></li>
+</ul>
+<div class="highlight-xml notranslate"><div class="highlight"><pre><span></span><span class="nt">&lt;context:component-scan</span><span class="w"> </span><span class="na">base-package=</span><span class="s">&quot;com.example.app&quot;</span><span class="w"> </span><span class="nt">/&gt;</span>
+</pre></div>
+</div>
+<p><code class="docutils literal notranslate"><span class="pre">ServiceImpl</span></code>クラスなどテスト対象の<code class="docutils literal notranslate"><span class="pre">Controller</span></code>クラスが依存するクラスをインジェクションする場合の
+テスト作成方法を説明する。
+なお、テストでデータアクセスする場合の検証方法は<a class="reference internal" href="#implementsoftestbylayerunittestofrepository"><span class="std std-ref">Repositoryの単体テスト</span></a>を、
+呼び出すドメイン層のロジックを確認する方法は<a class="reference internal" href="#implementsoftestbylayerunittestofservice"><span class="std std-ref">Serviceの単体テスト</span></a>を参照されたい。</p>
+<p>以下に、テスト対象となる<code class="docutils literal notranslate"><span class="pre">Controller</span></code>の実装例を示す。</p>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">MemberRegisterController.java</span></code></p></li>
+</ul>
+<div class="highlight-java notranslate"><div class="highlight"><pre><span></span><span class="nd">@Controller</span>
+<span class="nd">@RequestMapping</span><span class="p">(</span><span class="s">&quot;member/register&quot;</span><span class="p">)</span>
+<span class="nd">@TransactionTokenCheck</span><span class="p">(</span><span class="s">&quot;member/register&quot;</span><span class="p">)</span>
+<span class="kd">public</span><span class="w"> </span><span class="kd">class</span> <span class="nc">MemberRegisterController</span><span class="w"> </span><span class="p">{</span>
+
+<span class="w">    </span><span class="nd">@TransactionTokenCheck</span><span class="p">(</span><span class="n">type</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">TransactionTokenType</span><span class="p">.</span><span class="na">IN</span><span class="p">)</span>
+<span class="w">    </span><span class="nd">@RequestMapping</span><span class="p">(</span><span class="n">method</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">RequestMethod</span><span class="p">.</span><span class="na">POST</span><span class="p">)</span>
+<span class="w">    </span><span class="kd">public</span><span class="w"> </span><span class="n">String</span><span class="w"> </span><span class="nf">register</span><span class="p">(</span><span class="nd">@Validated</span><span class="w"> </span><span class="n">MemberRegisterForm</span><span class="w"> </span><span class="n">memberRegisterForm</span><span class="p">,</span>
+<span class="w">        </span><span class="n">BindingResult</span><span class="w"> </span><span class="n">result</span><span class="p">,</span><span class="w"> </span><span class="n">Model</span><span class="w"> </span><span class="n">model</span><span class="p">,</span><span class="w"> </span><span class="n">RedirectAttributes</span><span class="w"> </span><span class="n">redirectAttributes</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+
+<span class="w">        </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">result</span><span class="p">.</span><span class="na">hasErrors</span><span class="p">())</span><span class="w"> </span><span class="p">{</span>
+<span class="w">            </span><span class="k">throw</span><span class="w"> </span><span class="k">new</span><span class="w"> </span><span class="n">BadRequestException</span><span class="p">(</span><span class="n">result</span><span class="p">);</span>
+<span class="w">        </span><span class="p">}</span>
+
+<span class="w">        </span><span class="c1">// omitted</span>
+
+<span class="w">        </span><span class="k">return</span><span class="w"> </span><span class="s">&quot;redirect:/member/register?complete&quot;</span><span class="p">;</span>
+<span class="w">    </span><span class="p">}</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+<p>ここでは、テスト対象の<code class="docutils literal notranslate"><span class="pre">MemberRegisterController</span></code>クラスの<code class="docutils literal notranslate"><span class="pre">register</span></code>メソッドを呼び出し、
+リクエストマッピングと返却されるVIEWおよびリダイレクトされること（<code class="docutils literal notranslate"><span class="pre">testRegisterConfirm01</span></code>）、
+不正な入力値を送信したときに<code class="docutils literal notranslate"><span class="pre">BadRequestException</span></code>がthrowされていること（<code class="docutils literal notranslate"><span class="pre">testRegisterConfirm02</span></code>）の確認を行う。</p>
+<p>以下に、<code class="docutils literal notranslate"><span class="pre">ServiceImpl</span></code>クラスなどテスト対象の<code class="docutils literal notranslate"><span class="pre">Controller</span></code>クラスが依存するクラスをインジェクションする場合の
+テスト作成方法を説明する。なお、テストでデータアクセスする場合の検証方法は<a class="reference internal" href="#implementsoftestbylayerunittestofrepository"><span class="std std-ref">Repositoryの単体テスト</span></a>を参照されたい。</p>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">MemberRegisterControllerStandaloneTest.java</span></code></p></li>
+</ul>
+<div class="highlight-java notranslate"><div class="highlight"><pre><span></span><span class="kn">import static</span><span class="w"> </span><span class="nn">org.hamcrest.CoreMatchers.is</span><span class="p">;</span>
+<span class="kn">import static</span><span class="w"> </span><span class="nn">org.hamcrest.MatcherAssert.assertThat</span><span class="p">;</span>
+<span class="kn">import static</span><span class="w"> </span><span class="nn">org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post</span><span class="p">;</span>
+<span class="kn">import static</span><span class="w"> </span><span class="nn">org.springframework.test.web.servlet.result.MockMvcResultHandlers.log</span><span class="p">;</span>
+<span class="kn">import static</span><span class="w"> </span><span class="nn">org.springframework.test.web.servlet.result.MockMvcResultMatchers.model</span><span class="p">;</span>
+<span class="kn">import static</span><span class="w"> </span><span class="nn">org.springframework.test.web.servlet.result.MockMvcResultMatchers.status</span><span class="p">;</span>
+<span class="kn">import static</span><span class="w"> </span><span class="nn">org.springframework.test.web.servlet.result.MockMvcResultMatchers.view</span><span class="p">;</span>
+
+<span class="nd">@RunWith</span><span class="p">(</span><span class="n">SpringJUnit4ClassRunner</span><span class="p">.</span><span class="na">class</span><span class="p">)</span>
+<span class="nd">@ContextConfiguration</span><span class="p">(</span><span class="n">locations</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">{</span>
+<span class="w">        </span><span class="s">&quot;classpath:META-INF/spring/applicationContext.xml&quot;</span><span class="p">,</span><span class="w"> </span><span class="c1">// (1)</span>
+<span class="w">        </span><span class="s">&quot;classpath:META-INF/spring/test-context.xml&quot;</span><span class="p">,</span><span class="w">       </span><span class="c1">// (1)</span>
+<span class="w">        </span><span class="s">&quot;classpath:META-INF/spring/spring-mvc-test.xml&quot;</span><span class="p">})</span><span class="w">   </span><span class="c1">// (1)</span>
+<span class="kd">public</span><span class="w"> </span><span class="kd">class</span> <span class="nc">MemberRegisterControllerStandaloneTest</span><span class="w"> </span><span class="p">{</span>
+
+<span class="w">    </span><span class="nd">@Inject</span>
+<span class="w">    </span><span class="n">MemberRegisterController</span><span class="w"> </span><span class="n">target</span><span class="p">;</span>
+
+<span class="w">    </span><span class="n">MockMvc</span><span class="w"> </span><span class="n">mockMvc</span><span class="p">;</span>
+
+<span class="w">    </span><span class="nd">@Before</span>
+<span class="w">    </span><span class="kd">public</span><span class="w"> </span><span class="kt">void</span><span class="w"> </span><span class="nf">setUp</span><span class="p">()</span><span class="w"> </span><span class="p">{</span>
+
+<span class="w">        </span><span class="c1">// setup</span>
+<span class="w">        </span><span class="n">mockMvc</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">MockMvcBuilders</span><span class="p">.</span><span class="na">standaloneSetup</span><span class="p">(</span><span class="n">target</span><span class="p">).</span><span class="na">alwaysDo</span><span class="p">(</span><span class="n">log</span><span class="p">()).</span><span class="na">build</span><span class="p">();</span><span class="w"> </span><span class="c1">// (2)</span>
+<span class="w">    </span><span class="p">}</span>
+
+<span class="w">    </span><span class="nd">@Test</span>
+<span class="w">    </span><span class="kd">public</span><span class="w"> </span><span class="kt">void</span><span class="w"> </span><span class="nf">testRegisterConfirm01</span><span class="p">()</span><span class="w"> </span><span class="kd">throws</span><span class="w"> </span><span class="n">Exception</span><span class="w"> </span><span class="p">{</span>
+
+<span class="w">        </span><span class="c1">// setup and run the test</span>
+<span class="w">        </span><span class="n">mockMvc</span><span class="p">.</span><span class="na">perform</span><span class="p">(</span><span class="n">post</span><span class="p">(</span><span class="s">&quot;/member/register&quot;</span><span class="p">)</span>
+<span class="w">                    </span><span class="c1">// omitted</span>
+<span class="w">                    </span><span class="p">.</span><span class="na">param</span><span class="p">(</span><span class="s">&quot;password&quot;</span><span class="p">,</span><span class="w"> </span><span class="s">&quot;testpassword&quot;</span><span class="p">)</span><span class="w">          </span><span class="c1">// (3)</span>
+<span class="w">                    </span><span class="p">.</span><span class="na">param</span><span class="p">(</span><span class="s">&quot;reEnterPassword&quot;</span><span class="p">,</span><span class="w"> </span><span class="s">&quot;testpassword&quot;</span><span class="p">)))</span><span class="w"> </span><span class="c1">// (3)</span>
+<span class="w">                    </span><span class="c1">// assert</span>
+<span class="w">                    </span><span class="p">.</span><span class="na">andExpect</span><span class="p">(</span><span class="n">status</span><span class="p">().</span><span class="na">is</span><span class="p">(</span><span class="mi">302</span><span class="p">))</span><span class="w">                                  </span><span class="c1">// (4)</span>
+<span class="w">                    </span><span class="p">.</span><span class="na">andExpect</span><span class="p">(</span><span class="n">view</span><span class="p">().</span><span class="na">name</span><span class="p">(</span><span class="s">&quot;redirect:/member/register?complete&quot;</span><span class="p">))</span><span class="w"> </span><span class="c1">// (4)</span>
+<span class="w">                    </span><span class="p">.</span><span class="na">andExpect</span><span class="p">(</span><span class="n">model</span><span class="p">().</span><span class="na">hasNoErrors</span><span class="p">());</span><span class="w">                            </span><span class="c1">// (4)</span>
+<span class="w">    </span><span class="p">}</span>
+
+<span class="w">    </span><span class="nd">@Test</span>
+<span class="w">    </span><span class="kd">public</span><span class="w"> </span><span class="kt">void</span><span class="w"> </span><span class="nf">testRegisterConfirm02</span><span class="p">()</span><span class="w"> </span><span class="kd">throws</span><span class="w"> </span><span class="n">Exception</span><span class="w"> </span><span class="p">{</span>
+
+<span class="w">        </span><span class="k">try</span><span class="w"> </span><span class="p">{</span>
+<span class="w">            </span><span class="c1">// setup and run the test</span>
+<span class="w">            </span><span class="n">mockMvc</span><span class="p">.</span><span class="na">perform</span><span class="p">(</span><span class="n">post</span><span class="p">(</span><span class="s">&quot;/member/register&quot;</span><span class="p">)</span>
+<span class="w">                    </span><span class="c1">// omitted</span>
+<span class="w">                    </span><span class="p">.</span><span class="na">param</span><span class="p">(</span><span class="s">&quot;password&quot;</span><span class="p">,</span><span class="w"> </span><span class="s">&quot;testpassword&quot;</span><span class="p">)</span>
+<span class="w">                    </span><span class="p">.</span><span class="na">param</span><span class="p">(</span><span class="s">&quot;reEnterPassword&quot;</span><span class="p">,</span><span class="w"> </span><span class="s">&quot;&quot;</span><span class="p">))</span><span class="w"> </span><span class="c1">// (5)</span>
+<span class="w">                    </span><span class="c1">// assert</span>
+<span class="w">                    </span><span class="p">.</span><span class="na">andExpect</span><span class="p">(</span><span class="n">status</span><span class="p">().</span><span class="na">is</span><span class="p">(</span><span class="mi">400</span><span class="p">))</span>
+<span class="w">                    </span><span class="p">.</span><span class="na">andExpect</span><span class="p">(</span><span class="n">view</span><span class="p">().</span><span class="na">name</span><span class="p">(</span><span class="s">&quot;common/error/badRequest-error&quot;</span><span class="p">))</span>
+<span class="w">                    </span><span class="p">.</span><span class="na">andReturn</span><span class="p">();</span>
+
+<span class="w">            </span><span class="n">fail</span><span class="p">(</span><span class="s">&quot;test failure!&quot;</span><span class="p">);</span>
+<span class="w">        </span><span class="p">}</span><span class="w"> </span><span class="k">catch</span><span class="w"> </span><span class="p">(</span><span class="n">Exception</span><span class="w"> </span><span class="n">e</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+
+<span class="w">            </span><span class="c1">// assert</span>
+<span class="w">            </span><span class="n">assertThat</span><span class="p">(</span><span class="n">e</span><span class="p">,</span><span class="w"> </span><span class="n">is</span><span class="p">(</span><span class="n">instanceOf</span><span class="p">(</span><span class="n">NestedServletException</span><span class="p">.</span><span class="na">class</span><span class="p">)));</span><span class="w">         </span><span class="c1">// (6)</span>
+<span class="w">            </span><span class="n">assertThat</span><span class="p">(</span><span class="n">e</span><span class="p">.</span><span class="na">getCause</span><span class="p">(),</span><span class="w"> </span><span class="n">is</span><span class="p">(</span><span class="n">instanceOf</span><span class="p">(</span><span class="n">BadRequestException</span><span class="p">.</span><span class="na">class</span><span class="p">)));</span><span class="w"> </span><span class="c1">// (6)</span>
+<span class="w">        </span><span class="p">}</span>
+<span class="w">    </span><span class="p">}</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+<table class="longtable docutils align-default">
+<colgroup>
+<col style="width: 10.0%" />
+<col style="width: 90.0%" />
+</colgroup>
+<thead>
+<tr class="row-odd"><th class="head"><p>項番</p></th>
+<th class="head"><p>説明</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><div class="line-block">
+<div class="line">(1)</div>
+</div>
+</td>
+<td><div class="line-block">
+<div class="line"><code class="docutils literal notranslate"><span class="pre">MemberRegisterController</span></code>クラスが依存する<code class="docutils literal notranslate"><span class="pre">Service</span></code>、<code class="docutils literal notranslate"><span class="pre">Repository</span></code>を動作させるために必要な
+設定ファイル（アプリケーションが保持する<code class="docutils literal notranslate"><span class="pre">applicationContext.xml</span></code>とそれを補う<code class="docutils literal notranslate"><span class="pre">test-context.xml</span></code>、 <code class="docutils literal notranslate"><span class="pre">spring-mvc-test.xml</span></code>）
+を読み込む。<code class="docutils literal notranslate"><span class="pre">test-context.xml</span></code>は、<a class="reference internal" href="PreparationForTest.html#preparationfortestmakesettingfileforspringtest"><span class="std std-ref">テスト実装例で使用する設定ファイル</span></a>を使用している。</div>
+</div>
+</td>
+</tr>
+<tr class="row-odd"><td><div class="line-block">
+<div class="line">(2)</div>
+</div>
+</td>
+<td><div class="line-block">
+<div class="line">読み込んだBean定義から生成した<code class="docutils literal notranslate"><span class="pre">Controller</span></code>を使用して、<code class="docutils literal notranslate"><span class="pre">MockMvc</span></code>をセットアップする。
+セットアップの詳細については<a class="reference internal" href="UsageOfLibraryForTest.html#usageoflibraryfortestsettingmockmvc"><span class="std std-ref">MockMvcのセットアップ</span></a>を参照されたい。</div>
+</div>
+</td>
+</tr>
+<tr class="row-even"><td><div class="line-block">
+<div class="line">(3)</div>
+</div>
+</td>
+<td><div class="line-block">
+<div class="line"><code class="docutils literal notranslate"><span class="pre">MemberRegisterController</span></code>クラスの<code class="docutils literal notranslate"><span class="pre">registerConfirm</span></code>メソッドを呼び出すため、
+<code class="docutils literal notranslate"><span class="pre">/member/register</span></code>に対してPOSTメソッドでリクエストを送信する。リクエストパラメータには<code class="docutils literal notranslate"><span class="pre">Form</span></code>の情報を設定する。
+リクエストデータの設定方法については<a class="reference internal" href="UsageOfLibraryForTest.html#usageoflibraryfortestsettingofrequestdata"><span class="std std-ref">リクエストデータの設定</span></a>を、リクエスト送信の実装方法については
+<a class="reference internal" href="UsageOfLibraryForTest.html#usageoflibraryfortestexecutionofrequest"><span class="std std-ref">リクエスト送信の実装</span></a>を参照されたい。</div>
+</div>
+</td>
+</tr>
+<tr class="row-odd"><td><div class="line-block">
+<div class="line">(4)</div>
+</div>
+</td>
+<td><div class="line-block">
+<div class="line"><code class="docutils literal notranslate"><span class="pre">perform</span></code>メソッドから返却された<code class="docutils literal notranslate"><span class="pre">ResultActions</span></code>の<code class="docutils literal notranslate"><span class="pre">andExpect</span></code>メソッドで取得した<code class="docutils literal notranslate"><span class="pre">MvcResult</span></code>を使用して実行結果の妥当性を検証する。
+検証方法の詳細については<a class="reference internal" href="UsageOfLibraryForTest.html#usageoflibraryfortestimplementationofexecutionresultverification"><span class="std std-ref">実行結果検証の実装</span></a>を参照されたい。</div>
+</div>
+</td>
+</tr>
+<tr class="row-even"><td><div class="line-block">
+<div class="line">(5)</div>
+</div>
+</td>
+<td><div class="line-block">
+<div class="line">不正な入力値を送信する。</div>
+</div>
+</td>
+</tr>
+<tr class="row-odd"><td><div class="line-block">
+<div class="line">(6)</div>
+</div>
+</td>
+<td><div class="line-block">
+<div class="line"><code class="docutils literal notranslate"><span class="pre">SystemExceptionResolver</span></code>を有効にしていないため、例外ハンドリングされずに<code class="docutils literal notranslate"><span class="pre">NestedServletException</span></code>がサーブレットコンテナに通知される。
+<code class="docutils literal notranslate"><span class="pre">NestedServletException</span></code>の<code class="docutils literal notranslate"><span class="pre">getCause</span></code>メソッドにより取得された例外から、<code class="docutils literal notranslate"><span class="pre">Controller</span></code>で期待した例外がthrowされていることを検証する。</div>
+</div>
+</td>
+</tr>
+</tbody>
+</table>
+<div class="line-block">
+<div class="line"><br /></div>
+</div>
+</section>
+<section id="webappcontextsetup">
+<span id="implementsoftestbylayertestingcontrollerwithwebappcontextsetup"></span><h4><a class="toc-backref" href="#id22" role="doc-backlink"><span class="section-number">10.2.2.3.2.2. </span>WebAppContextSetupを利用したテスト</a><a class="headerlink" href="#webappcontextsetup" title="Permalink to this heading">¶</a></h4>
+<p><code class="docutils literal notranslate"><span class="pre">Controller</span></code>の依存クラスが利用できモック化する必要がない場合の<code class="docutils literal notranslate"><span class="pre">Controller</span></code>の単体テストにおいて、<code class="docutils literal notranslate"><span class="pre">WebAppContextSetup</span></code>で作成するファイルを以下に示す。</p>
+<figure class="align-default">
+<img alt="../../_images/ImplementsOfTestByLayerControllerWebAppContextSetupItems.png" src="../../_images/ImplementsOfTestByLayerControllerWebAppContextSetupItems.png" />
+</figure>
+<table class="docutils align-default">
+<colgroup>
+<col style="width: 30.0%" />
+<col style="width: 70.0%" />
+</colgroup>
+<thead>
+<tr class="row-odd"><th class="head"><p>作成するファイル名</p></th>
+<th class="head"><p>説明</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">MemberRegisterControllerWebAppContextTest.java</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">MemberRegisterController.java</span></code>のテストクラス</p></td>
+</tr>
+</tbody>
+</table>
+<p><a class="reference internal" href="#implementsoftestbylayertestingcontrollerwithstandalonesetup"><span class="std std-ref">StandaloneSetupを利用したテスト</span></a>の例では、パスへのリクエストや<code class="docutils literal notranslate"><span class="pre">Controller</span></code>が返す<code class="docutils literal notranslate"><span class="pre">View</span></code>名などは確認できるが、
+<code class="docutils literal notranslate"><span class="pre">TransactionTokenInterceptor</span></code>や<code class="docutils literal notranslate"><span class="pre">SystemExceptionResolver</span></code>といったSpringに追加して利用する機能は適用されていないため、
+トランザクショントークンチェックが正しく設定されているか、エラーページへの遷移が正しいかを判断することはできない。
+そのような場合は、<code class="docutils literal notranslate"><span class="pre">MockMvc</span></code>を<code class="docutils literal notranslate"><span class="pre">webAppContextSetup</span></code>でセットアップすることにより、
+Springに追加して利用する<code class="docutils literal notranslate"><span class="pre">Interceptor</span></code>や<code class="docutils literal notranslate"><span class="pre">ExceptionResolver</span></code>などをテスト時に自動で適用させることができる。</p>
+<p>ここでは、<a class="reference internal" href="#implementsoftestbylayertestingcontrollerwithstandalonesetup"><span class="std std-ref">StandaloneSetupを利用したテスト</span></a>で説明したテストと、
+<code class="docutils literal notranslate"><span class="pre">&#64;TransactionTokenCheck</span></code>アノテーション、<code class="docutils literal notranslate"><span class="pre">SystemExceptionResolver</span></code>が有効になった場合のテストとを比べた時の相違点について説明する。</p>
+<p>以下に、テスト対象となる<code class="docutils literal notranslate"><span class="pre">Controller</span></code>の実装例を示す。</p>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">MemberRegisterController.java</span></code></p></li>
+</ul>
+<div class="highlight-java notranslate"><div class="highlight"><pre><span></span><span class="nd">@Controller</span>
+<span class="nd">@RequestMapping</span><span class="p">(</span><span class="s">&quot;member/register&quot;</span><span class="p">)</span>
+<span class="nd">@TransactionTokenCheck</span><span class="p">(</span><span class="s">&quot;member/register&quot;</span><span class="p">)</span>
+<span class="kd">public</span><span class="w"> </span><span class="kd">class</span> <span class="nc">MemberRegisterController</span><span class="w"> </span><span class="p">{</span>
+
+<span class="w">    </span><span class="nd">@TransactionTokenCheck</span><span class="p">(</span><span class="n">type</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">TransactionTokenType</span><span class="p">.</span><span class="na">BEGIN</span><span class="p">)</span><span class="w"> </span><span class="c1">// (1)</span>
+<span class="w">    </span><span class="nd">@RequestMapping</span><span class="p">(</span><span class="n">method</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">RequestMethod</span><span class="p">.</span><span class="na">POST</span><span class="p">,</span><span class="w"> </span><span class="n">params</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">&quot;confirm&quot;</span><span class="p">)</span>
+<span class="w">    </span><span class="kd">public</span><span class="w"> </span><span class="n">String</span><span class="w"> </span><span class="nf">registerConfirm</span><span class="p">(</span><span class="nd">@Validated</span><span class="w"> </span><span class="n">MemberRegisterForm</span><span class="w"> </span><span class="n">memberRegisterForm</span><span class="p">,</span>
+<span class="w">        </span><span class="n">BindingResult</span><span class="w"> </span><span class="n">result</span><span class="p">,</span><span class="w"> </span><span class="n">Model</span><span class="w"> </span><span class="n">model</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+
+<span class="w">        </span><span class="c1">// omitted</span>
+
+<span class="w">        </span><span class="k">return</span><span class="w"> </span><span class="s">&quot;C1/memberRegisterConfirm&quot;</span><span class="p">;</span>
+<span class="w">    </span><span class="p">}</span>
+
+<span class="w">    </span><span class="nd">@TransactionTokenCheck</span><span class="p">(</span><span class="n">type</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">TransactionTokenType</span><span class="p">.</span><span class="na">IN</span><span class="p">)</span><span class="w"> </span><span class="c1">// (1)</span>
+<span class="w">    </span><span class="nd">@RequestMapping</span><span class="p">(</span><span class="n">method</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">RequestMethod</span><span class="p">.</span><span class="na">POST</span><span class="p">)</span>
+<span class="w">    </span><span class="kd">public</span><span class="w"> </span><span class="n">String</span><span class="w"> </span><span class="nf">register</span><span class="p">(</span><span class="nd">@Validated</span><span class="w"> </span><span class="n">MemberRegisterForm</span><span class="w"> </span><span class="n">memberRegisterForm</span><span class="p">,</span>
+<span class="w">        </span><span class="n">BindingResult</span><span class="w"> </span><span class="n">result</span><span class="p">,</span><span class="w"> </span><span class="n">Model</span><span class="w"> </span><span class="n">model</span><span class="p">,</span><span class="w"> </span><span class="n">RedirectAttributes</span><span class="w"> </span><span class="n">redirectAttributes</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+
+<span class="w">        </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">result</span><span class="p">.</span><span class="na">hasErrors</span><span class="p">())</span><span class="w"> </span><span class="p">{</span>
+<span class="w">            </span><span class="k">throw</span><span class="w"> </span><span class="k">new</span><span class="w"> </span><span class="n">BadRequestException</span><span class="p">(</span><span class="n">result</span><span class="p">);</span><span class="w"> </span><span class="c1">// (2)</span>
+<span class="w">        </span><span class="p">}</span>
+
+<span class="w">        </span><span class="c1">// omitted</span>
+
+<span class="w">        </span><span class="k">return</span><span class="w"> </span><span class="s">&quot;redirect:/member/register?complete&quot;</span><span class="p">;</span>
+<span class="w">    </span><span class="p">}</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+<table class="longtable docutils align-default">
+<colgroup>
+<col style="width: 10.0%" />
+<col style="width: 90.0%" />
+</colgroup>
+<thead>
+<tr class="row-odd"><th class="head"><p>項番</p></th>
+<th class="head"><p>説明</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><div class="line-block">
+<div class="line">(1)</div>
+</div>
+</td>
+<td><div class="line-block">
+<div class="line"><code class="docutils literal notranslate"><span class="pre">&#64;TransactionTokenCheck</span></code>アノテーションを設定することで不正なリクエストを無効にする。
+トランザクショントークンチェックについては、<a class="reference internal" href="../../ArchitectureInDetail/WebApplicationDetail/DoubleSubmitProtection.html#double-submit-transactiontokencheck"><span class="std std-ref">トランザクショントークンチェックについて</span></a>を参照されたい。</div>
+</div>
+</td>
+</tr>
+<tr class="row-odd"><td><div class="line-block">
+<div class="line">(2)</div>
+</div>
+</td>
+<td><div class="line-block">
+<div class="line">リクエスト時に検証エラーがある場合は改ざんとみなしてエラーをthrowする。</div>
+</div>
+</td>
+</tr>
+</tbody>
+</table>
+<p>初めに、<code class="docutils literal notranslate"><span class="pre">&#64;TransactionTokenCheck</span></code>を有効にした場合におけるテスト作成方法の相違点について説明する。
+なお、テストでデータアクセスする場合の検証方法は<a class="reference internal" href="#implementsoftestbylayerunittestofrepository"><span class="std std-ref">Repositoryの単体テスト</span></a>を参照されたい。</p>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">MemberRegisterControllerWebAppContextTest.java</span></code></p></li>
+</ul>
+<div class="highlight-java notranslate"><div class="highlight"><pre><span></span><span class="kn">import static</span><span class="w"> </span><span class="nn">org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post</span><span class="p">;</span>
+<span class="kn">import static</span><span class="w"> </span><span class="nn">org.springframework.test.web.servlet.result.MockMvcResultHandlers.log</span><span class="p">;</span>
+<span class="kn">import static</span><span class="w"> </span><span class="nn">org.springframework.test.web.servlet.result.MockMvcResultMatchers.status</span><span class="p">;</span>
+<span class="kn">import static</span><span class="w"> </span><span class="nn">org.springframework.test.web.servlet.result.MockMvcResultMatchers.view</span><span class="p">;</span>
+
+<span class="nd">@RunWith</span><span class="p">(</span><span class="n">SpringJUnit4ClassRunner</span><span class="p">.</span><span class="na">class</span><span class="p">)</span>
+<span class="nd">@ContextHierarchy</span><span class="p">({</span><span class="nd">@ContextConfiguration</span><span class="p">(</span><span class="w">                                   </span><span class="c1">// (1)</span>
+<span class="w">        </span><span class="s">&quot;classpath:META-INF/spring/applicationContext.xml&quot;</span><span class="p">),</span><span class="w">                </span><span class="c1">// (1)</span>
+<span class="w">        </span><span class="nd">@ContextConfiguration</span><span class="p">(</span><span class="s">&quot;classpath:META-INF/spring/spring-mvc.xml&quot;</span><span class="p">)})</span><span class="w"> </span><span class="c1">// (1)</span>
+<span class="nd">@WebAppConfiguration</span><span class="w">                                                        </span><span class="c1">// (1)</span>
+<span class="kd">public</span><span class="w"> </span><span class="kd">class</span> <span class="nc">MemberRegisterControllerWebAppContextTest</span><span class="w"> </span><span class="p">{</span>
+
+<span class="w">    </span><span class="nd">@Inject</span>
+<span class="w">    </span><span class="n">WebApplicationContext</span><span class="w"> </span><span class="n">webApplicationContext</span><span class="p">;</span><span class="w"> </span><span class="c1">// (2)</span>
+
+<span class="w">    </span><span class="n">MockMvc</span><span class="w"> </span><span class="n">mockMvc</span><span class="p">;</span>
+
+<span class="w">    </span><span class="nd">@Before</span>
+<span class="w">    </span><span class="kd">public</span><span class="w"> </span><span class="kt">void</span><span class="w"> </span><span class="nf">setUp</span><span class="p">()</span><span class="w"> </span><span class="p">{</span>
+
+<span class="w">        </span><span class="c1">// setup</span>
+<span class="w">        </span><span class="n">mockMvc</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">MockMvcBuilders</span><span class="p">.</span><span class="na">webAppContextSetup</span><span class="p">(</span><span class="n">webApplicationContext</span><span class="p">)</span><span class="w"> </span><span class="c1">// (2)</span>
+<span class="w">                </span><span class="p">.</span><span class="na">alwaysDo</span><span class="p">(</span><span class="n">log</span><span class="p">()).</span><span class="na">build</span><span class="p">();</span>
+<span class="w">    </span><span class="p">}</span>
+
+<span class="w">    </span><span class="nd">@Test</span>
+<span class="w">    </span><span class="kd">public</span><span class="w"> </span><span class="kt">void</span><span class="w"> </span><span class="nf">testRegisterConfirm01</span><span class="p">()</span><span class="w"> </span><span class="kd">throws</span><span class="w"> </span><span class="n">Exception</span><span class="w"> </span><span class="p">{</span>
+
+<span class="w">        </span><span class="c1">// setup and run the test</span>
+<span class="w">        </span><span class="n">MvcResult</span><span class="w"> </span><span class="n">mvcResult</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">mockMvc</span><span class="p">.</span><span class="na">perform</span><span class="p">(</span><span class="n">post</span><span class="p">(</span><span class="s">&quot;/member/register&quot;</span><span class="p">)</span><span class="w"> </span><span class="c1">// (3)</span>
+<span class="w">                    </span><span class="p">.</span><span class="na">param</span><span class="p">(</span><span class="s">&quot;confirm&quot;</span><span class="p">,</span><span class="w"> </span><span class="s">&quot;&quot;</span><span class="p">)</span><span class="w">                              </span><span class="c1">// (3)</span>
+<span class="w">                    </span><span class="c1">// omitted</span>
+<span class="w">                    </span><span class="p">.</span><span class="na">param</span><span class="p">(</span><span class="s">&quot;password&quot;</span><span class="p">,</span><span class="w"> </span><span class="s">&quot;testpassword&quot;</span><span class="p">)</span><span class="w">                 </span><span class="c1">// (3)</span>
+<span class="w">                    </span><span class="p">.</span><span class="na">param</span><span class="p">(</span><span class="s">&quot;reEnterPassword&quot;</span><span class="p">,</span><span class="w"> </span><span class="s">&quot;testpassword&quot;</span><span class="p">))</span><span class="w">         </span><span class="c1">// (3)</span>
+<span class="w">                    </span><span class="c1">// assert</span>
+<span class="w">                    </span><span class="p">.</span><span class="na">andExpect</span><span class="p">(</span><span class="n">status</span><span class="p">().</span><span class="na">is</span><span class="p">(</span><span class="mi">200</span><span class="p">))</span>
+<span class="w">                    </span><span class="p">.</span><span class="na">andExpect</span><span class="p">(</span><span class="n">view</span><span class="p">().</span><span class="na">name</span><span class="p">(</span><span class="s">&quot;C1/memberRegisterConfirm&quot;</span><span class="p">))</span>
+<span class="w">                    </span><span class="p">.</span><span class="na">andReturn</span><span class="p">();</span>
+
+<span class="w">        </span><span class="n">TransactionToken</span><span class="w"> </span><span class="n">actTransactionToken</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">(</span><span class="n">TransactionToken</span><span class="p">)</span><span class="w"> </span><span class="n">mvcResult</span><span class="p">.</span><span class="na">getRequest</span><span class="p">()</span>
+<span class="w">                </span><span class="p">.</span><span class="na">getAttribute</span><span class="p">(</span><span class="n">TransactionTokenInterceptor</span><span class="p">.</span><span class="na">NEXT_TOKEN_REQUEST_ATTRIBUTE_NAME</span><span class="p">);</span><span class="w"> </span><span class="c1">// (4)</span>
+
+<span class="w">        </span><span class="n">MockHttpSession</span><span class="w"> </span><span class="n">mockSession</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">(</span><span class="n">MockHttpSession</span><span class="p">)</span><span class="w"> </span><span class="n">mvcResult</span><span class="p">.</span><span class="na">getRequest</span><span class="p">().</span><span class="na">getSession</span><span class="p">();</span><span class="w">  </span><span class="c1">// (5)</span>
+
+<span class="w">        </span><span class="c1">// setup and run the test</span>
+<span class="w">        </span><span class="n">mockMvc</span><span class="p">.</span><span class="na">perform</span><span class="p">(</span><span class="n">post</span><span class="p">(</span><span class="s">&quot;/member/register&quot;</span><span class="p">)</span><span class="w">              </span><span class="c1">// (6)</span>
+<span class="w">                    </span><span class="c1">// omitted</span>
+<span class="w">                    </span><span class="p">.</span><span class="na">param</span><span class="p">(</span><span class="s">&quot;password&quot;</span><span class="p">,</span><span class="w"> </span><span class="s">&quot;testpassword&quot;</span><span class="p">)</span><span class="w">        </span><span class="c1">// (6)</span>
+<span class="w">                    </span><span class="p">.</span><span class="na">param</span><span class="p">(</span><span class="s">&quot;reEnterPassword&quot;</span><span class="p">,</span><span class="w"> </span><span class="s">&quot;testpassword&quot;</span><span class="p">)</span><span class="w"> </span><span class="c1">// (6)</span>
+<span class="w">                    </span><span class="p">.</span><span class="na">param</span><span class="p">(</span><span class="n">TransactionTokenInterceptor</span><span class="p">.</span><span class="na">TOKEN_REQUEST_PARAMETER</span><span class="p">,</span>
+<span class="w">                            </span><span class="n">actTransactionToken</span><span class="p">.</span><span class="na">getTokenString</span><span class="p">())</span><span class="w"> </span><span class="c1">// (6)</span>
+<span class="w">                    </span><span class="p">.</span><span class="na">session</span><span class="p">(</span><span class="n">mockSession</span><span class="p">))</span><span class="w"> </span><span class="c1">// (6)</span>
+<span class="w">                    </span><span class="c1">// assert</span>
+<span class="w">                    </span><span class="p">.</span><span class="na">andExpect</span><span class="p">(</span><span class="n">status</span><span class="p">().</span><span class="na">is</span><span class="p">(</span><span class="mi">302</span><span class="p">))</span><span class="w">                                   </span><span class="c1">// (7)</span>
+<span class="w">                    </span><span class="p">.</span><span class="na">andExpect</span><span class="p">(</span><span class="n">view</span><span class="p">().</span><span class="na">name</span><span class="p">(</span><span class="s">&quot;redirect:/member/register?complete&quot;</span><span class="p">));</span><span class="w"> </span><span class="c1">// (7)</span>
+<span class="w">    </span><span class="p">}</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+<table class="longtable docutils align-default">
+<colgroup>
+<col style="width: 10.0%" />
+<col style="width: 90.0%" />
+</colgroup>
+<thead>
+<tr class="row-odd"><th class="head"><p>項番</p></th>
+<th class="head"><p>説明</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><div class="line-block">
+<div class="line">(1)</div>
+</div>
+</td>
+<td><div class="line-block">
+<div class="line">業務でカスタムした<code class="docutils literal notranslate"><span class="pre">Interceptor</span></code>や<code class="docutils literal notranslate"><span class="pre">ExceptionResolver</span></code>などを動作させるために<code class="docutils literal notranslate"><span class="pre">spring-mvc.xml</span></code>を読み込む。</div>
+</div>
+</td>
+</tr>
+<tr class="row-odd"><td><div class="line-block">
+<div class="line">(2)</div>
+</div>
+</td>
+<td><div class="line-block">
+<div class="line">読み込んだBean定義から生成したWebアプリケーションコンテキストを使用して、<code class="docutils literal notranslate"><span class="pre">MockMvc</span></code>をセットアップする。</div>
+</div>
+</td>
+</tr>
+<tr class="row-even"><td><div class="line-block">
+<div class="line">(3)</div>
+</div>
+</td>
+<td><div class="line-block">
+<div class="line">トランザクショントークンを生成するために、<code class="docutils literal notranslate"><span class="pre">&#64;TransactionTokenCheck(type</span> <span class="pre">=</span> <span class="pre">TransactionTokenType.BEGIN)</span></code>が設定された
+メソッドに対してリクエストを送信する。</div>
+</div>
+</td>
+</tr>
+<tr class="row-odd"><td><div class="line-block">
+<div class="line">(4)</div>
+</div>
+</td>
+<td><div class="line-block">
+<div class="line">BEGINしたリクエスト（<code class="docutils literal notranslate"><span class="pre">registerConfirm</span></code>メソッド）からINのリクエスト（<code class="docutils literal notranslate"><span class="pre">register</span></code>メソッド）
+にトランザクショントークンを引き継ぐため、リクエスト属性からトランザクショントークンを取得する。</div>
+</div>
+</td>
+</tr>
+<tr class="row-even"><td><div class="line-block">
+<div class="line">(5)</div>
+</div>
+</td>
+<td><div class="line-block">
+<div class="line">サーバ側は発行したトランザクショントークンをセッションに保持するため、次のリクエストでも同じセッションを参照する必要があるが、
+<code class="docutils literal notranslate"><span class="pre">MockMvc</span></code>では１リクエストごとに新規セッションが使われてしまうため、明示的に同じセッションを使用するよう指定する。</div>
+</div>
+</td>
+</tr>
+<tr class="row-odd"><td><div class="line-block">
+<div class="line">(6)</div>
+</div>
+</td>
+<td><div class="line-block">
+<div class="line">再度、リクエストパス（<code class="docutils literal notranslate"><span class="pre">/member/register</span></code>）に対してPOSTメソッドでリクエストを送信する。
+リクエストパラメータには<code class="docutils literal notranslate"><span class="pre">Form</span></code>の情報、(4)で取得したトランザクショントークンを設定し、
+セッションには(5)で取得したセッションを設定する。</div>
+</div>
+</td>
+</tr>
+<tr class="row-even"><td><div class="line-block">
+<div class="line">(7)</div>
+</div>
+</td>
+<td><div class="line-block">
+<div class="line">トランザクショントークンチェックの設定が正しいことを確認するために、トークンチェックエラーになっていないことを検証する。</div>
+</div>
+</td>
+</tr>
+</tbody>
+</table>
+<div class="line-block">
+<div class="line"><br /></div>
+</div>
+<p>次に、<code class="docutils literal notranslate"><span class="pre">SystemExceptionResolver</span></code>を有効にした場合におけるテスト作成方法の相違点を説明する。</p>
+<p>以下に、<code class="docutils literal notranslate"><span class="pre">SystemExceptionResolver</span></code>の定義例を示す。</p>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">spring-mvc.xml</span></code></p></li>
+</ul>
+<div class="highlight-xml notranslate"><div class="highlight"><pre><span></span><span class="nt">&lt;bean</span><span class="w"> </span><span class="na">class=</span><span class="s">&quot;org.terasoluna.gfw.web.exception.SystemExceptionResolver&quot;</span><span class="nt">&gt;</span>
+<span class="w">  </span><span class="nt">&lt;property</span><span class="w"> </span><span class="na">name=</span><span class="s">&quot;order&quot;</span><span class="w"> </span><span class="na">value=</span><span class="s">&quot;3&quot;</span><span class="w"> </span><span class="nt">/&gt;</span>
+<span class="w">  </span><span class="nt">&lt;property</span><span class="w"> </span><span class="na">name=</span><span class="s">&quot;exceptionMappings&quot;</span><span class="nt">&gt;</span>
+<span class="w">    </span><span class="nt">&lt;map&gt;</span>
+<span class="w">      </span><span class="nt">&lt;entry</span><span class="w"> </span><span class="na">key=</span><span class="s">&quot;InvalidTransactionTokenException&quot;</span><span class="w"> </span><span class="na">value=</span><span class="s">&quot;common/error/token-error&quot;</span><span class="w"> </span><span class="nt">/&gt;</span>
+<span class="w">      </span><span class="nt">&lt;entry</span><span class="w"> </span><span class="na">key=</span><span class="s">&quot;BadRequestException&quot;</span><span class="w"> </span><span class="na">value=</span><span class="s">&quot;common/error/badRequest-error&quot;</span><span class="w"> </span><span class="nt">/&gt;</span>
+<span class="w">      </span><span class="nt">&lt;entry</span><span class="w"> </span><span class="na">key=</span><span class="s">&quot;Exception&quot;</span><span class="w"> </span><span class="na">value=</span><span class="s">&quot;common/error/system-error&quot;</span><span class="w"> </span><span class="nt">/&gt;</span>
+<span class="w">    </span><span class="nt">&lt;/map&gt;</span>
+<span class="w">  </span><span class="nt">&lt;/property&gt;</span>
+<span class="w">  </span><span class="nt">&lt;property</span><span class="w"> </span><span class="na">name=</span><span class="s">&quot;statusCodes&quot;</span><span class="nt">&gt;</span>
+<span class="w">    </span><span class="nt">&lt;map&gt;</span>
+<span class="w">      </span><span class="nt">&lt;entry</span><span class="w"> </span><span class="na">key=</span><span class="s">&quot;common/error/token-error&quot;</span><span class="w"> </span><span class="na">value=</span><span class="s">&quot;409&quot;</span><span class="w"> </span><span class="nt">/&gt;</span>
+<span class="w">      </span><span class="nt">&lt;entry</span><span class="w"> </span><span class="na">key=</span><span class="s">&quot;common/error/badRequest-error&quot;</span><span class="w"> </span><span class="na">value=</span><span class="s">&quot;400&quot;</span><span class="w"> </span><span class="nt">/&gt;</span>
+<span class="w">    </span><span class="nt">&lt;/map&gt;</span>
+<span class="w">  </span><span class="nt">&lt;/property&gt;</span>
+<span class="w">  </span><span class="nt">&lt;property</span><span class="w"> </span><span class="na">name=</span><span class="s">&quot;excludedExceptions&quot;</span><span class="nt">&gt;</span>
+<span class="w">    </span><span class="nt">&lt;array&gt;</span>
+<span class="w">      </span><span class="nt">&lt;value&gt;</span>org.springframework.web.util.NestedServletException<span class="nt">&lt;/value&gt;</span>
+<span class="w">    </span><span class="nt">&lt;/array&gt;</span>
+<span class="w">  </span><span class="nt">&lt;/property&gt;</span>
+<span class="w">  </span><span class="nt">&lt;property</span><span class="w"> </span><span class="na">name=</span><span class="s">&quot;defaultStatusCode&quot;</span><span class="w"> </span><span class="na">value=</span><span class="s">&quot;500&quot;</span><span class="w"> </span><span class="nt">/&gt;</span>
+<span class="w">  </span><span class="nt">&lt;property</span><span class="w"> </span><span class="na">name=</span><span class="s">&quot;exceptionCodeResolver&quot;</span><span class="w"> </span><span class="na">ref=</span><span class="s">&quot;exceptionCodeResolver&quot;</span><span class="w"> </span><span class="nt">/&gt;</span>
+<span class="w">  </span><span class="nt">&lt;property</span><span class="w"> </span><span class="na">name=</span><span class="s">&quot;preventResponseCaching&quot;</span><span class="w"> </span><span class="na">value=</span><span class="s">&quot;true&quot;</span><span class="w"> </span><span class="nt">/&gt;</span>
+<span class="nt">&lt;/bean&gt;</span>
+</pre></div>
+</div>
+<p>以下に、テスト作成方法の相違点について説明する。</p>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">MemberRegisterControllerWebAppContextTest.java</span></code></p></li>
+</ul>
+<div class="highlight-java notranslate"><div class="highlight"><pre><span></span><span class="kn">import static</span><span class="w"> </span><span class="nn">org.hamcrest.CoreMatchers.is</span><span class="p">;</span>
+<span class="kn">import static</span><span class="w"> </span><span class="nn">org.hamcrest.MatcherAssert.assertThat</span><span class="p">;</span>
+<span class="kn">import static</span><span class="w"> </span><span class="nn">org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post</span><span class="p">;</span>
+<span class="kn">import static</span><span class="w"> </span><span class="nn">org.springframework.test.web.servlet.result.MockMvcResultHandlers.log</span><span class="p">;</span>
+<span class="kn">import static</span><span class="w"> </span><span class="nn">org.springframework.test.web.servlet.result.MockMvcResultMatchers.status</span><span class="p">;</span>
+<span class="kn">import static</span><span class="w"> </span><span class="nn">org.springframework.test.web.servlet.result.MockMvcResultMatchers.view</span><span class="p">;</span>
+
+<span class="nd">@RunWith</span><span class="p">(</span><span class="n">SpringJUnit4ClassRunner</span><span class="p">.</span><span class="na">class</span><span class="p">)</span>
+<span class="nd">@ContextHierarchy</span><span class="p">({</span><span class="nd">@ContextConfiguration</span><span class="p">(</span>
+<span class="w">        </span><span class="s">&quot;classpath:META-INF/spring/applicationContext.xml&quot;</span><span class="p">),</span>
+<span class="w">        </span><span class="nd">@ContextConfiguration</span><span class="p">(</span><span class="s">&quot;classpath:META-INF/spring/spring-mvc.xml&quot;</span><span class="p">)})</span>
+<span class="nd">@WebAppConfiguration</span>
+<span class="kd">public</span><span class="w"> </span><span class="kd">class</span> <span class="nc">MemberRegisterControllerWebAppContextTest</span><span class="w"> </span><span class="p">{</span>
+
+<span class="w">    </span><span class="nd">@Inject</span>
+<span class="w">    </span><span class="n">WebApplicationContext</span><span class="w"> </span><span class="n">webApplicationContext</span><span class="p">;</span>
+
+<span class="w">    </span><span class="n">MockMvc</span><span class="w"> </span><span class="n">mockMvc</span><span class="p">;</span>
+
+<span class="w">    </span><span class="nd">@Before</span>
+<span class="w">    </span><span class="kd">public</span><span class="w"> </span><span class="kt">void</span><span class="w"> </span><span class="nf">setUp</span><span class="p">()</span><span class="w"> </span><span class="p">{</span>
+
+<span class="w">        </span><span class="c1">// setup</span>
+<span class="w">        </span><span class="n">mockMvc</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">MockMvcBuilders</span><span class="p">.</span><span class="na">webAppContextSetup</span><span class="p">(</span><span class="n">webApplicationContext</span><span class="p">)</span>
+<span class="w">                </span><span class="p">.</span><span class="na">alwaysDo</span><span class="p">(</span><span class="n">log</span><span class="p">()).</span><span class="na">build</span><span class="p">();</span>
+<span class="w">    </span><span class="p">}</span>
+
+<span class="w">    </span><span class="nd">@Test</span>
+<span class="w">    </span><span class="kd">public</span><span class="w"> </span><span class="kt">void</span><span class="w"> </span><span class="nf">testRegisterConfirm02</span><span class="p">()</span><span class="w"> </span><span class="kd">throws</span><span class="w"> </span><span class="n">Exception</span><span class="w"> </span><span class="p">{</span>
+
+<span class="w">        </span><span class="c1">// omitted</span>
+
+<span class="w">        </span><span class="c1">// setup and run the test</span>
+<span class="w">        </span><span class="n">mvcResult</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">mockMvc</span><span class="p">.</span><span class="na">perform</span><span class="p">(</span><span class="n">post</span><span class="p">(</span><span class="s">&quot;/member/register&quot;</span><span class="p">)</span>
+<span class="w">                    </span><span class="p">.</span><span class="na">param</span><span class="p">(</span><span class="s">&quot;password&quot;</span><span class="p">,</span><span class="w"> </span><span class="s">&quot;testpassword&quot;</span><span class="p">)</span>
+<span class="w">                    </span><span class="p">.</span><span class="na">param</span><span class="p">(</span><span class="s">&quot;reEnterPassword&quot;</span><span class="p">,</span><span class="w"> </span><span class="s">&quot;&quot;</span><span class="p">)</span><span class="w"> </span><span class="c1">// (1)</span>
+<span class="w">                    </span><span class="p">.</span><span class="na">param</span><span class="p">(</span><span class="n">TransactionTokenInterceptor</span><span class="p">.</span><span class="na">TOKEN_REQUEST_PARAMETER</span><span class="p">,</span>
+<span class="w">                            </span><span class="n">actTransactionToken</span><span class="p">.</span><span class="na">getTokenString</span><span class="p">())</span><span class="w"> </span><span class="c1">// (2)</span>
+<span class="w">                    </span><span class="p">.</span><span class="na">session</span><span class="p">(</span><span class="n">mockSession</span><span class="p">))</span><span class="w"> </span><span class="c1">// (2)</span>
+<span class="w">                    </span><span class="c1">// assert</span>
+<span class="w">                    </span><span class="p">.</span><span class="na">andExpect</span><span class="p">(</span><span class="n">status</span><span class="p">().</span><span class="na">is</span><span class="p">(</span><span class="mi">400</span><span class="p">))</span><span class="w">                             </span><span class="c1">// (3)</span>
+<span class="w">                    </span><span class="p">.</span><span class="na">andExpect</span><span class="p">(</span><span class="n">view</span><span class="p">().</span><span class="na">name</span><span class="p">(</span><span class="s">&quot;common/error/badRequest-error&quot;</span><span class="p">))</span><span class="w"> </span><span class="c1">// (3)</span>
+<span class="w">                    </span><span class="p">.</span><span class="na">andReturn</span><span class="p">();</span>
+
+<span class="w">        </span><span class="c1">// assert</span>
+<span class="w">        </span><span class="n">Exception</span><span class="w"> </span><span class="n">exception</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">mvcResult</span><span class="p">.</span><span class="na">getResolvedException</span><span class="p">();</span><span class="w">                   </span><span class="c1">// (4)</span>
+<span class="w">        </span><span class="n">assertThat</span><span class="p">(</span><span class="n">exception</span><span class="p">,</span><span class="w"> </span><span class="n">is</span><span class="p">(</span><span class="n">instanceOf</span><span class="p">(</span><span class="n">BadRequestException</span><span class="p">.</span><span class="na">class</span><span class="p">)));</span><span class="w">         </span><span class="c1">// (4)</span>
+<span class="w">        </span><span class="n">assertThat</span><span class="p">(</span><span class="n">exception</span><span class="p">.</span><span class="na">getMessage</span><span class="p">(),</span><span class="w"> </span><span class="n">is</span><span class="p">(</span><span class="s">&quot;不正リクエスト(パラメータ改竄)&quot;</span><span class="p">));</span><span class="w"> </span><span class="c1">// (4)</span>
+<span class="w">    </span><span class="p">}</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+<table class="longtable docutils align-default">
+<colgroup>
+<col style="width: 10.0%" />
+<col style="width: 90.0%" />
+</colgroup>
+<thead>
+<tr class="row-odd"><th class="head"><p>項番</p></th>
+<th class="head"><p>説明</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><div class="line-block">
+<div class="line">(1)</div>
+</div>
+</td>
+<td><div class="line-block">
+<div class="line"><code class="docutils literal notranslate"><span class="pre">Form</span></code>の情報を不正な値にすることで、<code class="docutils literal notranslate"><span class="pre">register</span></code>メソッドの内でエラーをthrowさせている。</div>
+</div>
+</td>
+</tr>
+<tr class="row-odd"><td><div class="line-block">
+<div class="line">(2)</div>
+</div>
+</td>
+<td><div class="line-block">
+<div class="line">前述と同様に、生成したトランザクショントークン情報を設定する。</div>
+</div>
+</td>
+</tr>
+<tr class="row-even"><td><div class="line-block">
+<div class="line">(3)</div>
+</div>
+</td>
+<td><div class="line-block">
+<div class="line">ここでは<code class="docutils literal notranslate"><span class="pre">SystemExceptionResolver</span></code>が有効になっているため、
+定義したエラーのステータスコード、エラーページの遷移先が正しく設定されていることを検証する。</div>
+</div>
+</td>
+</tr>
+<tr class="row-odd"><td><div class="line-block">
+<div class="line">(4)</div>
+</div>
+</td>
+<td><div class="line-block">
+<div class="line"><code class="docutils literal notranslate"><span class="pre">SystemExceptionResolver</span></code>で例外ハンドリングされたエラーから、
+期待したエラーがthrowされていることを検証する。</div>
+</div>
+</td>
+</tr>
+</tbody>
+</table>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p><strong>Sessionを利用する場合</strong></p>
+<p><code class="docutils literal notranslate"><span class="pre">Controller</span></code>クラスがSessionを利用している場合は<code class="docutils literal notranslate"><span class="pre">org.springframework.mock.web.MockHttpSession</span></code>を使ってテストを行う。</p>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">MockHttpSession</span></code>を利用したテストメソッドの例</p></li>
+</ul>
+<blockquote>
+<div><div class="highlight-java notranslate"><div class="highlight"><pre><span></span><span class="kd">public</span><span class="w"> </span><span class="kd">class</span> <span class="nc">SessionControllerTest</span><span class="w"> </span><span class="p">{</span>
+
+<span class="w">    </span><span class="c1">// (1)</span>
+<span class="w">    </span><span class="n">MockHttpSession</span><span class="w"> </span><span class="n">mockSession</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="k">new</span><span class="w"> </span><span class="n">MockHttpSession</span><span class="p">();</span>
+
+<span class="w">    </span><span class="c1">// omitted</span>
+
+<span class="w">    </span><span class="nd">@Test</span>
+<span class="w">    </span><span class="kd">public</span><span class="w"> </span><span class="kt">void</span><span class="w"> </span><span class="nf">testSession</span><span class="p">()</span><span class="w"> </span><span class="kd">throws</span><span class="w"> </span><span class="n">Exception</span><span class="w"> </span><span class="p">{</span>
+<span class="w">        </span><span class="n">String</span><span class="w"> </span><span class="n">formName</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">&quot;todoForm&quot;</span><span class="p">;</span>
+
+<span class="w">        </span><span class="n">TodoForm</span><span class="w"> </span><span class="n">form</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="k">new</span><span class="w"> </span><span class="n">TodoForm</span><span class="p">();</span>
+<span class="w">        </span><span class="n">String</span><span class="w"> </span><span class="n">todoId</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">&quot;1111&quot;</span><span class="p">;</span>
+<span class="w">        </span><span class="n">String</span><span class="w"> </span><span class="n">todoTitle</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">&quot;test&quot;</span><span class="p">;</span>
+
+<span class="w">        </span><span class="n">form</span><span class="p">.</span><span class="na">setTodoId</span><span class="p">(</span><span class="n">todoId</span><span class="p">);</span>
+<span class="w">        </span><span class="n">form</span><span class="p">.</span><span class="na">setTodoTitle</span><span class="p">(</span><span class="n">todoTitle</span><span class="p">);</span>
+
+<span class="w">        </span><span class="c1">// (2)</span>
+<span class="w">        </span><span class="n">mockSession</span><span class="p">.</span><span class="na">setAttribute</span><span class="p">(</span><span class="n">formName</span><span class="p">,</span><span class="w"> </span><span class="n">form</span><span class="p">);</span>
+
+<span class="w">        </span><span class="c1">// (3)</span>
+<span class="w">        </span><span class="n">ResultActions</span><span class="w"> </span><span class="n">results</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">mockMvc</span><span class="p">.</span><span class="na">perform</span><span class="p">(</span><span class="n">post</span><span class="p">(</span><span class="s">&quot;/todo/operation&quot;</span><span class="p">)</span>
+<span class="w">            </span><span class="p">.</span><span class="na">param</span><span class="p">(</span><span class="s">&quot;create&quot;</span><span class="p">,</span><span class="w"> </span><span class="s">&quot;create&quot;</span><span class="p">)</span>
+<span class="w">            </span><span class="p">.</span><span class="na">param</span><span class="p">(</span><span class="s">&quot;todoId&quot;</span><span class="p">,</span><span class="w"> </span><span class="n">todoId</span><span class="p">)</span>
+<span class="w">            </span><span class="p">.</span><span class="na">param</span><span class="p">(</span><span class="s">&quot;todoTitle&quot;</span><span class="p">,</span><span class="w"> </span><span class="n">todoTitle</span><span class="p">)</span>
+<span class="w">            </span><span class="p">.</span><span class="na">session</span><span class="p">(</span><span class="n">mockSession</span><span class="p">));</span>
+
+<span class="w">        </span><span class="c1">// (4)</span>
+<span class="w">        </span><span class="n">results</span><span class="p">.</span><span class="na">andExpect</span><span class="p">(</span><span class="n">request</span><span class="p">().</span><span class="na">sessionAttribute</span><span class="p">(</span><span class="n">formName</span><span class="p">,</span><span class="w"> </span><span class="n">isA</span><span class="p">(</span><span class="n">TodoForm</span><span class="p">.</span><span class="na">class</span><span class="p">)));</span>
+
+<span class="w">        </span><span class="c1">// omitted</span>
+
+<span class="w">        </span><span class="c1">// (5)</span>
+<span class="w">        </span><span class="n">results</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">mockMvc</span><span class="p">.</span><span class="na">perform</span><span class="p">(</span><span class="n">get</span><span class="p">(</span><span class="s">&quot;/todo/create&quot;</span><span class="p">).</span><span class="na">param</span><span class="p">(</span><span class="s">&quot;redo&quot;</span><span class="p">,</span><span class="w"> </span><span class="s">&quot;redo&quot;</span><span class="p">));</span>
+<span class="w">        </span><span class="n">results</span><span class="p">.</span><span class="na">andExpect</span><span class="p">(</span><span class="n">request</span><span class="p">().</span><span class="na">sessionAttribute</span><span class="p">(</span><span class="n">formName</span><span class="p">,</span><span class="w"> </span><span class="n">isA</span><span class="p">(</span><span class="n">TodoForm</span><span class="p">.</span><span class="na">class</span><span class="p">)));</span>
+
+<span class="w">        </span><span class="c1">// omitted</span>
+<span class="w">    </span><span class="p">}</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+<table class="docutils align-default">
+<colgroup>
+<col style="width: 10.0%" />
+<col style="width: 90.0%" />
+</colgroup>
+<thead>
+<tr class="row-odd"><th class="head"><p>項番</p></th>
+<th class="head"><p>説明</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><div class="line-block">
+<div class="line">(1)</div>
+</div>
+</td>
+<td><div class="line-block">
+<div class="line">セッションのモックオブジェクトを生成する。クラスの詳細については、
+<a class="reference external" href="https://docs.spring.io/spring-framework/docs/5.3.31/javadoc-api/org/springframework/mock/web/MockHttpSession.html">MockHttpSession のJavadoc</a>を参照されたい。</div>
+</div>
+</td>
+</tr>
+<tr class="row-odd"><td><div class="line-block">
+<div class="line">(2)</div>
+</div>
+</td>
+<td><div class="line-block">
+<div class="line">生成したセッションのモックオブジェクトに、格納したいオブジェクトをセットする。</div>
+</div>
+</td>
+</tr>
+<tr class="row-even"><td><div class="line-block">
+<div class="line">(3)</div>
+</div>
+</td>
+<td><div class="line-block">
+<div class="line"><code class="docutils literal notranslate"><span class="pre">MockMvcRequestBuilders</span></code>の<code class="docutils literal notranslate"><span class="pre">post</span></code>メソッドで
+リクエストのモックを生成し、生成したリクエストに<code class="docutils literal notranslate"><span class="pre">session</span></code>メソッドでセッションのモックを登録する。</div>
+</div>
+</td>
+</tr>
+<tr class="row-odd"><td><div class="line-block">
+<div class="line">(4)</div>
+</div>
+</td>
+<td><div class="line-block">
+<div class="line">(2)でセットしたオブジェクトが、セッションスコープに格納されていることを確認する。</div>
+</div>
+</td>
+</tr>
+<tr class="row-even"><td><div class="line-block">
+<div class="line">(5)</div>
+</div>
+</td>
+<td><div class="line-block">
+<div class="line">再度リクエストを発行し、セッションスコープに格納したオブジェクトが保持されているか確認する。</div>
+</div>
+</td>
+</tr>
+</tbody>
+</table>
+</div></blockquote>
+</div>
+<div class="line-block">
+<div class="line"><br /></div>
+</div>
+</section>
+<section id="implementsoftestbylayertestingcontrollerwithmockito">
+<span id="id9"></span><h4><a class="toc-backref" href="#id23" role="doc-backlink"><span class="section-number">10.2.2.3.2.3. </span>モックを利用したテスト</a><a class="headerlink" href="#implementsoftestbylayertestingcontrollerwithmockito" title="Permalink to this heading">¶</a></h4>
+<p><code class="docutils literal notranslate"><span class="pre">Controller</span></code>の依存クラスをモック化する必要がある場合の<code class="docutils literal notranslate"><span class="pre">Controller</span></code>の単体テストにおいて、
+作成するファイルを以下に示す。</p>
+<figure class="align-default">
+<img alt="../../_images/ImplementsOfTestByLayerControllerMockTest.png" src="../../_images/ImplementsOfTestByLayerControllerMockTest.png" />
+</figure>
+<table class="docutils align-default">
+<colgroup>
+<col style="width: 30.0%" />
+<col style="width: 70.0%" />
+</colgroup>
+<thead>
+<tr class="row-odd"><th class="head"><p>作成するファイル名</p></th>
+<th class="head"><p>説明</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">TicketSearchControllerMockTest.java</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">TicketSearchController.java</span></code>のテストクラス</p></td>
+</tr>
+</tbody>
+</table>
+<div class="line-block">
+<div class="line"><br /></div>
+</div>
+<p>テスト対象の<code class="docutils literal notranslate"><span class="pre">Controller</span></code>クラスが依存するクラスを、モック化する場合のテスト作成方法を説明する。</p>
+<p>以下に、テスト対象となる<code class="docutils literal notranslate"><span class="pre">Controller</span></code>の実装例を示す。</p>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">TicketSearchController.java</span></code></p></li>
+</ul>
+<div class="highlight-java notranslate"><div class="highlight"><pre><span></span><span class="nd">@Controller</span>
+<span class="nd">@RequestMapping</span><span class="p">(</span><span class="s">&quot;ticket/search&quot;</span><span class="p">)</span>
+<span class="kd">public</span><span class="w"> </span><span class="kd">class</span> <span class="nc">TicketSearchController</span><span class="w"> </span><span class="p">{</span>
+
+<span class="w">    </span><span class="nd">@Inject</span>
+<span class="w">    </span><span class="n">TicketSearchHelper</span><span class="w"> </span><span class="n">ticketSearchHelper</span><span class="p">;</span>
+
+<span class="w">    </span><span class="nd">@RequestMapping</span><span class="p">(</span><span class="n">method</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">RequestMethod</span><span class="p">.</span><span class="na">GET</span><span class="p">,</span><span class="w"> </span><span class="n">params</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">&quot;form&quot;</span><span class="p">)</span>
+<span class="w">    </span><span class="kd">public</span><span class="w"> </span><span class="n">String</span><span class="w"> </span><span class="nf">searchForm</span><span class="p">(</span><span class="n">Model</span><span class="w"> </span><span class="n">model</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+
+<span class="w">        </span><span class="n">model</span><span class="p">.</span><span class="na">addAttribute</span><span class="p">(</span><span class="n">ticketSearchHelper</span><span class="p">.</span><span class="na">createDefaultTicketSearchForm</span><span class="p">());</span>
+
+<span class="w">        </span><span class="n">model</span><span class="p">.</span><span class="na">addAttribute</span><span class="p">(</span><span class="n">ticketSearchHelper</span><span class="p">.</span><span class="na">createFlightSearchOutputDto</span><span class="p">());</span>
+
+<span class="w">        </span><span class="n">model</span><span class="p">.</span><span class="na">addAttribute</span><span class="p">(</span><span class="s">&quot;isInitialSearchUnnecessary&quot;</span><span class="p">,</span><span class="w"> </span><span class="kc">true</span><span class="p">);</span>
+
+<span class="w">        </span><span class="k">return</span><span class="w"> </span><span class="s">&quot;B1/flightSearch&quot;</span><span class="p">;</span>
+<span class="w">    </span><span class="p">}</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+<p>以下に、<code class="docutils literal notranslate"><span class="pre">Controller</span></code>のテスト実装例を示す。</p>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">TicketSearchControllerMockTest.java</span></code></p></li>
+</ul>
+<div class="highlight-java notranslate"><div class="highlight"><pre><span></span><span class="kn">import static</span><span class="w"> </span><span class="nn">org.mockito.Mockito.verify</span><span class="p">;</span>
+<span class="kn">import static</span><span class="w"> </span><span class="nn">org.mockito.Mockito.when</span><span class="p">;</span>
+<span class="kn">import static</span><span class="w"> </span><span class="nn">org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get</span><span class="p">;</span>
+<span class="kn">import static</span><span class="w"> </span><span class="nn">org.springframework.test.web.servlet.result.MockMvcResultHandlers.log</span><span class="p">;</span>
+<span class="kn">import static</span><span class="w"> </span><span class="nn">org.springframework.test.web.servlet.result.MockMvcResultMatchers.status</span><span class="p">;</span>
+<span class="kn">import static</span><span class="w"> </span><span class="nn">org.springframework.test.web.servlet.result.MockMvcResultMatchers.view</span><span class="p">;</span>
+
+<span class="kd">public</span><span class="w"> </span><span class="kd">class</span> <span class="nc">TicketSearchControllerMockTest</span><span class="w"> </span><span class="p">{</span>
+
+<span class="w">    </span><span class="nd">@Rule</span><span class="w"> </span><span class="c1">// (1)</span>
+<span class="w">    </span><span class="kd">public</span><span class="w"> </span><span class="n">MockitoRule</span><span class="w"> </span><span class="n">mockito</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">MockitoJUnit</span><span class="p">.</span><span class="na">rule</span><span class="p">();</span>
+
+<span class="w">    </span><span class="nd">@InjectMocks</span><span class="w"> </span><span class="c1">// (2)</span>
+<span class="w">    </span><span class="n">TicketSearchController</span><span class="w"> </span><span class="n">target</span><span class="p">;</span>
+
+<span class="w">    </span><span class="nd">@Mock</span><span class="w"> </span><span class="c1">// (3)</span>
+<span class="w">    </span><span class="n">TicketSearchHelper</span><span class="w"> </span><span class="n">ticketSearchHelper</span><span class="p">;</span>
+
+<span class="w">    </span><span class="n">MockMvc</span><span class="w"> </span><span class="n">mockMvc</span><span class="p">;</span>
+
+<span class="w">    </span><span class="nd">@Before</span>
+<span class="w">    </span><span class="kd">public</span><span class="w"> </span><span class="kt">void</span><span class="w"> </span><span class="nf">setUp</span><span class="p">()</span><span class="w"> </span><span class="p">{</span>
+
+<span class="w">        </span><span class="c1">// setup</span>
+<span class="w">        </span><span class="n">TicketSearchForm</span><span class="w"> </span><span class="n">ticketSearchForm</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="k">new</span><span class="w"> </span><span class="n">TicketSearchForm</span><span class="p">();</span>
+<span class="w">        </span><span class="n">ticketSearchForm</span><span class="p">.</span><span class="na">setFlightType</span><span class="p">(</span><span class="n">FlightType</span><span class="p">.</span><span class="na">RT</span><span class="p">);</span>
+<span class="w">        </span><span class="n">ticketSearchForm</span><span class="p">.</span><span class="na">setDepAirportCd</span><span class="p">(</span><span class="s">&quot;HND&quot;</span><span class="p">);</span>
+<span class="w">        </span><span class="c1">// omitted</span>
+
+<span class="w">        </span><span class="n">when</span><span class="p">(</span><span class="n">ticketSearchHelper</span><span class="p">.</span><span class="na">createDefaultTicketSearchForm</span><span class="p">()).</span><span class="na">thenReturn</span><span class="p">(</span><span class="n">ticketSearchForm</span><span class="p">);</span><span class="w"> </span><span class="c1">// (4)</span>
+
+<span class="w">        </span><span class="n">mockMvc</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">MockMvcBuilders</span><span class="p">.</span><span class="na">standaloneSetup</span><span class="p">(</span><span class="n">target</span><span class="p">).</span><span class="na">alwaysDo</span><span class="p">(</span><span class="n">log</span><span class="p">()).</span><span class="na">build</span><span class="p">();</span>
+<span class="w">    </span><span class="p">}</span>
+
+<span class="w">    </span><span class="nd">@Test</span>
+<span class="w">    </span><span class="kd">public</span><span class="w"> </span><span class="kt">void</span><span class="w"> </span><span class="nf">testSearchForm</span><span class="p">()</span><span class="w"> </span><span class="kd">throws</span><span class="w"> </span><span class="n">Exception</span><span class="w"> </span><span class="p">{</span>
+
+<span class="w">        </span><span class="c1">// setup and run the test</span>
+<span class="w">        </span><span class="n">MvcResult</span><span class="w"> </span><span class="n">mvcResult</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">mockMvc</span><span class="p">.</span><span class="na">perform</span><span class="p">(</span><span class="n">get</span><span class="p">(</span><span class="s">&quot;/ticket/search&quot;</span><span class="p">).</span><span class="na">param</span><span class="p">(</span><span class="s">&quot;form&quot;</span><span class="p">,</span><span class="w"> </span><span class="s">&quot;&quot;</span><span class="p">))</span>
+<span class="w">                    </span><span class="c1">// assert</span>
+<span class="w">                    </span><span class="p">.</span><span class="na">andExpect</span><span class="p">(</span><span class="n">status</span><span class="p">().</span><span class="na">is</span><span class="p">(</span><span class="mi">200</span><span class="p">))</span>
+<span class="w">                    </span><span class="p">.</span><span class="na">andExpect</span><span class="p">(</span><span class="n">view</span><span class="p">().</span><span class="na">name</span><span class="p">(</span><span class="s">&quot;B1/flightSearch&quot;</span><span class="p">))</span>
+<span class="w">                    </span><span class="p">.</span><span class="na">andReturn</span><span class="p">();</span>
+
+<span class="w">        </span><span class="c1">// assert</span>
+<span class="w">        </span><span class="n">verify</span><span class="p">(</span><span class="n">ticketSearchHelper</span><span class="p">).</span><span class="na">createDefaultTicketSearchForm</span><span class="p">();</span><span class="w"> </span><span class="c1">// (5)</span>
+
+<span class="w">        </span><span class="c1">// omitted</span>
+<span class="w">    </span><span class="p">}</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+<table class="docutils align-default">
+<colgroup>
+<col style="width: 10.0%" />
+<col style="width: 90.0%" />
+</colgroup>
+<thead>
+<tr class="row-odd"><th class="head"><p>項番</p></th>
+<th class="head"><p>説明</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><div class="line-block">
+<div class="line">(1)</div>
+</div>
+</td>
+<td><div class="line-block">
+<div class="line">モックの初期化とインジェクションをアノテーションベースで行うための宣言。
+詳細は<a class="reference internal" href="UsageOfLibraryForTest.html#usageoflibraryfortestcreatemockobject"><span class="std std-ref">モックの生成</span></a>を参照されたい。</div>
+</div>
+</td>
+</tr>
+<tr class="row-odd"><td><div class="line-block">
+<div class="line">(2)</div>
+</div>
+</td>
+<td><div class="line-block">
+<div class="line"><code class="docutils literal notranslate"><span class="pre">&#64;InjectMocks</span></code>アノテーションを付与することで、自動的にモックオブジェクトが代入される。
+詳細は<a class="reference internal" href="UsageOfLibraryForTest.html#usageoflibraryfortestcreatemockobject"><span class="std std-ref">モックの生成</span></a>を参照されたい。</div>
+</div>
+</td>
+</tr>
+<tr class="row-even"><td><div class="line-block">
+<div class="line">(3)</div>
+</div>
+</td>
+<td><div class="line-block">
+<div class="line"><code class="docutils literal notranslate"><span class="pre">&#64;Mock</span></code>アノテーションを付与することで、<code class="docutils literal notranslate"><span class="pre">TicketSearchController</span></code>が依存している
+<code class="docutils literal notranslate"><span class="pre">TicketSearchHelper</span></code>をモック化している。
+詳細は<a class="reference internal" href="UsageOfLibraryForTest.html#usageoflibraryfortestcreatemockobject"><span class="std std-ref">モックの生成</span></a>を参照されたい。</div>
+</div>
+</td>
+</tr>
+<tr class="row-odd"><td><div class="line-block">
+<div class="line">(4)</div>
+</div>
+</td>
+<td><div class="line-block">
+<div class="line">すべてのテストメソッドにおいて、
+<code class="docutils literal notranslate"><span class="pre">ticketSearchHelper</span></code>の<code class="docutils literal notranslate"><span class="pre">createDefaultTicketSearchForm</span></code>メソッドの返り値として
+<code class="docutils literal notranslate"><span class="pre">createMockForm</span></code>メソッドの返り値を設定する。メソッドのモック化については、<a class="reference internal" href="UsageOfLibraryForTest.html#usageoflibraryfortestmockingmethods"><span class="std std-ref">メソッドのモック化</span></a>を参照されたい。</div>
+</div>
+</td>
+</tr>
+<tr class="row-even"><td><div class="line-block">
+<div class="line">(5)</div>
+</div>
+</td>
+<td><div class="line-block">
+<div class="line"><code class="docutils literal notranslate"><span class="pre">ticketSearchHelper</span></code>の<code class="docutils literal notranslate"><span class="pre">createDefaultTicketSearchForm</span></code>メソッドについて1回呼び出されたことを検証する。
+モック化したメソッドの検証については、<a class="reference internal" href="UsageOfLibraryForTest.html#usageoflibraryfortestvalidationofmockmethod"><span class="std std-ref">モック化したメソッドの検証</span></a>を参照されたい。</div>
+</div>
+</td>
+</tr>
+</tbody>
+</table>
+</section>
+</section>
+<section id="helper">
+<span id="implementsoftestbylayerunittestofhelper"></span><h3><a class="toc-backref" href="#id24" role="doc-backlink"><span class="section-number">10.2.2.3.3. </span>Helperの単体テスト</a><a class="headerlink" href="#helper" title="Permalink to this heading">¶</a></h3>
+<p><code class="docutils literal notranslate"><span class="pre">Helper</span></code>の単体テストは、<code class="docutils literal notranslate"><span class="pre">Service</span></code>と同様の実装でテストすることができる。
+実装方法については、<a class="reference internal" href="#implementsoftestbylayerunittestofservice"><span class="std std-ref">Serviceの単体テスト</span></a>を参照されたい。</p>
+</section>
+</section>
+</section>
+
+
+            <div class="clearer"></div>
+          </div>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../../genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="ImplementsOfTestByFunction.html" title="10.2.3. 機能ごとのテスト実装"
+             >next</a> |</li>
+        <li class="right" >
+          <a href="PreparationForTest.html" title="10.2.1. テストの事前準備"
+             >previous</a> |</li>
+        <li class="nav-item nav-item-0"><a href="../../index.html">TERASOLUNA Server Framework for Java (5.x) Development Guideline 5.7.3.RELEASE documentation</a> &#187;</li>
+          <li class="nav-item nav-item-1"><a href="../index.html" ><span class="section-number">10. </span>単体テスト</a> &#187;</li>
+          <li class="nav-item nav-item-2"><a href="index.html" ><span class="section-number">10.2. </span>単体テストの実装</a> &#187;</li>
+        <li class="nav-item nav-item-this"><a href=""><span class="section-number">10.2.2. </span>レイヤごとのテスト実装</a></li> 
+      </ul>
+    </div>
+    <div class="footer">
+      © Copyright 2024, NTT DATA Group Corporation. © Copyright 2013, NTT Corporation.
+      Created using <a href="https://www.sphinx-doc.org/en/master/">Sphinx</a> 7.0.1.Theme is <a href="https://pypi.org/project/solar-theme/">Solar</a>
+    </div>
+    
+    <script>
+    
+    $(function() {
+    	var $sidebar	= $('.sphinxsidebar'),
+    		$window		= $(window),
+    		offset		= $sidebar.offset(),
+    		topPadding	= 3,
+    		$scroll		= $('#scroll');
+    	
+    	$window.scroll(function() {
+    		if ($scroll.is(':checked')) {
+				if ($window.scrollTop() > offset.top) {
+					$sidebar.stop().animate({
+						marginTop:$window.scrollTop() - offset.top + topPadding
+					});
+				} else {
+					$sidebar.stop().animate({
+						marginTop:0
+					});
+				}
+			}
+		});
+    	
+    	var $navList = $('ul:first', $sidebar);
+    	$('li:first', $navList).addClass('open');
+    	
+    	$navList.treeview({
+    		persist: "location",
+    		collapsed: true,
+    		unique: false
+    	});
+    	
+	});
+    </script>
+  </body>
+</html>

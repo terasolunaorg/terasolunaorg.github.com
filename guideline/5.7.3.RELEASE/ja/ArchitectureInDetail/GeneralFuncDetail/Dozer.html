@@ -1,0 +1,1975 @@
+<!DOCTYPE html>
+
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+    <title>7.7. Beanマッピング(Dozer) &#8212; TERASOLUNA Server Framework for Java (5.x) Development Guideline 5.7.3.RELEASE documentation</title>
+    <link rel="stylesheet" type="text/css" href="../../_static/pygments.css" />
+    <link rel="stylesheet" type="text/css" href="../../_static/solar.css" />
+    <script data-url_root="../../" id="documentation_options" src="../../_static/documentation_options.js"></script>
+    <script src="../../_static/doctools.js"></script>
+    <script src="../../_static/sphinx_highlight.js"></script>
+    <link rel="index" title="Index" href="../../genindex.html" />
+    <link rel="search" title="Search" href="../../search.html" />
+    <link rel="next" title="8. メッセージ連携" href="../MessagingDetail/index.html" />
+    <link rel="prev" title="7.6. 文字列処理" href="StringProcessing.html" /><script src="../../_static/jquery.js" type="text/javascript"></script>
+<script src="../../_static/jquery.treeview.js" type="text/javascript"></script>
+<!-- <link href='http://fonts.googleapis.com/css?family=Source+Code+Pro|Open+Sans:300italic,400italic,700italic,400,300,700' rel='stylesheet' type='text/css'> -->
+<link href="../../_static/solarized-dark.css" rel="stylesheet">
+<link href="../../_static/jquery.treeview.css" rel="stylesheet">
+  </head><body>
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../../genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="../MessagingDetail/index.html" title="8. メッセージ連携"
+             accesskey="N">next</a> |</li>
+        <li class="right" >
+          <a href="StringProcessing.html" title="7.6. 文字列処理"
+             accesskey="P">previous</a> |</li>
+        <li class="nav-item nav-item-0"><a href="../../index.html">TERASOLUNA Server Framework for Java (5.x) Development Guideline 5.7.3.RELEASE documentation</a> &#187;</li>
+          <li class="nav-item nav-item-1"><a href="index.html" accesskey="U"><span class="section-number">7. </span>アプリケーション形態に依存しない汎用機能</a> &#187;</li>
+        <li class="nav-item nav-item-this"><a href=""><span class="section-number">7.7. </span>Beanマッピング(Dozer)</a></li> 
+      </ul>
+    </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper"><label><input id="scroll" type="checkbox" checked> scroll sidebar</label>
+  <div>
+    <h3><a href="../../index.html">Table of Contents</a></h3>
+    <ul>
+<li><a class="reference internal" href="#">7.7. Beanマッピング(Dozer)</a><ul>
+<li><a class="reference internal" href="#overview">7.7.1. Overview</a></li>
+<li><a class="reference internal" href="#how-to-use">7.7.2. How to use</a><ul>
+<li><a class="reference internal" href="#dozerbean">7.7.2.1. Dozerを使用するためのBean定義</a></li>
+<li><a class="reference internal" href="#bean">7.7.2.2. Bean間のフィールド名、型が同じ場合のマッピング</a></li>
+<li><a class="reference internal" href="#beanconverter-difference-type-mapping-label">7.7.2.3. Bean間のフィールド名は同じ、型が異なる場合のマッピング</a></li>
+<li><a class="reference internal" href="#beanconverter-difference-item-xml-mapping-label">7.7.2.4. Bean間のフィールド名が異なる場合のマッピング</a></li>
+<li><a class="reference internal" href="#id5">7.7.2.5. 単方向・双方向マッピング</a></li>
+<li><a class="reference internal" href="#nest">7.7.2.6. Nestしたフィールドのマッピング</a></li>
+<li><a class="reference internal" href="#collection">7.7.2.7. Collectionマッピング</a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#how-to-extend">7.7.3. How to extend</a><ul>
+<li><a class="reference internal" href="#how-to-make-customconverter-label">7.7.3.1. カスタムコンバーターの作成</a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#appendix">7.7.4. Appendix</a><ul>
+<li><a class="reference internal" href="#field-exclude">7.7.4.1. フィールド除外設定 (field-exclude)</a></li>
+<li><a class="reference internal" href="#map-id">7.7.4.2. マッピングの特定化 (map-id)</a></li>
+<li><a class="reference internal" href="#null-map-null-map-empty">7.7.4.3. コピー元のnull・空フィールドを除外する設定 (map-null, map-empty)</a></li>
+<li><a class="reference internal" href="#beanconverter-string-and-datetime">7.7.4.4. 文字列から日付・時刻オブジェクトへのマッピング</a></li>
+<li><a class="reference internal" href="#beanconverter-mapping-error">7.7.4.5. マッピングのエラー</a></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+
+  </div>
+  <div>
+    <h4>Previous topic</h4>
+    <p class="topless"><a href="StringProcessing.html"
+                          title="previous chapter"><span class="section-number">7.6. </span>文字列処理</a></p>
+  </div>
+  <div>
+    <h4>Next topic</h4>
+    <p class="topless"><a href="../MessagingDetail/index.html"
+                          title="next chapter"><span class="section-number">8. </span>メッセージ連携</a></p>
+  </div>
+  <div role="note" aria-label="source link">
+    <h3>This Page</h3>
+    <ul class="this-page-menu">
+      <li><a href="../../_sources/ArchitectureInDetail/GeneralFuncDetail/Dozer.rst.txt"
+            rel="nofollow">Show Source</a></li>
+    </ul>
+   </div>
+<div id="searchbox" style="display: none" role="search">
+  <h3 id="searchlabel">Quick search</h3>
+    <div class="searchformwrapper">
+    <form class="search" action="../../search.html" method="get">
+      <input type="text" name="q" aria-labelledby="searchlabel" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false"/>
+      <input type="submit" value="Go" />
+    </form>
+    </div>
+</div>
+<script>document.getElementById('searchbox').style.display = "block"</script>
+        </div>
+      </div>
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <section id="bean-dozer">
+<h1><span class="section-number">7.7. </span>Beanマッピング(Dozer)<a class="headerlink" href="#bean-dozer" title="Permalink to this heading">¶</a></h1>
+<nav class="contents local" id="id1">
+<p class="topic-title">目次</p>
+<ul class="simple">
+<li><p><a class="reference internal" href="#overview" id="id10">Overview</a></p></li>
+<li><p><a class="reference internal" href="#how-to-use" id="id11">How to use</a></p>
+<ul>
+<li><p><a class="reference internal" href="#dozerbean" id="id12">Dozerを使用するためのBean定義</a></p></li>
+<li><p><a class="reference internal" href="#bean" id="id13">Bean間のフィールド名、型が同じ場合のマッピング</a></p></li>
+<li><p><a class="reference internal" href="#beanconverter-difference-type-mapping-label" id="id14">Bean間のフィールド名は同じ、型が異なる場合のマッピング</a></p></li>
+<li><p><a class="reference internal" href="#beanconverter-difference-item-xml-mapping-label" id="id15">Bean間のフィールド名が異なる場合のマッピング</a></p></li>
+<li><p><a class="reference internal" href="#id5" id="id16">単方向・双方向マッピング</a></p></li>
+<li><p><a class="reference internal" href="#nest" id="id17">Nestしたフィールドのマッピング</a></p></li>
+<li><p><a class="reference internal" href="#collection" id="id18">Collectionマッピング</a></p></li>
+</ul>
+</li>
+<li><p><a class="reference internal" href="#how-to-extend" id="id19">How to extend</a></p>
+<ul>
+<li><p><a class="reference internal" href="#how-to-make-customconverter-label" id="id20">カスタムコンバーターの作成</a></p></li>
+</ul>
+</li>
+<li><p><a class="reference internal" href="#appendix" id="id21">Appendix</a></p>
+<ul>
+<li><p><a class="reference internal" href="#field-exclude" id="id22">フィールド除外設定 (field-exclude)</a></p></li>
+<li><p><a class="reference internal" href="#map-id" id="id23">マッピングの特定化 (map-id)</a></p></li>
+<li><p><a class="reference internal" href="#null-map-null-map-empty" id="id24">コピー元のnull・空フィールドを除外する設定 (map-null, map-empty)</a></p></li>
+<li><p><a class="reference internal" href="#beanconverter-string-and-datetime" id="id25">文字列から日付・時刻オブジェクトへのマッピング</a></p></li>
+<li><p><a class="reference internal" href="#beanconverter-mapping-error" id="id26">マッピングのエラー</a></p></li>
+</ul>
+</li>
+</ul>
+</nav>
+<div class="line-block">
+<div class="line"><br /></div>
+</div>
+<section id="overview">
+<h2><a class="toc-backref" href="#id10" role="doc-backlink"><span class="section-number">7.7.1. </span>Overview</a><a class="headerlink" href="#overview" title="Permalink to this heading">¶</a></h2>
+<p>Beanマッピングは、一つのBeanを他のBeanにフィールド値をコピーすることである。</p>
+<div class="line-block">
+<div class="line">アプリケーションの異なるレイヤ間(アプリケーション層とドメイン層)で、データの受け渡しをする場合など、Beanマッピングが必要となるケースは多い。</div>
+</div>
+<div class="line-block">
+<div class="line">例として、アプリケーション層の<code class="docutils literal notranslate"><span class="pre">AccountForm</span></code>オブジェクトを、ドメイン層の<code class="docutils literal notranslate"><span class="pre">Account</span></code>オブジェクトに変換する場合を考える。</div>
+<div class="line">ドメイン層は、アプリケーション層に依存してはならないため、AccountFormオブジェクトをそのままドメイン層で使用できない。</div>
+<div class="line">そこで、<code class="docutils literal notranslate"><span class="pre">AccountForm</span></code>オブジェクトを、<code class="docutils literal notranslate"><span class="pre">Account</span></code>オブジェクトにBeanマッピングし、ドメイン層では、<code class="docutils literal notranslate"><span class="pre">Account</span></code>オブジェクトを使用する。</div>
+<div class="line">これによって、アプリケーション層と、ドメイン層の依存関係を一方向に保つことができる。</div>
+</div>
+<figure class="align-default">
+<a class="reference internal image-reference" href="../../_images/beanmapping-overview.png"><img alt="../../_images/beanmapping-overview.png" src="../../_images/beanmapping-overview.png" style="width: 80%;" /></a>
+</figure>
+<div class="line-block">
+<div class="line">このオブジェクト間のマッピングは、Beanのgetter/setterを呼び出して、データの受け渡しを行うことで実現できる。</div>
+<div class="line">しかしながら、処理が煩雑になり、プログラムの見通しが悪くなるため、本ガイドラインでは、BeanマッピングライブラリであるOSSで利用可能な <a class="reference external" href="https://dozermapper.github.io/gitbook/">Dozer</a> を使用することを推奨する。</div>
+</div>
+<div class="line-block">
+<div class="line">Dozerを使用することで下図のように、コピー元クラスとコピー先クラスで型が異なるコピーや、ネストしたBean同士のコピーも容易に行うことができる。</div>
+</div>
+<figure class="align-default">
+<a class="reference internal image-reference" href="../../_images/dozer-functionality-overview.png"><img alt="../../_images/dozer-functionality-overview.png" src="../../_images/dozer-functionality-overview.png" style="width: 75%;" /></a>
+</figure>
+<p>Dozerをした場合と使用しない場合のコード例を挙げる。</p>
+<ul>
+<li><p>煩雑になり、プログラムの見通しが悪くなる例</p>
+<blockquote>
+<div><div class="highlight-java notranslate"><div class="highlight"><pre><span></span><span class="n">User</span><span class="w"> </span><span class="n">user</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">userService</span><span class="p">.</span><span class="na">findById</span><span class="p">(</span><span class="n">userId</span><span class="p">);</span>
+
+<span class="n">XxxOutput</span><span class="w"> </span><span class="n">output</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="k">new</span><span class="w"> </span><span class="n">XxxOutput</span><span class="p">();</span>
+
+<span class="n">output</span><span class="p">.</span><span class="na">setUserId</span><span class="p">(</span><span class="n">user</span><span class="p">.</span><span class="na">getUserId</span><span class="p">());</span>
+<span class="n">output</span><span class="p">.</span><span class="na">setFirstName</span><span class="p">(</span><span class="n">user</span><span class="p">.</span><span class="na">getFirstName</span><span class="p">());</span>
+<span class="n">output</span><span class="p">.</span><span class="na">setLastName</span><span class="p">(</span><span class="n">user</span><span class="p">.</span><span class="na">getLastName</span><span class="p">());</span>
+<span class="n">output</span><span class="p">.</span><span class="na">setTitle</span><span class="p">(</span><span class="n">user</span><span class="p">.</span><span class="na">getTitle</span><span class="p">());</span>
+<span class="n">output</span><span class="p">.</span><span class="na">setBirthDay</span><span class="p">(</span><span class="n">user</span><span class="p">.</span><span class="na">getBirthDay</span><span class="p">());</span>
+<span class="n">output</span><span class="p">.</span><span class="na">setGender</span><span class="p">(</span><span class="n">user</span><span class="p">.</span><span class="na">getGender</span><span class="p">());</span>
+<span class="n">output</span><span class="p">.</span><span class="na">setStatus</span><span class="p">(</span><span class="n">user</span><span class="p">.</span><span class="na">getStatus</span><span class="p">());</span>
+</pre></div>
+</div>
+</div></blockquote>
+</li>
+<li><p>Dozerを使用した場合の例</p>
+<blockquote>
+<div><div class="highlight-java notranslate"><div class="highlight"><pre><span></span><span class="n">User</span><span class="w"> </span><span class="n">user</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">userService</span><span class="p">.</span><span class="na">findById</span><span class="p">(</span><span class="n">userId</span><span class="p">);</span>
+
+<span class="n">XxxOutput</span><span class="w"> </span><span class="n">output</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">beanMapper</span><span class="p">.</span><span class="na">map</span><span class="p">(</span><span class="n">user</span><span class="p">,</span><span class="w"> </span><span class="n">XxxOutput</span><span class="p">.</span><span class="na">class</span><span class="p">);</span>
+</pre></div>
+</div>
+</div></blockquote>
+</li>
+</ul>
+<p>以降は、Dozerの利用方法について説明する。</p>
+<blockquote>
+<div><div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>Dozer 6.4.0より、JSR-310 Date and Time APIが提供する以下のクラスのマッピングがサポートされた。</p>
+<p>対象クラス :</p>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">java.time.LocalDate</span></code></p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">java.time.LocalTime</span></code></p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">java.time.LocalDateTime</span></code></p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">java.time.OffsetTime</span></code></p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">java.time.OffsetDateTime</span></code></p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">java.time.ZonedDateTime</span></code></p></li>
+</ul>
+</div>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p><strong>Java SE 11環境にてDozerを利用する場合</strong></p>
+<p>Dozer 6.3.0より、マッピング定義XMLファイルの解析にデフォルトでJAXBが利用されるようになった。
+Dozer 6.5.0より、Mavenを利用してJava SE 9以降でビルドするとjaxb-runtimeへの依存が推移的に解決されるため、JAXBを利用するために特別な設定を施す必要はない。</p>
+</div>
+</div></blockquote>
+<div class="line-block">
+<div class="line"><br /></div>
+</div>
+</section>
+<section id="how-to-use">
+<h2><a class="toc-backref" href="#id11" role="doc-backlink"><span class="section-number">7.7.2. </span>How to use</a><a class="headerlink" href="#how-to-use" title="Permalink to this heading">¶</a></h2>
+<p>Dozerは、Java Beanのマッピング機能ライブラリである。
+変換元のBeanから変換先のBeanに、再帰的（ネストした構造）に、値をコピーする。</p>
+<section id="dozerbean">
+<span id="bean-mapper-definition"></span><h3><a class="toc-backref" href="#id12" role="doc-backlink"><span class="section-number">7.7.2.1. </span>Dozerを使用するためのBean定義</a><a class="headerlink" href="#dozerbean" title="Permalink to this heading">¶</a></h3>
+<p>Dozerは、単独で使用するとき、以下のように、<code class="docutils literal notranslate"><span class="pre">com.github.dozermapper.core.DozerBeanMapperBuilder</span></code>を利用してMapper のインスタンスを作成する。</p>
+<div class="highlight-java notranslate"><div class="highlight"><pre><span></span><span class="n">Mapper</span><span class="w"> </span><span class="n">mapper</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">DozerBeanMapperBuilder</span><span class="p">.</span><span class="na">buildDefault</span><span class="p">();</span>
+</pre></div>
+</div>
+<p>Mapper のインスタンスを毎回作成するのは、効率が悪いため、
+Dozerが提供している<code class="docutils literal notranslate"><span class="pre">com.github.dozermapper.spring.DozerBeanMapperFactoryBean</span></code>を使用すること。</p>
+<p>Bean定義ファイル(applicationContext.xml)に、Mapperを作成するFactoryクラスである<code class="docutils literal notranslate"><span class="pre">com.github.dozermapper.spring.DozerBeanMapperFactoryBean</span></code>を定義する</p>
+<div class="highlight-xml notranslate"><div class="highlight"><pre><span></span><span class="nt">&lt;bean</span><span class="w"> </span><span class="na">class=</span><span class="s">&quot;com.github.dozermapper.spring.DozerBeanMapperFactoryBean&quot;</span><span class="nt">&gt;</span>
+<span class="w">    </span><span class="nt">&lt;property</span><span class="w"> </span><span class="na">name=</span><span class="s">&quot;mappingFiles&quot;</span>
+<span class="w">        </span><span class="na">value=</span><span class="s">&quot;classpath*:/META-INF/dozer/**/*-mapping.xml&quot;</span><span class="w"> </span><span class="nt">/&gt;</span><span class="cm">&lt;!-- (1) --&gt;</span>
+<span class="nt">&lt;/bean&gt;</span>
+</pre></div>
+</div>
+<table class="docutils align-default">
+<colgroup>
+<col style="width: 10.0%" />
+<col style="width: 90.0%" />
+</colgroup>
+<thead>
+<tr class="row-odd"><th class="head"><p>項番</p></th>
+<th class="head"><p>説明</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><div class="line-block">
+<div class="line">(1)</div>
+</div>
+</td>
+<td><div class="line-block">
+<div class="line">mappingFilesに、マッピング定義XMLファイルを指定する。</div>
+<div class="line"><code class="docutils literal notranslate"><span class="pre">com.github.dozermapper.spring.DozerBeanMapperFactoryBean</span></code>は、 interfaceとして <code class="docutils literal notranslate"><span class="pre">com.github.dozermapper.core.Mapper</span></code>を保持している。そのため、 <code class="docutils literal notranslate"><span class="pre">&#64;Inject</span></code>時は <code class="docutils literal notranslate"><span class="pre">Mapper</span></code>を指定する。</div>
+<div class="line">この例では、クラスパス直下の、/META-INF/dozerの任意フォルダ内の</div>
+<div class="line">(任意の値)-mapping.xmlを、すべて読み込む。このXMLファイルの内容については、以降で説明する。</div>
+</div>
+</td>
+</tr>
+</tbody>
+</table>
+<div class="line-block">
+<div class="line"><br /></div>
+</div>
+<p>Beanマッピングを行いたいクラスに、<code class="docutils literal notranslate"><span class="pre">Mapper</span></code>をインジェクトすればよい。</p>
+<div class="highlight-java notranslate"><div class="highlight"><pre><span></span><span class="nd">@Inject</span>
+<span class="n">Mapper</span><span class="w"> </span><span class="n">beanMapper</span><span class="p">;</span>
+</pre></div>
+</div>
+</section>
+<section id="bean">
+<span id="beanconverter-basic-mapping-label"></span><h3><a class="toc-backref" href="#id13" role="doc-backlink"><span class="section-number">7.7.2.2. </span>Bean間のフィールド名、型が同じ場合のマッピング</a><a class="headerlink" href="#bean" title="Permalink to this heading">¶</a></h3>
+<p>デフォルトの動作として、Dozerは対象のBean間のフィールド名が同じであれば、マッピング定義XMLファイルを作成せずにマッピングできる。</p>
+<p>変換元のBean定義</p>
+<div class="highlight-java notranslate"><div class="highlight"><pre><span></span><span class="kd">public</span><span class="w"> </span><span class="kd">class</span> <span class="nc">Source</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="kd">private</span><span class="w"> </span><span class="kt">int</span><span class="w"> </span><span class="n">id</span><span class="p">;</span>
+<span class="w">    </span><span class="kd">private</span><span class="w"> </span><span class="n">String</span><span class="w"> </span><span class="n">name</span><span class="p">;</span>
+<span class="w">    </span><span class="c1">// omitted setter/getter</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+<p>変換先のBean定義</p>
+<div class="highlight-java notranslate"><div class="highlight"><pre><span></span><span class="kd">public</span><span class="w"> </span><span class="kd">class</span> <span class="nc">Destination</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="kd">private</span><span class="w"> </span><span class="kt">int</span><span class="w"> </span><span class="n">id</span><span class="p">;</span>
+<span class="w">    </span><span class="kd">private</span><span class="w"> </span><span class="n">String</span><span class="w"> </span><span class="n">name</span><span class="p">;</span>
+<span class="w">    </span><span class="c1">// omitted setter/getter</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+<p>以下のように、<code class="docutils literal notranslate"><span class="pre">Mapper</span></code>の <code class="docutils literal notranslate"><span class="pre">map</span></code>メソッドを使ってBeanマッピングを行う。
+下記メソッドを実行した後、Destinationオブジェクトが新たに作成され、sourceの各フィールドの値が作成されたDestinationオブジェクトにコピーされる。</p>
+<div class="highlight-java notranslate"><div class="highlight"><pre><span></span><span class="n">Source</span><span class="w"> </span><span class="n">source</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="k">new</span><span class="w"> </span><span class="n">Source</span><span class="p">();</span>
+<span class="n">source</span><span class="p">.</span><span class="na">setId</span><span class="p">(</span><span class="mi">1</span><span class="p">);</span>
+<span class="n">source</span><span class="p">.</span><span class="na">setName</span><span class="p">(</span><span class="s">&quot;SourceName&quot;</span><span class="p">);</span>
+<span class="n">Destination</span><span class="w"> </span><span class="n">destination</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">beanMapper</span><span class="p">.</span><span class="na">map</span><span class="p">(</span><span class="n">source</span><span class="p">,</span><span class="w"> </span><span class="n">Destination</span><span class="p">.</span><span class="na">class</span><span class="p">);</span><span class="w"> </span><span class="c1">// (1)</span>
+<span class="n">System</span><span class="p">.</span><span class="na">out</span><span class="p">.</span><span class="na">println</span><span class="p">(</span><span class="n">destination</span><span class="p">.</span><span class="na">getId</span><span class="p">());</span>
+<span class="n">System</span><span class="p">.</span><span class="na">out</span><span class="p">.</span><span class="na">println</span><span class="p">(</span><span class="n">destination</span><span class="p">.</span><span class="na">getName</span><span class="p">());</span>
+</pre></div>
+</div>
+<table class="docutils align-default">
+<colgroup>
+<col style="width: 10.0%" />
+<col style="width: 90.0%" />
+</colgroup>
+<thead>
+<tr class="row-odd"><th class="head"><p>項番</p></th>
+<th class="head"><p>説明</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><div class="line-block">
+<div class="line">(1)</div>
+</div>
+</td>
+<td><div class="line-block">
+<div class="line">第一引数に、コピー元のオブジェクトを渡し、第二引数に、コピー先のBeanのクラスを渡す。</div>
+</div>
+</td>
+</tr>
+</tbody>
+</table>
+<p>上記のコードを実行すると以下のように出力される。作成されたオブジェクトにコピー元のオブジェクトの値が設定されていることが分かる。</p>
+<div class="highlight-console notranslate"><div class="highlight"><pre><span></span><span class="go">1</span>
+<span class="go">SourceName</span>
+</pre></div>
+</div>
+<p>既に存在している<code class="docutils literal notranslate"><span class="pre">destination</span></code>オブジェクトに、<code class="docutils literal notranslate"><span class="pre">source</span></code>オブジェクトのフィールドをコピーしたい場合は、</p>
+<div class="highlight-java notranslate"><div class="highlight"><pre><span></span><span class="n">Source</span><span class="w"> </span><span class="n">source</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="k">new</span><span class="w"> </span><span class="n">Source</span><span class="p">();</span>
+<span class="n">source</span><span class="p">.</span><span class="na">setId</span><span class="p">(</span><span class="mi">1</span><span class="p">);</span>
+<span class="n">source</span><span class="p">.</span><span class="na">setName</span><span class="p">(</span><span class="s">&quot;SourceName&quot;</span><span class="p">);</span>
+<span class="n">Destination</span><span class="w"> </span><span class="n">destination</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="k">new</span><span class="w"> </span><span class="n">Destination</span><span class="p">();</span>
+<span class="n">destination</span><span class="p">.</span><span class="na">setId</span><span class="p">(</span><span class="mi">2</span><span class="p">);</span>
+<span class="n">destination</span><span class="p">.</span><span class="na">setName</span><span class="p">(</span><span class="s">&quot;DestinationName&quot;</span><span class="p">);</span>
+<span class="n">beanMapper</span><span class="p">.</span><span class="na">map</span><span class="p">(</span><span class="n">source</span><span class="p">,</span><span class="w"> </span><span class="n">destination</span><span class="p">);</span><span class="w"> </span><span class="c1">// (1)</span>
+<span class="n">System</span><span class="p">.</span><span class="na">out</span><span class="p">.</span><span class="na">println</span><span class="p">(</span><span class="n">destination</span><span class="p">.</span><span class="na">getId</span><span class="p">());</span>
+<span class="n">System</span><span class="p">.</span><span class="na">out</span><span class="p">.</span><span class="na">println</span><span class="p">(</span><span class="n">destination</span><span class="p">.</span><span class="na">getName</span><span class="p">());</span>
+</pre></div>
+</div>
+<table class="docutils align-default">
+<colgroup>
+<col style="width: 10.0%" />
+<col style="width: 90.0%" />
+</colgroup>
+<thead>
+<tr class="row-odd"><th class="head"><p>項番</p></th>
+<th class="head"><p>説明</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><div class="line-block">
+<div class="line">(1)</div>
+</div>
+</td>
+<td><div class="line-block">
+<div class="line">第一引数に、コピー元のオブジェクトを渡し、第二引数に、コピー先のオブジェクトを渡す。</div>
+</div>
+</td>
+</tr>
+</tbody>
+</table>
+<p>上記のコードを実行すると以下のように出力される。コピー元のオブジェクトの値がコピー先に反映されていることが分かる。</p>
+<div class="highlight-console notranslate"><div class="highlight"><pre><span></span><span class="go">1</span>
+<span class="go">SourceName</span>
+</pre></div>
+</div>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p><code class="docutils literal notranslate"><span class="pre">Destination</span></code>クラスのフィールドで<code class="docutils literal notranslate"><span class="pre">Source</span></code>クラスに存在しないものは、コピー前後で値は変わらない。</p>
+<p>変換元のBean定義</p>
+<blockquote>
+<div><div class="highlight-java notranslate"><div class="highlight"><pre><span></span><span class="kd">public</span><span class="w"> </span><span class="kd">class</span> <span class="nc">Source</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="kd">private</span><span class="w"> </span><span class="kt">int</span><span class="w"> </span><span class="n">id</span><span class="p">;</span>
+<span class="w">    </span><span class="kd">private</span><span class="w"> </span><span class="n">String</span><span class="w"> </span><span class="n">name</span><span class="p">;</span>
+<span class="w">    </span><span class="c1">// omitted setter/getter</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+</div></blockquote>
+<p>変換先のBean定義</p>
+<blockquote>
+<div><div class="highlight-java notranslate"><div class="highlight"><pre><span></span><span class="kd">public</span><span class="w"> </span><span class="kd">class</span> <span class="nc">Destination</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="kd">private</span><span class="w"> </span><span class="kt">int</span><span class="w"> </span><span class="n">id</span><span class="p">;</span>
+<span class="w">    </span><span class="kd">private</span><span class="w"> </span><span class="n">String</span><span class="w"> </span><span class="n">name</span><span class="p">;</span>
+<span class="w">    </span><span class="kd">private</span><span class="w"> </span><span class="n">String</span><span class="w"> </span><span class="n">title</span><span class="p">;</span>
+<span class="w">    </span><span class="c1">// omitted setter/getter</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+</div></blockquote>
+<p>マッピング例</p>
+<blockquote>
+<div><div class="highlight-java notranslate"><div class="highlight"><pre><span></span><span class="n">Source</span><span class="w"> </span><span class="n">source</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="k">new</span><span class="w"> </span><span class="n">Source</span><span class="p">();</span>
+<span class="n">source</span><span class="p">.</span><span class="na">setId</span><span class="p">(</span><span class="mi">1</span><span class="p">);</span>
+<span class="n">source</span><span class="p">.</span><span class="na">setName</span><span class="p">(</span><span class="s">&quot;SourceName&quot;</span><span class="p">);</span>
+<span class="n">Destination</span><span class="w"> </span><span class="n">destination</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="k">new</span><span class="w"> </span><span class="n">Destination</span><span class="p">();</span>
+<span class="n">destination</span><span class="p">.</span><span class="na">setId</span><span class="p">(</span><span class="mi">2</span><span class="p">);</span>
+<span class="n">destination</span><span class="p">.</span><span class="na">setName</span><span class="p">(</span><span class="s">&quot;DestinationName&quot;</span><span class="p">);</span>
+<span class="n">destination</span><span class="p">.</span><span class="na">setTitle</span><span class="p">(</span><span class="s">&quot;DestinationTitle&quot;</span><span class="p">);</span>
+<span class="n">beanMapper</span><span class="p">.</span><span class="na">map</span><span class="p">(</span><span class="n">source</span><span class="p">,</span><span class="w"> </span><span class="n">destination</span><span class="p">);</span>
+<span class="n">System</span><span class="p">.</span><span class="na">out</span><span class="p">.</span><span class="na">println</span><span class="p">(</span><span class="n">destination</span><span class="p">.</span><span class="na">getId</span><span class="p">());</span>
+<span class="n">System</span><span class="p">.</span><span class="na">out</span><span class="p">.</span><span class="na">println</span><span class="p">(</span><span class="n">destination</span><span class="p">.</span><span class="na">getName</span><span class="p">());</span>
+<span class="n">System</span><span class="p">.</span><span class="na">out</span><span class="p">.</span><span class="na">println</span><span class="p">(</span><span class="n">destination</span><span class="p">.</span><span class="na">getTitle</span><span class="p">());</span>
+</pre></div>
+</div>
+</div></blockquote>
+<p>上記のコードを実行すると以下のように出力される。<code class="docutils literal notranslate"><span class="pre">Source</span></code>クラスには<code class="docutils literal notranslate"><span class="pre">title</span></code>フィールドが
+ないため、<code class="docutils literal notranslate"><span class="pre">Destination</span></code>オブジェクトの<code class="docutils literal notranslate"><span class="pre">title</span></code>フィールドは、コピー前のフィールド値から変更がない。</p>
+<blockquote>
+<div><div class="highlight-console notranslate"><div class="highlight"><pre><span></span><span class="go">1</span>
+<span class="go">SourceName</span>
+<span class="go">DestinationTitle</span>
+</pre></div>
+</div>
+</div></blockquote>
+</div>
+</section>
+<section id="beanconverter-difference-type-mapping-label">
+<span id="id2"></span><h3><a class="toc-backref" href="#id14" role="doc-backlink"><span class="section-number">7.7.2.3. </span>Bean間のフィールド名は同じ、型が異なる場合のマッピング</a><a class="headerlink" href="#beanconverter-difference-type-mapping-label" title="Permalink to this heading">¶</a></h3>
+<p>コピー元と、コピー先でBeanのフィールドの型が異なる場合、
+型変換がサポートされている型は、自動でマッピングできる。</p>
+<p>以下のような変換は、マッピング定義XMLファイル無しで変換できる。</p>
+<p>例 : String -&gt; BigDecimal</p>
+<p>変換元のBean定義</p>
+<div class="highlight-java notranslate"><div class="highlight"><pre><span></span><span class="kd">public</span><span class="w"> </span><span class="kd">class</span> <span class="nc">Source</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="kd">private</span><span class="w"> </span><span class="n">String</span><span class="w"> </span><span class="n">amount</span><span class="p">;</span>
+<span class="w">    </span><span class="c1">// omitted setter/getter</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+<p>変換先のBean定義</p>
+<div class="highlight-java notranslate"><div class="highlight"><pre><span></span><span class="kd">public</span><span class="w"> </span><span class="kd">class</span> <span class="nc">Destination</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="kd">private</span><span class="w"> </span><span class="n">BigDecimal</span><span class="w"> </span><span class="n">amount</span><span class="p">;</span>
+<span class="w">    </span><span class="c1">// omitted setter/getter</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+<p>マッピング例</p>
+<div class="highlight-java notranslate"><div class="highlight"><pre><span></span><span class="n">Source</span><span class="w"> </span><span class="n">source</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="k">new</span><span class="w"> </span><span class="n">Source</span><span class="p">();</span>
+<span class="n">source</span><span class="p">.</span><span class="na">setAmount</span><span class="p">(</span><span class="s">&quot;123.45&quot;</span><span class="p">);</span>
+<span class="n">Destination</span><span class="w"> </span><span class="n">destination</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">beanMapper</span><span class="p">.</span><span class="na">map</span><span class="p">(</span><span class="n">source</span><span class="p">,</span><span class="w"> </span><span class="n">Destination</span><span class="p">.</span><span class="na">class</span><span class="p">);</span>
+<span class="n">System</span><span class="p">.</span><span class="na">out</span><span class="p">.</span><span class="na">println</span><span class="p">(</span><span class="n">destination</span><span class="p">.</span><span class="na">getAmount</span><span class="p">());</span>
+</pre></div>
+</div>
+<p>上記のコードを実行すると以下のように出力される。型が異なる場合でも値をコピーできていることが分かる。</p>
+<div class="highlight-console notranslate"><div class="highlight"><pre><span></span><span class="go">123.45</span>
+</pre></div>
+</div>
+<p>サポートされている型変換については、 <a class="reference external" href="https://dozermapper.github.io/gitbook/documentation/simpleproperty.html#_Data_type_conversion">マニュアル</a> を参照されたい。</p>
+</section>
+<section id="beanconverter-difference-item-xml-mapping-label">
+<span id="id4"></span><h3><a class="toc-backref" href="#id15" role="doc-backlink"><span class="section-number">7.7.2.4. </span>Bean間のフィールド名が異なる場合のマッピング</a><a class="headerlink" href="#beanconverter-difference-item-xml-mapping-label" title="Permalink to this heading">¶</a></h3>
+<p>コピー元と、コピー先でフィールド名が異なる場合、マッピング定義XMLファイルを作成し、
+Beanマッピングするフィールドを定義することで変換できる。</p>
+<p>変換元のBean定義</p>
+<div class="highlight-java notranslate"><div class="highlight"><pre><span></span><span class="kd">public</span><span class="w"> </span><span class="kd">class</span> <span class="nc">Source</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="kd">private</span><span class="w"> </span><span class="kt">int</span><span class="w"> </span><span class="n">id</span><span class="p">;</span>
+<span class="w">    </span><span class="kd">private</span><span class="w"> </span><span class="n">String</span><span class="w"> </span><span class="n">name</span><span class="p">;</span>
+<span class="w">    </span><span class="c1">// omitted setter/getter</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+<p>変換先のBean定義</p>
+<div class="highlight-java notranslate"><div class="highlight"><pre><span></span><span class="kd">public</span><span class="w"> </span><span class="kd">class</span> <span class="nc">Destination</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="kd">private</span><span class="w"> </span><span class="kt">int</span><span class="w"> </span><span class="n">destinationId</span><span class="p">;</span>
+<span class="w">    </span><span class="kd">private</span><span class="w"> </span><span class="n">String</span><span class="w"> </span><span class="n">destinationName</span><span class="p">;</span>
+<span class="w">    </span><span class="c1">// omitted setter/getter</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+<p><a class="reference internal" href="#bean-mapper-definition"><span class="std std-ref">Dozerを使用するためのBean定義</span></a>の定義がある場合、
+src/main/resources/META-INF/dozerフォルダ内に、(任意の値)-mapping.xmlという、マッピング定義XMLファイルを作成する。</p>
+<div class="highlight-xml notranslate"><div class="highlight"><pre><span></span><span class="cp">&lt;?xml version=&quot;1.0&quot; encoding=&quot;UTF-8&quot;?&gt;</span>
+<span class="nt">&lt;mappings</span><span class="w"> </span><span class="na">xmlns=</span><span class="s">&quot;http://dozermapper.github.io/schema/bean-mapping&quot;</span><span class="w"> </span><span class="na">xmlns:xsi=</span><span class="s">&quot;http://www.w3.org/2001/XMLSchema-instance&quot;</span>
+<span class="w">    </span><span class="na">xsi:schemaLocation=</span><span class="s">&quot;http://dozermapper.github.io/schema/bean-mapping</span>
+<span class="s">          https://dozermapper.github.io/schema/bean-mapping.xsd&quot;</span><span class="nt">&gt;</span>
+
+<span class="w">    </span><span class="nt">&lt;mapping&gt;</span>
+<span class="w">      </span><span class="nt">&lt;class-a&gt;</span>com.xx.xx.Source<span class="nt">&lt;/class-a&gt;</span><span class="cm">&lt;!-- (1) --&gt;</span>
+<span class="w">      </span><span class="nt">&lt;class-b&gt;</span>com.xx.xx.Destination<span class="nt">&lt;/class-b&gt;</span><span class="cm">&lt;!-- (2) --&gt;</span>
+<span class="w">      </span><span class="nt">&lt;field&gt;</span>
+<span class="w">        </span><span class="nt">&lt;a&gt;</span>id<span class="nt">&lt;/a&gt;</span><span class="cm">&lt;!-- (3) --&gt;</span>
+<span class="w">        </span><span class="nt">&lt;b&gt;</span>destinationId<span class="nt">&lt;/b&gt;</span><span class="cm">&lt;!-- (4) --&gt;</span>
+<span class="w">      </span><span class="nt">&lt;/field&gt;</span>
+<span class="w">      </span><span class="nt">&lt;field&gt;</span>
+<span class="w">        </span><span class="nt">&lt;a&gt;</span>name<span class="nt">&lt;/a&gt;</span>
+<span class="w">        </span><span class="nt">&lt;b&gt;</span>destinationName<span class="nt">&lt;/b&gt;</span>
+<span class="w">      </span><span class="nt">&lt;/field&gt;</span>
+<span class="w">    </span><span class="nt">&lt;/mapping&gt;</span>
+
+<span class="nt">&lt;/mappings&gt;</span>
+</pre></div>
+</div>
+<table class="docutils align-default">
+<colgroup>
+<col style="width: 10.0%" />
+<col style="width: 90.0%" />
+</colgroup>
+<thead>
+<tr class="row-odd"><th class="head"><p>項番</p></th>
+<th class="head"><p>説明</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><div class="line-block">
+<div class="line">(1)</div>
+</div>
+</td>
+<td><div class="line-block">
+<div class="line"><code class="docutils literal notranslate"><span class="pre">&lt;class-a&gt;</span></code>タグ内にコピー元のBeanの、完全修飾クラス名(FQCN)を指定する。</div>
+</div>
+</td>
+</tr>
+<tr class="row-odd"><td><div class="line-block">
+<div class="line">(2)</div>
+</div>
+</td>
+<td><div class="line-block">
+<div class="line"><code class="docutils literal notranslate"><span class="pre">&lt;class-b&gt;</span></code>タグ内にコピー先のBeanの、完全修飾クラス名(FQCN)を指定する。</div>
+</div>
+</td>
+</tr>
+<tr class="row-even"><td><div class="line-block">
+<div class="line">(3)</div>
+</div>
+</td>
+<td><div class="line-block">
+<div class="line"><code class="docutils literal notranslate"><span class="pre">&lt;field&gt;</span></code>タグ内の<code class="docutils literal notranslate"><span class="pre">&lt;a&gt;</span></code>タグ内にコピー元のBeanの、マッピング用のフィールド名を指定する。</div>
+</div>
+</td>
+</tr>
+<tr class="row-odd"><td><div class="line-block">
+<div class="line">(4)</div>
+</div>
+</td>
+<td><div class="line-block">
+<div class="line"><code class="docutils literal notranslate"><span class="pre">&lt;field&gt;</span></code>タグ内の<code class="docutils literal notranslate"><span class="pre">&lt;b&gt;</span></code>タグ内に(3)に対応するコピー先のBeanの、マッピング用のフィールド名を指定する。</div>
+</div>
+</td>
+</tr>
+</tbody>
+</table>
+<p>マッピング例</p>
+<div class="highlight-java notranslate"><div class="highlight"><pre><span></span><span class="n">Source</span><span class="w"> </span><span class="n">source</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="k">new</span><span class="w"> </span><span class="n">Source</span><span class="p">();</span>
+<span class="n">source</span><span class="p">.</span><span class="na">setId</span><span class="p">(</span><span class="mi">1</span><span class="p">);</span>
+<span class="n">source</span><span class="p">.</span><span class="na">setName</span><span class="p">(</span><span class="s">&quot;SourceName&quot;</span><span class="p">);</span>
+<span class="n">Destination</span><span class="w"> </span><span class="n">destination</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">beanMapper</span><span class="p">.</span><span class="na">map</span><span class="p">(</span><span class="n">source</span><span class="p">,</span><span class="w"> </span><span class="n">Destination</span><span class="p">.</span><span class="na">class</span><span class="p">);</span><span class="w"> </span><span class="c1">// (1)</span>
+<span class="n">System</span><span class="p">.</span><span class="na">out</span><span class="p">.</span><span class="na">println</span><span class="p">(</span><span class="n">destination</span><span class="p">.</span><span class="na">getDestinationId</span><span class="p">());</span>
+<span class="n">System</span><span class="p">.</span><span class="na">out</span><span class="p">.</span><span class="na">println</span><span class="p">(</span><span class="n">destination</span><span class="p">.</span><span class="na">getDestinationName</span><span class="p">());</span>
+</pre></div>
+</div>
+<table class="docutils align-default">
+<colgroup>
+<col style="width: 10.0%" />
+<col style="width: 90.0%" />
+</colgroup>
+<thead>
+<tr class="row-odd"><th class="head"><p>項番</p></th>
+<th class="head"><p>説明</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><div class="line-block">
+<div class="line">(1)</div>
+</div>
+</td>
+<td><div class="line-block">
+<div class="line">第一引数に、コピー元のオブジェクトを渡し、第二引数に、コピー先のBeanのクラスを渡す。(基本マッピングと違いはない。)</div>
+</div>
+</td>
+</tr>
+</tbody>
+</table>
+<p>上記のコードを実行すると以下のように出力される。</p>
+<div class="highlight-console notranslate"><div class="highlight"><pre><span></span><span class="go">1</span>
+<span class="go">SourceName</span>
+</pre></div>
+</div>
+<p><a class="reference internal" href="#bean-mapper-definition"><span class="std std-ref">Dozerを使用するためのBean定義</span></a>の設定によって、<code class="docutils literal notranslate"><span class="pre">mappingFiles</span></code>プロパティにクラスパス直下のMETA-INF/dozer配下に存在するマッピング定義XMLファイルが読み込まれる。
+ファイル名は(任意の値)-mapping.xmlである必要がある。
+いずれかのファイル内に<code class="docutils literal notranslate"><span class="pre">Source</span></code>クラスと<code class="docutils literal notranslate"><span class="pre">Destination</span></code>クラス間におけるマッピング定義があれば、その設定が適用される。</p>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<blockquote>
+<div><p>マッピング定義XMLファイルは、Controller単位で作成し、ファイル名は、(Controller名からControllerを除いた値)-mapping.xmlにすることを推奨する。
+例えば、TodoControllerに対するマッピング定義XMLファイルは、src/main/resources/META-INF/dozer/todo-mapping.xmlに作成する。</p>
+</div></blockquote>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>本ガイドラインでは解説しないが、マッピング定義XMLファイルにおいてEL式を使用することができる。</p>
+<p>EL式の解釈にはJakarta EE（Java EE）の標準APIを用いており、デフォルトでは<code class="docutils literal notranslate"><span class="pre">com.sun.el.ExpressionFactoryImpl</span></code>クラスが利用される。
+利用する実装クラスは<code class="docutils literal notranslate"><span class="pre">javax.el.ExpressionFactory</span></code>システムプロパティにより切り替えることが可能である。</p>
+<p>なお、ブランクプロジェクトのデフォルト設定では依存関係に標準APIの実装ライブラリが存在しないため
+実行環境によっては起動時ログに以下のような警告が表示されるが、EL式を利用しない場合は実行に支障はないため無視して良い。</p>
+<div class="highlight-console notranslate"><div class="highlight"><pre><span></span><span class="go">X-Track:        level:WARN  logger:c.github.dozermapper.core.el.ELExpressionFactory     message:javax.el is not supported; Failed to resolve ExpressionFactory, com.sun.el.ExpressionFactoryImpl</span>
+</pre></div>
+</div>
+<p>詳細は、<a class="reference external" href="https://dozermapper.github.io/gitbook/documentation/expressionlanguage.html">Expression Language</a> を参照されたい。</p>
+</div>
+</div>
+<div class="line-block">
+<div class="line"><br /></div>
+</div>
+</section>
+<section id="id5">
+<h3><a class="toc-backref" href="#id16" role="doc-backlink"><span class="section-number">7.7.2.5. </span>単方向・双方向マッピング</a><a class="headerlink" href="#id5" title="Permalink to this heading">¶</a></h3>
+<p id="beanconverter-one-two-way-mapping-label">マッピングXMLで定義されているマッピングは、デフォルトで、双方向マッピングである。
+すなわち前述の例では<code class="docutils literal notranslate"><span class="pre">Source</span></code>オブジェクトから<code class="docutils literal notranslate"><span class="pre">Destination</span></code>オブジェクトへのマッピングを行ったが、
+<code class="docutils literal notranslate"><span class="pre">Destination</span></code>オブジェクトから<code class="docutils literal notranslate"><span class="pre">Source</span></code>オブジェクトのマッピングも可能である。</p>
+<p>単方向のみを指定したい場合は、マッピング・フィールド定義に、<code class="docutils literal notranslate"><span class="pre">&lt;mapping&gt;</span></code>タグの<code class="docutils literal notranslate"><span class="pre">type</span></code>属性に<code class="docutils literal notranslate"><span class="pre">one-way</span></code>を設定する。</p>
+<div class="highlight-xml notranslate"><div class="highlight"><pre><span></span><span class="cp">&lt;?xml version=&quot;1.0&quot; encoding=&quot;UTF-8&quot;?&gt;</span>
+<span class="nt">&lt;mappings</span><span class="w"> </span><span class="na">xmlns=</span><span class="s">&quot;http://dozermapper.github.io/schema/bean-mapping&quot;</span><span class="w"> </span><span class="na">xmlns:xsi=</span><span class="s">&quot;http://www.w3.org/2001/XMLSchema-instance&quot;</span>
+<span class="w">    </span><span class="na">xsi:schemaLocation=</span><span class="s">&quot;http://dozermapper.github.io/schema/bean-mapping</span>
+<span class="s">          https://dozermapper.github.io/schema/bean-mapping.xsd&quot;</span><span class="nt">&gt;</span>
+<span class="w">        </span><span class="cm">&lt;!-- omitted --&gt;</span>
+<span class="w">        </span><span class="nt">&lt;mapping</span><span class="w"> </span><span class="na">type=</span><span class="s">&quot;one-way&quot;</span><span class="nt">&gt;</span>
+<span class="w">              </span><span class="nt">&lt;class-a&gt;</span>com.xx.xx.Source<span class="nt">&lt;/class-a&gt;</span>
+<span class="w">              </span><span class="nt">&lt;class-b&gt;</span>com.xx.xx.Destination<span class="nt">&lt;/class-b&gt;</span>
+<span class="w">                </span><span class="nt">&lt;field&gt;</span>
+<span class="w">                  </span><span class="nt">&lt;a&gt;</span>id<span class="nt">&lt;/a&gt;</span>
+<span class="w">                  </span><span class="nt">&lt;b&gt;</span>destinationId<span class="nt">&lt;/b&gt;</span>
+<span class="w">                </span><span class="nt">&lt;/field&gt;</span>
+<span class="w">                </span><span class="nt">&lt;field&gt;</span>
+<span class="w">                  </span><span class="nt">&lt;a&gt;</span>name<span class="nt">&lt;/a&gt;</span>
+<span class="w">                  </span><span class="nt">&lt;b&gt;</span>destinationName<span class="nt">&lt;/b&gt;</span>
+<span class="w">                </span><span class="nt">&lt;/field&gt;</span>
+<span class="w">        </span><span class="nt">&lt;/mapping&gt;</span>
+<span class="w">        </span><span class="cm">&lt;!-- omitted --&gt;</span>
+<span class="nt">&lt;/mappings&gt;</span>
+</pre></div>
+</div>
+<p>変換元のBean定義</p>
+<div class="highlight-java notranslate"><div class="highlight"><pre><span></span><span class="kd">public</span><span class="w"> </span><span class="kd">class</span> <span class="nc">Source</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="kd">private</span><span class="w"> </span><span class="kt">int</span><span class="w"> </span><span class="n">id</span><span class="p">;</span>
+<span class="w">    </span><span class="kd">private</span><span class="w"> </span><span class="n">String</span><span class="w"> </span><span class="n">name</span><span class="p">;</span>
+<span class="w">    </span><span class="c1">// omitted setter/getter</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+<p>変換先のBean定義</p>
+<div class="highlight-java notranslate"><div class="highlight"><pre><span></span><span class="kd">public</span><span class="w"> </span><span class="kd">class</span> <span class="nc">Destination</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="kd">private</span><span class="w"> </span><span class="kt">int</span><span class="w"> </span><span class="n">destinationId</span><span class="p">;</span>
+<span class="w">    </span><span class="kd">private</span><span class="w"> </span><span class="n">String</span><span class="w"> </span><span class="n">destinationName</span><span class="p">;</span>
+<span class="w">    </span><span class="c1">// omitted setter/getter</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+<p>マッピング例</p>
+<div class="highlight-java notranslate"><div class="highlight"><pre><span></span><span class="n">Source</span><span class="w"> </span><span class="n">source</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="k">new</span><span class="w"> </span><span class="n">Source</span><span class="p">();</span>
+<span class="n">source</span><span class="p">.</span><span class="na">setId</span><span class="p">(</span><span class="mi">1</span><span class="p">);</span>
+<span class="n">source</span><span class="p">.</span><span class="na">setName</span><span class="p">(</span><span class="s">&quot;SourceName&quot;</span><span class="p">);</span>
+<span class="n">Destination</span><span class="w"> </span><span class="n">destination</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">beanMapper</span><span class="p">.</span><span class="na">map</span><span class="p">(</span><span class="n">source</span><span class="p">,</span><span class="w"> </span><span class="n">Destination</span><span class="p">.</span><span class="na">class</span><span class="p">);</span>
+<span class="n">System</span><span class="p">.</span><span class="na">out</span><span class="p">.</span><span class="na">println</span><span class="p">(</span><span class="n">destination</span><span class="p">.</span><span class="na">getDestinationId</span><span class="p">());</span>
+<span class="n">System</span><span class="p">.</span><span class="na">out</span><span class="p">.</span><span class="na">println</span><span class="p">(</span><span class="n">destination</span><span class="p">.</span><span class="na">getDestinationName</span><span class="p">());</span>
+</pre></div>
+</div>
+<p>上記のコードを実行すると以下のように出力される。</p>
+<div class="highlight-console notranslate"><div class="highlight"><pre><span></span><span class="go">1</span>
+<span class="go">SourceName</span>
+</pre></div>
+</div>
+<p>単方向を指定している場合に、逆方向のマッピングを行ってもエラーは発生しない。コピー処理は無視される。
+なぜなら、マッピング定義がないと<code class="docutils literal notranslate"><span class="pre">Destination</span></code>のフィールドに該当する<code class="docutils literal notranslate"><span class="pre">Source</span></code>のフィールドが存在ないとみなされるためである。</p>
+<div class="highlight-java notranslate"><div class="highlight"><pre><span></span><span class="n">Destination</span><span class="w"> </span><span class="n">destination</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="k">new</span><span class="w"> </span><span class="n">Destination</span><span class="p">();</span>
+<span class="n">destination</span><span class="p">.</span><span class="na">setDestinationId</span><span class="p">(</span><span class="mi">2</span><span class="p">);</span>
+<span class="n">destination</span><span class="p">.</span><span class="na">setDestinationName</span><span class="p">(</span><span class="s">&quot;DestinationName&quot;</span><span class="p">);</span>
+
+<span class="n">Source</span><span class="w"> </span><span class="n">source</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="k">new</span><span class="w"> </span><span class="n">Source</span><span class="p">();</span>
+<span class="n">source</span><span class="p">.</span><span class="na">setId</span><span class="p">(</span><span class="mi">1</span><span class="p">);</span>
+<span class="n">source</span><span class="p">.</span><span class="na">setName</span><span class="p">(</span><span class="s">&quot;SourceName&quot;</span><span class="p">);</span>
+
+<span class="n">beanMapper</span><span class="p">.</span><span class="na">map</span><span class="p">(</span><span class="n">destination</span><span class="p">,</span><span class="w"> </span><span class="n">source</span><span class="p">);</span>
+
+<span class="n">System</span><span class="p">.</span><span class="na">out</span><span class="p">.</span><span class="na">println</span><span class="p">(</span><span class="n">source</span><span class="p">.</span><span class="na">getId</span><span class="p">());</span>
+<span class="n">System</span><span class="p">.</span><span class="na">out</span><span class="p">.</span><span class="na">println</span><span class="p">(</span><span class="n">source</span><span class="p">.</span><span class="na">getName</span><span class="p">());</span>
+</pre></div>
+</div>
+<p>上記のコードを実行すると以下のように出力される。</p>
+<div class="highlight-console notranslate"><div class="highlight"><pre><span></span><span class="go">1</span>
+<span class="go">SourceName</span>
+</pre></div>
+</div>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p><strong>Dozer 6.1.0以前のバージョンに存在する単方向マッピングのバグについて</strong></p>
+<p>Dozer 6.1.0以前では、同名フィールドは<code class="docutils literal notranslate"><span class="pre">&lt;mapping&gt;</span></code>タグの<code class="docutils literal notranslate"><span class="pre">type</span></code>属性に<code class="docutils literal notranslate"><span class="pre">one-way</span></code>を付与しても正常に単方向マッピングとならず、逆方向でもマッピングされるバグが存在する。
+TERASOLUNA Server Framework for Java 5.4.X以前はDozer 6.1.0以前のバージョンを使用しているため、バグの影響を受けていた。</p>
+<p>具体的には、<code class="docutils literal notranslate"><span class="pre">&lt;mapping&gt;</span></code>タグの<code class="docutils literal notranslate"><span class="pre">type</span></code>属性に<code class="docutils literal notranslate"><span class="pre">one-way</span></code>を付与した場合、フィールドが別名であれば正常に単方向マッピングとなる。
+それ以外の項目は双方向マッピングされてしまう。</p>
+<p>具体例を以下に示す。</p>
+<p>変換元のBean定義</p>
+<blockquote>
+<div><div class="highlight-java notranslate"><div class="highlight"><pre><span></span><span class="kd">public</span><span class="w"> </span><span class="kd">class</span> <span class="nc">Source</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="kd">private</span><span class="w"> </span><span class="kt">int</span><span class="w"> </span><span class="n">id</span><span class="p">;</span>
+<span class="w">    </span><span class="kd">private</span><span class="w"> </span><span class="n">String</span><span class="w"> </span><span class="n">sameNameField1</span><span class="p">;</span>
+<span class="w">    </span><span class="kd">private</span><span class="w"> </span><span class="n">String</span><span class="w"> </span><span class="n">sameNameField2</span><span class="p">;</span>
+<span class="w">    </span><span class="c1">// omitted setter/getter</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+</div></blockquote>
+<p>変換先のBean定義</p>
+<blockquote>
+<div><div class="highlight-java notranslate"><div class="highlight"><pre><span></span><span class="kd">public</span><span class="w"> </span><span class="kd">class</span> <span class="nc">Destination</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="kd">private</span><span class="w"> </span><span class="kt">int</span><span class="w"> </span><span class="n">destinationId</span><span class="p">;</span>
+<span class="w">    </span><span class="kd">private</span><span class="w"> </span><span class="n">String</span><span class="w"> </span><span class="n">sameNameField1</span><span class="p">;</span>
+<span class="w">    </span><span class="kd">private</span><span class="w"> </span><span class="n">String</span><span class="w"> </span><span class="n">sameNameField2</span><span class="p">;</span>
+<span class="w">    </span><span class="c1">// omitted setter/getter</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+</div></blockquote>
+<p>マッピング定義</p>
+<blockquote>
+<div><div class="highlight-xml notranslate"><div class="highlight"><pre><span></span><span class="nt">&lt;mapping</span><span class="w"> </span><span class="na">type=</span><span class="s">&quot;one-way&quot;</span><span class="nt">&gt;</span>
+<span class="w">    </span><span class="nt">&lt;class-a&gt;</span>xxx.Source<span class="nt">&lt;/class-a&gt;</span>
+<span class="w">    </span><span class="nt">&lt;class-b&gt;</span>xxx.Destination<span class="nt">&lt;/class-b&gt;</span>
+<span class="w">    </span><span class="cm">&lt;!-- fieldタグを利用してマッピング定義した異名フィールドは、正常に単方向マッピングとなる。 --&gt;</span>
+<span class="w">    </span><span class="nt">&lt;field&gt;</span>
+<span class="w">        </span><span class="nt">&lt;a&gt;</span>id<span class="nt">&lt;/a&gt;</span>
+<span class="w">        </span><span class="nt">&lt;b&gt;</span>destinationId<span class="nt">&lt;/b&gt;</span>
+<span class="w">    </span><span class="nt">&lt;/field&gt;</span>
+<span class="w">    </span><span class="cm">&lt;!-- fieldタグを利用してマッピング定義した同名フィールドは、双方向マッピングとなってしまう。 --&gt;</span>
+<span class="w">    </span><span class="nt">&lt;field&gt;</span>
+<span class="w">        </span><span class="nt">&lt;a&gt;</span>sameNameField1<span class="nt">&lt;/a&gt;</span>
+<span class="w">        </span><span class="nt">&lt;b&gt;</span>sameNameField1<span class="nt">&lt;/b&gt;</span>
+<span class="w">    </span><span class="nt">&lt;/field&gt;</span>
+<span class="w">    </span><span class="cm">&lt;!-- 自動でマッピングされた同名フィールド（sameNameField2）も、双方向マッピングとなってしまう。 --&gt;</span>
+<span class="nt">&lt;/mapping&gt;</span>
+</pre></div>
+</div>
+</div></blockquote>
+<p>上記のようにマッピング定義した場合、<code class="docutils literal notranslate"><span class="pre">sameNameField1</span></code>、<code class="docutils literal notranslate"><span class="pre">sameNameField2</span></code>は逆方向にもマッピングされてしまっていた。</p>
+</div>
+</section>
+<section id="nest">
+<span id="beanconverter-custom-converter-label"></span><h3><a class="toc-backref" href="#id17" role="doc-backlink"><span class="section-number">7.7.2.6. </span>Nestしたフィールドのマッピング</a><a class="headerlink" href="#nest" title="Permalink to this heading">¶</a></h3>
+<p>コピー元Beanが持つフィールドを、コピー先Beanが持つNestしたBeanのフィールドにも、マッピングできることである。
+(Dozerの用語で、 <a class="reference external" href="https://dozermapper.github.io/gitbook/documentation/deepmapping.html">Deep Mapping</a> と呼ばれる。)</p>
+<p>変換元のBean定義</p>
+<div class="highlight-java notranslate"><div class="highlight"><pre><span></span><span class="kd">public</span><span class="w"> </span><span class="kd">class</span> <span class="nc">EmployeeForm</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="kd">private</span><span class="w"> </span><span class="kt">int</span><span class="w"> </span><span class="n">id</span><span class="p">;</span>
+<span class="w">    </span><span class="kd">private</span><span class="w"> </span><span class="n">String</span><span class="w"> </span><span class="n">name</span><span class="p">;</span>
+<span class="w">    </span><span class="kd">private</span><span class="w"> </span><span class="n">String</span><span class="w"> </span><span class="n">deptId</span><span class="p">;</span>
+<span class="w">    </span><span class="c1">// omitted setter/getter</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+<p>変換先のBean定義</p>
+<div class="highlight-java notranslate"><div class="highlight"><pre><span></span><span class="kd">public</span><span class="w"> </span><span class="kd">class</span> <span class="nc">Employee</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="kd">private</span><span class="w"> </span><span class="n">Integer</span><span class="w"> </span><span class="n">id</span><span class="p">;</span>
+<span class="w">    </span><span class="kd">private</span><span class="w"> </span><span class="n">String</span><span class="w"> </span><span class="n">name</span><span class="p">;</span>
+<span class="w">    </span><span class="kd">private</span><span class="w"> </span><span class="n">Department</span><span class="w"> </span><span class="n">department</span><span class="p">;</span>
+<span class="w">    </span><span class="c1">// omitted setter/getter</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+<div class="highlight-java notranslate"><div class="highlight"><pre><span></span><span class="kd">public</span><span class="w"> </span><span class="kd">class</span> <span class="nc">Department</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="kd">private</span><span class="w"> </span><span class="n">String</span><span class="w"> </span><span class="n">deptId</span><span class="p">;</span>
+<span class="w">    </span><span class="c1">// omitted setter/getter and other fields</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+<p>例 : <code class="docutils literal notranslate"><span class="pre">EmployeeForm</span></code>オブジェクトが持つ<code class="docutils literal notranslate"><span class="pre">deptId</span></code>を、<code class="docutils literal notranslate"><span class="pre">Employee</span></code>オブジェクトが持つ<code class="docutils literal notranslate"><span class="pre">Department</span></code>の<code class="docutils literal notranslate"><span class="pre">deptId</span></code>にマップしたい場合、
+以下のように定義する。</p>
+<div class="highlight-xml notranslate"><div class="highlight"><pre><span></span><span class="cp">&lt;?xml version=&quot;1.0&quot; encoding=&quot;UTF-8&quot;?&gt;</span>
+<span class="nt">&lt;mappings</span><span class="w"> </span><span class="na">xmlns=</span><span class="s">&quot;http://dozermapper.github.io/schema/bean-mapping&quot;</span><span class="w"> </span><span class="na">xmlns:xsi=</span><span class="s">&quot;http://www.w3.org/2001/XMLSchema-instance&quot;</span>
+<span class="w">    </span><span class="na">xsi:schemaLocation=</span><span class="s">&quot;http://dozermapper.github.io/schema/bean-mapping</span>
+<span class="s">          https://dozermapper.github.io/schema/bean-mapping.xsd&quot;</span><span class="nt">&gt;</span>
+<span class="w">    </span><span class="cm">&lt;!-- omitted --&gt;</span>
+<span class="w">    </span><span class="nt">&lt;mapping</span><span class="w"> </span><span class="na">map-empty-string=</span><span class="s">&quot;false&quot;</span><span class="w"> </span><span class="na">map-null=</span><span class="s">&quot;false&quot;</span><span class="nt">&gt;</span>
+<span class="w">        </span><span class="nt">&lt;class-a&gt;</span>com.xx.aa.EmployeeForm<span class="nt">&lt;/class-a&gt;</span>
+<span class="w">        </span><span class="nt">&lt;class-b&gt;</span>com.xx.bb.Employee<span class="nt">&lt;/class-b&gt;</span>
+<span class="w">        </span><span class="nt">&lt;field&gt;</span>
+<span class="w">              </span><span class="nt">&lt;a&gt;</span>deptId<span class="nt">&lt;/a&gt;</span>
+<span class="w">              </span><span class="nt">&lt;b&gt;</span>department.deptId<span class="nt">&lt;/b&gt;</span><span class="cm">&lt;!-- (1) --&gt;</span>
+<span class="w">        </span><span class="nt">&lt;/field&gt;</span>
+<span class="w">    </span><span class="nt">&lt;/mapping&gt;</span>
+<span class="w">    </span><span class="cm">&lt;!-- omitted --&gt;</span>
+<span class="nt">&lt;/mappings&gt;</span>
+</pre></div>
+</div>
+<table class="docutils align-default">
+<colgroup>
+<col style="width: 10.0%" />
+<col style="width: 90.0%" />
+</colgroup>
+<thead>
+<tr class="row-odd"><th class="head"><p>項番</p></th>
+<th class="head"><p>説明</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><div class="line-block">
+<div class="line">(1)</div>
+</div>
+</td>
+<td><div class="line-block">
+<div class="line"><code class="docutils literal notranslate"><span class="pre">Employee</span></code>フォームの<code class="docutils literal notranslate"><span class="pre">deptId</span></code>に対する、<code class="docutils literal notranslate"><span class="pre">Employee</span></code>オブジェクトのフィールドを指定する。</div>
+</div>
+</td>
+</tr>
+</tbody>
+</table>
+<p>マッピング例</p>
+<div class="highlight-java notranslate"><div class="highlight"><pre><span></span><span class="n">EmployeeForm</span><span class="w"> </span><span class="n">source</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="k">new</span><span class="w"> </span><span class="n">EmployeeForm</span><span class="p">();</span>
+<span class="n">source</span><span class="p">.</span><span class="na">setId</span><span class="p">(</span><span class="mi">1</span><span class="p">);</span>
+<span class="n">source</span><span class="p">.</span><span class="na">setName</span><span class="p">(</span><span class="s">&quot;John&quot;</span><span class="p">);</span>
+<span class="n">source</span><span class="p">.</span><span class="na">setDeptId</span><span class="p">(</span><span class="s">&quot;D01&quot;</span><span class="p">);</span>
+
+<span class="n">Employee</span><span class="w"> </span><span class="n">destination</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">beanMapper</span><span class="p">.</span><span class="na">map</span><span class="p">(</span><span class="n">source</span><span class="p">,</span><span class="w"> </span><span class="n">Employee</span><span class="p">.</span><span class="na">class</span><span class="p">);</span>
+<span class="n">System</span><span class="p">.</span><span class="na">out</span><span class="p">.</span><span class="na">println</span><span class="p">(</span><span class="n">destination</span><span class="p">.</span><span class="na">getId</span><span class="p">());</span>
+<span class="n">System</span><span class="p">.</span><span class="na">out</span><span class="p">.</span><span class="na">println</span><span class="p">(</span><span class="n">destination</span><span class="p">.</span><span class="na">getName</span><span class="p">());</span>
+<span class="n">System</span><span class="p">.</span><span class="na">out</span><span class="p">.</span><span class="na">println</span><span class="p">(</span><span class="n">destination</span><span class="p">.</span><span class="na">getDepartment</span><span class="p">().</span><span class="na">getDeptId</span><span class="p">());</span>
+</pre></div>
+</div>
+<p>上記のコードを実行すると以下のように出力される。</p>
+<div class="highlight-console notranslate"><div class="highlight"><pre><span></span><span class="go">1</span>
+<span class="go">John</span>
+<span class="go">D01</span>
+</pre></div>
+</div>
+<p>上記の場合は、変換先クラスである<code class="docutils literal notranslate"><span class="pre">Employee</span></code>の新規インスタンスが作成される。
+<code class="docutils literal notranslate"><span class="pre">Employee</span></code>の中の<code class="docutils literal notranslate"><span class="pre">department</span></code> フィールドにも、新規に作成された<code class="docutils literal notranslate"><span class="pre">Department</span></code>インスタンスが設定され、
+<code class="docutils literal notranslate"><span class="pre">EmployeeForm</span></code>の<code class="docutils literal notranslate"><span class="pre">deptId</span></code>が、コピーされる。</p>
+<p>下記のように<code class="docutils literal notranslate"><span class="pre">Employee</span></code>の中の<code class="docutils literal notranslate"><span class="pre">department</span></code> フィールドに既に<code class="docutils literal notranslate"><span class="pre">Department</span></code>オブジェクトが設定されている場合は、
+新規インスタンスは作成されず、既存の<code class="docutils literal notranslate"><span class="pre">Department</span></code>オブジェクトの<code class="docutils literal notranslate"><span class="pre">deptId</span></code>フィールドに、
+<code class="docutils literal notranslate"><span class="pre">EmployeeForm</span></code>の<code class="docutils literal notranslate"><span class="pre">deptId</span></code>がコピーされる。</p>
+<div class="highlight-java notranslate"><div class="highlight"><pre><span></span><span class="n">EmployeeForm</span><span class="w"> </span><span class="n">source</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="k">new</span><span class="w"> </span><span class="n">EmployeeForm</span><span class="p">();</span>
+<span class="n">source</span><span class="p">.</span><span class="na">setId</span><span class="p">(</span><span class="mi">1</span><span class="p">);</span>
+<span class="n">source</span><span class="p">.</span><span class="na">setName</span><span class="p">(</span><span class="s">&quot;John&quot;</span><span class="p">);</span>
+<span class="n">source</span><span class="p">.</span><span class="na">setDeptId</span><span class="p">(</span><span class="s">&quot;D01&quot;</span><span class="p">);</span>
+
+<span class="n">Employee</span><span class="w"> </span><span class="n">destination</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="k">new</span><span class="w"> </span><span class="n">Employee</span><span class="p">();</span>
+<span class="n">Department</span><span class="w"> </span><span class="n">department</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="k">new</span><span class="w"> </span><span class="n">Department</span><span class="p">();</span>
+<span class="n">destination</span><span class="p">.</span><span class="na">setDepartment</span><span class="p">(</span><span class="n">department</span><span class="p">);</span>
+
+<span class="n">beanMapper</span><span class="p">.</span><span class="na">map</span><span class="p">(</span><span class="n">source</span><span class="p">,</span><span class="w"> </span><span class="n">destination</span><span class="p">);</span>
+<span class="n">System</span><span class="p">.</span><span class="na">out</span><span class="p">.</span><span class="na">println</span><span class="p">(</span><span class="n">department</span><span class="p">.</span><span class="na">getDeptId</span><span class="p">());</span>
+<span class="n">System</span><span class="p">.</span><span class="na">out</span><span class="p">.</span><span class="na">println</span><span class="p">(</span><span class="n">destination</span><span class="p">.</span><span class="na">getDepartment</span><span class="p">()</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="n">department</span><span class="p">);</span>
+</pre></div>
+</div>
+<p>上記のコードを実行すると以下のように出力される。</p>
+<div class="highlight-console notranslate"><div class="highlight"><pre><span></span><span class="go">D01</span>
+<span class="go">true</span>
+</pre></div>
+</div>
+<div class="line-block">
+<div class="line"><br /></div>
+</div>
+</section>
+<section id="collection">
+<h3><a class="toc-backref" href="#id18" role="doc-backlink"><span class="section-number">7.7.2.7. </span>Collectionマッピング</a><a class="headerlink" href="#collection" title="Permalink to this heading">¶</a></h3>
+<p>Dozerは、以下のCollectionタイプの双方向自動マッピングをサポートしている。
+フィールド名が同じである場合、マッピング定義XMLファイルが不要である。</p>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">java.util.List</span></code>&lt;=&gt; <code class="docutils literal notranslate"><span class="pre">java.util.List</span></code></p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">java.util.List</span></code>&lt;=&gt; Array</p></li>
+<li><p>Array &lt;=&gt; Array</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">java.util.Set</span></code>&lt;=&gt; <code class="docutils literal notranslate"><span class="pre">java.util.Set</span></code></p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">java.util.Set</span></code>&lt;=&gt; Array</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">java.util.Set</span></code>&lt;=&gt; <code class="docutils literal notranslate"><span class="pre">java.util.List</span></code></p></li>
+</ul>
+<p>次のクラスのコレクションをもつBeanのマッピングについて考える。</p>
+<div class="highlight-java notranslate"><div class="highlight"><pre><span></span><span class="kn">package</span><span class="w"> </span><span class="nn">com.example.dozer</span><span class="p">;</span>
+
+<span class="kd">public</span><span class="w"> </span><span class="kd">class</span> <span class="nc">Email</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="kd">private</span><span class="w"> </span><span class="n">String</span><span class="w"> </span><span class="n">email</span><span class="p">;</span>
+
+<span class="w">    </span><span class="kd">public</span><span class="w"> </span><span class="nf">Email</span><span class="p">()</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="p">}</span>
+
+<span class="w">    </span><span class="kd">public</span><span class="w"> </span><span class="nf">Email</span><span class="p">(</span><span class="n">String</span><span class="w"> </span><span class="n">email</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">        </span><span class="k">this</span><span class="p">.</span><span class="na">email</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">email</span><span class="p">;</span>
+<span class="w">    </span><span class="p">}</span>
+
+<span class="w">    </span><span class="kd">public</span><span class="w"> </span><span class="n">String</span><span class="w"> </span><span class="nf">getEmail</span><span class="p">()</span><span class="w"> </span><span class="p">{</span>
+<span class="w">        </span><span class="k">return</span><span class="w"> </span><span class="n">email</span><span class="p">;</span>
+<span class="w">    </span><span class="p">}</span>
+
+<span class="w">    </span><span class="kd">public</span><span class="w"> </span><span class="kt">void</span><span class="w"> </span><span class="nf">setEmail</span><span class="p">(</span><span class="n">String</span><span class="w"> </span><span class="n">email</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">        </span><span class="k">this</span><span class="p">.</span><span class="na">email</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">email</span><span class="p">;</span>
+<span class="w">    </span><span class="p">}</span>
+
+<span class="w">    </span><span class="nd">@Override</span>
+<span class="w">    </span><span class="kd">public</span><span class="w"> </span><span class="n">String</span><span class="w"> </span><span class="nf">toString</span><span class="p">()</span><span class="w"> </span><span class="p">{</span>
+<span class="w">        </span><span class="k">return</span><span class="w"> </span><span class="n">email</span><span class="p">;</span>
+<span class="w">    </span><span class="p">}</span>
+
+<span class="w">    </span><span class="c1">// generated by Eclipse</span>
+<span class="w">    </span><span class="nd">@Override</span>
+<span class="w">    </span><span class="kd">public</span><span class="w"> </span><span class="kt">int</span><span class="w"> </span><span class="nf">hashCode</span><span class="p">()</span><span class="w"> </span><span class="p">{</span>
+<span class="w">        </span><span class="kd">final</span><span class="w"> </span><span class="kt">int</span><span class="w"> </span><span class="n">prime</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">31</span><span class="p">;</span>
+<span class="w">        </span><span class="kt">int</span><span class="w"> </span><span class="n">result</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">1</span><span class="p">;</span>
+<span class="w">        </span><span class="n">result</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">prime</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="n">result</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="p">((</span><span class="n">email</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="kc">null</span><span class="p">)</span><span class="w"> </span><span class="o">?</span><span class="w"> </span><span class="mi">0</span><span class="w"> </span><span class="p">:</span><span class="w"> </span><span class="n">email</span><span class="p">.</span><span class="na">hashCode</span><span class="p">());</span>
+<span class="w">        </span><span class="k">return</span><span class="w"> </span><span class="n">result</span><span class="p">;</span>
+<span class="w">    </span><span class="p">}</span>
+
+<span class="w">    </span><span class="c1">// generated by Eclipse</span>
+<span class="w">    </span><span class="nd">@Override</span>
+<span class="w">    </span><span class="kd">public</span><span class="w"> </span><span class="kt">boolean</span><span class="w"> </span><span class="nf">equals</span><span class="p">(</span><span class="n">Object</span><span class="w"> </span><span class="n">obj</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">        </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="k">this</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="n">obj</span><span class="p">)</span>
+<span class="w">            </span><span class="k">return</span><span class="w"> </span><span class="kc">true</span><span class="p">;</span>
+<span class="w">        </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">obj</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="kc">null</span><span class="p">)</span>
+<span class="w">            </span><span class="k">return</span><span class="w"> </span><span class="kc">false</span><span class="p">;</span>
+<span class="w">        </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">getClass</span><span class="p">()</span><span class="w"> </span><span class="o">!=</span><span class="w"> </span><span class="n">obj</span><span class="p">.</span><span class="na">getClass</span><span class="p">())</span>
+<span class="w">            </span><span class="k">return</span><span class="w"> </span><span class="kc">false</span><span class="p">;</span>
+<span class="w">        </span><span class="n">Email</span><span class="w"> </span><span class="n">other</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">(</span><span class="n">Email</span><span class="p">)</span><span class="w"> </span><span class="n">obj</span><span class="p">;</span>
+<span class="w">        </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">email</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="kc">null</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">            </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">other</span><span class="p">.</span><span class="na">email</span><span class="w"> </span><span class="o">!=</span><span class="w"> </span><span class="kc">null</span><span class="p">)</span>
+<span class="w">                </span><span class="k">return</span><span class="w"> </span><span class="kc">false</span><span class="p">;</span>
+<span class="w">        </span><span class="p">}</span><span class="w"> </span><span class="k">else</span><span class="w"> </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="o">!</span><span class="n">email</span><span class="p">.</span><span class="na">equals</span><span class="p">(</span><span class="n">other</span><span class="p">.</span><span class="na">email</span><span class="p">))</span>
+<span class="w">            </span><span class="k">return</span><span class="w"> </span><span class="kc">false</span><span class="p">;</span>
+<span class="w">        </span><span class="k">return</span><span class="w"> </span><span class="kc">true</span><span class="p">;</span>
+<span class="w">    </span><span class="p">}</span>
+
+<span class="p">}</span>
+</pre></div>
+</div>
+<p>変換元のBean</p>
+<div class="highlight-java notranslate"><div class="highlight"><pre><span></span><span class="kn">package</span><span class="w"> </span><span class="nn">com.example.dozer</span><span class="p">;</span>
+
+<span class="kn">import</span><span class="w"> </span><span class="nn">java.util.List</span><span class="p">;</span>
+
+<span class="kd">public</span><span class="w"> </span><span class="kd">class</span> <span class="nc">AccountForm</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="kd">private</span><span class="w"> </span><span class="n">List</span><span class="o">&lt;</span><span class="n">Email</span><span class="o">&gt;</span><span class="w"> </span><span class="n">emails</span><span class="p">;</span>
+
+<span class="w">    </span><span class="kd">public</span><span class="w"> </span><span class="kt">void</span><span class="w"> </span><span class="nf">setEmails</span><span class="p">(</span><span class="n">List</span><span class="o">&lt;</span><span class="n">Email</span><span class="o">&gt;</span><span class="w"> </span><span class="n">emails</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">        </span><span class="k">this</span><span class="p">.</span><span class="na">emails</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">emails</span><span class="p">;</span>
+<span class="w">    </span><span class="p">}</span>
+
+<span class="w">    </span><span class="kd">public</span><span class="w"> </span><span class="n">List</span><span class="o">&lt;</span><span class="n">Email</span><span class="o">&gt;</span><span class="w"> </span><span class="nf">getEmails</span><span class="p">()</span><span class="w"> </span><span class="p">{</span>
+<span class="w">        </span><span class="k">return</span><span class="w"> </span><span class="n">emails</span><span class="p">;</span>
+<span class="w">    </span><span class="p">}</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+<p>変換先のBean</p>
+<div class="highlight-java notranslate"><div class="highlight"><pre><span></span><span class="kn">package</span><span class="w"> </span><span class="nn">com.example.dozer</span><span class="p">;</span>
+
+<span class="kn">import</span><span class="w"> </span><span class="nn">java.util.List</span><span class="p">;</span>
+
+<span class="kd">public</span><span class="w"> </span><span class="kd">class</span> <span class="nc">Account</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="kd">private</span><span class="w"> </span><span class="n">List</span><span class="o">&lt;</span><span class="n">Email</span><span class="o">&gt;</span><span class="w"> </span><span class="n">emails</span><span class="p">;</span>
+
+<span class="w">    </span><span class="kd">public</span><span class="w"> </span><span class="kt">void</span><span class="w"> </span><span class="nf">setEmails</span><span class="p">(</span><span class="n">List</span><span class="o">&lt;</span><span class="n">Email</span><span class="o">&gt;</span><span class="w"> </span><span class="n">emails</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">        </span><span class="k">this</span><span class="p">.</span><span class="na">emails</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">emails</span><span class="p">;</span>
+<span class="w">    </span><span class="p">}</span>
+
+<span class="w">    </span><span class="kd">public</span><span class="w"> </span><span class="n">List</span><span class="o">&lt;</span><span class="n">Email</span><span class="o">&gt;</span><span class="w"> </span><span class="nf">getEmails</span><span class="p">()</span><span class="w"> </span><span class="p">{</span>
+<span class="w">        </span><span class="k">return</span><span class="w"> </span><span class="n">emails</span><span class="p">;</span>
+<span class="w">    </span><span class="p">}</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+<p>マッピング例</p>
+<div class="highlight-java notranslate"><div class="highlight"><pre><span></span><span class="n">AccountForm</span><span class="w"> </span><span class="n">accountForm</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="k">new</span><span class="w"> </span><span class="n">AccountForm</span><span class="p">();</span>
+
+<span class="n">List</span><span class="o">&lt;</span><span class="n">Email</span><span class="o">&gt;</span><span class="w"> </span><span class="n">emailsSrc</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="k">new</span><span class="w"> </span><span class="n">ArrayList</span><span class="o">&lt;</span><span class="n">Email</span><span class="o">&gt;</span><span class="p">();</span>
+
+<span class="n">emailsSrc</span><span class="p">.</span><span class="na">add</span><span class="p">(</span><span class="k">new</span><span class="w"> </span><span class="n">Email</span><span class="p">(</span><span class="s">&quot;a@example.com&quot;</span><span class="p">));</span>
+<span class="n">emailsSrc</span><span class="p">.</span><span class="na">add</span><span class="p">(</span><span class="k">new</span><span class="w"> </span><span class="n">Email</span><span class="p">(</span><span class="s">&quot;b@example.com&quot;</span><span class="p">));</span>
+<span class="n">emailsSrc</span><span class="p">.</span><span class="na">add</span><span class="p">(</span><span class="k">new</span><span class="w"> </span><span class="n">Email</span><span class="p">(</span><span class="s">&quot;c@example.com&quot;</span><span class="p">));</span>
+
+<span class="n">accountForm</span><span class="p">.</span><span class="na">setEmails</span><span class="p">(</span><span class="n">emailsSrc</span><span class="p">);</span>
+
+<span class="n">Account</span><span class="w"> </span><span class="n">account</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">beanMapper</span><span class="p">.</span><span class="na">map</span><span class="p">(</span><span class="n">accountForm</span><span class="p">,</span><span class="w"> </span><span class="n">Account</span><span class="p">.</span><span class="na">class</span><span class="p">);</span>
+
+<span class="n">System</span><span class="p">.</span><span class="na">out</span><span class="p">.</span><span class="na">println</span><span class="p">(</span><span class="n">account</span><span class="p">.</span><span class="na">getEmails</span><span class="p">());</span>
+</pre></div>
+</div>
+<p>上記のコードを実行すると以下のように出力される。</p>
+<div class="highlight-console notranslate"><div class="highlight"><pre><span></span><span class="go">[a@example.com, b@example.com, c@example.com]</span>
+</pre></div>
+</div>
+<p>ここまではこれまで説明したことと特に変わりはない。</p>
+<p>次の例のように、<strong>コピー先のBeanのCollectionフィールドに既に要素が追加されている場合は要注意である。</strong></p>
+<div class="highlight-java notranslate"><div class="highlight"><pre><span></span><span class="n">AccountForm</span><span class="w"> </span><span class="n">accountForm</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="k">new</span><span class="w"> </span><span class="n">AccountForm</span><span class="p">();</span>
+<span class="n">Account</span><span class="w"> </span><span class="n">account</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="k">new</span><span class="w"> </span><span class="n">Account</span><span class="p">();</span>
+
+<span class="n">List</span><span class="o">&lt;</span><span class="n">Email</span><span class="o">&gt;</span><span class="w"> </span><span class="n">emailsSrc</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="k">new</span><span class="w"> </span><span class="n">ArrayList</span><span class="o">&lt;</span><span class="n">Email</span><span class="o">&gt;</span><span class="p">();</span>
+<span class="n">List</span><span class="o">&lt;</span><span class="n">Email</span><span class="o">&gt;</span><span class="w"> </span><span class="n">emailsDest</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="k">new</span><span class="w"> </span><span class="n">ArrayList</span><span class="o">&lt;</span><span class="n">Email</span><span class="o">&gt;</span><span class="p">();</span>
+
+<span class="n">emailsSrc</span><span class="p">.</span><span class="na">add</span><span class="p">(</span><span class="k">new</span><span class="w"> </span><span class="n">Email</span><span class="p">(</span><span class="s">&quot;a@example.com&quot;</span><span class="p">));</span>
+<span class="n">emailsSrc</span><span class="p">.</span><span class="na">add</span><span class="p">(</span><span class="k">new</span><span class="w"> </span><span class="n">Email</span><span class="p">(</span><span class="s">&quot;b@example.com&quot;</span><span class="p">));</span>
+<span class="n">emailsSrc</span><span class="p">.</span><span class="na">add</span><span class="p">(</span><span class="k">new</span><span class="w"> </span><span class="n">Email</span><span class="p">(</span><span class="s">&quot;c@example.com&quot;</span><span class="p">));</span>
+
+<span class="n">emailsDest</span><span class="p">.</span><span class="na">add</span><span class="p">(</span><span class="k">new</span><span class="w"> </span><span class="n">Email</span><span class="p">(</span><span class="s">&quot;a@example.com&quot;</span><span class="p">));</span>
+<span class="n">emailsDest</span><span class="p">.</span><span class="na">add</span><span class="p">(</span><span class="k">new</span><span class="w"> </span><span class="n">Email</span><span class="p">(</span><span class="s">&quot;d@example.com&quot;</span><span class="p">));</span>
+<span class="n">emailsDest</span><span class="p">.</span><span class="na">add</span><span class="p">(</span><span class="k">new</span><span class="w"> </span><span class="n">Email</span><span class="p">(</span><span class="s">&quot;e@example.com&quot;</span><span class="p">));</span>
+
+<span class="n">accountForm</span><span class="p">.</span><span class="na">setEmails</span><span class="p">(</span><span class="n">emailsSrc</span><span class="p">);</span>
+<span class="n">account</span><span class="p">.</span><span class="na">setEmails</span><span class="p">(</span><span class="n">emailsDest</span><span class="p">);</span>
+
+<span class="n">beanMapper</span><span class="p">.</span><span class="na">map</span><span class="p">(</span><span class="n">accountForm</span><span class="p">,</span><span class="w"> </span><span class="n">account</span><span class="p">);</span>
+
+<span class="n">System</span><span class="p">.</span><span class="na">out</span><span class="p">.</span><span class="na">println</span><span class="p">(</span><span class="n">account</span><span class="p">.</span><span class="na">getEmails</span><span class="p">());</span>
+</pre></div>
+</div>
+<p>上記のコードを実行すると以下のように出力される。</p>
+<div class="highlight-console notranslate"><div class="highlight"><pre><span></span><span class="go">[a@example.com, d@example.com, e@example.com, a@example.com, b@example.com, c@example.com]</span>
+</pre></div>
+</div>
+<p>コピー元BeanのCollectionの全要素が、コピー先BeanのCollectionに追加されている。
+<code class="docutils literal notranslate"><span class="pre">a&#64;exmample.com</span></code>をもつ2つの<code class="docutils literal notranslate"><span class="pre">Email</span></code>オブジェクトは”等価”であるが、単純に追加される。</p>
+<p>(ここでいう”等価”とは<code class="docutils literal notranslate"><span class="pre">Email.equals</span></code> で比較すると<code class="docutils literal notranslate"><span class="pre">true</span></code>になり、<code class="docutils literal notranslate"><span class="pre">Email.hashCode</span></code>の値も同じであることを意味する。)</p>
+<p>上記の振る舞いは、Dozerの用語では<strong>cumulative</strong>と呼ばれ、Collectionをマッピングする際のデフォルトの挙動となっている。</p>
+<p>この挙動はマッピング定義XMLファイルにおいて変更することができる。</p>
+<div class="highlight-xml notranslate"><div class="highlight"><pre><span></span><span class="cp">&lt;?xml version=&quot;1.0&quot; encoding=&quot;UTF-8&quot;?&gt;</span>
+<span class="nt">&lt;mappings</span><span class="w"> </span><span class="na">xmlns=</span><span class="s">&quot;http://dozermapper.github.io/schema/bean-mapping&quot;</span><span class="w"> </span><span class="na">xmlns:xsi=</span><span class="s">&quot;http://www.w3.org/2001/XMLSchema-instance&quot;</span>
+<span class="w">    </span><span class="na">xsi:schemaLocation=</span><span class="s">&quot;http://dozermapper.github.io/schema/bean-mapping</span>
+<span class="s">          https://dozermapper.github.io/schema/bean-mapping.xsd&quot;</span><span class="nt">&gt;</span>
+<span class="w">    </span><span class="cm">&lt;!-- omitted --&gt;</span>
+<span class="w">    </span><span class="nt">&lt;mapping&gt;</span>
+<span class="w">        </span><span class="nt">&lt;class-a&gt;</span>com.example.dozer.AccountForm<span class="nt">&lt;/class-a&gt;</span>
+<span class="w">        </span><span class="nt">&lt;class-b&gt;</span>com.example.dozer.Account<span class="nt">&lt;/class-b&gt;</span>
+<span class="hll"><span class="w">        </span><span class="nt">&lt;field</span><span class="w"> </span><span class="na">relationship-type=</span><span class="s">&quot;non-cumulative&quot;</span><span class="nt">&gt;</span><span class="cm">&lt;!-- (1) --&gt;</span>
+</span><span class="w">            </span><span class="nt">&lt;a&gt;</span>emails<span class="nt">&lt;/a&gt;</span>
+<span class="w">            </span><span class="nt">&lt;b&gt;</span>emails<span class="nt">&lt;/b&gt;</span>
+<span class="w">        </span><span class="nt">&lt;/field&gt;</span>
+<span class="w">    </span><span class="nt">&lt;/mapping&gt;</span>
+<span class="w">    </span><span class="cm">&lt;!-- omitted --&gt;</span>
+<span class="nt">&lt;/mappings&gt;</span>
+</pre></div>
+</div>
+<table class="docutils align-default">
+<colgroup>
+<col style="width: 10.0%" />
+<col style="width: 90.0%" />
+</colgroup>
+<thead>
+<tr class="row-odd"><th class="head"><p>項番</p></th>
+<th class="head"><p>説明</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><div class="line-block">
+<div class="line">(1)</div>
+</div>
+</td>
+<td><div class="line-block">
+<div class="line"><code class="docutils literal notranslate"><span class="pre">&lt;field&gt;</span></code>タグの<code class="docutils literal notranslate"><span class="pre">relationship-type</span></code>属性に<code class="docutils literal notranslate"><span class="pre">non-cumulative</span></code>を指定する。デフォルト値は<code class="docutils literal notranslate"><span class="pre">cumulative</span></code>である。</div>
+<div class="line"><br /></div>
+<div class="line">マッピング対象のBeanの全フィールドに対して<code class="docutils literal notranslate"><span class="pre">non-cumulative</span></code>を指定したい場合は、<code class="docutils literal notranslate"><span class="pre">&lt;mapping&gt;</span></code>タグの<code class="docutils literal notranslate"><span class="pre">relationship-type</span></code>属性に<code class="docutils literal notranslate"><span class="pre">non-cumulative</span></code>を指定することもできる。</div>
+</div>
+</td>
+</tr>
+</tbody>
+</table>
+<p>この設定のもと、前述のコードを実行すると以下のように出力される。</p>
+<div class="highlight-console notranslate"><div class="highlight"><pre><span></span><span class="go">[a@example.com, d@example.com, e@example.com, b@example.com, c@example.com]</span>
+</pre></div>
+</div>
+<p>等価であるオブジェクトの重複がなくなっていることが分かる。</p>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>変換元のオブジェクトが、変換先のオブジェクトで更新されることに注意されたい。
+上記の例では<code class="docutils literal notranslate"><span class="pre">AccountForm</span></code>の中の<code class="docutils literal notranslate"><span class="pre">a&#64;exmample.com</span></code>がコピー先に格納される。</p>
+<blockquote>
+<div><figure class="align-default">
+<a class="reference internal image-reference" href="../../_images/dozer_noncumulativeupdate.png"><img alt="noncumulative update using dozer" src="../../_images/dozer_noncumulativeupdate.png" style="width: 60%;" /></a>
+</figure>
+</div></blockquote>
+</div>
+<p>コピー先のコレクションにのみに存在する項目は除外したい場合も、マッピング定義XMLファイルの設定で実現することができる。</p>
+<div class="highlight-xml notranslate"><div class="highlight"><pre><span></span><span class="cp">&lt;?xml version=&quot;1.0&quot; encoding=&quot;UTF-8&quot;?&gt;</span>
+<span class="nt">&lt;mappings</span><span class="w"> </span><span class="na">xmlns=</span><span class="s">&quot;http://dozermapper.github.io/schema/bean-mapping&quot;</span><span class="w"> </span><span class="na">xmlns:xsi=</span><span class="s">&quot;http://www.w3.org/2001/XMLSchema-instance&quot;</span>
+<span class="w">    </span><span class="na">xsi:schemaLocation=</span><span class="s">&quot;http://dozermapper.github.io/schema/bean-mapping</span>
+<span class="s">          https://dozermapper.github.io/schema/bean-mapping.xsd&quot;</span><span class="nt">&gt;</span>
+<span class="w">    </span><span class="cm">&lt;!-- omitted --&gt;</span>
+<span class="w">    </span><span class="nt">&lt;mapping&gt;</span>
+<span class="w">        </span><span class="nt">&lt;class-a&gt;</span>com.example.dozer.AccountForm<span class="nt">&lt;/class-a&gt;</span>
+<span class="w">        </span><span class="nt">&lt;class-b&gt;</span>com.example.dozer.Account<span class="nt">&lt;/class-b&gt;</span>
+<span class="hll"><span class="w">        </span><span class="nt">&lt;field</span><span class="w"> </span><span class="na">relationship-type=</span><span class="s">&quot;non-cumulative&quot;</span><span class="w"> </span><span class="na">remove-orphans=</span><span class="s">&quot;true&quot;</span><span class="w"> </span><span class="nt">&gt;</span><span class="cm">&lt;!-- (1) --&gt;</span>
+</span><span class="w">            </span><span class="nt">&lt;a&gt;</span>emails<span class="nt">&lt;/a&gt;</span>
+<span class="w">            </span><span class="nt">&lt;b&gt;</span>emails<span class="nt">&lt;/b&gt;</span>
+<span class="w">        </span><span class="nt">&lt;/field&gt;</span>
+<span class="w">    </span><span class="nt">&lt;/mapping&gt;</span>
+<span class="w">    </span><span class="cm">&lt;!-- omitted --&gt;</span>
+<span class="nt">&lt;/mappings&gt;</span>
+</pre></div>
+</div>
+<table class="docutils align-default">
+<colgroup>
+<col style="width: 10.0%" />
+<col style="width: 90.0%" />
+</colgroup>
+<thead>
+<tr class="row-odd"><th class="head"><p>項番</p></th>
+<th class="head"><p>説明</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><div class="line-block">
+<div class="line">(1)</div>
+</div>
+</td>
+<td><div class="line-block">
+<div class="line"><code class="docutils literal notranslate"><span class="pre">&lt;field&gt;</span></code>タグの<code class="docutils literal notranslate"><span class="pre">remove-orphans</span></code>属性に<code class="docutils literal notranslate"><span class="pre">true</span></code>を設定する。デフォルト値は<code class="docutils literal notranslate"><span class="pre">false</span></code>である。</div>
+</div>
+</td>
+</tr>
+</tbody>
+</table>
+<p>この設定のもと、前述のコードを実行すると以下のように出力される。</p>
+<div class="highlight-console notranslate"><div class="highlight"><pre><span></span><span class="go">[a@example.com, b@example.com, c@example.com]</span>
+</pre></div>
+</div>
+<p>コピー元にあるオブジェクトだけがコピー先のコレクション内に残っていることが分かる。</p>
+<p>いかのように設定しても同じ結果が得られる。</p>
+<div class="highlight-xml notranslate"><div class="highlight"><pre><span></span><span class="cp">&lt;?xml version=&quot;1.0&quot; encoding=&quot;UTF-8&quot;?&gt;</span>
+<span class="nt">&lt;mappings</span><span class="w"> </span><span class="na">xmlns=</span><span class="s">&quot;http://dozermapper.github.io/schema/bean-mapping&quot;</span><span class="w"> </span><span class="na">xmlns:xsi=</span><span class="s">&quot;http://www.w3.org/2001/XMLSchema-instance&quot;</span>
+<span class="w">    </span><span class="na">xsi:schemaLocation=</span><span class="s">&quot;http://dozermapper.github.io/schema/bean-mapping</span>
+<span class="s">          https://dozermapper.github.io/schema/bean-mapping.xsd&quot;</span><span class="nt">&gt;</span>
+<span class="w">    </span><span class="cm">&lt;!-- omitted --&gt;</span>
+<span class="w">    </span><span class="nt">&lt;mapping&gt;</span>
+<span class="w">        </span><span class="nt">&lt;class-a&gt;</span>com.example.dozer.AccountForm<span class="nt">&lt;/class-a&gt;</span>
+<span class="w">        </span><span class="nt">&lt;class-b&gt;</span>com.example.dozer.Account<span class="nt">&lt;/class-b&gt;</span>
+<span class="hll"><span class="w">        </span><span class="nt">&lt;field</span><span class="w"> </span><span class="na">copy-by-reference=</span><span class="s">&quot;true&quot;</span><span class="nt">&gt;</span><span class="cm">&lt;!-- (1) --&gt;</span>
+</span><span class="w">            </span><span class="nt">&lt;a&gt;</span>emails<span class="nt">&lt;/a&gt;</span>
+<span class="w">            </span><span class="nt">&lt;b&gt;</span>emails<span class="nt">&lt;/b&gt;</span>
+<span class="w">        </span><span class="nt">&lt;/field&gt;</span>
+<span class="w">    </span><span class="nt">&lt;/mapping&gt;</span>
+<span class="w">    </span><span class="cm">&lt;!-- omitted --&gt;</span>
+<span class="nt">&lt;/mappings&gt;</span>
+</pre></div>
+</div>
+<table class="docutils align-default">
+<colgroup>
+<col style="width: 10.0%" />
+<col style="width: 90.0%" />
+</colgroup>
+<thead>
+<tr class="row-odd"><th class="head"><p>項番</p></th>
+<th class="head"><p>説明</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><div class="line-block">
+<div class="line">(1)</div>
+</div>
+</td>
+<td><div class="line-block">
+<div class="line"><code class="docutils literal notranslate"><span class="pre">&lt;field&gt;</span></code>タグの<code class="docutils literal notranslate"><span class="pre">copy-by-reference</span></code>属性に<code class="docutils literal notranslate"><span class="pre">true</span></code>を設定する。デフォルト値は<code class="docutils literal notranslate"><span class="pre">false</span></code>である。</div>
+</div>
+</td>
+</tr>
+</tbody>
+</table>
+<p>これまでの挙動を図で表現する。</p>
+<ul>
+<li><p>デフォルトの挙動(cumulative)</p>
+<blockquote>
+<div><figure class="align-default">
+<a class="reference internal image-reference" href="../../_images/dozer-collection-cumulative.png"><img alt="../../_images/dozer-collection-cumulative.png" src="../../_images/dozer-collection-cumulative.png" style="width: 60%;" /></a>
+</figure>
+</div></blockquote>
+</li>
+<li><p>non-cumulative</p>
+<blockquote>
+<div><figure class="align-default">
+<a class="reference internal image-reference" href="../../_images/dozer-collection-non-cumulative.png"><img alt="../../_images/dozer-collection-non-cumulative.png" src="../../_images/dozer-collection-non-cumulative.png" style="width: 60%;" /></a>
+</figure>
+</div></blockquote>
+</li>
+<li><p>non-cumulativeかつremove-orphans=true</p>
+<blockquote>
+<div><figure class="align-default">
+<a class="reference internal image-reference" href="../../_images/dozer-collection-non-cumulative-and-orphan-remove.png"><img alt="../../_images/dozer-collection-non-cumulative-and-orphan-remove.png" src="../../_images/dozer-collection-non-cumulative-and-orphan-remove.png" style="width: 60%;" /></a>
+</figure>
+<p>copy-by-referenceもこのパターンである。</p>
+</div></blockquote>
+</li>
+</ul>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>「non-cumulativeかつremove-orphans=true」のパターンと「copy-by-reference」のパターンの違いは、Bean変換後のCollectionのコンテナがコピー先のものか、コピー元のものかで異なる点である。</p>
+<p>「non-cumulativeかつremove-orphans=true」のパターンの場合は、Bean変換後のCollectionのコンテナはコピー先のものであり、「copy-by-reference」のパターンはコピー元のものである。
+以下に図で説明する。</p>
+<ul>
+<li><p>non-cumulativeかつremove-orphans=true</p>
+<figure class="align-default">
+<a class="reference internal image-reference" href="../../_images/dozer-differrence1.png"><img alt="../../_images/dozer-differrence1.png" src="../../_images/dozer-differrence1.png" style="width: 50%;" /></a>
+</figure>
+</li>
+<li><p>copy-by-reference</p>
+<figure class="align-default">
+<a class="reference internal image-reference" href="../../_images/dozer-differrence2.png"><img alt="../../_images/dozer-differrence2.png" src="../../_images/dozer-differrence2.png" style="width: 50%;" /></a>
+</figure>
+</li>
+</ul>
+<p><strong>コピー先がJPA (Hibernate)のエンティティで1対多や多対多の関連を持つ場合は要注意である</strong>。コピー先のエンティティがEntityManagerの管理下にある場合、予期せぬトラブルに遭うことがある。
+例えばコレクションのコンテナが変更されると全件DELETE + 全件INSERTのSQLが発行され、「non-cumulativeかつremove-orphans=true」でコピーした場合は変更内容をUPDATE(要素数が異なる場合はDELETE or INSERT)のSQLが発行される場合がある。
+どちらが良いかは要件次第である。</p>
+</div>
+<div class="admonition warning">
+<p class="admonition-title">Warning</p>
+<p>マッピング対象のBeanが<code class="docutils literal notranslate"><span class="pre">String</span></code>のコレクションを持つ場合、<a class="reference external" href="https://sourceforge.net/p/dozer/bugs/382/">期待通りの挙動にならないバグ</a>がある。</p>
+<blockquote>
+<div><div class="highlight-java notranslate"><div class="highlight"><pre><span></span><span class="n">StringListSrc</span><span class="w"> </span><span class="n">src</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="k">new</span><span class="w"> </span><span class="n">StringListSrc</span><span class="p">;</span>
+<span class="n">StringListDest</span><span class="w"> </span><span class="n">dest</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="k">new</span><span class="w"> </span><span class="n">StringListDest</span><span class="p">();</span>
+
+<span class="n">List</span><span class="o">&lt;</span><span class="n">String</span><span class="o">&gt;</span><span class="w"> </span><span class="n">stringsSrc</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="k">new</span><span class="w"> </span><span class="n">ArrayList</span><span class="o">&lt;</span><span class="n">String</span><span class="o">&gt;</span><span class="p">();</span>
+<span class="n">List</span><span class="o">&lt;</span><span class="n">String</span><span class="o">&gt;</span><span class="w"> </span><span class="n">stringsDest</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="k">new</span><span class="w"> </span><span class="n">ArrayList</span><span class="o">&lt;</span><span class="n">String</span><span class="o">&gt;</span><span class="p">();</span>
+
+<span class="n">stringsSrc</span><span class="p">.</span><span class="na">add</span><span class="p">(</span><span class="s">&quot;a&quot;</span><span class="p">);</span>
+<span class="n">stringsSrc</span><span class="p">.</span><span class="na">add</span><span class="p">(</span><span class="s">&quot;b&quot;</span><span class="p">);</span>
+<span class="n">stringsSrc</span><span class="p">.</span><span class="na">add</span><span class="p">(</span><span class="s">&quot;c&quot;</span><span class="p">);</span>
+
+<span class="n">stringsDest</span><span class="p">.</span><span class="na">add</span><span class="p">(</span><span class="s">&quot;a&quot;</span><span class="p">);</span>
+<span class="n">stringsDest</span><span class="p">.</span><span class="na">add</span><span class="p">(</span><span class="s">&quot;d&quot;</span><span class="p">);</span>
+<span class="n">stringsDest</span><span class="p">.</span><span class="na">add</span><span class="p">(</span><span class="s">&quot;e&quot;</span><span class="p">);</span>
+
+<span class="n">src</span><span class="p">.</span><span class="na">setStrings</span><span class="p">(</span><span class="n">stringsSrc</span><span class="p">);</span>
+<span class="n">dest</span><span class="p">.</span><span class="na">setStrings</span><span class="p">(</span><span class="n">stringsDest</span><span class="p">);</span>
+
+<span class="n">beanMapper</span><span class="p">.</span><span class="na">map</span><span class="p">(</span><span class="n">src</span><span class="p">,</span><span class="w"> </span><span class="n">dest</span><span class="p">);</span>
+
+<span class="n">System</span><span class="p">.</span><span class="na">out</span><span class="p">.</span><span class="na">println</span><span class="p">(</span><span class="n">dest</span><span class="p">.</span><span class="na">getStrings</span><span class="p">());</span>
+</pre></div>
+</div>
+</div></blockquote>
+<p>上記のコードをnon-cumulativeかつremove-orphans=trueの設定で実行すると、</p>
+<blockquote>
+<div><div class="highlight-console notranslate"><div class="highlight"><pre><span></span><span class="go">[a, b, c]</span>
+</pre></div>
+</div>
+</div></blockquote>
+<p>と出力されることを期待するが、実際には</p>
+<blockquote>
+<div><div class="highlight-console notranslate"><div class="highlight"><pre><span></span><span class="go">[b, c]</span>
+</pre></div>
+</div>
+</div></blockquote>
+<p>と出力され、<strong>重複したStringが除かれてしまう</strong>。</p>
+<p>copy-by-reference=”true”の設定で実行すると、期待通り</p>
+<blockquote>
+<div><div class="highlight-console notranslate"><div class="highlight"><pre><span></span><span class="go">[a, b, c]</span>
+</pre></div>
+</div>
+</div></blockquote>
+<p>と出力される。</p>
+</div>
+<div class="admonition tip">
+<p class="admonition-title">Tip</p>
+<p>Dozerでは、Genericsを使用しないリスト間でもマッピングできる。このとき、変換元と変換先に含まれているオブジェクトのデータ型をHINTとして指定できる。
+詳細は、 <a class="reference external" href="https://dozermapper.github.io/gitbook/documentation/collectionandarraymapping.html#_Using_Hints_for_Collection_Mapping">Dozerの公式マニュアル -Collection and Array Mapping(Using Hints for Collection Mapping)-</a> を参照されたい。</p>
+</div>
+</section>
+</section>
+<section id="how-to-extend">
+<h2><a class="toc-backref" href="#id19" role="doc-backlink"><span class="section-number">7.7.3. </span>How to extend</a><a class="headerlink" href="#how-to-extend" title="Permalink to this heading">¶</a></h2>
+<section id="how-to-make-customconverter-label">
+<span id="id7"></span><h3><a class="toc-backref" href="#id20" role="doc-backlink"><span class="section-number">7.7.3.1. </span>カスタムコンバーターの作成</a><a class="headerlink" href="#how-to-make-customconverter-label" title="Permalink to this heading">¶</a></h3>
+<div class="line-block">
+<div class="line">Dozerがサポートしていないデータ型のマッピングでは、同じ型同士の場合も異なる型の場合も、カスタムコンバーター経由でマッピングできる。</div>
+</div>
+<ul class="simple">
+<li><p>例 : <code class="docutils literal notranslate"><span class="pre">java.lang.String</span></code>&lt;=&gt; <code class="docutils literal notranslate"><span class="pre">org.joda.time.DateTime</span></code></p></li>
+</ul>
+<div class="line-block">
+<div class="line">カスタムコンバーターは、Dozerが提供している<code class="docutils literal notranslate"><span class="pre">com.github.dozermapper.core.CustomConverter</span></code>を実装したクラスである。</div>
+<div class="line">カスタムコンバーターの指定は、以下3パターンで行える。</div>
+</div>
+<ul class="simple">
+<li><p>Global Configuration</p></li>
+<li><p>クラスレベル</p></li>
+<li><p>フィールドレベル</p></li>
+</ul>
+<p>アプリケーション全体で、同様のロジックにより変換を行いたい場合は、Global Configurationを推奨する。</p>
+<p>カスタムコンバーターを実装する場合は<code class="docutils literal notranslate"><span class="pre">com.github.dozermapper.core.DozerConverter</span></code>を継承するのが便利である。</p>
+<div class="highlight-java notranslate"><div class="highlight"><pre><span></span><span class="kn">package</span><span class="w"> </span><span class="nn">com.example.yourproject.common.bean.converter</span><span class="p">;</span>
+
+<span class="kn">import</span><span class="w"> </span><span class="nn">com.github.dozermapper.core.DozerConverter</span><span class="p">;</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">org.joda.time.DateTime</span><span class="p">;</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">org.joda.time.format.DateTimeFormat</span><span class="p">;</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">org.joda.time.format.DateTimeFormatter</span><span class="p">;</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">org.springframework.util.StringUtils</span><span class="p">;</span>
+
+<span class="kd">public</span><span class="w"> </span><span class="kd">class</span> <span class="nc">StringToJodaDateTimeConverter</span><span class="w"> </span><span class="kd">extends</span>
+<span class="w">                                          </span><span class="n">DozerConverter</span><span class="o">&lt;</span><span class="n">String</span><span class="p">,</span><span class="w"> </span><span class="n">DateTime</span><span class="o">&gt;</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="c1">// (1)</span>
+<span class="w">    </span><span class="kd">public</span><span class="w"> </span><span class="nf">StringToJodaDateTimeConverter</span><span class="p">()</span><span class="w"> </span><span class="p">{</span>
+<span class="w">        </span><span class="kd">super</span><span class="p">(</span><span class="n">String</span><span class="p">.</span><span class="na">class</span><span class="p">,</span><span class="w"> </span><span class="n">DateTime</span><span class="p">.</span><span class="na">class</span><span class="p">);</span><span class="w"> </span><span class="c1">// (2)</span>
+<span class="w">    </span><span class="p">}</span>
+
+<span class="w">    </span><span class="nd">@Override</span>
+<span class="w">    </span><span class="kd">public</span><span class="w"> </span><span class="n">DateTime</span><span class="w"> </span><span class="nf">convertTo</span><span class="p">(</span><span class="n">String</span><span class="w"> </span><span class="n">source</span><span class="p">,</span><span class="w"> </span><span class="n">DateTime</span><span class="w"> </span><span class="n">destination</span><span class="p">)</span><span class="w"> </span><span class="p">{</span><span class="c1">// (3)</span>
+<span class="w">        </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="o">!</span><span class="n">StringUtils</span><span class="p">.</span><span class="na">hasLength</span><span class="p">(</span><span class="n">source</span><span class="p">))</span><span class="w"> </span><span class="p">{</span>
+<span class="w">            </span><span class="k">return</span><span class="w"> </span><span class="kc">null</span><span class="p">;</span>
+<span class="w">        </span><span class="p">}</span>
+<span class="w">        </span><span class="n">DateTimeFormatter</span><span class="w"> </span><span class="n">formatter</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">DateTimeFormat</span>
+<span class="w">                </span><span class="p">.</span><span class="na">forPattern</span><span class="p">(</span><span class="s">&quot;yyyy-MM-dd HH:mm:ss&quot;</span><span class="p">);</span>
+<span class="w">        </span><span class="n">DateTime</span><span class="w"> </span><span class="n">dt</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">formatter</span><span class="p">.</span><span class="na">parseDateTime</span><span class="p">(</span><span class="n">source</span><span class="p">);</span>
+<span class="w">        </span><span class="k">return</span><span class="w"> </span><span class="n">dt</span><span class="p">;</span>
+<span class="w">    </span><span class="p">}</span>
+
+<span class="w">    </span><span class="nd">@Override</span>
+<span class="w">    </span><span class="kd">public</span><span class="w"> </span><span class="n">String</span><span class="w"> </span><span class="nf">convertFrom</span><span class="p">(</span><span class="n">DateTime</span><span class="w"> </span><span class="n">source</span><span class="p">,</span><span class="w"> </span><span class="n">String</span><span class="w"> </span><span class="n">destination</span><span class="p">)</span><span class="w"> </span><span class="p">{</span><span class="c1">// (4)</span>
+<span class="w">        </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">source</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="kc">null</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">            </span><span class="k">return</span><span class="w"> </span><span class="kc">null</span><span class="p">;</span>
+<span class="w">        </span><span class="p">}</span>
+<span class="w">        </span><span class="k">return</span><span class="w"> </span><span class="n">source</span><span class="p">.</span><span class="na">toString</span><span class="p">(</span><span class="s">&quot;yyyy-MM-dd HH:mm:ss&quot;</span><span class="p">);</span>
+<span class="w">    </span><span class="p">}</span>
+
+<span class="p">}</span>
+</pre></div>
+</div>
+<table class="docutils align-default">
+<colgroup>
+<col style="width: 10.0%" />
+<col style="width: 90.0%" />
+</colgroup>
+<thead>
+<tr class="row-odd"><th class="head"><p>項番</p></th>
+<th class="head"><p>説明</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><div class="line-block">
+<div class="line">(1)</div>
+</div>
+</td>
+<td><div class="line-block">
+<div class="line"><code class="docutils literal notranslate"><span class="pre">com.github.dozermapper.core.DozerConverter</span></code>を継承する。</div>
+</div>
+</td>
+</tr>
+<tr class="row-odd"><td><div class="line-block">
+<div class="line">(2)</div>
+</div>
+</td>
+<td><div class="line-block">
+<div class="line">コンストラクタで対象の2つのクラスを設定する。</div>
+</div>
+</td>
+</tr>
+<tr class="row-even"><td><div class="line-block">
+<div class="line">(3)</div>
+</div>
+</td>
+<td><div class="line-block">
+<div class="line"><code class="docutils literal notranslate"><span class="pre">String</span></code>から<code class="docutils literal notranslate"><span class="pre">DateTime</span></code>の変換ロジックを記述する。本例ではデフォルトLocaleを使用する。</div>
+</div>
+</td>
+</tr>
+<tr class="row-odd"><td><div class="line-block">
+<div class="line">(4)</div>
+</div>
+</td>
+<td><div class="line-block">
+<div class="line"><code class="docutils literal notranslate"><span class="pre">DateTime</span></code>から<code class="docutils literal notranslate"><span class="pre">String</span></code>の変換ロジックを記述する。本例ではデフォルトLocaleを使用する。</div>
+</div>
+</td>
+</tr>
+</tbody>
+</table>
+<p>作成したカスタムコンバーターを、マッピングに利用するために定義する必要がある。</p>
+<p>dozer-configration-mapping.xml</p>
+<div class="highlight-xml notranslate"><div class="highlight"><pre><span></span><span class="cp">&lt;?xml version=&quot;1.0&quot; encoding=&quot;UTF-8&quot;?&gt;</span>
+<span class="nt">&lt;mappings</span><span class="w"> </span><span class="na">xmlns=</span><span class="s">&quot;http://dozermapper.github.io/schema/bean-mapping&quot;</span><span class="w"> </span><span class="na">xmlns:xsi=</span><span class="s">&quot;http://www.w3.org/2001/XMLSchema-instance&quot;</span>
+<span class="w">    </span><span class="na">xsi:schemaLocation=</span><span class="s">&quot;http://dozermapper.github.io/schema/bean-mapping</span>
+<span class="s">          https://dozermapper.github.io/schema/bean-mapping.xsd&quot;</span><span class="nt">&gt;</span>
+
+<span class="w">    </span><span class="nt">&lt;configuration&gt;</span>
+<span class="w">        </span><span class="nt">&lt;custom-converters&gt;</span><span class="cm">&lt;!-- (1) --&gt;</span>
+<span class="w">            </span><span class="cm">&lt;!-- these are always bi-directional --&gt;</span>
+<span class="w">            </span><span class="nt">&lt;converter</span>
+<span class="w">                </span><span class="na">type=</span><span class="s">&quot;com.example.yourproject.common.bean.converter.StringToJodaDateTimeConverter&quot;</span><span class="nt">&gt;</span><span class="cm">&lt;!-- (2) --&gt;</span>
+<span class="w">                </span><span class="nt">&lt;class-a&gt;</span>java.lang.String<span class="nt">&lt;/class-a&gt;</span><span class="cm">&lt;!-- (3) --&gt;</span>
+<span class="w">                </span><span class="nt">&lt;class-b&gt;</span>org.joda.time.DateTime<span class="nt">&lt;/class-b&gt;</span><span class="cm">&lt;!-- (4) --&gt;</span>
+<span class="w">            </span><span class="nt">&lt;/converter&gt;</span>
+<span class="w">        </span><span class="nt">&lt;/custom-converters&gt;</span>
+<span class="w">    </span><span class="nt">&lt;/configuration&gt;</span>
+<span class="w">    </span><span class="cm">&lt;!-- omitted --&gt;</span>
+<span class="nt">&lt;/mappings&gt;</span>
+</pre></div>
+</div>
+<table class="docutils align-default">
+<colgroup>
+<col style="width: 10.0%" />
+<col style="width: 90.0%" />
+</colgroup>
+<thead>
+<tr class="row-odd"><th class="head"><p>項番</p></th>
+<th class="head"><p>説明</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><div class="line-block">
+<div class="line">(1)</div>
+</div>
+</td>
+<td><div class="line-block">
+<div class="line">すべてのカスタムコンバーターが属する、<code class="docutils literal notranslate"><span class="pre">custom-converters</span></code>を定義する。</div>
+</div>
+</td>
+</tr>
+<tr class="row-odd"><td><div class="line-block">
+<div class="line">(2)</div>
+</div>
+</td>
+<td><div class="line-block">
+<div class="line">個別の変換の行うconverterを定義する。converterのタイプに、実装クラスの完全修飾クラス名(FQCN)を指定する。</div>
+</div>
+</td>
+</tr>
+<tr class="row-even"><td><div class="line-block">
+<div class="line">(3)</div>
+</div>
+</td>
+<td><div class="line-block">
+<div class="line">変換元Beanの完全修飾クラス名(FQCN)</div>
+</div>
+</td>
+</tr>
+<tr class="row-odd"><td><div class="line-block">
+<div class="line">(4)</div>
+</div>
+</td>
+<td><div class="line-block">
+<div class="line">変換先Beanの完全修飾クラス名(FQCN)</div>
+</div>
+</td>
+</tr>
+</tbody>
+</table>
+<p>上記のマッピングを行ったことで、アプリケーション全体で、<code class="docutils literal notranslate"><span class="pre">java.lang.String</span></code>&lt;=&gt; <code class="docutils literal notranslate"><span class="pre">org.joda.time.DateTime</span></code>の変換が必要な場合、標準のマッピングではなく、カスタムコンバーター呼び出しでマッピングが行われる。</p>
+<p>例 :</p>
+<p>変換元のBean定義</p>
+<div class="highlight-java notranslate"><div class="highlight"><pre><span></span><span class="kd">public</span><span class="w"> </span><span class="kd">class</span> <span class="nc">Source</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="kd">private</span><span class="w"> </span><span class="kt">int</span><span class="w"> </span><span class="n">id</span><span class="p">;</span>
+<span class="w">    </span><span class="kd">private</span><span class="w"> </span><span class="n">String</span><span class="w"> </span><span class="n">date</span><span class="p">;</span>
+<span class="w">    </span><span class="c1">// omitted setter/getter</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+<p>変換先のBean定義</p>
+<div class="highlight-java notranslate"><div class="highlight"><pre><span></span><span class="kd">public</span><span class="w"> </span><span class="kd">class</span> <span class="nc">Destination</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="kd">private</span><span class="w"> </span><span class="kt">int</span><span class="w"> </span><span class="n">id</span><span class="p">;</span>
+<span class="w">    </span><span class="kd">private</span><span class="w"> </span><span class="n">DateTime</span><span class="w"> </span><span class="n">date</span><span class="p">;</span>
+<span class="w">    </span><span class="c1">// omitted setter/getter</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+<p>マッピング (双方向例)</p>
+<div class="highlight-java notranslate"><div class="highlight"><pre><span></span><span class="n">Source</span><span class="w"> </span><span class="n">source</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="k">new</span><span class="w"> </span><span class="n">Source</span><span class="p">();</span>
+<span class="n">source</span><span class="p">.</span><span class="na">setId</span><span class="p">(</span><span class="mi">1</span><span class="p">);</span>
+<span class="n">source</span><span class="p">.</span><span class="na">setDate</span><span class="p">(</span><span class="s">&quot;2012-08-10 23:12:12&quot;</span><span class="p">);</span>
+
+<span class="n">DateTimeFormatter</span><span class="w"> </span><span class="n">formatter</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">DateTimeFormat</span><span class="p">.</span><span class="na">forPattern</span><span class="p">(</span><span class="s">&quot;yyyy-MM-dd HH:mm:ss&quot;</span><span class="p">);</span>
+<span class="n">DateTime</span><span class="w"> </span><span class="n">dt</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">formatter</span><span class="p">.</span><span class="na">parseDateTime</span><span class="p">(</span><span class="n">source</span><span class="p">.</span><span class="na">getDate</span><span class="p">());</span>
+
+<span class="c1">// Source to Destination Bean Mapping (String to org.joda.time.DateTime)</span>
+<span class="n">Destination</span><span class="w"> </span><span class="n">destination</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">dozerBeanMapper</span><span class="p">.</span><span class="na">map</span><span class="p">(</span><span class="n">source</span><span class="p">,</span><span class="w"> </span><span class="n">Destination</span><span class="p">.</span><span class="na">class</span><span class="p">);</span>
+<span class="n">assertThat</span><span class="p">(</span><span class="n">destination</span><span class="p">.</span><span class="na">getId</span><span class="p">(),</span><span class="w"> </span><span class="n">is</span><span class="p">(</span><span class="mi">1</span><span class="p">));</span>
+<span class="n">assertThat</span><span class="p">(</span><span class="n">destination</span><span class="p">.</span><span class="na">getDate</span><span class="p">(),</span><span class="n">is</span><span class="p">(</span><span class="n">dt</span><span class="p">));</span>
+
+<span class="c1">// Destination to Source Bean Mapping (org.joda.time.DateTime to String)</span>
+<span class="n">dozerBeanMapper</span><span class="p">.</span><span class="na">map</span><span class="p">(</span><span class="n">destination</span><span class="p">,</span><span class="w"> </span><span class="n">source</span><span class="p">);</span>
+
+<span class="n">assertThat</span><span class="p">(</span><span class="n">source</span><span class="p">.</span><span class="na">getId</span><span class="p">(),</span><span class="w"> </span><span class="n">is</span><span class="p">(</span><span class="mi">1</span><span class="p">));</span>
+<span class="n">assertThat</span><span class="p">(</span><span class="n">source</span><span class="p">.</span><span class="na">getDate</span><span class="p">(),</span><span class="n">is</span><span class="p">(</span><span class="s">&quot;2012-08-10 23:12:12&quot;</span><span class="p">));</span>
+</pre></div>
+</div>
+<p>カスタムコンバーターに関する詳細は、 <a class="reference external" href="https://dozermapper.github.io/gitbook/documentation/customconverter.html">Dozerの公式マニュアル -Custom Converters-</a> を参照されたい。</p>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p><code class="docutils literal notranslate"><span class="pre">String</span></code>から<code class="docutils literal notranslate"><span class="pre">java.util.Date</span></code>など標準の日付・時刻オブジェクトへの変換については”<a class="reference internal" href="#beanconverter-string-and-datetime"><span class="std std-ref">文字列から日付・時刻オブジェクトへのマッピング</span></a>&quot;で述べる。</p>
+</div>
+</section>
+</section>
+<section id="appendix">
+<h2><a class="toc-backref" href="#id21" role="doc-backlink"><span class="section-number">7.7.4. </span>Appendix</a><a class="headerlink" href="#appendix" title="Permalink to this heading">¶</a></h2>
+<p>マッピング定義XMLファイルで指定できるオプションを説明する。</p>
+<p>すべてのオプションは、 <a class="reference external" href="https://dozermapper.github.io/gitbook/documentation/mappings.html">Dozerの公式マニュアル -Custom Mappings Via Dozer XML Files-</a> で確認できる。</p>
+<section id="field-exclude">
+<span id="fieldexclude"></span><h3><a class="toc-backref" href="#id22" role="doc-backlink"><span class="section-number">7.7.4.1. </span>フィールド除外設定 (field-exclude)</a><a class="headerlink" href="#field-exclude" title="Permalink to this heading">¶</a></h3>
+<p>Beanを変換する際に、コピーしてほしくないフィールドを除外することができる。</p>
+<p>以下のようなBeanの変換を考える。</p>
+<p>変換元のBean定義</p>
+<div class="highlight-java notranslate"><div class="highlight"><pre><span></span><span class="kd">public</span><span class="w"> </span><span class="kd">class</span> <span class="nc">Source</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="kd">private</span><span class="w"> </span><span class="kt">int</span><span class="w"> </span><span class="n">id</span><span class="p">;</span>
+<span class="w">    </span><span class="kd">private</span><span class="w"> </span><span class="n">String</span><span class="w"> </span><span class="n">name</span><span class="p">;</span>
+<span class="w">    </span><span class="kd">private</span><span class="w"> </span><span class="n">String</span><span class="w"> </span><span class="n">title</span><span class="p">;</span>
+<span class="w">    </span><span class="c1">// omitted setter/getter</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+<p>コピー先のBean定義</p>
+<div class="highlight-java notranslate"><div class="highlight"><pre><span></span><span class="kd">public</span><span class="w"> </span><span class="kd">class</span> <span class="nc">Destination</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="kd">private</span><span class="w"> </span><span class="kt">int</span><span class="w"> </span><span class="n">id</span><span class="p">;</span>
+<span class="w">    </span><span class="kd">private</span><span class="w"> </span><span class="n">String</span><span class="w"> </span><span class="n">name</span><span class="p">;</span>
+<span class="w">    </span><span class="kd">private</span><span class="w"> </span><span class="n">String</span><span class="w"> </span><span class="n">title</span><span class="p">;</span>
+<span class="w">    </span><span class="c1">// omitted setter/getter</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+<p>コピー元のBeanから任意のフィールドをマッピングから除外したい場合は以下のように定義する。</p>
+<p>フィールド除外の設定は、マッピング定義XMLファイルで、以下のように行う。</p>
+<div class="highlight-xml notranslate"><div class="highlight"><pre><span></span><span class="cp">&lt;?xml version=&quot;1.0&quot; encoding=&quot;UTF-8&quot;?&gt;</span>
+<span class="nt">&lt;mappings</span><span class="w"> </span><span class="na">xmlns=</span><span class="s">&quot;http://dozermapper.github.io/schema/bean-mapping&quot;</span><span class="w"> </span><span class="na">xmlns:xsi=</span><span class="s">&quot;http://www.w3.org/2001/XMLSchema-instance&quot;</span>
+<span class="w">    </span><span class="na">xsi:schemaLocation=</span><span class="s">&quot;http://dozermapper.github.io/schema/bean-mapping</span>
+<span class="s">          https://dozermapper.github.io/schema/bean-mapping.xsd&quot;</span><span class="nt">&gt;</span>
+<span class="w">    </span><span class="cm">&lt;!-- omitted --&gt;</span>
+<span class="w">    </span><span class="nt">&lt;mapping&gt;</span>
+<span class="w">        </span><span class="nt">&lt;class-a&gt;</span>com.xx.xx.Source<span class="nt">&lt;/class-a&gt;</span>
+<span class="w">        </span><span class="nt">&lt;class-b&gt;</span>com.xx.xx.Destination<span class="nt">&lt;/class-b&gt;</span>
+<span class="w">        </span><span class="nt">&lt;field-exclude&gt;</span><span class="cm">&lt;!-- (1) --&gt;</span>
+<span class="w">            </span><span class="nt">&lt;a&gt;</span>title<span class="nt">&lt;/a&gt;</span>
+<span class="w">            </span><span class="nt">&lt;b&gt;</span>title<span class="nt">&lt;/b&gt;</span>
+<span class="w">        </span><span class="nt">&lt;/field-exclude&gt;</span>
+<span class="w">    </span><span class="nt">&lt;/mapping&gt;</span>
+<span class="w">    </span><span class="cm">&lt;!-- omitted --&gt;</span>
+<span class="nt">&lt;/mappings&gt;</span>
+</pre></div>
+</div>
+<table class="docutils align-default">
+<colgroup>
+<col style="width: 10.0%" />
+<col style="width: 90.0%" />
+</colgroup>
+<thead>
+<tr class="row-odd"><th class="head"><p>項番</p></th>
+<th class="head"><p>説明</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><div class="line-block">
+<div class="line">(1)</div>
+</div>
+</td>
+<td><div class="line-block">
+<div class="line">除外したいフィールドを、&lt;field-exclude&gt;要素で設定する。この例の場合、指定した上でmapメソッドを実行すると、SourceオブジェクトからDestinationオブジェクトをコピーする際に、destinationのtitleの値が、上書きされない。</div>
+</div>
+</td>
+</tr>
+</tbody>
+</table>
+<div class="highlight-java notranslate"><div class="highlight"><pre><span></span><span class="n">Source</span><span class="w"> </span><span class="n">source</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="k">new</span><span class="w"> </span><span class="n">Source</span><span class="p">();</span>
+<span class="n">source</span><span class="p">.</span><span class="na">setId</span><span class="p">(</span><span class="mi">1</span><span class="p">);</span>
+<span class="n">source</span><span class="p">.</span><span class="na">setName</span><span class="p">(</span><span class="s">&quot;SourceName&quot;</span><span class="p">);</span>
+<span class="n">source</span><span class="p">.</span><span class="na">setTitle</span><span class="p">(</span><span class="s">&quot;SourceTitle&quot;</span><span class="p">);</span>
+
+<span class="n">Destination</span><span class="w"> </span><span class="n">destination</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="k">new</span><span class="w"> </span><span class="n">Destination</span><span class="p">();</span>
+<span class="n">destination</span><span class="p">.</span><span class="na">setId</span><span class="p">(</span><span class="mi">2</span><span class="p">);</span>
+<span class="n">destination</span><span class="p">.</span><span class="na">setName</span><span class="p">(</span><span class="s">&quot;DestinationName&quot;</span><span class="p">);</span>
+<span class="n">destination</span><span class="p">.</span><span class="na">setTitle</span><span class="p">(</span><span class="s">&quot;DestinationTitle&quot;</span><span class="p">);</span>
+<span class="n">beanMapper</span><span class="p">.</span><span class="na">map</span><span class="p">(</span><span class="n">source</span><span class="p">,</span><span class="w"> </span><span class="n">destination</span><span class="p">);</span>
+<span class="n">System</span><span class="p">.</span><span class="na">out</span><span class="p">.</span><span class="na">println</span><span class="p">(</span><span class="n">destination</span><span class="p">.</span><span class="na">getId</span><span class="p">());</span>
+<span class="n">System</span><span class="p">.</span><span class="na">out</span><span class="p">.</span><span class="na">println</span><span class="p">(</span><span class="n">destination</span><span class="p">.</span><span class="na">getName</span><span class="p">());</span>
+<span class="n">System</span><span class="p">.</span><span class="na">out</span><span class="p">.</span><span class="na">println</span><span class="p">(</span><span class="n">destination</span><span class="p">.</span><span class="na">getTitle</span><span class="p">());</span>
+</pre></div>
+</div>
+<p>上記のコードを実行すると以下のように出力される。</p>
+<div class="highlight-console notranslate"><div class="highlight"><pre><span></span><span class="go">1</span>
+<span class="go">SourceName</span>
+<span class="go">DestinationTitle</span>
+</pre></div>
+</div>
+<p>マッピング後、destinationのtitleの値は、前の状態のままである。</p>
+<div class="line-block">
+<div class="line"><br /></div>
+</div>
+</section>
+<section id="map-id">
+<h3><a class="toc-backref" href="#id23" role="doc-backlink"><span class="section-number">7.7.4.2. </span>マッピングの特定化 (map-id)</a><a class="headerlink" href="#map-id" title="Permalink to this heading">¶</a></h3>
+<p><a class="reference internal" href="#fieldexclude"><span class="std std-ref">フィールド除外設定 (field-exclude)</span></a>で示したマッピングは、アプリケーション全体でBean変換する際に適用される。
+マッピングの適用範囲を制限(特定化)したい場合は、以下のように、map-idを指定して定義する。</p>
+<div class="highlight-xml notranslate"><div class="highlight"><pre><span></span><span class="cp">&lt;?xml version=&quot;1.0&quot; encoding=&quot;UTF-8&quot;?&gt;</span>
+<span class="nt">&lt;mappings</span><span class="w"> </span><span class="na">xmlns=</span><span class="s">&quot;http://dozermapper.github.io/schema/bean-mapping&quot;</span><span class="w"> </span><span class="na">xmlns:xsi=</span><span class="s">&quot;http://www.w3.org/2001/XMLSchema-instance&quot;</span>
+<span class="w">    </span><span class="na">xsi:schemaLocation=</span><span class="s">&quot;http://dozermapper.github.io/schema/bean-mapping</span>
+<span class="s">          https://dozermapper.github.io/schema/bean-mapping.xsd&quot;</span><span class="nt">&gt;</span>
+<span class="w">    </span><span class="cm">&lt;!-- omitted --&gt;</span>
+<span class="w">    </span><span class="nt">&lt;mapping</span><span class="w"> </span><span class="na">map-id=</span><span class="s">&quot;mapidTitleFieldExclude&quot;</span><span class="nt">&gt;</span>
+<span class="w">        </span><span class="nt">&lt;class-a&gt;</span>com.xx.xx.Source<span class="nt">&lt;/class-a&gt;</span>
+<span class="w">        </span><span class="nt">&lt;class-b&gt;</span>com.xx.xx.Destination<span class="nt">&lt;/class-b&gt;</span>
+<span class="w">        </span><span class="nt">&lt;field-exclude&gt;</span>
+<span class="w">            </span><span class="nt">&lt;a&gt;</span>title<span class="nt">&lt;/a&gt;</span>
+<span class="w">            </span><span class="nt">&lt;b&gt;</span>title<span class="nt">&lt;/b&gt;</span>
+<span class="w">        </span><span class="nt">&lt;/field-exclude&gt;</span>
+<span class="w">    </span><span class="nt">&lt;/mapping&gt;</span>
+<span class="w">    </span><span class="cm">&lt;!-- omitted --&gt;</span>
+<span class="nt">&lt;/mappings&gt;</span>
+</pre></div>
+</div>
+<p>上記の設定を行うと、<code class="docutils literal notranslate"><span class="pre">map</span></code>メソッドにmap-id(mapidTitleFieldExclude)を渡すことでtitleのコピーを除外できる。
+map-idを指定しない場合はこの設定は適用されず、全フィールドがコピーされる。</p>
+<p><code class="docutils literal notranslate"><span class="pre">map</span></code>メソッドにmap-idを渡す例を、以下に示す。</p>
+<div class="highlight-java notranslate"><div class="highlight"><pre><span></span><span class="n">Source</span><span class="w"> </span><span class="n">source</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="k">new</span><span class="w"> </span><span class="n">Source</span><span class="p">();</span>
+<span class="n">source</span><span class="p">.</span><span class="na">setId</span><span class="p">(</span><span class="mi">1</span><span class="p">);</span>
+<span class="n">source</span><span class="p">.</span><span class="na">setName</span><span class="p">(</span><span class="s">&quot;SourceName&quot;</span><span class="p">);</span>
+<span class="n">source</span><span class="p">.</span><span class="na">setTitle</span><span class="p">(</span><span class="s">&quot;SourceTitle&quot;</span><span class="p">);</span>
+
+<span class="n">Destination</span><span class="w"> </span><span class="n">destination1</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="k">new</span><span class="w"> </span><span class="n">Destination</span><span class="p">();</span>
+<span class="n">destination1</span><span class="p">.</span><span class="na">setId</span><span class="p">(</span><span class="mi">2</span><span class="p">);</span>
+<span class="n">destination1</span><span class="p">.</span><span class="na">setName</span><span class="p">(</span><span class="s">&quot;DestinationName&quot;</span><span class="p">);</span>
+<span class="n">destination1</span><span class="p">.</span><span class="na">setTitle</span><span class="p">(</span><span class="s">&quot;DestinationTitle&quot;</span><span class="p">);</span>
+<span class="n">beanMapper</span><span class="p">.</span><span class="na">map</span><span class="p">(</span><span class="n">source</span><span class="p">,</span><span class="w"> </span><span class="n">destination1</span><span class="p">);</span><span class="w"> </span><span class="c1">// (1)</span>
+<span class="n">System</span><span class="p">.</span><span class="na">out</span><span class="p">.</span><span class="na">println</span><span class="p">(</span><span class="n">destination1</span><span class="p">.</span><span class="na">getId</span><span class="p">());</span>
+<span class="n">System</span><span class="p">.</span><span class="na">out</span><span class="p">.</span><span class="na">println</span><span class="p">(</span><span class="n">destination1</span><span class="p">.</span><span class="na">getName</span><span class="p">());</span>
+<span class="n">System</span><span class="p">.</span><span class="na">out</span><span class="p">.</span><span class="na">println</span><span class="p">(</span><span class="n">destination1</span><span class="p">.</span><span class="na">getTitle</span><span class="p">());</span>
+
+<span class="n">Destination</span><span class="w"> </span><span class="n">destination2</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="k">new</span><span class="w"> </span><span class="n">Destination</span><span class="p">();</span>
+<span class="n">destination2</span><span class="p">.</span><span class="na">setId</span><span class="p">(</span><span class="mi">2</span><span class="p">);</span>
+<span class="n">destination2</span><span class="p">.</span><span class="na">setName</span><span class="p">(</span><span class="s">&quot;DestinationName&quot;</span><span class="p">);</span>
+<span class="n">destination2</span><span class="p">.</span><span class="na">setTitle</span><span class="p">(</span><span class="s">&quot;DestinationTitle&quot;</span><span class="p">);</span>
+<span class="n">beanMapper</span><span class="p">.</span><span class="na">map</span><span class="p">(</span><span class="n">source</span><span class="p">,</span><span class="w"> </span><span class="n">destination2</span><span class="p">,</span><span class="w"> </span><span class="s">&quot;mapidTitleFieldExclude&quot;</span><span class="p">);</span><span class="w"> </span><span class="c1">// (2)</span>
+<span class="n">System</span><span class="p">.</span><span class="na">out</span><span class="p">.</span><span class="na">println</span><span class="p">(</span><span class="n">destination2</span><span class="p">.</span><span class="na">getId</span><span class="p">());</span>
+<span class="n">System</span><span class="p">.</span><span class="na">out</span><span class="p">.</span><span class="na">println</span><span class="p">(</span><span class="n">destination2</span><span class="p">.</span><span class="na">getName</span><span class="p">());</span>
+<span class="n">System</span><span class="p">.</span><span class="na">out</span><span class="p">.</span><span class="na">println</span><span class="p">(</span><span class="n">destination2</span><span class="p">.</span><span class="na">getTitle</span><span class="p">());</span>
+</pre></div>
+</div>
+<table class="docutils align-default">
+<colgroup>
+<col style="width: 10.0%" />
+<col style="width: 90.0%" />
+</colgroup>
+<thead>
+<tr class="row-odd"><th class="head"><p>項番</p></th>
+<th class="head"><p>説明</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><div class="line-block">
+<div class="line">(1)</div>
+</div>
+</td>
+<td><div class="line-block">
+<div class="line">通常のマッピング。</div>
+</div>
+</td>
+</tr>
+<tr class="row-odd"><td><div class="line-block">
+<div class="line">(2)</div>
+</div>
+</td>
+<td><div class="line-block">
+<div class="line">第三引数にmap-idを渡し、特定のマッピングルールを適用する。</div>
+</div>
+</td>
+</tr>
+</tbody>
+</table>
+<p>上記のコードを実行すると以下のように出力される。</p>
+<div class="highlight-console notranslate"><div class="highlight"><pre><span></span><span class="go">1</span>
+<span class="go">SourceName</span>
+<span class="go">SourceTitle</span>
+
+<span class="go">1</span>
+<span class="go">SourceName</span>
+<span class="go">DestinationTitle</span>
+</pre></div>
+</div>
+<div class="line-block">
+<div class="line"><br /></div>
+</div>
+<div class="admonition tip">
+<p class="admonition-title">Tip</p>
+<p>map-idの指定は、mapping項目だけでなく、フィールドの定義でも行える。
+詳細は、 <a class="reference external" href="https://dozermapper.github.io/gitbook/documentation/contextmapping.html">Dozerの公式マニュアル -Context Based Mapping-</a> を参照されたい。</p>
+</div>
+<div class="line-block">
+<div class="line"><br /></div>
+</div>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>Webアプリケーションにおいて、新規追加・更新両方の操作で同じフォームオブジェクトを使う場合がある。
+このとき、フォームオブジェクトをドメインオブジェクトにコピー(マップ)する上で、操作によってはコピーしたくないフィールドもある。
+この場合に、<code class="docutils literal notranslate"><span class="pre">&lt;field-exclude&gt;</span></code>を使用する。</p>
+<ul class="simple">
+<li><p>例：新規作成のフォームではuserIdを含むが、更新用のフォームではuserIdを含まない。</p></li>
+</ul>
+<p>この場合に同じフォームオブジェクトを使用すると、更新時にuserIdにnullが設定される。コピー先のオブジェクトをDBから取得して、
+フォームオブジェクトをそのままコピーすると、コピー先のuserIdまでnullとなる。これを回避するために、
+更新用のmap-idを用意し、更新時はuserIdに対して、フィールド除外の設定を行う。</p>
+</div>
+<div class="line-block">
+<div class="line"><br /></div>
+</div>
+</section>
+<section id="null-map-null-map-empty">
+<h3><a class="toc-backref" href="#id24" role="doc-backlink"><span class="section-number">7.7.4.3. </span>コピー元のnull・空フィールドを除外する設定 (map-null, map-empty)</a><a class="headerlink" href="#null-map-null-map-empty" title="Permalink to this heading">¶</a></h3>
+<p>コピー元のBeanのフィールドが、<code class="docutils literal notranslate"><span class="pre">null</span></code>の場合、あるいは空の場合に、マッピングから除外することができる。
+以下のように、マッピング定義XMLファイルに設定する。</p>
+<div class="highlight-xml notranslate"><div class="highlight"><pre><span></span><span class="cp">&lt;?xml version=&quot;1.0&quot; encoding=&quot;UTF-8&quot;?&gt;</span>
+<span class="nt">&lt;mappings</span><span class="w"> </span><span class="na">xmlns=</span><span class="s">&quot;http://dozermapper.github.io/schema/bean-mapping&quot;</span><span class="w"> </span><span class="na">xmlns:xsi=</span><span class="s">&quot;http://www.w3.org/2001/XMLSchema-instance&quot;</span>
+<span class="w">    </span><span class="na">xsi:schemaLocation=</span><span class="s">&quot;http://dozermapper.github.io/schema/bean-mapping</span>
+<span class="s">          https://dozermapper.github.io/schema/bean-mapping.xsd&quot;</span><span class="nt">&gt;</span>
+<span class="w">    </span><span class="cm">&lt;!-- omitted --&gt;</span>
+<span class="w">    </span><span class="nt">&lt;mapping</span><span class="w"> </span><span class="na">map-null=</span><span class="s">&quot;false&quot;</span><span class="w"> </span><span class="na">map-empty-string=</span><span class="s">&quot;false&quot;</span><span class="nt">&gt;</span><span class="cm">&lt;!-- (1) --&gt;</span>
+<span class="w">        </span><span class="nt">&lt;class-a&gt;</span>com.xx.xx.Source<span class="nt">&lt;/class-a&gt;</span>
+<span class="w">        </span><span class="nt">&lt;class-b&gt;</span>com.xx.xx.Destination<span class="nt">&lt;/class-b&gt;</span>
+<span class="w">    </span><span class="nt">&lt;/mapping&gt;</span>
+<span class="w">    </span><span class="cm">&lt;!-- omitted --&gt;</span>
+<span class="nt">&lt;/mappings&gt;</span>
+</pre></div>
+</div>
+<table class="docutils align-default">
+<colgroup>
+<col style="width: 10.0%" />
+<col style="width: 90.0%" />
+</colgroup>
+<thead>
+<tr class="row-odd"><th class="head"><p>項番</p></th>
+<th class="head"><p>説明</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><div class="line-block">
+<div class="line">(1)</div>
+</div>
+</td>
+<td><div class="line-block">
+<div class="line">コピー元のBeanのフィールドが<code class="docutils literal notranslate"><span class="pre">null</span></code>の場合にマッピングから除外したい場合は<code class="docutils literal notranslate"><span class="pre">map-null</span></code>属性に<code class="docutils literal notranslate"><span class="pre">false</span></code>を設定する。デフォルト値は<code class="docutils literal notranslate"><span class="pre">true</span></code>である。</div>
+<div class="line">空の場合に、マッピングから除外したい場合は<code class="docutils literal notranslate"><span class="pre">map-empty-string</span></code>属性に<code class="docutils literal notranslate"><span class="pre">false</span></code>を設定する。デフォルト値は<code class="docutils literal notranslate"><span class="pre">true</span></code>である。</div>
+</div>
+</td>
+</tr>
+</tbody>
+</table>
+<p>変換元のBean定義</p>
+<div class="highlight-java notranslate"><div class="highlight"><pre><span></span><span class="kd">public</span><span class="w"> </span><span class="kd">class</span> <span class="nc">Source</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="kd">private</span><span class="w"> </span><span class="kt">int</span><span class="w"> </span><span class="n">id</span><span class="p">;</span>
+<span class="w">    </span><span class="kd">private</span><span class="w"> </span><span class="n">String</span><span class="w"> </span><span class="n">name</span><span class="p">;</span>
+<span class="w">    </span><span class="kd">private</span><span class="w"> </span><span class="n">String</span><span class="w"> </span><span class="n">title</span><span class="p">;</span>
+<span class="w">    </span><span class="c1">// omitted setter/getter</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+<p>変換先のBean定義</p>
+<div class="highlight-java notranslate"><div class="highlight"><pre><span></span><span class="kd">public</span><span class="w"> </span><span class="kd">class</span> <span class="nc">Destination</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="kd">private</span><span class="w"> </span><span class="kt">int</span><span class="w"> </span><span class="n">id</span><span class="p">;</span>
+<span class="w">    </span><span class="kd">private</span><span class="w"> </span><span class="n">String</span><span class="w"> </span><span class="n">name</span><span class="p">;</span>
+<span class="w">    </span><span class="kd">private</span><span class="w"> </span><span class="n">String</span><span class="w"> </span><span class="n">title</span><span class="p">;</span>
+<span class="w">    </span><span class="c1">// omitted setter/getter</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+<p>マッピング例</p>
+<div class="highlight-java notranslate"><div class="highlight"><pre><span></span><span class="n">Source</span><span class="w"> </span><span class="n">source</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="k">new</span><span class="w"> </span><span class="n">Source</span><span class="p">();</span>
+<span class="n">source</span><span class="p">.</span><span class="na">setId</span><span class="p">(</span><span class="mi">1</span><span class="p">);</span>
+<span class="n">source</span><span class="p">.</span><span class="na">setName</span><span class="p">(</span><span class="kc">null</span><span class="p">);</span>
+<span class="n">source</span><span class="p">.</span><span class="na">setTitle</span><span class="p">(</span><span class="s">&quot;&quot;</span><span class="p">);</span>
+
+<span class="n">Destination</span><span class="w"> </span><span class="n">destination</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="k">new</span><span class="w"> </span><span class="n">Destination</span><span class="p">();</span>
+<span class="n">destination</span><span class="p">.</span><span class="na">setId</span><span class="p">(</span><span class="mi">2</span><span class="p">);</span>
+<span class="n">destination</span><span class="p">.</span><span class="na">setName</span><span class="p">(</span><span class="s">&quot;DestinationName&quot;</span><span class="p">);</span>
+<span class="n">destination</span><span class="p">.</span><span class="na">setTitle</span><span class="p">(</span><span class="s">&quot;DestinationTitle&quot;</span><span class="p">);</span>
+<span class="n">beanMapper</span><span class="p">.</span><span class="na">map</span><span class="p">(</span><span class="n">source</span><span class="p">,</span><span class="w"> </span><span class="n">destination</span><span class="p">);</span>
+<span class="n">System</span><span class="p">.</span><span class="na">out</span><span class="p">.</span><span class="na">println</span><span class="p">(</span><span class="n">destination</span><span class="p">.</span><span class="na">getId</span><span class="p">());</span>
+<span class="n">System</span><span class="p">.</span><span class="na">out</span><span class="p">.</span><span class="na">println</span><span class="p">(</span><span class="n">destination</span><span class="p">.</span><span class="na">getName</span><span class="p">());</span>
+<span class="n">System</span><span class="p">.</span><span class="na">out</span><span class="p">.</span><span class="na">println</span><span class="p">(</span><span class="n">destination</span><span class="p">.</span><span class="na">getTitle</span><span class="p">());</span>
+</pre></div>
+</div>
+<p>上記のコードを実行すると以下のように出力される。</p>
+<div class="highlight-console notranslate"><div class="highlight"><pre><span></span><span class="go">1</span>
+<span class="go">DestinationName</span>
+<span class="go">DestinationTitle</span>
+</pre></div>
+</div>
+<p>コピー元Beanの<code class="docutils literal notranslate"><span class="pre">name</span></code>と<code class="docutils literal notranslate"><span class="pre">title</span></code>フィールドは、<code class="docutils literal notranslate"><span class="pre">null</span></code>、あるいは空で、マッピングから除外されている。</p>
+</section>
+<section id="beanconverter-string-and-datetime">
+<span id="id8"></span><h3><a class="toc-backref" href="#id25" role="doc-backlink"><span class="section-number">7.7.4.4. </span>文字列から日付・時刻オブジェクトへのマッピング</a><a class="headerlink" href="#beanconverter-string-and-datetime" title="Permalink to this heading">¶</a></h3>
+<p>コピー元の文字列型のフィールドを、コピー先の日付・時刻系のフィールドにマッピングできる。</p>
+<p>以下の変換をサポートしている。</p>
+<p>日付・時刻系</p>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">java.lang.String</span></code>&lt;=&gt; <code class="docutils literal notranslate"><span class="pre">java.util.Date</span></code></p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">java.lang.String</span></code>&lt;=&gt; <code class="docutils literal notranslate"><span class="pre">java.util.Calendar</span></code></p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">java.lang.String</span></code>&lt;=&gt; <code class="docutils literal notranslate"><span class="pre">java.util.GregorianCalendar</span></code></p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">java.lang.String</span></code>&lt;=&gt; <code class="docutils literal notranslate"><span class="pre">java.sql.Timestamp</span></code></p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">java.lang.String</span></code>&lt;=&gt; <code class="docutils literal notranslate"><span class="pre">java.time.LocalDateTime</span></code></p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">java.lang.String</span></code>&lt;=&gt; <code class="docutils literal notranslate"><span class="pre">java.time.OffsetDateTime</span></code></p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">java.lang.String</span></code>&lt;=&gt; <code class="docutils literal notranslate"><span class="pre">java.time.ZonedDateTime</span></code></p></li>
+</ul>
+<p>日付のみ</p>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">java.lang.String</span></code>&lt;=&gt; <code class="docutils literal notranslate"><span class="pre">java.sql.Date</span></code></p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">java.lang.String</span></code>&lt;=&gt; <code class="docutils literal notranslate"><span class="pre">java.time.LocalDate</span></code></p></li>
+</ul>
+<p>時刻のみ</p>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">java.lang.String</span></code>&lt;=&gt; <code class="docutils literal notranslate"><span class="pre">java.sql.Time</span></code></p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">java.lang.String</span></code>&lt;=&gt; <code class="docutils literal notranslate"><span class="pre">java.time.LocalTime</span></code></p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">java.lang.String</span></code>&lt;=&gt; <code class="docutils literal notranslate"><span class="pre">java.time.OffsetTime</span></code></p></li>
+</ul>
+<div class="line-block">
+<div class="line">日付・時刻系の変換は、以下のように行う。</div>
+<div class="line">例として、<code class="docutils literal notranslate"><span class="pre">java.time.LocalDateTime</span></code>への変換を説明する。</div>
+</div>
+<div class="highlight-xml notranslate"><div class="highlight"><pre><span></span><span class="cp">&lt;?xml version=&quot;1.0&quot; encoding=&quot;UTF-8&quot;?&gt;</span>
+<span class="nt">&lt;mappings</span><span class="w"> </span><span class="na">xmlns=</span><span class="s">&quot;http://dozermapper.github.io/schema/bean-mapping&quot;</span><span class="w"> </span><span class="na">xmlns:xsi=</span><span class="s">&quot;http://www.w3.org/2001/XMLSchema-instance&quot;</span>
+<span class="w">    </span><span class="na">xsi:schemaLocation=</span><span class="s">&quot;http://dozermapper.github.io/schema/bean-mapping</span>
+<span class="s">          https://dozermapper.github.io/schema/bean-mapping.xsd&quot;</span><span class="nt">&gt;</span>
+<span class="w">    </span><span class="cm">&lt;!-- omitted --&gt;</span>
+<span class="w">    </span><span class="nt">&lt;mapping&gt;</span>
+<span class="w">        </span><span class="nt">&lt;class-a&gt;</span>com.xx.xx.Source<span class="nt">&lt;/class-a&gt;</span>
+<span class="w">        </span><span class="nt">&lt;class-b&gt;</span>com.xx.xx.Destination<span class="nt">&lt;/class-b&gt;</span>
+<span class="w">        </span><span class="nt">&lt;field&gt;</span>
+<span class="w">            </span><span class="nt">&lt;a</span><span class="w"> </span><span class="na">date-format=</span><span class="s">&quot;uuuu-MM-dd HH:mm:ss.SSS&quot;</span><span class="nt">&gt;</span>date<span class="nt">&lt;/a&gt;</span><span class="cm">&lt;!-- (1) --&gt;</span>
+<span class="w">            </span><span class="nt">&lt;b&gt;</span>date<span class="nt">&lt;/b&gt;</span>
+<span class="w">        </span><span class="nt">&lt;/field&gt;</span>
+<span class="w">    </span><span class="nt">&lt;/mapping&gt;</span>
+<span class="w">    </span><span class="cm">&lt;!-- omitted --&gt;</span>
+<span class="nt">&lt;/mappings&gt;</span>
+</pre></div>
+</div>
+<table class="docutils align-default">
+<colgroup>
+<col style="width: 10.0%" />
+<col style="width: 90.0%" />
+</colgroup>
+<thead>
+<tr class="row-odd"><th class="head"><p>項番</p></th>
+<th class="head"><p>説明</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><div class="line-block">
+<div class="line">(1)</div>
+</div>
+</td>
+<td><div class="line-block">
+<div class="line">コピー元のフィールド名と日付形式を指定する。</div>
+</div>
+</td>
+</tr>
+</tbody>
+</table>
+<p>変換元のBean定義</p>
+<div class="highlight-java notranslate"><div class="highlight"><pre><span></span><span class="kd">public</span><span class="w"> </span><span class="kd">class</span> <span class="nc">Source</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="kd">private</span><span class="w"> </span><span class="n">String</span><span class="w"> </span><span class="n">date</span><span class="p">;</span>
+<span class="w">    </span><span class="c1">// omitted setter/getter</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+<p>変換先のBean定義</p>
+<div class="highlight-java notranslate"><div class="highlight"><pre><span></span><span class="kd">public</span><span class="w"> </span><span class="kd">class</span> <span class="nc">Destination</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="kd">private</span><span class="w"> </span><span class="n">LocalDateTime</span><span class="w"> </span><span class="n">date</span><span class="p">;</span>
+<span class="w">    </span><span class="c1">// omitted setter/getter</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+<p>マッピング</p>
+<div class="highlight-java notranslate"><div class="highlight"><pre><span></span><span class="n">Source</span><span class="w"> </span><span class="n">source</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="k">new</span><span class="w"> </span><span class="n">Source</span><span class="p">();</span>
+<span class="n">source</span><span class="p">.</span><span class="na">setDate</span><span class="p">(</span><span class="s">&quot;2013-10-10 11:11:11.111&quot;</span><span class="p">);</span>
+<span class="n">Destination</span><span class="w"> </span><span class="n">destination</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">beanMapper</span><span class="p">.</span><span class="na">map</span><span class="p">(</span><span class="n">source</span><span class="p">,</span><span class="w"> </span><span class="n">Destination</span><span class="p">.</span><span class="na">class</span><span class="p">);</span>
+<span class="k">assert</span><span class="p">(</span><span class="n">destination</span><span class="p">.</span><span class="na">getDate</span><span class="p">().</span><span class="na">equals</span><span class="p">(</span><span class="n">LocalDateTime</span><span class="p">.</span><span class="na">parse</span><span class="p">(</span><span class="s">&quot;2013-10-10 11:11:11.111&quot;</span><span class="p">,</span><span class="w"> </span><span class="n">DateTimeFormatter</span><span class="p">.</span><span class="na">ofPattern</span><span class="p">(</span><span class="s">&quot;uuuu-MM-dd HH:mm:ss.SSS&quot;</span><span class="p">))));</span>
+</pre></div>
+</div>
+<div class="line-block">
+<div class="line">日付形式は、個別のマッピング定義毎に設定するよりも、プロジェクトで一括して設定したいケースが多い。</div>
+<div class="line">その場合はDozerのGlobal configurationファイルで設定することを推奨する。</div>
+<div class="line">その場合、アプリケーション全体のマッピングで設定された日付形式が、適用される。</div>
+</div>
+<div class="highlight-xml notranslate"><div class="highlight"><pre><span></span><span class="cp">&lt;?xml version=&quot;1.0&quot; encoding=&quot;UTF-8&quot;?&gt;</span>
+<span class="nt">&lt;mappings</span><span class="w"> </span><span class="na">xmlns=</span><span class="s">&quot;http://dozermapper.github.io/schema/bean-mapping&quot;</span><span class="w"> </span><span class="na">xmlns:xsi=</span><span class="s">&quot;http://www.w3.org/2001/XMLSchema-instance&quot;</span>
+<span class="w">    </span><span class="na">xsi:schemaLocation=</span><span class="s">&quot;http://dozermapper.github.io/schema/bean-mapping</span>
+<span class="s">          https://dozermapper.github.io/schema/bean-mapping.xsd&quot;</span><span class="nt">&gt;</span>
+<span class="w">    </span><span class="cm">&lt;!-- omitted --&gt;</span>
+<span class="w">    </span><span class="nt">&lt;configuration&gt;</span>
+<span class="w">        </span><span class="nt">&lt;date-format&gt;</span>uuuu-MM-dd<span class="w"> </span>HH:mm:ss.SSS<span class="nt">&lt;/date-format&gt;</span>
+<span class="w">        </span><span class="cm">&lt;!-- omitted other configuration --&gt;</span>
+<span class="w">    </span><span class="nt">&lt;/configuration&gt;</span>
+<span class="w">    </span><span class="cm">&lt;!-- omitted --&gt;</span>
+<span class="nt">&lt;/mappings&gt;</span>
+</pre></div>
+</div>
+<div class="line-block">
+<div class="line">ファイル名には制限はないが、src/main/resources/META-INF/dozer/dozer-configration-mapping.xmlを推奨する。</div>
+<div class="line">dozer-configration-mapping.xml内の設定の範囲は、この設定ファイル内でアプリケーション全体に影響を与える、Global Configurationを行えばよい。</div>
+</div>
+<p>設定可能な項目の詳細について、 <a class="reference external" href="https://dozermapper.github.io/gitbook/documentation/xmlConfiguration.html">Dozerの公式マニュアル -Global Configuration-</a> を参照されたい。</p>
+<div class="admonition warning">
+<p class="admonition-title">Warning</p>
+<p><code class="docutils literal notranslate"><span class="pre">java.util.Date</span></code>と<code class="docutils literal notranslate"><span class="pre">java.time.LocalDate</span></code>を併用するようなアプリケーションのとき、年形式に<code class="docutils literal notranslate"><span class="pre">uuuu</span></code>と<code class="docutils literal notranslate"><span class="pre">yyyy</span></code>を使い分ける必要があるため、アプリケーション全体で設定すると困るケースがある。このような場合では、アプリケーション全体の設定に加えて個別のマッピング定義で日付形式を設定すれば対応可能である。</p>
+</div>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>Java SE 11ではJava SE 8と日付の文字列表現が異なる場合がある。
+Java SE 8と同様に表現するには<a class="reference internal" href="../../Appendix/Java11Changes.html#change-default-locale-data-from-java9"><span class="std std-ref">デフォルトで使用されるロケール・データの変更</span></a>を参照されたい。</p>
+</div>
+</section>
+<section id="beanconverter-mapping-error">
+<span id="id9"></span><h3><a class="toc-backref" href="#id26" role="doc-backlink"><span class="section-number">7.7.4.5. </span>マッピングのエラー</a><a class="headerlink" href="#beanconverter-mapping-error" title="Permalink to this heading">¶</a></h3>
+<p>マッピング中にマッピング処理が失敗したら、<code class="docutils literal notranslate"><span class="pre">com.github.dozermapper.core.MappingException</span></code>(実行時例外)がスローされる。</p>
+<p><code class="docutils literal notranslate"><span class="pre">MappingException</span></code> がスローされる代表的な例を、以下に挙げる。</p>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">map</span></code>メソッドに存在しないmap-idが渡されている。</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">map</span></code>メソッドに存在するmap-idを渡したが、マップ処理に渡したソース・ターゲット型は、そのmap-idに指定している定義とは異なる。</p></li>
+<li><p>Dozerがサポートしていない変換の場合、かつ、その変換用のカスタムコンバーターも存在しない場合。</p></li>
+</ul>
+<p>これらは通常プログラムバグであるので、<code class="docutils literal notranslate"><span class="pre">map</span></code>メソッドの呼び出しの部分を正しく修正する必要がある。</p>
+<div class="admonition warning">
+<p class="admonition-title">Warning</p>
+<p>Dozer 6.3.0から、マッピング定義XMLファイルの解析にデフォルトでJAXBが利用されるようになった。
+これにより、Dozer 6.2.0以前では無視されていたマッピング定義XMLファイルのコンテンツ部の両端に存在する改行コードは、Dozer 6.3.0以降では値として読み取られるようになった。</p>
+<p>マッピング定義XMLファイルのコンテンツ部の両端に改行コードが存在する場合、指定されたフィールド名が正しく認識されない等の不具合が生じる可能性があるため、注意されたい。</p>
+</div>
+</section>
+</section>
+</section>
+
+
+            <div class="clearer"></div>
+          </div>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../../genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="../MessagingDetail/index.html" title="8. メッセージ連携"
+             >next</a> |</li>
+        <li class="right" >
+          <a href="StringProcessing.html" title="7.6. 文字列処理"
+             >previous</a> |</li>
+        <li class="nav-item nav-item-0"><a href="../../index.html">TERASOLUNA Server Framework for Java (5.x) Development Guideline 5.7.3.RELEASE documentation</a> &#187;</li>
+          <li class="nav-item nav-item-1"><a href="index.html" ><span class="section-number">7. </span>アプリケーション形態に依存しない汎用機能</a> &#187;</li>
+        <li class="nav-item nav-item-this"><a href=""><span class="section-number">7.7. </span>Beanマッピング(Dozer)</a></li> 
+      </ul>
+    </div>
+    <div class="footer">
+      © Copyright 2024, NTT DATA Group Corporation. © Copyright 2013, NTT Corporation.
+      Created using <a href="https://www.sphinx-doc.org/en/master/">Sphinx</a> 7.0.1.Theme is <a href="https://pypi.org/project/solar-theme/">Solar</a>
+    </div>
+    
+    <script>
+    
+    $(function() {
+    	var $sidebar	= $('.sphinxsidebar'),
+    		$window		= $(window),
+    		offset		= $sidebar.offset(),
+    		topPadding	= 3,
+    		$scroll		= $('#scroll');
+    	
+    	$window.scroll(function() {
+    		if ($scroll.is(':checked')) {
+				if ($window.scrollTop() > offset.top) {
+					$sidebar.stop().animate({
+						marginTop:$window.scrollTop() - offset.top + topPadding
+					});
+				} else {
+					$sidebar.stop().animate({
+						marginTop:0
+					});
+				}
+			}
+		});
+    	
+    	var $navList = $('ul:first', $sidebar);
+    	$('li:first', $navList).addClass('open');
+    	
+    	$navList.treeview({
+    		persist: "location",
+    		collapsed: true,
+    		unique: false
+    	});
+    	
+	});
+    </script>
+  </body>
+</html>
