@@ -9,8 +9,6 @@ Appendix(Know How)
   Lombok
   Java17Settings
   SpringToolSuite4
-  JodaTime
-  SOAP
   ReferenceBooks
   SpringComprehensionCheck
 

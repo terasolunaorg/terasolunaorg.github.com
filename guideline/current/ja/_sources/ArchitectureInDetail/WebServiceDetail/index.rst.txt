@@ -8,6 +8,7 @@ Web Service
 
   REST
   RestClient
+  SOAP
 
 .. raw:: latex
 

@@ -467,7 +467,7 @@ How to use
             String plainText = decryptByPrivateKey(cipherBytes, privateKey); // (5)
             System.out.println(plainText);
         } catch (NoSuchAlgorithmException e) {
-            throw new SystemException("e.xx.xx.9002", "No Such setting error.", e);
+            throw new SystemException("e.xx.yy.9002", "No Such setting error.", e);
         }
     }
 
@@ -528,11 +528,11 @@ How to use
             cipher.init(Cipher.ENCRYPT_MODE, publicKey, new OAEPParameterSpec("SHA-256", "MGF1", MGF1ParameterSpec.SHA256, PSource.PSpecified.DEFAULT)); // (2)
             return cipher.doFinal(plainText.getBytes(StandardCharsets.UTF_8)); // (3)
         } catch (NoSuchAlgorithmException | NoSuchPaddingException e) {
-            throw new SystemException("e.xx.xx.9002", "No Such setting error.", e);
+            throw new SystemException("e.xx.yy.9002", "No Such setting error.", e);
         } catch (InvalidKeyException |
                  IllegalBlockSizeException |
                  BadPaddingException e) {
-            throw new SystemException("e.xx.xx.9003", "Invalid setting error.", e);
+            throw new SystemException("e.xx.yy.9003", "Invalid setting error.", e);
         }
     }
 
@@ -566,11 +566,11 @@ How to use
             byte[] plainBytes = cipher.doFinal(cipherBytes); // (3)
             return new String(plainBytes, StandardCharsets.UTF_8);
         } catch (NoSuchAlgorithmException | NoSuchPaddingException e) {
-            throw new SystemException("e.xx.xx.9002", "No Such setting error.", e);
+            throw new SystemException("e.xx.yy.9002", "No Such setting error.", e);
         } catch (InvalidKeyException |
                  IllegalBlockSizeException |
                  BadPaddingException e) {
-            throw new SystemException("e.xx.xx.9003", "Invalid setting error.", e);
+            throw new SystemException("e.xx.yy.9003", "Invalid setting error.", e);
         }
     }
 
@@ -652,11 +652,11 @@ OpenSSL
             System.out
                     .println("openssl pkeyutl -decrypt -pkeyopt rsa_padding_mode:oaep -pkeyopt rsa_oaep_md:sha256 -inkey hoge.pem -in encryptedByJCA.txt");
         } catch (IOException e) {
-            throw new SystemException("e.xx.xx.9001", "input/output error.", e);
+            throw new SystemException("e.xx.yy.9001", "input/output error.", e);
         } catch (NoSuchAlgorithmException e) {
-            throw new SystemException("e.xx.xx.9002", "No Such setting error.", e);
+            throw new SystemException("e.xx.yy.9002", "No Such setting error.", e);
         } catch (InvalidKeySpecException e) {
-            throw new SystemException("e.xx.xx.9003", "Invalid setting error.", e);
+            throw new SystemException("e.xx.yy.9003", "Invalid setting error.", e);
         }
     }
 
@@ -730,11 +730,11 @@ OpenSSL
                    privateKey); // (3)
             System.out.println(plainText);
         } catch (IOException e) {
-            throw new SystemException("e.xx.xx.9001", "input/output error.", e);
+            throw new SystemException("e.xx.yy.9001", "input/output error.", e);
         } catch (NoSuchAlgorithmException e) {
-            throw new SystemException("e.xx.xx.9002", "No Such setting error.", e);
+            throw new SystemException("e.xx.yy.9002", "No Such setting error.", e);
         } catch (InvalidKeySpecException e) {
-            throw new SystemException("e.xx.xx.9003", "Invalid setting error.", e);
+            throw new SystemException("e.xx.yy.9003", "Invalid setting error.", e);
         }
     }
 
@@ -789,11 +789,11 @@ OpenSSL
 
             return result.toByteArray(); // (9)
         } catch (IOException e) {
-            throw new SystemException("e.xx.xx.9001", "input/output error.", e);
+            throw new SystemException("e.xx.yy.9001", "input/output error.", e);
         } catch (NoSuchAlgorithmException | NoSuchPaddingException e) {
-            throw new SystemException("e.xx.xx.9002", "No Such setting error.", e);
+            throw new SystemException("e.xx.yy.9002", "No Such setting error.", e);
         } catch (InvalidKeyException | IllegalBlockSizeException | BadPaddingException e) {
-            throw new SystemException("e.xx.xx.9003", "Invalid setting error.", e);
+            throw new SystemException("e.xx.yy.9003", "Invalid setting error.", e);
         }
     }
 
@@ -853,11 +853,11 @@ OpenSSL
 
             return output.toByteArray(); // (9)
         } catch (IOException e) {
-            throw new SystemException("e.xx.xx.9001", "input/output error.", e);
+            throw new SystemException("e.xx.yy.9001", "input/output error.", e);
         } catch (NoSuchAlgorithmException | NoSuchPaddingException e) {
-            throw new SystemException("e.xx.xx.9002", "No Such setting error.", e);
+            throw new SystemException("e.xx.yy.9002", "No Such setting error.", e);
         } catch (InvalidKeyException | IllegalBlockSizeException | BadPaddingException e) {
-            throw new SystemException("e.xx.xx.9003", "Invalid setting error.", e);
+            throw new SystemException("e.xx.yy.9003", "Invalid setting error.", e);
         }
     }
 

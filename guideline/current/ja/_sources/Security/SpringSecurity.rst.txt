@@ -238,7 +238,7 @@ HttpFirewall
     
   URLの正規化は脆弱性対策としては不十分であるため、従来通り\ ``DefaultHttpFirewall``\ を利用するように変更することは推奨しない。また、\ ``StrictHttpFirewall``\ のチェックについても、一部カスタマイズ可能なパラメータも存在するが、脆弱性の原因となりうるため変更することは推奨しない。
     
-  \ ``StrictHttpFirewall``\ の詳細については、\ `Javadoc <https://docs.spring.io/spring-security/site/docs/6.2.1/api/org/springframework/security/web/firewall/StrictHttpFirewall.html>`_\ を参照されたい。
+  \ ``StrictHttpFirewall``\ の詳細については、\ `Javadoc <https://docs.spring.io/spring-security/site/docs/6.4.2/api/org/springframework/security/web/firewall/StrictHttpFirewall.html>`_\ を参照されたい。
 
 |
 
@@ -261,14 +261,14 @@ SecurityFilterChain
 
       @Bean
       public SecurityFilterChain filterChainApi(HttpSecurity http) throws Exception {
-          http.securityMatcher(new AntPathRequestMatcher("/api/**")); // (1)
+          http.securityMatcher(antMatcher("/api/**")); // (1)
           // omitted
           return http.build();
       }
 
       @Bean
       public SecurityFilterChain filterChainUi(HttpSecurity http) throws Exception {
-          http.securityMatcher(new AntPathRequestMatcher("/ui/**"));
+          http.securityMatcher(antMatcher("/ui/**"));
           // omitted
           return http.build();
       }
@@ -282,8 +282,8 @@ SecurityFilterChain
         - 説明
       * - | (1)
         - | \ ``HttpSecurity#securityMatcher``\ メソッドを呼び出し、SecurityFilterChainを適用するRequestMatcherオブジェクトを指定する。\ ``HttpSecurity#securityMatcher``\ メソッドを呼び出さない場合は、"\ ``/**``\ "がパスパターンとして使用される。
-          | 指定可能なパスパターンはRequestMatcherに依存しており、\ `ブランクプロジェクトのデフォルト設定 <https://github.com/terasolunaorg/terasoluna-gfw-web-multi-blank/tree/5.9.0.RELEASE/parts/JavaConfig-JSP/projectName-web/src/main/resources/META-INF/spring/spring-security.xml#L11>`__\ で使用される\ ``AntPathRequestMatcher``\ では\ `Ant形式の記述 <https://docs.spring.io/spring-framework/docs/6.1.3/javadoc-api/org/springframework/util/AntPathMatcher.html>`__\ が利用できる。
-          | また、RequestMatcherオブジェクトではなくパスパターンを直接指定することも可能であるが、\ ``MvcRequestMatcher``\ が適用されるため、本ガイドラインでは\ ``AntPathRequestMatcher``\ を指定する。詳しくは\ :ref:`パスパターンの解析に利用する仕組みの設定について <SpringSecurityPathPatternJava>`\ を参照されたい。
+          | 指定可能なパスパターンはRequestMatcherに依存しており、\ `ブランクプロジェクトのデフォルト設定 <https://github.com/terasolunaorg/terasoluna-gfw-web-multi-blank/tree/5.10.0.RELEASE/parts/JavaConfig-JSP/projectName-web/src/main/resources/META-INF/spring/spring-security.xml#L11>`__\ で使用される\ ``AntPathRequestMatcher``\ では\ `Ant形式の記述 <https://docs.spring.io/spring-framework/docs/6.2.1/javadoc-api/org/springframework/util/AntPathMatcher.html>`__\ が利用できる。
+          | また、RequestMatcherオブジェクトではなくパスパターンを直接指定することも可能であるが、\ ``MvcRequestMatcher``\ が適用されるため、本ガイドラインでは\ ``AntPathRequestMatcher#antMatcher``\ を呼び出して\ ``AntPathRequestMatcher``\ を指定する。詳しくは\ :ref:`パスパターンの解析に利用する仕組みの設定について <SpringSecurityPathPatternJava>`\ を参照されたい。
     
     .. _SpringSecurityPathPatternJava:
     
@@ -319,7 +319,7 @@ SecurityFilterChain
         - 説明
       * - | (1)
         - | \ ``pattern``\ 属性を設定し、SecurityFilterChainを適用するパスパターンを指定する。\ ``pattern``\ 属性を指定しない場合は、"\ ``/**``\ "がパスパターンとして使用される。
-          | 指定可能なパスパターンはRequestMatcherに依存しており、\ `ブランクプロジェクトのデフォルト設定 <https://github.com/terasolunaorg/terasoluna-gfw-web-multi-blank/tree/5.9.0.RELEASE/parts/XMLConfig-JSP/projectName-web/src/main/resources/META-INF/spring/spring-security.xml#L11>`__\ で使用される\ ``AntPathRequestMatcher``\ では\ `Ant形式の記述 <https://docs.spring.io/spring-framework/docs/6.1.3/javadoc-api/org/springframework/util/AntPathMatcher.html>`__\ が利用できる。
+          | 指定可能なパスパターンはRequestMatcherに依存しており、\ `ブランクプロジェクトのデフォルト設定 <https://github.com/terasolunaorg/terasoluna-gfw-web-multi-blank/tree/5.10.0.RELEASE/parts/XMLConfig-JSP/projectName-web/src/main/resources/META-INF/spring/spring-security.xml#L11>`__\ で使用される\ ``AntPathRequestMatcher``\ では\ `Ant形式の記述 <https://docs.spring.io/spring-framework/docs/6.2.1/javadoc-api/org/springframework/util/AntPathMatcher.html>`__\ が利用できる。
           | また、\ ``pattern``\ と\ ``request-matcher``\ の代わりに\ ``request-matcher-ref``\ 属性を設定し、RequestMatcherオブジェクトを直接指定することも可能である。
       * - | (2)
         - | \ ``request-matcher``\ 属性で\ ``ant``\ を指定し、\ ``AntPathRequestMatcher``\ を使用するように設定する。詳しくは\ :ref:`パスパターンの解析に利用する仕組みの設定について <SpringSecurityPathPatternXML>`\ を参照されたい。
@@ -330,7 +330,7 @@ SecurityFilterChain
     
       Spring SecurityはSpring MVCと同時に使用する場合、パス解析にはデフォルトで\ ``MvcRequestMatcher``\ が使用される。ただし、\ ``MvcRequestMatcher``\ を使用するためには\ `Spring Securityが案内する方法 <https://docs.spring.io/spring-security/reference/servlet/integrations/mvc.html#mvc-requestmatcher>`_\ に従い、Spring MVCとSpring Securityを同一コンテキスト(DIコンテナ)内に設定する必要がある。
       
-      TERASOLUNA Server Framework for Java (5.x)では以下のような懸念から\ ``AntPathRequestMatcher``\ (必要に応じて\ ``RegexRequestMatcher``\ )の使用を前提としている。これに伴い、\ `ブランクプロジェクトのデフォルト設定 <https://github.com/terasolunaorg/terasoluna-gfw-web-multi-blank/tree/5.9.0.RELEASE/parts/XMLConfig-JSP/projectName-web/src/main/resources/META-INF/spring/spring-security.xml#L11>`__\ では\ ``<sec:http>``\ タグに\ ``request-matcher="ant"``\ を設定している。
+      TERASOLUNA Server Framework for Java (5.x)では以下のような懸念から\ ``AntPathRequestMatcher``\ (必要に応じて\ ``RegexRequestMatcher``\ )の使用を前提としている。これに伴い、\ `ブランクプロジェクトのデフォルト設定 <https://github.com/terasolunaorg/terasoluna-gfw-web-multi-blank/tree/5.10.0.RELEASE/parts/XMLConfig-JSP/projectName-web/src/main/resources/META-INF/spring/spring-security.xml#L11>`__\ では\ ``<sec:http>``\ タグに\ ``request-matcher="ant"``\ を設定している。
     
       - \ :ref:`RESTHowToUseApplicationSettingsOfSpringMVC`\ の\ ``spring-mvc-rest.xml``\ のように、\ ``spring-mvc.xml``\ の設定バリエーションを1つのアプリケーション内に複数持つ必要がある場合、\ ``spring-mvc.xml``\ に相当するファイルごとにアプリケーションコンテキスト(DIコンテナ)を分け、複数のServletにそれぞれを割り当てる必要があり、 \ ``MvcRequestMatcher``\ を使用できる条件を満たさない。また、設定方法によっては、\ ``MvcRequestMatcher``\ を利用するとSpring MVCと連携せずに動作するという意図しない動作となり、脆弱性に繋がる。
       - \ ``MvcRequestMatcher``\ では、Spring MVCがHandlerMappingやハンドラ(ハンドラメソッド等)を決定する時と同じ処理をパターンマッチングの度に行う(\ ``spring-security.xml``\ に記載したpattern毎に実施される)ため、1リクエストあたりの処理コストが増加しやすいと推測される。特に、RESTで使用するパス変数のように、パスの条件にワイルドカードを持つハンドラメソッドを呼び出す際は、「Spring MVCがHandlerMappingやハンドラ(ハンドラメソッド等)を決定する」部分の処理コストがアプリケーションコンテキスト(DIコンテナ)内のハンドラメソッドの定義量に大きく依存するため、アプリケーションコンテキスト(DIコンテナ)を1つにまとめる構造では、性能上の懸念がある。
@@ -395,7 +395,7 @@ WebアプリケーションにSpring Securityを適用するためのセット�
 
 .. note::
 
-  開発プロジェクトを\ `ブランクプロジェクト <https://github.com/terasolunaorg/terasoluna-gfw-web-multi-blank/tree/5.9.0.RELEASE>`_\ から作成すると、ここで説明する各設定はセットアップ済みの状態になっている。
+  開発プロジェクトを\ `ブランクプロジェクト <https://github.com/terasolunaorg/terasoluna-gfw-web-multi-blank/tree/5.10.0.RELEASE>`_\ から作成すると、ここで説明する各設定はセットアップ済みの状態になっている。
 
   開発プロジェクトの作成方法については、「\ :doc:`../ImplementationAtEachLayer/CreateWebApplicationProject`\ 」を参照されたい。
 
@@ -484,13 +484,13 @@ WebアプリケーションにSpring Securityを適用するためのセット�
 
 .. note::
 
-    上記設定例は、依存ライブラリのバージョンを親プロジェクトである terasoluna-gfw-parent で管理する前提であるため、pom.xmlでのバージョンの指定は不要である。
+    上記設定例は、依存ライブラリのバージョンを親プロジェクトである terasoluna-gfw-parent およびBOMプロジェクトである terasoluna-dependencies で管理する前提であるため、pom.xmlでのバージョンの指定は不要である。
 
 |
 
 bean定義ファイルの作成
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-Spring Securityのコンポーネントをbean定義するため、以下のようなXMLファイルを作成する。（\ `ブランクプロジェクト <https://github.com/terasolunaorg/terasoluna-gfw-web-multi-blank/tree/5.9.0.RELEASE>`_\ より抜粋）
+Spring Securityのコンポーネントをbean定義するため、以下のようなXMLファイルを作成する。（\ `ブランクプロジェクト <https://github.com/terasolunaorg/terasoluna-gfw-web-multi-blank/tree/5.10.0.RELEASE>`_\ より抜粋）
 
 .. tabs::
   .. group-tab:: Java Config
@@ -506,7 +506,7 @@ Spring Securityのコンポーネントをbean定義するため、以下のよ�
             // (2)
             @Bean
             public WebSecurityCustomizer webSecurityCustomizer() {
-                return web -> web.ignoring().requestMatchers(new AntPathRequestMatcher("/resources/**"));
+                return web -> web.ignoring().requestMatchers(antMatcher("/resources/**"));
             }
         
             // (3)
@@ -541,7 +541,7 @@ Spring Securityのコンポーネントをbean定義するため、以下のよ�
         
                 return new DelegatingAccessDeniedHandler(errorHandlers, defaultErrorHandler);
             }
-
+        
             // (12)
             @Bean("webSecurityExpressionHandler")
             public DefaultWebSecurityExpressionHandler webSecurityExpressionHandler() {
@@ -860,7 +860,7 @@ Spring Securityのコンポーネントをbean定義するため、以下のよ�
       @Bean
       public WebSecurityCustomizer webSecurityCustomizer() {
           return web -> web.ignoring().requestMatchers(
-                  new AntPathRequestMatcher("/resources/**")); // (1)(2)
+                  antMatcher("/resources/**")); // (1)(2)
       }
 
       @Bean
@@ -877,7 +877,7 @@ Spring Securityのコンポーネントをbean定義するため、以下のよ�
       * - 項番
         - 説明
       * - | (1)
-        - | \ ``AntPathRequestMatcher``\ にセキュリティ機能を適用しないパスのパターンを指定する。
+        - | \ ``AntPathRequestMatcher#antMatcher``\ にセキュリティ機能を適用しないパスのパターンを指定する。
       * - | (2)
         - | \ ``WebSecurity#ignoring``\ を呼び出し、Spring Securityのセキュリティ機能(Security Filter)が適用されないように設定する。
 

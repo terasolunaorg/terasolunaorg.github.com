@@ -5,7 +5,7 @@
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="viewport" content="width=device-width, initial-scale=1" />
 
-    <title>9.1. Spring Security概要 &#8212; TERASOLUNA Server Framework for Java (5.x) Development Guideline 5.9.0.RELEASE documentation</title>
+    <title>9.1. Spring Security概要 &#8212; TERASOLUNA Server Framework for Java (5.x) Development Guideline 5.10.0.RELEASE documentation</title>
     <link rel="stylesheet" type="text/css" href="../_static/pygments.css" />
     <link rel="stylesheet" type="text/css" href="../_static/solar.css" />
     <link rel="stylesheet" type="text/css" href="../_static/tabs.css" />
@@ -34,7 +34,7 @@
         <li class="right" >
           <a href="index.html" title="9. セキュリティ対策"
              accesskey="P">previous</a> |</li>
-        <li class="nav-item nav-item-0"><a href="../index.html">TERASOLUNA Server Framework for Java (5.x) Development Guideline 5.9.0.RELEASE documentation</a> &#187;</li>
+        <li class="nav-item nav-item-0"><a href="../index.html">TERASOLUNA Server Framework for Java (5.x) Development Guideline 5.10.0.RELEASE documentation</a> &#187;</li>
           <li class="nav-item nav-item-1"><a href="index.html" accesskey="U"><span class="section-number">9. </span>セキュリティ対策</a> &#187;</li>
         <li class="nav-item nav-item-this"><a href=""><span class="section-number">9.1. </span>Spring Security概要</a></li> 
       </ul>
@@ -461,7 +461,7 @@
 <p>Spring Security 5.0.1, 4.2.4, 4.1.5より、デフォルトで使用される<code class="docutils literal notranslate"><span class="pre">HttpFirewall</span></code>インタフェースの実装クラスは<code class="docutils literal notranslate"><span class="pre">DefaultHttpFirewall</span></code>から<code class="docutils literal notranslate"><span class="pre">StrictHttpFirewall</span></code>へ変更された。</p>
 <p><code class="docutils literal notranslate"><span class="pre">DefaultHttpFirewall</span></code>は<a class="reference external" href="https://www.ietf.org/rfc/rfc2396.txt">RFC 2396</a>に基づきリクエストURLの正規化を行うことで悪意あるURLを拒否するが、<code class="docutils literal notranslate"><span class="pre">StrictHttpFirewall</span></code>はより厳密にURLを構成する文字に不正な値がないことをチェックし、悪意あるURLを拒否する。これにより、認証認可のバイパスやReflected File Download(RFD)攻撃への対策がなされている。</p>
 <p>URLの正規化は脆弱性対策としては不十分であるため、従来通り<code class="docutils literal notranslate"><span class="pre">DefaultHttpFirewall</span></code>を利用するように変更することは推奨しない。また、<code class="docutils literal notranslate"><span class="pre">StrictHttpFirewall</span></code>のチェックについても、一部カスタマイズ可能なパラメータも存在するが、脆弱性の原因となりうるため変更することは推奨しない。</p>
-<p><code class="docutils literal notranslate"><span class="pre">StrictHttpFirewall</span></code>の詳細については、<a class="reference external" href="https://docs.spring.io/spring-security/site/docs/6.2.1/api/org/springframework/security/web/firewall/StrictHttpFirewall.html">Javadoc</a>を参照されたい。</p>
+<p><code class="docutils literal notranslate"><span class="pre">StrictHttpFirewall</span></code>の詳細については、<a class="reference external" href="https://docs.spring.io/spring-security/site/docs/6.4.2/api/org/springframework/security/web/firewall/StrictHttpFirewall.html">Javadoc</a>を参照されたい。</p>
 </div>
 <div class="line-block">
 <div class="line"><br /></div>
@@ -478,14 +478,14 @@
 </ul>
 <div class="highlight-java notranslate"><div class="highlight"><pre><span></span><span class="nd">@Bean</span>
 <span class="kd">public</span><span class="w"> </span><span class="n">SecurityFilterChain</span><span class="w"> </span><span class="nf">filterChainApi</span><span class="p">(</span><span class="n">HttpSecurity</span><span class="w"> </span><span class="n">http</span><span class="p">)</span><span class="w"> </span><span class="kd">throws</span><span class="w"> </span><span class="n">Exception</span><span class="w"> </span><span class="p">{</span>
-<span class="w">    </span><span class="n">http</span><span class="p">.</span><span class="na">securityMatcher</span><span class="p">(</span><span class="k">new</span><span class="w"> </span><span class="n">AntPathRequestMatcher</span><span class="p">(</span><span class="s">&quot;/api/**&quot;</span><span class="p">));</span><span class="w"> </span><span class="c1">// (1)</span>
+<span class="w">    </span><span class="n">http</span><span class="p">.</span><span class="na">securityMatcher</span><span class="p">(</span><span class="n">antMatcher</span><span class="p">(</span><span class="s">&quot;/api/**&quot;</span><span class="p">));</span><span class="w"> </span><span class="c1">// (1)</span>
 <span class="w">    </span><span class="c1">// omitted</span>
 <span class="w">    </span><span class="k">return</span><span class="w"> </span><span class="n">http</span><span class="p">.</span><span class="na">build</span><span class="p">();</span>
 <span class="p">}</span>
 
 <span class="nd">@Bean</span>
 <span class="kd">public</span><span class="w"> </span><span class="n">SecurityFilterChain</span><span class="w"> </span><span class="nf">filterChainUi</span><span class="p">(</span><span class="n">HttpSecurity</span><span class="w"> </span><span class="n">http</span><span class="p">)</span><span class="w"> </span><span class="kd">throws</span><span class="w"> </span><span class="n">Exception</span><span class="w"> </span><span class="p">{</span>
-<span class="w">    </span><span class="n">http</span><span class="p">.</span><span class="na">securityMatcher</span><span class="p">(</span><span class="k">new</span><span class="w"> </span><span class="n">AntPathRequestMatcher</span><span class="p">(</span><span class="s">&quot;/ui/**&quot;</span><span class="p">));</span>
+<span class="w">    </span><span class="n">http</span><span class="p">.</span><span class="na">securityMatcher</span><span class="p">(</span><span class="n">antMatcher</span><span class="p">(</span><span class="s">&quot;/ui/**&quot;</span><span class="p">));</span>
 <span class="w">    </span><span class="c1">// omitted</span>
 <span class="w">    </span><span class="k">return</span><span class="w"> </span><span class="n">http</span><span class="p">.</span><span class="na">build</span><span class="p">();</span>
 <span class="p">}</span>
@@ -508,8 +508,8 @@
 </td>
 <td><div class="line-block">
 <div class="line"><code class="docutils literal notranslate"><span class="pre">HttpSecurity#securityMatcher</span></code>メソッドを呼び出し、SecurityFilterChainを適用するRequestMatcherオブジェクトを指定する。<code class="docutils literal notranslate"><span class="pre">HttpSecurity#securityMatcher</span></code>メソッドを呼び出さない場合は、”<code class="docutils literal notranslate"><span class="pre">/**</span></code>“がパスパターンとして使用される。</div>
-<div class="line">指定可能なパスパターンはRequestMatcherに依存しており、<a class="reference external" href="https://github.com/terasolunaorg/terasoluna-gfw-web-multi-blank/tree/5.9.0.RELEASE/parts/JavaConfig-JSP/projectName-web/src/main/resources/META-INF/spring/spring-security.xml#L11">ブランクプロジェクトのデフォルト設定</a>で使用される<code class="docutils literal notranslate"><span class="pre">AntPathRequestMatcher</span></code>では<a class="reference external" href="https://docs.spring.io/spring-framework/docs/6.1.3/javadoc-api/org/springframework/util/AntPathMatcher.html">Ant形式の記述</a>が利用できる。</div>
-<div class="line">また、RequestMatcherオブジェクトではなくパスパターンを直接指定することも可能であるが、<code class="docutils literal notranslate"><span class="pre">MvcRequestMatcher</span></code>が適用されるため、本ガイドラインでは<code class="docutils literal notranslate"><span class="pre">AntPathRequestMatcher</span></code>を指定する。詳しくは<a class="reference internal" href="#springsecuritypathpatternjava"><span class="std std-ref">パスパターンの解析に利用する仕組みの設定について</span></a>を参照されたい。</div>
+<div class="line">指定可能なパスパターンはRequestMatcherに依存しており、<a class="reference external" href="https://github.com/terasolunaorg/terasoluna-gfw-web-multi-blank/tree/5.10.0.RELEASE/parts/JavaConfig-JSP/projectName-web/src/main/resources/META-INF/spring/spring-security.xml#L11">ブランクプロジェクトのデフォルト設定</a>で使用される<code class="docutils literal notranslate"><span class="pre">AntPathRequestMatcher</span></code>では<a class="reference external" href="https://docs.spring.io/spring-framework/docs/6.2.1/javadoc-api/org/springframework/util/AntPathMatcher.html">Ant形式の記述</a>が利用できる。</div>
+<div class="line">また、RequestMatcherオブジェクトではなくパスパターンを直接指定することも可能であるが、<code class="docutils literal notranslate"><span class="pre">MvcRequestMatcher</span></code>が適用されるため、本ガイドラインでは<code class="docutils literal notranslate"><span class="pre">AntPathRequestMatcher#antMatcher</span></code>を呼び出して<code class="docutils literal notranslate"><span class="pre">AntPathRequestMatcher</span></code>を指定する。詳しくは<a class="reference internal" href="#springsecuritypathpatternjava"><span class="std std-ref">パスパターンの解析に利用する仕組みの設定について</span></a>を参照されたい。</div>
 </div>
 </td>
 </tr>
@@ -554,7 +554,7 @@
 </td>
 <td><div class="line-block">
 <div class="line"><code class="docutils literal notranslate"><span class="pre">pattern</span></code>属性を設定し、SecurityFilterChainを適用するパスパターンを指定する。<code class="docutils literal notranslate"><span class="pre">pattern</span></code>属性を指定しない場合は、”<code class="docutils literal notranslate"><span class="pre">/**</span></code>“がパスパターンとして使用される。</div>
-<div class="line">指定可能なパスパターンはRequestMatcherに依存しており、<a class="reference external" href="https://github.com/terasolunaorg/terasoluna-gfw-web-multi-blank/tree/5.9.0.RELEASE/parts/XMLConfig-JSP/projectName-web/src/main/resources/META-INF/spring/spring-security.xml#L11">ブランクプロジェクトのデフォルト設定</a>で使用される<code class="docutils literal notranslate"><span class="pre">AntPathRequestMatcher</span></code>では<a class="reference external" href="https://docs.spring.io/spring-framework/docs/6.1.3/javadoc-api/org/springframework/util/AntPathMatcher.html">Ant形式の記述</a>が利用できる。</div>
+<div class="line">指定可能なパスパターンはRequestMatcherに依存しており、<a class="reference external" href="https://github.com/terasolunaorg/terasoluna-gfw-web-multi-blank/tree/5.10.0.RELEASE/parts/XMLConfig-JSP/projectName-web/src/main/resources/META-INF/spring/spring-security.xml#L11">ブランクプロジェクトのデフォルト設定</a>で使用される<code class="docutils literal notranslate"><span class="pre">AntPathRequestMatcher</span></code>では<a class="reference external" href="https://docs.spring.io/spring-framework/docs/6.2.1/javadoc-api/org/springframework/util/AntPathMatcher.html">Ant形式の記述</a>が利用できる。</div>
 <div class="line">また、<code class="docutils literal notranslate"><span class="pre">pattern</span></code>と<code class="docutils literal notranslate"><span class="pre">request-matcher</span></code>の代わりに<code class="docutils literal notranslate"><span class="pre">request-matcher-ref</span></code>属性を設定し、RequestMatcherオブジェクトを直接指定することも可能である。</div>
 </div>
 </td>
@@ -574,7 +574,7 @@
 <p class="admonition-title">Tip</p>
 <p><strong>パスパターンの解析に利用する仕組みの設定について</strong></p>
 <p>Spring SecurityはSpring MVCと同時に使用する場合、パス解析にはデフォルトで<code class="docutils literal notranslate"><span class="pre">MvcRequestMatcher</span></code>が使用される。ただし、<code class="docutils literal notranslate"><span class="pre">MvcRequestMatcher</span></code>を使用するためには<a class="reference external" href="https://docs.spring.io/spring-security/reference/servlet/integrations/mvc.html#mvc-requestmatcher">Spring Securityが案内する方法</a>に従い、Spring MVCとSpring Securityを同一コンテキスト(DIコンテナ)内に設定する必要がある。</p>
-<p>TERASOLUNA Server Framework for Java (5.x)では以下のような懸念から<code class="docutils literal notranslate"><span class="pre">AntPathRequestMatcher</span></code>(必要に応じて<code class="docutils literal notranslate"><span class="pre">RegexRequestMatcher</span></code>)の使用を前提としている。これに伴い、<a class="reference external" href="https://github.com/terasolunaorg/terasoluna-gfw-web-multi-blank/tree/5.9.0.RELEASE/parts/XMLConfig-JSP/projectName-web/src/main/resources/META-INF/spring/spring-security.xml#L11">ブランクプロジェクトのデフォルト設定</a>では<code class="docutils literal notranslate"><span class="pre">&lt;sec:http&gt;</span></code>タグに<code class="docutils literal notranslate"><span class="pre">request-matcher=&quot;ant&quot;</span></code>を設定している。</p>
+<p>TERASOLUNA Server Framework for Java (5.x)では以下のような懸念から<code class="docutils literal notranslate"><span class="pre">AntPathRequestMatcher</span></code>(必要に応じて<code class="docutils literal notranslate"><span class="pre">RegexRequestMatcher</span></code>)の使用を前提としている。これに伴い、<a class="reference external" href="https://github.com/terasolunaorg/terasoluna-gfw-web-multi-blank/tree/5.10.0.RELEASE/parts/XMLConfig-JSP/projectName-web/src/main/resources/META-INF/spring/spring-security.xml#L11">ブランクプロジェクトのデフォルト設定</a>では<code class="docutils literal notranslate"><span class="pre">&lt;sec:http&gt;</span></code>タグに<code class="docutils literal notranslate"><span class="pre">request-matcher=&quot;ant&quot;</span></code>を設定している。</p>
 <ul class="simple">
 <li><p><a class="reference internal" href="../ArchitectureInDetail/WebServiceDetail/REST.html#resthowtouseapplicationsettingsofspringmvc"><span class="std std-ref">RESTful Web Serviceで必要となるSpring MVCのコンポーネントを有効化するための設定</span></a>の<code class="docutils literal notranslate"><span class="pre">spring-mvc-rest.xml</span></code>のように、<code class="docutils literal notranslate"><span class="pre">spring-mvc.xml</span></code>の設定バリエーションを1つのアプリケーション内に複数持つ必要がある場合、<code class="docutils literal notranslate"><span class="pre">spring-mvc.xml</span></code>に相当するファイルごとにアプリケーションコンテキスト(DIコンテナ)を分け、複数のServletにそれぞれを割り当てる必要があり、 <code class="docutils literal notranslate"><span class="pre">MvcRequestMatcher</span></code>を使用できる条件を満たさない。また、設定方法によっては、<code class="docutils literal notranslate"><span class="pre">MvcRequestMatcher</span></code>を利用するとSpring MVCと連携せずに動作するという意図しない動作となり、脆弱性に繋がる。</p></li>
 <li><p><code class="docutils literal notranslate"><span class="pre">MvcRequestMatcher</span></code>では、Spring MVCがHandlerMappingやハンドラ(ハンドラメソッド等)を決定する時と同じ処理をパターンマッチングの度に行う(<code class="docutils literal notranslate"><span class="pre">spring-security.xml</span></code>に記載したpattern毎に実施される)ため、1リクエストあたりの処理コストが増加しやすいと推測される。特に、RESTで使用するパス変数のように、パスの条件にワイルドカードを持つハンドラメソッドを呼び出す際は、「Spring MVCがHandlerMappingやハンドラ(ハンドラメソッド等)を決定する」部分の処理コストがアプリケーションコンテキスト(DIコンテナ)内のハンドラメソッドの定義量に大きく依存するため、アプリケーションコンテキスト(DIコンテナ)を1つにまとめる構造では、性能上の懸念がある。</p></li>
@@ -655,7 +655,7 @@
 </div>
 <div class="admonition note">
 <p class="admonition-title">Note</p>
-<p>開発プロジェクトを<a class="reference external" href="https://github.com/terasolunaorg/terasoluna-gfw-web-multi-blank/tree/5.9.0.RELEASE">ブランクプロジェクト</a>から作成すると、ここで説明する各設定はセットアップ済みの状態になっている。</p>
+<p>開発プロジェクトを<a class="reference external" href="https://github.com/terasolunaorg/terasoluna-gfw-web-multi-blank/tree/5.10.0.RELEASE">ブランクプロジェクト</a>から作成すると、ここで説明する各設定はセットアップ済みの状態になっている。</p>
 <p>開発プロジェクトの作成方法については、「<a class="reference internal" href="../ImplementationAtEachLayer/CreateWebApplicationProject.html"><span class="doc">Webアプリケーション向け開発プロジェクトの作成</span></a>」を参照されたい。</p>
 </div>
 <div class="line-block">
@@ -753,7 +753,7 @@
 </div></div>
 <div class="admonition note">
 <p class="admonition-title">Note</p>
-<p>上記設定例は、依存ライブラリのバージョンを親プロジェクトである terasoluna-gfw-parent で管理する前提であるため、pom.xmlでのバージョンの指定は不要である。</p>
+<p>上記設定例は、依存ライブラリのバージョンを親プロジェクトである terasoluna-gfw-parent およびBOMプロジェクトである terasoluna-dependencies で管理する前提であるため、pom.xmlでのバージョンの指定は不要である。</p>
 </div>
 <div class="line-block">
 <div class="line"><br /></div>
@@ -761,7 +761,7 @@
 </section>
 <section id="bean">
 <h3><a class="toc-backref" href="#id47" role="doc-backlink"><span class="section-number">9.1.3.2. </span>bean定義ファイルの作成</a><a class="headerlink" href="#bean" title="Permalink to this heading">¶</a></h3>
-<p>Spring Securityのコンポーネントをbean定義するため、以下のようなXMLファイルを作成する。（<a class="reference external" href="https://github.com/terasolunaorg/terasoluna-gfw-web-multi-blank/tree/5.9.0.RELEASE">ブランクプロジェクト</a>より抜粋）</p>
+<p>Spring Securityのコンポーネントをbean定義するため、以下のようなXMLファイルを作成する。（<a class="reference external" href="https://github.com/terasolunaorg/terasoluna-gfw-web-multi-blank/tree/5.10.0.RELEASE">ブランクプロジェクト</a>より抜粋）</p>
 <div class="sphinx-tabs docutils container">
 <div aria-label="Tabbed content" role="tablist"><button aria-controls="panel-2-SmF2YSBDb25maWc=" aria-selected="true" class="sphinx-tabs-tab group-tab" id="tab-2-SmF2YSBDb25maWc=" name="SmF2YSBDb25maWc=" role="tab" tabindex="0">Java Config</button><button aria-controls="panel-2-WE1MIENvbmZpZw==" aria-selected="false" class="sphinx-tabs-tab group-tab" id="tab-2-WE1MIENvbmZpZw==" name="WE1MIENvbmZpZw==" role="tab" tabindex="-1">XML Config</button></div><div aria-labelledby="tab-2-SmF2YSBDb25maWc=" class="sphinx-tabs-panel group-tab" id="panel-2-SmF2YSBDb25maWc=" name="SmF2YSBDb25maWc=" role="tabpanel" tabindex="0"><blockquote>
 <div><ul class="simple">
@@ -774,7 +774,7 @@
 <span class="w">    </span><span class="c1">// (2)</span>
 <span class="w">    </span><span class="nd">@Bean</span>
 <span class="w">    </span><span class="kd">public</span><span class="w"> </span><span class="n">WebSecurityCustomizer</span><span class="w"> </span><span class="nf">webSecurityCustomizer</span><span class="p">()</span><span class="w"> </span><span class="p">{</span>
-<span class="w">        </span><span class="k">return</span><span class="w"> </span><span class="n">web</span><span class="w"> </span><span class="o">-&gt;</span><span class="w"> </span><span class="n">web</span><span class="p">.</span><span class="na">ignoring</span><span class="p">().</span><span class="na">requestMatchers</span><span class="p">(</span><span class="k">new</span><span class="w"> </span><span class="n">AntPathRequestMatcher</span><span class="p">(</span><span class="s">&quot;/resources/**&quot;</span><span class="p">));</span>
+<span class="w">        </span><span class="k">return</span><span class="w"> </span><span class="n">web</span><span class="w"> </span><span class="o">-&gt;</span><span class="w"> </span><span class="n">web</span><span class="p">.</span><span class="na">ignoring</span><span class="p">().</span><span class="na">requestMatchers</span><span class="p">(</span><span class="n">antMatcher</span><span class="p">(</span><span class="s">&quot;/resources/**&quot;</span><span class="p">));</span>
 <span class="w">    </span><span class="p">}</span>
 
 <span class="w">    </span><span class="c1">// (3)</span>
@@ -1331,7 +1331,7 @@ SpringのDIコンテナで管理されているbean(<code class="docutils litera
 <div class="highlight-java notranslate"><div class="highlight"><pre><span></span><span class="nd">@Bean</span>
 <span class="kd">public</span><span class="w"> </span><span class="n">WebSecurityCustomizer</span><span class="w"> </span><span class="nf">webSecurityCustomizer</span><span class="p">()</span><span class="w"> </span><span class="p">{</span>
 <span class="w">    </span><span class="k">return</span><span class="w"> </span><span class="n">web</span><span class="w"> </span><span class="o">-&gt;</span><span class="w"> </span><span class="n">web</span><span class="p">.</span><span class="na">ignoring</span><span class="p">().</span><span class="na">requestMatchers</span><span class="p">(</span>
-<span class="w">            </span><span class="k">new</span><span class="w"> </span><span class="n">AntPathRequestMatcher</span><span class="p">(</span><span class="s">&quot;/resources/**&quot;</span><span class="p">));</span><span class="w"> </span><span class="c1">// (1)(2)</span>
+<span class="w">            </span><span class="n">antMatcher</span><span class="p">(</span><span class="s">&quot;/resources/**&quot;</span><span class="p">));</span><span class="w"> </span><span class="c1">// (1)(2)</span>
 <span class="p">}</span>
 
 <span class="nd">@Bean</span>
@@ -1357,7 +1357,7 @@ SpringのDIコンテナで管理されているbean(<code class="docutils litera
 </div>
 </td>
 <td><div class="line-block">
-<div class="line"><code class="docutils literal notranslate"><span class="pre">AntPathRequestMatcher</span></code>にセキュリティ機能を適用しないパスのパターンを指定する。</div>
+<div class="line"><code class="docutils literal notranslate"><span class="pre">AntPathRequestMatcher#antMatcher</span></code>にセキュリティ機能を適用しないパスのパターンを指定する。</div>
 </div>
 </td>
 </tr>
@@ -1437,7 +1437,7 @@ SpringのDIコンテナで管理されているbean(<code class="docutils litera
         <li class="right" >
           <a href="index.html" title="9. セキュリティ対策"
              >previous</a> |</li>
-        <li class="nav-item nav-item-0"><a href="../index.html">TERASOLUNA Server Framework for Java (5.x) Development Guideline 5.9.0.RELEASE documentation</a> &#187;</li>
+        <li class="nav-item nav-item-0"><a href="../index.html">TERASOLUNA Server Framework for Java (5.x) Development Guideline 5.10.0.RELEASE documentation</a> &#187;</li>
           <li class="nav-item nav-item-1"><a href="index.html" ><span class="section-number">9. </span>セキュリティ対策</a> &#187;</li>
         <li class="nav-item nav-item-this"><a href=""><span class="section-number">9.1. </span>Spring Security概要</a></li> 
       </ul>

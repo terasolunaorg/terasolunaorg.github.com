@@ -386,7 +386,7 @@ Clock Factoryインタフェースの実装クラスをbean定義ファイルに
       
             .. note:: 
       
-              \ ``adjustedValueUnit``\ プロパティには推定期間を設定することはできない。（例えば、\ ``MONTH``\ や\ ``YEARS``\ などは設定できない。）
+              \ ``adjustedValueUnit``\ プロパティには推定期間を設定することはできない。（例えば、\ ``MONTHS``\ や\ ``YEARS``\ などは設定できない。）
       
               推定期間を設定した場合、以下の様な例外が出力される。
       
@@ -428,7 +428,7 @@ Clock Factoryインタフェースの実装クラスをbean定義ファイルに
       
             .. note:: 
       
-              \ ``adjustedValueUnit``\ プロパティには推定期間を設定することはできない。（例えば、\ ``MONTH``\ や\ ``YEARS``\ などは設定できない。）
+              \ ``adjustedValueUnit``\ プロパティには推定期間を設定することはできない。（例えば、\ ``MONTHS``\ や\ ``YEARS``\ などは設定できない。）
       
               推定期間を設定した場合、以下の様な例外が出力される。
       
@@ -579,7 +579,7 @@ DBに登録した固定の時刻から生成したClockを取得する
 
       .. note:: 
 
-        \ ``adjustedValueUnit``\ プロパティには推定期間を設定することはできない。（例えば、\ ``MONTH``\ や\ ``YEARS``\ などは設定できない。）
+        \ ``adjustedValueUnit``\ プロパティには推定期間を設定することはできない。（例えば、\ ``MONTHS``\ や\ ``YEARS``\ などは設定できない。）
 
         推定期間を設定した場合、以下の様な例外が出力される。
 
@@ -625,7 +625,7 @@ DBに登録した固定の時刻から生成したClockを取得する
 
       .. note:: 
 
-        \ ``adjustedValueUnit``\ プロパティには推定期間を設定することはできない。（例えば、\ ``MONTH``\ や\ ``YEARS``\ などは設定できない。）
+        \ ``adjustedValueUnit``\ プロパティには推定期間を設定することはできない。（例えば、\ ``MONTHS``\ や\ ``YEARS``\ などは設定できない。）
 
         推定期間を設定した場合、以下の様な例外が出力される。
 
@@ -687,12 +687,6 @@ Testing
     - | ConfigurableClockFactory
     - | 日付に関わる試験はfixメソッドを呼び出してタイムスタンプを固定する。
   * - | Integration Test
-    - | DefaultJodaTimeDateFactory
-    - | 日付に関わらない試験
-  * - | 
-    - | JdbcFixedJodaTimeDateFactory
-    - | 特定の日付、時刻に固定して試験を実施する場合
-  * - | 
     - | JdbcAdjustClockFactory
     - | 外部システムとの連携があり、1日の試験の中で日付の流れを考慮して複数日の試験を実施する場合
   * - | System Test
@@ -705,7 +699,7 @@ Testing
     - | DefaultClockFactory
     - | 実際の時刻と変更する可能性が無い場合
   * - | 
-    - | JdbcAdjustedJodaTimeDateFactory
+    - | JdbcAdjustClockFactory
     - | \ **時刻を変更する可能性を運用上残しておきたい場合。**\
       | \ **通常時は差を0とし、必要な際のみ差を与える。**\
 
@@ -725,7 +719,7 @@ Unit Test
 | Unit Testでは、時刻を登録してその時刻が想定通りに更新されたのかを検証したい場合がある。
 | そのような場合、処理中にサーバー時刻をそのまま登録してしまうと、 テスト実行のたびに値が異なるため、JUnitでの回帰試験が難しくなる。 そこで、Clock Factoryを用いることで、登録する時刻を任意の値に固定化することができる。
 
-| ミリ秒単位で時刻が一致するようにするため、mockを使用する。Date Factoryに値を設定し、固定日付を返却する例を下記に示す。
+| ミリ秒単位で時刻が一致するようにするため、mockを使用する。Clock Factoryに値を設定し、固定日付を返却する例を下記に示す。
 | 本例では、mockに\ `mockito <https://github.com/mockito/mockito>`_\ を使用する。
 
 \ **Javaクラス**\
@@ -974,7 +968,7 @@ Integration Testでは、システム連携先と疎通・連携確認のため�
   :alt: IntegrationTest
   :width: 90%
 
-実際の日付が2012/10/1の場合、\ ``JdbcAdjustedJodaTimeDateFactory``\ を使用し、試験対象の日付との差分を計算するSQLを設定する。
+実際の日付が2012/10/1の場合、\ ``JdbcAdjustClockFactory``\ を使用し、試験対象の日付との差分を計算するSQLを設定する。
 
 .. tabularcolumns:: |p{0.10\linewidth}|p{0.90\linewidth}|
 .. list-table::
@@ -1014,7 +1008,7 @@ System Testでは運用日を想定してテストシナリオを作成し、試
 Production
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-| \ ``JdbcAdjustClockFactory``\ を使用し差分値を0とすることで、ソースを変更せずCkick Factoryの返り値を実際の日付と同じにできる。bean定義ファイルもSystem Testの時から変更を必要としない。
+| \ ``JdbcAdjustClockFactory``\ を使用し差分値を0とすることで、ソースを変更せずClock Factoryの返り値を実際の日付と同じにできる。bean定義ファイルもSystem Testの時から変更を必要としない。
 | 日時を変更する必要が生じても、テーブルの値を変更することでClock Factoryの返り値を変更することができる。
 
 .. warning::

@@ -162,9 +162,9 @@ Spring FrameworkのMail連携用コンポーネントを利用する場合、以
 
 .. note::
 
-  上記設定例は、依存ライブラリのバージョンを親プロジェクトである terasoluna-gfw-parent で管理する前提であるため、pom.xmlでのバージョンの指定は不要である。
+  上記設定例は、依存ライブラリのバージョンをBOMプロジェクトである terasoluna-dependencies で管理する前提であるため、pom.xmlでのバージョンの指定は不要である。
 
-  上記の依存ライブラリはterasoluna-gfw-parentが依存している\ `Spring Boot <https://docs.spring.io/spring-boot/docs/3.2.2/reference/htmlsingle/#dependency-versions>`_\ で管理されている。
+  上記の依存ライブラリはterasoluna-dependenciesが依存している\ `Spring Boot <https://docs.spring.io/spring-boot/3.4.1/appendix/dependency-versions/coordinates.html>`_\ で管理されている。
 
 |
 
@@ -943,18 +943,18 @@ HTMLメールの送信
       - 例外クラス
       - 発生条件
     * - 1.
-      - \ `MailAuthenticationException <https://docs.spring.io/spring-framework/docs/6.1.3/javadoc-api/org/springframework/mail/MailAuthenticationException.html>`_\
+      - \ `MailAuthenticationException <https://docs.spring.io/spring-framework/docs/6.2.1/javadoc-api/org/springframework/mail/MailAuthenticationException.html>`_\
       - | 認証失敗時に発生する。
     * - 2.
-      - \ `MailParseException <https://docs.spring.io/spring-framework/docs/6.1.3/javadoc-api/org/springframework/mail/MailParseException.html>`_\
+      - \ `MailParseException <https://docs.spring.io/spring-framework/docs/6.2.1/javadoc-api/org/springframework/mail/MailParseException.html>`_\
       - | メールメッセージのプロパティに不正な値が設定されている場合に発生する。
     * - 3.
-      - \ `MailPreparationException <https://docs.spring.io/spring-framework/docs/6.1.3/javadoc-api/org/springframework/mail/MailPreparationException.html>`_\
+      - \ `MailPreparationException <https://docs.spring.io/spring-framework/docs/6.2.1/javadoc-api/org/springframework/mail/MailPreparationException.html>`_\
       - | メールメッセージを作成中に想定外のエラーが起きた場合に発生する。
           想定外のエラーとしては、例えばテンプレートライブラリで発生するエラーといったものがある。
         | \ ``MimeMessagePreparator``\ で発生した例外が\ ``MailPreparationException``\ にラップされてスローされる。
     * - 4.
-      - \ `MailSendException <https://docs.spring.io/spring-framework/docs/6.1.3/javadoc-api/org/springframework/mail/MailSendException.html>`_\
+      - \ `MailSendException <https://docs.spring.io/spring-framework/docs/6.2.1/javadoc-api/org/springframework/mail/MailSendException.html>`_\
       - | メールの送信エラーが起きた場合に発生する。
 
 .. note::
@@ -1012,9 +1012,9 @@ FreeMarkerを使用したメール本文の作成
 
   .. note::
 
-    上記設定例は、依存ライブラリのバージョンを親プロジェクトである terasoluna-gfw-parent で管理する前提であるため、pom.xmlでのバージョンの指定は不要である。
+    上記設定例は、依存ライブラリのバージョンをBOMプロジェクトである terasoluna-dependencies で管理する前提であるため、pom.xmlでのバージョンの指定は不要である。
 
-    上記の依存ライブラリはterasoluna-gfw-parentが依存している\ `Spring Boot <https://docs.spring.io/spring-boot/docs/3.2.2/reference/htmlsingle/#dependency-versions>`_\ で管理されている。
+    上記の依存ライブラリはterasoluna-dependenciesが依存している\ `Spring Boot <https://docs.spring.io/spring-boot/3.4.1/appendix/dependency-versions/coordinates.html>`_\ で管理されている。
 
 * \ ``freemarker.template.Configuration``\ を生成するためのFactoryBeanをBean定義する。
 
@@ -1078,7 +1078,7 @@ FreeMarkerを使用したメール本文の作成
 
 .. note::
 
-  上記以外の設定については、\ `FreeMarkerConfigurationFactoryBeanのJavaDoc <https://docs.spring.io/spring-framework/docs/6.1.3/javadoc-api/org/springframework/ui/freemarker/FreeMarkerConfigurationFactoryBean.html>`_\ を参照されたい。
+  上記以外の設定については、\ `FreeMarkerConfigurationFactoryBeanのJavaDoc <https://docs.spring.io/spring-framework/docs/6.2.1/javadoc-api/org/springframework/ui/freemarker/FreeMarkerConfigurationFactoryBean.html>`_\ を参照されたい。
       
   FreeMarker自体の設定については、\ `FreeMarker Manual (Programmer's Guide / The Configuration) <https://freemarker.apache.org/docs/pgui_config.html>`_\ を参照されたい。
 

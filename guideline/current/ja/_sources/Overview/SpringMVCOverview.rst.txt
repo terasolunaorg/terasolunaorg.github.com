@@ -10,7 +10,7 @@ Spring MVCアーキテクチャ概要
 
 Spring MVCとは、Servlet APIをベースに構築されたフレームワークであり、リクエストによって実行するアクションを決定し処理の結果をHTMLとして返却する\ **M**\ odel、\ **V**\ iew、\ **C**\ ontrolerを用いたアーキテクチャのことである。
 
-詳しくは、\ `Spring Framework Documentation <https://docs.spring.io/spring-framework/docs/6.1.3/reference/html/web.html#mvc>`_\ を参照されたい。
+詳しくは、\ `Spring Framework Documentation <https://docs.spring.io/spring-framework/docs/6.2.1/reference/html/web.html#mvc>`_\ を参照されたい。
 
 |
 
@@ -57,7 +57,7 @@ Springから提供されている\ ``HandlerMapping``\ のクラス階層を、�
 
 | Spring Framework 3.1からは、\ ``RequestMappingHandlerMapping``\ は、\ ``DispatcherServlet``\ が読み込むBean定義ファイルに、
 | \ ``<mvc:annotation-driven>``\ の設定がある場合、デフォルトで設定される。
-| (\ ``<mvc:annotation-driven>``\ アノテーションで有効になる設定は、\ `Spring Framework Documentation -Enable MVC Configuration- <https://docs.spring.io/spring-framework/docs/6.1.3/reference/html/web.html#mvc-config-enable>`_\ を参照されたい。)
+| (\ ``<mvc:annotation-driven>``\ アノテーションで有効になる設定は、\ `Spring Framework Documentation -Enable MVC Configuration- <https://docs.spring.io/spring-framework/docs/6.2.1/reference/html/web.html#mvc-config-enable>`_\ を参照されたい。)
 
 |
 

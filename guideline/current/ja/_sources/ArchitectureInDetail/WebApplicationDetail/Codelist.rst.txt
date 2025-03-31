@@ -50,7 +50,7 @@ Overview
      - 内容
      - Reloadable
    * - \ ``org.terasoluna.gfw.common.codelist.SimpleMapCodeList``\
-     - xmlファイルに直接記述した内容を使用する。
+     - Javaクラス及びXMLに直接記述した内容を使用する。
      - NO
    * - \ ``org.terasoluna.gfw.common.codelist.NumberRangeCodeList``\
      - 数値の範囲のリストを作成する際に使用する。
@@ -101,13 +101,22 @@ How to use
 SimpleMapCodeListの使用方法
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 \ ``org.terasoluna.gfw.common.codelist.SimpleMapCodeList``\ とは、
-xmlファイルに定義したコード値をアプリケーション起動時に読み込み、そのまま使用するコードリストである。
+Javaクラスまたはxmlファイルに定義したコード値をアプリケーション起動時に読み込み、そのまま使用するコードリストである。
 
 \ **SimpleMapCodeListのイメージ**\
 
-.. figure:: ./images_CodeList/codelist-simple.png
-  :alt: codelist simple
-  :width: 100%
+.. tabs::
+  .. group-tab:: Java Config
+
+    .. figure:: ./images_CodeList/codelist-simple-java.png
+      :alt: codelist simple java
+      :width: 100%
+
+  .. group-tab:: XML Config
+
+    .. figure:: ./images_CodeList/codelist-simple-xml.png
+      :alt: codelist simple xml
+      :width: 100%
 
 |
 
@@ -451,9 +460,18 @@ NumberRangeCodeListの使用方法
 
 \ **NumberRangeCodeListのイメージ**\
 
-.. figure:: ./images_CodeList/codelist-number.png
-  :alt: codelist number
-  :width: 100%
+.. tabs::
+  .. group-tab:: Java Config
+
+    .. figure:: ./images_CodeList/codelist-number-java.png
+      :alt: codelist number java
+      :width: 90%
+
+  .. group-tab:: XML Config
+
+    .. figure:: ./images_CodeList/codelist-number-xml.png
+      :alt: codelist number xml
+      :width: 90%
 
 .. tip::
 
@@ -607,8 +625,8 @@ Fromの値をToの値より小さくする(From < To)場合の実装例を、以
 
 \ **出力画面**\
 
-.. figure:: ./images_CodeList/codelist_numberrenge.png
-  :alt: codelist numberrenge
+.. figure:: ./images_CodeList/codelist_numberrange.png
+  :alt: codelist numberrange
   :width: 5%
 
 |
@@ -635,9 +653,18 @@ JdbcCodeListの使用方法
 
 \ **JdbcCodeListのイメージ**\
 
-.. figure:: ./images_CodeList/codelist-jdbc.png
-  :alt: codelist simple
-  :width: 100%
+.. tabs::
+  .. group-tab:: Java Config
+
+    .. figure:: ./images_CodeList/codelist-jdbc-java.png
+      :alt: codelist jdbc java
+      :width: 80%
+
+  .. group-tab:: XML Config
+
+    .. figure:: ./images_CodeList/codelist-jdbc-xml.png
+      :alt: codelist jdbc xml
+      :width: 80%
 
 |
 
@@ -805,7 +832,47 @@ JdbcCodeListの使用方法
     
     .. code-block:: jsp
     
-      <form:checkboxes items="${CL_AUTHORITIES}"/>
+      <form:checkboxes items="${CL_AUTHORITIES}" path="authorities" delimiter="<br />" /> <%-- (9) --%>
+
+    \ **出力HTML**\
+
+    .. code-block:: html
+
+      <span>
+          <input id="authorities1" name="authorities" type="checkbox" value="01"/>
+          <label for="authorities1">STAFF_MANAGEMENT</label>
+      </span>
+      <span>
+          <br />
+          <input id="authorities2" name="authorities" type="checkbox" value="02"/>
+          <label for="authorities2">MASTER_MANAGEMENT</label>
+      </span>
+      <span>
+          <br />
+          <input id="authorities3" name="authorities" type="checkbox" value="03"/>
+          <label for="authorities3">STOCK_MANAGEMENT</label>
+      </span>
+      <span>
+          <br />
+          <input id="authorities4" name="authorities" type="checkbox" value="04"/>
+          <label for="authorities4">ORDER_MANAGEMENT</label>
+      </span>
+      <span>
+          <br />
+          <input id="authorities5" name="authorities" type="checkbox" value="05"/>
+          <label for="authorities5">SHOW_SHOPPING_CENTER</label>
+      </span>
+
+    .. tabularcolumns:: |p{0.10\linewidth}|p{0.90\linewidth}|
+    .. list-table::
+       :header-rows: 1
+       :widths: 10 90
+       :class: longtable
+
+       * - 項番
+         - 説明
+       * - | (9)
+         - | \ ``delimiter``\ 属性の値を\ ``<br />``\ にして改行させることができる。
 
   .. group-tab:: Thymeleaf
 
@@ -813,11 +880,18 @@ JdbcCodeListの使用方法
     
     .. code-block:: html
     
-      <span th:each="authority : ${CL_AUTHORITIES}">
+      <span th:each="authority : ${CL_AUTHORITIES}" class="checkbox-wrapper"> <!--/* (9) */-->
+          <br />
           <input type="checkbox" th:field="*{authorities}" th:value="${authority.key}">
-          <label th:for="${#ids.prev('authorities')}" th:text="${authority.value}"></label> <!--/* (9) */-->
+          <label th:for="${#ids.prev('authorities')}" th:text="${authority.value}"></label> <!--/* (10) */-->
       </span>
     
+    .. code-block:: css
+
+      .checkbox-wrapper { /* (9) */
+          display: block;
+      }
+
     .. tabularcolumns:: |p{0.10\linewidth}|p{0.90\linewidth}|
     .. list-table::
        :header-rows: 1
@@ -827,32 +901,34 @@ JdbcCodeListの使用方法
        * - 項番
          - 説明
        * - | (9)
+         - | CSSのclassセレクタで\ ``display: block;``\ を指定して改行させることができる。
+       * - | (10)
          - | \ ``#ids.prev``\ メソッドを使用して、\ ``input``\ タグの\ ``id``\ 名と対応付けることができる。詳細は、\ :ref:`#ids.prevメソッドについて<Validation_ids_prev_method>`\ を参照されたい。
 
-\ **出力HTML**\
+    \ **出力HTML**\
 
-.. code-block:: html
+    .. code-block:: html
 
-  <span>
-      <input id="authorities1" name="authorities" type="checkbox" value="01"/>
-      <label for="authorities1">STAFF_MANAGEMENT</label>
-  </span>
-  <span>
-      <input id="authorities2" name="authorities" type="checkbox" value="02"/>
-      <label for="authorities2">MASTER_MANAGEMENT</label>
-  </span>
-  <span>
-      <input id="authorities3" name="authorities" type="checkbox" value="03"/>
-      <label for="authorities3">STOCK_MANAGEMENT</label>
-  </span>
-  <span>
-      <input id="authorities4" name="authorities" type="checkbox" value="04"/>
-      <label for="authorities4">ORDER_MANAGEMENT</label>
-  </span>
-  <span>
-      <input id="authorities5" name="authorities" type="checkbox" value="05"/>
-      <label for="authorities5">SHOW_SHOPPING_CENTER</label>
-  </span>
+      <span>
+          <input type="checkbox" value="01" id="authorities1" name="authorities"/>
+          <label for="authorities1">STAFF_MANAGEMENT</label>
+      </span>
+      <span>
+          <input type="checkbox" value="02" id="authorities2" name="authorities"/>
+          <label for="authorities2">MASTER_MANAGEMENT</label>
+      </span>
+      <span>
+          <input type="checkbox" value="03" id="authorities3" name="authorities"/>
+          <label for="authorities3">STOCK_MANAGEMENT</label>
+      </span>
+      <span>
+          <input type="checkbox" value="03" id="authorities3" name="authorities"/>
+          <label for="authorities4">ORDER_MANAGEMENT</label>
+      </span>
+      <span>
+          <input type="checkbox" value="31" id="authorities3" name="authorities"/>
+          <label for="authorities5">SHOW_SHOPPING_CENTER</label>
+      </span>
 
 \ **出力画面**\
 
@@ -889,9 +965,18 @@ EnumCodeListの使用方法
 
 以下に、\ ``EnumCodeList``\ の使用イメージを示す。
 
-.. figure:: ./images_CodeList/codelist-enum.png
-  :alt: codelist enum
-  :width: 100%
+.. tabs::
+  .. group-tab:: Java Config
+
+    .. figure:: ./images_CodeList/codelist-enum-java.png
+      :alt: codelist enum java
+      :width: 100%
+
+  .. group-tab:: XML Config
+
+    .. figure:: ./images_CodeList/codelist-enum-xml.png
+      :alt: codelist enum xml
+      :width: 100%
 
 .. note::
 
@@ -1077,9 +1162,18 @@ I18nCodeListの使用方法
 
 \ **I18nCodeList（SimpleI18nCodeList）のイメージ**\
 
-.. figure:: ./images_CodeList/codelist-i18n.png
-  :alt: codelist i18n
-  :width: 100%
+.. tabs::
+  .. group-tab:: Java Config
+
+    .. figure:: ./images_CodeList/codelist-i18n-java.png
+      :alt: codelist i18n java
+      :width: 85%
+
+  .. group-tab:: XML Config
+
+    .. figure:: ./images_CodeList/codelist-i18n-xml.png
+      :alt: codelist i18n xml
+      :width: 85%
 
 |
 
@@ -1169,8 +1263,7 @@ I18nCodeListの使用方法
           - 説明
         * - | (1)
           - | rowsByCodeListプロパティにkeyが\ ``java.lang.Locale``\ のMapを設定する。
-            | Mapには、keyにロケール、value-refにロケールに対応したコードリストクラスの参照先を指定する。
-            | Mapのvalueは各ロケールに対応したコードリストクラスを参照する。
+            | Mapには、keyにロケール、valueにロケールに対応したコードリストクラスの参照先を指定する。
 
   .. group-tab:: XML Config
 
@@ -1198,7 +1291,6 @@ I18nCodeListの使用方法
         * - | (1)
           - | rowsByCodeListプロパティにkeyが\ ``java.lang.Locale``\ のMapを設定する。
             | Mapには、keyにロケール、value-refにロケールに対応したコードリストクラスの参照先を指定する。
-            | Mapのvalueは各ロケールに対応したコードリストクラスを参照する。
 
 |
 
@@ -1330,7 +1422,7 @@ I18nCodeListの使用方法
         
         @Bean("CL_I18N_PRICE")
         public SimpleReloadableI18nCodeList clI18nPrice() {
-            Map<Locale, CodeList> rows =  new LinkedHashMap<>();
+            Map<Locale, ReloadableCodeList> rows =  new LinkedHashMap<>();
             rows.put(Locale.ENGLISH, clPriceEn());
             rows.put(Locale.JAPANESE, clPriceJa());
             SimpleReloadableI18nCodeList bean = new SimpleReloadableI18nCodeList(); // (4)
@@ -1497,12 +1589,12 @@ I18nCodeListにおけるロケール解決
 
       @Bean("CL_I18N_PRICE")
       public SimpleI18nCodeList clI18nPrice() {
-          Map<Locale, CodeList> rows =  new LinkedHashMap<>(); // (1)
+          Map<Locale, CodeList> rows =  new LinkedHashMap<>();
           rows.put(Locale.ENGLISH, clPriceEn());
           rows.put(Locale.JAPANESE, clPriceJa());
           SimpleI18nCodeList bean = new SimpleI18nCodeList();
           bean.setRowsByCodeList(rows);
-          bean.setFallbackTo(Locale.ENGLISH);
+          bean.setFallbackTo(Locale.ENGLISH); // (1)
           return bean;
       }
 
@@ -1724,7 +1816,7 @@ JSP/テンプレートHTMLからコードリストを参照する場合は、\ `
     
     .. code-block:: jsp
     
-        Order Status : ${f:h(CL_ORDERSTATUS[orderForm.orderStatus])} // (1)
+        Order Status : ${f:h(CL_ORDERSTATUS[orderStatusForm.id])} // (1)
     
     .. tabularcolumns:: |p{0.10\linewidth}|p{0.90\linewidth}|
     .. list-table::
@@ -1735,7 +1827,7 @@ JSP/テンプレートHTMLからコードリストを参照する場合は、\ `
         - 説明
       * - | (1)
         - コードリストを定義したbeanID(この例では\ ``CL_ORDERSTATUS``\ ) を属性名として、コードリスト(\ ``java.util.Map``\ インタフェース)を取得する。
-          取得した\ ``Map``\ インタフェースのキーとしてコード値(この例では\ ``orderStatus``\ に格納された値) を指定することで、対応するコード名を表示することができる。
+          取得した\ ``Map``\ インタフェースのキーとしてコード値(この例では\ ``orderStatusForm.id``\ に格納された値) を指定することで、対応するコード名を表示することができる。
 
   .. group-tab:: Thymeleaf
 
@@ -1743,7 +1835,7 @@ JSP/テンプレートHTMLからコードリストを参照する場合は、\ `
     
     .. code-block:: html
     
-      <span th:text="${orderForm.orderStatus} != null ? |Order Status : ${CL_ORDERSTATUS.get(orderForm.orderStatus)}|"></span> <!--/* (1) */-->
+      <span th:text="${orderStatusForm.id} != null ? |Order Status : ${CL_ORDERSTATUS.get(orderStatusForm.id)}|"></span> <!--/* (1) */-->
     
     .. tabularcolumns:: |p{0.10\linewidth}|p{0.90\linewidth}|
     .. list-table::
@@ -1754,7 +1846,7 @@ JSP/テンプレートHTMLからコードリストを参照する場合は、\ `
         - 説明
       * - | (1)
         - コードリストを定義したbeanID(この例では\ ``CL_ORDERSTATUS``\ ) を属性名として、コードリスト(\ ``java.util.Map``\ インタフェース)を取得する。
-          取得した\ ``Map``\ インタフェースのキーとしてコード値(この例では\ ``orderStatus``\ に格納された値) を指定することで、対応するコード名を表示することができる。
+          取得した\ ``Map``\ インタフェースのキーとしてコード値(この例では\ ``orderStatusForm.id``\ に格納された値) を指定することで、対応するコード名を表示することができる。
           キーとして利用する変数値は必ず\ ``null``\ チェックを行うことを推奨する。詳細は、\ :doc:`../WebApplicationDetail/Thymeleaf`\ の\ :ref:`SpEL評価時におけるnull-safetyの影響について <ThymeleafOverviewNullSafetyAtSpEL>`\ を参照されたい。
 
 |
@@ -1865,7 +1957,7 @@ How to extend
 #. Task Schedulerで実現する方法
 #. Controller(Service)クラスでrefreshメソッドを呼び出す方法
 
-本ガイドラインでは、\ `Springから提供されているTask Scheduler <https://docs.spring.io/spring-framework/docs/6.1.3/reference/html/integration.html#scheduling>`_\ を使用して、コードリストを定期的にリロードする方式を基本的に推奨する。
+本ガイドラインでは、\ `Springから提供されているTask Scheduler <https://docs.spring.io/spring-framework/docs/6.2.1/reference/html/integration.html#scheduling>`_\ を使用して、コードリストを定期的にリロードする方式を基本的に推奨する。
 
 ただし、任意のタイミングでコードリストをリフレッシュする必要がある場合はControllerクラスでrefreshメソッドを呼び出す方法で実現すればよい。
 
@@ -1940,7 +2032,7 @@ Task Schedulerの設定例について、以下に示す。
             | 毎時実行               「0 0 \* \* \* \*」
             | 平日の9-17時の毎時実行 「0 0 9-17 \* \* MON-FRI」
             |
-            | cronの指定値の詳細については、\ `CronExpressionのJavaDoc <https://docs.spring.io/spring-framework/docs/6.1.3/javadoc-api/org/springframework/scheduling/support/CronExpression.html#parse(java.lang.String)>`_\ を参照されたい。
+            | cronの指定値の詳細については、\ `CronExpressionのJavaDoc <https://docs.spring.io/spring-framework/docs/6.2.1/javadoc-api/org/springframework/scheduling/support/CronExpression.html#parse(java.lang.String)>`_\ を参照されたい。
 
   .. group-tab:: XML Config
 
@@ -1984,7 +2076,7 @@ Task Schedulerの設定例について、以下に示す。
             | 毎時実行               「0 0 \* \* \* \*」
             | 平日の9-17時の毎時実行 「0 0 9-17 \* \* MON-FRI」
             |
-            | cronの指定値の詳細については、\ `CronExpressionのJavaDoc <https://docs.spring.io/spring-framework/docs/6.1.3/javadoc-api/org/springframework/scheduling/support/CronExpression.html#parse(java.lang.String)>`_\ を参照されたい。
+            | cronの指定値の詳細については、\ `CronExpressionのJavaDoc <https://docs.spring.io/spring-framework/docs/6.2.1/javadoc-api/org/springframework/scheduling/support/CronExpression.html#parse(java.lang.String)>`_\ を参照されたい。
 
 |
 
@@ -2183,7 +2275,7 @@ refreshメソッドを直接呼び出す場合について、JdbcCodeListのrefr
     - | \ ``AbstractCodeList``\ を継承する。
       | 今年と来年の年のリストを作る時、動的にシステム日付から算出して作成しているため、リロードは不要。
   * - | (2)
-    - | システム日付のDateクラスを作成する\ ``org.terasoluna.gfw.common.time.ClockFactory``\ をインジェクションするためのセッターを用意する。
+    - | システム日付のClockクラスを作成する\ ``org.terasoluna.gfw.common.time.ClockFactory``\ をインジェクションするためのセッターを用意する。
       | \ ``ClockFactory``\ を利用してシステム日時を取得することができる。
   * - | (3)
     - | \ ``asMap``\ メソッドをオーバライドして、今年と来年の年のリストを作成する。
@@ -2217,7 +2309,7 @@ refreshメソッドを直接呼び出す場合について、JdbcCodeListのrefr
           - | 作成したコードリストクラスをbean定義する。
             | id に\ ``CL_YEAR``\ を指定することで、bean定義で設定した\ ``CodeListInterceptor``\ によりコードリストをコンポーネント登録する。
         * - | (2)
-          - | システム日付のDateクラスを作成する\ ``ClockFactory``\ を設定する。
+          - | システム日付のClockクラスを作成する\ ``ClockFactory``\ を設定する。
             | 事前に、bean定義ファイルにDataFactory実装クラスを設定する必要がある。
 
   .. group-tab:: XML Config
@@ -2241,7 +2333,7 @@ refreshメソッドを直接呼び出す場合について、JdbcCodeListのrefr
           - | 作成したコードリストクラスをbean定義する。
             | id に\ ``CL_YEAR``\ を指定することで、bean定義で設定した\ ``CodeListInterceptor``\ によりコードリストをコンポーネント登録する。
         * - | (2)
-          - | システム日付のDateクラスを作成する\ ``ClockFactory``\ を設定する。
+          - | システム日付のClockクラスを作成する\ ``ClockFactory``\ を設定する。
             | 事前に、bean定義ファイルにDataFactory実装クラスを設定する必要がある。
 
 |
@@ -2554,7 +2646,7 @@ NumberRangeCodeListのバリエーション
 
         @Bean("CL_BIRTH_YEAR")
         public NumberRangeCodeList clBirthYear() {
-            NumberRangeCodeList bean = new NumberRangeCodNumberRangeCodeListeList();
+            NumberRangeCodeList bean = new NumberRangeCodeList();
             bean.setFrom(2013); // (1)
             bean.setTo(2000); // (2)
             return bean;
@@ -2568,8 +2660,8 @@ NumberRangeCodeListのバリエーション
         * - 項番
           - 説明
         * - | (1)
-          - | 範囲開始の値を指定する。name属性"to"のvalue属性の値より大きい値を指定する。
-            | この指定によって、interval分減少した値を、To～Fromの範囲分のリストとして、降順に表示する。
+          - | 範囲開始の値を指定する。setToメソッドの引数の値より大きい値を指定する。
+            | この指定によって、interval分減少した値を、From～Toの範囲分のリストとして、降順に表示する。
             | intervalは設定していないため、デフォルトの値1が適用される。
         * - | (2)
           - | 範囲終了の値を設定する。
@@ -2596,7 +2688,7 @@ NumberRangeCodeListのバリエーション
           - 説明
         * - | (1)
           - | 範囲開始の値を指定する。name属性"to"のvalue属性の値より大きい値を指定する。
-            | この指定によって、interval分減少した値を、To～Fromの範囲分のリストとして、降順に表示する。
+            | この指定によって、interval分減少した値を、From～Toの範囲分のリストとして、降順に表示する。
             | intervalは設定していないため、デフォルトの値1が適用される。
         * - | (2)
           - | 範囲終了の値を設定する。
@@ -2646,8 +2738,8 @@ NumberRangeCodeListのバリエーション
 
 \ **出力画面**\
 
-.. figure:: ./images_CodeList/codelist_numberrenge2.png
-  :alt: codelist numberrenge2
+.. figure:: ./images_CodeList/codelist_numberrange2.png
+  :alt: codelist numberrange2
 
 |
 
@@ -2744,12 +2836,12 @@ NumberRangeCodeListのインターバルの変更
 
 \ **出力画面**\
 
-.. figure:: ./images_CodeList/codelist_numberrenge3.png
-  :alt: codelist numberrenge3
+.. figure:: ./images_CodeList/codelist_numberrange3.png
+  :alt: codelist numberrange3
 
 .. note::
 
-  interval値分増加(減少)した値が、Form～Toの値が範囲を超えた場合は、コードリストに格納されない。
+  interval値分増加(減少)した値が、From～Toの範囲を超えた場合は、コードリストに格納されない。
 
   具体的には、
 
@@ -3088,7 +3180,7 @@ SimpleI18nCodeListをテンプレートHTMLから直接参照する方法
   * - | (1)
     - | リクエストで指定したロケールがコードリストに定義されていなかった場合に、どのロケールのコードリストを取得するかをプロパティファイルから取得し、\ ``fallBackLocale``\ 変数に設定する。
   * - | (2)
-    - | \ ``org.springframework.web.servlet.support.RequestContextUtils``\ 利用してリクエストで指定されたロケールを取得し、Modelに登録する。
+    - | \ ``org.springframework.web.servlet.support.RequestContextUtils``\ を利用してリクエストで指定されたロケールを取得し、Modelに登録する。
       | \ ``RequestContextUtils``\ の\ ``getLocale``\ メソッドは、引数に\ ``jakarta.servlet.http.HttpServletRequest``\ を取るため、この場合は\ ``HttpServletRequest``\ をハンドラメソッドの引数にとっても良い。
   * - | (3)
     - | (1) で取得した\ ``fallBackLocale``\ をModelに登録する。
@@ -3112,7 +3204,7 @@ SimpleI18nCodeListをテンプレートHTMLから直接参照する方法
     - 説明
   * - | (1)
     - | リクエストで指定したロケールに対応するコードリストを\ ``Map``\ 形式で取得する。
-      | リクエストで指定したロケールがコードリストに定義されていなかった場合、\ ``fallbackLocale``\ 変数に設定したロケールで対応するコードリストを\ ``Map``\ 形式で取得する。
+      | リクエストで指定したロケールがコードリストに定義されていなかった場合、\ ``fallbackLocale``\ 変数に設定したロケールに対応するコードリストを\ ``Map``\ 形式で取得する。
 
 \ **出力HTML lang=en**\
 

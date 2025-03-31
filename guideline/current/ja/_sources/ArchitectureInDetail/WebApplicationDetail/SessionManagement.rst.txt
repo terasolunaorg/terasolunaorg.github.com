@@ -732,7 +732,7 @@ Controllerのハンドラメソッドの引数に渡すオブジェクトが、\
 
     遷移先をリダイレクトにした場合は、生成されたオブジェクトは、セッションに格納されない。そのため、生成されたオブジェクトを、リダイレクト先の処理で参照したい場合は、\ ``RedirectAttributes``\ のaddFlashAttributeメソッドを使用して、Flashスコープにオブジェクトを格納する必要がある。
 
-* \ ``@ModelAttribute``\ アノテーションを指定している場合は、\ ``org.springframework.web.HttpSessionRequiredException``\ が発生する。
+* \ ``@ModelAttribute``\ アノテーションを指定している場合は、\ ``java.lang.IllegalStateException``\ が発生する。
 
   .. code-block:: java
 
@@ -757,147 +757,54 @@ Controllerのハンドラメソッドの引数に渡すオブジェクトが、\
       - | \ ``@Validated``\ アノテーションで、特定の検証グループ(\ ``Wizard1.class``\ , \ ``Wizard2.class``\ , \ ``Wizard3.class``\ )を設定して入力チェックを行っている。
         | 入力チェックの詳細については、\ :doc:`../WebApplicationDetail/Validation`\ を参照されたい。
     * - | (4)
-      - | 引数に、\ ``@ModelAttribute``\ アノテーションを指定している場合、セッションに対象のオブジェクトが存在しない時に呼び出されると、\ ``HttpSessionRequiredException``\ が発生する。
-        | \ ``HttpSessionRequiredException``\ は、ブラウザバックや、URL直接指定のアクセスなどの、クライアントの操作に起因して発生する例外になるため、クライアントエラーとして、例外ハンドリングを行う必要がある。
+      - | 引数に、\ ``@ModelAttribute``\ アノテーションを指定している場合、セッションに対象のオブジェクトが存在しない時に呼び出されると、\ ``IllegalStateException``\ が発生する。
+        | 上記ケースで発生する\ ``IllegalStateException``\ を個別にハンドリングする場合、独自の例外ハンドリング実装を行う必要がある。
 
-\ ``HttpSessionRequiredException``\ をクライアントエラーとするための設定は、以下の通りである。
+\ ``@ModelAttribute``\ アノテーションで指定したオブジェクトが存在しない場合に発生する\ ``IllegalStateException``\ を
+ハンドリングするための設定は、以下の通りである。ここではクライアントエラーとしてハンドリングする実装例になる。
 
-.. tabs::
-  .. group-tab:: Java Config
+なお、\ ``@ExceptionHandler``\ アノテーションを用いた例外ハンドリングの詳細は
+「\ :doc:`../../ArchitectureInDetail/WebApplicationDetail/ExceptionHandling`\ 」
+の\ :ref:`exception-handling-how-to-use-codingpoint-controller-usecase-label`\ を参照されたい。
 
-    - SpringMvcConfig.java
-    
-      .. code-block:: java
+- ControllerAdvice
 
-        @Bean("systemExceptionResolver")
-        public SystemExceptionResolver systemExceptionResolver(
-                ExceptionCodeResolver exceptionCodeResolver) {
-            SystemExceptionResolver bean = new SystemExceptionResolver();
-            bean.setExceptionCodeResolver(exceptionCodeResolver);
+  .. code-block:: java
 
-            Properties exceptionMappings = new Properties();
-            exceptionMappings.setProperty("HttpSessionRequiredException",
-                    "common/error/operationError"); // (5)
-            bean.setExceptionMappings(exceptionMappings);
-    
-            Properties statusCodes = new Properties();
-            statusCodes.setProperty("ommon/error/operationError", String
-                    .valueOf(HttpStatus.BAD_REQUEST.value())); // (6)
-            bean.setStatusCodes(statusCodes);
+    @ControllerAdvice // (1)
+    public class CommonControllerAdvice {
 
-            return bean;
+        // Controller that throws IllegalStateException
+
+        @ExceptionHandler(IllegalStateException.class) // (2)
+        @ResponseStatus(HttpStatus.BAD_REQUEST)
+        public ModelAndView handleIllegalStateException(
+                IllegalStateException e) {
+            if (e.getMessage().contains("Expected session attribute")) { // (3)
+                ExtendedModelMap modelMap = new ExtendedModelMap();
+                modelMap.addAttribute(e.getMessage());
+                return new ModelAndView("common/error/operationError", modelMap);
+            }
+            throw e; // (4)
         }
-    
-      .. tabularcolumns:: |p{0.10\linewidth}|p{0.90\linewidth}|
-      .. list-table::
-        :widths: 10 90
-        :header-rows: 1
-    
-        * - 項番
-          - 説明
-        * - | (5)
-          - | 共通ライブラリから提供している\ ``SystemExceptionResolver``\ の\ ``exceptionMappings``\ に、\ ``HttpSessionRequiredException``\ の例外ハンドリングの定義を追加する。
-            | 上記例では、例外発生時の遷移先のView名として、\ ``common/error/operationError``\ を指定している。
-        * - | (6)
-          - | \ ``SystemExceptionResolver``\ の\ ``statusCodes``\ に、\ ``HttpSessionRequiredException``\ 発生時の、HTTPレスポンスコードを指定する。
-            | 上記例では、例外発生時のHTTPレスポンスコードとして、 Bad Request(\ ``400``\ )を指定している。
-    
-    - ApplicationContextConfig.java
-    
-      .. code-block:: java
+    }
 
-        @Bean("exceptionCodeResolver")
-        public ExceptionCodeResolver exceptionCodeResolver() {
-            LinkedHashMap<String, String> map = new LinkedHashMap<>();
-            map.put("HttpSessionRequiredException", "w.xx.0003"); // (7)
-            SimpleMappingExceptionCodeResolver bean = new SimpleMappingExceptionCodeResolver();
-            bean.setExceptionMappings(map);
-            bean.setDefaultExceptionCode("e.xx.0001"); // (8)
-            return bean;
-        }
+  .. tabularcolumns:: |p{0.10\linewidth}|p{0.90\linewidth}|
+  .. list-table::
+    :widths: 10 90
+    :header-rows: 1
 
-      .. tabularcolumns:: |p{0.10\linewidth}|p{0.90\linewidth}|
-      .. list-table::
-        :widths: 10 90
-        :header-rows: 1
-    
-        * - 項番
-          - 説明
-        * - | (7)
-          - | 共通ライブラリから提供している\ ``SimpleMappingExceptionCodeResolver``\ の\ ``exceptionMappings``\ に、\ ``HttpSessionRequiredException``\ の例外ハンドリングの定義を追加する。
-            | 上記例では、例外発生時の例外コードとして、\ ``w.xx.0003``\ を指定している。
-            | この設定を追加しない場合は、デフォルトの例外コードが、ログに出力される。
-        * - | (8)
-          - | 例外発生時のデフォルトの例外コード。
-
-  .. group-tab:: XML Config
-
-    - spring-mvc.xml
-    
-      .. code-block:: xml
-    
-        <bean class="org.terasoluna.gfw.web.exception.SystemExceptionResolver">
-            <property name="exceptionCodeResolver" ref="exceptionCodeResolver" />
-            <!-- omitted -->
-            <property name="exceptionMappings">
-                <map>
-                    <!-- omitted -->
-                    <entry key="HttpSessionRequiredException "
-                           value="common/error/operationError" /> <!-- (5) -->
-                </map>
-            </property>
-            <property name="statusCodes">
-                <map>
-                    <!-- omitted -->
-                    <entry key="common/error/operationError" value="400" /> <!-- (6) -->
-                </map>
-            </property>
-            <!-- omitted -->
-        </bean>
-    
-      .. tabularcolumns:: |p{0.10\linewidth}|p{0.90\linewidth}|
-      .. list-table::
-        :widths: 10 90
-        :header-rows: 1
-    
-        * - 項番
-          - 説明
-        * - | (5)
-          - | 共通ライブラリから提供している\ ``SystemExceptionResolver``\ の\ ``exceptionMappings``\ に、\ ``HttpSessionRequiredException``\ の例外ハンドリングの定義を追加する。
-            | 上記例では、例外発生時の遷移先のView名として、\ ``common/error/operationError``\ を指定している。
-        * - | (6)
-          - | \ ``SystemExceptionResolver``\ の\ ``statusCodes``\ に、\ ``HttpSessionRequiredException``\ 発生時の、HTTPレスポンスコードを指定する。
-            | 上記例では、例外発生時のHTTPレスポンスコードとして、 Bad Request(\ ``400``\ )を指定している。
-    
-    - applicationContext.xml
-    
-      .. code-block:: xml
-    
-        <bean id="exceptionCodeResolver"
-            class="org.terasoluna.gfw.common.exception.SimpleMappingExceptionCodeResolver">
-            <!-- Setting and Customization by project. -->
-            <property name="exceptionMappings">
-                <map>
-                    <!-- omitted -->
-                    <entry key="HttpSessionRequiredException" value="w.xx.0003" /> <!-- (7) -->
-                </map>
-            </property>
-            <property name="defaultExceptionCode" value="e.xx.0001" /> <!-- (8) -->
-        </bean>
-    
-      .. tabularcolumns:: |p{0.10\linewidth}|p{0.90\linewidth}|
-      .. list-table::
-        :widths: 10 90
-        :header-rows: 1
-    
-        * - 項番
-          - 説明
-        * - | (7)
-          - | 共通ライブラリから提供している\ ``SimpleMappingExceptionCodeResolver``\ の\ ``exceptionMappings``\ に、\ ``HttpSessionRequiredException``\ の例外ハンドリングの定義を追加する。
-            | 上記例では、例外発生時の例外コードとして、\ ``w.xx.0003``\ を指定している。
-            | この設定を追加しない場合は、デフォルトの例外コードが、ログに出力される。
-        * - | (8)
-          - | 例外発生時のデフォルトの例外コード。
+    * - 項番
+      - 説明
+    * - | (1)
+      - | \ ``@ControllerAdvice``\ アノテーションにより複数のControllerで実行したい共通的な処理として実装する。
+    * - | (2)
+      - | \ ``@ExceptionHandler``\ アノテーションのvalue属性に、ハンドリング対象とする\ ``IllegalStateException``\ を指定する。
+    * - | (3)
+      - | エラーメッセージより\ ``@ModelAttribute``\ アノテーションで指定したオブジェクトが存在しない場合に発生する\ ``IllegalStateException``\ であった場合、
+        | エラー情報とエラー時の適切な遷移先を格納したModelAndViewを返却する。
+    * - | (4)
+      - | 当事象以外で発生した\ ``IllegalStateException``\ は、そのまま返却しアプリケーション共通の例外ハンドリングで対応する。
 
 |
 
@@ -2377,10 +2284,10 @@ Appendix
         @Bean("exceptionCodeResolver")
         public ExceptionCodeResolver exceptionCodeResolver() {
             LinkedHashMap<String, String> map = new LinkedHashMap<>();
-            map.put("InvalidRequestException", "w.xx.0004"); // (36)
+            map.put("InvalidRequestException", "w.xx.yy.0004"); // (36)
             SimpleMappingExceptionCodeResolver bean = new SimpleMappingExceptionCodeResolver();
             bean.setExceptionMappings(map);
-            bean.setDefaultExceptionCode("e.xx.0001"); // (37)
+            bean.setDefaultExceptionCode("e.xx.yy.0001"); // (37)
             return bean;
         }
     
@@ -2393,7 +2300,7 @@ Appendix
           - 説明
         * - | (36)
           - | 共通ライブラリから提供している\ ``SimpleMappingExceptionCodeResolver``\ の\ ``exceptionMappings``\ に、\ ``InvalidRequestException``\ の例外ハンドリングの定義を追加する。
-            | 上記例では、  例外発生時の例外コードとして、\ ``w.xx.0004``\ を指定している。
+            | 上記例では、  例外発生時の例外コードとして、\ ``w.xx.yy.0004``\ を指定している。
             | この設定を追加しない場合は、デフォルトの例外コードが、ログに出力される。
         * - | (37)
           - | 例外発生時のデフォルトの例外コード。
@@ -2447,10 +2354,10 @@ Appendix
             <property name="exceptionMappings">
                 <map>
                     <!-- ... -->
-                    <entry key="InvalidRequestException" value="w.xx.0004" /> <!-- (36) -->
+                    <entry key="InvalidRequestException" value="w.xx.yy.0004" /> <!-- (36) -->
                 </map>
             </property>
-            <property name="defaultExceptionCode" value="e.xx.0001" /> <!-- (37) -->
+            <property name="defaultExceptionCode" value="e.xx.yy.0001" /> <!-- (37) -->
         </bean>
     
       .. tabularcolumns:: |p{0.10\linewidth}|p{0.90\linewidth}|
@@ -2462,7 +2369,7 @@ Appendix
           - 説明
         * - | (36)
           - | 共通ライブラリから提供している\ ``SimpleMappingExceptionCodeResolver``\ の\ ``exceptionMappings``\ に、\ ``InvalidRequestException``\ の例外ハンドリングの定義を追加する。
-            | 上記例では、  例外発生時の例外コードとして、\ ``w.xx.0004``\ を指定している。
+            | 上記例では、  例外発生時の例外コードとして、\ ``w.xx.yy.0004``\ を指定している。
             | この設定を追加しない場合は、デフォルトの例外コードが、ログに出力される。
         * - | (37)
           - | 例外発生時のデフォルトの例外コード。

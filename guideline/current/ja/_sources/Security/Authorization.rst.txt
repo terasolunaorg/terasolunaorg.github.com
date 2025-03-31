@@ -115,6 +115,69 @@ How to use
 | 認可機能を使用するために必要となるbean定義例(アクセスポリシーの指定方法)や実装方法について説明する。
 |
 
+.. tip:: 
+  Spring Securityはリソースやメソッドへのアクセスを拒否する際に\ ``AuthorizationDeniedException``\ を発生させるが、\ ``AccessDeniedHandler``\ でハンドリングする前に共通ライブラリで提供している\ ``org.terasoluna.gfw.web.exception.SystemExceptionResolver``\ で捕捉してしまう。
+  
+  \ ``SystemExceptionResolver``\ で捕捉しないようにするためには、ハンドリング対象外とする下記設定が必要となる。
+  
+  \ ``SystemExceptionResolver``\ の詳細な設定方法については、\ :doc:`../ArchitectureInDetail/WebApplicationDetail/ExceptionHandling`\ の\ :ref:`exception-handling-how-to-use-application-configuration-app-label`\ を参照されたい。
+
+  .. tabs::
+    .. group-tab:: Java Config
+
+      * SpringMvcConfig.javaの定義例
+
+      .. code-block:: java
+
+        @Bean("systemExceptionResolver")
+        public SystemExceptionResolver systemExceptionResolver(
+            ExceptionCodeResolver exceptionCodeResolver) {
+            SystemExceptionResolver bean = new SystemExceptionResolver();
+            // omitted
+            bean.setExcludedExceptions(AuthorizationDeniedException.class); // (1)
+            // omitted
+            return bean;
+        }
+
+      .. tabularcolumns:: |p{0.10\linewidth}|p{0.90\linewidth}|
+      .. list-table::
+        :header-rows: 1
+        :widths: 10 90
+        :class: longtable
+
+        * - 項番
+          - 説明
+        * - | (1)
+          - | アクセス拒否によって発生する \ ``org.springframework.security.authorization.AuthorizationDeniedException``\ をSystemExceptionResolver のハンドリング対象外とする。
+
+    .. group-tab:: XML Config
+
+      * spring-mvc.xmlの定義例
+
+      .. code-block:: xml
+
+        <bean class="org.terasoluna.gfw.web.exception.SystemExceptionResolver">
+          <!-- omitted -->
+          <property name="excludedExceptions">
+            <array>
+              <value>org.springframework.security.authorization.AuthorizationDeniedException</value> <!-- (1) -->
+            </array>
+          </property>
+          <!-- omitted -->
+        </bean>
+
+      .. tabularcolumns:: |p{0.10\linewidth}|p{0.90\linewidth}|
+      .. list-table::
+        :header-rows: 1
+        :widths: 10 90
+        :class: longtable
+
+        * - 項番
+          - 説明
+        * - | (1)
+          - | アクセス拒否によって発生する \ ``org.springframework.security.authorization.AuthorizationDeniedException``\ をSystemExceptionResolver のハンドリング対象外とする。
+
+
 .. _SpringSecurityAuthorizationPolicy:
 
 アクセスポリシーの記述方法
@@ -127,7 +190,7 @@ How to use
 
 .. tip:: 
 
-  SpELの使い方については本節でも紹介するが、より詳しい使い方を知りたい場合は\ `Spring Framework Documentation -Spring Expression Language (SpEL)- <https://docs.spring.io/spring-framework/docs/6.1.3/reference/html/core.html#expressions>`_\ を参照されたい。
+  SpELの使い方については本節でも紹介するが、より詳しい使い方を知りたい場合は\ `Spring Framework Documentation -Spring Expression Language (SpEL)- <https://docs.spring.io/spring-framework/docs/6.2.1/reference/html/core.html#expressions>`_\ を参照されたい。
 
 |
 
@@ -323,7 +386,7 @@ Webリソースに対して認可処理を適用する場合は、以下のよ�
       public SecurityFilterChain filterChain(HttpSecurity http) {
           // omitted  
           http.authorizeHttpRequests(authz -> authz
-                  .requestMatchers(new AntPathRequestMatcher("/**")).authenticated() // (1)
+                  .requestMatchers(antMatcher("/**")).authenticated() // (1)
                   );
           // omitted
           return http.build();
@@ -390,11 +453,11 @@ bean定義ファイルを使用して、Webリソースに対してアクセス�
         public SecurityFilterChain filterChain(HttpSecurity http) {
             // omitted
             http.authorizeHttpRequests(authz -> authz
-                    .requestMatchers(new AntPathRequestMatcher("/admin/accounts/**", HttpMethod.GET.name())).hasRole("ACCOUNT_MANAGER") // (1)(4)
-                    .requestMatchers(new AntPathRequestMatcher("/admin/configurations/**"))
+                    .requestMatchers(antMatcher(HttpMethod.GET, "/admin/accounts/**")).hasRole("ACCOUNT_MANAGER") // (1)(4)
+                    .requestMatchers(antMatcher("/admin/configurations/**"))
                             .access(new WebExpressionAuthorizationManager("hasIpAddress('127.0.0.1') and hasRole('CONFIGURATION_MANAGER')")) // (2)
-                    .requestMatchers(new AntPathRequestMatcher("/admin/**")).hasAnyRole("USER", "ADMIN")
-                    .requestMatchers(new AntPathRequestMatcher("/**")).denyAll()
+                    .requestMatchers(antMatcher("/admin/**")).hasAnyRole("USER", "ADMIN")
+                    .requestMatchers(antMatcher("/**")).denyAll()
                     );
             http.requiresChannel(channel -> channel.anyRequest().requiresSecure()); // (3)
             // omitted
@@ -410,19 +473,19 @@ bean定義ファイルを使用して、Webリソースに対してアクセス�
           - 説明
         * - | (1)
           - | パスパターンに一致するリソースを適用対象とするため、\ ``AuthorizationManagerRequestMatcherRegistry.requestMatchers``\ に\ ``RequestMatcher``\ オブジェクトを設定する。
-            | 上記設定例では\ ``AntPathRequestMatcher``\ を指定している。設定できる項目は以下となる。
+            | 上記設定例では\ ``AntPathRequestMatcher#antMatcher``\ を使用して\ ``AntPathRequestMatcher``\ を指定している。\ ``AntPathRequestMatcher#antMatcher``\ に設定できる項目は以下となる。
     
               .. tabularcolumns:: |p{0.20\linewidth}|p{0.80\linewidth}|
-              .. list-table:: \ **AntPathRequestMatcherの設定項目**\
+              .. list-table:: \ **antMatcherの引数**\
                 :header-rows: 1
                 :widths: 20 80
     
                 * - 変数名
                   - 説明
+                * - | \ ``method``\
+                  - | 指定したHTTPメソッド(GET,POSTなど)を使ってアクセスがあった場合に適用対象にする。
                 * - | \ ``pattern``\
                   - | Ant形式又は正規表現で指定したパスパターンに一致するリソースを適用対象にする。
-                * - | \ ``httpMethod``\
-                  - | 指定したHTTPメソッド(GET,POSTなど)を使ってアクセスがあった場合に適用対象にする。
     
         * - | (2)
           - | Expressionsを使用する場合は\ ``AuthorizedUrl#access``\ を使用し、\ ``WebExpressionAuthorizationManager``\ を設定する。
@@ -508,7 +571,7 @@ bean定義ファイルを使用して、Webリソースに対してアクセス�
             public SecurityFilterChain filterChain(HttpSecurity http) {
                 // omitted
                 http.authorizeHttpRequests(authz -> authz
-                        .requestMatchers(new AntPathRequestMatcher("/Todo/List")).authenticated()
+                        .requestMatchers(antMatcher("/Todo/List")).authenticated()
                         // omitted
                         );
                 // omitted
@@ -552,9 +615,9 @@ bean定義ファイルを使用して、Webリソースに対してアクセス�
         public SecurityFilterChain filterChain(HttpSecurity http) {
             // omitted
             http.authorizeHttpRequests(authz -> authz
-                    .requestMatchers(new AntPathRequestMatcher("/reserve/**")).hasAnyRole("USER", "ADMIN") // (1)
-                    .requestMatchers(new AntPathRequestMatcher("/admin/**")).hasRole("ADMIN") // (2)
-                    .requestMatchers(new AntPathRequestMatcher("/**")).denyAll() // (3)
+                    .requestMatchers(antMatcher("/reserve/**")).hasAnyRole("USER", "ADMIN") // (1)
+                    .requestMatchers(antMatcher("/admin/**")).hasRole("ADMIN") // (2)
+                    .requestMatchers(antMatcher("/**")).denyAll() // (3)
                     );
             // omitted
             return http.build();
@@ -641,9 +704,9 @@ Spring Security 4.1以降では、アクセスポリシーを適用するリソ�
         public SecurityFilterChain filterChain(HttpSecurity http) {
             // omitted
             http.authorizeHttpRequests(authz -> authz
-                    .requestMatchers(new AntPathRequestMatcher("/users/{userName}.*"))
+                    .requestMatchers(antMatcher("/users/{userName}.*"))
                             .access(new WebExpressionAuthorizationManager("isAuthenticated() and #userName == principal.username")) // (1)
-                    .requestMatchers(new AntPathRequestMatcher("/users/{userName}/**"))
+                    .requestMatchers(antMatcher("/users/{userName}/**"))
                             .access(new WebExpressionAuthorizationManager("isAuthenticated() and #userName == principal.username")) // (2)
                     // omitted
                     );
@@ -706,11 +769,11 @@ Spring Security 4.1以降では、アクセスポリシーを適用するリソ�
         public SecurityFilterChain filterChain(HttpSecurity http) {
             // omitted
             http.authorizeHttpRequests(authz -> authz
-                    .requestMatchers(new AntPathRequestMatcher("/users/{userName}.*"))
+                    .requestMatchers(antMatcher("/users/{userName}.*"))
                             .access(new WebExpressionAuthorizationManager("isAuthenticated() and #userName == principal.username")) // (1)
-                    .requestMatchers(new AntPathRequestMatcher("/users/{userName}/"))
+                    .requestMatchers(antMatcher("/users/{userName}/"))
                             .access(new WebExpressionAuthorizationManager("isAuthenticated() and #userName == principal.username")) // (2)
-                    .requestMatchers(new AntPathRequestMatcher("/users/{userName}"))
+                    .requestMatchers(antMatcher("/users/{userName}"))
                             .access(new WebExpressionAuthorizationManager("isAuthenticated() and #userName == principal.username")) // (2)
                     // omitted
                     );
@@ -905,7 +968,7 @@ Spring Securityは、以下のアノテーションをサポートしている�
 
 .. warning::
 
-  Spring 5から、SpringのコアAPIに\ `null-safety <https://docs.spring.io/spring-framework/docs/6.1.3/reference/html/core.html#null-safety>`_\ の機能が取り入れられており、SpELが解釈される際の\ ``null``\ に対する動作も変更(\ `SPR-15540 <https://jira.spring.io/browse/SPR-15540?redirect=false>`_\ )されている。
+  Spring 5から、SpringのコアAPIに\ `null-safety <https://docs.spring.io/spring-framework/docs/6.2.1/reference/html/core.html#null-safety>`_\ の機能が取り入れられており、SpELが解釈される際の\ ``null``\ に対する動作も変更(\ `SPR-15540 <https://jira.spring.io/browse/SPR-15540?redirect=false>`_\ )されている。
 
   例えば\ ``@PreAuthorize``\ の引数(\ ``#xxx``\ )や、\ ``@PostAuthorize``\ の戻り値（\ ``resultObject``\ ）が\ ``Map``\ を含む場合、\ ``Map``\ から値を取得するSpELでキー値に\ ``null``\ となる値を入力すると、Spring 4以前ではそのまま\ ``Map``\ に\ ``null``\ が渡され該当する値がないため\ ``null``\ が返却されていたが、Spring 5以降ではキーとなるSpELを評価した結果に対する\ ``null``\ チェックが追加されており、\ ``null``\ の場合は\ ``IllegalStateException``\ が発生する。
 
@@ -1491,7 +1554,7 @@ Spring Securityが提供しているデフォルトの動作をカスタマイ�
 
           @Bean("accessAntPathRequestMatcher")
           public AntPathRequestMatcher accessAntPathRequestMatcher() {
-              return new AntPathRequestMatcher("/api/**");
+              return antMatcher("/api/**");
           }
 
           @Bean("accessDeniedHandler")
@@ -1535,7 +1598,7 @@ Spring Securityが提供しているデフォルトの動作をカスタマイ�
 
           @Bean("accessAntPathRequestMatcher")
           public AntPathRequestMatcher accessAntPathRequestMatcher() {
-              return new AntPathRequestMatcher("/api/**");
+              return antMatcher("/api/**");
           }
 
           @Bean("accessDeniedHandler")
@@ -1682,7 +1745,7 @@ Spring Securityが提供しているデフォルトの動作をカスタマイ�
 
       @Bean("antPathRequestMatcher")
       public AntPathRequestMatcher antPathRequestMatcher() {
-          return new AntPathRequestMatcher("/api/**");
+          return antMatcher("/api/**");
       }
 
       @Bean("entryPoint")
@@ -1790,7 +1853,7 @@ Spring Securityが提供しているデフォルトの動作をカスタマイ�
       public SecurityFilterChain filterChain(HttpSecurity http) {
           // omitted
           http.authorizeHttpRequests(authz -> authz
-                  .requestMatchers(new AntPathRequestMatcher("/user/**")).hasAnyRole("USER")
+                  .requestMatchers(antMatcher("/user/**")).hasAnyRole("USER")
                   // omitted
                   );
           // omitted  
@@ -1824,8 +1887,7 @@ Spring Securityが提供しているデフォルトの動作をカスタマイ�
 
       @Bean("roleHierarchy")
       public RoleHierarchy roleHierarchy() {
-          RoleHierarchyImpl bean = new RoleHierarchyImpl(); // (1)
-          bean.setHierarchy("""
+          RoleHierarchy bean = RoleHierarchyImpl.fromHierarchy(""" // (1)
                   ROLE_ADMIN > ROLE_STAFF
                   ROLE_STAFF > ROLE_USER
                   """); // (2)
@@ -1858,13 +1920,13 @@ Spring Securityが提供しているデフォルトの動作をカスタマイ�
     .. code-block:: xml
     
       <bean id="roleHierarchy"
-          class="org.springframework.security.access.hierarchicalroles.RoleHierarchyImpl"> <!-- (1) -->
-          <property name="hierarchy"> <!-- (2) -->
+          class="org.springframework.security.access.hierarchicalroles.RoleHierarchyImpl" factory-method="fromHierarchy"> <!-- (1) -->
+          <constructor-arg> <!-- (2) -->
               <value>
                   ROLE_ADMIN > ROLE_STAFF
                   ROLE_STAFF > ROLE_USER
               </value>
-          </property>
+          </constructor-arg>
       </bean>
     
     .. tabularcolumns:: |p{0.10\linewidth}|p{0.90\linewidth}|
@@ -1891,7 +1953,7 @@ Spring Securityが提供しているデフォルトの動作をカスタマイ�
 Webリソースの認可処理への適用
 """"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 
-ロールの階層化を、Webリソースと画面項目に対する認可処理に適用する方法を説明する。
+ロールの階層化を、Webリソースに対する認可処理に適用する方法を説明する。
 
 .. tabs::
   .. group-tab:: Java Config
@@ -1901,14 +1963,13 @@ Webリソースの認可処理への適用
     .. code-block:: java
 
       @Bean
-      @Order(90)
       public SecurityFilterChain filterChain(HttpSecurity http) {
   
           AuthorityAuthorizationManager<RequestAuthorizationContext> authManager = AuthorityAuthorizationManager.hasRole("STAFF");
           authManager.setRoleHierarchy(roleHierarchy()); // (1)
           // omitted
           http.authorizeHttpRequests(authz -> authz
-                  .requestMatchers(new AntPathRequestMatcher("/user/**"))
+                  .requestMatchers(antMatcher("/user/**"))
                   .access(authManager) //(2)
                   // omitted
                   );
@@ -1935,14 +1996,14 @@ Webリソースの認可処理への適用
     .. code-block:: xml
     
       <!-- (1) -->
-      <bean id="webExpressionHandler"
-          class="org.springframework.security.web.access.expression.DefaultWebSecurityExpressionHandler">
+      <bean id="httpExpressionHandler"
+          class="org.springframework.security.web.access.expression.DefaultHttpSecurityExpressionHandler">
           <property name="roleHierarchy" ref="roleHierarchy"/>  <!-- (2) -->
       </bean>
     
       <sec:http request-matcher="ant">
           <!-- omitted -->
-          <sec:expression-handler ref="webExpressionHandler" />  <!-- (3) -->
+          <sec:expression-handler ref="httpExpressionHandler" />  <!-- (3) -->
       </sec:http>
     
     .. tabularcolumns:: |p{0.10\linewidth}|p{0.90\linewidth}|
@@ -1953,11 +2014,82 @@ Webリソースの認可処理への適用
       * - | 項番
         - | 説明
       * - | (1)
-        - | \ ``org.springframework.security.web.access.expression.DefaultWebSecurityExpressionHandler``\ のBeanを定義する。
+        - | \ ``org.springframework.security.web.access.expression.DefaultHttpSecurityExpressionHandler``\ のBeanを定義する。
       * - | (2)
         - | \ ``roleHierarchy``\ プロパティに\ ``RoleHierarchy``\ インタフェースの実装クラスのBeanを指定する。
       * - | (3)
         - | \ ``<sec:expression-handler>``\ タグの\ ``ref``\ 属性に、\ ``org.springframework.security.access.expression.SecurityExpressionHandler``\ インタフェースの実装クラスのBeanを指定する。
+
+|
+
+画面項目の認可処理への適用
+""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
+
+ロールの階層化を、画面項目に対する認可処理に適用する方法を説明する。
+
+.. tabs::
+  .. group-tab:: Java Config
+
+    * SpringSecurityConfig.javaの定義例
+    
+    .. code-block:: java
+
+      @EnableMethodSecurity // (3)
+      @Configuration
+      public class SpringSecurityConfig {
+
+          // (1)
+          @Bean("webSecurityExpressionHandler")
+          public DefaultWebSecurityExpressionHandler webSecurityExpressionHandler() {
+              DefaultWebSecurityExpressionHandler bean = new DefaultWebSecurityExpressionHandler();
+              bean.setRoleHierarchy(roleHierarchy()); // (2)
+              return bean;
+          }
+
+    .. tabularcolumns:: |p{0.10\linewidth}|p{0.90\linewidth}|
+    .. list-table::
+      :header-rows: 1
+      :widths: 10 90
+
+      * - 項番
+        - 説明
+      * - | (1)
+        - | \ ``org.springframework.security.web.access.expression.DefaultWebSecurityExpressionHandler``\ のBeanを定義する。
+      * - | (2)
+        - | \ ``roleHierarchy``\ プロパティに\ ``RoleHierarchy``\ インタフェースの実装クラスのBeanを指定する。
+      * - | (3)
+        - | \ ``@EnableMethodSecurity``\ アノテーションを設定する。
+
+    .. note::
+
+        \ ``@EnableMethodSecurity``\ を設定することにより\ ``DefaultWebSecurityExpressionHandler``\ が自動でBean定義されるため、\ ``DefaultWebSecurityExpressionHandler``\ のBean定義を省略することもできる。
+
+  .. group-tab:: XML Config
+
+    * spring-security.xmlの定義例
+
+    .. code-block:: xml
+
+      <bean id="webExpressionHandler"
+          class="org.springframework.security.web.access.expression.DefaultWebSecurityExpressionHandler"> <!-- (1) -->
+          <property name="roleHierarchy" ref="roleHierarchy"/> <!-- (2) -->
+      </bean>
+
+    .. tabularcolumns:: |p{0.10\linewidth}|p{0.90\linewidth}|
+    .. list-table::
+      :header-rows: 1
+      :widths: 10 90
+
+      * - 項番
+        - 説明
+      * - | (1)
+        - | \ ``org.springframework.security.web.access.expression.DefaultWebSecurityExpressionHandler``\ のBeanを定義する。
+      * - | (2)
+        - | \ ``roleHierarchy``\ プロパティに\ ``RoleHierarchy``\ インタフェースの実装クラスのBeanを指定する。
+
+    .. note::
+
+        \ ``DefaultMethodSecurityExpressionHandler``\ は\ ``sec:expression-handler``\ への設定は不要である。
 
 |
 
@@ -1982,7 +2114,7 @@ Webリソースの認可処理への適用
           public static MethodSecurityExpressionHandler methodExpressionHandler(
                   RoleHierarchy roleHierarchy) {
               DefaultMethodSecurityExpressionHandler bean = new DefaultMethodSecurityExpressionHandler();  // (1)
-              bean.setRoleHierarchy(roleHierarchy); // (2) 
+              bean.setRoleHierarchy(roleHierarchy); // (2)
               return bean;
           }
 
@@ -2053,9 +2185,9 @@ Spring Securityのパスパターンマッチングにおける拡張子およ�
       public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
           // omitted  
           http.authorizeHttpRequests(authz -> authz
-                  .requestMatchers(new AntPathRequestMatcher("/restrict.*")).hasRole("ADMIN") // (1)
-                  .requestMatchers(new AntPathRequestMatcher("/restrict/")).hasRole("ADMIN") // (2)
-                  .requestMatchers(new AntPathRequestMatcher("/restrict")).hasRole("ADMIN") // (3)
+                  .requestMatchers(antMatcher("/restrict.*")).hasRole("ADMIN") // (1)
+                  .requestMatchers(antMatcher("/restrict/")).hasRole("ADMIN") // (2)
+                  .requestMatchers(antMatcher("/restrict")).hasRole("ADMIN") // (3)
           // omitted
           return http.build();
       }
