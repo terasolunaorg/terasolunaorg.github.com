@@ -750,7 +750,7 @@ How to Useの構成
 
   .. note::
 
-    上記設定例の\ ``spring-security-oauth2-resource-server``\ と\ ``spring-security-oauth2-jose``\ は、依存ライブラリのバージョンを親プロジェクトである terasoluna-gfw-parent で管理する前提であるため、\ ``pom.xml``\ でのバージョンの指定は不要である。
+    上記設定例の\ ``spring-security-oauth2-resource-server``\ と\ ``spring-security-oauth2-jose``\ は、依存ライブラリのバージョンをBOMプロジェクトである terasoluna-dependencies で管理する前提であるため、pom.xmlでのバージョンの指定は不要である。
 
 |
 
@@ -771,7 +771,7 @@ How to Useの構成
 
         @Bean
         public SecurityFilterChain authFilterChain(HttpSecurity http) throws Exception {
-            http.securityMatcher(new AntPathRequestMatcher("/api/v1/todos/**")); // (1)
+            http.securityMatcher(antMatcher("/api/v1/todos/**")); // (1)
             http.oauth2ResourceServer(oauth2 -> oauth2
                   .jwt(jwt -> jwt.jwkSetUri("https://idp.example.org/.well-known/jwks.json"))); // (2)
             return http.build();
@@ -904,13 +904,13 @@ How to Useの構成
 
         @Bean
         public SecurityFilterChain authFilterChain(HttpSecurity http) throws Exception {
-            http.securityMatcher(new AntPathRequestMatcher("/api/v1/todos/**"));
+            http.securityMatcher(antMatcher("/api/v1/todos/**"));
             // @formatter:off
             http.authorizeHttpRequests(authorize -> authorize
-                    .requestMatchers(new AntPathRequestMatcher("/api/v1/todos/**", HttpMethod.GET.name())).hasAuthority("SCOPE_READ") // (1)
-                    .requestMatchers(new AntPathRequestMatcher("/api/v1/todos/**", HttpMethod.POST.name())).hasAuthority("SCOPE_CREATE") // (1)
-                    .requestMatchers(new AntPathRequestMatcher("/api/v1/todos/**", HttpMethod.PUT.name())).hasAuthority("SCOPE_UPDATE") // (1)
-                    .requestMatchers(new AntPathRequestMatcher("/api/v1/todos/**", HttpMethod.DELETE.name())).hasAuthority("SCOPE_DELETE") // (1)
+                    .requestMatchers(antMatcher(HttpMethod.GET, "/api/v1/todos/**")).hasAuthority("SCOPE_READ") // (1)
+                    .requestMatchers(antMatcher(HttpMethod.POST, "/api/v1/todos/**")).hasAuthority("SCOPE_CREATE") // (1)
+                    .requestMatchers(antMatcher(HttpMethod.PUT, "/api/v1/todos/**")).hasAuthority("SCOPE_UPDATE") // (1)
+                    .requestMatchers(antMatcher(HttpMethod.DELETE, "/api/v1/todos/**")).hasAuthority("SCOPE_DELETE") // (1)
                     );
             http.oauth2ResourceServer(oauth2 -> oauth2.jwt(jwt -> jwt.jwkSetUri("https://idp.example.org/.well-known/jwks.json")));
             // @formatter:on
@@ -927,9 +927,9 @@ How to Useの構成
           - 説明
         * - | (1)
           - | \ ``AuthorizedUrl``\ を使用してリソースに対してスコープによるアクセスポリシーを定義する。
-          
-            * \ ``AntPathRequestMatcher``\ の第一引数には保護したいリソースのパスのパターンを指定する。本実装例では\ ``/api/v1/todos/``\ 配下のリソースが保護される。
-            * \ ``AntPathRequestMatcher``\ の第二引数にはリソースのHTTPメソッドを指定する。
+
+            * \ ``antMatcher``\ メソッドの第一引数にはリソースのHTTPメソッドを指定する。
+            * \ ``antMatcher``\ メソッドの第二引数には保護したいリソースのパスのパターンを指定する。本実装例では\ ``/api/v1/todos/``\ 配下のリソースが保護される。
             * \ ``hasAuthority``\ メソッドを使用しリソースへのアクセスを認可するscopeを指定する。設定値は大文字、小文字を区別し、スコープの前に\ ``SCOPE_``\ を付ける。
      
             .. note::
@@ -1046,7 +1046,7 @@ Spring Security のOAuth2.0クライアント機能を使用するため、\ ``p
 
   .. note::
   
-    上記設定例は、依存ライブラリのバージョンを親プロジェクトである terasoluna-gfw-parent で管理する前提であるため、\ ``pom.xml``\ でのバージョンの指定は不要である。
+    上記設定例は、依存ライブラリのバージョンをBOMプロジェクトである terasoluna-dependencies で管理する前提であるため、pom.xmlでのバージョンの指定は不要である。
 
 |
 
@@ -1067,7 +1067,7 @@ Spring Security のOAuth2.0クライアント機能を使用するため、\ ``p
 
         @Bean
         public SecurityFilterChain filterChainOAtuh2(HttpSecurity http) throws Exception {
-            http.securityMatcher(new AntPathRequestMatcher("/api/v1/todos/**"));
+            http.securityMatcher(antMatcher("/api/v1/todos/**"));
             // omitted
             http.oauth2Client(Customizer.withDefaults()); // (1)
             // omitted    
@@ -1434,7 +1434,7 @@ OAuth2AuthorizedClientManagerの実装
 
   \ ``OAuth2AuthorizedClientManager``\ のBean定義に関してはJava-based configurationを用いている。
   
-  \ ``OAuth2AuthorizedClientManager``\ に設定する\ ``OAuth2AuthorizedClientProvider``\ がBuilderパターンを使用していることに加え、Spring Securityが\ ``OAuth2AuthorizedClientManager``\ に対するXML DLSを提供していないため、\ `OAuth2AuthorizedClientManager/OAuth2AuthorizedClientProvider <https://docs.spring.io/spring-security/reference/servlet/oauth2/client/core.html#oauth2Client-authorized-manager-provider>`_\ の実装例に従いJava-based configurationで実装している。Java-based configurationで定義するクラスは、コンポーネントスキャンが有効となるパッケージ配下に配置されたい。詳しくは\ `Java-based configuration <https://docs.spring.io/spring-framework/docs/6.1.3/reference/html/core.html#beans-java>`_\ を参照されたい。
+  \ ``OAuth2AuthorizedClientManager``\ に設定する\ ``OAuth2AuthorizedClientProvider``\ がBuilderパターンを使用していることに加え、Spring Securityが\ ``OAuth2AuthorizedClientManager``\ に対するXML DLSを提供していないため、\ `OAuth2AuthorizedClientManager/OAuth2AuthorizedClientProvider <https://docs.spring.io/spring-security/reference/servlet/oauth2/client/core.html#oauth2Client-authorized-manager-provider>`_\ の実装例に従いJava-based configurationで実装している。Java-based configurationで定義するクラスは、コンポーネントスキャンが有効となるパッケージ配下に配置されたい。詳しくは\ `Java-based configuration <https://docs.spring.io/spring-framework/docs/6.2.1/reference/html/core.html#beans-java>`_\ を参照されたい。
 
 * \ ``SecurityConfig.java``\
 

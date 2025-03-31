@@ -107,7 +107,7 @@ Overview
       | これは、データベースアクセスを伴うアプリケーションの場合、アプリケーションが稼働していても、データベースに異常がある場合は正常に業務を行うことができないためである。
   * - | (3)
     - | レスポンスを返すViewとしてJSP/Thymeleafを使用する。
-      | 本ガイドラインではJSP/Thymeleafを例にとって説明するが、RESTやSOAPを用いる場合など、アプリケーションの特性に合わせて通信方式やレスポンス形式は適宜変更すること。詳細は、\ :doc:`../WebServiceDetail/REST`\や、\ :doc:`../../Appendix/SOAP`\を参照されたい。
+      | 本ガイドラインではJSP/Thymeleafを例にとって説明するが、RESTやSOAPを用いる場合など、アプリケーションの特性に合わせて通信方式やレスポンス形式は適宜変更すること。詳細は、\ :doc:`../WebServiceDetail/REST`\や、\ :doc:`../WebServiceDetail/SOAP`\を参照されたい。
 
 | 本ガイドラインの実装例で返却されるステータスコードおよびレスポンスは以下の通りである。
 
@@ -352,7 +352,7 @@ Viewの実装
       public SecurityFilterChain filterChain(HttpSecurity http) {
           // omitted
           http.authorizeHttpRequests(authz -> authz.requestMatchers(
-                  new AntPathRequestMatcher("/healthcheck/**")).permitAll()
+                  antMatcher("/healthcheck/**")).permitAll()
                   // omitted
                   );
           // omitted

@@ -1259,7 +1259,7 @@ Serviceの単体テスト
 | \ ``Controller``\ については以下の項目を確認する。
 
 * @RequestMapping(リクエストパス、HTTPメソッド、リクエストパラメータ)
-* 返却されるVIEW名
+* 返却されるView名
 
 \ ``View``\ については、本来アプリケーション層に含まれるが、本ガイドラインでは対象外とする。
 
@@ -1375,7 +1375,7 @@ StandaloneSetupを利用したテスト
           }
       }
 
-    ここでは、テスト対象の\ ``MemberRegisterController``\ クラスの\ ``register``\ メソッドを呼び出し、リクエストマッピングと返却されるVIEWおよびリダイレクトされること（\ ``testRegisterConfirm01``\ ）、不正な入力値を送信したときに\ ``BadRequestException``\ がthrowされていること（\ ``testRegisterConfirm02``\ ）の確認を行う。
+    ここでは、テスト対象の\ ``MemberRegisterController``\ クラスの\ ``register``\ メソッドを呼び出し、リクエストマッピングと返却されるViewおよびリダイレクトされること（\ ``testRegisterConfirm01``\ ）、不正な入力値を送信したときに\ ``BadRequestException``\ がthrowされていること（\ ``testRegisterConfirm02``\ ）の確認を行う。
 
     以下に、\ ``ServiceImpl``\ クラスなどテスト対象の\ ``Controller``\ クラスが依存するクラスをインジェクションする場合のテスト作成方法を説明する。なお、テストでデータアクセスする場合の検証方法は\ :ref:`ImplementsOfTestByLayerUnitTestOfRepository`\ を参照されたい。
 
@@ -1524,7 +1524,7 @@ StandaloneSetupを利用したテスト
           }
       }
 
-    ここでは、テスト対象の\ ``MemberRegisterController``\ クラスの\ ``register``\ メソッドを呼び出し、リクエストマッピングと返却されるVIEWおよびリダイレクトされること（\ ``testRegisterConfirm01``\ ）、不正な入力値を送信したときに\ ``BadRequestException``\ がthrowされていること（\ ``testRegisterConfirm02``\ ）の確認を行う。
+    ここでは、テスト対象の\ ``MemberRegisterController``\ クラスの\ ``register``\ メソッドを呼び出し、リクエストマッピングと返却されるViewおよびリダイレクトされること（\ ``testRegisterConfirm01``\ ）、不正な入力値を送信したときに\ ``BadRequestException``\ がthrowされていること（\ ``testRegisterConfirm02``\ ）の確認を行う。
 
     以下に、\ ``ServiceImpl``\ クラスなどテスト対象の\ ``Controller``\ クラスが依存するクラスをインジェクションする場合のテスト作成方法を説明する。なお、テストでデータアクセスする場合の検証方法は\ :ref:`ImplementsOfTestByLayerUnitTestOfRepository`\ を参照されたい。
 
@@ -2149,7 +2149,7 @@ WebAppContextSetupを利用したテスト
       * - 項番
         - 説明
       * - | (1)
-        - | セッションのモックオブジェクトを生成する。クラスの詳細については、\ `MockHttpSession のJavadoc <https://docs.spring.io/spring-framework/docs/6.1.3/javadoc-api/org/springframework/mock/web/MockHttpSession.html>`_\ を参照されたい。
+        - | セッションのモックオブジェクトを生成する。クラスの詳細については、\ `MockHttpSession のJavadoc <https://docs.spring.io/spring-framework/docs/6.2.1/javadoc-api/org/springframework/mock/web/MockHttpSession.html>`_\ を参照されたい。
       * - | (2)
         - | 生成したセッションのモックオブジェクトに、格納したいオブジェクトをセットする。
       * - | (3)

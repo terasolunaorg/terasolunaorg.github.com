@@ -1,4 +1,4 @@
-Java SE 17を使用するための設定
+Java SE 17以降のバージョンを利用するための設定
 ================================================================================
 
 .. only:: html
@@ -7,7 +7,8 @@ Java SE 17を使用するための設定
   :depth: 3
   :local:
 
-| 本章では、Java SE 17を使用して本ガイドラインで解説している機能に関連のある主要な設定方法を解説する。
+| 本ガイドラインでは、\ :ref:`IntroductionOperatingEnvironment`\ に記載の通り、Spring Framework 6の動作環境に合わせJava17を使用している。
+| 本章では、Java8からJava17、およびJava21へ移行する際に注意すべき点として、Java9以降で変更された本ガイドラインで解説している機能に関連する設定について記載している。
 | 詳細は、各章を参照されたい。
 
 なお、本章は\ `Oracle JDK Migration Guide <https://docs.oracle.com/en/java/javase/17/migrate/getting-started.html>`_\ に基づいて執筆している。より理解を深めるため、こちらも一読されたい。
@@ -28,10 +29,10 @@ Java SE 9から非推奨となったJava EE関連モジュールの削除
 
 .. _remove-jaxb-from-java11:
 
-JAXBの削除
+JAXBの追加
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-| Java SE 17でJAXBを利用する場合、jakarta.xml.bind-api及びjaxb-implが必要となる。
+| Java SE 11以降でJAXBを利用する場合、jakarta.xml.bind-api及びjaxb-implが必要となる。
 | アプリケーションの依存ライブラリやAPサーバから提供されるライブラリにjakarta.xml.bind-api及びjaxb-implがない場合は、下記のようにpom.xmlに依存関係を追加すること。
 | terasoluna-gfw-jpa-dependenciesを依存関係に含む場合、jaxb-implを引き込むので個別に対応する必要はない。
 
@@ -61,33 +62,27 @@ JAXBの削除
   * - 項番
     - 説明
   * - | (1)
-    - | jakarta.xml.bind-apiのバージョンはterasoluna-gfw-parentが依存している\ `Spring Boot <https://docs.spring.io/spring-boot/docs/3.2.2/reference/htmlsingle/#dependency-versions>`_\ で管理されているため、pom.xmlでのバージョンの指定は不要である。
+    - | jakarta.xml.bind-apiのバージョンはterasoluna-dependenciesが依存している\ `Spring Boot <https://docs.spring.io/spring-boot/3.4.1/appendix/dependency-versions/coordinates.html>`_\ で管理されているため、pom.xmlでのバージョンの指定は不要である。
   * - | (2)
-    - | Jakarta EE 10に準拠した任意のバージョンを指定する。
+    - | 使用する環境のJakarta EEに合わせた任意のバージョンを指定する。
+      | TERASOLUNA Server Framework for Java (5.x)ではJakarta EE 10を使用している。
 
 |
 
 .. _remove-jax-ws-from-java11:
 
-JAX-WSの削除
+Jakarta XML Web Servicesの追加
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-Java SE 17でJAX-WSを利用する場合、以下のようにjakarta.xml.ws-api及びjaxws-rtを依存関係に追加する必要がある。
+Java SE 11以降でJakarta XML Web Services（旧：JAX-WS）を利用する場合、以下のようにjakarta.xml.ws-apiを依存関係に追加する必要がある。
 
 .. code-block:: xml
 
   <dependencies>
       <dependency>
           <groupId>jakarta.xml.ws</groupId>
-          <artifactId>jakarta.xml.ws-api</artifactId> <!-- (1) -->
-      </dependency>
-  </dependencies>
-  <dependencies>
-      <dependency>
-          <groupId>com.sun.xml.ws</groupId>
-          <artifactId>jaxws-rt</artifactId>
-          <version>${jaxws-rt.version}</version> <!-- (2) -->
-          <scope>runtime</scope>
+          <artifactId>jakarta.xml.ws-api</artifactId>
+          <version>${jakarta.xml.ws.version}</version> <!-- (1) -->
       </dependency>
   </dependencies>
 
@@ -99,18 +94,18 @@ Java SE 17でJAX-WSを利用する場合、以下のようにjakarta.xml.ws-api�
   * - 項番
     - 説明
   * - | (1)
-    - | jakarta.xml.ws-apiのバージョンはterasoluna-gfw-parentが依存している\ `Spring Boot <https://docs.spring.io/spring-boot/docs/3.2.2/reference/htmlsingle/#dependency-versions>`_\ で管理されているため、pom.xmlでのバージョンの指定は不要である。
-  * - | (2)
-    - | Jakarta EE 10に準拠した任意のバージョンを指定する。
+    - | jakarta.xml.ws-apiのバージョンは、Jakarta XML Web Servicesのランタイムが使用するバージョンを指定する。
+
+なお、Jakarta XML Web Servicesのランタイムの定義に関しては、「\ :ref:`SOAPApplicationConfiguration`\ 」 に記載を行っているので、そちらを参照されたい。
 
 |
 
 .. _remove-common-annotations-from-java11:
 
-Common Annotationsの削除
+Jakarta Annotationsの追加
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-Java SE 17でCommon Annotationsを利用する場合、以下のようにjakarta.annotation-apiを依存関係に追加する必要がある。
+Java SE 11以降でCommon Annotationsを利用する場合、以下のようにjakarta.annotation-apiを依存関係に追加する必要がある。
 
 .. code-block:: xml
 
@@ -127,7 +122,7 @@ Java SE 17でCommon Annotationsを利用する場合、以下のようにjakarta
   * - 項番
     - 説明
   * - | (1)
-    - | jakarta.annotation-apiのバージョンはterasoluna-gfw-parentが依存している\ `Spring Boot <https://docs.spring.io/spring-boot/docs/3.2.2/reference/htmlsingle/#dependency-versions>`_\ で管理されているため、pom.xmlでのバージョンの指定は不要である。
+    - | jakarta.annotation-apiのバージョンはterasoluna-dependenciesが依存している\ `Spring Boot <https://docs.spring.io/spring-boot/3.4.1/appendix/dependency-versions/coordinates.html>`_\ で管理されているため、pom.xmlでのバージョンの指定は不要である。
 
 |
 
@@ -136,7 +131,7 @@ Java SE 17でCommon Annotationsを利用する場合、以下のようにjakarta
 推移的に解決されるJava EE関連モジュールの競合
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-Java SE 17以降での開発を円滑に行うため、いくつかのOSSライブラリはこれまでに説明したJava SE 17で削除されたJava EE関連モジュールを依存ライブラリとして推移的に解決してくれるよう改善されている。
+Java SE 11以降での開発を円滑に行うため、いくつかのOSSライブラリはこれまでに説明したJava SE 11で削除されたJava EE関連モジュールを依存ライブラリとして推移的に解決してくれるよう改善されている。
 
 \ **不幸にも、実行環境によってはこれが原因となりアプリケーションが起動しない、処理に問題が生じるといったケースがあるため、留意されたい。**\
 
@@ -154,7 +149,7 @@ Java SE 9以降では、Unicodeコンソーシアムの共通ロケール・デ�
 
 これにより、Java SE 9以降では、Java SE 8以前とは日付、時間、数値などの書式で文字列を出力した場合に結果が変わる可能性がある。
 
-Java SE 17の標準の設定値から変更してJava SE 8以前と同じ書式で出力したい場合は、システム・プロパティ\ ``java.locale.providers``\ のCLDRの前にCOMPATを設定する必要がある。(例:\ ``java.locale.providers=COMPAT,CLDR,SPI``\ )
+Java SE 11以降の標準の設定値から変更してJava SE 8以前と同じ書式で出力したい場合は、システム・プロパティ\ ``java.locale.providers``\ のCLDRの前にCOMPATを設定する必要がある。(例:\ ``java.locale.providers=COMPAT,CLDR,SPI``\ )
 
 詳細については、\ `Oracle JDK Migration GuideのUse CLDR Locale Data by Default <https://docs.oracle.com/en/java/javase/17/migrate/removed-apis.html#GUID-A20F2989-BFA9-482D-8618-6CBB4BAAE310>`_\ を参照されたい。
 

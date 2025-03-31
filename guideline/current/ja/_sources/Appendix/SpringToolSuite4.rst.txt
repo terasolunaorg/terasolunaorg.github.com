@@ -40,13 +40,8 @@ STS4の導入
 
 なお、以下で紹介する導入手順はWindowsを前提としているため注意されたい。
 
-ダウンロードした「spring-tool-suite-4-4.x.x.RELEASE-e4.xx.x-win32.win32.x86_64.self-extracting.jar」を以下のどちらかの手順で実行すると、ダウンロードしたファイルが配置されているフォルダにSTS4が展開される。
-
-* ダウンロードした「spring-tool-suite-4-4.x.x.RELEASE-e4.xx.x-win32.win32.x86_64.self-extracting.jar」をダブルクリック
-
-* コマンドラインから\ ``java -jar spring-tool-suite-4-4.x.x.RELEASE-e4.xx.x-win32.win32.x86_64.self-extracting.jar``\ を実行する。
-
-展開完了後、展開されたフォルダ内の「SpringToolSuite4.exe」を実行することでSTSを起動することができる。
+ダウンロードした「spring-tool-suite-4-4.x.x.RELEASE-e4.xx.x-win32.win32.x86_64.self-extracting.zip」を任意のフォルダに展開する。
+展開されたフォルダ内の「SpringToolSuite4.exe」を実行することでSTSを起動することができる。
 
 |
 
@@ -67,65 +62,6 @@ STS4の導入
   :alt: Eclipse Marketplace
   :align: center
   :width: 75%
-
-* Spring Tools 3 Add-On for Spring Tools 4
-
-  | xml形式のbean定義ファイルをサポートするためのプラグイン。
-  | STS4に入っているプラグインと一部の機能が競合するためそのままではインストールできないため、「Update my installation to be compatible with the items being installed」にチェックを入れて互換性を持たせた状態でインストールを行う。
-
-.. figure:: ./images_SpringToolSuite4/SpringToolSuite4Spring3Plugin.png
-  :alt: Eclipse Marketplace
-  :align: center
-  :width: 75%
-
-.. note:: 
-
-  STS 4.17.1.RELEASEに対しSpring Tools 3 Add-On for Spring Tools 4をインストールする際に、以下の様なエラーが発生することを確認している。
-
-    .. code-block:: console
-
-      Cannot complete the install because one or more required items could not be found.
-        Software being installed: Spring IDE Integration, Flex and Web Services Extension (optional) 3.9.22.202204280911-RELEASE (org.springframework.ide.eclipse.integration.feature.feature.group 3.9.22.202204280911-RELEASE)
-        Missing requirement: Spring IDE Configuration Graphical Editing 3.9.22.202204280911-RELEASE (org.springframework.ide.eclipse.config.graph 3.9.22.202204280911-RELEASE) requires 'osgi.bundle; org.eclipse.mylyn.commons.ui [3.7.0,4.0.0)' but it could not be found
-        Cannot satisfy dependency:
-          From: Spring IDE Core (required) 3.9.22.202204280911-RELEASE (org.springframework.ide.eclipse.feature.feature.group 3.9.22.202204280911-RELEASE)
-          To: org.eclipse.equinox.p2.iu; org.springframework.ide.eclipse.config.graph [3.9.22.202204280911-RELEASE,3.9.22.202204280911-RELEASE]
-        Cannot satisfy dependency:
-          From: Spring IDE Integration, Flex and Web Services Extension (optional) 3.9.22.202204280911-RELEASE (org.springframework.ide.eclipse.integration.feature.feature.group 3.9.22.202204280911-RELEASE)
-          To: org.eclipse.equinox.p2.iu; org.springframework.ide.eclipse.feature.feature.group 0.0.0
-
-  これは、Eclipse IDEからEclipse Mylyn Task UIが削除されたことが原因であるため、個別にMylynをインストールする必要がある。
-
-  * Eclipse Mylyn
-
-    タスク指向UIを提供するプラグイン。
-
-    1. STSのメニューから、Help > Install New Softwareを選択し、Work withに「\ ``https://download.eclipse.org/mylyn/releases/latest``\ 」を入力する。
-    2. Mylyn Featuresを選択し、インストールを行う。
-   
-    .. figure:: ./images_SpringToolSuite4/SpringToolSuite4mylyn.png
-      :alt: Eclipse Marketplace
-      :align: center
-      :width: 70%
-
-.. _SpringToolSuite4DynamicWebModule:
-
-.. note::
-
-  ビルド時にJSPファイルで以下のエラーが発生する場合がある。
-  
-    .. code-block:: console
-
-      The superclass "javax.servlet.http.HttpServlet", determined from the Dynamic Web Module facet version (2.5), was not found on the Java Build Path
-
-  この状態は、Dynamic Web Moduleのバージョンをあげることで解消できる。
-
-  プロジェクト名を右クリックし、「Properties」を選択 ->「Project Facets」の「Dynamic Web Module」を5.0へ変更することで解決する。
-
-  .. figure:: ./images_SpringToolSuite4/SpringToolSuite4DynamicWebModule.png
-    :alt: Eclipse Marketplace
-    :align: center
-    :width: 75%
 
 .. _SpringToolSuite4ProxySettings:
 
@@ -170,15 +106,6 @@ JavaScriptのエディタ設定
 
 |
 
-.. _SpringToolSuite4Perspective:
-
-Perspective設定
-^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-| STS4はデフォルトではSpringでの開発に適した画面レイアウトになっていない。
-| STSのメニューから、Window > Perspective > Open Perspective > Other を選択し、PerspectiveをSpringに切り替えることでSpringでのアプリケーション開発に適した画面レイアウトにすることが出来る。
-
-|
-
 .. _SpringToolSuite4JavaSettings:
 
 Java設定
@@ -217,16 +144,59 @@ Server設定
 | 過去のSTSではSTS本体にアプリケーションサーバが同梱されていたが、STS4からは同梱されなくなった。そのため、以下の手順でアプリケーションサーバの追加を行う。
 | ここでは例としてTomcatを使用する場合の設定手順について説明する。
 
-  1. Serverビューを右クリックし、New > Serverを選択する。
-  2. Apache配下から使用しているTomcatのバージョンと一致するTomcatを選択しNextを押下する。
-  3. Browseから事前にインストールしておいたtomcatを選択し、Finishを押下する。
-  4. サーバにアプリケーションを設定したい場合は、追加したサーバを右クリックしてAdd and Removeを選択する。表示された画面のAvailableにある動作させたいアプリケーションを選択し、AddでConfiguredに追加してFinishを押下する。
-  5. アプリケーションを設定したサーバを右クリックし、Startを選択してサーバを起動する。
+  1. Window > Show View > Other... > Server > Servers を選択し、Serverビューを表示する。
+  2. Serverビューを右クリックし、New > Serverを選択する。
+  3. Apache配下から使用しているTomcatのバージョンと一致するTomcatを選択しNextを押下する。
+  4. Browseから事前にインストールしておいたtomcatを選択し、Finishを押下する。
+  5. サーバにアプリケーションを設定したい場合は、追加したサーバを右クリックしてAdd and Removeを選択する。表示された画面のAvailableにある動作させたいアプリケーションを選択し、AddでConfiguredに追加してFinishを押下する。
+  6. アプリケーションを設定したサーバを右クリックし、Startを選択してサーバを起動する。
 
 .. figure:: ./images_SpringToolSuite4/SpringToolSuite4Server.png
   :alt: SpringToolSuite Server Settings
   :align: center
   :width: 50%
+
+|
+
+.. _SpringToolSuite4JavaVersion:
+
+Javaバージョンが異なる場合の対応
+--------------------------------------------------------------------------------
+
+| 本ガイドラインで説明しているプロジェクトをインポートした際に、期待したJavaバージョンのJRE System Libraryを参照しない場合がある。
+| これは、STSが起動時に使用するJavaバージョンや事前に準備されたプロジェクトが参照するmaven-compiler-pluginやJDKアクティブプロファイルの設定などにより、プロジェクトのJavaバージョンが変更されてしまうためである。
+| ここでは、一時的にプロジェクトの設定を変更し、期待したJavaバージョンで動作させる方法を紹介する。ただし、一時的な手段であるため、設定変更やUpdate Maven Projectの実行などにより元に戻る点に注意されたい。
+
+Project Facetsの設定
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+| Project FacetsのJavaバージョンを変更することにより、プロジェクトが参照するJRE System Libraryを変更することができる。
+| マルチプロジェクトの場合は、各プロジェクト毎に設定する必要がある。
+
+1. プロジェクトを右クリック > Properties > Project Facets を選択し、Javaのバージョンを変更する。
+
+.. figure:: ./images_SpringToolSuite4/SpringToolSuite4_Project_Facets.png
+  :alt: SpringToolSuite Project Facets
+  :align: center
+  :width: 60%
+
+|
+
+Maven Profileの設定
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+| Javaバージョンを変更したことに伴い、JDKアクティブプロファイルが有効になり、デフォルトプロファイルが呼ばれなくなる場合がある。
+| そのため、Maven Profile selectionから必要なプロファイルを有効にする必要がある。
+| 例えば、本ガイドラインのチュートリアルでは\ ``local``\ プロファイルが\ ``activeByDefault=true``\ に設定されているため、\ ``local``\ プロファイルを有効にする必要がある。
+
+1. プロジェクトを右クリック > 「Maven」->「Select Maven Profiles…」をクリックし「local」にチェックを入れて「OK」ボタンを押下する。
+
+.. figure:: ./images_SpringToolSuite4/MavenProfile.png
+  :alt: Maven Plofile
+  :align: center
+  :width: 60%
+
+プロジェクトによりMaven Profileの設定は異なるため、各プロジェクトのpom.xmlを参照し、適切に設定を変更されたい。
 
 .. raw:: latex
 

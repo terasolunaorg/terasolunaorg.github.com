@@ -52,21 +52,21 @@ Javaのテスティングフレームワークとして、\ `JUnit <https://juni
 DIコンテナ
 """"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 
-テスト用のDIコンテナとして\ `Spring TestのDI機能 <https://docs.spring.io/spring-framework/docs/6.1.3/reference/html/testing.html#testing-fixture-di>`_\ を使用する。
+テスト用のDIコンテナとして\ `Spring TestのDI機能 <https://docs.spring.io/spring-framework/docs/6.2.1/reference/html/testing.html#testing-fixture-di>`_\ を使用する。
 
 |
 
 MVCフレームワーク
 """"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 
-テスト用のMVCフレームワークとして\ `Spring MVC Test Framework <https://docs.spring.io/spring-framework/docs/6.1.3/reference/html/testing.html#spring-mvc-test-framework>`_\ を使用する。
+テスト用のMVCフレームワークとして\ `Spring MVC Test Framework <https://docs.spring.io/spring-framework/docs/6.2.1/reference/html/testing.html#spring-mvc-test-framework>`_\ を使用する。
 
 |
 
 トランザクション管理
 """"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 
-テスト用のトランザクション管理として\ `Spring Testのトランザクション管理機能 <https://docs.spring.io/spring-framework/docs/6.1.3/reference/html/testing.html#testing-tx>`_\ を使用する。
+テスト用のトランザクション管理として\ `Spring Testのトランザクション管理機能 <https://docs.spring.io/spring-framework/docs/6.2.1/reference/html/testing.html#testing-tx>`_\ を使用する。
 
 |
 
@@ -75,7 +75,7 @@ MVCフレームワーク
 
 テスト用のデータアクセスとして、Spring TestまたはDBUnitとSpring Test DBUnitを使用することを想定している。
 
-* \ `Spring Test <https://docs.spring.io/spring-framework/docs/6.1.3/reference/html/testing.html#testing-introduction>`_\
+* \ `Spring Test <https://docs.spring.io/spring-framework/docs/6.2.1/reference/html/testing.html#testing-introduction>`_\
 
   * Spring Testは\ ``@Sql``\ アノテーションや\ ``JdbcTemplate``\ などを使用してSQLを発行する機能を提供している。
 
@@ -109,7 +109,7 @@ MVCフレームワーク
   * - JUnit
     - junit
     - junit
-    - 4.13.2
+    - 4.13.1
     - \*
   * - Hamcrest
     - org.hamcrest
@@ -119,17 +119,17 @@ MVCフレームワーク
   * - Mockito
     - org.mockito
     - mockito-core
-    - 5.7.0
+    - 5.14.2
     - \*
   * - Spring Test
     - org.springframework
     - spring-test
-    - 6.1.3
+    - 6.2.1
     - \*
   * - DBUnit
     - org.dbunit
     - dbunit
-    - 2.7.3
+    - 2.8.0
     - \
   * - Spring Test DBUnit
     - com.github.springtestdbunit
@@ -183,11 +183,11 @@ MVCフレームワーク
   * - JVM
     - \ `Java <https://developers.redhat.com/products/openjdk/download>`_\  17
   * - IDE
-    - \ `Spring Tool Suite <https://spring.io/tools>`_\  4.17.1.RELEASE (以降「STS」と呼ぶ。設定方法は\ :doc:`../Appendix/SpringToolSuite4`\ を参照されたい。)
+    - \ `Spring Tool Suite <https://spring.io/tools>`_\  4.27.0.RELEASE (以降「STS」と呼ぶ。設定方法は\ :doc:`../Appendix/SpringToolSuite4`\ を参照されたい。)
   * - Build Tool
-    - \ `Apache Maven <https://maven.apache.org/download.cgi>`_\  3.8.6 (以降「Maven」と呼ぶ)
+    - \ `Apache Maven <https://maven.apache.org/download.cgi>`_\  3.9.9 (以降「Maven」と呼ぶ)
   * - RDBMS
-    - \ `PostgreSQL <https://www.postgresql.org/docs/15/sql-insert.html>`_\  15.4
+    - \ `PostgreSQL <https://www.postgresql.org/docs/16/sql-insert.html>`_\  16.6
 
 .. raw:: latex
 

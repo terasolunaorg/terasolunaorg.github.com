@@ -161,6 +161,11 @@ HTTPSでアクセスした後にHTTPが使われないようにするために�
 
   Spring SecurityではHSTS preload listへの登録に必要となるpreloadディレクティブをサポートしており、オプションを指定することで出力することが出来る。
 
+  .. memo Strict-Transport-Securityのテストに関してはSSL環境が必要なため、spring-functionaltestで自動テストは実施しておらず、以下の資材と手順で手動テストを行っている。
+     ・資材: https://github.com/terasolunaorg/spring-functionaltest のspsc-hsts
+     ・動作確認手順: https://github.com/terasolunaorg/spring-functionaltest の試験項目_SPSC.xlsxの「HSTSの動作確認手順」シート参照
+     ・試験項目: https://github.com/terasolunaorg/spring-functionaltest の試験項目_SPSC.xlsxの「SPSC07」シート参照
+
 |
 
 .. _LinkageWithBrowserContentSecurityPolicy:
@@ -437,7 +442,7 @@ How to use
                   .httpStrictTransportSecurity(Customizer.withDefaults()) // (5)
                   .contentSecurityPolicy(csp -> csp.policyDirectives("default-src 'self'")) // (6)
                   .referrerPolicy(Customizer.withDefaults()) // (7)
-                  .permissionsPolicy(permissions -> permissions.policy("geolocation=(self)")) // (8)
+                  .permissionsPolicyHeader(permissions -> permissions.policy("geolocation=(self)")) // (8)
           ); 
           // omitted
   
@@ -673,7 +678,7 @@ Spring Securityは、\ ``RequestMatcher``\ インタフェースの仕組みを�
       @Bean("secureCacheControlHeadersWriter")
       public DelegatingRequestMatcherHeaderWriter secureCacheControlHeadersWriter() {
   
-          AntPathRequestMatcher antPathRequestMatcher = new AntPathRequestMatcher("/secure/**");
+          AntPathRequestMatcher antPathRequestMatcher = antMatcher("/secure/**");
           CacheControlHeadersWriter cacheControlHeadersWriter = new CacheControlHeadersWriter();
   
           return new DelegatingRequestMatcherHeaderWriter(antPathRequestMatcher, cacheControlHeadersWriter);

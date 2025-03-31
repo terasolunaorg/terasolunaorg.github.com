@@ -93,7 +93,7 @@ Webアプリケーションでセッションを扱う場合、一般的には�
 
   セミコロンが含まれるURLを許可するように変更することも可能であるが、認証認可のバイパスやReflected File Download(RFD)攻撃に対する脆弱性が発生する可能性があるため、推奨しない。
 
-  詳細は、\ `StrictHttpFirewall#setAllowSemicolon <https://docs.spring.io/spring-security/site/docs/6.2.1/api/org/springframework/security/web/firewall/StrictHttpFirewall.html#setAllowSemicolon-boolean->`_\ を参照されたい。
+  詳細は、\ `StrictHttpFirewall#setAllowSemicolon <https://docs.spring.io/spring-security/site/docs/6.4.2/api/org/springframework/security/web/firewall/StrictHttpFirewall.html#setAllowSemicolon-boolean->`_\ を参照されたい。
 
 |
 
@@ -588,7 +588,7 @@ Spring Securityは、以下のタイミングでセッションを破棄する�
       @Order(1)
       @Bean
       public SecurityFilterChain filterChainTopPage(HttpSecurity http) throws Exception {
-          http.securityMatcher(new AntPathRequestMatcher("/"));
+          http.securityMatcher(antMatcher("/"));
           // omitted
           http.sessionManagement(Customizer.withDefaults());
           // omitted
