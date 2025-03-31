@@ -1,0 +1,397 @@
+<!DOCTYPE html>
+
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+    <title>12.1. NEXUSによるMavenリポジトリの管理 &#8212; TERASOLUNA Server Framework for Java (5.x) Development Guideline 5.10.0.RELEASE documentation</title>
+    <link rel="stylesheet" type="text/css" href="../_static/pygments.css" />
+    <link rel="stylesheet" type="text/css" href="../_static/solar.css" />
+    <link rel="stylesheet" type="text/css" href="../_static/tabs.css" />
+    <script data-url_root="../" id="documentation_options" src="../_static/documentation_options.js"></script>
+    <script src="../_static/doctools.js"></script>
+    <script src="../_static/sphinx_highlight.js"></script>
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="next" title="12.2. ボイラープレートコードの排除(Lombok)" href="Lombok.html" />
+    <link rel="prev" title="12. Appendix(Know How)" href="index.html" /><script src="../_static/jquery.js" type="text/javascript"></script>
+<script src="../_static/jquery.treeview.js" type="text/javascript"></script>
+<!-- <link href='http://fonts.googleapis.com/css?family=Source+Code+Pro|Open+Sans:300italic,400italic,700italic,400,300,700' rel='stylesheet' type='text/css'> -->
+<link href="../_static/solarized-dark.css" rel="stylesheet">
+<link href="../_static/jquery.treeview.css" rel="stylesheet">
+  </head><body>
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="Lombok.html" title="12.2. ボイラープレートコードの排除(Lombok)"
+             accesskey="N">next</a> |</li>
+        <li class="right" >
+          <a href="index.html" title="12. Appendix(Know How)"
+             accesskey="P">previous</a> |</li>
+        <li class="nav-item nav-item-0"><a href="../index.html">TERASOLUNA Server Framework for Java (5.x) Development Guideline 5.10.0.RELEASE documentation</a> &#187;</li>
+          <li class="nav-item nav-item-1"><a href="index.html" accesskey="U"><span class="section-number">12. </span>Appendix(Know How)</a> &#187;</li>
+        <li class="nav-item nav-item-this"><a href=""><span class="section-number">12.1. </span>NEXUSによるMavenリポジトリの管理</a></li> 
+      </ul>
+    </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper"><label><input id="scroll" type="checkbox"> scroll sidebar</label>
+  <div>
+    <h3><a href="../index.html">Table of Contents</a></h3>
+    <ul>
+<li><a class="reference internal" href="#">12.1. NEXUSによるMavenリポジトリの管理</a><ul>
+<li><a class="reference internal" href="#why-nexus">12.1.1. Why NEXUS ?</a></li>
+<li><a class="reference internal" href="#install-and-start-up">12.1.2. Install and Start up</a></li>
+<li><a class="reference internal" href="#settings-xml">12.1.3. settings.xml</a></li>
+<li><a class="reference internal" href="#mvn-deploy-how-to">12.1.4. mvn deploy how to</a></li>
+<li><a class="reference internal" href="#pom-xml">12.1.5. pom.xml</a></li>
+<li><a class="reference internal" href="#upload-3rd-party-artifact-ex-ojdbc6-jar">12.1.6. Upload 3rd party artifact (ex. ojdbc6.jar)</a><ul>
+<li><a class="reference internal" href="#use-artifact">12.1.6.1. use artifact</a></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+
+  </div>
+  <div>
+    <h4>Previous topic</h4>
+    <p class="topless"><a href="index.html"
+                          title="previous chapter"><span class="section-number">12. </span>Appendix(Know How)</a></p>
+  </div>
+  <div>
+    <h4>Next topic</h4>
+    <p class="topless"><a href="Lombok.html"
+                          title="next chapter"><span class="section-number">12.2. </span>ボイラープレートコードの排除(Lombok)</a></p>
+  </div>
+  <div role="note" aria-label="source link">
+    <h3>This Page</h3>
+    <ul class="this-page-menu">
+      <li><a href="../_sources/Appendix/Nexus.rst.txt"
+            rel="nofollow">Show Source</a></li>
+    </ul>
+   </div>
+<div id="searchbox" style="display: none" role="search">
+  <h3 id="searchlabel">Quick search</h3>
+    <div class="searchformwrapper">
+    <form class="search" action="../search.html" method="get">
+      <input type="text" name="q" aria-labelledby="searchlabel" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false"/>
+      <input type="submit" value="Go" />
+    </form>
+    </div>
+</div>
+<script>document.getElementById('searchbox').style.display = "block"</script>
+        </div>
+      </div>
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <section id="nexusmaven">
+<h1><span class="section-number">12.1. </span>NEXUSによるMavenリポジトリの管理<a class="headerlink" href="#nexusmaven" title="Permalink to this heading">¶</a></h1>
+<div class="line-block">
+<div class="line">Sonatype NEXUSはパッケージリポジトリマネージャソフトウェアである。</div>
+<div class="line"><a class="reference external" href="https://www.sonatype.com/products/repository-oss">OSS版</a>と<a class="reference external" href="https://www.sonatype.com/products/repository-pro">商用版</a>があるが、OSS版でも十分な機能がある。</div>
+</div>
+<p>本章ではOSS版のNEXUSの役割と設定方法などについて解決する。</p>
+<div class="line-block">
+<div class="line"><br /></div>
+</div>
+<section id="why-nexus">
+<h2><span class="section-number">12.1.1. </span>Why NEXUS ?<a class="headerlink" href="#why-nexus" title="Permalink to this heading">¶</a></h2>
+<p>開発者が一人しかいない場合には、インターネット上のセントラルリポジトリと、その開発者のPC内のローカルリポジトリだけでも、mavenやant+ivyを使って開発することは可能である。</p>
+<p>しかし、Javaアプリケーションを複数のサブプロジェクトに分けてチームで開発する場合にはライブラリの依存性解決が複雑になるため、ライブラリの依存性解決の自動化が必要となる。そのためにはパッケージリポジトリサーバの存在が不可欠である。</p>
+<p>Javaアプリケーション開発プロジェクトにおいて必要となるパッケージリポジトリは次のようなものがある。</p>
+<ul class="simple">
+<li><p>セントラルリポジトリをはじめとする外部のリポジトリサーバへのアクセスをプロキシする<strong>プロキシリポジトリ</strong></p></li>
+<li><p>インターネット上のリポジトリでは公開されていない、他者から提供されたartifactを組織内部で配布するための<strong>サードパーティリポジトリ</strong></p></li>
+<li><p>そのプロジェクト自体で開発されたartifactを格納するための<strong>プライベートリポジトリ</strong></p></li>
+<li><p>複数の異なるリポジトリのartifactへのアクセスを一つのリポジトリURLに集約するための<strong>グループリポジトリ</strong></p></li>
+</ul>
+<p>NEXUSならこうした複数のリポジトリを楽に運用管理できる。</p>
+<div class="line-block">
+<div class="line"><br /></div>
+</div>
+</section>
+<section id="install-and-start-up">
+<h2><span class="section-number">12.1.2. </span>Install and Start up<a class="headerlink" href="#install-and-start-up" title="Permalink to this heading">¶</a></h2>
+<p>NEXUSをインストールするマシンは次の条件を満たしている必要がある。</p>
+<ul class="simple">
+<li><p>JRE6以上がインストール済みであること</p></li>
+<li><p>インターネット上のセントラルリポジトリ（先頭が<code class="docutils literal notranslate"><span class="pre">https://repo1.maven.org/</span></code>で始まるURL）にhttpsアクセス可能であること</p></li>
+</ul>
+<p>インストール手順は次の通り。</p>
+<ol class="arabic simple">
+<li><p><a class="reference external" href="https://www.sonatype.com/products/repository-oss">NEXUS OSS</a>をダウンロードし、アーカイブを展開する。</p></li>
+<li><p>bin/nexus または bin/nexus.bat を実行するとNEXUSが起動する。</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">http://[IP</span> <span class="pre">or</span> <span class="pre">FQDN]:8081/nexus/</span></code>へアクセスし、NEXUSの初期画面が見えることを確認する。</p></li>
+</ol>
+<div class="line-block">
+<div class="line">いくつかのリポジトリがデフォルトで用意されている。特別な場合を除いて、デフォルトのままでも十分に開発に使える。</div>
+<div class="line">画面左のメニュー部のRepositoriesをクリックするとリポジトリ一覧が表示される。</div>
+</div>
+<figure class="align-default">
+<img alt="default repositories on nexus" src="../_images/appendix-nexus-repositories.png" />
+</figure>
+<ul class="simple">
+<li><p><strong>Central</strong> = インターネット上のセントラルリポジトリ(<a class="reference external" href="https://repo1.maven.org/maven2/">https://repo1.maven.org/maven2/</a>)へのproxyの役割を果たすリポジトリ。</p></li>
+<li><p><strong>3rd party</strong> = インターネット上で公開されているリポジトリにはないが、開発で必要となるサードパーティ製ライブラリを保管するリポジトリ。</p></li>
+<li><p><strong>Releases</strong> = 自分たちで開発したアプリケーションのリリースバージョンの成果物を格納するリポジトリ。</p></li>
+<li><p><strong>Snapshots</strong> = 自分たちで開発したアプリケーションのSNAPSHOTバージョンの成果物を格納するリポジトリ。</p></li>
+<li><p><strong>Public Repositories</strong> = 上記4つのリポジトリへ、一つのURLでアクセスできるようにするためのグループリポジトリ。</p></li>
+</ul>
+<div class="line-block">
+<div class="line"><br /></div>
+</div>
+</section>
+<section id="settings-xml">
+<h2><span class="section-number">12.1.3. </span>settings.xml<a class="headerlink" href="#settings-xml" title="Permalink to this heading">¶</a></h2>
+<p>構築したNEXUSをmavenコマンドから使用するには、
+ローカル開発環境のユーザーホームディレクトリにsettings.xmlファイルを作成しておく必要がある。</p>
+<ul class="simple">
+<li><p>Windows: <code class="docutils literal notranslate"><span class="pre">C:/Users/[OSaccount]/.m2/settings.xml</span></code></p></li>
+<li><p>Unix: <code class="docutils literal notranslate"><span class="pre">HOME/.m2/settings.xml</span></code></p></li>
+</ul>
+<div class="highlight-xml notranslate"><div class="highlight"><pre><span></span><span class="cp">&lt;?xml version=&quot;1.0&quot; encoding=&quot;UTF-8&quot;?&gt;</span>
+<span class="nt">&lt;settings&gt;</span>
+
+<span class="w">  </span><span class="nt">&lt;mirrors&gt;</span>
+<span class="w">    </span><span class="nt">&lt;mirror&gt;</span>
+<span class="w">      </span><span class="nt">&lt;id&gt;</span>myteam-nexus<span class="nt">&lt;/id&gt;</span>
+<span class="w">      </span><span class="nt">&lt;mirrorOf&gt;</span>*<span class="nt">&lt;/mirrorOf&gt;</span>
+<span class="w">      </span><span class="cm">&lt;!-- CHANGE HERE by your team own nexus server --&gt;</span>
+<span class="w">      </span><span class="nt">&lt;url&gt;</span>http://<span class="w"> </span>IP<span class="w"> </span>or<span class="w"> </span>FQDN<span class="w"> </span>/nexus/content/groups/public<span class="w"> </span><span class="nt">&lt;/url&gt;</span>
+<span class="w">    </span><span class="nt">&lt;/mirror&gt;</span>
+<span class="w">  </span><span class="nt">&lt;/mirrors&gt;</span>
+
+<span class="w">  </span><span class="nt">&lt;activeProfiles&gt;</span>
+<span class="w">    </span><span class="nt">&lt;activeProfile&gt;</span>myteam-nexus<span class="nt">&lt;/activeProfile&gt;</span>
+<span class="w">  </span><span class="nt">&lt;/activeProfiles&gt;</span>
+
+<span class="w">  </span><span class="nt">&lt;profiles&gt;</span>
+<span class="w">    </span><span class="nt">&lt;profile&gt;</span>
+<span class="w">      </span><span class="nt">&lt;id&gt;</span>myteam-nexus<span class="nt">&lt;/id&gt;</span>
+<span class="w">      </span><span class="nt">&lt;repositories&gt;</span>
+<span class="w">        </span><span class="nt">&lt;repository&gt;</span>
+<span class="w">          </span><span class="nt">&lt;id&gt;</span>central<span class="nt">&lt;/id&gt;</span>
+<span class="w">          </span><span class="nt">&lt;url&gt;</span>http://central<span class="nt">&lt;/url&gt;</span>
+<span class="w">          </span><span class="nt">&lt;releases&gt;&lt;enabled&gt;</span>true<span class="nt">&lt;/enabled&gt;&lt;/releases&gt;</span>
+<span class="w">          </span><span class="nt">&lt;snapshots&gt;&lt;enabled&gt;</span>true<span class="nt">&lt;/enabled&gt;&lt;/snapshots&gt;</span>
+<span class="w">        </span><span class="nt">&lt;/repository&gt;</span>
+<span class="w">      </span><span class="nt">&lt;/repositories&gt;</span>
+<span class="w">      </span><span class="nt">&lt;pluginRepositories&gt;</span>
+<span class="w">        </span><span class="nt">&lt;pluginRepository&gt;</span>
+<span class="w">          </span><span class="nt">&lt;id&gt;</span>central<span class="nt">&lt;/id&gt;</span>
+<span class="w">          </span><span class="nt">&lt;url&gt;</span>http://central<span class="nt">&lt;/url&gt;</span>
+<span class="w">          </span><span class="nt">&lt;releases&gt;&lt;enabled&gt;</span>true<span class="nt">&lt;/enabled&gt;&lt;/releases&gt;</span>
+<span class="w">          </span><span class="nt">&lt;snapshots&gt;&lt;enabled&gt;</span>true<span class="nt">&lt;/enabled&gt;&lt;/snapshots&gt;</span>
+<span class="w">        </span><span class="nt">&lt;/pluginRepository&gt;</span>
+<span class="w">      </span><span class="nt">&lt;/pluginRepositories&gt;</span>
+<span class="w">    </span><span class="nt">&lt;/profile&gt;</span>
+<span class="w">  </span><span class="nt">&lt;/profiles&gt;</span>
+
+<span class="nt">&lt;/settings&gt;</span>
+</pre></div>
+</div>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>see also: <a class="reference external" href="https://help.sonatype.com/repomanager2/maven-and-other-build-tools/apache-maven">Nexus Repository Manager 2 &gt; Apache Maven</a></p>
+</div>
+<div class="line-block">
+<div class="line"><br /></div>
+</div>
+</section>
+<section id="mvn-deploy-how-to">
+<h2><span class="section-number">12.1.4. </span>mvn deploy how to<a class="headerlink" href="#mvn-deploy-how-to" title="Permalink to this heading">¶</a></h2>
+<p>jar/warファイルをartifactとしてパッケージリポジトリ（NEXUS）にアップロードするには、mvn deployコマンドを使用する。</p>
+<p>パッケージリポジトリに誰でもデプロイ可能な状態は混乱を招くので避けるべきである。そこで、Jenkinsだけがパッケージリポジトリに対してmvn deploy可能とする運用を推奨する。</p>
+<p>Jenkinsサーバ内のJenkinsの実行ユーザーのホームディレクトリ配下の<code class="docutils literal notranslate"><span class="pre">.m2/settings.xml</span></code>に、前述と同じ内容に加えて、さらに下記を追加しておく。</p>
+<div class="highlight-xml notranslate"><div class="highlight"><pre><span></span><span class="nt">&lt;servers&gt;</span>
+<span class="w">  </span><span class="nt">&lt;server&gt;</span>
+<span class="w">    </span><span class="nt">&lt;id&gt;</span>releases<span class="nt">&lt;/id&gt;</span>
+<span class="w">    </span><span class="nt">&lt;username&gt;</span>deployment<span class="nt">&lt;/username&gt;</span>
+<span class="w">    </span><span class="nt">&lt;password&gt;</span>deployment123<span class="nt">&lt;/password&gt;</span>
+<span class="w">  </span><span class="nt">&lt;/server&gt;</span>
+<span class="w">  </span><span class="nt">&lt;server&gt;</span>
+<span class="w">    </span><span class="nt">&lt;id&gt;</span>snapshots<span class="nt">&lt;/id&gt;</span>
+<span class="w">    </span><span class="nt">&lt;username&gt;</span>deployment<span class="nt">&lt;/username&gt;</span>
+<span class="w">    </span><span class="nt">&lt;password&gt;</span>deployment123<span class="nt">&lt;/password&gt;</span>
+<span class="w">  </span><span class="nt">&lt;/server&gt;</span>
+<span class="nt">&lt;/servers&gt;</span>
+</pre></div>
+</div>
+<div class="line-block">
+<div class="line">deploymentはデプロイ権限を持つアカウント（NEXUSにデフォルトで設定済みの）であり、<code class="docutils literal notranslate"><span class="pre">deployment123</span></code>はそのパスワードである。</div>
+<div class="line">もちろん、NEXUSのGUI画面上であらかじめパスワードを変更しておくことを推奨する。</div>
+</div>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>settings.xml上にplain textでパスワードを保存することを避けたい場合には、mavenのパスワード暗号化機能を利用するとよい。</p>
+<p>詳しくは<a class="reference external" href="https://maven.apache.org/guides/mini/guide-encryption.html">Maven - Password Encryption</a>を参照されたい。</p>
+</div>
+<p>Jenkinsのビルドジョブでは次のようにしてmvn deploy手順を設定する。</p>
+<div class="line-block">
+<div class="line"><br /></div>
+</div>
+</section>
+<section id="pom-xml">
+<h2><span class="section-number">12.1.5. </span>pom.xml<a class="headerlink" href="#pom-xml" title="Permalink to this heading">¶</a></h2>
+<p>mavenで管理されたプロジェクトでは、artifactとなった自分自身をどのパッケージリポジトリに格納されるべきかを<code class="docutils literal notranslate"><span class="pre">pom.xml</span></code>上の<code class="docutils literal notranslate"><span class="pre">&lt;distributionManagement&gt;</span></code>タグで表明する必要がある。</p>
+<div class="highlight-xml notranslate"><div class="highlight"><pre><span></span><span class="nt">&lt;distributionManagement&gt;</span>
+<span class="w">  </span><span class="nt">&lt;repository&gt;</span>
+<span class="w">    </span><span class="nt">&lt;id&gt;</span>releases<span class="nt">&lt;/id&gt;</span>
+<span class="w">    </span><span class="cm">&lt;!-- CHANGE HERE by your team nexus server --&gt;</span>
+<span class="w">    </span><span class="nt">&lt;url&gt;</span>http://192.168.0.1:8081/nexus/content/repositories/releases/<span class="nt">&lt;/url&gt;</span>
+<span class="w">  </span><span class="nt">&lt;/repository&gt;</span>
+<span class="w">  </span><span class="nt">&lt;snapshotRepository&gt;</span>
+<span class="w">    </span><span class="nt">&lt;id&gt;</span>snapshots<span class="nt">&lt;/id&gt;</span>
+<span class="w">    </span><span class="cm">&lt;!-- CHANGE HERE by your team nexus server --&gt;</span>
+<span class="w">    </span><span class="nt">&lt;url&gt;</span>http://192.168.0.1:8081/nexus/content/repositories/snapshots/<span class="nt">&lt;/url&gt;</span>
+<span class="w">  </span><span class="nt">&lt;/snapshotRepository&gt;</span>
+<span class="nt">&lt;/distributionManagement&gt;</span>
+</pre></div>
+</div>
+<p>前述のmvn deployコマンドは、<code class="docutils literal notranslate"><span class="pre">&lt;distributionManagement&gt;</span></code>タグで指定されたURLに対してHTTP PUTでartifactをアップロードする。</p>
+<div class="line-block">
+<div class="line"><br /></div>
+</div>
+</section>
+<section id="upload-3rd-party-artifact-ex-ojdbc6-jar">
+<h2><span class="section-number">12.1.6. </span>Upload 3rd party artifact (ex. ojdbc6.jar)<a class="headerlink" href="#upload-3rd-party-artifact-ex-ojdbc6-jar" title="Permalink to this heading">¶</a></h2>
+<p>サードパーティ用リポジトリには、外部のリモートリポジトリでは公開されていないartifactを格納する。</p>
+<div class="line-block">
+<div class="line">典型的な例が、oracleのJDBCドライバ(<code class="docutils literal notranslate"><span class="pre">ojdbc\*.jar</span></code>)である。</div>
+<div class="line">RDBMSとしてoracleを使用する場合に必須だが、セントラルリポジトリはもちろん、インターネット上の公開リポジトリに格納されていることはほとんどない。</div>
+<div class="line">そのため、組織内のパッケージリポジトリに格納しておく必要がある。</div>
+</div>
+<ol class="arabic simple">
+<li><p>adminユーザーでログインする。（デフォルトのパスワードはadmin123）</p></li>
+</ol>
+<blockquote>
+<div><figure class="align-default">
+<img alt="../_images/appendix-nexus-login.png" src="../_images/appendix-nexus-login.png" />
+</figure>
+</div></blockquote>
+<ol class="arabic simple" start="2">
+<li><p>3rdPartyリポジトリを選択し、<strong>Artifact Upload</strong>タブを選択する。</p></li>
+</ol>
+<blockquote>
+<div><figure class="align-default">
+<img alt="../_images/appendix-nexus-select-3rdparty.png" src="../_images/appendix-nexus-select-3rdparty.png" />
+</figure>
+</div></blockquote>
+<ol class="arabic simple" start="3">
+<li><p>GAV情報を入力する。(GAV = groupId, artifactId, version)</p></li>
+</ol>
+<blockquote>
+<div><figure class="align-default">
+<img alt="../_images/appendix-nexus-ojdbc6-input-gav.png" src="../_images/appendix-nexus-ojdbc6-input-gav.png" />
+</figure>
+</div></blockquote>
+<ol class="arabic simple" start="4">
+<li><p>ローカルPC上のojdbc6.jarファイルを選択し、<strong>Add Artifact</strong>ボタンを押す。</p></li>
+</ol>
+<blockquote>
+<div><figure class="align-default">
+<img alt="../_images/appendix-nexus-ojdbc6-selectfile.png" src="../_images/appendix-nexus-ojdbc6-selectfile.png" />
+</figure>
+</div></blockquote>
+<ol class="arabic simple" start="5">
+<li><p>最後に<strong>Upload Artifact(s)</strong>ボタンを押すと、リポジトリにjarファイルが格納される。</p></li>
+</ol>
+<blockquote>
+<div><figure class="align-default">
+<img alt="../_images/appendix-nexus-ojdbc6-upload.png" src="../_images/appendix-nexus-ojdbc6-upload.png" />
+</figure>
+</div></blockquote>
+<p>以上でアップロード作業は完了。</p>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>NEXUSのGUI画面を使ってartifactをアップロードする作業は完全に手作業でありオペレーションミスを誘発しやすいため、推奨しない。</p>
+<p>odjbc6.jarのような、サードパーティ製で、しかも1個または数個程度のファイルで構成可能な単純なライブラリに対してのみ、ここで説明している方法を用いるべきである。それ以外のケースでは<strong>mvn deploy</strong>コマンドを使うべきである。</p>
+</div>
+<div class="line-block">
+<div class="line"><br /></div>
+</div>
+<section id="use-artifact">
+<h3><span class="section-number">12.1.6.1. </span>use artifact<a class="headerlink" href="#use-artifact" title="Permalink to this heading">¶</a></h3>
+<p>3rd partyリポジトリ上のojdbc6をプロジェクトの依存性管理に追加するには、そのプロジェクトの<code class="docutils literal notranslate"><span class="pre">pom.xml</span></code>にdependencyタグを追加するだけである。</p>
+<p><strong>Browse Storage</strong>タブから目的のartifactを選択すると、画面右側にdependencyタグのサンプルが表示される。それを<code class="docutils literal notranslate"><span class="pre">pom.xml</span></code>にコピー&amp;ペーストすればよい。</p>
+<figure class="align-default">
+<img alt="../_images/appendix-nexus-ojdbc6-dependency-tag.png" src="../_images/appendix-nexus-ojdbc6-dependency-tag.png" />
+</figure>
+</section>
+</section>
+</section>
+
+
+            <div class="clearer"></div>
+          </div>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="Lombok.html" title="12.2. ボイラープレートコードの排除(Lombok)"
+             >next</a> |</li>
+        <li class="right" >
+          <a href="index.html" title="12. Appendix(Know How)"
+             >previous</a> |</li>
+        <li class="nav-item nav-item-0"><a href="../index.html">TERASOLUNA Server Framework for Java (5.x) Development Guideline 5.10.0.RELEASE documentation</a> &#187;</li>
+          <li class="nav-item nav-item-1"><a href="index.html" ><span class="section-number">12. </span>Appendix(Know How)</a> &#187;</li>
+        <li class="nav-item nav-item-this"><a href=""><span class="section-number">12.1. </span>NEXUSによるMavenリポジトリの管理</a></li> 
+      </ul>
+    </div>
+    <div class="footer">
+      © Copyright 2024, NTT DATA Group Corporation. © Copyright 2013, NTT Corporation.
+      Created using <a href="https://www.sphinx-doc.org/en/master/">Sphinx</a> 7.0.1.Theme is <a href="https://pypi.org/project/solar-theme/">Solar</a>
+    </div>
+    
+    <script>
+    
+    $(function() {
+    	var $sidebar	= $('.sphinxsidebar'),
+    		$window		= $(window),
+    		offset		= $sidebar.offset(),
+    		topPadding	= 3,
+    		$scroll		= $('#scroll');
+    	
+    	$window.scroll(function() {
+    		if ($scroll.is(':checked')) {
+				if ($window.scrollTop() > offset.top) {
+					$sidebar.stop().animate({
+						marginTop:$window.scrollTop() - offset.top + topPadding
+					});
+				} else {
+					$sidebar.stop().animate({
+						marginTop:0
+					});
+				}
+			}
+		});
+    	
+    	var $navList = $('ul:first', $sidebar);
+    	$('li:first', $navList).addClass('open');
+    	
+    	$navList.treeview({
+    		persist: "location",
+    		collapsed: true,
+    		unique: false
+    	});
+    	
+	});
+    </script>
+  </body>
+</html>

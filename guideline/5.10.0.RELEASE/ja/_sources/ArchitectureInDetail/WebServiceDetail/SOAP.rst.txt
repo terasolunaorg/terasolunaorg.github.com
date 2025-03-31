@@ -1,0 +1,3238 @@
+SOAP Web Service（サーバ/クライアント）
+================================================================================
+
+.. only:: html
+
+ .. contents:: 目次
+    :depth: 3
+    :local:
+
+.. _SOAPOverview:
+
+Overview
+--------------------------------------------------------------------------------
+本節では、SOAP Web Serviceの基本的な概念とJakarta XML Web Servicesを使用したSOAPサーバ、クライアント双方の開発について説明する。
+
+実装に対する具体的な説明については、
+
+* | 「:ref:`SOAPHowToUse`」
+  | Jakarta XML Web Servicesを使用したSOAP Web Serviceのアプリケーション構成やAPIの実装方法について説明している。
+
+を参照されたい。
+
+|
+
+.. _SOAPOverviewAboutSOAPWebService:
+
+SOAPとは
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+| SOAPとは、XMLで記述されたメッセージをコンピュータ間で送受信を行うためのプロトコルあり、W3Cによって仕様が定義されている。
+| 当初、「SOAP」は「\ **S**\imple \ **O**\bject \ **A**\ccess \ **P**\rotocol」の頭字語であったが、現在はそうではないとされている。
+| SOAPの仕様についての詳細は、\ `W3C -SOAP Specifications- <https://www.w3.org/TR/soap/>`_\ を参照されたい。
+
+| 本ガイドラインでは、以下の図のような構成でのSOAP Web Serviceを行う場合を想定して説明する。
+| ただし、下記の構成以外でのSOAP Web Serviceの場合にも応用可能である。（例：クライアントがバッチの場合など）
+
+.. figure:: images_SOAP/SOAPServerAndClient.png
+    :alt: Server and Client for SOAP
+    :width: 100%
+
+.. tabularcolumns:: |p{0.10\linewidth}|p{0.90\linewidth}|
+.. list-table::
+    :header-rows: 1
+    :widths: 10 90
+
+    * - 項番
+      - 説明
+    * - | (1)
+      - | クライアントは、別のSOAPサーバへの通信を行うWebアプリケーションを想定している。
+        | クライアントと呼んでいるがWebアプリケーション想定なので注意が必要である。
+    * - | (2)
+      - | SOAPサーバは、Webサービスを公開し、クライアントからのSOAP Web ServiceによるXMLを受信して処理を行う。データベースなどにアクセスを行い、業務処理を行うことを想定している。
+    * - | (3)
+      - | SOAP Web ServiceではXMLを使用して情報のやり取りを行う。
+        | 今回の想定では、SOAPサーバ、クライアントどちらもJavaである想定としているが、他のプラットフォームでも問題なく通信可能である。
+
+
+|
+
+.. _SOAPOverviewAboutSOAPServiceDevelopment:
+
+SOAPとJakarta XML Web Services
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+| \ `Jakarta XML Web Services <https://jakarta.ee/specifications/xml-web-services/3.0/jakarta-xml-ws-spec-3.0>`_\ とは、SOAPなどを使ったWebサービスを扱うためのJava標準APIである。
+| Jakarta XML Web Servicesを用いることで、JavaのオブジェクトをSOAPの仕様に沿ったXMLに変換して送信することが可能である。
+| そのため、Jakarta XML Web Servicesを利用してメッセージの送受信を行う場合、利用者はXMLの構造をあまり意識せずデータを扱うことができる。
+| また、SOAPサーバ、クライアントの公開に関しても、通常のWebアプリケーション同様に、ブランクプロジェクト内のwebプロジェクトから作成したWARファイルをAPサーバにデプロイすることで、SOAP Web Serviceを簡単に実現することができる。
+
+|
+
+.. _SOAPOverviewPrerequisites:
+
+本ガイドラインにおいて利用するJakarta XML Web Services実装ライブラリについて
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+| TERASOLUNA Server Framework for Java (5.x) 5.7 までは、Spring Frameworkが提供するJakarta XML Web Servicesの連携機能を利用した実装を推奨していたが、Spring Framework 6から、\ ``org.springframework.remoting``\ パッケージが削除され、Jakarta XML Web Servicesの連携機能が利用できなくなった。（\ `Spring#27422 <https://github.com/spring-projects/spring-framework/issues/27422>`_\） 
+| それに伴い、TERASOLUNA Server Framework for Java (5.x) 5.10 からはJakarta XML Web Servicesでの実装を推奨している。
+| 
+| システムで利用するJakarta XML Web Servicesの実装として、どのライブラリを採用すべきかは、どのAPサーバを利用するかに依存する事が多い。(APサーバ側からJakarta XML Web Servicesの実装ライブラリが提供されることが多いため)
+| 本ガイドラインでは、APサーバはTomcat、Jakarta XML Web Services実装としてApache CXF、通信プロトコルはSOAP1.2の利用を想定して説明を行う。
+| APサーバやJakarta XML Web Services実装ライブラリとして異なるものを使う際には、設定などが異なることがあるので、そちらのマニュアルを参照する方がよい。
+| TomcatはJakarta XML Web Servicesの実装ライブラリを提供しないため、「\ :ref:`SOAPApplicationConfiguration`\」に示すようにApache CXFを依存性に追加し、設定を行う必要があるため注意すること。
+| また、SpringとJakarta XML Web Servicesを利用して開発を行う場合、以下の内容を留意する必要がある。
+
+| \ **SpringとJakarta XML Web Services実装ライブラリを併用する場合の留意事項**\ 
+
+* WebServiceインターフェイス実装クラスはSpringのControllerクラスではないため、 \ ``@ControllerAdvice``\ や \ ``@ExceptionHandler`` \ などが適用されない。
+* WebServiceインターフェイス実装クラスがSpringのDIコンテナ上で管理されないため、Springが管理するBeanのインジェクションや、AOPによる横断的な処理をかけることができない。（Spring統合が可能なJakarta XML Web Services実装ライブラリを利用すれば解消される）
+
+ Apache CXFは、Spring統合が可能なJakarta XML Web Services実装ライブラリであるため、２点目に記載しているBeanのインジェクションや、AOPによる横断的な処理をかけることができないという制約は解消される。
+
+| また、上記制約以外にもAPサーバのJakarta XML Web Services実装によっては、Jakarta XML Web Services仕様への対応状況や実際のWebサービスの動作が異なる場合があり、必ずしも本ガイドラインの実装が全てのAPサーバで同様に動作するわけではない。    
+| 開発を始める前には必ず、利用するAPサーバのマニュアルを確認されたい。
+
+| \ **コードファーストベースの開発**\
+
+| SOAP Web Serviceの開発では、コードファーストベースの開発と、契約ファーストベースの開発の２つのアプローチがある。
+| コードファーストは、アノテーション等を使いプログラムを作成してから、それに基づいてWebサービスのWSDLファイル（契約）を自動生成するアプローチである。
+| それに対して契約ファーストは、最初にWSDLファイル（契約）でメッセージのインターフェース定義を行い、その契約に基づいてプログラムを生成するアプローチである。
+| 本ガイドラインでは、WSDLファイルの記法をあまり意識しないで開発が行えるコードファーストベースでの方法を紹介する。
+|
+
+.. _SOAPOverviewJaxWSSpring:
+
+Jakarta XML Web Servicesを利用したSOAP Web Serviceの開発について
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+SOAPサーバ・クライアントの開発についての例として、SOAPサーバ・クライアントのプロジェクト構成と、SOAPサーバ・クライアントで利用するクラスと処理の流れを説明する。
+
+|
+
+\ **SOAPサーバ・クライアントのプロジェクト構成**\ 
+
+Jakarta XML Web Servicesを利用したWebサービスを作成する場合、既存のブランクプロジェクトとは別に以下2つのプロジェクトを追加することを推奨する。
+
+* modelプロジェクト
+* webserviceプロジェクト
+
+| modelプロジェクトは、Webサービスの引数や返り値に使用するDomain Objectを格納する。
+| webserviceプロジェクトは、Webサービスを呼び出すインターフェースを格納する。
+| この2つはSOAPサーバからクライアントに配布する必要があるクラスのみ格納するプロジェクトである。
+| 配布する範囲を明確に識別するため、別プロジェクトにすることを推奨している。
+
+
+本ガイドラインでは、マルチプロジェクトで以下のような構成を用いる。
+
+ここでもクライアントはWebアプリケーションであることを前提とするが、デスクトップアプリケーションやコマンドラインインターフェースから呼び出す場合も基本的な考え方は同じである。
+
+.. figure:: images_SOAP/SOAPClientAndServerProjects.png
+    :alt: Server and Client Projects for SOAP
+    :width: 80%
+
+
+.. tabularcolumns:: |p{0.10\linewidth}|p{0.90\linewidth}|
+.. list-table::
+    :header-rows: 1
+    :widths: 10 90
+
+    * - 項番
+      - 説明
+    * - | (1)
+      - | クライアントを作成する場合、従来のマルチプロジェクトにSOAPサーバから提供されるmodelプロジェクトとwebserviceプロジェクトを追加する。
+        | ここではサーバとクライアントをともに開発することを前提としている。
+        | これらのプロジェクトの詳細については「\ :ref:`SOAPHowToUseWebApplicationConstruction`\ 」で説明する。
+        | プロジェクトの追加方法については「\ :ref:`SOAPAppendixAddProject`\ 」に記載しているので、開発を行う前に実施すること。
+        |
+        | サーバとクライアントの開発が別々で、modelプロジェクトとwebserviceプロジェクトが提供されない場合、もしくはJava以外でSOAPサーバが作成されている場合には、modelプロジェクト内のDomain Objectとwebserviceプロジェクト内のWebサービスインターフェースを自分で作成する必要がある。
+    * - | (2)
+      - | SOAPサーバを作成する場合、従来のマルチプロジェクトに追加してmodelプロジェクトとwebserviceプロジェクトを追加する。
+        | クライアントにこれら2つのプロジェクトを公開する。
+        | クライアントへのmodelプロジェクト、webserviceプロジェクトの公開方法は、Mavenの依存関係への追加を想定している。
+
+|
+
+| 結果として、プロジェクトは次のような構成となる。
+| 以下は、SOAPサーバのプロジェクト構成である。
+
+.. figure:: images_SOAP/SOAPServerPackageExplorer.png
+    :alt: Package explorer for SOAP server projects
+    :width: 50%
+
+以下は、クライアントのプロジェクト構成である。
+
+.. figure:: images_SOAP/SOAPClientPackageExplorer.png
+    :alt: Package explorer for SOAP client projects
+    :width: 42%
+
+
+|
+
+\ **SOAPサーバ・クライアントで利用するクラスと処理の流れ**\ 
+
+| 以下はJakarta XML Web Services実装ライブラリを用いた場合のSOAPサーバ/クライアントにおいて、SOAP Webサービスの呼び出しがどのように行われるかを示した図である。開発者が実装すべき箇所と、Jakarta XML Web Services実装が提供する箇所は、色を分けて表現している。
+| ここではSOAPのクライアント(図左)であるWebアプリケーションがSOAPサーバ(図右)にアクセスすることを前提としている。
+
+.. figure:: images_SOAP/SOAPProcessFlow.png
+    :alt: Server and Client Projects for SOAP
+    :width: 80%
+
+.. tabularcolumns:: |p{0.10\linewidth}|p{0.90\linewidth}|
+.. list-table::
+    :header-rows: 1
+    :widths: 10 90
+    :class: longtable
+
+    * - 項番
+      - 説明
+    * - | (1)
+      - | [クライアント] ControllerがServiceを呼び出す。
+        | 通常の呼び出しと変更点は特にない。
+    * - | (2)
+      - | [クライアント] ServiceがSOAPサーバ提供側で用意したWebServiceインターフェースを呼び出す。
+        | この図では、ServiceがWebServiceインターフェースを呼び出しているが、要件に応じてControllerから直接WebServiceインターフェースを呼び出してもよい。
+    * - | (3)
+      - | [クライアント] WebServiceインターフェースが呼び出されると実体として「動的プロキシ(Dynamic Proxy)」(以下「プロキシ」)が呼び出される。
+        | このプロキシは\ ``jakarta.xml.ws.Service``\ が生成したWebServiceインターフェースの実装クラスである。
+        | この実装クラスがServiceにインジェクションされ、ServiceはWebServiceインターフェースのメソッドを呼び出すだけで、SOAP Web Serviceを利用した処理を行うことができる。
+    * - | (4)
+      - | プロキシが、SOAPサーバのWebServiceインターフェースを呼び出す。
+        | SOAPサーバとクライアントでの値のやり取りはDomain Objectを使用して行う。
+      
+        .. Note::
+
+            厳密には、SOAPサーバとクライアントはXMLを使用して通信を行っている。
+            送信時、および受信時にはJAXBを使用して、Domain ObjectとXMLの相互変換が行われているが、SOAP Web Service作成者はXMLをあまり意識せず、開発を行うことができるようになっている。
+
+    * - | (5)
+      - | [サーバ] WebServiceインターフェースが呼び出されると実体としてWebService実装クラスが呼び出される。
+        | SOAPサーバでは、WebServiceインターフェースの実装クラスとしてWebService実装クラスを用意する。
+        | このWebService実装クラスは、\ ``org.springframework.web.context.support.SpringBeanAutowiringSupport``\ を継承することで、SpringのDIコンテナ上のBeanを\ ``@Autowired``\ などでインジェクションすることができる。
+
+        .. Note::
+
+            「\ :ref:`SOAPOverviewPrerequisites`\ 」のとおりJakarta XML Web Servicesの実装によっては、SpringのDIコンテナ上のBeanをインジェクションできない場合があるため、留意する必要がある。
+
+            また、SOAPサーバは、\ ``@Inject``\ ではなく、\ ``@Autowired``\ でインジェクションすることを推奨する。
+
+            \ ``@Inject``\ の場合、Jakarta EE（Java EE）サーバが提供するDI機能で使用されるため、Jakarta EE（Java EE）サーバのDIコンテナに存在しないとエラーになってしまう。
+
+            上記に対して、\ ``@Autowired``\ であればSpringのDI機能のみで使用されるため、意図せずJakarta EE（Java EE）サーバのDI機能でエラーになるのを防止することができる。
+
+    * - | (6)
+      - | [サーバ] WebService実装クラスでは、業務処理を行うServiceを呼び出す。
+    * - | (7)
+      - | [サーバ] Serviceでは、Repositoryなどを使用して業務処理を実行する。
+        | 通常の呼び出しと変更点は特にない。
+
+|
+
+.. _SOAPWebPublishURL:
+
+SOAP Web Serviceとして公開されるURL
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+
+
+| SOAP Web Serviceを作成するとWSDL（\ **W**\ eb \ **S**\ ervices \ **D**\ escription \ **L**\ anguage）というWebサービスのインターフェース定義が公開され、クライアントはこの定義をもとにSOAP Web Serviceを実行する。
+| WSDLの詳細は、`W3C -Web Services Description Language (WSDL)- <https://www.w3.org/TR/2001/NOTE-wsdl-20010315>`_\ を参照されたい。
+
+
+| WSDL内には、Webサービス実行時のアクセスURLやメソッド名、引数、戻り値などが定義される。
+| 本ガイドラインの通りにSOAP Web Serviceを作成すると、以下のURLでWSDLが公開される。
+| クライアントではこのURLを指定するか、取得したWSDLファイルをクライアントに配置し、そのファイルパスを指定する必要がある。
+
+* `http://AAA.BBB.CCC.DDD:XXXX/[server projectName]-web/ws/TodoWebService?wsdl`
+  
+WSDL内で定義されるエンドポイントアドレスは以下のURLである。
+
+* `http://AAA.BBB.CCC.DDD:XXXX/コンテキストパス/ws/Webサービス名`
+
+|
+
+| Webサービスを、\ ``/ws``\ にマッピングする設定は、「\ :ref:`SOAPApplicationConfiguration`\ 」に記載しているので参照されたい。
+
+|
+
+.. _SOAPHowToUse:
+
+How to use
+--------------------------------------------------------------------------------
+| 本節では、SOAP Web Serviceの具体的な作成方法について説明する。
+| 実装するアプリケーションは、Todoアプリケーションを例に説明を行う。
+
+|
+
+.. _SOAPHowToUseWebApplicationConstruction:
+
+SOAPサーバの作成
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+
+プロジェクトの構成
+""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
+
+**各プロジェクトの依存関係**
+
+| 「\ :ref:`SOAPOverviewJaxWSSpring`\」で述べたとおり、modelプロジェクトとwebserviceプロジェクトを追加する。
+| プロジェクトの追加方法は「\ :ref:`SOAPAppendixAddProject`\ 」に記載しているので、内容に沿って追加すること。
+| またそれに伴い、既存のプロジェクトに依存関係を追加することが必要となる。
+
+.. figure:: images_SOAP/SOAPServerProjects.png
+    :alt: Server Projects for SOAP
+    :width: 80%
+
+.. tabularcolumns:: |p{0.10\linewidth}|p{0.30\linewidth}|p{0.60\linewidth}|
+.. list-table::
+    :header-rows: 1
+    :widths: 10 30 60
+
+    * - 項番
+      - プロジェクト名
+      - 説明
+    * - | (1)
+      - | webプロジェクト
+      - | Webサービス実装クラスを配置する。
+    * - | (2)
+      - | domainプロジェクト
+      - | WebServiceの実装クラスから呼び出されるServiceを配置する。
+        | その他、Repositoryなどは従来と同じである。
+    * - | (3)
+      - | webserviceプロジェクト
+      - | 公開するWebServiceのインターフェースをここに配置する。
+        | クライアントはこのインターフェースを使用してWebサービスを実行する。
+    * - | (4)
+      - | modelプロジェクト
+      - | ドメイン層に属するクラスのうち、SOAP Web Serviceで使用するクラスのみをここに配置する。
+        | クライアントからの入力値や返却結果はこのプロジェクト内のクラスを使用する。
+
+|
+
+.. _SOAPApplicationConfiguration:
+
+アプリケーションの設定
+""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
+
+**Webサービスの公開について**
+
+| APサーバとしてTomcatを利用する場合、Jakarta XML Web Services実装が存在しない。
+| そのため、本節で説明するSOAPサーバは、Jakarta XML Web Servicesの実装プロダクトとして\ `Apache CXF <https://cxf.apache.org/>`_\ を使用している。
+| また、Apache CXFを使用してWebサービスを公開するには、\ ``CXFServlet``\ の設定を追加する必要がある。
+| 
+| 他のAPサーバーを利用する場合は、APサーバによってWebサービスの公開方法は異なるので、詳細は各APサーバーのマニュアルを参照されたい。
+
+|
+
+**CXFServletを使用する設定**
+
+\ ``CXFServlet``\ を使用するため、\ ``pom.xml``\ にライブラリの設定を記述する。
+
+*[server projectName]-web/pom.xml*
+
+.. code-block:: xml
+
+    <!-- (1) -->
+    <dependency>
+        <groupId>org.apache.cxf</groupId>
+        <artifactId>cxf-rt-frontend-jaxws</artifactId>
+    </dependency>
+    <dependency>
+        <groupId>org.apache.cxf</groupId>
+        <artifactId>cxf-rt-transports-http</artifactId>
+    </dependency>
+    <!-- (2) -->
+    <dependency>
+        <groupId>com.sun.xml.messaging.saaj</groupId>
+        <artifactId>saaj-impl</artifactId>
+    </dependency>
+
+.. tabularcolumns:: |p{0.10\linewidth}|p{0.90\linewidth}|
+.. list-table::
+    :header-rows: 1
+    :widths: 10 90
+
+    * - 項番
+      - 説明
+    * - | (1)
+      - | \ ``CXFServlet``\ を使用するため、Apache CXFライブラリへの依存関係を追加する。
+
+        .. note::
+
+            cxf-rt-frontend-jaxwsとcxf-rt-transports-httpは、依存ライブラリのバージョンをBOMプロジェクトである terasoluna-dependencies で管理する前提であるため、pom.xmlでのバージョンの指定は不要である。
+    * - | (2)
+      - | \ ``CXFServlet``\ で使用されるSAAJライブラリへの依存関係を追加する。
+
+        .. note::
+
+            saaj-implのバージョンはterasoluna-dependenciesが依存している\ `Spring Boot <https://docs.spring.io/spring-boot/3.4.1/appendix/dependency-versions/coordinates.html>`_\ で管理されているため、pom.xmlでのバージョンの指定は不要である。
+
+|
+
+次に\ ``web.xml``\ にSOAP Web Serviceを受け付ける\ ``CXFServlet``\ を定義する。
+
+
+*[server projectName]-web/src/main/webapp/WEB-INF/web.xml*
+
+.. code-block:: xml
+      
+    <!-- (1) -->
+    <servlet>
+        <servlet-name>cxfServlet</servlet-name>
+        <servlet-class>org.apache.cxf.transport.servlet.CXFServlet</servlet-class>
+        <init-param>
+            <param-name>config-location</param-name>
+            <param-value>classpath:/META-INF/spring/cxf-servlet.xml</param-value>
+        </init-param>
+        <load-on-startup>1</load-on-startup>
+    </servlet>
+    <!-- (2) -->
+    <servlet-mapping>
+        <servlet-name>cxfServlet</servlet-name>
+        <url-pattern>/ws/*</url-pattern>
+    </servlet-mapping>
+      
+      
+.. tabularcolumns:: |p{0.10\linewidth}|p{0.90\linewidth}|
+.. list-table::
+    :header-rows: 1
+    :widths: 10 90
+
+    * - 項番
+      - 説明
+    * - | (1)
+      - | \ ``org.apache.cxf.transport.servlet.CXFServlet``\ のサーブレット定義を行う。
+        | \ ``config-location``\ に設定する\ ``cxf-servlet.xml``\ は、作成したWebサービスを公開する際に必要な定義となる。
+        | \ ``cxf-servlet.xml``\ の定義方法については、「\ :ref:`SOAPWebServiceImpl`\」にて説明を行う。
+    * - | (2)
+      - | 定義したサーブレットへのマッピングを定義する。この場合、コンテキスト名/ws配下にWebサービスが作成される。
+        | このマッピング定義が、「\ :ref:`SOAPWebPublishURL`\」で説明していた設定となる。
+
+|
+
+**パッケージのコンポーネントスキャン設定**
+
+| Webサービスで使用するコンポーネントをスキャンするため、Javaで定義する場合は\ ``[server projectName]WsConfig.java``\、XMLで定義する場合は\ ``[server projectName]-ws.xml``\ を作成し、コンポーネントスキャンの定義を行い、Webサービスにインジェクションできるようにする。
+
+.. tabs::
+  .. group-tab:: Java Config
+
+    - \ ``[server projectName]-web/src/main/java/com/example/config/ws/[server projectName]WsConfig.java``\
+
+      .. code-block:: java
+
+        @Configuration
+        @ComponentScan(basePackages = { "com.example.ws" })  // (1)
+        public class ServerProjectNameWsConfig {
+        }
+      
+      .. tabularcolumns:: |p{0.10\linewidth}|p{0.90\linewidth}|
+      .. list-table::
+        :header-rows: 1
+        :widths: 10 90
+      
+        * - 項番
+          - 説明
+        * - | (1)
+          - | Webサービスで使用するコンポーネントが格納されているパッケージを指定する。
+
+  .. group-tab:: XML Config
+
+    - \ ``[server projectName]-web/src/main/resources/META-INF/spring/[server projectName]-ws.xml``\
+
+      .. code-block:: xml
+      
+        <?xml version="1.0" encoding="UTF-8"?>
+        <beans xmlns="http://www.springframework.org/schema/beans" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+            xmlns:context="http://www.springframework.org/schema/context"
+            xsi:schemaLocation="
+                http://www.springframework.org/schema/beans
+                https://www.springframework.org/schema/beans/spring-beans.xsd
+                http://www.springframework.org/schema/context
+                https://www.springframework.org/schema/context/spring-context.xsd">
+            <!-- (1) -->
+            <context:component-scan base-package="com.example.ws" />
+        </beans>
+      
+      .. tabularcolumns:: |p{0.10\linewidth}|p{0.90\linewidth}|
+      .. list-table::
+        :header-rows: 1
+        :widths: 10 90
+      
+        * - 項番
+          - 説明
+        * - | (1)
+          - | Webサービスで使用するコンポーネントが格納されているパッケージを指定する。
+
+|
+
+web.xmlにConfiguration定義を追加する。
+
+.. tabs::
+  .. group-tab:: Java Config
+
+    - \ ``[server projectName]-web/src/main/webapp/WEB-INF/web.xml``\
+
+      .. code-block:: xml
+
+        <context-param>
+            <param-name>contextConfigLocation</param-name>
+            <!-- Root ApplicationContext -->
+            <!-- (1) -->
+            <param-value>
+                com.example.config.app.ApplicationContextConfig
+                com.example.config.web.SpringSecurityConfig
+                com.example.config.ws.[server projectName]WsConfig
+            </param-value>
+        </context-param>
+      
+      .. tabularcolumns:: |p{0.10\linewidth}|p{0.90\linewidth}|
+      .. list-table::
+        :header-rows: 1
+        :widths: 10 90
+      
+        * - 項番
+          - 説明
+        * - | (1)
+          - | \ ``[server projectName]WsConfig``\ をルート\ ``ApplicationContext``\ 生成時の読み込み対象に加える。
+
+  .. group-tab:: XML Config
+
+    - \ ``[server projectName]-web/src/main/webapp/WEB-INF/web.xml``\
+
+      .. code-block:: xml
+      
+        <context-param>
+            <param-name>contextConfigLocation</param-name>
+            <!-- Root ApplicationContext -->
+            <!-- (1) -->
+            <param-value>
+                classpath*:META-INF/spring/applicationContext.xml
+                classpath*:META-INF/spring/spring-security.xml
+                classpath*:META-INF/spring/[server projectName]-ws.xml
+            </param-value>
+        </context-param>
+      
+      .. tabularcolumns:: |p{0.10\linewidth}|p{0.90\linewidth}|
+      .. list-table::
+        :header-rows: 1
+        :widths: 10 90
+      
+        * - 項番
+          - 説明
+        * - | (1)
+          - | \ ``[server projectName]-ws.xml``\ をルート\ ``ApplicationContext``\ 生成時の読み込み対象に加える。
+
+|
+
+**入力チェックを行うための定義**
+ 
+| 入力チェックには\ :ref:`メソッドバリデーション<MethodValidation>`\ を使用するため、以下の定義を追加する。
+| メソッドバリデーションにおける入力チェックルールの実装方法は \ :ref:`SOAPHowToUseServerValidation`\を参照されたい。
+
+.. tabs::
+  .. group-tab:: Java Config
+
+    - \ ``[server projectName]-web/src/main/java/com/example/config/app/ApplicationContextConfig.java``\
+
+      .. code-block:: java
+
+        @Bean
+        public MethodValidationPostProcessor methodValidationPostProcessor() {
+            MethodValidationPostProcessor bean = new MethodValidationPostProcessor();
+            bean.setValidator(validator());
+            return bean;
+        }
+
+        @Bean("validator")
+        public LocalValidatorFactoryBean validator() {
+            return new LocalValidatorFactoryBean();
+        }
+
+  .. group-tab:: XML Config
+
+    - \ ``[server projectName]-web/src/main/resources/META-INF/spring/applicationContext.xml``\
+
+      .. code-block:: xml
+      
+        <bean class="org.springframework.validation.beanvalidation.MethodValidationPostProcessor">
+            <property name="validator" ref="validator" />
+        </bean>
+    
+        <bean id="validator" class="org.springframework.validation.beanvalidation.LocalValidatorFactoryBean" />
+
+|
+
+.. _SOAPHowToUseWebServiceImpl:
+
+Webサービスの実装
+""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
+以下の作成を行う。
+
+- Domain Objectの作成
+- WebServiceインターフェイスの作成
+- WebService実装クラスの作成
+
+.. figure:: images_SOAP/SOAPServerClass.png
+   :alt: Server Projects for SOAP
+   :width: 80%
+
+|
+
+**Domain Objectの作成**
+
+| modelプロジェクト内に、Webサービスの引数や返り値に使用するDomain Objectを作成する。
+| \ ``java.io.Serializable``\ インターフェースを実装した一般のJavaBeanと特に変わりはない。
+
+*[server projectName]-model/src/main/java/com/example/domain/model/Todo.java*
+
+.. code-block:: java
+
+    package com.example.domain.model;
+
+    import java.io.Serializable;
+    import java.util.Date;
+
+    public class Todo implements Serializable {
+
+        private String todoId;
+
+        private String title;
+
+        private String description;
+
+        private boolean finished;
+
+        private Date createdAt;
+
+        // omitted setter and getter
+
+    }
+
+|
+
+**WebServiceインターフェイスの作成**
+
+webserviceプロジェクト内にWebサービスを呼び出すインターフェースを作成する。
+
+*[server projectName]-webservice/src/main/java/com/example/ws/todo/TodoWebService.java*
+
+.. code-block:: java
+
+    package com.example.ws.todo;
+
+    import java.util.List;
+
+    import jakarta.jws.WebMethod;
+    import jakarta.jws.WebParam;
+    import jakarta.jws.WebResult;
+    import jakarta.jws.WebService;
+
+    import com.example.domain.model.Todo;
+    import com.example.ws.webfault.WebFaultException;
+
+    @WebService(targetNamespace = "http://example.com/todo") // (1)
+    public interface TodoWebService {
+
+        @WebMethod // (2)
+        @WebResult(name = "todo") // (3)
+        Todo getTodo(@WebParam(name = "todoId") /* (4) */ String todoId) throws WebFaultException;
+
+    }
+
+.. tabularcolumns:: |p{0.10\linewidth}|p{0.90\linewidth}|
+.. list-table::
+    :header-rows: 1
+    :widths: 10 90
+
+    * - 項番
+      - 説明
+    * - | (1)
+      - | \ ``@WebService``\ を付けることで、WebServiceインターフェースであることを宣言する。
+        | \ ``targetNamespace``\ 属性には、名前空間を定義するが、これは作成するWebサービスのパッケージ名と合わせることを推奨する。
+        | 詳細は、「\ :ref:`SOAPPackageNamespace`\」 を参照されたい。
+        | \ **targetNamespace属性の値は、@WebService付与クラスごとに設定する必要がある。そのため、ガイドライン上のソースを流用する場合は必ず変更すること。**\
+        | \ ``targetNamespace``\ 属性の値はWSDL上に定義され、このWebサービスの名前空間を決定し、一意に特定するために使用される。
+              
+    * - | (2)
+      - | Webサービスのメソッドとして公開するメソッドに\ ``@WebMethod``\ を付ける。
+        | このアノテーションを付けることにより、WSDL上にメソッドが公開され、外部から使用することが可能になる。
+    * - | (3)
+      - | 返り値に\ ``@WebResult``\ を付け、名前を\ ``name``\ 属性に指定する。返り値がない場合は不要。
+        | このアノテーションを付けることにより、WSDL上に返り値として公開される。
+    * - | (4)
+      - | 引数に\ ``@WebParam``\ を付け、名前を\ ``name``\ 属性に指定する。
+        | このアノテーションを付けることにより、WSDL上に引数が公開され、外部から呼び出すときの必要なパラメータとして定義される。
+        | \ ``WebFaultException``\ の詳細は「\ :ref:`SOAPHowToUseExceptionHandler`\ 」を参照されたい。
+
+|
+
+.. _SOAPPackageNamespace:
+
+パッケージ名とネームスペースについて
+""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
+
+**パッケージ名および、ネームスペースの付け方について**
+
+| パッケージ名が以下のような形式になっている場合
+
+* 【ドメイン】.【アプリケーション名(システム名)】.ws.【ユースケース名】
+
+| 本ガイドラインでは、以下のようなネームスペースにすることを推奨する。
+| Webサービスをユースケース単位で分割する場合は、アプリケーション名の後にユースケース名を追加する。
+| 他に分割する粒度があれば、その粒度でもよい。
+
+* http://【ドメイン】/【アプリケーション名(システム名)】/（【ユースケース名】）
+
+| 
+
+**ネームスペースとパッケージ名の関係**
+
+| 仕様ではないが、Namespaceとパッケージの命名について、\ `XML Namespace Mapping(Red Hat JBoss Fuse) <https://access.redhat.com/documentation/en-us/red_hat_jboss_fuse/6.0/html/developing_applications_using_jax-ws/jaxwsdatanamespacemapping>`_\ にまとまっている。
+| この命名規則に沿って例を示すが、ドメインをcom.example、アプリケーション名をtodoとした場合、以下のNamespaceとJavaのパッケージ名とするとよい。
+
+.. figure:: images_SOAP/SOAPURL.png
+    :alt: Server and Client Projects for SOAP
+    :width: 50%
+
+|
+
+.. _SOAPWebServiceImpl:
+
+WebService実装クラスの作成
+""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
+
+webプロジェクト内にWebServiceインターフェースの実装クラスを作成する。
+
+*[server projectName]-web/src/main/java/com/example/ws/todo/TodoWebServiceImpl.java*
+
+.. code-block:: java
+
+    package com.example.ws.todo;
+
+    import java.util.List;
+
+    import jakarta.jws.WebService;
+    import jakarta.xml.ws.BindingType;
+    import jakarta.xml.ws.soap.SOAPBinding;
+
+    import org.springframework.beans.factory.annotation.Autowired;
+    import org.springframework.web.context.support.SpringBeanAutowiringSupport;
+
+    import com.example.domain.model.Todo;
+    import com.example.domain.service.TodoService;
+    import com.example.ws.webfault.WebFaultException;
+    import com.example.ws.exception.WsExceptionHandler;
+    import com.example.ws.todo.TodoWebService;
+
+
+    @WebService(
+            targetNamespace = "http://example.com/todo",
+            serviceName = "TodoWebService",
+            portName = "TodoWebPort",
+            endpointInterface = "com.example.ws.todo.TodoWebService") // (1)
+    @BindingType(SOAPBinding.SOAP12HTTP_BINDING) // (2)
+    public class TodoWebServiceImpl extends SpringBeanAutowiringSupport implements TodoWebService { // (3)
+
+        @Autowired // (4)
+        TodoService todoService;
+
+        @Override // (5)
+        public Todo getTodo(String todoId) throws WebFaultException {
+            return todoService.getTodo(todoId);
+        }
+
+    }
+
+.. tabularcolumns:: |p{0.10\linewidth}|p{0.90\linewidth}|
+.. list-table::
+    :header-rows: 1
+    :widths: 10 90
+    :class: longtable
+
+    * - 項番
+      - 説明
+    * - | (1)
+      - | \ ``@WebService``\ を付けることで、WebServiceの実装クラスであることを宣言する。
+        | \ ``targetNamespace``\ 属性は、WSDL上で使用されるネームスペース。
+        | \ ``serviceName``\ 属性は、WSDL上のサービス名として公開される。
+        | \ ``portName``\ 属性は、WSDL上のポート名として公開される。
+        | \ ``endpointInterface``\ 属性は、このクラスが実装しているWebサービスのインターフェース名を定義する。
+        |
+        | \ ``targetNamespace``\、\ ``serviceName``\、\ ``portName``\ の説明は、「\ :ref:`SOAPWebServiceWSDL`\」を参照されたい。
+ 
+        .. note::
+          \ ``TodoWebService``\ インターフェースでは、\ ``@WebService``\ の属性として\ ``portName``\ 属性, \ ``serviceName``\ 属性, \ ``endpointInterface``\ 属性を設定してはいけない。これは、このインターフェースはWSDL上の\ ``portType``\ 要素に対応しており、Webサービスの内容を記述する要素ではないためである。
+
+    * - | (2)
+      - | \ ``@BindingType``\ を付けることで、バインディングの方式を設定する。
+        | \ ``SOAPBinding.SOAP12HTTP_BINDING``\ を定義するとSOAP1.2でのバインディングとなる。
+
+    * - | (3)
+      - | 先ほど作成した\ ``TodoWebService``\ インターフェースを実装する。
+        | \ ``org.springframework.web.context.support.SpringBeanAutowiringSupport``\ を継承することで、SpringのBeanをDIできるようにする。
+    * - | (4)
+      - | Serviceをインジェクションする。
+        | 通常のControllerでServiceを呼び出す場合と変わりはない。
+    * - | (5)
+      - | Serviceを呼び出して業務処理を実行する。
+        | 通常のControllerでServiceを呼び出す場合と変わりはない。
+
+.. note::
+    Webサービス関連のクラスはwsパッケージ配下にまとめることを推奨する。これは、アプリケーション層のクラスはappパッケージ配下に配置することを推奨しており、それらと区別をしやすくするためである。
+
+|
+
+WebService実装クラスを公開するために、CXFServlet用のBean定義ファイルに、SOAPのエンドポイントとなるクラス名およびアドレスを定義する。
+
+*[server projectName]-web/src/main/resources/META-INF/spring/cxf-servlet.xml*
+
+.. code-block:: xml
+
+    <beans xmlns="http://www.springframework.org/schema/beans" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xmlns:context="http://www.springframework.org/schema/context"
+        xmlns:jaxws="http://cxf.apache.org/jaxws" xmlns:soap="http://cxf.apache.org/bindings/soap"
+        xsi:schemaLocation="http://www.springframework.org/schema/beans
+             https://www.springframework.org/schema/beans/spring-beans.xsd
+             http://www.springframework.org/schema/context
+             https://www.springframework.org/schema/context/spring-context.xsd
+             http://cxf.apache.org/jaxws
+             http://cxf.apache.org/schemas/jaxws.xsd
+             http://cxf.apache.org/bindings/soap
+             http://cxf.apache.org/schemas/configuration/soap.xsd">
+        <!-- (1) -->
+        <jaxws:endpoint id="todoWebEndpoint" implementor="com.example.ws.todo.TodoWebServiceImpl"
+            address="/TodoWebService" />
+
+    </beans>
+
+.. tabularcolumns:: |p{0.10\linewidth}|p{0.90\linewidth}|
+.. list-table::
+    :header-rows: 1
+    :widths: 10 90
+
+    * - 項番
+      - 説明
+    * - | (1)
+      - | \ ``org.apache.cxf.transport.servlet.CXFServlet``\ 内で動作するWebサービスのエンドポイントを定義する。
+        | 
+        | \ ``implementor``\ 属性に公開するWebサービスの実装クラスを指定する。
+        | \ ``address``\ 属性にWebサービスを公開するアドレスを指定する。
+        | アドレスは、公開するエンドポイントのパス部分のみ記述する。
+        | 属性の詳細については\ `Apache CXF JAX-WS Configuration <https://cwiki.apache.org/confluence/display/CXF20DOC/JAX-WS+Configuration>`_\ を参照されたい。
+
+|
+
+.. _SOAPHowToUseServerValidation:
+
+入力チェックの実装
+""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
+| SOAP Web Serviceにより送信されたパラメータの入力チェックには、Springから提供されているメソッドバリデーションを使用する。
+| メソッドバリデーションの詳細については\ :ref:`MethodValidationOnSpringFrameworkHowToUseApplyTarget`\ を参照されたい。
+| 以下のように、Serviceのインターフェースに入力チェック内容を定義する。
+
+*[server projectName]-domain/src/main/java/com/example/domain/service/todo/TodoService.java*
+
+.. code-block:: java
+
+    package com.example.domain.service.todo;
+
+    import java.util.List;
+
+    import jakarta.validation.Valid;
+    import jakarta.validation.constraints.NotEmpty;
+    import jakarta.validation.groups.Default;
+
+    import org.springframework.validation.annotation.Validated;
+
+    import com.example.domain.model.Todo;
+
+    @Validated // (1)
+    public interface TodoService {
+
+        Todo getTodo(@NotEmpty String todoId); // (2)
+
+        @Validated({ Default.class, Todo.Create.class }) // (3)
+        Todo createTodo(@Valid Todo todo); // (4)
+
+        @Validated({ Default.class, Todo.Update.class })
+        Todo updateTodo(@Valid Todo todo);
+
+    }
+
+.. tabularcolumns:: |p{0.10\linewidth}|p{0.90\linewidth}|
+.. list-table::
+    :header-rows: 1
+    :widths: 10 90
+    :class: longtable
+
+    * - 項番
+      - 説明
+    * - | (1)
+      - | \ ``@Validated``\ を付けることで、このインターフェースの実装クラスが入力チェック対象であることを宣言する。
+    * - | (2)
+      - | 引数をチェックする場合には、引数自体にアノテーションを付ける。
+    * - | (3)
+      - | \ ``@Validated``\ にグループを指定し、特定の条件を絞って入力チェックすることも可能である。
+        | 入力チェックのグループ化については「\ :ref:`ValidationGroupValidation`\ 」を参照されたい。
+    * - | (4)
+      - | JavaBeanの入力チェックを行う場合も、引数に\ ``@Valid``\ を付ける。
+
+|
+
+*[server projectName]-model/src/main/java/com/example/domain/model/Todo.java*
+
+.. code-block:: java
+
+    package com.example.domain.model;
+
+    import jakarta.validation.constraints.NotEmpty;
+    import jakarta.validation.constraints.Null;
+    import java.io.Serializable;
+    import java.util.Date;
+
+    // (1)
+    public class Todo implements Serializable {
+
+        // (2)
+        public interface Create {
+        }
+
+        public interface Update {
+        }
+
+        @Null(groups = Create.class)
+        @NotEmpty(groups = Update.class)
+        private String todoId;
+
+        @NotEmpty
+        private String title;
+
+        private String description;
+
+        private boolean finished;
+
+        @Null(groups = Create.class)
+        private Date createdAt;
+
+        // omitted setter and getter
+    }
+
+.. tabularcolumns:: |p{0.10\linewidth}|p{0.90\linewidth}|
+.. list-table::
+    :header-rows: 1
+    :widths: 10 90
+    :class: longtable
+
+    * - 項番
+      - 説明
+    * - | (1)
+      - | Bean ValidationでJavaBeanの入力チェックを定義する。
+        | 詳細は「\ :doc:`../WebApplicationDetail/Validation`\ 」を参照されたい。
+    * - | (2)
+      - | バリデーションのグループ化を行うために使用するインターフェースを定義する。
+
+|
+
+セキュリティ対策
+""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
+
+**認証処理**
+
+| SOAPの認証・認可方式に関して、本ガイドラインではSpring SecurityでBasic認証を行う方法とServiceでの認可の方法のみ紹介する。
+| 詳細な利用方法は、「\ :doc:`../../Security/Authentication`\ 」と「\ :doc:`../../Security/Authorization`\ 」を参照されたい。
+
+以下にSOAP Web Serviceに対して、Basic認証を行うSpring Securityの設定例を示す。
+
+.. tabs::
+  .. group-tab:: Java Config
+
+    - \ ``[server projectName]-web/src/main/java/com/example/config/web/SpringSecurityConfig.java``\
+
+      .. code-block:: java
+
+        // (1)
+        @Bean
+        public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
+            http.securityMatcher(antMatcher("/ws/**"));
+            http.sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS));
+            http.csrf(csrf -> csrf.disable());
+            http.httpBasic(Customizer.withDefaults());
+            http.authorizeHttpRequests(authz -> authz.requestMatchers(antMatcher("/**")).permitAll());
+            return http.build();
+        }
+
+        // (2)
+        @Bean
+        public AuthenticationManager authenticationManager() {
+            return new ProviderManager(authenticationProvider());
+        }
+
+        // (2)
+        @Bean
+        public AuthenticationProvider authenticationProvider() {
+            DaoAuthenticationProvider authProvider = new DaoAuthenticationProvider();
+            authProvider.setUserDetailsService(sampleUserDetailsService());
+            authProvider.setPasswordEncoder(passwordEncoder);
+            return authProvider;
+        }
+
+      .. tabularcolumns:: |p{0.10\linewidth}|p{0.90\linewidth}|
+      .. list-table::
+        :header-rows: 1
+        :widths: 10 90
+        :class: longtable
+
+        * - 項番
+          - 説明
+        * - | (1)
+          - | \ ``httpBasic(Customizer.withDefaults())``\ を記述するとBasic認証を行うことができる。
+            | \ ``securityMatcher``\ を使用して、Webサービスを実行する部分のみ認証を行う。
+        * - | (2)
+          - | \ ``AuthenticationProvider``\ を利用して、認証方式を定義する。
+            | 実際の認証およびユーザ情報取得は\ ``UserDetailsService``\ を作成して実施する必要がある。
+            | 詳細は「\ :doc:`../../Security/Authentication`\ 」を参照されたい。
+
+
+  .. group-tab:: XML Config
+
+    - \ ``[server projectName]-web/src/main/resources/META-INF/spring/spring-security.xml``\
+
+      .. code-block:: xml
+      
+        <!-- (1) -->
+        <sec:http pattern="/ws/**" request-matcher="ant" create-session="stateless" >
+            <sec:csrf disabled="true" />
+            <sec:http-basic />
+            <sec:intercept-url pattern="/**" access="permitAll" />
+        </sec:http>
+
+        <!-- (2) -->
+        <sec:authentication-manager>
+            <sec:authentication-provider user-service-ref="sampleUserDetailsService">
+                <sec:password-encoder ref="passwordEncoder" />
+            </sec:authentication-provider>
+        </sec:authentication-manager>
+
+      .. tabularcolumns:: |p{0.10\linewidth}|p{0.90\linewidth}|
+      .. list-table::
+        :header-rows: 1
+        :widths: 10 90
+        :class: longtable
+
+        * - 項番
+          - 説明
+        * - | (1)
+          - | \ ``sec:http-basic``\ タグを記述するとBasic認証を行うことができる。
+            | \ ``pattern``\ 属性を使用して、Webサービスを実行する部分のみ認証を行う。
+        * - | (2)
+          - | \ ``authentication-provider``\ を利用して、認証方式を定義する。
+            | 実際の認証およびユーザ情報取得は\ ``UserDetailsService``\ を作成して実施する必要がある。
+            | 詳細は「\ :doc:`../../Security/Authentication`\ 」を参照されたい。
+
+|
+
+**認可処理**
+
+| 認可はServiceごとにアノテーションを付けて行う。
+| 詳細は「\ :doc:`../../Security/Authorization`\ 」のアクセス認可(Method)を参照されたい。
+
+.. tabs::
+  .. group-tab:: Java Config
+
+    - \ ``[server projectName]-web/src/main/java/com/example/config/web/SpringSecurityConfig.java``\
+
+      .. code-block:: java
+      
+        @Configuration
+        @EnableWebSecurity
+        @EnableMethodSecurity  // (1)
+        public class SpringSecurityConfig {
+
+      .. tabularcolumns:: |p{0.30\linewidth}|p{0.70\linewidth}|
+      .. list-table::
+        :header-rows: 1
+        :widths: 10 90
+
+        * - 項番
+          - 説明
+        * - | (1)
+          - | \ ``@EnableMethodSecurity``\ アノテーションを付与する。
+
+
+  .. group-tab:: XML Config
+
+    - \ ``[server projectName]-web/src/main/resources/META-INF/spring/spring-security.xml``\
+
+      .. code-block:: xml
+      
+        <sec:method-security/> <!-- (1) -->
+
+      .. tabularcolumns:: |p{0.30\linewidth}|p{0.70\linewidth}|
+      .. list-table::
+        :header-rows: 1
+        :widths: 10 90
+
+        * - 項番
+          - 説明
+        * - | (1)
+          - | \ ``<sec:method-security/>``\ 要素を指定する。
+
+|
+
+
+*[server projectName]-domain/src/main/java/com/example/domain/service/todo/TodoServiceImpl.java*
+
+.. code-block:: java
+
+    public class TodoServiceImpl implements TodoService {
+
+        // omitted
+
+        // (1)
+        @PreAuthorize("isAuthenticated()")
+        public List<Todo> getTodos() {
+            // omitted
+        }
+
+        @PreAuthorize("hasRole('ROLE_ADMIN')")
+        public Todo createTodo(Todo todo) {
+            // omitted
+        }
+
+    }
+
+.. tabularcolumns:: |p{0.10\linewidth}|p{0.90\linewidth}|
+.. list-table::
+    :header-rows: 1
+    :widths: 10 90
+
+    * - 項番
+      - 説明
+    * - | (1)
+      - | 認可処理を行うメソッドに\ ``org.springframework.security.access.prepost.PreAuthorize``\ アノテーションを設定する。
+
+|
+
+**CSRF対策の無効化**
+
+| SOAP Web Serviceはセッションを利用せず、ステートレスな通信にすべきである。
+| しかし、ブランクプロジェクトのデフォルトの設定では、CSRF対策が有効化されている。
+| そのため、以下の設定を追加し、SOAP Web Serviceのリクエストに対して、CSRF対策の処理が行われないようにする。
+
+.. tabs::
+  .. group-tab:: Java Config
+
+    - \ ``[server projectName]-web/src/main/java/com/example/config/web/SpringSecurityConfig.java``\
+
+      .. code-block:: java
+      
+        // (1)
+        @Bean
+        public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
+            http.securityMatcher(antMatcher("/ws/**"));
+            http.sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS));
+            http.csrf(csrf -> csrf.disable());
+            http.httpBasic(Customizer.withDefaults());
+            http.authorizeHttpRequests(authz -> authz.requestMatchers(antMatcher("/**")).permitAll());
+            return http.build();
+        }
+
+      .. tabularcolumns:: |p{0.30\linewidth}|p{0.70\linewidth}|
+      .. list-table::
+        :header-rows: 1
+        :widths: 10 90
+
+        * - 項番
+          - 説明
+        * - | (1)
+          - | SOAP Web Service用のSpring Securityの定義を追加する。
+            | \ ``securityMatcher``\ にSOAP Web Service用のリクエストパスのURLパターンを指定する。
+            | このコード例では、\ ``/ws/``\ で始まるリクエストパスをSOAP Web Service用のリクエストパスとしている。
+            | また、\ ``sessionManagement``\ にセッション作成ポリシーとして\ ``SessionManagementConfigurer#sessionCreationPolicy(SessionCreationPolicy.STATELESS)``\を指定する事で、
+            | Spring Securityの処理でセッションが使用されなくなる。
+            | 
+            | CSRF対策を無効化するために、\ ``csrf``\ に\ ``CsrfConfigurer#disable``\ を指定する。
+
+
+  .. group-tab:: XML Config
+
+    - \ ``[server projectName]-web/src/main/resources/META-INF/spring/spring-security.xml``\
+
+      .. code-block:: xml
+      
+        <!-- (1) -->
+        <sec:http pattern="/ws/**" request-matcher="ant" create-session="stateless" >
+            <sec:csrf disabled="true" />
+            <sec:http-basic />
+            <sec:intercept-url pattern="/**" access="permitAll" />
+        </sec:http>
+
+      .. tabularcolumns:: |p{0.30\linewidth}|p{0.70\linewidth}|
+      .. list-table::
+        :header-rows: 1
+        :widths: 10 90
+
+        * - 項番
+          - 説明
+        * - | (1)
+          - | SOAP Web Service用のSpring Securityの定義を追加する。
+            | \ ``<sec:http>``\ 要素の\ ``pattern``\ 属性にSOAP Web Service用のリクエストパスのURLパターンを指定する。
+            | このコード例では、\ ``/ws/``\ で始まるリクエストパスをSOAP Web Service用のリクエストパスとしている。
+            | また、\ ``create-session``\ 属性を\ ``stateless``\ とする事で、Spring Securityの処理でセッションが使用されなくなる。
+            |
+            | CSRF対策を無効化するために、\ ``<sec:csrf>``\ 要素の\ ``disabled``\ 属性を\ ``true``\ に指定する。
+
+|
+
+.. _SOAPHowToUseServerExceptionHandler:
+
+例外ハンドリングの実装
+""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
+| Jakarta XML Web Servicesの仕様となるが、SOAPサーバで例外が発生した場合に、\ ``WebFault``\ アノテーションを付与した専用の例外クラスをスローすることにより、SOAPのエラー電文としてクライアントに返却することができる。
+| 本ガンドラインでも上記例外の機能を利用しているが、詳細なエラー情報を送るために独自の例外ハンドリングの仕組みを追加で実装している。
+| 
+| SOAPサーバにおける例外処理の実装には、以下のことが必要である。
+
+1. WebFaultExceptionクラスとその関連クラスの実装
+
+2. サーバで発生する例外を、WebFaultExceptionでラップする例外ハンドラの作成
+
+3. 例外発生箇所での例外ハンドラの呼び出し
+
+以降ではこれらの具体的方法を説明する。
+
+|
+
+**WebFaultExceptionクラスとその関連クラスの実装**
+
+SOAPサーバで発生した例外はこれから記述する例外を実装したクラス（SOAPFault）を使用することで、クライアントへの通知メッセージを決定することができる。
+  
+具体的には以下のクラスを作成する。
+  
+.. tabularcolumns:: |p{0.10\linewidth}|p{0.30\linewidth}|p{0.60\linewidth}|
+.. list-table::
+    :header-rows: 1
+    :widths: 10 30 60
+
+    * - 項番
+      - クラス名
+      - 概要
+    * - | (1)
+      - | \ ``ErrorBean``\
+      - | 発生した例外のコードとメッセージなどを保持するクラス。
+    * - | (2)
+      - | \ ``WebFaultType``\
+      - | 例外の種類を判別するために使用する列挙型。
+    * - | (3)
+      - | \ ``WebFaultBean``\
+      - | \ ``ErrorBean``\ と\ ``WebFaultType``\ を保持するクラス。\ ``ErrorBean``\ を\ ``List``\ で保持して例外情報を複数保持できる。
+    * - | (4)
+      - | \ ``WebFaultException``\
+      - | \ ``WebFaultBean``\ を保持する例外クラス。\ ``@WebFault``\ を付けて、SOAPFaultであることを宣言する。
+  
+これらの例外はSOAPサーバ、クライアントで共用するため、[server projectName]-webserviceに配置する。
+
+|
+
+*[server projectName]-webservice/src/main/java/com/example/ws/webfault/ErrorBean.java*
+
+.. code-block:: java
+
+    package com.example.ws.webfault;
+
+    public class ErrorBean { // (1)
+        private String code;
+        private String message;
+        private String path;
+
+        // omitted setter and getter
+    }
+
+.. tabularcolumns:: |p{0.10\linewidth}|p{0.90\linewidth}|
+.. list-table::
+    :header-rows: 1
+    :widths: 10 90
+
+    * - 項番
+      - 説明
+    * - | (1)
+      - | 例外のメッセージなどを保持するクラスを作成する。
+
+|
+
+*[server projectName]-webservice/src/main/java/com/example/ws/webfault/WebFaultType.java*
+
+.. code-block:: java
+
+    package com.example.ws.webfault;
+
+    public enum WebFaultType { // (2)
+        AccessDeniedFault,
+        BusinessFault,
+        ResourceNotFoundFault,
+        ValidationFault,
+    }
+
+.. tabularcolumns:: |p{0.10\linewidth}|p{0.90\linewidth}|
+.. list-table::
+    :header-rows: 1
+    :widths: 10 90
+
+    * - 項番
+      - 説明
+    * - | (1)
+      - | 例外の種類を判別するために使用する列挙型を定義する。
+
+|
+
+*[server projectName]-webservice/src/main/java/com/example/ws/webfault/WebFaultBean.java*
+
+.. code-block:: java
+
+    package com.example.ws.webfault;
+
+    import java.util.ArrayList;
+    import java.util.List;
+
+    public class WebFaultBean { // (3)
+
+        private WebFaultType type;
+
+        private List<ErrorBean> errors = new ArrayList<ErrorBean>();
+
+        public WebFaultBean(WebFaultType type) {
+            this.type = type;
+        }
+
+        public void addError(String code, String message) {
+            addError(code, message, null);
+        }
+
+        public void addError(String code, String message, String path) {
+            errors.add(new ErrorBean(code, message, path));
+        }
+
+        // omitted setter and getter
+    }
+
+
+.. tabularcolumns:: |p{0.10\linewidth}|p{0.90\linewidth}|
+.. list-table::
+    :header-rows: 1
+    :widths: 10 90
+
+    * - 項番
+      - 説明
+    * - | (1)
+      - | \ ``ErrorBean``\ と\ ``WebFaultType``\ を保持するクラスを作成する。
+
+|
+
+*[server projectName]-webservice/src/main/java/com/example/ws/webfault/WebFaultException.java*
+
+.. code-block:: java
+
+    package com.example.ws.webfault;
+
+    import java.util.List;
+
+    import jakarta.xml.ws.WebFault;
+
+    @WebFault(name = "WebFault", targetNamespace = "http://example.com/todo") // (1)
+    public class WebFaultException extends Exception { // (2)
+        private WebFaultBean faultInfo; // (3)
+
+        public WebFaultException() {
+        }
+
+        public WebFaultException(String message, WebFaultBean faultInfo) {
+            super(message);
+            this.faultInfo = faultInfo;
+        }
+
+        public WebFaultException(String message, WebFaultBean faultInfo, Throwable e) {
+            super(message, e);
+            this.faultInfo = faultInfo;
+        }
+
+        public List<ErrorBean> getErrors() {
+            return this.faultInfo.getErrors();
+        }
+
+        public WebFaultType getType() {
+            return this.faultInfo.getType();
+        }
+        // omitted setter and getter
+    }
+
+.. tabularcolumns:: |p{0.10\linewidth}|p{0.90\linewidth}|
+.. list-table::
+    :header-rows: 1
+    :widths: 10 90
+
+    * - 項番
+      - 説明
+    * - | (1)
+      - | Exception継承クラスに\ ``@WebFault``\ を付けて、SOAPFaultであることを宣言する。
+        | \ ``name``\ 属性には、クライアントに送信するSOAPFaultの\ ``name``\ 属性を設定する。
+        | \ ``targetNamespace``\ 属性には、使用するネームスペースを設定する。Webサービスと同じにする必要がある。
+    * - | (2)
+      - | ここで、\ ``WebFaultException``\ の親クラスを\ ``RuntimeException``\ ではなく\ ``Exception``\ としているのは、\ `Jakarta XML Web Services 4.0 -3.7. Service Specific Exception <https://jakarta.ee/specifications/xml-web-services/4.0/jakarta-xml-ws-spec-4.0#j2w11except>`_\ において、
+        | \ ``java.lang.RuntimeExceptions``\ 、\ ``java.rmi.RemoteExceptions``\ を含むサブクラスは、WebServiceで取り扱う例外として利用してはならないこと、WSDL自体にもマッピングしてはならないことの2点が禁止事項として記載されている事による。
+        | 実際に\ ``WebFaultException``\ の親クラスを\ ``RuntimeException``\ とした場合、APサーバのJakarta XML Web Servicesに実装依存するが、クライアントで\ ``@WebFault``\ を付けた例外クラス（\ ``WebFaultException``\ ）を取得することができず、エラーの種類やメッセージを取得することができなくなる。
+    * - | (3)
+      - | faultInfoをフィールドに保持させるとともに、コード例のように以下のようなコンストラクタとメソッドを持たせる。
+
+        - メッセージ文字列とfaultInfoを引数とするコンストラクタ
+        - メッセージ文字列とfaultInfoと原因例外を引数とするコンストラクタ
+        - getFaultInfoメソッド
+
+.. note:: **WebFaultExceptionのコンストラクタとフィールドについて**
+
+    \ ``WebFaultException``\ には、デフォルトコンストラクタと各フィールドに対応するsetterが必須となる。これは、クライアントの内部処理で、\ ``WebFaultException``\ を作成する際に使用するためである。
+  
+  
+|
+
+**サーバで発生する例外を、WebFaultExceptionでラップする例外ハンドラの作成**
+
+
+Serviceから発生する実行時例外をSOAPFaultでラップするために例外ハンドラークラスを作成する。
+本ガイドラインではWebService実装クラスがこのハンドラーを用いて例外を変換してスローする方針とする。
+
+Serviceからスローされる例外は以下を想定している。必要に応じて追加されたい。
+
+.. tabularcolumns:: |p{0.60\linewidth}|p{0.40\linewidth}|
+.. list-table::
+    :header-rows: 1
+    :widths: 60 40
+
+    * - 例外名
+      - 内容
+    * - | \ ``org.springframework.security.access.AccessDeniedException``\
+      - | 認可エラー時の例外
+    * - | \ ``jakarta.validation.ConstraintViolationException``\
+      - | 入力チェックエラー時の例外
+    * - | \ ``org.terasoluna.gfw.common.exception.ResourceNotFoundException``\
+      - | リソースが見つからない場合の例外
+    * - | \ ``org.terasoluna.gfw.common.exception.BusinessException``\
+      - | 業務例外
+
+
+*[server projectName]-web/src/main/java/com/example/ws/exception/WsExceptionHandler.java*
+
+.. code-block:: java
+
+    package com.example.ws.exception;
+
+    import java.util.Iterator;
+    import java.util.Locale;
+    import java.util.Set;
+
+    import jakarta.validation.ConstraintViolation;
+    import jakarta.validation.ConstraintViolationException;
+    import jakarta.validation.Path;
+
+    import org.springframework.beans.factory.annotation.Autowired;
+    import org.springframework.context.MessageSource;
+    import org.springframework.security.access.AccessDeniedException;
+    import org.springframework.stereotype.Component;
+    import org.terasoluna.gfw.common.exception.BusinessException;
+    import org.terasoluna.gfw.common.exception.ExceptionCodeResolver;
+    import org.terasoluna.gfw.common.exception.ExceptionLogger;
+    import org.terasoluna.gfw.common.exception.ResourceNotFoundException;
+    import org.terasoluna.gfw.common.exception.SystemException;
+    import org.terasoluna.gfw.common.message.ResultMessage;
+    import org.terasoluna.gfw.common.message.ResultMessages;
+
+    import com.example.ws.webfault.WebFaultBean;
+    import com.example.ws.webfault.WebFaultException;
+    import com.example.ws.webfault.WebFaultType;
+
+    @Component  // (1)
+    public class WsExceptionHandler {
+
+        @Autowired
+        MessageSource messageSource; // (2)
+
+        @Autowired
+        ExceptionCodeResolver exceptionCodeResolver; // (3)
+
+        @Autowired
+        ExceptionLogger exceptionLogger; // (4)
+
+        // (5)
+        public void translateException(Exception e) throws WebFaultException {
+            loggingException(e);
+            WebFaultBean faultInfo = null;
+
+            if (e instanceof AccessDeniedException) {
+                faultInfo = new WebFaultBean(WebFaultType.AccessDeniedFault);
+                faultInfo.addError(e.getClass().getName(), e.getMessage());
+            } else if (e instanceof ConstraintViolationException) {
+                faultInfo = new WebFaultBean(WebFaultType.ValidationFault);
+                this.addErrors(faultInfo, ((ConstraintViolationException) e).getConstraintViolations());
+            } else if (e instanceof ResourceNotFoundException) {
+                faultInfo = new WebFaultBean(WebFaultType.ResourceNotFoundFault);
+                this.addErrors(faultInfo, ((ResourceNotFoundException) e).getResultMessages());
+            } else if (e instanceof BusinessException) {
+                faultInfo = new WebFaultBean(WebFaultType.BusinessFault);
+                this.addErrors(faultInfo, ((BusinessException) e).getResultMessages());
+            } else {
+                // not translate.
+                throw new SystemException("e.xx.fw.9001", e);
+            }
+
+            throw new WebFaultException(e.getMessage(), faultInfo, e.getCause());
+        }
+
+        private void loggingException(Exception e) {
+            exceptionLogger.log(e);
+        }
+
+        private void addErrors(WebFaultBean faultInfo, Set<ConstraintViolation<?>> constraintViolations) {
+            for (ConstraintViolation<?> v : constraintViolations) {
+                Iterator<Path.Node> pathIt = v.getPropertyPath().iterator();
+                pathIt.next(); // method name node (skip)
+                Path.Node methodArgumentNameNode = pathIt.next();
+                faultInfo.addError(
+                    v.getConstraintDescriptor().getAnnotation().annotationType().getSimpleName(),
+                    v.getMessage(),
+                    pathIt.hasNext() ? pathIt.next().toString() : methodArgumentNameNode.toString());
+            }
+
+        }
+
+        private void addErrors(WebFaultBean faultInfo, ResultMessages resultMessages) {
+            Locale locale = Locale.getDefault();
+            for (ResultMessage message : resultMessages) {
+                faultInfo.addError(
+                    message.getCode(),
+                    messageSource.getMessage(message.getCode(), message.getArgs(), message.getText(), locale));
+            }
+        }
+
+    }
+
+
+.. tabularcolumns:: |p{0.10\linewidth}|p{0.90\linewidth}|
+.. list-table::
+    :header-rows: 1
+    :widths: 10 90
+
+    * - 項番
+      - 説明
+    * - | (1)
+      - | 本クラスをDIコンテナに管理をさせるため、\ ``@Component``\ を付ける。
+    * - | (2)
+      - | 出力するメッセージを取得するために\ ``MessageSource``\ を使用する。
+    * - | (3)
+      - | 共通ライブラリが提供する\ ``ExceptionCodeResolverMessageSource``\ を使用して例外の種類と例外コードをマッピングする。
+        | 詳細は、「\ :doc:`../WebApplicationDetail/ExceptionHandling`\」を参照されたい。
+    * - | (4)
+      - | 共通ライブラリが提供する\ ``ExceptionLogger``\ を使用して例外情報を例外に出力する。
+        | 詳細は、「\ :doc:`../WebApplicationDetail/ExceptionHandling`\ 」を参照されたい。
+    * - | (5)
+      - | Serviceから発生しうる各例外について、\ ``SOAPFault``\ へのラップを行う。
+        | 例外のマッピングは冒頭の表を参考されたい。
+
+.. note:: **その他の例外の扱いについて**
+
+    その他の例外発生時（上記の\ ``translateException``\ メソッドのelse部分）では、クライアントでは詳細な例外の内容は通知されず、\ ``jakarta.xml.ws.soap.SOAPFaultException``\ が発生するのみとなる。他の例外同様にラップしてクライアント側に通知することも可能である。
+
+|
+
+**例外発生箇所での例外ハンドラの呼び出し**
+
+Webサービスクラスにて、例外ハンドラーを呼び出す。以下はその例である。
+
+*[server projectName]-web/src/main/java/com/example/ws/todo/TodoWebServiceImpl.java*
+
+.. code-block:: java
+
+
+    @WebService(
+            targetNamespace = "http://example.com/todo",
+            serviceName = "TodoWebService",
+            portName = "TodoWebPort",
+            endpointInterface = "com.example.ws.todo.TodoWebService")
+    @BindingType(SOAPBinding.SOAP12HTTP_BINDING)
+    public class TodoWebServiceImpl extends SpringBeanAutowiringSupport implements TodoWebService {
+        @Autowired
+        TodoService todoService;
+        @Autowired
+        WsExceptionHandler handler; // (1)
+
+        @Override
+        public Todo getTodo(String todoId) throws WebFaultException /* (2) */ {
+            try {
+                return todoService.getTodo(todoId);
+            } catch (RuntimeException e) {
+                handler.translateException(e); // (3)
+            }
+        }
+    }
+
+
+.. tabularcolumns:: |p{0.10\linewidth}|p{0.90\linewidth}|
+.. list-table::
+    :header-rows: 1
+    :widths: 10 90
+
+    * - 項番
+      - 説明
+    * - | (1)
+      - | 例外ハンドラーをインジェクションする。
+    * - | (2)
+      - | \ ``WebFaultException``\ にラップしてスローするため、throws句を付ける。
+    * - | (3)
+      - | 実行時例外が発生した場合は、例外ハンドラークラスに処理を委譲する。
+
+|
+
+MTOMを利用した大容量のバイナリデータを扱う方法
+""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
+| SOAPでは、バイナリデータを扱う場合、Byte配列にマッピングすることで、送受信を行うことができる。
+| ただし、大容量のバイナリデータを扱う場合、ヒープが枯渇するなどの問題が発生することがある。
+| 上記問題の発生を防ぐため、MTOM（Message Transmission Optimization Mechanism）に準拠した実装を行うことで、最適化した状態で添付ファイルとしてバイナリデータを扱うことができる。
+| 詳細な定義は `W3C -SOAP Message Transmission Optimization Mechanism- <https://www.w3.org/TR/soap12-mtom/>`_\ を参照されたい。
+| 以下にその方法を記述する。
+
+*[server projectName]-webservice/src/main/java/com/example/ws/todo/TodoWebService.java*
+
+.. code-block:: java
+
+    package com.example.ws.todo;
+
+    import java.util.List;
+
+    import jakarta.activation.DataHandler;
+    import jakarta.jws.WebMethod;
+    import jakarta.jws.WebParam;
+    import jakarta.jws.WebResult;
+    import jakarta.jws.WebService;
+    import jakarta.xml.bind.annotation.XmlMimeType;
+
+    import com.example.domain.model.Todo;
+    import com.example.ws.webfault.WebFaultException;
+
+    @WebService(targetNamespace = "http://example.com/todo")
+    public interface TodoWebService {
+
+        // omitted
+
+        @WebMethod
+        void uploadFile(@XmlMimeType("application/octet-stream") /* (1) */ DataHandler dataHandler) throws WebFaultException;
+
+    }
+
+.. tabularcolumns:: |p{0.10\linewidth}|p{0.90\linewidth}|
+.. list-table::
+    :header-rows: 1
+    :widths: 10 90
+
+    * - 項番
+      - 説明
+    * - | (1)
+      - | バイナリデータを処理する\ ``jakarta.activation.DataHandler``\ に対して\ ``@XmlMimeType``\ を付ける。
+
+|
+
+*[server projectName]-web/src/main/java/com/example/ws/todo/TodoWebServiceImpl.java*
+
+.. code-block:: java
+
+    package com.example.ws.todo;
+
+    import java.io.IOException;
+    import java.io.InputStream;
+    import java.util.List;
+
+    import jakarta.activation.DataHandler;
+    import jakarta.jws.WebService;
+    import jakarta.xml.ws.BindingType;
+    import jakarta.xml.ws.soap.MTOM;
+    import jakarta.xml.ws.soap.SOAPBinding;
+
+    import org.springframework.beans.factory.annotation.Autowired;
+    import org.springframework.web.context.support.SpringBeanAutowiringSupport;
+    import org.terasoluna.gfw.common.exception.SystemException;
+
+    import com.example.domain.model.Todo;
+    import com.example.domain.service.TodoService;
+    import com.example.ws.webfault.WebFaultException;
+    import com.example.ws.exception.WsExceptionHandler;
+
+    // (1)
+    @MTOM
+    @WebService(
+            targetNamespace = "http://example.com/todo",
+            serviceName = "TodoWebService",
+            portName = "TodoWebPort",
+            endpointInterface = "com.example.ws.todo.TodoWebService")
+    @BindingType(SOAPBinding.SOAP12HTTP_BINDING)
+    public class TodoWebServiceImpl extends SpringBeanAutowiringSupport implements TodoWebService {
+
+        @Autowired
+        TodoService todoService;
+
+        // omitted
+
+        @Override
+        public void uploadFile(DataHandler dataHandler) throws WebFaultException {
+
+            try (InputStream inputStream = dataHandler.getInputStream()){ // (2)
+                todoService.uploadFile(inputStream);
+            } catch (Exception e) {
+                handler.translateException(e);
+            }
+        }
+
+    }
+
+
+.. tabularcolumns:: |p{0.10\linewidth}|p{0.90\linewidth}|
+.. list-table::
+    :header-rows: 1
+    :widths: 10 90
+
+    * - 項番
+      - 説明
+    * - | (1)
+      - | \ ``@MTOM``\ を付けて、MTOMに準拠した実装を使用することを宣言する。
+    * - | (2)
+      - | \ ``jakarta.activation.DataHandler``\ から\ ``java.io.InputStream``\ を取得してファイルを扱う。
+
+|
+
+クライアントの作成
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+
+プロジェクトの構成
+""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
+
+「\ :ref:`SOAPOverviewJaxWSSpring`\」で述べたとおり、modelプロジェクトとwebserviceプロジェクトをSOAPサーバから受領する前提である。
+
+.. figure:: images_SOAP/SOAPClientProjects.png
+    :alt: Client Projects for SOAP
+    :width: 80%
+
+
+.. tabularcolumns:: |p{0.10\linewidth}|p{0.30\linewidth}|p{0.60\linewidth}|
+.. list-table::
+    :header-rows: 1
+    :widths: 10 30 60
+    :class: longtable
+
+    * - 項番
+      - プロジェクト名
+      - 説明
+    * - | (1)
+      - | webプロジェクト
+      - | Controllerを作成する。
+        | 通常の画面遷移時のControllerと特に変更点はない。
+    * - | (2)
+      - | domainプロジェクト
+      - | Serviceクラスからwebserviceプロジェクトで用意されたWebServeインターフェースを使用してWebサービスを呼び出す。
+        | SOAPサーバと通信する際に使用するWebServiceインターフェースを実装したプロキシを定義する。
+    * - | (3)
+      - | webserviceプロジェクト
+      - | SOAPサーバと同じ資材を配置する。
+        | クライアントはこのインターフェースを使用してWebサービスを実行する。
+    * - | (4)
+      - | modelプロジェクト
+      - | SOAPサーバと同じ資材を配置する。
+        | SOAPサーバに渡す入力値や返却結果はこのプロジェクト内のクラスを使用する。
+    * - | (5)
+      - | envプロジェクト
+      - | domainプロジェクトで定義したプロキシの環境依存する値を定義する。
+        | プロキシの定義から環境依存する値をプロパティファイルに集約し、プロパティファイルのみenvプロジェクトに配置する。
+
+.. raw:: latex
+
+   \newpage
+
+.. note:: **プロキシの定義ついて**
+
+   試験用SOAPサーバ、本番用SOAPサーバ等、複数環境向けのプロキシを定義する際に発生する重複部分を排除し、管理を容易にするために、当ガイドラインではプロキシの定義はdomainプロジェクトで行い、環境依存する値はプロパティファイルに集約、プロパティファイルのみenvプロジェクトに配置することを推奨する。
+    
+   ユニットテストでプロキシのスタブやモックを使用する場合は、ユニットテスト用のコンポーネントを定義するためのBean定義ファイル(test-context.xml)にBeanを定義する。
+   
+|
+
+.. _SOAPHowToUseWebServiceClient:
+
+Webサービス クライアントの実装
+""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
+以下のクラスの実装を行う。
+
+- WebServiceインターフェースを実装したプロキシの定義
+- ServiceクラスからWebServiceインターフェース経由でWebサービスを呼び出す。
+
+.. figure:: images_SOAP/SOAPClientClass.png
+    :alt: Server Projects for SOAP
+    :width: 80%
+
+
+**WebServiceインターフェースを実装したプロキシの作成**
+
+| WebServiceインターフェースを実装したプロキシの定義を行う。
+| 
+| サービス名をもとに、\ ``jakarta.xml.ws.Service``\ を生成する。
+| そして、生成した\ ``jakarta.xml.ws.Service``\ からWebサービスのポートを特定し、そのポートを実装したプロキシを生成する。
+| 以下はその設定例となる。
+
+| サービスやポートの説明は、「\ :ref:`SOAPWebServiceWSDL`\」を参照されたい。
+
+| テスト等でWSDLファイルに記載されているエンドポイントアドレス以外を指定したい場合の設定については、「\ :ref:`SOAPEndpointAddress`\ 」を参照されたい。
+
+.. tabs::
+  .. group-tab:: Java Config
+
+    - \ ``[client projectName]-domain/src/main/java/com/example/config/app/[client projectName]DomainConfig.java``\
+
+      .. code-block:: java
+
+        // (3)
+        @Value("${webservice.todoWebService.wsdlDocumentResource}")
+        private String wsdlDocumentResource;
+
+        // (1)
+        @Bean("wsService")
+        public Service wsService() throws MalformedURLException {
+            QName serviceName = new QName("http://example.com/todo", "TodoWebService");  // (2)
+            return Service.create(new URL(wsdlDocumentResource), serviceName);  // (3)
+        }
+
+        // (4)
+        @Bean("todoWebService")
+        public TodoWebService todoWebService() throws MalformedURLException {
+            QName portName = new QName("http://example.com/todo", "TodoWebPort");  // (5)
+            return wsService().getPort(portName, TodoWebService.class);  // (6)
+        }
+
+    - \ ``[client projectName]-env/src/main/resources/META-INF/spring/[client projectName]-infra.properties``\
+
+      .. code-block:: properties
+
+        # (7)
+        webservice.todoWebService.wsdlDocumentResource=classpath:META-INF/spring/soap/todoWebService.wsdl
+
+      .. tabularcolumns:: |p{0.10\linewidth}|p{0.90\linewidth}|
+      .. list-table::
+          :header-rows: 1
+          :widths: 10 90
+
+          * - 項番
+            - 説明
+          * - | (1)
+            - | \ ``jakarta.xml.ws.Service``\ の定義を行う。
+          * - | (2)
+            - | WSDLファイルからサービスを特定するために、\ ``javax.xml.namespace.QName``\ を定義する。
+              | 引数には、SOAPサーバーで公開しているWEBサービスのNamespace、サービス名を指定する。
+          * - | (3)
+            - | \ ``jakarta.xml.ws.Service``\ の生成を行う。
+              | 引数には、SOAPサーバーで公開しているWSDLのURLかファイルパス、サービスを特定するために生成した\ ``javax.xml.namespace.QName``\ を指定する。
+              | WSDLのパスは、後述するプロパティファイルから取得する。
+          * - | (4)
+            - | WebServiceの動的プロキシの定義を行う。
+          * - | (5)
+            - | WSDLファイルからポートを特定するために、\ ``javax.xml.namespace.QName``\ を定義する。
+              | 引数には、SOAPサーバーで公開しているWEBサービスのNamespace、ポート名を指定する。
+          * - | (6)
+            - | \ ``jakarta.xml.ws.Service``\ からポートの動的プロキシを取得する。
+              | 引数には、ポートを特定するために生成した\ ``javax.xml.namespace.QName``\ 、WebServiceのインターフェースを指定する。
+          * - | (7)
+            - | WSDLのパスを設定する。
+              | 
+              | WSDLファイルをクライアントに配備し、プロパティファイルにWSDLのファイルパスを指定することを推奨する。
+              | URLを指定してしまうと、Bean生成時にSOAPサーバに対してWSDLファイルを取得しに行ってしまい、SOAPサーバが起動していない場合エラーとなり、クライアントアプリケーションが起動できなくなってしまう。
+              | 上記対応を行うと、SOAPサーバが起動していない場合でもクライアントアプリケーションを起動させることができる。
+
+  .. group-tab:: XML Config
+
+    - \ ``[client projectName]-domain/src/main/resources/META-INF/spring/[client projectName]-domain.xml``\
+
+      .. code-block:: xml
+
+        <!-- (1) -->
+        <bean id="wsService" class="jakarta.xml.ws.Service" factory-method="create">
+            <!-- (3) -->
+            <constructor-arg type="java.net.URL" value="${webservice.todoWebService.wsdlDocumentResource}" /><!-- (3) -->
+            <constructor-arg>
+                <!-- (2) -->
+                <bean class="javax.xml.namespace.QName">
+                    <constructor-arg type="java.lang.String" value="http://example.com/todo" />
+                    <constructor-arg type="java.lang.String" value="TodoWebService" />
+                </bean>
+            </constructor-arg>
+        </bean>
+
+        <!-- (4) -->
+        <bean id="todoWebService" class="com.example.ws.todo.TodoWebService" factory-bean="wsService" factory-method="getPort" >
+            <!-- (6) -->        
+            <constructor-arg>
+                <!-- (5) -->
+                <bean class="javax.xml.namespace.QName">
+                    <constructor-arg type="java.lang.String" value="http://example.com/todo" />
+                    <constructor-arg type="java.lang.String" value="TodoWebPort" />
+                </bean>
+            </constructor-arg>
+            <constructor-arg type="java.lang.Class" value="com.example.ws.todo.TodoWebService" />
+        </bean>
+
+    - \ ``[client projectName]-env/src/main/resources/META-INF/spring/[client projectName]-infra.properties``\
+
+      .. code-block:: properties
+
+        # (7)
+        webservice.todoWebService.wsdlDocumentResource=classpath:META-INF/spring/soap/todoWebService.wsdl
+
+      .. tabularcolumns:: |p{0.10\linewidth}|p{0.90\linewidth}|
+      .. list-table::
+          :header-rows: 1
+          :widths: 10 90
+
+          * - 項番
+            - 説明
+          * - | (1)
+            - | \ ``jakarta.xml.ws.Service``\ の定義を行う。
+          * - | (2)
+            - | WSDLファイルからサービスを特定するために、\ ``javax.xml.namespace.QName``\ を定義する。
+              | 引数には、SOAPサーバーで公開しているWEBサービスのNamespace、サービス名を指定する。
+          * - | (3)
+            - | \ ``jakarta.xml.ws.Service``\ の生成を行う。
+              | 引数には、SOAPサーバーで公開しているWSDLのURLかファイルパス、サービスを特定するために生成した\ ``javax.xml.namespace.QName``\ を指定する。
+              | WSDLのパスは、後述するプロパティファイルから取得する。
+          * - | (4)
+            - | WebServiceの動的プロキシの定義を行う。
+          * - | (5)
+            - | WSDLファイルからポートを特定するために、\ ``javax.xml.namespace.QName``\ を定義する。
+              | 引数には、SOAPサーバーで公開しているWEBサービスのNamespace、ポート名を指定する。
+          * - | (6)
+            - | \ ``jakarta.xml.ws.Service``\ からポートの動的プロキシを取得する。
+              | 引数には、ポートを特定するために生成した\ ``javax.xml.namespace.QName``\ 、WebServiceのインターフェースを指定する。
+          * - | (7)
+            - | WSDLのパスを設定する。
+              | 
+              | WSDLファイルをクライアントに配備し、プロパティファイルにWSDLのファイルパスを指定することを推奨する。
+              | URLを指定してしまうと、Bean生成時にSOAPサーバに対してWSDLファイルを取得しに行ってしまい、SOAPサーバが起動していない場合エラーとなり、クライアントアプリケーションが起動できなくなってしまう。
+              | 上記対応を行うと、SOAPサーバが起動していない場合でもクライアントアプリケーションを起動させることができる。
+
+|
+
+**ServiceからWebサービスを呼び出す**
+
+上記で作成したWebサービスをServiceでインジェクションして実行する。
+
+
+*[client projectName]-domain/src/main/java/com/example/domain/service/todo/TodoServiceImpl.java*
+
+.. code-block:: java
+
+    package com.example.soap.domain.service.todo;
+
+    import java.util.List;
+
+    import org.springframework.beans.factory.annotation.Autowired;
+    import org.springframework.stereotype.Service;
+
+    import com.example.domain.model.Todo;
+    import com.example.ws.webfault.WebFaultException;
+    import com.example.ws.todo.TodoWebService;
+
+    @Service
+    public class TodoServiceImpl implements TodoService {
+
+        @Autowired
+        TodoWebService todoWebService;
+
+        @Override
+        public void createTodo(Todo todo) {
+            // (1)
+            try {
+                todoWebService.createTodo(todo);
+            } catch (WebFaultException e) {
+                // (2)
+                // handle exception…
+            }
+        }
+    }
+
+.. tabularcolumns:: |p{0.10\linewidth}|p{0.90\linewidth}|
+.. list-table::
+    :header-rows: 1
+    :widths: 10 90
+
+    * - 項番
+      - 説明
+
+    * - | (1)
+      - | \ ``TodoWebService``\ をインジェクションして、実行対象のServiceを呼び出す。
+    * - | (2)
+      - | サーバ側で、例外が発生した場合は、\ ``WebFaultException``\ にラップされて送信される。
+        | 内容に応じて処理を行う。
+        | 例外処理の詳細は「:ref:`SOAPHowToUseExceptionHandler`」を参照されたい。
+
+.. note:: **レスポンスの情報取得**
+
+    リトライを考慮するなど、レスポンスの情報をクライアントで取得可能な場合、以下のように\ ``jakarta.xml.ws.BindingProvider``\ クラスにキャストすることで取得できる。
+
+     .. code-block:: java
+
+         BindingProvider provider = (BindingProvider) todoWebService;
+         int status = (int) provider.getResponseContext().get(MessageContext.HTTP_RESPONSE_CODE);
+
+|
+
+セキュリティ対策
+""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
+**認証処理**
+
+| \ ``jakarta.xml.ws.Service``\ を使用して、Basic認証を使用しているSOAPサーバと通信をする際には、\ ``jakarta.xml.ws.BindingProvider``\ で取得できる\ ``RequestContext``\ にユーザーとパスワードを設定することで認証を行うことができる。
+| 設定の方法は以下の通りである。
+
+\ ``jakarta.xml.ws.Service``\ の定義が複雑になるため、FactoryBeanを使用してBean定義を行う。
+
+*[client projectName]-domain/src/main/java/com/example/domain/service/todo/factory/TodoWebServiceFactoryBean.java*
+
+.. code-block:: java
+
+    public class TodoWebServiceFactoryBean implements
+                                            FactoryBean<TodoWebService> {
+
+        private String wsdlDocumentResource;
+
+        private String userName;
+
+        private String password;
+
+        @Override
+        public TodoWebService getObject() throws Exception {
+            QName serviceName = new QName("http://example.com/todo", "TodoWebService");
+            QName portName = new QName("http://example.com/todo", "TodoWebPort");
+
+            Service service = Service.create(new URL(wsdlDocumentResource), serviceName);
+            TodoWebService todoWebService = service.getPort(portName, TodoWebService.class);
+
+            BindingProvider bindingProvider = (BindingProvider) todoWebService;
+            Map<String, Object> requestContext = bindingProvider.getRequestContext();
+            // (1)
+            requestContext.put(BindingProvider.USERNAME_PROPERTY, userName);
+            requestContext.put(BindingProvider.PASSWORD_PROPERTY, password);
+
+            return todoWebService;
+        }
+
+        public void setWsdlDocumentResource(String wsdlDocumentResource) {
+            this.wsdlDocumentResource = wsdlDocumentResource;
+        }
+
+        public void setUserName(String userName) {
+            this.userName = userName;
+        }
+
+        public void setPassword(String password) {
+            this.password = password;
+        }
+
+        @Override
+        public Class<?> getObjectType() {
+            return TodoWebService.class;
+        }
+    }
+
+.. tabularcolumns:: |p{0.10\linewidth}|p{0.90\linewidth}|
+.. list-table::
+    :header-rows: 1
+    :widths: 10 90
+
+    * - 項番
+      - 説明
+    * - | (1)
+      - | 取得した\ ``RequestContext``\ に対して、Basic認証で使用するユーザー名、パスワードの設定を追加する。
+        | ユーザー名のキーに\ ``BindingProvider.USERNAME_PROPERTY``\ を設定し、値にはユーザー名を設定する。
+        | パスワードのキーに\ ``BindingProvider.PASSWORD_PROPERTY``\ を設定し、値にはパスワードを設定する。
+
+|
+
+FactoryBeanのBean定義を行う。
+
+.. tabs::
+  .. group-tab:: Java Config
+
+    - \ ``[client projectName]-domain/src/main/java/com/example/config/app/[client projectName]DomainConfig.java``\
+
+      .. code-block:: java
+
+        @Value("${webservice.todoWebService.wsdlDocumentResource}")
+        private String wsdlDocumentResource;
+
+        @Value("${webservice.todoWebService.username}")  // (1)
+        private String username;
+
+        @Value("${webservice.todoWebService.password}")  // (1)
+        private String password;
+
+        @Bean("todoWebService")
+        public TodoWebServiceFactoryBean todoWebService() {
+            TodoWebServiceFactoryBean factory = new TodoWebServiceFactoryBean();
+            factory.setWsdlDocumentResource(wsdlDocumentResource);
+            // (1)
+            factory.setUserName(username);
+            factory.setPassword(password);
+            return factory;
+        }
+
+    - \ ``[client projectName]-env/src/main/resources/META-INF/spring/[client projectName]-infra.properties``\
+
+      .. code-block:: properties
+
+        # (2)
+        webservice.todoWebService.username=testuser
+        webservice.todoWebService.password=password
+
+      .. tabularcolumns:: |p{0.10\linewidth}|p{0.90\linewidth}|
+      .. list-table::
+          :header-rows: 1
+          :widths: 10 90
+
+          * - 項番
+            - 説明
+          * - | (1)
+            - | 後述するプロパティファイルからユーザー名、パスワードの値を取得し、\ ``FactoryBean``\ に設定する。
+          * - | (2)
+            - | 認証に使用するユーザ名とパスワードを定義する。
+
+  .. group-tab:: XML Config
+
+    - \ ``[client projectName]-domain/src/main/resources/META-INF/spring/[client projectName]-domain.xml``\
+
+      .. code-block:: xml
+
+        <bean id="todoWebService" class="com.example.domain.service.todo.factory.TodoWebServiceFactoryBean" >
+            <property name="wsdlDocumentResource" value="${webservice.todoWebService.wsdlDocumentResource}" />
+            <!-- (1) -->
+            <property name="userName" value="${webservice.todoWebService.username}" />
+            <property name="password" value="${webservice.todoWebService.password}" />
+        </bean>
+
+    - \ ``[client projectName]-env/src/main/resources/META-INF/spring/[client projectName]-infra.properties``\
+
+      .. code-block:: properties
+
+        # (2)
+        webservice.todoWebService.username=testuser
+        webservice.todoWebService.password=password
+
+      .. tabularcolumns:: |p{0.10\linewidth}|p{0.90\linewidth}|
+      .. list-table::
+          :header-rows: 1
+          :widths: 10 90
+
+          * - 項番
+            - 説明
+          * - | (1)
+            - | 後述するプロパティファイルからユーザー名、パスワードの値を取得し、\ ``FactoryBean``\ に設定する。
+          * - | (2)
+            - | 認証に使用するユーザ名とパスワードを定義する。
+
+|
+
+.. _SOAPExceptionType:
+
+WEBサービス クライアントで取り扱う例外の種類
+""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
+| WEBサービス クライアントからSOAPサーバーに通信を行う際に、発生する例外は以下の通りとなる。
+| 以下で定義した例外は、必要に応じてクライアントでハンドリングを行う必要がある例外となる。
+
+.. tabularcolumns:: |p{0.60\linewidth}|p{0.40\linewidth}|
+.. list-table::
+    :header-rows: 1
+    :widths: 40 60
+
+    * - 例外名
+      - 内容
+    * - | \ ``jakarta.xml.ws.WebServiceException``\
+      - | WEBサービス全般で利用される実行時例外であり、SOAPサーバーとの通信時の障害、設定の不備等の広域の例外を表現する。
+    * - | \ ``jakarta.xml.ws.soap.SOAPFaultException``\
+      - | SOAP固有のエラー情報を保持した例外であり、SOAPサーバにて予期せぬ例外が発生した場合等に、Jakarta XML Web Servicesにより生成される例外。
+        | 「\ :ref:`SOAPHowToUseServerExceptionHandler`\」にてハンドリングできなかった例外が本例外に該当する。
+    * - | \ ``com.example.ws.webfault.WebFaultException``\
+      - | SOAPサーバの「\ :ref:`SOAPHowToUseServerExceptionHandler`\」にてラップした例外。
+        | 主に、業務ロジックにて検知可能な例外が本例外に該当する。
+
+|
+
+.. _SOAPHowToUseExceptionHandler:
+
+例外ハンドリングの実装
+""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
+| SOAPサーバでは、\ ``WebFaultException``\ に例外をラップして、スローすることを推奨している。
+| クライアントは\ ``WebFaultException``\ をキャッチして、その原因例外を判定してそれぞれの処理を行う。
+| 以下の例では、\ ``WebServiceException``\ と\ ``SOAPFaultException``\ をシステム例外扱いとしているためクライアントでのハンドリングは行っていない。
+| \ ``WebServiceException``\ と\ ``SOAPFaultException``\ に関してもクライアントで例外処理を追加したい場合は、ハンドリングする必要がある。
+
+.. code-block:: java
+
+    @Override
+    public void createTodo(Todo todo) {
+
+        try {
+            // (1)
+            todoWebService.createTodo(todo);
+        } catch (WebFaultException e) {
+            // (2)
+            switch (e.getFaultInfo().getType()) {
+            case ValidationFault:
+                // handle exception…
+                break;
+            case BusinessFault:
+                // handle exception…
+                break;
+            default:
+                // handle exception…
+                break;
+            }
+        }
+
+    }
+
+.. tabularcolumns:: |p{0.10\linewidth}|p{0.90\linewidth}|
+.. list-table::
+    :header-rows: 1
+    :widths: 10 90
+
+    * - 項番
+      - 説明
+    * - | (1)
+      - | Webサービスを呼び出す。throwsがついているため、\ ``WebFaultException``\ をキャッチする必要がある。
+    * - | (2)
+      - | \ ``faultInfo``\ の種別で例外を判定し、それぞれの処理を記述する（画面にメッセージを出す、例外をスローするなど）
+
+|
+
+タイムアウトの設定
+""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
+クライアントで指定できるタイムアウトは大きく以下の2つがある。
+
+- SOAPサーバとのコネクションタイムアウト
+- SOAPサーバへのリクエストタイムアウト
+
+| \ ``jakarta.xml.ws.Service``\ を使用して、タイムアウトの設定をするには、\ ``jakarta.xml.ws.BindingProvider``\ で取得できる\ ``RequestContext``\ にタイムアウト値を設定する必要がある。
+| 設定の方法は以下の通りである。
+
+\ ``jakarta.xml.ws.Service``\ の定義が複雑になるため、FactoryBeanを使用してBean定義を行う。
+
+*[client projectName]-domain/src/main/java/com/example/domain/service/todo/factory/TodoWebServiceFactoryBean.java*
+
+.. code-block:: java
+
+    public class TodoWebServiceFactoryBean implements
+                                                FactoryBean<TodoWebService> {
+
+        private String wsdlDocumentResource;
+
+        private long connectionTimeout;
+
+        private long requestTimeout;
+
+        @Override
+        public TodoWebService getObject() throws Exception {
+            QName serviceName = new QName("http://example.com/todo", "TodoWebService");
+            QName portName = new QName("http://example.com/todo", "TodoWebPort");
+
+            Service service = Service.create(new URL(wsdlDocumentResource), serviceName);
+            TodoWebService todoWebService = service.getPort(portName, TodoWebService.class);
+
+            BindingProvider bindingProvider = (BindingProvider) todoWebService;
+            Map<String, Object> requestContext = bindingProvider.getRequestContext();
+            // (1)
+            requestContext.put("jakarta.xml.ws.client.connectionTimeout", connectionTimeout);
+            requestContext.put("jakarta.xml.ws.client.receiveTimeout", requestTimeout);
+
+            return todoWebService;
+        }
+
+        public void setWsdlDocumentResource(String wsdlDocumentResource) {
+            this.wsdlDocumentResource = wsdlDocumentResource;
+        }
+
+        public void setConnectionTimeout(long connectionTimeout) {
+            this.connectionTimeout = connectionTimeout;
+        }
+
+        public void setRequestTimeout(long requestTimeout) {
+            this.requestTimeout = requestTimeout;
+        }
+
+        @Override
+        public Class<?> getObjectType() {
+            return TodoWebService.class;
+        }
+    }
+
+.. tabularcolumns:: |p{0.10\linewidth}|p{0.90\linewidth}|
+.. list-table::
+    :header-rows: 1
+    :widths: 10 90
+
+    * - 項番
+      - 説明
+    * - | (1)
+      - | 取得した\ ``RequestContext``\ に対して、タイムアウトの設定を追加する。
+        | コネクションタイムアウトのキーに\ ``jakarta.xml.ws.client.connectionTimeout``\ を設定し、値にはコネクションタイムアウト値を設定する。
+        | リクエストタイムアウトのキーに\ ``jakarta.xml.ws.client.receiveTimeout``\ を設定し、値にはリクエストタイムアウト値を設定する。
+
+        .. note:: **タイムアウト定義に使用するキーについて**
+
+            それぞれのタイムアウトを定義するキーはJakarta XML Web Servicesの実装により異なる値を設定する必要がある。
+            詳細は\ `JAX_WS-1166 Standardize timeout settings <https://github.com/javaee/metro-jax-ws/issues/1166>`_\ を参照されたい。
+
+            なお、Apache CXF 3.x までは、タイムアウトのキーとして\ ``javax.xml.ws.client.connectionTimeout``\ 、\ ``javax.xml.ws.client.receiveTimeout``\ を利用していたが、Apache CXF 4.x 以降は、\ ``jakarta.xml.ws.client.connectionTimeout``\ 、\ ``jakarta.xml.ws.client.receiveTimeout``\ にキーが変更となっている。
+
+|
+
+FactoryBeanのBean定義を行う。
+
+.. tabs::
+  .. group-tab:: Java Config
+
+    - \ ``[client projectName]-domain/src/main/java/com/example/config/app/[client projectName]DomainConfig.java``\
+
+      .. code-block:: java
+
+        @Value("${webservice.todoWebService.wsdlDocumentResource}")
+        private String wsdlDocumentResource;
+
+        @Value("${webservice.connect.timeout}")  // (1)
+        private long connectionTimeout;
+
+        @Value("${webservice.request.timeout}")  // (1)
+        private long requestTimeout;
+
+        @Bean("todoWebService")
+        public TodoWebServiceFactoryBean todoWebService() {
+            TodoWebServiceFactoryBean factory = new TodoWebServiceFactoryBean();
+            factory.setWsdlDocumentResource(wsdlDocumentResource);
+            // (1)
+            factory.setConnectionTimeout(connectionTimeout);
+            factory.setRequestTimeout(requestTimeout);
+            return factory;
+        }
+
+    - \ ``[client projectName]-env/src/main/resources/META-INF/spring/[client projectName]-infra.properties``\
+
+      .. code-block:: properties
+
+        # (2)
+        webservice.connect.timeout=3000
+        webservice.request.timeout=3000
+
+      .. tabularcolumns:: |p{0.10\linewidth}|p{0.90\linewidth}|
+      .. list-table::
+          :header-rows: 1
+          :widths: 10 90
+
+          * - 項番
+            - 説明
+          * - | (1)
+            - | 後述するプロパティファイルからコネクションタイムアウト、リクエストタイムアウトの値を取得し、\ ``FactoryBean``\ に設定する。
+          * - | (2)
+            - | コネクションタイムアウト値、リクエストタイムアウト値を定義する。
+
+  .. group-tab:: XML Config
+
+    - \ ``[client projectName]-domain/src/main/resources/META-INF/spring/[client projectName]-domain.xml``\
+
+      .. code-block:: xml
+
+        <bean id="todoWebService" class="com.example.domain.service.todo.factory.TodoWebServiceFactoryBean" >
+            <property name="wsdlDocumentResource" value="${webservice.todoWebService.wsdlDocumentResource}" />
+            <!-- (1) -->
+            <property name="connectionTimeout" value="${webservice.connect.timeout}" />
+            <property name="requestTimeout" value="${webservice.request.timeout}" />
+        </bean>
+
+    - \ ``[client projectName]-env/src/main/resources/META-INF/spring/[client projectName]-infra.properties``\
+
+      .. code-block:: properties
+
+        # (2)
+        webservice.connect.timeout=3000
+        webservice.request.timeout=3000
+
+      .. tabularcolumns:: |p{0.10\linewidth}|p{0.90\linewidth}|
+      .. list-table::
+          :header-rows: 1
+          :widths: 10 90
+
+          * - 項番
+            - 説明
+          * - | (1)
+            - | 後述するプロパティファイルからコネクションタイムアウト、リクエストタイムアウトの値を取得し、\ ``FactoryBean``\ に設定する。
+          * - | (2)
+            - | コネクションタイムアウト値、リクエストタイムアウト値を定義する。
+
+|
+
+Appendix
+--------------------------------------------------------------------------------
+
+.. _SOAPAppendixAddProject:
+
+SOAPサーバ用にプロジェクトの設定を変更する
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+| SOAPサーバを作成する場合、ブランクプロジェクトにmodelプロジェクトとwebserviceプロジェクトを追加することを推奨する。
+| 以下にその方法を記述する。
+
+| ブランクプロジェクトの初期状態は以下の構成になっている。
+| なお、artifactIdにはブランクプロジェクト作成時に指定したartifactIdが設定される。
+
+.. code-block:: console
+
+    artifactId
+    ├── pom.xml
+    ├── artifactId-domain
+    ├── artifactId-env
+    ├── artifactId-initdb
+    ├── artifactId-selenium
+    └── artifactId-web
+
+以下のようなプロジェクト構成にする。
+
+.. code-block:: console
+
+    artifactId
+    ├── pom.xml
+    ├── artifactId-domain
+    ├── artifactId-env
+    ├── artifactId-initdb
+    ├── artifactId-selenium
+    ├── artifactId-web
+    ├── artifactId-model
+    └── artifactId-webservice
+
+|
+
+既存プロジェクトの変更
+""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
+
+| ブランクプロジェクトの初期状態では、ControllerなどWebアプリケーションの簡易実装が含まれている。
+| そのままにしてもSOAP Web Serviceは実現可能だが、不要であるため、削除することを推奨する。
+| 削除対象は、「:doc:`../../ImplementationAtEachLayer/CreateWebApplicationProject` の :ref:`CreateWebApplicationProjectConfigurationMulti`」を参照されたい。
+
+|
+
+modelプロジェクトの作成
+""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
+
+modelプロジェクトの構成について説明する。
+
+.. code-block:: console
+
+    artifactId-model
+        ├── pom.xml  ... (1)
+
+.. tabularcolumns:: |p{0.10\linewidth}|p{0.90\linewidth}|
+.. list-table::
+    :header-rows: 1
+    :widths: 10 90
+
+    * - | 項番
+      - | 説明
+    * - | (1)
+      - modelモジュールの構成を定義するPOM(Project Object Model)ファイル。
+        このファイルでは、以下の定義を行う。
+
+        * 依存ライブラリとビルド用プラグインの定義
+        * jarファイルを作成するための定義
+
+| \ ``pom.xml``\ は以下のようなイメージになる。必要に応じて編集する必要がある。
+| 実際には、「artifactId」と「groupId」はブランクプロジェクト作成時に指定した値を設定する必要がある。
+
+.. code-block:: xml
+
+    <?xml version="1.0" encoding="UTF-8"?>
+    <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+
+        <modelVersion>4.0.0</modelVersion>
+        <artifactId>artifactId-model</artifactId>
+        <packaging>jar</packaging>
+        <parent>
+            <groupId>groupId</groupId>
+            <artifactId>artifactId</artifactId>
+            <version>1.0.0-SNAPSHOT</version>
+            <relativePath>../pom.xml</relativePath>
+        </parent>
+        <dependencies>
+            <!-- == Begin TERASOLUNA == -->
+            <dependency>
+                <groupId>org.terasoluna.gfw</groupId>
+                <artifactId>terasoluna-gfw-common-dependencies</artifactId>
+                <type>pom</type>
+            </dependency>
+            <!-- == End TERASOLUNA == -->
+        </dependencies>
+    </project>
+
+|
+
+webserviceプロジェクトの作成
+""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
+
+webserviceプロジェクトの構成について説明する。
+
+.. code-block:: console
+
+    artifactId-webservice
+        ├── pom.xml  ... (1)
+
+.. tabularcolumns:: |p{0.10\linewidth}|p{0.90\linewidth}|
+.. list-table::
+    :header-rows: 1
+    :widths: 10 90
+
+    * - | 項番
+      - | 説明
+    * - | (1)
+      - webserviceモジュールの構成を定義するPOM(Project Object Model)ファイル。
+        このファイルでは、以下の定義を行う。
+
+        * 依存ライブラリとビルド用プラグインの定義
+        * jarファイルを作成するための定義
+
+| \ ``pom.xml``\ は以下のようなイメージになる。必要に応じて編集する必要がある。
+| 実際には、「artifactId」と「groupId」はブランクプロジェクト作成時に指定した値を設定する必要がある。
+| なお、webserviceプロジェクトのコンパイルにはJakarta XML Web Services APIが必要となるため、\ ``jakarta.xml.ws-api``\ を依存関係に追加する必要がある。
+| 追加する\ ``jakarta.xml.ws-api``\ のバージョンに関しては、Apache CXFが使用するJakarta XML Web Services APIのバージョンに合わせて設定する必要があるため、「\ :ref:`SOAPApplicationConfiguration`\」に記載されているApache CXFのバージョンに合わせて設定を行う場合は、以下の\ ``pom.xml``\ に記載されたバージョンを指定する必要がある。
+
+.. code-block:: xml
+
+    <?xml version="1.0" encoding="UTF-8"?>
+    <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+
+        <modelVersion>4.0.0</modelVersion>
+        <artifactId>artifactId-webservice</artifactId>
+        <packaging>jar</packaging>
+        <parent>
+            <groupId>groupId</groupId>
+            <artifactId>artifactId</artifactId>
+            <version>1.0.0-SNAPSHOT</version>
+            <relativePath>../pom.xml</relativePath>
+        </parent>
+        <dependencies>
+            <dependency>
+                <groupId>${project.groupId}</groupId>
+                <artifactId>artifactId-model</artifactId>
+            </dependency>
+
+            <!-- == Begin TERASOLUNA == -->
+            <dependency>
+                <groupId>org.terasoluna.gfw</groupId>
+                <artifactId>terasoluna-gfw-security-core-dependencies</artifactId>
+                <type>pom</type>
+            </dependency>
+            <!-- == End TERASOLUNA == -->
+
+            <!-- == Start Jakarta XML Web Services  == -->
+            <dependency>
+                <groupId>jakarta.xml.ws</groupId>
+                <artifactId>jakarta.xml.ws-api</artifactId>
+                <version>4.0.2</version>
+            </dependency>
+            <!-- == End Jakarta XML Web Services  == -->
+
+        </dependencies>
+    </project>
+
+|
+
+.. _SOAPAppendixPackageServer:
+
+SOAPサーバのパッケージ構成
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+| SOAPサーバを作成するときの推奨する構成について、説明する。
+| ガイドラインに従いプロジェクトを追加すると以下の構成となる。
+
+.. tabularcolumns:: |p{0.30\linewidth}|p{0.70\linewidth}|
+.. list-table::
+    :header-rows: 1
+    :widths: 30 70
+
+    * - プロジェクト名
+      - 説明
+    * - | [server projectName]-domain
+      - | SOAPサーバのドメイン層に関するクラス・設定ファイルを格納するプロジェクト
+    * - | [server projectName]-web
+      - | SOAPサーバのアプリケーション層に関するクラス・設定ファイルを格納するプロジェクト
+    * - | [server projectName]-env
+      - | SOAPサーバの環境に依存するファイル等を格納するプロジェクト
+    * - | [server projectName]-model
+      - | SOAPサーバのドメイン層に関するクラスの中で、Webサービス実行時に使用し、クライアントと共有するクラスを格納するプロジェクト
+    * - | [server projectName]-webservice
+      - | SOAPサーバが提供するWebサービスのインターフェースを格納するプロジェクト
+
+|
+
+
+[server projectName]-domain
+""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
+
+[server projectName]-modelの依存関係を追加するため、\ ``pom.xml``\ に以下を追加する。
+
+.. code-block:: xml
+      
+    <dependency>
+        <groupId>${project.groupId}</groupId>
+        <artifactId>artifactId-model</artifactId>
+    </dependency>
+
+その他のパッケージ構成は、通常のdomainプロジェクトと変わらないため、「:doc:`../../Overview/ApplicationLayering` の :ref:`application-layering_project-structure`」を参照されたい。
+
+|
+
+[server projectName]-web
+""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
+
+[server projectName]-webserviceの依存関係を追加するため、\ ``pom.xml``\ に以下を追加する。
+
+.. code-block:: xml
+
+    <dependency>
+        <groupId>${project.groupId}</groupId>
+        <artifactId>artifactId-webservice</artifactId>
+    </dependency>
+
+.. note:: **依存性の解決について**
+
+    [server projectName]-modelの依存関係の定義は不要である。これは[server projectName]-webserviceから[server projectName]-modelへの依存関係が定義されているため、推移的に依存関係が追加されるためである。
+      
+
+.. note::
+
+    Jakarta XML Web Servicesでは、XML電文のシリアライズにJAXBを利用しており、アプリケーションの実行にはJAXBがクラスパスに登録されている必要がある。
+
+    Apache CXFを利用する場合は、org.glassfish.jaxb:jaxb-runtimeのJAXBが自動的に依存関係に追加されることを確認しているが、本ガイドラインでは\ :ref:`remove-jaxb-from-java11`\ で説明のとおり、com.sun.xml.bind:jaxb-implを使用することを前提とするため、\ `terasoluna-gfw-dependencies <https://github.com/terasolunaorg/terasoluna-dependencies/tree/2.0.0.RELEASE>`_\ で定義しているApache CXFからJAXBの依存関係を抜いている。
+
+|
+
+[server projectName]-webのプロジェクト推奨構成を、以下に示す。
+
+.. tabs::
+  .. group-tab:: Java Config
+
+    .. code-block:: console
+
+      [server projectName]-web
+        └src
+            └main
+                ├java
+                │  └com
+                │      └example
+                │          ├app...(1)
+                │          ├config
+                │          │  ├app
+                │          │  │  └ApplicationContextConfig.java...(2)
+                │          │  ├web
+                │          │  │  ├SpringMvcConfig.java...(3)
+                │          │  │  └SpringSecurityConfig.java...(4)
+                │          │  └ws
+                │          │      └[server projectName]WsConfig.java...(5)
+                │          └ws...(6)
+                │            ├exception...(7)
+                │            │  └WsExceptionHandler.java
+                │            ├abc
+                │            │  └AbcWebServiceImpl.java
+                │            └def
+                │                └DefWebServiceImpl.java
+                ├resources
+                │  ├META-INF
+                │  │  └spring
+                │  │      └application.properties...(8)
+                │  └i18n
+                │      └application-messages.properties...(9)
+                └webapp
+                    ├resources...(10)
+                    └WEB-INF
+                        ├views ...(11)
+                        └web.xml...(12)
+
+    .. tabularcolumns:: |p{0.10\linewidth}|p{0.90\linewidth}|
+    .. list-table::
+        :header-rows: 1
+        :widths: 10 90
+        :class: longtable
+
+        * - 項番
+          - 説明
+        * - | (1)
+          - | アプリケーション層の構成要素を格納するパッケージ。
+            | Webサービスのみ作成する場合は削除してもよい。
+        * - | (2)
+          - | アプリケーション全体に関するBean定義を行う。
+        * - | (3)
+          - | Spring MVCの設定を行うBean定義を行う。
+            | Webサービスのみ作成する場合は削除してもよい。
+        * - | (4)
+          - | Spring Securityの設定を行うBean定義を行う。
+        * - | (5)
+          - | Webサービスに関するBean定義を行う。
+        * - | (6)
+          - | Webサービスの関連クラスを格納するパッケージ。
+        * - | (7)
+          - | Webサービスの例外ハンドラーなどを格納するパッケージ。
+        * - | (8)
+          - | アプリケーションで使用するプロパティを定義する。
+        * - | (9)
+          - | 画面表示用のメッセージ(国際化対応)定義を行う。
+        * - | (10)
+          - | 静的リソース(css、js、画像など)を格納する。
+            | Webサービスのみ作成する場合は削除してもよい。
+        * - | (11)
+          - | View(jsp)を格納する。
+            | Webサービスのみ作成する場合は削除してもよい。
+        * - | (12)
+          - | Servletのデプロイメント定義を行う。
+
+  .. group-tab:: XML Config
+
+    .. code-block:: console
+
+      [server projectName]-web
+        └src
+            └main
+                ├java
+                │  └com
+                │      └example
+                │          ├app...(1)
+                │          └ws...(2)
+                │            ├exception...(3)
+                │            │  └WsExceptionHandler.java
+                │            ├abc
+                │            │  └AbcWebServiceImpl.java
+                │            └def
+                │                └DefWebServiceImpl.java
+                ├resources
+                │  ├META-INF
+                │  │  └spring
+                │  │      ├applicationContext.xml...(4)
+                │  │      ├application.properties...(5)
+                │  │      ├spring-mvc.xml ...(6)
+                │  │      ├spring-security.xml...(7)
+                │  │      └[server projectName]-ws.xml...(8)
+                │  └i18n
+                │      └application-messages.properties...(9)
+                └webapp
+                    ├resources...(10)
+                    └WEB-INF
+                        ├views ...(11)
+                        └web.xml...(12)
+
+    .. tabularcolumns:: |p{0.10\linewidth}|p{0.90\linewidth}|
+    .. list-table::
+        :header-rows: 1
+        :widths: 10 90
+        :class: longtable
+
+        * - 項番
+          - 説明
+        * - | (1)
+          - | アプリケーション層の構成要素を格納するパッケージ。
+            | Webサービスのみ作成する場合は削除してもよい。
+        * - | (2)
+          - | Webサービスの関連クラスを格納するパッケージ。
+        * - | (3)
+          - | Webサービスの例外ハンドラーなどを格納するパッケージ。
+        * - | (4)
+          - | アプリケーション全体に関するBean定義を行う。
+        * - | (5)
+          - | アプリケーションで使用するプロパティを定義する。
+        * - | (6)
+          - | Spring MVCの設定を行うBean定義を行う。
+            | Webサービスのみ作成する場合は削除してもよい。
+        * - | (7)
+          - | Spring Securityの設定を行うBean定義を行う。
+        * - | (8)
+          - | Webサービスに関するBean定義を行う。
+        * - | (9)
+          - | 画面表示用のメッセージ(国際化対応)定義を行う。
+        * - | (10)
+          - | 静的リソース(css、js、画像など)を格納する。
+            | Webサービスのみ作成する場合は削除してもよい。
+        * - | (11)
+          - | View(jsp)を格納する。
+            | Webサービスのみ作成する場合は削除してもよい。
+        * - | (12)
+          - | Servletのデプロイメント定義を行う。
+
+.. raw:: latex
+
+   \newpage
+
+.. Note:: **SOAPサーバの不要なファイル**
+
+    SOAPサーバで、Webサービスのみを作成する場合、ブランクプロジェクトに存在するSpring MVCの設定ファイルなどは不要となるため、削除したほうが望ましい。
+
+|
+
+[server projectName]-env
+""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
+
+[server projectName]-envについては、通常のenvプロジェクトと変わらないため、「:doc:`../../Overview/ApplicationLayering` の :ref:`application-layering_project-structure`」を参照されたい。
+
+|
+
+[server projectName]-model
+""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
+
+[server projectName]-modelのプロジェクト推奨構成を、以下に示す。
+
+.. code-block:: console
+
+    [server projectName]-model
+      └src
+          └main
+              └java
+                  └com
+                      └example
+                          └domain ...(1)
+                              └model ...(2)
+                                  ├Xxx.java
+                                  ├Yyy.java
+                                  └Zzz.java
+
+
+.. tabularcolumns:: |p{0.10\linewidth}|p{0.90\linewidth}|
+.. list-table::
+    :header-rows: 1
+    :widths: 10 90
+
+    * - 項番
+      - 説明
+    * - | (1)
+      - | ドメイン層の構成要素を格納するパッケージ。
+    * - | (2)
+      - | Domain Objectの中でWebサービス実行時に使用するクラスを格納するパッケージ。
+
+|
+
+[server projectName]-webservice
+""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
+
+[server projectName]-webserviceのプロジェクト推奨構成を、以下に示す。
+  
+  
+.. code-block:: console
+
+    [server projectName]-webservice
+      └src
+          └main
+              └java
+                  └com
+                      └example
+                          └ws...(1)
+                            ├webfault...(2)
+                            ├abc
+                            │  └AbcWebService.java
+                            └def
+                                └DefWebService.java
+
+.. tabularcolumns:: |p{0.10\linewidth}|p{0.90\linewidth}|
+.. list-table::
+    :header-rows: 1
+    :widths: 10 90
+
+    * - 項番
+      - 説明
+    * - | (1)
+      - | Webサービスのインターフェースを格納するパッケージ。
+    * - | (2)
+      - | Webサービスのwebfaultを格納するパッケージ。
+
+|
+
+.. _SOAPAppendixPackageClient:
+
+クライアントのパッケージ構成
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+| クライアントを作成するときの推奨する構成について、説明する。
+| ガイドラインに従いプロジェクトをSOAPサーバから提供されると以下の構成となる。
+
+.. tabularcolumns:: |p{0.30\linewidth}|p{0.70\linewidth}|
+.. list-table::
+    :header-rows: 1
+    :widths: 30 70
+
+    * - プロジェクト名
+      - 説明
+    * - | [client projectName]-domain
+      - | クライアントのドメイン層に関するクラス・設定ファイルを格納するプロジェクト
+    * - | [client projectName]-web
+      - | クライアントのアプリケーション層に関するクラス・設定ファイルを格納するプロジェクト
+    * - | [client projectName]-env
+      - | クライアントの環境に依存するファイル等を格納するプロジェクト
+
+.. note::
+
+    [server projectName]-modelと[server projectName]-webserviceについては、前述の「 :ref:`SOAPAppendixPackageServer`」を参照されたい。
+
+|
+
+[client projectName]-domain
+""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
+
+SOAPサーバから提供される[server projectName]-webserviceの依存関係を追加するため、\ ``pom.xml``\ に以下を追加する。
+
+.. code-block:: xml
+      
+    <dependency>
+        <groupId>${project.groupId}</groupId>
+        <artifactId>artifactId-webservice</artifactId>
+    </dependency>
+
+.. note:: **依存性の解決について**
+
+    [server projectName]-webと同様に、この\ ``pom.xml``\ には、[server projectName]-modelの依存関係の定義は不要である。これは[server projectName]-webserviceから[server projectName]-modelへの依存関係が定義されているため、推移的に依存関係が追加されるためである。
+
+その他のパッケージ構成は、通常のdomainプロジェクトと変わらないため、「:doc:`../../Overview/ApplicationLayering` の :ref:`application-layering_project-structure`」を参照されたい。
+
+|
+
+[client projectName]-web
+""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
+
+[client projectName]-webについては、通常のwebプロジェクトと変わらないため、「:doc:`../../Overview/ApplicationLayering` の :ref:`application-layering_project-structure`」を参照されたい。
+  
+  
+
+[client projectName]-env
+""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
+
+[client projectName]-envのプロジェクト推奨構成を、以下に示す。
+
+
+.. tabs::
+  .. group-tab:: Java Config
+
+    .. code-block:: console
+
+      [projectName]-env
+        ├configs ...(1)
+        │   └[envName] ...(2)
+        │       ├java ...(3)
+        │       └resources ...(4)
+        └src
+            └main
+                ├java ...(5)
+                │  └com
+                │      └example
+                │          └config
+                │             └app
+                │                └[projectName]EnvConfig.java...(6)
+                └resources ...(7)
+                    ├META-INF
+                    │  └spring
+                    │      └[projectName]-infra.properties ...(8)
+                    └logback.xml ...(9)
+
+    .. tabularcolumns:: |p{0.10\linewidth}|p{0.90\linewidth}|
+    .. list-table::
+        :header-rows: 1
+        :widths: 10 90
+
+        * - 項番
+          - 説明
+        * - | (1)
+          - | 全環境の環境依存ファイルを管理するためのディレクトリ。
+        * - | (2)
+          - | 環境毎の環境依存ファイルを管理するためのディレクトリ。
+            | ディレクトリ名は、環境を識別する名前を指定する。
+        * - | (3)
+          - | 環境毎のJavaで記載したBean定義を管理するためのディレクトリ。
+            | サブディレクトリの構成や管理する設定ファイルは、(5)と同様。
+        * - | (4)
+          - | 環境毎の設定ファイルを管理するためのディレクトリ。
+            | サブディレクトリの構成や管理する設定ファイルは、(7)と同様。
+        * - | (5)
+          - | ローカル開発環境用のJavaで記載したBean定義を管理するためのディレクトリ。
+        * - | (6)
+          - | ローカル開発環境用のBean定義を行う。
+        * - | (7)
+          - | ローカル開発環境用の設定ファイルを管理するためのディレクトリ。
+        * - | (8)
+          - | ローカル開発環境用のプロパティを定義する。
+            | WSDLのURLなど環境ごとに変更の可能性がある値を設定する。
+        * - | (9)
+          - | ローカル開発環境用のログ出力定義を行う。
+
+  .. group-tab:: XML Config
+
+    .. code-block:: console
+
+      [projectName]-env
+        ├configs ...(1)
+        │   └[envName] ...(2)
+        │       └resources ...(3)
+        └src
+            └main
+                └resources ...(4)
+                    ├META-INF
+                    │  └spring
+                    │      ├[projectName]-env.xml ...(5)
+                    │      └[projectName]-infra.properties ...(6)
+                    └logback.xml ...(7)
+
+    .. tabularcolumns:: |p{0.10\linewidth}|p{0.90\linewidth}|
+    .. list-table::
+        :header-rows: 1
+        :widths: 10 90
+
+        * - 項番
+          - 説明
+        * - | (1)
+          - | 全環境の環境依存ファイルを管理するためのディレクトリ。
+        * - | (2)
+          - | 環境毎の環境依存ファイルを管理するためのディレクトリ。
+            | ディレクトリ名は、環境を識別する名前を指定する。
+        * - | (3)
+          - | 環境毎の設定ファイルを管理するためのディレクトリ。
+            | サブディレクトリの構成や管理する設定ファイルは、(4)と同様。
+        * - | (4)
+          - | ローカル開発環境用の設定ファイルを管理するためのディレクトリ。
+        * - | (5)
+          - | ローカル開発環境用のBean定義を行う。
+        * - | (6)
+          - | ローカル開発環境用のプロパティを定義する。
+            | WSDLのURLなど環境ごとに変更の可能性がある値を設定する。
+        * - | (7)
+          - | ローカル開発環境用のログ出力定義を行う。
+
+|
+
+.. _SOAPWebServiceWSDL:
+
+WebServiceインターフェースの実装クラスとWSDLファイルの関係
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+| Webサービスを作成する際、登場するネームスペース、サービス、ポートの説明と、それぞれの関係を説明する。
+| ネームスペース、サービス、ポートは、WSDLに定義される項目となるため、WSDLファイルの構造とともに説明を行う。
+
+*公開されるWSDLファイル*
+
+.. code-block:: xml
+
+    <wsdl:definitions xmlns:xsd="http://www.w3.org/2001/XMLSchema"
+                    xmlns:wsdl="http://schemas.xmlsoap.org/wsdl/"
+                    xmlns:tns="http://example.com/todo"
+                    xmlns:soap12="http://schemas.xmlsoap.org/wsdl/soap12/"
+                    xmlns:ns1="http://schemas.xmlsoap.org/soap/http"
+                    targetNamespace="http://example.com/todo"> <!-- (1) -->
+        
+        // omitted
+
+        <wsdl:binding name="TodoWebServiceSoapBinding" type="tns:TodoWebService">
+            <soap12:binding style="document" transport="http://schemas.xmlsoap.org/soap/http" />
+            <wsdl:operation name="getTodo">
+                <soap12:operation soapAction="" style="document" />
+                <wsdl:input name="getTodo">
+                    <soap12:body use="literal" />
+                </wsdl:input>
+                <wsdl:output name="getTodoResponse">
+                    <soap12:body use="literal" />
+                </wsdl:output>
+                <wsdl:fault name="WebFaultException">
+                    <soap12:fault name="WebFaultException" use="literal" />
+                </wsdl:fault>
+            </wsdl:operation>
+        </wsdl:binding>
+
+        <wsdl:service name="TodoWebService">  <!-- (2) -->
+            <wsdl:port binding="tns:TodoWebServiceSoapBinding" name="TodoWebPort">  <!-- (3) -->
+                <soap12:address location="http://AAA.BBB.CCC.DDD:XXXX/[server projectName]-web/ws/TodoWebService" />  <!-- (4) -->
+            </wsdl:port>
+        </wsdl:service>
+    </wsdl:definitions>
+
+.. tabularcolumns:: |p{0.10\linewidth}|p{0.90\linewidth}|
+.. list-table::
+    :header-rows: 1
+    :widths: 10 90
+
+    * - 項番
+      - 説明
+    * - | (1)
+      - | WebServiceで定義する\ ``targetNamespace``\ は、名前空間を指定する項目となり、サービスやポート等の要素を一意に特定するために使用される。
+        | WSDLでは、最上位要素である\ ``<wsdl:definitions>``\ に設定され、この名前空間をもとに他の要素（service, port）を特定する。
+    * - | (2)
+      - | WebServiceで定義する\ ``serviceName``\ は、WSDLの\ ``<wsdl:service>``\ 要素に対応する。
+        | この要素は、一つ以上の\ ``<wsdl:port>``\ 要素を子要素として持ち、クライアントが利用できるエンドポイント（port）の情報を集約する役割を担う。
+    * - | (3)
+      - | WebServiceで定義する\ ``portName``\ は、WSDLの\ ``<wsdl:port>``\ 要素に対応する。
+        | ポートは、関連付けられたバインディング（\ ``<wsdl:binding>``\ ）使用して、Webサービスがどのように振る舞うかを規定する。
+        | クライアントはこのポート情報をもとにWebサービスにアクセスを行う。
+        | 
+        | \ ``<wsdl:binding>``\ は、プロトコルや、データ形式、入出力、エラー等の情報を定義する要素となる。
+        | 詳しくは、「\ `Web Services Description Language (WSDL) 1.1 <https://www.w3.org/TR/2001/NOTE-wsdl-20010315>`_\ 」を参照されたい。
+    * - | (4)
+      - | \ ``address``\ は、WebServiceで直接定義する項目ではなく、Jakarta XML Web Services実装ライブラリによって自動的に設定される。
+        | location属性に実際のエンドポイントアドレスが定義され、このアドレスがSOAPサーバーにアクセスする際に利用される。
+        | Jakarta XML Web Services実装ライブラリが、\ ``<soap:address>``\ 要素に定義されたエンドポイントアドレスを特定するため、利用者は特に意識する必要はない。
+
+|
+
+.. _SOAPEndpointAddress:
+
+テスト等でエンドポイントアドレスを上書き指定したい場合
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+| WSDLファイルには、Webサービス実行時のアクセスURL（エンドポイントアドレス）が記述されているため、クライアントではアクセスURLの設定は不要である。
+| ただし、WSDLファイルに記述されているURLではないURLにアクセスする場合、\ ``jakarta.xml.ws.BindingProvider``\ で取得できる\ ``RequestContext``\ に\ ``BindingProvider.ENDPOINT_ADDRESS_PROPERTY``\ を設定することで上書きすることができる。
+| テストなどで、環境を切り替える場合に使用するとよい。
+| 以下はその設定例である。
+
+\ ``jakarta.xml.ws.Service``\ の定義が複雑になるため、FactoryBeanを使用してBean定義を行う。
+
+*[client projectName]-domain/src/main/java/com/example/domain/service/todo/factory/TodoWebServiceFactoryBean.java*
+
+.. code-block:: java
+
+    public class TodoWebServiceFactoryBean implements
+                                                FactoryBean<TodoWebService> {  // (1)
+
+        private String wsdlDocumentResource;
+
+        private String endpointAddress;
+
+        @Override
+        public TodoWebService getObject() throws Exception {
+            QName serviceName = new QName("http://example.com/todo", "TodoWebService");
+            QName portName = new QName("http://example.com/todo", "TodoWebPort");
+
+            Service service = Service.create(new URL(wsdlDocumentResource), serviceName);
+            TodoWebService todoWebService = service.getPort(portName, TodoWebService.class);
+
+            BindingProvider bindingProvider = (BindingProvider) todoWebService;  // (2)
+            Map<String, Object> requestContext = bindingProvider.getRequestContext();  // (3)
+            requestContext.put(BindingProvider.ENDPOINT_ADDRESS_PROPERTY, endpointAddress);  // (4)
+
+            return todoWebService;
+        }
+
+        public void setWsdlDocumentResource(String wsdlDocumentResource) {
+            this.wsdlDocumentResource = wsdlDocumentResource;
+        }
+
+        // (4)
+        public void setEndpointAddress(String endpointAddress) {
+            this.endpointAddress = endpointAddress;
+        }
+
+        @Override
+        public Class<?> getObjectType() {
+            return TodoWebService.class;
+        }
+    }
+
+.. tabularcolumns:: |p{0.10\linewidth}|p{0.90\linewidth}|
+.. list-table::
+    :header-rows: 1
+    :widths: 10 90
+
+    * - 項番
+      - 説明
+    * - | (1)
+      - | \ ``FactoryBean``\ を実装する。
+    * - | (2)
+      - | 生成した動的プロキシを\ ``BindingProvider``\ に変換する。
+    * - | (3)
+      - | \ ``BindingProvider``\ から\ ``RequestContext``\ を取得する。
+    * - | (4)
+      - | 取得した\ ``RequestContext``\ に対して、エンドポイントアドレスの設定を追加する。
+        | キーに\ ``BindingProvider.ENDPOINT_ADDRESS_PROPERTY``\ を設定し、値にはエンドポイントアドレスを設定する。
+        | エンドポイントアドレスの値は外部から指定できるように、\ ``FactoryBean``\ の\ ``setter``\ として定義を行う。
+
+        .. note::
+          \ ``BindingProvider``\ には、他にも設定できる項目や、使用用途が存在している。
+          
+          \ ``BindingProvider``\ の詳細については \ `Jakarta XML Web Services 4.0 -4.2 jakarta.xml.ws.BindingProvider- <https://jakarta.ee/specifications/xml-web-services/4.0/jakarta-xml-ws-spec-4.0#bindingproviderif>`_\ を参照されたい。
+
+|
+
+FactoryBeanのBean定義を行う。
+
+.. tabs::
+  .. group-tab:: Java Config
+
+    - \ ``[client projectName]-domain/src/main/java/com/example/config/app/[client projectName]DomainConfig.java``\
+
+      .. code-block:: java
+
+        @Value("${webservice.todoWebService.wsdlDocumentResource}")
+        private String wsdlDocumentResource;
+
+        @Value("${webservice.todoWebService.endpointAddress}")  // (1)
+        private String endpointAddress;
+
+        @Bean("todoWebService")
+        public TodoWebServiceFactoryBean todoWebService() {
+            TodoWebServiceFactoryBean factory = new TodoWebServiceFactoryBean();
+            factory.setWsdlDocumentResource(wsdlDocumentResource);
+            factory.setEndpointAddress(endpointAddress);  // (1)
+            return factory;
+        }
+
+    - \ ``[client projectName]-env/src/main/resources/META-INF/spring/[client projectName]-infra.properties``\
+
+      .. code-block:: properties
+
+        # (2)
+        webservice.todoWebService.endpointAddress=http://AAA.BBB.CCC.DDD:XXXX/[server projectName]-web/ws/TodoWebService
+
+      .. tabularcolumns:: |p{0.10\linewidth}|p{0.90\linewidth}|
+      .. list-table::
+          :header-rows: 1
+          :widths: 10 90
+
+          * - 項番
+            - 説明
+          * - | (1)
+            - | 後述するプロパティファイルからエンドポイントアドレスの値を取得し、\ ``FactoryBean``\ に設定する。
+          * - | (2)
+            - | エンドポイントアドレスを定義する。
+
+  .. group-tab:: XML Config
+
+    - \ ``[client projectName]-domain/src/main/resources/META-INF/spring/[client projectName]-domain.xml``\
+
+      .. code-block:: xml
+
+        <bean id="todoWebService" class="com.example.domain.service.todo.factory.TodoWebServiceFactoryBean" >
+            <property name="wsdlDocumentResource" value="${webservice.todoWebService.wsdlDocumentResource}" />
+            <property name="endpointAddress" value="${webservice.todoWebService.endpointAddress}" /> <!-- (1) -->
+        </bean>
+
+    - \ ``[client projectName]-env/src/main/resources/META-INF/spring/[client projectName]-infra.properties``\
+
+      .. code-block:: properties
+
+        # (2)
+        webservice.todoWebService.endpointAddress=http://AAA.BBB.CCC.DDD:XXXX/[server projectName]-web/ws/TodoWebService
+
+      .. tabularcolumns:: |p{0.10\linewidth}|p{0.90\linewidth}|
+      .. list-table::
+          :header-rows: 1
+          :widths: 10 90
+
+          * - 項番
+            - 説明
+          * - | (1)
+            - | 後述するプロパティファイルからエンドポイントアドレスの値を取得し、\ ``FactoryBean``\ に設定する。
+          * - | (2)
+            - | エンドポイントアドレスを定義する。
+
+|
+
+.. raw:: latex
+
+   \newpage
+
