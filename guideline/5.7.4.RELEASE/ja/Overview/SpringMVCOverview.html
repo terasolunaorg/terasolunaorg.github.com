@@ -1,0 +1,279 @@
+<!DOCTYPE html>
+
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+    <title>2.2. Spring MVCアーキテクチャ概要 &#8212; TERASOLUNA Server Framework for Java (5.x) Development Guideline 5.7.4.RELEASE documentation</title>
+    <link rel="stylesheet" type="text/css" href="../_static/pygments.css" />
+    <link rel="stylesheet" type="text/css" href="../_static/solar.css" />
+    <link rel="stylesheet" type="text/css" href="../_static/tabs.css" />
+    <script data-url_root="../" id="documentation_options" src="../_static/documentation_options.js"></script>
+    <script src="../_static/doctools.js"></script>
+    <script src="../_static/sphinx_highlight.js"></script>
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="next" title="2.3. はじめてのSpring MVCアプリケーション" href="FirstApplication.html" />
+    <link rel="prev" title="2.1. TERASOLUNA Server Framework for Java (5.x)のスタック" href="FrameworkStack.html" /><script src="../_static/jquery.js" type="text/javascript"></script>
+<script src="../_static/jquery.treeview.js" type="text/javascript"></script>
+<!-- <link href='http://fonts.googleapis.com/css?family=Source+Code+Pro|Open+Sans:300italic,400italic,700italic,400,300,700' rel='stylesheet' type='text/css'> -->
+<link href="../_static/solarized-dark.css" rel="stylesheet">
+<link href="../_static/jquery.treeview.css" rel="stylesheet">
+  </head><body>
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="FirstApplication.html" title="2.3. はじめてのSpring MVCアプリケーション"
+             accesskey="N">next</a> |</li>
+        <li class="right" >
+          <a href="FrameworkStack.html" title="2.1. TERASOLUNA Server Framework for Java (5.x)のスタック"
+             accesskey="P">previous</a> |</li>
+        <li class="nav-item nav-item-0"><a href="../index.html">TERASOLUNA Server Framework for Java (5.x) Development Guideline 5.7.4.RELEASE documentation</a> &#187;</li>
+          <li class="nav-item nav-item-1"><a href="index.html" accesskey="U"><span class="section-number">2. </span>アーキテクチャ概要</a> &#187;</li>
+        <li class="nav-item nav-item-this"><a href=""><span class="section-number">2.2. </span>Spring MVCアーキテクチャ概要</a></li> 
+      </ul>
+    </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper"><label><input id="scroll" type="checkbox" checked> scroll sidebar</label>
+  <div>
+    <h3><a href="../index.html">Table of Contents</a></h3>
+    <ul>
+<li><a class="reference internal" href="#">2.2. Spring MVCアーキテクチャ概要</a><ul>
+<li><a class="reference internal" href="#overview-of-spring-mvc-processing-sequence">2.2.1. Overview of Spring MVC Processing Sequence</a></li>
+<li><a class="reference internal" href="#implementations-of-each-component">2.2.2. Implementations of each component</a><ul>
+<li><a class="reference internal" href="#implementation-of-handlermapping">2.2.2.1. Implementation of HandlerMapping</a></li>
+<li><a class="reference internal" href="#implementation-of-handleradapter">2.2.2.2. Implementation of HandlerAdapter</a></li>
+<li><a class="reference internal" href="#implementation-of-viewresolver">2.2.2.3. Implementation of ViewResolver</a></li>
+<li><a class="reference internal" href="#implementation-of-view">2.2.2.4. Implementation of View</a></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+
+  </div>
+  <div>
+    <h4>Previous topic</h4>
+    <p class="topless"><a href="FrameworkStack.html"
+                          title="previous chapter"><span class="section-number">2.1. </span>TERASOLUNA Server Framework for Java (5.x)のスタック</a></p>
+  </div>
+  <div>
+    <h4>Next topic</h4>
+    <p class="topless"><a href="FirstApplication.html"
+                          title="next chapter"><span class="section-number">2.3. </span>はじめてのSpring MVCアプリケーション</a></p>
+  </div>
+  <div role="note" aria-label="source link">
+    <h3>This Page</h3>
+    <ul class="this-page-menu">
+      <li><a href="../_sources/Overview/SpringMVCOverview.rst.txt"
+            rel="nofollow">Show Source</a></li>
+    </ul>
+   </div>
+<div id="searchbox" style="display: none" role="search">
+  <h3 id="searchlabel">Quick search</h3>
+    <div class="searchformwrapper">
+    <form class="search" action="../search.html" method="get">
+      <input type="text" name="q" aria-labelledby="searchlabel" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false"/>
+      <input type="submit" value="Go" />
+    </form>
+    </div>
+</div>
+<script>document.getElementById('searchbox').style.display = "block"</script>
+        </div>
+      </div>
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <section id="spring-mvc">
+<h1><span class="section-number">2.2. </span>Spring MVCアーキテクチャ概要<a class="headerlink" href="#spring-mvc" title="Permalink to this heading">¶</a></h1>
+<nav class="contents local" id="id1">
+<p class="topic-title">目次</p>
+<ul class="simple">
+<li><p><a class="reference internal" href="#overview-of-spring-mvc-processing-sequence" id="id2">Overview of Spring MVC Processing Sequence</a></p></li>
+<li><p><a class="reference internal" href="#implementations-of-each-component" id="id3">Implementations of each component</a></p>
+<ul>
+<li><p><a class="reference internal" href="#implementation-of-handlermapping" id="id4">Implementation of HandlerMapping</a></p></li>
+<li><p><a class="reference internal" href="#implementation-of-handleradapter" id="id5">Implementation of HandlerAdapter</a></p></li>
+<li><p><a class="reference internal" href="#implementation-of-viewresolver" id="id6">Implementation of ViewResolver</a></p></li>
+<li><p><a class="reference internal" href="#implementation-of-view" id="id7">Implementation of View</a></p></li>
+</ul>
+</li>
+</ul>
+</nav>
+<p>Spring MVCは、公式で以下のように説明されている。</p>
+<p><a class="reference external" href="https://docs.spring.io/spring-framework/docs/5.3.39/reference/html/web.html#mvc">Spring Framework Documentation</a>.</p>
+<blockquote>
+<div><p>Spring’s web MVC framework is, like many other web MVC frameworks, request-driven,
+designed around a central Servlet that dispatches requests to controllers and offers other functionality
+that facilitates the development of web applications. Spring’s DispatcherServlet however, does more than just that.
+It is completely integrated with the Spring IoC container and as such allows you to use every other feature that Spring has.</p>
+</div></blockquote>
+<section id="overview-of-spring-mvc-processing-sequence">
+<span id="springmvcoverview"></span><h2><a class="toc-backref" href="#id2" role="doc-backlink"><span class="section-number">2.2.1. </span>Overview of Spring MVC Processing Sequence</a><a class="headerlink" href="#overview-of-spring-mvc-processing-sequence" title="Permalink to this heading">¶</a></h2>
+<p>リクエストを受けてから、レスポンスを返すまでのSpring MVCの処理フローを、以下の図に示す。</p>
+<figure class="align-default">
+<a class="reference internal image-reference" href="../_images/RequestLifecycle.png"><img alt="request lifecycle" src="../_images/RequestLifecycle.png" style="width: 100%;" /></a>
+</figure>
+<ol class="arabic simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">DispatcherServlet</span></code>が、リクエストを受け取る。</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">DispatcherServlet</span></code>は、リクエスト処理を行う<code class="docutils literal notranslate"><span class="pre">Controller</span></code>の選択を<code class="docutils literal notranslate"><span class="pre">HandlerMapping</span></code>に委譲する。<code class="docutils literal notranslate"><span class="pre">HandlerMapping</span></code>は、リクエストURLにマッピングされている<code class="docutils literal notranslate"><span class="pre">Controller</span></code>を選定し<code class="docutils literal notranslate"><span class="pre">（Choose</span> <span class="pre">Handler）</span></code>、 <code class="docutils literal notranslate"><span class="pre">Controller</span></code>を<code class="docutils literal notranslate"><span class="pre">DispatcherServlet</span></code>へ返却する。</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">DispatcherServlet</span></code> は、<code class="docutils literal notranslate"><span class="pre">Controller</span></code>のビジネスロジック処理の実行を<code class="docutils literal notranslate"><span class="pre">HandlerAdapter</span></code>に委譲する。</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">HandlerAdapter</span></code> は、<code class="docutils literal notranslate"><span class="pre">Controller</span></code>のビジネスロジック処理を呼び出す。</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">Controller</span></code>は、ビジネスロジックを実行し、処理結果を<code class="docutils literal notranslate"><span class="pre">Model</span></code>に設定し、ビューの論理名を<code class="docutils literal notranslate"><span class="pre">HandlerAdapter</span></code>に返却する。</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">DispatcherServlet</span></code>は、ビュー名に対応する<code class="docutils literal notranslate"><span class="pre">View</span></code>の解決を、<code class="docutils literal notranslate"><span class="pre">ViewResolver</span></code>に委譲する。<code class="docutils literal notranslate"><span class="pre">ViewResolver</span></code>は、ビュー名にマッピングされている<code class="docutils literal notranslate"><span class="pre">View</span></code>を返却する。</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">DispatcherServlet</span></code>は、返却された<code class="docutils literal notranslate"><span class="pre">View</span></code>にレンダリング処理を委譲する。</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">View</span></code>は、<code class="docutils literal notranslate"><span class="pre">Model</span></code>の持つ情報をレンダリングしてレスポンスを返却する。</p></li>
+</ol>
+</section>
+<section id="implementations-of-each-component">
+<h2><a class="toc-backref" href="#id3" role="doc-backlink"><span class="section-number">2.2.2. </span>Implementations of each component</a><a class="headerlink" href="#implementations-of-each-component" title="Permalink to this heading">¶</a></h2>
+<p>これまで説明したコンポーネントのうち、拡張可能なコンポーネントを紹介する。</p>
+<section id="implementation-of-handlermapping">
+<h3><a class="toc-backref" href="#id4" role="doc-backlink"><span class="section-number">2.2.2.1. </span>Implementation of HandlerMapping</a><a class="headerlink" href="#implementation-of-handlermapping" title="Permalink to this heading">¶</a></h3>
+<p>Springから提供されている<code class="docutils literal notranslate"><span class="pre">HandlerMapping</span></code>のクラス階層を、以下に示す。</p>
+<figure class="align-default">
+<img alt="HandlerMapping Hierarchy" src="../_images/HandlerMapping-Hierarchy.png" />
+</figure>
+<div class="line-block">
+<div class="line">通常使用するのは、<code class="docutils literal notranslate"><span class="pre">org.springframework.web.servlet.mvc.method.annotation.RequestMappingHandlerMapping</span></code>である。</div>
+<div class="line">このクラスは、Bean定義されている<code class="docutils literal notranslate"><span class="pre">Contorller</span></code>から<code class="docutils literal notranslate"><span class="pre">&#64;RequestMapping</span></code>アノテーションを読み取り、</div>
+<div class="line">URLと合致する<code class="docutils literal notranslate"><span class="pre">Controller</span></code>のメソッドをHandlerクラスとして扱うクラスである。</div>
+</div>
+<div class="line-block">
+<div class="line">Spring Framework 3.1からは、<code class="docutils literal notranslate"><span class="pre">RequestMappingHandlerMapping</span></code>は、<code class="docutils literal notranslate"><span class="pre">DispatcherServlet</span></code>が読み込むBean定義ファイルに、</div>
+<div class="line"><code class="docutils literal notranslate"><span class="pre">&lt;mvc:annotation-driven&gt;</span></code>の設定がある場合、デフォルトで設定される。</div>
+<div class="line">(<code class="docutils literal notranslate"><span class="pre">&lt;mvc:annotation-driven&gt;</span></code>アノテーションで有効になる設定は、<a class="reference external" href="https://docs.spring.io/spring-framework/docs/5.3.39/reference/html/web.html#mvc-config-enable">Spring Framework Documentation -Enable MVC Configuration-</a>を参照されたい。)</div>
+</div>
+</section>
+<section id="implementation-of-handleradapter">
+<h3><a class="toc-backref" href="#id5" role="doc-backlink"><span class="section-number">2.2.2.2. </span>Implementation of HandlerAdapter</a><a class="headerlink" href="#implementation-of-handleradapter" title="Permalink to this heading">¶</a></h3>
+<p>Springから提供されている<code class="docutils literal notranslate"><span class="pre">HandlerAdapter</span></code>のクラス階層を、以下に示す。</p>
+<figure class="align-default">
+<img alt="HandlerAdapter Hierarchy" src="../_images/HandlerAdapter-Hierarchy.png" />
+</figure>
+<div class="line-block">
+<div class="line">通常使用するのは、<code class="docutils literal notranslate"><span class="pre">org.springframework.web.servlet.mvc.method.annotation.RequestMappingHandlerAdapter</span></code>である。</div>
+<div class="line">このクラスは、<code class="docutils literal notranslate"><span class="pre">HandlerMapping</span></code>によって選択されたHandlerクラス(<code class="docutils literal notranslate"><span class="pre">Controller</span></code>)のメソッドを呼び出すクラスである。</div>
+</div>
+<div class="line-block">
+<div class="line">このクラスもSpring Framework 3.1からは、<code class="docutils literal notranslate"><span class="pre">&lt;mvc:annotation-driven&gt;</span></code>の設定がある場合、デフォルトで設定される。</div>
+</div>
+</section>
+<section id="implementation-of-viewresolver">
+<h3><a class="toc-backref" href="#id6" role="doc-backlink"><span class="section-number">2.2.2.3. </span>Implementation of ViewResolver</a><a class="headerlink" href="#implementation-of-viewresolver" title="Permalink to this heading">¶</a></h3>
+<p>Springおよび依存ライブラリから提供されている<code class="docutils literal notranslate"><span class="pre">ViewResolver</span></code>のクラスを、以下に示す。</p>
+<figure class="align-default">
+<img alt="ViewResolver Hierarchy" src="../_images/ViewResolver-Hierarchy.png" />
+</figure>
+<p>通常(JSPを使う場合)は、</p>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">org.springframework.web.servlet.view.InternalResourceViewResolver</span></code>を使用するが、</p></li>
+</ul>
+<p>テンプレートエンジンTilesを使う場合は、</p>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">org.springframework.web.servlet.view.tiles3.TilesViewResolver</span></code></p></li>
+</ul>
+<p>ファイルダウンロード用にストリームを返す場合は</p>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">org.springframework.web.servlet.view.BeanNameViewResolver</span></code></p></li>
+</ul>
+<p>のように、返す<code class="docutils literal notranslate"><span class="pre">View</span></code>によって使い分ける必要がある。</p>
+<div class="line-block">
+<div class="line">複数の種類の<code class="docutils literal notranslate"><span class="pre">View</span></code>を扱う場合、<code class="docutils literal notranslate"><span class="pre">ViewResolver</span></code>の定義が複数必要となるケースがある。</div>
+<div class="line">複数の<code class="docutils literal notranslate"><span class="pre">ViewResolver</span></code>を使う代表的な例として、ファイルのダウンロード処理が存在する画面アプリケーションが挙げられる。</div>
+<div class="line">画面(JSP)は、<code class="docutils literal notranslate"><span class="pre">InternalResourceViewResolver</span></code>で<code class="docutils literal notranslate"><span class="pre">View</span></code>を解決し、</div>
+<div class="line">ファイルダウンロードは、<code class="docutils literal notranslate"><span class="pre">BeanNameViewResolver</span></code>などを使って<code class="docutils literal notranslate"><span class="pre">View</span></code>を解決する。</div>
+<div class="line">詳細は<a class="reference internal" href="../ArchitectureInDetail/WebApplicationDetail/FileDownload.html"><span class="doc">ファイルダウンロード</span></a>を参照されたい。</div>
+</div>
+</section>
+<section id="implementation-of-view">
+<h3><a class="toc-backref" href="#id7" role="doc-backlink"><span class="section-number">2.2.2.4. </span>Implementation of View</a><a class="headerlink" href="#implementation-of-view" title="Permalink to this heading">¶</a></h3>
+<p>Springおよび依存ライブラリから提供されている<code class="docutils literal notranslate"><span class="pre">View</span></code>のクラスを、以下に示す。</p>
+<figure class="align-default">
+<img alt="View Hierarchy" src="../_images/View-Hierarchy.png" />
+</figure>
+<div class="line-block">
+<div class="line"><code class="docutils literal notranslate"><span class="pre">View</span></code>は、返したいレスポンスの種類によって変わる。</div>
+<div class="line">JSPを返す場合、<code class="docutils literal notranslate"><span class="pre">org.springframework.web.servlet.view.JstlView</span></code>が使用される。</div>
+</div>
+<div class="line-block">
+<div class="line">Springおよび依存ライブラリから提供されていない<code class="docutils literal notranslate"><span class="pre">View</span></code>を扱いたい場合、<code class="docutils literal notranslate"><span class="pre">View</span></code>インタフェースを実装したクラスを拡張する必要がある。</div>
+<div class="line">詳細は<a class="reference internal" href="../ArchitectureInDetail/WebApplicationDetail/FileDownload.html"><span class="doc">ファイルダウンロード</span></a>を参照されたい。</div>
+</div>
+</section>
+</section>
+</section>
+
+
+            <div class="clearer"></div>
+          </div>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="FirstApplication.html" title="2.3. はじめてのSpring MVCアプリケーション"
+             >next</a> |</li>
+        <li class="right" >
+          <a href="FrameworkStack.html" title="2.1. TERASOLUNA Server Framework for Java (5.x)のスタック"
+             >previous</a> |</li>
+        <li class="nav-item nav-item-0"><a href="../index.html">TERASOLUNA Server Framework for Java (5.x) Development Guideline 5.7.4.RELEASE documentation</a> &#187;</li>
+          <li class="nav-item nav-item-1"><a href="index.html" ><span class="section-number">2. </span>アーキテクチャ概要</a> &#187;</li>
+        <li class="nav-item nav-item-this"><a href=""><span class="section-number">2.2. </span>Spring MVCアーキテクチャ概要</a></li> 
+      </ul>
+    </div>
+    <div class="footer">
+      © Copyright 2024, NTT DATA Group Corporation. © Copyright 2013, NTT Corporation.
+      Created using <a href="https://www.sphinx-doc.org/en/master/">Sphinx</a> 7.0.1.Theme is <a href="https://pypi.org/project/solar-theme/">Solar</a>
+    </div>
+    
+    <script>
+    
+    $(function() {
+    	var $sidebar	= $('.sphinxsidebar'),
+    		$window		= $(window),
+    		offset		= $sidebar.offset(),
+    		topPadding	= 3,
+    		$scroll		= $('#scroll');
+    	
+    	$window.scroll(function() {
+    		if ($scroll.is(':checked')) {
+				if ($window.scrollTop() > offset.top) {
+					$sidebar.stop().animate({
+						marginTop:$window.scrollTop() - offset.top + topPadding
+					});
+				} else {
+					$sidebar.stop().animate({
+						marginTop:0
+					});
+				}
+			}
+		});
+    	
+    	var $navList = $('ul:first', $sidebar);
+    	$('li:first', $navList).addClass('open');
+    	
+    	$navList.treeview({
+    		persist: "location",
+    		collapsed: true,
+    		unique: false
+    	});
+    	
+	});
+    </script>
+  </body>
+</html>
