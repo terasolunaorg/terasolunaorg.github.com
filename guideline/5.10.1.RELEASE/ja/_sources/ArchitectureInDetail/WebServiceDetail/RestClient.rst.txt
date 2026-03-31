@@ -1,0 +1,3894 @@
+RESTクライアント（HTTPクライアント）
+================================================================================
+
+.. only:: html
+
+.. contents:: 目次
+  :depth: 3
+  :local:
+
+|
+
+.. _RestClientOverview:
+
+Overview
+--------------------------------------------------------------------------------
+
+| 本節では、RESTful Web Service(REST API)を呼び出す際に利用するRESTクライアントの実装について説明を行う。
+| 
+| 本ガイドラインでは、主に外部システム連携の手段としてのRESTを扱う。
+| 外部システム連携では多くの場合、同期的な情報のやり取りを行うことが想定されるため、本ガイドラインでも同期的な通信を中心に取り扱う。
+| 非同期通信については簡単な実装例を参考情報としてAppendix（\ :ref:`AsyncDescription`\ ）に記載しているので必要に応じて参照されたい。
+|  
+| 「\ :ref:`RestClientTypeAndOverviewRestTemplate`\ 」にて説明を行っているが、\ ``RestTemplate``\ はSpring Frameworkにて将来的に廃止されることが予定されており、\ ``RestTemplate``\ の移行先として\ ``RestClient``\ が紹介されている。
+| そのため、5.11.x以降の |framework_name| においては、\ ``RestClient``\ による同期通信の実装を推奨している。
+| \ ``RestClient``\ を用いた設定や利用方法については、|framework_name| の\ :url_terasoluna_guideline:`5.11.x以降のガイドライン </>`\ に記載しているため、そちらを参照されたい。
+
+|
+
+.. _RestClientTypeAndOverviewRestTemplate:
+
+\ ``RestTemplate``\ を利用したクライアント実装
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+| \ ``RestTemplate``\ は、Spring Framework 3.0から導入されているRESTクライアント実装であり、REST APIへの同期通信をサポートしたクライアント実装である。
+| 非同期通信に関しては、Spring Framework 6.0にて\ ``AsyncRestTemplate``\ が削除されたことにより、\ ``WebClient``\ を利用した実装が推奨されており、現在は同期通信のみをサポートしている。
+| なお、同期通信においてもSpring Framework 7.0にて今後廃止とする宣言がされており、\ **Spring Framework 7.1にて正式に非推奨とし、Spring Framework 8.0にて削除を行う予定**\ とされている。
+| そして、\ ``RestTemplate``\ の移行先としては\ ``RestClient``\ が紹介されている。
+| \ ``RestTemplate``\ が非推奨となった経緯は、\ :url_spring_io:`The state of HTTP clients in Spring </blog/2025/09/30/the-state-of-http-clients-in-spring>`\ を参照されたい。
+| |framework_name| においても、現在利用中のユーザを考慮し、\ ``RestTemplate``\ 関する記載を残しているが、\ **今後、RESTクライアントの実装を行う際はRestClientの利用を推奨する。**\
+| また、技術的負債になることを防ぐため、\ **既存のRestTemplateを用いた実装についても、RestClientへの移行を推奨する。**\
+| \ ``RestTemplate``\ から\ ``RestClient``\ への移行については、\ :url_spring_reference:`Migrating from RestTemplate to RestClient </integration/rest-clients.html#migrating-to-restclient>`\ にて詳しく記載されているので参照されたい。
+| また、上述の通り |framework_name| 5.11.x以降から\ ``RestClient``\ におけるRESTクライアントの実現方法について記載しているので、必要に応じて参照してほしい。
+
+| 以下に、\ ``RestTemplate``\ を利用したクライアントアプリケーションが、どのようにREST APIを公開しているサーバサイドアプリケーションにアクセスし、RESTによる通信を実現するかを示す。
+| \ ``RestTemplate``\ 内で利用されるクラスの詳細な説明は、「\ :ref:`RestClientComponentsOverview`\ 」にてまとめて説明を行っているのでこちらを参照されたい。
+
+.. figure:: ./images_RestClient/RestTemplateOverview.png
+  :alt: Overview of RestTemplate processing
+  :width: 100%
+
+.. tabularcolumns:: |p{0.10\linewidth}|p{0.20\linewidth}|p{0.60\linewidth}|
+.. list-table::
+  :header-rows: 1
+  :widths: 10 20 60
+
+  * - 項番
+    - 処理
+    - 説明
+  * - | (1)
+    - | アプリケーションからの呼び出し
+    - | \ ``RestTemplate``\ のメソッドを実行し、REST API(Web API)の呼び出し依頼を行う。
+  * - | (2)
+    - | URL生成
+    - | \ ``UriBuilderFactory``\ の実装クラスが、\ ``UriBuilder``\ の生成を行う。
+      | 生成した\ ``UriBuilder``\ を使用して、URLのパラメータを置換し送信先のURLの組み立てを行う。
+      | なお、\ ``UriBuilderFactory``\ の実装クラスを指定していない場合は、デフォルト実装クラスである\ ``DefaultUriBuilderFactory``\ が使用される。
+  * - | (3)
+    - | リクエスト生成・初期化
+    - | \ ``ClientHttpRequestFactory``\ の実装クラスが\ ``ClientHttpRequest``\ の生成を行う。
+      | なお、\ ``ClientHttpRequestFactory``\ の実装クラスを指定していない場合は、デフォルト実装クラスである\ ``SimpleClientHttpRequestFactory``\ が使用される。
+      | \ ``ClientHttpRequest``\ 生成後、\ ``ClientHttpRequestInitializer``\ を設定している場合、\ ``ClientHttpRequestInitializer``\ の実装クラスを使用して\ ``ClientHttpRequest``\ (リクエスト)の初期化処理を行う。 
+      | 
+      | 「\ :ref:`RestClientOverviewClientHttpRequestFactory`\ 」にて詳しく説明を行うが、 |framework_name| では、\ ``ClientHttpRequestFactory``\ の実装クラスは\ ``HttpComponentsClientHttpRequestFactory``\ の使用を推奨とする。
+  * - | (4)
+    - | リクエスト送信前処理
+    - | \ ``HttpMessageConverter``\ の実装クラスを使用して、Javaオブジェクトをリクエストボディに設定する電文(JSON等)に変換する。
+      | なお、実際に利用される\ ``HttpMessageConverter``\ の実装クラスは、Javaオブジェクトの型とメディアタイプをもとに\ ``RestTemplate``\ が決定する。
+  * - | (5)
+    - | リクエスト送信
+    - | \ ``ClientHttpRequestInterceptor``\ を設定している場合、\ ``ClientHttpRequestInterceptor``\ の実装クラスを使用してリクエスト送信前後の共通処理を行う。 
+      | \ ``ClientHttpRequest``\ に電文(JSON等)をリクエストボディに設定して、REST API(Web API)にHTTP経由でリクエストを送信する。
+      | REST API(Web API)からレスポンスを受信後、\ ``ClientHttpRequest``\ が\ ``ClientHttpResponse``\ を生成し、受信したレスポンスデータを設定する。
+  * - | (6)
+    - | エラーハンドリング
+    - | \ ``ResponseErrorHandler``\ の実装クラスにて、\ ``ClientHttpResponse``\ に設定されているHTTPステータスコードをもとに、エラー判定及びエラー処理を行う。
+      | なお、\ ``ResponseErrorHandler``\ の実装クラスを指定していない場合は、デフォルト実装クラスである\ ``DefaultResponseErrorHandler``\ が使用される。
+  * - | (7)
+    - | レスポンス取得後処理
+    - | レスポンス取得後の後処理として、\ ``ResponseExtractor``\ の実装クラスが実行される。
+      | なお、\ ``ResponseExtractor``\ の実装クラスを指定していない場合は、デフォルト実装クラスである\ ``HttpMessageConverterExtractor``\ が使用される。
+      | 後処理時に、\ ``HttpMessageConverter``\ の実装クラスを使用して、レスポンスボディに設定されている電文(JSON等)をJavaオブジェクトに変換する。
+      | リクエスト送信前処理と同様で\ ``HttpMessageConverter``\ は、Javaオブジェクトの型とメディアタイプをもとに決定される。
+  * - | (8)
+    - | アプリケーションへ実行結果返却
+    - | REST API(Web API)の呼び出し結果(Javaオブジェクト)をアプリケーションへ返却する。
+
+|
+
+.. _RestClientComponentsOverview:
+
+RestTemplateの構成要素と利用上のポイント
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+| 本項では、\ ``RestTemplate``\ で利用される構成要素の概要を示し、利用上、有益と思われるいくつかの内容について記載する。
+
+.. _RestClientOverviewUriBuilderFactory:
+
+URLの生成（\ ``UriBuilderFactory``\ ）
+""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
+\ ``org.springframework.web.util.UriBuilderFactory``\ は、URIテンプレート（プレースホルダ付きのURLの元となる文字列）と、URIテンプレート変数の値（プレースホルダを埋めるためのパラメータ）を受け取り、リクエスト送信先のURLを生成するインターフェースである。
+
+具体的には以下のようなURL文字列を生成する。
+
+* URIテンプレート： \ ``http://example.com/api/users/{userId}``\ 
+* URIテンプレート変数の値： \ ``12345``\ 
+* 生成されるURL： \ ``http://example.com/api/users/12345``\ 
+
+| \ ``UriBuilderFactory``\ は、\ ``UriBuilder``\ を生成するためのファクトリであり、実際のURL文字列の生成は\ ``UriBuilder``\ で行われる。
+| デフォルトでは、\ ``org.springframework.web.util.DefaultUriBuilderFactory``\ から、\ ``DefaultUriBuilder``\ が作られ、URL生成に利用される。
+|
+| URIテンプレート変数の値をURIテンプレートに埋め込む際に、URIテンプレート変数の値に対してフォーマット変換を行いたい場合などは、\ ``UriBuilderFactory``\ を拡張することが考えられる。
+| この場合、変換処理が実装された\ ``UriBuilder``\ の実装クラスと、その\ ``UriBuilder``\ の実装クラスが使われるようにした\ ``UriBuilderFactory``\ の実装クラスを作成し、この\ ``UriBuilderFactory``\ の実装クラスが使われるように、Bean定義を行うことで実現できる。
+| \ ``UriBuilderFactory``\ の具体的なカスタマイズの例は、「\ :ref:`RestClientHowToExtendUriBuilderFactory`\ 」を参照されたい。
+
+|
+
+.. _RestClientOverviewClientHttpRequestFactory:
+
+リクエストの生成（\ ``ClientHttpRequestFactory``\ ）
+""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
+
+| \ ``RestTemplate``\ は、サーバとの通信処理を以下の３つのインタフェースの実装クラスに委譲することで実現している。
+
+* \ ``org.springframework.http.client.ClientHttpRequestFactory``\
+* \ ``org.springframework.http.client.ClientHttpRequest``\
+* \ ``org.springframework.http.client.ClientHttpResponse``\
+
+| \ ``ClientHttpRequestFactory``\ は、サーバとの通信処理を行う\ ``ClientHttpRequest``\ インタフェースの実装クラスの生成を行う。
+| その後、\ ``ClientHttpRequest``\ がサーバと通信を行い、通信結果を保持する\ ``ClientHttpResponse``\ インタフェースの実装クラスを生成し、通信結果を設定する。
+| 
+| この3つのインタフェースのうち、\ ``ClientHttpRequestFactory``\ については、Spring Framework側でいくつかの実装が用意されており、細かな点で動作が異なることがあるため、利用者側で何を利用するか意識しておく必要がある。
+| Spring Frameworkが提供している主な\ ``ClientHttpRequestFactory``\ の実装クラスは以下の通りである。
+
+.. tabularcolumns:: |p{0.05\linewidth}|p{0.25\linewidth}|p{0.70\linewidth}|
+.. list-table:: \ **Spring Frameworkが提供している主なClientHttpRequestFactoryの実装クラス**\
+  :header-rows: 1
+  :widths: 5 25 70
+
+  * - 項番
+    - クラス名
+    - 説明
+  * - | (1)
+    - | \ ``org.springframework.http.client.``\
+      | \ ``HttpComponentsClientHttpRequestFactory``\
+    - | \ :url_http_client_home:`Apache HttpComponents HttpClient </>`\ のAPIを使用して同期型の通信処理を行うための実装クラス。(HttpClient 5.2以上が必要)
+  * - | (2)
+    - | \ ``org.springframework.http.client.``\
+      | \ ``JettyClientHttpRequestFactory``\
+    - | \ :url_jetty:`Jetty </programming-guide/client/http.html>`\ のAPIを使用して同期型の通信処理を行うための実装クラス。
+  * - | (3)
+    - | \ ``org.springframework.http.client.``\
+      | \ ``ReactorClientHttpRequestFactory``\
+    - | \ :url_reactor_reference:`Reactor Netty </http-client.html>`\ のAPIを使用して同期型の通信処理を行うための実装クラス。
+  * - | (4)
+    - | \ ``org.springframework.http.client.``\
+      | \ ``JdkClientHttpRequestFactory``\
+    - | Java SE標準の\ :url_javase17:`HttpClient </docs/api/java.net.http/java/net/http/HttpClient.html>`\ のAPIを使用して同期型の通信処理を行うための実装クラス。
+      | HttpClientの実装としては、JDK 11にて追加された\ ``java.net.http.HttpClient``\ を利用しており、\ ``SimpleClientHttpRequestFactory``\ よりも高機能な実装クラスである。
+  * - | (5)
+    - | \ ``org.springframework.http.client.``\
+      | \ ``SimpleClientHttpRequestFactory``\
+    - | Java SE標準の\ :url_javase17:`HttpURLConnection </docs/api/java.base/java/net/HttpURLConnection.html>`\ のAPIを使用して同期型の通信処理を行うための実装クラス。
+      | HttpClientの実装としては、JDK初期から存在する\ ``java.net.HttpURLConnection``\ を使用しており、単純な通信設定のみが行える。
+      | なお、\ ``RestTemplate``\ 利用時にデフォルトで設定される実装クラスである。
+
+| 
+
+
+\ **使用するClientHttpRequestFactoryの実装クラスについて**\
+
+| \ ``RestTemplate``\ で使用される\ ``ClientHttpRequestFactory``\ のデフォルト実装クラスには、\ ``SimpleClientHttpRequestFactory``\ が設定されている。
+| デフォルトで設定される\ ``SimpleClientHttpRequestFactory``\ は、コネクションプールやプロキシ認証等の機能を持たず、他の\ ``ClientHttpRequestFactory``\ の実装と比較すると機能が限定されている。
+| そのため、|framework_name| では、\ **ClientHttpRequestFactoryの実装クラスとしては、高機能な通信設定が行えるHttpComponentsClientHttpRequestFactoryの利用を推奨する。**\
+| なお、\ ``RestTemplate``\ に\ ``ClientHttpRequestFactory``\ の実装を指定しない場合、\ ``SimpleClientHttpRequestFactory``\ が自動設定されるため、推奨設定を適用するには\ **HttpComponentsClientHttpRequestFactoryをRestTemplateに明示的に指定する必要がある。**\
+
+| 以下が、推奨設定のコード例である。
+
+.. tabs::
+  .. group-tab:: Java Config
+
+    - \ ``ApplicationContextConfig.java``\
+
+    .. code-block:: java
+
+        @Bean("restTemplate")
+        public RestTemplate restTemplate() {
+            return new RestTemplate(new HttpComponentsClientHttpRequestFactory());
+        }
+
+  .. group-tab:: XML Config
+
+    - \ ``applicationContext.xml``\
+
+    .. code-block:: xml
+
+        <bean id="restTemplate" class="org.springframework.web.client.RestTemplate">
+            <constructor-arg>
+                <bean class="org.springframework.http.client.HttpComponentsClientHttpRequestFactory" />
+            </constructor-arg>
+        </bean>
+
+
+\ **ClientHttpRequestFactoryの設定について**\
+
+| \ ``ClientHttpRequestFactory``\ では、通信設定のカスタマイズが可能となっており、以下のような設定が可能である。
+| それぞれの設定の詳細については、以下のリンクを参照されたい。
+
+* タイムアウトの設定：「\ :ref:`RestClientHowToUseTimeoutSettings`\ 」
+* SSLの設定：「\ :ref:`RestClientHowToUseHttps`\ 」
+* プロキシの設定：「\ :ref:`RestClientProxySettings`\ 」
+
+.. _RestClientOverviewClientHttpRequestFactoryContentLength:
+
+.. note:: \ **Content-Lengthヘッダについて**\
+
+  .. Spring7.0対応：bufferContentを使ってバッファリングを有効にすることが可能となった。
+
+  Spring Framework 6.1よりメモリ使用量を減らすために、ほとんどの\ ``ClientHttpRequestFactory``\ 実装クラスはサーバへ送信する前にリクエストボディをバッファリングしなくなった。これにより、Content-Lengthヘッダが設定されなくなったため、Content-Lengthヘッダを設定する必要がある場合は\ :url_spring_javadoc:`BufferingClientHttpRequestFactory </org/springframework/http/client/BufferingClientHttpRequestFactory.html>`\ を利用しバッファリングする必要がある。
+
+  - \ **Bean定義ファイルの定義例**\
+
+    .. tabs::
+        .. group-tab:: Java Config
+    
+            - \ ``ApplicationContextConfig.java``\
+    
+            .. code-block:: java
+    
+                @Bean("restTemplate")
+                public RestTemplate restTemplate() {
+                    return new RestTemplate(new BufferingClientHttpRequestFactory(new HttpComponentsClientHttpRequestFactory()));  // (1)
+                }
+
+            .. tabularcolumns:: |p{0.10\linewidth}|p{0.90\linewidth}|
+            .. list-table::
+                :header-rows: 1
+                :widths: 10 90
+            
+                * - 項番
+                  - 説明
+                * - | (1)
+                  - | \ ``BufferingClientHttpRequestFactory``\ のコンストラクタに\ ``HttpComponentsClientHttpRequestFactory``\ を設定しインスタンスを生成する。
+                    | 生成した\ ``BufferingClientHttpRequestFactory``\ を\ ``RestTemplate``\ に設定することで、バッファリングが有効になる。
+
+
+        .. group-tab:: XML Config
+    
+            - \ ``applicationContext.xml``\
+    
+            .. code-block:: xml
+    
+                <bean id="restTemplate" class="org.springframework.web.client.RestTemplate">
+                    <constructor-arg>
+                        <bean class="org.springframework.http.client.BufferingClientHttpRequestFactory">  <!-- (1) -->
+                            <constructor-arg>
+                                <bean class="org.springframework.http.client.HttpComponentsClientHttpRequestFactory" />
+                            </constructor-arg>
+                        </bean>
+                    </constructor-arg>
+                </bean>
+
+            .. tabularcolumns:: |p{0.10\linewidth}|p{0.90\linewidth}|
+            .. list-table::
+                :header-rows: 1
+                :widths: 10 90
+            
+                * - 項番
+                  - 説明
+                * - | (1)
+                  - | \ ``BufferingClientHttpRequestFactory``\ のコンストラクタに\ ``HttpComponentsClientHttpRequestFactory``\ を設定しインスタンスを生成する。
+                    | 生成した\ ``BufferingClientHttpRequestFactory``\ を\ ``RestTemplate``\ に設定することで、バッファリングが有効になる。
+
+|
+
+.. _RestClientOverviewClientHttpRequestInitializer:
+
+リクエスト初期化（\ ``ClientHttpRequestInitializer``\ ）
+""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
+
+| \ ``org.springframework.http.client.ClientHttpRequestInitializer``\ は、Httpリクエスト送信前に\ ``ClientHttpRequest``\ をカスタマイズするためのインタフェースである。
+| Httpリクエスト送信前のカスタマイズポイントには、 \ ``ClientHttpRequestInitializer``\ の他に、 \ ``ClientHttpRequestInterceptor``\ も存在するが、それぞれ用途が異なる。両者の違いについては「\ :ref:`RestClientOverviewInterceptorInitializer`\ 」を参照されたい。
+
+| \ ``ClientHttpRequestInitializer``\ はユーザが\ ``RestTemplate``\ に設定した場合のみ動作し、\ ``ClientHttpRequestFactory``\ による\ ``ClientHttpRequest``\ の生成後、\ ``ClientHttpRequestInitializer``\ に実装したユーザ定義の初期化処理が実行される。
+| したがって、\ ``ClientHttpRequestInitializer``\ はデフォルト実装はなく、拡張ポイントとして提供されているインターフェースである。
+| 
+| \ ``ClientHttpRequestInitializer``\ の利用が適しているケースには、リクエストヘッダにカスタムヘッダを一括で設定したい場合などがある。
+| リクエストヘッダの一括設定の方法については、「\ :ref:`RestClientHowToUseRequestHeader`\ 」を参照されたい。
+
+|
+
+.. _RestClientOverviewHttpMessageConverter:
+
+メッセージ変換（\ ``HttpMessageConverter``\ ）
+""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
+
+\ ``org.springframework.http.converter.HttpMessageConverter``\ は、アプリケーションで扱うJavaオブジェクトとサーバと通信するための電文(JSON等)を相互に変換するためのインタフェースである。
+
+| Spring Frameworkは主要なメディアタイプ向けの\ ``HttpMessageConverter``\ 実装を提供しており、\ ``RestTemplate``\ が使用する\ ``HttpMessageConverter``\ は、\ ``RestTemplate``\ の生成時に登録され、リクエスト/レスポンスのボディ変換に利用される。
+| 自動で登録される\ ``HttpMessageConverter``\ には、標準で登録される\ ``HttpMessageConverter``\ と、依存ライブラリの有無により登録される\ ``HttpMessageConverter``\ が存在する。
+| 加えて、独自で変換処理を実装した\ ``HttpMessageConverter``\ を必要に応じて追加登録することも可能である。
+| なお、\ ``HttpMessageConverter``\ はクライアント側とサーバ側のそれぞれで登録されるため、本節で説明している\ ``HttpMessageConverter``\ はクライアント側で利用されるものであることに留意されたい。
+| これらの\ ``HttpMessageConverter``\ は、標準の構成では以下の順で登録される。
+
+#. 独自で変換処理を実装した\ ``HttpMessageConverter``\
+
+#. 標準で登録される\ ``HttpMessageConverter``\
+
+#. 依存ライブラリの有無により登録される\ ``HttpMessageConverter``\ 
+
+| メッセージ変換時には、登録されている\ ``HttpMessageConverter``\ の順序に従って、Javaオブジェクトの型とメディアタイプに適用可能な\ ``HttpMessageConverter``\ が選択される。
+| 
+| 各\ ``HttpMessageConverter``\ が対応するJavaオブジェクトの型とメディアタイプについては、以下のJavaDocを参照されたい。
+
+\ **標準で登録されるHttpMessageConverter**\ 
+
+* \ :url_spring_javadoc:`ByteArrayHttpMessageConverter </org/springframework/http/converter/ByteArrayHttpMessageConverter.html>`\
+* \ :url_spring_javadoc:`StringHttpMessageConverter </org/springframework/http/converter/StringHttpMessageConverter.html>`\
+* \ :url_spring_javadoc:`ResourceHttpMessageConverter </org/springframework/http/converter/ResourceHttpMessageConverter.html>`\
+* \ :url_spring_javadoc:`ResourceRegionHttpMessageConverter </org/springframework/http/converter/ResourceRegionHttpMessageConverter.html>`\
+* \ :url_spring_javadoc:`AllEncompassingFormHttpMessageConverter </org/springframework/http/converter/support/AllEncompassingFormHttpMessageConverter.html>`\
+
+\ **依存ライブラリの有無により登録されるHttpMessageConverter**\ 
+
+* \ :url_spring_javadoc:`MappingJackson2HttpMessageConverter </org/springframework/http/converter/json/MappingJackson2HttpMessageConverter.html>`\
+* \ :url_spring_javadoc:`Jaxb2RootElementHttpMessageConverter </org/springframework/http/converter/xml/Jaxb2RootElementHttpMessageConverter.html>`\
+
+上記以外の\ ``HttpMessageConverter``\ に関しては、\ :url_spring_javadoc:`HttpMessageConverter </org/springframework/http/converter/HttpMessageConverter.html>`\ の実装クラスの一覧を参照されたい。
+
+| 
+
+\ **ガイドラインで使用するHttpMessageConverterについて**\ 
+
+| 本節で説明する実装は、クライアント、サーバの双方で、Spring Frameworkが提供する\ ``HttpMessageConverter``\ を同等の構成で登録していることを前提とする。
+| また、JSON形式の通信を前提としており、\ ``org.springframework.http.converter.json.MappingJackson2HttpMessageConverter``\ による変換処理を例に説明を行う。
+| \ ``RestTemplate``\ の送受信で使用するJavaBeanのフィールド名は、JSONのプロパティ名と一致していることを前提とし、特別なマッピング等は行っていない。
+
+|
+
+.. _RestClientOverviewClientHttpRequestInterceptor:
+
+リクエスト前後処理（\ ``ClientHttpRequestInterceptor``\ ）
+""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
+
+| \ ``org.springframework.http.client.ClientHttpRequestInterceptor``\ は、サーバとの通信の前後に共通的な処理を実装するためのインタフェースである。
+| 類似した拡張ポイントとして\ ``ClientHttpRequestInitializer``\ もあるため、違いについては「\ :ref:`RestClientOverviewInterceptorInitializer`\ 」を参照されたい。
+
+| \ ``ClientHttpRequestInterceptor``\ を使用すると、サーバとの通信時のリクエストやレスポンスのログを出力するといった共通的な処理を\ ``RestTemplate``\ に適用することができる。
+| \ ``ClientHttpRequestInterceptor``\ を使用した共通処理の実装方法については、「\ :ref:`RestClientHowToExtendClientHttpRequestInterceptor`\ 」を参照されたい。
+|
+
+\ **ClientHttpRequestInterceptorの動作仕様**\ 
+
+| \ ``ClientHttpRequestInterceptor``\ は複数適用することができ、\ ``RestTemplate``\ に登録した順番でチェーン実行される。
+| これはサーブレットフィルタの動作によく似ており、最後に実行されるチェーン先として\ ``ClientHttpRequest``\ によるHTTP通信処理が登録されている。
+| \ ``ClientHttpRequestInterceptor``\ を複数適用した場合の実装例は、「\ :ref:`RestClientHowToExtendMultiClientHttpRequestInterceptor`\ 」を参照されたい。
+
+.. 現状コード例がないため、コメントアウト。戻すかどうかはわからないが、HowToUseかExtendsにコード例ができたら文章や導線は検討する。
+ | 例えば、ある条件に一致した際にサーバとの通信処理をキャンセルしたいという要件があった場合は、チェーン先を呼びださず例外をスローすることで実現できる。
+ | この仕組みを活用すると、以下の共通処理を実装することも可能である。
+  * サーバとの通信の閉塞
+  * 通信処理のリトライ
+
+| 
+
+.. warning:: \ **ClientHttpRequestInterceptor使用時の注意点**\
+
+  \ ``ClientHttpRequestInterceptor``\ を利用すると、リクエストボディが引数として渡される関係でボディ部がメモリ上に全て展開されてしまう。したがって、リクエストボディに大量のデータを含む場合はメモリ使用量が増大する可能性があるので留意して使用する必要がある。
+
+|
+
+.. _RestClientOverviewInterceptorInitializer:
+
+\ ``ClientHttpRequestInterceptor``\ と\ ``ClientHttpRequestInitializer``\ の使い分けについて
+""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
+
+| \ ``ClientHttpRequestInterceptor``\ と\ ``ClientHttpRequestInitializer``\ は、どちらもリクエスト送信時の共通処理を記述するためのインタフェースであるが、以下のように目的と使用方法が異なるため、使い分けが重要である。
+
+.. tabularcolumns:: |p{0.05\linewidth}|p{0.25\linewidth}|p{0.70\linewidth}|
+.. list-table:: 
+  :header-rows: 1
+  :widths: 5 20 75
+
+  * - 項番
+    - 種類
+    - 説明
+  * - | (1)
+    - | \ ``ClientHttpRequestInitializer``\ 
+    - | \ ``ClientHttpRequestFactory``\ が\ ``ClientHttpRequest``\ を生成した後に実行される。
+      | リクエストボディを読み込まず、\ ``ClientHttpRequest``\ のみに対してカスタマイズを行える拡張ポイントであるため、リクエストヘッダに対して特定のヘッダを追加する等の\ ``ClientHttpRequest``\ に限定された共通処理を記述するのに適している。
+  * - | (2)
+    - | \ ``ClientHttpRequestInterceptor``\
+    - | 実行タイミングとしては、\ ``ClientHttpRequest``\ がサーバとの通信を行う前後に実行される。
+      | したがって、リクエスト前後の共通処理であるログ出力等を追加したい場合に利用するのに適している。
+
+.. | したがって、リクエスト前後の共通処理であるログ出力やリトライ処理等を追加したい場合に利用するのに適している。
+
+| 「\ :ref:`RestClientOverviewClientHttpRequestInterceptor`\ 」でも述べたとおり、\ ``ClientHttpRequestInterceptor``\ を利用するとリクエストボディがメモリ上に展開されるため、メモリ使用量が増大し、パフォーマンスに影響を与える可能性がある。
+| したがって、リクエストヘッダの設定のみを行いたい場合等は、責務の問題もあるがリソース的にも\ ``ClientHttpRequestInitializer``\ を利用する方が適切である。
+| 
+
+.. _RestClientOverviewResponseErrorHandler:
+
+エラーハンドリング（\ ``ResponseErrorHandler``\ ）
+""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
+
+| Spring Frameworkでは、\ ``RestTemplate``\ によるサーバ通信時のエラーに対応するためのエラーハンドラとして\ :url_spring_javadoc:`ResponseErrorHandler </org/springframework/web/client/ResponseErrorHandler.html>`\ を提供している。
+| \ ``RestTemplate``\ では、\ ``ResponseErrorHandler``\ のデフォルト実装として\ ``DefaultResponseErrorHandler``\ が設定されており、デフォルトでHTTPステータスコードに応じたエラーハンドリングが実装されている。
+
+| デフォルトで使用されるエラーハンドラー実装はHTTPステータスコードに応じて、以下のようなハンドリングを行う。
+
+.. tabularcolumns:: |p{0.05\linewidth}|p{0.10\linewidth}|p{0.35\linewidth}|p{0.50\linewidth}|
+.. list-table:: \ **エラーハンドラーの動作仕様**\
+  :header-rows: 1
+  :widths: 5 20 75
+  :class: longtable
+
+  * - 項番
+    - HTTPステータスコード
+    - 動作仕様
+  * - | (1)
+    - | 2xx（正常系）
+    - | エラー処理は行わない。
+  * - | (2)
+    - | 4xx（クライアントエラー系）
+    - | \ ``org.springframework.web.client.HttpClientErrorException``\ を発生させる。
+  * - | (3)
+    - | 5xx（サーバエラー系）
+    - | \ ``org.springframework.web.client.HttpServerErrorException``\ を発生させる。
+
+
+| 上記の動作仕様を変更したい場合は、 \ ``ResponseErrorHandler``\ の実装を作成して、\ ``RestTemplate``\ に設定する必要がある。
+| \ ``ResponseErrorHandler``\ のカスタマイズ方法と設定については、「\ :ref:`RestClientHowToUseErrorHandling`\ 」を参照されたい。
+
+|
+
+.. _RestClientOverviewResponseExtractor:
+
+レスポンス取得後処理（\ ``ResponseExtractor``\ ）
+""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
+
+| Spring Frameworkでは、\ ``RestTemplate``\ でサーバからのレスポンスを取得したあとの、ボディの抽出や変換などの処理(レスポンス取得後処理)を実現する仕組みとして、 \ ``ResponseExtractor``\ を提供している。
+| \ ``RestTemplate``\ で利用される\ ``ResponseExtractor``\ の動作仕様は以下の通り。
+
+.. figure:: ./images_RestClient/ResponseExtractor.png
+  :alt: Operation of ResponseExtractor
+  :width: 100%
+
+\ **ResponseExtractorの動作**\ 
+
+  | \ ``org.springframework.web.client.ResponseExtractor``\ を使用して後処理を実装する。
+  | デフォルトで利用される実装が提供されており、 \ ``org.springframework.web.client.HttpMessageConverterExtractor``\ が利用される。
+  | 動作としては、\ ``RestTemplate``\ がレスポンスを受信し、HTTPステータスのエラー判定処理を行った後に実行され、後処理としてメッセージの変換処理を行う。
+
+受信したレスポンスを操作する必要がある場合などは \ ``ResponseExtractor``\ をカスタマイズする。実際の方法は、「\ :ref:`RestClientHowToUseFileDownload`\ 」で説明しているので、必要に応じてこちらも参照されたい。
+
+|
+
+.. _RestClientHowToUse:
+
+How to use（同期通信）
+--------------------------------------------------------------------------------
+
+| 本節では、\ ``RestTemplate``\ を使用した、同期通信を行うRESTクライアントの実装方法について説明する。
+| 
+| 本ガイドラインでは、GETメソッドとPOSTメソッドを使用したクライアント処理の実装例のみを紹介するが、\ ``RestTemplate``\ は他のHTTPメソッド(PUT, PATCH, DELETE, HEAD, OPTIONSなど)もサポートしており、同様に実装することができる。
+| 他のHTTPメソッドを利用する場合も含め、本ガイドラインで紹介する以外の利用方法については、\ :url_spring_javadoc:`RestTemplateのJavadoc </org/springframework/web/client/RestTemplate.html>`\ を参照されたい。
+| 
+| RESTクライアントを利用した同期通信のための基本的な設定と、データ取得、登録を行うには以下のような手順で実装を行う。
+
+* \ :ref:`RestClientHowToUseSetup`\ 
+* \ :ref:`RestClientHowToUseBaseSettings`\ 
+* \ :ref:`RestClientHowToUseGet`\ 
+* \ :ref:`RestClientHowToUsePost`\ 
+* \ :ref:`RestClientHowToUseErrorHandling`\ 
+
+| この他、以下のような内容についても実装例を示しているが、アプリケーションの要件に依存すると思われるので、必要に応じて参照してほしい。
+
+* \ :ref:`RestClientHowToUseRequestHeader`\ 
+* \ :ref:`RestClientHowToUseAuthorizationHeader`\ 
+* \ :ref:`RestClientHowToUseTimeoutSettings`\ 
+* \ :ref:`RestClientHowToUseFileUpload`\ 
+* \ :ref:`RestClientHowToUseFileDownload`\ 
+
+|
+
+.. _RestClientHowToUseSetup:
+
+同期通信のセットアップ
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+同期通信を行う場合は、\ ``RestTemplate``\ をDIコンテナに登録し、RESTクライアントを利用するコンポーネントにインジェクションする。
+
+|
+
+依存ライブラリ設定
+""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
+
+| \ ``RestTemplate``\ を使用するために\ ``pom.xml``\ に、Spring Frameworkのspring-webライブラリと、HttpClientの実装としてApache HttpComponents HttpClientライブラリを追加する。
+| マルチプロジェクト構成の場合は、domainプロジェクトの\ ``pom.xml``\ に追加する。
+
+.. code-block:: xml
+
+  <dependencies>
+
+      <!-- (1) -->
+      <dependency>
+          <groupId>org.springframework</groupId>
+          <artifactId>spring-web</artifactId>
+      </dependency>
+      <!-- (2) -->
+      <dependency>
+          <groupId>org.apache.httpcomponents.client5</groupId>
+          <artifactId>httpclient5</artifactId>
+      </dependency>
+
+  </dependencies>
+
+.. tabularcolumns:: |p{0.10\linewidth}|p{0.90\linewidth}|
+.. list-table::
+  :header-rows: 1
+  :widths: 10 90
+
+  * - 項番
+    - 説明
+  * - | (1)
+    - | Spring Frameworkの\ ``spring-web``\ ライブラリをdependenciesに追加する。
+  * - | (2)
+    - | Apache HttpComponents HttpClient を依存ライブラリに追加する。
+      | 本設定は、\ ``ClientHttpRequestFactory``\ のインターフェース実装として、\ ``HttpComponentsClientHttpRequestFactory``\ を利用するための設定である。
+
+|
+
+RESTクライアントのBean定義
+""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
+
+| \ ``RestTemplate``\ のBean定義を行い、DIコンテナに登録する。これらのBeanは、クライアントアプリケーションにおける、リクエスト送信の起点となる。
+| また、\ ``RestTemplate``\ のBean定義時には\ ``ClientHttpRequestFactory``\ を通して実際のリクエスト作成で利用する実装を選択することができる。
+| 本ガイドラインでは原則として、Apache HttpComponents HttpClientを使用してリクエストを作成する\ ``ClientHttpRequestFactory``\ 実装である\ ``HttpComponentsClientHttpRequestFactory``\ の利用を前提とする。
+|
+| \ ``HttpComponentsClientHttpRequestFactory``\ は、Spring Framework 6.1よりサーバへのリクエスト送信を行う前にリクエストボディをバッファリングしないようになったため、リクエストのContent-Lengthヘッダが設定されなくなった。
+| Content-Lengthヘッダを設定したい場合は、「\ :ref:`Content-Lengthヘッダについて <RestClientOverviewClientHttpRequestFactoryContentLength>`\」に記載している設定を追加する必要がある。
+| 
+
+\ **Bean定義ファイルの定義例**\
+
+.. tabs::
+  .. group-tab:: Java Config
+
+    - \ ``ApplicationContextConfig.java``\
+
+    .. code-block:: java
+
+        @Bean("restTemplate")
+        public RestTemplate restTemplate() {
+            return new RestTemplate(new HttpComponentsClientHttpRequestFactory()); // (1)
+        }
+    
+    .. tabularcolumns:: |p{0.10\linewidth}|p{0.90\linewidth}|
+    .. list-table::
+        :header-rows: 1
+        :widths: 10 90
+    
+        * - 項番
+          - 説明
+        * - | (1)
+          - | \ ``RestTemplate``\ のコンストラクタの引数に、\ ``org.springframework.http.client.HttpComponentsClientHttpRequestFactory``\ を設定し、Beanを生成、DIコンテナへ登録する。
+            | \ ``HttpComponentsClientHttpRequestFactory``\ を利用した通信設定については「\ :ref:`RestClientHowToExtendClientHttpRequestFactory`\ 」を参照されたい。
+
+  .. group-tab:: XML Config
+
+    - \ ``applicationContext.xml``\
+
+    .. code-block:: xml
+
+        <!-- (1) -->
+        <bean id="restTemplate" class="org.springframework.web.client.RestTemplate">
+            <constructor-arg>
+                <bean class="org.springframework.http.client.HttpComponentsClientHttpRequestFactory" />
+            </constructor-arg>
+        </bean>
+    
+    .. tabularcolumns:: |p{0.10\linewidth}|p{0.90\linewidth}|
+    .. list-table::
+        :header-rows: 1
+        :widths: 10 90
+    
+        * - 項番
+          - 説明
+        * - | (1)
+          - | \ ``RestTemplate``\ のコンストラクタの引数に、\ ``org.springframework.http.client.HttpComponentsClientHttpRequestFactory``\ を設定し、Beanを生成、DIコンテナへ登録する。
+            | \ ``HttpComponentsClientHttpRequestFactory``\ を利用した通信設定については「\ :ref:`RestClientHowToExtendClientHttpRequestFactory`\ 」を参照されたい。
+
+代表的な\ ``RestTemplate``\ のBeanのカスタマイズ方法は、下記で実装例を示しているため、必要に応じて参照されたい。
+
+* \ :ref:`RestClientHowToExtendUriBuilderFactory`\
+* \ :ref:`RestClientHowToExtendClientHttpRequestFactory`\
+* \ :ref:`RestClientHowToExtendHttpMessageConverter`\
+* \ :ref:`RestClientHowToExtendClientHttpRequestInterceptor`\
+
+|
+
+RESTクライアントの利用
+""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
+
+RESTクライアントを利用する場合は、DIコンテナに登録されている\ ``RestTemplate``\ をインジェクションする。
+
+\ **RESTクライアントのインジェクション例**\
+
+.. code-block:: java
+
+    @Service
+    public class AccountServiceImpl implements AccountService {
+
+        @Inject
+        RestTemplate restTemplate;
+
+        // omitted
+
+    }
+
+|
+
+.. _RestClientHowToUseBaseSettings:
+
+基準となるURLを設定する
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+| \ ``baseUrl``\ を利用すると、REST APIにアクセスする際の基準となるURLをあらかじめ設定しておくことができる。
+| 
+| 例えば以下のURLにおいて、先頭の「\ ``http://localhost:8080/api/v1``\ 」を\ ``baseUrl``\ として設定しておくことで、クライアント側の実装では後続のパス「\ ``/users``\ 」のみを指定することで、完全なURLが自動的に生成される。
+| なお、\ ``baseUrl``\ を指定していても、RESTクライアントを使用する際に指定するURIに絶対URLを明示的に指定した場合は、\ ``baseUrl``\ の設定は無効となる。
+| これにより、共通的なベースURLを設定しつつ、特定のリクエストでのみ異なるURL（別ドメイン等）へ送信することも可能となっている。
+
+**URLの例**
+
+* URL： \ ``http://localhost:8080/api/v1/users``\
+* baseUrl： \ ``http://localhost:8080/api/v1``\
+* クライアントで指定するパス： \ ``/users``\
+
+| 
+
+\ ``baseUrl``\ の設定は、\ ``DefaultUriBuilderFactory``\ に\ ``baseUrl``\ を設定して、\ ``RestTemplate``\ に適用する必要がある。
+
+| 以下に設定例を示す。
+
+.. tabs::
+  .. group-tab:: Java Config
+
+    - \ ``ApplicationContextConfig.java``\
+
+    .. code-block:: java
+
+        @Value("${api.baseUrl:http://localhost:8080/api/v1}")  // (1)
+        private String url;
+
+        @Bean("restTemplate")
+        public RestTemplate restTemplate() {
+            var restTemplate = new RestTemplate(new HttpComponentsClientHttpRequestFactory());
+            restTemplate.setUriTemplateHandler(new DefaultUriBuilderFactory(url));  // (2)
+            return restTemplate;
+        }
+
+    .. tabularcolumns:: |p{0.10\linewidth}|p{0.90\linewidth}|
+    .. list-table::
+        :header-rows: 1
+        :widths: 10 90
+    
+        * - 項番
+          - 説明
+        * - | (1)
+          - | プロパティファイルから基準となるURLを取得し設定を行う。
+        * - | (2)
+          - | \ ``DefaultUriBuilderFactory``\ のコンストラクタに(1)のURLを設定してインスタンスを生成する。
+            | \ ``RestTemplate``\ の\ ``setUriTemplateHandler``\ メソッドを使用して、生成した\ ``DefaultUriBuilderFactory``\ のインスタンスを設定する。
+
+  .. group-tab:: XML Config
+
+    - \ ``applicationContext.xml``\
+
+    .. code-block:: xml
+
+        <bean id="restTemplate" class="org.springframework.web.client.RestTemplate" >
+            <constructor-arg>
+                <bean class="org.springframework.http.client.HttpComponentsClientHttpRequestFactory" />
+            </constructor-arg>
+            <property name="uriTemplateHandler">  <!-- (2) -->
+                <bean class="org.springframework.web.util.DefaultUriBuilderFactory">
+                    <constructor-arg type="java.lang.String" value="${api.baseUrl:http://localhost:8080/api/v1}" />  <!-- (1) -->
+                </bean>
+            </property>
+        </bean>
+    
+    .. tabularcolumns:: |p{0.10\linewidth}|p{0.90\linewidth}|
+    .. list-table::
+        :header-rows: 1
+        :widths: 10 90
+    
+        * - 項番
+          - 説明
+        * - | (1)
+          - | プロパティファイルから基準となるURLを取得する。
+            | \ ``DefaultUriBuilderFactory``\ のコンストラクタに取得したURLを指定してBeanを生成する。
+        * - | (2)
+          - | \ ``RestTemplate``\ の\ ``uriTemplateHandler``\ プロパティを使用して、生成した\ ``DefaultUriBuilderFactory``\ のBeanを設定する。
+
+|
+
+利用時のURLは以下の通りとなる。
+
+.. code-block:: java
+
+    private String uri = "/users/{id}";  // (1)
+
+    @Inject
+    private RestTemplate restTemplate;
+
+    public User getUser(String id) {
+        return restTemplate.getForObject(uri, User.class, id);
+    }
+
+.. tabularcolumns:: |p{0.10\linewidth}|p{0.90\linewidth}|
+.. list-table::
+    :header-rows: 1
+    :widths: 10 90
+
+    * - 項番
+      - 説明
+    * - | (1)
+      - | \ ``baseUrl``\ で指定したURL以降のパスのみを指定する。
+
+|
+
+\ ``baseUrl``\ を設定しない、または絶対URLを指定して\ ``baseUrl``\ の設定を上書きする場合は、以下の実装を行う。
+
+.. code-block:: java
+
+    @Value("${api.baseUrl:http://localhost:8080/api/v2}/users/{id}")  // (1)
+    private String uri;
+
+    @Inject
+    private RestTemplate restTemplate;
+
+    public User getUser(String id) {
+        return restTemplate.getForObject(uri, User.class, id);
+    }
+
+.. tabularcolumns:: |p{0.10\linewidth}|p{0.90\linewidth}|
+.. list-table::
+    :header-rows: 1
+    :widths: 10 90
+
+    * - 項番
+      - 説明
+    * - | (1)
+      - | プロパティファイルから絶対パスで記載されたURLを取得し、利用するURLとして指定する。
+
+|
+
+.. _RestClientHowToUseGet:
+
+データの取得（GETリクエスト送信）
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+| \ ``RestTemplate``\ は、GETリクエスト送信を行うためのメソッドを複数提供している。代表的なメソッドを以下に示す。
+| これ以外のメソッドについては、「\ :url_spring_javadoc:`RestTemplateのJavadoc </org/springframework/web/client/RestTemplate.html>`\ 」を参照されたい。
+
+.. tabularcolumns:: |p{0.10\linewidth}|p{0.30\linewidth}|p{0.30\linewidth}|
+.. list-table:: \ **代表的なメソッド一覧**\
+  :header-rows: 1
+  :widths: 10 30 30
+
+  * - 項番
+    - 用途
+    - RestTemplateのメソッド
+  * - | (1)
+    - | レスポンスボディを任意のデータ型で取得する
+    - | \ ``RestTemplate.getForObject(...)``\
+  * - | (2)
+    - | レスポンス情報を含む結果を取得する
+    - | \ ``RestTemplate.getForEntity(...)``\
+
+|
+
+.. _RestClientHowToUseGetForObject:
+
+GETメソッドを指定したリクエスト送信の実装
+""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
+
+| GETメソッドでリクエスト送信を行い、レスポンスボディを任意のデータ型で取得する実装の方法を以下に示す。
+| 以下の実装例は、\ ``User``\ を表現するJavaBeanクラスにてレスポンスボディを受け取る実装である。
+
+\ **getForObjectメソッドの使用例**\
+
+フィールド宣言部
+
+.. code-block:: java
+
+    @Value("${api.url:http://localhost:8080/api}")
+    private URI uri;
+
+メソッド内部
+
+.. code-block:: java
+
+    User user = restTemplate.getForObject(uri, User.class); // (1)
+
+.. tabularcolumns:: |p{0.10\linewidth}|p{0.90\linewidth}|
+.. list-table::
+    :header-rows: 1
+    :widths: 10 90
+
+    * - 項番
+      - 説明
+    * - | (1)
+      - | \ ``getForObject``\ メソッドを使用した場合は、戻り値はレスポンスボディの値になる。
+        | レスポンスボディのデータは\ ``HttpMessageConverter``\ によって第2引数に指定したJavaクラスへ変換された後、返却される。
+
+|
+
+.. _RestClientHowToGetToEntity:
+
+ステータスコードやレスポンスヘッダを含めたレスポンスの取得
+""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
+
+| HTTPステータスコード、レスポンスヘッダ、レスポンスボディを取得する必要がある場合は、以下のように実装する。
+| 実装例はGETメソッドを使用した場合であるが、POSTメソッドやPUTメソッドなど他のHTTPメソッドを使用した場合も同様に実装できる。
+
+\ **getForEntityメソッドの使用例**\
+
+インポート宣言
+
+.. code-block:: java
+
+    import org.springframework.http.ResponseEntity;
+
+フィールド宣言部
+
+.. code-block:: java
+
+    @Value("${api.url:http://localhost:8080/api}")
+    private URI uri;
+
+メソッド内部
+
+.. code-block:: java
+
+    ResponseEntity<User> responseEntity =
+            restTemplate.getForEntity(uri, User.class); // (1)
+    HttpStatusCode statusCode = responseEntity.getStatusCode(); // (2)
+    HttpHeaders header = responseEntity.getHeaders(); // (3)
+    User user = responseEntity.getBody(); // (4)
+
+.. tabularcolumns:: |p{0.10\linewidth}|p{0.90\linewidth}|
+.. list-table::
+    :header-rows: 1
+    :widths: 10 90
+
+    * - 項番
+      - 説明
+    * - | (1)
+      - | \ ``getForEntity``\ メソッドを使用した場合は、戻り値は\ ``org.springframework.http.ResponseEntity``\ となる。
+    * - | (2)
+      - | HTTPステータスコードは\ ``ResponseEntity``\ の\ ``getStatusCode``\ メソッドを用いて取得する。
+    * - | (3)
+      - | レスポンスヘッダは\ ``ResponseEntity``\ の\ ``getHeaders``\ メソッドを用いて取得する。
+    * - | (4)
+      - | レスポンスボディは\ ``ResponseEntity``\ の\ ``getBody``\ メソッドを用いて取得する。
+
+.. note:: \ **ResponseEntityとは**\
+
+  \ ``ResponseEntity``\ はHTTPレスポンスを表すクラスで、HTTPステータスコード、レスポンスヘッダ、レスポンスボディの情報を取得することができる。
+
+  詳細は\ :url_spring_javadoc:`ResponseEntityのJavadoc </org/springframework/http/ResponseEntity.html>`\ を参照されたい。
+
+|
+
+.. _RestClientHowToUseGetCollection:
+
+コレクション形式のデータ取得
+""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
+
+サーバから応答されるレスポンスボディの電文(JSON等)がコレクション形式の場合は、以下の実装を行う。
+
+\ **コレクション形式のデータの取得例**\
+
+| \ ``getForObject``\ メソッドでは、コレクション形式のデータをレスポンスの型として指定できないため、\ ``exchange``\ メソッドを使用してリクエストを送信する必要がある。
+| \ ``exchange``\ メソッドの使い方については、「\ :ref:`RestClientHowToUseRequestHeaderRequest`\ 」にて説明を行っているのでこちらを参照されたい。
+
+.. code-block:: java
+
+    ResponseEntity<List<User>> responseEntity = //(1)
+        restTemplate.exchange(requestEntity, new ParameterizedTypeReference<List<User>>(){}); //(2)
+
+    List<User> userList = responseEntity.getBody();//(3)
+
+.. tabularcolumns:: |p{0.10\linewidth}|p{0.90\linewidth}|
+.. list-table::
+    :header-rows: 1
+    :widths: 10 90
+
+    * - 項番
+      - 説明
+    * - | (1)
+      - | \ ``ResponseEntity``\ の型パラメータに\ ``List``\ <レスポンスデータの型>を指定する。
+    * - | (2)
+      - | \ ``exchange``\ メソッドの第二引数に\ ``org.springframework.core.ParameterizedTypeReference``\ のインスタンスを指定し、型パラメータに\ ``List``\ <レスポンスデータの型>を指定する。
+    * - | (3)
+      - | \ ``getBody``\ メソッドで、レスポンスボディのデータを取得する。
+
+|
+
+.. _RestClientHowToUsePost:
+
+データの登録（POSTリクエスト送信）
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+| \ ``RestTemplate``\ は、POSTリクエスト送信を行うためのメソッドを複数提供している。代表的なメソッドの一覧を以下に示す。
+| これ以外のメソッドについては、「\ :url_spring_javadoc:`RestTemplateのJavadoc </org/springframework/web/client/RestTemplate.html>`\ 」を参照されたい。
+
+.. tabularcolumns:: |p{0.10\linewidth}|p{0.30\linewidth}|p{0.30\linewidth}|
+.. list-table:: \ **代表的なメソッド一覧**\
+  :header-rows: 1
+  :widths: 10 30 30
+
+  * - 項番
+    - 用途
+    - RestTemplateのメソッド
+  * - | (1)
+    - | レスポンスボディを任意のデータ型で取得する
+    - | \ ``RestTemplate.postForObject(...)``\
+  * - | (2)
+    - | レスポンス情報を含む結果を取得する
+    - | \ ``RestTemplate.postForEntity(...)``\
+
+| 「レスポンス情報を含む結果を取得する」方法については、GETメソッドを指定した実装と同様のため、「\ :ref:`RestClientHowToGetToEntity`\ 」を参照されたい。
+
+|
+
+POSTメソッドを指定したリクエスト送信の実装
+""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
+
+| POSTメソッドでリクエスト送信を行い、レスポンスボディを任意のデータ型で取得する実装の方法を以下に示す。
+| 以下の実装例は、\ ``User``\ を表現するJavaBeanクラスにてレスポンスボディを受け取る実装である。
+
+\ **postForObjectメソッドの使用例**\
+
+フィールド宣言部
+
+.. code-block:: java
+
+    @Value("${api.url:http://localhost:8080/api}")
+    private URI uri;
+
+メソッド内部
+
+.. code-block:: java
+
+    var user = new User();
+
+    // omitted
+
+    User user = restTemplate.postForObject(uri, user, User.class); // (1)
+
+.. tabularcolumns:: |p{0.10\linewidth}|p{0.90\linewidth}|
+.. list-table::
+    :header-rows: 1
+    :widths: 10 90
+
+    * - 項番
+      - 説明
+    * - | (1)
+      - | \ ``postForObject``\ メソッドは、簡易にPOSTリクエストを実装できる。
+        | 第二引数には、\ ``HttpMessageConverter``\ によってリクエストボディに変換されるJavaオブジェクトを設定する。
+        | \ ``postForObject``\ メソッドを使用した場合は、戻り値はレスポンスボディの値になる。
+
+|
+
+.. _RestClientHowToUseErrorHandling:
+
+エラーハンドリング
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+.. _RestClientHowToUseErrorHandlingHandleException:
+
+例外ハンドリング（デフォルトの動作）
+""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
+
+| デフォルトで利用するエラーハンドラーは「\ :ref:`RestClientOverviewResponseErrorHandler`\ 」で記載している通り、HTTPステータスコードに応じて特定の例外オブジェクトを返却する。
+| 本項では、デフォルトのエラーハンドラが返却する例外オブジェクトのハンドリング方法について説明する。
+| なお、以降で示している例外ハンドリングに関する実装例はあくまでも例外処理の方法を説明するための例であり、例外ハンドリングのベストプラクティスを示すものではない。アプリケーション実装の際には、要件に応じて\ **適切な例外ハンドリングを行うこと。**\
+
+\ **例外ハンドリングの実装例**\
+
+フィールド宣言部
+
+.. code-block:: java
+
+    @Value("${api.retry.maxCount}")
+    int retryMaxCount;
+
+    @Value("${api.retry.retryWaitTimeCoefficient}")
+    int retryWaitTimeCoefficient;
+
+メソッド内部
+
+.. code-block:: java
+
+    int retryCount = 0;
+    while (true) {
+        try {
+
+            User user = restTemplate.getForObject(uri, User.class);
+
+            break;
+
+        } catch (HttpServerErrorException e) { // (1)
+
+            if (retryCount == retryMaxCount) {
+                throw e;
+            }
+
+            retryCount++;
+
+            if (logger.isWarnEnabled()) {
+                logger.warn("An error ({}) occurred on the server. (The number of retries:{} Times)", e.getStatusCode(),
+                    retryCount);  // (2)
+            }
+
+            try {
+                Thread.sleep(retryWaitTimeCoefficient * retryCount);
+            } catch (InterruptedException ie) {
+                Thread.currentThread().interrupt();
+            }
+
+            // omitted
+        }
+
+    }
+
+.. tabularcolumns:: |p{0.10\linewidth}|p{0.90\linewidth}|
+.. list-table::
+    :header-rows: 1
+    :widths: 10 90
+
+    * - 項番
+      - 説明
+    * - | (1)
+      - | 例外をキャッチしてエラー処理を行う。
+        | 上記の例では、サーバエラー（500系）時に\ ``throw``\ される\ ``HttpServerErrorException``\ をキャッチしてリトライ処理を行っている。
+
+|
+
+.. _RestClientHowToUseErrorHandlingResponseEntity:
+
+HTTPステータスコードでハンドリング（エラーハンドラの拡張）
+""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
+
+| エラーハンドラを拡張し、HTTPステータスコードでハンドリングする方法について説明を行う。
+| エラーハンドラの拡張用途は、HTTPステータスコードでハンドリングする方法以外にもあるため、本項で説明するのは一例である。
+| \ ``RestTemplate``\ では、\ ``ResponseErrorHandler``\ インタフェースの実装クラスを\ ``RestTemplate``\ に設定することで、独自のエラー処理を行うことができる。
+| 
+| 以下の例では、サーバエラー及びクライアントエラーが発生した場合でも\ ``ResponseEntity``\ を返却し、HTTPステータスコードでエラーハンドリングが行えるように拡張をしている。
+
+\ **エラーハンドラの実装クラスの作成例**\
+
+.. code-block:: java
+
+    import java.io.IOException;
+    import java.net.URI;
+
+    import org.springframework.http.HttpMethod;
+    import org.springframework.http.client.ClientHttpResponse;
+    import org.springframework.web.client.DefaultResponseErrorHandler;
+
+    public class CustomErrorHandler extends DefaultResponseErrorHandler {  // (1)
+
+        // (2)
+        @Override
+        public void handleError(URI url, HttpMethod method, ClientHttpResponse response) throws IOException {
+            // Don't throw Exception.
+        }
+    }
+
+.. tabularcolumns:: |p{0.10\linewidth}|p{0.90\linewidth}|
+.. list-table::
+    :header-rows: 1
+    :widths: 10 90
+
+    * - 項番
+      - 説明
+    * - | (1)
+      - | \ ``ResponseErrorHandler``\ インタフェースの実装クラスを作成する。
+        | 上記の例では、エラーハンドラのデフォルト実装クラスである\ ``DefaultResponseErrorHandler``\ を拡張している。
+    * - | (2)
+      - | \ ``handleError``\ メソッドには、拡張元である\ ``DefaultResponseErrorHandler``\ の\ ``hasError``\ メソッドでエラーと判断されたHTTPステータスコードに対するエラー処理を実装する。
+        | \ ``DefaultResponseErrorHandler``\ の\ ``hasError``\ メソッドがエラーとみなすHTTPステータスコードは、サーバエラー(5xx系)及びクライアントエラー(4xx系)が対象である。
+        | 詳細は「\ :url_spring_javadoc:`DefaultResponseErrorHandlerのJavadoc </org/springframework/web/client/DefaultResponseErrorHandler.html>`\ 」を参照されたい。
+        | 
+        | 上記の例では、サーバエラー(5xx系)及びクライアントエラー(4xx系)が発生した場合でも例外を発生させないことで、\ ``RestTemplate``\ の呼び出し側で\ ``ResponseEntity``\ を受け取れるようにしている。
+
+\ **Bean定義ファイルの定義例**\
+
+.. tabs::
+    .. group-tab:: Java Config
+
+        - \ ``ApplicationContextConfig.java``\
+
+        .. code-block:: java
+
+            // (1)
+            @Bean("customErrorHandler")
+            public CustomErrorHandler customErrorHandler() {
+                return new CustomErrorHandler();
+            }
+
+            @Bean("restTemplate")
+            public RestTemplate restTemplate() {
+                var restTemplate = new RestTemplate(new HttpComponentsClientHttpRequestFactory());
+                restTemplate.setErrorHandler(customErrorHandler());  // (2)
+                return restTemplate;
+            }
+        
+        .. tabularcolumns:: |p{0.10\linewidth}|p{0.90\linewidth}|
+        .. list-table::
+          :header-rows: 1
+          :widths: 10 90
+
+          * - 項番
+            - 説明
+          * - | (1)
+            - | \ ``ResponseErrorHandler``\ の実装クラスのBean定義を行う。
+          * - | (2)
+            - | \ ``RestTemplate``\ の\ ``setErrorHandler``\ メソッドに、(1)で生成した\ ``ResponseErrorHandler``\ の実装クラスのBeanを設定する。
+
+
+        .. note:: \ **Spring Frameworkが提供するNoOpResponseErrorHandlerについて**\
+
+            サーバエラー及びクライアントエラーが発生した場合でも例外を発生させずに\ ``ResponseEntity``\ を返却する実装であれば、同様の動作を行う\ ``NoOpResponseErrorHandler``\ が \ ``ResponseErrorHandler``\ の実装クラスとしてSpring Frameworkから提供されているため、こちらで代替することも可能である。
+
+            - \ ``ApplicationContextConfig.java``\
+
+              .. code-block:: java
+
+                // (1)
+                @Bean("noOpResponseErrorHandler")
+                public NoOpResponseErrorHandler noOpResponseErrorHandler() {
+                    return new NoOpResponseErrorHandler();
+                }
+
+                @Bean("restTemplate")
+                public RestTemplate restTemplate() {
+                    var restTemplate = new RestTemplate(new HttpComponentsClientHttpRequestFactory());
+                    restTemplate.setErrorHandler(noOpResponseErrorHandler()); // (2)
+                    return restTemplate;
+                }
+                    
+              .. tabularcolumns:: |p{0.10\linewidth}|p{0.90\linewidth}|
+              .. list-table::
+                :header-rows: 1
+                :widths: 10 90
+
+                * - 項番
+                  - 説明
+                * - | (1)
+                  - | \ ``org.springframework.web.client.NoOpResponseErrorHandler``\ のBean定義を行う。
+                * - | (2)
+                  - | \ ``RestTemplate``\ の\ ``setErrorHandler``\ メソッドに\ ``NoOpResponseErrorHandler``\ のBeanを設定する。
+
+    .. group-tab:: XML Config
+
+        - \ ``applicationContext.xml``\
+
+        .. code-block:: xml
+
+            <bean id="customErrorHandler" class="com.example.restclient.CustomErrorHandler" /> <!-- (1) -->
+        
+            <bean id="restTemplate" class="org.springframework.web.client.RestTemplate">
+                <constructor-arg>
+                    <bean class="org.springframework.http.client.HttpComponentsClientHttpRequestFactory" />
+                </constructor-arg>
+                <property name="errorHandler" ref="customErrorHandler" /><!-- (2) -->
+            </bean>
+
+        .. tabularcolumns:: |p{0.10\linewidth}|p{0.90\linewidth}|
+        .. list-table::
+          :header-rows: 1
+          :widths: 10 90
+        
+          * - 項番
+            - 説明
+          * - | (1)
+            - | \ ``ResponseErrorHandler``\ の実装クラスのBean定義を行う。
+          * - | (2)
+            - | \ ``errorHandler``\ プロパティに、(1)で生成した\ ``ResponseErrorHandler``\ の実装クラスのBeanをインジェクションする。
+
+
+        .. note:: \ **Spring Frameworkが提供するNoOpResponseErrorHandlerについて**\
+
+            サーバエラー及びクライアントエラーが発生した場合でも例外を発生させずに\ ``ResponseEntity``\ を返却する実装であれば、同様の動作を行う\ ``NoOpResponseErrorHandler``\ が \ ``ResponseErrorHandler``\ の実装クラスとしてSpring Frameworkから提供されているため、こちらで代替することも可能である。
+
+            - \ ``applicationContext.xml``\
+
+              .. code-block:: xml
+                
+                <bean id="noOpResponseErrorHandler" class="org.springframework.web.client.NoOpResponseErrorHandler" /> <!-- (1) -->
+
+                <bean id="restTemplate" class="org.springframework.web.client.RestTemplate">
+                    <constructor-arg>
+                        <bean class="org.springframework.http.client.HttpComponentsClientHttpRequestFactory" />
+                    </constructor-arg>
+                    <property name="errorHandler" ref="noOpResponseErrorHandler" /><!-- (2) -->
+                </bean>
+
+              .. tabularcolumns:: |p{0.10\linewidth}|p{0.90\linewidth}|
+              .. list-table::
+                :header-rows: 1
+                :widths: 10 90
+                
+                * - 項番
+                  - 説明
+                * - | (1)
+                  - | \ ``org.springframework.web.client.NoOpResponseErrorHandler``\ のBean定義を行う。
+                * - | (2)
+                  - | \ ``errorHandler``\ プロパティに\ ``NoOpResponseErrorHandler``\ のBeanをインジェクションする。
+
+\ **クライアント処理の実装例**\
+
+.. code-block:: java
+
+    int retryCount = 0;
+    while (true) {
+
+        responseEntity = restTemplate.exchange(requestEntity, User.class);
+
+        if (responseEntity.getStatusCode() == HttpStatus.OK) { // (1)
+
+            break;
+
+        } else if (responseEntity.getStatusCode() == HttpStatus.SERVICE_UNAVAILABLE) { // (2)
+
+            if (retryCount == retryMaxCount) {
+                break;
+            }
+
+            retryCount++;
+
+            if (logger.isWarnEnabled()) {
+                logger.warn("An error ({}) occurred on the server. (The number of retries:{} Times)",
+                    responseEntity.getStatusCode(), retryCount);
+            }
+
+            try {
+                Thread.sleep(retryWaitTimeCoefficient * retryCount);
+            } catch (InterruptedException ie) {
+                Thread.currentThread().interrupt();
+            }
+
+            // omitted
+        }
+    }
+
+.. tabularcolumns:: |p{0.10\linewidth}|p{0.90\linewidth}|
+.. list-table::
+    :header-rows: 1
+    :widths: 10 90
+
+    * - 項番
+      - 説明
+    * - | (1)
+      - | 上記の実装例では、エラー時にも\ ``ResponseEntity``\ を返すようにエラーハンドラを拡張しているので、返却された\ ``ResponseEntity``\ からHTTPステータスコードを取得して、処理結果が正常であったか確認する必要がある。
+    * - | (2)
+      - | エラー発生時も返却された\ ``ResponseEntity``\ からHTTPステータスコードを取得して、その値に応じて処理を制御することができる。
+
+|
+
+.. _RestClientHowToUseRequestHeader:
+
+リクエストヘッダの設定
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+| リクエストヘッダを設定する方法には、アプリケーション全体で共通のヘッダを設定する方法と、リクエスト送信単位でヘッダを設定する方法がある。
+| クライアントアプリケーション内で、複数回のリクエスト送信処理を記述するとき、各リクエストのヘッダが同一で良い場合には、リクエスト送信処理ごとにリクエストヘッダを設定する処理を書いていると冗長なコードを記述することになる。
+| このような場合にはアプリケーション全体で共通のリクエストヘッダを設定するようにし、共通ではないリクエストヘッダを設定する必要がある実装箇所のみ、リクエスト送信単位でリクエストヘッダの設定を行ったほうがよい。
+
+| 
+
+.. _RestClientHowToUseRequestHeaderCommon:
+
+アプリケーション全体で共通のリクエストヘッダを設定する方法
+""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
+
+| 「\ :ref:`RestClientOverviewClientHttpRequestInitializer`\ 」で記載の通り、\ ``RestTemplate``\ では\ ``ClientHttpRequestInitializer``\ を使用することで共通のリクエストヘッダの設定が可能である。
+| リクエスト送信単位でリクエストヘッダの設定を変えたい場合は、「\ :ref:`RestClientHowToUseRequestHeaderRequest`\ 」を参照されたい。
+| 
+| 以下は、リクエストヘッダに共通のカスタムヘッダを付与する例である。
+
+\ **ClientHttpRequestInitializerの実装例**\
+
+.. code-block:: java
+
+    // (1)
+    public class CustomHeaderInitializer implements ClientHttpRequestInitializer {
+
+        // (2)
+        @Override
+        public void initialize(ClientHttpRequest request) {
+            request.getHeaders().add("Custom-Header", "CustomHeaderValue"); // (3)
+        }
+    }
+
+.. tabularcolumns:: |p{0.10\linewidth}|p{0.90\linewidth}|
+.. list-table::
+    :header-rows: 1
+    :widths: 10 90
+
+    * - 項番
+      - 説明
+    * - | (1)
+      - | \ ``ClientHttpRequestInitializer``\ の実装クラスを作成する。
+    * - | (2)
+      - | \ ``initialize``\ メソッドに\ ``ClientHttpRequest``\ の初期化処理を実装する。
+        | 上記の例では、リクエストヘッダにカスタムヘッダを付与している。
+    * - | (3)
+      - | リクエストヘッダの名前と値を設定する。
+        | 上記の例では、\ ``Custom-Header``\ というキーで\ ``CustomHeaderValue``\ という値を設定している。
+
+\ **Bean定義ファイルの定義例**\
+
+.. tabs::
+  .. group-tab:: Java Config
+
+    - \ ``ApplicationContextConfig.java``\
+
+    .. code-block:: java
+
+        // (1)
+        @Bean("customHeaderInitializer")
+        public CustomHeaderInitializer customHeaderInitializer() {
+            return new CustomHeaderInitializer();
+        }
+
+        @Bean("restTemplate")
+        public RestTemplate restTemplate() {
+            var restTemplate = new RestTemplate(new HttpComponentsClientHttpRequestFactory());
+            restTemplate.setClientHttpRequestInitializers(List.of(customHeaderInitializer())); // (2)
+            return restTemplate;
+        }
+
+    .. tabularcolumns:: |p{0.10\linewidth}|p{0.90\linewidth}|
+    .. list-table::
+        :header-rows: 1
+        :widths: 10 90
+    
+        * - 項番
+          - 説明
+        * - | (1)
+          - | \ ``ClientHttpRequestInitializer``\ のBean定義を行う。
+        * - | (2)
+          - | \ ``RestTemplate``\ の\ ``setClientHttpRequestInitializers``\ メソッドに\ ``ClientHttpRequestInitializer``\ のBeanを設定する。
+            | \ ``setClientHttpRequestInitializers``\ メソッドは、\ ``List``\ 型で引数が定義されているため、複数の\ ``ClientHttpRequestInitializer``\ を設定することができる。
+
+  .. group-tab:: XML Config
+
+    - \ ``applicationContext.xml``\
+
+    .. code-block:: xml
+
+        <!-- (1) -->
+        <bean id="customHeaderInitializer" class="com.example.restclient.CustomHeaderInitializer" /> 
+
+        <bean id="restTemplate" class="org.springframework.web.client.RestTemplate">
+            <constructor-arg>
+                <bean class="org.springframework.http.client.HttpComponentsClientHttpRequestFactory" />
+            </constructor-arg>
+            <property name="clientHttpRequestInitializers">
+                <list>
+                    <ref bean="customHeaderInitializer" />
+                </list>
+            </property>
+        </bean>
+
+    .. tabularcolumns:: |p{0.10\linewidth}|p{0.90\linewidth}|
+    .. list-table::
+        :header-rows: 1
+        :widths: 10 90
+    
+        * - 項番
+          - 説明
+        * - | (1)
+          - | \ ``ClientHttpRequestInitializer``\ のBean定義を行う。
+        * - | (2)
+          - | \ ``RestTemplate``\ の\ ``clientHttpRequestInitializers``\ プロパティに\ ``ClientHttpRequestInitializer``\ のBeanを設定する。
+            | \ ``clientHttpRequestInitializers``\ プロパティは、\ ``List``\ 型で定義されているため、複数の\ ``ClientHttpRequestInitializer``\ を設定することができる。
+
+|
+
+.. _RestClientHowToUseRequestHeaderRequest:
+
+リクエスト送信単位でリクエストヘッダを設定する方法
+""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
+
+| 本項の設定は、リクエスト送信単位でヘッダの設定を変えたい場合に利用する。
+| リクエストの設定は、基本的には\ :ref:`RestClientHowToUseRequestHeaderCommon`\ を用いて設定を行えばよいが、特定のリクエスト送信のみヘッダのカスタマイズを行いたい場合は、本項で説明する方法を用いて実装を行う。
+| 
+| リクエスト送信単位でヘッダの設定を行う場合は、\ ``RequestEntity``\ のメソッドを使用してHTTPヘッダを設定する。
+| \ ``Content-Type``\ や\ ``Accept``\ といった代表的なHTTPヘッダについては、\ ``RequestEntity``\ が提供する\ ``Builder``\ に専用の設定メソッド(\ ``contentType``\ 、\ ``accept``\)が用意されているため、これを利用すると良い。
+| 設定用のメソッドが無いヘッダは、\ ``RequestEntity.HeadersBuilder``\ の\ ``header``\ メソッドを使用して設定する。
+| 詳細は\ :url_spring_javadoc:`RequestEntityのJavadoc </org/springframework/http/RequestEntity.html>`\ を参照されたい。
+
+| 本ガイドラインでは、以下のHTTPヘッダについて設定方法を示す。
+
+* \ :ref:`RestClientHowToUseRequestHeaderContentType`\
+* \ :ref:`RestClientHowToUseRequestHeaderAccept`\
+* \ :ref:`RestClientHowToUseRequestHeaderAnyHeader`\
+
+|
+
+.. _RestClientHowToUseRequestHeaderContentType:
+
+Content-Typeヘッダの設定
+''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
+
+| サーバへデータを送信する場合は、通常Content-Typeヘッダの指定が必要となる。
+| Content-Typeヘッダをリクエスト送信時に設定するには、以下の通り実装を行う。
+
+\ **Content-Typeヘッダの設定例**\
+
+インポート宣言
+
+.. code-block:: java
+
+    import org.springframework.http.RequestEntity;
+    import org.springframework.http.ResponseEntity;
+
+フィールド宣言部
+
+.. code-block:: java
+
+    @Value("${api.url:http://localhost:8080/api}")
+    private URI uri;
+
+メソッド内部
+
+.. code-block:: java
+
+    var user = new User();
+
+    // omitted
+
+    RequestEntity<User> requestEntity = RequestEntity
+            .post(uri) // (1)
+            .contentType(MediaType.APPLICATION_JSON) // (2)
+            .body(user); // (3)
+
+    ResponseEntity<User> responseEntity =
+            restTemplate.exchange(requestEntity, User.class);  //(4)
+
+    User user = responseEntity.getBody();
+
+.. tabularcolumns:: |p{0.10\linewidth}|p{0.90\linewidth}|
+.. list-table::
+    :header-rows: 1
+    :widths: 10 90
+
+    * - 項番
+      - 説明
+    * - | (1)
+      - | \ ``RequestEntity``\ の\ ``post``\ メソッドを使用し、POSTリクエスト用のリクエストビルダを生成する。
+        | パラメータにURIを設定する。
+        | 必要に応じて、リクエストビルダのメソッドを使用し、リクエストヘッダやリクエストボディを設定する。
+    * - | (2)
+      - | \ ``RequestEntity.BodyBuilder``\ の\ ``contentType``\ メソッドを使用し、Content-Typeヘッダの値を指定する。
+        | 上記の実装例では、送信時のデータ形式がJSONであることを示す「\ ``application/json``\ 」を設定している。
+    * - | (3)
+      - | \ ``RequestEntity.BodyBuilder``\ の\ ``body``\ メソッドにて、リクエストボディを設定し、\ ``RequestEntity``\ オブジェクトを作成する。
+        | ボディの設定が不要の場合は、\ ``build``\ メソッドを使用して\ ``RequestEntity``\ オブジェクトを作成する。
+    * - | (4)
+      - | \ ``exchange``\ メソッドを使用し、リクエストを送信する。
+        | 引数には、(3)で生成した\ ``RequestEntity``\ と、レスポンスデータの型を指定する。
+        | レスポンスは\ ``ResponseEntity<T>``\ で返却され、型パラメータは引数で指定したレスポンスデータの型となる。
+
+.. note:: \ **RequestEntityとは**\
+
+    \ ``RequestEntity``\ はHTTPリクエストを表すクラスで、接続URI、HTTPメソッド、リクエストヘッダ、リクエストボディを設定することができる。
+
+    詳細は\ :url_spring_javadoc:`RequestEntityのJavadoc </org/springframework/http/RequestEntity.html>`\ を参照されたい。
+
+|
+
+.. _RestClientHowToUseRequestHeaderAccept:
+
+Acceptヘッダの設定
+''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
+
+| サーバから取得するデータの形式を指定する場合は、Acceptヘッダの指定が必要となる。
+| なお、サーバが複数のデータ形式のレスポンスをサポートしていない場合は、Acceptヘッダを明示的に指定しなくてもよいケースもある。
+| Acceptヘッダをリクエスト送信時に設定するには、以下の通り実装を行う。
+
+\ **Acceptヘッダの設定例**\
+
+メソッド内部
+
+.. code-block:: java
+
+    RequestEntity<Void> requestEntity = RequestEntity
+            .get(uri)
+            .accept(MediaType.APPLICATION_JSON) // (1)
+            .build(); // (2)
+
+    ResponseEntity<User> responseEntity =
+            restTemplate.exchange(requestEntity, User.class);
+
+    User user = responseEntity.getBody();
+
+.. tabularcolumns:: |p{0.10\linewidth}|p{0.90\linewidth}|
+.. list-table::
+    :header-rows: 1
+    :widths: 10 90
+
+    * - 項番
+      - 説明
+    * - | (1)
+      - | \ ``RequestEntity.HeadersBuilder``\ の\ ``accept``\ メソッドを使用して、Acceptヘッダの値を設定する。
+        | 上記の実装例では、取得可能なデータ形式がJSONであることを示す「\ ``application/json``\ 」を設定している。
+    * - | (2)
+      - | \ ``RequestEntity.HeadersBuilder``\ の\ ``build``\ メソッドを使用し、\ ``RequestEntity``\ オブジェクトを作成する。
+
+|
+
+.. _RestClientHowToUseRequestHeaderAnyHeader:
+
+任意のリクエストヘッダの設定
+''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
+
+| サーバへアクセスするために、リクエストヘッダの設定が必要になるケースや、カスタムヘッダを付与するケースでは以下の通り設定を行う。
+| 以下は、カスタムヘッダの設定を行う例である。
+
+\ **カスタムヘッダの実装例**\
+
+メソッド内部
+
+.. code-block:: java
+
+    RequestEntity<Void> requestEntity = RequestEntity
+            .get(uri)
+            .header("Custom-Header", "CustomValue") // (1)
+            .build();
+
+    ResponseEntity<User> responseEntity =
+            restTemplate.exchange(requestEntity, User.class);
+
+    User user = responseEntity.getBody();
+
+.. tabularcolumns:: |p{0.10\linewidth}|p{0.90\linewidth}|
+.. list-table::
+    :header-rows: 1
+    :widths: 10 90
+
+    * - 項番
+      - 説明
+    * - | (1)
+      - | \ ``RequestEntity.HeadersBuilder``\ の\ ``header``\ メソッドを使用してリクエストヘッダの名前と値を設定する。
+
+|
+
+.. _RestClientHowToUseAuthorizationHeader:
+
+認証要求の設定
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+| RESTクライアント側が実装すべき認証要求の方法は、RESTサーバの採用する認証方式に依存するが、本項では認証ヘッダを利用した認証要求の実装方法を説明する。
+| 認証ヘッダを利用した認証方式としては、Bearerトークン認証（APIキー認証）やBasic認証などがある。
+| APIキー認証に関しては、\ ``X-API-Key``\ 等の独自ヘッダを利用することもあるため、サーバが利用する認証の仕様に応じてヘッダ名を変更する必要がある。
+| 以下では、Basic認証を例とした認証ヘッダの設定方法を説明する。
+| 
+| 認証ヘッダに関する仕様は、\ :url_rfc:`RFC 9110 </rfc9110>`\ に記載されているのでこちらを参照されたい。
+
+\ **ClientHttpRequestInitializerの実装例**\
+
+.. code-block:: java
+
+    // (1)
+    public class CustomHeaderInitializer implements ClientHttpRequestInitializer {
+
+        private String username;
+
+        private String password;
+
+        // (2)
+        public CustomHeaderInitializer(String basicAuthUsername, String basicAuthPassword) {
+            this.username = basicAuthUsername;
+            this.password = basicAuthPassword;
+        }
+
+        // (3)
+        @Override
+        public void initialize(ClientHttpRequest request) {
+            String plainCredentials = username + ":" + password;  // (4)
+            String base64Credentials = Base64.getEncoder().encodeToString(plainCredentials.getBytes(StandardCharsets.UTF_8));  // (5)
+            request.getHeaders().add("Authorization", "Basic " + base64Credentials);  // (6)
+        }
+    }
+
+.. tabularcolumns:: |p{0.10\linewidth}|p{0.90\linewidth}|
+.. list-table::
+    :header-rows: 1
+    :widths: 10 90
+
+    * - 項番
+      - 説明
+    * - | (1)
+      - | \ ``ClientHttpRequestInitializer``\ の実装クラスを作成する。
+    * - | (2)
+      - | Basic認証で利用するユーザ名とパスワードを設定するコンストラクタを定義する。
+    * - | (3)
+      - | \ ``initialize``\ メソッドに\ ``ClientHttpRequest``\ の初期化処理を実装する。
+        | 上記の例では、リクエストヘッダに\ ``Authorization``\ ヘッダを付与している。
+    * - | (4)
+      - | ユーザ名とパスワードを「”:“ 」でつなげる。
+    * - | (5)
+      - | (4)をバイト配列に変換し、Java標準の\ ``java.util.Base64``\ を使用してBase64エンコードを行う。
+    * - | (6)
+      - | AuthorizationヘッダにBasic認証の資格情報を設定する。
+        | 上記ではBasic認証の例としているため、認証スキームとして\ ``Basic``\ を指定して認証情報を設定している。
+
+\ **Bean定義ファイルの定義例**\
+
+.. tabs::
+  .. group-tab:: Java Config
+
+    - \ ``ApplicationContextConfig.java``\
+
+    .. code-block:: java
+
+        // (1)
+        @Value("${api.auth.username}")
+        private String basicAuthUsername;
+
+        // (2)
+        @Value("${api.auth.password}")
+        private String basicAuthPassword;
+
+        // (3)
+        @Bean("customHeaderInitializer")
+        public CustomHeaderInitializer customHeaderInitializer() {
+            return new CustomHeaderInitializer(basicAuthUsername, basicAuthPassword);
+        }
+
+        @Bean("restTemplate")
+        public RestTemplate restTemplate() {
+            var restTemplate = new RestTemplate(new HttpComponentsClientHttpRequestFactory());
+            restTemplate.setClientHttpRequestInitializers(List.of(customHeaderInitializer())); // (4)
+            return restTemplate;
+        }
+
+    .. tabularcolumns:: |p{0.10\linewidth}|p{0.90\linewidth}|
+    .. list-table::
+        :header-rows: 1
+        :widths: 10 90
+    
+        * - 項番
+          - 説明
+        * - | (1)
+          - | Basic認証で利用するユーザ名を設定する。
+        * - | (2)
+          - | Basic認証で利用するパスワードを設定する。
+        * - | (3)
+          - | \ ``ClientHttpRequestInitializer``\ のBean定義を行う。
+            | \ ``ClientHttpRequestInitializer``\ の実装クラスのコンストラクタに、Basic認証で利用するユーザ名とパスワードを渡す。
+        * - | (4)
+          - | \ ``RestTemplate``\ の\ ``setClientHttpRequestInitializers``\ メソッドに\ ``ClientHttpRequestInitializer``\ のBeanを設定する。
+
+  .. group-tab:: XML Config
+
+    - \ ``applicationContext.xml``\
+
+    .. code-block:: xml
+
+        <!-- (3) -->
+        <bean id="customHeaderInitializer" class="com.example.restclient.CustomHeaderInitializer"> 
+            <constructor-arg value="${api.auth.username}" /> <!-- (1) -->
+            <constructor-arg value="${api.auth.password}" /> <!-- (2) -->
+        </bean>
+
+        <bean id="restTemplate" class="org.springframework.web.client.RestTemplate">
+            <constructor-arg>
+                <bean class="org.springframework.http.client.HttpComponentsClientHttpRequestFactory" />
+            </constructor-arg>
+            <property name="clientHttpRequestInitializers"> <!-- (4) -->
+                <list>
+                    <ref bean="customHeaderInitializer" />
+                </list>
+            </property>
+        </bean>
+
+    .. tabularcolumns:: |p{0.10\linewidth}|p{0.90\linewidth}|
+    .. list-table::
+        :header-rows: 1
+        :widths: 10 90
+    
+        * - 項番
+          - 説明
+        * - | (1)
+          - | Basic認証で利用するユーザ名を設定する。
+        * - | (2)
+          - | Basic認証で利用するパスワードを設定する。
+        * - | (3)
+          - | \ ``ClientHttpRequestInitializer``\ のBean定義を行う。
+            | \ ``ClientHttpRequestInitializer``\ の実装クラスのコンストラクタに、Basic認証で利用するユーザ名とパスワードを渡す。
+        * - | (4)
+          - | \ ``RestTemplate``\ の\ ``clientHttpRequestInitializers``\ プロパティに\ ``ClientHttpRequestInitializer``\ のBeanを設定する。
+
+.. note::
+
+    Spring Security 5より、\ ``org.springframework.security.crypto.codec.Base64``\ は非推奨になったため、Java標準の\ ``java.util.Base64``\ に置き換えることを推奨する。
+
+|
+
+.. _RestClientHowToUseTimeoutSettings:
+
+通信タイムアウトの設定
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+| サーバとの通信に対してタイムアウト時間を指定したい場合は、\ ``ClientHttpRequestFactory``\ の実装クラスを定義し、実装クラスのプロパティ値を設定することで実現することができる。
+| 本項では、\ ``ClientHttpRequestFactory``\ の実装の定義と、タイムアウトの設定方法について説明を行う。
+
+| 
+
+.. _RestClientHowToUseSimpleClientHttpRequestFactoryTimeout:
+
+\ ``HttpComponentsClientHttpRequestFactory``\ を使用した通信タイムアウトの設定
+""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
+
+| サーバとの通信に対してタイムアウト時間を指定したい場合は、\ ``ClientHttpRequestFactory``\ の実装クラスのプロパティ値を設定することで実現することができる。
+| 以下は、\ ``HttpComponentsClientHttpRequestFactory``\ を使用した定義例である。
+
+\ **Bean定義ファイルの定義例**\
+
+.. tabs::
+  .. group-tab:: Java Config
+
+    - \ ``ApplicationContextConfig.java``\
+
+    .. code-block:: java
+
+        // (1)
+        @Value("${api.connectTimeout:2000}")
+        private int connectTimeout;
+
+        // (2)
+        @Value("${api.readTimeout:2000}")
+        private int readTimeout;
+
+        // omitted
+
+        @Bean("clientHttpRequestFactory")
+        public HttpComponentsClientHttpRequestFactory clientHttpRequestFactory() {
+            // (3)
+            var connectionConfig = ConnectionConfig.custom()
+                    .setConnectTimeout(Timeout.ofMilliseconds(connectTimeout))
+                    .build();
+            // (4)
+            var poolManager = PoolingHttpClientConnectionManagerBuilder.create()
+                    .setDefaultConnectionConfig(connectionConfig)
+                    .build();
+            // (5)
+            var httpClient = HttpClientBuilder.create()
+                    .setConnectionManager(poolManager)
+                    .build();
+            // (6)
+            var bean = new HttpComponentsClientHttpRequestFactory(httpClient);
+            bean.setReadTimeout(readTimeout); // (7)
+            return bean;
+        }
+
+        @Bean("timeoutRestTemplate")
+        public RestTemplate timeoutRestTemplate() {
+            return new RestTemplate(clientHttpRequestFactory()); // (8)
+        }
+    
+    .. tabularcolumns:: |p{0.10\linewidth}|p{0.90\linewidth}|
+    .. list-table::
+        :header-rows: 1
+        :widths: 10 90
+    
+        * - 項番
+          - 説明
+        * - | (1)
+          - | サーバとの接続タイムアウトの時間(ミリ秒)を設定する。
+        * - | (2)
+          - | レスポンスデータの読み込みタイムアウトの時間(ミリ秒)を設定する。
+        * - | (3)
+          - | \ ``org.apache.hc.client5.http.config.ConnectionConfig.custom``\ メソッドにて\ ``Builder``\ を生成する。
+            | 生成した\ ``Builder``\ の\ :url_http_client_javadoc:`setConnectTimeout </config/ConnectionConfig.Builder.html#setConnectTimeout-org.apache.hc.core5.util.Timeout->`\ メソッドに、(1)の接続タイムアウト時間を設定する。
+            | \ ``build``\ メソッドにて\ ``ConnectionConfig``\ のインスタンスを生成する。
+        * - | (4)
+          - | \ ``org.apache.hc.client5.http.impl.io.PoolingHttpClientConnectionManagerBuilder.create``\ メソッドにて\ ``PoolingHttpClientConnectionManagerBuilder``\ を生成する。
+            | 生成した\ ``PoolingHttpClientConnectionManagerBuilder``\ の\ ``setDefaultConnectionConfig``\ メソッドに、(3)で生成した\ ``ConnectionConfig``\ のインスタンスを設定する。
+            | \ ``build``\ メソッドにて\ ``PoolingHttpClientConnectionManager``\ のインスタンスを生成する。
+        * - | (5)
+          - | \ ``org.apache.hc.client5.http.impl.classic.HttpClientBuilder.create``\ メソッドにて\ ``HttpClientBuilder``\ を生成する。
+            | 生成した\ ``HttpClientBuilder``\ の\ ``setConnectionManager``\ メソッドに、(4)で生成した\ ``PoolingHttpClientConnectionManager``\ のインスタンスを設定する。
+            | \ ``build``\ メソッドにて\ ``HttpClient``\ のインスタンスを生成する。
+        * - | (6)
+          - | \ ``HttpComponentsClientHttpRequestFactory``\ のコンストラクタに、(5)で生成した\ ``HttpClient``\ のインスタンスを設定して、\ ``HttpComponentsClientHttpRequestFactory``\ のインスタンスを生成する。
+        * - | (7)
+          - | \ ``HttpComponentsClientHttpRequestFactory``\ の\ ``setReadTimeout``\ メソッドに、(2)の読み込みタイムアウト時間を設定する。
+            | \ ``setReadTimeout``\ メソッドで設定した読み込みタイムアウト時間は、\ ``org.apache.hc.client5.http.config.RequestConfig.Builder``\ の\ :url_http_client_javadoc:`setResponseTimeout </config/RequestConfig.Builder.html#setResponseTimeout-org.apache.hc.core5.util.Timeout->`\ に設定される。
+        * - | (8)
+          - | \ ``RestTemplate``\ のコンストラクタに、生成した\ ``HttpComponentsClientHttpRequestFactory``\ を設定する。
+            | \ ``HttpComponentsClientHttpRequestFactory``\ で設定したタイムアウト値を超えた場合は\ ``org.springframework.web.client.ResourceAccessException``\ が発生する。
+
+  .. group-tab:: XML Config
+
+    - \ ``applicationContext.xml``\
+
+    .. code-block:: xml
+
+        <!-- (1) -->
+        <bean id="timeoutConnectionConfigBuilder" class="org.apache.hc.client5.http.config.ConnectionConfig" factory-method="custom" >
+            <property name="connectTimeout" >
+                <bean class="org.apache.hc.core5.util.Timeout" factory-method="ofMilliseconds">
+                    <constructor-arg value="${api.connectTimeout: 2000}" />
+                </bean>
+            </property>
+        </bean>
+
+        <!-- (2) -->
+        <bean id="timeoutConnectionConfig" factory-bean="timeoutConnectionConfigBuilder" factory-method="build" />
+
+        <!-- (3) -->
+        <bean id="timeoutPoolManagerBuilder" class="org.apache.hc.client5.http.impl.io.PoolingHttpClientConnectionManagerBuilder" factory-method="create">
+            <property name="defaultConnectionConfig" ref="timeoutConnectionConfig" />
+        </bean>
+
+        <!-- (4) -->
+        <bean id="timeoutPoolManager" factory-bean="timeoutPoolManagerBuilder" factory-method="build" />
+
+        <!-- (5) -->
+        <bean id="timeoutHttpClientBuilder" class="org.apache.hc.client5.http.impl.classic.HttpClientBuilder" factory-method="create">
+            <property name="connectionManager" ref="timeoutPoolManager" />
+        </bean>
+
+        <!-- (6) -->
+        <bean id="timeoutHttpClient" factory-bean="timeoutHttpClientBuilder" factory-method="build" />
+
+        <!-- (7) -->
+        <bean id="clientHttpRequestFactory" class="org.springframework.http.client.HttpComponentsClientHttpRequestFactory">
+            <constructor-arg ref="timeoutHttpClient" />
+            <property name="readTimeout" value="#{T(java.time.Duration).ofMillis(${api.readTimeout: 2000})}" />
+        </bean>
+
+        <bean id="restTemplate" class="org.springframework.web.client.RestTemplate">
+            <constructor-arg ref="clientHttpRequestFactory" /> // (8)
+        </bean>
+
+    .. tabularcolumns:: |p{0.10\linewidth}|p{0.90\linewidth}|
+    .. list-table::
+        :header-rows: 1
+        :widths: 10 90
+    
+        * - 項番
+          - 説明
+        * - | (1)
+          - | \ ``org.apache.hc.client5.http.config.ConnectionConfig.custom``\ メソッドにて\ ``Builder``\ を生成する。
+            | 生成した\ ``Builder``\ の\ :url_http_client_javadoc:`connectTimeout </config/ConnectionConfig.Builder.html#setConnectTimeout-org.apache.hc.core5.util.Timeout->`\ プロパティに、サーバとの接続タイムアウトの時間(ミリ秒)を設定する。
+        * - | (2)
+          - | \ ``Builder``\ の\ ``build``\ メソッドにて\ ``ConnectionConfig``\ のインスタンスを生成する。
+        * - | (3)
+          - | \ ``org.apache.hc.client5.http.impl.io.PoolingHttpClientConnectionManagerBuilder.create``\ メソッドにて\ ``PoolingHttpClientConnectionManagerBuilder``\ を生成する。
+            | 生成した\ ``PoolingHttpClientConnectionManagerBuilder``\ の\ ``defaultConnectionConfig``\ プロパティに、(2)で生成した\ ``ConnectionConfig``\ のインスタンスを設定する。
+        * - | (4)
+          - | \ ``PoolingHttpClientConnectionManagerBuilder``\ の\ ``build``\ メソッドにて\ ``PoolingHttpClientConnectionManager``\ のインスタンスを生成する。
+        * - | (5)
+          - | \ ``org.apache.hc.client5.http.impl.classic.HttpClientBuilder.create``\ メソッドにて\ ``HttpClientBuilder``\ を生成する。
+            | 生成した\ ``HttpClientBuilder``\ の\ ``connectionManager``\ プロパティに、(4)で生成した\ ``PoolingHttpClientConnectionManager``\ のインスタンスを設定する。
+        * - | (6)
+          - | \ ``HttpClientBuilder``\ の\ ``build``\ メソッドにて\ ``HttpClient``\ のインスタンスを生成する。
+        * - | (7)
+          - | \ ``HttpComponentsClientHttpRequestFactory``\ のコンストラクタに、(6)で生成した\ ``HttpClient``\ のインスタンスを設定して、\ ``HttpComponentsClientHttpRequestFactory``\ のインスタンスを生成する。
+            | \ ``HttpComponentsClientHttpRequestFactory``\ の\ ``readTimeout``\ プロパティに、レスポンスデータの読み込みタイムアウトの時間(ミリ秒)を設定する。
+            | \ ``readTimeout``\ プロパティで設定した読み込みタイムアウト時間は、\ ``org.apache.hc.client5.http.config.RequestConfig.Builder``\ の\ :url_http_client_javadoc:`setResponseTimeout </config/RequestConfig.Builder.html#setResponseTimeout-org.apache.hc.core5.util.Timeout->`\ に設定される。
+        * - | (8)
+          - | \ ``RestTemplate``\ のコンストラクタに、生成した\ ``HttpComponentsClientHttpRequestFactory``\ を設定する。
+            | \ ``HttpComponentsClientHttpRequestFactory``\ で設定したタイムアウト値を超えた場合は\ ``org.springframework.web.client.ResourceAccessException``\ が発生する。
+
+.. note:: 
+    
+  \ **タイムアウト発生時の起因例外**\
+
+    | \ ``HttpComponentsClientHttpRequestFactory``\ で設定したタイムアウト値を超えた場合は、タイムアウトの種類に関わらず\ ``org.springframework.web.client.ResourceAccessException``\ が発生する。
+    | したがって、タイムアウトの種類に応じて例外ハンドリングを行いたい場合は、\ ``ResourceAccessException``\ の起因例外の型を確認する必要がある。
+    | \ ``ResourceAccessException``\ の起因例外として、接続タイムアウト発生時は\ ``org.apache.hc.client5.http.ConnectTimeoutException``\ 、読み込みタイムアウト発生時は\ ``java.net.SocketTimeoutException``\ が設定されているため、これらの型を確認することでタイムアウトの種類を判別することができる。
+    | なお、上記挙動に関しては使用する\ ``ClientHttpRequestFactory``\ の実装によって異なるため、\ ``ClientHttpRequestFactory``\ が利用するHttpClientの仕様を確認してから実装を行うこと。
+
+|
+
+.. _RestClientHowToUseFileUpload:
+
+ファイルアップロード(マルチパートリクエスト)
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+| ファイルアップロード(マルチパートリクエスト)を行う場合は、以下のように実装する。
+
+\ **ファイルアップロードの実装例**\
+
+.. code-block:: java
+
+    MultiValueMap<String, Object> multiPartBody = new LinkedMultiValueMap<>();  //(1)
+    multiPartBody.add("file", new ClassPathResource("/uploadFiles/User.txt"));  //(2)
+
+    RequestEntity<MultiValueMap<String, Object>> requestEntity = RequestEntity
+            .post(uri)
+            .contentType(MediaType.MULTIPART_FORM_DATA)  //(3)
+            .body(multiPartBody);  //(4)
+
+.. tabularcolumns:: |p{0.10\linewidth}|p{0.90\linewidth}|
+.. list-table::
+    :header-rows: 1
+    :widths: 10 90
+
+    * - 項番
+      - 説明
+    * - | (1)
+      - | マルチパートリクエストとして送信するデータを格納するために\ ``MultiValueMap``\ を生成する。
+    * - | (2)
+      - | パラメータ名をキーに指定して、アップロードするファイルを\ ``MultiValueMap``\ に追加する。
+        | 上記例では、\ ``file``\ というパラメータ名を指定して、クラスパス上に配置されているファイルをアップロードファイルとして追加している。
+    * - | (3)
+      - | Content-Typeヘッダのメディアタイプを\ ``multipart/form-data``\ に設定する。
+        | \ ``MultiValueMap``\ にString値以外が設定されている場合、Content-Typeヘッダは\ ``FormHttpMessageConverter``\ によって\ ``multipart/form-data``\ が設定される。
+        | したがって、上記の例では省略しても問題はない。
+    * - | (4)
+      - | アップロードするファイルが格納されている\ ``MultiValueMap``\ をリクエストボディに設定する。
+
+.. note:: \ **Spring Frameworkが提供するResourceクラスについて**\
+
+  Spring Frameworkはリソースを表現するインタフェースとして\ ``org.springframework.core.io.Resource``\ を提供しており、ファイルをアップロードする際に使用することができる。
+
+  \ ``Resource``\ インタフェースの主な実装クラスは以下の通りである。
+
+  * \ ``org.springframework.core.io.PathResource``\
+  * \ ``org.springframework.core.io.FileSystemResource``\
+  * \ ``org.springframework.core.io.ClassPathResource``\
+  * \ ``org.springframework.core.io.UrlResource``\
+  * \ ``org.springframework.core.io.InputStreamResource``\  (ファイル名をサーバに連携できない)
+  * \ ``org.springframework.core.io.ByteArrayResource``\  (ファイル名をサーバに連携できない)
+
+|
+
+.. _RestClientHowToUseFileDownload:
+
+ファイルダウンロード
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+| ファイルダウンロードの実装方法は、レスポンス取得後処理で\ ``InputStream``\ を使用してレスポンスボディを少しずつファイルに書き出す方法と、\ ``byte``\ 配列でレスポンスボディを一括取得する方法がある。
+| \ ``byte``\ 配列で一括取得する方法は、ダウンロードするファイルのサイズによっては、\ ``java.lang.OutOfMemoryError``\ が発生する可能性があるため、基本的には\ ``InputStream``\ を使用した実装を推奨する。
+| ダウンロードするファイルのサイズが小さく、メモリに展開しても問題ない場合に限り、\ ``byte``\ 配列で一括取得する実装を検討するとよい。
+| 
+
+\ **InputStreamを使用してファイルに書き出す方法**\
+
+| レスポンス取得後処理にてレスポンスボディを\ ``InputStream``\ で読み込み、読み込んだ内容をファイルに書き出す実装例を示す。
+| 以下は、「\ :ref:`RestClientOverviewResponseExtractor`\ 」に記載している\ ``ResponseExtractor``\ を使用したダウンロードの実装例である。
+
+インポート宣言
+
+.. code-block:: java
+
+    import org.springframework.util.FileCopyUtils;
+
+メソッド内部
+
+.. code-block:: java
+
+    // (1)
+    final ResponseExtractor<File> responseExtractor =
+            new ResponseExtractor<File>() {
+
+        // (2)
+        @Override
+        public File extractData(ClientHttpResponse response)
+                throws IOException {
+
+            File rcvFile = File.createTempFile("rcvFile", "zip");  // (3)
+            FileCopyUtils.copy(response.getBody(), new FileOutputStream(rcvFile));  // (4)
+            return rcvFile;  // (5)
+        }
+
+    };
+
+    // (6)
+    File rcvFile = this.restTemplate.execute(targetUri,
+            HttpMethod.GET, null, responseExtractor);
+
+    // omitted
+
+.. tabularcolumns:: |p{0.10\linewidth}|p{0.90\linewidth}|
+.. list-table::
+    :header-rows: 1
+    :widths: 10 90
+
+    * - 項番
+      - 説明
+    * - | (1)
+      - | レスポンス取得後処理をカスタマイズするため、\ ``ResponseExtractor``\ の実装を作成する。
+    * - | (2)
+      - | \ ``extractData``\ メソッドを実装し、レスポンス取得後処理を定義する。
+    * - | (3)
+      - | 出力するファイルを生成する。
+    * - | (4)
+      - | レスポンスボディを\ ``InputStream``\ で読み込み、\ ``FileCopyUtils``\ を使用して、(3)で生成したファイルにレスポンスボディを少しずつ書き出す。
+    * - | (5)
+      - | ファイル作成後、作成したファイルを返却する。
+
+        .. note:: \ **HTTPヘッダや、ステータスコードも返却する場合**\
+
+          HTTPヘッダや、ステータスコードも含めて返却したい場合は、 \ ``ResponseEntity``\ に格納して返却すればよい。
+
+            .. code-block:: java
+
+                final ResponseExtractor<ResponseEntity<File>> responseExtractor =
+                        new ResponseExtractor<ResponseEntity<File>>() {
+
+                    @Override
+                    public ResponseEntity<File> extractData(ClientHttpResponse response)
+                            throws IOException {
+
+                        File rcvFile = File.createTempFile("rcvFile", "zip");
+                        FileCopyUtils.copy(response.getBody(), new FileOutputStream(rcvFile));
+                        return ResponseEntity.status(response.getStatusCode())
+                                .headers(response.getHeaders()).body(rcvFile);
+                    }
+
+                };
+
+    * - | (6)
+      - | \ ``RestTemplate.execute``\ メソッドを使用してファイルのダウンロードを行い、出力したファイルを取得する。
+
+|
+
+\ **byte配列で一括取得する方法**\
+
+| 以下は、レスポンスボディを\ ``byte``\ 配列で一括取得する実装例である。
+| ダウンロードするファイルのサイズが小さい場合のみ、以下の方法で実装を行うこと。
+
+.. code-block:: java
+
+    byte[] downloadContent =
+            restTemplate.getForObject(uri, byte[].class); //(1)
+
+.. tabularcolumns:: |p{0.10\linewidth}|p{0.90\linewidth}|
+.. list-table::
+    :header-rows: 1
+    :widths: 10 90
+
+    * - 項番
+      - 説明
+    * - | (1)
+      - | ダウンロードファイルを指定したデータ型で扱う。
+        | 上記の例では、ダウンロードしたファイルをバイト配列で取得する。
+
+.. warning:: 
+    
+  \ **byte配列でファイルをダウンロードする際の注意点**\
+
+    | サイズの大きなファイルをデフォルトで登録されている\ ``HttpMessageConverter``\ を使用して \ ``byte``\ 配列で取得すると、 \ ``java.lang.OutOfMemoryError``\ が発生する可能性がある。
+    | また、\ ``org.springframework.core.io.Resource``\ で取得した場合も、メッセージ変換で利用される\ ``ResourceHttpMessageConverter``\ が\ ``ByteArrayResource``\ を生成する際にレスポンスボディを\ ``byte``\ 配列で取得するため、同様の事象が発生する。
+
+|
+
+.. _RestClientHowToExtend:
+
+How to extend（同期通信）
+--------------------------------------------------------------------------------
+
+| 本節では、同期通信実装の拡張方法について説明する。
+| 本節の内容は、「:ref:`RestClientHowToUse`」だけでは実現できない動作や設定をカスタマイズしたい場合に必要な内容である。
+|
+
+| 「:ref:`RestClientComponentsOverview`」にて説明を行った構成要素のカスタマイズ方法は、以下の通りである。
+
+* \ :ref:`RestClientHowToExtendUriBuilderFactory`\ 
+* \ :ref:`RestClientHowToExtendClientHttpRequestFactory`\ 
+* \ :ref:`RestClientHowToExtendHttpMessageConverter`\ 
+* \ :ref:`RestClientHowToExtendClientHttpRequestInterceptor`\ 
+
+|
+
+
+.. _RestClientHowToExtendUriBuilderFactory:
+
+URL生成処理をカスタマイズする方法（\ ``UriBuilderFactory``\ ）
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+| RESTサーバが公開するAPIには、一定のパターンに従うプレースホルダを含んでいる物が存在することが想定される。(例えば、日付を含むURLなど)このような場合、RESTクライアント側では、リクエスト送信先のURLを生成する処理をカスタマイズして、サーバが期待する形式のURLを生成できると便利である。
+| 以下では、RESTサーバ側が期待するURLに特定形式でフォーマットされた日付が含まれる場合を例にとり、RESTクライアントでリクエスト先URLの生成処理をカスタマイズして、RESTサーバが期待するURLをRESTクライアントが生成できるようにする例を示す。
+
+| RESTクライアントでのリクエスト先URLの生成処理のカスタマイズは \ ``UriBuilderFactory``\ および\ ``UriBuilder``\ の実装を拡張するすることで実現する。
+| URL生成処理のカスタマイズが、ある特定のリクエスト送信処理のみだけに限定される場合は、 \ ``UriBuilderFactory``\ や\ ``UriBuilder``\ を利用せず、個別のリクエスト送信処理の中でURLをカスタマイズすることも可能だが、そうでない場合は、\ ``UriBuilderFactory``\ や\ ``UriBuilder``\ を利用することで実装の重複を避け、コードのメンテンス性を落とさずにカスタマイズが可能である。
+| なお、 \ ``UriBuilderFactory``\ および\ ``UriBuilder``\ は日付の利用に関係なく、リクエスト先URLの生成処理一般のためのカスタマイズポイントとして機能する。
+| 
+
+.. _RestClientHowToExtendUriBuilderFactoryFormatVariable:
+
+URIテンプレート変数値のフォーマット変換
+""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
+
+| 以下は、URIテンプレート変数の値(\ ``LocalDate``\ )を、特定のフォーマット文字列に変換する\ ``UriBuilderFactory``\ の実装例である。
+
+* URIテンプレート：\ ``http://localhost:8080/api/order/{date}``\
+
+* URIテンプレート変数の値：\ ``LocalDate.of(2025, 1, 1);``\
+
+* 送信時のURL：\ ``http://localhost:8080/api/order/20250101``\
+
+
+\ **UriBuilderFactoryの拡張**\
+
+.. code-block:: java
+
+    // (1)
+    public class CustomUriBuilderFactory extends DefaultUriBuilderFactory {
+
+        private static final DateTimeFormatter FORMATTER = DateTimeFormatter.ofPattern("yyyyMMdd");
+
+        // Default Constructor
+        public CustomUriBuilderFactory() {
+            super();
+        }
+
+        // Constructor with baseUri
+        public CustomUriBuilderFactory(String baseUriTemplate) {
+            super(baseUriTemplate);
+        }
+
+        // Constructor with UriComponentsBuilder
+        public CustomUriBuilderFactory(UriComponentsBuilder baseUri) {
+            super(baseUri);
+        }
+        
+        // (2)
+        @Override
+        public UriBuilder uriString(String uriTemplate) {
+            return new CustomUriBuilder(super.uriString(uriTemplate));
+        }
+
+        // (2)
+        @Override
+        public UriBuilder builder() {
+            return new CustomUriBuilder(super.builder());
+        }
+
+        // (3)
+        private class CustomUriBuilder implements UriBuilder {
+
+            private final UriBuilder delegate;
+
+            public CustomUriBuilder(UriBuilder delegate) {
+                this.delegate = delegate;
+            }
+
+            // (4)
+            @Override
+            public URI build(Map<String, ?> uriVariables) {
+                Map<String, Object> convertedUriVariables = 
+                                        uriVariables.entrySet().stream()
+                                                    .collect(Collectors.toMap(Map.Entry::getKey, this::convert));
+                return delegate.build(convertedUriVariables);
+            }
+
+            @Override
+            public URI build(Object... uriVariables) {
+                Object[] convertedUriVariables = 
+                                        Arrays.stream(uriVariables)
+                                                    .map(this::convert)
+                                                    .toArray();
+                return delegate.build(convertedUriVariables);
+            }
+
+            // (5)
+            private Object convert(Object value) {
+                if(value instanceof LocalDate date) {
+                    return FORMATTER.format(date);
+                }
+                return value;
+            }
+            
+            // Delegate all other methods to the original UriBuilder
+
+            // (6)
+            @Override
+            public UriBuilder scheme(String scheme) {
+                return delegate.scheme(scheme);
+            }
+
+            @Override
+            public UriBuilder userInfo(String userInfo) {
+                return delegate.userInfo(userInfo);
+            }
+
+            // ... other methods from UriBuilder
+        }
+    }
+
+.. tabularcolumns:: |p{0.10\linewidth}|p{0.90\linewidth}|
+.. list-table::
+  :header-rows: 1
+  :widths: 10 90
+
+  * - 項番
+    - 説明
+  * - | (1)
+    - | \ ``UriBuilderFactory``\ の実装クラスとして、\ ``CustomUriBuilderFactory``\ を生成する。
+      | 上記の例では、\ ``DefaultUriBuilderFactory``\ を拡張した実装クラスを作成して、必要なメソッドのみをオーバーライドしている。
+      | コンストラクタに関しては、\ ``DefaultUriBuilderFactory``\ と同様のコンストラクタを用意している。
+  * - | (2)
+    - | \ ``UriBuilder``\ を生成するメソッドをオーバーライドして、独自の\ ``UriBuilder``\ を生成するよう実装を行う。
+      | 変更箇所以外は\ ``DefaultUriBuilder``\ の実装をそのまま使用するため、\ ``CustomUriBuilder``\ のコンストラクタ引数にて\ ``DefaultUriBuilder``\ を引き渡すようにしている。
+  * - | (3)
+    - | \ ``UriBuilder``\ の実装クラスとして\ ``CustomUriBuilder``\ を生成する。
+  * - | (4)
+    - | \ ``build``\ メソッドにパラメータの変換処理を作成する。
+      | 上記の例では、URIテンプレート変数の値が設定されているコレクションを受け取り、全ての値に対して変換処理を行い返却を行っている。
+      | なお、カスタマイズした変換処理以外は\ ``DefaultUriBuilder``\ の実装をそのまま使用するため、\ ``DefaultUriBuilder``\ の\ ``build``\ メソッドを最後に実行している。
+  * - | (5)
+    - | (4)の各要素で呼び出す変換処理を実装する。
+      | 上記の例では、\ ``LocalDate``\ 型の場合のみ、指定したフォーマット文字列に変換して返却するようにしている。
+  * - | (6)
+    - | 変換処理以外のメソッドは、\ ``DefaultUriBuilder``\ の実装をそのまま使用するため、\ ``DefaultUriBuilder``\ のメソッドをそのまま呼び出すように実装を行う。
+
+|
+
+\ **Bean定義ファイルの定義例**\
+
+.. tabs::
+  .. group-tab:: Java Config
+
+    - \ ``ApplicationContextConfig.java``\
+
+    .. code-block:: java
+
+        // (1)
+        @Bean("customUriBuilderFactory")
+        public CustomUriBuilderFactory customUriBuilderFactory() {
+            return new CustomUriBuilderFactory();
+        }
+
+        @Bean("restTemplate")
+        public RestTemplate restTemplate() {
+            var restTemplate = new RestTemplate(new HttpComponentsClientHttpRequestFactory());
+            restTemplate.setUriTemplateHandler(customUriBuilderFactory()); // (2)
+            return restTemplate;
+        }
+        
+    .. tabularcolumns:: |p{0.10\linewidth}|p{0.90\linewidth}|
+    .. list-table::
+        :header-rows: 1
+        :widths: 10 90
+        
+        * - 項番
+          - 説明
+        * - | (1)
+          - | \ ``CustomUriBuilderFactory``\ のBeanを定義する。
+        * - | (2)
+          - | \ ``RestTemplate``\ の\ ``setUriTemplateHandler``\ メソッドに、\ ``CustomUriBuilderFactory``\ のBeanを設定する。
+
+  .. group-tab:: XML Config
+
+    - \ ``applicationContext.xml``\
+
+    .. code-block:: xml
+
+        <!-- (1) -->
+        <bean id="customUriBuilderFactory" class="org.example.restclient.custom.CustomUriBuilderFactory" />
+
+        <bean id="restTemplate" class="org.springframework.web.client.RestTemplate">
+            <constructor-arg>
+                <bean class="org.springframework.http.client.HttpComponentsClientHttpRequestFactory" />
+            </constructor-arg>
+            <property name="uriTemplateHandler" ref="customUriBuilderFactory" /> <!-- (2) -->
+        </bean>
+
+    .. tabularcolumns:: |p{0.10\linewidth}|p{0.90\linewidth}|
+    .. list-table::
+        :header-rows: 1
+        :widths: 10 90
+        
+        * - 項番
+          - 説明
+        * - | (1)
+          - | \ ``CustomUriBuilderFactory``\ のBeanを定義する。
+        * - | (2)
+          - | \ ``RestTemplate``\ の\ ``uriTemplateHandler``\ プロパティに、\ ``CustomUriBuilderFactory``\ のBeanを設定する。
+
+|
+
+.. _RestClientHowToExtendClientHttpRequestFactory:
+
+リクエスト生成処理のカスタマイズ方法（\ ``ClientHttpRequestFactory``\ ）
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+| \ ``ClientHttpRequestFactory``\ を使用したリクエスト生成処理のカスタマイズ方法について説明する。
+| タイムアウトの設定については、「\ :ref:`RestClientHowToUseTimeoutSettings`\ 」にて説明を行っているのでこちらを参照されたい。
+
+|
+
+.. _RestClientHowToUseHttps:
+
+カスタマイズしたキーストアファイルの利用(SSL/TLS)
+""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
+
+| JDKのデフォルトのキーストアファイルでは信頼できると見なせないサーバ証明書を返すサーバと通信する場合等、使用するキーストアファイルを変更したいケースがある。
+| ここでは、その一例として、SSL自己署名証明書を使用するケースを想定して説明する。
+| テスト環境などでSSL自己署名証明書を使用する場合は、以下のように実装する。
+
+\ **FactoryBeanの実装例**\
+
+| \ ``RestTemplate``\ に設定する\ ``ClientHttpRequestFactory``\ を\ ``org.springframework.beans.factory.FactoryBean``\ にて実装する。
+| サンプルコードであるため、\ ``HttpClientConnectionManager``\ や\ ``HttpClient``\ の設定値は業務要件に応じ適切に設定されたい。
+
+.. code-block:: java
+
+  import java.security.KeyStore;
+
+  import javax.net.ssl.KeyManagerFactory;
+  import javax.net.ssl.SSLContext;
+  import javax.net.ssl.TrustManagerFactory;
+
+  import org.apache.hc.client5.http.classic.HttpClient;
+  import org.apache.hc.client5.http.config.RequestConfig;
+  import org.apache.hc.client5.http.config.TlsConfig;
+  import org.apache.hc.client5.http.cookie.StandardCookieSpec;
+  import org.apache.hc.client5.http.impl.classic.CloseableHttpClient;
+  import org.apache.hc.client5.http.impl.classic.HttpClientBuilder;
+  import org.apache.hc.client5.http.impl.classic.HttpClients;
+  import org.apache.hc.client5.http.impl.io.PoolingHttpClientConnectionManager;
+  import org.apache.hc.client5.http.impl.io.PoolingHttpClientConnectionManagerBuilder;
+  import org.apache.hc.client5.http.ssl.DefaultClientTlsStrategy;
+  import org.apache.hc.core5.http.io.SocketConfig;
+  import org.apache.hc.core5.http.ssl.TLS;
+  import org.apache.hc.core5.pool.PoolConcurrencyPolicy;
+  import org.apache.hc.core5.pool.PoolReusePolicy;
+  import org.apache.hc.core5.util.TimeValue;
+  import org.apache.hc.core5.util.Timeout;
+  import org.springframework.beans.factory.DisposableBean;
+  import org.springframework.beans.factory.FactoryBean;
+  import org.springframework.http.client.ClientHttpRequestFactory;
+  import org.springframework.http.client.HttpComponentsClientHttpRequestFactory;
+
+  public class RequestFactoryBean implements
+                                  FactoryBean<ClientHttpRequestFactory>,
+                                  DisposableBean { // (18)
+
+      private String keyStoreFileName;
+
+      private char[] keyStorePassword;
+
+      private HttpComponentsClientHttpRequestFactory factory; // (18)
+
+      @Override
+      public ClientHttpRequestFactory getObject() throws Exception {
+
+          // (1)
+          SSLContext sslContext = SSLContext.getInstance("TLS");
+
+          KeyStore ks = KeyStore.getInstance(KeyStore.getDefaultType());
+          ks.load(this.getClass().getClassLoader().getResourceAsStream(
+                  this.keyStoreFileName), this.keyStorePassword);
+
+          KeyManagerFactory kmf = KeyManagerFactory.getInstance(KeyManagerFactory
+                  .getDefaultAlgorithm());
+          kmf.init(ks, this.keyStorePassword);
+
+          TrustManagerFactory tmf = TrustManagerFactory.getInstance(
+                  TrustManagerFactory.getDefaultAlgorithm());
+          tmf.init(ks);
+
+          sslContext.init(kmf.getKeyManagers(), tmf.getTrustManagers(), null);
+
+          // @formatter:off
+          PoolingHttpClientConnectionManager connectionManager = PoolingHttpClientConnectionManagerBuilder.create() // (2)
+                  .setTlsSocketStrategy(new DefaultClientTlsStrategy(sslContext)) // (3)
+                  .setDefaultTlsConfig( // (4)
+                          TlsConfig.custom()
+                          .setSupportedProtocols(TLS.V_1_3, TLS.V_1_2)
+                          .setHandshakeTimeout(Timeout.ofMilliseconds(1L))
+                          .build())
+                  .setDefaultSocketConfig( // (5)
+                          SocketConfig.custom()
+                          .setSoTimeout(Timeout.ofMinutes(1L))
+                          .build())
+                  .setMaxConnTotal(1) // (6)
+                  .setMaxConnPerRoute(1) // (7)
+                  .setPoolConcurrencyPolicy(PoolConcurrencyPolicy.STRICT) // (8)
+                  .setConnPoolPolicy(PoolReusePolicy.LIFO) // (9)
+                  .setDefaultConnectionConfig( // (10)
+                          ConnectionConfig.custom()
+                          .setTimeToLive(TimeValue.ofMinutes(1L)) // (11)
+                          .setConnectTimeout(Timeout.ofSeconds(5L)) // (12)
+                          .build())
+                  .build();
+          // @formatter:on
+
+          // @formatter:off
+          CloseableHttpClient httpClient = HttpClients.custom() // (13)
+                  .setConnectionManager(connectionManager) // (14)
+                  .setDefaultRequestConfig(
+                          RequestConfig.custom()
+                          .setResponseTimeout(Timeout.ofSeconds(10L)) // (15)
+                          .setCookieSpec(StandardCookieSpec.STRICT) // (16)
+                          .build())
+                  .build();
+          // @formatter:on
+
+          // (17)
+          this.factory = new HttpComponentsClientHttpRequestFactory(httpClient);
+
+          return this.factory;
+      }
+
+      @Override
+      public Class<?> getObjectType() {
+          return ClientHttpRequestFactory.class;
+      }
+
+      @Override
+      public boolean isSingleton() {
+          return true;
+      }
+
+      public void setKeyStoreFileName(String keyStoreFileName) {
+          this.keyStoreFileName = keyStoreFileName;
+      }
+
+      public void setKeyStorePassword(char[] keyStorePassword) {
+          this.keyStorePassword = keyStorePassword;
+      }
+
+      // (18)
+      @Override
+      public void destroy() throws Exception {
+          if (this.factory != null) {
+              this.factory.destroy();
+          }
+      }
+  }
+
+.. tabularcolumns:: |p{0.10\linewidth}|p{0.90\linewidth}|
+.. list-table::
+  :header-rows: 1
+  :widths: 10 90
+
+  * - 項番
+    - 説明
+  * - | (1)
+    - | 後述のBean定義で指定されたキーストアファイルのファイル名とパスワードを元に、SSLコンテキストを作成する。
+      | 使用するSSL自己署名証明書のキーストアファイルは、クラスパス上に配置する。
+  * - | (2)
+    - | (1)で作成したSSLコンテキストを設定するための\ :url_http_client_javadoc:`HttpClientConnectionManager </io/HttpClientConnectionManager.html>`\ を作成する。
+      | ここでは、実装クラスとして\ ``org.apache.hc.client5.http.impl.io.PoolingHttpClientConnectionManager``\ を指定している。 
+  * - | (3)
+    - | (1)で作成したSSLコンテキストを設定する。
+  * - | (4)
+    - | Tls Configのデフォルト値を設定する。
+      | \ ``Socket``\ から提供される\ ``InputStream``\ の\ ``read()``\ のブロック時間が\ :url_http_client_javadoc:`HandshakeTimeout </config/TlsConfig.Builder.html#setHandshakeTimeout-org.apache.hc.core5.util.Timeout->`\ を越えた場合、通常、\ ``java.net.SocketTimeoutException``\ が発生するが、TCPコネクション確立後、SSLハンドシェイクを行っている間にこのタイムアウトが起きた場合には、\ ``org.apache.hc.client5.http.ConnectTimeoutException``\ が発生する。
+
+      .. note:: \ **HandshakeTimeoutはSSLハンドシェイクが完了する十分な長さを確保すること。**\
+
+        SSLハンドシェイク完了前に\ ``HandshakeTimeout``\ によってタイムアウトした際に、SSLハンドシェイクが中断される(SSLハンドシェイクに関する続きの通信を行わなくなる)がTCPコネクションのcloseも行われない事象を確認している。この状態になると、サーバ側で処理を破棄しない限りサーバ側はSSLハンドシェイクの続きを待つこととなってしまう。
+
+        そのため、SSLハンドシェイク中に通信障害や通信相手のハードウェア障害等に遭遇し通信相手からのパケットが届かない時間が長く続く場合(クライアント側で通信の継続を諦めなければならない場合)以外においては、\ ``HandshakeTimeout``\ を利用したタイムアウトは避けたほうが良い。
+
+        SSLハンドシェイク完了後のHTTPSリクエストに対するレスポンスのタイムアウトには、後述の\ ``ResponseTimeout``\ が利用できるため、
+
+        * HTTPSリクエストに対する応答に関するタイムアウトには\ ``ResponseTimeout``\
+        * \ ``ResponseTimeout``\ の有効範囲外(HTTPSリクエスト送信前)となるSSLハンドシェイク中の応答に関するタイムアウトには\ ``HandshakeTimeout``\ (正常稼働時にはタイムアウトしないよう長めに設定)
+
+        という具合に使い分けること。なお、\ ``HandshakeTimeout``\ が未設定の場合は\ :url_http_client_javadoc:`ConnectTimeout </config/ConnectionConfig.Builder.html#setConnectTimeout-org.apache.hc.core5.util.Timeout->`\ が設定されている。
+
+  * - | (5)
+    - | Socket Configのデフォルト値を設定する。
+
+      .. note:: \ **SoTimeoutの設定について**\
+
+        \ ``SocketConfig.Builder``\ の\ :url_http_core:`SoTimeout </http/io/SocketConfig.Builder.html#setSoTimeout-org.apache.hc.core5.util.Timeout->`\ は、Apache HttpComponents HttpClient 5.5まではSSLハンドシェイクのタイムアウト値にも適用されていた。
+        しかしながら、バージョン5.5.1からはSSLハンドシェイクのタイムアウト値は、\ ``TlsConfig.Builder``\ の\ ``HandshakeTimeout``\ の設定を利用するように変更された。
+
+        そのため、SSLハンドシェイクのタイムアウト設定を行う場合は、(4)の\ ``HandshakeTimeout``\ に設定を行う必要がある。
+
+  * - | (6)
+    - | 最大合計接続数を設定する。
+      | 最大合計接続数を超える場合、後続処理はコネクションの取得を待機する。
+  * - | (7)
+    - | 宛先（ホスト名 + ポート番号 及び スキーマ定義）ごとの最大接続数を設定する。
+      | 最大接続数を超える場合、後続処理はコネクションの取得を待機する。
+  * - | (8)
+    - | \ :url_http_core:`プール同時実行ポリシー </pool/PoolConcurrencyPolicy.html>`\ を設定する。
+  * - | (9)
+    - | \ :url_http_core:`プールされたコネクションの再利用ポリシー </pool/PoolReusePolicy.html>`\ を設定する。
+  * - | (10)
+    - | コネクションに関連するデフォルト値を設定する。  
+  * - | (11)
+    - | コネクションが接続されてから切断されるまでの最大生存時間を設定する。
+      | 使用状況にかかわらず、\ :url_http_client_javadoc:`ConnectionTimeToLive </impl/io/PoolingHttpClientConnectionManagerBuilder.html#setConnectionTimeToLive(org.apache.hc.core5.util.TimeValue)>`\ を越えた場合にコネクションを破棄する。
+  * - | (12)
+    - | 新しい接続が確立されるまでのタイムアウトのデフォルト値を設定する。
+      | 接続の確立に\ :url_http_client_javadoc:`ConnectTimeout </config/RequestConfig.Builder.html#setConnectTimeout(org.apache.hc.core5.util.Timeout)>`\ 以上かかった場合、\ ``org.apache.hc.client5.http.HttpHostConnectException``\ が発生する。
+  * - | (13)
+    - | 作成したSSLコンテキストを利用する \ ``org.apache.hc.client5.http.impl.classic.CloseableHttpClient``\ を作成する。
+  * - | (14)
+    - | (2)で作成した\ ``HttpClientConnectionManager``\ を設定する。
+  * - | (15)
+    - | レスポンスタイムアウトのデフォルト値を設定する。
+      | レスポンス返却に\ :url_http_client_javadoc:`ResponseTimeout </config/RequestConfig.Builder.html#setResponseTimeout(org.apache.hc.core5.util.Timeout)>`\ 以上かかった場合、\ ``java.net.SocketTimeoutException``\ が発生する。
+  * - | (16)
+    - | \ :url_http_client_javadoc:`HttpClientがサポートするCookieの仕様 </cookie/StandardCookieSpec.html>`\ を設定する。
+  * - | (17)
+    - | 作成した\ ``HttpClient``\ を利用する\ ``ClientHttpRequestFactory``\ を作成する。
+  * - | (18)
+    - | \ ``FactoryBean``\ で生成したオブジェクトのライフサイクルはDIコンテナで管理されないため、破棄時に特定の処理を実行するには\ ``FactoryBean``\ に\ ``DisposableBean``\ インタフェースの\ ``destroy``\ メソッドを実装する必要がある。
+      | ここでは、\ ``getObject``\ メソッドで生成した \ ``HttpComponentsClientHttpRequestFactory``\ の\ ``destroy``\ メソッドを呼び出し、\ ``HttpClient``\ をクローズしている。このため、生成したオブジェクトを変数に保持している。
+
+.. note::
+
+  通信先のアプリケーションがTLS 1.2以前のバージョンにしか対応していない等の理由により、使用するTLSのバージョンをJVMレベルで変更するには\ :ref:`support-tls1.3-by-default-from-java11`\ を参照されたい。
+
+  ただし、JVMレベルで設定してしまうと一つのクライアントアプリからTLS 1.2とTLS 1.3を利用した別々のアプリケーションに接続するような要件を実現することができない。このような場合は、\ ``HttpClient``\ ごとに利用するTLSのバージョンを指定するような実装を検討されたい。
+
+|
+
+\ **Bean定義ファイルの定義例**\
+
+SSL自己署名証明書を使用したSSL通信を行う\ ``ClientHttpRequestFactory``\ を、\ ``RestTemplate``\ に設定する。
+
+.. tabs::
+  .. group-tab:: Java Config
+
+    - \ ``ApplicationContextConfig.java``\
+
+    .. code-block:: java
+
+        @Value("${rscl.keystore.filename}")
+        private String keystoreFilename;
+
+        @Value("${rscl.keystore.password}")
+        private String keystorePassword;
+
+        // omitted
+
+        @Bean("httpsRestTemplate")
+        public RestTemplate httpsRestTemplate() throws Exception {
+            return new RestTemplate(httpsRequestFactoryBean().getObject()); // (1)
+        }
+
+        // (1)
+        @Bean("httpsRequestFactoryBean")
+        public RequestFactoryBean httpsRequestFactoryBean() {
+            var factory = new RequestFactoryBean();
+            factory.setKeyStoreFileName(keystoreFilename);
+            factory.setKeyStorePassword(keystorePassword.toCharArray());
+            return factory;
+        }
+    
+    .. tabularcolumns:: |p{0.10\linewidth}|p{0.90\linewidth}|
+    .. list-table::
+        :header-rows: 1
+        :widths: 10 90
+    
+        * - 項番
+          - 説明
+        * - | (1)
+          - | 作成した\ ``RequestFactoryBean``\ を\ ``RestTemplate``\ のコンストラクタに指定する。
+            | \ ``RequestFactoryBean``\ には、キーストアファイルのファイル名とパスワードを渡す。
+
+  .. group-tab:: XML Config
+
+    - \ ``applicationContext.xml``\
+
+    .. code-block:: xml
+    
+        <bean id="httpsRestTemplate" class="org.springframework.web.client.RestTemplate">
+            <constructor-arg>
+                <bean class="com.example.restclient.RequestFactoryBean"> <!-- (1) -->
+                    <property name="keyStoreFileName" value="${rscl.keystore.filename}" />
+                    <property name="keyStorePassword" value="${rscl.keystore.password}" />
+                </bean>
+            </constructor-arg>
+        </bean>
+    
+    .. tabularcolumns:: |p{0.10\linewidth}|p{0.90\linewidth}|
+    .. list-table::
+        :header-rows: 1
+        :widths: 10 90
+    
+        * - 項番
+          - 説明
+        * - | (1)
+          - | 作成した\ ``RequestFactoryBean``\ を\ ``RestTemplate``\ のコンストラクタに指定する。
+            | \ ``RequestFactoryBean``\ には、キーストアファイルのファイル名とパスワードを渡す。
+
+\ **RESTクライアントの使用方法**\
+
+\ ``RestTemplate``\ の使い方については、SSL自己署名証明書を使用しない場合と同様であるため、以下を参照されたい。
+
+* \ :ref:`RestClientHowToUseGet`\
+* \ :ref:`RestClientHowToUsePost`\
+
+|
+
+.. _RestClientProxySettings:
+
+HTTP Proxyサーバの設定方法
+""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
+
+| サーバへアクセスする際にHTTP Proxyサーバを経由する必要がある場合は、システムプロパティやJVM起動引数、または\ ``RestTemplate``\ のBean定義にてHTTP Proxyサーバの設定が必要である。
+| システムプロパティやJVM起動引数に設定した場合、アプリケーション全体に影響を与えてしまうため、\ ``RestTemplate``\ 毎にHTTP Proxyサーバの設定を行う例を紹介する。
+
+| HTTP Proxyサーバの設定は、\ ``ClientHttpRequestFactory``\ インタフェースの実装クラスである\ ``HttpComponentsClientHttpRequestFactory``\ を利用して設定を行う。
+| 本項では、Proxy認証を行わない場合と、Proxy認証を行う場合の2通りの設定方法について説明する。
+
+|
+
+Proxy認証を行わない場合の設定
+''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
+
+資格情報が不要なHTTP Proxyサーバの接続先の指定については、以下の通り実装を行う。
+
+\ **Bean定義ファイル**\
+
+.. tabs::
+  .. group-tab:: Java Config
+
+    - \ ``ApplicationContextConfig.java``\
+
+    .. code-block:: java
+
+        // (2)
+        @Value("${rscl.http.proxyHost}")
+        private String httpProxyHost;
+    
+        // (3)
+        @Value("${rscl.http.proxyPort}")
+        private int httpProxyPort;
+    
+        // (1)
+        @Bean
+        public HttpHost httpHost() {
+            return new HttpHost(httpProxyHost, httpProxyPort); // (2) (3)
+        }
+
+        // (4)
+        @Bean("proxyHttpClientBuilder")
+        public HttpClientBuilder proxyHttpClientBuilder() {
+            HttpClientBuilder bean = HttpClientBuilder.create();
+            bean.setProxy(httpHost()); // (5)
+            return bean;
+        }
+
+        // (6)
+        @Bean("httpComponentsClientHttpRequestFactory")
+        public HttpComponentsClientHttpRequestFactory httpComponentsClientHttpRequestFactory() {
+            return new HttpComponentsClientHttpRequestFactory(proxyHttpClientBuilder().build()); // (7)
+        }
+    
+        // (8)
+        @Bean("proxyRestTemplate")
+        public RestTemplate proxyRestTemplate() {
+            return new RestTemplate(httpComponentsClientHttpRequestFactory()); // (9)
+        }
+        
+    .. tabularcolumns:: |p{0.10\linewidth}|p{0.90\linewidth}|
+    .. list-table::
+        :header-rows: 1
+        :widths: 10 90
+        
+        * - 項番
+          - 説明
+        * - | (1)
+          - | \ ``org.apache.hc.core5.http.HttpHost``\ にHTTP Proxyサーバの設定を行う。
+        * - | (2)
+          - | \ ``HttpHost``\ のコンストラクタ引数の\ ``hostname``\ に、プロパティファイルに設定されたキー\ ``rscl.http.proxyHost``\ の値をHTTP Proxyサーバのホスト名として設定する。
+        * - | (3)
+          - | \ ``HttpHost``\ のコンストラクタ引数の\ ``port``\ に、プロパティファイルに設定されたキー\ ``rscl.http.proxyPort``\ の値をHTTP Proxyサーバのポート番号として設定する。
+        * - | (4)
+          - | \ ``org.apache.hc.client5.http.impl.classic.HttpClientBuilder``\ を使用し、\ ``org.apache.hc.client5.http.classic.HttpClient``\ の設定を行う。
+        * - | (5)
+          - | \ ``HttpClientBuilder``\ の\ ``setProxy``\ メソッドに、\ HTTP Proxyサーバの設定を行った\ ``org.apache.hc.core5.http.HttpHost``\ を設定する。
+        * - | (6)
+          - | \ ``HttpComponentsClientHttpRequestFactory``\ にプロキシ設定を行った\ ``HttpClient``\ を設定する。
+        * - | (7)
+          - | \ ``HttpComponentsClientHttpRequestFactory``\ のコンストラクタの引数に、\ ``HttpClientBuilder``\ から生成した\ ``HttpClient``\ を設定する。
+        * - | (8)
+          - | \ ``RestTemplate``\ のBean定義を行う。
+        * - | (9)
+          - | \ ``RestTemplate``\ のコンストラクタの引数に、(6)で生成した\ ``HttpComponentsClientHttpRequestFactory``\ を設定する。
+
+
+  .. group-tab:: XML Config
+
+    - \ ``applicationContext.xml``\
+
+    .. code-block:: xml
+        
+        <!-- (4) -->
+        <bean id="proxyHttpClientBuilder" class="org.apache.hc.client5.http.impl.classic.HttpClientBuilder" factory-method="create">
+            <!-- (5) -->
+            <property name="proxy">
+                <!-- (1) -->
+                <bean class="org.apache.hc.core5.http.HttpHost">
+                    <!-- (2) -->
+                    <constructor-arg type="java.lang.String" name="hostname" value="${rscl.http.proxyHost}" />
+                    <!-- (3) -->
+                    <constructor-arg type="int" name="port" value="${rscl.http.proxyPort}" />
+                </bean>
+            </property>
+        </bean>
+        
+        <!-- (8) -->
+        <bean id="proxyRestTemplate" class="org.springframework.web.client.RestTemplate" >
+            <!-- (9) -->
+            <constructor-arg>
+                <!-- (6) -->
+                <bean class="org.springframework.http.client.HttpComponentsClientHttpRequestFactory">
+                    <!-- (7) -->
+                    <constructor-arg>
+                        <bean factory-bean="proxyHttpClientBuilder" factory-method="build" />
+                    </constructor-arg>
+                </bean>
+            </constructor-arg>
+        </bean>
+        
+    .. tabularcolumns:: |p{0.10\linewidth}|p{0.90\linewidth}|
+    .. list-table::
+        :header-rows: 1
+        :widths: 10 90
+        
+        * - 項番
+          - 説明
+        * - | (1)
+          - | \ ``org.apache.hc.core5.http.HttpHost``\ にHTTP Proxyサーバの設定を行う。
+        * - | (2)
+          - | \ ``HttpHost``\ のコンストラクタ引数の\ ``hostname``\ に、プロパティファイルに設定されたキー\ ``rscl.http.proxyHost``\ の値をHTTP Proxyサーバのホスト名として設定する。
+        * - | (3)
+          - | \ ``HttpHost``\ のコンストラクタ引数の\ ``port``\ に、プロパティファイルに設定されたキー\ ``rscl.http.proxyPort``\ の値をHTTP Proxyサーバのポート番号として設定する。
+        * - | (4)
+          - | \ ``org.apache.hc.client5.http.impl.classic.HttpClientBuilder``\ を使用し、\ ``org.apache.hc.client5.http.classic.HttpClient``\ の設定を行う。
+        * - | (5)
+          - | \ ``HttpClientBuilder``\ の\ ``proxy``\ プロパティに、\ HTTP Proxyサーバの設定を行った\ ``org.apache.hc.core5.http.HttpHost``\ を設定する。
+
+            .. warning:: \ **オーバーロードされている場合に誤ったコンストラクタが使用されることがある**\
+
+                .. TODO : 当問題に関しては https://github.com/spring-projects/spring-framework/issues/31871 で問題提起しており、Springの回答次第では記載内容を見直す必要がある
+
+                当実装例は、本来であれば以下の様に記述することが可能である。
+
+                  .. code-block:: xml
+
+                    <bean class="org.apache.hc.core5.http.HttpHost">
+                        <constructor-arg name="hostname" value="${rscl.http.proxyHost}" />
+                        <constructor-arg name="port" value="${rscl.http.proxyPort}" />
+                    </bean>
+                
+                ただし、\ :url_spring_framework_issues:`Spring#31871 </31871>`\ で報告されているように、コンストラクタがオーバーロードされている場合に想定とは異なるコンストラクタが使用されてしまう可能性がある。
+
+                そのためtype属性を設定し、明示的に使用するコンストラクタを決定している。
+
+        * - | (6)
+          - | \ ``HttpComponentsClientHttpRequestFactory``\ にプロキシ設定を行った\ ``HttpClient``\ を設定する。
+        * - | (7)
+          - | \ ``HttpComponentsClientHttpRequestFactory``\ のコンストラクタの引数に、\ ``HttpClientBuilder``\ から生成した\ ``HttpClient``\ を設定する。
+        * - | (8)
+          - | \ ``RestTemplate``\ のBean定義を行う。
+        * - | (9)
+          - | \ ``RestTemplate``\ のコンストラクタの引数に、(6)で生成した\ ``HttpComponentsClientHttpRequestFactory``\ を設定する。
+
+|
+
+Proxy認証を行う場合の設定
+''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
+
+| HTTP Proxyサーバにアクセスする際に資格情報(ユーザ名とパスワード)が必要な場合は、\ ``org.apache.http.impl.client.BasicCredentialsProvider``\ を使用し資格情報を設定する。
+| \ ``BasicCredentialsProvider``\ の\ ``setCredentials``\ メソッドが引数を2つ取るため、セッターインジェクションを利用してBeanを生成することができない。
+| このため、\ ``org.springframework.beans.factory.FactoryBean``\ を利用してBeanを生成する。
+
+\ **FactoryBeanクラス**\
+
+.. code-block:: java
+
+  import org.apache.hc.client5.http.auth.AuthScope;
+  import org.apache.hc.client5.http.auth.UsernamePasswordCredentials;
+  import org.apache.hc.client5.http.impl.auth.BasicCredentialsProvider;
+  import org.springframework.beans.factory.FactoryBean;
+  import org.springframework.beans.factory.annotation.Value;
+
+  // (1)
+  public class BasicCredentialsProviderFactoryBean implements FactoryBean<BasicCredentialsProvider> {
+
+      // (2)
+      @Value("${rscl.http.proxyHost}")
+      String host;
+
+      // (3)
+      @Value("${rscl.http.proxyPort}")
+      int port;
+
+      // (4)
+      @Value("${rscl.http.proxyUserName}")
+      String userName;
+
+      // (5)
+      @Value("${rscl.http.proxyPassword}")
+      String password;
+
+      @Override
+      public BasicCredentialsProvider getObject() throws Exception {
+
+          // (6)
+          var authScope = new AuthScope(this.host, this.port);
+
+          // (7)
+          char[] passwordCharArray = this.password == null ? null
+                  : this.password.toCharArray();
+          var usernamePasswordCredentials = new UsernamePasswordCredentials(this.userName, passwordCharArray);
+
+          // (8)
+          var credentialsProvider = new BasicCredentialsProvider();
+
+          credentialsProvider.setCredentials(authScope,
+                  usernamePasswordCredentials);
+          
+          return credentialsProvider;
+      }
+
+      @Override
+      public Class<?> getObjectType() {
+          return BasicCredentialsProvider.class;
+      }
+
+      @Override
+      public boolean isSingleton() {
+          return true;
+      }
+  }
+
+.. tabularcolumns:: |p{0.10\linewidth}|p{0.90\linewidth}|
+.. list-table::
+  :header-rows: 1
+  :widths: 10 90
+
+  * - 項番
+    - 説明
+  * - | (1)
+    - | \ ``org.springframework.beans.factory.FactoryBean``\ を実装した\ ``BasicCredentialsProviderFactoryBean``\ クラスを定義する。
+      | Beanの型に\ ``BasicCredentialsProvider``\ を設定する。
+  * - | (2)
+    - | プロパティファイルに設定されたキー\ ``rscl.http.proxyHost``\ の値をHTTP Proxyサーバのホスト名として、インスタンス変数に設定する。
+  * - | (3)
+    - | プロパティファイルに設定されたキー\ ``rscl.http.proxyPort``\ の値をHTTP Proxyサーバのポート番号として、インスタンス変数に設定する。
+  * - | (4)
+    - | プロパティファイルに設定されたキー\ ``rscl.http.proxyUserName``\ の値をHTTP Proxyサーバのユーザ名として、インスタンス変数に設定する。
+  * - | (5)
+    - | プロパティファイルに設定されたキー\ ``rscl.http.proxyPassword``\ の値をHTTP Proxyサーバのパスワードとして、インスタンス変数に設定する。
+  * - | (6)
+    - | \ ``org.apache.http.auth.AuthScope`` \ を作成し資格情報のスコープを設定する。この例は、HTTP Proxyサーバのホスト名とポート番号を指定したものである。その他の設定方法については、\ :url_http_client:`AuthScope (Apache HttpClient API) </>`\ を参照されたい。
+  * - | (7)
+    - | \ ``org.apache.http.auth.UsernamePasswordCredentials``\ を作成し資格情報を設定する。
+  * - | (8)
+    - | \ ``org.apache.http.impl.client.BasicCredentialsProvider``\ を作成し、\ ``setCredentials``\ メソッドを使用し、資格情報のスコープと資格情報を設定する。
+
+\ **Bean定義ファイル**\
+
+.. tabs::
+  .. group-tab:: Java Config
+
+    - \ ``ApplicationContextConfig.java``\
+
+    .. code-block:: java
+
+        // (1)
+        @Bean
+        public BasicCredentialsProviderFactoryBean basicCredentialsProviderFactoryBean() {
+            return new BasicCredentialsProviderFactoryBean();
+        }
+
+        @Bean
+        public HttpHost httpHost() {
+            return new HttpHost(httpProxyHost, httpProxyPort);
+        }
+
+        @Bean("proxyHttpClientBuilder")
+        public HttpClientBuilder proxyHttpClientBuilder() throws Exception {
+            HttpClientBuilder bean = HttpClientBuilder.create();
+            bean.setDefaultCredentialsProvider(basicCredentialsProviderFactoryBean().getObject()); // (1)
+            bean.setProxy(httpHost());
+            return bean;
+        }
+
+        @Bean("httpComponentsClientHttpRequestFactory")
+        public HttpComponentsClientHttpRequestFactory httpComponentsClientHttpRequestFactory() {
+            return new HttpComponentsClientHttpRequestFactory(proxyHttpClientBuilder()
+                    .build());
+        }
+
+        @Bean("proxyRestTemplate")
+        public RestTemplate proxyRestTemplate() {
+            return new RestTemplate(httpComponentsClientHttpRequestFactory());
+        }
+
+    .. tabularcolumns:: |p{0.10\linewidth}|p{0.90\linewidth}|
+    .. list-table::
+        :header-rows: 1
+        :widths: 10 90
+        
+        * - 項番
+          - 説明
+        * - | (1)
+          - | \ ``HttpClientBuilder``\ の\ ``setDefaultCredentialsProvider``\ メソッドに、\ ``BasicCredentialsProvider``\ を設定する。
+            | \ ``BasicCredentialsProvider``\ は、\ ``FactoryBean``\ を実装した\ ``BasicCredentialsProviderFactoryBean``\ を使用しBeanを作成する。
+
+  .. group-tab:: XML Config
+
+    - \ ``applicationContext.xml``\
+
+    .. code-block:: xml
+        
+        <bean id="proxyHttpClientBuilder" class="org.apache.hc.client5.http.impl.classic.HttpClientBuilder" factory-method="create">
+            <!-- (1) -->
+            <property name="defaultCredentialsProvider">
+                <bean class="com.example.restclient.BasicCredentialsProviderFactoryBean" />
+            </property>
+            <property name="proxy">
+                <bean class="org.apache.hc.core5.http.HttpHost">
+                    <constructor-arg type="java.lang.String" name="hostname" value="${rscl.http.proxyHost}" />
+                    <constructor-arg type="int" name="port" value="${rscl.http.proxyPort}" />
+                </bean>
+            </property>
+        </bean>
+        
+        <bean id="proxyRestTemplate" class="org.springframework.web.client.RestTemplate">
+            <constructor-arg>
+                <bean class="org.springframework.http.client.HttpComponentsClientHttpRequestFactory">
+                    <constructor-arg>
+                        <bean factory-bean="proxyHttpClientBuilder" factory-method="build" />
+                    </constructor-arg>
+                </bean>
+            </constructor-arg>
+        </bean>
+        
+    .. tabularcolumns:: |p{0.10\linewidth}|p{0.90\linewidth}|
+    .. list-table::
+        :header-rows: 1
+        :widths: 10 90
+        
+        * - 項番
+          - 説明
+        * - | (1)
+          - | \ ``HttpClientBuilder``\ の\ ``defaultCredentialsProvider``\ プロパティに、\ ``BasicCredentialsProvider``\ を設定する。
+            | \ ``BasicCredentialsProvider``\ は、\ ``FactoryBean``\ を実装した\ ``BasicCredentialsProviderFactoryBean``\ を使用しBeanを作成する。
+
+|
+
+.. _RestClientHowToExtendHttpMessageConverter:
+
+メッセージ変換処理の設定（\ ``HttpMessageConverter``\ ）
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+カスタムメッセージコンバータの登録
+""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
+
+| デフォルトで登録されている \ ``HttpMessageConverter``\ で電文変換の要件を満たせない場合は、カスタマイズした \ ``HttpMessageConverter``\ を作成、登録することで要件に対応する事ができる。
+| ただし、カスタマイズしたメッセージコンバータを登録すると、デフォルトで利用されていた \ ``HttpMessageConverter``\ は利用されなくなる。このため、カスタムメッセージコンバータ以外にも、要件を満たすためのメッセージコンバータが必要な場合は、必要な\ ``HttpMessageConverter``\ 実装をすべて登録する必要がある。
+| カスタムメッセージコンバータを利用するには以下のように実装する。
+
+
+\ **カスタムメッセージコンバータの作成**\
+
+.. code-block:: java
+
+    import java.io.IOException;
+    import java.lang.reflect.Type;
+
+    import org.jspecify.annotations.Nullable;
+    import org.springframework.http.HttpInputMessage;
+    import org.springframework.http.HttpOutputMessage;
+    import org.springframework.http.converter.AbstractGenericHttpMessageConverter;
+    import org.springframework.http.converter.HttpMessageNotReadableException;
+    import org.springframework.http.converter.HttpMessageNotWritableException;
+
+    // (1)
+    public class CustomHttpMessageConverter extends AbstractGenericHttpMessageConverter<Object> {
+
+        public CustomHttpMessageConverter() {
+            // (2)
+            super(new MediaType("text", "custom-format"), new MediaType("application", "custom-format"));
+        }
+
+        // (3)
+        @Override
+        protected void writeInternal(Object t, @Nullable Type type, HttpOutputMessage outputMessage)
+                throws IOException, HttpMessageNotWritableException {
+            // omitted
+        }
+
+        // (3)
+        @Override
+        protected Object readInternal(Class<? extends Object> clazz, HttpInputMessage inputMessage)
+                throws IOException, HttpMessageNotReadableException {
+            // omitted
+        }
+
+        // (3)
+        @Override
+        public Object read(Type type, @Nullable Class<?> contextClass, HttpInputMessage inputMessage)
+                throws IOException, HttpMessageNotReadableException {
+            // omitted
+        }
+
+        // omitted
+
+    }
+
+.. tabularcolumns:: |p{0.10\linewidth}|p{0.90\linewidth}|
+.. list-table::
+  :header-rows: 1
+  :widths: 10 90
+    
+  * - 項番
+    - 説明
+  * - | (1)
+    - | \ ``org.springframework.http.converter.AbstractGenericHttpMessageConverter``\ を継承した実装クラスを作成する。
+      | \ ``AbstractGenericHttpMessageConverter``\ は\ ``GenericHttpMessageConverter``\ インターフェースを実装した抽象クラスであり、「\ :ref:`RestClientHowToUseGetCollection`\ 」で説明した\ ``ParameterizedTypeReference``\ を利用したコレクション型を扱うことができる。
+  * - | (2)
+    - | 本コンバータが対応する\ ``MediaType``\ を設定する。
+      | なお、複数の\ ``MediaType``\ に対応する場合は、配列で複数指定する必要がある。
+  * - | (3)
+    - | 要件にあわせて変換処理を実装する。
+      | メソッドの説明は、\ :url_spring_javadoc:`AbstractGenericHttpMessageConverterのJavadoc </org/springframework/http/converter/AbstractGenericHttpMessageConverter.html>`\ を参照されたい。
+ 
+.. Spring7.0対応：HttpMessageConverters.ClientBuilderを使ってConverterを登録するように変更された
+
+\ **Bean定義ファイルの定義例**\
+
+.. tabs::
+    .. group-tab:: Java Config
+
+        - \ ``ApplicationContextConfig.java``\
+
+        .. code-block:: java
+
+            // (1)
+            @Bean("customHttpMessageConverter")
+            public CustomHttpMessageConverter customHttpMessageConverter() {
+                return new CustomHttpMessageConverter();
+            }
+        
+            @Bean("restTemplate")
+            public RestTemplate restTemplate() {
+                var bean = new RestTemplate(new HttpComponentsClientHttpRequestFactory());
+                List<HttpMessageConverter<?>> converters = new ArrayList<>();
+                // omitted: Default HttpMessageConverters registration
+                converters.add(customHttpMessageConverter()); // (2)
+                bean.setMessageConverters(converters); // (3)
+                return bean;
+            }
+        
+        .. tabularcolumns:: |p{0.10\linewidth}|p{0.90\linewidth}|
+        .. list-table::
+            :header-rows: 1
+            :widths: 10 90
+        
+            * - 項番
+              - 説明
+            * - | (1)
+              - | カスタムメッセージコンバータのBeanを定義する。
+            * - | (2)
+              - | \ ``List``\ に(1)で定義したBeanを追加する。
+                | カスタムメッセージコンバータ以外の\ ``HttpMessageConverter``\ の登録は省略しているが、必要に応じて登録を行うこと。
+            * - | (3)
+              - | \ ``RestTemplate``\ の\ ``setMessageConverters``\ メソッドを使用して、\ ``HttpMessageConverter``\ のリストを設定する。
+
+    .. group-tab:: XML Config
+
+        - \ ``applicationContext.xml``\
+
+        .. code-block:: xml
+        
+            <!-- (1) -->
+            <bean id="customHttpMessageConverter" class="com.example.restclient.CustomHttpMessageConverter" />
+        
+            <bean id="restTemplate" class="org.springframework.web.client.RestTemplate">
+                <constructor-arg>
+                    <bean class="org.springframework.http.client.HttpComponentsClientHttpRequestFactory" />
+                </constructor-arg>
+                <property name="messageConverters"> <!-- (3) -->
+                    <list>
+                        <!-- omitted: Default HttpMessageConverters registration -->
+                        <ref bean="customHttpMessageConverter" />  <!-- (2) -->
+                    </list>
+                </property>
+            </bean>
+        
+        .. tabularcolumns:: |p{0.10\linewidth}|p{0.90\linewidth}|
+        .. list-table::
+            :header-rows: 1
+            :widths: 10 90
+        
+            * - 項番
+              - 説明
+            * - | (1)
+              - | カスタムメッセージコンバータのBeanを定義する。
+            * - | (2)
+              - | \ ``List``\ に(1)で定義したBeanを追加する。
+                | カスタムメッセージコンバータ以外の\ ``HttpMessageConverter``\ の登録は省略しているが、必要に応じて登録を行うこと。
+            * - | (3)
+              - | \ ``RestTemplate``\ の\ ``messageConverters``\ プロパティを使用して、\ ``HttpMessageConverter``\ のリストを設定する。
+
+|
+
+.. _RestClientHowToExtendClientHttpRequestInterceptor:
+
+リクエスト送信前後の共通処理の適用（\ ``ClientHttpRequestInterceptor``\ ）
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+| \ ``ClientHttpRequestInterceptor``\ を使用することで、サーバとの通信処理の前後に任意の処理を実行させることができる。
+| ここでは、リクエスト送信前後のログ出力処理を適用する方法を紹介する。
+
+リクエスト送信前後のロギング処理
+""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
+
+サーバとの通信ログを出力したい場合は、以下のような実装を行う。
+
+\ **通信ログ出力の実装例**\
+
+\ **ClientHttpRequestInterceptorの実装**\
+
+.. code-block:: java
+
+    package com.example.restclient;
+
+    import java.io.IOException;
+    import java.nio.charset.StandardCharsets;
+
+    import org.slf4j.Logger;
+    import org.slf4j.LoggerFactory;
+    import org.springframework.http.HttpRequest;
+    import org.springframework.http.client.ClientHttpRequestExecution;
+    import org.springframework.http.client.ClientHttpRequestInterceptor;
+    import org.springframework.http.client.ClientHttpResponse;
+
+    public class LoggingInterceptor implements ClientHttpRequestInterceptor { // (1)
+
+        private static final Logger logger = LoggerFactory.getLogger(LoggingInterceptor.class);
+
+        @Override
+        public ClientHttpResponse intercept(HttpRequest request, byte[] body,
+                ClientHttpRequestExecution execution) throws IOException {
+
+            if (logger.isInfoEnabled()) {
+                var requestBody = new String(body, StandardCharsets.UTF_8);
+                // (2)
+                logger.info("Request Header {}", request.getHeaders());
+                logger.info("Request Body {}", requestBody);
+            }
+
+            ClientHttpResponse response = execution.execute(request, body); // (3)
+
+            if (logger.isInfoEnabled()) {
+                // (4)
+                logger.info("Response Header {}", response.getHeaders());
+                logger.info("Response Status Code {}", response.getStatusCode());
+            }
+
+            return response; // (5)
+        }
+
+    }
+
+.. tabularcolumns:: |p{0.10\linewidth}|p{0.90\linewidth}|
+.. list-table::
+    :header-rows: 1
+    :widths: 10 90
+
+    * - 項番
+      - 説明
+    * - | (1)
+      - | \ ``org.springframework.http.client.ClientHttpRequestInterceptor``\ インタフェースを実装する。
+    * - | (2)
+      - | リクエスト送信前の共通処理を実装する。
+        | 上記の実装例では、リクエストヘッダとリクエストボディの内容をログに出力している。
+    * - | (3)
+      - | \ ``intercept``\ メソッドの引数として受け取った\ ``org.springframework.http.client.ClientHttpRequestExecution``\ の\ ``execute``\ メソッドを実行し、リクエストの送信を行う。
+    * - | (4)
+      - | レスポンス受信後の共通処理を実装する。
+        | 上記の実装例では、レスポンスヘッダとステータスコードの内容をログに出力している。
+    * - | (5)
+      - | (3)で受信したレスポンスを返却する。
+
+\ **Bean定義ファイルの定義例**\
+
+.. tabs::
+  .. group-tab:: Java Config
+
+    - \ ``ApplicationContextConfig.java``\
+
+    .. code-block:: java
+
+        // (1)
+        @Bean("loggingInterceptor")
+        public LoggingInterceptor loggingInterceptor() {
+            return new LoggingInterceptor();
+        }
+
+        @Bean("restTemplate")
+        public RestTemplate restTemplate() {
+            var bean = new RestTemplate(new HttpComponentsClientHttpRequestFactory());
+            bean.setInterceptors(List.of(loggingInterceptor())); // (2)
+            return bean;
+        }
+
+    .. tabularcolumns:: |p{0.10\linewidth}|p{0.90\linewidth}|
+    .. list-table::
+        :header-rows: 1
+        :widths: 10 90
+    
+        * - 項番
+          - 説明
+        * - | (1)
+          - | \ ``ClientHttpRequestInterceptor``\ の実装クラスのBean定義を行う。
+        * - | (2)
+          - | \ ``RestTemplate``\ の\ ``setInterceptors``\ メソッドに\ ``ClientHttpRequestInterceptor``\ の\ ``List``\ を設定する。
+
+  .. group-tab:: XML Config
+
+    - \ ``applicationContext.xml``\
+
+    .. code-block:: xml
+    
+        <!-- (1) -->
+        <bean id="loggingInterceptor" class="com.example.restclient.LoggingInterceptor" />
+
+        <bean id="restTemplate" class="org.springframework.web.client.RestTemplate">
+            <constructor-arg>
+                <bean class="org.springframework.http.client.HttpComponentsClientHttpRequestFactory" />
+            </constructor-arg>
+            <property name="interceptors"><!-- (2) -->
+                <list>
+                    <ref bean="loggingInterceptor" />
+                </list>
+            </property>
+        </bean>
+
+    .. tabularcolumns:: |p{0.10\linewidth}|p{0.90\linewidth}|
+    .. list-table::
+        :header-rows: 1
+        :widths: 10 90
+    
+        * - 項番
+          - 説明
+        * - | (1)
+          - | \ ``ClientHttpRequestInterceptor``\ の実装クラスのBean定義を行う。
+        * - | (1)
+          - | \ ``interceptors``\ プロパティに\ ``ClientHttpRequestInterceptor``\ の\ ``List``\ をインジェクションする。
+
+|
+
+.. _RestClientHowToExtendMultiClientHttpRequestInterceptor:
+
+複数の\ ``ClientHttpRequestInterceptor``\ を適用する方法
+""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
+
+| 複数の\ ``ClientHttpRequestInterceptor``\ を適用するには、以下のような実装を行う。
+
+\ **Bean定義ファイルの定義例**\
+
+.. tabs::
+  .. group-tab:: Java Config
+
+    - \ ``ApplicationContextConfig.java``\
+
+    .. code-block:: java
+
+        @Bean("loggingInterceptor")
+        public LoggingInterceptor loggingInterceptor() {
+            return new LoggingInterceptor();
+        }
+
+        @Bean("customInterceptor")
+        public CustomInterceptor customInterceptor() {
+            return new CustomInterceptor();
+        }
+
+        @Bean("restTemplate")
+        public RestTemplate restTemplate() {
+            var bean = new RestTemplate(new HttpComponentsClientHttpRequestFactory());
+            bean.setInterceptors(List.of(loggingInterceptor(), customInterceptor()));  // (1)
+            return bean;
+        }
+
+    .. tabularcolumns:: |p{0.10\linewidth}|p{0.90\linewidth}|
+    .. list-table::
+        :header-rows: 1
+        :widths: 10 90
+    
+        * - 項番
+          - 説明
+        * - | (1)
+          - | \ ``RestTemplate``\ の\ ``setInterceptors``\ メソッドに\ ``ClientHttpRequestInterceptor``\ の\ ``List``\ を設定する。
+            | \ ``List``\ に追加した順番で\ ``ClientHttpRequestInterceptor``\ のチェーンが実行される。
+            | 上記の例では、リクエスト送信前はloggingInterceptor、customInterceptorの順に実行され、レスポンス受信後はcustomInterceptor、loggingInterceptorの順に実行される。
+
+  .. group-tab:: XML Config
+
+    - \ ``applicationContext.xml``\
+
+    .. code-block:: xml
+    
+        <bean id="loggingInterceptor" class="com.example.restclient.LoggingInterceptor" />
+
+        <bean id="customInterceptor" class="com.example.restclient.CustomInterceptor" />
+
+        <bean id="restTemplate" class="org.springframework.web.client.RestTemplate">
+            <constructor-arg>
+                <bean class="org.springframework.http.client.HttpComponentsClientHttpRequestFactory" />
+            </constructor-arg>
+            <property name="interceptors"><!-- (1) -->
+                <list>
+                    <ref bean="loggingInterceptor" />
+                    <ref bean="customInterceptor" />
+                </list>
+            </property>
+        </bean>
+
+    .. tabularcolumns:: |p{0.10\linewidth}|p{0.90\linewidth}|
+    .. list-table::
+        :header-rows: 1
+        :widths: 10 90
+    
+        * - 項番
+          - 説明
+        * - | (1)
+          - | \ ``RestTemplate``\ の\ ``interceptors``\ プロパティに\ ``ClientHttpRequestInterceptor``\ の\ ``List``\ を設定する。
+            | \ ``List``\ に追加した順番で\ ``ClientHttpRequestInterceptor``\ のチェーンが実行される。
+            | 上記の例では、リクエスト送信前はloggingInterceptor、customInterceptorの順に実行され、レスポンス受信後はcustomInterceptor、loggingInterceptorの順に実行される。
+
+|
+
+.. _RestClientAppendix:
+
+Appendix
+--------------------------------------------------------------------------------
+
+.. _RestClientHowToUseRestFull:
+
+\ ``RestTemplate``\ にてURIテンプレートを扱う方法と実装例
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+| \ ``RestTemplate``\ にてURIテンプレートを扱うには、\ ``RestTemplate``\ の呼び出すメソッドにより対応方法が異なるため、メソッド毎に説明を行う。
+| \ ``getForObject``\ メソッドと\ ``exchange``\ メソッドの違いについては、「\ :ref:`RestClientHowToUseGet`\」を参照されたい。
+
+\ **getForObjectメソッドでの使用例**\
+
+| \ ``getForObject``\ メソッドでURLを直接渡す場合は、\ ``RestTemplate``\ の内部で\ ``UriBuilderFactory``\ が使用されるため、URIテンプレートとURIテンプレート変数の値を使ったURL文字列の生成が自動で行われる。
+| したがって、本メソッドを使用した場合は、特に意識せずURIテンプレートとURIテンプレート変数の値を引数で指定することでRESTfulなURLを実現できる。
+
+フィールド宣言部
+
+.. code-block:: java
+
+  @Value("${api.serverUrl}/api/users/{userId}") // (1)
+  String uriStr;
+
+メソッド内部
+
+.. code-block:: java
+
+    User user = restTemplate.getForObject(uriStr, User.class, "0001"); // (2)
+
+.. tabularcolumns:: |p{0.10\linewidth}|p{0.90\linewidth}|
+.. list-table::
+  :header-rows: 1
+  :widths: 10 90
+
+  * - 項番
+    - 説明
+  * - | (1)
+    - | URIテンプレートの変数{userId}は、\ ``RestTemplate``\ の使用時に指定の値に変換される。
+  * - | (2)
+    - | URIテンプレートの変数1つ目が\ ``getForObject``\ メソッドの第3引数に指定した値で置換され、『\ ``http://localhost:8080/api/users/0001``\ 』として処理される。
+
+|
+
+\ **exchangeメソッドでの使用例**\
+
+| \ ``exchange``\ メソッドで\ ``RequestEntity``\ を渡す場合は、\ ``RestTemplate``\ にて\ ``UriBuilderFactory``\ は使用されないため、URIテンプレートとURIテンプレート変数の値を使ったURL文字列の生成が自動で行われない。
+| したがって、本メソッドを使用した場合は、\ ``UriComponentsBuilder``\ を使用して明示的にURLを構築する必要がある。
+
+フィールド宣言部
+
+.. code-block:: java
+
+  @Value("${api.serverUrl}/api/users/{action}") // (1)
+  String uriStr;
+
+メソッド内部
+
+.. code-block:: java
+
+  URI targetUri = UriComponentsBuilder.fromUriString(uriStr).
+          buildAndExpand("create").toUri(); //(2)
+
+  var user = new User();
+
+  // omitted
+
+  RequestEntity<User> requestEntity = RequestEntity
+          .post(targetUri)
+          .body(user);
+
+  ResponseEntity<User> responseEntity = restTemplate.exchange(requestEntity, User.class);
+
+.. tabularcolumns:: |p{0.10\linewidth}|p{0.90\linewidth}|
+.. list-table::
+  :header-rows: 1
+  :widths: 10 90
+
+  * - 項番
+    - 説明
+  * - | (1)
+    - | URIテンプレートの変数{action}は、\ ``RestTemplate``\ の使用時に指定の値に変換される。
+  * - | (2)
+    - | \ ``UriComponentsBuilder``\ を使用することで、URIテンプレートの変数1つ目が\ ``buildAndExpand``\ の引数で指定した値に置換され、『\ ``http://localhost:8080/api/users/create``\ 』のURIが作成される。
+      | 詳細は\ :url_spring_javadoc:`UriComponentsBuilderのJavadoc </org/springframework/web/util/UriComponentsBuilder.html>`\ を参照されたい。
+
+|
+
+.. _AsyncDescription:
+
+非同期通信の利用について
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+| 非同期通信に関しては、Spring Framework 6.0から\ ``AsyncRestTemplate``\ が削除されており、Spring Web Reactive APIの\ :url_spring_reference:`WebClient </integration/rest-clients.html#rest-webclient>`\ を使用するように案内されているため、非同期通信を行う場合は\ ``WebClient``\ を使用する必要がある。
+| \ ``WebClient``\ は、\ ``Spring WebFlux``\ に含まれるRESTクライアント実装であり、非同期かつリアクティブプログラミングをサポートしたRESTクライアント実装である。
+| \ |framework_name|\ では\ ``AsyncRestTemplate``\ の代替機能として\ ``WebClient``\ を案内しているだけであり、Spring Web Reactiveを完全にサポートしているわけではない点に注意されたい。
+|
+| \ ``WebClient``\ や、\ ``WebClient``\ で使用される\ ``Reactor Netty``\ に関する詳細は以下を参照されたい。
+
+| \ ``WebClient``\ に関する参考情報
+
+* \ :url_spring_reference:`WebClientのリファレンス </web/webflux-webclient.html>`\
+* \ :url_spring_javadoc:`WebClientのJavadoc </org/springframework/web/reactive/function/client/WebClient.html>`\
+
+| \ ``Reactor Netty``\ に関する参考情報
+
+* \ :url_reactor_reference:`Reactor Netty </about-doc.html>`\
+
+|
+
+.. _AsyncSetup:
+
+非同期通信のセットアップ
+""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
+
+| 非同期通信の利用に関しては、以下の手順でセットアップを行う。
+
+.. tabularcolumns:: |p{0.10\linewidth}|p{0.90\linewidth}|
+.. list-table::
+  :header-rows: 1
+  :widths: 10 90
+
+  * - 項番
+    - 手順
+  * - | (1)
+    - | \ ``pom.xml``\ に\ ``Spring WebFlux``\ の依存関係を追加する。
+  * - | (2)
+    - | \ ``WebClient``\ のBean定義を行い、DIコンテナに登録する。
+  * - | (3)
+    - | \ ``WebClient``\ を利用するコンポーネントにて、(2)のBeanをインジェクションする。
+
+|
+
+
+依存ライブラリ設定
+''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
+
+| \ ``WebClient``\ を使用するために\ ``pom.xml``\ に、Spring Frameworkのspring-webfluxライブラリを追加する。
+| マルチプロジェクト構成の場合は、domainプロジェクトの\ ``pom.xml``\ に追加する。
+
+.. code-block:: xml
+
+  <dependencies>
+
+      <!-- (1) -->
+      <dependency>
+          <groupId>org.springframework</groupId>
+          <artifactId>spring-webflux</artifactId>
+      </dependency>
+      <!-- (2) -->
+      <dependency>
+    	    <groupId>io.projectreactor.netty</groupId>
+    	    <artifactId>reactor-netty</artifactId>
+      </dependency>
+
+  </dependencies>
+
+.. tabularcolumns:: |p{0.10\linewidth}|p{0.90\linewidth}|
+.. list-table::
+  :header-rows: 1
+  :widths: 10 90
+
+  * - 項番
+    - 説明
+  * - | (1)
+    - | \ ``spring-webflux``\ ライブラリをdependenciesに追加する。
+  * - | (1)
+    - | \ ``reactor-netty``\ ライブラリをdependenciesに追加する。
+
+|
+
+.. _AsyncBeanDefinition:
+
+\ ``WebClient``\ のBean定義
+''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
+| \ ``WebClient``\ のBean定義を行い、DIコンテナに登録する。
+| 
+
+\ **Bean定義の実装例(WebClientConfig.java)**\
+
+.. code-block:: java
+
+  @Configuration
+  public class WebClientConfig {
+
+      @Bean
+      public WebClient defaultWebClient() {
+          // (1)
+          return WebClient.builder().build();
+      }
+
+  }
+
+.. tabularcolumns:: |p{0.10\linewidth}|p{0.90\linewidth}|
+.. list-table::
+  :header-rows: 1
+  :widths: 10 90
+
+  * - 項番
+    - 説明
+  * - | (1)
+    - | \ ``WebClient.Builder``\ を\ ``build``\ することで\ ``WebClient``\ を生成しBeanとして登録する。
+      | \ ``WebClient.Builder``\ はオプションを付けることでカスタマイズすることが可能である。
+      | 設定できるオプションは以下の通り。
+
+      .. tabularcolumns:: |p{0.10\linewidth}|p{0.90\linewidth}|
+      .. list-table::
+        :header-rows: 1
+        :widths: 30 70
+
+        * - Configuration
+          - 説明
+        * - | uriBuilderFactory
+          - | ベースURLとして使用するUriBuilderFactoryをカスタマイズ。
+        * - | defaultUriVariables
+          - | URIテンプレートを展開する際に使用するデフォルト値。
+        * - | defaultHeader
+          - | リクエストのHeader。
+        * - | defaultCookie
+          - | リクエストごとのCookie。
+        * - | defaultRequest
+          - | リクエストをカスタマイズ。
+        * - | filter
+          - | リクエスト時に使用されるFilter
+        * - | exchangeStrategies
+          - | HTTP MessageのReader/Writerをカスタマイズ。
+        * - | clientConnector
+          - | HTTP Client ライブラリを設定。
+
+|
+
+非同期通信のデータ登録
+""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
+
+| 非同期通信を利用したケースとして、同期処理の中でデータ登録のみを非同期で通信する実装例を説明する。
+| ユースケースとしては、処理を完了させるまでに時間がかかるREST APIへのアクセスを非同期で行うケースを想定したものである。
+|
+| なお、本項では非同期通信の説明として\ ``CompletableFuture``\ を使用した実装にて説明を行っているが、\ ``Mono``\ や\ ``Flux``\ のみを使用した実装も可能である。
+| \ ``Mono``\ や\ ``Flux``\ の仕様については、以下を参照されたい。
+
+* \ :url_reactor_javadoc:`reactor.core.publisher.Mono （API Document） </Mono.html>`\ 
+* \ :url_reactor_javadoc:`reactor.core.publisher.Flux （API Document） </Flux.html>`\ 
+
+| 
+
+\ **CompletableFutureを利用したデータの登録**\
+
+| \ ``java.util.concurrent.CompletableFuture``\ は、JDKが提供する非同期処理を行うためのクラスである。
+| Spring Frameworkの\ ``WebClient``\ などのリアクティブAPIと統合して利用する場合は、\ ``Mono``\ や\ ``Flux``\ からの結果をバイパスするために利用される。
+| 実際には\ ``Mono``\ や\ ``Flux``\ の処理が動作した後に\ ``CompletableFuture``\ にデータを渡されており、\ ``CompletableFuture``\ がリアクティブ処理を隠蔽しているため、従来型の非同期処理として実装を行える。
+| \ ``CompletableFuture``\ の詳しい仕様は、「\ :url_javase17:`CompletableFutureのJavadoc </docs/api/java.base/java/util/concurrent/CompletableFuture.html>`\ 」を参照されたい。
+| 
+
+.. code-block:: java
+
+    CompletableFuture<ResponseEntity<Void>> future =  // (1)
+            webClient.post()  // (2)
+                    .uri(url)
+                    .bodyValue(users)  // (3)
+                    .retrieve()  // (4)
+                    .toBodilessEntity()  // (5)
+                    .toFuture();  // (6)
+
+    future.handle((r, t) -> {  // (7)
+        if (t == null) {  // (8)
+            // 成功のレスポンスが返ってきた場合の処理を実装
+        } else {  // (9)
+            // エラーが発生した場合の処理を実装
+        }
+        return null;
+    });
+
+    // omitted
+
+.. tabularcolumns:: |p{0.10\linewidth}|p{0.90\linewidth}|
+.. list-table::
+  :header-rows: 1
+  :widths: 10 90
+
+  * - 項番
+    - 説明
+  * - | (1)
+    - | 返却値に\ ``CompletableFuture``\ を指定し、非同期通信のレスポンスを受け取る。
+      | 上記の例では、レスポンスボディは不要なため\ ``CompletableFuture``\ の型引数には、\ ``ResponseEntity<Void>``\ を指定している。
+  * - | (2)
+    - | \ ``post``\ メソッドを使用してHTTPメソッドにPOSTを設定する。
+  * - | (3)
+    - | \ ``RequestBodyUriSpec``\ の\ ``bodyValue``\ メソッドを使用してリクエストボディを設定する。
+  * - | (4)
+    - | \ ``RequestBodyUriSpec``\ の\ ``retrieve``\ メソッドを使用してレスポンスのストリームを作成する。
+  * - | (5)
+    - | \ ``ResponseSpec``\ の\ ``toBodilessEntity``\ メソッドを使用して、ストリームで扱うデータ型を指定する。
+      | 上記の場合は、レスポンスボディを扱わないため\ ``Mono<ResponseEntity<Void>>``\ 型のレスポンスのストリームを取得している。
+  * - | (6)
+    - | \ ``Mono``\ の\ ``toFuture``\ メソッドを使用して、\ ``CompletableFuture``\ 型に変換を行う。
+      | このタイミングで、内部的に\ ``Mono``\ の\ ``subscribe``\ が実行され、非同期通信が開始される。
+  * - | (7)
+    - | \ ``CompletableFuture``\ の\ ``handle``\ メソッドに、処理結果に応じた処理を実装する。
+      | \ ``handle``\ メソッドは、正常終了した場合と異常終了した場合の両方で呼び出されるため、エラーが発生したかどうかは例外の有無で判断を行う。
+      | 上記の場合、\ ``handle``\ メソッドの関数の引数には、\ ``ResponseEntity``\ と\ ``Throwable``\ が渡されるため、第二引数の\ ``Throwable``\ を参照してエラーの有無を判断している。
+      
+      .. tip::
+
+        同期通信に変更したい場合は、\ ``handle``\ メソッドからメソッドチェーンで\ ``get``\ メソッドを呼び出すことで処理結果の待ち合わせを行うことができる。
+
+  * - | (8)
+    - | 成功時の処理を実装する。
+  * - | (9)
+    - | エラーが発生した場合の処理を実装する。
+
+|
+
+.. _AsyncHowToUseErrorHandling:
+
+エラーハンドリング
+""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
+
+| 非同期通信でのエラーハンドリングの方法について説明を行う。
+| 非同期通信のエラーハンドリングは、大きく２つ考慮すべき点がある。
+| 1つ目は、サーバとの通信結果でエラーが発生している場合、2つ目はレスポンスを受信した後にデータをストリーム化して処理している最中にエラーが発生している場合の2つがある。
+| それぞれのケースについて、以下で説明を行う。
+
+サーバとの通信結果をハンドリングする方法
+''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
+
+| \ ``WebClient``\ の\ ``StatusHandler``\ は、HTTPステータスコードをもとにエラーの判定を行うためのインタフェースである。
+| したがって、エラー全体をハンドリングする仕組みではないため、その点は留意する必要がある。
+| \ ``StatusHandler``\ の実装は、アプリケーション全体でエラーハンドリングを行う実装と、リクエスト毎でエラーハンドリングを行う実装の2つがあるため、それぞれについて説明を行う。
+|
+
+\ **アプリケーション全体でエラーハンドリングを行う方法**\
+
+アプリケーション全体でエラーハンドリングを行う場合は、\ ``WebClient``\ を生成するタイミングで\ ``StatusHandler``\ を設定し、エラーの判定とエラー処理の実装を行う。
+
+- \ ``WebClientConfig.java``\
+
+.. code-block:: java
+
+    @Bean("webClient")
+    public WebClient webClient() {
+        return WebClient.builder()
+                .defaultStatusHandler(HttpStatusCode::isError, response -> {  // (1)
+                    // エラー時の処理を実装
+                    return Mono.error(new CustomException(response.statusCode().value()));
+                }).build();
+    }
+
+.. tabularcolumns:: |p{0.10\linewidth}|p{0.90\linewidth}|
+.. list-table::
+  :header-rows: 1
+  :widths: 10 90
+
+  * - 項番
+    - 説明
+  * - | (1)
+    - | \ ``WebClient.Builder``\ の\ ``defaultStatusHandler``\ メソッドに\ ``Predicate<HttpStatusCode>``\ と、\ ``Function<ClientResponse, Mono<? extends Throwable>>``\ を設定する。
+      | 上記の実装例では、\ ``HttpStatusCode``\ がサーバエラー(5xx系)及びクライアントエラー(4xx系)の場合、独自例外にHTTPステータスコードを設定して返却するように実装している。
+      | なお、ストリーム中にエラーを返却する場合は、\ ``Mono``\ の\ ``error``\ メソッドを使用して返却する必要がある。
+
+|
+
+\ **リクエスト毎にエラーハンドリングを行う方法**\
+
+リクエスト毎にエラーハンドリングを行う場合は、非同期通信を行う際に\ ``ResponseSpec``\ の\ ``onStatus``\ メソッドを使用して、エラーの判定とエラー処理の実装を行う。
+
+.. code-block:: java
+
+    CompletableFuture<ResponseEntity<Void>> future = 
+            webClient.post()
+                    .uri(url)
+                    .bodyValue(users)
+                    .retrieve()
+                    .onStatus(HttpStatusCode::is5xxServerError, response -> { // (1)
+                        // エラー時の処理を実装
+                        return Mono.error(new CustomException(response.statusCode().value()));
+                    })
+                    .toBodilessEntity()
+                    .toFuture();
+
+.. tabularcolumns:: |p{0.10\linewidth}|p{0.90\linewidth}|
+.. list-table::
+  :header-rows: 1
+  :widths: 10 90
+
+  * - 項番
+    - 説明
+  * - | (1)
+    - | サーバエラー(5xx系)のHTTPステータスコードが返却された場合のエラーハンドリングを行う。
+      | \ ``defaultStatusHandler``\ の実装と同様に、\ ``onStatus``\ メソッドに\ ``Predicate<HttpStatusCode>``\ と\ ``Function<ClientResponse, Mono<? extends Throwable>>``\ を設定する。
+      | なお、\ ``onStatus``\ メソッドの記載がある場合は、\ ``defaultStatusHandler``\ の実装より優先されて処理される。
+      | したがって、上記の実装例ではサーバエラー(5xx系)のHTTPステータスコードが返却された場合にのみ適用され、クライアントエラー(4xx系)のHTTPステータスコードが返却された場合は\ ``defaultStatusHandler``\ の実装が適用される。
+
+|
+
+ストリーム中や\ ``StatusHandler``\ で発生した例外をハンドリングする方法
+''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
+
+最終的なエラーのハンドリングは、``CompletableFuture``\ の\ ``handle``\ メソッドにてハンドリングを行う必要がある。
+
+.. code-block:: java
+
+    CompletableFuture<ResponseEntity<Void>> future = 
+            webClient.post()
+                    .uri(url)
+                    .bodyValue(users)
+                    .retrieve()
+                    .toBodilessEntity()
+                    .toFuture();
+
+    future.handle((r, t) -> {  // (1)
+        if (t == null) {
+            // 成功のレスポンスが返ってきた場合の処理を実装
+        } else {
+            // エラーが発生した場合の処理を実装
+        }
+        return null;
+    });
+
+.. tabularcolumns:: |p{0.10\linewidth}|p{0.90\linewidth}|
+.. list-table::
+  :header-rows: 1
+  :widths: 10 90
+
+  * - 項番
+    - 説明
+  * - | (1)
+    - | \ ``CompletableFuture``\ の\ ``handle``\ メソッドにエラー時の処理を実装する。
+      | 非同期で動作している特性上、画面へのエラー通知は行えないため、エラー通知や復帰処理等を行う場合は\ ``handle``\ メソッドにて実装を行う必要がある。
+
+|
+
+リクエスト送信前の共通処理の適用
+""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
+
+\ ``org.springframework.web.reactive.function.client.ExchangeFilterFunction``\ を使用した共通処理の実装方法について説明を行う。
+
+リクエスト送信前の共通処理の実装
+''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
+
+| \ ``org.springframework.web.reactive.function.client.ExchangeFilterFunction``\ を実装することで、サーバとの通信処理前に任意の処理を実行させることができる。
+| ここでは単純な例として、通信前のロギング処理の実装例を紹介する。
+
+\ **通信ログ出力の実装例**\
+
+.. code-block:: java
+
+  package com.example.webclient;
+
+  import org.slf4j.Logger;
+  import org.slf4j.LoggerFactory;
+  import org.springframework.web.reactive.function.client.ClientRequest;
+  import org.springframework.web.reactive.function.client.ClientResponse;
+  import org.springframework.web.reactive.function.client.ExchangeFilterFunction;
+  import org.springframework.web.reactive.function.client.ExchangeFunction;
+
+  import reactor.core.publisher.Mono;
+
+  public class WebClientExchangeFilterFunction implements ExchangeFilterFunction { // (1)
+
+      private static final Logger LOGGER = LoggerFactory.getLogger(
+              WebClientExchangeFilterFunction.class);
+
+      @Override
+      public Mono<ClientResponse> filter(ClientRequest request,
+              ExchangeFunction next) {
+          LOGGER.info("External Request to {}", request.url()); // (2)
+          return next.exchange(request); // (3)
+      }
+
+  }
+
+.. tabularcolumns:: |p{0.10\linewidth}|p{0.90\linewidth}|
+.. list-table::
+  :header-rows: 1
+  :widths: 10 90
+
+  * - 項番
+    - 説明
+  * - | (1)
+    - | \ ``ExchangeFilterFunction``\ インタフェースを実装する。
+  * - | (2)
+    - | 非同期リクエストを送信する前に実行する処理を実装する。
+      | 上記の実装例では、通信先のURLを出力している。
+  * - | (3)
+    - | 次の\ ``ExchangeFilterFunction``\ を呼び出す。
+
+| 
+
+\ **Bean定義の実装例(WebClientConfig.java)**\
+
+.. code-block:: java
+
+  @Configuration
+  public class WebClientConfig {
+
+      @Bean
+      public WebClient loggingWebClient() {
+
+          // @formatter:off
+          WebClient webClient = WebClient.builder()
+                  .filter(new LoggingExchangeFilterFunction()) // (1)
+                  .build();
+          // @formatter:on
+
+          return webClient;
+      }
+
+.. tabularcolumns:: |p{0.10\linewidth}|p{0.90\linewidth}|
+.. list-table::
+  :header-rows: 1
+  :widths: 10 90
+
+  * - 項番
+    - 説明
+  * - | (1)
+    - | \ ``ExchangeFilterFunction``\ の実装クラスをfilterに登録する。
+
+      .. note::
+
+        複数のFilterを登録したい場合は、\ ``filters``\ を使用してFilterを登録する。
+
+          .. code-block:: java
+
+            WebClient webClient = WebClient.builder().filters(f -> {
+                f.add(0, new FirstExchangeFilterFunction());
+                f.add(1, new SecondExchangeFilterFunction());
+                f.add(2, new ThirdExchangeFilterFunction());
+            }).build();
+
+        リストに登録された順番に処理されるようになる。
+
+|
+
+.. raw:: latex
+
+  \newpage
