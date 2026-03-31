@@ -59,7 +59,7 @@
 | インフラストラクチャ層では、RepositoryからMyBatis（O/R Mapper）を利用したデータアクセスのテストを行う。
 | MyBatis3の使用方法の詳細については、\ :ref:`repository-mybatis3-label`\ を参照されたい。
 
-| MyBatisにより自動生成される\ ``RepositoryImpl``\ はSpringのDIコンテナ上で実行されるため、テストには、本番同様のBean定義と、SpringのDI機能を提供するSpring Testの\ ``SpringJUnit4ClassRunner``\ を使用する。
+| MyBatisにより自動生成される\ ``RepositoryImpl``\ はSpringのDIコンテナ上で実行されるため、テストには、本番同様のBean定義と、SpringのDI機能を提供するSpring Testの\ ``SpringExtension``\ を使用する。
 | Spring Testの詳細は\ :ref:`UsageOfLibraryForTestSpringTestOverview`\ を参照されたい。
 
 | テスト実行後のデータ検証方法には以下の2通りある。
@@ -370,11 +370,10 @@ Spring Test標準機能のみを利用したテスト
 
     .. code-block:: java
 
-      import static org.hamcrest.CoreMatchers.is;
-      import static org.hamcrest.MatcherAssert.assertThat;
+      import static org.assertj.core.api.Assertions.assertThat;
 
-      @RunWith(SpringJUnit4ClassRunner.class)
-      @ContextConfiguration(classes = { TestContextConfig.class, SampleEnvConfig.class, SampleInfraConfig.class }) // (1)
+      @SpringJUnitConfig(
+              classes = {TestContextConfig.class, SampleEnvConfig.class, SampleInfraConfig.class}) // (1)
       @Transactional // (2)
       public class MemberRepositoryTest {
 
@@ -405,9 +404,9 @@ Spring Test標準機能のみを利用したテスト
 
               // (8)
               // assertion
-              assertThat(updateCounts, is(1));
-              assertThat(updateMemberLogin.getPassword(), is("FGHIJ"));
-              assertThat(updateMemberLogin.getLastPassword(), is("ABCDE"));
+              assertThat(updateCounts).isEqualTo(1);
+              assertThat(updateMemberLogin.getPassword()).isEqualTo("FGHIJ");
+              assertThat(updateMemberLogin.getLastPassword()).isEqualTo("ABCDE");
           }
 
           private Member getMemberLogin(String customerNo) {
@@ -467,13 +466,10 @@ Spring Test標準機能のみを利用したテスト
 
     .. code-block:: java
 
-      import static org.hamcrest.CoreMatchers.is;
-      import static org.hamcrest.MatcherAssert.assertThat;
+      import static org.assertj.core.api.Assertions.assertThat;
 
-      @RunWith(SpringJUnit4ClassRunner.class)
-      @ContextConfiguration(locations = {
-              "classpath:META-INF/spring/sample-infra.xml",   // (1)
-              "classpath:META-INF/spring/test-context.xml" }) // (1)
+      @SpringJUnitConfig(locations = {"classpath:META-INF/spring/sample-infra.xml",
+              "classpath:META-INF/spring/test-context.xml"}) // (1)
       @Transactional // (2)
       public class MemberRepositoryTest {
 
@@ -504,9 +500,9 @@ Spring Test標準機能のみを利用したテスト
 
               // (8)
               // assertion
-              assertThat(updateCounts, is(1));
-              assertThat(updateMemberLogin.getPassword(), is("FGHIJ"));
-              assertThat(updateMemberLogin.getLastPassword(), is("ABCDE"));
+              assertThat(updateCounts).isEqualTo(1);
+              assertThat(updateMemberLogin.getPassword()).isEqualTo("FGHIJ");
+              assertThat(updateMemberLogin.getLastPassword()).isEqualTo("ABCDE");
           }
 
           private Member getMemberLogin(String customerNo) {
@@ -630,11 +626,10 @@ DBUnitを利用した\ ``Repository``\ の単体テストにおいて、作成�
 
     .. code-block:: java
 
-      import static org.hamcrest.CoreMatchers.is;
-      import static org.hamcrest.MatcherAssert.assertThat;
+      import static org.assertj.core.api.Assertions.assertThat;
 
-      @RunWith(SpringJUnit4ClassRunner.class)
-      @ContextConfiguration(classes = { TestContextConfig.class, SampleEnvConfig.class, SampleInfraConfig.class }) // (1)
+      @SpringJUnitConfig(
+              classes = {TestContextConfig.class, SampleEnvConfig.class, SampleInfraConfig.class}) // (1)
       @TestExecutionListeners({
               DirtiesContextBeforeModesTestExecutionListener.class,
               DependencyInjectionTestExecutionListener.class,
@@ -665,7 +660,7 @@ DBUnitを利用した\ ``Repository``\ の単体テストにおいて、作成�
               int updateCounts = target.updateMemberLogin(member);
 
               // assertion
-              assertThat(updateCounts, is(1));
+              assertThat(updateCounts).isEqualTo(1);
           }
       }
 
@@ -726,13 +721,10 @@ DBUnitを利用した\ ``Repository``\ の単体テストにおいて、作成�
 
     .. code-block:: java
 
-      import static org.hamcrest.CoreMatchers.is;
-      import static org.hamcrest.MatcherAssert.assertThat;
+      import static org.assertj.core.api.Assertions.assertThat;
 
-      @RunWith(SpringJUnit4ClassRunner.class)
-      @ContextConfiguration(locations = {
-              "classpath:META-INF/spring/sample-infra.xml",   // (1)
-              "classpath:META-INF/spring/test-context.xml" }) // (1)
+      @SpringJUnitConfig(locations = {"classpath:META-INF/spring/sample-infra.xml",
+              "classpath:META-INF/spring/test-context.xml"}) // (1)
       @TestExecutionListeners({
               DirtiesContextBeforeModesTestExecutionListener.class,
               DependencyInjectionTestExecutionListener.class,
@@ -763,7 +755,7 @@ DBUnitを利用した\ ``Repository``\ の単体テストにおいて、作成�
               int updateCounts = target.updateMemberLogin(member);
 
               // assertion
-              assertThat(updateCounts, is(1));
+              assertThat(updateCounts).isEqualTo(1);
           }
       }
 
@@ -808,7 +800,7 @@ DBUnitを利用した\ ``Repository``\ の単体テストにおいて、作成�
   :width: 95%
 
 | ドメイン層では、\ ``Service``\ の業務ロジックと\ ``@Transactional``\ のテストを行う。
-| \ ``Service``\ をインジェクションし、インフラストラクチャ層を結合してテストを行う場合は、\ ``Repository``\ のテスト実装方法と同様にBean定義と、Spring Testの\ ``SpringJUnit4ClassRunner``\ を使用してテストを行う。
+| \ ``Service``\ をインジェクションし、インフラストラクチャ層を結合してテストを行う場合は、\ ``Repository``\ のテスト実装方法と同様にBean定義と、Spring Testの\ ``SpringExtension``\ を使用してテストを行う。
 | Spring Testの詳細は\ :ref:`UsageOfLibraryForTestSpringTestOverview`\ を参照されたい。
 
 |
@@ -988,12 +980,10 @@ Serviceの単体テスト
 
     .. code-block:: java
 
-      import static org.hamcrest.CoreMatchers.is;
-      import static org.hamcrest.MatcherAssert.assertThat;
+      import static org.assertj.core.api.Assertions.assertThat;
 
-      @RunWith(SpringJUnit4ClassRunner.class)
-      @ContextConfiguration(classes = { TestContextConfig.class, SampleEnvConfig.class, SampleInfraConfig.class,
-      		SampleDomainConfig.class }) // (1)
+      @SpringJUnitConfig(classes = {TestContextConfig.class, SampleEnvConfig.class,
+              SampleInfraConfig.class, SampleDomainConfig.class}) // (1)
       @Transactional
       public class TicketReserveServiceImplTest {
 
@@ -1018,7 +1008,7 @@ Serviceの単体テスト
                       reservation);
 
               // assertion
-              assertThat(actTicketReserveDto.getReserveNo(), is("0000000001"));
+              assertThat(actTicketReserveDto.getReserveNo()).isEqualTo("0000000001");
               // omitted
           }
       }
@@ -1093,13 +1083,10 @@ Serviceの単体テスト
 
     .. code-block:: java
 
-      import static org.hamcrest.CoreMatchers.is;
-      import static org.hamcrest.MatcherAssert.assertThat;
+      import static org.assertj.core.api.Assertions.assertThat;
 
-      @RunWith(SpringJUnit4ClassRunner.class)
-      @ContextConfiguration(locations = {
-              "classpath:META-INF/spring/sample-domain.xml", // (1)
-              "classpath:META-INF/spring/test-context.xml"}) // (1)
+      @SpringJUnitConfig(locations = {"classpath:META-INF/spring/sample-context.xml",
+              "classpath:META-INF/spring/atrs-domain.xml"}) // (1)
       @Transactional
       public class TicketReserveServiceImplTest {
 
@@ -1124,7 +1111,7 @@ Serviceの単体テスト
                       reservation);
 
               // assertion
-              assertThat(actTicketReserveDto.getReserveNo(), is("0000000001"));
+              assertThat(actTicketReserveDto.getReserveNo()).isEqualTo("0000000001");
               // omitted
           }
       }
@@ -1183,15 +1170,12 @@ Serviceの単体テスト
 
 .. code-block:: java
 
-  import static org.hamcrest.CoreMatchers.is;
-  import static org.hamcrest.MatcherAssert.assertThat;
+  import static org.assertj.core.api.Assertions.assertThat;
   import static org.mockito.Mockito.verify;
   import static org.mockito.Mockito.when;
 
+  @ExtendWith(MockitoExtension.class) // (1)
   public class TicketReserveServiceImplMockTest {
-
-      @Rule // (1)
-      public MockitoRule mockito = MockitoJUnit.rule();
 
       @Mock // (2)
       ReservationRepository reservationRepository;
@@ -1215,7 +1199,7 @@ Serviceの単体テスト
 
           // assertion
           verify(reservationRepository).insert(inputReservation); // (5)
-          assertThat(ticketReserveDto.getReserveNo(), is("0000000001"));
+          assertThat(ticketReserveDto.getReserveNo()).isEqualTo("0000000001");
           // omitted
       }
   }
@@ -1263,11 +1247,11 @@ Serviceの単体テスト
 
 \ ``View``\ については、本来アプリケーション層に含まれるが、本ガイドラインでは対象外とする。
 
-| Spring Testは\ ``Controller``\ クラスをテストするためのサポートクラス(\ ``org.springframework.test.web.servlet.MockMvc``\ など)を用意している。
-| \ ``Controller``\ は\ ``MockMVC``\ を使用して疑似リクエストを送信してテストをするため、\ ``MockMVC``\ を提供する
-| Spring Testの\ ``SpringJUnit4ClassRunner``\ を使用する。
-| \ ``MockMvc``\ は\ ``Controller``\ に疑似リクエストを送信する仕組みを持ち、デプロイしたアプリケーションを模したテストを行うことができる。
-| \ ``MockMVC``\ の詳細は\ :ref:`UsageOfLibraryForTestMockMvcOverview`\ を参照されたい。
+| Spring Testは\ ``Controller``\ クラスをテストするためのサポートクラス(\ ``org.springframework.test.web.servlet.assertj.MockMvcTester``\ など)を用意している。
+| \ ``Controller``\ は\ ``MockMVCTester``\ を使用して疑似リクエストを送信してテストをするため、\ ``MockMVCTester``\ を提供する
+| Spring Testの\ ``SpringExtension``\ を使用する。
+| \ ``MockMvcTester``\ は\ ``Controller``\ に疑似リクエストを送信する仕組みを持ち、デプロイしたアプリケーションを模したテストを行うことができる。
+| \ ``MockMVCTester``\ の詳細は\ :ref:`UsageOfLibraryForTestMockMvcOverview`\ を参照されたい。
 
 .. note:: \ **Formのバリデーションテスト**\
 
@@ -1383,65 +1367,53 @@ StandaloneSetupを利用したテスト
 
     .. code-block:: java
 
-      import static org.hamcrest.CoreMatchers.is;
-      import static org.hamcrest.MatcherAssert.assertThat;
-      import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
+      import static org.assertj.core.api.Assertions.assertThat;
       import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.log;
-      import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.model;
-      import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
-      import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.view;
 
-      @RunWith(SpringJUnit4ClassRunner.class)
-      @ContextConfiguration(classes = { ApplicationContextConfig.class, TestContextConfig.class, SpringMvcTestConfig.class }) // (1)
+      @SpringJUnitConfig(classes = {ApplicationContextConfig.class, TestContextConfig.class,
+              SpringMvcTestConfig.class}) // (1)
       public class MemberRegisterControllerStandaloneTest {
 
           @Inject
           MemberRegisterController target;
 
-          MockMvc mockMvc;
+          MockMvcTester mockMvc;
 
-          @Before
+          @BeforeEach
           public void setUp() {
 
               // setup
-              mockMvc = MockMvcBuilders.standaloneSetup(target).alwaysDo(log()).build(); // (2)
+              mockMvc = MockMvcTester.of(Collections.singletonList(target),
+                      builder -> builder.alwaysDo(log()).build()  // (2)
+              );
           }
 
           @Test
           public void testRegisterConfirm01() throws Exception {
 
               // setup and run the test
-              mockMvc.perform(post("/member/register")
+              MvcTestResult mvcTestResult = mockMvc.post().uri("/member/register")
                           // omitted
                           .param("password", "testpassword")          // (3)
-                          .param("reEnterPassword", "testpassword"))) // (3)
-                          // assert
-                          .andExpect(status().is(302))                                  // (4)
-                          .andExpect(view().name("redirect:/member/register?complete")) // (4)
-                          .andExpect(model().hasNoErrors());                            // (4)
+                          .param("reEnterPassword", "testpassword") // (3)
+                          .exchange();
+              // assert
+              assertThat(mvcTestResult).hasStatus(HttpStatus.FOUND)
+                      .hasViewName("redirect:/member/register?complete").model().doesNotHaveErrors(); // (4)
           }
 
           @Test
           public void testRegisterConfirm02() throws Exception {
 
-              try {
-                  // setup and run the test
-                  mockMvc.perform(post("/member/register")
-                          // omitted
-                          .param("password", "testpassword")
-                          .param("reEnterPassword", "")) // (5)
-                          // assert
-                          .andExpect(status().is(400))
-                          .andExpect(view().name("common/error/badRequest-error"))
-                          .andReturn();
-
-                  fail("test failure!");
-              } catch (Exception e) {
-
-                  // assert
-                  assertThat(e, is(instanceOf(ServletException.class)));         // (6)
-                  assertThat(e.getCause(), is(instanceOf(BadRequestException.class))); // (6)
-              }
+              // setup and run the test
+              MvcTestResult mvcTestResult = mockMvc.post().uri("/member/register")
+                      // omitted
+                      .param("password", "testpassword")
+                      .param("reEnterPassword", "") // (5)
+                      .exchange();
+              // assert
+              assertThat(mvcTestResult).failure().isInstanceOf(ServletException.class).cause()
+                      .isInstanceOf(BadRequestException.class); // (6)
           }
       }
 
@@ -1456,15 +1428,16 @@ StandaloneSetupを利用したテスト
       * - | (1)
         - | \ ``MemberRegisterController``\ クラスが依存する\ ``Service``\ 、\ ``Repository``\ を動作させるために必要な設定ファイル（アプリケーションが保持する\ ``ApplicationContextConfig.class``\ とそれを補う\ ``TestContextConfig.class``\ 、 \ ``SpringMvcTestConfig.class``\ ）を読み込む。\ ``TestContextConfig.class``\ は、\ :ref:`PreparationForTestMakeSettingFileForSpringTest`\ を使用している。
       * - | (2)
-        - | 読み込んだBean定義から生成した\ ``Controller``\ を使用して、\ ``MockMvc``\ をセットアップする。セットアップの詳細については\ :ref:`UsageOfLibraryForTestSettingMockMvc`\ を参照されたい。
+        - | 読み込んだBean定義から生成した\ ``Controller``\ を使用して、\ ``MockMvcTester``\ をセットアップする。セットアップの詳細については\ :ref:`UsageOfLibraryForTestSettingMockMvc`\ を参照されたい。
       * - | (3)
-        - | \ ``MemberRegisterController``\ クラスの\ ``registerConfirm``\ メソッドを呼び出すため、\ ``/member/register``\ に対してPOSTメソッドでリクエストを送信する。リクエストパラメータには\ ``Form``\ の情報を設定する。リクエストデータの設定方法については\ :ref:`UsageOfLibraryForTestSettingOfRequestData`\ を、リクエスト送信の実装方法については\ :ref:`UsageOfLibraryForTestExecutionOfRequest`\ を参照されたい。
+        - | \ ``MemberRegisterController``\ クラスの\ ``registerConfirm``\ メソッドを呼び出すため、\ ``/member/register``\ に対してPOSTメソッドでリクエストを送信する。リクエストデータの設定方法およびリクエスト送信の実装方法については\ :ref:`UsageOfLibraryForTestExecutionOfRequest`\ を参照されたい。
       * - | (4)
-        - | \ ``perform``\ メソッドから返却された\ ``ResultActions``\ の\ ``andExpect``\ メソッドで取得した\ ``MvcResult``\ を使用して実行結果の妥当性を検証する。検証方法の詳細については\ :ref:`UsageOfLibraryForTestImplementationOfExecutionResultVerification`\ を参照されたい。
+        - | 返却された\ ``MvcTestResult``\ を使用して実行結果の妥当性を検証する。検証方法の詳細については\ :ref:`UsageOfLibraryForTestImplementationOfExecutionResultVerification`\ を参照されたい。
       * - | (5)
         - | 不正な入力値を送信する。
       * - | (6)
-        - | \ ``SystemExceptionResolver``\ を有効にしていないため、例外ハンドリングされずに\ ``ServletException``\ がサーブレットコンテナに通知される。\ ``ServletException``\ の\ ``getCause``\ メソッドにより取得された例外から、\ ``Controller``\ で期待した例外がthrowされていることを検証する。
+        - | \ ``SystemExceptionResolver``\ を有効にしていないため、例外ハンドリングされずに\ ``ServletException``\ がサーブレットコンテナに通知されたことを\ ``failure().isInstanceOf(ServletException.class)``\ で検証する。
+          | 更に\ ``cause().isInstanceOf(BadRequestException.class)``\ により取得された例外から、\ ``Controller``\ で期待した例外がthrowされていることを検証する。
 
   .. group-tab:: XML Config
 
@@ -1532,68 +1505,54 @@ StandaloneSetupを利用したテスト
 
     .. code-block:: java
 
-      import static org.hamcrest.CoreMatchers.is;
-      import static org.hamcrest.MatcherAssert.assertThat;
-      import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
+      import static org.assertj.core.api.Assertions.assertThat;
       import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.log;
-      import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.model;
-      import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
-      import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.view;
 
-      @RunWith(SpringJUnit4ClassRunner.class)
-      @ContextConfiguration(locations = {
-              "classpath:META-INF/spring/applicationContext.xml", // (1)
-              "classpath:META-INF/spring/test-context.xml",       // (1)
+      @SpringJUnitConfig(locations = {"classpath:META-INF/spring/applicationContext.xml",
+              "classpath:META-INF/spring/sample-context.xml",
               "classpath:META-INF/spring/spring-mvc-test.xml"})   // (1)
       public class MemberRegisterControllerStandaloneTest {
 
           @Inject
           MemberRegisterController target;
 
-          MockMvc mockMvc;
+          MockMvcTester mockMvc;
 
-          @Before
+          @BeforeEach
           public void setUp() {
 
               // setup
-              mockMvc = MockMvcBuilders.standaloneSetup(target).alwaysDo(log()).build(); // (2)
+              mockMvc = MockMvcTester.of(Collections.singletonList(target),
+                      builder -> builder.alwaysDo(log()).build()  // (2)
+              );
           }
 
           @Test
           public void testRegisterConfirm01() throws Exception {
 
               // setup and run the test
-              mockMvc.perform(post("/member/register")
+              MvcTestResult mvcTestResult = mockMvc.post().uri("/member/register")
                           // omitted
                           .param("password", "testpassword")          // (3)
-                          .param("reEnterPassword", "testpassword"))) // (3)
-                          // assert
-                          .andExpect(status().is(302))                                  // (4)
-                          .andExpect(view().name("redirect:/member/register?complete")) // (4)
-                          .andExpect(model().hasNoErrors());                            // (4)
+                          .param("reEnterPassword", "testpassword") // (3)
+                          .exchange();
+              // assert
+              assertThat(mvcTestResult).hasStatus(HttpStatus.FOUND)
+                      .hasViewName("redirect:/member/register?complete").model().doesNotHaveErrors(); // (4)
           }
 
           @Test
           public void testRegisterConfirm02() throws Exception {
 
-              try {
-                  // setup and run the test
-                  mockMvc.perform(post("/member/register")
-                          // omitted
-                          .param("password", "testpassword")
-                          .param("reEnterPassword", "")) // (5)
-                          // assert
-                          .andExpect(status().is(400))
-                          .andExpect(view().name("common/error/badRequest-error"))
-                          .andReturn();
-
-                  fail("test failure!");
-              } catch (Exception e) {
-
-                  // assert
-                  assertThat(e, is(instanceOf(ServletException.class)));         // (6)
-                  assertThat(e.getCause(), is(instanceOf(BadRequestException.class))); // (6)
-              }
+              // setup and run the test
+              MvcTestResult mvcTestResult = mockMvc.post().uri("/member/register")
+                      // omitted
+                      .param("password", "testpassword")
+                      .param("reEnterPassword", "") // (5)
+                      .exchange();
+              // assert
+              assertThat(mvcTestResult).failure().isInstanceOf(ServletException.class).cause()
+                      .isInstanceOf(BadRequestException.class); // (6)
           }
       }
 
@@ -1608,16 +1567,16 @@ StandaloneSetupを利用したテスト
       * - | (1)
         - | \ ``MemberRegisterController``\ クラスが依存する\ ``Service``\ 、\ ``Repository``\ を動作させるために必要な設定ファイル（アプリケーションが保持する\ ``applicationContext.xml``\ とそれを補う\ ``test-context.xml``\ 、 \ ``spring-mvc-test.xml``\ ）を読み込む。\ ``test-context.xml``\ は、\ :ref:`PreparationForTestMakeSettingFileForSpringTest`\ を使用している。
       * - | (2)
-        - | 読み込んだBean定義から生成した\ ``Controller``\ を使用して、\ ``MockMvc``\ をセットアップする。セットアップの詳細については\ :ref:`UsageOfLibraryForTestSettingMockMvc`\ を参照されたい。
+        - | 読み込んだBean定義から生成した\ ``Controller``\ を使用して、\ ``MockMvcTester``\ をセットアップする。セットアップの詳細については\ :ref:`UsageOfLibraryForTestSettingMockMvc`\ を参照されたい。
       * - | (3)
-        - | \ ``MemberRegisterController``\ クラスの\ ``registerConfirm``\ メソッドを呼び出すため、
-            \ ``/member/register``\ に対してPOSTメソッドでリクエストを送信する。リクエストパラメータには\ ``Form``\ の情報を設定する。リクエストデータの設定方法については\ :ref:`UsageOfLibraryForTestSettingOfRequestData`\ を、リクエスト送信の実装方法については\ :ref:`UsageOfLibraryForTestExecutionOfRequest`\ を参照されたい。
+        - | \ ``MemberRegisterController``\ クラスの\ ``registerConfirm``\ メソッドを呼び出すため、\ ``/member/register``\ に対してPOSTメソッドでリクエストを送信する。リクエストデータの設定方法およびリクエスト送信の実装方法については\ :ref:`UsageOfLibraryForTestExecutionOfRequest`\ を参照されたい。
       * - | (4)
-        - | \ ``perform``\ メソッドから返却された\ ``ResultActions``\ の\ ``andExpect``\ メソッドで取得した\ ``MvcResult``\ を使用して実行結果の妥当性を検証する。検証方法の詳細については\ :ref:`UsageOfLibraryForTestImplementationOfExecutionResultVerification`\ を参照されたい。
+        - | 返却された\ ``MvcTestResult``\ を使用して実行結果の妥当性を検証する。検証方法の詳細については\ :ref:`UsageOfLibraryForTestImplementationOfExecutionResultVerification`\ を参照されたい。
       * - | (5)
         - | 不正な入力値を送信する。
       * - | (6)
-        - | \ ``SystemExceptionResolver``\ を有効にしていないため、例外ハンドリングされずに\ ``ServletException``\ がサーブレットコンテナに通知される。\ ``ServletException``\ の\ ``getCause``\ メソッドにより取得された例外から、\ ``Controller``\ で期待した例外がthrowされていることを検証する。
+        - | \ ``SystemExceptionResolver``\ を有効にしていないため、例外ハンドリングされずに\ ``ServletException``\ がサーブレットコンテナに通知されたことを\ ``failure().isInstanceOf(ServletException.class)``\ で検証する。
+          | 更に\ ``cause().isInstanceOf(BadRequestException.class)``\ により取得された例外から、\ ``Controller``\ で期待した例外がthrowされていることを検証する。
 
 |
 
@@ -1646,7 +1605,7 @@ WebAppContextSetupを利用したテスト
     - \ ``MemberRegisterController.java``\ のテストクラス
 
 | \ :ref:`ImplementsOfTestByLayerTestingControllerWithStandaloneSetup`\ の例では、パスへのリクエストや\ ``Controller``\ が返す\ ``View``\ 名などは確認できるが、\ ``TransactionTokenInterceptor``\ や\ ``SystemExceptionResolver``\ といったSpringに追加して利用する機能は適用されていないため、トランザクショントークンチェックが正しく設定されているか、エラーページへの遷移が正しいかを判断することはできない。
-| そのような場合は、\ ``MockMvc``\ を\ ``webAppContextSetup``\ でセットアップすることにより、Springに追加して利用する\ ``Interceptor``\ や\ ``ExceptionResolver``\ などをテスト時に自動で適用させることができる。
+| そのような場合は、\ ``MockMvcTester``\ を\ ``webAppContextSetup``\ でセットアップすることにより、Springに追加して利用する\ ``Interceptor``\ や\ ``ExceptionResolver``\ などをテスト時に自動で適用させることができる。
 
 | ここでは、\ :ref:`ImplementsOfTestByLayerTestingControllerWithStandaloneSetup`\ で説明したテストと、\ ``@TransactionTokenCheck``\ アノテーション、\ ``SystemExceptionResolver``\ が有効になった場合のテストとを比べた時の相違点について説明する。
 
@@ -1710,12 +1669,10 @@ WebAppContextSetupを利用したテスト
 
     .. code-block:: java
 
-      import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
+      import static org.assertj.core.api.Assertions.assertThat;
       import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.log;
-      import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
-      import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.view;
 
-      @RunWith(SpringJUnit4ClassRunner.class)
+      @ExtendWith(SpringExtension.class)
       @ContextHierarchy({ @ContextConfiguration(classes = { ApplicationContextConfig.class, SpringSecurityConfig.class }),
             @ContextConfiguration(classes = { SpringMvcConfig.class }) }) // (1)
       @WebAppConfiguration                                                        // (1)
@@ -1724,46 +1681,47 @@ WebAppContextSetupを利用したテスト
           @Inject
           WebApplicationContext webApplicationContext; // (2)
 
-          MockMvc mockMvc;
+          MockMvcTester mockMvc;
 
-          @Before
+          @BeforeEach
           public void setUp() {
 
               // setup
-              mockMvc = MockMvcBuilders.webAppContextSetup(webApplicationContext) // (2)
-                      .alwaysDo(log()).build();
+              mockMvc = MockMvcTester.from(webApplicationContext,
+                      builder -> builder.alwaysDo(log()).build()); // (2)
           }
 
           @Test
           public void testRegisterConfirm01() throws Exception {
 
               // setup and run the test
-              MvcResult mvcResult = mockMvc.perform(post("/member/register") // (3)
-                          .param("confirm", "")                              // (3)
-                          // omitted
-                          .param("password", "testpassword")                 // (3)
-                          .param("reEnterPassword", "testpassword"))         // (3)
-                          // assert
-                          .andExpect(status().isOk())
-                          .andExpect(view().name("C1/memberRegisterConfirm"))
-                          .andReturn();
+              MvcTestResult mvcTestResult = mockMvc.post().uri("/member/register") // (3)
+                      .param("confirm", "")                              // (3)
+                      // omitted
+                      .param("password", "testpassword")                 // (3)
+                      .param("reEnterPassword", "testpassword")         // (3)
+                      .exchange();
+              // assert
+              assertThat(mvcTestResult).hasStatusOk().hasViewName("C1/memberRegisterConfirm");
 
-              TransactionToken actTransactionToken = (TransactionToken) mvcResult.getRequest()
+              TransactionToken actTransactionToken = (TransactionToken) mvcTestResult.getRequest()
                       .getAttribute(TransactionTokenInterceptor.NEXT_TOKEN_REQUEST_ATTRIBUTE_NAME); // (4)
 
-              MockHttpSession mockSession = (MockHttpSession) mvcResult.getRequest().getSession();  // (5)
+              MockHttpSession mockSession = (MockHttpSession) mvcTestResult.getRequest().getSession();  // (5)
 
               // setup and run the test
-              mockMvc.perform(post("/member/register")              // (6)
-                          // omitted
-                          .param("password", "testpassword")        // (6)
-                          .param("reEnterPassword", "testpassword") // (6)
-                          .param(TransactionTokenInterceptor.TOKEN_REQUEST_PARAMETER, 
-                                  actTransactionToken.getTokenString()) // (6)
-                          .session(mockSession)) // (6)
-                          // assert
-                          .andExpect(status().isFound())                                   // (7)
-                          .andExpect(view().name("redirect:/member/register?complete")); // (7)
+              mvcTestResult = mockMvc.post().uri("/member/register")              // (6)
+                      // omitted
+                      .param("password", "testpassword")        // (6)
+                      .param("reEnterPassword", "testpassword") // (6)
+                      .param(TransactionTokenInterceptor.TOKEN_REQUEST_PARAMETER, 
+                              actTransactionToken.getTokenString()) // (6)
+                      .session(mockSession) // (6)
+                      .exchange();
+              // assert
+              assertThat(mvcTestResult).hasStatus(HttpStatus.FOUND)
+                      .hasViewName("redirect:/member/register?complete").flash().extracting("member")
+                      .isInstanceOf(Member.class); // (7)
           }
       }
 
@@ -1778,7 +1736,7 @@ WebAppContextSetupを利用したテスト
       * - | (1)
         - | 業務でカスタムした\ ``Interceptor``\ や\ ``ExceptionResolver``\ などを動作させるために\ ``SpringMvcConfig.class``\ を読み込む。
       * - | (2)
-        - | 読み込んだBean定義から生成したWebアプリケーションコンテキストを使用して、\ ``MockMvc``\ をセットアップする。
+        - | 読み込んだBean定義から生成したWebアプリケーションコンテキストを使用して、\ ``MockMvcTester``\ をセットアップする。
       * - | (3)
         - | トランザクショントークンを生成するために、\ ``@TransactionTokenCheck(type = TransactionTokenType.BEGIN)``\ が設定されたメソッドに対してリクエストを送信する。
       * - | (4)
@@ -1794,12 +1752,10 @@ WebAppContextSetupを利用したテスト
 
     .. code-block:: java
 
-      import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
+      import static org.assertj.core.api.Assertions.assertThat;
       import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.log;
-      import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
-      import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.view;
 
-      @RunWith(SpringJUnit4ClassRunner.class)
+      @ExtendWith(SpringExtension.class)
       @ContextHierarchy({@ContextConfiguration(                                   // (1)
               "classpath:META-INF/spring/applicationContext.xml"),                // (1)
               @ContextConfiguration("classpath:META-INF/spring/spring-mvc.xml")}) // (1)
@@ -1809,46 +1765,47 @@ WebAppContextSetupを利用したテスト
           @Inject
           WebApplicationContext webApplicationContext; // (2)
 
-          MockMvc mockMvc;
+          MockMvcTester mockMvc;
 
-          @Before
+          @BeforeEach
           public void setUp() {
 
               // setup
-              mockMvc = MockMvcBuilders.webAppContextSetup(webApplicationContext) // (2)
-                      .alwaysDo(log()).build();
+              mockMvc = MockMvcTester.from(webApplicationContext,
+                      builder -> builder.alwaysDo(log()).build()); // (2)
           }
 
           @Test
           public void testRegisterConfirm01() throws Exception {
 
               // setup and run the test
-              MvcResult mvcResult = mockMvc.perform(post("/member/register") // (3)
-                          .param("confirm", "")                              // (3)
-                          // omitted
-                          .param("password", "testpassword")                 // (3)
-                          .param("reEnterPassword", "testpassword"))         // (3)
-                          // assert
-                          .andExpect(status().isOk())
-                          .andExpect(view().name("C1/memberRegisterConfirm"))
-                          .andReturn();
+              MvcTestResult mvcTestResult = mockMvc.post().uri("/member/register") // (3)
+                      .param("confirm", "")                              // (3)
+                      // omitted
+                      .param("password", "testpassword")                 // (3)
+                      .param("reEnterPassword", "testpassword")         // (3)
+                      .exchange();
+              // assert
+              assertThat(mvcTestResult).hasStatusOk().hasViewName("C1/memberRegisterConfirm");
 
-              TransactionToken actTransactionToken = (TransactionToken) mvcResult.getRequest()
+              TransactionToken actTransactionToken = (TransactionToken) mvcTestResult.getRequest()
                       .getAttribute(TransactionTokenInterceptor.NEXT_TOKEN_REQUEST_ATTRIBUTE_NAME); // (4)
 
-              MockHttpSession mockSession = (MockHttpSession) mvcResult.getRequest().getSession();  // (5)
+              MockHttpSession mockSession = (MockHttpSession) mvcTestResult.getRequest().getSession();  // (5)
 
               // setup and run the test
-              mockMvc.perform(post("/member/register")              // (6)
-                          // omitted
-                          .param("password", "testpassword")        // (6)
-                          .param("reEnterPassword", "testpassword") // (6)
-                          .param(TransactionTokenInterceptor.TOKEN_REQUEST_PARAMETER, 
-                                  actTransactionToken.getTokenString()) // (6)
-                          .session(mockSession)) // (6)
-                          // assert
-                          .andExpect(status().isFound())                                   // (7)
-                          .andExpect(view().name("redirect:/member/register?complete")); // (7)
+              mvcTestResult = mockMvc.post().uri("/member/register")              // (6)
+                      // omitted
+                      .param("password", "testpassword")        // (6)
+                      .param("reEnterPassword", "testpassword") // (6)
+                      .param(TransactionTokenInterceptor.TOKEN_REQUEST_PARAMETER, 
+                              actTransactionToken.getTokenString()) // (6)
+                      .session(mockSession) // (6)
+                      .exchange();
+              // assert
+              assertThat(mvcTestResult).hasStatus(HttpStatus.FOUND)
+                      .hasViewName("redirect:/member/register?complete").flash().extracting("member")
+                      .isInstanceOf(Member.class); // (7)
           }
       }
 
@@ -1863,7 +1820,7 @@ WebAppContextSetupを利用したテスト
       * - | (1)
         - | 業務でカスタムした\ ``Interceptor``\ や\ ``ExceptionResolver``\ などを動作させるために\ ``spring-mvc.xml``\ を読み込む。
       * - | (2)
-        - | 読み込んだBean定義から生成したWebアプリケーションコンテキストを使用して、\ ``MockMvc``\ をセットアップする。
+        - | 読み込んだBean定義から生成したWebアプリケーションコンテキストを使用して、\ ``MockMvcTester``\ をセットアップする。
       * - | (3)
         - | トランザクショントークンを生成するために、\ ``@TransactionTokenCheck(type = TransactionTokenType.BEGIN)``\ が設定されたメソッドに対してリクエストを送信する。
       * - | (4)
@@ -1917,14 +1874,10 @@ WebAppContextSetupを利用したテスト
 
     .. code-block:: java
 
-      import static org.hamcrest.CoreMatchers.is;
-      import static org.hamcrest.MatcherAssert.assertThat;
-      import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
+      import static org.assertj.core.api.Assertions.assertThat;
       import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.log;
-      import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
-      import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.view;
 
-      @RunWith(SpringJUnit4ClassRunner.class)
+      @ExtendWith(SpringExtension.class)
       @ContextHierarchy({ @ContextConfiguration(classes = { ApplicationContextConfig.class, SpringSecurityConfig.class }),
             @ContextConfiguration(classes = { SpringMvcConfig.class }) })
       @WebAppConfiguration
@@ -1933,9 +1886,9 @@ WebAppContextSetupを利用したテスト
           @Inject
           WebApplicationContext webApplicationContext;
 
-          MockMvc mockMvc;
+          MockMvcTester mockMvc;
 
-          @Before
+          @BeforeEach
           public void setUp() {
 
               // setup
@@ -1949,23 +1902,21 @@ WebAppContextSetupを利用したテスト
               // omitted
 
               // setup and run the test
-              mvcResult = mockMvc.perform(post("/member/register")
-                          .param("password", "testpassword")
-                          .param("reEnterPassword", "") // (1)
-                          .param(TransactionTokenInterceptor.TOKEN_REQUEST_PARAMETER, 
-                                  actTransactionToken.getTokenString()) // (2)
-                          .session(mockSession)) // (2)
-                          // assert
-                          .andExpect(status().isBadRequest())                      // (3)
-                          .andExpect(view().name("common/error/badRequest-error")) // (3)
-                          .andReturn();
+              mvcTestResult = mockMvc.post().uri("/member/register")
+                      .param("password", "testpassword")
+                      .param("reEnterPassword", "") // (1)
+                      .param(TransactionTokenInterceptor.TOKEN_REQUEST_PARAMETER, 
+                              actTransactionToken.getTokenString()) // (2)
+                      .session(mockSession) // (2)
+                      .exchange();
 
               // assert
-              Exception exception = mvcResult.getResolvedException();                   // (4)
-              assertThat(exception, is(instanceOf(BadRequestException.class)));         // (4)
-              assertThat(exception.getMessage(), is(
-                  "[e.ar.a0.L9001] 不正リクエスト(パラメータ改竄) org.springframework.validation.BeanPropertyBindingResult: 1 errors\n"
-                          + "Error in object 'memberRegisterForm': codes [e.ar.c1.5001.memberRegisterForm,e.ar.c1.5001]; arguments []; default message [null]")); // (4)
+              assertThat(mvcTestResult).hasStatus(HttpStatus.BAD_REQUEST)
+                      .hasViewName("common/error/badRequest-error"); // (3)
+              Exception exception = mvcTestResult.getMvcResult().getResolvedException(); // (4)
+              assertThat(exception).isInstanceOf(BadRequestException.class).message().isEqualTo(
+                      "[e.ar.a0.L9001] 不正リクエスト(パラメータ改竄) org.springframework.validation.BeanPropertyBindingResult: 1 errors\n"
+                              + "Error in object 'memberRegisterForm': codes [e.ar.c1.5001.memberRegisterForm,e.ar.c1.5001]; arguments []; default message [null]"); // (4)
           }
       }
 
@@ -2022,14 +1973,10 @@ WebAppContextSetupを利用したテスト
 
     .. code-block:: java
 
-      import static org.hamcrest.CoreMatchers.is;
-      import static org.hamcrest.MatcherAssert.assertThat;
-      import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
+      import static org.assertj.core.api.Assertions.assertThat;
       import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.log;
-      import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
-      import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.view;
 
-      @RunWith(SpringJUnit4ClassRunner.class)
+      @ExtendWith(SpringExtension.class)
       @ContextHierarchy({@ContextConfiguration(
               "classpath:META-INF/spring/applicationContext.xml"),
               @ContextConfiguration("classpath:META-INF/spring/spring-mvc.xml")})
@@ -2039,9 +1986,9 @@ WebAppContextSetupを利用したテスト
           @Inject
           WebApplicationContext webApplicationContext;
 
-          MockMvc mockMvc;
+          MockMvcTester mockMvc;
 
-          @Before
+          @BeforeEach
           public void setUp() {
 
               // setup
@@ -2055,23 +2002,21 @@ WebAppContextSetupを利用したテスト
               // omitted
 
               // setup and run the test
-              mvcResult = mockMvc.perform(post("/member/register")
-                          .param("password", "testpassword")
-                          .param("reEnterPassword", "") // (1)
-                          .param(TransactionTokenInterceptor.TOKEN_REQUEST_PARAMETER, 
-                                  actTransactionToken.getTokenString()) // (2)
-                          .session(mockSession)) // (2)
-                          // assert
-                          .andExpect(status().isBadRequest())                      // (3)
-                          .andExpect(view().name("common/error/badRequest-error")) // (3)
-                          .andReturn();
+              mvcTestResult = mockMvc.post().uri("/member/register")
+                      .param("password", "testpassword")
+                      .param("reEnterPassword", "") // (1)
+                      .param(TransactionTokenInterceptor.TOKEN_REQUEST_PARAMETER, 
+                              actTransactionToken.getTokenString()) // (2)
+                      .session(mockSession) // (2)
+                      .exchange();
 
               // assert
-              Exception exception = mvcResult.getResolvedException();                   // (4)
-              assertThat(exception, is(instanceOf(BadRequestException.class)));         // (4)
-              assertThat(exception.getMessage(), is(
-                  "[e.ar.a0.L9001] 不正リクエスト(パラメータ改竄) org.springframework.validation.BeanPropertyBindingResult: 1 errors\n"
-                          + "Error in object 'memberRegisterForm': codes [e.ar.c1.5001.memberRegisterForm,e.ar.c1.5001]; arguments []; default message [null]")); // (4)
+              assertThat(mvcTestResult).hasStatus(HttpStatus.BAD_REQUEST)
+                      .hasViewName("common/error/badRequest-error"); // (3)
+              Exception exception = mvcTestResult.getMvcResult().getResolvedException(); // (4)
+              assertThat(exception).isInstanceOf(BadRequestException.class).message().isEqualTo(
+                      "[e.ar.a0.L9001] 不正リクエスト(パラメータ改竄) org.springframework.validation.BeanPropertyBindingResult: 1 errors\n"
+                              + "Error in object 'memberRegisterForm': codes [e.ar.c1.5001.memberRegisterForm,e.ar.c1.5001]; arguments []; default message [null]"); // (4)
           }
       }
 
@@ -2149,7 +2094,7 @@ WebAppContextSetupを利用したテスト
       * - 項番
         - 説明
       * - | (1)
-        - | セッションのモックオブジェクトを生成する。クラスの詳細については、\ `MockHttpSession のJavadoc <https://docs.spring.io/spring-framework/docs/6.2.1/javadoc-api/org/springframework/mock/web/MockHttpSession.html>`_\ を参照されたい。
+        - | セッションのモックオブジェクトを生成する。クラスの詳細については、\ :url_spring_javadoc:`MockHttpSession のJavadoc </org/springframework/mock/web/MockHttpSession.html>`\ を参照されたい。
       * - | (2)
         - | 生成したセッションのモックオブジェクトに、格納したいオブジェクトをセットする。
       * - | (3)
@@ -2221,17 +2166,13 @@ WebAppContextSetupを利用したテスト
 
 .. code-block:: java
 
+  import static org.assertj.core.api.Assertions.assertThat;
   import static org.mockito.Mockito.verify;
   import static org.mockito.Mockito.when;
-  import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
   import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.log;
-  import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
-  import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.view;
 
+  @ExtendWith(MockitoExtension.class) // (1)
   public class TicketSearchControllerMockTest {
-
-      @Rule // (1)
-      public MockitoRule mockito = MockitoJUnit.rule();
 
       @InjectMocks // (2)
       TicketSearchController target;
@@ -2239,9 +2180,9 @@ WebAppContextSetupを利用したテスト
       @Mock // (3)
       TicketSearchHelper ticketSearchHelper;
 
-      MockMvc mockMvc;
+      MockMvcTester mockMvc;
 
-      @Before
+      @BeforeEach
       public void setUp() {
 
           // setup
@@ -2252,20 +2193,18 @@ WebAppContextSetupを利用したテスト
 
           when(ticketSearchHelper.createDefaultTicketSearchForm()).thenReturn(ticketSearchForm); // (4)
 
-          mockMvc = MockMvcBuilders.standaloneSetup(target).alwaysDo(log()).build();
+          mockMvc = MockMvcTester.of(Collections.singletonList(target),
+                  builder -> builder.alwaysDo(log()).build()
+          );
       }
 
       @Test
       public void testSearchForm() throws Exception {
 
           // setup and run the test
-          MvcResult mvcResult = mockMvc.perform(get("/ticket/search").param("form", ""))
-                      // assert
-                      .andExpect(status().isOk())
-                      .andExpect(view().name("B1/flightSearch"))
-                      .andReturn();
-
+          MvcTestResult results = mockMvc.get().uri("/ticket/search").param("form", "").exchange();
           // assert
+          assertThat(results).hasStatusOk().hasViewName("B1/flightSearch");
           verify(ticketSearchHelper).createDefaultTicketSearchForm(); // (5)
 
           // omitted

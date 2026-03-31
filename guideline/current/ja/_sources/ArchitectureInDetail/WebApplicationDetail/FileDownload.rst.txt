@@ -12,37 +12,15 @@
 Overview
 --------------------------------------------------------------------------------
 
-| 本節では、Springでクライアントにサーバからファイルをダウンロードする機能について説明する。
-| Spring MVCのViewで、ファイルのレンダリングを行うことを推奨する。
+| 本節では、クライアントにサーバからファイルをダウンロードする機能について説明する。
+| ファイルのダウンロード処理の概要を、以下に示す。
 
-  .. note::
-
-    コントローラクラスで、ファイルレンダリングのロジックを持たせることは推奨しない。
-
-    理由としては、コントローラの役割から逸脱するためである。
-    また、コントローラから分離することで、Viewの入れ替えが、容易にできる。
-
-ファイルのダウンロード処理の概要を、以下に示す。
-
-#. DispatchServletは、コントローラへファイルダウンロードのリクエストを送信する。
+#. DispatcherServletは、コントローラへファイルダウンロードのリクエストを送信する。
 #. コントローラは、ファイル表示の情報を取得する。
 #. コントローラは、Viewを選択する。
 #. ファイルレンダリングは、Viewで行われる。
 
-| SpringベースのWebアプリケーションで、ファイルをレンダリングするため、本ガイドラインでは、カスタムビューを実装することを推奨する。
-| Spring フレームワークでは、カスタムビューの実装に\ ``org.springframework.web.servlet.View``\ インタフェースを提供している。
-|
-| \ **PDFファイルの場合**\
-| Springから提供されている\ ``org.springframework.web.servlet.view.document.AbstractPdfView``\ クラスは、modelの情報を用いてPDFファイルをレンダリングするときに、サブクラスとして利用するクラスである。
-|
-| \ **Excelファイルの場合**\
-| Springから提供されている\ ``org.springframework.web.servlet.view.document.AbstractXlsxView``\ クラスは、modelの情報を用いてExcelファイルをレンダリングするときに、サブクラスとして利用するクラスである。
-|
-| Spring では上記以外にも、いろいろなViewの実装を提供している。
-| Viewの技術詳細は、\ `Spring Framework Documentation -View Technologies- <https://docs.spring.io/spring-framework/docs/6.2.1/reference/html/web.html#mvc-view>`_\ を参照されたい。
-
-| 共通ライブラリから提供している、\ ``org.terasoluna.gfw.web.download.AbstractFileDownloadView``\ は、任意のファイルをダウンロードするために使用する抽象クラスである。
-| PDFやExcel形式以外のファイルをレンダリングする際に、本クラスをサブクラスに定義する。
+本ガイドラインでは、共通ライブラリから提供している\ ``org.terasoluna.gfw.web.download.AbstractFileDownloadView``\ を継承したカスタムViewを実装することを推奨する。
 
 .. tip::
    
@@ -55,87 +33,13 @@ Overview
 How to use
 --------------------------------------------------------------------------------
 
-PDFファイルのダウンロード
+.. _FileDownloadViewResolverConfiguration:
+
+ViewResolverの設定
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-| PDFファイルのレンダリングには、Springから提供されている、\ ``org.springframework.web.servlet.view.document.AbstractPdfView``\ を継承したクラスを作成する必要がある。
-| コントローラでPDFダウンロードを実装するための手順は、以下で説明する。
-|
-
-カスタムViewの実装
-""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
-
-\ **AbstractPdfViewを継承したクラスの実装例**\
-
-.. code-block:: java
-
-  @Component  // (1)
-  public class SamplePdfView extends AbstractPdfView {  // (2)
-
-      @Override
-      protected void buildPdfDocument(Map<String, Object> model,
-              Document document, PdfWriter writer, HttpServletRequest request,
-              HttpServletResponse response) throws Exception {  // (3)
-
-          document.add(new Paragraph(model.get("serverTime").toString()));
-      }
-  }
-
-.. tabularcolumns:: |p{0.10\linewidth}|p{0.90\linewidth}|
-.. list-table::
-  :header-rows: 1
-  :widths: 10 90
-
-  * - 項番
-    - 説明
-  * - | (1)
-    - | 本例では、\ ``@Component``\ アノテーションを使用して、component-scanの対象としている。
-      | 後述する、\ ``org.springframework.web.servlet.view.BeanNameViewResolver``\ の対象とすることができる。
-  * - | (2)
-    - | \ ``AbstractPdfView``\ を継承する。
-  * - | (3)
-    - | \ ``buildPdfDocument``\ メソッドを実装する。
-
-| \ ``AbstractPdfView``\ は、PDFのレンダリングに、\ `OpenPDF <https://github.com/LibrePDF/OpenPDF>`_\ を利用している。
-| そのため、Mavenのpom.xmlに OpenPDFの定義を追加する必要がある。
-
-.. code-block:: xml
-
-  <dependencies>
-      <!-- omitted -->
-      <dependency>
-          <groupId>com.github.librepdf</groupId>
-          <artifactId>openpdf</artifactId>
-      </dependency>
-  </dependencies>
-  
-.. note::
-
-  上記設定例は、依存ライブラリのバージョンをBOMプロジェクトである terasoluna-dependencies で管理する前提であるため、pom.xmlでのバージョンの指定は不要である。
-
-|
-
-.. _viewresolver-label:
-
-ViewResolverの定義
-""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
-\ ``org.springframework.web.servlet.view.BeanNameViewResolver``\ とは、Springのコンテキストで管理されたbean名を用いて実行するViewを選択するクラスである。
-
-\ ``BeanNameViewResolver``\ を使用する際は、通常使用する、
-
-* JSP用の\ ``ViewResolver``\ (\ ``InternalResourceViewResolver``\ )
-
-より先に\ ``BeanNameViewResolver``\ が実行されるように定義する事を推奨する。
-
-.. note::
-
-  Spring Frameworkはさまざまな\ ``ViewResolver``\ を提供しており、複数の\ ``ViewResolver``\ をチェーンすることができる。
-
-  そのため、特定の状況では、意図しないViewが選択されてしまうことがある。
-
-  この動作は、\ ``<mvc:view-resolvers>``\ 要素の子要素に、優先したい\ ``ViewResolver``\ を上から順に定義する事で防ぐことができる。
-
-|
+| カスタムViewクラスを用いてファイルをダウンロードするため、jspやthymeleafのような画面名ではなくBean名を指定する必要がある。
+| blankプロジェクトから生成されたプロジェクトでは、Springのコンテキストで管理されたBean名を用いて実行するViewを選択できるように\ ``org.springframework.web.servlet.view.BeanNameViewResolver``\ が以下のように設定されている。
 
 .. tabs::
   .. group-tab:: Java Config
@@ -143,7 +47,7 @@ ViewResolverの定義
     .. tabs::
       .. group-tab:: JSP
     
-        \ **bean定義ファイル**\
+        \ **SpringMvcConfig.java**\
         
         .. code-block:: java
         
@@ -156,7 +60,7 @@ ViewResolverの定義
   
               @Override
               public void configureViewResolvers(ViewResolverRegistry registry) {
-                  registry.beanName(); // (1)(2)
+                  registry.beanName(); // (1)
                   registry.jsp("/WEB-INF/views/", ".jsp");
               }
 
@@ -169,11 +73,12 @@ ViewResolverの定義
             - 説明
           * - | (1)
             - | \ ``ViewResolverRegistry#beanName``\ を呼び出し、\ ``BeanNameViewResolver``\ を定義する。
-          * - | (2)
-            - | \ ``ViewResolverRegistry#beanName``\ を先に呼び出し、通常使用する\ ``ViewResolver``\ (JSP用の\ ``ViewResolver``\ )より優先度を高くする。
+              | JSP用の\ ``ViewResolver``\ より先に定義することで、\ ``BeanNameViewResolver``\ の優先度を高くする。
     
       .. group-tab:: Thymeleaf
     
+        \ **SpringMvcConfig.java**\
+
         .. code-block:: java
         
           @EnableAspectJAutoProxy
@@ -185,14 +90,12 @@ ViewResolverの定義
   
               @Override
               public void configureViewResolvers(ViewResolverRegistry registry) {
-                  registry.beanName(); // (1)(2)
+                  registry.beanName(); // (1)
                   registry.viewResolver(thymeleafViewResolver());
               }
 
               @Bean
-              public ThymeleafViewResolver thymeleafViewResolver(
-                      SpringTemplateEngine templateEngine) {
-
+              public ThymeleafViewResolver thymeleafViewResolver() {
                   // omitted
               }
         
@@ -205,20 +108,19 @@ ViewResolverの定義
             - 説明
           * - | (1)
             - | \ ``ViewResolverRegistry#beanName``\ を呼び出し、\ ``BeanNameViewResolver``\ を定義する。
-          * - | (2)
-            - | \ ``ViewResolverRegistry#beanName``\ を先に呼び出し、通常使用する\ ``ViewResolver``\ (Thymeleaf用の\ ``ViewResolver``\ )より優先度を高くする。
+              | Thymeleaf用の\ ``ViewResolver``\ より先に定義することで、\ ``BeanNameViewResolver``\ の優先度を高くする。
 
   .. group-tab:: XML Config
 
     .. tabs::
       .. group-tab:: JSP
     
-        \ **bean定義ファイル**\
+        \ **spring-mvc.xml**\
         
         .. code-block:: xml
         
           <mvc:view-resolvers>
-              <mvc:bean-name /> <!-- (1) (2) -->
+              <mvc:bean-name /> <!-- (1) -->
               <mvc:jsp prefix="/WEB-INF/views/" />
           </mvc:view-resolvers>
         
@@ -231,15 +133,16 @@ ViewResolverの定義
             - 説明
           * - | (1)
             - | \ ``<mvc:bean-name>``\ 要素を使用して、\ ``BeanNameViewResolver``\ を定義する。
-          * - | (2)
-            - | \ ``<mvc:bean-name>``\ 要素を先頭に定義し、通常使用する\ ``ViewResolver``\ (JSP用の\ ``ViewResolver``\ )より優先度を高くする。
+              | JSP用の\ ``ViewResolver``\ より先に定義することで、\ ``BeanNameViewResolver``\ の優先度を高くする。
     
       .. group-tab:: Thymeleaf
     
+        \ **spring-mvc.xml**\
+
         .. code-block:: xml
         
           <mvc:view-resolvers>
-              <mvc:bean-name /> <!-- (1) (2) -->
+              <mvc:bean-name /> <!-- (1) -->
               <bean class="org.thymeleaf.spring6.view.ThymeleafViewResolver">
                   <!-- omitted -->
               </bean>
@@ -254,217 +157,32 @@ ViewResolverの定義
             - 説明
           * - | (1)
             - | \ ``<mvc:bean-name>``\ 要素を使用して、\ ``BeanNameViewResolver``\ を定義する。
-          * - | (2)
-            - | \ ``<mvc:bean-name>``\ 要素を先頭に定義し、通常使用する\ ``ViewResolver``\ (Thymeleaf用の\ ``ViewResolver``\ )より優先度を高くする。
+              | Thymeleaf用の\ ``ViewResolver``\ より先に定義することで、\ ``BeanNameViewResolver``\ の優先度を高くする。
+
+.. note::
+
+  Spring Frameworkはさまざまな\ ``ViewResolver``\ を提供しており、複数の\ ``ViewResolver``\ をチェーンすることができる。
+
+  ただし、読み込み順によっては意図しないViewが選択されてしまうことがある。
+
+  この動作は、\ ``<mvc:view-resolvers>``\ 要素の子要素や\ ``ViewResolverRegistry``\ に、優先したい\ ``ViewResolver``\ を上から順に定義する事で防ぐことができる。
 
 |
 
-コントローラでのViewの指定
-""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
-
-| \ ``BeanNameViewResolver``\ により、コントローラで"samplePdfView"を返却することで、Springのコンテキストで管理されたBeanIDにより、"samplePdfView"であるViewが使用される。
-
-\ **Javaソースコード**\
-
-.. code-block:: java
-
-  @GetMapping(value = "home", params= "pdf")
-  public String homePdf(Model model) {
-      model.addAttribute("serverTime", new Date());
-      return "samplePdfView";   // (1)
-  }
-
-.. tabularcolumns:: |p{0.10\linewidth}|p{0.90\linewidth}|
-.. list-table::
-  :header-rows: 1
-  :widths: 10 90
-
-  * - 項番
-    - 説明
-  * - | (1)
-    - | "samplePdfView" をメソッドの戻り値として返却することで、
-      | Springのコンテキストで管理された、\ ``SamplePdfView``\ クラスが実行される。
-
-| 上記の手順を実行した後、以下に示すようなPDFを開くことができる。
-
-.. figure:: ./images_FileDownload/file-download-pdf.png
-  :alt: FILEDOWNLOAD PDF
-  :width: 60%
-  :align: center
-
-  \ **Picture - FileDownload PDF**\
-
-|
-
-.. _excelfiledownload-label:
-
-Excelファイルのダウンロード
+ファイルのダウンロード
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-| EXCELファイルのレンダリングには、Springから提供されている、\ ``org.springframework.web.servlet.view.document.AbstractXlsxView``\ を継承したクラスを作成する必要がある。
-| コントローラでEXCELファイルをダウンロードさせるための実装手順は、以下で説明する。
-|
 
-カスタムViewの実装
-""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
-
-\ **AbstractXlsxViewを継承したクラスの実装例**\
-
-.. code-block:: java
-
-  @Component  // (1)
-  public class SampleExcelView extends AbstractXlsxView {  // (2)
-
-      @Override
-      protected void buildExcelDocument(Map<String, Object> model,
-              Workbook workbook, HttpServletRequest request,
-              HttpServletResponse response) throws Exception {  // (3)
-          Sheet sheet;
-          Cell cell;
- 
-          sheet = workbook.createSheet("Spring");
-          sheet.setDefaultColumnWidth(12);
-
-          // write a text at A1
-          cell = getCell(sheet, 0, 0);
-          setText(cell, "Spring-Excel test");
-
-          cell = getCell(sheet, 2, 0);
-          setText(cell, model.get("serverTime").toString());
-      }
-
-      private Cell getCell(Sheet sheet, int rowNumber, int cellNumber) {
-          Row row = sheet.createRow(rowNumber);
-          return row.createCell(cellNumber);
-      }
-            
-      private void setText(Cell cell, String text) {
-          cell.setCellValue(text);
-      }
-  }
-
-.. tabularcolumns:: |p{0.10\linewidth}|p{0.90\linewidth}|
-.. list-table::
-  :header-rows: 1
-  :widths: 10 90
-
-  * - 項番
-    - 説明
-  * - | (1)
-    - | 本例では、\ ``@Component``\ アノテーションを使用して、component-scanの対象としている。
-      | 前述した、\ ``org.springframework.web.servlet.view.BeanNameViewResolver``\ の対象とすることができる。
-  * - | (2)
-    - | \ ``AbstractXlsxView``\ を継承する。
-  * - | (3)
-    - | \ ``buildExcelDocument``\ メソッドを実装する。
-
-| \ ``AbstractXlsxView``\ は、EXCELのレンダリングに、\ `Apache POI <https://poi.apache.org/>`_\ を利用している。
-| そのため、Mavenのpom.xmlに POIの定義を追加する必要がある。
-
-.. code-block:: xml
-
-  <dependencies>
-      <!-- omitted -->
-      <dependency>
-          <groupId>org.apache.poi</groupId>
-          <artifactId>poi-ooxml</artifactId>
-      </dependency>
-  </dependencies>
-  
-.. note::
-
-  上記設定例は、依存ライブラリのバージョンをBOMプロジェクトである terasoluna-dependencies で管理する前提であるため、pom.xmlでのバージョンの指定は不要である。
-
-.. note::
-
-  xlsファイル形式をサポートしたい場合は \ ``AbstractXlsView``\ を使用されたい。
-
-  詳細は、\ `AbstractXlsViewのJavaDoc <https://docs.spring.io/spring-framework/docs/6.2.1/javadoc-api/org/springframework/web/servlet/view/document/AbstractXlsView.html>`_\ を参照されたい。
-
-.. note::
-
-  POI 5.1.0 以降のバージョンでは\ `Apache Log4j v2 <https://logging.apache.org/log4j/2.x/>`_\ を依存関係に含んでおり、POIがLog4j 2を直接使用するようになった。
-
-  TERASOLUNA Server Framework for Java (5.x)ではロガーのAPIに\ `SLF4J <https://www.slf4j.org/>`_\ を使用しているが、APIの優先順位の関係でLog4j 2が有効になる可能性がある。
-
-  これを回避するため、\ ``log4j-to-slf4j``\ を依存関係に含むことでSLF4Jへブリッジされるようになる。
-
-    .. code-block:: xml
-
-      <dependencies>
-          <!-- omitted -->
-          <dependency>
-              <groupId>org.apache.logging.log4j</groupId>
-              <artifactId>log4j-to-slf4j</artifactId>
-          </dependency>
-      </dependencies>
-  
-  上記設定例は、依存ライブラリのバージョンをBOMプロジェクトである terasoluna-dependencies で管理する前提であるため、pom.xmlでのバージョンの指定は不要である。
-    
-    .. warning:: 
-
-      SLF4J adapter (log4j-to-slf4j-2.0.jar) とSLF4J bridge (log4j-slf4j-impl-2.0.jar) を一緒に使用すると、SLF4J と Log4j 2の間でイベントが際限なくルーティングされてしまうため注意すること。
-
-      詳しくは、\ `Log4j 2 to SLF4J Adapter <https://logging.apache.org/log4j/log4j-2.2/log4j-to-slf4j/index.html>`_\ を参照されたい。
-
-|
-
-ViewResolverの定義
-""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
-
-設定は、PDFファイルをレンダリングする場合と同様である。詳しくは、\ :ref:`viewresolver-label`\ を参照されたい。
-
-|
-
-コントローラでのViewの指定
-""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
-
-| \ ``BeanNameViewResolver``\ により、コントローラで"sampleExcelView"を返却することで、Springのコンテキストで管理されたBeanIDにより、”sampleExcelView”であるViewが使用される。
-
-\ **Javaソース**\
-
-.. code-block:: java
-
-  @GetMapping(value = "home", params= "excel")
-  public String homeExcel(Model model) {
-      model.addAttribute("serverTime", new Date());
-      return "sampleExcelView";  // (1)
-  }
-
-.. tabularcolumns:: |p{0.10\linewidth}|p{0.90\linewidth}|
-.. list-table::
-  :header-rows: 1
-  :widths: 10 90
-
-  * - 項番
-    - 説明
-  * - | (1)
-    - | "sampleExcelView" をメソッドの戻り値として返却することで、
-      | Springのコンテキストで管理された、\ ``SampleExcelView``\ クラスが実行される。
-
-| 上記の手順を実行した後、以下に示すようなEXCELを開くことができる。
-
-.. figure:: ./images_FileDownload/file-download-excel.png
-  :alt: FILEDOWNLOAD EXCEL
-  :width: 60%
-  :align: center
-
-  \ **Picture - FileDownload EXCEL**\
-
-|
-
-任意のファイルのダウンロード
-^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-| 前述した、PDFやEXCELファイル以外のファイルのダウンロードを行う場合、共通ライブラリが提供している、\ ``org.terasoluna.gfw.web.download.AbstractFileDownloadView``\ を継承したクラスを実装すればよい。
-| 他の形式にファイルレンダリングするために、\ ``AbstractFileDownloadView``\ では、以下を実装する必要がある。
+| 共通ライブラリが提供している\ ``org.terasoluna.gfw.web.download.AbstractFileDownloadView``\ を継承したクラスを実装する。
+| \ ``AbstractFileDownloadView``\ では、以下を実装する必要がある。
 
 1. レスポンスボディへの書き込むためのInputStreamを取得する。
 2. HTTPヘッダに情報を設定する。
 
-| コントローラでファイルダウンロードを実装するための手順は、以下で説明する。
 |
 
 カスタムViewの実装
 """"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
+
 | テキストファイルをダウンロードする例を用いて、説明を行う。
 
 \ **AbstractFileDownloadViewを継承したクラスの実装例**\
@@ -475,22 +193,22 @@ ViewResolverの定義
   public class TextFileDownloadView extends AbstractFileDownloadView {  // (2)
 
       @Override
-      protected InputStream getInputStream(Map<String, Object> model,
-         HttpServletRequest request) throws IOException {
-
-      @Override
-      protected InputStream getInputStream(Map<String, Object> model,
-            HttpServletRequest request) throws IOException {  // (3)
-          Resource resource = new ClassPathResource("abc.txt");
+      protected InputStream getInputStream(Map<String, Object> model, HttpServletRequest request)
+              throws IOException { // (3)
+          Resource resource = new ClassPathResource("testdata/サンプル.txt");
           return resource.getInputStream();
       }
 
       @Override
-      protected void addResponseHeader(Map<String, Object> model,
-            HttpServletRequest request, HttpServletResponse response) {  // (4)
-          response.setHeader("Content-Disposition",
-                "attachment; filename=abc.txt");
-          response.setContentType("text/plain");
+      protected void addResponseHeader(Map<String, Object> model, HttpServletRequest request,
+              HttpServletResponse response) { // (4)
+          String encodedFileName = URLEncoder.encode("サンプル.txt", StandardCharsets.UTF_8);
+          String contentDisposition =
+                  String.format("attachment; filename*=UTF-8''%s", encodedFileName);
+
+          response.setCharacterEncoding("UTF-8");
+          response.setHeader("Content-Disposition", contentDisposition); // (5)
+          response.setContentType("text/plain"); // (6)
       }
   }
 
@@ -511,20 +229,22 @@ ViewResolverの定義
       | ダウンロード対象の、\ ``InputStream``\ を返却すること。
   * - | (4)
     - | \ ``addResponseHeaderメソッド``\ を実装する。
-      | ダウンロードするファイルに合わせた、 Content-Dispositionや、ContentTypeを設定する。
+      | ダウンロードするファイルに合わせた\ ``Content-Disposition``\ や\ ``ContentType``\ を設定する。
+  * - | (5)
+    - | \ ``Content-Disposition``\ を設定する。
+      | 上記例では、\ ``attachment; filename*=UTF-8''サンプル.txt``\ を指定しているため、\ ``サンプル.txt``\ というテキストファイルがダウンロードされる。
+      | 設定可能な値は\ :url_iana_assignment:`Content Disposition Values and Parameters</cont-disp/cont-disp.xhtml>`\ を参照されたい。
+  * - | (6)
+    - | \ ``ContentType``\ を設定する。
+      | 上記例ではテキストファイルとして扱うため、\ ``text/plain``\ を指定している。 
+      | 設定可能な値は\ :url_iana_assignment:`Media Types</media-types/media-types.xhtml>`\ を参照されたい。
 
 |
 
-ViewResolverの定義
+ControllerでのViewの指定
 """"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 
-設定は、PDFファイルをレンダリングする場合と同様である。詳しくは、\ :ref:`viewresolver-label`\ を参照されたい。
-
-|
-
-コントローラでのViewの指定
-""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
-| \ ``BeanNameViewResolver``\ により、コントローラで"textFileDownloadView"を返却することで、Springのコンテキストで管理されたBeanIDにより、”textFileDownloadView”であるViewが使用される。
+| \ ``BeanNameViewResolver``\ により、コントローラで\ ``textFileDownloadView``\ を返却することで、Springのコンテキストで管理されたBeanIDが\ ``textFileDownloadView``\ のViewが使用される。
 
 \ **Javaソース**\
 
@@ -543,14 +263,425 @@ ViewResolverの定義
   * - 項番
     - 説明
   * - | (1)
-    - | "textFileDownloadView" をメソッドの戻り値として返却することで、
-      | Springのコンテキストで管理された、\ ``TextFileDownloadView``\ クラスが実行される。
+    - | \ ``textFileDownloadView``\ をメソッドの戻り値として返却することで、Springのコンテキストで管理された\ ``TextFileDownloadView``\ クラスが実行される。
 
-.. tip::
+|
 
-  前述してきたように、SpringはModelの情報をいろいろなViewにレンダリングすることができる。Springでは、複数のレンダリングエンジンをサポートしており、さまざまなViewを返却することが可能である。
+Appendix
+--------------------------------------------------------------------------------
 
-  詳細は、Spring の公式ドキュメント\ `Spring Framework Documentation -View Technologies- <https://docs.spring.io/spring-framework/docs/6.2.1/reference/html/web.html#mvc-view>`_\ を参照されたい。
+動的に生成したファイルのダウンロード
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+| \ ``AbstractFileDownloadView``\ は、静的なファイルだけではなく動的に生成したファイルをダウンロードさせる場合にも利用できる。
+| ここでは、参考程度にPDFファイルやExcelファイルを動的に生成しダウンロードさせる例を示す。 
+
+|
+
+PDFファイルの動的な生成
+""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
+
+PDFのレンダリングに\ :url_openpdf:`OpenPDF <>`\ を利用する例を紹介する。
+
+|
+
+OpenPDFを使用するための設定
+''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
+
+\ ``pom.xml``\ に OpenPDFの定義を追加する。
+
+.. code-block:: xml
+
+  <dependencies>
+      <!-- omitted -->
+      <dependency>
+          <groupId>com.github.librepdf</groupId>
+          <artifactId>openpdf</artifactId>
+          <version>${OPENPDF_VERSION}</version>
+      </dependency>
+  </dependencies>
+
+|
+
+カスタムViewの実装
+''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
+
+.. code-block:: java
+
+  @Component
+  public class SamplePdfView extends AbstractFileDownloadView { // (1)
+
+      @Inject
+      private PdfHelper pdfHelper; // (2)
+
+      @Override
+      protected InputStream getInputStream(Map<String, Object> model, HttpServletRequest request)
+              throws IOException {
+          return pdfHelper.createPdf(model); // (2)
+      }
+
+      @Override
+      protected void addResponseHeader(Map<String, Object> model, HttpServletRequest request,
+              HttpServletResponse response) {
+        String encodedFileName = URLEncoder.encode("サンプル.pdf", StandardCharsets.UTF_8);
+        String contentDisposition =
+                String.format("attachment; filename*=UTF-8''%s", encodedFileName);
+
+        response.setCharacterEncoding("UTF-8");
+        response.setHeader("Content-Disposition", contentDisposition); // (3)
+        response.setContentType("application/pdf"); // (4)
+      }
+  }
+
+.. tabularcolumns:: |p{0.10\linewidth}|p{0.90\linewidth}|
+.. list-table::
+  :header-rows: 1
+  :widths: 10 90
+
+  * - 項番
+    - 説明
+  * - | (1)
+    - | \ ``AbstractFileDownloadView``\ を継承したカスタムViewクラスを実装する。
+  * - | (2)
+    - | PDFファイルを生成するためのヘルパークラスを利用する。
+      | ヘルパークラスの実装例は後述する。
+  * - | (3)
+    - | \ ``Content-Disposition``\ を設定する。
+      | 上記例では、\ ``attachment; filename*=UTF-8''サンプル.pdf``\ を指定しているため、\ ``サンプル.pdf``\ というPDFファイルがダウンロードされる。
+  * - | (4)
+    - | \ ``ContentType``\ を設定する。
+      | PDFファイルとして扱うため、\ ``application/pdf``\ を指定している。
+
+|
+
+ヘルパークラスの実装
+''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
+
+| Viewに処理を書くのではなく、ヘルパークラスで処理を実装する。
+| ヘルパークラスを作成することで再利用性を高めることができる。
+
+| 下記サンプルでは、\ ``model``\ に設定された\ ``serverTime``\ をPDFに出力する単純な例となる。
+| 本サンプルで紹介していない機能を使用したい場合は、\ :url_openpdf:`OpenPDF <>`\ のサンプルやチュートリアルを参考に実装されたい。
+
+.. code-block:: java
+
+  import java.io.ByteArrayInputStream;
+  import java.io.ByteArrayOutputStream;
+  import java.io.IOException;
+  import java.io.InputStream;
+  import java.util.Map;
+  import org.springframework.stereotype.Component;
+  import com.lowagie.text.Document;
+  import com.lowagie.text.DocumentException;
+  import com.lowagie.text.Element;
+  import com.lowagie.text.Font;
+  import com.lowagie.text.PageSize;
+  import com.lowagie.text.Paragraph;
+  import com.lowagie.text.Phrase;
+  import com.lowagie.text.pdf.BaseFont;
+  import com.lowagie.text.pdf.PdfWriter;
+  
+  @Component
+  public class PdfHelper {
+
+      public InputStream createServerTimePdf(Map<String, Object> model) throws IOException {
+          try (ByteArrayOutputStream outputStream = new ByteArrayOutputStream()) {
+              try (Document document = new Document(PageSize.A4)) { // (1)
+
+                  PdfWriter.getInstance(document, outputStream); // (2)
+                  document.open();
+
+                  BaseFont bf = BaseFont.createFont("HeiseiKakuGo-W5", "UniJIS-UCS2-H", false);
+                  Font titleFont = new Font(bf, 18);
+
+                  Paragraph paragraph = new Paragraph(new Phrase("サンプル PDF", titleFont));
+                  paragraph.setAlignment(Element.ALIGN_CENTER);
+                  document.add(paragraph); // (3)
+
+                  String serverTime = model.get("serverTime") != null ? model.get("serverTime").toString()
+                          : "Server Time not available";
+                  document.add(new Paragraph("Server Time: " + serverTime)); // (3)
+              } catch (DocumentException e) {
+                  throw new IOException("Failed to create PDF document", e);
+              }
+
+              return new ByteArrayInputStream(outputStream.toByteArray());
+          } catch (Exception e) {
+              throw new IOException("Failed to create PDF document", e);
+          }
+      }
+  }
+
+.. tabularcolumns:: |p{0.10\linewidth}|p{0.90\linewidth}|
+.. list-table::
+  :header-rows: 1
+  :widths: 10 90
+
+  * - 項番
+    - 説明
+  * - | (1)
+    - | \ ``Document``\ を生成する。
+      | 上記例ではA4サイズのPDFを生成している。
+  * - | (2)
+    - | \ ``PdfWriter``\ のインスタンスを生成し、DocumentとOutputStreamを関連付ける。
+  * - | (3)
+    - |  PDFドキュメントに\ ``Paragraph``\ でテキストを追加する。
+
+|
+
+ControllerでのViewの指定
+''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
+
+| \ ``BeanNameViewResolver``\ により、コントローラで\ ``samplePdfView``\ を返却することで、Springのコンテキストで管理されたBeanIDが\ ``samplePdfView``\ のViewが使用される。
+
+\ **Javaソース**\
+
+.. code-block:: java
+
+  @GetMapping(value = "sample", params= "pdf")
+  public String samplePdf(Model model) {
+      model.addAttribute("serverTime", LocalDateTime.now());
+      return "samplePdfView"; // (1)
+  }
+
+.. tabularcolumns:: |p{0.10\linewidth}|p{0.90\linewidth}|
+.. list-table::
+  :header-rows: 1
+  :widths: 10 90
+
+  * - 項番
+    - 説明
+  * - | (1)
+    - | \ ``samplePdfView``\ をメソッドの戻り値として返却することで、Springのコンテキストで管理された\ ``SamplePdfView``\ クラスが実行される。
+
+上記の手順を実行した後、以下に示すようなPDFが生成されダウンロードすることができる。
+
+.. figure:: ./images_FileDownload/file-download-pdf.png
+  :alt: FILEDOWNLOAD PDF
+  :width: 60%
+  :align: center
+
+  \ **Picture - FileDownload PDF**\
+
+|
+
+.. _filedownload_excel:
+
+Excelファイルの動的な生成
+""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
+
+Excelのレンダリングに\ :url_apache_poi:`Apache POI </>`\ を利用する例を紹介する。
+
+|
+
+Apache POIを使用するための設定
+''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
+
+\ ``pom.xml``\ に Apache POIの定義を追加する。
+
+.. code-block:: xml
+
+  <dependencies>
+      <!-- omitted -->
+      <dependency>
+          <groupId>org.apache.poi</groupId>
+          <artifactId>poi-ooxml</artifactId>
+          <version>${POI_VERSION}</version>
+      </dependency>
+  </dependencies>
+
+.. note::
+
+  Apache POI 5.1.0 以降のバージョンでは\ :url_log4j:`Apache Log4j v2 </>`\ を依存関係に含んでおり、POIがログ実装としてLog4j 2を直接使用するようになった。
+
+  Apache POIで出力されるログを\ |framework_name|\ で設定している\ :url_slf4j:`SLF4J </>`\ でログを出力するためには、\ ``log4j-to-slf4j``\ を依存関係に含む必要がある。
+
+    .. code-block:: xml
+
+      <dependencies>
+          <!-- omitted -->
+          <dependency>
+              <groupId>org.apache.logging.log4j</groupId>
+              <artifactId>log4j-to-slf4j</artifactId>
+          </dependency>
+      </dependencies>
+
+  なお、Log4j 2を依存関係に含んでいる場合、Apache Commons Logging 1.3のログ実装呼び出し順の関係でSLF4JではなくLog4j 2が優先される可能性があるが、blankプロジェクトから生成されたプロジェクトでは\ ``commons-logging.properties``\ でSLF4Jを優先的に呼び出すように設定しているため、Log4j 2が優先されることはない。
+
+    .. warning:: 
+
+      SLF4J adapter (log4j-to-slf4j) とSLF4J bridge (log4j-slf4j-impl) を一緒に使用すると、SLF4Jと Log4j 2の間でイベントが際限なくルーティングされてしまうため注意すること。
+
+      詳しくは、\ :url_log4j_adaptor:`Log4j 2 to SLF4J Adapter <>`\ を参照されたい。
+
+|
+
+カスタムViewの実装
+''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
+
+.. code-block:: java
+
+  @Component
+  public class SampleExcelView extends AbstractFileDownloadView { // (1)
+  
+      @Autowired
+      private ExcelHelper excelHelper; // (2)
+  
+      @Override
+      protected InputStream getInputStream(Map<String, Object> model, HttpServletRequest request)
+              throws IOException {
+          return excelHelper.createServerTimeExcel(model); // (2)
+      }
+  
+      @Override
+      protected void addResponseHeader(Map<String, Object> model, HttpServletRequest request,
+              HttpServletResponse response) {
+        String encodedFileName = URLEncoder.encode("サンプル.xlsx", StandardCharsets.UTF_8);
+        String contentDisposition =
+                String.format("attachment; filename*=UTF-8''%s", encodedFileName);
+
+        response.setCharacterEncoding("UTF-8");
+        response.setHeader("Content-Disposition", contentDisposition); // (3)
+        response.setContentType(
+                "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"); // (4)
+      }
+  }
+
+.. tabularcolumns:: |p{0.10\linewidth}|p{0.90\linewidth}|
+.. list-table::
+  :header-rows: 1
+  :widths: 10 90
+
+  * - 項番
+    - 説明
+  * - | (1)
+    - | \ ``AbstractFileDownloadView``\ を継承したカスタムViewクラスを実装する。
+  * - | (2)
+    - | EXCELファイルを生成するためのヘルパークラスを利用する。
+      | ヘルパークラスの実装例は後述する。
+  * - | (3)
+    - | \ ``Content-Disposition``\ を設定する。
+      | 上記例では、\ ``attachment; filename*=UTF-8''サンプル.xlsx``\ を指定しているため、\ ``サンプル.xlsx``\ というEXCELファイルがダウンロードされる。
+  * - | (4)
+    - | \ ``ContentType``\ を設定する。
+      | XLSXフォーマットのEXCELファイルとして扱うため、\ ``application/vnd.openxmlformats-officedocument.spreadsheetml.sheet``\ を指定している。
+
+|
+
+ヘルパークラスの実装
+''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
+
+| Viewに処理を書くのではなく、ヘルパークラスで処理を実装する。
+| ヘルパークラスを作成することで再利用性を高めることができる。
+
+| 下記サンプルでは、\ ``model``\ に設定された\ ``serverTime``\ をEXCELに出力する単純な例となる。
+| 本サンプルで紹介していない機能を使用したい場合は、\ :url_apache_poi:`Apache POI </>`\ のHow to useを参考に実装されたい。
+
+.. code-block:: java
+
+  import java.io.ByteArrayInputStream;
+  import java.io.ByteArrayOutputStream;
+  import java.io.IOException;
+  import java.io.InputStream;
+  import java.util.Map;
+  import org.apache.poi.ss.usermodel.Cell;
+  import org.apache.poi.ss.usermodel.Row;
+  import org.apache.poi.ss.usermodel.Sheet;
+  import org.apache.poi.ss.usermodel.Workbook;
+  import org.apache.poi.xssf.usermodel.XSSFWorkbook;
+  import org.springframework.stereotype.Component;
+  
+  @Component
+  public class ExcelHelper {
+  
+      public InputStream createServerTimeExcel(Map<String, Object> model) throws IOException {
+          try (ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
+               Workbook workbook = new XSSFWorkbook()) { // (1)
+  
+              Sheet sheet = workbook.createSheet("サンプル"); // (2)
+              sheet.setDefaultColumnWidth(12);
+  
+              Cell titleCell = getCell(sheet, 0, 0);
+              titleCell.setCellValue("サンプル Excel"); // (3)
+
+              String serverTime = model.get("serverTime") != null ? model.get("serverTime").toString()
+                      : "Server Time not available";
+              Cell timeCell = getCell(sheet, 2, 0);
+              timeCell.setCellValue("Server Time: " + serverTime); // (4)
+
+              workbook.write(outputStream); // (5)
+  
+              return new ByteArrayInputStream(outputStream.toByteArray());
+          } catch (Exception e) {
+              throw new IOException("Failed to create Excel document", e);
+          }
+      }
+  
+      private Cell getCell(Sheet sheet, int rowNumber, int cellNumber) {
+          Row row = sheet.getRow(rowNumber);
+          if (row == null) {
+              row = sheet.createRow(rowNumber);
+          }
+          return row.createCell(cellNumber);
+      }
+  }
+
+.. tabularcolumns:: |p{0.10\linewidth}|p{0.90\linewidth}|
+.. list-table::
+  :header-rows: 1
+  :widths: 10 90
+
+  * - 項番
+    - 説明
+  * - | (1)
+    - | \ ``Workbook``\ を生成する。
+      | 上記例ではXLSXフォーマットのEXCELファイルを生成している。
+  * - | (2)
+    - | \ ``サンプル``\ シートの作成。
+  * - | (3)
+    - |  A1セルの値として\ ``サンプル Excel``\ を設定。
+  * - | (4)
+    - |  A3セルの値として\ ``Server Time: {serverTime}``\ を設定。
+  * - | (5)
+    - |  \ ``Workbook``\ の内容を\ ``OutputStream``\ に書き込む。
+
+|
+
+ControllerでのViewの指定
+''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
+
+| \ ``BeanNameViewResolver``\ により、コントローラで\ ``sampleExcelView``\ を返却することで、Springのコンテキストで管理されたBeanIDが\ ``sampleExcelView``\ のViewが使用される。
+
+\ **Javaソース**\
+
+.. code-block:: java
+
+  @GetMapping(value = "sample", params= "excel")
+  public String sampleExcel(Model model) {
+      model.addAttribute("serverTime", LocalDateTime.now());
+      return "sampleExcelView"; // (1)
+  }
+
+.. tabularcolumns:: |p{0.10\linewidth}|p{0.90\linewidth}|
+.. list-table::
+  :header-rows: 1
+  :widths: 10 90
+
+  * - 項番
+    - 説明
+  * - | (1)
+    - | \ ``sampleExcelView``\ をメソッドの戻り値として返却することで、Springのコンテキストで管理された\ ``SampleExcelView``\ クラスが実行される。
+
+上記の手順を実行した後、以下に示すようなEXCELが生成されダウンロードすることができる。
+
+.. figure:: ./images_FileDownload/file-download-excel.png
+  :alt: FILEDOWNLOAD EXCEL
+  :width: 60%
+  :align: center
+
+  \ **Picture - FileDownload EXCEL**\
+
+|
 
 .. raw:: latex
 

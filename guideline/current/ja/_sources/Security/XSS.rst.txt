@@ -60,7 +60,7 @@ Output Escaping
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 | XSSの脆弱性への対応としては、HTML特殊文字をエスケープすることが基本である。
-| HTMLにおいてエスケープが必要な特殊文字の例と、エスケープ後の例は、以下の通りである。
+| HTMLにおいてエスケープが必要な特殊文字の例は、以下の通りである。
 
 .. tabularcolumns:: |p{0.50\linewidth}|p{0.50\linewidth}|
 .. list-table::
@@ -83,7 +83,7 @@ Output Escaping
 | XSSを防ぐために、JSPでは文字列として出力するすべての表示項目に、\ ``f:h()``\ を使用すること。
 
 | また、Thymeleafでテキストを出力する方法には\ ``th:text``\ 属性、\ ``th:utext``\ 属性の二種類が存在する。
-| 詳細は、\ `Tutorial: Using Thymeleaf -Unescaped Text- <https://www.thymeleaf.org/doc/tutorials/3.0/usingthymeleaf.html#unescaped-text>`_\ を参照されたい。
+| 詳細は、\ :url_thymeleaf_tutorial:`Tutorial: Using Thymeleaf -Unescaped Text- </usingthymeleaf.html#unescaped-text>`\ を参照されたい。
 
  * \ ``th:text``\ 属性を使用すると値をエスケープして出力する
  * \ ``th:utext``\ 属性を使用すると値をエスケープせずに出力する
@@ -250,15 +250,15 @@ XSSを防ぐために、Thymeleafでは\ ``th:text``\ 属性を使用するこ�
       </tr>
       <!-- omitted -->
 
-    .. tip:: \ **java.util.Date継承クラスのフォーマット**\
+    .. tip:: \ **java.time.LocalDate継承クラスのフォーマット**\
 
-      java.util.Date継承クラスをフォーマットして表示する場合は、JSTLの\ ``<fmt:formatDate>``\ を用いることを推奨する。
+      java.time.LocalDate継承クラスをフォーマットして表示する場合は、java.time JSP tagsの\ ``<javatime:format>``\ を用いることを推奨する。
 
       以下に、設定例を示す。
 
         .. code-block:: jsp
 
-          <fmt:formatDate value="${form.date}" pattern="yyyyMMdd" />
+          <javatime:format value="${form.date}" pattern="yyyyMMdd" />
 
       valueの値に前述した \ ``f:h()``\ を使用して値を設定すると、Stringになってしまい、\ ``jakarta.el.ELException``\ がスローされるため、そのまま\ ``${form.date}``\ を使用している。
       しかし、yyyyMMddにフォーマットするため、XSSの心配はない。
@@ -306,7 +306,7 @@ JavaScript Escaping
 | XSSの脆弱性への対応としては、JavaScript特殊文字をエスケープすることが基本である。
 | ユーザーからの入力をもとに、JavaScriptの文字列リテラルを動的に生成する場合に、エスケープが必要となる。
 
-JavaScriptにおいてエスケープが必要な特殊文字の例と、エスケープ後の例は、以下のとおりである。
+JavaScriptにおいてエスケープが必要な特殊文字の例は、以下のとおりである。
 
 .. tabularcolumns:: |p{0.50\linewidth}|p{0.50\linewidth}|
 .. list-table::
@@ -426,9 +426,9 @@ XSS問題が発生する例を、以下に示す。
           alert(aaa);
       </script>
 
-.. tip::
+.. warning:: 
 
-  業務要件上必要でない限り、JavaScriptの要素をユーザーからの入力値に依存して動的に生成する仕様は、任意のスクリプトが埋め込まれてしまう可能性があるため、別の方式を検討する、または、極力避けるべきである。
+  業務要件上必要でない限り、JavaScriptの要素をユーザーからの入力値に依存して動的に生成する実装は任意のスクリプトが埋め込まれてしまう可能性があるため、別の方式を検討するか、極力避けるべきである。
 
 |
 
@@ -438,7 +438,7 @@ XSS問題が発生する例を、以下に示す。
 """"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 
 XSSを防ぐために、JSPではユーザーの入力値が設定される値にEL式の関数、\ ``f:js()``\ の使用を推奨する。
-また、Thymeleafでは\ ``th:inline="javascript"``\ の使用を推奨する。詳細は、\ `Tutorial: Using Thymeleaf -JavaScript inlining- <https://www.thymeleaf.org/doc/tutorials/3.1/usingthymeleaf.html#javascript-inlining>`_\ を参照されたい。
+また、Thymeleafでは\ ``th:inline="javascript"``\ の使用を推奨する。詳細は、\ :url_thymeleaf_tutorial:`Tutorial: Using Thymeleaf -JavaScript inlining- </usingthymeleaf.html#javascript-inlining>`\ を参照されたい。
 
 使用例を、下記に示す。
 

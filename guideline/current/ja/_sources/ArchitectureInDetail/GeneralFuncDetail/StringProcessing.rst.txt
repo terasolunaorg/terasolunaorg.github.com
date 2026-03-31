@@ -180,7 +180,7 @@ How to use
 | 
 | \ ``FullHalfConverter``\ クラスは、変換対象にしたい全角文字と半角文字のペア定義(\ ``org.terasoluna.gfw.common.fullhalf.FullHalfPair``\ )を事前に登録しておくスタイルを採用している。
 | 共通ライブラリでは、デフォルトのペア定義が登録されている\ ``FullHalfConverter``\ オブジェクトを、\ ``org.terasoluna.gfw.common.fullhalf.DefaultFullHalf``\ クラスの\ ``INSTANCE``\ 定数として提供している。
-| デフォルトのペア定義については、\ `DefaultFullHalfのソース <https://github.com/terasolunaorg/terasoluna-gfw/tree/5.10.0.RELEASE/terasoluna-gfw-common-libraries/terasoluna-gfw-string/src/main/java/org/terasoluna/gfw/common/fullhalf/DefaultFullHalf.java>`_\ を参照されたい。
+| デフォルトのペア定義については、\ :url_gfw:`DefaultFullHalfのソース </terasoluna-gfw-common-libraries/terasoluna-gfw-string/src/main/java/org/terasoluna/gfw/common/fullhalf/DefaultFullHalf.java>`\ を参照されたい。
 
 .. note::
 
@@ -203,10 +203,6 @@ How to use
           <artifactId>terasoluna-gfw-string</artifactId>
       </dependency>
   </dependencies>
-
-.. note::
-
-  上記設定例では、依存ライブラリのバージョンは親プロジェクトで管理する前提である。そのため、\ ``<version>``\ 要素は指定していない。
 
 |
 
@@ -291,7 +287,7 @@ How to use
       String str2 = Normalizer.normalize("ﾓｼﾞ", Normalizer.Form.NFKC) ;  // str2 = "モジ"
     
     
-  詳細は \ `NormalizerのJavaDoc <https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/text/Normalizer.html>`_\ を参照されたい。
+  詳細は \ :url_javase17:`NormalizerのJavaDoc </docs/api/java.base/java/text/Normalizer.html>`\ を参照されたい。
 
 |
 
@@ -379,7 +375,7 @@ How to use
 
 .. note::
 
-  \ ``FullHalfPairsBuilder#pair``\ メソッドの引数に指定可能な値については、\ `FullHalfPairのコンストラクタのJavaDoc <https://github.com/terasolunaorg/terasoluna-gfw/tree/5.10.0.RELEASE/terasoluna-gfw-common-libraries/terasoluna-gfw-string/src/main/java/org/terasoluna/gfw/common/fullhalf/FullHalfPair.java>`_\ を参照されたい。
+  \ ``FullHalfPairsBuilder#pair``\ メソッドの引数に指定可能な値については、\ :url_gfw:`FullHalfPairのコンストラクタのJavaDoc </terasoluna-gfw-common-libraries/terasoluna-gfw-string/src/main/java/org/terasoluna/gfw/common/fullhalf/FullHalfPair.java>`\ を参照されたい。
 
 |
 
@@ -909,10 +905,6 @@ Bean Validationと連携した文字列チェック
 
 .. note::
 
-  上記設定例は、依存ライブラリのバージョンを親プロジェクトである terasoluna-gfw-parent で管理する前提であるため、pom.xmlでのバージョンの指定は不要である。
-
-.. note::
-
   \ ``<artifactId>``\ が \ ``terasoluna-gfw-codepoints-xxx``\ （\ ``terasoluna-gfw-codepoints-jisx0201``\ など）のライブラリでは依存関係として \ ``terasoluna-gfw-codepoints``\ を取り込んでいる。
     
   そのため、 \ ``terasoluna-gfw-codepoints-xxx``\ のアーティファクト情報を取り込むことにより、\ ``terasoluna-gfw-codepoints``\ が提供するコードポイント集合クラスも利用することができる。
@@ -921,9 +913,9 @@ Bean Validationと連携した文字列チェック
 
     \ ``JIS_X_0208_SpecialChars``\ zコードポイント集合クラスはJIS漢字(JIS X 0208)の01-02区に該当する特殊文字集合である。
 
-    JIS漢字の全角ダッシュ(―)はEM DASHであり、対応するUCS(ISO/IEC 10646-1, JIS X 0221, Unicode)のコードポイントは、一般的に\ ``U+2014``\ に相当する。しかし、Unicodeコンソーシアムが提供する変換表では、Unicodeで対応する文字がEM DASHでなく\ `HORINZONTAL BAR (U+2015) <http://www.unicode.org/Public/MAPPINGS/OBSOLETE/EASTASIA/JIS/JIS0208.TXT>`_\ になっている。
+    JIS漢字の全角ダッシュ(―)はEM DASHであり、対応するUCS(ISO/IEC 10646-1, JIS X 0221, Unicode)のコードポイントは、一般的に\ ``U+2014``\ に相当する。しかし、Unicodeコンソーシアムが提供する変換表では、Unicodeで対応する文字がEM DASHでなく\ :url_horizontal_bar:`HORIZONTAL BAR (U+2015) <>`\ になっている。
 
-    実用されている一般的な変換ルールと、Unicode変換表が異なっているため、Unicode変換表通りにコードポイント集合を定義してしまうと実用上問題が出るケースが発生する可能性がある。そのため、\ ``JIS_X_0208_SpecialChars``\ コードポイント集合クラスではHORINZONTAL BAR (\ ``U+2015``\ )をEM DASH (\ ``U+2014``\ )に変更してコードポイント集合を定義している。
+    実用されている一般的な変換ルールと、Unicode変換表が異なっているため、Unicode変換表通りにコードポイント集合を定義してしまうと実用上問題が出るケースが発生する可能性がある。そのため、\ ``JIS_X_0208_SpecialChars``\ コードポイント集合クラスではHORIZONTAL BAR (\ ``U+2015``\ )をEM DASH (\ ``U+2014``\ )に変更してコードポイント集合を定義している。
 
 .. raw:: latex
 

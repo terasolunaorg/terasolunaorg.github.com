@@ -39,7 +39,7 @@ Thymeleafのテンプレートレイアウト機能を使用したHTMLの部品�
 
   .. tip::
 
-    上記以外に\ ``th:include``\ 属性が使用可能だが、Thymeleaf3.2で削除される予定のため\ ``th:include``\ 属性を使用することは推奨しない。
+    上記以外に\ ``th:include``\ 属性が使用可能だが、Thymeleaf 3.1で非推奨となり、Thymeleaf 3.2で削除される予定のため、\ ``th:include``\ 属性を使用することは推奨しない。
 
     \ ``th:include``\ 属性を指定すると、\ ``th:fragment``\ 属性を設定したタグの子要素のみが挿入される。
 
@@ -223,7 +223,8 @@ Thymeleafのテンプレートレイアウト機能を使用した画面レイ�
 
   .. note::
 
-    \ ``th:replace="~{layout/header :: header}"``\ は、\ ``~{}``\ を省略して、\ ``th:replace="layout/header :: header"``\ と書くこともできるが、本ガイドラインでは可読性を重視し\ ``~{}``\ を省略しないことを推奨する。
+    \ ``th:replace="~{layout/header :: header}"``\ は、\ ``~{}``\ を省略して、\ ``th:replace="layout/header :: header"``\ と書くこともできる。
+    しかし、Thymeleaf 3.1以降、\ ``~{}``\ を省略した構文は引き続き動作するものの非推奨と見なされ、将来のバージョンで削除される予定なので、\ ``~{}``\ を省略しないことを推奨する。
 
 - header.html
 
@@ -367,7 +368,7 @@ Thymeleafのテンプレートレイアウト機能を使用した画面レイ�
 
   .. note::
 
-    フッターに記載する著作権に関しては\ :ref:`CreateWebApplicationProjectCustomizeCopyrightOnScreenFooter`\ を参照すること。
+    フッターに記載する著作権に関しては\ :ref:`BlankProjectCopyrightInScreenFooter`\ を参照すること。
 
 結果として上記のtemplate.htmlに、header.html、createForm.html、footer.htmlが組み合わされた方法でブラウザに出力される。
 
@@ -402,7 +403,7 @@ Thymeleafのテンプレートレイアウト機能を使用した画面レイ�
         </h1>
     
         <h2>Create Staff Information</h2>
-        <form method="post" action="/staff-management-web/staff/create"><input type="hidden" name="_csrf" value="2557dc95-6f36-4c2c-9900-9e0efd411ad7">
+        <form method="post" action="/staff-management-web/staff/create"><input type="hidden" name="_csrf" value="LTH-77MOCsDmzZ6emzXQ1yehUN_x649j3SHgZ3p4bO8J8HLvGlTO2oNsb_bL-vv7_Rjk70bDfb3F3rdOuBKDBkJOCNs4k0uJ">
             <table>
                 <tr>
                     <td>Staff First Name</td>

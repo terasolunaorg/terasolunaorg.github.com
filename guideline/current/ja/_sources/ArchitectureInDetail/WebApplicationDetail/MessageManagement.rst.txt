@@ -496,7 +496,7 @@ Overview
 入力チェックエラーメッセージ
 """"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 
-入力チェックでエラーがある場合に出力するメッセージについては、\ :ref:`Validation_message_def`\ を参照されたい。
+入力チェックでエラーがある場合に出力するメッセージについては、\ :ref:`ValidationMessageDef`\ を参照されたい。
 
   .. note::
 
@@ -947,7 +947,7 @@ How to use
 
       e.xx.yy.8001=Cannot upload, Because the file size must be less than {0,number,#}MB.
 
-  詳細は、\ `Javadoc <https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/text/MessageFormat.html>`_\ を参照されたい。
+  詳細は、\ :url_javase17:`Javadoc </docs/api/java.base/java/text/MessageFormat.html>`\ を参照されたい。
 
 |
 
@@ -979,7 +979,7 @@ How to use
 メッセージタイプの変更方法
 """"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 | 標準では、以下のメッセージタイプが用意されている。
-| 標準のメッセージタイプはCSSフレームワークである\ `Bootstrap <https://getbootstrap.com/>`_\ の\ `Alertsコンポーネント <https://getbootstrap.com/docs/5.0/components/alerts/>`_\ に対応しており、\ ``<t:messagesPanel />``\ のデフォルト設定で利用できる。
+| 標準のメッセージタイプはCSSフレームワークである\ :url_bootstrap:`Bootstrap </>`\ の\ :url_bootstrap:`Alertsコンポーネント </docs/5.0/components/alerts/>`\ に対応しており、\ ``<t:messagesPanel />``\ のデフォルト設定で利用できる。
 
 .. tabularcolumns:: |p{0.15\linewidth}|p{0.30\linewidth}|p{0.25\linewidth}|p{0.30\linewidth}|
 .. list-table::
@@ -1324,7 +1324,7 @@ How to extend
 
 .. tip::
 
-  拡張方法は、\ `org.terasoluna.gfw.common.message.StandardResultMessageType <https://github.com/terasolunaorg/terasoluna-gfw/blob/release/5.10.0.RELEASE/terasoluna-gfw-common-libraries/terasoluna-gfw-common/src/main/java/org/terasoluna/gfw/common/message/StandardResultMessageType.java>`_\ が参考になる。
+  拡張方法は、\ :url_gfw:`org.terasoluna.gfw.common.message.StandardResultMessageType </terasoluna-gfw-common-libraries/terasoluna-gfw-common/src/main/java/org/terasoluna/gfw/common/message/StandardResultMessageType.java>`\ が参考になる。
   
 
 |
@@ -1385,7 +1385,7 @@ Appendix
 class名の変更
 """"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 
-例えば、CSSフレームワーク\ `BlueTrip <https://cssframeworks.org/details/blue-trip/>`_\ では以下のようなCSSが用意されている。
+例えば、CSSフレームワーク\ :url_bluetrip:`BlueTrip </>`\ では以下のようなCSSが用意されている。
 
 .. code-block:: css
 

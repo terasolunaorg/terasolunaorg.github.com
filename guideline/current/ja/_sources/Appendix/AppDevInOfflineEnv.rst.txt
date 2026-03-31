@@ -1,0 +1,82 @@
+オフライン環境におけるアプリケーション開発
+================================================================================
+
+.. only:: html
+
+.. contents:: 目次
+  :depth: 3
+  :local:
+
+|
+| 「\ :ref:`BlankProjectCreateBlankProject`\ 」では、ブランクプロジェクトを、\ :url_maven:`Maven Archetype Plugin </archetype/maven-archetype-plugin/>`\ の\ :url_maven:`archetype:generate </archetype/maven-archetype-plugin/generate-mojo.html>`\ を使用して作成する方法について説明している。
+| Mavenはオンライン環境での動作が前提であるが、以下にオフライン環境でも使用できるようにする方法について説明する。
+|
+| オフライン環境でプロジェクト開発を続けるためには、開発に必要となるライブラリやプラグイン等のファイルを事前にコピーする必要がある。
+| 以下の作業は\ **オンライン環境**\ で行うこと。
+|
+| 開発プロジェクトのルートディレクトリへ移動する。
+| ここでは「\ :ref:`BlankProjectCreateBlankProject`\ 」で作成したプロジェクトを例に説明をする。
+
+.. code-block:: console
+
+  cd C:\work\todo
+
+|
+
+| プロジェクト開発に必要であるライブラリやプラグイン等のファイルをコピーする。
+| \ :url_maven:`Maven Archetype Plugin </archetype/maven-archetype-plugin/>`\ の\ :url_maven:`dependency:go-offline </plugins/maven-dependency-plugin/go-offline-mojo.html>`\ を実行することでコピーする。
+| なお、\ ``dependency:go-offline``\ のみではマルチプロジェクトの依存関係を解決できずビルドに失敗するため、\ ``package``\ を指定している。
+
+.. code-block:: console
+
+  mvn package dependency:go-offline -Dmaven.repo.local=repository
+
+.. tabularcolumns:: |p{0.25\linewidth}|p{0.75\linewidth}|
+.. list-table::
+  :header-rows: 1
+  :widths: 25 75
+
+  * - パラメータ
+    - 説明
+  * - | \ ``-Dmaven.repo.local``\ 
+    - コピー先を指定する。
+      コピー先が存在しない場合は新たに作成される。
+      今回はコピー先をrepositoryと指定している。
+
+|
+
+ビルドが成功した場合、以下のようなログが出力される。
+
+.. code-block:: console
+
+  (omitted)
+  [INFO] ------------------------------------------------------------------------
+  [INFO] Reactor Summary for TERASOLUNA Server Framework for Java (5.x) Web Blank Multi Project (JavaConfig)(JSP)(MyBatis3) 1.0.0-SNAPSHOT:
+  [INFO]
+  [INFO] TERASOLUNA Server Framework for Java (5.x) Web Blank Multi Project (JavaConfig)(JSP)(MyBatis3) SUCCESS [01:00 min]
+  [INFO] todo-env ........................................... SUCCESS [01:01 min]
+  [INFO] todo-domain ........................................ SUCCESS [ 26.306 s]
+  [INFO] todo-web ........................................... SUCCESS [ 17.948 s]
+  [INFO] todo-initdb ........................................ SUCCESS [  8.104 s]
+  [INFO] todo-selenium ...................................... SUCCESS [ 52.715 s]
+  [INFO] ------------------------------------------------------------------------
+  [INFO] BUILD SUCCESS
+  [INFO] ------------------------------------------------------------------------
+  [INFO] Total time:  04:07 min
+  [INFO] Finished at: 2023-07-11T15:38:18+09:00
+  [INFO] ------------------------------------------------------------------------
+
+|
+
+| 以上で、プロジェクト開発に必要なライブラリやプラグイン等のファイルをrepositoryにコピーした。このrepositoryをオフライン環境マシンの\ ``${HOME}/.m2``\ へコピーすることで、作業は完了となる。
+| オンライン環境で一度も実行していない処理をオフライン環境で実行すると、必要なライブラリやプラグイン等のファイルを取得できず処理に失敗するが、コピーを行ったことにより、オフライン環境へ移行した場合においても継続して開発を進めることが可能となる。
+
+.. warning:: \ **オフライン環境での開発における注意点**\
+
+  オフライン環境では新規に依存関係をインターネットから取得することが不可能となるため、POM（Project Object Model）ファイルを編集しないこと。
+
+  POMファイルに編集を加える場合は、再度オンライン環境へ戻る必要がある。
+
+.. raw:: latex
+
+  \newpage

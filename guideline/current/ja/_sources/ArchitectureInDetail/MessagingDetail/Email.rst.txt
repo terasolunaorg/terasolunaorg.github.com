@@ -25,15 +25,15 @@ Overview
 Jakarta Mailについて
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-| \ `Jakarta Mail <https://eclipse-ee4j.github.io/angus-mail/>`_\ は、Javaでメールの送受信を行うためのAPIを提供している。
+| \ :url_angus_mail:`Jakarta Mail </>`\ は、Javaでメールの送受信を行うためのAPIを提供している。
 | Jakarta Mailを利用することで、メール機能を容易にJavaアプリケーションに組み込むことができる。
 
 | なお、本ガイドラインでは、Spring FrameworkのMail連携用コンポーネントを利用する前提であるため、Jakarta MailのAPIについての詳細には触れていない。
-| Jakarta MailのAPI仕様については、\ `API Documentation <https://jakarta.ee/specifications/mail/2.1/jakarta-mail-spec-2.1.html>`_\ を参照されたい。
+| Jakarta MailのAPI仕様については、\ :url_jakarta_mail_spec:`API Documentation <>`\ を参照されたい。
 
 .. note:: \ **メールセッション**\
 
-  メールセッション（\ `Session <https://jakarta.ee/specifications/mail/2.1/apidocs/jakarta.mail/jakarta/mail/session>`_\ ）は、メールサーバに接続する際に必要となる情報を管理する。
+  メールセッション（\ :url_jakarta_mail_apidocs:`Session </session>`\ ）は、メールサーバに接続する際に必要となる情報を管理する。
    
   メールセッションを取得するには以下のような方法がある。
    
@@ -99,7 +99,7 @@ Spring Frameworkはメール送信を行うためのコンポーネント（\ ``
 
 * \ ``JavaMailSender``\
     | Jakarta Mail用のメール送信インターフェース。
-    | Jakarta Mailの\ `MimeMessage <https://jakarta.ee/specifications/mail/2.1/apidocs/jakarta.mail/jakarta/mail/internet/mimemessage>`_\ とSpringの\ ``SimpleMailMessage``\ の両方に対応している。
+    | Jakarta Mailの\ :url_jakarta_mail_apidocs:`MimeMessage </internet/mimemessage>`\ とSpringの\ ``SimpleMailMessage``\ の両方に対応している。
     | また、Jakarta Mailの\ ``Session``\ の管理は\ ``JavaMailSender``\ の実装クラスによって行われるため、メール送信処理をコーディングする際に\ ``Session``\ を直接扱う必要がない。
 
 * \ ``JavaMailSenderImpl``\
@@ -132,7 +132,7 @@ How to use
 
 Spring FrameworkのMail連携用コンポーネントを利用する場合、以下のライブラリが追加で必要となる。
 
-* \ `Jakarta Mail <https://eclipse-ee4j.github.io/angus-mail/>`_\
+* \ :url_angus_mail:`Jakarta Mail </>`\
 
 | 上記ライブラリに対する依存関係を\ :file:`pom.xml`\ に追加する。
 | マルチプロジェクト構成の場合は、domainプロジェクトの\ :file:`pom.xml`\ (:file:`projectName-domain/pom.xml`)に追加する。
@@ -159,12 +159,6 @@ Spring FrameworkのMail連携用コンポーネントを利用する場合、以
   * - | (1)
     - | Jakarta Mailのライブラリをdependenciesに追加する。
       | アプリケーションサーバ提供のメールセッションを使用する場合、\ ``<scope>``\ を\ ``provided``\ に設定する。
-
-.. note::
-
-  上記設定例は、依存ライブラリのバージョンをBOMプロジェクトである terasoluna-dependencies で管理する前提であるため、pom.xmlでのバージョンの指定は不要である。
-
-  上記の依存ライブラリはterasoluna-dependenciesが依存している\ `Spring Boot <https://docs.spring.io/spring-boot/3.4.1/appendix/dependency-versions/coordinates.html>`_\ で管理されている。
 
 |
 
@@ -193,8 +187,8 @@ JavaMailSenderの設定方法
       - アプリケーションサーバ
       - 参照ページ
     * - 1.
-      - Apache Tomcat 10.1
-      - | \ `Apache Tomcat 10.1 User Guide(JNDI Resources HOW-TO) <https://tomcat.apache.org/tomcat-10.1-doc/jndi-resources-howto.html#JavaMail_Sessions>`_\ (JavaMail Sessions)を参照されたい。
+      - Apache Tomcat \ |tomcat_major_version|\.\ |tomcat_minor_version|\
+      - | \ :url_tomcat:`JNDI Resources HOW-TO </jndi-resources-howto.html#JavaMail_Sessions>`\ (JavaMail Sessions)を参照されたい。
 
 JNDI経由で取得したメールセッションをBeanとして登録するための設定を行う。
 
@@ -943,18 +937,18 @@ HTMLメールの送信
       - 例外クラス
       - 発生条件
     * - 1.
-      - \ `MailAuthenticationException <https://docs.spring.io/spring-framework/docs/6.2.1/javadoc-api/org/springframework/mail/MailAuthenticationException.html>`_\
+      - \ :url_spring_javadoc:`MailAuthenticationException </org/springframework/mail/MailAuthenticationException.html>`\
       - | 認証失敗時に発生する。
     * - 2.
-      - \ `MailParseException <https://docs.spring.io/spring-framework/docs/6.2.1/javadoc-api/org/springframework/mail/MailParseException.html>`_\
+      - \ :url_spring_javadoc:`MailParseException </org/springframework/mail/MailParseException.html>`\
       - | メールメッセージのプロパティに不正な値が設定されている場合に発生する。
     * - 3.
-      - \ `MailPreparationException <https://docs.spring.io/spring-framework/docs/6.2.1/javadoc-api/org/springframework/mail/MailPreparationException.html>`_\
+      - \ :url_spring_javadoc:`MailPreparationException </org/springframework/mail/MailPreparationException.html>`\
       - | メールメッセージを作成中に想定外のエラーが起きた場合に発生する。
           想定外のエラーとしては、例えばテンプレートライブラリで発生するエラーといったものがある。
         | \ ``MimeMessagePreparator``\ で発生した例外が\ ``MailPreparationException``\ にラップされてスローされる。
     * - 4.
-      - \ `MailSendException <https://docs.spring.io/spring-framework/docs/6.2.1/javadoc-api/org/springframework/mail/MailSendException.html>`_\
+      - \ :url_spring_javadoc:`MailSendException </org/springframework/mail/MailSendException.html>`\
       - | メールの送信エラーが起きた場合に発生する。
 
 .. note::
@@ -982,7 +976,7 @@ How to extend
 FreeMarkerを使用したメール本文の作成
 """"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 
-本ガイドラインでは、テンプレートライブラリとして\ `FreeMarker <https://freemarker.apache.org/>`_\ を使用する方法について説明する。
+本ガイドラインでは、テンプレートライブラリとして\ :url_freemarker:`FreeMarker </>`\ を使用する方法について説明する。
 
 * FreeMarkerを使用するために、依存ライブラリを設定する。
 
@@ -1009,12 +1003,6 @@ FreeMarkerを使用したメール本文の作成
       - 説明
     * - | (1)
       - | FreeMarkerのライブラリをdependenciesに追加する。
-
-  .. note::
-
-    上記設定例は、依存ライブラリのバージョンをBOMプロジェクトである terasoluna-dependencies で管理する前提であるため、pom.xmlでのバージョンの指定は不要である。
-
-    上記の依存ライブラリはterasoluna-dependenciesが依存している\ `Spring Boot <https://docs.spring.io/spring-boot/3.4.1/appendix/dependency-versions/coordinates.html>`_\ で管理されている。
 
 * \ ``freemarker.template.Configuration``\ を生成するためのFactoryBeanをBean定義する。
 
@@ -1078,9 +1066,9 @@ FreeMarkerを使用したメール本文の作成
 
 .. note::
 
-  上記以外の設定については、\ `FreeMarkerConfigurationFactoryBeanのJavaDoc <https://docs.spring.io/spring-framework/docs/6.2.1/javadoc-api/org/springframework/ui/freemarker/FreeMarkerConfigurationFactoryBean.html>`_\ を参照されたい。
+  上記以外の設定については、\ :url_spring_javadoc:`FreeMarkerConfigurationFactoryBeanのJavaDoc </org/springframework/ui/freemarker/FreeMarkerConfigurationFactoryBean.html>`\ を参照されたい。
       
-  FreeMarker自体の設定については、\ `FreeMarker Manual (Programmer's Guide / The Configuration) <https://freemarker.apache.org/docs/pgui_config.html>`_\ を参照されたい。
+  FreeMarker自体の設定については、\ :url_freemarker:`FreeMarker Manual (Programmer's Guide / The Configuration) </docs/pgui_config.html>`\ を参照されたい。
 
 * メール本文のテンプレートファイルを作成する。
 
@@ -1114,7 +1102,7 @@ FreeMarkerを使用したメール本文の作成
 
   .. note::
 
-    テンプレート言語（FTL）の詳細については、\ `FreeMarker Manual (Template Language Reference) <https://freemarker.apache.org/docs/ref.html>`_\ を参照されたい。
+    テンプレート言語（FTL）の詳細については、\ :url_freemarker:`FreeMarker Manual (Template Language Reference) </docs/ref.html>`\ を参照されたい。
 
 * テンプレートを使用してメール本文を生成し、メール送信する。
 
@@ -1159,9 +1147,9 @@ FreeMarkerを使用したメール本文の作成
     * - 項番
       - 説明
     * - | (1)
-      - | \ `Configuration <https://freemarker.apache.org/docs/api/freemarker/template/Configuration.html>`_\ をインジェクションする。
+      - | \ :url_freemarker:`Configuration </docs/api/freemarker/template/Configuration.html>`\ をインジェクションする。
     * - | (2)
-      - | \ ``Configuration``\ の\ ``getTemplate``\ メソッドを利用して\ `Template <https://freemarker.apache.org/docs/api/freemarker/template/Template.html>`_\ を取得する。
+      - | \ ``Configuration``\ の\ ``getTemplate``\ メソッドを利用して\ :url_freemarker:`Template </docs/api/freemarker/template/Template.html>`\ を取得する。
         | この例では、テンプレートファイルとして"registration-confirmation.ftl"を指定している。
     * - | (3)
       - | 取得した\ ``Template``\ をもとに、\ ``org.springframework.ui.freemarker.FreeMarkerTemplateUtils``\ の\ ``processTemplateIntoString``\ メソッドを利用してテンプレートから文字列を生成する。
@@ -1376,7 +1364,7 @@ JavaMailでは、送信するメールの本文の終端がマルチバイト文
     GreenMailを利用したテスト
     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
     
-    | メール送信機能をテストするためにフェイクサーバとして\ `GreenMail <https://greenmail-mail-test.github.io/greenmail/>`_\ を利用する方法を紹介する。
+    | メール送信機能をテストするためにフェイクサーバとして\ :url_greenmail:`GreenMail <>`\ を利用する方法を紹介する。
     | GreenMailはライブラリとして利用する以外に、warファイルをデプロイして利用することも可能である。
     |
     | GreenMailを利用したテストコードの実装例を以下に示す。
@@ -1391,7 +1379,6 @@ JavaMailでは、送信するメールの本文の終端がマルチバイト文
           <dependency>
             <groupId>com.icegreen</groupId>
             <artifactId>greenmail-spring</artifactId>
-            <version>2.1.0-alpha-3</version>
             <scope>test</scope>
           </dependency>
     

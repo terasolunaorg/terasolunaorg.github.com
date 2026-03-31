@@ -28,7 +28,7 @@ Overview
 * JCA (Java Cryptography Architecture) を利用した公開鍵暗号化方式の暗号化と復号
 * JCAを利用したハイブリッド暗号化方式の暗号化と復号
 
-Spring Securityの暗号化機能の詳細については、\ `Spring Security Reference -Spring Security Crypto Module- <https://docs.spring.io/spring-security/reference/features/integrations/cryptography.html>`_\ を参照されたい。
+Spring Securityの暗号化機能の詳細については、\ :url_spring_security_reference:`Spring Security Reference -Spring Security Crypto Module- </features/integrations/cryptography.html>`\ を参照されたい。
 
 |
 
@@ -140,7 +140,7 @@ javax.crypto.Cipherクラス
 | また、パディング方式とは、ブロック長に満たない暗号化対象を暗号化する場合の保管方式である。
 | 
 | Javaアプリケーションでは、\ ``<暗号化アルゴリズム>/<暗号利用モード>/<パディング方式>``\ または、\ ``<暗号化アルゴリズム>``\ という形で組み合わせを指定する。たとえば、\ ``AES/GCM/NoPadding``\ または、\ ``AES``\ となる。
-| 詳細は、\ `CipherクラスのJavaDoc <https://docs.oracle.com/en/java/javase/17/docs/api/java.base/javax/crypto/Cipher.html>`_\ を参照されたい。
+| 詳細は、\ :url_javase17:`CipherクラスのJavaDoc </docs/api/java.base/javax/crypto/Cipher.html>`\ を参照されたい。
 
 |
 
@@ -184,9 +184,9 @@ Spring Securityは、乱数(鍵)生成の機能として以下のインターフ
 
 .. note:: \ **Spring Security RSA**\
 
-  \ `spring-security-rsa <https://github.com/dsyer/spring-security-rsa>`_\ は、暗号化アルゴリズムとしてRSAを使用した公開鍵暗号化方式とハイブリッド暗号化方式用のAPIを提供している。
+  \ :url_spring_security_rsa:`spring-security-rsa <>`\ は、暗号化アルゴリズムとしてRSAを使用した公開鍵暗号化方式とハイブリッド暗号化方式用のAPIを提供している。
 
-  spring-security-rsaは現在、\ `Springの公式リポジトリ <https://github.com/spring-projects>`_\ として管理されていない。今後、Springの公式リポジトリ配下に移動した際は、本ガイドラインで利用方法を説明する予定である。
+  spring-security-rsaは現在、\ :url_spring_projects:`Springの公式リポジトリ <>`\ として管理されていない。今後、Springの公式リポジトリ配下に移動した際は、本ガイドラインで利用方法を説明する予定である。
 
   spring-security-rsaでは以下2つのクラスを提供している。
 
@@ -277,7 +277,7 @@ How to use
 
     GCMを用いたAESはJava SE8以降で使用可能である。
     
-    詳細については、\ `JDK 8セキュリティの拡張機能 <https://docs.oracle.com/javase/jp/8/docs/technotes/guides/security/enhancements-8.html>`_\ を参照されたい。
+    詳細については、\ :url_java8_security:`JDK 8セキュリティの拡張機能 <>`\ を参照されたい。
 
 |
 
@@ -603,8 +603,8 @@ OpenSSL
 
   OpenSSLのダウンロード先
 
-  * \ `Linux 用 <https://www.openssl.org/source/>`_\
-  * \ `Windows 用 <https://slproweb.com/products/Win32OpenSSL.html>`_\
+  * \ :url_linux_openssl:`Linux 用 </>`\
+  * \ :url_windows_openssl:`Windows 用 <>`\
 
 |
 
@@ -760,7 +760,7 @@ OpenSSL
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 | 公開鍵暗号化方式と同様、Spring Securityではハイブリッド暗号化方式に関する機能は提供されていないため、サンプルコードを用いて説明する。
-| このサンプルコードは、spring-security-rsaの\ `RsaSecretEncryptorクラス <https://github.com/dsyer/spring-security-rsa/blob/1.0.1.RELEASE/src/main/java/org/springframework/security/rsa/crypto/RsaSecretEncryptor.java>`_\ を参考にしている。
+| このサンプルコードは、spring-security-rsaの\ :url_spring_security_rsa:`RsaSecretEncryptorクラス </blob/1.0.1.RELEASE/src/main/java/org/springframework/security/rsa/crypto/RsaSecretEncryptor.java>`\ を参考にしている。
 |
 
 暗号化

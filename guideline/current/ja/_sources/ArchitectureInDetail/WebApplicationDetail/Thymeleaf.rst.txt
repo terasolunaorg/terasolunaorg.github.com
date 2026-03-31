@@ -15,7 +15,7 @@ Overview
 Thymeleafとは
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-| \ `Thymeleaf <https://www.thymeleaf.org/>`_\ は、Javaで実装されたテンプレートエンジンである。
+| \ :url_thymeleaf:`Thymeleaf </>`\ は、Javaで実装されたテンプレートエンジンである。
 | Thymeleafは、その特性により主にHTML生成用のテンプレートエンジンに分類される。
 
 | Spring MVCでViewに採用可能なテンプレートエンジンには、他にもApache Velocity、Apache FreeMarker等が存在する。
@@ -113,7 +113,7 @@ Thymeleafの特性
    
     本ガイドラインでは、ThymeleafでHTMLを生成する為のテンプレートモードである"HTML"モードについて記述するが、他にも出力するテンプレートに応じたモードが定義されている。
 
-    Thymeleafのテンプレートとして選択可能なテンプレートモードについては、\ `Tutorial: Using Thymeleaf -What kind of templates can Thymeleaf process?- <https://www.thymeleaf.org/doc/tutorials/3.1/usingthymeleaf.html#what-kind-of-templates-can-thymeleaf-process>`_\ を参照されたい。
+    Thymeleafのテンプレートとして選択可能なテンプレートモードについては、\ :url_thymeleaf_tutorial:`Tutorial: Using Thymeleaf -What kind of templates can Thymeleaf process?- </usingthymeleaf.html#what-kind-of-templates-can-thymeleaf-process>`\ を参照されたい。
 
 |
 
@@ -129,7 +129,7 @@ Thymeleafのテンプレートファイルを記述する為の基本機能で�
 Thymeleafスタンダードダイアレクト
 """"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 
-| Thymeleafは、テンプレートファイルを記述する為に\ `スタンダードダイアレクト <https://www.thymeleaf.org/doc/tutorials/3.1/usingthymeleaf.html#dialects-the-standard-dialect>`_\ を提供している。
+| Thymeleafは、テンプレートファイルを記述する為に\ :url_thymeleaf_tutorial:`スタンダードダイアレクト </usingthymeleaf.html#dialects-the-standard-dialect>`\ を提供している。
 | スタンダードダイアレクトとは、テンプレートファイルに記述して動的に出力を生成する為の各種プロセッサや、式、式オブジェクトを包含した機能群である。
 
 | スタンダードダイアレクトは複数の要素により構成されているため、構成要素とその概要について下表に示す。
@@ -151,16 +151,16 @@ Thymeleafスタンダードダイアレクト
     - | Thymeleafテンプレートに\ **要素（タグ）**\ として記述するプロセッサ。
       | 汎用要素である\ ``<th:block>``\ のみが提供されている。\ ``<th:block>``\ は、属性プロセッサを記述する為のHTML文法上の土台として用意されている。\ ``<th:block>``\ は、Webブラウザで不明なタグとして扱われる為、HTMLの文法に則った属性プロセッサの使用だけでは実現できない場合に限定的に使用されるべきである
     - | \ ``<th:block>``\
-  * - | \ `式（エクスプレッション） <https://www.thymeleaf.org/doc/tutorials/3.1/usingthymeleaf.html#standard-expression-syntax>`_\
+  * - | \ :url_thymeleaf_tutorial:`式（エクスプレッション） </usingthymeleaf.html#standard-expression-syntax>`\
     - | 属性プロセッサの値に記述する事で、固有の処理を提供する式。
       | Thymeleafが独自に解釈するトークン及び演算子も提供している。
     - | 変数式 \ ``${}``\ 、 メッセージ式 \ ``#{}``\ 、 リンクURL式 \ ``@{}``\ 等
       | テキストリテラル、数値リテラル、算術演算子、条件式等
   * - | 式オブジェクト
-    - | * \ `基本オブジェクト <https://www.thymeleaf.org/doc/tutorials/3.1/usingthymeleaf.html#appendix-a-expression-basic-objects>`_\
+    - | * \ :url_thymeleaf_tutorial:`基本オブジェクト </usingthymeleaf.html#appendix-a-expression-basic-objects>`\
       |  1. 基本機能群
       |  2. Web コンテキスト ネームスペース : Webオブジェクトにアクセスする為の別名
-      | * \ `ユーティリティオブジェクト <https://www.thymeleaf.org/doc/tutorials/3.1/usingthymeleaf.html#appendix-b-expression-utility-objects>`_\
+      | * \ :url_thymeleaf_tutorial:`ユーティリティオブジェクト </usingthymeleaf.html#appendix-b-expression-utility-objects>`\
       |  3. Thymeleafが提供するユーティリティ機能群
     - |  
       | 1. \ ``#ctx``\ , \ ``#local``\
@@ -170,7 +170,7 @@ Thymeleafスタンダードダイアレクト
 
 .. note:: \ **インライン処理について**\
 
-  テンプレートHTMLでは、多くの場合属性プロセッサに式を記述してHTML生成処理を実装する。その一方で、\ `インライン処理機能 <https://www.thymeleaf.org/doc/tutorials/3.1/usingthymeleaf.html#inlining>`_\ が用意されており、属性プロセッサを介さずに要素内のコンテンツを動的に変更する事が可能である。
+  テンプレートHTMLでは、多くの場合属性プロセッサに式を記述してHTML生成処理を実装する。その一方で、\ :url_thymeleaf_tutorial:`インライン処理機能 </usingthymeleaf.html#inlining>`\ が用意されており、属性プロセッサを介さずに要素内のコンテンツを動的に変更する事が可能である。
 
   ただし、静的表示した場合にインライン処理の記述がブラウザに表示される為、ブラウザで静的表示が可能であるThymeleafの利点を損なう事となる。そのため、本ガイドラインではHTMLにおけるインライン処理機能の利用を推奨しない。
 
@@ -188,14 +188,14 @@ Thymeleafスタンダードダイアレクト
   
   \ ``th:remove``\ 属性は、属性値に削除する範囲を設定でき動的処理時に柔軟に削除範囲を決める事が可能である。
 
-  \ ``th:remove``\ 属性の詳細については、\ `Tutorial: Using Thymeleaf -Removing template fragments- <https://www.thymeleaf.org/doc/tutorials/3.1/usingthymeleaf.html#removing-template-fragments>`_\ を参照されたい。
+  \ ``th:remove``\ 属性の詳細については、\ :url_thymeleaf_tutorial:`Tutorial: Using Thymeleaf -Removing template fragments- </usingthymeleaf.html#removing-template-fragments>`\ を参照されたい。
 
 |
 
 Thymeleaf + Spring
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-| \ `Thymeleaf + Spring <https://www.thymeleaf.org/doc/tutorials/3.1/thymeleafspring.html>`_\ は、Thymeleafチームが提供するSpring MVCとの連携機能である。
+| \ :url_thymeleaf_tutorial:`Thymeleaf + Spring </thymeleafspring.html>`\ は、Thymeleafチームが提供するSpring MVCとの連携機能である。
 | ブランクプロジェクトを利用した場合、Thymeleaf + Springを適用した状態で開発を進める事が出来るようになっている。
 | 設定の詳細は\ :ref:`configuration-of-blank-project-label`\ を参照されたい。
 
@@ -247,7 +247,7 @@ Thymeleaf + Springの機能
 
 1. Springスタンダードダイアレクト
 
-  | Thymeleaf + Springを利用する場合、\ `Springスタンダードダイアレクト <https://www.thymeleaf.org/doc/tutorials/3.1/thymeleafspring.html#the-springstandard-dialect>`_\ を用いてテンプレートを記述できる。
+  | Thymeleaf + Springを利用する場合、\ :url_thymeleaf_tutorial:`Springスタンダードダイアレクト </thymeleafspring.html#the-springstandard-dialect>`\ を用いてテンプレートを記述できる。
   | Springスタンダードダイアレクトは、Thymeleafスタンダードダイアレクトを拡張した機能群であり、Spring MVCと連携する為の属性プロセッサの拡張と新規追加、及び新たな式オブジェクトを提供している。
   | 追加された機能はHTMLモードに特化しており、Spring MVCのタグライブラリで実現する機能やEL関数を補完する機能を提供している。
 
@@ -255,15 +255,15 @@ Thymeleaf + Springの機能
   | これにより、Spring Framework JSP Form Tag Libraryが提供する\ ``<form:input>``\ や\ ``<form:select>``\ 、 \ ``<form:checkbox>``\ 等の機能をカバーしている。
   | また\ ``<form:errors>``\ の代替機能を実現する\ ``th:errors``\ 属性、 \ ``th:errorClass``\ 属性も提供されており、Spring MVCの利点を享受できるように設計されている。
 
-  | 機能の詳細については、\ `Tutorial: Thymeleaf + Spring -Creating a Form- <https://www.thymeleaf.org/doc/tutorials/3.1/thymeleafspring.html#creating-a-form>`_ 及び `Tutorial: Thymeleaf + Spring -Validation and Error Messages- <https://www.thymeleaf.org/doc/tutorials/3.1/thymeleafspring.html#validation-and-error-messages>`_\ を参照されたい。
+  | 機能の詳細については、\ :url_thymeleaf_tutorial:`Tutorial: Thymeleaf + Spring -Creating a Form- </thymeleafspring.html#creating-a-form>`\ 及び \ :url_thymeleaf_tutorial:`Tutorial: Thymeleaf + Spring -Validation and Error Messages- </thymeleafspring.html#validation-and-error-messages>`\ を参照されたい。
 
 2. その他機能
 
   Thymeleaf + Springを適用する場合、Thymeleaf単体で利用する場合とは以下の点で異なる。
 
-  * 式言語として、OGNL(Object Graph Navigation Language)の代わりにSpEL(\ `Spring Expression Language <https://docs.spring.io/spring-framework/docs/6.2.1/reference/html/core.html#expressions>`_\ )を利用する。
+  * 式言語として、OGNL(Object Graph Navigation Language)の代わりにSpEL(\ :url_spring_reference:`Spring Expression Language </core/expressions.html>`\ )を利用する。
   * メッセージリソースとして、SpringのMessageSourceを利用する。
-  * Thymeleafが提供するフォーマット機能の代わりに、SpringのConversionサービスを利用する。\ `Tutorial: Thymeleaf + Spring -The Conversion Service- <https://www.thymeleaf.org/doc/tutorials/3.1/thymeleafspring.html#the-conversion-service>`_\ を参照されたい。
+  * Thymeleafが提供するフォーマット機能の代わりに、SpringのConversionサービスを利用する。\ :url_thymeleaf_tutorial:`Tutorial: Thymeleaf + Spring -The Conversion Service- </thymeleafspring.html#the-conversion-service>`\ を参照されたい。
 
 |
 
@@ -486,7 +486,7 @@ Thymeleafテンプレートの実装
 
     前述のとおり、Thymeleaf + Springでは式言語としてSpELを利用する。
 
-    Spring 5から、SpringのコアAPIに\ `null-safety <https://docs.spring.io/spring-framework/docs/6.2.1/reference/html/core.html#null-safety>`_\ の機能が取り入れられており、SpELが解釈される際の\ ``null``\ に対する動作も変更(\ `SPR-15540 <https://jira.spring.io/browse/SPR-15540?redirect=false>`_\ )されている。
+    Spring 5から、SpringのコアAPIに\ :url_spring_reference:`null-safety </core/null-safety.html>`\ の機能が取り入れられており、SpELが解釈される際の\ ``null``\ に対する動作も変更(\ :url_spring_framework_issues:`SPR-15540 </20099>`\ )されている。
    
     例えば\ ``Map``\ 型プロパティのキーとして記述したSpELが\ ``null``\ として評価された場合、Spring 4以前ではそのまま\ ``Map``\ に\ ``null``\ が渡され該当する値がないため\ ``null``\ が返却されていたが、Spring 5以降ではキーとなるSpELを評価した結果に対するnullチェックが追加されており、\ ``null``\ の場合は\ ``IllegalStateException``\ が発生する。
    
@@ -780,7 +780,7 @@ Thymeleafテンプレートの実装
   
    なお、本ガイドラインでは\ ``th:ref``\ 属性を使用せず、ロジックXMLにセレクタを記述しHTML（プロトタイプ）の要素を特定する実装例を紹介する。
 
-   \ ``th:ref``\ 属性の詳細については\ `Tutorial: Using Thymeleaf -The th:ref attribute- <https://www.thymeleaf.org/doc/tutorials/3.1/usingthymeleaf.html#the-thref-attribute>`_\ を参照されたい。
+   \ ``th:ref``\ 属性の詳細については\ :url_thymeleaf_tutorial:`Tutorial: Using Thymeleaf -The th:ref attribute- </usingthymeleaf.html#the-thref-attribute>`\ を参照されたい。
 
 Decoupled Template Logic適用のメリットとデメリットは、以下の通りである。
 
@@ -877,12 +877,6 @@ How to use
     * - | (3)
       - |  thymeleaf-extras-springsecurity6のdependencyを追加することで、Spring Securityとの連携機能が有効になる。
 
-  .. note::
-
-    上記設定例は、依存ライブラリのバージョンを親プロジェクトであるterasoluna-gfw-parentで管理する前提であるため、pom.xmlでのバージョンの指定は不要である。
-
-    上記の依存ライブラリはterasoluna-dependenciesが依存している\ `Spring Boot <https://docs.spring.io/spring-boot/3.4.1/appendix/dependency-versions/coordinates.html>`_\ で管理されている。
-
 .. tabs::
   .. group-tab:: Java Config
 
@@ -950,7 +944,7 @@ How to use
          * - | (2)
            - | レスポンスのエンコーディングを設定する。UTF-8を設定している。
          * - | (3)
-           - | \ ``forcedContentType``\ プロパティに\ ``true``\ を指定し、レスポンスのContent-Typeヘッダを明示的に設定するようにしている。
+           - | \ ``forceContentType``\ プロパティに\ ``true``\ を指定し、レスポンスのContent-Typeヘッダを明示的に設定するようにしている。
              | \ ``contentType``\ プロパティに\ ``text/html;charset=UTF-8``\ を指定している。
          * - | (4)
            - | \ ``SpringResourceTemplateResolver``\ をBean定義する。
@@ -1024,7 +1018,7 @@ How to use
          * - | (2)
            - | レスポンスのエンコーディングを設定する。UTF-8を設定している。
          * - | (3)
-           - | \ ``forcedContentType``\ プロパティに\ ``true``\ を指定し、レスポンスのContent-Typeヘッダを明示的に設定するようにしている。
+           - | \ ``forceContentType``\ プロパティに\ ``true``\ を指定し、レスポンスのContent-Typeヘッダを明示的に設定するようにしている。
              | \ ``contentType``\ プロパティに\ ``text/html;charset=UTF-8``\ を指定している。
          * - | (4)
            - | \ ``SpringResourceTemplateResolver``\ をBean定義する。
@@ -1056,7 +1050,7 @@ How to use
 
   本ガイドラインでは、Thymeleafを介した場合のレスポンスがHTMLのみである想定の為、ブランクプロジェクトにてContent-Typeを"text/html;charset=UTF-8"に明示的に指定している。
 
-  Content-Typeの指定は、\ ``ThymeleafViewResolver``\ のBean定義で\ ``forcedContentType``\ プロパティをtrueとし、\ ``contentType``\ プロパティに任意のContent-Typeを設定する事で可能である。
+  Content-Typeの指定は、\ ``ThymeleafViewResolver``\ のBean定義で\ ``forceContentType``\ プロパティをtrueとし、\ ``contentType``\ プロパティに任意のContent-Typeを設定する事で可能である。
 
 .. tabs::
   .. group-tab:: Java Config
@@ -1283,7 +1277,7 @@ Thymeleafから提供されている代表的なProcessorのインタフェー�
 
 .. note:: 
 
-  上記のインタフェース以外にもイベントごとに対応するインタフェースが提供されている。詳しくは\ `Tutorial: Extending Thymeleaf -Processors- <https://www.thymeleaf.org/doc/tutorials/3.1/extendingthymeleaf.html#processors>`_\ を参照されたい。
+  上記のインタフェース以外にもイベントごとに対応するインタフェースが提供されている。詳しくは\ :url_thymeleaf_tutorial:`Tutorial: Extending Thymeleaf -Processors- </extendingthymeleaf.html#processors>`\ を参照されたい。
 
 Processorでの処理に用いる代表的なインタフェースを以下に示す。
 
@@ -1442,7 +1436,7 @@ Processorでの処理に用いる代表的なインタフェースを以下に�
 
 .. note:: 
 
-  \ ``AbstractAttributeTagProcessor``\ を継承した抽象クラスがいくつか提供されており、より簡単にProcessorを実装することができる場合がある。詳しくは\ `AbstractAttributeTagProcessor <https://www.thymeleaf.org/apidocs/thymeleaf/3.1.3.RELEASE/org/thymeleaf/processor/element/AbstractAttributeTagProcessor.html>`_\ を参照されたい。
+  \ ``AbstractAttributeTagProcessor``\ を継承した抽象クラスがいくつか提供されており、より簡単にProcessorを実装することができる場合がある。詳しくは\ :url_abstractattributetagprocessor:`AbstractAttributeTagProcessor <>`\ を参照されたい。
 
 |
 
@@ -1453,7 +1447,7 @@ ExpressionObjectはテンプレート内の式から呼び出すメソッドな�
 
 ExpressionObjectはインタフェース等を実装する必要がなく、POJOで定義できる。
 
-日付(\ ``java.util.Date``\ )をyyyy/MM/dd形式でフォーマットして出力するメソッドを持つ式オブジェクトの実装例を以下に示す。
+日付(\ ``java.time.LocalDate``\ )をyyyy/MM/dd形式でフォーマットして出力するメソッドを持つ式オブジェクトの実装例を以下に示す。
 
 .. note:: 
 
@@ -1467,9 +1461,9 @@ ExpressionObjectはインタフェース等を実装する必要がなく、POJO
   public class CustomDateFormat {
 
       // (2)
-      public String formatYYYYMMDD(Date date) {
-          DateFormat dateFormat = new SimpleDateFormat("yyyy/MM/dd");
-          return dateFormat.format(date);
+      public String formatYYYYMMDD(LocalDate date) {
+          DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy/MM/dd");
+          return date.format(formatter);
       }
 
   }
@@ -1512,7 +1506,7 @@ Dialectを実装するためにThymeleafから提供されている代表的な�
 
 .. note:: 
 
-  上記のインタフェース以外にも登録内容ごとに対応するインタフェースが提供されている。詳しくは\ `Tutorial: Extending Thymeleaf -Dialects- <https://www.thymeleaf.org/doc/tutorials/3.1/extendingthymeleaf.html#dialects>`_\ を参照されたい。
+  上記のインタフェース以外にも登録内容ごとに対応するインタフェースが提供されている。詳しくは\ :url_thymeleaf_tutorial:`Tutorial: Extending Thymeleaf -Dialects- </extendingthymeleaf.html#dialects>`\ を参照されたい。
 
 ProcessorとExpressionObjectを登録するDialectの実装例を以下に示す。
 
@@ -1875,6 +1869,16 @@ Thymeleafテンプレートの実装
 
 |
 
+コアパッケージからのクラス使用に一般的な制限
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+| Thymeleaf 3.1では、セキュリティ強化のため、\ ``java.*``\ 、\ ``javax.*``\ 、\ ``jakarta.*``\ などのコアパッケージのクラスに対する使用制限が強化された。
+| 一部の例外を除き、これらのパッケージのクラスに対するメソッド呼び出し、コンストラクタ呼び出し、静的参照は禁止されている。
+| 許可されているクラスには、\ ``java.lang.String``\ 、\ ``java.lang.Integer``\ 、\ ``java.util.List``\ 、\ ``java.util.Map``\ などの基本的なクラスが含まれる。
+| 詳細は\ :url_thymeleaf_articles:`Thymeleaf 3.1: What's new and how to migrate <thymeleaf31whatsnew.html>`\ を参照されたい。
+
+|
+
 Appendix
 --------------------------------------------------------------------------------
 
@@ -2060,7 +2064,7 @@ Appendix
 
     キャッシュされたテンプレート数がキャッシュの最大サイズを超過する場合は、キャッシュ上でテンプレートの入れ替えが行われる。
     
-    \ `Tutorial: Using Thymeleaf -Template Resolvers- <https://www.thymeleaf.org/doc/tutorials/3.1/usingthymeleaf.html#template-resolvers>`_\ には、「キャッシュの生存時間を指定しない場合にはLRU(Least Recently Used)方式でのみキャッシュの削除が行われる」と記述されているが、実際にはFIFO(First-In First-Out)方式で実装されている。
+    \ :url_thymeleaf_tutorial:`Tutorial: Using Thymeleaf -Template Resolvers- </usingthymeleaf.html#template-resolvers>`\ には、「キャッシュの生存時間を指定しない場合にはLRU(Least Recently Used)方式でのみキャッシュの削除が行われる」と記述されているが、実際にはFIFO(First-In First-Out)方式で実装されている。
 
   .. note:: \ **ログを出力する**\
 
@@ -2327,7 +2331,7 @@ HTML（プロトタイプ）とロジックXMLの実装
 * \ ``<attr>``\ タグには、1つの\ ``sel``\ 属性と1つ以上のThymeleafの属性を記述する。
 * \ ``sel``\ 属性にはHTML（プロトタイプ）のどのタグを対象にThymeleafの属性を適用するかを指定するセレクタを記述する。
   セレクタの書式はThymeleaf標準のセレクタと同じである。
-  詳細については\ `Tutorial: Using Thymeleaf -Appendix C: Markup Selector Syntax- <https://www.thymeleaf.org/doc/tutorials/3.1/usingthymeleaf.html#appendix-c-markup-selector-syntax>`_\ を参照されたい。
+  詳細については\ :url_thymeleaf_tutorial:`Tutorial: Using Thymeleaf -Appendix C: Markup Selector Syntax- </usingthymeleaf.html#appendix-c-markup-selector-syntax>`\ を参照されたい。
 * \ ``<attr>``\ タグはネストすることが可能であり、子要素は親要素のセレクタを含めて解釈される。
 
 |
@@ -2539,7 +2543,7 @@ JavaScriptテンプレートの適用
       - | JavaScriptの変数\ ``itemName``\ に\ ``item``\ オブジェクトの\ ``name``\ 属性値を設定するようにJavaScriptのソースコードを生成する。
         | JavaScriptファイルには、特別な定義は不要である。
 
-| これらの実装イメージを見ると分かるが、いずれの場合においてもThymeleafの\ `インライン処理機能 <https://www.thymeleaf.org/doc/tutorials/3.1/usingthymeleaf.html#inlining>`_\ を用いて実装している。その為、まずインライン処理の記法について簡単に説明する。
+| これらの実装イメージを見ると分かるが、いずれの場合においてもThymeleafの\ :url_thymeleaf_tutorial:`インライン処理機能 </usingthymeleaf.html#inlining>`\ を用いて実装している。その為、まずインライン処理の記法について簡単に説明する。
 | （以降、インライン処理用の記法をインライン記法と呼ぶこととする。）
 
 * インライン記法
@@ -2612,7 +2616,7 @@ JavaScriptテンプレートの適用
         - | ブロックの終了要素\ ``[/th:block]``\ を記述し、ブロックの終了を宣言する。
 
     なお、ブロックの開始要素\ ``[#th:block]``\ とブロックの終了要素\ ``[/th:block]``\ は、\ ``th:block``\ を省略してそれぞれ\ ``[# ]``\ 、\ ``[/]``\ のように記述可能である。
-    インライン記法の詳細については、\ `Tutorial: Using Thymeleaf -Inlining- <https://www.thymeleaf.org/doc/tutorials/3.1/usingthymeleaf.html#inlining>`_\ を参照されたい。
+    インライン記法の詳細については、\ :url_thymeleaf_tutorial:`Tutorial: Using Thymeleaf -Inlining- </usingthymeleaf.html#inlining>`\ を参照されたい。
 
 |
 
@@ -2666,7 +2670,7 @@ HTMLファイル内のJavaScriptのテンプレート化
           | 反対に静的表示の際には、Appleが代入され、変数式は無視される。
   
     | テンプレートHTMLの\ :ref:`comment-blocks`\ に対応する機能として、インライン記法におけるコメントブロックが存在する。
-    | 詳細については、\ `Tutorial: Using Thymeleaf -Textual prototype-only comment blocks: adding code- <https://www.thymeleaf.org/doc/tutorials/3.1/usingthymeleaf.html#textual-prototype-only-comment-blocks-adding-code>`_\ と\ `Tutorial: Using Thymeleaf -Textual parser-level comment blocks: removing code- <https://www.thymeleaf.org/doc/tutorials/3.1/usingthymeleaf.html#textual-parser-level-comment-blocks-removing-code>`_\ を参照されたい。
+    | 詳細については、\ :url_thymeleaf_tutorial:`Tutorial: Using Thymeleaf -Textual prototype-only comment blocks: adding code- </usingthymeleaf.html#textual-prototype-only-comment-blocks-adding-code>`\ と\ :url_thymeleaf_tutorial:`Tutorial: Using Thymeleaf -Textual parser-level comment blocks: removing code- </usingthymeleaf.html#textual-parser-level-comment-blocks-removing-code>`\ を参照されたい。
 
     .. note:: \ **JavaScriptのテンプレートの静的表示について**\
 
@@ -2857,7 +2861,7 @@ JavaScriptファイルのテンプレート化
         * - 項番
           - 説明
         * - | (1)
-          - | \ ``forcedContentType``\ プロパティに\ ``true``\ を指定し、レスポンスのContent-Typeヘッダを明示的に設定するようにしている。
+          - | \ ``forceContentType``\ プロパティに\ ``true``\ を指定し、レスポンスのContent-Typeヘッダを明示的に設定するようにしている。
             | \ ``contentType``\ プロパティに\ ``application/javascript;charset=UTF-8``\ を指定している。
         * - | (2)
           - | テンプレートJavaScriptが格納されているベースディレクトリ(ファイルパスのプレフィックス)を指定する。
@@ -2900,7 +2904,7 @@ JavaScriptファイルのテンプレート化
         * - 項番
           - 説明
         * - | (1)
-          - | \ ``forcedContentType``\ プロパティに\ ``true``\ を指定し、レスポンスのContent-Typeヘッダを明示的に設定するようにしている。
+          - | \ ``forceContentType``\ プロパティに\ ``true``\ を指定し、レスポンスのContent-Typeヘッダを明示的に設定するようにしている。
             | \ ``contentType``\ プロパティに\ ``application/javascript;charset=UTF-8``\ を指定している。
         * - | (2)
           - | テンプレートJavaScriptが格納されているベースディレクトリ(ファイルパスのプレフィックス)を指定する。
