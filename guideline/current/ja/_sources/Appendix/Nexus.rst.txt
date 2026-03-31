@@ -2,7 +2,7 @@ NEXUSによるMavenリポジトリの管理
 ================================================================================
 
 | Sonatype NEXUSはパッケージリポジトリマネージャソフトウェアである。
-| \ `OSS版 <https://www.sonatype.com/products/repository-oss>`_\ と\ `商用版 <https://www.sonatype.com/products/repository-pro>`_\ があるが、OSS版でも十分な機能がある。
+| \ :url_sonatype:`OSS版 </repository-oss>`\ と\ :url_sonatype:`商用版 </repository-pro>`\ があるが、OSS版でも十分な機能がある。
 
 本章ではOSS版のNEXUSの役割と設定方法などについて解決する。
 
@@ -36,7 +36,7 @@ NEXUSをインストールするマシンは次の条件を満たしている必
 
 インストール手順は次の通り。
 
-#. \ `NEXUS OSS <https://www.sonatype.com/products/repository-oss>`_\ をダウンロードし、アーカイブを展開する。
+#. \ :url_sonatype:`NEXUS OSS </repository-oss>`\ をダウンロードし、アーカイブを展開する。
 #. bin/nexus または bin/nexus.bat を実行するとNEXUSが起動する。
 #. \ ``http://[IP or FQDN]:8081/nexus/``\ へアクセスし、NEXUSの初期画面が見えることを確認する。
 
@@ -107,7 +107,7 @@ settings.xml
 
 .. note::
 
-  see also: \ `Nexus Repository Manager 2 > Apache Maven <https://help.sonatype.com/repomanager2/maven-and-other-build-tools/apache-maven>`_\
+  see also: \ :url_sonatype_maven:`Nexus Repository Manager 2 > Apache Maven <>`\
 
 |
 
@@ -142,7 +142,7 @@ Jenkinsサーバ内のJenkinsの実行ユーザーのホームディレクトリ
 
   settings.xml上にplain textでパスワードを保存することを避けたい場合には、mavenのパスワード暗号化機能を利用するとよい。
   
-  詳しくは\ `Maven - Password Encryption <https://maven.apache.org/guides/mini/guide-encryption.html>`_\ を参照されたい。
+  詳しくは\ :url_maven:`Maven - Password Encryption </guides/mini/guide-encryption.html>`\ を参照されたい。
 
 Jenkinsのビルドジョブでは次のようにしてmvn deploy手順を設定する。
 

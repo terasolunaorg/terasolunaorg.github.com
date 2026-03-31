@@ -354,7 +354,7 @@ f:query()
 |
 | URLエンコーディング仕様を以下に示す。
 |
-| 本関数では、クエリ文字列のパラメータ名とパラメータ値に対して、\ `RFC 3986 <https://www.ietf.org/rfc/rfc3986.txt>`_\ ベースのURLエンコーディングを行う。
+| 本関数では、クエリ文字列のパラメータ名とパラメータ値に対して、\ :url_ietf_rfc:`RFC 3986 </rfc3986.txt>`\ ベースのURLエンコーディングを行う。
 | RFC 3986では、クエリ文字列のパート以下のように定義している。
 
 .. figure:: ./images_TagLibAndELFunctions/TagLibAndELFunctionsRFC3986UriSyntax.png
@@ -380,7 +380,7 @@ f:query()
     
   共通ライブラリの\ ``f:query()``\ , \ ``f:u()``\ では、内部で上記の仕様変更されたクラスを利用しているが、独自に"\ ``+``\ "をエンコーディングすることで仕様変更の影響を受けないようにしている。
     
-  ガイドラインでは紹介していないが、上記の仕様変更されたクラスを直接利用して\ ``query``\ を含むURIを生成しているアプリケーションでは、"\ ``+``\ "がエンコーディング対象外となったことによる影響を受ける可能性がある為、注意すること。なお、\ ``UriComponentsBuilder``\ では、クエリパラメータに含まれる\ ``unreserved``\ 文字以外をエンコーディングする機能を提供している為、当機能を用いる事でクエリパラメータに含まれる "\ ``+``\ "のエンコーディングは可能である。\ ``UriComponentsBuilder``\ を利用してURIをエンコーディングする方法については、\ `Spring Framework Documentation -URI Encoding- <https://docs.spring.io/spring-framework/docs/6.2.1/reference/html/web.html#web-uri-encoding>`_\ を参照されたい。
+  ガイドラインでは紹介していないが、上記の仕様変更されたクラスを直接利用して\ ``query``\ を含むURIを生成しているアプリケーションでは、"\ ``+``\ "がエンコーディング対象外となったことによる影響を受ける可能性がある為、注意すること。なお、\ ``UriComponentsBuilder``\ では、クエリパラメータに含まれる\ ``unreserved``\ 文字以外をエンコーディングする機能を提供している為、当機能を用いる事でクエリパラメータに含まれる "\ ``+``\ "のエンコーディングは可能である。\ ``UriComponentsBuilder``\ を利用してURIをエンコーディングする方法については、\ :url_spring_reference:`Spring Framework Documentation -URI Encoding- </web/webmvc/mvc-uri-building.html#uri-encoding>`\ を参照されたい。
 
 |
 
@@ -417,7 +417,7 @@ f:query() 関数仕様
 
     指定されたオブジェクトのシンプル型のプロパティ値は、\ ``org.springframework.format.support.DefaultFormattingConversionService``\ の \ ``convert``\ メソッドを使用して文字列に変換される。
 
-    \ ``ConversionService``\ については、\ `Spring Framework Documentation -Spring Type Conversion- <https://docs.spring.io/spring-framework/docs/6.2.1/reference/html/core.html#core-convert>`_\ を参照されたい。
+    \ ``ConversionService``\ については、\ :url_spring_reference:`Spring Framework Documentation -Spring Type Conversion- </core/validation/convert.html>`\ を参照されたい。
 
 \ **戻り値**\
 
@@ -497,7 +497,7 @@ f:query() 関数仕様
 
     Spring Web MVCのバインディング処理(\ ``WebDataBinder``\ )のデフォルト設定では「"\ ``_``\ "(アンダースコア) + プロパティ名」のリクエストパラメータが送信された場合、 \ ``List``\ 、配列、 \ ``Map``\ に対してはそれぞれに対応する空のオブジェクトをバインドし、\ ``boolean``\ 及び\ ``Boolean``\ 型のプロパティに対しては\ ``Boolean``\ 型のfalseをバインドする。
     
-    詳細は、\ `WebDataBinder#getEmptyValueのJavadoc <https://docs.spring.io/spring-framework/docs/6.2.1/javadoc-api/org/springframework/web/bind/WebDataBinder.html#getEmptyValue(java.lang.Class)>`_\ を参照されたい。
+    詳細は、\ :url_spring_javadoc:`WebDataBinder#getEmptyValueのJavadoc </org/springframework/web/bind/WebDataBinder.html#getEmptyValue(java.lang.Class)>`\ を参照されたい。
 
     terasoluna-gfw-webでは、\ ``Boolean``\ 型プロパティで\ ``null``\ がfalseに変換されてしまうことを防ぐために「”_" (アンダースコア) + プロパティ名」のリクエストパラメータを送信しないようにしている。
 
@@ -629,7 +629,7 @@ f:link() 関数仕様
 
         * 引数で指定された文字列が\ ``null``\ の場合は、空文字(\ ``""``\ )を返却
         * HTTP又はHTTPSスキームのURL形式でない場合は、ハイパーリンクを生成せず入力値の文字列を返却
-        * \ `RFC 3986 <https://www.ietf.org/rfc/rfc3986.txt>`_\ で許可していない文字を使用している場合は、ハイパーリンクを生成せず入力値の文字列を返却
+        * \ :url_ietf_rfc:`RFC 3986 </rfc3986.txt>`\ で許可していない文字を使用している場合は、ハイパーリンクを生成せず入力値の文字列を返却
 
 |
 

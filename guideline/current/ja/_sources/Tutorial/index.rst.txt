@@ -7,8 +7,8 @@
   TutorialTodo
   TutorialTodoThymeleaf
   TutorialREST
-  TutorialSession
   TutorialSecurity
+  TutorialSession
 
 .. raw:: latex
 

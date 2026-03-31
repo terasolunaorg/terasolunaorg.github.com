@@ -32,13 +32,18 @@ OSSライブラリの設定
 
   <!-- == Begin Unit Test == -->
   <dependency>
-      <groupId>junit</groupId>
-      <artifactId>junit</artifactId>
+      <groupId>org.junit.jupiter</groupId>
+      <artifactId>junit-jupiter</artifactId>
+      <scope>test</scope>
+  </dependency>
+  <dependency>
+      <groupId>org.assertj</groupId>
+      <artifactId>assertj-core</artifactId>
       <scope>test</scope>
   </dependency>
   <dependency>
       <groupId>org.mockito</groupId>
-      <artifactId>mockito-core</artifactId>
+      <artifactId>mockito-junit-jupiter</artifactId>
       <scope>test</scope>
   </dependency>
   <dependency>
@@ -47,30 +52,21 @@ OSSライブラリの設定
       <scope>test</scope>
   </dependency>
   <dependency>
-    <groupId>org.apache.tomcat.embed</groupId>
-    <artifactId>tomcat-embed-el</artifactId>
-    <scope>test</scope>
+      <groupId>org.apache.tomcat.embed</groupId>
+      <artifactId>tomcat-embed-el</artifactId>
+      <scope>test</scope>
   </dependency>
   <dependency>
-    <groupId>org.dbunit</groupId>
-    <artifactId>dbunit</artifactId>
-    <scope>test</scope>
+      <groupId>org.dbunit</groupId>
+      <artifactId>dbunit</artifactId>
+      <scope>test</scope>
   </dependency>
   <dependency>
-    <groupId>com.github.springtestdbunit</groupId>
-    <artifactId>spring-test-dbunit</artifactId>
-    <scope>test</scope>
-  </dependency>
-  <dependency>
-    <groupId>org.apache.poi</groupId>
-    <artifactId>poi-ooxml</artifactId>
-    <scope>test</scope>
+      <groupId>com.github.springtestdbunit</groupId>
+      <artifactId>spring-test-dbunit</artifactId>
+      <scope>test</scope>
   </dependency>
   <!-- == End Unit Test == -->
-
-.. note::
-
-  上記設定例は、依存ライブラリのバージョンを親プロジェクトであるterasoluna-gfw-parentで管理する前提であるため、\ ``pom.xml``\ でのバージョン指定は不要である。また、\ ``hamcrest``\ については、\ ``junit``\ が依存関係を解決しているため、改めて定義する必要はない。
 
 .. tip:: \ **PostgreSQLドライバの追加方法について**\
 
@@ -98,6 +94,11 @@ OSSライブラリの設定
     - 利用シーン
   * - | \ ``<jdbc:initialize-database>``\ 要素を使用する。
     - | \ ``<jdbc:initialize-database>``\ 要素を定義した設定ファイルをテスト実施時に読み込みセットアップする。
+
+      .. warning::
+
+        \ ``<jdbc:initialize-database>``\ 要素に設定するSQLファイルには、明示的に「COMMIT;」を記述すること。 
+
     - | インメモリデータベース(H2 Database)をセットアップする際に使用する。
   * - | initdbプロジェクトを使用する。
     - | テスト実施と分離して事前にDBの初期化ができる。
@@ -108,13 +109,9 @@ OSSライブラリの設定
       | メソッドレベルで指定した場合は指定したテストメソッドだけで、クラスレベルで指定した場合は\ ``@Sql``\ アノテーションの指定がないすべてのテストメソッドで、実行前後にSQLを発行できる。
     - | テストごとにテストデータをセットアップする際に使用する。
 
-.. warning::
-
-  \ ``<jdbc:initialize-database>``\ タグに設定するSQLファイルには、明示的に「COMMIT;」を記述すること。
-
 | 単体テストで利用するスキーマのセットアップは、テストごとではなくテスト実施前にまとめて実施されることが想定される。
 | そのため、本章ではテストと分離したinitdbプロジェクトを使用してスキーマを作成することを前提に説明する。
-| initdbプロジェクトについては、\ :ref:`CreateWebApplicationProjectConfigurationInitdb`\ を参照されたい。
+| initdbプロジェクトについては、\ :ref:`BlankProjectInitdbModuleConfiguration`\ を参照されたい。
 
 | 一方、テストデータのセットアップはテストごとに実施されることが想定される。
 | そのため、本章ではテストクラスまたはテストメソッド毎にSQLを発行できる\ ``@Sql``\ アノテーションを使用することを前提に説明する。
@@ -159,7 +156,7 @@ OSSライブラリの設定
 
   また、\ ``@Sql``\ アノテーションはデフォルトで有効になっている\ ``SqlScriptsTestExecutionListener``\ によって実行される。
 
-  詳細は、\ `Executing SQL scripts declaratively with @Sql <https://docs.spring.io/spring-framework/docs/6.2.1/reference/html/testing.html#testcontext-executing-sql-declaratively>`_\ を参照されたい。
+  詳細は、\ :url_spring_reference:`Executing SQL scripts declaratively with @Sql </testing/testcontext-framework/executing-sql.html#testcontext-executing-sql-declaratively>`\ を参照されたい。
 
   なお、\ ``@Sql``\ アノテーションと\ ``@SqlConfig``\ アノテーションによる構成は\ ``<jdbc:initialize-database>``\ 要素による構成の上位セットである。
 
@@ -203,22 +200,18 @@ OSSライブラリの設定
 | なお、Spring Test DBUnitを使用してデータのセットアップをする場合は、\ ``@DatabaseSetup``\ アノテーションを使用することでテストコードにテストデータを定義したファイルを読み込ませることができる。
 | \ ``@DatabaseSetup``\ アノテーションはクラスレベル、メソッドレベルで指定でき、メソッドレベルに指定した場合は指定したメソッド、クラスレベルで指定した場合は各メソッドのテスト実行前に指定したファイルでデータのセットアップが行われる。
 
-| 本章では、Excel形式（.xlsx）のデータ定義ファイルを使用することを前提に説明する。
-| Excel形式に対応する\ ``DataSetLoader``\ インタフェースの実装例を以下に示す。
+| 本章では、CSV形式のデータ定義ファイルを使用することを前提に説明する。
+| CSV形式に対応する\ ``DataSetLoader``\ インタフェースの実装例を以下に示す。
 
-* \ ``XlsDataSetLoader.java``\
+* \ ``CsvDataSetLoader.java``\
 
 .. code-block:: java
 
-  public class XlsDataSetLoader extends AbstractDataSetLoader { // (1)
-
-      @Override
-      protected IDataSet createDataSet(
-              Resource resource) throws IOException, DataSetException {
-          try (InputStream inputStream = resource.getInputStream()) {
-              return new XlsDataSet(inputStream);
-          }
-      }
+  public class CsvDataSetLoader extends AbstractDataSetLoader { // (1)
+    @Override
+    protected IDataSet createDataSet(Resource resource) throws IOException, DataSetException {
+        return new CsvDataSet(resource.getFile());
+    }
   }
 
 .. tabularcolumns:: |p{0.10\linewidth}|p{0.90\linewidth}|
@@ -229,24 +222,38 @@ OSSライブラリの設定
   * - 項番
     - 説明
   * - | (1)
-    - | Spring Test DBUnitが提供する抽象基底クラスである\ ``com.github.springtestdbunit.dataset.AbstractDataSetLoader``\ を利用して、Excel形式のデータ定義ファイルの\ ``XlsDataSetLoader``\ クラスを定義する。
+    - | Spring Test DBUnitが提供する抽象基底クラスである\ ``com.github.springtestdbunit.dataset.AbstractDataSetLoader``\ を継承して、CSV形式のデータ定義ファイルの\ ``CsvDataSetLoader``\ クラスを定義する。
 
 * \ ``MemberRepositoryDbunitTest.java``\
 
 .. code-block:: java
 
   // omitted
-  @DbUnitConfiguration(dataSetLoader = XlsDataSetLoader.class) // (1)
+  @DbUnitConfiguration(dataSetLoader = CsvDataSetLoader.class) // (1)
   public class MemberRepositoryDbunitTest {
       // omitted
 
       @Test
-      @DatabaseSetup("classpath:META-INF/dbunit/setup_MemberLogin.xlsx")
-      @ExpectedDatabase(value = "classpath:META-INF/dbunit/expected_testUpdateMemberLogin.xlsx", assertionMode = DatabaseAssertionMode.NON_STRICT_UNORDERED)
+      @DatabaseSetup("classpath:META-INF/dbunit/setup_MemberLogin") // (2)
+      @ExpectedDatabase(value = "classpath:META-INF/dbunit/expected_testUpdateMemberLogin",
+                  assertionMode = DatabaseAssertionMode.NON_STRICT_UNORDERED) // (3)
       public void testUpdateMemberLogin() {
-
           // omitted
+      }
   }
+
+* ディレクトリ構成
+
+.. code-block:: console
+
+    META-INF
+      └─ dbunit
+           ├─ expected_testUpdateMemberLogin // (3)
+           │    ├─ MEMBER_LOGIN.csv // (4)
+           │    └─ table-ordering.txt // (5)
+           └─ setup_MemberLogin // (2)
+               ├─ MEMBER_LOGIN.csv // (4)
+               └─ table-ordering.txt // (5)
 
 .. tabularcolumns:: |p{0.10\linewidth}|p{0.90\linewidth}|
 .. list-table::
@@ -256,20 +263,22 @@ OSSライブラリの設定
   * - 項番
     - 説明
   * - | (1)
-    - | \ ``@DbUnitConfiguration``\ アノテーションに\ ``XlsDataSetLoader``\ クラスを指定することで、\ ``@DatabaseSetup``\ アノテーションを使用したExcel形式のデータ定義ファイル読込みができるようになる。
+    - | \ ``@DbUnitConfiguration``\ アノテーションに\ ``CsvDataSetLoader``\ クラスを指定することで、\ ``@DatabaseSetup``\ アノテーションを使用したCSV形式のデータ定義ファイル読込みができるようになる。
+  * - | (2)
+    - | \ ``@DatabaseSetup``\ アノテーションでテストの事前準備データを定義したCSV形式のデータ定義ファイルを指定する。ここでは、\ ``classpath:META-INF/dbunit/setup_MemberLogin``\ ディレクトリを指定している。
+  * - | (3)
+    - | \ ``@ExpectedDatabase``\ アノテーションでテスト後に期待されるデータベースの状態を定義したCSV形式のデータ定義ファイルを指定する。\ ``assertionMode``\ 属性には\ ``DatabaseAssertionMode.NON_STRICT_UNORDERED``\ を指定することで、期待結果データファイルに存在しないテーブル、カラムを無視し、かつ行の順序も無視して検証できる。
+  * - | (4)
+    - | テーブルのデータを定義したCSVファイル。ファイル名はテーブル名と一致させる必要がある。CSVファイルの一行目にはカラム名を設定し、二行目以降にテーブルに挿入されるデータを記述する。
+  * - | (5)
+    - | CSVファイルを読み込む順序を定義したファイル。複数のテーブルを扱う場合、外部キー制約のあるテーブルに対してデータを投入する際に参照整合性を保つために、このファイルでテーブル名を読み込む順序で記述する。
+      | 当ファイルが存在しない場合は、ファイル名のアルファベット順にCSVファイルが読み込まれる。 
 
-* Excel形式のデータ定義ファイル（setup_MemberLogin.xlsx）
+.. note:: \ **Excel形式のデータ定義ファイルを使用する場合**\
 
-.. figure:: ./images_PreparationForTest/PreparationForTestExcelFile.png
-  :width: 70%
-
-| Excel形式のデータ定義ファイルでは、各シートが各テーブルに対応する。
-| シート名にはテーブル名、シートの一行目にはカラム名を設定する。
-| 二行目以降にテーブルに挿入されるデータを記述する。
-
-.. note:: \ **CSV形式のデータ定義ファイルを使用する場合**\
-
-  DBUnitでCSV形式のデータ定義ファイルを使用する場合は、\ ``IDataSet``\ インタフェースの実装クラスとして\ ``org.dbunit.dataset.csv.CsvDataSet.CsvDataSet``\ クラスを使用することで実現できる。
+  DBUnitでExcel形式のデータ定義ファイルを使用する場合は、\ ``IDataSet``\ インタフェースの実装クラスとして\ ``org.dbunit.dataset.excel.XlsDataSet``\ クラスを使用することで実現できる。
+  
+  \ ``XlsDataSet``\ クラスはApache POIに依存しているため、 \ ``XlsDataSet``\ クラスを使用している場合は依存関係にApache POIを追加する必要がある。
 
 .. note:: \ **DBUnitがデフォルトで読み込むファイル形式について**\
 

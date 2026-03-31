@@ -903,7 +903,7 @@ JdbcCodeListの使用方法
        * - | (9)
          - | CSSのclassセレクタで\ ``display: block;``\ を指定して改行させることができる。
        * - | (10)
-         - | \ ``#ids.prev``\ メソッドを使用して、\ ``input``\ タグの\ ``id``\ 名と対応付けることができる。詳細は、\ :ref:`#ids.prevメソッドについて<Validation_ids_prev_method>`\ を参照されたい。
+         - | \ ``#ids.prev``\ メソッドを使用して、\ ``input``\ タグの\ ``id``\ 名と対応付けることができる。詳細は、\ :ref:`#ids.prevメソッドについて<ValidationIdsPrevMethod>`\ を参照されたい。
 
     \ **出力HTML**\
 
@@ -1568,7 +1568,7 @@ I18nCodeListにおけるロケール解決
 デフォルトのロケールは以下の順序で決定する。
 
 #. \ ``fallbackTo``\ プロパティが指定されている場合は、指定されたロケールを使用する。
-#. \ ``fallbackTo``\ プロパティが指定されていない場合は、JVMインスタンスの\ `デフォルトロケール <https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/util/Locale.html#getDefault()>`_ \ 、もしくは対応する言語のみのロケールを使用する。
+#. \ ``fallbackTo``\ プロパティが指定されていない場合は、JVMインスタンスの\ :url_javase17:`デフォルトロケール </docs/api/java.base/java/util/Locale.html#getDefault()>`\ 、もしくは対応する言語のみのロケールを使用する。
 
 .. warning::
 
@@ -1957,7 +1957,7 @@ How to extend
 #. Task Schedulerで実現する方法
 #. Controller(Service)クラスでrefreshメソッドを呼び出す方法
 
-本ガイドラインでは、\ `Springから提供されているTask Scheduler <https://docs.spring.io/spring-framework/docs/6.2.1/reference/html/integration.html#scheduling>`_\ を使用して、コードリストを定期的にリロードする方式を基本的に推奨する。
+本ガイドラインでは、\ :url_spring_reference:`Springから提供されているTask Scheduler </integration/scheduling.html>`\ を使用して、コードリストを定期的にリロードする方式を基本的に推奨する。
 
 ただし、任意のタイミングでコードリストをリフレッシュする必要がある場合はControllerクラスでrefreshメソッドを呼び出す方法で実現すればよい。
 
@@ -2032,7 +2032,7 @@ Task Schedulerの設定例について、以下に示す。
             | 毎時実行               「0 0 \* \* \* \*」
             | 平日の9-17時の毎時実行 「0 0 9-17 \* \* MON-FRI」
             |
-            | cronの指定値の詳細については、\ `CronExpressionのJavaDoc <https://docs.spring.io/spring-framework/docs/6.2.1/javadoc-api/org/springframework/scheduling/support/CronExpression.html#parse(java.lang.String)>`_\ を参照されたい。
+            | cronの指定値の詳細については、\ :url_spring_javadoc:`CronExpressionのJavaDoc </org/springframework/scheduling/support/CronExpression.html#parse(java.lang.String)>`\ を参照されたい。
 
   .. group-tab:: XML Config
 
@@ -2076,7 +2076,7 @@ Task Schedulerの設定例について、以下に示す。
             | 毎時実行               「0 0 \* \* \* \*」
             | 平日の9-17時の毎時実行 「0 0 9-17 \* \* MON-FRI」
             |
-            | cronの指定値の詳細については、\ `CronExpressionのJavaDoc <https://docs.spring.io/spring-framework/docs/6.2.1/javadoc-api/org/springframework/scheduling/support/CronExpression.html#parse(java.lang.String)>`_\ を参照されたい。
+            | cronの指定値の詳細については、\ :url_spring_javadoc:`CronExpressionのJavaDoc </org/springframework/scheduling/support/CronExpression.html#parse(java.lang.String)>`\ を参照されたい。
 
 |
 

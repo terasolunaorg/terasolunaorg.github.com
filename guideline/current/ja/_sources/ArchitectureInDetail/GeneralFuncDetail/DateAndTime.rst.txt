@@ -31,20 +31,20 @@ How to use
   * - クラス名
     - 説明
     - 主なファクトリメソッド
-  * - | \ `java.time.LocalDate <https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/time/LocalDate.html>`_\
-      | \ `java.time.LocalTime <https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/time/LocalTime.html>`_\
-      | \ `java.time.LocalDateTime <https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/time/LocalDateTime.html>`_\
+  * - | \ :url_javase17:`java.time.LocalDate </docs/api/java.base/java/time/LocalDate.html>`\
+      | \ :url_javase17:`java.time.LocalTime </docs/api/java.base/java/time/LocalTime.html>`\
+      | \ :url_javase17:`java.time.LocalDateTime </docs/api/java.base/java/time/LocalDateTime.html>`\
     - タイムゾーン・時差の情報を持たない日付・時刻の操作を行うクラス
     - | \ ``now``\  : 現在日時で生成
       | \ ``of``\  : 任意日時で生成
       | \ ``parse``\  : 日時文字列から生成
       | \ ``from``\  : 日時情報を持つ他オブジェクトから生成
-  * - | \ `java.time.OffsetTime <https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/time/OffsetTime.html>`_\
-      | \ `java.time.OffsetDateTime <https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/time/OffsetDateTime.html>`_\
-      | \ `java.time.ZonedDateTime <https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/time/ZonedDateTime.html>`_\
+  * - | \ :url_javase17:`java.time.OffsetTime </docs/api/java.base/java/time/OffsetTime.html>`\
+      | \ :url_javase17:`java.time.OffsetDateTime </docs/api/java.base/java/time/OffsetDateTime.html>`\
+      | \ :url_javase17:`java.time.ZonedDateTime </docs/api/java.base/java/time/ZonedDateTime.html>`\
     - タイムゾーン・時差を考慮した日付・時刻の操作を行うクラス
     - 同上
-  * - | \ `java.time.chrono.JapaneseDate <https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/time/chrono/JapaneseDate.html>`_\
+  * - | \ :url_javase17:`java.time.chrono.JapaneseDate </docs/api/java.base/java/time/chrono/JapaneseDate.html>`\
     - 和暦の操作を行うクラス
     - 同上
      
@@ -58,8 +58,8 @@ How to use
   * - クラス名
     - 説明
     - 主なファクトリメソッド
-  * - | \ `java.time.Period <https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/time/Period.html>`_\
-      | \ `java.time.Duration <https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/time/Duration.html>`_\
+  * - | \ :url_javase17:`java.time.Period </docs/api/java.base/java/time/Period.html>`\
+      | \ :url_javase17:`java.time.Duration </docs/api/java.base/java/time/Duration.html>`\
     - 日時ベース、時間ベースの期間を扱うクラス
     - | \ ``between``\  : 日時情報を持つ2つのオブジェクトの差から生成
       | \ ``from``\  : 時間量を持つ他オブジェクトから生成
@@ -76,7 +76,7 @@ How to use
   * - クラス名
     - 説明
     - 主なファクトリメソッド
-  * - | `java.time.Clock <https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/time/Clock.html>`_
+  * - | \ :url_javase17:`java.time.Clock </docs/api/java.base/java/time/Clock.html>`\
     - タイムゾーンを使用して現在の時刻、日付、時刻へのアクセスを提供するクラス
     - | \ ``fixed``\  : 常に同じ瞬間を返すClockを生成
       | \ ``tick``\  : 指定した瞬間からの変動時刻を返すClockを生成
@@ -93,7 +93,7 @@ How to use
   * - クラス名
     - 説明
     - 主なファクトリメソッド
-  * - | \ `java.time.format.DateTimeFormatter <https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/time/format/DateTimeFormatter.html>`_\
+  * - | \ :url_javase17:`java.time.format.DateTimeFormatter </docs/api/java.base/java/time/format/DateTimeFormatter.html>`\
     - | 日時のフォーマットに関する操作を行うクラス
     - | \ ``ofPattern``\  : 指定されたパターンでフォーマッタを生成
 
@@ -101,7 +101,7 @@ How to use
 
 .. note::
 
-   本ガイドラインで触れなかった内容を含め、詳細は\ `Javadoc <https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/time/package-summary.html>`_\ を参照されたい。
+   本ガイドラインで触れなかった内容を含め、詳細は\ :url_javase17:`Javadoc </docs/api/java.base/java/time/package-summary.html>`\ を参照されたい。
 
 .. note::
 
@@ -109,7 +109,7 @@ How to use
 
 .. note::
 
-  Java SE 17のロケールデータはCLDRがデフォルトとなる。(\ `JEP 252 <https://openjdk.org/jeps/252>`_\ 参照。)
+  Java SE 17のロケールデータはCLDRがデフォルトとなる。(\ :url_jep252:`JEP 252 <>`\ 参照。)
 
   Java SE 8以前のロケールデータ(COMPAT)に切り替えたい場合は\ :ref:`change-default-locale--data-from-java9`\ を参照されたい。
 
@@ -283,7 +283,7 @@ How to use
 
 .. note::
 
-   \ ``of``\ メソッドを利用して、期間を指定して生成する方法もある。詳細は\ `Period, DurationのJavadoc <https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/time/package-summary.html>`_\ を参照されたい。
+   \ ``of``\ メソッドを利用して、期間を指定して生成する方法もある。詳細は\ :url_javase17:`Period, DurationのJavadoc </docs/api/java.base/java/time/package-summary.html>`\ を参照されたい。
 
 |
 
@@ -381,7 +381,7 @@ Date and Time APIの各クラスの相互運用性
 
 |
 | この他についても、不足している情報（\ ``LocalTime``\ から\ ``LocalDateTime``\ の変換であれば日付の情報が不足している の要領）を加えることで別のクラスへ変換が可能である。
-| 変換メソッドは接頭辞が\ ``at``\ または\ ``to``\ で始まる。詳細は\ `各クラスのJavadoc <https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/time/package-summary.html>`_\ を参照されたい。
+| 変換メソッドは接頭辞が\ ``at``\ または\ ``to``\ で始まる。詳細は\ :url_javase17:`各クラスのJavadoc </docs/api/java.base/java/time/package-summary.html>`\ を参照されたい。
 |
 
 java.util.Dateとの相互運用性
@@ -486,7 +486,7 @@ java.sql パッケージとの相互運用性
 |
 | なお、Date and Time API では書式\ ``yyyy``\ は暦に対する年を表すため、暦によって解釈が異なる(西暦なら2015と解釈されるが、和暦なら0027と解釈される）。
 | 西暦を表したい場合は、\ ``yyyy``\ 形式に変えて\ ``uuuu``\ 形式を利用することを推奨する。
-| 定義されている書式一覧は\ `DateTimeFormatter <https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/time/format/DateTimeFormatter.html#patterns>`_\ を参照されたい。
+| 定義されている書式一覧は\ :url_javase17:`DateTimeFormatter </docs/api/java.base/java/time/format/DateTimeFormatter.html#patterns>`\ を参照されたい。
 |
 | 以下に例を示す。
 
@@ -643,12 +643,12 @@ java.sql パッケージとの相互運用性
     june.isAfter(june); // false
 
 |
-| なお、Date and Time APIの標準機能では期間を取得するAPI(\ `JodaTimeのInterval <https://www.joda.org/joda-time/apidocs/org/joda/time/Interval.html>`_\ に相当するAPI)は存在しない。
+| なお、Date and Time APIの標準機能では期間を取得するAPI(\ :url_jodatime_interval:`JodaTimeのInterval <>`\ に相当するAPI)は存在しない。
 |
 
 .. **TBD** 内部コメント
 
-  JSR-310 Date and Time APIの拡張機能として\ `ThreeTen-Extra <https://www.threeten.org/threeten-extra/>`_\ というライブラリが存在している。
+  JSR-310 Date and Time APIの拡張機能として\ :url_threeten_extra:`ThreeTen-Extra <>`\ というライブラリが存在している。
   このThreeTen-ExtraライブラリではInterval相当の処理が提供されているが、BSD-3-Clauseライセンスであるためここでは案内しないこととする。
 
 日時の判定
@@ -846,7 +846,7 @@ java.sql パッケージとの相互運用性
 JSP Tag Library
 """"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 | JSTLの fmt:formatDate タグは、java.util.Dateと、java.util.TimeZoneオブジェクトを扱う。
-| JSR-310 Date And Timeのオブジェクトを扱うためには、\ `Java 8 java.time JSP tags <https://github.com/sargue/java-time-jsptags#java-8-javatime-jsp-tags>`_\ を使用する。
+| JSR-310 Date And Timeのオブジェクトを扱うためには、\ :url_javatime_jsptags:`Java 8 java.time JSP tags <>`\ を使用する。
 | 機能面でJSTLとほぼ同じであるため、JSTLの知識がある場合は、JSR-310 Date And TimeのJSPタグライブラリを容易に使える。
 
 |
@@ -854,7 +854,7 @@ JSP Tag Library
 設定方法
 ''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
 
-タブライブラリを利用するには、以下のtaglib定義が必要である。
+タグライブラリを利用するには、以下のtaglib定義が必要である。
 
 .. code-block:: jsp
 
@@ -862,7 +862,7 @@ JSP Tag Library
 
 |
 
-javatime:formateタグ
+javatime:formatタグ
 ''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
 
 javatime:formatタグとは、LocalDate、LocalTime、LocalDateTimeオブジェクトをフォーマットするタグである。
@@ -904,7 +904,7 @@ javatime:formatタグの属性一覧は、以下の通りである。
     - Description
   * - 1.
     - | value
-    - | \ `Temporal <https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/time/temporal/Temporal.html>`_\ インスタンスを設定する。
+    - | \ :url_javase17:`Temporal </docs/api/java.base/java/time/temporal/Temporal.html>`\ インスタンスを設定する。
   * - 2.
     - | var
     - | 時刻情報を持つ変数名
@@ -926,12 +926,12 @@ javatime:formatタグの属性一覧は、以下の通りである。
   * - 6.
     - | pattern
     - | フォーマットするためのパターン（uuuuMMddなど）。
-      | 入力可能なパターンは、\ `DateTimeFormatterのjavadoc <https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/time/format/DateTimeFormatter.html>`_\ を参照されたい。
+      | 入力可能なパターンは、\ :url_javase17:`DateTimeFormatterのjavadoc </docs/api/java.base/java/time/format/DateTimeFormatter.html>`\ を参照されたい。
   * - 7.
     - | dateTimeZone
     - | タイムゾーン
 
-ほかのタグについては、\ `Java 8 java.time JSP tags <https://github.com/sargue/java-time-jsptags#java-8-javatime-jsp-tags>`_\ を参照されたい。
+ほかのタグについては、\ :url_javatime_jsptags:`Java 8 java.time JSP tags <>`\ を参照されたい。
 
 |
 
@@ -949,7 +949,7 @@ Thymeleafのダイアレクト
 
       Java8 Time Dialectは、Thymeleafで公式にサポートされている。
 
-      Java8 Time Dialectに関する情報は、\ `thymeleaf-extras-java8time <https://github.com/thymeleaf/thymeleaf-extras-java8time/tree/3.0-master#thymeleaf---module-for-java-8-time-api-compatibility>`_\ を参照されたい。
+      Java8 Time Dialectに関する情報は、\ :url_thymeleaf_github:`thymeleaf-extras-java8time </thymeleaf-extras-java8time/tree/3.0-master#thymeleaf---module-for-java-8-time-api-compatibility>`\ を参照されたい。
 
     .. tip::
 
@@ -1131,7 +1131,7 @@ Viewの実装
     
     (例) \ ``arrayFormat(...)``\ 、\ ``listFormat(...)``\ 、\ ``setFormat(...)``\ など
     
-  各メソッドの詳細については、\ `thymeleaf-extras-java8time - Usage <https://github.com/thymeleaf/thymeleaf-extras-java8time/tree/3.0-master#usage>`_\ を参照されたい。
+  各メソッドの詳細については、\ :url_thymeleaf_github:`thymeleaf-extras-java8time - Usage </thymeleaf-extras-java8time/tree/3.0-master#usage>`\ を参照されたい。
 
   \ ``format``\ メソッドのシグネチャについては、\ :ref:`DateAndTimeImplementationView`\ でも説明している。
 
@@ -1139,7 +1139,7 @@ Viewの実装
 
   上記のメソッド以外に、現在日時の日付オブジェクトや、年・月・日やタイムゾーンを指定して日付オブジェクトを生成するメソッドがある。
 
-  これらメソッドのシグネチャの情報については、\ `thymeleaf-extras-java8time - Usage <https://github.com/thymeleaf/thymeleaf-extras-java8time/tree/3.0-master#usage>`_\ を参照されたい。
+  これらメソッドのシグネチャの情報については、\ :url_thymeleaf_github:`thymeleaf-extras-java8time - Usage </thymeleaf-extras-java8time/tree/3.0-master#usage>`\ を参照されたい。
     
   ただし、これらのメソッドを利用してViewで日付を生成することは推奨しない。なぜなら、これらのメソッドはシステム日付を取得するため、意図しない日時となり得るためである。
 

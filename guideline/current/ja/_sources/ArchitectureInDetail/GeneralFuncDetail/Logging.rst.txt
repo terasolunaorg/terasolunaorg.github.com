@@ -3,7 +3,7 @@
 
 .. only:: html
 
-.. contents::
+.. contents:: 目次
   :depth: 3
   :local:
 
@@ -16,19 +16,18 @@
 Overview
 --------------------------------------------------------------------------------
 
-| システムを運用する上、業務使用量の調査、システムダウンや、
-| 業務エラー等でその原因を究明するための情報源として、ログおよびメッセージを出力する。
+| システムを運用する上、業務使用量の調査、システムダウンや、業務エラー等でその原因を究明するための情報源として、ログおよびメッセージを出力する。
 
 | デバッグ時にログ出力を取り入れることで、解析の作業効率が格段に向上するため、ログを出力しておくことは重要である。
 
 | 動きを確認するだけであれば、IDEのデバッグ実行や、\ ``System.out.println``\ のような簡易的な出力で行える。
 | しかし、出力結果を手動で保存しておかないと、後に結果の確認ができず、解析の作業効率が格段に下がる。
-| ロギングライブラリを導入してログをとることは、出力するコードを書くのみで、
-| その後、好きなタイミングでログを確認することができる。
+| ロギングライブラリを導入してログをとることは、出力するコードを書くのみで、その後、好きなタイミングでログを確認することができる。
 | 作業の時間、証跡、解析を考えると、ロギングライブラリを導入することを推奨する。
 
-| Javaでは、ログ出力の方法は複数あり、多くの方法が選べるが、コーディングの簡易性、変更の容易性、性能を判断して、
-| 本ガイドラインでは、ロギングライブラリに、\ `SLF4J <https://www.slf4j.org/>`_\ (インタフェース) + \ `Logback <https://logback.qos.ch/>`_\ (実装)を推奨している。
+| Javaでは、ログ出力の方法は複数あり、多くの方法が選べるが、コーディングの簡易性、変更の容易性、性能を判断して、本ガイドラインではロギングライブラリに、\ :url_slf4j:`SLF4J </>`\ (インタフェース) + \ :url_logback:`Logback </>`\ (実装)を推奨している。
+| なお、SpringなどのOSSではJCL(\ :url_commons_logging:`Apache Commons Logging <>`\ )を使用している場合があるため、OSSのログ出力に関しては注意が必要である。
+| JCLで呼び出されるログをSLF4Jにブリッジする方法については\ :ref:`logging_jcl_logging`\ を参照されたい。
 |
 
 ログの種類
@@ -191,6 +190,7 @@ Overview
 
   ログを出力する際は、どこで出力されたかわかりやすくなるように、他のログと、全く同じ内容を出力にならないように注意すること。
 
+ 
 |
 
 How to use
@@ -208,13 +208,13 @@ SLF4J + Logbackでログを出力するには、
 Logbackの設定
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 | Logbackの設定は、クラスパス直下のlogback.xmlに記述する。以下に、設定例を示す。
-| logback.xmlの詳細な設定方法については、\ `Logbackの公式マニュアル -Logback configuration- <https://logback.qos.ch/manual/configuration.html>`_\ を参照されたい。
+| logback.xmlの詳細な設定方法については、\ :url_logback:`Logbackの公式マニュアル -Logback configuration- </manual/configuration.html>`\ を参照されたい。
 
 .. note::
 
   Logbackの設定は、以下のルールにより自動で読み込まれる。
 
-  #. \ ``com.qos.logback.classic.spi.Configurator``\ インタフェースの実装クラスの設定内容 (\ `ServiceLoader <https://docs.oracle.com/javase/8/docs/api/java/util/ServiceLoader.html>`_\ の仕組みを使用して実装クラスを指定)
+  #. \ ``com.qos.logback.classic.spi.Configurator``\ インタフェースの実装クラスの設定内容 (\ :url_serviceloader:`ServiceLoader <>`\ の仕組みを使用して実装クラスを指定)
   #.  \ ``Configurator``\ インタフェースの実装クラスが見つからない場合、\ ``ch.qos.logback.classic.util.DefaultJoranConfigurator``\ を使用し、クラスパス上の\ ``META-INF/services/ch.qos.logback.classic.spi.Configurator``\ を検索することにより\ ``Configurator``\ インタフェースの実装を解決する。\ ``META-INF/services/ch.qos.logback.classic.spi.Configurator``\ には、期待する\ ``Configurator``\ インタフェースの実装クラスの完全修飾クラス名を指定する必要がある。
   #. 「2」のファイルが見つからない場合、クラスパス上のlogback-test.xml
   #. 「3」のファイルが見つからない場合、クラスパス上のlogback.xml
@@ -222,7 +222,7 @@ Logbackの設定
 
   本ガイドラインでは、logback.xmlをクラスパス上に配置することを推奨する。
 
-  このほか、自動読み込み以外にも、\ `APIによってプログラマティックに読み込んだり <https://logback.qos.ch/manual/configuration.html#joranDirectly>`_\ 、\ `システムプロパティで設定ファイルを指定 <https://logback.qos.ch/manual/configuration.html#configFileProperty>`_\ することができる。
+  このほか、自動読み込み以外にも、\ :url_logback:`APIによってプログラマティックに読み込んだり </manual/configuration.html#joranDirectly>`\ 、\ :url_logback:`システムプロパティで設定ファイルを指定 </manual/configuration.html#configFileProperty>`\ することができる。
 
 |
 
@@ -235,7 +235,7 @@ Logbackの設定
 
       <appender name="STDOUT" class="ch.qos.logback.core.ConsoleAppender"> <!-- (1) -->
           <encoder>
-              <pattern><![CDATA[date:%d{yyyy-MM-dd HH:mm:ss}\tthread:%thread\tX-Track:%X{X-Track}\tlevel:%-5level\tlogger:%-48logger{48}\tmessage:%replace(%msg){'(\r\n|\r|\n)','$1  '}%n%replace(%replace(%xEx){'(\r\n|\r|\n)','$1  '}){'  $',''}%nopex]]></pattern> <!-- (2) -->
+              <pattern><![CDATA[date:%d{yyyy-MM-dd HH:mm:ss}\tthread:%thread\tX-Track:%replace(%X{X-Track}){'[\p{IsControl}&&[^\t\r\n]]','<CTRL>'}\tlevel:%-5level\tlogger:%-48logger{48}\tmessage:%replace(%replace(%msg){'[\p{IsControl}&&[^\t\r\n]]','<CTRL>'}){'(\r\n|\r|\n)','$1  '}%n%replace(%replace(%replace(%xEx){'[\p{IsControl}&&[^\t\r\n]]','<CTRL>'}){'(\r\n|\r|\n)','$1  '}){'  $',''}%nopex]]></pattern> <!-- (2) -->
           </encoder>
       </appender>
 
@@ -247,7 +247,7 @@ Logbackの設定
           </rollingPolicy>
           <encoder>
               <charset>UTF-8</charset> <!-- (7) -->
-              <pattern><![CDATA[date:%d{yyyy-MM-dd HH:mm:ss}\tthread:%thread\tX-Track:%X{X-Track}\tlevel:%-5level\tlogger:%-48logger{48}\tmessage:%replace(%msg){'(\r\n|\r|\n)','$1  '}%n%replace(%replace(%xEx){'(\r\n|\r|\n)','$1  '}){'  $',''}%nopex]]></pattern>
+              <pattern><![CDATA[date:%d{yyyy-MM-dd HH:mm:ss}\tthread:%thread\tX-Track:%replace(%X{X-Track}){'[\p{IsControl}&&[^\t\r\n]]','<CTRL>'}\tlevel:%-5level\tlogger:%-48logger{48}\tmessage:%replace(%replace(%msg){'[\p{IsControl}&&[^\t\r\n]]','<CTRL>'}){'(\r\n|\r|\n)','$1  '}%n%replace(%replace(%replace(%xEx){'[\p{IsControl}&&[^\t\r\n]]','<CTRL>'}){'(\r\n|\r|\n)','$1  '}){'  $',''}%nopex]]></pattern>
           </encoder>
       </appender>
 
@@ -259,7 +259,7 @@ Logbackの設定
           </rollingPolicy>
           <encoder>
               <charset>UTF-8</charset>
-              <pattern><![CDATA[date:%d{yyyy-MM-dd HH:mm:ss}\tX-Track:%X{X-Track}\tlevel:%-5level\tmessage:%replace(%msg){'(\r\n|\r|\n)','$1  '}%n%replace(%replace(%xEx){'(\r\n|\r|\n)','$1  '}){'  $',''}%nopex]]></pattern>
+              <pattern><![CDATA[date:%d{yyyy-MM-dd HH:mm:ss}\tX-Track:%replace(%X{X-Track}){'[\p{IsControl}&&[^\t\r\n]]','<CTRL>'}\tlevel:%-5level\tmessage:%replace(%replace(%msg){'[\p{IsControl}&&[^\t\r\n]]','<CTRL>'}){'(\r\n|\r|\n)','$1  '}%n%replace(%replace(%replace(%xEx){'[\p{IsControl}&&[^\t\r\n]]','<CTRL>'}){'(\r\n|\r|\n)','$1  '}){'  $',''}%nopex]]></pattern>
           </encoder>
       </appender>
 
@@ -350,7 +350,7 @@ Logbackの設定
 
 .. tip:: \ **LTSV(Labeled Tab Separated Value)について**\
 
-  \ `LTSV <http://ltsv.org/>`_\ は、テキストデータのフォーマットの一つであり、主にログのフォーマットとして使用される。
+  \ :url_ltsv:`LTSV </>`\ は、テキストデータのフォーマットの一つであり、主にログのフォーマットとして使用される。
 
   LTSVは、
 
@@ -406,16 +406,16 @@ logback.xmlで設定するものは、次の3つになる。
 
   * - Appender
     - 概要
-  * - \ `ConsoleAppender <https://logback.qos.ch/manual/appenders.html#ConsoleAppender>`_\
+  * - \ :url_logback:`ConsoleAppender </manual/appenders.html#ConsoleAppender>`\
     - コンソール出力
-  * - \ `FileAppender <https://logback.qos.ch/manual/appenders.html#FileAppender>`_\
+  * - \ :url_logback:`FileAppender </manual/appenders.html#FileAppender>`\
     - ファイル出力
-  * - \ `RollingFileAppender <https://logback.qos.ch/manual/appenders.html#RollingFileAppender>`_\
+  * - \ :url_logback:`RollingFileAppender </manual/appenders.html#RollingFileAppender>`\
     - ファイル出力(ローリング可能)
-  * - \ `AsyncAppender <https://logback.qos.ch/manual/appenders.html#AsyncAppender>`_\
+  * - \ :url_logback:`AsyncAppender </manual/appenders.html#AsyncAppender>`\
     - 非同期出力。性能を求められる処理中のロギングに使用する。（出力先は、他のAppenderで設定する必要がある。）
 
-Appenderの詳細な種類は、\ `Logbackの公式マニュアル -Appenders- <https://logback.qos.ch/manual/appenders.html>`_\ を参照されたい。
+Appenderの詳細な種類は、\ :url_logback:`Logbackの公式マニュアル -Appenders- </manual/appenders.html>`\ を参照されたい。
 
 |
 
@@ -755,7 +755,7 @@ How to extend
       | 詳細は、\ :doc:`../../ArchitectureInDetail/WebApplicationDetail/MessageManagement`\ の\ :ref:`properties-display`\ を参照されたい。
   * - | (5)
     - | 国際化を考慮し\ ``setBasenames``\ メソッドを使用してプロパティファイルを指定する。
-      | \ ``setBasenames``\ の詳細は\ ``ResourceBundleMessageSource``\ が継承する\ ``AbstractResourceBasedMessageSource``\ クラスの\ `JavaDoc <https://docs.spring.io/spring-framework/docs/6.2.1/javadoc-api/org/springframework/context/support/AbstractResourceBasedMessageSource.html#setBasenames-java.lang.String...->`_\を参照されたい。
+      | \ ``setBasenames``\ の詳細は\ ``ResourceBundleMessageSource``\ が継承する\ ``AbstractResourceBasedMessageSource``\ クラスの\ :url_spring_javadoc:`JavaDoc </org/springframework/context/support/AbstractResourceBasedMessageSource.html#setBasenames-java.lang.String...->`\を参照されたい。
   * - | (6)
     - | Loggerラッパークラスにおいても、SLF4Jを使用する。ロギングライブラリの実装を直接使用しない。
   * - | (7)
@@ -1055,7 +1055,7 @@ Appendix
 MDCの使用
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-| \ `MDC <https://logback.qos.ch/manual/mdc.html>`_\ (Mapped Diagnostic Context)を利用することで、横断的なログ出力が可能となる。
+| \ :url_logback:`MDC </manual/mdc.html>`\ (Mapped Diagnostic Context)を利用することで、横断的なログ出力が可能となる。
 | 1リクエスト中に出力されるログに、同じ情報(ユーザー名やリクエストで一意なID)を
 | 埋め込んで出力することにより、ログのトレーサビリティが向上する。
 
@@ -1099,7 +1099,7 @@ logback.xmlの\ ``<pattern>``\ に\ ``%X{キー名}``\ 形式で出力フォー�
 
   <appender name="STDOUT" class="ch.qos.logback.core.ConsoleAppender">
       <encoder>
-          <pattern><![CDATA[date:%d{yyyy-MM-dd HH:mm:ss}\tthread:%thread\tmdcSample:%X{MDC_SAMPLE}\tlevel:%-5level\t\tmessage::%replace(%msg){'(\r\n|\r|\n)','$1  '}%n%replace(%replace(%xEx){'(\r\n|\r|\n)','$1  '}){'  $',''}%nopex]]></pattern>
+          <pattern><![CDATA[date:%d{yyyy-MM-dd HH:mm:ss}\tthread:%thread\tmdcSample:%X{MDC_SAMPLE}\tlevel:%-5level\t\tmessage::%replace(%replace(%msg){'[\p{IsControl}&&[^\t\r\n]]','<CTRL>'}){'(\r\n|\r|\n)','$1  '}%n%replace(%replace(%replace(%xEx){'[\p{IsControl}&&[^\t\r\n]]','<CTRL>'}){'(\r\n|\r|\n)','$1  '}){'  $',''}%nopex]]></pattern>
       </encoder>
   </appender>
 
@@ -1208,7 +1208,7 @@ logback.xmlの\ ``<pattern>``\ に\ ``%X{X-Track}``\ および、\ ``%X{USER}``\
       </rollingPolicy>
       <encoder>
           <charset>UTF-8</charset>
-          <pattern><![CDATA[date:%d{yyyy-MM-dd HH:mm:ss}\tthread:%thread\tUSER:%X{USER}\tX-Track:%X{X-Track}\tlevel:%-5level\tlogger:%-48logger{48}\tmessage:%replace(%msg){'(\r\n|\r|\n)','$1  '}%n%replace(%replace(%xEx){'(\r\n|\r|\n)','$1  '}){'  $',''}%nopex]]></pattern>
+          <pattern><![CDATA[date:%d{yyyy-MM-dd HH:mm:ss}\tthread:%thread\tUSER:%X{USER}\tX-Track:%replace(%X{X-Track}){'[\p{IsControl}&&[^\t\r\n]]','<CTRL>'}\tlevel:%-5level\tlogger:%-48logger{48}\tmessage:%replace(%replace(%msg){'[\p{IsControl}&&[^\t\r\n]]','<CTRL>'}){'(\r\n|\r|\n)','$1  '}%n%replace(%replace(%replace(%xEx){'[\p{IsControl}&&[^\t\r\n]]','<CTRL>'}){'(\r\n|\r|\n)','$1  '}){'  $',''}%nopex]]></pattern>
       </encoder>
   </appender>
   <!-- omitted -->
@@ -1274,7 +1274,7 @@ logback.xmlの\ ``<pattern>``\ に\ ``%X{X-Track}``\ および、\ ``%X{USER}``\
 
           .. code-block:: xml
       
-            <sec:http request-matcher="ant" >
+            <sec:http>
                 <!-- omitted -->
                 <sec:custom-filter ref="userIdMDCPutFilter" after="ANONYMOUS_FILTER"/> <!-- (1) -->
                 <!-- omitted -->
@@ -1343,6 +1343,8 @@ logback.xmlには、以下のように\ ``org.terasoluna.gfw.web.logging.HttpSes
 \ ``@SessionAttributes``\ など、Sessionを使用してオブジェクトのライフサイクルを管理している場合、本リスナーを利用して、セッションへ追加した属性が、想定通りに削除されているか確認することを、強く推奨する。
 
 |
+
+.. _LoggingTraceLoggingInterceptor:
 
 TraceLoggingInterceptor
 """"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
@@ -1462,6 +1464,91 @@ ExceptionLogger
 例外発生時のロガーとして、\ ``org.terasoluna.gfw.common.exception.ExceptionLogger``\ が提供されている。
 
 使用方法は、"\ :doc:`../WebApplicationDetail/ExceptionHandling`\ "の"\ :ref:`exception-handling-how-to-use-label`\ "を参照されたい。
+
+|
+
+.. _logging_jcl_logging:
+
+JCL(Apache Commons Logging)のログ出力について
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+| 本ガイドラインでは\ :url_slf4j:`SLF4J </>`\ + \ :url_logback:`Logback </>`\ を推奨しているが、Spring FrameworkなどのOSSはJCL 1.3(\ :url_commons_logging:`Apache Commons Logging <>`\ )を使用している場合がある。
+| 本ガイドライン推奨の設定で実装した場合、下図の(1)のようにSLF4Jが直接呼び出されるが、Spring等のJCLを使用しているOSSの場合は(2)～(8)の順番でログ実装が評価され、最初に呼び出せたログ実装が使用される。
+| また、\ :ref:`filedownload_excel`\ で紹介しているApache POIのようにApache Log4J 2を直接使用しているOSSもあるため、注意が必要である。
+
+.. figure:: ./images_Logging/logging-call-order.png
+  :width: 80%
+
+.. tabularcolumns:: |p{0.15\linewidth}|p{0.85\linewidth}|
+.. list-table::
+  :header-rows: 1
+  :widths: 15 20 65
+  :class: longtable
+
+  * - | 項番
+    - | 呼び出されるロギングAPI等
+    - | 説明
+  * - | (1)
+    - | SLF4J
+    - | 本ガイドラインの推奨設定に従う場合、SLF4JのAPIが直接呼び出される。
+  * - | (2)
+    - | システムプロパティ
+    - | 下記例のように、JCLが提供するLogやLogFactoryのFQCNに対し実装クラスを指定することで、指定された実装クラスが使用される。
+      | 例：\ ``-Dorg.apache.commons.logging.Log=org.apache.commons.logging.impl.Log4JLogger``\ 
+  * - | (3)
+    - | commons-logging.properties
+    - | 下記例のように、JCLが提供するLogやLogFactoryのFQCNに対し実装クラスを指定することで、指定された実装クラスが使用される。
+      | 例：\ ``org.apache.commons.logging.LogFactory=org.apache.commons.logging.impl.Slf4jLogFactory``\ 
+  * - | (4)
+    - | サービスプロバイダ
+    - | 下記例のように、\ ``META-INF/services``\ の配下にJCLが提供するLogやLogFactoryのFQCNをファイル名としたファイルを作成し、その中に実装したログ実装が使用される。
+      | 例：\ ``org.apache.commons.logging.impl.Log4JLogger``\ 
+  * - | (5)
+    - | Apache Log4J 2
+    - | Log4j2がクラスパス上に存在する場合は、Log4j2を使用する。
+  * - | (6)
+    - | SLF4J
+    - | SLF4Jがクラスパス上に存在する場合は、SLF4Jを使用する。
+  * - | (7)
+    - | Java Util Logging
+    - | Java標準のロギングAPIであるJULがクラスパス上に存在する場合は、JULを使用する。
+  * - | (8)
+    - | SimpleLog
+    - | (2)～(8)のいずれも存在しない場合は、コンソールログを出力するSimpleLogを使用する。
+  * - | (9)
+    - | Apache Log4J 2
+    - | Log4j2の実装が直接呼び出される。
+
+|
+
+| 依存関係にLog4j2を含んだ状態でJCL1.3が呼び出されると、ログ実装の読み込み優先順の関係でSLF4JではなくLog4j2が呼び出されてしまう。
+| この状態を回避するには、下記図のようにJCLやLog4j2のログをSLF4Jへブリッジさせる必要がある。
+
+.. figure:: ./images_Logging/logging-framework-logging.png
+  :width: 80%
+
+.. tabularcolumns:: |p{0.15\linewidth}|p{0.85\linewidth}|
+.. list-table::
+  :header-rows: 1
+  :widths: 15 20 65
+  :class: longtable
+
+  * - | 項番
+    - | 呼び出されるロギングAPI等
+    - | 説明
+  * - | (10)
+    - | commons-logging.properties
+    - | \ ``org.apache.commons.logging.LogFactory=org.apache.commons.logging.impl.Slf4jLogFactory``\ を設定することで、JCL経由のログをSLF4Jへブリッジする。
+      | 当設定はブランクプロジェクトのデフォルト設定として追加してある。ブランクプロジェクトのデフォルト設定は\ :ref:`BlankProjectSingleProjectStructure`\ /\ :ref:`BlankProjectMultiProjectConfiguration`\ を参照されたい。
+  * - | (11)
+    - | log4j-to-slf4j 
+    - | log4j-to-slf4jを依存関係に含むことで、Log4j2経由のログをSLF4Jへブリッジする。
+      | 当設定はブランクプロジェクトのデフォルト設定に含んでいないため、Apache POIなどのLog4j2に直接依存するライブラリを使用する場合に設定されたい。 
+
+.. caution::
+
+  JCL1.2系(Apache Commons Logging 1.2、Spring JCL、jcl-over-slf4j)とJCL1.3(Apache Commons Logging 1.3)はFQCNが同じであるため、依存関係に注意すること。混在している場合、クラスローダーで一番最初に見つかったライブラリが使用され、意図せぬ挙動となる可能性がある。
+
 
 .. raw:: latex
 

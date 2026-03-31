@@ -8,9 +8,9 @@ Appendix(Know How)
   Nexus
   Lombok
   Java17Settings
-  SpringToolSuite4
+  SpringToolSuite
+  AppDevInOfflineEnv
   ReferenceBooks
-  SpringComprehensionCheck
 
 .. raw:: latex
 

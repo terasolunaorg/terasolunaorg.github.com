@@ -207,7 +207,7 @@ MavenでJUnitを実行する場合は、対象プロジェクト配下に移動�
 
   設定する際には、正規表現を使って指定することもできる。
 
-  詳細は \ `maven-surefire-plugin (Regular Expression Support) <https://maven.apache.org/surefire/maven-surefire-plugin/examples/inclusion-exclusion.html>`_\ を参照されたい。
+  詳細は \ :url_maven:`maven-surefire-plugin (Regular Expression Support) </surefire/maven-surefire-plugin/examples/inclusion-exclusion.html>`\ を参照されたい。
 
 |
 
@@ -240,7 +240,7 @@ MavenでJUnitを実行する場合は、対象プロジェクト配下に移動�
 
   メソッド単位の指定は \ ``maven-surefire-plugin``\ のバージョンが2.7.3以上必要となる。
 
-  詳細は \ `maven-surefire-plugin (Running a Set of Methods in a Single Test Class) <https://maven.apache.org/surefire/maven-surefire-plugin/examples/single-test.html>`_\ を参照されたい。
+  詳細は \ :url_maven:`maven-surefire-plugin (Running a Set of Methods in a Single Test Class) </surefire/maven-surefire-plugin/examples/single-test.html>`\ を参照されたい。
 
 .. note::
 
